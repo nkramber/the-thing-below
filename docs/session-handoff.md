@@ -2,6 +2,49 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 51: 2026-09-16, Codex
+
+Author: Codex
+Session: review of PR #16 at effective head `45e960d`.
+Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: reviewer. Base: `2bc7d56`.
+
+### What this session did, and why
+
+- Read the start set, the one-PR skill, the PR review skill, the STE skill, and the review record and commit references.
+- Verified that Claude Code authored the PR from Session 50. Codex is the eligible reviewer under T-4 and D-17.
+- Recomputed the effective head as `45e960d`. It is the only commit after the base and changes substantive paths.
+- Inspected all 18 paths in the diff, the decisions D-583 to D-591, F-59, and OQ-182.
+- Found P2-1: the PR comment export can return success after an earlier GitHub retrieval fails. A shell reproduction returned 0 after a failed command and a successful command.
+- Verified the Gitar dashboard approval, its check, and the absence of review threads. Corrected the stale dashboard timestamp in the PR description.
+- The full interim STE check passes with 0 findings. `git diff --check` passes, and `AGENTS.md` and `CLAUDE.md` are identical.
+- The handoff held ten entries before this one, so Session 41 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
+- PR #16 is open on `docs/pr-16-context-budget`. Its remote head and effective head are `45e960d` before this review commit.
+- Gitar approved this head. The cross-provider review found P2-1, recorded in `docs/reviews/pr-16.md`.
+- `make verify` is unavailable because the Makefile does not exist. The direct STE and diff checks pass.
+
+### In flight
+
+PR #16 needs the author to fix P2-1 and run the regression check. The review record and this handoff entry are ready to commit and push.
+
+### Traps and gotchas
+
+- The comments export must fail if any API request fails. Otherwise a partial file can appear complete.
+- The PR description timestamp now matches the Gitar dashboard update at 21:23:53Z.
+- The review applies to effective head `45e960d`, not the metadata tip that will publish this record.
+- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 52.
+
+### Open questions that block progress
+
+None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+The author makes each failed GitHub retrieval fail the comment-export command, tests that a partial export returns nonzero, and requests a repeat Codex review after the fix.
+
 ## Session 50: 2026-09-16, Claude Code
 
 Author: Claude Code
@@ -391,52 +434,3 @@ None. P2-7 needs no owner decision. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
 ### Next concrete action
 
 The author adds PR-81 to the later-place rows of `area-art.md` and `area-effects.md`. The author also adds its battle place to the PR-81 budget exit test, updates the response file, and requests another review.
-
-## Session 41: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: the answer to the repeat review of PR #12, on branch `docs/pr-12-critic`.
-
-### What this session did, and why
-
-- The session read the repeat review of Session 40. It set P1-1 and P2-1 to P2-5 to `fixed in d31ae6b`, and it added P2-6 with the verdict `Changes required` for head `d31ae6b`.
-- The automated pass also closed its one finding and reported `Approved`.
-- P2-6 has full merit. D-56, D-244, and D-313 counted four dungeons, and D-562 called the sealed gallery "a dungeon map" with no revision of those rows.
-- The owner classified the gallery as the fifth dungeon, with the full dungeon contract (D-575). The session recommended a passage that only uses the dungeon-map format, and the owner chose a dungeon.
-- The session applied D-575: marks on D-56, D-244, D-313, D-562, and D-564, the dungeon contract in the PR-81 entry, and the count of five in the design doc, two area files, Phase 3, `docs/world/places.md`, and `docs/world/arc.md`.
-- A scan for the old count found three more rows, D-327, D-346, and D-369, and each now names D-575.
-- A fifth dungeon needs a boss, and no document named one, so OQ-180 holds that question for PR-81 (D-487).
-- `docs/reviews/pr-12-response.md` gained the answer of this round.
-- The handoff held ten entries before this one, so Session 31 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. `main` is `c4d39fe` (PR #11).
-- PR #12 is open on branch `docs/pr-12-critic`. Its remote head is the commit that holds this entry.
-- The correction changes files outside the metadata set, so the effective head moves off `d31ae6b` to the commit of this answer.
-- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-- The ids stay gap-free: D-1 to D-575, and OQ-1 to OQ-180.
-
-### In flight
-
-PR #12 waits for the repeat cross-provider review of P2-6 (T-4, D-17).
-
-- The automated pass on `6a43f1a` reported `Approved with suggestions`, with one new finding. It had merit: the plain-English paragraph of Phase 4 in `docs/design.md` still said "Four more dungeons". The session corrected it to five dungeon builds, and a scan for other forms of the count found no other current contract (D-14, D-66).
-- The correction is `0fbfa82`, the effective head. The pass on it reported `Approved`, with both of its findings closed and none open, so no comment waits for an answer.
-
-### Traps and gotchas
-
-- Region one has two hubs and five dungeons (D-575). The hanging cells count once, although the party visits them twice (D-327).
-- The order of play is the hanging cells, the deep mine, the second visit to the cells, the sealed gallery, the refuge, the mining town by night, the border fort, and the ice crossing (D-313, D-574, D-575).
-- The target of six to eight hours of D-56 stands with five dungeons. M-5 measures it, and a miss changes content in a PR of its own.
-- A revised count reaches more rows than the rows that set it. A scan for the old words reads the Effect column of every decision too.
-- A reviewer session can archive a handoff entry too. Before a session archives the oldest entry, it reads the handoff and takes the oldest session that the handoff still holds.
-- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 42.
-
-### Open questions that block progress
-
-None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
-
-### Next concrete action
-
-A Codex session repeats the review of PR #12 at the effective head `0fbfa82`. It reads the P2-6 section of `docs/reviews/pr-12-response.md`, checks the trigger and the regression check, and writes the verdict (T-4, D-17). The automated pass is complete.
