@@ -261,6 +261,17 @@ Effects terms from the roadmaps PR of 2026-09-15:
 | transition | one of the full-screen effects of D-195 that start a battle (D-191, D-196) | wipe, which names a party wipe (D-36), and screen change |
 | hit-stop | the brief freeze of the battle picture on a heavy blow (D-186) | freeze frame, hitlag |
 
+UI and input terms from the roadmaps PR of 2026-09-16:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| view | the 16:10 shape or the 16:9 shape of the frame that the player sees (D-480) | resolution, when the text means one of these two |
+| fit | the scale of the frame to the screen of the player (D-232) | scaling, and stretch, which names the Godot setting |
+| UI style file | the content file of the font sizes, the colors, and the frame drawings, which Game turns into a Godot `Theme` (D-527) | theme file, skin |
+| button prompt | the glyph of the button that a line of text names (D-222) | icon, when the text means a button |
+| notice | the one-line message that slides in at the top edge of the screen (D-221) | toast, banner |
+| window frame | the drawn border of a menu window (D-220) | panel, and border, when the text means this drawing |
+
 ## The checker
 
 Until PR-2, the Python script `docs/tools/ste-check.py` is the checker (D-10). Run it before you commit:

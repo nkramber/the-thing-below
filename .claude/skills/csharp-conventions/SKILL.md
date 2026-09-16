@@ -64,6 +64,9 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 - The camera, the CRT shader, the audio, and the input map live in `Game` and never reach `Core`.
 - No rule waits for an effect. Game counts the ticks of an effect on its fixed-step clock, and it sends a wait intent at the end where the world waits (D-266, D-522).
 - Each effect file is JSON with integer values, and a test fails a map or a battle that passes the effect budget (D-517, D-523).
+- Game draws the world in a `SubViewport` at 1x, and it builds both steps of the fit itself (D-232, F-48).
+- Game builds its `Theme` in code from the UI style file, and no `.tres` theme file exists (D-527, G-6).
+- Game loads each font from the bytes of its own assembly into `FontFile.Data`, because Godot 4.7.2 has no byte-array load method (D-508, F-49).
 - Game draws art from the atlas bytes with the Nearest filter, and no Godot resource file holds art (D-508, F-45).
 - A Godot call that reports a failure in the log alone, such as `ImageTexture.CreateFromImage`, gets a check right after it (T-2, F-45).
 - The Godot editor writes files: `project.godot`, `.csproj` target frameworks, and `.import` files. The PR review reads each one it touches.

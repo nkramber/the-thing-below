@@ -276,6 +276,7 @@ The table names the jobs that run in CI while another area file holds their cont
 | The pixel test of the render of large pictures, inside the test job | `area-art.md` | PR-55 |
 | The captures of light, particles, glow, transitions, and the CRT, inside the screen-test job | `area-effects.md` | PR-56 to PR-60, and PR-37 |
 | The test of the effect budget, inside the test job | `area-effects.md` | PR-56 |
+| The captures of the two views, and of the fit at 1080 and 1440 screen rows | `area-ui-input.md` | PR-41 and PR-61 |
 | The hash test of the rendered audio, inside the test job | `area-audio.md` | PR-38 |
 | The release workflow on a release tag | `area-release.md` | PR-31 |
 | The signature and the notarization of the macOS build | `area-release.md` | PR-40 |

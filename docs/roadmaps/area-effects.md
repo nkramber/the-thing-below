@@ -91,7 +91,7 @@ The table lists what a frame draws, from the bottom to the top.
 
 - Game draws the world, the UI, the transition, and the CRT into the frame at 1x, 1280 by 800 or the 16:9 view (D-227, D-230, D-480). The fit to the screen comes last (D-232, D-240).
 - Godot computes 2D light at the pixel size of the viewport, and the Nearest filter does not change that (the external facts above). So the frame at 1x gives light and shadows the pixel size of the art.
-- `area-ui-input.md` keeps the world in the frame at 1x under the stretch mode that it picks (F-45). Otherwise light falls on screen pixels, not on art pixels.
+- PR-61 draws the world in a `SubViewport` at 1x, and `area-ui-input.md` holds the stretch mode and the fit (F-45, F-48). Otherwise light falls on screen pixels, not on art pixels.
 - The UI sits on a canvas layer above the world, and a light reaches only the canvas layers in its range. So the UI never takes scene light (D-210).
 - A transition is full-screen, so it covers the UI too, and the CRT covers the transition (D-195, D-210).
 - OQ-101 holds whether fog draws below or above the figures (D-187).
@@ -257,7 +257,7 @@ Built by PR-37. Phase file: `phase-2-first-playable.md`.
 - The flicker has a reduced form under the flash and shake reduction (D-214).
 - The screen tests capture the toggle on and off with a fixed flicker phase (D-172, PR-41).
 - M-6 reads the text on the Deck with the CRT on (F-18). The rating Verified needs text of 9 pixels or taller (D-459).
-- `area-ui-input.md` holds the toggle in the settings.
+- PR-63 puts the toggle in the display group of the settings (D-526, `area-ui-input.md`).
 
 > *In plain English:* the whole picture looks like an old monitor, with soft curves and faint lines, and one setting turns the look off. The look runs before the picture scales, so it matches the Deck on a bigger screen.
 

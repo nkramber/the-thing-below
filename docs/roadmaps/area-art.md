@@ -100,9 +100,9 @@ Built by PR-34, and drawn by the content PRs. Phase files: every phase file.
 | Enemy in battle | 32 by 32 for a common enemy, 64 by 64 for an elite, and 96 by 96 or larger for a boss | Common enemies flip. Elites and bosses have a few frames | D-189, D-236 |
 | Portrait | 64 by 64 | One expression | D-109, D-234 |
 | Piece of a large picture | Set by the format of PR-55 | One | D-516, D-518 |
-| Window frame | A grid that stretches to any size | One | D-220 |
-| Icon for an element or a status | Set by `area-ui-input.md` | One | D-214 |
-| Glyph for a button | Set by `area-ui-input.md` | One | D-222 |
+| Window frame | 48 by 48, which Game draws as nine parts that stretch | One | D-220, `area-ui-input.md` |
+| Icon for an element or a status | 16 by 16 | One | D-214, `area-ui-input.md` |
+| Glyph for a button | 16 by 16 | One | D-222, `area-ui-input.md` |
 
 - A side view faces one way, and Game mirrors it for the other side with `flip_h` (D-199). The atlas holds no mirrored frame.
 - Both renderer families correct the normal map of a sprite that `flip_h` mirrors, so its light falls on the correct side (the external facts above).
