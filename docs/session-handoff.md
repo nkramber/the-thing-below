@@ -31,7 +31,7 @@ Session: the design-critic pass of PR #12 on the merged plan, the owner answers,
 ### State of the build
 
 - No code exists. `main` is `c4d39fe` (PR #11).
-- The branch `docs/pr-12-critic` holds twelve commits on `main`, and its remote head is the commit that holds this entry.
+- The branch `docs/pr-12-critic` sits on `main`, and its remote head is the commit that holds this entry. A count of its commits goes stale with each fix to this entry, so the entry gives none.
 - The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
 - The ids stay gap-free: D-1 to D-572, OQ-1 to OQ-179, and F-1 to F-57.
 - A check proves that the phase lists of section 7, the sequence of section 8, and the five phase sequences give the same 79 PR items. Every active id from PR-1 to PR-81 has one place, and every numbered list in `docs/roadmaps/` counts from 1.
