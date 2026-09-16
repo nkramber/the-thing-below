@@ -2,6 +2,50 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 44: 2026-09-16, Codex
+
+Author: Codex
+Session: third repeat cross-provider review of PR #12 at effective head `ff04f87`.
+
+### What this session did, and why
+
+- Read the current handoff first, then the review response, the review and STE skills, the correction diff, the affected contracts, and the PR comments.
+- Verified the provider gate under T-4 and D-17. Session 43 identifies Claude Code as the author of the substantive P2-7 correction.
+- Recomputed the effective head. `ff04f87` is the newest substantive commit. The later commits `54edbe5` and `ef5a8b0` change only review and handoff metadata.
+- Reproduced P2-7 and its regression check. The art and effects ownership rows now name PR-81 and D-575, and the PR-81 budget test now covers each map and each battle place under D-523.
+- Checked the adjacent group scopes. The PR-35 and PR-17 exclusions now include PR-81. The remaining narrower references either record historical text or give PR-81 its own row.
+- Verified the automated finding and its correction. The final pass on `ef5a8b0` confirms the four-file count, and every review thread is resolved.
+- Updated `docs/reviews/pr-12.md`, preserved the three earlier verdicts, and set the current verdict to `Ready for owner merge` for `ff04f87`.
+- Corrected the stale other-provider checkbox in the PR description after the verdict became current.
+- The handoff held ten entries before this one, so Session 34 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. The target tip of `main` is `6910017`, and the PR merge base is `c4d39fe`.
+- PR #12 is open on branch `docs/pr-12-critic`. Before this review commit, its remote tip is `ef5a8b0`, and its effective head is `ff04f87`.
+- The interim STE check passes with 0 findings, both diff checks are clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- GitHub reports no check run. The automated pass reports approval with three closed findings and no open finding.
+
+### In flight
+
+PR #12 is ready for owner merge. The review record applies to effective head `ff04f87` (T-4, D-17).
+
+### Traps and gotchas
+
+- The verdict covers the effective head `ff04f87`, not the later metadata tip.
+- D-523 applies the effect budget to each map and each battle place. The boss of a one-map dungeon still creates a battle place.
+- A new PR that joins a named group must join its ownership tables and its scope limits.
+- OQ-180 blocks PR-81, not PR #12.
+- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 45.
+
+### Open questions that block progress
+
+None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### Next concrete action
+
+The owner can merge PR #12.
+
 ## Session 43: 2026-09-16, Claude Code
 
 Author: Claude Code

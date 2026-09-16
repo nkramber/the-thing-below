@@ -2,6 +2,47 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 54: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the repeat review of PR #16, in the same conversation as Sessions 50 and 52 (D-582).
+Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: author. Base: `2bc7d56`.
+
+### What this session did, and why
+
+- The owner asked the session to address the review feedback again. The repeat review of Session 53 set P2-1 to fixed and gave `Blocked` for head `d2479ce`, with P2-2 open.
+- Before that review, a manual Gitar review approved `d2479ce` with 0 findings. The first wait stopped at the "On it" reply, and the second at the new dashboard comment, which had a new id.
+- P2-2 has partial merit. The runbook block commits in a plain run with dated records alone. It made no commit under `set -e`, or with the `files=` line joined by `&&`, in bash and in zsh. Both providers ran it in a joined form.
+- The filter now treats a `grep` status of 1 as an empty list, and a status of 2 still fails (D-585, T-2). The regression check fails on the old text under `set -e` and passes on the new text in each of the eight runs. A checker finding still stops the commit.
+- The stale Gitar review has full merit, and a new request follows this push. The absent check runs have no merit as a blocker, because PR-1 and later PRs create the checks (G-16).
+- `docs/reviews/pr-16-response.md` records both answers.
+- The handoff held ten entries before this one, so Session 44 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
+- PR #16 is open on branch `docs/pr-16-context-budget`. The commit that holds this entry changes the runbook, so it is the new effective head.
+- The full interim STE check gives 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #16 waits for a current Gitar review of the new head, then the repeat Codex review of P2-2 (T-4, D-17).
+
+### Traps and gotchas
+
+- A review commit makes the Gitar review of the effective head stale for the branch head. The author requests a new Gitar review after its next push.
+- A shell run with `set -e` stops at a command substitution that returns nonzero. Test runbook commands in the plain form and under `set -e`.
+- Gitar can replace the dashboard comment with a new id. Read the newest dashboard comment in each check.
+- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 55.
+
+### Open questions that block progress
+
+None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+The author gets a current Gitar review of the new head and answers each finding. Then the Codex reviewer repeats the review of P2-2.
+
 ## Session 53: 2026-09-16, Codex
 
 Author: Codex
@@ -393,47 +434,3 @@ None for PR #13. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
 ### Next concrete action
 
 Get a current gitar review of PR #13 and answer each finding under the `gitar-review` skill. Apply the `review-override` label after the pass approves the head. Then the owner merges.
-
-## Session 44: 2026-09-16, Codex
-
-Author: Codex
-Session: third repeat cross-provider review of PR #12 at effective head `ff04f87`.
-
-### What this session did, and why
-
-- Read the current handoff first, then the review response, the review and STE skills, the correction diff, the affected contracts, and the PR comments.
-- Verified the provider gate under T-4 and D-17. Session 43 identifies Claude Code as the author of the substantive P2-7 correction.
-- Recomputed the effective head. `ff04f87` is the newest substantive commit. The later commits `54edbe5` and `ef5a8b0` change only review and handoff metadata.
-- Reproduced P2-7 and its regression check. The art and effects ownership rows now name PR-81 and D-575, and the PR-81 budget test now covers each map and each battle place under D-523.
-- Checked the adjacent group scopes. The PR-35 and PR-17 exclusions now include PR-81. The remaining narrower references either record historical text or give PR-81 its own row.
-- Verified the automated finding and its correction. The final pass on `ef5a8b0` confirms the four-file count, and every review thread is resolved.
-- Updated `docs/reviews/pr-12.md`, preserved the three earlier verdicts, and set the current verdict to `Ready for owner merge` for `ff04f87`.
-- Corrected the stale other-provider checkbox in the PR description after the verdict became current.
-- The handoff held ten entries before this one, so Session 34 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. The target tip of `main` is `6910017`, and the PR merge base is `c4d39fe`.
-- PR #12 is open on branch `docs/pr-12-critic`. Before this review commit, its remote tip is `ef5a8b0`, and its effective head is `ff04f87`.
-- The interim STE check passes with 0 findings, both diff checks are clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-- GitHub reports no check run. The automated pass reports approval with three closed findings and no open finding.
-
-### In flight
-
-PR #12 is ready for owner merge. The review record applies to effective head `ff04f87` (T-4, D-17).
-
-### Traps and gotchas
-
-- The verdict covers the effective head `ff04f87`, not the later metadata tip.
-- D-523 applies the effect budget to each map and each battle place. The boss of a one-map dungeon still creates a battle place.
-- A new PR that joins a named group must join its ownership tables and its scope limits.
-- OQ-180 blocks PR-81, not PR #12.
-- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 45.
-
-### Open questions that block progress
-
-None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
-
-### Next concrete action
-
-The owner can merge PR #12.
