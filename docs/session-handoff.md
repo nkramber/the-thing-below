@@ -2,6 +2,46 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 52: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the review of PR #16, in the same conversation as Session 50 (D-582).
+Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: author. Base: `2bc7d56`.
+
+### What this session did, and why
+
+- The owner asked the session to address the review feedback. The Codex review of Session 51 gave `Changes required` for head `45e960d`, with one finding, P2-1.
+- Before the review, the session requested a manual Gitar review of `45e960d`. It waited with the one wait command of D-586 two times: the first wait stopped at the placeholder comment, and the second at the review. Gitar approved with 0 findings and 0 threads.
+- P2-1 has full merit. The comment export of `docs/runbooks/session-context.md` returned 0 and left a comments file after a failed GitHub call. A fake `gh` reproduced it in bash and in zsh.
+- The export now runs in one `&&` chain into a part file, renames the file only after every call passes, and fails with a message otherwise (T-2, D-589). The regression check fails on the old runbook text and passes on the new text in both shells. The real `gh` run saved three comments.
+- `docs/reviews/pr-16-response.md` records the answer.
+- The handoff held ten entries before this one, so Session 42 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
+- PR #16 is open on branch `docs/pr-16-context-budget`. The commit that holds this entry changes the runbook, so it is the new effective head.
+- The full interim STE check gives 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #16 waits for a current Gitar review of the new head, then the repeat Codex review of P2-1 (T-4, D-17).
+
+### Traps and gotchas
+
+- The first Gitar comment after a request can be a placeholder with the pause note and a spinner. Wait again with `since` at its time (D-586).
+- The review commit of Session 51 came from the same checkout. `git fetch` alone did not show it, because the local branch already held it.
+- The push line of `docs/reviews/pr-16.md` holds the placeholder `<review metadata sha>`. The response file asks the reviewer to correct it.
+- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 53.
+
+### Open questions that block progress
+
+None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+The author gets a current Gitar review of the new head and answers each finding. Then the Codex reviewer repeats the review of P2-1.
+
 ## Session 51: 2026-09-16, Codex
 
 Author: Codex
@@ -391,46 +431,3 @@ None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
 ### Next concrete action
 
 A Codex session repeats the review of PR #12 at the effective head `ff04f87`. It reads the P2-7 section of `docs/reviews/pr-12-response.md`, checks the trigger and the regression check, and writes the verdict (T-4, D-17).
-
-## Session 42: 2026-09-16, Codex
-
-Author: Codex
-Session: second repeat cross-provider review of PR #12 at effective head `0fbfa82`.
-
-### What this session did, and why
-
-- Read the current handoff first, then the review response, the review and STE skills, the correction diff, the changed contracts, and the PR comments.
-- Verified the provider gate under T-4 and D-17. Session 41 identifies Claude Code as the author of the D-575 correction.
-- Recomputed the effective head. `0fbfa82` is the newest substantive commit, and `74f9477` changes only the handoff metadata.
-- Reproduced P2-6 and its regression check. D-575 fixes the dungeon count and classification in the decisions, design, roadmaps, and world files.
-- Found one new adjacent contract defect, P2-7. The PR-81 budget test omits its boss battle place, and the art and effects tables omit PR-81.
-- Updated `docs/reviews/pr-12.md`, preserved both earlier verdicts, and set the current verdict to `Changes required` for `0fbfa82`.
-- Corrected the stale PR title, the automated-pass checkbox, and the D-# and OQ-# ranges in the PR description.
-- The handoff held ten entries before this one, so Session 32 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. The target tip of `main` is `6910017`, and the PR merge base is `c4d39fe`.
-- PR #12 is open on branch `docs/pr-12-critic`. Before this review commit, its remote tip is `74f9477`, and its effective head is `0fbfa82`.
-- The interim STE check passes with 0 findings, both diff checks are clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-- GitHub reports no check run. The automated pass reports approval with two closed findings and no open finding.
-
-### In flight
-
-PR #12 needs the P2-7 roadmap correction, then another repeat cross-provider review at the new effective head.
-
-### Traps and gotchas
-
-- A full dungeon contract reaches the phase file and each affected area ownership table.
-- D-523 requires the effect-budget test for every map and battle place. A boss adds a battle place even when the place has one map.
-- P2-6 stays fixed. The next correction must not reopen the five-dungeon count or the order of play.
-- OQ-180 blocks PR-81, not PR #12. D-487 permits a future PR question in the roadmap.
-- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 43.
-
-### Open questions that block progress
-
-None. P2-7 needs no owner decision. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
-
-### Next concrete action
-
-The author adds PR-81 to the later-place rows of `area-art.md` and `area-effects.md`. The author also adds its battle place to the PR-81 budget exit test, updates the response file, and requests another review.

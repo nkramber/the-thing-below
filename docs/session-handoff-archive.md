@@ -2,6 +2,49 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 42: 2026-09-16, Codex
+
+Author: Codex
+Session: second repeat cross-provider review of PR #12 at effective head `0fbfa82`.
+
+### What this session did, and why
+
+- Read the current handoff first, then the review response, the review and STE skills, the correction diff, the changed contracts, and the PR comments.
+- Verified the provider gate under T-4 and D-17. Session 41 identifies Claude Code as the author of the D-575 correction.
+- Recomputed the effective head. `0fbfa82` is the newest substantive commit, and `74f9477` changes only the handoff metadata.
+- Reproduced P2-6 and its regression check. D-575 fixes the dungeon count and classification in the decisions, design, roadmaps, and world files.
+- Found one new adjacent contract defect, P2-7. The PR-81 budget test omits its boss battle place, and the art and effects tables omit PR-81.
+- Updated `docs/reviews/pr-12.md`, preserved both earlier verdicts, and set the current verdict to `Changes required` for `0fbfa82`.
+- Corrected the stale PR title, the automated-pass checkbox, and the D-# and OQ-# ranges in the PR description.
+- The handoff held ten entries before this one, so Session 32 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. The target tip of `main` is `6910017`, and the PR merge base is `c4d39fe`.
+- PR #12 is open on branch `docs/pr-12-critic`. Before this review commit, its remote tip is `74f9477`, and its effective head is `0fbfa82`.
+- The interim STE check passes with 0 findings, both diff checks are clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- GitHub reports no check run. The automated pass reports approval with two closed findings and no open finding.
+
+### In flight
+
+PR #12 needs the P2-7 roadmap correction, then another repeat cross-provider review at the new effective head.
+
+### Traps and gotchas
+
+- A full dungeon contract reaches the phase file and each affected area ownership table.
+- D-523 requires the effect-budget test for every map and battle place. A boss adds a battle place even when the place has one map.
+- P2-6 stays fixed. The next correction must not reopen the five-dungeon count or the order of play.
+- OQ-180 blocks PR-81, not PR #12. D-487 permits a future PR question in the roadmap.
+- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 43.
+
+### Open questions that block progress
+
+None. P2-7 needs no owner decision. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### Next concrete action
+
+The author adds PR-81 to the later-place rows of `area-art.md` and `area-effects.md`. The author also adds its battle place to the PR-81 budget exit test, updates the response file, and requests another review.
+
 ## Session 41: 2026-09-16, Claude Code
 
 Author: Claude Code

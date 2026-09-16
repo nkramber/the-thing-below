@@ -86,20 +86,21 @@ echo "gitar comment after $since: ${found:-none in 300 s}"
 
 ## Evidence for a review
 
-Save the PR comments to one file with one command, then read that file (D-589). Read the diff in stages, and list each path of the stat in the review record.
+Save the PR comments to one file with one command, then read that file (D-589). When any GitHub call fails, the command fails and leaves no comments file (T-2). Read the diff in stages, and list each path of the stat in the review record.
 
 ```bash
 repo=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 n=<number>
-dir="${TMPDIR:-/tmp}/the-thing-below-pr-$n"; mkdir -p "$dir"
-{ gh pr view "$n" --json title,body,headRefOid,baseRefOid
-  gh api --paginate "repos/$repo/issues/$n/comments" \
-    --jq '.[] | "## \(.user.login) \(.created_at) \(.updated_at)\n\(.body)\n"'
-  gh api --paginate "repos/$repo/pulls/$n/reviews" \
-    --jq '.[] | "## review \(.user.login) \(.state) \(.submitted_at)\n\(.body)\n"'
-  gh api --paginate "repos/$repo/pulls/$n/comments" \
-    --jq '.[] | "## \(.user.login) \(.path):\(.line) \(.created_at)\n\(.body)\n"'
-} > "$dir/comments.md"
+dir="${TMPDIR:-/tmp}/the-thing-below-pr-$n"; mkdir -p "$dir"; rm -f "$dir/comments.md" "$dir/part.md"
+gh pr view "$n" --json title,body,headRefOid,baseRefOid > "$dir/part.md" \
+  && gh api --paginate "repos/$repo/issues/$n/comments" \
+    --jq '.[] | "## \(.user.login) \(.created_at) \(.updated_at)\n\(.body)\n"' >> "$dir/part.md" \
+  && gh api --paginate "repos/$repo/pulls/$n/reviews" \
+    --jq '.[] | "## review \(.user.login) \(.state) \(.submitted_at)\n\(.body)\n"' >> "$dir/part.md" \
+  && gh api --paginate "repos/$repo/pulls/$n/comments" \
+    --jq '.[] | "## \(.user.login) \(.path):\(.line) \(.created_at)\n\(.body)\n"' >> "$dir/part.md" \
+  && mv "$dir/part.md" "$dir/comments.md" && echo "saved: $dir/comments.md" \
+  || { rm -f "$dir/part.md"; echo "comment export failed, no comments file" >&2; false; }
 
 git diff --stat <merge base>...<head>
 git diff <merge base>...<head> -- <path>
