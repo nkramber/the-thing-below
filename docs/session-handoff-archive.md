@@ -2,6 +2,48 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 45: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: PR #13, the link from the guidance to the new `gitar-review` skill, on branch `docs/pr-13-gitar-review`.
+
+### What this session did, and why
+
+- The owner added the shared skill `.claude/skills/gitar-review/SKILL.md` and asked that `pr-review` and the other guidance link to it, with no copy of its procedure and no wrong text.
+- The skill adds the proof that a review is current. The older text in `CLAUDE.md` and `pr-review` asked for `Gitar review` only on a pause, and it did not check that the review covers the head.
+- `CLAUDE.md` and `AGENTS.md`: the skill list names `gitar-review`. The section "Automated review pass" points to the skill and keeps only the rules of this repo. The PR gate line asks for a current review.
+- `pr-review`: the section "The automated pass" points to the skill and keeps the rules of this repo. The reviewer checks with the read commands of the skill that the pass is current.
+- `.github/pull_request_template.md`: the gitar line asks for a current review.
+- The commit adds the skill file as the owner wrote it. It passes the STE check with 0 findings.
+- The owner answered two questions. No decision row records the skill, so `docs/decisions.md` stays as it is. The repo keeps the spelling `gitar`, and the shared skill keeps `Gitar`.
+- The handoff held ten entries before this one, so Session 35 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `b292624` (PR #12).
+- PR #13 is open on branch `docs/pr-13-gitar-review`. Its head is the commit that holds this entry.
+- The interim STE check passes with 0 findings, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #13 waits for a current gitar review under the `gitar-review` skill. It changes paths in the override set alone and no decision row, so the session applies the `review-override` label after the pass approves the head (D-16, D-67, D-401).
+
+### Traps and gotchas
+
+- The `gitar-review` skill is the same file in each repo. Do not edit it here. Put a rule of this repo in `CLAUDE.md` or `pr-review`.
+- A rule of this repo wins over the skill. Step 20 of the skill tells the owner that the PR is ready to merge. Here the PR goes to the other provider, or it takes the label.
+- The D-14 row still names the pause as the trigger for `Gitar review`. The owner chose no decision row, so the skill carries the wider trigger.
+- The dated records keep the old procedure text. Do not correct them.
+- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 46.
+
+### Open questions that block progress
+
+None for PR #13. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### Next concrete action
+
+Get a current gitar review of PR #13 and answer each finding under the `gitar-review` skill. Apply the `review-override` label after the pass approves the head. Then the owner merges.
+
 ## Session 44: 2026-09-16, Codex
 
 Author: Codex

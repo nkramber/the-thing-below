@@ -2,6 +2,46 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 55: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat review of PR #16 at effective head `e3e6611`, after the owner confirmed Gitar approval.
+Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: reviewer. Base: `2bc7d56`.
+
+### What this session did, and why
+
+- Read the current handoff and the repeat-review, review-record, commit, and STE instructions.
+- Verified that the local branch and fetched remote branch both point to `e3e6611`. This commit changes the runbook, so it is the effective head.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviews it (T-4, D-17).
+- Reproduced P2-2 in a scratch repository under `set -e`. The corrected command committed review and handoff records with no eligible STE file.
+- Set P2-2 to fixed in `e3e6611`. The full interim STE check, diff check, and identity check pass.
+- The owner confirmed Gitar approval of the current changes. GitHub API access failed, so the dashboard comment and check query could not be read independently.
+- Updated `docs/reviews/pr-16.md`, preserved the earlier verdicts, and set the current verdict to `Ready for owner merge` for `e3e6611`.
+
+### State of the build
+
+- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
+- PR #16 is open on `docs/pr-16-context-budget`. Before this metadata commit, the remote head is `e3e6611` and the effective head is `e3e6611`.
+- The current verdict is `Ready for owner merge`, based on the fixed findings and the owner's Gitar confirmation.
+
+### In flight
+
+The review record and this entry need one commit and a push to PR #16.
+
+### Traps and gotchas
+
+- GitHub API access failed during this session. The owner confirmed the current Gitar approval.
+- The remote fetch succeeded. The PR page and comment API did not respond.
+- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 56.
+
+### Open questions that block progress
+
+None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Commit the review record and this handoff entry. Push them to PR #16 and verify the remote head.
+
 ## Session 54: 2026-09-16, Claude Code
 
 Author: Claude Code
@@ -392,45 +432,3 @@ None for PR #14. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 ### Next concrete action
 
 A new clean Codex session reviews PR #14 at its effective head under the `pr-review` skill (T-4, D-17). Then the owner merges.
-
-## Session 45: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: PR #13, the link from the guidance to the new `gitar-review` skill, on branch `docs/pr-13-gitar-review`.
-
-### What this session did, and why
-
-- The owner added the shared skill `.claude/skills/gitar-review/SKILL.md` and asked that `pr-review` and the other guidance link to it, with no copy of its procedure and no wrong text.
-- The skill adds the proof that a review is current. The older text in `CLAUDE.md` and `pr-review` asked for `Gitar review` only on a pause, and it did not check that the review covers the head.
-- `CLAUDE.md` and `AGENTS.md`: the skill list names `gitar-review`. The section "Automated review pass" points to the skill and keeps only the rules of this repo. The PR gate line asks for a current review.
-- `pr-review`: the section "The automated pass" points to the skill and keeps the rules of this repo. The reviewer checks with the read commands of the skill that the pass is current.
-- `.github/pull_request_template.md`: the gitar line asks for a current review.
-- The commit adds the skill file as the owner wrote it. It passes the STE check with 0 findings.
-- The owner answered two questions. No decision row records the skill, so `docs/decisions.md` stays as it is. The repo keeps the spelling `gitar`, and the shared skill keeps `Gitar`.
-- The handoff held ten entries before this one, so Session 35 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. `main` is `b292624` (PR #12).
-- PR #13 is open on branch `docs/pr-13-gitar-review`. Its head is the commit that holds this entry.
-- The interim STE check passes with 0 findings, and `CLAUDE.md` and `AGENTS.md` stay identical.
-
-### In flight
-
-PR #13 waits for a current gitar review under the `gitar-review` skill. It changes paths in the override set alone and no decision row, so the session applies the `review-override` label after the pass approves the head (D-16, D-67, D-401).
-
-### Traps and gotchas
-
-- The `gitar-review` skill is the same file in each repo. Do not edit it here. Put a rule of this repo in `CLAUDE.md` or `pr-review`.
-- A rule of this repo wins over the skill. Step 20 of the skill tells the owner that the PR is ready to merge. Here the PR goes to the other provider, or it takes the label.
-- The D-14 row still names the pause as the trigger for `Gitar review`. The owner chose no decision row, so the skill carries the wider trigger.
-- The dated records keep the old procedure text. Do not correct them.
-- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 46.
-
-### Open questions that block progress
-
-None for PR #13. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
-
-### Next concrete action
-
-Get a current gitar review of PR #13 and answer each finding under the `gitar-review` skill. Apply the `review-override` label after the pass approves the head. Then the owner merges.
