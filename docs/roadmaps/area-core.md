@@ -229,6 +229,8 @@ The systems that later areas add to Core are below. Each area file confirms its 
 | Hub services | `area-exploration.md` | PR-14 |
 | Scene choices | `area-story.md` | PR-36 |
 | Dungeon parts, downs, and save points | `area-exploration.md` | PR-16 |
+| Traps, hazards, and the statuses that last on the map | `area-exploration.md` | PR-64 |
+| The shop and the gold economy | `area-exploration.md` | PR-65 |
 | The region map | `area-exploration.md` | PR-35 |
 | Story flags and branches | `area-story.md` | PR-18 |
 | Quests and personal tasks | `area-story.md` | PR-19 |

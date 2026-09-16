@@ -353,3 +353,33 @@ How to file a question (D-19, D-24):
 113. **OQ-113. The notice log.** An important notice also lands in a log in the menu (D-221). Which notices does the log keep, and how many? Raised 2026-09-16. Blocks PR-62.
     - The notices that content marks as important, with the last 50, the recommendation. The log stays short and readable, and the snapshot holds it (D-166). Content must mark each notice.
     - Every notice of the run, with no limit. No notice ever leaves the log. The log grows through a long run, and each entry joins the save.
+114. **OQ-114. The rule of sight.** The party sees part of a map, and a patrol sees the party (D-37). The fog covers each tile that the party never saw. What rule decides what each one sees? Raised 2026-09-16. Blocks PR-7 and PR-8.
+    - A line from tile to tile, with a range, the recommendation. A wall stops the line, and the rule is the same for the party and for a patrol. The rule costs more time as the range grows, and the bots measure it (M-4).
+    - A cone in front of the facing, with a range. A patrol behind the party sees nothing, which rewards a sneak. The party then needs a second rule for its own sight, because it sees every way.
+115. **OQ-115. How a large enemy holds its tiles.** An elite holds two by two tiles, and a boss three by three (D-206). Godot sorts each sprite by one Y value (the external facts of `area-exploration.md`). Which tile of the body carries the sight, the block, and the sort? Raised 2026-09-16. Blocks PR-8.
+    - The front row of the body, the recommendation. The body blocks every tile that it holds, and its sort value comes from its front row. It then draws in front of what it stands before. A rule must keep the whole body inside the area of D-209.
+    - The center tile. One tile carries the sight, the block, and the sort. A three-tile body then draws behind a tile that it covers.
+116. **OQ-116. What the fog remembers.** The fog covers each tile that the party never saw (PR-7). The save holds a snapshot of the state (D-259). What does the fog keep, and where? Raised 2026-09-16. Blocks PR-7 and PR-43.
+    - One bit for each tile of each map that the party entered, in the snapshot, the recommendation. The map screen of D-218 draws it, and a load brings it back. The snapshot grows with each map that the party sees.
+    - The fog clears on each new visit to a map. The snapshot stays small. A player who leaves a dungeon loses the map of it, against D-218.
+117. **OQ-117. A diagonal step.** The party moves tile by tile with the arrows, the pad, or the stick (D-84, D-106). Can a step go diagonally? Raised 2026-09-16. Blocks PR-7.
+    - No, four ways alone, the recommendation. The sight, the patrol routes, and the step cost stay simple, and a corner never cuts through a wall. Movement feels stiffer.
+    - Yes, eight ways, with no cut through a corner of a wall. Movement feels smoother. Every rule of distance, sight, and patrol needs the diagonal case and its tests.
+118. **OQ-118. The camera on a small map.** A map smaller than the view sits centered (PR-7). Godot centers it, and no page of its docs states that (F-52). Who computes the limits? Raised 2026-09-16. Blocks PR-7.
+    - Godot, with a test that locks the behavior, the recommendation. Game sets the four limits from the size of the map, and a screen test proves the centered picture. A new Godot version can change the behavior, and the test then fails.
+    - Game, with its own rule. Game computes the position of the camera and never uses the limits. Nothing depends on an undocumented behavior, and Game holds more camera code.
+119. **OQ-119. What a trap does.** A dungeon holds traps and hazards (D-41), and a Theft drill reveals and disarms a trap (D-386). What does a trap do when it fires? Raised 2026-09-16. Blocks PR-64.
+    - Damage or a status on the three who fight, from the content of the trap, the recommendation. A trap uses the rules that already exist for damage and statuses (D-43, D-390). A trap that downs a character costs the rest of the dungeon (D-36).
+    - Damage, a status, or an encounter, where the map says which. A trap can also call the guards, which fits the fort and the cells. The encounter case needs its own rules and bot tests.
+120. **OQ-120. The hazards of region one.** A hazard is part of the place, not a trap that somebody set (D-41). Which hazards does region one hold? Raised 2026-09-16. Blocks PR-64.
+    - Three, the recommendation: deep snow that slows a step, ice that slides a step, and bad air in the mine. The bad air hurts each tick. Each fits a place of region one (D-153, D-244). Each needs its own rule and its own tests.
+    - One, bad air in the mine alone. The work stays small. The ice crossing and the pass then hold no hazard of their own.
+121. **OQ-121. The shop.** A shop buys and sells gear, items, and some lessons for gold (D-60, D-365). What are its rules? Raised 2026-09-16. Blocks PR-65.
+    - A price for each item in content, a sale at half that price, and a fixed stock for each shop, the recommendation. The prices stay authored, and PR-30 tunes them. A shop that sells out needs a rule for its stock.
+    - A price in content, a sale at half, and a stock that never runs out. The rules are the simplest. A player can buy every item at once with enough gold.
+122. **OQ-122. The region map.** The party moves node to node on the region map, and a story flag opens or closes a route (D-113, D-329). What form does the content take, and what does a route cost? Raised 2026-09-16. Blocks PR-35.
+    - One rule file for each region, with its nodes and its routes, and a route that costs nothing, the recommendation. No clock runs (D-442), so travel takes no time. The map of a region is one file to author and review.
+    - One rule file for each region, and a route that can change the time of day of the place it reaches. The story gains a lever for night arrivals. The rule meets D-442, so each route needs care in review.
+123. **OQ-123. How the player finds a secret.** A dungeon holds hidden rooms and secret markers (D-41). How does the player find one? Raised 2026-09-16. Blocks PR-21.
+    - A look at a wall that the map marks, the recommendation. The player presses the confirm button at a marked wall, and the room opens. A player who never presses at a wall finds nothing.
+    - A Theft drill reveals each secret within a range, as it reveals a trap (D-386). Theft gains a second use on the map. A party with no Theft drill finds no secret.
