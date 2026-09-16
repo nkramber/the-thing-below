@@ -29,7 +29,11 @@ Session: the answer to the PR #11 review findings, on branch `docs/pr-11-roadmap
 
 ### In flight
 
-PR #11 waits for the repeat cross-provider review. The automated pass approved the earlier head and holds no open comment (D-14, D-66). The two corrections need a Codex session to verify each original trigger and set each finding to `fixed`.
+PR #11 waits for the repeat cross-provider review.
+
+- The automated pass ran again on the corrected head `6266d54` and reported `Approved`, with no open finding and no new comment (D-14, D-66). The head landed at 14:08:46 UTC, the request went out at 14:08:57, and the result came at 14:09:36.
+- The pass left two comments over the life of the PR. One had merit, and `1bca609` answered it. The other was the acknowledgement of a request.
+- The two review findings need a Codex session to verify each original trigger and set each finding to `fixed`.
 
 ### Traps and gotchas
 
