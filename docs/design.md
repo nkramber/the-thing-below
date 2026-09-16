@@ -52,6 +52,8 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-16 progression area pass: PR-12 splits, and PR-67 takes the character level, the experience, and MP (D-536). Each character carries its own stat curve in content, which closes the gap that F-54 records (D-537). The quest state of PR-19 holds every personal task (D-538), and each lesson lists its named forms with their point totals (D-539).
 
+2026-09-16 story area pass: Core runs each scene, and Game draws it and sends a wait intent (D-540). PR-36 splits, and PR-68 takes the scene format and the scene runner (D-541). A story flag is a name that is on or off, and one condition form serves every reader (D-542, D-543). PR-68 also takes the flag set, and PR-50 lands right after it (D-544, D-545). F-55 records the gap that put the flags one phase after their first reader.
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -154,12 +156,12 @@ From the roadmap interview of 2026-09-12:
 | Evaluator and profiles | Core | battle state, enemy profile | enemy actions | High. The largest single system (D-65) |
 | Lessons, aptitudes, and levels | Core | lesson content, experience | character state | High. The build decision (D-34, D-272, D-274) |
 | Gear and items | Core | item content, inventory | equipment state | Medium (D-44, D-45) |
-| Story flags and quests | Core | scene and decision content, choices | flags, hub state | High. Branches multiply (D-40, D-59, D-329) |
+| Story flags, scenes, and quests | Core | scene content, conditions, choices | flags, scene state, quest state, hub state | High. Branches multiply (D-40, D-59, D-329). Core runs each scene and holds its step index, and one condition form serves every reader (D-540, D-542, D-543) |
 | Hub services and the region map | Core | hub content, route content, gold | party, saves, position | Medium (D-59, D-113) |
 | Debug assembly | Debug assembly | debug intents | Core state, through the seam of D-260 | High. A release build never loads it (D-260) |
 | Save, record, crash, and log files | Storage | record bytes, snapshot bytes, crash context, log entries | save files, record files, crash files, log files | High. A torn write loses a save (D-178, D-494) |
 | Map scene, battle scene, hub scene, scene runner | Game | Core state, content from the Game assembly, the atlas and its index, large pictures, edge files, string table | screen, intents | Medium. Cosmetic by design (D-106, D-111, D-114, D-501). Player text reaches the screen through the text helper (D-499). The content bytes come from the Game assembly (D-508). Art draws with the Nearest filter, and an art file names the content ids that it draws (D-519, F-45) |
-| Dialogue box and portraits | Game | scene content, string table | screen | Medium (D-109) |
+| Dialogue box and portraits | Game | Core scene state, string table | screen, wait intents, choice intents | Medium (D-109). Game draws each scene step and sends a wait intent when it ends (D-540) |
 | CRT shader and the frame | Game | settings | screen | Medium. The Deck floor and the two views (D-105, D-228, D-480) |
 | Light, particles, glow, and transitions | Game | effect files, light setups, normal maps, the effect budget, Core state | screen, wait intents | Medium. The effect budget of the Deck test holds them inside 60 frames per second, and no rule waits for an effect (D-139, D-160, D-182, D-183, D-522, D-523) |
 | Crash file and replay viewer | Game | run record, crash file | screen, and a crash file through Storage | High. The crash report, and a viewer in development builds alone (D-170, D-175, D-494) |
@@ -251,6 +253,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-52 | The camera meets two facts that no page of the docs states. When the limit rectangle is smaller than the view, the camera centers the view: the source reads "Split the difference horizontally (center it)". The gate of PR-7 for a small map rests on that source alone. The same function carries a FIXME: "smoothing is not currently applied only once per frame / tick, which will result in some haphazard results". The docs add that the position of the node "doesn't represent the actual position of the screen". Sources: the external facts of `docs/roadmaps/area-exploration.md`, read 2026-09-16 | 2026-09-16 | ⚠ Binds PR-7: a test locks the centering of a small map, and Game moves the camera from the tick of Core, never from the smoothing of Godot (D-203) |
 | F-53 | D-534 takes an evaluator that simulates each legal action and the strongest reply of the other side, and no measurement of its cost exists. The cost grows with the count of legal actions times the replies. The same code runs on the Deck at 60 frames per second (D-161), and a night plays fourteen thousand runs through it (D-507). The plan holds no number until M-3, M-4, and M-6 | 2026-09-16 | ⚠ Binds PR-11: the PR reports the count of legal actions and the time of a turn before Gate 2, and a miss changes the depth or the profiles (G-14) |
 | F-54 | The end of the job system left the stats of a character with no source. D-34 gives the character level "for stats", and D-77 gave the rest to job multipliers. D-268 removed the jobs, and no later row replaced those multipliers. No PR could set the health, the MP, the attack, the defense, or the speed of a character | 2026-09-16 | ✅ doc. D-537: each character carries its own stat curve in content, and PR-30 balances the eight curves against the M-4 band |
+| F-55 | A scene step can set a story flag (D-173), and the scene runner lands in Phase 2. PR-18, which defines the flags and the condition form, sat in Phase 3. PR-14 and PR-35 also read a condition in Phase 2, for a hub line and a closed route (D-59, D-113) | 2026-09-16 | ✅ doc. D-544: PR-68 takes the flag set and the condition form with the scene runner, and PR-18 keeps the branches and the choice effects. ⚠ Binds PR-68 |
 
 ## 6. Guardrails (the safety contract for every PR)
 

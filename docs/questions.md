@@ -443,3 +443,39 @@ How to file a question (D-19, D-24):
 143. **OQ-143. What a rarity tier changes.** Items come in a few rarity tiers (D-45). What does a tier mean in play? Raised 2026-09-16. Blocks PR-13.
     - The place of the item alone, the recommendation. A rare item sits behind a boss, a puzzle, or a secret, and its numbers need no rule. The tier is then a note for the author, not a rule in Core.
     - The place and a color in the menu. The player reads the value of a find at a glance. The color needs a palette key and a rule for each tier (D-181).
+144. **OQ-144. The step list of a scene script.** D-173 names move, face, wait, say, choose, and set flag. Core runs each step (D-540). What is the full list? Raised 2026-09-16. Blocks PR-68.
+    - The six steps of D-173, plus show, hide, camera, and start battle, the recommendation. The arc of region one needs each one: people enter and leave, the view moves, and the bishop fight follows a scene (D-319). Ten steps make a larger schema and ten tests.
+    - The six steps of D-173 alone. The schema stays small, and every scene reads the same way. A scene then cannot bring a character on screen or start a fight, so the map file must do both.
+145. **OQ-145. How a step that takes time ends.** Game sends a wait intent when a move or a line ends (D-540). A wait step shows nothing. What sets its length? Raised 2026-09-16. Blocks PR-68.
+    - Content names a length in ticks for a wait step, and Game answers a move or a line with a wait intent, the recommendation. Core counts the ticks of a pause with no engine, so a bot and a replay match (G-3). Two rules for one idea.
+    - Game answers every step with a wait intent, a wait step included. One rule covers each step. A bot then decides the length of every pause, so no scene has a pace of its own in a run record.
+146. **OQ-146. The shape of a condition.** One condition form serves every reader (D-543), and a flag is on or off (D-542). What can a condition say? Raised 2026-09-16. Blocks PR-68.
+    - A list of flag ids that must be on, and a list that must be off, the recommendation. Every condition reads at a glance, and the parser is a few lines (T-1). A choice between two routes needs a flag for each side.
+    - A nested form with and, or, and not. Any rule of region two fits with no new content shape. It is a small language with its own parser, its own error messages, and its own tests.
+147. **OQ-147. Where content declares each flag id.** A load fails on a flag id that no file declares (D-542). Where does the declaration live? Raised 2026-09-16. Blocks PR-68.
+    - One file of every flag id, with a line of prose for each, the recommendation. The owner reads the whole memory of the game in one file, and a typo in any reader fails the load. Every story PR edits one file.
+    - Each file declares the ids that it sets. A scene carries its own flags, and no file grows without limit. Two files can then declare one id, so the loader needs a rule for a repeat.
+148. **OQ-148. What fires a scene trigger.** The map file lists each scene trigger with its condition (D-528). What fires one? Raised 2026-09-16. Blocks PR-68.
+    - Four kinds, the recommendation: a tile, a talk with an NPC, the entry to a map, and the end of a fight. The arc of region one needs each kind. Each kind needs its own test and its own place in the tick.
+    - A tile and a talk alone. Two kinds cover most beats, and the tick stays simple. A scene after a boss then needs a tile in front of the exit, which a player can walk around.
+149. **OQ-149. Whether a scene step starts a battle.** The party fights the bishop right after a scene (D-319, D-327). No scene sets who fights (D-351). Can a step start a battle? Raised 2026-09-16. Blocks PR-68.
+    - Yes, a step names an enemy group, and the party of the player fights it, the recommendation. A set fight after a scene needs no tile, and D-351 holds because the player still picks the three. A scene then reaches into the battle rules.
+    - No, the map holds a trigger that a flag opens, and the scene sets that flag. The scene rules and the battle rules stay apart. Every set fight needs a tile and a flag, which is more content for each beat.
+150. **OQ-150. How the player skips a scene.** The text speed and the skip are accessibility settings (D-214, PR-63). What does the skip do? Raised 2026-09-16. Blocks PR-36.
+    - A held button fills each line at once and moves to the next step, the recommendation. A second read of a scene costs little, and the player never loses a choice. A long scene still takes many presses.
+    - A skip that jumps to the end of the whole scene. A replay of a lost fight costs no time at all. Each choice inside the scene then needs a default, which the story must set.
+151. **OQ-151. How the choices lay out in the dialogue box.** A choice sits in the box at the bottom (D-114, D-223). How many, and where? Raised 2026-09-16. Blocks PR-36.
+    - Up to four choices, in a list above the box, the recommendation. Four fit the height of D-480, and a list reads the same on the Deck and on a desktop. A scene with five results needs two questions.
+    - Up to three choices, inside the box under the line. The box stays one shape, and no panel covers the map. Three is a tight limit for a set choice with a middle answer.
+152. **OQ-152. What a quest holds.** The quest state holds every task, the personal tasks included (D-538). What is one quest? Raised 2026-09-16. Blocks PR-19.
+    - An id, a state of not started, active, done, or closed, and the text of each state, the recommendation. The board and the menu read one value, and a missed task closes with no new rule (D-375). A quest with three steps needs three flags beside it.
+    - An id and a list of steps, each with its own condition and text. A long task reads as progress, and the menu shows the next step. Every quest then carries a small state machine of its own.
+153. **OQ-153. What the rumor board shows.** A rumor board NPC stands in the hub (D-59). What does it show? Raised 2026-09-16. Blocks PR-19.
+    - Every quest whose condition holds, with its state, the recommendation. The player has one place to read what is open, and a closed task shows why. The board then repeats what the menu shows.
+    - A short line for each rumor, with no state and no list of quests. The board reads as a person in the world, not as a screen. A player who forgets a task has no place to look it up.
+154. **OQ-154. What ends a region for a missed task.** Each region closes its own personal tasks when the region ends (D-375). What marks that end? Raised 2026-09-16. Blocks PR-19.
+    - A story flag that the last scene of the region sets, the recommendation. The content names the moment, and no code knows what a region is. A content author can forget the flag, so a test must check each region.
+    - A field on the region map that names the last node. The rule sits in one place for every region. The region map then carries a story rule, which crosses the line of D-113.
+155. **OQ-155. Whether a scene can play inside a battle.** A boss changes phase at a scripted threshold (D-65, PR-20). Does a scene play at that moment? Raised 2026-09-16. Blocks PR-20.
+    - A line in the battle message area alone, with no scene, the recommendation. The battle rules stay whole, and the timeline never stops for a scene. A phase change then carries less weight than the story wants.
+    - A short scene that the battle runs, with the dialogue box over the battle screen. A boss turn lands as a story beat. The scene runner and the battle runner must then share one tick, with a test for each.

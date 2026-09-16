@@ -154,7 +154,7 @@ Built by PR-36, on the base of PR-61. Phase file: `phase-2-first-playable.md`.
 - The text types out at the chosen speed, in silence (D-223). OQ-112 holds the speeds and the way the box lays out its text.
 - The text speed and the skip are accessibility settings of PR-63 (D-214).
 - A choice in the box becomes an intent, and Core holds its result (D-493, PR-36).
-- `area-story.md` holds the scene format that drives the box.
+- `area-story.md` holds the scene format and the runner that drive the box. Core runs each step, and Game draws it (D-540).
 
 > *In plain English:* people speak in a box at the bottom of the screen, with a face beside the words. The words appear at the speed the player picks, with no beeps.
 
@@ -251,7 +251,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | The screen-test job and its baselines | `area-ci.md` | PR-41 |
 | The menu sounds and the audio settings | `area-audio.md` | PR-38 |
 | The studio mark, the boot splash, and the credits text | `area-release.md` | PR-33 |
-| The scene format behind the dialogue box | `area-story.md` | PR-36 |
+| The scene format and the scene runner behind the box | `area-story.md` | PR-68 |
 
 ### 7.16 The contract of every later UI PR
 

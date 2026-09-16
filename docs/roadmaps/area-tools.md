@@ -169,7 +169,7 @@ Built by PR-49. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-50. Phase file: `phase-2-first-playable.md`.
 
-- The command prints each scene script as a screenplay, with the text of each string id, for the PR description (D-173, G-25). It lands right after PR-36 (D-497).
+- The command prints each scene script as a screenplay, with the text of each string id, for the PR description (D-173, G-25). It lands right after PR-68, because it needs the scene format and the string table alone (D-545).
 - A scene that names an absent string id fails with the scene, the step, and the id (T-2).
 - `area-story.md` holds the scene format.
 

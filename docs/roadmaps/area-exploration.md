@@ -191,7 +191,7 @@ Built by PR-14. Phase file: `phase-2-first-playable.md`.
 - Each hub has a shape of its own, so no hub offers every service (D-28, D-59).
 - The hanging cells are a dungeon under a hub, and the same map rules cover it (D-244, D-112).
 - The village is a start area with no shop and no rest (D-369).
-- A scene can play on a hub map or a dungeon map, and `area-story.md` holds the scene runner (D-114).
+- A scene can play on a hub map or a dungeon map, and `area-story.md` holds the scene runner (D-114, D-540). The map file lists each scene trigger with its condition (D-528, D-543).
 
 > *In plain English:* a hub is a place you walk through, with people to talk to, a bed, and a stone to save at. Every hub has a different shape.
 
@@ -246,7 +246,7 @@ Built by PR-35. Phase file: `phase-2-first-playable.md`.
 | The frame, the camera input, the map HUD, and the dungeon map screen | `area-ui-input.md` | PR-61 and PR-62 |
 | The light setup and the ambient effects of each map | `area-effects.md` | PR-56 and PR-58 |
 | The tile sets, the edge tiles, and the map preview | `area-art.md` and `area-tools.md` | PR-17, PR-52, and PR-53 |
-| The scenes that play on a map | `area-story.md` | PR-36 |
+| The scenes that play on a map, and their triggers | `area-story.md` | PR-68 and PR-36 |
 | The lessons, the gear, and the items that a chest holds | `area-progression.md` | PR-12 and PR-13 |
 
 ### 7.16 The contract of every later exploration PR

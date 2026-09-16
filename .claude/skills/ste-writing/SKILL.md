@@ -272,6 +272,17 @@ UI and input terms from the roadmaps PR of 2026-09-16:
 | notice | the one-line message that slides in at the top edge of the screen (D-221) | toast, banner |
 | window frame | the drawn border of a menu window (D-220) | panel, and border, when the text means this drawing |
 
+Story terms from the roadmaps PR of 2026-09-16:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| scene step | one entry of a scene script, such as a move, a line, or a choice (D-173) | command, action, when the text means a step |
+| story flag | a name that is on or off, which a choice or a scene sets (D-329, D-542) | switch, variable, state bit |
+| condition | the one content form that reads the story flags, which every reader uses (D-543) | requirement, gate, predicate |
+| quest | one entry of the quest state, a personal task included (D-59, D-538) | mission, task, when the text means the entry |
+| personal task | the quest of one character that unlocks the side aptitude (D-282) | side quest, character quest |
+| rumor board | the NPC in a hub that shows the open quests (D-59) | quest board, notice board |
+
 ## The checker
 
 Until PR-2, the Python script `docs/tools/ste-check.py` is the checker (D-10). Run it before you commit:

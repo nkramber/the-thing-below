@@ -197,7 +197,7 @@ Built by PR-67, PR-12, PR-13, and PR-15. Phase files: `phase-2-first-playable.md
 | The content reader, the snapshot, and the migrations | `area-core.md` | PR-5 and PR-43 |
 | The fight that spends MP, items, and gear | `area-battle.md` | PR-9 and PR-66 |
 | The chests, the save points, and the shops | `area-exploration.md` | PR-16 and PR-65 |
-| The quests, the flags, and the scenes of each task | `area-story.md` | PR-18 and PR-19 |
+| The quests, the flags, and the scenes of each task | `area-story.md` | PR-68, PR-18, and PR-19 |
 | The party, lesson, gear, item, and status screens | `area-ui-input.md` | PR-62 |
 | The icons of the lessons, the elements, and the statuses | `area-art.md` | PR-42 |
 
