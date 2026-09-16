@@ -5,66 +5,68 @@ Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of
 ## Session 31: 2026-09-16, Claude Code
 
 Author: Claude Code
-Session: the fifth, sixth, and seventh area files of PR #11, `area-effects.md`, `area-ui-input.md`, and `area-exploration.md`, on branch `docs/pr-11-roadmaps`.
+Session: the fifth to the eighth area files of PR #11, `area-effects.md`, `area-ui-input.md`, `area-exploration.md`, and `area-battle.md`, on branch `docs/pr-11-roadmaps`.
 
 ### What this session did, and why
 
 - The session resumed PR #11 from the handoff of Session 30. The remote head was `c2c169b`, and no other session pushed after it.
-- The owner asked for the effects area, then the UI and input area, then the exploration area, in one session. All three files belong to PR #11, so this entry covers the three (D-18).
+- The owner asked for one area after another in one session: effects, then UI and input, then exploration, then battle. All four files belong to PR #11, so this entry covers the four (D-18).
 - The session read the design, the whole decision register, the questions register, the four finished area files, the skills, the runbook, the PR template, the places file of the world, and the `game-text-style` skill.
-- Seven read-only research agents read the Godot source and docs at `4.7.2-stable`, the Steam and SteamOS pages, and WCAG 2.2. The session checked each key fact again before it entered a document.
+- Seven read-only research agents read the Godot source and docs at `4.7.2-stable`, the Steam and SteamOS pages, and WCAG 2.2. The session checked each key fact again before it entered a document. The battle area needed no external fact, because Core holds every rule of a fight.
 - The effects block: the owner took all four contract recommendations.
   - Every effect PR lands before PR-17, each right after the first scene that it needs (D-520). PR-56 is light and shadows, PR-57 the effect files with particles and the battle effects, PR-58 the ambient effects, PR-59 glow, and PR-60 the transitions.
   - OQ-73 closed with a review sheet of eight fixed light directions, so PR-48 lands right before PR-56 (D-521).
   - No rule waits for an effect. Where the world waits for one, Game sends a wait intent, and the run record holds it (D-522).
   - The Deck test also measures an effect budget, and a test fails content that passes it (D-523).
 - The UI and input block: the owner took all four contract recommendations.
-  - PR-61 builds the UI base right before PR-7: the frame, the fit, the fonts, the text helper, the UI style, and the window frames (D-524).
-  - PR-62 builds the menu windows right before PR-12 (D-525).
-  - PR-63 builds the settings screen and the four accessibility settings in Phase 2 (D-526). The option named PR-37 as the next PR, and D-520 puts PR-57 first, so PR-63 lands right before PR-57.
+  - PR-61 builds the UI base right before PR-7, and PR-62 the menu windows right before PR-12 (D-524, D-525).
+  - PR-63 builds the settings and the four accessibility settings in Phase 2 (D-526). The option named PR-37, and D-520 puts PR-57 first, so PR-63 lands right before PR-57.
   - One JSON file holds the UI style, and Game builds the Godot `Theme` from it (D-527).
 - The exploration block: the owner took three recommendations and chose one split against the recommendation.
   - One rule file holds each map, with its terrain rows and every thing that a rule reads (D-528).
-  - PR-16 splits, and PR-64 takes the traps, the hazards, and the statuses that last on the map (D-529).
+  - PR-16 splits, and PR-64 takes the traps, the hazards, and the statuses on the map (D-529).
   - The shop leaves PR-14 for PR-65, against the recommendation of one PR for the whole hub (D-530).
   - One run holds the map state and the battle state, and no map system ticks during a battle (D-531).
-- F-46 to F-52 record the findings of the three blocks: three silent failures of 2D light, a glow that can reach a lit sprite, a fit that Godot cannot make, three font defaults, five input facts, four tile map defaults, and a camera that centers a small map with no page of the docs behind it.
-- The session filed 32 detail questions, OQ-92 to OQ-123, as D-487 asks. None blocks PR #11.
-- The session wrote three area files. It updated `docs/design.md` (three dated lines, the system map, the cost model, and F-46 to F-52), `area-core.md`, `area-tools.md`, `area-ci.md`, `area-art.md`, the runbook of the machine, the `ste-writing`, `csharp-conventions`, and `pr-review` skills, and eight earlier decision rows with notes.
+- The battle block: the owner took three recommendations and chose the deeper evaluator against the recommendation.
+  - Core resolves each action at once and emits events. Game plays the queue and takes the next command when it drains, so no wait intent enters a fight (D-532).
+  - PR-9 splits, and PR-66 takes the eight elements and the ten statuses (D-533).
+  - The evaluator simulates each legal action and the strongest reply of the other side (D-534). The session recommended one action ahead alone.
+  - A group file for each region holds each enemy group, and a map names a group by its id (D-535).
+- F-46 to F-53 record the findings of the four blocks: three silent failures of 2D light, a glow that can reach a lit sprite, a fit that Godot cannot make, three font defaults, five input facts, four tile map defaults, a camera that centers a small map with no doc behind it, and an evaluator with no measurement of its cost.
+- The session filed 42 detail questions, OQ-92 to OQ-133, as D-487 asks. None blocks PR #11.
+- The session wrote four area files. It updated `docs/design.md` (four dated lines, the system map, the cost model, and F-46 to F-53), `area-core.md`, `area-tools.md`, `area-ci.md`, `area-art.md`, the runbook of the machine, the `ste-writing`, `csharp-conventions`, and `pr-review` skills, and eight earlier decision rows with notes.
 - Three rules entered the files with no question, because an earlier decision or a verified fact forces each one. An effect file names the content ids that it serves, and a rule file never names an effect, as D-519 asks for art (D-495). Game makes each intent from an input event, never from a poll of `Input`, because a poll sees input that a menu already took (F-50, D-493). Game moves the camera from the tick, because the smoothing of Godot can run more than once in a frame (F-52). The owner can ask for another rule.
 - The handoff held ten entries before this one, so Session 21 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
 
 ### State of the build
 
 - No code exists. `main` is `63803d9` (PR #10).
-- The branch `docs/pr-11-roadmaps` holds seven commits on `main`, and its remote head is the commit that holds this entry. No PR is open, because PR #11 opens when the roadmaps and the rebuild are complete (D-489).
+- The branch `docs/pr-11-roadmaps` holds eight commits on `main`, and its remote head is the commit that holds this entry. No PR is open, because PR #11 opens when the roadmaps and the rebuild are complete (D-489).
 - The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
 
 ### In flight
 
-PR #11: seven of twelve area files are done. Next comes `area-battle.md`, then `area-progression.md`, `area-story.md`, `area-audio.md`, and `area-release.md` (D-485). Then come the five phase files and the rebuild of sections 7 and 8 (D-488).
+PR #11: eight of twelve area files are done. Next comes `area-progression.md`, then `area-story.md`, `area-audio.md`, and `area-release.md` (D-485). Then come the five phase files and the rebuild of sections 7 and 8 (D-488).
 
 ### Traps and gotchas
 
 - The rebuild changes more than sections 7 and 8. These texts still name the old plan: G-22 in `docs/design.md`, the PR gate of `CLAUDE.md` and `AGENTS.md` at lines 130 and 145 to 147, and lines 12, 13, and 15 of `.github/pull_request_template.md`. Section 7 still puts the export job in PR-7, the night gate in PR-15, and det-lint in PR-4, and M-3 reads one night count.
-- Section 7 also needs the new PRs in order: PR-61 before PR-7, PR-55 before PR-10, PR-48 and PR-56 between PR-10 and PR-11, PR-63 before PR-57, PR-57 to PR-60 after it, PR-62 before PR-12, PR-65 after PR-13, and PR-64 after PR-16. Section 8 needs the Deck test with its effect budget before PR-1.
-- The settings screen left PR-33, which keeps the title screen, the version line, and the credits (D-526). Section 7 of the design still gives the settings to PR-33. The shop left PR-14 for PR-65 (D-530), and the traps left PR-16 for PR-64 (D-529).
+- Section 7 also needs the new PRs in order: PR-61 before PR-7, PR-55 before PR-10, PR-48 and PR-56 between PR-10 and PR-11, PR-63 before PR-57, PR-57 to PR-60 after it, PR-66 right after PR-9, PR-62 before PR-12, PR-65 after PR-13, and PR-64 after PR-16. Section 8 needs the Deck test with its effect budget before PR-1.
+- Four PRs lost work to a new id: the settings left PR-33 for PR-63, the shop left PR-14 for PR-65, the traps left PR-16 for PR-64, and the elements and statuses left PR-9 for PR-66 (D-526, D-529, D-530, D-533). Section 7 still gives each one to the old PR.
+- The evaluator of D-534 has no measurement, and the same code runs on the Deck and through a night of fourteen thousand runs (F-53). PR-11 reports the cost of a turn before Gate 2, and a miss changes the depth or the profiles.
 - Godot drops a light past 15 on one canvas item with no message, and a map layer draws 256 tiles as one canvas item (F-46).
-- A shader on lit art never uses `NORMAL_MAP`, because Godot corrects the flip of a normal before the shader code (the external facts of `area-effects.md`).
-- Godot has no fit like the fit of D-232, so PR-61 builds both steps around a `SubViewport` at 1x (F-48). A stretch mode that scales the world moves 2D light off the art pixels.
-- The camera centers a map smaller than the view, and only the source says so (F-52). A test must lock it, or a later Godot version can break the gate of PR-7 in silence.
-- `area-battle.md` must say how the battle scene paces the events of one turn, under D-522, and how the pause of D-531 reads in a fight.
-- `area-progression.md` holds the items that a chest gives and the gear that a shop sells (PR-13, PR-65). `area-audio.md` holds the ambience of each map (D-424) and the menu sounds of D-431. `area-release.md` holds the trailer capture with fixed particle seeds (D-476) and the studio mark of OQ-90.
-- New PR ids so far: PR-43 to PR-65, 23 of the about 20 that D-486 named. The next id is PR-66.
-- The next ids are D-532, OQ-124, F-53, L-16, G-26, PR-66, M-7, and Session 32.
+- Godot has no fit like the fit of D-232, so PR-61 builds both steps around a `SubViewport` at 1x (F-48). The camera centers a map smaller than the view, and only the source says so (F-52).
+- `area-progression.md` must hold the lessons, the aptitudes, the gear, and the items that a fight spends, and the experience rules of D-73, D-387, and D-388. `area-story.md` holds the scenes and the flags, `area-audio.md` the tracks and the sounds, and `area-release.md` the store work and the trailer.
+- New PR ids so far: PR-43 to PR-66, 24 of the about 20 that D-486 named. The next id is PR-67.
+- The next ids are D-536, OQ-134, F-54, L-16, G-26, PR-67, M-7, and Session 32.
 
 ### Open questions that block progress
 
-None for PR #11. OQ-114 to OQ-123 block PR-7, PR-8, PR-21, PR-35, PR-64, and PR-65. OQ-104 to OQ-113 block PR-61, PR-62, PR-63, and PR-36. OQ-92 to OQ-103 block the Deck test, PR-56 to PR-59, PR-37, and PR-10. OQ-85 to OQ-91 block PR-34, PR-7, PR-33, and PR-55. OQ-75 to OQ-84 block PR-1, PR-15, PR-41, PR-49, and PR-54. OQ-67 to OQ-72 and OQ-74 block PR-2, PR-3, PR-46, PR-47, and PR-15. OQ-60 to OQ-66 block PR-4, PR-5, PR-6, and PR-43. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
+None for PR #11. OQ-124 to OQ-133 block PR-9, PR-10, PR-11, and PR-20. OQ-114 to OQ-123 block PR-7, PR-8, PR-21, PR-35, PR-64, and PR-65. OQ-104 to OQ-113 block PR-61, PR-62, PR-63, and PR-36. OQ-92 to OQ-103 block the Deck test, PR-56 to PR-59, PR-37, and PR-10. OQ-85 to OQ-91 block PR-34, PR-7, PR-33, and PR-55. OQ-75 to OQ-84 block PR-1, PR-15, PR-41, PR-49, and PR-54. OQ-67 to OQ-72 and OQ-74 block PR-2, PR-3, PR-46, PR-47, and PR-15. OQ-60 to OQ-66 block PR-4, PR-5, PR-6, and PR-43. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
 
 ### Next concrete action
 
-A session continues PR #11 on `docs/pr-11-roadmaps`. It reads the seven finished area files, D-520 to D-531, and the battle entries of `docs/design.md`, such as D-29, D-31, D-35, D-36, D-65, D-186, and D-376 to D-383. Then it writes `docs/roadmaps/area-battle.md`, asks the contract questions, and files detail questions with their PRs (D-487, D-488).
+A session continues PR #11 on `docs/pr-11-roadmaps`. It reads the eight finished area files, D-520 to D-535, and the progression entries of `docs/design.md`, such as D-34, D-44, D-45, D-272 to D-283, D-356 to D-365, D-374, and D-382 to D-388. Then it writes `docs/roadmaps/area-progression.md`, asks the contract questions, and files detail questions with their PRs (D-487, D-488).
 
 ## Session 30: 2026-09-15, Claude Code
 

@@ -223,6 +223,7 @@ The systems that later areas add to Core are below. Each area file confirms its 
 | Tile map, movement, sight, and the time of day of a map | `area-exploration.md` | PR-7 |
 | Enemies on the map | `area-exploration.md` | PR-8 |
 | Battle and the timeline | `area-battle.md` | PR-9 |
+| The elements and the statuses | `area-battle.md` | PR-66 |
 | The evaluator and profiles | `area-battle.md` | PR-11 |
 | Lessons, aptitudes, and levels | `area-progression.md` | PR-12 |
 | Gear, items, and the inventory | `area-progression.md` | PR-13 |

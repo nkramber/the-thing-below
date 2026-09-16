@@ -383,3 +383,33 @@ How to file a question (D-19, D-24):
 123. **OQ-123. How the player finds a secret.** A dungeon holds hidden rooms and secret markers (D-41). How does the player find one? Raised 2026-09-16. Blocks PR-21.
     - A look at a wall that the map marks, the recommendation. The player presses the confirm button at a marked wall, and the room opens. A player who never presses at a wall finds nothing.
     - A Theft drill reveals each secret within a range, as it reveals a trap (D-386). Theft gains a second use on the map. A party with no Theft drill finds no secret.
+124. **OQ-124. A defend action.** A character can attack, use a lesson, use an item, change row, or flee (D-359, D-378, D-380, D-382). No decision gives a defend action. Does one exist? Raised 2026-09-16. Blocks PR-9.
+    - Yes, a defend that cuts the damage until the next turn of the character, the recommendation. A hurt character has an answer when no heal is ready, which fits the scarce resources of D-35. It adds one action and its balance number.
+    - No defend action. The turn of a character always costs something else. A player with no heal and no item has nothing useful to do, which reads as a dead turn.
+125. **OQ-125. The turns that the strip shows.** The timeline strip shows the next several turns (D-29, D-376). How many? Raised 2026-09-16. Blocks PR-9 and PR-10.
+    - Six, the recommendation. The strip fits the width of the frame at 32 pixels for each face, and a player reads two rounds ahead. A long chain of haste and slow reaches past the strip.
+    - Twelve. The player sees further, and a slow action shows its whole cost. The faces shrink or the strip scrolls, and the screen holds less of the fight.
+126. **OQ-126. Where the delay of an action lives.** Each action pushes its user back by an amount that the action and the speed set (D-376). Where does that amount live? Raised 2026-09-16. Blocks PR-9.
+    - In content, one delay for each action and each item, the recommendation. PR-30 tunes every number with no code change (G-14). Each new ability needs its delay, and a test proves that every action has one.
+    - In code, as a table of the kinds of action. The numbers stay in one file that the review reads. A balance change then needs a code PR and a simulation version bump (G-17).
+127. **OQ-127. The tie-break of the evaluator.** The evaluator scores every legal action, and two actions can score the same (D-65, D-534). Which one does the enemy take? Raised 2026-09-16. Blocks PR-11.
+    - The first in a fixed order of actions, the recommendation. The choice stays the same on every machine and in every replay (T-7). An enemy can look predictable when many actions tie.
+    - A draw from the stream of the battle. The enemies vary, and the fight reads as less mechanical. Each tie then spends a random number, so a new tie shifts every later roll of that stream.
+128. **OQ-128. What makes a profile unable to act.** Every enemy profile validates at load, and a profile that can never act fails that load (G-21). What does the check read? Raised 2026-09-16. Blocks PR-11.
+    - A profile with no action that it can ever choose, the recommendation. The check builds the legal actions of the enemy with an empty battle and fails an empty list. It runs for each enemy at load, which costs time on a large content set.
+    - A profile whose weights are all zero. The check is cheap and simple. An enemy that can only heal an ally that it never has still passes.
+129. **OQ-129. The chance of a steal.** Each enemy carries a steal list, and a successful steal takes one entry (D-383). What sets the chance, and what does a failure cost? Raised 2026-09-16. Blocks PR-11.
+    - The Theft aptitude of the character against the level of the enemy, and a failure costs the turn, the recommendation. Theft pays in every fight with people, and a miss has weight. The numbers need the balance pass of PR-30.
+    - A fixed chance for each enemy in its profile, and a failure costs the turn. Content sets the chance for each enemy. A character with a high Theft aptitude gains nothing from it.
+130. **OQ-130. What starts a boss phase.** A scripted phase changes the profile of a boss and adds a move (D-65). What starts the change? Raised 2026-09-16. Blocks PR-20.
+    - A health threshold in content, the recommendation. The player reads the change as damage does its work, and the gate of PR-20 tests it over one thousand seeds. A boss that takes one huge blow can skip a phase.
+    - A turn count in content. The phase always plays, whatever the damage. A fast party meets the same phases as a slow one, which reads as a script, not a fight.
+131. **OQ-131. The health of an enemy on screen.** The screen shows the party health and the timeline (D-111, D-212). What does it show of an enemy? Raised 2026-09-16. Blocks PR-10.
+    - A short bar under each enemy, with no number, the recommendation. The player reads the state of a fight at a glance, and the bar needs no text. A player cannot plan an exact killing blow.
+    - Nothing until the player targets the enemy, and then a bar. The screen stays clean, and the fight keeps some mystery. The player must target each enemy to read the fight.
+132. **OQ-132. A group larger than its rows.** A group holds up to six enemies in two rows (D-31, D-535). What happens when content names more than the rows hold? Raised 2026-09-16. Blocks PR-9.
+    - The load fails with the group, the count, and the rows, the recommendation. A bad group never reaches a player, and the error names the file (T-2). Content must split a large group into two encounters.
+    - The extra enemies wait outside and step in as others fall. A fight can hold a wave. The rules of the timeline and the rows then need the wave case and its tests.
+133. **OQ-133. The flee chance and the grace time.** The chance to flee rises with the speed of the party, and a failure costs the turn (D-378). A fled group starts no fight for a short grace time (D-381). What are the numbers? Raised 2026-09-16. Blocks PR-9.
+    - A base chance in content, plus the speed of the party against the speed of the group, the recommendation. The grace time is 300 ticks. PR-30 tunes each number, and M-4 measures how often a party flees.
+    - A fixed chance for each kind of encounter, with the same grace time. The numbers stay easy to read. A fast party gains nothing from its speed, against D-378.
