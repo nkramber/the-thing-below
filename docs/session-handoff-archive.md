@@ -2,6 +2,45 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 34: 2026-09-16, Codex
+
+Author: Codex
+Session: cross-provider review of PR #11 at effective head `848de1e`.
+
+### What this session did, and why
+
+- Read the current handoff first, then the review skill, the STE skill, the design, the decision register, the questions register, the roadmaps, the prior review records, and the PR comments.
+- Verified that Claude Code made the substantive PR changes and that Codex is the eligible opposite provider under T-4 and D-17.
+- Recomputed the effective head. `848de1e` is the newest substantive commit. The three later commits change only `docs/session-handoff.md`.
+- Inspected the complete PR diff and found two blockers. PR-61 requires a screen test before PR-41 creates it and a panel test before PR-62 creates the panels. D-543 assigns the condition format to PR-18, while D-544 assigns it to PR-68 without an explicit revision note.
+- Ran the interim STE check, `git diff --check`, and the guidance identity check. All passed. No executable checks exist yet.
+- Added `docs/reviews/pr-11.md` with the verdict `Changes required` for `848de1e`.
+
+### State of the build
+
+- No code exists. `main` is `63803d9` (PR #10).
+- PR #11 is open on `docs/pr-11-roadmaps`. Its remote tip is `e92e329`, and its effective head is `848de1e`.
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #11 needs the two roadmap corrections in `docs/reviews/pr-11.md`, then a repeat cross-provider review at the new effective head.
+
+### Traps and gotchas
+
+- A review record names the newest substantive commit, not a later handoff-only commit.
+- PR-61 must not require the screen-test job of PR-41 or the panels of PR-62 unless the sequence changes with it.
+- D-544 must explicitly revise D-543 or D-543 must name PR-68 as the condition-format owner.
+- The next ids are D-555, OQ-179, F-57, L-16, G-26, PR-80, M-7, and Session 35.
+
+### Open questions that block progress
+
+None for this review. OQ-60 to OQ-178 remain assigned to later PRs.
+
+### Next concrete action
+
+The author corrects the PR-61 exit-test ownership and the D-543 decision note. Then a Codex session repeats the review and verifies the corrected triggers.
+
 ## Session 33: 2026-09-16, Claude Code
 
 Author: Claude Code

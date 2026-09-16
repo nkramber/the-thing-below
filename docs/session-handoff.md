@@ -2,6 +2,50 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md`. Read the first entry first.
 
+## Session 44: 2026-09-16, Codex
+
+Author: Codex
+Session: third repeat cross-provider review of PR #12 at effective head `ff04f87`.
+
+### What this session did, and why
+
+- Read the current handoff first, then the review response, the review and STE skills, the correction diff, the affected contracts, and the PR comments.
+- Verified the provider gate under T-4 and D-17. Session 43 identifies Claude Code as the author of the substantive P2-7 correction.
+- Recomputed the effective head. `ff04f87` is the newest substantive commit. The later commits `54edbe5` and `ef5a8b0` change only review and handoff metadata.
+- Reproduced P2-7 and its regression check. The art and effects ownership rows now name PR-81 and D-575, and the PR-81 budget test now covers each map and each battle place under D-523.
+- Checked the adjacent group scopes. The PR-35 and PR-17 exclusions now include PR-81. The remaining narrower references either record historical text or give PR-81 its own row.
+- Verified the automated finding and its correction. The final pass on `ef5a8b0` confirms the four-file count, and every review thread is resolved.
+- Updated `docs/reviews/pr-12.md`, preserved the three earlier verdicts, and set the current verdict to `Ready for owner merge` for `ff04f87`.
+- Corrected the stale other-provider checkbox in the PR description after the verdict became current.
+- The handoff held ten entries before this one, so Session 34 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. The target tip of `main` is `6910017`, and the PR merge base is `c4d39fe`.
+- PR #12 is open on branch `docs/pr-12-critic`. Before this review commit, its remote tip is `ef5a8b0`, and its effective head is `ff04f87`.
+- The interim STE check passes with 0 findings, both diff checks are clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- GitHub reports no check run. The automated pass reports approval with three closed findings and no open finding.
+
+### In flight
+
+PR #12 is ready for owner merge. The review record applies to effective head `ff04f87` (T-4, D-17).
+
+### Traps and gotchas
+
+- The verdict covers the effective head `ff04f87`, not the later metadata tip.
+- D-523 applies the effect budget to each map and each battle place. The boss of a one-map dungeon still creates a battle place.
+- A new PR that joins a named group must join its ownership tables and its scope limits.
+- OQ-180 blocks PR-81, not PR #12.
+- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 45.
+
+### Open questions that block progress
+
+None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### Next concrete action
+
+The owner can merge PR #12.
+
 ## Session 43: 2026-09-16, Claude Code
 
 Author: Claude Code
@@ -422,42 +466,3 @@ None. OQ-60 to OQ-178 stay with the later PRs that the phase files name (D-487).
 ### Next concrete action
 
 A Codex session repeats the review of PR #11 at the new effective head. It reads `docs/reviews/pr-11-response.md`, verifies the trigger and the regression check of P1-1 and P2-1, sets the status of each finding, and writes the verdict for that head (T-4, D-17, the `pr-review` skill).
-
-## Session 34: 2026-09-16, Codex
-
-Author: Codex
-Session: cross-provider review of PR #11 at effective head `848de1e`.
-
-### What this session did, and why
-
-- Read the current handoff first, then the review skill, the STE skill, the design, the decision register, the questions register, the roadmaps, the prior review records, and the PR comments.
-- Verified that Claude Code made the substantive PR changes and that Codex is the eligible opposite provider under T-4 and D-17.
-- Recomputed the effective head. `848de1e` is the newest substantive commit. The three later commits change only `docs/session-handoff.md`.
-- Inspected the complete PR diff and found two blockers. PR-61 requires a screen test before PR-41 creates it and a panel test before PR-62 creates the panels. D-543 assigns the condition format to PR-18, while D-544 assigns it to PR-68 without an explicit revision note.
-- Ran the interim STE check, `git diff --check`, and the guidance identity check. All passed. No executable checks exist yet.
-- Added `docs/reviews/pr-11.md` with the verdict `Changes required` for `848de1e`.
-
-### State of the build
-
-- No code exists. `main` is `63803d9` (PR #10).
-- PR #11 is open on `docs/pr-11-roadmaps`. Its remote tip is `e92e329`, and its effective head is `848de1e`.
-- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-
-### In flight
-
-PR #11 needs the two roadmap corrections in `docs/reviews/pr-11.md`, then a repeat cross-provider review at the new effective head.
-
-### Traps and gotchas
-
-- A review record names the newest substantive commit, not a later handoff-only commit.
-- PR-61 must not require the screen-test job of PR-41 or the panels of PR-62 unless the sequence changes with it.
-- D-544 must explicitly revise D-543 or D-543 must name PR-68 as the condition-format owner.
-- The next ids are D-555, OQ-179, F-57, L-16, G-26, PR-80, M-7, and Session 35.
-
-### Open questions that block progress
-
-None for this review. OQ-60 to OQ-178 remain assigned to later PRs.
-
-### Next concrete action
-
-The author corrects the PR-61 exit-test ownership and the D-543 decision note. Then a Codex session repeats the review and verifies the corrected triggers.
