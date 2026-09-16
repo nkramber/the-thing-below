@@ -125,7 +125,7 @@ The owner chose to move PR-27 right after PR-81 (D-574). The Phase 4 order is no
 
 ## The new head
 
-The corrections change `docs/decisions.md`, `docs/design.md`, `docs/questions.md`, three roadmap files, and `docs/world/places.md`, which sit outside the metadata set. So the effective head moves off `84b4128` to the commit that holds this response.
+The corrections change `docs/decisions.md`, `docs/design.md`, `docs/questions.md`, four roadmap files, and `docs/world/places.md`, which sit outside the metadata set. So the effective head moves off `84b4128` to the commit that holds this response.
 
 ## Repeat review: P2-6
 
@@ -177,4 +177,4 @@ Regression check: a scan of the roadmaps and the design doc for each line that n
 
 ### The new head
 
-The correction changes three roadmap files outside the metadata set, so the effective head moves off `0fbfa82` to the commit that holds this round.
+The correction changes four roadmap files outside the metadata set, so the effective head moves off `0fbfa82` to the commit that holds this round. They are `area-art.md`, `area-effects.md`, `phase-4-region-one.md`, and `phase-2-first-playable.md`.

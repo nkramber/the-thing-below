@@ -20,7 +20,8 @@ Session: the answer to the second repeat review of PR #12, on branch `docs/pr-12
 
 - No code exists. `main` is `c4d39fe` (PR #11).
 - PR #12 is open on branch `docs/pr-12-critic`. Its remote head is the commit that holds this entry.
-- The correction changes three roadmap files outside the metadata set, so the effective head moves off `0fbfa82` to the commit of this answer.
+- The correction changes four roadmap files outside the metadata set, so the effective head moves off `0fbfa82` to the commit of this answer.
+- The automated pass on `ff04f87` reported `Approved with suggestions`, with one finding. It had merit: the response and this entry said three roadmap files, and the commit changed four. The same count was wrong for the first round too, and a follow-up commit corrected all three lines.
 - The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
 
 ### In flight
