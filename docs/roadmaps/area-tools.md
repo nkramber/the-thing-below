@@ -130,12 +130,12 @@ Built by PR-34. Phase file: `phase-1-foundations.md`.
 
 ### 7.7 Normal maps
 
-Built by PR-48. Phase file: the phase file of the first PR that draws light, which `area-effects.md` names.
+Built by PR-48. Phase file: `phase-2-first-playable.md`.
 
-- The command builds a normal map for each grid from its shape, with an optional override grid (D-183, D-184). It lands before the first PR that draws light (D-496).
+- The command builds a normal map for each grid from its shape, with an optional override grid (D-183, D-184). It lands right before PR-56, the first PR that draws light (D-520, D-521).
 - It uses integer math alone, with an integer square root, so every CI leg gives the same pixels (D-502, F-38).
 - The normal-map atlas takes the same pixel test as the color atlas (D-184, F-19).
-- A preview shows each sprite under a moving light for the owner, and the session attaches it to the PR description (D-184, D-514). OQ-73 holds the form of the preview.
+- A review sheet draws each sprite under eight fixed light directions for the owner, and the session attaches it to the PR description (D-514, D-521).
 - Each piece of a large picture gets a normal map too (D-516).
 
 > *In plain English:* a normal map tells the light which way each pixel faces, so a torch can light one side of a face. The tool builds it from the drawing with whole-number math, so every computer makes the same map.
@@ -248,13 +248,12 @@ The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #
 7. PR-34: the atlas.
 8. **← GATE 1 (foundation).** The gate tools and the atlas test pass on every CI leg.
 9. PR-55: the render of large pictures, right before PR-10 (D-518).
-10. PR-50: the screenplay tool, right after PR-36 (D-497).
-11. PR-15: the headless runner and the bots.
-12. PR-49: the night gate. Its live check first runs after the first night (D-500).
-13. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
-14. **← GATE 2 (first playable).**
-
-PR-48 lands before the first PR that draws light, and `area-effects.md` gives it a place in this list (D-496).
+10. PR-48: the normal maps, right after PR-10 and right before PR-56, the first PR that draws light (D-520, D-521).
+11. PR-50: the screenplay tool, right after PR-36 (D-497).
+12. PR-15: the headless runner and the bots.
+13. PR-49: the night gate. Its live check first runs after the first night (D-500).
+14. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
+15. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 
@@ -266,7 +265,6 @@ The register is `docs/questions.md` (D-19). These questions block Tools PRs, and
 - OQ-70: how det-lint finds Godot text. Blocks PR-46.
 - OQ-71: which uses of `Dictionary` and `HashSet` det-lint fails in Core. Blocks PR-46.
 - OQ-72: the CRC-32 of the PNG code. Blocks PR-47.
-- OQ-73: the form of the normal-map preview. Blocks PR-48.
 - OQ-74: how the runner finds a softlock. Blocks PR-15.
 - OQ-3: the required checks on `main`. Waits for PR-3.
 

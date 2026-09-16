@@ -2,6 +2,58 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md`. Read the first entry first.
 
+## Session 31: 2026-09-15, Claude Code
+
+Author: Claude Code
+Session: the fifth area file of PR #11, `docs/roadmaps/area-effects.md`, on branch `docs/pr-11-roadmaps`.
+
+### What this session did, and why
+
+- The session resumed PR #11 from the handoff of Session 30. The remote head was `c2c169b`, and no other session pushed after it.
+- The session read the design, the whole decision register, the questions register, the four finished area files, the skills, the runbook, the PR template, and the places file of the world.
+- Three read-only research agents read the Godot source and docs at `4.7.2-stable`, the Steam and SteamOS pages, and WCAG 2.2. The session checked each key fact again before it entered a document: the two canvas shaders, the light limits, the class reference of each node, the particle classes, the HDR and glow pages, the Deck pages, and the WCAG text.
+- The owner took all four contract recommendations in one batch:
+  - Every effect PR lands before PR-17, each right after the first scene that it needs (D-520). PR-56 is light and shadows, PR-57 the effect files with particles and the battle effects, PR-58 the ambient effects, PR-59 glow, and PR-60 the transitions. PR-17 becomes the 41st code PR.
+  - OQ-73 closed with a review sheet of eight fixed light directions, so PR-48 lands right before PR-56 (D-521).
+  - No rule waits for an effect. Where the world waits for one, Game sends a wait intent, and the run record holds it (D-522).
+  - The Deck test also measures an effect budget, and a test fails content that passes it (D-523).
+- F-46 records three silent failures of 2D light in Godot: a light with no texture, the limit of 15 lights on one canvas item, and the default height of 0. F-47 records that a bright light on a pale sprite can pass the glow threshold, against the reading of D-188.
+- The session filed twelve detail questions for the Deck test, PR-56, PR-57, PR-58, PR-59, PR-37, and PR-10 (OQ-92 to OQ-103), as D-487 asks. None blocks PR #11.
+- The session wrote `docs/roadmaps/area-effects.md`. It updated `docs/design.md` (a dated line, the system map, the cost model, F-46, and F-47), `area-core.md`, `area-tools.md`, `area-ci.md`, `area-art.md`, the runbook of the machine, the `ste-writing`, `csharp-conventions`, and `pr-review` skills, and six earlier decision rows with notes.
+- Two rules entered the file with no question, because the Effect column of D-495 already states the purpose: an effect file names the content ids that it serves, and a rule file never names an effect, as D-519 asks for art. The owner can still ask for another rule.
+- The handoff held ten entries before this one, so Session 21 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `63803d9` (PR #10).
+- The branch `docs/pr-11-roadmaps` holds five commits on `main`, and its remote head is the commit that holds this entry. No PR is open, because PR #11 opens when the roadmaps and the rebuild are complete (D-489).
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #11: five of twelve area files are done. Next comes `area-ui-input.md`, then the other six area files in the order of D-485. Then come the five phase files and the rebuild of sections 7 and 8 (D-488).
+
+### Traps and gotchas
+
+- The rebuild changes more than sections 7 and 8. These texts still name the old plan: G-22 in `docs/design.md`, the PR gate of `CLAUDE.md` and `AGENTS.md` at lines 130 and 145 to 147, and lines 12, 13, and 15 of `.github/pull_request_template.md`. Section 7 still puts the export job in PR-7, the night gate in PR-15, and det-lint in PR-4, and M-3 reads one night count.
+- Section 7 also needs the effect PRs of D-520: PR-48 and PR-56 to PR-60 between PR-10 and PR-17, with PR-55 before PR-10 (D-518). Section 8 needs the Deck test with its effect budget before PR-1 (D-523).
+- `area-ui-input.md` must set the stretch mode and keep the world in the frame at 1x. Godot computes 2D light at the pixel size of the viewport, so a wrong stretch puts light on screen pixels, not on art pixels (F-45).
+- The flash and shake reduction of D-214 belongs to `area-ui-input.md`, and OQ-100 holds what its reduced form does.
+- `area-battle.md` must say how the battle scene paces the events of one turn, under D-522. `area-exploration.md` holds the puzzles of light and dark of D-41, whose state stays in Core.
+- `area-audio.md` holds the ambience that matches each ambient effect (D-424), and `area-release.md` holds the trailer capture with fixed particle seeds (D-476).
+- Godot drops a light past 15 on one canvas item with no message, and a map layer draws 256 tiles as one canvas item (F-46). The budget test of PR-56 holds that limit.
+- A shader on lit art never uses `NORMAL_MAP`, because Godot corrects the flip of a normal before the shader code (the external facts of `area-effects.md`).
+- New PR ids so far: PR-43 to PR-60, eighteen of about 20 (D-486). The next id is PR-61.
+- The next ids are D-524, OQ-104, F-48, L-16, G-26, PR-61, M-7, and Session 32.
+
+### Open questions that block progress
+
+None for PR #11. OQ-92 to OQ-103 block the Deck test, PR-56, PR-57, PR-58, PR-59, PR-37, and PR-10. OQ-85 to OQ-91 block PR-34, PR-7, PR-33, and PR-55. OQ-75 to OQ-84 block PR-1, PR-15, PR-41, PR-49, and PR-54. OQ-67 to OQ-72 and OQ-74 block PR-2, PR-3, PR-46, PR-47, and PR-15. OQ-60 to OQ-66 block PR-4, PR-5, PR-6, and PR-43. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
+
+### Next concrete action
+
+A session continues PR #11 on `docs/pr-11-roadmaps`. It reads the five finished area files, D-520 to D-523, and the UI entries of `docs/design.md`, such as D-210 to D-241, D-263, D-264, and D-480. Then it writes `docs/roadmaps/area-ui-input.md`, sets the stretch mode and the fit, asks the contract questions, and files detail questions with their PRs (D-487, D-488).
+
 ## Session 30: 2026-09-15, Claude Code
 
 Author: Claude Code
@@ -439,57 +491,3 @@ None for PR #9. OQ-56 waits for the roadmaps PR. OQ-57 and OQ-59 block the store
 ### Next concrete action
 
 Push this review record and handoff entry. Then the owner can merge PR #9. The next session starts the roadmaps docs PR and asks OQ-56 first.
-
-## Session 21: 2026-09-14, Claude Code
-
-Author: Claude Code
-Session: the release block of the full plan, and two aspect ratios, on branch `docs/pr-9-release-block`.
-
-### What this session did, and why
-
-- Session 20 (Codex) reviewed PR #8 at `511203c` with no finding. The owner merged PR #8 as `f4a1c6b` and asked what comes next.
-- The handoff and D-399 put the release block docs PR next. The first lever of OQ-56 moves that PR after the first playable, so the session asked first. The owner kept the order (D-447).
-- Three read-only research agents read Steamworks, Apple, Microsoft, GitHub, and Godot pages. The session fetched each key page again and checked the quotes before a fact entered a document.
-- The release block ran in twelve batches, D-447 to D-480:
-  - Versions and builds: 0.MINOR.PATCH until 1.0.0, and exports on every merge from PR-7 (D-448, D-449). The owner first added arm64 builds and arm64 CI legs (D-464, D-474).
-  - Signing: macOS notarized on Steam from PR-40, and Windows unsigned (D-455, D-463). F-32 records the Apple fee that the cost model lacked.
-  - GitHub: prologue tags alone on GitHub Releases, until the Steam demo (D-457, D-470). The repository goes private before paid content (D-456).
-  - Steam: the native Linux build on the Deck, the rating Verified, engine input with one Steamworks call for glyphs, and Auto-Cloud on the folder `the-thing-below` (D-458 to D-461, D-465). PR-40 picks the binding (D-462, OQ-58).
-  - Store: the store page at Gate 2, store text and capsule grids by sessions, a trailer from replays, one Next Fest, and the demo name "The Thing Below: Prologue" (D-452, D-471, D-472, D-475, D-476, D-478).
-  - Studio and players: a studio name picked before the store page (OQ-57), a studio mark on the splash, credits in three places, crash files to a studio email, and trusted players after Gate 4 (D-450, D-451, D-467 to D-469, D-473). Achievements come with the full game alone (D-466).
-  - The AI disclosure of the Steam content survey waits for OQ-59, before the store page review at Gate 2 (D-477).
-- Mid-block, the owner asked for a variety of aspect ratios and a revision of D-229. After four answers in a few minutes, the game supports 16:10 and 16:9 alone, with black bars on every other shape (D-480). The answer lands in this PR, and `CLAUDE.md` and `AGENTS.md` no longer list exceptions to G-8 (D-479).
-- After gitar approved `980e96c` with 0 comments, the owner cut the scope to four targets: Windows and Linux on x86_64, macOS on Apple silicon, and the Steam Deck (D-481). D-481 supersedes D-464 and D-474. The macOS build stays the official universal build, and the game supports Apple silicon alone (D-482).
-- F-33 records five gaps that the block closed, and F-34 records the screenshot format of Steam.
-- The session updated `docs/design.md`, `docs/questions.md`, `CLAUDE.md`, `AGENTS.md`, the PR template, three skills, the dev-machine runbook, and `docs/world/setting.md`.
-- The handoff held eleven entries before this one, because Session 20 added its entry and moved none. Sessions 11 and 10 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. `main` is `f4a1c6b` (PR #8).
-- PR #9 is open on `docs/pr-9-release-block`. The remote head is the commit that holds this entry.
-- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-
-### In flight
-
-PR #9 answers the gitar pass. It adds decision rows, so a Codex session reviews it, and no `review-override` label applies (D-401). The owner merges. Then the roadmaps docs PR starts (D-399).
-
-### Traps and gotchas
-
-- The PR holds two concerns on owner instruction (D-479). The description names the second concern, so a reviewer does not read it as a break of G-8.
-- D-480 took several answers: a wider view, a limit at 16:9, a crop of narrow screens, then 16:9 alone, then 16:9 and 16:10. Only the last answer is a row. Any text that names 21:9, 4:3, or a crop is stale.
-- D-471 moves the Steam Direct fee, the EU and WIPO name checks, the store text, and the capsule art to Gate 2. OQ-57 and OQ-59 now block the store page at Gate 2, and OQ-57 also blocks the crash address of D-473.
-- The roadmaps PR gives PR ids to the export job after PR-7, the store page work after Gate 2, the credits roll, and the trailer capture.
-- The Steamworks pages do not say how Auto-Cloud settles a conflict or whether a demo app needs a fee. PR-40 checks both.
-- D-464 and D-474 are superseded inside this PR. Any text that names arm64 builds for Windows or Linux, five exports, or five CI legs is stale.
-- The owner often gives a custom answer that widens the scope. Ask the limits in the next batch, and confirm the final state before the rows.
-- Gitar runs one pass by itself on a new PR. After a later push, post `Gitar review`, and count a pass only from a `Gitar` check run on the head.
-- The next ids are D-483, OQ-60, F-35, L-16, G-26, PR-43, M-7, and Session 22.
-
-### Open questions that block progress
-
-None for PR #9. OQ-57 and OQ-59 block the store page at Gate 2, and OQ-58 blocks PR-40. OQ-56 waits for the roadmaps PR, and OQ-3 waits for PR-3.
-
-### Next concrete action
-
-This session answers the gitar pass on PR #9. Then a Codex session reviews PR #9 under the `pr-review` skill and writes `docs/reviews/pr-9.md` (D-401). The owner merges. Then a session starts the roadmaps docs PR, asks OQ-56 first, and rebuilds sections 7 and 8 of `docs/design.md` (D-399).

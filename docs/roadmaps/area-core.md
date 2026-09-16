@@ -135,6 +135,7 @@ Built by PR-6. Phase file: `phase-1-foundations.md`.
 - A menu pauses the world (D-162). A menu action is an intent too, and OQ-64 holds what the tick does while a menu is open.
 - The mouse works on menus alone, and a mouse action on a menu makes the same intent as a key or a button (D-219, D-493).
 - Game makes no intent from a Godot timer, physics, or navigation (G-23).
+- No rule waits for an effect. Where the world waits for one, Game counts the ticks of the effect on its fixed-step clock (D-266). At the end, Game sends a wait intent (D-522). `area-effects.md` holds the effects.
 
 > *In plain English:* the rules never see keys or sticks. They see decisions, such as "step north" or "use this item", so a bot, a replay, and a player all speak the same language.
 

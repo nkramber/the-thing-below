@@ -106,7 +106,7 @@ Built by PR-34, and drawn by the content PRs. Phase files: every phase file.
 
 - A side view faces one way, and Game mirrors it for the other side with `flip_h` (D-199). The atlas holds no mirrored frame.
 - Both renderer families correct the normal map of a sprite that `flip_h` mirrors, so its light falls on the correct side (the external facts above).
-- A custom shader that writes `NORMAL_MAP` gets no such correction (the external facts above). `area-effects.md` keeps that case in view.
+- A custom shader that writes `NORMAL_MAP` gets no such correction (the external facts above). Section 7.6 of `area-effects.md` keeps each shader on a lit sprite away from `NORMAL_MAP`.
 - Each sprite, tile, and piece has a normal map. A portrait, an icon, a glyph, and a window frame have none, because they never take scene light (D-183, D-210, D-516).
 
 > *In plain English:* tiles and characters are 32 pixels square, faces are 64, and big enemies are larger. A character that faces left is the same drawing turned over, and the light still falls on the correct side.
@@ -199,7 +199,7 @@ The phase files give each batch its scope. This table names the art that the dec
 |---|---|---|
 | The `atlas` command, the PNG code, and the PNG import | `area-tools.md` | PR-34, PR-47, and PR-51 |
 | The map preview and the tile-edge tool | `area-tools.md` and `area-exploration.md` | PR-52 and PR-53 |
-| Normal maps, light, particles, and the CRT shader | `area-effects.md` | PR-48, PR-37, and the PRs that `area-effects.md` names |
+| Normal maps, light, particles, glow, transitions, and the CRT shader | `area-effects.md` | PR-48, PR-56 to PR-60, and PR-37 |
 | The frame, the fit, the fonts, the window frames, the icons, and the glyphs | `area-ui-input.md` | PR-7, PR-10, and the PRs that `area-ui-input.md` names |
 | The pixel tests in the test job, and the screen tests | `area-ci.md` | PR-34, PR-55, and PR-41 |
 | The store images on the store page | `area-release.md` | The store page work at Gate 2 |
@@ -228,12 +228,13 @@ The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #
 4. PR-7: Game loads the atlas and draws the first map with the Nearest filter.
 5. PR-55: large pictures, right before PR-10 (D-518).
 6. PR-10: the first backdrop.
-7. PR-36: the fixture portraits.
-8. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
-9. PR-17: the art of the first playable.
-10. **← GATE 2 (first playable).** Then the store images of the store page (D-471, D-475).
+7. PR-48: the normal maps of every drawing file, right before PR-56, the first PR that draws light (D-520, D-521).
+8. PR-36: the fixture portraits.
+9. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
+10. PR-17: the art of the first playable, with a normal map for each new drawing.
+11. **← GATE 2 (first playable).** Then the store images of the store page (D-471, D-475).
 
-PR-48, the normal maps, lands before the first PR that draws light, and `area-effects.md` places it (D-496).
+`area-effects.md` holds the order of the effect PRs between PR-10 and PR-17 (D-520).
 
 ## 9. Open questions
 
@@ -245,7 +246,6 @@ The register is `docs/questions.md` (D-19). These questions block art PRs, and e
 - OQ-88: the unit of the time of a frame. Blocks PR-34.
 - OQ-89: pixel snap in Game. Blocks PR-7.
 - OQ-91: the operations of a large picture on a piece. Blocks PR-55.
-- OQ-73: the form of the normal-map preview. Blocks PR-48.
 - OQ-90: where the studio mark shows. Blocks PR-33.
 - OQ-57: the studio name. Blocks the studio mark of PR-33 (D-468).
 

@@ -248,6 +248,19 @@ Art terms from the roadmaps PR of 2026-09-14:
 | atlas index | the committed file that gives the place of each frame in the atlas (D-517) | frame list, atlas map |
 | review sheet | a PNG that a tool renders to show an art batch to the owner, attached to the PR description (D-514) | contact sheet, when the text means art |
 
+Effects terms from the roadmaps PR of 2026-09-15:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| normal map | the image that tells 2D light which way each pixel of a drawing faces (D-183, D-184) | bump map, normal texture |
+| light setup | the ambient light and the lights of one map at one time of day (D-442) | lighting, light rig, light map |
+| effect file | the JSON file of one effect: its emitters, its palette colors, and its timings in ticks (D-182, D-266) | effect resource, particle file |
+| effect budget | the committed limits of lights with shadows, live particles, and full-screen passes that hold 60 frames per second on the Deck (D-523) | frame budget, perf budget |
+| full-screen pass | an effect that redraws the whole frame, such as fog, glow, a transition, or the CRT (D-523) | post-process, when the text means these |
+| wait intent | the intent that Game sends when an effect that the world waits for ends (D-522) | continue intent, done signal |
+| transition | one of the full-screen effects of D-195 that start a battle (D-191, D-196) | wipe, which names a party wipe (D-36), and screen change |
+| hit-stop | the brief freeze of the battle picture on a heavy blow (D-186) | freeze frame, hitlag |
+
 ## The checker
 
 Until PR-2, the Python script `docs/tools/ste-check.py` is the checker (D-10). Run it before you commit:
