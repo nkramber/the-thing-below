@@ -35,12 +35,19 @@ Session: the five phase files of PR #11, the rebuild of sections 7 and 8, and th
 
 ### In flight
 
-PR #11 waits for two passes. First the automated pass of gitar on head `848de1e` or later, which the author answers comment by comment (D-14, D-66). Then the cross-provider review by Codex, which writes `docs/reviews/pr-11.md` with a verdict for the effective head (T-4, D-17, D-401).
+PR #11 passed the automated pass and waits for the cross-provider review.
+
+- The effective head is `848de1e`. The two commits above it change `docs/session-handoff.md` alone, so each is a metadata commit and neither moves the effective head (the `pr-review` skill).
+- The `Gitar` check run on `848de1e` completed with the conclusion `success`. An on-demand pass at 13:52 UTC read the corrected handoff and reported `Approved`, with one finding closed and none open (D-14, D-66).
+- The pass left one inline comment, on a wrong citation in this entry. The author fixed it in `1bca609`, replied, and resolved the thread.
+- Next comes the Codex review, which writes `docs/reviews/pr-11.md` with a verdict for the effective head `848de1e` (T-4, D-17). This PR adds decision rows, so no label exempts it (D-401).
 
 ### Traps and gotchas
 
 - PR #11 adds decision rows, so the `review-override` label never applies to it (D-401). It needs the Codex review.
-- Count a gitar pass only from a check run on the head SHA, never from a dashboard page. A new push needs a new pass.
+- Count a gitar pass only from a check run on the head SHA, never from a dashboard page. A push that changes a path outside the metadata set needs a new pass.
+- A commit that changes `docs/reviews/`, `docs/session-handoff.md`, or `docs/session-handoff-archive.md` alone is a metadata commit, and it never moves the effective head (the `pr-review` skill). A handoff commit above an approved head keeps that approval.
+- An on-demand pass from the comment `Gitar review` writes no check run. Its result is the review comment itself, and the check run stays on the last automatic pass.
 - Section 7 of `docs/design.md` is now an index. A session that wants the scope or the exit tests of a PR reads its phase file, and it never adds a paragraph back to section 7 (D-554).
 - The five phase files and the twelve area files each cite the other set. A change to a PR id, an order, or a gate must change the phase file, the area file, and sections 7 and 8 together.
 - `docs/roadmaps/readme.md` is the index of the folder, and the read order of the agent files points at it.
@@ -55,7 +62,7 @@ None. The phase files carry every blocked question into a table in their section
 
 ### Next concrete action
 
-A session answers the automated pass of gitar on PR #11, comment by comment, and it replies to each one (D-14, D-66). When the pass adds no new comment, it tells the owner and hands the PR to a Codex session for the cross-provider review (T-4, D-17). After PR #11 merges, PR #12 holds the next design-critic pass on the merged plan (D-484, D-490).
+A Codex session reviews PR #11 at the effective head `848de1e` and writes `docs/reviews/pr-11.md` (T-4, D-17, D-401). The automated pass is complete, and no comment of it waits for an answer. After PR #11 merges, PR #12 holds the next design-critic pass on the merged plan (D-484, D-490).
 
 ## Session 32: 2026-09-16, Claude Code
 
