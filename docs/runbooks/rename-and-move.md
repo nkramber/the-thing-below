@@ -18,7 +18,7 @@ This runbook renames the repository from the working title to the tentative name
 - PR #2 is merged, and no other PR is open (D-400).
 - `git fetch` and `git status --short --branch` show no `[ahead N]` on `main`.
 - The Mac shows the external SSD at `/Volumes/SSD-1TB`.
-- The name is tentative (D-215). Search the Steam store and the trademark registers for "The Thing Below" first. If a conflict shows, file it in `docs/questions.md` and stop. The search of 2026-09-14 found no conflict that stops the name, and the owner approved the rename (D-408). The external facts in the status header of `docs/design.md` give each query, its source, and its result. EUIPO, TMview, and WIPO did not answer a query from a script, so PR-40 checks them before the store page goes public.
+- The name is tentative (D-215). Search the Steam store and the trademark registers for "The Thing Below" first. If a conflict shows, file it in `docs/questions.md` and stop. The search of 2026-09-14 found no conflict that stops the name, and the owner approved the rename (D-408). The external facts in the status header of `docs/design.md` give each query, its source, and its result. EUIPO, TMview, and WIPO did not answer a query from a script, so PR-75 checks them before the store page goes public (D-550).
 - The docs audit PR merges before step 4 starts (D-411).
 
 ## Procedure

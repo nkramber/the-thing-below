@@ -175,12 +175,13 @@ Game terms from the roadmap interview of 2026-09-12:
 | evaluator | the tactical scorer in core (D-65) | planner, AI, alone |
 | tile | one 32 by 32 map position (D-228) | cell, square, glyph |
 | sprite | the drawing of a character, an enemy, or an item (D-107) | glyph, icon, image |
-| grid | the text source of a sprite or a tile (D-107) | matrix, bitmap |
+| grid | the rows of palette keys of one frame in a drawing file, for a sprite, a tile, a portrait, or a piece (D-107, D-515) | matrix, bitmap |
 | atlas | the PNG the tool renders from every grid (D-107) | sheet, texture |
 | portrait | the 64 by 64 face in the dialogue box (D-109, D-234) | avatar, face |
 | backdrop | the battle background of a place (D-111) | background, stage |
 | region map | the node and route screen between places (D-113) | overworld, world map |
-| scene | a scripted story beat on the map (D-114) | cutscene, event |
+| scene | a scripted story beat on the map, which Core runs (D-114, D-540) | cutscene, event |
+| Godot scene file | the `.tscn` file of a node tree in the Game project | scene, which names a story beat (D-114) |
 
 World terms from the world-building interview of 2026-09-12:
 
@@ -222,6 +223,82 @@ Release terms from the release block of 2026-09-14:
 | release notes | the player notes of a release tag or a Steam update (D-453) | changelog, patch notes |
 | studio name | the developer and publisher name on the store page and in the credits (D-450) | company, team |
 | trusted player | a player whom the owner picks to play a gate build before release (D-469) | tester, playtester |
+
+Tools terms from the roadmaps PR of 2026-09-14:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| edge file | the generated file of the edge and corner tiles of one map, outside the rule files (D-501) | tile cache, edge map |
+| text helper | the one Game helper that puts a string table entry on screen (D-499) | text wrapper, label helper |
+
+CI terms from the roadmaps PR of 2026-09-14:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| identity file | the committed file that lists each run of the replay-identity set and its expected state hash (D-504) | golden file, baseline, hash list |
+| night record | the result file that one leg of a night uploads as an artifact of its run (D-509) | night result, night report |
+| docs-only PR | a PR that changes only `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/`, and the PR template (D-513) | documentation PR, when the text means this set |
+
+Art terms from the roadmaps PR of 2026-09-14:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| drawing file | the JSON file of one drawing: its id, its size, the content ids that it draws, and its frames of grids (D-515, D-519) | grid file, sprite file |
+| piece | a drawing file that a large picture places, such as a 64 by 64 rock (D-516) | part, chunk, or tile, when the text means a piece |
+| large picture | the JSON file that places pieces to make a backdrop layer, full-screen art, or a store image (D-516) | layout, which names a map file (D-39), and composition |
+| atlas index | the committed file that gives the place of each frame in the atlas (D-517) | frame list, atlas map |
+| review sheet | a PNG that a tool renders to show an art batch to the owner, attached to the PR description (D-514) | contact sheet, when the text means art |
+
+Effects terms from the roadmaps PR of 2026-09-15:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| normal map | the image that tells 2D light which way each pixel of a drawing faces (D-183, D-184) | bump map, normal texture |
+| light setup | the ambient light and the lights of one map at one time of day (D-442) | lighting, light rig, light map |
+| effect file | the JSON file of one effect: its emitters, its palette colors, and its timings in ticks (D-182, D-266) | effect resource, particle file |
+| effect budget | the committed limits of lights with shadows, live particles, and full-screen passes that hold 60 frames per second on the Deck (D-523) | frame budget, perf budget |
+| full-screen pass | an effect that redraws the whole frame, such as fog, glow, a transition, or the CRT (D-523) | post-process, when the text means these |
+| wait intent | the intent that Game sends when an effect that the world waits for ends (D-522) | continue intent, done signal |
+| transition | one of the full-screen effects of D-195 that start a battle (D-191, D-196) | wipe, which names a party wipe (D-36), and screen change |
+| hit-stop | the brief freeze of the battle picture on a heavy blow (D-186) | freeze frame, hitlag |
+
+UI and input terms from the roadmaps PR of 2026-09-16:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| view | the 16:10 shape or the 16:9 shape of the frame that the player sees (D-480) | resolution, when the text means one of these two |
+| fit | the scale of the frame to the screen of the player (D-232) | scaling, and stretch, which names the Godot setting |
+| UI style file | the content file of the font sizes, the colors, and the frame drawings, which Game turns into a Godot `Theme` (D-527) | theme file, skin |
+| button prompt | the glyph of the button that a line of text names (D-222) | icon, when the text means a button |
+| notice | the one-line message that slides in at the top edge of the screen (D-221) | toast, banner |
+| window frame | the drawn border of a menu window (D-220) | panel, and border, when the text means this drawing |
+
+Story terms from the roadmaps PR of 2026-09-16:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| scene step | one entry of a scene script, such as a move, a line, or a choice (D-173) | command, action, when the text means a step |
+| story flag | a name that is on or off, which a choice or a scene sets (D-329, D-542) | switch, variable, state bit |
+| condition | the one content form that reads the story flags, which every reader uses (D-543) | requirement, gate, predicate |
+| quest | one entry of the quest state, a personal task included (D-59, D-538) | mission, task, when the text means the entry |
+| personal task | the quest of one character that unlocks the side aptitude (D-282) | side quest, character quest |
+| rumor board | the NPC in a hub that shows the open quests (D-59) | quest board, notice board |
+
+Audio terms from the roadmaps PR of 2026-09-16:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| audio file | the JSON file that names the content ids a track, a sting, an ambience, or a sound effect serves (D-548) | music file, sound map |
+| audio bus | one channel of the audio player that a volume setting sets (D-435) | channel, group, mixer |
+| sound room | the screen in a development build that plays every track and sound (D-439) | jukebox, audio test |
+
+Release terms from the roadmaps PR of 2026-09-16:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| capture | the development-build command that replays a run record into PNG frames and a WAV file (D-476, D-551) | recorder, screen capture |
+| store image | a capsule, a logo, or a library image of the store page (D-475) | asset, art, when the text means these |
+| credits roll | the scene that plays the credits after the last scene of region one (D-467, D-552) | end credits, roll, alone |
 
 ## The checker
 

@@ -14,7 +14,7 @@ Read `docs/session-handoff.md` now, before any other file and before any tool ca
 4. `docs/decisions.md`: every owner decision, D-1 onward. Cite a D-# id when you apply one.
 5. `docs/questions.md`: the open questions register, OQ-1 onward. File a new question there.
 6. `docs/reviews/`: one review file per PR, plus audits and audit responses.
-7. `docs/roadmaps/`: focused roadmaps, one per phase and one per area (D-144). The roadmaps docs PR creates the folder (D-399).
+7. `docs/roadmaps/`: focused roadmaps, one per phase and one per area (D-144). Start at `docs/roadmaps/readme.md`, the index of the folder.
 8. `docs/world/`: the world, one file per topic (D-123). Read it before you write lore, content, or player text.
 9. `docs/runbooks/`: procedures for the machine and the repository.
 10. `docs/session-handoff-archive.md`: sessions older than the 10 in the handoff. Read it only when the handoff points to it.
@@ -127,7 +127,7 @@ The repository holds no code until PR-1 merges. PR-1 creates the solution, the M
 - Format check: `dotnet format TheThingBelow.slnx --verify-no-changes`
 - STE check, interim until PR-2: `python3 docs/tools/ste-check.py $(git ls-files '*.md' | grep -v -e '^docs/reviews/' -e '^docs/session-handoff' -e '^docs/archive/')`
 - STE check, after PR-2: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .`
-- Determinism and string lint, after PR-4: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- det-lint --root .`
+- Determinism and string lint, after PR-46: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- det-lint --root .`
 - Godot build check: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --editor --path TheThingBelow.Game --build-solutions --quit`
 - Smoke session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path TheThingBelow.Game -- --smoke`
 - Play session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --path TheThingBelow.Game`
@@ -142,9 +142,11 @@ A PR merges only when every line holds:
 - [ ] No silent failure. Every error carries context (T-2).
 - [ ] The build, test, and format job is green on every CI leg (D-2, D-117, D-481). PR-1 creates it.
 - [ ] The `smoke` job is green on every CI leg: the headless Godot session (D-117, D-481). PR-1 creates it.
-- [ ] The `det-lint` job is green: no float, clock, or OS random in `core`, and no inline player string (G-2, G-3, G-7). PR-4 creates it.
-- [ ] The `replay-identity` job is green: the same state hash on every CI leg for the fixed seed set (G-5, D-481). PR-4 creates it.
-- [ ] The `night-gate` job is green: a success record from a night inside 48 hours (G-22). PR-15 creates it.
+- [ ] The `det-lint` job is green: no float, clock, or OS random in `core`, and no inline player string (G-2, G-3, G-7). PR-46 creates it (D-496).
+- [ ] The `replay-identity` job is green: the same state hash on every CI leg for the fixed seed set (G-5, D-481, D-504). PR-4 creates it.
+- [ ] The `screen-test` job is green: each fixture screen matches the committed baseline (D-172, F-23). PR-41 creates it.
+- [ ] The bot job is green on every CI leg: the bot runs end with no crash and no softlock (D-64, D-505). PR-15 creates it.
+- [ ] The `night-gate` job is green: a success record from a night inside 48 hours (G-22). PR-49 creates it (D-496). A docs-only PR passes it (D-513).
 - [ ] The `ste-check` job is green (G-12). PR-1 creates it with the interim checker, and PR-2 moves it to C#.
 - [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14).
 - [ ] The other provider reviewed it, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). A PR in the override set that changes no decision row is exempt when the `review-override` label is on (D-16, D-401).

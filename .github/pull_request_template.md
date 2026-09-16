@@ -9,10 +9,12 @@ Each line holds before the owner merges (`CLAUDE.md`, PR gate).
 - [ ] Tests written and green (T-3).
 - [ ] No silent failure. Every error carries context (T-2).
 - [ ] The build, test, and format job is green on every CI leg (D-2, D-117, D-481). PR-1 creates it.
-- [ ] The `det-lint` job is green (G-2, G-3, G-7). PR-4 creates it.
+- [ ] The `det-lint` job is green (G-2, G-3, G-7). PR-46 creates it.
 - [ ] The `replay-identity` job is green on every CI leg (G-5, D-481). PR-4 creates it.
+- [ ] The `screen-test` job is green (D-172, F-23). PR-41 creates it.
+- [ ] The bot job is green on every CI leg (D-64, D-505). PR-15 creates it.
 - [ ] The `smoke` job is green on every CI leg: the headless Godot session (D-117, D-481). PR-1 creates it.
-- [ ] The `night-gate` job is green (G-22). PR-15 creates it.
+- [ ] The `night-gate` job is green (G-22). PR-49 creates it.
 - [ ] The `ste-check` job is green (G-12). PR-1 creates it.
 - [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14, D-66).
 - [ ] The other provider reviewed it, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). A PR in the override set that changes no decision row is exempt when the `review-override` label is on (D-16, D-401).
