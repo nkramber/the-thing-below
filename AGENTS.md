@@ -4,13 +4,15 @@
 
 ## First action
 
-Read `docs/session-handoff.md` now, before any other file and before any tool call. It tells you the state of the build, what is in flight, and the next concrete action. Then read the rest of this file.
+Read the top entry of `docs/session-handoff.md` now, before any other file. It tells you the state of the build, what is in flight, and the next concrete action. Read an older entry only when the top entry points to it, or when a gate needs the entries of the PR (D-584). Then read the rest of this file.
 
 Before any PR work, review work included, load `.claude/skills/one-pr-one-session/SKILL.md`. One session works on one PR, and the PR holds all of its work (D-576, D-577).
 
 ## Read order
 
-1. `docs/session-handoff.md`: the state and the next action.
+The start set is this file, the top handoff entry, and the skills of the task. Read the start set in full. The list below is the index of every document. Read each other document with targeted reads by id or heading, and cite each id that the work touches. `docs/runbooks/session-context.md` gives the commands (D-583).
+
+1. `docs/session-handoff.md`: the top entry, the state, and the next action.
 2. This file: the tenets and the rules.
 3. `docs/design.md`: the design, the guardrails (section 6), and the roadmap (section 7). `docs/archive/` holds the refuted plans.
 4. `docs/decisions.md`: every owner decision, D-1 onward. Cite a D-# id when you apply one.
@@ -50,13 +52,16 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 - Record each answer in `docs/decisions.md` with the next D-# id and the date. Never renumber.
 - Mark a change to an earlier decision in its `Effect` column. Use `Superseded by D-N` when the whole answer changes. Use `Revised in part by D-N` when one part changes, and name the part that changed and the parts that stand.
 - A citation of a superseded decision must name the superseding decision. A decision revised in part stays citable.
+- Save a script of more than 10 lines to a file, and run the file again. Edit a section, not a whole file (D-591).
 - One session is one harness invocation, bound to one PR (D-576). A session never starts a second PR. No PR exists only to record an earlier PR (D-578).
 
 ## Session handoff
 
-At the end of a session, fetch the remote and read `docs/session-handoff.md` again. Take the highest session number and add one. Then add a new entry at the top (D-18). Keep the 10 newest entries in that file. Move any older entry to the top of `docs/session-handoff-archive.md`.
+At the end of a session, fetch the remote and read the highest session number with `grep -m1 '^## Session' docs/session-handoff.md`. Add one. Then add a new entry at the top (D-18). Keep the 10 newest entries in that file. Move any older entry to the top of `docs/session-handoff-archive.md`.
 
-Set the author field to `Claude Code` or `Codex`. Commit the entry with the review record or the work it describes. Push, then fetch, and check that the status shows no `[ahead N]`. Another provider can add an entry above yours while you work. Add your own entry, and never append to an older one. Each entry has six parts:
+Set the author field to `Claude Code` or `Codex`. Commit the entry with the review record or the work it describes. Push, then fetch, and check that the status shows no `[ahead N]`. Another provider can add an entry above yours while you work. Add your own entry, and never append to an older one.
+
+Commit the entry of a round before the push of that round. While the PR waits for gitar or the other provider, tell the owner that the session is ready for a context compaction (D-587). Each entry has six parts:
 
 - What the session did, and why.
 - The state of the build, with the remote head.
@@ -71,7 +76,7 @@ Set the author field to `Claude Code` or `Codex`. Commit the entry with the revi
 - Read each required skill from `.claude/skills/<skill-name>/SKILL.md`, even if it is absent from the skill list.
 - Every `.md`, skill, and agent file follows ASD-STE100 (D-10). Load the `ste-writing` skill before you write.
 - Load the `design-doc-style` skill before you edit `docs/design.md` or a focused roadmap.
-- One term per concept. The `ste-writing` skill lists the project terms (D-12).
+- One term per concept. The `ste-writing` skill and its glossary reference file list the project terms (D-12, D-590).
 - Game text has its own voice and does not follow STE (D-11). Load the `game-text-style` skill before you write any player string (D-63).
 - Document file names in `docs/` are lowercase (D-20).
 
@@ -107,6 +112,7 @@ Set the author field to `Claude Code` or `Codex`. Commit the entry with the revi
 An automated reviewer, gitar, comments on every PR after a push (D-14). After each push, the author loads the `gitar-review` skill and follows it. The skill holds the procedure: get a current review of the head, verify each finding, then fix or refute it and reply. The rules below add to the skill, and a rule of this repo wins over it.
 
 - The author answers every comment before the hand-over to the other provider, or before the session applies the `review-override` label (D-67).
+- Wait for gitar with the one command of `docs/runbooks/session-context.md`, not a call for each poll (D-586).
 - When the pass is complete, tell the owner that the PR is ready for the other provider. On a PR that can take the label, apply the label instead (see below).
 - A reply names no provider, harness, or model as the source of work (T-6).
 - The reviewing provider reads the existing PR comments into its review and never addresses gitar. The `pr-review` skill holds the procedure of the reviewer.
@@ -132,7 +138,7 @@ The repository holds no code until PR-1 merges. PR-1 creates the solution, the M
 - Smoke session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path TheThingBelow.Game -- --smoke`
 - Play session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --path TheThingBelow.Game`
 
-The name `Godot` is not on the command path of this machine, so each check needs the full path above. The four exempt paths of the STE check are dated records: `docs/reviews/`, `docs/session-handoff.md`, `docs/session-handoff-archive.md`, and `docs/archive/`. Every other `.md` file passes the checker before a commit.
+The name `Godot` is not on the command path of this machine, so each check needs the full path above. The four exempt paths of the STE check are dated records: `docs/reviews/`, `docs/session-handoff.md`, `docs/session-handoff-archive.md`, and `docs/archive/`. Every other `.md` file passes the checker. Run it on the staged files in the commit command of `docs/runbooks/session-context.md`. Run the full STE check above one time before the first push of a PR (D-585).
 
 ## PR gate
 

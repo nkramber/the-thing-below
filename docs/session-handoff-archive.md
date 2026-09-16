@@ -2,6 +2,268 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 45: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: PR #13, the link from the guidance to the new `gitar-review` skill, on branch `docs/pr-13-gitar-review`.
+
+### What this session did, and why
+
+- The owner added the shared skill `.claude/skills/gitar-review/SKILL.md` and asked that `pr-review` and the other guidance link to it, with no copy of its procedure and no wrong text.
+- The skill adds the proof that a review is current. The older text in `CLAUDE.md` and `pr-review` asked for `Gitar review` only on a pause, and it did not check that the review covers the head.
+- `CLAUDE.md` and `AGENTS.md`: the skill list names `gitar-review`. The section "Automated review pass" points to the skill and keeps only the rules of this repo. The PR gate line asks for a current review.
+- `pr-review`: the section "The automated pass" points to the skill and keeps the rules of this repo. The reviewer checks with the read commands of the skill that the pass is current.
+- `.github/pull_request_template.md`: the gitar line asks for a current review.
+- The commit adds the skill file as the owner wrote it. It passes the STE check with 0 findings.
+- The owner answered two questions. No decision row records the skill, so `docs/decisions.md` stays as it is. The repo keeps the spelling `gitar`, and the shared skill keeps `Gitar`.
+- The handoff held ten entries before this one, so Session 35 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `b292624` (PR #12).
+- PR #13 is open on branch `docs/pr-13-gitar-review`. Its head is the commit that holds this entry.
+- The interim STE check passes with 0 findings, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #13 waits for a current gitar review under the `gitar-review` skill. It changes paths in the override set alone and no decision row, so the session applies the `review-override` label after the pass approves the head (D-16, D-67, D-401).
+
+### Traps and gotchas
+
+- The `gitar-review` skill is the same file in each repo. Do not edit it here. Put a rule of this repo in `CLAUDE.md` or `pr-review`.
+- A rule of this repo wins over the skill. Step 20 of the skill tells the owner that the PR is ready to merge. Here the PR goes to the other provider, or it takes the label.
+- The D-14 row still names the pause as the trigger for `Gitar review`. The owner chose no decision row, so the skill carries the wider trigger.
+- The dated records keep the old procedure text. Do not correct them.
+- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 46.
+
+### Open questions that block progress
+
+None for PR #13. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### Next concrete action
+
+Get a current gitar review of PR #13 and answer each finding under the `gitar-review` skill. Apply the `review-override` label after the pass approves the head. Then the owner merges.
+
+## Session 44: 2026-09-16, Codex
+
+Author: Codex
+Session: third repeat cross-provider review of PR #12 at effective head `ff04f87`.
+
+### What this session did, and why
+
+- Read the current handoff first, then the review response, the review and STE skills, the correction diff, the affected contracts, and the PR comments.
+- Verified the provider gate under T-4 and D-17. Session 43 identifies Claude Code as the author of the substantive P2-7 correction.
+- Recomputed the effective head. `ff04f87` is the newest substantive commit. The later commits `54edbe5` and `ef5a8b0` change only review and handoff metadata.
+- Reproduced P2-7 and its regression check. The art and effects ownership rows now name PR-81 and D-575, and the PR-81 budget test now covers each map and each battle place under D-523.
+- Checked the adjacent group scopes. The PR-35 and PR-17 exclusions now include PR-81. The remaining narrower references either record historical text or give PR-81 its own row.
+- Verified the automated finding and its correction. The final pass on `ef5a8b0` confirms the four-file count, and every review thread is resolved.
+- Updated `docs/reviews/pr-12.md`, preserved the three earlier verdicts, and set the current verdict to `Ready for owner merge` for `ff04f87`.
+- Corrected the stale other-provider checkbox in the PR description after the verdict became current.
+- The handoff held ten entries before this one, so Session 34 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. The target tip of `main` is `6910017`, and the PR merge base is `c4d39fe`.
+- PR #12 is open on branch `docs/pr-12-critic`. Before this review commit, its remote tip is `ef5a8b0`, and its effective head is `ff04f87`.
+- The interim STE check passes with 0 findings, both diff checks are clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- GitHub reports no check run. The automated pass reports approval with three closed findings and no open finding.
+
+### In flight
+
+PR #12 is ready for owner merge. The review record applies to effective head `ff04f87` (T-4, D-17).
+
+### Traps and gotchas
+
+- The verdict covers the effective head `ff04f87`, not the later metadata tip.
+- D-523 applies the effect budget to each map and each battle place. The boss of a one-map dungeon still creates a battle place.
+- A new PR that joins a named group must join its ownership tables and its scope limits.
+- OQ-180 blocks PR-81, not PR #12.
+- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 45.
+
+### Open questions that block progress
+
+None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### Next concrete action
+
+The owner can merge PR #12.
+
+## Session 43: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the second repeat review of PR #12, on branch `docs/pr-12-critic`.
+
+### What this session did, and why
+
+- The session read the second repeat review of Session 42. It set P2-6 to `fixed in 0fbfa82`, and it added P2-7 with the verdict `Changes required` for head `0fbfa82`.
+- P2-7 has full merit. The art and effects tables gave the later places to PR-23 to PR-27 alone, and the budget exit test of PR-81 left out its battle place, which the boss of D-575 needs.
+- The art row and the effects row now name PR-81 and cite D-575. The budget test of PR-81 now uses the boundary of the other dungeon builds: each map and each battle place.
+- A scan for the same class found two more lines in Phase 2, the scope limits of PR-35 and PR-17. The sealed door is a story gate on the region map, so both lines now name PR-81.
+- `docs/reviews/pr-12-response.md` gained the answer of this round.
+- The handoff held ten entries before this one, so Session 33 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `c4d39fe` (PR #11).
+- PR #12 is open on branch `docs/pr-12-critic`. Its remote head is the commit that holds this entry.
+- The correction changes four roadmap files outside the metadata set, so the effective head moves off `0fbfa82` to the commit of this answer.
+- The automated pass on `ff04f87` reported `Approved with suggestions`, with one finding. It had merit: the response and this entry said three roadmap files, and the commit changed four. The same count was wrong for the first round too, and a follow-up commit corrected all three lines.
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #12 waits for the repeat cross-provider review of P2-7 at the effective head `ff04f87` (T-4, D-17). The automated pass is complete, and no comment of it waits for an answer (D-14, D-66).
+
+### Traps and gotchas
+
+- A new PR that joins a group of PRs must join every table and every scope limit that names the group. PR-81 joined the sequence first and the ownership tables later.
+- The budget test of a dungeon covers each map and each battle place (D-523).
+- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 44.
+
+### Open questions that block progress
+
+None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### Next concrete action
+
+A Codex session repeats the review of PR #12 at the effective head `ff04f87`. It reads the P2-7 section of `docs/reviews/pr-12-response.md`, checks the trigger and the regression check, and writes the verdict (T-4, D-17).
+
+## Session 42: 2026-09-16, Codex
+
+Author: Codex
+Session: second repeat cross-provider review of PR #12 at effective head `0fbfa82`.
+
+### What this session did, and why
+
+- Read the current handoff first, then the review response, the review and STE skills, the correction diff, the changed contracts, and the PR comments.
+- Verified the provider gate under T-4 and D-17. Session 41 identifies Claude Code as the author of the D-575 correction.
+- Recomputed the effective head. `0fbfa82` is the newest substantive commit, and `74f9477` changes only the handoff metadata.
+- Reproduced P2-6 and its regression check. D-575 fixes the dungeon count and classification in the decisions, design, roadmaps, and world files.
+- Found one new adjacent contract defect, P2-7. The PR-81 budget test omits its boss battle place, and the art and effects tables omit PR-81.
+- Updated `docs/reviews/pr-12.md`, preserved both earlier verdicts, and set the current verdict to `Changes required` for `0fbfa82`.
+- Corrected the stale PR title, the automated-pass checkbox, and the D-# and OQ-# ranges in the PR description.
+- The handoff held ten entries before this one, so Session 32 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. The target tip of `main` is `6910017`, and the PR merge base is `c4d39fe`.
+- PR #12 is open on branch `docs/pr-12-critic`. Before this review commit, its remote tip is `74f9477`, and its effective head is `0fbfa82`.
+- The interim STE check passes with 0 findings, both diff checks are clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- GitHub reports no check run. The automated pass reports approval with two closed findings and no open finding.
+
+### In flight
+
+PR #12 needs the P2-7 roadmap correction, then another repeat cross-provider review at the new effective head.
+
+### Traps and gotchas
+
+- A full dungeon contract reaches the phase file and each affected area ownership table.
+- D-523 requires the effect-budget test for every map and battle place. A boss adds a battle place even when the place has one map.
+- P2-6 stays fixed. The next correction must not reopen the five-dungeon count or the order of play.
+- OQ-180 blocks PR-81, not PR #12. D-487 permits a future PR question in the roadmap.
+- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 43.
+
+### Open questions that block progress
+
+None. P2-7 needs no owner decision. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### Next concrete action
+
+The author adds PR-81 to the later-place rows of `area-art.md` and `area-effects.md`. The author also adds its battle place to the PR-81 budget exit test, updates the response file, and requests another review.
+
+## Session 41: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the repeat review of PR #12, on branch `docs/pr-12-critic`.
+
+### What this session did, and why
+
+- The session read the repeat review of Session 40. It set P1-1 and P2-1 to P2-5 to `fixed in d31ae6b`, and it added P2-6 with the verdict `Changes required` for head `d31ae6b`.
+- The automated pass also closed its one finding and reported `Approved`.
+- P2-6 has full merit. D-56, D-244, and D-313 counted four dungeons, and D-562 called the sealed gallery "a dungeon map" with no revision of those rows.
+- The owner classified the gallery as the fifth dungeon, with the full dungeon contract (D-575). The session recommended a passage that only uses the dungeon-map format, and the owner chose a dungeon.
+- The session applied D-575: marks on D-56, D-244, D-313, D-562, and D-564, the dungeon contract in the PR-81 entry, and the count of five in the design doc, two area files, Phase 3, `docs/world/places.md`, and `docs/world/arc.md`.
+- A scan for the old count found three more rows, D-327, D-346, and D-369, and each now names D-575.
+- A fifth dungeon needs a boss, and no document named one, so OQ-180 holds that question for PR-81 (D-487).
+- `docs/reviews/pr-12-response.md` gained the answer of this round.
+- The handoff held ten entries before this one, so Session 31 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `c4d39fe` (PR #11).
+- PR #12 is open on branch `docs/pr-12-critic`. Its remote head is the commit that holds this entry.
+- The correction changes files outside the metadata set, so the effective head moves off `d31ae6b` to the commit of this answer.
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- The ids stay gap-free: D-1 to D-575, and OQ-1 to OQ-180.
+
+### In flight
+
+PR #12 waits for the repeat cross-provider review of P2-6 (T-4, D-17).
+
+- The automated pass on `6a43f1a` reported `Approved with suggestions`, with one new finding. It had merit: the plain-English paragraph of Phase 4 in `docs/design.md` still said "Four more dungeons". The session corrected it to five dungeon builds, and a scan for other forms of the count found no other current contract (D-14, D-66).
+- The correction is `0fbfa82`, the effective head. The pass on it reported `Approved`, with both of its findings closed and none open, so no comment waits for an answer.
+
+### Traps and gotchas
+
+- Region one has two hubs and five dungeons (D-575). The hanging cells count once, although the party visits them twice (D-327).
+- The order of play is the hanging cells, the deep mine, the second visit to the cells, the sealed gallery, the refuge, the mining town by night, the border fort, and the ice crossing (D-313, D-574, D-575).
+- The target of six to eight hours of D-56 stands with five dungeons. M-5 measures it, and a miss changes content in a PR of its own.
+- A revised count reaches more rows than the rows that set it. A scan for the old words reads the Effect column of every decision too.
+- A reviewer session can archive a handoff entry too. Before a session archives the oldest entry, it reads the handoff and takes the oldest session that the handoff still holds.
+- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 42.
+
+### Open questions that block progress
+
+None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### Next concrete action
+
+A Codex session repeats the review of PR #12 at the effective head `0fbfa82`. It reads the P2-6 section of `docs/reviews/pr-12-response.md`, checks the trigger and the regression check, and writes the verdict (T-4, D-17). The automated pass is complete.
+
+## Session 40: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat cross-provider review of PR #12 at effective head `d31ae6b`.
+
+### What this session did, and why
+
+- Read the current handoff first, then the review response, the review skill, the STE skill, the correction diff, the original triggers, the adjacent contracts, and the PR comments.
+- Verified the provider gate under T-4 and D-17. Session 39 identifies the other provider as the author of the substantive corrections.
+- Recomputed the effective head. `d31ae6b` is the newest substantive commit. The later commits `aa3c5e2` and `c8e7e48` change only the review and handoff metadata paths.
+- Verified P1-1 and P2-1 through P2-5 against their original triggers and regression checks. Each earlier finding is fixed in `d31ae6b`. The archive response correction in `aa3c5e2` also matches the committed archive.
+- Checked the added PR-27 move. D-574, the design sequences, the Phase 4 sequence, the exploration roadmap, the places file, and the arc agree that PR-27 follows PR-81 and precedes PR-25.
+- Found one new adjacent contract defect, P2-6. D-56, D-244, and D-313 define four dungeons. D-562 and the places file classify the sealed gallery as another dungeon without a revision mark.
+- Updated `docs/reviews/pr-12.md`, preserved the earlier verdict, and set the current verdict to `Changes required` for `d31ae6b`.
+- Corrected two stale PR facts. The title and the description now end the decision range at D-574.
+- The handoff held ten entries before this one, so Session 30 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. The current target tip of `main` is `6910017`, and the PR merge base is `c4d39fe`.
+- PR #12 is open on `docs/pr-12-critic`. Before this review commit, its remote tip is `c8e7e48`, and its effective head is `d31ae6b`.
+- The interim STE check passes with 0 findings, both diff checks are clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- GitHub reports no check run on the branch. The repeat automated pass has one fixed and resolved finding and no open finding.
+
+### In flight
+
+PR #12 needs the owner classification and correction in P2-6, then another repeat cross-provider review at the new effective head.
+
+### Traps and gotchas
+
+- A dungeon count and a map implementation kind are separate only when a current decision says so. D-562 now calls the gallery a dungeon map, and the places table calls it a dungeon.
+- If the sealed gallery is a fifth dungeon, the correction must revise D-56, D-244, and D-313. If it is a route, D-562 and its consumers must state that it only uses the dungeon-map format.
+- The six earlier findings stay fixed. A response to P2-6 must not reopen their corrected contracts.
+- The review verdict covers `d31ae6b`, not the metadata tip.
+- The next ids are D-575, OQ-180, F-58, L-16, G-26, PR-82, M-7, and Session 41.
+
+### Open questions that block progress
+
+The owner must classify the sealed gallery as a fifth dungeon or as a route that uses the dungeon-map format. OQ-179 continues to block PR-5.
+
+### Next concrete action
+
+The author asks the owner to classify the sealed gallery, records the answer, corrects P2-6 and its adjacent consumers, and updates `docs/reviews/pr-12-response.md`. Then a Codex session repeats the review at the new effective head.
+
 ## Session 39: 2026-09-16, Claude Code
 
 Author: Claude Code

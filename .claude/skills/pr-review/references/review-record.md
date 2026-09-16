@@ -1,0 +1,164 @@
+# PR review: the review record
+
+Part of the `pr-review` skill (D-588). Load this file before you write a review record or correct the PR description. Load it too before you read the head and the verdict for `review-gate`.
+
+## Review record
+
+Use one file per PR in `docs/reviews/` (D-17). Reuse its existing name and finding ids on repeat reviews.
+For a new record, use `docs/reviews/pr-<number>.md` with the actual PR number, not the roadmap id.
+Record provider names only in the permitted review record and handoff author fields (D-22).
+Omit those names from any PR description or GitHub comment.
+
+The `review-gate` job reads this file once PR-3 creates it (D-15). Three parts of it are machine-read. Keep their format exact:
+
+| Part | Exact form | Rule |
+|---|---|---|
+| The file name | `docs/reviews/pr-<number>.md` | The number is the GitHub PR number, not the roadmap id. |
+| The head field | `- Head: ` and the hash in backticks, in the Identity list | The hash is the effective head. A short hash is permitted. |
+| The verdict | One of the three verdict names, in the `## Verdict` section | Write the name exactly. Do not reword it. |
+
+The effective head is the newest commit that changes a path outside the metadata set.
+The metadata set is `docs/reviews/`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md`.
+A commit that changes only those paths is a metadata commit, and it does not change the effective head.
+The required review commit holds the review record and the handoff entry, so it is always a metadata commit.
+Without that rule the review commit invalidates the review that it publishes.
+Record the effective head, not the tip, when the review commit is the last commit.
+
+Use this skeleton. Keep the heading text and the order.
+
+```markdown
+# PR-<number> review
+
+Date: <YYYY-MM-DD>
+
+## Identity
+
+- PR: <number>
+- Target: `main`
+- Base: `<sha>`
+- Merge base: `<sha>`
+- Head: `<effective head sha>`
+- Branch: `<branch>`
+
+## Provider gate
+
+State the author provider, the source of that fact, and the reviewer provider.
+State the gate result against T-4 and D-17.
+
+## Intended behavior and scope
+
+State the intent, what the review inspected, and every affected contract.
+List each path of `git diff --stat` as inspected, or name it as uninspected (D-589).
+Name any area that remains uninspected.
+
+## Findings
+
+One subsection per finding, in severity order. Use the finding format below.
+Write "No finding." when the review found none.
+
+## Out of scope
+
+One line per concern that a later PR holds. Name that PR or roadmap item.
+Give no severity here. Write "None." when the review found none.
+
+## PR comments
+
+One line per existing comment thread on the PR: the claim, the author's answer, and what the review verified (D-14).
+Write "None." when the PR holds no comment.
+
+## Description edits
+
+One line per correction that this review made to the PR description.
+Give the old value and the new one. Write "None." when the review changed nothing.
+
+## Verification
+
+One line per command or check, with its result.
+Name each check that did not run and the reason.
+End with the push line: `- Push: <sha> is the head of origin/<branch>, verified with gh pr view.`
+
+## Open questions and accepted risks
+
+Name each open OQ-# and each accepted risk with its D-# id.
+
+## Verdict
+
+**<Blocked | Changes required | Ready for owner merge>.** This verdict applies to head `<sha>`.
+Give the reason in one or two sentences.
+```
+
+## Finding format
+
+Give each finding a stable id: the letter `P`, the severity number, a hyphen, and an index. `P1-1` is the first P1 finding.
+Keep the id for the life of the PR. Never renumber a finding on a repeat review.
+
+```markdown
+### P<severity>-<n>: <short title that states the defect>
+
+Status: <open | fixed in `<sha>` | accepted risk, D-# | withdrawn>.
+
+File: `<path>:<line range>`, or Commit: `<sha>`.
+
+Trigger: the input or state that produces the defect.
+
+Expected: the required behavior, with the contract, tenet, guardrail, or D-# id.
+
+Actual: the observed behavior.
+
+Consequence: the effect on the player, the data, the build, or the maintainer.
+
+Correction: the smallest change that restores the contract.
+
+Regression check: the command or test that establishes the fix, and the result that must appear.
+```
+
+A withdrawn finding stays in the file with the evidence that refuted it. Never delete a finding.
+
+## Correct the PR description
+
+A PR description is part of the documentation set. A description that names a stale head, an old count, or a superseded correction misleads the owner at the merge.
+
+The reviewer corrects such a description directly. It needs no finding, and the author needs no extra pass for it.
+
+The reviewer changes only a fact that the review verified:
+
+- the effective head, the base, or the merge base.
+- a count that the review ran, such as the test total or the finding total.
+- a check result that the review read.
+- a sentence that names a correction that a later commit replaced.
+
+The reviewer never changes:
+
+- what the author says the PR does, or why.
+- a decision, a tradeoff, or a recommendation.
+- a gate line that the owner ticks.
+
+Name no provider, agent, harness, or model in the description (T-6, D-22).
+
+Write one line for each edit in the review record, under `## Description edits`. Give the old value and the new one. The owner then reads every change in one place.
+
+A claim that is wrong in substance stays a finding. The reviewer corrects a stale fact, and the author corrects a wrong statement.
+
+## The review gate check
+
+PR-3 adds a `review-gate` check (D-15). It applies three rules:
+
+1. `docs/reviews/pr-<number>.md` exists for the PR number.
+2. The verdict is `Ready for owner merge`.
+3. The head in the Identity list is the effective head.
+
+The check also passes a PR in the override set that has the `review-override` label and changes no decision row (D-16, D-401). A PR that changes `.github/workflows/` never passes on the label, because each gate lives in a workflow file (D-560).
+
+The check has three states. Read the color before you start:
+
+| Color | Meaning | What to do |
+|---|---|---|
+| Grey | No review record exists for this PR. The job line reads red. | Write one. This is the normal state before a review. |
+| Red | A review record exists, and it does not approve this head. | Read the findings. The author corrects them. |
+| Green | An approved review covers the effective head. | The owner may merge (D-8). |
+
+Rule 3 fails when the author pushes code after the approval. That result is correct.
+Reassess the new diff, then update the head field and the verdict together.
+Rule 3 does not fail when the last commit changes only the metadata paths.
+
+Until PR-3 merges, the check does not exist. The owner reads the verdict in the review record by hand, and the PR template names PR-3 as the creator of the check (G-16). The check cannot run on PR-3 itself, because GitHub starts `pull_request_target` only from `main`. PR-3 proves the command in Tests, and the first live run comes on the next PR (D-500).

@@ -26,6 +26,8 @@ Write the binding in the first reply of the PR work and in the handoff entry:
 
 A session can take many turns and many commits for its PR. The author session answers each gitar comment and each review of its PR, and a review answer needs no new session (D-582). A correction author continues the author role only when the author session no longer exists, and it comes from the provider of the author (T-4). The reviewer session repeats its review of the same PR after each correction. Each round adds a new handoff entry. A session never works on a second PR.
 
+Commit the handoff entry of a round before the push of that round, and push one time. Do not push while the PR waits for gitar. While the PR waits for gitar or the other provider, tell the owner that the session is ready for a context compaction (D-587). Do the same when the context of the session passes 300k tokens. After the context compaction, read the top handoff entry again. A context compaction of this session keeps its binding.
+
 Stop with this result, and do no other work, when one of the conditions below holds:
 
 `Blocked: start a new clean session for this PR.`
@@ -33,7 +35,7 @@ Stop with this result, and do no other work, when one of the conditions below ho
 - The conversation holds substantive work on another PR or another repository. Substantive work is a change, a commit, a push, a review record, or a PR comment. A file read alone is not.
 - The conversation holds a PR that the owner merged or closed.
 - The request asks for a second PR or the next PR.
-- The session is a fork, a subagent, a compaction, or a summary of a session that worked on another PR.
+- The session is a fork, a subagent, a context compaction, or a summary of a session that worked on another PR.
 
 After the hand-over point, a request for the next PR gets this result too.
 
@@ -46,7 +48,7 @@ A clean session is a new top-level session that holds no work of another PR. The
 Write no change until each line holds:
 
 1. The binding of step 1 holds.
-2. The session read `docs/session-handoff.md` and the read order of `CLAUDE.md`.
+2. The session read the start set of `CLAUDE.md`: the top handoff entry and the skills of the task (D-583, D-584).
 3. The PR has one concern (G-8).
 4. `git fetch` ran, and the session wrote down the base commit.
 5. A first line exists for each row of the table in step 3.
