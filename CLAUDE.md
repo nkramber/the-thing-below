@@ -14,7 +14,7 @@ Read `docs/session-handoff.md` now, before any other file and before any tool ca
 4. `docs/decisions.md`: every owner decision, D-1 onward. Cite a D-# id when you apply one.
 5. `docs/questions.md`: the open questions register, OQ-1 onward. File a new question there.
 6. `docs/reviews/`: one review file per PR, plus audits and audit responses.
-7. `docs/roadmaps/`: focused roadmaps, one per phase and one per area (D-144). The roadmaps docs PR creates the folder (D-399).
+7. `docs/roadmaps/`: focused roadmaps, one per phase and one per area (D-144). Start at `docs/roadmaps/readme.md`, the index of the folder. The roadmaps docs PR creates the folder (D-399).
 8. `docs/world/`: the world, one file per topic (D-123). Read it before you write lore, content, or player text.
 9. `docs/runbooks/`: procedures for the machine and the repository.
 10. `docs/session-handoff-archive.md`: sessions older than the 10 in the handoff. Read it only when the handoff points to it.

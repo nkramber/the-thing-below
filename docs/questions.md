@@ -347,7 +347,7 @@ How to file a question (D-19, D-24):
 111. **OQ-111. The scale of the dungeon map screen.** The map screen draws every tile that the party saw (D-218). A dungeon is larger than the frame. At what scale does it draw? Raised 2026-09-16. Blocks PR-62.
     - One pixel for each tile, with the screen centered on the party, the recommendation. A large dungeon fits in the frame, and the shape reads at a glance. A door or a save point needs a mark of more than one pixel.
     - Eight pixels for each tile, with a scroll. Each room reads clearly, with its doors and chests. The player scrolls a large dungeon, which needs its own input rules.
-112. **OQ-112. The text speeds and the layout of the dialogue box.** The box types its text out at the chosen speed (D-223), and the text speed is an accessibility setting (D-214). Godot types out text in two ways. The box can re-wrap as each letter appears, or it can keep its layout (the external facts of `area-ui-input.md`). What does the box do? Raised 2026-09-16. Blocks PR-36.
+112. **OQ-112. The text speeds and the type-out of the dialogue box.** The box types its text out at the chosen speed (D-223), and the text speed is an accessibility setting (D-214). Godot types out text in two ways. The box can re-wrap as each letter appears, or it can keep its layout (the external facts of `area-ui-input.md`). What does the box do? Raised 2026-09-16. Blocks PR-36.
     - A fixed layout, with three speeds and an instant skip, the recommendation. The words never move once they appear, which reads best at speed. The box needs its full text before it types, which it always has.
     - A re-wrap as each letter appears, which is the Godot default. It needs no setup. A word can jump to the next line as the line fills, which reads poorly.
 113. **OQ-113. The notice log.** An important notice also lands in a log in the menu (D-221). Which notices does the log keep, and how many? Raised 2026-09-16. Blocks PR-62.
@@ -464,7 +464,7 @@ How to file a question (D-19, D-24):
 150. **OQ-150. How the player skips a scene.** The text speed and the skip are accessibility settings (D-214, PR-63). What does the skip do? Raised 2026-09-16. Blocks PR-36.
     - A held button fills each line at once and moves to the next step, the recommendation. A second read of a scene costs little, and the player never loses a choice. A long scene still takes many presses.
     - A skip that jumps to the end of the whole scene. A replay of a lost fight costs no time at all. Each choice inside the scene then needs a default, which the story must set.
-151. **OQ-151. How the choices lay out in the dialogue box.** A choice sits in the box at the bottom (D-114, D-223). How many, and where? Raised 2026-09-16. Blocks PR-36.
+151. **OQ-151. How the choices lay out in the dialogue box.** A choice sits in the box at the bottom (D-114, D-223). OQ-112 holds the line text, and this question holds the choices alone. How many, and where? Raised 2026-09-16. Blocks PR-36.
     - Up to four choices, in a list above the box, the recommendation. Four fit the height of D-480, and a list reads the same on the Deck and on a desktop. A scene with five results needs two questions.
     - Up to three choices, inside the box under the line. The box stays one shape, and no panel covers the map. Three is a tight limit for a set choice with a middle answer.
 152. **OQ-152. What a quest holds.** The quest state holds every task, the personal tasks included (D-538). What is one quest? Raised 2026-09-16. Blocks PR-19.

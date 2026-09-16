@@ -180,7 +180,8 @@ Game terms from the roadmap interview of 2026-09-12:
 | portrait | the 64 by 64 face in the dialogue box (D-109, D-234) | avatar, face |
 | backdrop | the battle background of a place (D-111) | background, stage |
 | region map | the node and route screen between places (D-113) | overworld, world map |
-| scene | a scripted story beat on the map (D-114) | cutscene, event |
+| scene | a scripted story beat on the map, which Core runs (D-114, D-540) | cutscene, event |
+| Godot scene file | the `.tscn` file of a node tree in the Game project | scene, which names a story beat (D-114) |
 
 World terms from the world-building interview of 2026-09-12:
 
