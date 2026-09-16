@@ -10,7 +10,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 ## 1. Thesis
 
-Phase 4 writes the free prologue. Every system exists after Phase 3, so this phase adds content alone. It adds four more dungeon builds, the sealed gallery, a second hub, the lessons, the music, and the story of region one.
+Phase 4 writes the free prologue. Every system exists after Phase 3, so this phase adds content alone. It adds five more dungeon builds, the sealed gallery among them, a second hub, the lessons, the music, and the story of region one.
 
 The order follows the order of play (D-313). A place lands before the story scenes that play on it, and the lessons land before the balance pass that tunes them. The arc comes in two batches, because one batch of that size cannot take a careful review (L-1, D-57).
 
@@ -38,7 +38,7 @@ An exit test is a test or a job that the PR adds and that must pass before the m
 
 Every content PR of this phase keeps one list. It loads, it draws, it sounds, it reads in the voice, and the bots play it with no crash and no softlock (D-64, G-20, G-25).
 
-### 7.1 PR-23 to PR-26: the dungeons two to four, and the return to the cells
+### 7.1 PR-23 to PR-26: the deep mine, the border fort, the ice crossing, and the return to the cells
 
 Area files: `area-exploration.md` sections 7.1 and 7.8, `area-art.md` sections 7.3 to 7.5, `area-battle.md` section 7.7.
 
@@ -85,13 +85,16 @@ One content PR for each dungeon build, in the order of play (D-313). PR-23 is th
 
 ### 7.2 PR-81: the sealed gallery
 
-Area files: `area-exploration.md` sections 7.1 and 7.8, `area-art.md` sections 7.3 to 7.5.
+Area files: `area-exploration.md` sections 7.1 and 7.8, `area-art.md` sections 7.3 to 7.5, `area-battle.md` section 7.7.
 
 **Scope.**
 
-- The sealed gallery under the gorge as a dungeon map, after the second visit to the hanging cells in the order of play (D-313, D-562).
+- The sealed gallery under the gorge, the fifth dungeon of region one (D-575). It follows the second visit to the hanging cells in the order of play (D-313).
 - The second passage, where the party and the church wardens pass each other (D-343).
 - Its tile set, its map file, its edge file, and its light setup (D-110, D-501, D-519).
+- The enemies with their sprites, their profiles, and their groups (D-535).
+- One boss with its sprite, its phases, and its backdrop, which OQ-180 names (D-65, D-205, D-575).
+- The treasure, the puzzles, and the secrets of the place (D-41).
 - The ambient effects of the place (D-187). PR-73 holds its ambience (D-424).
 - The normal map of each new drawing (D-183, D-521).
 
@@ -108,16 +111,20 @@ Area files: `area-exploration.md` sections 7.1 and 7.8, `area-art.md` sections 7
 4. The budget test passes for each map of the place (D-523).
 5. The bots play the map with no crash and no softlock (D-64).
 6. Each edge file matches its map and the edge rules (D-501).
+7. The boss changes phase at its threshold in one thousand seeds (PR-20).
+8. Every string comes from the string table, in the voice (G-7, G-20).
 
 **Review focus.**
 
+- The gallery holds the full dungeon contract, as the other dungeons of region one do (D-575).
+- The boss and the second passage both fit the flight, where the wardens pass the party (D-343).
 - The place follows `docs/world/places.md` and `docs/world/arc.md` (D-251, D-331, D-343).
 - The layout of the second passage, an open item of `docs/world/places.md`, comes to the owner in this PR.
 - The owner approves each art batch from its review sheets (D-514, G-25).
 
-**Questions.** None. The layout of the second passage is an open item of `docs/world/places.md`, and this PR proposes it.
+**Questions.** OQ-180. The layout of the second passage is an open item of `docs/world/places.md`, and this PR proposes it.
 
-> *In plain English:* the old sealed tunnel that the party escapes through. It has a second passage, so the party and its hunters can slip past each other.
+> *In plain English:* the old sealed tunnel that the party escapes through, a full dungeon with its own boss. It has a second passage, so the party and its hunters can slip past each other.
 
 ### 7.3 PR-27: the second hub
 
@@ -405,6 +412,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | Question | Subject | Blocks |
 |---|---|---|
 | OQ-57 | The studio name | PR-77 |
+| OQ-180 | The boss of the sealed gallery | PR-81 |
 
 The open items of `docs/world/arc.md` are not questions of the register. PR-28 and PR-29 propose each one to the owner inside the PR that needs it (D-352, D-355).
 

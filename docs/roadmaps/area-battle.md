@@ -137,7 +137,7 @@ Built by PR-11 and PR-9. Phase file: `phase-2-first-playable.md`.
 Built by PR-20. Phase file: `phase-3-story-systems.md`.
 
 - A scripted phase layer sits over the evaluator. A phase changes the profile and adds a move (D-65).
-- PR-20 builds the phase layer on a fixture boss. The first playable holds no boss, and the bosses of region one come with PR-23 to PR-26 (D-564).
+- PR-20 builds the phase layer on a fixture boss. The first playable holds no boss, and the bosses of region one come with PR-23 to PR-26 and PR-81 (D-564, D-575).
 - No party flees from a boss (D-378).
 - OQ-130 holds what starts a phase.
 - The boss changes phase at the scripted threshold in every one of one thousand seeds (the exit tests of PR-20).

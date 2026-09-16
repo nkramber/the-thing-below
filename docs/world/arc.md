@@ -16,10 +16,10 @@ Region one is a fixed story with set choices (D-328, D-350). The party grows fro
 | First dungeon | The hanging cells | The party frees Dagvar (D-330) |
 | Second dungeon | The deep mine | The sealed crew, the trace of the parent, and a wrong thing (D-311, D-312, D-344) |
 | First dungeon, again | The hanging cells | The party breaks out and kills the bishop (D-319, D-327) |
-| Flight | The sealed gallery and the refuge | The party shelters with the old faith and leaves before the wardens come (D-331, D-340) |
+| Third dungeon and flight | The sealed gallery and the refuge | The party shelters with the old faith and leaves before the wardens come (D-331, D-340, D-575) |
 | Flight | The mining town, by night | The party passes the town to the road up (D-333, D-343) |
-| Third dungeon | The border fort | The bandits sell the party to the church wardens (D-341) |
-| Fourth dungeon | The ice crossing | The last fight, against the captain of the wardens (D-345) |
+| Fourth dungeon | The border fort | The bandits sell the party to the church wardens (D-341) |
+| Fifth dungeon | The ice crossing | The last fight, against the captain of the wardens (D-345) |
 
 The game starts in the village, a small start area with no services (D-368, D-369). The mining town is the first hub, and the refuge of the old faith opens as the second hub late in the region (D-331).
 

@@ -123,7 +123,7 @@ Area files: `area-battle.md` section 7.8, `area-story.md` section 7.2.
 
 **Out of scope.**
 
-- The bosses of region one, with their sprites and their backdrops, which PR-23 to PR-26 write (D-564).
+- The bosses of region one, with their sprites and their backdrops, which PR-23 to PR-26 and PR-81 write (D-564, D-575).
 - The balance of the boss numbers (PR-30).
 
 **Exit tests.**
@@ -157,7 +157,7 @@ Area file: `area-exploration.md` section 7.10.
 
 **Out of scope.**
 
-- The puzzles of region one, which PR-23 to PR-26 write.
+- The puzzles of region one, which PR-23 to PR-26 and PR-81 write (D-575).
 - The light setup of a map, which PR-56 holds (D-519).
 
 **Exit tests.**

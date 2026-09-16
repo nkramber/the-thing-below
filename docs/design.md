@@ -125,7 +125,7 @@ The goal is a Steam release, and the Steam Deck is the readability and performan
 
 A full roadmap comes before any code (D-142). The plan puts the foundations first, because every later system depends on them. Those are a deterministic core, a run record with replay, the content loader, the atlas tool, and the document gates. The first playable is the village, one hub, and one dungeon, with lessons and a shop (D-51, D-268, D-362, D-369). The owner judges feel there, on the desktop and on the Deck.
 
-The story systems come third, because they need the loop. Region one, two hubs and four dungeons in one arc, is the first release (D-56). It ships free, as a Steam demo of the full game (D-133, D-143). Every plotline converges at the end of the game (D-131). Five gated phases hold that order.
+The story systems come third, because they need the loop. Region one, two hubs and five dungeons in one arc, is the first release (D-56, D-575). It ships free, as a Steam demo of the full game (D-133, D-143). Every plotline converges at the end of the game (D-131). Five gated phases hold that order.
 
 ## 2. Lessons learned (carry into every PR)
 
@@ -422,7 +422,7 @@ Phase file: `docs/roadmaps/phase-4-region-one.md`. Each item here is content, an
 
 1. PR-23: the deep mine, and the sprite frames of Ottild and Elio (D-313, D-342).
 2. PR-24: the second visit to the hanging cells (D-327, F-29).
-3. PR-81: the sealed gallery, where the flight begins (D-343, D-562).
+3. PR-81: the sealed gallery, the fifth dungeon, where the flight begins (D-343, D-575).
 4. PR-27: the second hub, the refuge of the old faith, right after PR-81 (D-28, D-574).
 5. PR-25: the border fort.
 6. PR-26: the ice crossing.

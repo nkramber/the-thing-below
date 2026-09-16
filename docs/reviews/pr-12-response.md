@@ -126,3 +126,33 @@ The owner chose to move PR-27 right after PR-81 (D-574). The Phase 4 order is no
 ## The new head
 
 The corrections change `docs/decisions.md`, `docs/design.md`, `docs/questions.md`, three roadmap files, and `docs/world/places.md`, which sit outside the metadata set. So the effective head moves off `84b4128` to the commit that holds this response.
+
+## Repeat review: P2-6
+
+The repeat review of Session 40 set P1-1 and P2-1 to P2-5 to `fixed in d31ae6b`, and it added P2-6 for head `d31ae6b`.
+
+### P2-6: The sealed gallery conflicts with the four-dungeon contract
+
+Disposition: **full merit.**
+
+The trigger reproduces. D-56 reads "Two hubs, four dungeons", D-244 names the four, and D-313 orders "the four dungeons". D-562 called the gallery "a dungeon map", and the session tagged it `Dungeon` in the table of `docs/world/places.md`. So the documents counted a fifth place of that kind, and no row recorded a revision. The words "dungeon map" named either the map format or the kind of place that D-56 counts.
+
+Correction:
+
+- The owner classified the gallery as the fifth dungeon, with the full dungeon contract (D-575). The session recommended a passage that only uses the dungeon-map format, and the owner chose a dungeon.
+- D-56, D-244, D-313, D-562, and D-564 gained marks that name D-575. D-56 keeps its two hubs, its one arc, and its target of six to eight hours.
+- A scan for the old count found three more rows that the review did not list: D-327, D-346, and D-369 each stated "four dungeons" in the Effect column. Each now names D-575.
+- The PR-81 entry of `phase-4-region-one.md` gains the dungeon contract: the enemies, one boss with its phases, and the treasure, the puzzles, and the secrets. It gains a boss test and a string test.
+- `docs/world/places.md`, `docs/world/arc.md`, the thesis and section 7 of `docs/design.md`, `area-battle.md`, `area-exploration.md`, and the PR-20 and PR-21 entries of Phase 3 now count five dungeons. The arc table numbers the fort as the fourth dungeon and the ice crossing as the fifth.
+- A fifth dungeon needs a boss, and no document named one. OQ-180 holds that question and blocks PR-81 (D-487).
+
+Regression check: a scan of every live document for `four dungeons`, `third dungeon`, `fourth dungeon`, `fifth dungeon`, `five dungeons`, and `dungeon map with its own`. Each current contract says five dungeons, and the gallery is the fifth. Each decision row that still states four dungeons carries a mark that names D-575.
+
+### New ids of this round
+
+- D-575: the sealed gallery is a dungeon.
+- OQ-180: the boss of the sealed gallery.
+
+### The new head
+
+The correction changes `docs/decisions.md`, `docs/design.md`, `docs/questions.md`, four roadmap files, and two world files, which sit outside the metadata set. So the effective head moves off `d31ae6b` to the commit that holds this round.

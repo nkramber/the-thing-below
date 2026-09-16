@@ -238,7 +238,7 @@ Built by PR-35. Phase file: `phase-2-first-playable.md`.
 | PR-21 | The switches, the blocks, the light and dark, and the secrets | D-41 |
 | PR-17 | The village, the land near it, the mining town, and the hanging cells | D-313, D-362, D-369 |
 | PR-23 to PR-27 | The deep mine, the second visit to the cells, the border fort, the ice crossing, and the second hub, the refuge | D-313, D-327, D-574 |
-| PR-81 | The sealed gallery, with its second passage | D-343, D-562 |
+| PR-81 | The sealed gallery, the fifth dungeon, with its second passage | D-343, D-562, D-575 |
 
 ### 7.15 Exploration that other area files hold
 
