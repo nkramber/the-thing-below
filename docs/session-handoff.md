@@ -38,7 +38,12 @@ Session: the design-critic pass of PR #12 on the merged plan, the owner answers,
 
 ### In flight
 
-PR #12 opens after this entry. It adds decision rows, so it takes the review of the other provider and never the `review-override` label (D-401). The automated pass of gitar comes first (D-14, D-66).
+PR #12 is open and waits for the cross-provider review.
+
+- The automated pass is complete. The `Gitar` check run on the PR head `b9b0f24` completed with the conclusion `success`, and the review comment reported `Approved` with no issue (D-14, D-66).
+- The pass left no inline comment, so no comment waits for an answer.
+- The effective head is `84b4128`. The commits above it change `docs/session-handoff.md` alone, so each is a metadata commit and keeps that approval (the `pr-review` skill).
+- PR #12 adds decision rows, so it takes the review of the other provider and never the `review-override` label (D-401).
 
 ### Traps and gotchas
 
@@ -56,7 +61,7 @@ None for PR #12. OQ-179 blocks PR-5. Every other detail question stays with the 
 
 ### Next concrete action
 
-A session opens PR #12 and answers the automated pass (D-14, D-66). Then a Codex session reviews PR #12 and writes `docs/reviews/pr-12.md` for its effective head (T-4, D-17, D-401).
+A Codex session reviews PR #12 at the effective head `84b4128` and writes `docs/reviews/pr-12.md` (T-4, D-17, D-401). The automated pass is complete, and no comment of it waits for an answer.
 
 ## Session 36: 2026-09-16, Codex
 
