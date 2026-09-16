@@ -2,6 +2,52 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md`. Read the first entry first.
 
+## Session 35: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the PR #11 review findings, on branch `docs/pr-11-roadmaps`.
+
+### What this session did, and why
+
+- The session read `docs/reviews/pr-11.md`, the `Changes required` verdict of Session 34 for head `848de1e`. It assessed each finding against the evidence before it changed a file (the `pr-review` skill).
+- P1-1 has partial merit.
+  - The part with merit: exit test 1 of PR-61 asked for a screen test, and PR-41 creates that job four PRs later. The order cannot move, because D-524 puts PR-61 right before PR-7, and PR-41 captures the map scene that PR-7 builds. So the test moves. PR-61 now computes both views and both steps of the fit in a headless test, and PR-41 takes the captures.
+  - The part with no merit: the finding says that the panels of PR-61 wait for PR-62. Section 7.4 of `area-ui-input.md` gives the panel-sizing rule to PR-61, and PR-62 owns the window stack alone. The response quotes that section. The exit test now reads "the fixture panel" for precision, and the owner of the rule stands.
+- A scan for the class of defect that P1-1 names found one more instance that the review did not list. Exit test 2 of PR-68 used the bots, and PR-15 lands three PRs later. The test now uses a scripted intent list, which needs no bot policy.
+- P2-1 has full merit. D-544 moved the condition form from PR-18 to PR-68 and left no revision mark on D-543. The Effect column of D-543 now carries `Revised in part by D-544`, with the part that changed and the parts that stand. The stale fixture-condition line came out with it.
+- The regression check of P2-1 asked that every roadmap citation name PR-68. A search found twelve citations of D-543 outside the register and the dated records. Each cites the one-form rule or names PR-68, so no roadmap text needed a change. The defect sat in the register row alone.
+- The session wrote `docs/reviews/pr-11-response.md` with the disposition, the evidence, and the regression check of each finding.
+- The session added no decision, no question, and no finding. Nothing in the answer needed an owner choice.
+- The handoff held ten entries before this one, so Session 25 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `63803d9` (PR #10).
+- PR #11 is open on branch `docs/pr-11-roadmaps`. Its remote head is the commit that holds this entry.
+- The corrections change `docs/decisions.md` and `docs/roadmaps/phase-2-first-playable.md`, which sit outside the metadata set. So the effective head moves off `848de1e` to this commit, and the repeat review reads the new head.
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #11 waits for the repeat cross-provider review. The automated pass approved the earlier head and holds no open comment (D-14, D-66). The two corrections need a Codex session to verify each original trigger and set each finding to `fixed`.
+
+### Traps and gotchas
+
+- The corrections move the effective head, so the repeat review must name the new head, and never `848de1e` (the `pr-review` skill).
+- An exit test of a PR can only use a tool or a job that exists when that PR lands. A script now checks that rule over all five phase files, and the response records it.
+- Two lines of that scan are false matches. PR-59 and PR-37 use "captures" as the verb of the screen-test job of PR-41, which lands before each of them.
+- A decision that is revised in part stays citable, so the twelve citations of D-543 stand (`CLAUDE.md`).
+- An on-demand pass from the comment `Gitar review` writes no check run. Its result is the review comment itself.
+- The next ids are D-555, OQ-179, F-57, L-16, G-26, PR-80, M-7, and Session 36.
+
+### Open questions that block progress
+
+None. OQ-60 to OQ-178 stay with the later PRs that the phase files name (D-487).
+
+### Next concrete action
+
+A Codex session repeats the review of PR #11 at the new effective head. It reads `docs/reviews/pr-11-response.md`, verifies the trigger and the regression check of P1-1 and P2-1, sets the status of each finding, and writes the verdict for that head (T-4, D-17, the `pr-review` skill).
+
 ## Session 34: 2026-09-16, Codex
 
 Author: Codex
@@ -511,42 +557,3 @@ None for PR #10. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR
 ### Next concrete action
 
 The owner can merge PR #10. Then a fresh session starts PR #11 with `docs/roadmaps/area-core.md`.
-
-## Session 25: 2026-09-14, Claude Code
-
-Author: Claude Code
-Session: the answer to the review of PR #10, on branch `docs/pr-10-roadmaps`.
-
-### What this session did, and why
-
-- Session 24 (Codex) reviewed PR #10 at `9355d62` and gave `Changes required` with P2-1: D-488 kept the PR number that D-490 changed, and D-490 did not mark D-488 as revised in part.
-- The owner asked the session to address the feedback. The session fetched the branch at `571e39e`, read the review record, and found no other open comment or thread.
-- P2-1, full merit: the Effect column of D-490 now revises D-484, D-488, and D-489 in part. The note on D-488 now uses the marker `Revised in part by D-490`, names the PR number as the changed part, and keeps the order of the work.
-- A search of the live documents found PR #11 as the PR of the roadmaps and the rebuild in D-484, D-488, D-489, D-490, the dated line and step 2 of section 8 in `docs/design.md`, and the handoff.
-- `docs/reviews/pr-10-response.md` records the disposition.
-- The handoff held ten entries before this one, because Session 24 moved Session 14 to the archive. Session 15 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. `main` is `4f37c99` (PR #9).
-- PR #10 is open on `docs/pr-10-roadmaps`. The commit that holds this entry is the new effective head, because it changes `docs/decisions.md`.
-- The interim STE check passes with 0 findings, and `CLAUDE.md` and `AGENTS.md` stay identical.
-
-### In flight
-
-PR #10 answers a new gitar pass on the new head. Then a Codex session runs the repeat review of PR #10 and updates `docs/reviews/pr-10.md`. The owner merges. Then PR #11 starts the roadmaps on a new branch (D-488, D-490).
-
-### Traps and gotchas
-
-- After a push, the first `Gitar review` request re-runs the previous head, and it can complete an existing check run again rather than start a new one. Send the second request when the dashboard updates or an old run completes again with no run on the new head.
-- A reviewer session can move an old entry to the archive. Count the handoff entries before a rotation, and never assume the count.
-- D-488 and D-489 keep "PR #10" in their topic column as dated text. Their revision notes carry the current PR number.
-- The next ids are D-491, OQ-60, F-35, L-16, G-26, PR-43, M-7, and Session 26.
-
-### Open questions that block progress
-
-None for PR #10. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
-
-### Next concrete action
-
-This session answers the gitar pass on the new head and records it in the PR description. Then a Codex session runs the repeat review of PR #10 under the `pr-review` skill. The owner merges. Then a fresh session starts PR #11 with `docs/roadmaps/area-core.md`.

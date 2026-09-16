@@ -112,13 +112,14 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 
 - The menu windows (PR-62) and the settings screen with the remap (PR-63).
 - The dialogue box (PR-36) and the map HUD (PR-7).
+- The screen captures of the frame and the fit. PR-41 creates the screen-test job and takes them (D-172, G-16).
 - The Steamworks controller type (PR-78, D-553).
 
 **Exit tests.**
 
-1. A screen test captures a fixture screen in both views of D-480.
+1. A test computes both views of D-480 and both steps of the fit, and it locks each size (D-232, F-48).
 2. A test reads back the stretch settings, the filter, and the three font settings (F-45, F-49).
-3. A test proves that each panel holds the longest string of the string table (D-241).
+3. A test proves that the fixture panel holds the longest string of the string table (D-241).
 4. det-lint fails a Godot text property outside the text helper.
 5. A test proves that no intent comes from a poll of the input singleton (F-50).
 6. A prompt shows the glyph of the last device, for each of the four sets.
@@ -229,10 +230,11 @@ Area files: `area-ci.md` section 7.12, `area-effects.md` section 7.13, `area-ui-
 **Exit tests.**
 
 1. The job passes on the map scene of PR-7.
-2. One changed pixel of the baseline fails the job.
-3. Two runs of the job give the same frames.
-4. The job fails on an error line in the Godot log (T-2).
-5. The contact sheet command runs on the Mac of the owner.
+2. The job captures the frame and the fit of PR-61, in both views and at both screen row counts (D-232, D-480).
+3. One changed pixel of the baseline fails the job.
+4. Two runs of the job give the same frames.
+5. The job fails on an error line in the Godot log (T-2).
+6. The contact sheet command runs on the Mac of the owner.
 
 **Review focus.**
 
@@ -979,7 +981,7 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 **Exit tests.**
 
 1. A property test over one thousand seeds replays a run with scenes to the same end-state hash.
-2. A bot answers each wait intent at once, and it plays a fixture scene to its end (D-64).
+2. A scripted intent list answers each wait intent at once, and it plays a fixture scene to its end.
 3. A step that names an absent string id fails with the scene, the step, and the id.
 4. A condition that names an undeclared flag id fails at load with the file and the id.
 5. A scene that plays once sets its flag, and its condition then refuses it (D-542).
@@ -990,6 +992,7 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
 - D-540 revises D-114 in part, and the PR cites the revision.
 - One parser, one test, and one error message cover every reader of a condition (T-1, D-543).
+- The bots of PR-15 answer the same wait intent, so they play every scene when PR-15 lands (D-64, D-540, G-16).
 - Core reads no clock, so the length of a step comes from content or from the wait intent (G-3, OQ-145).
 - A scene names no art and no track (D-519, D-548).
 
