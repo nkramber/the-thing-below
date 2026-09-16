@@ -27,7 +27,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-18 | The CRT is on by default on the Deck | PR-39: the Deck pass reads the text with it on |
 | F-32 | Steam needs a notarized macOS app, and notarization needs a paid program | PR-79: the signature in CI, and the owner step before it (D-455) |
 | F-33 | The release block found five gaps, credits and the crash address included | PR-31 and PR-33: the credits screen and the version line (D-467, D-473) |
-| F-34 | Steam needs five screenshots at 1920 by 1080 in 16:9 | PR-40: the store page that Gate 2 built already meets it (D-480) |
+| F-34 | Steam needs five screenshots at 1920 by 1080 in 16:9 | PR-40: the store page that Gate 2 built already meets it (D-568) |
 
 ## 7. Roadmap
 

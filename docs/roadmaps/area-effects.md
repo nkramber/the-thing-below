@@ -87,7 +87,7 @@ The table lists what a frame draws, from the bottom to the top.
 | UI | Menus, the HUD, text, portraits, and damage numbers | No | D-210, D-213 |
 | Transition | The full-screen effect that starts a battle | No | D-191, D-195 |
 | CRT | Curvature, bleed, flicker, and scanlines over the whole frame | No | D-105, D-240 |
-| Fit | The scale to the screen, with black bars | No | D-232, D-480 |
+| Fit | The scale to the screen, with black bars | No | D-232, D-568 |
 
 - Game draws the world, the UI, the transition, and the CRT into the frame at 1x, 1280 by 720 (D-230, D-568). The fit to the screen comes last (D-232, D-240).
 - Godot computes 2D light at the pixel size of the viewport, and the Nearest filter does not change that (the external facts above). So the frame at 1x gives light and shadows the pixel size of the art.
@@ -252,7 +252,7 @@ Built by PR-60. Phase file: `phase-2-first-playable.md`.
 Built by PR-37. Phase file: `phase-2-first-playable.md`.
 
 - The full CRT has curvature, bleed, flicker, and faint scanlines, on by default, with a toggle (D-105, D-120, D-240).
-- The pass runs on the frame at 1x before the fit, so the lines keep the look of the Deck on every screen (D-240, D-480).
+- The pass runs on the frame at 1x before the fit, so the lines keep the look of the Deck on every screen (D-240, D-568).
 - The CRT covers the UI and the transitions (D-210, section 7.2).
 - The flicker has a reduced form under the flash and shake reduction (D-214).
 - The screen tests capture the toggle on and off with a fixed flicker phase (D-172, PR-41).

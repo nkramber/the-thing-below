@@ -1119,7 +1119,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 **Review focus.**
 
-- The answer of OQ-151 lays the choices out, and the count fits the height of D-480.
+- The answer of OQ-151 lays the choices out, and the count fits the height of the frame of D-568.
 - The player speaks the choices of the lead, and the map always follows the lead (D-267, D-292).
 - The box types in silence, and no beep plays (D-223).
 
@@ -1328,7 +1328,7 @@ Area file: `area-effects.md` section 7.12.
 **Scope.**
 
 - The full CRT as a Godot screen shader: curvature, bleed, flicker, and faint scanlines (D-105, D-240).
-- The pass on the frame at 1x, before the fit, so the lines match the Deck on every screen (D-240, D-480).
+- The pass on the frame at 1x, before the fit, so the lines match the Deck on every screen (D-240, D-568).
 - The default of on, with the toggle in the display group of the settings of PR-63 (D-120, D-526).
 - The reduced form of the flicker under the flash and shake reduction (D-214).
 - The CRT over the UI and the transitions (D-210).
@@ -1819,7 +1819,7 @@ Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
 1. Each store image renders from its pieces, and a test compares the pixels (F-19).
 2. Each screenshot comes from a run record, and a second take gives the same image (D-551).
-3. No screenshot holds a bar or a crop (D-480, F-34).
+3. No screenshot holds a bar or a crop (D-568, F-34).
 4. The owner approves the art batch from its review sheets (D-514, G-25).
 
 **Review focus.**
