@@ -29,7 +29,10 @@ Session: the answer to the repeat review of PR #12, on branch `docs/pr-12-critic
 
 ### In flight
 
-PR #12 waits for an automated pass on the new head, and then for a repeat cross-provider review of P2-6 (D-14, D-66, T-4, D-17).
+PR #12 waits for the repeat cross-provider review of P2-6 (T-4, D-17).
+
+- The automated pass on `6a43f1a` reported `Approved with suggestions`, with one new finding. It had merit: the plain-English paragraph of Phase 4 in `docs/design.md` still said "Four more dungeons". The session corrected it to five dungeon builds, and a scan for other forms of the count found no other current contract (D-14, D-66).
+- That correction changes `docs/design.md`, so a new pass runs on the new head.
 
 ### Traps and gotchas
 

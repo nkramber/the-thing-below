@@ -436,7 +436,7 @@ Phase file: `docs/roadmaps/phase-4-region-one.md`. Each item here is content, an
 14. **← GATE 4 (region one).**
 15. The trusted players play the CI build artifacts and send their notes outside Steam (D-469).
 
-> *In plain English:* the free prologue takes shape. Four more dungeons, a second town, their lessons, the story, and the numbers tuned by robots and by play.
+> *In plain English:* the free prologue takes shape. Five more dungeon builds, a second town, their lessons, the story, and the numbers tuned by robots and by play.
 
 ### Phase 5: First release, the free prologue (gate: a tagged build on GitHub that a fresh machine runs, then the Steam demo on the Deck)
 
