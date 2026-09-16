@@ -146,7 +146,8 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 - The map file of D-528, which holds the terrain rows and every thing that a rule reads (D-39, D-41).
 - Those things are the doors, the locks, the chests, the traps, the save points, the spawn points, and the markers (D-386).
 - The time of day of the map, which a story flag can change (D-442).
-- Tile-locked movement, sight, and the fog over each tile that the party never saw, in Core (D-100, D-106).
+- Tile-locked movement and sight, in Core (D-100, D-106). No fog of war covers a map (D-566).
+- The record of each tile that the party walked, in Core and in the snapshot, which the map screen of PR-62 reads (D-567).
 - The map scene in Game, with the tiles from the atlas and the Nearest filter (F-45).
 - The camera on the lead, with the limits of a large map and the centering of a small map (D-106, F-52).
 - The map HUD: the health mark and the status mark at the edge (D-212, D-390).
@@ -165,7 +166,7 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 3. A test locks the centering of a map smaller than the view (F-52).
 4. A test reads back the tile size, the region size, the collision switch, and the navigation switch (F-51).
 5. A thing on a tile of the wrong kind fails the load with the map, the position, and the kind.
-6. A property test over one thousand seeds proves that the fog never forgets a seen tile.
+6. A property test over one thousand seeds proves that the walked-tile record never forgets a walked tile (D-567).
 7. The replay of a walk gives the same state hash on every leg.
 
 **Review focus.**
@@ -175,7 +176,7 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 - The answer of OQ-86 settles whether Game draws through a tile map layer or draws each tile.
 - The sort value of a sprite larger than one tile (D-206, OQ-115).
 
-**Questions.** OQ-86, OQ-89, OQ-114, OQ-116, OQ-117, and OQ-118.
+**Questions.** OQ-86, OQ-89, OQ-114, OQ-117, and OQ-118. D-566 resolved OQ-116.
 
 > *In plain English:* this is the first thing that the owner can open and move in. The dungeon is a grid of tiles, the party walks it one tile at a time, and the view follows.
 
@@ -738,7 +739,7 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 - The character level from experience, and half experience for the reserve and for a downed character (D-34, D-73, D-387).
 - The shrink of the experience of an enemy as the party outlevels it (D-388, OQ-136).
 - The start level of a character who joins late, from content (D-363).
-- MP, and its recovery at a hub, at a save point once for each visit, and from scarce items (D-42, D-257, D-389).
+- MP, and its recovery at a hub, at a save point once for the place, and from scarce items (D-42, D-389, D-555).
 - The stat curve of each character in content: the health, the MP, the attack, the defense, and the speed at each level (D-537, F-54).
 - The level-up sting event, which PR-70 plays (D-422).
 
@@ -751,7 +752,7 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
 1. A property test over one thousand seeds proves that no run passes the soft cap of its region.
 2. A character in reserve and a downed character each earn half (D-73, D-387).
-3. A save point restores MP once for each visit, and no health (D-257, D-389).
+3. A save point restores MP once for the place, and no health (D-389, D-555).
 4. A curve with a number that is not an integer fails the load (G-2, D-169).
 5. A character who joins late starts at the level that content names (D-363).
 6. The snapshot holds the level, the experience, and the MP of each character.
@@ -776,7 +777,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 - The window stack, where back closes one window and the map stays visible behind (D-211).
 - The pause of the world while a menu is open (D-162, OQ-64).
 - The mouse on menus alone, which makes the same intent as a key or a button (D-219, D-493, OQ-110).
-- The dungeon map screen, which draws every tile that the party saw (D-218, OQ-111).
+- The dungeon map screen, which draws each tile that the party walked (D-567, OQ-111).
 - The notice that slides in at the top edge, and the notice log in the menu (D-221, OQ-113).
 
 **Out of scope.**
@@ -801,7 +802,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
 **Questions.** OQ-64, OQ-110, OQ-111, and OQ-113.
 
-> *In plain English:* menus are windows that stack on each other, and the world stops while one is open. A second screen draws each tile of the dungeon that the party saw.
+> *In plain English:* menus are windows that stack on each other, and the world stops while one is open. A second screen draws each tile of the dungeon that the party walked.
 
 ### 7.21 PR-12: the lessons, the slots, and the aptitudes
 
@@ -1155,11 +1156,11 @@ Area file: `area-exploration.md` section 7.8.
 
 - The treasure, the locked doors, and the keys (D-41).
 - The save points, which save, swap the party, and swap the lessons (D-36, D-58, D-356).
-- The MP that a save point restores once for each visit, and the health that it does not (D-257, D-389).
+- The MP that a save point restores once for the place, and the health that it does not (D-389, D-555).
 - The Theft drill that opens a lock that the map marks as pickable, where a story lock always needs its key (D-386).
 - The chest that keeps what the party cannot carry (D-385).
 - The dungeon exit, which returns the party to the region map.
-- The killed enemy that stays dead until the party leaves (D-257).
+- The killed enemy that stays dead until a story event reopens the place (D-555).
 - The save window in the stack of PR-62.
 
 **Out of scope.**
@@ -1172,10 +1173,12 @@ Area file: `area-exploration.md` section 7.8.
 
 1. A bot run that wipes reloads and continues (D-231).
 2. A two-character party after a down still reaches the exit of the fixture dungeon (F-7).
-3. A save point restores MP once for each visit, and a second use restores none (D-257).
-4. A Theft drill opens a pickable lock, and it never opens a story lock (D-386).
-5. A killed enemy stays dead until the party leaves the dungeon (D-257).
-6. A chest over the stack limit keeps the rest, and the save records it (D-385).
+3. A save point restores MP once for the place (D-555).
+4. A second use restores none, after an exit and a return too (D-555).
+5. A Theft drill opens a pickable lock, and it never opens a story lock (D-386).
+6. A killed enemy stays dead after the party leaves the dungeon and returns (D-555).
+7. A story event that reopens a fixture place brings its enemies and its MP restore back (D-555).
+8. A chest over the stack limit keeps the rest, and the save records it (D-385).
 
 **Review focus.**
 
@@ -1834,7 +1837,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-113 | The notice log | PR-62 |
 | OQ-114 | The rule of sight for the party and a patrol | PR-7 and PR-8 |
 | OQ-115 | How a large enemy holds its tiles and sorts | PR-8 |
-| OQ-116 | What the fog remembers, and where it lives | PR-7 |
 | OQ-117 | A diagonal step on the map | PR-7 |
 | OQ-118 | The limits of the camera on a small map | PR-7 |
 | OQ-119 | What a trap does, and what a Theft drill does to it | PR-64 |

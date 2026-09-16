@@ -80,7 +80,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - Godot sorts each canvas item by one Y value, and a tile takes the center of its cell (the external facts above).
 - A sprite of more than one tile needs its sort value at the front row of its body (D-206). OQ-115 holds the rule.
 - A layer holds coordinates from `-32768` to `32767`, which every map of the game fits (the external facts above).
-- The fog draws over each tile that the party never saw (section 7.5).
+- No fog of war covers a map, so Game draws every tile of the ground from the moment the party enters (D-566).
 
 > *In plain English:* the ground, the walls, and the borders come from one packed image. Each figure draws in front of what is behind it, so a character can walk behind a pillar.
 
@@ -97,13 +97,14 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 
 > *In plain English:* the view follows the party, and it stops at the edge of the place. A place smaller than the screen sits in the middle. The game moves the view itself, so every replay shows the same picture.
 
-### 7.5 Sight, fog, and the time of day
+### 7.5 Sight, the walked tiles, and the time of day
 
 Built by PR-7. Phase file: `phase-2-first-playable.md`.
 
-- Core computes what the party sees, and the fog covers each tile that the party never saw (PR-7 in `docs/design.md`).
+- Core computes what the party sees (D-37). No fog of war covers a map, so the ground is visible from the moment the party enters (D-566).
+- Core records each tile that the party walked, and the dungeon map screen of PR-62 draws those tiles (D-567). The snapshot holds the record.
 - A patrol sees the party by its own sight, and a wall stops it (D-37, PR-8 gate).
-- OQ-114 holds the rule of sight, and OQ-116 holds what the fog remembers between visits.
+- OQ-114 holds the rule of sight. D-566 resolved OQ-116, because no fog exists to remember.
 - The time of day of the map sets the sight range, the routes, and the enemies, and the story sets the time (D-193, D-442).
 - The wrong things keep no time rule, and the story places each one (D-446).
 - A story flag can change the time of day while the party stands on the map. The light and the music then change on the spot (D-428, D-442).
@@ -136,7 +137,7 @@ Built by PR-8, PR-9, and PR-60. Phase file: `phase-2-first-playable.md`.
 - A test proves that no map system moves during a battle (D-531, T-3).
 - The transition of PR-60 plays over the hand-off, and the kind of the encounter picks it (D-196).
 - After the battle, the map waits for the screen, and a wait intent ends the wait (D-522).
-- A killed enemy stays dead until the party leaves the dungeon (D-257).
+- A killed enemy stays dead until a story event reopens the place, and the exit does not bring it back (D-555).
 - A party wipe reloads the newer of the slot save and the autosave (D-231).
 
 > *In plain English:* the map freezes while a fight runs, so nothing sneaks up during the fight. When the fight ends, the party stands exactly where it was.
@@ -147,7 +148,8 @@ Built by PR-16. Phase file: `phase-2-first-playable.md`.
 
 - PR-16 builds the treasure, the locked doors, the keys, and the save points (D-41, D-529).
 - A save point saves, swaps the party, and swaps the lessons (D-36, D-58, D-356).
-- A save point restores MP once for each visit, and no health (D-257, D-389).
+- A save point restores MP once for the place, until a story event reopens it, and it restores no health (D-389, D-555).
+- The exit to the region map and a rest at a hub restore the party. So a run never traps itself (D-555).
 - A Theft drill on one of the three who fight opens a lock that the map marks as pickable. A story lock always needs its key (D-386).
 - A chest over the stack limit keeps what the party cannot carry, and the save records what remains (D-385).
 - The exit of the dungeon returns the party to the region map (PR-16 in `docs/design.md`).
@@ -226,7 +228,7 @@ Built by PR-35. Phase file: `phase-2-first-playable.md`.
 
 | PR | Maps and rules | Decisions |
 |---|---|---|
-| PR-7 | The map format, the movement, the sight, the fog, the camera, and a fixture dungeon | D-106, D-165, D-528 |
+| PR-7 | The map format, the movement, the sight, the walked-tile record, the camera, and a fixture dungeon | D-106, D-165, D-528, D-566, D-567 |
 | PR-8 | The enemies on the map, the patrols, the sight mark, and the grace time | D-37, D-208, D-381 |
 | PR-16 | The treasure, the doors, the keys, and the save points | D-41, D-529 |
 | PR-64 | The traps, the hazards, and the statuses that last on the map | D-390 to D-393, D-529 |
@@ -268,7 +270,7 @@ Each later PR that adds a map rule or a place keeps this list. The phase files m
 The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The exploration work keeps this order inside it:
 
 1. PR-61: the UI base (`area-ui-input.md`).
-2. PR-7: the map format, the movement, the sight, the fog, the camera, and the map scene.
+2. PR-7: the map format, the movement, the sight, the walked-tile record, the camera, and the map scene.
 3. PR-41: the screen test of the map scene.
 4. PR-8: the enemies on the map.
 5. PR-9 and PR-10: the battle and its screen (`area-battle.md`).
@@ -291,7 +293,6 @@ The register is `docs/questions.md` (D-19). These questions block exploration PR
 
 - OQ-114: the rule of sight for the party and a patrol. Blocks PR-7 and PR-8.
 - OQ-115: how a large enemy holds its tiles and sorts on screen. Blocks PR-8.
-- OQ-116: what the fog remembers, and where it lives. Blocks PR-7 and PR-43.
 - OQ-117: a diagonal step on the map. Blocks PR-7.
 - OQ-118: the limits of the camera on a map smaller than the view. Blocks PR-7.
 - OQ-119: what a trap does, and what a Theft drill does to it. Blocks PR-64.

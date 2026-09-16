@@ -132,7 +132,7 @@ Built by PR-62. Phase file: `phase-2-first-playable.md`.
 - A menu pauses the world (D-162). OQ-64 holds what the tick does while a menu is open.
 - A menu action is an intent, and the record holds no cursor move (D-493).
 - The mouse works on menus alone, and a mouse action on a menu makes the same intent as a key (D-219, D-493). OQ-110 holds the rules of the cursor.
-- The dungeon map screen draws every tile that the party saw, with its doors, save points, and exits (D-218). OQ-111 holds its scale.
+- The dungeon map screen draws each tile that the party walked, with the doors, the save points, and the exits on those tiles (D-567). OQ-111 holds its scale.
 - PR-62 proves the stack with a fixture menu, and each later system PR adds one screen (D-525).
 
 > *In plain English:* menus are windows that stack on each other, and the world stops while one is open. The keyboard, the gamepad, and the mouse all move the same cursor.

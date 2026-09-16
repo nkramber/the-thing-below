@@ -344,7 +344,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 1. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
 2. PR-54: the export job, right before PR-7 (D-449, D-503).
 3. PR-61: the 16:9 frame, the fit, the fonts, the text helper, the UI style, the input map, the intents, and the glyph sets (D-232, D-524, D-561, D-568).
-4. PR-7: the map file, tile-locked movement, sight, the fog, the camera, and the map scene (D-106, D-528).
+4. PR-7: the map file, tile-locked movement, sight, the walked-tile record, the camera, and the map scene (D-106, D-528, D-566, D-567).
 5. PR-45: the debug assembly and the console, right after PR-7 (D-492).
 6. PR-41: the screen-test job under Xvfb, with its committed baseline (D-172).
 7. PR-8: the enemies and the patrols on the map, and the hand-off to a battle (D-37, D-531).

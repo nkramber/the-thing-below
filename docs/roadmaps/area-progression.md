@@ -47,7 +47,7 @@ Built by PR-67. Phase file: `phase-2-first-playable.md`.
 Built by PR-67. Phase file: `phase-2-first-playable.md`.
 
 - Each character holds MP, and a rite spends it (D-42).
-- MP comes back at a hub, at a save point once for each visit, and from scarce items (D-42, D-257, D-389).
+- MP comes back at a hub, at a save point once for the place, and from scarce items (D-42, D-389, D-555).
 - A save point restores no health, so health stays the scarce resource inside a dungeon (D-389).
 - Every character can attack with the weapon in hand, so an empty MP pool never leaves a dead turn (D-359, F-8).
 - A fresh character from the reserve brings its own MP at a save point, and the balance of D-35 must hold with it (D-356).

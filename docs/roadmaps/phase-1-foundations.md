@@ -396,9 +396,8 @@ Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 - One copy of the safe write exists, with its test (D-494, T-1).
 - The folder name is right on each of the three systems (D-465, F-33).
 - The migration test reads a real stored save, not a save that the test just wrote.
-- The answer of OQ-116 says whether the fog of a map lives in the snapshot.
 
-**Questions.** OQ-65, OQ-66, and OQ-116.
+**Questions.** OQ-65 and OQ-66.
 
 > *In plain English:* a save is a full picture of the game at one moment. A crash during a save never destroys the old one, and a save from an older build still loads through a converter.
 
@@ -613,7 +612,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-88 | The unit of the time of a frame | PR-34 |
 | OQ-92 | Where the source of the Deck test scene lives | The Deck test |
 | OQ-93 | How the owner reads the frame time on the Deck | The Deck test |
-| OQ-116 | What the fog remembers, and where it lives | PR-7 and PR-43 |
 | OQ-168 | Where the game version lives in the build | PR-6 and PR-31 |
 
 No open question blocks this file.
