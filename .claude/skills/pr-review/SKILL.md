@@ -438,22 +438,16 @@ Stop at the third assessment of one id. Write the pattern in the review record, 
 
 ## The automated pass
 
-An automated reviewer, gitar, comments on every PR after a push (D-14). The author answers every comment before the hand-over to the other provider, or before the session applies the `review-override` label (D-67). This pass comes before the cross-provider review and never replaces it (T-4). A documentation PR answers the pass too (D-66).
+An automated reviewer, gitar, comments on every PR after a push (D-14). This pass comes before the cross-provider review and never replaces it (T-4). A documentation PR answers the pass too (D-66).
 
-Do these steps after each push.
+After each push, the author loads `.claude/skills/gitar-review/SKILL.md` and follows it. That skill holds the procedure: get a current review of the head, read each finding as a claim, fix or refute it, reply, and resolve. This section does not repeat it.
 
-1. Wait for the pass. It ends with a PR comment that says approved or that requests changes, plus a line comment for each issue. When the comment reports a pause of the automatic reviews for the period, post the comment `Gitar review` on the PR. The pass then runs on demand.
-2. Read each comment as a claim, not a fact. Reproduce the trigger and read the contract it names, as for a review finding.
-3. For a comment with no merit, reply on its thread with the reason, and resolve the thread.
-4. For a comment with merit, make the smallest change that restores the contract. Commit, push, and reply on the thread with the commit.
-5. Wait for the next pass, and repeat from step 2 for each new comment.
-6. Stop when the pass approves the PR, or when every comment has its answer and a new pass adds none. Tell the owner that the PR is ready for the other provider. On a documentation PR that changes no row of `docs/decisions.md`, apply the `review-override` label yourself at this point (D-67, D-401).
+These rules of this repo add to the `gitar-review` skill, and they win over it:
 
-A reply names no provider, harness, or model as the source of the work (T-6, D-22). It states the evidence: the command, the test, the decision id, or the commit. Never accept a comment only to close the pass faster, and never widen a change past the contract that the comment names.
-
-A resolve needs the thread id. The GitHub API lists the review threads of a PR, and `gh api graphql` resolves one with the `resolveReviewThread` mutation. A comment on the PR itself has no thread, and the reply is a comment on the PR.
-
-Record the pass in the handoff entry: the count of comments, the count with merit, and the commit that answered each one.
+- The author answers every comment before the hand-over to the other provider, or before the session applies the `review-override` label (D-67).
+- When the pass is complete, tell the owner that the PR is ready for the other provider. On a documentation PR that changes no row of `docs/decisions.md`, apply the `review-override` label yourself at this point instead (D-67, D-401).
+- A reply names no provider, harness, or model as the source of the work (T-6, D-22).
+- Record the pass in the handoff entry: the count of comments, the count with merit, and the commit that answered each one.
 
 ## Do not address the automated reviewer
 
@@ -461,6 +455,7 @@ The reviewing provider reads the existing PR comments and takes them into its ow
 
 - A comment of the automated pass is a claim about the code, like any finding. Verify it against the head, and record the result under `## PR comments` in the review record.
 - An author reply is evidence, and the review checks it: the trigger, the contract, and the commit it names.
+- Check that the pass is current with the rule "Prove that a review is current" in the `gitar-review` skill. Use the read commands alone. A pass on an older commit is not an answered pass.
 - An automated comment that the author refuted with evidence is not a finding. An automated comment that the author fixed is a fix to verify. An automated comment that stays open without an answer blocks the verdict, because the author's pass is not complete.
 - The automated pass does not make gitar an author. The provider gate reads the providers of the substantive commits alone.
 
