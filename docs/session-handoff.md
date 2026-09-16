@@ -35,7 +35,7 @@ Session: the five phase files of PR #11, the rebuild of sections 7 and 8, and th
 
 ### In flight
 
-PR #11 waits for two passes. First the automated pass of gitar on head `848de1e` or later, which the author answers comment by comment (D-14, D-67). Then the cross-provider review by Codex, which writes `docs/reviews/pr-11.md` with a verdict for the effective head (T-4, D-17, D-401).
+PR #11 waits for two passes. First the automated pass of gitar on head `848de1e` or later, which the author answers comment by comment (D-14, D-66). Then the cross-provider review by Codex, which writes `docs/reviews/pr-11.md` with a verdict for the effective head (T-4, D-17, D-401).
 
 ### Traps and gotchas
 
@@ -55,7 +55,7 @@ None. The phase files carry every blocked question into a table in their section
 
 ### Next concrete action
 
-A session answers the automated pass of gitar on PR #11, comment by comment, and it replies to each one (D-14, D-67). When the pass adds no new comment, it tells the owner and hands the PR to a Codex session for the cross-provider review (T-4, D-17). After PR #11 merges, PR #12 holds the next design-critic pass on the merged plan (D-484, D-490).
+A session answers the automated pass of gitar on PR #11, comment by comment, and it replies to each one (D-14, D-66). When the pass adds no new comment, it tells the owner and hands the PR to a Codex session for the cross-provider review (T-4, D-17). After PR #11 merges, PR #12 holds the next design-critic pass on the merged plan (D-484, D-490).
 
 ## Session 32: 2026-09-16, Claude Code
 
