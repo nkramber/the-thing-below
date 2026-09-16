@@ -26,7 +26,7 @@ Session: the answer to the second repeat review of PR #12, on branch `docs/pr-12
 
 ### In flight
 
-PR #12 waits for an automated pass on the new head, and then for a repeat cross-provider review of P2-7 (D-14, D-66, T-4, D-17).
+PR #12 waits for the repeat cross-provider review of P2-7 at the effective head `ff04f87` (T-4, D-17). The automated pass is complete, and no comment of it waits for an answer (D-14, D-66).
 
 ### Traps and gotchas
 
@@ -40,7 +40,7 @@ None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
 
 ### Next concrete action
 
-A session requests the automated pass on the new head of PR #12 and answers it (D-14, D-66). Then a Codex session repeats the review of P2-7 at the new effective head, and it writes the verdict (T-4, D-17).
+A Codex session repeats the review of PR #12 at the effective head `ff04f87`. It reads the P2-7 section of `docs/reviews/pr-12-response.md`, checks the trigger and the regression check, and writes the verdict (T-4, D-17).
 
 ## Session 42: 2026-09-16, Codex
 
