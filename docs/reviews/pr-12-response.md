@@ -95,7 +95,7 @@ The cause was the archive step of the session, twice. In Session 35 and in Sessi
 
 Correction: the archive blocks now run in strict descending order, with no text changed. A check of the total length of the text passed before and after the move. The archive step of this session inserts at the top.
 
-Regression check: the archive headings run from Session 28 down to Session 1, in strict descending order, with no gap and no repeat.
+Regression check: the archive headings run from Session 29 down to Session 1, in strict descending order, with no gap and no repeat. Session 29 is at the top, because the handoff step of this answer archived it there.
 
 ## The place of PR-27
 
@@ -119,7 +119,7 @@ The owner chose to move PR-27 right after PR-81 (D-574). The Phase 4 order is no
 - `git diff --check`: clean.
 - `cmp -s AGENTS.md CLAUDE.md`: identical.
 - The order check: the phase lists of section 7, the sequence of section 8, and the five phase sequences give the same 79 PR items.
-- The archive check: Session 28 down to Session 1, strictly descending.
+- The archive check: Session 29 down to Session 1, strictly descending.
 - The corrected scan of P2-1 and the searches of P2-2 and P2-3, as each section above states.
 - Build, test, and format commands: not run. The repository holds no code until PR-1 (G-16).
 
