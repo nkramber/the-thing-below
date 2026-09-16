@@ -29,7 +29,7 @@ Repository: the-thing-below. Branch: docs/pr-14-one-pr-one-session. PR: #14. Rol
 
 ### In flight
 
-PR #14 is ready for owner merge. The review record applies to effective head 7e65c7e (T-4, D-17).
+The cross-provider review is ready for owner merge at effective head 7e65c7e (T-4, D-17). The PR still needs a current Gitar review of its latest metadata tip before merge. The last Gitar dashboard edit predates the review publication, and GitHub reports no check on the new tip.
 
 ### Traps and gotchas
 
@@ -43,7 +43,7 @@ None for PR #14. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 
 ### Next concrete action
 
-The owner can merge PR #14.
+The author requests a current Gitar review of the latest PR tip and answers each finding. P2-1 is fixed; the Gitar review is the remaining merge gate.
 
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md`. Read the first entry first.
