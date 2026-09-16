@@ -2,6 +2,44 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 24: 2026-09-14, Codex
+
+Author: Codex
+Session: cross-provider review of PR #10 at effective head `9355d62`.
+
+### What this session did, and why
+
+- Verified the PR target, base, merge base, branch, effective head, changed paths, provider gate, and existing PR comments.
+- Read the complete diff, the design and decision contracts, the questions register, the skills, the agent guidance, the handoff archive, and the PR description.
+- Confirmed the final Gitar check passed on `9355d62` and that its one suggestion was fixed in that commit.
+- Found P2-1: D-488 still names PR #10, while D-490 says D-488 binds PR #11 without a revision note for D-488.
+- Ran the interim STE check with 0 findings, `git diff --check`, and the guidance identity check.
+- Added `docs/reviews/pr-10.md` with the verdict `Changes required` for `9355d62`.
+
+### State of the build
+
+- No code exists. `main` is `4f37c99` (PR #9).
+- PR #10 is open on `docs/pr-10-roadmaps`. Its effective head is `9355d62`.
+- The interim STE check passes with 0 findings. The review record and handoff are pushed in `95fd404`.
+
+### In flight
+
+PR #10 needs the D-488 revision note and a repeat review. The owner merges after the verdict covers the new effective head.
+
+### Traps and gotchas
+
+- D-490 must revise D-488 in part, not only D-484 and D-489. The writing order stays unchanged, and only the PR number changes to PR #11.
+- The build, test, format, det-lint, replay-identity, smoke, night-gate, and review-gate checks do not exist until the PRs named in `AGENTS.md` create them.
+- The next ids are D-491, OQ-60, F-35, L-16, G-26, PR-43, M-7, and Session 25.
+
+### Open questions that block progress
+
+None for PR #10. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
+
+### Next concrete action
+
+The author adds the D-488 revision note and runs a repeat Gitar pass. Then a Codex session updates `docs/reviews/pr-10.md` for the new effective head.
+
 ## Session 23: 2026-09-14, Claude Code
 
 Author: Claude Code
