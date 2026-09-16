@@ -32,7 +32,7 @@ Session: the answer to the repeat review of PR #12, on branch `docs/pr-12-critic
 PR #12 waits for the repeat cross-provider review of P2-6 (T-4, D-17).
 
 - The automated pass on `6a43f1a` reported `Approved with suggestions`, with one new finding. It had merit: the plain-English paragraph of Phase 4 in `docs/design.md` still said "Four more dungeons". The session corrected it to five dungeon builds, and a scan for other forms of the count found no other current contract (D-14, D-66).
-- That correction changes `docs/design.md`, so a new pass runs on the new head.
+- The correction is `0fbfa82`, the effective head. The pass on it reported `Approved`, with both of its findings closed and none open, so no comment waits for an answer.
 
 ### Traps and gotchas
 
@@ -49,7 +49,7 @@ None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
 
 ### Next concrete action
 
-A session requests the automated pass on the new head of PR #12 and answers it (D-14, D-66). Then a Codex session repeats the review of P2-6 at the new effective head, and it writes the verdict (T-4, D-17).
+A Codex session repeats the review of PR #12 at the effective head `0fbfa82`. It reads the P2-6 section of `docs/reviews/pr-12-response.md`, checks the trigger and the regression check, and writes the verdict (T-4, D-17). The automated pass is complete.
 
 ## Session 40: 2026-09-16, Codex
 
