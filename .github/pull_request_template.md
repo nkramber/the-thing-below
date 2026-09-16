@@ -16,7 +16,7 @@ Each line holds before the owner merges (`CLAUDE.md`, PR gate).
 - [ ] The `smoke` job is green on every CI leg: the headless Godot session (D-117, D-481). PR-1 creates it.
 - [ ] The `night-gate` job is green (G-22). PR-49 creates it.
 - [ ] The `ste-check` job is green (G-12). PR-1 creates it.
-- [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14, D-66).
+- [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14, D-66). The review is current under the `gitar-review` skill.
 - [ ] The other provider reviewed it, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). A PR in the override set that changes no decision row is exempt when the `review-override` label is on (D-16, D-401, D-560). A change to `.github/workflows/` is never exempt.
 - [ ] The `review-gate` check is green (D-15). PR-3 creates it.
 - [ ] `docs/decisions.md` has every new decision.

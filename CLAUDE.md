@@ -65,7 +65,7 @@ Set the author field to `Claude Code` or `Codex`. Commit the entry with the revi
 
 ## Text rules
 
-- All project skills live in `.claude/skills/` (D-21): `ste-writing`, `design-doc-style`, `pr-review`, `csharp-conventions`, and `game-text-style`. Create every new project skill there.
+- All project skills live in `.claude/skills/` (D-21): `ste-writing`, `design-doc-style`, `pr-review`, `gitar-review`, `csharp-conventions`, and `game-text-style`. Create every new project skill there.
 - Read each required skill from `.claude/skills/<skill-name>/SKILL.md`, even if it is absent from the skill list.
 - Every `.md`, skill, and agent file follows ASD-STE100 (D-10). Load the `ste-writing` skill before you write.
 - Load the `design-doc-style` skill before you edit `docs/design.md` or a focused roadmap.
@@ -102,14 +102,12 @@ Set the author field to `Claude Code` or `Codex`. Commit the entry with the revi
 
 ## Automated review pass
 
-An automated reviewer, gitar, comments on every PR after a push (D-14). The author answers every comment before the hand-over to the other provider, or before the session applies the `review-override` label (D-67).
+An automated reviewer, gitar, comments on every PR after a push (D-14). After each push, the author loads the `gitar-review` skill and follows it. The skill holds the procedure: get a current review of the head, verify each finding, then fix or refute it and reply. The rules below add to the skill, and a rule of this repo wins over it.
 
-- A comment with no merit gets a reply with the reason, and the author resolves its thread.
-- A comment with merit gets the change, a commit, a push, and a reply.
-- The PR is ready when gitar approves it, or when every comment has its answer and a new pass adds none. Tell the owner then.
-- When gitar reports a pause of its automatic reviews for the period, post the comment `Gitar review` on the PR. That runs the pass on demand.
-- The reviewing provider reads the existing PR comments into its review and never addresses gitar.
-- The `pr-review` skill holds both procedures. A reply names no provider, harness, or model as the source of work (T-6).
+- The author answers every comment before the hand-over to the other provider, or before the session applies the `review-override` label (D-67).
+- When the pass is complete, tell the owner that the PR is ready for the other provider. On a PR that can take the label, apply the label instead (see below).
+- A reply names no provider, harness, or model as the source of work (T-6).
+- The reviewing provider reads the existing PR comments into its review and never addresses gitar. The `pr-review` skill holds the procedure of the reviewer.
 - Every PR answers the pass, a documentation PR included (D-66). The `review-override` label exempts a documentation PR from the Codex review alone, and only when the PR changes no row of `docs/decisions.md` (D-401).
 - The override set holds `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/`, and `.github/pull_request_template.md` (D-16, D-71, D-239). A change to `.github/workflows/` takes the review, because each gate lives in a workflow file (D-560). A change to any other path, such as `content/`, takes the review (D-185).
 - On a documentation PR that changes no decision row, the session applies the `review-override` label itself, only after the pass approves the head (D-67, D-401). A later push needs a new approval before the label applies again. A PR that adds or revises a decision goes to the other provider instead.
@@ -148,7 +146,7 @@ A PR merges only when every line holds:
 - [ ] The bot job is green on every CI leg: the bot runs end with no crash and no softlock (D-64, D-505). PR-15 creates it.
 - [ ] The `night-gate` job is green: a success record from a night inside 48 hours (G-22). PR-49 creates it (D-496). A docs-only PR passes it (D-513).
 - [ ] The `ste-check` job is green (G-12). PR-1 creates it with the interim checker, and PR-2 moves it to C#.
-- [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14).
+- [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14). The review is current under the `gitar-review` skill.
 - [ ] The other provider reviewed it, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). A PR in the override set that changes no decision row is exempt when the `review-override` label is on (D-16, D-401, D-560).
 - [ ] The `review-gate` check is green (D-15). PR-3 creates it.
 - [ ] `docs/decisions.md` has every new decision.

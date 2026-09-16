@@ -2,6 +2,48 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md`. Read the first entry first.
 
+## Session 45: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: PR #13, the link from the guidance to the new `gitar-review` skill, on branch `docs/pr-13-gitar-review`.
+
+### What this session did, and why
+
+- The owner added the shared skill `.claude/skills/gitar-review/SKILL.md` and asked that `pr-review` and the other guidance link to it, with no copy of its procedure and no wrong text.
+- The skill adds the proof that a review is current. The older text in `CLAUDE.md` and `pr-review` asked for `Gitar review` only on a pause, and it did not check that the review covers the head.
+- `CLAUDE.md` and `AGENTS.md`: the skill list names `gitar-review`. The section "Automated review pass" points to the skill and keeps only the rules of this repo. The PR gate line asks for a current review.
+- `pr-review`: the section "The automated pass" points to the skill and keeps the rules of this repo. The reviewer checks with the read commands of the skill that the pass is current.
+- `.github/pull_request_template.md`: the gitar line asks for a current review.
+- The commit adds the skill file as the owner wrote it. It passes the STE check with 0 findings.
+- The owner answered two questions. No decision row records the skill, so `docs/decisions.md` stays as it is. The repo keeps the spelling `gitar`, and the shared skill keeps `Gitar`.
+- The handoff held ten entries before this one, so Session 35 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `b292624` (PR #12).
+- PR #13 is open on branch `docs/pr-13-gitar-review`. Its head is the commit that holds this entry.
+- The interim STE check passes with 0 findings, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #13 waits for a current gitar review under the `gitar-review` skill. It changes paths in the override set alone and no decision row, so the session applies the `review-override` label after the pass approves the head (D-16, D-67, D-401).
+
+### Traps and gotchas
+
+- The `gitar-review` skill is the same file in each repo. Do not edit it here. Put a rule of this repo in `CLAUDE.md` or `pr-review`.
+- A rule of this repo wins over the skill. Step 20 of the skill tells the owner that the PR is ready to merge. Here the PR goes to the other provider, or it takes the label.
+- The D-14 row still names the pause as the trigger for `Gitar review`. The owner chose no decision row, so the skill carries the wider trigger.
+- The dated records keep the old procedure text. Do not correct them.
+- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 46.
+
+### Open questions that block progress
+
+None for PR #13. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### Next concrete action
+
+Get a current gitar review of PR #13 and answer each finding under the `gitar-review` skill. Apply the `review-override` label after the pass approves the head. Then the owner merges.
+
 ## Session 44: 2026-09-16, Codex
 
 Author: Codex
@@ -416,53 +458,3 @@ None for PR #11. OQ-60 to OQ-178 remain assigned to later PRs.
 ### Next concrete action
 
 The owner can merge PR #11. Then a fresh session starts PR #12 after the merge.
-
-## Session 35: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: the answer to the PR #11 review findings, on branch `docs/pr-11-roadmaps`.
-
-### What this session did, and why
-
-- The session read `docs/reviews/pr-11.md`, the `Changes required` verdict of Session 34 for head `848de1e`. It assessed each finding against the evidence before it changed a file (the `pr-review` skill).
-- P1-1 has partial merit.
-  - The part with merit: exit test 1 of PR-61 asked for a screen test, and PR-41 creates that job four PRs later. The order cannot move, because D-524 puts PR-61 right before PR-7, and PR-41 captures the map scene that PR-7 builds. So the test moves. PR-61 now computes both views and both steps of the fit in a headless test, and PR-41 takes the captures.
-  - The part with no merit: the finding says that the panels of PR-61 wait for PR-62. Section 7.4 of `area-ui-input.md` gives the panel-sizing rule to PR-61, and PR-62 owns the window stack alone. The response quotes that section. The exit test now reads "the fixture panel" for precision, and the owner of the rule stands.
-- A scan for the class of defect that P1-1 names found one more instance that the review did not list. Exit test 2 of PR-68 used the bots, and PR-15 lands three PRs later. The test now uses a scripted intent list, which needs no bot policy.
-- P2-1 has full merit. D-544 moved the condition form from PR-18 to PR-68 and left no revision mark on D-543. The Effect column of D-543 now carries `Revised in part by D-544`, with the part that changed and the parts that stand. The stale fixture-condition line came out with it.
-- The regression check of P2-1 asked that every roadmap citation name PR-68. A search found twelve citations of D-543 outside the register and the dated records. Each cites the one-form rule or names PR-68, so no roadmap text needed a change. The defect sat in the register row alone.
-- The session wrote `docs/reviews/pr-11-response.md` with the disposition, the evidence, and the regression check of each finding.
-- The session added no decision, no question, and no finding. Nothing in the answer needed an owner choice.
-- The handoff held ten entries before this one, so Session 25 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. `main` is `63803d9` (PR #10).
-- PR #11 is open on branch `docs/pr-11-roadmaps`. Its remote head is the commit that holds this entry.
-- The corrections change `docs/decisions.md` and `docs/roadmaps/phase-2-first-playable.md`, which sit outside the metadata set. So the effective head moves off `848de1e` to this commit, and the repeat review reads the new head.
-- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-
-### In flight
-
-PR #11 waits for the repeat cross-provider review.
-
-- The automated pass ran again on the corrected head `6266d54` and reported `Approved`, with no open finding and no new comment (D-14, D-66). The head landed at 14:08:46 UTC, the request went out at 14:08:57, and the result came at 14:09:36.
-- The pass left two comments over the life of the PR. One had merit, and `1bca609` answered it. The other was the acknowledgement of a request.
-- The two review findings need a Codex session to verify each original trigger and set each finding to `fixed`.
-
-### Traps and gotchas
-
-- The corrections move the effective head, so the repeat review must name the new head, and never `848de1e` (the `pr-review` skill).
-- An exit test of a PR can only use a tool or a job that exists when that PR lands. A script now checks that rule over all five phase files, and the response records it.
-- Two lines of that scan are false matches. PR-59 and PR-37 use "captures" as the verb of the screen-test job of PR-41, which lands before each of them.
-- A decision that is revised in part stays citable, so the twelve citations of D-543 stand (`CLAUDE.md`).
-- An on-demand pass from the comment `Gitar review` writes no check run. Its result is the review comment itself.
-- The next ids are D-555, OQ-179, F-57, L-16, G-26, PR-80, M-7, and Session 36.
-
-### Open questions that block progress
-
-None. OQ-60 to OQ-178 stay with the later PRs that the phase files name (D-487).
-
-### Next concrete action
-
-A Codex session repeats the review of PR #11 at the new effective head. It reads `docs/reviews/pr-11-response.md`, verifies the trigger and the regression check of P1-1 and P2-1, sets the status of each finding, and writes the verdict for that head (T-4, D-17, the `pr-review` skill).
