@@ -164,7 +164,7 @@ Built by PR-34, and used by every art PR. Phase files: every phase file.
 - The session uploads the sheets into the PR description with `gh pr edit --attach` (D-514, G-25).
 - The description names each drawing on each sheet, and the commit that the sheets show.
 - A changed batch gets new sheets in the description.
-- The swatch sheet, the map preview, and the normal-map preview reach the owner the same way (D-165, D-184, D-185, D-514).
+- The swatch sheet, the map preview, and the normal-map review sheet reach the owner the same way (D-165, D-185, D-514, D-521).
 - The committed atlas also shows in the Files changed tab, where GitHub compares two versions of an image. That tab shows 25 images at most (the external facts above).
 - An upload needs push access and `gh` 2.99.0 or later (the external facts above). `docs/runbooks/dev-machine.md` names the version.
 - After the repository goes private, only people with access see the uploads (D-456).

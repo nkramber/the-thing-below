@@ -95,7 +95,8 @@ Built by PR-46. Phase file: `phase-1-foundations.md`.
 - In Core, it fails a float type, the clock, OS random, reflection, and the two hash paths of F-35 (G-2, G-3, F-36).
 - In Core, it fails a string order that does not use an ordinal comparison (G-4, F-39). OQ-71 holds which uses of `Dictionary` and `HashSet` it fails.
 - In Game, it fails a Godot text property outside the text helper, and a text value in a scene file (D-499, G-7). OQ-70 holds how it finds each text property.
-- It reads the code of the atlas, the normal maps, and the synthesizer (D-502). There it applies the Core rules for float types, the clock, and OS random.
+- It reads the code of the atlas, the normal maps, the PNG reader and writer, and the synthesizer (D-502). There it applies the Core rules for float types, the clock, and OS random.
+- D-502 binds each tool whose output a test compares on every leg, so a later tool of that kind joins the list.
 - PR-46 proves each rule on a fixture that breaks it, such as a fixture with `double` (G-16).
 - `area-ci.md` holds the `det-lint` job.
 

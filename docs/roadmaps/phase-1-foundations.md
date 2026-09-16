@@ -107,8 +107,8 @@ Area files: `area-ci.md` sections 7.1 to 7.6, `area-tools.md` section 7.1, `area
 2. The build, test, and format job passes on each of the three legs.
 3. The smoke job starts the editor with `--headless` on each leg and quits with no log error.
 4. The `ste-check` job passes on every live document.
-5. The identity test fails on a changed copy of `AGENTS.md`.
-6. The reference test fails on an added project reference in Core.
+5. The agent-file match test fails on a changed copy of `AGENTS.md`.
+6. The Core reference test fails on an added project reference.
 7. The coverage report appears on the PR.
 
 **Review focus.**
@@ -132,7 +132,7 @@ Area files: `area-tools.md` section 7.2, `area-ci.md` section 7.5.
 - The rules of the checker table in the `ste-writing` skill, and the comment rule of F-11.
 - The reference check, and the session-number check of D-18 and L-12.
 - One rule for a numbered item, from OQ-67, and a skill text that follows it (F-5).
-- The move of the `ste-check` job to the command, and the retirement of the Python script (D-10).
+- The move of the `ste-check` job to the command, and the retirement of `docs/tools/ste-check.py` (D-10).
 
 **Out of scope.**
 
@@ -250,7 +250,7 @@ Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.
 - The exception types that carry context, and the assertion helper that stays on in a release export (T-2, G-18).
 - The simulation version constant (G-17).
 - The `replay-identity` job, the identity file in Tests, and the Tools command that writes the file again (D-504).
-- The identity check and the det-lint step in `make verify`.
+- The identity check in `make verify`. PR-46 already added the det-lint step (D-496).
 
 **Out of scope.**
 
@@ -266,7 +266,7 @@ Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.
 5. One seed gives one state hash on the three legs and on the Mac (D-504).
 6. A changed expected hash fails the job until the identity file changes on purpose.
 7. det-lint passes on the new Core code.
-8. An assertion still stops a release export.
+8. A Release build of Tests proves that the assertion helper still throws (T-2, G-18).
 
 **Review focus.**
 
@@ -274,6 +274,7 @@ Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.
 - No call reaches `GetHashCode` or a .NET hash class from Core (F-35).
 - Each string order in Core is ordinal, and det-lint proves it (F-39).
 - The rounding rule of OQ-60 has one implementation, not one for each system (T-1).
+- A release export cannot run here, because PR-54 creates the export job (D-503, G-16). PR-54 adds the export check.
 
 **Questions.** OQ-60, OQ-61, and OQ-62.
 
@@ -388,7 +389,7 @@ Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 4. A stored save of each older format loads through its migration.
 5. A save from an older simulation version loads (D-259).
 6. The resume file works one time, and a second use fails with its reason (D-258).
-7. Core holds no reference to Storage, and the reference test proves it (G-1).
+7. Core holds no reference to Storage, and the Core reference test proves it (G-1).
 
 **Review focus.**
 
@@ -485,7 +486,7 @@ Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7
 - The palette of 64 colors, with the swatch sheet for the approval of the owner (D-181, D-185, D-238, F-17).
 - The atlas index, and the record of it in Core that no rule reads (D-517).
 - The review sheets of the batch, which `gh` attaches to the PR description (D-514, G-25).
-- The pixel test of F-19, and the retirement of the Python script.
+- The pixel test of F-19, and the retirement of `docs/tools/make-atlas.py`.
 
 **Out of scope.**
 
