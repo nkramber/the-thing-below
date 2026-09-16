@@ -2,6 +2,60 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md`. Read the first entry first.
 
+## Session 33: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the five phase files of PR #11, on branch `docs/pr-11-roadmaps`.
+
+### What this session did, and why
+
+- The session resumed PR #11 from the handoff of Session 32. The remote head was `32193bd`, and no other session pushed after it.
+- The working tree held an uncommitted block from Session 32: the new `docs/roadmaps/readme.md`, plus edits to two skills, the agent files, `docs/questions.md`, and the runbook. The session checked each edit, ran the STE check, and committed the block as `544c7f2`.
+- The session then read D-144 and D-483 to D-490, the `design-doc-style` and `ste-writing` skills, sections 5, 7, and 8 of `docs/design.md`, and every section of the twelve area files that a phase entry needs.
+- The session wrote the five phase files of D-485. Each PR entry gives a scope, an out-of-scope list, numbered exit tests, a review focus, its questions, and the area files that it cites (D-144, D-487).
+  - `phase-1-foundations.md`: the Deck test, PR-1, PR-2, PR-3, PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, PR-47, PR-34, M-1, M-2, and Gate 1.
+  - `phase-2-first-playable.md`: 42 PRs, from PR-54 to PR-17, then M-3, M-4, M-6, Gate 2, and the store block of PR-74, PR-75, and PR-76.
+  - `phase-3-story-systems.md`: PR-18, PR-19, PR-20, PR-21, the retired PR-22, and Gate 3.
+  - `phase-4-region-one.md`: PR-23 to PR-27, PR-42, PR-73, PR-28, PR-29, PR-77, PR-30, M-5, and Gate 4.
+  - `phase-5-first-release.md`: PR-31, PR-33, PR-39, PR-78, PR-79, PR-40, the two owner steps, the trailer, the retired PR-32, and Gate 5.
+- A check of the files proves the coverage. Every active PR id from PR-1 to PR-79 has one entry in one phase file and one place in one phase sequence. PR-22 and PR-32 are retired, and each has a short entry that states the gap (G-10).
+- The session filed no new question and made no new decision. Each order that a phase file states comes from an earlier decision, and each entry names it.
+- Three order details came from the area files, not from a new choice. PR-51, PR-52, and PR-53 land before PR-72, which lands right before PR-17 (D-497, D-549). PR-73 lands right after PR-42 (D-549). The trailer lands right before PR-40 (D-476).
+- The session updated the status paragraph of `docs/roadmaps/readme.md`, and it fixed the title of OQ-112 in `area-ui-input.md` to match the register.
+- The handoff held ten entries before this one, so Session 23 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `63803d9` (PR #10).
+- The branch `docs/pr-11-roadmaps` holds eighteen commits on `main`, and its remote head is the commit that holds this entry. No PR is open, because PR #11 opens when the roadmaps and the rebuild are complete (D-489).
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #11: the twelve area files and the five phase files are done. One item remains: the rebuild of sections 7 and 8 of `docs/design.md` (D-488). Then PR #11 opens.
+
+### Traps and gotchas
+
+- The traps of Session 32 stand, because no session has done the rebuild yet. They are the stale texts of section 7, the nine PRs that lost work to a new id, the four texts that a later decision contradicts, and the PR-7 entry that waits for D-503.
+- The rebuild changes more than sections 7 and 8. These texts still name the old plan: G-22 in `docs/design.md`, the PR gate of `CLAUDE.md` and `AGENTS.md` at lines 130 and 145 to 147, and lines 12, 13, and 15 of `.github/pull_request_template.md`.
+- The phase files now hold the full order, so the rebuild can copy it. Section 8 of each phase file is the source, and the five sequences join end to end with no gap.
+- The PR gate needs three new lines that name their creator (G-16). They are the bot job of PR-15, the `screen-test` job of PR-41, and the export job of PR-54, which is not a gate line (D-449).
+- Section 7 of `docs/design.md` needs a link to `docs/roadmaps/readme.md`, which the `design-doc-style` skill asks for.
+- The last paragraph of `docs/roadmaps/readme.md`, "Status, 2026-09-16", describes the state before the rebuild. The rebuild session removes it (D-488).
+- After PR #11 merges, line 17 of `CLAUDE.md` and `AGENTS.md` is stale: `docs/roadmaps/` exists, and the roadmaps docs PR no longer creates it.
+- Phase 2 holds 42 PRs between Gate 1 and Gate 2. The gates are owner decisions (D-483), and the design critic of PR #12 reads that span next.
+- D-540 revises D-114 in part, and D-548 revises D-418 in part. A citation of either must name the revision.
+- New PR ids stay at PR-43 to PR-79. The next id is PR-80.
+- The next ids are D-554, OQ-179, F-57, L-16, G-26, PR-80, M-7, and Session 34.
+
+### Open questions that block progress
+
+None for PR #11. The phase files carry every blocked question into a table in their section 9, and the register `docs/questions.md` holds each one. Phase 1 lists 28, Phase 2 lists 85, Phase 3 lists 6, Phase 4 lists 1, and Phase 5 lists 10.
+
+### Next concrete action
+
+A session continues PR #11 on `docs/pr-11-roadmaps`. It reads the five phase files and D-486 to D-490, then it rebuilds sections 7 and 8 of `docs/design.md` on the order that the phase files hold. The same session fixes each stale text that the traps name, adds the three PR gate lines, and links section 7 to `docs/roadmaps/readme.md`. Then it opens PR #11 and answers the automated pass (D-14, D-489).
+
 ## Session 32: 2026-09-16, Claude Code
 
 Author: Claude Code
@@ -487,52 +541,3 @@ None for PR #10. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR
 ### Next concrete action
 
 The author adds the D-488 revision note and runs a repeat Gitar pass. Then a Codex session updates `docs/reviews/pr-10.md` for the new effective head.
-
-## Session 23: 2026-09-14, Claude Code
-
-Author: Claude Code
-Session: the shape of the roadmaps after PR #9 merged, as docs PR #10 on branch `docs/pr-10-roadmaps`.
-
-### What this session did, and why
-
-- Session 22 (Codex) reviewed PR #9 at `5097e8a` with no finding. The owner merged PR #9 as `4f37c99`.
-- The same harness run as Session 21 started the roadmaps docs PR (D-399). It asked OQ-56 first, and the owner chose no change to the sequence (D-483).
-- The session read every text that sends work to the roadmaps. The list holds PR ids for the export job, the store page work, the credits roll, the trailer capture, the debug assembly, the sound room, and the mood cues. It also holds the items of the technical, graphics, UI, and systems roadmaps.
-- The owner set the shape of the work:
-  - Two docs PRs for the roadmaps work: one for the roadmaps and the rebuild of sections 7 and 8, and a later one for the design-critic pass (D-484).
-  - Twelve area files and five phase files in `docs/roadmaps/`, with the names in D-485.
-  - One new PR id per system or tool, about 20, from PR-43 (D-486).
-  - The roadmaps ask contract questions, and they file detail questions with the PR they block (D-487).
-  - Areas first, then phases, then the rebuild (D-488). The roadmaps PR opens when its work is complete (D-489).
-- The owner asked whether every document was current, and why no PR was open. The session quoted D-489, and the owner chose to merge the shape now as PR #10 (D-490). The roadmaps move to PR #11, and the critic pass to PR #12.
-- The session brought the design current: a dated line, the file set in section 7, and step 2 of section 8. Notes on D-399, D-484, D-488, and D-489 record the later answers. No roadmap file exists yet, and the area files wait for a fresh context.
-- The gitar pass on `05dd81a` approved with one suggestion, which had merit: the D-485 row sat after D-487. The commit that holds this revision of the entry moves the row between D-484 and D-486, and the reply on the thread names it.
-- The handoff held eleven entries before this one, because Session 22 added its entry and moved none. Sessions 13 and 12 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. `main` is `4f37c99` (PR #9).
-- PR #10 is open on `docs/pr-10-roadmaps` with D-483 to D-490. The remote head is the commit that holds this entry.
-- The interim STE check passes with 0 findings.
-
-### In flight
-
-PR #10 answers the gitar pass. It adds decision rows, so a Codex session reviews it, and no `review-override` label applies (D-401). The owner merges. Then PR #11 starts the roadmaps on a new branch (D-488, D-490).
-
-### Traps and gotchas
-
-- D-484 and D-490 put the design-critic pass in PR #12. Do not run it in PR #10 or PR #11.
-- D-487: in PR #11, ask a question only when it changes the order, a gate, or a contract between PRs. File each detail question in `docs/questions.md` with the PR it blocks.
-- New PR ids start at PR-43 (D-486). PR-22 and PR-32 stay retired (G-10).
-- Each file follows the focused roadmap template of the `design-doc-style` skill: the status header and sections 1, 5, 7, 8, and 9. Each phase entry lists its scope, exit tests, review focus, filed questions, and area file (D-144).
-- The owner chose finer shapes than the session recommended twice in this block: two PRs, and twelve area files. Show running counts of files and PR ids in each batch.
-- D-489 now binds PR #11: push its branch at each session end, and open it when the roadmaps and the rebuild are complete (D-490). PR #11 needs a branch of its own, such as `docs/pr-11-roadmaps`.
-- The next ids are D-491, OQ-60, F-35, L-16, G-26, PR-43, M-7, and Session 24.
-
-### Open questions that block progress
-
-None for PR #10. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
-
-### Next concrete action
-
-This session answers the gitar pass on PR #10. Then a Codex session reviews PR #10 under the `pr-review` skill and writes `docs/reviews/pr-10.md` (D-401). The owner merges. Then a session starts PR #11 on a new branch. It reads D-144, D-145, D-484 to D-490, the `design-doc-style` skill, and section 7 of `docs/design.md`, and it writes `docs/roadmaps/area-core.md` first (D-488).
