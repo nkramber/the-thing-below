@@ -60,7 +60,7 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-16 phase files and rebuild pass: the five phase files of D-485 are complete. Each PR entry there has a scope, exit tests, a review focus, and its questions (D-144, D-487). Every active id from PR-1 to PR-79 has one entry in one phase file. Section 7 below becomes a high-level index that links to each phase file, and the full paragraph of each PR lives there alone (D-554). Section 8 takes the order that the phase files hold. G-22 now names PR-49 as the creator of the night gate (D-496).
 
-2026-09-16 critic pass: PR #12 ran the design-critic agent over the merged plan in five slices, and it found 52 defects that F-57 records. The owner answered 18 questions (D-555 to D-572). A place stays cleared until a story event, and the game has no fog of war (D-555, D-566). The game draws one 16:9 frame of 1280 by 720 (D-568). PR-80 holds the enemy record, and PR-81 holds the sealed gallery (D-557, D-562).
+2026-09-16 critic pass: the design-critic pass of PR #12 read the merged plan in five slices and found 52 defects, which F-57 records. The owner answered 18 questions (D-555 to D-572). A place stays cleared until a story event, and the game has no fog of war (D-555, D-566). The game draws one 16:9 frame of 1280 by 720 (D-568). PR-80 holds the enemy record, and PR-81 holds the sealed gallery (D-557, D-562).
 
 External facts, each with the date of its check:
 
@@ -231,7 +231,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-21 | The plan gives each region one story arc (D-56), and the glossary defined an arc as "the story of one region". No text said how an arc relates to the main story of D-28, or what the first release ends on. An interview option read the gap as a faction that falls inside region one, and the owner refuted it | 2026-09-12 | ✅ doc. D-131: every plotline converges at the end of the game. The glossary now defines an arc as one part of the main story. D-133 resolves OQ-26: region one is a free prologue on Steam. The Phase 4 summary and Phase 5 now name the prologue. Binds the arc block of OQ-18 |
 | F-22 | The interview options used Final Fantasy Tactics as a template, not a feel. Three recorded answers sit close to its plot devices: unpaid veterans turned bandit (D-127), a hidden power behind the politics (D-128), and church leaders who know the faith is a lie (D-137). The waystones (D-134) risk a fourth: stones that carry the evil | 2026-09-12 | ⚠ D-136 and D-140: keep the shapes, and ban the devices. The list lives in `docs/world/`. Binds every later option of OQ-18 |
 | F-23 | The gates of PR-10 and PR-37 need a rendered screen: a screen test of a fixture battle, and two screenshots of the CRT toggle. The smoke job runs Godot with `--headless` on hosted runners (D-117). Godot proposal 5790 says that `--headless` "disables all rendering code", and the Godot docs name no way to capture an image in that mode. what-you-carry met the same wall: its contact sheet needs a window and runs on a desktop alone (its D-306) | 2026-09-12 | ⚠ D-172: a Linux CI job renders under Xvfb with a pinned Mesa, and desktop contact sheets show the real renderer at milestones. Binds the technical and graphics roadmaps, PR-10, and PR-37. Sources: the Godot 4.7 command line page and proposal 5790, read 2026-09-12 |
-| F-24 | D-228 doubles the tile size after the art, effect, and light decisions of this interview. Every grid holds four times the pixels: a 32 by 32 frame is 1,024 characters of text, and a party member has about twelve frames plus normal-map overrides (D-184, D-199, D-200). The Deck lights and fills four times the pixels of a 640 by 400 frame | 2026-09-12 | ⚠ Binds the graphics roadmap, the Deck test of D-160 at 1280 by 800, and M-6. The PNG import of D-107 matters more for hand edits |
+| F-24 | D-228 doubles the tile size after the art, effect, and light decisions of this interview. Every grid holds four times the pixels: a 32 by 32 frame is 1,024 characters of text, and a party member has about twelve frames plus normal-map overrides (D-184, D-199, D-200). The Deck lights and fills four times the pixels of a 640 by 400 frame | 2026-09-12 | ⚠ Binds the graphics roadmap, the Deck test of D-160 at the frame of 1280 by 720 (D-568), and M-6. The PNG import of D-107 matters more for hand edits |
 | F-25 | The design critic of 2026-09-13 found four holes in play and saves. Gate 2 could not reach the two hidden jobs (C-1), a save point gave endless rest (C-2), a quit autosave could trap a run (C-3), and a Core patch would refuse old saves (C-4) | 2026-09-13 | ✅ doc. D-256, D-257, and D-258 close the first three, and D-268 later supersedes D-256. D-259 closes the fourth: a load reads the snapshot |
 | F-26 | The critic found gates that cannot pass. No PR created the screen-test job of D-172, the PR-37 gate relied on a headless run that draws nothing, the PR-7 and PR-8 gates met small maps and routes per phase, and the Deck test of D-160 had no sequence step and no failure branch | 2026-09-13 | ✅ doc. PR-41 creates the job with fixed capture and fit tests at 1080 and 1440 rows. The gates of PR-7, PR-8, and PR-37 changed, and section 8 gains the Deck test. D-261: the owner sets a fallback only if the test misses 60 |
 | F-27 | The critic found gaps in the records. 24 earlier rows lacked their revision notes, several lines named superseded values, and D-193 disagreed with D-202 on ambient effects. Four choices had no owner: the first turn from behind, the place of systems, audio, and release in the order, effect timings in frames, and D-171 against the rule of no conditional compilation in Core | 2026-09-13 | ✅ doc for the notes and the stale text. D-260, D-262, D-265, and D-266 settle the four choices |
@@ -423,9 +423,9 @@ Phase file: `docs/roadmaps/phase-4-region-one.md`. Each item here is content, an
 1. PR-23: the deep mine, and the sprite frames of Ottild and Elio (D-313, D-342).
 2. PR-24: the second visit to the hanging cells (D-327, F-29).
 3. PR-81: the sealed gallery, where the flight begins (D-343, D-562).
-4. PR-25: the border fort.
-5. PR-26: the ice crossing.
-6. PR-27: the second hub, of another shape than the first (D-28).
+4. PR-27: the second hub, the refuge of the old faith, right after PR-81 (D-28, D-574).
+5. PR-25: the border fort.
+6. PR-26: the ice crossing.
 7. PR-42: the lessons of region one, across the eight kinds (D-275, D-304).
 8. PR-73: the rest of the music and the sounds of region one (D-549).
 9. PR-28: the arc of region one, the first batch (D-56, D-350).
@@ -497,7 +497,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 28. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 29. PR-18, PR-19, PR-20, PR-21.
 30. **← GATE 3 (story systems).** The owner plays a branch and a hub that changes with an earlier choice.
-31. PR-23, PR-24, PR-81, PR-25, PR-26, PR-27.
+31. PR-23, PR-24, PR-81, PR-27, PR-25, PR-26.
 32. PR-42, PR-73.
 33. PR-28, PR-29, PR-77.
 34. PR-30.

@@ -237,7 +237,7 @@ Built by PR-35. Phase file: `phase-2-first-playable.md`.
 | PR-35 | The region map, its nodes, and its routes | D-113 |
 | PR-21 | The switches, the blocks, the light and dark, and the secrets | D-41 |
 | PR-17 | The village, the land near it, the mining town, and the hanging cells | D-313, D-362, D-369 |
-| PR-23 to PR-27 | The deep mine, the second visit to the cells, the border fort, the ice crossing, and the second hub | D-313, D-327 |
+| PR-23 to PR-27 | The deep mine, the second visit to the cells, the border fort, the ice crossing, and the second hub, the refuge | D-313, D-327, D-574 |
 | PR-81 | The sealed gallery, with its second passage | D-343, D-562 |
 
 ### 7.15 Exploration that other area files hold
@@ -286,7 +286,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 14. PR-17: the village, the town, and the first dungeons.
 15. **← GATE 2 (first playable).**
 16. PR-21: the puzzles and the secrets, in Phase 3.
-17. PR-23 to PR-27 and PR-81: the other places of region one, in Phase 4 (D-562).
+17. PR-23, PR-24, PR-81, PR-27, PR-25, and PR-26: the other places of region one, in the order of play (D-562, D-574).
 
 ## 9. Open questions
 

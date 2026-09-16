@@ -2,6 +2,66 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 29: 2026-09-14, Claude Code
+
+Author: Claude Code
+Session: the third area file of PR #11, `docs/roadmaps/area-ci.md`, on branch `docs/pr-11-roadmaps`.
+
+### What this session did, and why
+
+- The session resumed PR #11 from the handoff of Session 28. The remote head was `bad1797`, and no other session pushed after it.
+- The session read the design, the whole decision register, the questions register, `area-core.md`, `area-tools.md`, the skills, the agent file of the playtest bot, the PR template, and the runbook of the machine. It read the decision register of what-you-carry for its night record and night gate rules, for the process alone (D-277).
+- Three read-only research agents read GitHub, Godot, Microsoft, xUnit, Coverlet, and ReportGenerator pages. The session fetched eight key pages again before a fact entered a document. It also read the NuGet API, the Godot release files and their SHA-512 list, the licenses of five actions, and the settings of the repository through `gh api`.
+- The session asked twelve contract questions in three batches (D-487), and the owner took nine recommendations:
+  - The export job is PR-54, right before PR-7 (D-503). It also runs on a PR that changes the export, and each export runs the smoke session (D-512).
+  - The replay-identity job compares each leg with a committed identity file (D-504).
+  - PR-1 publishes the coverage report (D-506).
+  - The Game assembly embeds `content/`, and Tools holds the one reader of the folder (D-508).
+  - The night record is an artifact of the run of the night job (D-509). A night on the head commit of a PR passes that PR (D-510), and a docs-only PR passes the night gate (D-513).
+  - Workflows use five actions of the `actions` organization of GitHub, each pinned to a full commit SHA, and D-511 is their G-13 entry.
+- The owner chose against three recommendations:
+  - The bot runs play on all three CI legs, not on Linux alone (D-505).
+  - A night plays ten thousand runs on Linux and two thousand each on Windows and macOS (D-507). The session recommended ten thousand on each leg, and then one thousand on the other two. D-507 revises D-64 in part, and the session confirmed the final count before the row.
+- F-40 records that the test command of `CLAUDE.md` works in VSTest mode alone. F-41 records four rules of GitHub Actions, F-42 two Godot export facts, and F-43 a night gate that blocked its own fix.
+- The session filed ten detail questions for PR-1, PR-15, PR-41, PR-49, and PR-54 (OQ-75 to OQ-84), as D-487 asks. None blocks PR #11.
+- The session updated `docs/design.md`: a dated line, the system map, the cost model, and F-40 to F-43. It updated `area-core.md`, `area-tools.md`, the `ste-writing`, `csharp-conventions`, and `pr-review` skills, the runbook of the machine, and six earlier decision rows with notes.
+- The handoff held ten entries before this one, so Session 19 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `63803d9` (PR #10).
+- The branch `docs/pr-11-roadmaps` holds three commits on `main`, and its remote head is the commit that holds this entry. No PR is open, because PR #11 opens when the roadmaps and the rebuild are complete (D-489).
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #11: three of twelve area files are done. Next comes `area-art.md`, then the other eight area files in the order of D-485. Then come the five phase files and the rebuild of sections 7 and 8 (D-488).
+
+### Traps and gotchas
+
+- The rebuild changes more than sections 7 and 8. These texts still name the old plan:
+  - G-22 in `docs/design.md`: PR-49 (D-496), the night counts (D-507), a night on the head of a PR (D-510), and docs-only PRs (D-513).
+  - The PR gate of `CLAUDE.md` and `AGENTS.md`, lines 145 to 147: det-lint in PR-46, the identity file (D-504), the night gate in PR-49, and a new line for the bot runs of PR-15 (D-505). Line 130 still says det-lint comes "after PR-4".
+  - Lines 12, 13, and 15 of `.github/pull_request_template.md`, with the same changes and the bot line.
+  - Section 7 still puts the export job in PR-7 and the night gate in PR-15, and M-3 reads one night count. Section 8 needs the owner step of D-511 before PR-1.
+- The owner must enable "Require actions to be pinned to a full-length commit SHA" before PR-1 (D-511). The setting was off on 2026-09-14, and step 1 of the owner actions in the runbook names it.
+- `gh api` showed "Allow rebase merging" on, on 2026-09-14. The runbook asks the owner to turn it off (D-8).
+- D-508 changes three later area files. `area-art.md` plans the atlas as bytes loaded at run time (`Image.LoadPngFromBuffer`), not as an imported texture. `area-audio.md` says where rendered audio lives, because a large render does not suit the assembly. The phase file gives PR-5 work in Game and Tools, not in Core alone.
+- The embedded resource names must match on every leg. Check the path separator on Windows in PR-5.
+- F-40: if OQ-75 picks MTP, PR-1 changes the test commands of `CLAUDE.md`, `AGENTS.md`, and the `csharp-conventions` skill.
+- GitHub disables a schedule after 60 days with no activity in a public repository, and the night gate then fails every PR (F-41).
+- New PR ids so far: PR-43 to PR-54, twelve of about 20 (D-486). The next id is PR-55. The owner chose the fuller option three times in this block. Show running counts of runs, legs, and CI time in each batch.
+- Contract questions for `area-art.md` from earlier sessions: how the owner sees an image batch in a PR (G-25), and whether `gh` can put an image in a PR description. Check it before a question assumes it.
+- The next ids are D-514, OQ-85, F-44, L-16, G-26, PR-55, M-7, and Session 30.
+
+### Open questions that block progress
+
+None for PR #11. OQ-75 to OQ-84 block PR-1, PR-15, PR-41, PR-49, and PR-54. OQ-67 to OQ-74 block PR-2, PR-3, PR-46, PR-47, PR-48, and PR-15. OQ-60 to OQ-66 block PR-4, PR-5, PR-6, and PR-43. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
+
+### Next concrete action
+
+A session continues PR #11 on `docs/pr-11-roadmaps`. It reads `docs/roadmaps/area-core.md`, `area-tools.md`, `area-ci.md`, D-491 to D-513, and the graphics entries of `docs/design.md`. Then it writes `docs/roadmaps/area-art.md`, asks the contract questions, and files detail questions with their PRs (D-487, D-488).
+
 ## Session 28: 2026-09-14, Claude Code
 
 Author: Claude Code
@@ -63,83 +123,6 @@ None for PR #11. OQ-67 to OQ-74 block PR-2, PR-3, PR-46, PR-47, PR-48, and PR-15
 
 A session continues PR #11 on `docs/pr-11-roadmaps`. It reads `docs/roadmaps/area-core.md`, `docs/roadmaps/area-tools.md`, D-491 to D-502, and the Phase 1 entries of `docs/design.md`. Then it writes `docs/roadmaps/area-ci.md`, asks the contract questions above, and files detail questions with their PRs (D-487, D-488).
 
-## Session 26: 2026-09-14, Codex
-
-Author: Codex
-Session: repeat review of PR #10 at effective head `7eb2abc`.
-
-### What this session did, and why
-
-- Verified the new base, effective head, changed paths, provider gate, response file, and existing PR comments.
-- Read the correction diff, the complete PR diff, the design and decision contracts, the question register, the skills, the agent guidance, the handoff archive, and the PR description.
-- Reproduced P2-1. D-488 now uses `Revised in part by D-490`, names PR #11 as the changed part, and keeps the writing order.
-- Confirmed D-490 names D-488 among the revised decisions and that the design and handoff identify PR #11.
-- Confirmed the repeat Gitar check passed on `7eb2abc` with no new comment.
-- Updated `docs/reviews/pr-10.md`, preserved P2-1 with its earlier evidence, and set the verdict to `Ready for owner merge` for `7eb2abc`.
-- Ran the interim STE check with 0 findings, `git diff --check`, and the guidance identity check.
-
-### State of the build
-
-- No code exists. `main` is `4f37c99` (PR #9).
-- PR #10 is open on `docs/pr-10-roadmaps`. Its effective head is `7eb2abc`.
-- The interim STE check passes with 0 findings. The repeat review metadata and handoff are pushed in `e8cc765`.
-
-### In flight
-
-PR #10 is ready for owner merge. Then PR #11 starts the roadmaps on a new branch.
-
-### Traps and gotchas
-
-- D-488 and D-489 keep `PR #10` in their topic columns as dated text. Their revision notes carry the current PR number.
-- The build, test, format, det-lint, replay-identity, smoke, night-gate, and review-gate checks do not exist until the PRs named in `AGENTS.md` create them.
-- The next ids are D-491, OQ-60, F-35, L-16, G-26, PR-43, M-7, and Session 27.
-
-### Open questions that block progress
-
-None for PR #10. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
-
-### Next concrete action
-
-The owner can merge PR #10. Then a fresh session starts PR #11 with `docs/roadmaps/area-core.md`.
-
-## Session 24: 2026-09-14, Codex
-
-Author: Codex
-Session: cross-provider review of PR #10 at effective head `9355d62`.
-
-### What this session did, and why
-
-- Verified the PR target, base, merge base, branch, effective head, changed paths, provider gate, and existing PR comments.
-- Read the complete diff, the design and decision contracts, the questions register, the skills, the agent guidance, the handoff archive, and the PR description.
-- Confirmed the final Gitar check passed on `9355d62` and that its one suggestion was fixed in that commit.
-- Found P2-1: D-488 still names PR #10, while D-490 says D-488 binds PR #11 without a revision note for D-488.
-- Ran the interim STE check with 0 findings, `git diff --check`, and the guidance identity check.
-- Added `docs/reviews/pr-10.md` with the verdict `Changes required` for `9355d62`.
-
-### State of the build
-
-- No code exists. `main` is `4f37c99` (PR #9).
-- PR #10 is open on `docs/pr-10-roadmaps`. Its effective head is `9355d62`.
-- The interim STE check passes with 0 findings. The review record and handoff are pushed in `95fd404`.
-
-### In flight
-
-PR #10 needs the D-488 revision note and a repeat review. The owner merges after the verdict covers the new effective head.
-
-### Traps and gotchas
-
-- D-490 must revise D-488 in part, not only D-484 and D-489. The writing order stays unchanged, and only the PR number changes to PR #11.
-- The build, test, format, det-lint, replay-identity, smoke, night-gate, and review-gate checks do not exist until the PRs named in `AGENTS.md` create them.
-- The next ids are D-491, OQ-60, F-35, L-16, G-26, PR-43, M-7, and Session 25.
-
-### Open questions that block progress
-
-None for PR #10. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
-
-### Next concrete action
-
-The author adds the D-488 revision note and runs a repeat Gitar pass. Then a Codex session updates `docs/reviews/pr-10.md` for the new effective head.
-
 ## Session 27: 2026-09-14, Claude Code
 
 Author: Claude Code
@@ -193,6 +176,45 @@ None for PR #11. OQ-60 to OQ-66 block PR-4, PR-5, PR-6, and PR-43. OQ-57 and OQ-
 
 A session continues PR #11 on `docs/pr-11-roadmaps`. It reads `docs/roadmaps/area-core.md`, D-491 to D-495, and the Phase 1 entries of `docs/design.md`. Then it writes `docs/roadmaps/area-tools.md`, asks contract questions alone, and files detail questions with their PRs (D-487, D-488).
 
+## Session 26: 2026-09-14, Codex
+
+Author: Codex
+Session: repeat review of PR #10 at effective head `7eb2abc`.
+
+### What this session did, and why
+
+- Verified the new base, effective head, changed paths, provider gate, response file, and existing PR comments.
+- Read the correction diff, the complete PR diff, the design and decision contracts, the question register, the skills, the agent guidance, the handoff archive, and the PR description.
+- Reproduced P2-1. D-488 now uses `Revised in part by D-490`, names PR #11 as the changed part, and keeps the writing order.
+- Confirmed D-490 names D-488 among the revised decisions and that the design and handoff identify PR #11.
+- Confirmed the repeat Gitar check passed on `7eb2abc` with no new comment.
+- Updated `docs/reviews/pr-10.md`, preserved P2-1 with its earlier evidence, and set the verdict to `Ready for owner merge` for `7eb2abc`.
+- Ran the interim STE check with 0 findings, `git diff --check`, and the guidance identity check.
+
+### State of the build
+
+- No code exists. `main` is `4f37c99` (PR #9).
+- PR #10 is open on `docs/pr-10-roadmaps`. Its effective head is `7eb2abc`.
+- The interim STE check passes with 0 findings. The repeat review metadata and handoff are pushed in `e8cc765`.
+
+### In flight
+
+PR #10 is ready for owner merge. Then PR #11 starts the roadmaps on a new branch.
+
+### Traps and gotchas
+
+- D-488 and D-489 keep `PR #10` in their topic columns as dated text. Their revision notes carry the current PR number.
+- The build, test, format, det-lint, replay-identity, smoke, night-gate, and review-gate checks do not exist until the PRs named in `AGENTS.md` create them.
+- The next ids are D-491, OQ-60, F-35, L-16, G-26, PR-43, M-7, and Session 27.
+
+### Open questions that block progress
+
+None for PR #10. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
+
+### Next concrete action
+
+The owner can merge PR #10. Then a fresh session starts PR #11 with `docs/roadmaps/area-core.md`.
+
 ## Session 25: 2026-09-14, Claude Code
 
 Author: Claude Code
@@ -231,6 +253,44 @@ None for PR #10. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR
 ### Next concrete action
 
 This session answers the gitar pass on the new head and records it in the PR description. Then a Codex session runs the repeat review of PR #10 under the `pr-review` skill. The owner merges. Then a fresh session starts PR #11 with `docs/roadmaps/area-core.md`.
+
+## Session 24: 2026-09-14, Codex
+
+Author: Codex
+Session: cross-provider review of PR #10 at effective head `9355d62`.
+
+### What this session did, and why
+
+- Verified the PR target, base, merge base, branch, effective head, changed paths, provider gate, and existing PR comments.
+- Read the complete diff, the design and decision contracts, the questions register, the skills, the agent guidance, the handoff archive, and the PR description.
+- Confirmed the final Gitar check passed on `9355d62` and that its one suggestion was fixed in that commit.
+- Found P2-1: D-488 still names PR #10, while D-490 says D-488 binds PR #11 without a revision note for D-488.
+- Ran the interim STE check with 0 findings, `git diff --check`, and the guidance identity check.
+- Added `docs/reviews/pr-10.md` with the verdict `Changes required` for `9355d62`.
+
+### State of the build
+
+- No code exists. `main` is `4f37c99` (PR #9).
+- PR #10 is open on `docs/pr-10-roadmaps`. Its effective head is `9355d62`.
+- The interim STE check passes with 0 findings. The review record and handoff are pushed in `95fd404`.
+
+### In flight
+
+PR #10 needs the D-488 revision note and a repeat review. The owner merges after the verdict covers the new effective head.
+
+### Traps and gotchas
+
+- D-490 must revise D-488 in part, not only D-484 and D-489. The writing order stays unchanged, and only the PR number changes to PR #11.
+- The build, test, format, det-lint, replay-identity, smoke, night-gate, and review-gate checks do not exist until the PRs named in `AGENTS.md` create them.
+- The next ids are D-491, OQ-60, F-35, L-16, G-26, PR-43, M-7, and Session 25.
+
+### Open questions that block progress
+
+None for PR #10. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
+
+### Next concrete action
+
+The author adds the D-488 revision note and runs a repeat Gitar pass. Then a Codex session updates `docs/reviews/pr-10.md` for the new effective head.
 
 ## Session 23: 2026-09-14, Claude Code
 

@@ -70,8 +70,8 @@ Built by PR-61. Phase file: `phase-2-first-playable.md`.
 
 - By default the frame scales to the full height of the screen, and a display setting switches to exact whole-number scale with bars (D-232).
 - The Deck shows the frame at 1x in both modes (D-232, D-568).
-- A desktop at 1920 by 1080 needs a scale of 1.5, and it must look good, with no blur and no uneven pixels (D-568).
-- OQ-105 holds the method. Its recommendation scales up past the screen by a whole number with the Nearest filter, then scales down with a linear filter.
+- A desktop at 1920 by 1080 needs a scale of 1.5. There every pixel keeps the same size, with a slight softness at pixel edges (D-568, D-573).
+- D-573 sets the method. Game scales up past the screen by a whole number with the Nearest filter, then scales down with a linear filter.
 - A 16:9 screen at 2560 by 1440 or 3840 by 2160 takes an exact whole-number scale, 2x or 3x (D-568).
 - Godot has no mode that does both steps, so Game builds them (F-48).
 - The CRT pass of PR-37 runs on the frame at 1x, before the fit (D-240, `area-effects.md` section 7.12).
@@ -299,7 +299,6 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 The register is `docs/questions.md` (D-19). These questions block UI PRs, and each PR asks its questions when it starts (D-487):
 
 - OQ-104: the font settings and the load from bytes. Blocks PR-61.
-- OQ-105: how Game builds the two steps of the fit. Blocks PR-61.
 - OQ-106: where the settings file lives, and its form. Blocks PR-63.
 - OQ-107: how Game knows the last device of the player. Blocks PR-61.
 - OQ-108: where a remap lives, and what a conflict does. Blocks PR-63.

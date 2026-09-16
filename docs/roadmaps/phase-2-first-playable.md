@@ -101,7 +101,7 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 **Scope.**
 
 - The one 16:9 frame of 1280 by 720, with black bars for every other shape, the Deck included (D-228, D-568).
-- The world in a `SubViewport` at 1x, and both steps of the fit that Godot cannot make (D-230, D-232, F-48, OQ-105).
+- The world in a `SubViewport` at 1x, and both steps of the fit that Godot cannot make (D-230, D-232, D-573, F-48).
 - The two fonts from the bytes of the Game assembly, with the antialiasing, the hinting, and the subpixel settings of a pixel font (D-263, D-264, D-508, F-49).
 - The text helper that puts a string table entry on screen, which det-lint guards (D-499, G-7).
 - The UI style file, and the Godot `Theme` that Game builds from it at load (D-527, G-6).
@@ -133,12 +133,12 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 
 **Review focus.**
 
-- The two steps of the fit, from the answer of OQ-105, and the 1x frame under them (F-48).
+- The two steps of the fit of D-573, and the 1x frame under them (F-48).
 - Font oversampling stays off, and each font setting has a test (F-49).
 - The `Theme` comes from the style file, and no theme resource file exists (D-527, G-6).
 - Every screen shows the same part of the map, so no screen shape gains knowledge (D-566, D-568).
 
-**Questions.** OQ-57, OQ-104, OQ-105, and OQ-107.
+**Questions.** OQ-57, OQ-104, and OQ-107. D-573 resolved OQ-105.
 
 > *In plain English:* this builds the picture frame of the game. It sets one fixed size that the handheld shows exactly, the two fonts, and the look of every menu. It also turns keys and buttons into choices that the rules understand.
 
@@ -248,7 +248,7 @@ Area files: `area-ci.md` section 7.12, `area-effects.md` section 7.13, `area-ui-
 - The Mesa pin, from the answer of OQ-79, and its decision row (G-13).
 - The Compatibility renderer of CI differs from the Deck, and the PR says where (D-172).
 - The baseline holds both fit modes at both screen row counts (D-232, D-240, D-568).
-- The capture at 1080 rows proves the rule of D-568 that 1920 by 1080 looks good, with no blur and no uneven pixels.
+- The capture at 1080 rows proves the rule of D-573. Every pixel keeps the same size, with a slight softness at pixel edges.
 
 **Questions.** OQ-79.
 
@@ -1888,7 +1888,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-102 | How glow stays off sprites | PR-59 |
 | OQ-103 | Where shader code lives | PR-10 and PR-60 |
 | OQ-104 | The font settings and the load from bytes | PR-61 |
-| OQ-105 | How Game builds the two steps of the fit | PR-61 |
 | OQ-106 | Where the settings file lives, and its form | PR-63 |
 | OQ-107 | How Game knows the last device of the player | PR-61 |
 | OQ-108 | Where a remap lives, and what a conflict does | PR-63 |

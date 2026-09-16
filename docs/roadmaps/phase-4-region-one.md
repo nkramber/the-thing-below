@@ -321,7 +321,7 @@ Area files: `area-progression.md` section 7.3, `area-battle.md` section 7.6, `ar
 **Exit tests.**
 
 1. Each changed number reaches the PR description with its value before and after (G-14).
-2. The M-4 numbers land inside the band that the Gate 2 sign-off set.
+2. The M-4 numbers land inside the band that the owner set after M-4, before Gate 2 (D-571).
 3. A night of bot runs over region one ends with no crash and no softlock (D-507).
 4. The numbers hold with a short-handed party after a down (D-58, F-7).
 5. The numbers hold with each side aptitude absent in turn (D-282, D-304).
@@ -368,7 +368,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds the row.
 1. The owner plays region one end to end on the desktop and on the Deck (D-56, D-92).
 2. The owner signs off, and the owner sees the credits roll at the end (D-552).
 3. M-5 records a play time of six to eight hours (D-56).
-4. The M-4 numbers land inside the band of the Gate 2 sign-off.
+4. The M-4 numbers land inside the band that the owner set after M-4 (D-571).
 5. Every job of the PR gate is green on every leg (D-481).
 6. A night of bot runs over region one ends with no crash and no softlock (D-507).
 7. The budget test passes for every place of region one (D-523).
@@ -383,9 +383,9 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 1. PR-23: the deep mine.
 2. PR-24: the second visit to the hanging cells (D-327).
 3. PR-81: the sealed gallery, where the flight begins (D-562).
-4. PR-25: the border fort.
-5. PR-26: the ice crossing.
-6. PR-27: the second hub.
+4. PR-27: the second hub, the refuge of the old faith, right after the sealed gallery (D-574).
+5. PR-25: the border fort.
+6. PR-26: the ice crossing.
 7. PR-42: the lessons of region one.
 8. PR-73: the rest of the music and the sounds of region one (D-549).
 9. PR-28: the arc, the first batch.

@@ -71,7 +71,7 @@ Four factions hold power in region one (D-242). No faction tracks reputation, an
 
 ## The order of play
 
-The party plays the four dungeons in this order: the hanging cells, the deep mine, the border fort, and the ice crossing (D-313). The cells return as a second visit between the deep mine and the fort (D-327). The flight through the sealed gallery follows that second visit, before the fort (D-562). The file `arc.md` gives the story in order.
+The party plays the four dungeons in this order: the hanging cells, the deep mine, the border fort, and the ice crossing (D-313). The cells return as a second visit between the deep mine and the fort (D-327). The flight through the sealed gallery follows that second visit, then the refuge of the old faith, before the fort (D-562, D-574). The file `arc.md` gives the story in order.
 
 ## Open items
 
