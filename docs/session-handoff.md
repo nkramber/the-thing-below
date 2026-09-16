@@ -21,12 +21,12 @@ Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role:
 ### State of the build
 
 - No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
-- PR #16 is open on `docs/pr-16-context-budget`. Before this metadata commit, the remote head is `e3e6611` and the effective head is `e3e6611`.
+- PR #16 is open on `docs/pr-16-context-budget`. The review and handoff commit `86b76b6` was pushed and verified as the remote head. The effective head remains `e3e6611`.
 - The current verdict is `Ready for owner merge`, based on the fixed findings and the owner's Gitar confirmation.
 
 ### In flight
 
-The review record and this entry need one commit and a push to PR #16.
+The review record and this entry are committed and pushed to PR #16. This entry records the verified push.
 
 ### Traps and gotchas
 
@@ -40,7 +40,7 @@ None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81,
 
 ### Next concrete action
 
-Commit the review record and this handoff entry. Push them to PR #16 and verify the remote head.
+Push this metadata update, fetch the remote, and verify the clean branch status and PR head.
 
 ## Session 54: 2026-09-16, Claude Code
 
