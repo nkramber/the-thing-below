@@ -156,3 +156,25 @@ Regression check: a scan of every live document for `four dungeons`, `third dung
 ### The new head
 
 The correction changes `docs/decisions.md`, `docs/design.md`, `docs/questions.md`, four roadmap files, and two world files, which sit outside the metadata set. So the effective head moves off `d31ae6b` to the commit that holds this round.
+
+## Second repeat review: P2-7
+
+The second repeat review of Session 42 set P2-6 to `fixed in 0fbfa82`, and it added P2-7 for head `0fbfa82`.
+
+### P2-7: PR-81 does not carry the complete art and effect contract
+
+Disposition: **full merit.**
+
+The trigger reproduces. The art table of `area-art.md` and the effects table of `area-effects.md` gave the later places to PR-23 to PR-27 alone. The budget exit test of PR-81 read "each map of the place", while the test of PR-23 to PR-26 read "each map and each battle place". D-575 gave the gallery a boss, so it has a battle place.
+
+Correction:
+
+- The art row and the effects row now read PR-23 to PR-27 and PR-81, with the sealed gallery named, and each cites D-575.
+- The budget exit test of PR-81 now reads "each map and each battle place", the same boundary as the other dungeon builds.
+- A scan for the same class found two more lines that the review did not list. Phase 2 put "the other nodes of region one" out of the scope of PR-35, and "the other places" out of the scope of PR-17, each as PR-23 to PR-27. The sealed door is a story gate on the region map, so the gallery is a node and a place too. Both lines now name PR-81.
+
+Regression check: a scan of the roadmaps and the design doc for each line that names PR-23 to PR-26 or PR-27 and not PR-81. Four lines remain, and each is right as it stands: the finding F-29 in `docs/design.md` and in `phase-4-region-one.md`, which records the four ids of that time; the heading of the PR-23 to PR-26 entry, which names its own four PRs; and the exploration table, where PR-81 has its own row. The three budget tests of Phase 4 read "each map and each battle place" or "every place of region one".
+
+### The new head
+
+The correction changes three roadmap files outside the metadata set, so the effective head moves off `0fbfa82` to the commit that holds this round.

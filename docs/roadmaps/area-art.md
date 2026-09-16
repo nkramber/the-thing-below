@@ -182,7 +182,7 @@ The phase files give each batch its scope. This table names the art that the dec
 | PR-10 | The attack pose, the hit flash, and a fixture backdrop as a large picture | D-96, D-108, D-111, D-516 |
 | PR-36 | Fixture portraits | D-234 |
 | PR-17 | The tile sets of the village, the land near it, the mining town, and the hanging cells, with their edge tiles. The enemies, the NPCs, and the backdrop. The map and battle frames of Marrek, Bergit, and Dagvar | D-110, D-199, D-200, D-204, D-362, D-369 |
-| PR-23 to PR-27 | The tile sets, enemies, bosses, and backdrops of each later place, and the NPCs of the second hub | D-110, D-313 |
+| PR-23 to PR-27 and PR-81 | The tile sets, enemies, bosses, and backdrops of each later place, the sealed gallery included, and the NPCs of the second hub | D-110, D-313, D-575 |
 | PR-28 and PR-29 | The portraits of the cast | D-109, D-234 |
 | PR-42 | The icons of the lessons of region one | PR-42 in `docs/design.md` |
 | PR-33 | The studio mark (OQ-57, OQ-90) | D-468 |

@@ -1300,7 +1300,7 @@ Area file: `area-exploration.md` section 7.13.
 
 **Out of scope.**
 
-- The other nodes of region one (PR-23 to PR-27).
+- The other nodes of region one (PR-23 to PR-27, PR-81).
 - The cost of a route in time, because no clock runs (D-442).
 
 **Exit tests.**
@@ -1654,7 +1654,7 @@ Area files: every area file. The content PR touches each area.
 
 **Out of scope.**
 
-- The arc content of region one (PR-28, PR-29) and the other places (PR-23 to PR-27).
+- The arc content of region one (PR-28, PR-29) and the other places (PR-23 to PR-27, PR-81).
 - The portraits of the cast (PR-28, PR-29). PR-36 uses fixture portraits.
 - The rest of the music of region one (PR-73).
 - A boss. The first playable ends when Dagvar joins, and PR-20 builds the phase layer on a fixture boss (D-564).

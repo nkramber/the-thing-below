@@ -108,7 +108,7 @@ Area files: `area-exploration.md` sections 7.1 and 7.8, `area-art.md` sections 7
 1. Every content file of the PR loads, and no id is absent.
 2. The map holds a second passage, so two groups can pass each other in it (D-343).
 3. The map preview and the review sheets reach the PR description (D-514, G-25).
-4. The budget test passes for each map of the place (D-523).
+4. The budget test passes for each map and each battle place (D-523).
 5. The bots play the map with no crash and no softlock (D-64).
 6. Each edge file matches its map and the edge rules (D-501).
 7. The boss changes phase at its threshold in one thousand seeds (PR-20).
