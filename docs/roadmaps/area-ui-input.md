@@ -299,7 +299,7 @@ The register is `docs/questions.md` (D-19). These questions block UI PRs, and ea
 - OQ-109: the dead zone of a stick, and its range in the settings. Blocks PR-63.
 - OQ-110: the cursor rules of a menu, and the mouse on it. Blocks PR-62.
 - OQ-111: the scale of the dungeon map screen. Blocks PR-62.
-- OQ-112: the text speeds, and the layout of the dialogue box. Blocks PR-36.
+- OQ-112: the text speeds, and the type-out of the dialogue box. Blocks PR-36.
 - OQ-113: the notice log, and how many notices it keeps. Blocks PR-62.
 - OQ-89: pixel snap in Game. Blocks PR-7.
 - OQ-64: the tick while a menu is open. Blocks PR-6.
