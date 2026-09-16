@@ -559,3 +559,7 @@ How to file a question (D-19, D-24):
 181. **OQ-181. The metadata set of the effective head.** The `pr-review` skill puts all of `docs/reviews/` in the metadata set. A commit on PR #14 can change `docs/reviews/pr-12.md` alone. The effective head then stays, and no review sees that change. The forward test of the `one-pr-one-session` skill found this on 2026-09-16. Raised 2026-09-16. Blocks PR-3.
     - The metadata set holds `docs/reviews/pr-<number>.md` and `docs/reviews/pr-<number>-response.md` of the PR, and the two handoff files, the recommendation. A change to the record of another PR moves the head, and the review sees it. The skill and the command of PR-3 change together.
     - The metadata set stays as it is. The rule stays simple. A record of another PR can change with no review, and D-578 forbids a PR for that record alone, so the risk is small.
+182. **OQ-182. A check of the context budget.** The token audit of 2026-09-16 proposes a size check (D-583 to D-591). It fails when `CLAUDE.md` passes 16 KB, the top handoff entry 5 KB, or a skill file 36 KB. The check can go in the C# tools of PR-2 or in the `review-gate` command of PR-3. Raised 2026-09-16. Blocks nothing.
+    - Add the check to PR-2, the recommendation. The sizes then stay small with no review effort.
+    - Add the check to PR-3. The gate then holds every PR rule in one command.
+    - Add no check. The reviewer reads the sizes by hand.

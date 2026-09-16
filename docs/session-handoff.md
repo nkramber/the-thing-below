@@ -1,6 +1,53 @@
 # Session handoff
 
-Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). Read the first entry first.
+Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
+
+## Session 50: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the token audit of the repository, then PR #16, the session context budget.
+Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: author. Base: `2bc7d56` (PR #15).
+
+### What this session did, and why
+
+- The owner asked for a read-only audit of token use. The audit read the usage records of 10 Claude Code sessions and 10 Codex sessions of this repository, and the size of every instruction file.
+- Each harness call sends the whole context again. The Claude Code sessions sent a median of 350k tokens in each call, and a maximum of 886k, with no context compaction. Whole reads of the read order held about 29% of the carried context. A call for each STE check cost 19% of the input tokens, and a call for each GitHub poll cost 14%. `CLAUDE.md` cost about 1.5%.
+- The owner said "Implement all fixes as recommended." D-583 to D-591 record the answers. OQ-182 asks where a size check goes. F-59 records the finding.
+- The start set replaces the whole read order at the start (D-583, D-584). The STE check runs in the commit command (D-585). One command waits for Gitar (D-586). The session tells the owner when it is ready for a context compaction (D-587).
+- `pr-review` split into a core of 17,922 bytes and five reference files (D-588, D-589). The glossary of the project areas moved word for word to `ste-writing/references/glossary.md` (D-590). D-591 covers scripts and edits.
+- `docs/runbooks/session-context.md` holds the evidence and the commands. Each command ran on this machine, in zsh.
+- The auto mode classifier of the harness refused the edits of the session skill and of `CLAUDE.md` two times. The owner then approved the edits in the conversation.
+- A separate evaluator ran the changed rules on four requests and found five defects. All five had merit, and this PR fixes them: a handoff push during the Gitar wait, the lost full STE check, unset variables in the comments command, the provider gate against D-584, and the wait after "On it".
+- The shared `gitar-review` skill did not change, because it is the same file in each repo.
+- The handoff held ten entries before this one, so Session 40 moved word for word to the top of `docs/session-handoff-archive.md` (D-18). A repeated rule line between two entries left this file.
+
+### State of the build
+
+- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
+- PR #16 is open on branch `docs/pr-16-context-budget`. The commit that holds this entry is its effective head.
+- The full interim STE check gives 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- The start set fell from 55,786 bytes to 28,491 bytes, about 20.7k to 10.6k tokens at 2.7 bytes for each token. `CLAUDE.md` grew from 15,001 to 16,052 bytes.
+
+### In flight
+
+PR #16 waits for a Gitar pass and for the Codex review, because it adds decision rows (T-4, D-17, D-401). For this work the owner told the session to set aside the Gitar procedure, so no Gitar request ran.
+
+### Traps and gotchas
+
+- The shell of this machine is zsh. zsh does not split `$files` into words, so the commit command pipes the file list to `xargs`.
+- The harness gives the compaction command to the owner alone. A session cannot compact itself, so D-587 tells the owner.
+- A push while Gitar reviews makes the review stale. Commit the handoff entry of a round before the push of that round.
+- The checker does not read the glossary. A session that writes about a project area loads `references/glossary.md` (D-590).
+- The audit scripts lived in the scratch folder of the session. No tool of this repository reads the usage records (D-99).
+- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 51.
+
+### Open questions that block progress
+
+None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+The author gets a current Gitar review of the PR #16 head and answers each finding. Then the Codex review of PR #16 runs.
 
 ## Session 49: 2026-09-16, Codex
 
@@ -45,8 +92,6 @@ None for PR #14. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 
 The author requests a current Gitar review of the latest PR tip and answers each finding. P2-1 is fixed; the Gitar review is the remaining merge gate.
 
-
-Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md`. Read the first entry first.
 
 ## Session 48: 2026-09-16, Claude Code
 
@@ -395,47 +440,3 @@ None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
 ### Next concrete action
 
 A Codex session repeats the review of PR #12 at the effective head `0fbfa82`. It reads the P2-6 section of `docs/reviews/pr-12-response.md`, checks the trigger and the regression check, and writes the verdict (T-4, D-17). The automated pass is complete.
-
-## Session 40: 2026-09-16, Codex
-
-Author: Codex
-Session: repeat cross-provider review of PR #12 at effective head `d31ae6b`.
-
-### What this session did, and why
-
-- Read the current handoff first, then the review response, the review skill, the STE skill, the correction diff, the original triggers, the adjacent contracts, and the PR comments.
-- Verified the provider gate under T-4 and D-17. Session 39 identifies the other provider as the author of the substantive corrections.
-- Recomputed the effective head. `d31ae6b` is the newest substantive commit. The later commits `aa3c5e2` and `c8e7e48` change only the review and handoff metadata paths.
-- Verified P1-1 and P2-1 through P2-5 against their original triggers and regression checks. Each earlier finding is fixed in `d31ae6b`. The archive response correction in `aa3c5e2` also matches the committed archive.
-- Checked the added PR-27 move. D-574, the design sequences, the Phase 4 sequence, the exploration roadmap, the places file, and the arc agree that PR-27 follows PR-81 and precedes PR-25.
-- Found one new adjacent contract defect, P2-6. D-56, D-244, and D-313 define four dungeons. D-562 and the places file classify the sealed gallery as another dungeon without a revision mark.
-- Updated `docs/reviews/pr-12.md`, preserved the earlier verdict, and set the current verdict to `Changes required` for `d31ae6b`.
-- Corrected two stale PR facts. The title and the description now end the decision range at D-574.
-- The handoff held ten entries before this one, so Session 30 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. The current target tip of `main` is `6910017`, and the PR merge base is `c4d39fe`.
-- PR #12 is open on `docs/pr-12-critic`. Before this review commit, its remote tip is `c8e7e48`, and its effective head is `d31ae6b`.
-- The interim STE check passes with 0 findings, both diff checks are clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-- GitHub reports no check run on the branch. The repeat automated pass has one fixed and resolved finding and no open finding.
-
-### In flight
-
-PR #12 needs the owner classification and correction in P2-6, then another repeat cross-provider review at the new effective head.
-
-### Traps and gotchas
-
-- A dungeon count and a map implementation kind are separate only when a current decision says so. D-562 now calls the gallery a dungeon map, and the places table calls it a dungeon.
-- If the sealed gallery is a fifth dungeon, the correction must revise D-56, D-244, and D-313. If it is a route, D-562 and its consumers must state that it only uses the dungeon-map format.
-- The six earlier findings stay fixed. A response to P2-6 must not reopen their corrected contracts.
-- The review verdict covers `d31ae6b`, not the metadata tip.
-- The next ids are D-575, OQ-180, F-58, L-16, G-26, PR-82, M-7, and Session 41.
-
-### Open questions that block progress
-
-The owner must classify the sealed gallery as a fifth dungeon or as a route that uses the dungeon-map format. OQ-179 continues to block PR-5.
-
-### Next concrete action
-
-The author asks the owner to classify the sealed gallery, records the answer, corrects P2-6 and its adjacent consumers, and updates `docs/reviews/pr-12-response.md`. Then a Codex session repeats the review at the new effective head.

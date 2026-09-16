@@ -20,7 +20,7 @@ Look for these classes of defect, in this order:
 6. A system that the thesis names and the roadmap never builds.
 7. An exploit or a degenerate strategy that the rules permit. Name the sequence of player actions.
 8. A convenience that breaks a tenet, with the tenet id.
-9. A word that names one concept with two terms, against the glossary in `ste-writing`.
+9. A word that names one concept with two terms, against the glossary in `ste-writing` and its file `references/glossary.md`.
 
 Write one entry for each defect. It holds a local id (C-1 onward), the claim, the evidence with file and line, the ids it touches, and the smallest correction. Do not invent findings to fill a list. A short report with three real defects beats a long one.
 
