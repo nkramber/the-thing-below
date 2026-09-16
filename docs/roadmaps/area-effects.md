@@ -104,14 +104,14 @@ The table lists what a frame draws, from the bottom to the top.
 Built by the owner and a session, before PR-1. Phase file: `phase-1-foundations.md`.
 
 - A throwaway scene runs on the Deck of the owner under Forward+ and under Mobile. The renderer that holds 60 frames per second with more room wins (D-160, D-161).
-- The scene runs at the frame of 1280 by 720 with the load of D-160 (D-228, D-568). That load holds particles, point lights with normal maps and shadows, glow, and the four ambient kinds.
+- The test scene runs at the frame of 1280 by 720 with the load of D-160 (D-228, D-568). That load holds particles, point lights with normal maps and shadows, glow, and the four ambient kinds.
 - The load also holds a transition, a backdrop, and the CRT with its scanlines (D-160).
-- The scene runs as the native Linux export (D-458).
+- The test scene runs as the native Linux export (D-458).
 - The test also finds the effect budget, the most load that still holds 60 frames per second (D-523). Section 7.4 holds the budget.
 - The pick becomes a decision before PR-1, and PR-1 sets that renderer in the Game project (D-160).
 - If neither renderer holds 60 frames per second, the owner decides then (D-261).
-- The scene is throwaway, so it never merges to `main` (D-160). OQ-92 holds where its source lives.
-- Godot can report the time of each frame to the scene itself (the external facts above). OQ-93 holds how the owner reads the frame time.
+- The test scene is throwaway, so it never merges to `main` (D-160). OQ-92 holds where its source lives.
+- Godot can report the time of each frame to the test scene itself (the external facts above). OQ-93 holds how the owner reads the frame time.
 - The LCD Deck has a 60 Hz screen, and the OLED Deck runs up to 90 Hz (the external facts above). The test records the model of the Deck and its refresh rate.
 - Valve asks for 30 frames per second at 800p for the Deck rating, so D-161 sets a stricter target (the external facts above).
 - The screen tests of CI use the Compatibility renderer, whatever the Deck test picks (D-172). The contact sheet on the Mac of the owner shows the real renderer.
@@ -292,7 +292,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | PR-21 | The light of the puzzles of light and dark | D-41 |
 | PR-23 to PR-27 | The light setups and the effects of each later place | D-313 |
 
-- A place that the story shows at another time of day adds a light setup in the PR of that scene (D-442). The phase file of Phase 4 names the PR of the night pass through the mining town (D-333).
+- A place that the story shows at another time of day adds a light setup in the PR of that story scene (D-442). The phase file of Phase 4 names the PR of the night pass through the mining town (D-333).
 - Each later region adds its own transitions (D-194).
 
 ### 7.15 Effects that other area files hold

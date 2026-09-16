@@ -10,7 +10,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 ## 1. Thesis
 
-Phase 3 teaches the game to remember a choice and to answer it. Phase 2 gave the scene runner, the story flags, and one condition form (D-544). Phase 3 builds the readers of those flags: the branches, the quests, and the tasks that open a hidden talent.
+Phase 3 teaches the game to remember a choice and to answer it. Phase 2 gave the story scene runner, the story flags, and one condition form (D-544). Phase 3 builds the readers of those flags: the branches, the quests, and the tasks that open a hidden talent.
 
 Two other systems close the phase, because each one needs the parts of Phase 2 and no content of Phase 4. They are the boss phases over the evaluator, and the puzzles and secrets of a dungeon.
 
@@ -53,7 +53,7 @@ Area file: `area-story.md` section 7.6.
 
 - The flag set and the condition form, which PR-68 built (D-544).
 - The quest state and the personal tasks (PR-19).
-- The scene content of region one (PR-28, PR-29), which proposes one or two more set choices (D-355).
+- The story scene content of region one (PR-28, PR-29), which proposes one or two more set choices (D-355).
 
 **Exit tests.**
 
@@ -136,7 +136,7 @@ Area files: `area-battle.md` section 7.8, `area-story.md` section 7.2.
 
 **Review focus.**
 
-- The answer of OQ-155 settles whether a scene can play inside a battle.
+- The answer of OQ-155 settles whether a story scene can play inside a battle.
 - The phase layer never reads a clock, and it counts ticks alone (G-3).
 - A boss of region one is a bandit, a church warden, or a wrong thing (D-155, D-310).
 
@@ -222,6 +222,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-152 | What a quest holds | PR-19 |
 | OQ-153 | What the rumor board shows | PR-19 |
 | OQ-154 | What ends a region for a missed task | PR-19 |
-| OQ-155 | Whether a scene can play inside a battle | PR-20 |
+| OQ-155 | Whether a story scene can play inside a battle | PR-20 |
 
 No open question blocks this file.

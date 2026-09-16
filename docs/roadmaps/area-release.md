@@ -2,7 +2,7 @@
 
 Status: **focused area roadmap, draft in PR #11.** This file says how the game reaches a player, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
-The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-ci.md` holds the export job and every other CI job. The file `area-ui-input.md` holds the title screen and the settings, and `area-art.md` holds the drawing of each store image. The file `area-core.md` holds the run record, the save, and the crash file, and `area-story.md` holds the scene that the credits roll uses.
+The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-ci.md` holds the export job and every other CI job. The file `area-ui-input.md` holds the title screen and the settings, and `area-art.md` holds the drawing of each store image. The file `area-core.md` holds the run record, the save, and the crash file, and `area-story.md` holds the story scene that the credits roll uses.
 
 External facts: the external facts of `docs/design.md` hold every fact of this area, each read 2026-09-14. They cover Steam, the Steam Deck, Steam Cloud, Next Fest, the store assets, the trailer format, Apple notarization, Windows signing, GitHub Releases, GitHub runner prices, the Godot export templates, the Godot and OFL license notices, the Godot boot splash, and Movie Maker. This file cites them and never restates one.
 
@@ -93,9 +93,9 @@ Built by PR-33. Phase file: `phase-5-first-release.md`.
 
 Built by PR-77 and PR-33. Phase files: `phase-4-region-one.md` and `phase-5-first-release.md`.
 
-- Credits appear in three places (D-467). They are a roll after the last scene of region one, a screen in the title menu, and the license files in each export.
-- PR-77 holds the roll as a scene, its text, its timing, and the license notices, and it lands right after PR-29 (D-552).
-- The roll plays under the main theme (D-427). The file `area-story.md` holds the scene runner that plays it.
+- Credits appear in three places (D-467). They are a credits roll after the last story scene of region one, and a screen in the title menu. The license files in each export are the third place.
+- PR-77 holds the credits roll as a story scene, its text, its timing, and the license notices, and it lands right after PR-29 (D-552).
+- The credits roll plays under the main theme (D-427). The file `area-story.md` holds the story scene runner that plays it.
 - The owner sees the roll at Gate 4, when they play region one end to end and sign off (D-56, D-552).
 - PR-33 shows the same text on the credits screen of the title menu (D-552).
 - The credits name the studio, and no agent, harness, or model (D-450, T-6).
@@ -289,7 +289,7 @@ Built by PR-31, PR-54, PR-74, PR-78, PR-79, and PR-40. Phase files: `phase-2-fir
 | The settings screen and the button prompts | `area-ui-input.md` | PR-63 |
 | The drawing and the render of each store image | `area-art.md` | PR-55 and PR-76 |
 | The main theme under the credits roll | `area-audio.md` | PR-72 |
-| The scene runner that plays the roll | `area-story.md` | PR-68 |
+| The story scene runner that plays the credits roll | `area-story.md` | PR-68 |
 | The effect budget that holds 60 frames per second on the Deck | `area-effects.md` | The Deck test and PR-56 |
 
 ### 7.19 The contract of every later release PR

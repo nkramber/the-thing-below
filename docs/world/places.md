@@ -27,7 +27,7 @@ A mine gallery from before the war runs under the gorge (D-251). The guild seale
 
 ## The village
 
-- Kind: a small start area of a few houses, with scenes and people, and no shop or rest service (D-369).
+- Kind: a small start area of a few houses, with story scenes and people, and no shop or rest service (D-369).
 - Place: on the road in, below the high valley, a short walk from the mining town (D-371). The supply road of the occupier passes it.
 - Marrek grew up here, and his parent walked from here to work the deep mine (D-368).
 - Marrek fights hungry winter beasts near the village alone, and Bergit, who guards the road for coin, finds him there (D-370, D-372, D-373).

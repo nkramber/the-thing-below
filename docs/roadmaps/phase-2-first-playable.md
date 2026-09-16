@@ -14,7 +14,7 @@ Phase 2 turns the machine of Phase 1 into a game that the owner plays. It ends a
 
 Phase 2 is the largest phase of the plan. It holds 42 PRs, because each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
 
-Four lines of work run through the phase. The walk comes first: the frame, the map, the camera, and the enemies on it (PR-61, PR-7, PR-8). The fight follows, with its screen (PR-9, PR-66, PR-10). The light and the effects then land, each right after the first scene that it needs (PR-48 to PR-60, D-520). The build, the story, and the audio close the phase, and PR-17 writes the content that the owner plays.
+Four lines of work run through the phase. The walk comes first: the frame, the map, the camera, and the enemies on it (PR-61, PR-7, PR-8). The fight follows, with its screen (PR-9, PR-66, PR-10). The light and the effects then land, each right after the first map scene or battle scene that it needs (PR-48 to PR-60, D-520). The build, the story, and the audio close the phase, and PR-17 writes the content that the owner plays.
 
 Two PRs land after the Gate 2 build, and this file holds them. They are the store page work of PR-75 and PR-76, and the capture of PR-74 that takes its screenshots (D-550, D-551). The store page goes public at Gate 2 in the Coming Soon state (D-471).
 
@@ -46,7 +46,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-52 | The camera centers a small map, and its smoothing can run twice in a frame | PR-7: a test locks the centering, and the tick moves the camera |
 | F-53 | The evaluator of D-534 has no measurement | PR-11: the PR reports the cost of a turn before Gate 2 |
 | F-54 | The end of the job system left the stats with no source | PR-67: each character carries its own stat curve (D-537) |
-| F-55 | The scene runner needs the flags that PR-18 held in Phase 3 | PR-68: the flag set and the condition form move here (D-544) |
+| F-55 | The story scene runner needs the flags that PR-18 held in Phase 3 | PR-68: the flag set and the condition form move here (D-544) |
 | F-56 | Two Godot audio calls report a failure in the log alone | PR-69 and PR-70: a check on each stream, and a count of its own |
 
 ## 7. Roadmap
@@ -157,7 +157,7 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 
 - The enemies on the map (PR-8) and the dungeon parts (PR-16, PR-64).
 - The light (PR-56) and the edge tiles (PR-53).
-- The scene triggers, which PR-68 reads from the same file (D-528).
+- The story scene triggers, which PR-68 reads from the same file (D-528).
 
 **Exit tests.**
 
@@ -415,7 +415,7 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 **Out of scope.**
 
 - The blood, the sparks, the shake, and the hit-stop (PR-57, D-186).
-- The light on the scene (PR-56) and the battle music (PR-70, PR-72).
+- The light on the battle scene (PR-56) and the battle music (PR-70, PR-72).
 - The boss phases (PR-20).
 
 **Exit tests.**
@@ -902,7 +902,7 @@ Area file: `area-exploration.md` section 7.11.
 **Out of scope.**
 
 - The shop and the gold (PR-65, D-530).
-- The scenes and the hub lines that read a condition (PR-68, PR-36).
+- The story scenes and the hub lines that read a condition (PR-68, PR-36).
 - The hub content of the first playable (PR-17).
 
 **Exit tests.**
@@ -959,20 +959,20 @@ Area file: `area-exploration.md` section 7.12.
 
 > *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
 
-### 7.25 PR-68: the scene format, the scene runner, the flags, and the conditions
+### 7.25 PR-68: the story scene format, the story scene runner, the flags, and the conditions
 
 Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
 **Scope.**
 
-- The scene format: a JSON list of steps, such as move, face, wait, say, choose, and set flag (D-173, OQ-144).
-- The scene runner in Core, which holds the step index and every flag that a step sets (D-540).
+- The story scene format: a JSON list of steps, such as move, face, wait, say, choose, and set flag (D-173, OQ-144).
+- The story scene runner in Core, which holds the step index and every flag that a step sets (D-540).
 - The wait intent that Game sends at the end of a move, a face, or a line (D-493, D-522).
 - The story flag, a name that is on or off, and the set of the flags that are on (D-542).
 - The declaration of every flag id in content, and a load that fails on an id that no file declares (OQ-147).
-- One condition form for every reader: a scene step, a route, a hub line, a quest, and an enemy group (D-543).
-- The scene triggers in the map file, each with its condition (D-528, OQ-148).
-- The scene state in the snapshot, the state hash, and the migration set (D-166, G-5).
+- One condition form for every reader: a story scene step, a route, a hub line, a quest, and an enemy group (D-543).
+- The story scene triggers in the map file, each with its condition (D-528, OQ-148).
+- The story scene state in the snapshot, the state hash, and the migration set (D-166, G-5).
 
 **Out of scope.**
 
@@ -983,25 +983,25 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
 **Exit tests.**
 
-1. A property test over one thousand seeds replays a run with scenes to the same end-state hash.
+1. A property test over one thousand seeds replays a run with story scenes to the same end-state hash.
 2. A scripted intent list answers each wait intent at once, and it plays a fixture scene to its end.
-3. A step that names an absent string id fails with the scene, the step, and the id.
+3. A step that names an absent string id fails with the story scene, the step, and the id.
 4. A condition that names an undeclared flag id fails at load with the file and the id.
-5. A scene that plays once sets its flag, and its condition then refuses it (D-542).
-6. A trigger fires from the tick, and two replays start the scene at the same tick.
+5. A story scene that plays once sets its flag, and its condition then refuses it (D-542).
+6. A trigger fires from the tick, and two replays start the story scene at the same tick.
 7. The snapshot carries the flag set through a migration.
 
 **Review focus.**
 
 - D-540 revises D-114 in part, and the PR cites the revision.
 - One parser, one test, and one error message cover every reader of a condition (T-1, D-543).
-- The bots of PR-15 answer the same wait intent, so they play every scene when PR-15 lands (D-64, D-540, G-16).
+- The bots of PR-15 answer the same wait intent, so they play every story scene when PR-15 lands (D-64, D-540, G-16).
 - Core reads no clock, so the length of a step comes from content or from the wait intent (G-3, OQ-145).
-- A scene names no art and no track (D-519, D-548).
+- A story scene names no art and no track (D-519, D-548).
 
 **Questions.** OQ-144, OQ-145, OQ-146, OQ-147, OQ-148, and OQ-149.
 
-> *In plain English:* a scene is a list of simple steps in a data file: walk here, say this line, ask this question. The rules run it, so a robot can play it and a replay always matches.
+> *In plain English:* a story scene is a list of simple steps in a data file: walk here, say this line, ask this question. The rules run it, so a robot can play it and a replay always matches.
 
 ### 7.26 PR-50: the screenplay tool
 
@@ -1009,8 +1009,8 @@ Area files: `area-tools.md` section 7.10, `area-story.md` section 7.8.
 
 **Scope.**
 
-- The `screenplay` command, which prints each scene script as a screenplay with the text of each string id (D-173, G-25).
-- The look-up of a cue in the audio file, because a scene names no cue (D-548).
+- The `screenplay` command, which prints each story scene script as a screenplay with the text of each string id (D-173, G-25).
+- The look-up of a cue in the audio file, because a story scene names no cue (D-548).
 - The attachment of the output to the PR description, where the owner approves the batch (D-57, G-25).
 
 **Out of scope.**
@@ -1021,20 +1021,20 @@ Area files: `area-tools.md` section 7.10, `area-story.md` section 7.8.
 **Exit tests.**
 
 1. The command prints a fixture scene with each line in the order of the steps.
-2. A scene that names an absent string id fails with the scene, the step, and the id.
+2. A story scene that names an absent string id fails with the story scene, the step, and the id.
 3. The output reaches the PR description of a fixture batch.
 4. A cue in an audio file appears beside its line.
 
 **Review focus.**
 
-- The tool needs the scene format and the string table alone, so it lands right after PR-68 (D-545).
+- The tool needs the story scene format and the string table alone, so it lands right after PR-68 (D-545).
 - Every player string follows the `game-text-style` skill (D-63, G-20).
 
 **Questions.** None.
 
-> *In plain English:* a tool prints each scene in the shape of a film script. The owner reads the story as a story before anybody builds it.
+> *In plain English:* a tool prints each story scene in the shape of a film script. The owner reads the story as a story before anybody builds it.
 
-### 7.27 PR-36: the dialogue box, the portraits, and the scene on screen
+### 7.27 PR-36: the dialogue box, the portraits, and the story scene on screen
 
 Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
@@ -1042,22 +1042,22 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 - The dialogue box at the bottom, with the portrait, a name plate, and the choices (D-109, D-114, D-223).
 - The type-out at the chosen speed, in silence (D-223, OQ-112).
-- The draw of each scene step: a sprite that moves and faces, from the tick of Core (D-540, F-52).
+- The draw of each story scene step: a sprite that moves and faces, from the tick of Core (D-540, F-52).
 - The choice as an intent, whose result Core holds (D-493, D-540).
 - Fixture portraits as 64 by 64 grids, because PR-28 and PR-29 draw the cast (D-234).
 - The skip, which the accessibility settings of PR-63 hold (D-214, OQ-150).
 
 **Out of scope.**
 
-- The scene format and the runner (PR-68, D-541).
+- The story scene format and the runner (PR-68, D-541).
 - The portraits of the cast (PR-28, PR-29).
-- The music cue of a scene (PR-70, D-548).
+- The music cue of a story scene (PR-70, D-548).
 
 **Exit tests.**
 
 1. A fixture scene walks two sprites, shows a line with a portrait, and records a choice.
 2. A screen test captures the box with a portrait and with choices.
-3. A test proves that Game moves a scene sprite from the tick, never from a timer (G-23, F-52).
+3. A test proves that Game moves a story scene sprite from the tick, never from a timer (G-23, F-52).
 4. The type-out follows the layout rule of OQ-112 at each speed.
 5. The skip follows the rule of OQ-150, and the player never loses a choice.
 6. Each string comes from the string table, and det-lint proves it.
@@ -1104,7 +1104,7 @@ Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
 - The answer of OQ-74 sets how the runner finds a softlock.
 - The answer of OQ-80 sets the count of runs on each leg, against the CI time of D-505.
-- The bots play every scene, because a bot answers each wait intent (D-540).
+- The bots play every story scene, because a bot answers each wait intent (D-540).
 
 **Questions.** OQ-74 and OQ-80.
 
@@ -1381,11 +1381,11 @@ Area file: `area-audio.md` sections 7.4 to 7.10.
 
 **Scope.**
 
-- The music of a place: one track for each map, battle, scene, and menu (D-413).
+- The music of a place: one track for each map, battle, story scene, and menu (D-413).
 - The night version of a place track where the story sets dusk or night, with the phrase end and the crossfade (D-428, D-443, OQ-159, OQ-160).
 - The three battle tracks of a region, and the quiet and the resume after a fight (D-415, D-429).
 - The music that plays on under every in-game menu (D-421).
-- The cue of a scene, from a small set of mood tracks (D-418, D-548).
+- The cue of a story scene, from a small set of mood tracks (D-418, D-548).
 - The main theme, the four faction themes, and the five character themes of region one (D-419, D-427).
 - The four stings: a wipe, a level up, a victory, and a key find (D-422).
 - The ambience of each map in two layers, and the four kinds of map sound (D-424, D-425, OQ-162, OQ-163, OQ-166).
@@ -1592,7 +1592,7 @@ Area files: every area file. The content PR touches each area.
 - The light setup of each map, at its time of day (D-442, D-519).
 - The ambient effects of each place (D-187, D-520).
 - The treasure, the shop stock, the NPC sprites, and the sprite set of Marrek (D-292).
-- A placeholder scene in the village (D-292).
+- A placeholder story scene in the village (D-292).
 - The text of Marrek, Bergit, and Dagvar, and of the lessons of the first playable, in the voice (D-362, G-20).
 - The normal map of each new drawing (D-183, D-521).
 
@@ -1766,7 +1766,7 @@ Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
 - The answer of OQ-173 sets each size that Valve asks for.
 - A capsule shows only game art, the game name, and an official subtitle (D-475).
-- The screenshots show real play, not a posed scene (D-475).
+- The screenshots show real play, not a posed shot (D-475).
 
 **Questions.** OQ-173 and OQ-174.
 
@@ -1781,7 +1781,7 @@ The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #
 3. PR-9, PR-66, PR-55, PR-10: the fight and its screen.
 4. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60: the normal maps, the light, the settings, and the effects.
 5. PR-11, PR-67, PR-62, PR-12, PR-13, PR-14, PR-65: the enemies that think, and the build of a party.
-6. PR-68, PR-50, PR-36: the scenes and the dialogue box.
+6. PR-68, PR-50, PR-36: the story scenes and the dialogue box.
 7. PR-15, PR-49: the bots, the night job, and the night gate.
 8. Owner: require the bot and `night-gate` checks on `main` after their first runs.
 9. PR-16, PR-64, PR-35, PR-37: the dungeon, the region map, and the CRT.
@@ -1862,13 +1862,13 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-141 | Two accessories with one effect | PR-13 |
 | OQ-142 | The stack limit of each item | PR-13 |
 | OQ-143 | What a rarity tier changes | PR-13 |
-| OQ-144 | The full step list of a scene script | PR-68 |
+| OQ-144 | The full step list of a story scene script | PR-68 |
 | OQ-145 | How a step that takes time ends | PR-68 |
 | OQ-146 | The shape of a condition | PR-68 |
 | OQ-147 | Where content declares each flag id | PR-68 |
-| OQ-148 | What fires a scene trigger | PR-68 |
-| OQ-149 | Whether a scene step starts a battle | PR-68 |
-| OQ-150 | How the player skips a scene | PR-36 |
+| OQ-148 | What fires a story scene trigger | PR-68 |
+| OQ-149 | Whether a story scene step starts a battle | PR-68 |
+| OQ-150 | How the player skips a story scene | PR-36 |
 | OQ-151 | How the choices lay out in the dialogue box | PR-36 |
 | OQ-156 | The instrument voices of the synthesizer | PR-38 |
 | OQ-157 | The schema of the tracker rows | PR-38 |

@@ -12,7 +12,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 Phase 4 writes the free prologue. Every system exists after Phase 3, so this phase adds content alone. It adds four more dungeon builds, a second hub, the lessons, the music, and the story of region one.
 
-The order follows the order of play (D-313). A place lands before the scenes that play on it, and the lessons land before the balance pass that tunes them. The arc comes in two batches, because one batch of that size cannot take a careful review (L-1, D-57).
+The order follows the order of play (D-313). A place lands before the story scenes that play on it, and the lessons land before the balance pass that tunes them. The arc comes in two batches, because one batch of that size cannot take a careful review (L-1, D-57).
 
 Two rules shape every PR of this phase. The owner approves each art batch, each text batch, and each music batch inside its own PR (D-57, G-25). No PR here changes a rule of Core. The balance pass of PR-30 is the one item that moves a number that a replay reads.
 
@@ -57,7 +57,7 @@ One content PR for each dungeon build, in the order of play (D-313). PR-23 is th
 
 **Out of scope of each PR.**
 
-- The scenes that play on the place, which PR-28 and PR-29 write (D-352).
+- The story scenes that play on the place, which PR-28 and PR-29 write (D-352).
 - The lessons that the place holds, which PR-42 writes (D-304).
 - The music of the place, which PR-73 holds (D-549).
 
@@ -91,11 +91,11 @@ Area file: `area-exploration.md` section 7.11.
 - A hub of another shape than the first, with a different set of services (D-28, D-59).
 - Its tile set, its map, its NPC sprites, and its shop stock (D-112, D-365).
 - Its light setup, its ambient effects, and its ambience (D-424, D-519).
-- The scene triggers of the hub, with their conditions (D-528, D-543).
+- The story scene triggers of the hub, with their conditions (D-528, D-543).
 
 **Out of scope.**
 
-- The scenes themselves (PR-28, PR-29).
+- The story scenes themselves (PR-28, PR-29).
 - The rumor board content, which the quests of PR-19 and the arc PRs fill.
 
 **Exit tests.**
@@ -124,7 +124,7 @@ Area file: `area-progression.md` section 7.7.
 - The rites and drills of region one as content, across the eight kinds (D-275, D-281, D-304).
 - The icons of each lesson, and its text in the voice (G-20).
 - The named forms of each lesson, and the point total that opens each form (D-539).
-- A place for every lesson: a dungeon, a hub, or a scene (D-304, D-365).
+- A place for every lesson: a dungeon, a hub, or a story scene (D-304, D-365).
 
 **Out of scope.**
 
@@ -133,7 +133,7 @@ Area file: `area-progression.md` section 7.7.
 
 **Exit tests.**
 
-1. Every lesson has a place in a dungeon, a hub, or a scene (D-304).
+1. Every lesson has a place in a dungeon, a hub, or a story scene (D-304).
 2. The eight kinds all reach region one, across the five characters (D-293).
 3. Bot runs of region one with each side aptitude absent in turn stay inside the M-4 band (D-282).
 4. A lesson that names an absent icon or string id fails the load with its id.
@@ -191,7 +191,7 @@ Two content PRs hold the story of region one, in two batches (D-56, D-57, D-350)
 
 **Scope of the two PRs.**
 
-- The scenes of the arc, which follow `docs/world/arc.md` step by step (D-309 onward).
+- The story scenes of the arc, which follow `docs/world/arc.md` step by step (D-309 onward).
 - The set choices of region one, two or three in all, and one or two more that these PRs propose (D-350, D-355).
 - The portrait of each cast member and each named NPC, as a 64 by 64 grid (D-109, D-234).
 - The personal task of each character, which these PRs propose for approval (D-282, D-352).
@@ -206,24 +206,24 @@ Two content PRs hold the story of region one, in two batches (D-56, D-57, D-350)
 
 **Exit tests.**
 
-1. The screenplay tool prints each scene, and the owner approves each batch (D-173, G-25).
-2. Each scene loads, and no string id, flag id, or sprite id is absent.
-3. A replay of a run through each scene gives the same end-state hash (G-5).
-4. The bots play every scene, because each wait intent answers at once (D-540, G-22).
+1. The screenplay tool prints each story scene, and the owner approves each batch (D-173, G-25).
+2. Each story scene loads, and no string id, flag id, or sprite id is absent.
+3. A replay of a run through each story scene gives the same end-state hash (G-5).
+4. The bots play every story scene, because each wait intent answers at once (D-540, G-22).
 5. The party grows from Marrek alone to five characters, in the order of D-342.
 6. Each proposed personal task and each proposed set choice reaches the owner in its PR (D-352, D-355).
 
 **Review focus.**
 
-- No scene copies a device from `docs/world/banned-devices.md` (D-136, D-140, F-22).
-- No text and no scene shows harm to a child directly (D-335).
-- Each killing carries weight, and no scene treats one as nothing (D-126).
+- No story scene copies a device from `docs/world/banned-devices.md` (D-136, D-140, F-22).
+- No text and no story scene shows harm to a child directly (D-335).
+- Each killing carries weight, and no story scene treats one as nothing (D-126).
 - Elio is an innocent type, and every line, portrait, and sprite of him keeps that rule (D-322).
 - The region ends on the ice crossing with the choice of D-354 (D-345, D-353).
 
 **Questions.** None. The open items of `docs/world/arc.md` come to the owner inside these PRs (D-352, D-355).
 
-> *In plain English:* a world file holds the whole first part of the story. Two content changes turn it into scenes, faces, and lines that the player reads.
+> *In plain English:* a world file holds the whole first part of the story. Two content changes turn it into story scenes, faces, and lines that the player reads.
 
 ### 7.6 PR-77: the credits roll
 
@@ -231,10 +231,10 @@ Area file: `area-release.md` section 7.5.
 
 **Scope.**
 
-- The credits roll as a scene, which plays after the last scene of region one (D-467, D-552).
-- The text of the roll, its timing, and the license notices (D-467).
-- The main theme under the roll (D-427).
-- The place right after PR-29, so the owner sees the roll at Gate 4 (D-552).
+- The credits roll as a story scene, which plays after the last story scene of region one (D-467, D-552).
+- The text of the credits roll, its timing, and the license notices (D-467).
+- The main theme under the credits roll (D-427).
+- The place right after PR-29, so the owner sees the credits roll at Gate 4 (D-552).
 
 **Out of scope.**
 
@@ -243,17 +243,17 @@ Area file: `area-release.md` section 7.5.
 
 **Exit tests.**
 
-1. The roll plays after the last scene of region one, and the player can skip it (D-214).
-2. The roll names the studio, and no agent, harness, or model (D-450, T-6).
+1. The credits roll plays after the last story scene of region one, and the player can skip it (D-214).
+2. The credits roll names the studio, and no agent, harness, or model (D-450, T-6).
 3. The Godot notice and each font notice reach the player (D-467).
-4. Every line of the roll comes from the string table (G-7).
+4. Every line of the credits roll comes from the string table (G-7).
 5. A screen test captures the credits roll.
 
 **Review focus.**
 
-- The answer of OQ-57 gives the studio name, and the roll waits for it (D-450).
+- The answer of OQ-57 gives the studio name, and the credits roll waits for it (D-450).
 - Each OFL font needs its notice and its license with every copy (D-263, D-467).
-- The roll is a scene, so the scene runner of PR-68 plays it (D-540).
+- The credits roll is a story scene, so the story scene runner of PR-68 plays it (D-540).
 
 **Questions.** OQ-57.
 

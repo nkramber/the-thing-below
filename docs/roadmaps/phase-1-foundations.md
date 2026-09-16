@@ -56,13 +56,13 @@ Owner and a session, before PR-1. Area file: `area-effects.md`, sections 7.3 and
 **Scope.**
 
 - A throwaway scene runs on the Deck of the owner under Forward+ and under Mobile (D-160, D-161).
-- The scene runs as a native Linux export at the frame of 1280 by 720, with the load of D-160 (D-228, D-458, D-568).
+- The test scene runs as a native Linux export at the frame of 1280 by 720, with the load of D-160 (D-228, D-458, D-568).
 - The test picks the renderer, and it measures the effect budget (D-160, D-523).
 - The pick becomes a decision before PR-1, and PR-1 sets that renderer in the Game project.
 
 **Out of scope.**
 
-- The scene never merges to `main` (D-160).
+- The test scene never merges to `main` (D-160).
 - The budget file and its test come with PR-56 (D-523).
 
 **Exit tests.**

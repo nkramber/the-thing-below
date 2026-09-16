@@ -120,7 +120,7 @@ Built by PR-12, PR-16, PR-65, and PR-42. Phase files: `phase-2-first-playable.md
 - A shop can sell a second copy of a lesson, so content plans for copies and progress stays with the character (D-361, D-365).
 - The party never gets a license or a stamp, so every rite that it uses breaks the law (D-366).
 - PR-42 writes the lessons of region one across the eight kinds, with their icons and their text (D-304, G-20).
-- Every lesson has a place in a dungeon, a hub, or a scene, and the gate of PR-42 proves it (D-304).
+- Every lesson has a place in a dungeon, a hub, or a story scene, and the gate of PR-42 proves it (D-304).
 
 > *In plain English:* you find rites in chests, buy them in towns, and earn them from people. The party never has the papers that make using them legal.
 
@@ -159,7 +159,7 @@ Built by the content of Phase 4 and later. Phase file: `phase-4-region-one.md`.
 - The death costs the main Mend of region one, and later content must offer lessons that take the place of his (D-270, D-364, D-394).
 - The replacement can share his main aptitude, and its side aptitude differs (D-274, D-303).
 - The save of the prologue carries all five characters, because the death falls after region one (D-163, D-309).
-- A player who loaded Elio heavily loses a large share of the build in one scene (D-364).
+- A player who loaded Elio heavily loses a large share of the build in one story scene (D-364).
 
 > *In plain English:* when Elio dies, everything he carried goes with him. The game has to stay winnable for a player who gave him the best rites.
 
@@ -197,7 +197,7 @@ Built by PR-67, PR-12, PR-13, and PR-15. Phase files: `phase-2-first-playable.md
 | The content reader, the snapshot, and the migrations | `area-core.md` | PR-5 and PR-43 |
 | The fight that spends MP, items, and gear | `area-battle.md` | PR-9 and PR-66 |
 | The chests, the save points, and the shops | `area-exploration.md` | PR-16 and PR-65 |
-| The quests, the flags, and the scenes of each task | `area-story.md` | PR-68, PR-18, and PR-19 |
+| The quests, the flags, and the story scenes of each task | `area-story.md` | PR-68, PR-18, and PR-19 |
 | The party, lesson, gear, item, and status screens | `area-ui-input.md` | PR-62 |
 | The icons of the lessons, the elements, and the statuses | `area-art.md` | PR-42 |
 

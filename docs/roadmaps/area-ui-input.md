@@ -157,7 +157,7 @@ Built by PR-36, on the base of PR-61. Phase file: `phase-2-first-playable.md`.
 - The text types out at the chosen speed, in silence (D-223). OQ-112 holds the speeds and the way the box lays out its text.
 - The text speed and the skip are accessibility settings of PR-63 (D-214).
 - A choice in the box becomes an intent, and Core holds its result (D-493, PR-36).
-- `area-story.md` holds the scene format and the runner that drive the box. Core runs each step, and Game draws it (D-540).
+- `area-story.md` holds the story scene format and the runner that drive the box. Core runs each step, and Game draws it (D-540).
 
 > *In plain English:* people speak in a box at the bottom of the screen, with a face beside the words. The words appear at the speed the player picks, with no beeps.
 
@@ -254,7 +254,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | The screen-test job and its baselines | `area-ci.md` | PR-41 |
 | The menu sounds | `area-audio.md` | PR-70 |
 | The studio mark, the boot splash, and the credits text | `area-release.md` | PR-33 and PR-77 |
-| The scene format and the scene runner behind the box | `area-story.md` | PR-68 |
+| The story scene format and the story scene runner behind the box | `area-story.md` | PR-68 |
 
 ### 7.16 The contract of every later UI PR
 
@@ -283,7 +283,7 @@ The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #
 7. PR-57 to PR-60: the effects that the settings turn down.
 8. PR-62: the menu windows, right before PR-12 (D-525).
 9. PR-12, PR-13, PR-14, and PR-16: one screen for each system.
-10. PR-68 and PR-36: the scene runner, then the dialogue box (D-541). PR-35: the region map screen.
+10. PR-68 and PR-36: the story scene runner, then the dialogue box (D-541). PR-35: the region map screen.
 11. PR-37: the CRT toggle joins the display group.
 12. PR-17: the first playable, read on the Deck (M-6).
 13. **← GATE 2 (first playable).**

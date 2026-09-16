@@ -4,7 +4,7 @@ Status: world file, v1. Owner: Nate. Started 2026-09-13 in the arc block of the 
 
 This file holds the story of region one, the free prologue (D-133). Its source is the decision register, entries D-309 onward, and each fact cites its decision. The places are in `places.md`, and the characters are in `cast.md`.
 
-The text that the player reads has its own voice (D-11). This file gives facts for writers, not player text. The arc content PRs write the scenes and the lines (PR-28, PR-29).
+The text that the player reads has its own voice (D-11). This file gives facts for writers, not player text. The arc content PRs write the story scenes and the lines (PR-28, PR-29).
 
 ## The shape of the arc
 
@@ -97,7 +97,7 @@ After region one, Elio dies in a fight against the foreign church, and his death
 
 ## Choices
 
-The player speaks the dialogue choices of the lead (D-267). A choice sets a story flag that a later scene or region reads, and no relationship or reputation value exists (D-329). The player always picks the three who fight, and no scene sets the fighters (D-351).
+The player speaks the dialogue choices of the lead (D-267). A choice sets a story flag that a later story scene or region reads, and no relationship or reputation value exists (D-329). The player always picks the three who fight, and no scene sets the fighters (D-351).
 
 Region one holds set choices at set points (D-350):
 
@@ -107,7 +107,7 @@ PR-28 and PR-29 propose one or two more set choices for the approval of the owne
 
 ## Limits
 
-No text or scene shows harm to a child directly (D-335). Text can imply that harm or state it without direct detail, and a scene can show the aftermath. The raid on the refuge keeps to this limit, and the party hears of the raid from a survivor (D-340). The world copies no device on the banned list (`banned-devices.md`).
+No text or story scene shows harm to a child directly (D-335). Text can imply that harm or state it without direct detail, and a story scene can show the aftermath. The raid on the refuge keeps to this limit, and the party hears of the raid from a survivor (D-340). The world copies no device on the banned list (`banned-devices.md`).
 
 ## After region one
 

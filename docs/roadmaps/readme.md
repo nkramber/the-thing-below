@@ -52,7 +52,7 @@ Twelve files in four groups (D-485).
 | Systems, audio, release | `area-exploration.md` | The maps, the dungeons, the hubs, the shop, and the region map |
 | Systems, audio, release | `area-battle.md` | The timeline, the actions, the elements, the statuses, and the evaluator |
 | Systems, audio, release | `area-progression.md` | The character level, MP, the lessons, the aptitudes, the gear, and the items |
-| Systems, audio, release | `area-story.md` | The scenes, the story flags, the conditions, the quests, and the arc |
+| Systems, audio, release | `area-story.md` | The story scenes, the story flags, the conditions, the quests, and the arc |
 | Systems, audio, release | `area-audio.md` | The synthesizer, the audio player, the music, and the sounds |
 | Systems, audio, release | `area-release.md` | The versions, the exports, the store, Steam, and the credits |
 

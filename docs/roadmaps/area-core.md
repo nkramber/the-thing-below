@@ -230,7 +230,7 @@ The systems that later areas add to Core are below. Each area file confirms its 
 | Lessons, the slots, the growth, and the aptitudes | `area-progression.md` | PR-12 |
 | Gear, items, and the inventory | `area-progression.md` | PR-13 |
 | Hub services | `area-exploration.md` | PR-14 |
-| Scenes, the scene runner, and the choices | `area-story.md` | PR-68 |
+| Story scenes, the story scene runner, the join step, and the choices | `area-story.md` | PR-68 |
 | Dungeon parts, downs, and save points | `area-exploration.md` | PR-16 |
 | Traps, hazards, and the statuses that last on the map | `area-exploration.md` | PR-64 |
 | The shop and the gold economy | `area-exploration.md` | PR-65 |

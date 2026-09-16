@@ -162,19 +162,19 @@ From the roadmap interview of 2026-09-12:
 | Evaluator and profiles | Core | battle state, enemy profile | enemy actions | High. The largest single system (D-65) |
 | Lessons, aptitudes, and levels | Core | lesson content, experience | character state | High. The build decision (D-34, D-272, D-274) |
 | Gear and items | Core | item content, inventory | equipment state | Medium (D-44, D-45) |
-| Story flags, scenes, and quests | Core | scene content, conditions, choices | flags, scene state, quest state, hub state | High. Branches multiply (D-40, D-59, D-329). Core runs each scene and holds its step index, and one condition form serves every reader (D-540, D-542, D-543) |
+| Story flags, story scenes, and quests | Core | story scene content, conditions, choices | flags, story scene state, quest state, hub state | High. Branches multiply (D-40, D-59, D-329). Core runs each scene and holds its step index, and one condition form serves every reader (D-540, D-542, D-543) |
 | Hub services and the region map | Core | hub content, route content, gold | party, saves, position | Medium (D-59, D-113) |
 | Debug assembly | Debug assembly | debug intents | Core state, through the seam of D-260 | High. A release build never loads it (D-260) |
 | Save, record, crash, and log files | Storage | record bytes, snapshot bytes, crash context, log entries | save files, record files, crash files, log files | High. A torn write loses a save (D-178, D-494) |
 | Map scene, battle scene, hub scene, scene runner | Game | Core state, content from the Game assembly, the atlas and its index, large pictures, edge files, string table | screen, intents | Medium. Cosmetic by design (D-106, D-111, D-114, D-501). Player text reaches the screen through the text helper (D-499). The content bytes come from the Game assembly (D-508). Art draws with the Nearest filter, and an art file names the content ids that it draws (D-519, F-45) |
-| Dialogue box and portraits | Game | Core scene state, string table | screen, wait intents, choice intents | Medium (D-109). Game draws each scene step and sends a wait intent when it ends (D-540) |
+| Dialogue box and portraits | Game | Core story scene state, string table | screen, wait intents, choice intents | Medium (D-109). Game draws each story scene step and sends a wait intent when it ends (D-540) |
 | CRT shader and the frame | Game | settings | screen | Medium. The Deck floor, the one 16:9 frame, and the fit at 1920 by 1080 (D-105, D-228, D-568) |
 | Light, particles, glow, and transitions | Game | effect files, light setups, normal maps, the effect budget, Core state | screen, wait intents | Medium. The effect budget of the Deck test holds them inside 60 frames per second, and no rule waits for an effect (D-139, D-160, D-182, D-183, D-522, D-523) |
 | Crash file and replay viewer | Game | run record, crash file | screen, and a crash file through Storage | High. The crash report, and a viewer in development builds alone (D-170, D-175, D-494) |
 | Audio player | Game | rendered audio from the Game assembly, Core state, audio files, settings | sound | Low. Music by place and time of day, ambience, stings, and the mix (D-413, D-424, D-429, D-435). An audio file names the content ids that it serves, and each stream comes from bytes with a checked return (D-547, D-548, F-56) |
 | Steamworks glue | Game | Steam client | controller type for the glyphs | Low. Steam builds alone, with no cloud code (D-460, D-461). PR-78 adds the binding and the call, and PR-40 sets Auto-Cloud (D-553) |
 | Atlas tool, large picture render, normal maps, PNG code, PNG import, audio synthesizer | Tools | drawing files, large pictures, palette, edited PNG files, tracker rows, parameter files | atlas PNG, atlas index, normal-map atlas, drawing files, review sheets, large picture renders, rendered audio, hash list | Medium. The atlas, its index, and the normal-map atlas are committed with a pixel test (D-107, D-184, F-19), and the audio renders at build against its hash list (D-432). Review sheets reach the PR description through `gh`, never git (D-514). Integer math gives the same output on every CI leg (D-502) |
-| Map preview, tile edges, screenplay | Tools | map content, edge rules, scene content, string table | preview PNG, edge files, screenplay text | Low. The owner approves maps and scenes from them (D-165, D-173, D-204). An edge file stays outside the content hash, and a test proves that it matches its map (D-501) |
+| Map preview, tile edges, screenplay | Tools | map content, edge rules, story scene content, string table | preview PNG, edge files, screenplay text | Low. The owner approves maps and story scenes from them (D-165, D-173, D-204). An edge file stays outside the content hash, and a test proves that it matches its map (D-501) |
 | STE checker, det-lint, review gate, night gate | Tools | source, docs, review records, night records | pass or fail | Gate. det-lint reads types through the Roslyn compiler library (D-498) |
 | Headless runner and bots | Tools | policies, seeds | run records | High. The night gate (D-64) |
 | CI checks and the night job | CI | source, content, the identity file, night records | pass or fail, a coverage report, night records as run artifacts | Gate. The actions of GitHub alone, with SHA pins, and bot runs on all three legs (D-504, D-505, D-509, D-511) |
@@ -366,9 +366,9 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 23. PR-13: the six gear slots, the items, and the pack (D-44, D-382).
 24. PR-14: the hub map, the NPCs, the rest, the save, and the party swap (D-59, D-112).
 25. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
-26. PR-68: the scene format, the scene runner, the flag set, and the condition form (D-540, D-541, D-544).
+26. PR-68: the story scene format, the story scene runner, the join step, the flag set, and the condition form (D-540, D-541, D-544, D-563).
 27. PR-50: the screenplay tool, right after PR-68 (D-173, D-545).
-28. PR-36: the dialogue box, the portraits, and the scene on screen (D-114, D-223).
+28. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
 29. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).
 30. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
 31. Owner: require the bot and `night-gate` checks on `main` after their first runs.
