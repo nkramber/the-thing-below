@@ -29,7 +29,11 @@ Session: the answer to the review of PR #12, and the place of PR-27, on branch `
 
 ### In flight
 
-PR #12 waits for a new automated pass on the new head, and then for the repeat cross-provider review (D-14, D-66, T-4, D-17).
+PR #12 waits for the repeat cross-provider review (T-4, D-17).
+
+- The effective head is `d31ae6b`. The commits above it change `docs/reviews/` and `docs/session-handoff.md` alone.
+- The automated pass on `d31ae6b` reported `Approved with suggestions`, with one comment. That comment had merit: the response gave the archive range as Session 28 down to Session 1, and the same commit had archived Session 29 at the top. `aa3c5e2` corrected both lines, and the thread is resolved (D-14, D-66).
+- An on-demand pass writes no check run, so the evidence of the pass is its review comment.
 
 ### Traps and gotchas
 
@@ -45,7 +49,7 @@ None for PR #12. OQ-179 blocks PR-5.
 
 ### Next concrete action
 
-A session requests the automated pass on the new head of PR #12 and answers it (D-14, D-66). Then a Codex session repeats the review: it reads `docs/reviews/pr-12-response.md`, checks each trigger and regression check, and writes the verdict for the new effective head (T-4, D-17).
+A Codex session repeats the review of PR #12 at the effective head `d31ae6b`. It reads `docs/reviews/pr-12-response.md`, checks each trigger and regression check, and writes the verdict (T-4, D-17). The automated pass is complete, and no comment of it waits for an answer.
 
 ## Session 38: 2026-09-16, Codex
 
