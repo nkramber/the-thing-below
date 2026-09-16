@@ -196,7 +196,7 @@ Built by PR-54. Phase file: `phase-2-first-playable.md`.
 Built by PR-41. Phase file: `phase-2-first-playable.md`.
 
 - A Linux job runs Godot under Xvfb with the OpenGL driver and a pinned Mesa, because `--headless` draws nothing (D-172, F-23). OQ-79 holds how the job pins Mesa.
-- It captures fixture scenes in both views of D-480, and the fit of D-232 at 1080 and 1440 screen rows (D-240).
+- It captures each fixture scene at 1x, and both fit modes of D-232 at 1080 and 1440 screen rows (D-240, D-568).
 - The frame compare of Tools compares decoded pixels with a committed CI baseline (F-19, `area-tools.md` section 7.14). One changed pixel fails the job.
 - Two runs give the same frames, because the capture fixes the particle seeds, the CRT flicker phase, and the time of day.
 - The contact sheet uses the real renderer on the machine of the owner, outside CI (D-172).
@@ -277,7 +277,7 @@ The table names the jobs that run in CI while another area file holds their cont
 | The pixel test of the render of large pictures, inside the test job | `area-art.md` | PR-55 |
 | The captures of light, particles, glow, transitions, and the CRT, inside the screen-test job | `area-effects.md` | PR-56 to PR-60, and PR-37 |
 | The test of the effect budget, inside the test job | `area-effects.md` | PR-56 |
-| The captures of the two views, and of the fit at 1080 and 1440 screen rows | `area-ui-input.md` | PR-41 and PR-61 |
+| The captures of the frame at 1x, and of both fit modes at 1080 and 1440 screen rows | `area-ui-input.md` | PR-41 and PR-61 |
 | The hash test of the rendered audio, inside the test job | `area-audio.md` | PR-38 |
 | The release workflow on a release tag | `area-release.md` | PR-31 |
 | The signature and the notarization of the macOS build | `area-release.md` | PR-79 |

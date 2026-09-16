@@ -41,7 +41,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-18 | The full CRT is on by default on the Deck before any Deck measurement | PR-37 and M-6: the Deck play reads the text with the CRT on |
 | F-19 | Compressed PNG bytes depend on the encoder | PR-48 and PR-41: tests compare decoded pixels |
 | F-23 | `--headless` draws nothing | PR-41 and each effect PR: every effect meets its screen test under Xvfb (D-172) |
-| F-24 | A 32-pixel frame holds four times the pixels, and the Deck lights and fills four times the pixels of a 640 by 400 frame | The Deck test, PR-48, and PR-56: the effect budget at 1280 by 800 (D-523) |
+| F-24 | A 32-pixel frame holds four times the pixels, and the Deck lights and fills four times the pixels of a 640 by 400 frame | The Deck test, PR-48, and PR-56: the effect budget at the frame of 1280 by 720 (D-523, D-568) |
 | F-26 | The gate of PR-37 relied on a headless run, and the Deck test had no failure branch | PR-37: a capture of the toggle. The Deck test: the owner decides a miss (D-261) |
 | F-38 | Double math can differ by platform | PR-48: integer math for normal maps (D-502) |
 | F-45 | Three Godot defaults meet the pixel art | PR-56: the normal-map atlas takes the Nearest filter too |
@@ -89,7 +89,7 @@ The table lists what a frame draws, from the bottom to the top.
 | CRT | Curvature, bleed, flicker, and scanlines over the whole frame | No | D-105, D-240 |
 | Fit | The scale to the screen, with black bars | No | D-232, D-480 |
 
-- Game draws the world, the UI, the transition, and the CRT into the frame at 1x, 1280 by 800 or the 16:9 view (D-227, D-230, D-480). The fit to the screen comes last (D-232, D-240).
+- Game draws the world, the UI, the transition, and the CRT into the frame at 1x, 1280 by 720 (D-230, D-568). The fit to the screen comes last (D-232, D-240).
 - Godot computes 2D light at the pixel size of the viewport, and the Nearest filter does not change that (the external facts above). So the frame at 1x gives light and shadows the pixel size of the art.
 - PR-61 draws the world in a `SubViewport` at 1x, and `area-ui-input.md` holds the stretch mode and the fit (F-45, F-48). Otherwise light falls on screen pixels, not on art pixels.
 - The UI sits on a canvas layer above the world, and a light reaches only the canvas layers in its range. So the UI never takes scene light (D-210).
@@ -104,7 +104,7 @@ The table lists what a frame draws, from the bottom to the top.
 Built by the owner and a session, before PR-1. Phase file: `phase-1-foundations.md`.
 
 - A throwaway scene runs on the Deck of the owner under Forward+ and under Mobile. The renderer that holds 60 frames per second with more room wins (D-160, D-161).
-- The scene runs at 1280 by 800 with the load of D-160 (D-228). That load holds particles, point lights with normal maps and shadows, glow, and the four ambient kinds.
+- The scene runs at the frame of 1280 by 720 with the load of D-160 (D-228, D-568). That load holds particles, point lights with normal maps and shadows, glow, and the four ambient kinds.
 - The load also holds a transition, a backdrop, and the CRT with its scanlines (D-160).
 - The scene runs as the native Linux export (D-458).
 - The test also finds the effect budget, the most load that still holds 60 frames per second (D-523). Section 7.4 holds the budget.
@@ -267,7 +267,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 
 - `--headless` draws nothing, so the smoke session never tests an effect (F-23).
 - The screen-test job of PR-41 captures each effect in a fixture scene under Xvfb with the Compatibility renderer. A changed pixel fails the job (D-172, `area-ci.md` section 7.12).
-- Each effect PR adds its captures in both views of D-480, and the reduced form of each flash and shake (D-214).
+- Each effect PR adds its captures, and the reduced form of each flash and shake (D-214).
 - A shader that fails to compile writes its failure to the log (the external facts above). So the screen-test job fails on an error line in the Godot log (T-2).
 - The test job loads each effect file and light setup, and it runs the budget test on every CI leg (D-517, D-523).
 - The contact sheet shows the real renderer on the Mac of the owner at milestones (D-172).

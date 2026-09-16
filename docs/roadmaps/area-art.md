@@ -116,7 +116,7 @@ Built by PR-34, and drawn by the content PRs. Phase files: every phase file.
 Built by PR-55. Phase file: `phase-2-first-playable.md`.
 
 - A large picture places pieces at pixel positions, with repeats (D-516). A piece is a drawing file of section 7.3.
-- A backdrop layer, other full-screen art, and a store image are each a large picture (D-205, D-475, D-516). Full-screen art covers the 16:9 view (D-480).
+- A backdrop layer, other full-screen art, and a store image are each a large picture (D-205, D-475, D-516). Full-screen art covers the frame of 1280 by 720 (D-568).
 - PR-55 adds the format with its load test, a render as a PNG in Tools, and the draw in Game (D-518).
 - PR-55 lands right before PR-10, the first PR that draws a backdrop (D-518).
 - A large picture that names an absent piece fails with the file and the entry (T-2).
@@ -149,7 +149,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - An error code from the load, or a null texture, stops the game with the resource name and the reason (T-2). Godot only logs these failures (F-45).
 - Game finds each frame through the index and the content ids of D-519. A content id with no drawing fails with the id (T-2).
 - Every texture draws with the Nearest filter. The project setting starts as Linear, so PR-7 sets it, and a test reads it in `project.godot` (F-45).
-- Game draws art at 1x on the 1280 by 800 frame or the 16:9 view, so art pixels match text pixels (D-228, D-230, D-480).
+- Game draws art at 1x on the frame of 1280 by 720, so art pixels match text pixels (D-228, D-230, D-568).
 - `area-ui-input.md` holds the frame, the fit, and the stretch mode, which the editor of 4.7 sets to `canvas_items` in a new project (F-45).
 - Core positions stay on whole tiles, and each step slides between tiles on screen (D-203). OQ-89 holds how each sprite stays on a whole pixel during a slide.
 - No Godot resource file holds art, such as a `SpriteFrames` file or a `TileSet` file (G-6). Game builds each Godot object from the atlas at load.

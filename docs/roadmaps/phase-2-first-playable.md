@@ -28,7 +28,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-8 | An empty MP pool left a caster with no action | PR-9 and PR-12: the basic attack of D-359 |
 | F-18 | The CRT is on by default on the Deck before any measurement | M-6 and Gate 2: the Deck play reads the text with it on |
 | F-23 | A headless session draws nothing, so no CI job can capture a screen | PR-41: the Linux job under Xvfb with a pinned Mesa (D-172) |
-| F-24 | A 32-pixel tile holds four times the pixels of the earlier plan | M-6: the Deck at 1280 by 800 |
+| F-24 | A 32-pixel tile holds four times the pixels of the earlier plan | M-6: the Deck at the frame of 1280 by 720 (D-568) |
 | F-26 | Four gates rested on a run that draws nothing | PR-41, PR-7, PR-8, and PR-37: the captures of D-172 |
 | F-31 | Every rendered audio file in git would pass 500 MB | PR-38: the build renders the audio, and git holds the hashes (D-432) |
 | F-37 | GitHub starts a schedule only from the default branch | PR-49: the command proves itself in Tests (D-500) |
@@ -100,7 +100,7 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 
 **Scope.**
 
-- The frame of 1280 by 800, the 16:9 view of about 1422 by 800, and black bars for every other shape (D-228, D-480).
+- The one 16:9 frame of 1280 by 720, with black bars for every other shape, the Deck included (D-228, D-568).
 - The world in a `SubViewport` at 1x, and both steps of the fit that Godot cannot make (D-230, D-232, F-48, OQ-105).
 - The two fonts from the bytes of the Game assembly, with the antialiasing, the hinting, and the subpixel settings of a pixel font (D-263, D-264, D-508, F-49).
 - The text helper that puts a string table entry on screen, which det-lint guards (D-499, G-7).
@@ -117,13 +117,14 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 
 **Exit tests.**
 
-1. A test computes both views of D-480 and both steps of the fit, and it locks each size (D-232, F-48).
-2. A test reads back the stretch settings, the filter, and the three font settings (F-45, F-49).
-3. A test proves that the fixture panel holds the longest string of the string table (D-241).
-4. det-lint fails a Godot text property outside the text helper.
-5. A test proves that no intent comes from a poll of the input singleton (F-50).
-6. A prompt shows the glyph of the last device, for each of the four sets.
-7. No text falls below 9 pixels on the Deck frame (D-459).
+1. A test locks the size of the frame and of both fit modes on three screens (D-232, D-568, F-48).
+2. Those screens are 1280 by 800, 1920 by 1080, and 2560 by 1440.
+3. A test reads back the stretch settings, the filter, and the three font settings (F-45, F-49).
+4. A test proves that the fixture panel holds the longest string of the string table (D-241).
+5. det-lint fails a Godot text property outside the text helper.
+6. A test proves that no intent comes from a poll of the input singleton (F-50).
+7. A prompt shows the glyph of the last device, for each of the four sets.
+8. No text falls below 9 pixels on the Deck frame (D-459).
 
 **Review focus.**
 
@@ -160,7 +161,7 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 **Exit tests.**
 
 1. The party walks the fixture dungeon on the three systems, with a keyboard and with a gamepad.
-2. The camera never scrolls past the edge of a map larger than the view, in both views.
+2. The camera never scrolls past the edge of a map larger than the view.
 3. A test locks the centering of a map smaller than the view (F-52).
 4. A test reads back the tile size, the region size, the collision switch, and the navigation switch (F-51).
 5. A thing on a tile of the wrong kind fails the load with the map, the position, and the kind.
@@ -217,7 +218,7 @@ Area files: `area-ci.md` section 7.12, `area-effects.md` section 7.13, `area-ui-
 **Scope.**
 
 - The Linux job of D-172, which runs Godot under Xvfb with the OpenGL driver and a pinned Mesa (F-23, OQ-79).
-- The capture of each fixture scene in both views, and the fit at 1080 and 1440 screen rows (D-240, D-480).
+- The capture of each fixture scene at 1x, and both fit modes at 1080 and 1440 screen rows (D-232, D-240, D-568).
 - The frame compare in Tools, which compares decoded pixels with a committed CI baseline (F-19).
 - The fixed sources of change at capture: the particle seeds, the CRT flicker phase, and the time of day.
 - The desktop command that makes a contact sheet with the real renderer (D-172).
@@ -230,7 +231,7 @@ Area files: `area-ci.md` section 7.12, `area-effects.md` section 7.13, `area-ui-
 **Exit tests.**
 
 1. The job passes on the map scene of PR-7.
-2. The job captures the frame and the fit of PR-61, in both views and at both screen row counts (D-232, D-480).
+2. The job captures the frame of PR-61 at 1x, and both fit modes at 1080 and 1440 screen rows (D-232, D-568).
 3. One changed pixel of the baseline fails the job.
 4. Two runs of the job give the same frames.
 5. The job fails on an error line in the Godot log (T-2).
@@ -240,7 +241,8 @@ Area files: `area-ci.md` section 7.12, `area-effects.md` section 7.13, `area-ui-
 
 - The Mesa pin, from the answer of OQ-79, and its decision row (G-13).
 - The Compatibility renderer of CI differs from the Deck, and the PR says where (D-172).
-- The baseline holds both views and both screen row counts (D-240, D-480).
+- The baseline holds both fit modes at both screen row counts (D-232, D-240, D-568).
+- The capture at 1080 rows proves the rule of D-568 that 1920 by 1080 looks good, with no blur and no uneven pixels.
 
 **Questions.** OQ-79.
 
@@ -371,7 +373,7 @@ Area files: `area-art.md` section 7.5, `area-tools.md` section 7.5.
 - The large picture format, which places drawn pieces at pixel positions, with repeats (D-516, F-44).
 - The load test of the format, and a failure that names the file and the entry (T-2).
 - The render of a large picture as a PNG in Tools, and the draw in Game (D-518).
-- Full-screen art that covers the 16:9 view (D-480).
+- Full-screen art that covers the frame of 1280 by 720 (D-568).
 
 **Out of scope.**
 
@@ -383,7 +385,7 @@ Area files: `area-art.md` section 7.5, `area-tools.md` section 7.5.
 
 1. A test decodes the render of a fixture large picture and compares its pixels with its pieces (F-19).
 2. A large picture that names an absent piece fails with the file and the entry.
-3. The render covers the 16:9 view with no gap (D-480).
+3. The render covers the frame of 1280 by 720 with no gap (D-568).
 4. det-lint finds no float type in the render code (D-502).
 
 **Review focus.**
@@ -417,7 +419,7 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 
 **Exit tests.**
 
-1. A screen test renders a fixture battle in both views (D-172, D-480).
+1. A screen test renders a fixture battle (D-172).
 2. The owner reads a fight from the screen alone.
 3. Each message comes from the string table, and det-lint proves it.
 4. A test proves that each panel holds its longest string (D-241).
@@ -538,7 +540,7 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 4. A setting that is absent from the file fails loudly, and never takes a silent default (T-2).
 5. No setting reaches a run record, and a test proves it (T-7).
 6. The stick dead zone takes the value of OQ-109, not the value of the docs (F-50).
-7. A screen test captures the settings screen in both views.
+7. A screen test captures the settings screen.
 
 **Review focus.**
 
@@ -572,7 +574,7 @@ Area file: `area-effects.md` sections 7.7 and 7.8.
 
 **Exit tests.**
 
-1. A screen test captures each battle effect, in both views and in both reduced forms (D-214).
+1. A screen test captures each battle effect, in both reduced forms (D-214).
 2. An effect file with a bad field fails the load with the file and the field.
 3. The budget test counts each live emitter against the particle rows (D-523).
 4. A test proves that no rule reads the length of an effect (D-522).
@@ -607,7 +609,7 @@ Area file: `area-effects.md` section 7.9.
 
 **Exit tests.**
 
-1. A screen test captures each of the four kinds, in both views.
+1. A screen test captures each of the four kinds.
 2. Fog never hides an enemy that the player must see, by the rule of OQ-101.
 3. The budget test counts each full-screen pass (D-523).
 4. An ambient effect file that names an absent map id fails with the file and the id.
@@ -639,7 +641,7 @@ Area file: `area-effects.md` section 7.10.
 
 **Exit tests.**
 
-1. A screen test captures a lit fixture scene with glow, in both views.
+1. A screen test captures a lit fixture scene with glow.
 2. A bright light on a pale sprite never makes that sprite glow (F-47).
 3. The budget test counts the glow pass (D-523).
 4. The PR names each capture where the Compatibility renderer differs from the Deck (D-172).
@@ -673,7 +675,7 @@ Area file: `area-effects.md` section 7.11.
 
 **Exit tests.**
 
-1. A screen test captures each of the ten transitions, in both views.
+1. A screen test captures each of the ten transitions.
 2. The color split has a reduced form, and the test captures both (D-214).
 3. A transition table that names an absent encounter kind fails with the file and the kind.
 4. A test proves that the map waits for the wait intent, and never for a timer (D-522, G-23).
@@ -785,7 +787,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 **Exit tests.**
 
 1. A fixture menu opens, stacks a second window, and closes each with back.
-2. A screen test captures the stack and the dungeon map screen, in both views.
+2. A screen test captures the stack and the dungeon map screen.
 3. A menu action makes an intent, and the record holds no cursor move (D-493).
 4. The mouse, the keyboard, and the gamepad each move the same cursor (D-219).
 5. A test proves that the world does not tick while a menu is open (D-162, OQ-64).
@@ -1053,7 +1055,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 **Exit tests.**
 
 1. A fixture scene walks two sprites, shows a line with a portrait, and records a choice.
-2. A screen test captures the box with a portrait and with choices, in both views.
+2. A screen test captures the box with a portrait and with choices.
 3. A test proves that Game moves a scene sprite from the tick, never from a timer (G-23, F-52).
 4. The type-out follows the layout rule of OQ-112 at each speed.
 5. The skip follows the rule of OQ-150, and the player never loses a choice.
@@ -1247,7 +1249,7 @@ Area file: `area-exploration.md` section 7.13.
 1. A closed route refuses the move, and the screen shows why.
 2. A replay reproduces the path through the nodes.
 3. The autosave writes on each arrival, and it reloads to the same state hash (D-224).
-4. A screen test captures the region map, in both views.
+4. A screen test captures the region map.
 5. A route that names an absent node id fails with the file and the id.
 
 **Review focus.**
@@ -1740,7 +1742,7 @@ Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 **Scope.**
 
 - The capsules, the logo, and the library images, each as a large picture of drawn pieces (D-475, D-516).
-- At least five screenshots at 1920 by 1080, straight from the 16:9 view (D-480, F-34).
+- At least five screenshots from the frame at 2x, 2560 by 1440, which is 16:9 and larger than 1920 by 1080 (D-568, F-34).
 - The capture of PR-74, which takes each screenshot from a run record (D-551).
 - The review sheets of the art batch, which `gh` attaches to the PR description (D-514, G-25).
 - The sizes of the store images, and the choice of the five screenshots (OQ-173, OQ-174).

@@ -28,9 +28,9 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 ## 1. Thesis
 
-The UI is the frame that the player reads and the input that the player gives. Every screen designs to 1280 by 800 with 32-pixel tiles, and it also holds the 16:9 view (G-19, D-480). Text pixels match art pixels, so the frame draws at 1x and the fit comes last (D-230, D-232). Keyboard and gamepad are equals, and the mouse works on menus alone (D-84, D-219). Every player string comes from the string table through one text helper (G-7, D-499).
+The UI is the frame that the player reads and the input that the player gives. Every screen designs to one 16:9 frame of 1280 by 720 with 32-pixel tiles (G-19, D-568). Text pixels match art pixels, so the frame draws at 1x and the fit comes last (D-230, D-232). Keyboard and gamepad are equals, and the mouse works on menus alone (D-84, D-219). Every player string comes from the string table through one text helper (G-7, D-499).
 
-The order of the area follows the first user of each part. PR-61 builds the base before the first screen: the frame, the fit, the fonts, the text helper, and the UI style (D-524). PR-62 builds the menu windows before the first system screen, and PR-63 builds the settings before the first PR that needs a setting (D-525, D-526). The title screen, the credits, and the Deck checklist close the work in Phase 5 (PR-33, PR-39).
+The order of the area follows the first user of each part. PR-61 builds the base before the first screen: the frame, the fit, the fonts, the text helper, and the UI style (D-524). It also builds the input map, the intents, and the glyph sets (D-561). PR-62 builds the menu windows before the first system screen, and PR-63 builds the settings before the first PR that needs a setting (D-525, D-526). The title screen, the credits, and the Deck checklist close the work in Phase 5 (PR-33, PR-39).
 
 ## 5. Findings that bind this area
 
@@ -40,7 +40,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 |---|---|---|
 | F-23 | `--headless` draws nothing | PR-41 and each UI PR: a screen test under Xvfb (D-172) |
 | F-24 | A 32-pixel tile holds four times the pixels of a 16-pixel tile | PR-61: the 16-pixel font at 1x, and the Deck floor (D-92) |
-| F-34 | Steam needs screenshots at 1920 by 1080 in 16:9 | PR-61: the 16:9 view comes straight from play (D-480) |
+| F-34 | Steam needs screenshots at 1920 by 1080 in 16:9 | PR-61: one 16:9 frame, which scales to a 16:9 screenshot (D-568) |
 | F-45 | Three Godot defaults meet the pixel art | PR-61: the stretch mode of a new project is `canvas_items` |
 | F-48 | Godot has no fit like the fit of D-232 | PR-61: a `SubViewport` at 1x, and both steps of the fit in Game |
 | F-49 | Three font defaults meet the pixel font | PR-61: the load from bytes and the font settings |
@@ -50,33 +50,36 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 
 Each part below says how one part of the UI works, which decisions set it, and which PR builds it. The phase files give the scope and the exit tests of each PR (D-144). Each part ends with a plain-English paragraph for a reader who does not know the code.
 
-### 7.1 The frame and the two views
+### 7.1 The frame
 
 Built by PR-61. Phase file: `phase-2-first-playable.md`.
 
-- The frame is 1280 by 800, 40 by 25 tiles of 32 pixels, which the Deck shows at 1x (D-228).
-- A 16:9 screen gets a view of about 1422 by 800, about 44 columns and the same 25 rows (D-480).
-- Every other screen shape shows black bars around the widest view that fits (D-480).
-- Game draws the world into a `SubViewport` at the size of the view, so each art pixel is one frame pixel (D-230).
+- The frame is 1280 by 720, one 16:9 shape, with tiles of 32 pixels: 40 columns and 22.5 rows (D-568).
+- Every screen shape other than 16:9 shows black bars around the frame, the Steam Deck included (D-568).
+- The Deck shows the frame at 1x, with a bar of 40 pixels above and below (D-92, D-568).
+- Game draws the world into a `SubViewport` of 1280 by 720, so each art pixel is one frame pixel (D-230).
 - A `SubViewport` keeps its own size, whatever the window does, so the light of `area-effects.md` falls on art pixels (F-48, the external facts above).
-- Every screen layout holds both views, and a test proves that each screen fits the narrow view (D-480).
-- Core sight never changes with the view, so a wider screen shows more map and no more knowledge (G-1, D-480).
+- The view shows 22.5 tile rows, so a half row sits at the edge. A half row is 16 pixels, a whole pixel count, so the art stays sharp (D-568).
+- Every screen shows the same part of the map, so no screen shape gains a view of a patrol (D-566, D-568).
 
-> *In plain English:* the game draws one picture of a fixed size, the size the Steam Deck shows. A wider screen sees a little more to the sides, and any other shape gets black bars.
+> *In plain English:* the game draws one picture of a fixed widescreen size. Every screen shows exactly that picture, and any other shape, the Steam Deck included, gets black bars.
 
 ### 7.2 The fit to a screen
 
 Built by PR-61. Phase file: `phase-2-first-playable.md`.
 
-- By default the view scales to the full height of the screen: a whole-number upscale, then a smooth fit (D-232).
-- A display setting switches to exact whole-number scale with bars, and the Deck shows 1x in both (D-232).
-- Godot has no mode that does both steps, so Game builds them (F-48). OQ-105 holds how.
+- By default the frame scales to the full height of the screen, and a display setting switches to exact whole-number scale with bars (D-232).
+- The Deck shows the frame at 1x in both modes (D-232, D-568).
+- A desktop at 1920 by 1080 needs a scale of 1.5, and it must look good, with no blur and no uneven pixels (D-568).
+- OQ-105 holds the method. Its recommendation scales up past the screen by a whole number with the Nearest filter, then scales down with a linear filter.
+- A 16:9 screen at 2560 by 1440 or 3840 by 2160 takes an exact whole-number scale, 2x or 3x (D-568).
+- Godot has no mode that does both steps, so Game builds them (F-48).
 - The CRT pass of PR-37 runs on the frame at 1x, before the fit (D-240, `area-effects.md` section 7.12).
 - The stretch settings of the project keep the world at 1x, against the `canvas_items` default of a new project (F-45).
-- The screen tests capture both views, and the fit at 1080 and 1440 screen rows (D-240, `area-ci.md` section 7.12).
+- The screen tests capture both fit modes at 1080 and 1440 screen rows (D-232, D-240, `area-ci.md` section 7.12).
 - Controls snap to whole pixels by default, and the two snap settings of the renderer stay off (the external facts above). The docs advise against both at once. OQ-89 holds the snap of the map sprites.
 
-> *In plain English:* the picture grows to fill the screen in whole steps first, so the pixels stay square. Only the last small step is smooth, which keeps the look close to the Deck.
+> *In plain English:* the picture grows to fill the screen. On a common 1080p monitor the scale is not a whole number. So the game scales up past the screen and then shrinks the picture, which keeps the pixels crisp.
 
 ### 7.3 The fonts
 
@@ -217,7 +220,7 @@ Built by PR-63. Phase file: `phase-2-first-playable.md`.
 Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 
 - `--headless` draws nothing, so the smoke session never tests a screen (F-23).
-- The screen-test job captures each screen in both views, and the fit at 1080 and 1440 screen rows (D-172, D-240).
+- The screen-test job captures each screen at 1x, and both fit modes at 1080 and 1440 screen rows (D-172, D-232, D-240).
 - A test proves that each panel holds its longest string from the string table (D-241).
 - A test reads the stretch settings and the font settings from the project and the code (F-45, F-49).
 - det-lint fails a Godot text property outside the text helper, and a text value in a scene file (D-499).
@@ -229,10 +232,10 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 
 | PR | Screens and parts | Decisions |
 |---|---|---|
-| PR-61 | The frame, the two views, the fit, the fonts, the text helper, the UI style file, and the window frames | D-524, D-527 |
-| PR-7 | The map scene, the camera, the map HUD, and the input map | D-106, D-212, D-306 |
+| PR-61 | The 16:9 frame, the fit, the fonts, the text helper, the UI style file, the window frames, the input map, the intents, and the glyph sets | D-524, D-527, D-561, D-568 |
+| PR-7 | The map scene, the camera, and the map HUD | D-106, D-212, D-306 |
 | PR-10 | The battle screen: the timeline strip, the command menu, the status, and the damage numbers | D-111, D-213 |
-| PR-62 | The window stack, the notices, the notice log, and the dungeon map screen | D-211, D-218, D-221, D-525 |
+| PR-62 | The window stack, the party window with the starting row, the status window, the notices, the notice log, and the dungeon map screen | D-211, D-218, D-221, D-525, D-558, D-567, D-569 |
 | PR-63 | The settings screen, the settings file, and the four accessibility settings | D-214, D-226, D-526 |
 | PR-12 to PR-16 | The lesson, gear, item, status, and save screens, one for each system | D-211 |
 | PR-36 | The dialogue box, the name plate, and the choices | D-114, D-223 |
@@ -258,11 +261,11 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 Each later PR that adds or changes a screen keeps this list. The phase files make exit tests from it.
 
 1. Draw every string through the text helper, by its id (G-7, D-499).
-2. Hold both views, and prove the narrow view in a test (D-480).
+2. Fit the frame of 1280 by 720, and prove the fit in a test (D-568).
 3. Make each player action an intent, from an event and never from a poll (D-493, F-50).
 4. Take the style from the UI style file, never from a constant in code (D-527).
 5. Keep the UI out of scene light and glow (D-210).
-6. Add the screen-test captures of each new screen, in both views (D-172).
+6. Add the screen-test capture of each new screen (D-172).
 7. Keep every text at 9 pixels or taller on the Deck (D-459).
 
 > *In plain English:* every new screen follows the same seven steps. It reads its words from one list, fits both screen shapes, and proves itself in a fixed picture.
@@ -272,8 +275,8 @@ Each later PR that adds or changes a screen keeps this list. The phase files mak
 The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The UI work keeps this order inside it:
 
 1. PR-61: the UI base, right before PR-7 (D-524).
-2. PR-7: the map scene, the map HUD, and the input map.
-3. PR-41: the screen tests of both views and the fit.
+2. PR-7: the map scene and the map HUD. PR-61 already built the input map (D-561).
+3. PR-41: the screen tests of the frame and of both fit modes.
 4. PR-10: the battle screen.
 5. PR-48 and PR-56: the normal maps and the light (`area-effects.md`).
 6. PR-63: the settings and the accessibility settings, right before PR-57 (D-526).

@@ -247,7 +247,7 @@ Area file: `area-release.md` section 7.5.
 2. The roll names the studio, and no agent, harness, or model (D-450, T-6).
 3. The Godot notice and each font notice reach the player (D-467).
 4. Every line of the roll comes from the string table (G-7).
-5. A screen test captures the roll in both views.
+5. A screen test captures the credits roll.
 
 **Review focus.**
 

@@ -89,7 +89,7 @@ Set the author field to `Claude Code` or `Codex`. Commit the entry with the revi
 - Every dependency needs a decision entry (G-13).
 - Every optimization needs a profile before and a measurement after (G-14).
 - Every `Core` behavior change bumps the simulation version constant, and the review confirms it (G-17).
-- Every screen designs to 1280 by 800 with 32-pixel tiles, and it also holds the 16:9 view of about 1422 by 800 (D-480). The Steam Deck at 1x is the readability and performance floor (D-92, D-228, G-19).
+- Every screen designs to one 16:9 frame of 1280 by 720 with 32-pixel tiles (D-568). Every other screen shape shows black bars, the Steam Deck included. The Steam Deck at 1x is the readability and performance floor (D-92, D-228, G-19). A desktop at 1920 by 1080 must look good (D-568).
 - The game supports Windows and Linux on x86_64, macOS on Apple silicon, and the Steam Deck, and nothing else (D-481, D-482).
 
 ## Git rules

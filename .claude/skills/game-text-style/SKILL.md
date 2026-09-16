@@ -37,7 +37,7 @@ Short sentences. Physical detail. No purple prose. Dry understatement. The world
 | Dialogue line | 3 lines at 80 characters |
 | Lore entry | 12 lines at 80 characters |
 
-The frame is 1280 by 800 with a 16-pixel font (D-228). The font pick sets how many characters fit across. A panel holds less. The limit is the panel, not the frame.
+The frame is 1280 by 720 with a 16-pixel font (D-228, D-568). The font pick sets how many characters fit across. A panel holds less. The limit is the panel, not the frame.
 
 ## Examples
 

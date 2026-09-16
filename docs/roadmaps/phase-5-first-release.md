@@ -93,7 +93,7 @@ Area files: `area-release.md` sections 7.4 and 7.5, `area-ui-input.md` section 7
 
 **Exit tests.**
 
-1. A screen test captures the title screen and the credits screen, in both views.
+1. A screen test captures the title screen and the credits screen.
 2. The main theme plays on the first screen (D-427).
 3. A clean exit writes the resume file, and the next start offers it (D-258).
 4. The version line matches the version in the run record header (D-448, D-454).

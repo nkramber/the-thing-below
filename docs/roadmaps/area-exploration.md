@@ -91,7 +91,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - The camera follows the lead, and it never scrolls past the edge of a map larger than the view (D-106, PR-7 in `docs/design.md`).
 - A map smaller than the view sits centered. Godot centers it, and no page of the docs states that, so a test locks the behavior (F-52).
 - Game moves the camera from the tick of the step, never from the smoothing of Godot (D-203, F-52). That smoothing can run more than once in a frame.
-- The camera reads the size of the view from the viewport, so both views of D-480 work with one rule (the external facts above).
+- The camera reads the size of the frame from the viewport (D-568, the external facts above).
 - The camera lives in Game and never reaches Core (G-23, D-106).
 - OQ-118 holds whether Godot or Game computes the limits of a small map. OQ-89 holds the pixel snap of each sprite.
 

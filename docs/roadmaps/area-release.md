@@ -27,7 +27,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-23 | `--headless` draws nothing, so no headless run captures an image | PR-74: the capture runs in a development build with a window, never in CI (D-172) |
 | F-32 | The cost model listed the Steam Direct fee alone | PR-79: the Apple Developer Program at 99 USD a year (D-455) |
 | F-33 | The release block found five gaps in the plan | PR-77, PR-79, and PR-44: the credits, the private repository, and the crash address (D-456, D-467, D-473) |
-| F-34 | Steam needs five screenshots at 1920 by 1080 in 16:9 | PR-76: a screenshot comes straight from the 16:9 view (D-480) |
+| F-34 | Steam needs five screenshots at 1920 by 1080 in 16:9 | PR-76: a screenshot comes from the 2x scale at 2560 by 1440 (D-568) |
 | F-42 | No command-line option installs the Godot export templates | PR-54: the job unpacks them, and OQ-83 holds how (D-508) |
 
 ## 7. Roadmap
@@ -142,7 +142,7 @@ Built by PR-76. Phase file: `phase-2-first-playable.md`.
 - Each store image is a large picture of drawn pieces, in the pixel style of the game (D-475, D-516). The file `area-art.md` holds the drawing and the render.
 - The owner approves each art batch from its review sheets, which `gh` attaches to the PR description (D-514, G-25).
 - Capsule art shows only game art, the game name, and an official subtitle. The capsules of the demo mark it as a demo (the external facts of `docs/design.md`).
-- A screenshot at 1920 by 1080 comes straight from the 16:9 view, with no bars and no crop (D-480, F-34).
+- A screenshot comes from the frame at 2x, 2560 by 1440, with no bars and no crop (D-568, F-34). That size is 16:9 and larger than 1920 by 1080.
 - The capture of PR-74 takes each screenshot from a run record, so the owner can take it again (D-551).
 - OQ-173 holds the sizes of the store images, and OQ-174 holds which five screenshots.
 

@@ -181,7 +181,7 @@ Built by PR-9, PR-11, and PR-15. Phase files: `phase-2-first-playable.md` and ev
 - The bots play the fixture dungeon on every CI leg, and a crash or a softlock names its seed (D-64, D-505).
 - M-4 records the turns of an encounter and the downs of a dungeon, by bot policy (M-4, D-35).
 - PR-30 tunes the numbers of D-35, D-60, D-382, and D-388 on the M-4 band, with a number before and after (G-14).
-- A screen test captures a fixture fight in both views (D-172, D-480).
+- A screen test captures a fixture fight (D-172).
 - Every Core change here bumps the simulation version (G-17).
 
 > *In plain English:* robots play thousands of fights to find the ones that never end, and the numbers they bring back set the difficulty.

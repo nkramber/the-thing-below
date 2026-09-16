@@ -31,7 +31,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-17 | The 32-color palette had too few free colors | PR-34: the palette of 64 colors (D-181) |
 | F-19 | An atlas cannot match byte for byte across encoders | PR-34: a pixel test, never a byte test |
 | F-20 | The interim atlas tool kept the last of two equal palette keys | PR-34: a repeated key fails with the key |
-| F-24 | A 32-pixel tile holds four times the pixels of the earlier plan | The Deck test: the load runs at 1280 by 800 |
+| F-24 | A 32-pixel tile holds four times the pixels of the earlier plan | The Deck test: the load runs at the frame of 1280 by 720 (D-568) |
 | F-25 | A quit autosave can trap a run (C-3), and a Core patch refuses old saves (C-4) | PR-43: the resume file of D-258 and the load of D-259 |
 | F-27 | The debug console of D-171 meets the rule of no conditional compilation in Core | PR-6: the seam of D-260 and D-492 |
 | F-35 | Two hash paths of .NET break G-1 and T-7 | PR-4 and PR-5: a hash function that Core holds (OQ-61, OQ-62) |
@@ -56,7 +56,7 @@ Owner and a session, before PR-1. Area file: `area-effects.md`, sections 7.3 and
 **Scope.**
 
 - A throwaway scene runs on the Deck of the owner under Forward+ and under Mobile (D-160, D-161).
-- The scene runs as a native Linux export at 1280 by 800, with the load of D-160 (D-228, D-458).
+- The scene runs as a native Linux export at the frame of 1280 by 720, with the load of D-160 (D-228, D-458, D-568).
 - The test picks the renderer, and it measures the effect budget (D-160, D-523).
 - The pick becomes a decision before PR-1, and PR-1 sets that renderer in the Game project.
 
