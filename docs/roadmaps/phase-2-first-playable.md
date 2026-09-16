@@ -106,7 +106,9 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 - The text helper that puts a string table entry on screen, which det-lint guards (D-499, G-7).
 - The UI style file, and the Godot `Theme` that Game builds from it at load (D-527, G-6).
 - The input map, and an intent from each input event, never from a poll (D-84, D-493, F-50).
-- The glyph sets for the keyboard, Xbox, PlayStation, and the Deck, and the rule for the last device (D-222, OQ-107).
+- The glyph sets for the keyboard, Xbox, PlayStation, and the Deck, and the rule for the last device (D-222, D-561, OQ-107).
+- The message of a crash on screen, through the text helper, with the studio address of D-473 (D-170, D-559).
+- The review sheets of the window frames and the four glyph sets (D-514, G-25).
 
 **Out of scope.**
 
@@ -125,15 +127,18 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 6. A test proves that no intent comes from a poll of the input singleton (F-50).
 7. A prompt shows the glyph of the last device, for each of the four sets.
 8. No text falls below 9 pixels on the Deck frame (D-459).
+9. A crash shows its message through the text helper, and det-lint passes (D-499, D-559).
+10. The review sheets of the window frames and the glyph sets reach the PR description (D-514).
+11. The owner approves that art batch (G-25).
 
 **Review focus.**
 
 - The two steps of the fit, from the answer of OQ-105, and the 1x frame under them (F-48).
 - Font oversampling stays off, and each font setting has a test (F-49).
 - The `Theme` comes from the style file, and no theme resource file exists (D-527, G-6).
-- Core sight never changes with the view, so a wider screen shows no more knowledge (D-480).
+- Every screen shows the same part of the map, so no screen shape gains knowledge (D-566, D-568).
 
-**Questions.** OQ-104, OQ-105, and OQ-107.
+**Questions.** OQ-57, OQ-104, OQ-105, and OQ-107.
 
 > *In plain English:* this builds the picture frame of the game. It sets one fixed size that the handheld shows exactly, the two fonts, and the look of every menu. It also turns keys and buttons into choices that the rules understand.
 
@@ -261,11 +266,10 @@ Area file: `area-exploration.md` sections 7.6 and 7.7.
 - The return of a fled group to its route, with a grace time before the next fight (D-381).
 - Three views with a two-frame walk for an enemy that moves, and a flip for one that stands (D-108, D-207).
 - The area of a large enemy, and the proof that its body fits everywhere in that area (D-206, D-209).
-- The hand-off of the encounter, where no map system ticks during a battle (D-531).
 
 **Out of scope.**
 
-- The fight itself (PR-9) and the battle screen (PR-10).
+- The fight itself and the hand-off of the encounter (PR-9, D-531), and the battle screen (PR-10).
 - The transition over the hand-off (PR-60).
 - The enemy groups of the first playable (PR-17).
 
@@ -276,7 +280,6 @@ Area file: `area-exploration.md` sections 7.6 and 7.7.
 3. The time of day of the map picks the route (D-193, D-442).
 4. A large enemy never leaves its area, and a load proves the fit (D-209).
 5. A fled group starts no battle inside its grace time (D-381).
-6. A test proves that no map system moves during a battle (D-531).
 
 **Review focus.**
 
@@ -300,11 +303,14 @@ Area files: `area-battle.md` sections 7.1, 7.2, 7.3, 7.5, and 7.9.
 - Haste, slow, and heavy actions as timeline shifts, and the stun push (D-376).
 - The reach rule: melee takes the front row while anyone stands in it (D-377).
 - The row step, the item use, and the flee, each with its delay and its rule (D-378, D-380, D-382).
-- The down, the party wipe, and the reload of the newer save (D-36, D-231, D-397).
+- The down, the party wipe when every character who fights goes down, and the reload of the newer save (D-36, D-231, D-397).
+- The hand-off of the encounter, where no map system ticks during a battle (D-531).
+- Fixture enemies with fixture stats, until PR-80 builds the enemy record (D-557).
 - The pace of one turn: Core resolves at once and emits events, and Game drains the queue (D-532).
 
 **Out of scope.**
 
+- The enemy record with its stats and its abilities (PR-80, D-557).
 - The elements and the statuses (PR-66, D-533).
 - The battle screen (PR-10) and the evaluator (PR-11).
 - The boss phases (PR-20) and the balance pass (PR-30).
@@ -315,9 +321,10 @@ Area files: `area-battle.md` sections 7.1, 7.2, 7.3, 7.5, and 7.9.
 2. Melee never reaches a back row while its front row stands (D-377).
 3. No flee starts in a boss fight (D-378).
 4. A failed flee costs the turn (D-378).
-5. A wipe with a healthy reserve still reloads (D-397).
+5. A wipe with a healthy reserve still reloads, for a party of one, two, or three (D-336, D-397).
 6. A test proves that the event queue of Game always drains (D-532).
 7. The replay of a fixture fight gives the same state hash on every leg.
+8. A test proves that no map system moves during a battle (D-531).
 
 **Review focus.**
 
@@ -339,7 +346,7 @@ Area file: `area-battle.md` section 7.4.
 - The eight elements, each with weakness, resist, and absorb (D-74).
 - The ten statuses, and the rule that every status but poison, blind, and silence ends with its fight (D-75, D-390).
 - The aptitude bonus and the half bonus of a side aptitude, in basis points (D-358, D-360).
-- The content rows that give each enemy and each piece of gear its element table.
+- The element table of each enemy, on the record of PR-80, and of each piece of gear (D-557).
 
 **Out of scope.**
 
@@ -526,6 +533,8 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 - The four accessibility settings: the flash and shake reduction, the text speed and skip, the shape icons, and the remap (D-214).
 - The 18 shape drawings of 16 by 16, one for each element and each status (D-74, D-75).
 - The settings file outside the save files, which never enters a run record (D-494, T-7, OQ-106).
+- The format version of the settings file, and one migration step with a fixture file for each new setting (D-570).
+- The review sheets of the 18 shape drawings (D-514, G-25).
 
 **Out of scope.**
 
@@ -538,10 +547,13 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 1. Each setting saves and loads through the settings file.
 2. A remap lasts across a restart, because Godot does not save one (F-50).
 3. A remap conflict follows the rule of OQ-108, and the screen states it.
-4. A setting that is absent from the file fails loudly, and never takes a silent default (T-2).
-5. No setting reaches a run record, and a test proves it (T-7).
-6. The stick dead zone takes the value of OQ-109, not the value of the docs (F-50).
-7. A screen test captures the settings screen.
+4. A settings file of an older format version loads through its migration step (D-570).
+5. A key that no version declares fails the load with the file and the key (T-2, D-570).
+6. No setting reaches a run record, and a test proves it (T-7).
+7. The stick dead zone takes the value of OQ-109, not the value of the docs (F-50).
+8. A screen test captures the settings screen.
+9. The review sheets of the 18 shape drawings reach the PR description (D-514).
+10. The owner approves that art batch (G-25).
 
 **Review focus.**
 
@@ -750,7 +762,7 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
 **Exit tests.**
 
-1. A property test over one thousand seeds proves that no run passes the soft cap of its region.
+1. A property test proves that the experience from one enemy falls as the level of the party rises (D-388).
 2. A character in reserve and a downed character each earn half (D-73, D-387).
 3. A save point restores MP once for the place, and no health (D-389, D-555).
 4. A curve with a number that is not an integer fails the load (G-2, D-169).
@@ -774,6 +786,8 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 **Scope.**
 
 - The main list, which opens one window for each task: party, lessons, gear, items, status, and save (D-211).
+- The party window, which sets the starting row of each character, and the snapshot that keeps the row (D-377, D-558).
+- The status window, which reads the state of PR-9, PR-12, and PR-67 (D-569).
 - The window stack, where back closes one window and the map stays visible behind (D-211).
 - The pause of the world while a menu is open (D-162, OQ-64).
 - The mouse on menus alone, which makes the same intent as a key or a button (D-219, D-493, OQ-110).
@@ -782,7 +796,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
 **Out of scope.**
 
-- The content of each window, which PR-12, PR-13, PR-14, and PR-16 add (D-525).
+- The content of the lesson, gear, item, service, and save windows, which PR-12, PR-13, PR-14, and PR-16 add (D-525).
 - The settings screen (PR-63) and the dialogue box (PR-36).
 
 **Exit tests.**
@@ -792,7 +806,10 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 3. A menu action makes an intent, and the record holds no cursor move (D-493).
 4. The mouse, the keyboard, and the gamepad each move the same cursor (D-219).
 5. A test proves that the world does not tick while a menu is open (D-162, OQ-64).
-6. The dungeon map screen shows each seen tile, its doors, its save points, and its exits (D-218).
+6. The dungeon map screen shows each walked tile, with the doors, the save points, and the exits on it (D-567).
+7. The party window sets the row of a character, and a fight starts with that row (D-377, D-558).
+8. The row survives a save and a load, through a snapshot format bump and its migration (D-166, D-558).
+9. The status window shows the level, the MP, and the stats of each character (D-569).
 
 **Review focus.**
 
@@ -817,7 +834,7 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 - The named forms of each lesson, and the point total that opens each form (D-539).
 - The growth that belongs to the character, not to the lesson (D-361).
 - The eight kinds, the main aptitude of each character, and the bonus of a lesson of that kind (D-274, D-281, D-358).
-- The side aptitude behind a fixture flag, with an empty mark in the menu before the unlock (D-282, D-283, D-538).
+- The side aptitude behind a story flag of PR-68, with an empty mark in the menu before the unlock (D-282, D-283, D-538, D-556).
 - The Mend rites and the cure rites that also work from the menu outside battle (D-391).
 - The lesson window in the stack of PR-62.
 
@@ -829,12 +846,11 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 **Exit tests.**
 
 1. A character equips a lesson and uses its ability in a fixture battle.
-2. A fixture flag unlocks a side aptitude, and the menu shows an empty mark before it (D-283).
+2. A story flag of PR-68 unlocks a side aptitude, and the menu shows an empty mark before it (D-283, D-556).
 3. An equipped lesson gains points from a fixture battle, used or not (D-357).
-4. A save point swaps lessons, and a hub swaps them too (D-356).
-5. A lesson passed to a new character starts at its first form for that character (D-361).
-6. A lesson passed back to a character resumes at the level of that character (D-361).
-7. A cure rite works from the menu outside battle, and silence stops it (D-391, D-393).
+4. A lesson passed to a new character starts at its first form for that character (D-361).
+5. A lesson passed back to a character resumes at the level of that character (D-361).
+6. A cure rite works from the menu outside battle, and silence stops it (D-391, D-393).
 
 **Review focus.**
 
@@ -871,10 +887,10 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 
 1. A character equips and removes gear in each of the six slots.
 2. The screen shows each empty slot (D-44).
-3. A find over the stack limit stays in its chest, and the save records what remains (D-385).
+3. A pickup over the stack limit leaves a remainder, and the pack names it (D-385). PR-16 builds the chest that holds it.
 4. An item restores less in a fight than outside one (D-382).
 5. A test proves that two accessories with one effect follow the rule of OQ-141.
-6. The snapshot holds the pack, the slots, and what each chest still owes.
+6. The snapshot holds the pack and the slots.
 
 **Review focus.**
 
@@ -895,24 +911,27 @@ Area file: `area-exploration.md` section 7.11.
 - The hub as a walkable map with NPC sprites, on the same code path as a dungeon (D-112).
 - The hub content format, with the services that each hub offers (D-28, D-59).
 - The rest, which restores health and MP and cures poison, blind, and silence (D-42, D-390).
-- The save and the party swap at the hub (D-59, D-62).
+- The save, the party swap, and the lesson swap at the hub (D-59, D-62, D-356).
+- A condition of PR-68 on each service, so a story flag can close one (D-543, D-544, D-556).
 - The service screens in the window stack of PR-62.
 - The village as a start area with no shop and no rest (D-369).
 
 **Out of scope.**
 
 - The shop and the gold (PR-65, D-530).
-- The story scenes and the hub lines that read a condition (PR-68, PR-36).
+- The hub lines that the dialogue box shows (PR-36).
 - The hub content of the first playable (PR-17).
 
 **Exit tests.**
 
-1. A fixture party of four walks the hub, rests, swaps the reserve, and saves (D-356, D-362).
-2. The save reloads to the same state hash.
-3. The lead moves to the reserve, and the lead still walks the map with the camera on it (D-292, D-306).
-4. A rest cures poison, blind, and silence (D-390).
-5. A hub that offers no rest refuses the rest, and the screen says so.
-6. A hub file that names an absent service fails with the file and the service.
+1. A fixture group of four characters, three of them in the party, walks the hub and rests (D-362).
+2. The group swaps the reserve and a lesson, then saves (D-356).
+3. The save reloads to the same state hash.
+4. The lead moves to the reserve, and the lead still walks the map with the camera on it (D-292, D-306).
+5. A rest cures poison, blind, and silence (D-390).
+6. A hub that offers no rest refuses the rest, and the screen says so.
+7. A hub file that names an absent service fails with the file and the service.
+8. A story flag closes a fixture service, and the hub refuses it (D-543).
 
 **Review focus.**
 
@@ -966,6 +985,7 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 **Scope.**
 
 - The story scene format: a JSON list of steps, such as move, face, wait, say, choose, and set flag (D-173, OQ-144).
+- The join step, which adds a cast member to the party (D-342, D-563).
 - The story scene runner in Core, which holds the step index and every flag that a step sets (D-540).
 - The wait intent that Game sends at the end of a move, a face, or a line (D-493, D-522).
 - The story flag, a name that is on or off, and the set of the flags that are on (D-542).
@@ -990,6 +1010,7 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 5. A story scene that plays once sets its flag, and its condition then refuses it (D-542).
 6. A trigger fires from the tick, and two replays start the story scene at the same tick.
 7. The snapshot carries the flag set through a migration.
+8. A join step adds a fixture cast member to the party, and the snapshot keeps the party (D-563).
 
 **Review focus.**
 
@@ -1202,7 +1223,7 @@ Area file: `area-exploration.md` section 7.9.
 - Poison, blind, and silence that last past a battle until a cure or a rest at a hub (D-390).
 - The poison that ticks on the map and can down a character (D-392).
 - The silence that stops a rite from the menu, and the blind that does nothing outside battle (D-393).
-- The wipe when poison downs all three who fight, even with a healthy reserve (D-397).
+- The wipe when poison downs every character who fights, even with a healthy reserve (D-397).
 - The status mark in the map HUD (D-390).
 
 **Out of scope.**
@@ -1215,9 +1236,10 @@ Area file: `area-exploration.md` section 7.9.
 1. A property test over one thousand seeds proves each trap and each hazard rule.
 2. A Theft drill reveals and disarms a fixture trap (D-386).
 3. A fixture party that poison downs on the map wipes and reloads (D-397).
-4. Silence stops a rite from the menu, and a rest cures it (D-390, D-393).
-5. The bots play the maps of the first playable with these rules (D-64).
-6. The snapshot holds each status that lasts on the map.
+4. The same rule holds for a party of one, two, or three (D-336).
+5. Silence stops a rite from the menu, and a rest cures it (D-390, D-393).
+6. The bots play the fixture dungeon with these rules (D-64). PR-17 runs the bots over each map of the first playable.
+7. The snapshot holds each status that lasts on the map.
 
 **Review focus.**
 
@@ -1616,7 +1638,6 @@ Area files: every area file. The content PR touches each area.
 
 - The text follows the `game-text-style` skill, and no line names an agent or a model (D-63, T-6).
 - The places follow `docs/world/places.md` (D-250, D-371).
-- The M-4 numbers land inside the band that the sign-off sets.
 - The art batches carry their review sheets, and the owner approves each one (D-514, G-25).
 
 **Questions.** None. Every question of the systems above closes before this PR.
@@ -1657,11 +1678,13 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 1. The owner plays from the village until Dagvar joins, on the desktop and on the Deck (D-362).
 2. The owner signs off on feel (D-52, D-92).
-3. The M-4 numbers land inside the band that the sign-off sets.
+3. The M-4 numbers land inside the band that the owner set after M-4 (D-571).
 4. M-6 records 60 frames each second on the Deck, with the CRT on (D-161, F-18).
-5. Every job of the PR gate is green on every leg (D-481).
-6. The `screen-test`, bot, and `night-gate` jobs are green (D-172, D-505, G-22).
-7. The budget test passes for every place of the first playable (D-523).
+5. M-6 reads the text and the sprites at 1x on the Deck with the CRT on (F-18).
+6. A miss of that reading reopens D-120.
+7. Every job of the PR gate is green on every leg (D-481).
+8. The `screen-test`, bot, and `night-gate` jobs are green (D-172, D-505, G-22).
+9. The budget test passes for every place of the first playable (D-523).
 
 **After the gate.** The owner pays the Steam Direct fee, and the store page goes public as Coming Soon (D-471). Sections 7.45 to 7.47 hold the work that the page needs.
 
@@ -1725,7 +1748,7 @@ Area file: `area-release.md` section 7.7.
 
 1. The owner approves the store text in the PR description (D-57, G-25).
 2. The checklist names each owner step with its cost and its wait (D-85, D-455).
-3. The register search runs, and the PR records each query and its result (D-408).
+3. The checklist names each register, and the PR records the result that the owner reports (D-408).
 4. The AI disclosure answer of OQ-59 enters the checklist.
 
 **Review focus.**
@@ -1747,13 +1770,14 @@ Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 - The capsules, the logo, and the library images, each as a large picture of drawn pieces (D-475, D-516).
 - At least five screenshots from the frame at 2x, 2560 by 1440, which is 16:9 and larger than 1920 by 1080 (D-568, F-34).
 - The capture of PR-74, which takes each screenshot from a run record (D-551).
+- The capsules of the demo app, which mark it as a demo, in the same art batch (D-475, D-478).
 - The review sheets of the art batch, which `gh` attaches to the PR description (D-514, G-25).
 - The sizes of the store images, and the choice of the five screenshots (OQ-173, OQ-174).
 
 **Out of scope.**
 
 - The store text and the owner steps (PR-75).
-- The trailer (D-476) and the demo capsules, which PR-40 needs (D-470).
+- The trailer (D-476).
 
 **Exit tests.**
 
