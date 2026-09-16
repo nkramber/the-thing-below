@@ -413,3 +413,33 @@ How to file a question (D-19, D-24):
 133. **OQ-133. The flee chance and the grace time.** The chance to flee rises with the speed of the party, and a failure costs the turn (D-378). A fled group starts no fight for a short grace time (D-381). What are the numbers? Raised 2026-09-16. Blocks PR-9.
     - A base chance in content, plus the speed of the party against the speed of the group, the recommendation. The grace time is 300 ticks. PR-30 tunes each number, and M-4 measures how often a party flees.
     - A fixed chance for each kind of encounter, with the same grace time. The numbers stay easy to read. A fast party gains nothing from its speed, against D-378.
+134. **OQ-134. The shape of a stat curve.** Each character carries a stat curve in content (D-537). What form does a curve take? Raised 2026-09-16. Blocks PR-67.
+    - A row for each level, with the five stats, the recommendation. An author reads and tunes any level by hand, and PR-30 changes one number at a time. Each character needs a table of about 40 rows.
+    - A base value and a growth in basis points for each stat. Each character needs five pairs of numbers. A curve that bends, such as a late gain in speed, needs a special case.
+135. **OQ-135. The MP that a rest and a save point restore.** A save point restores MP once for each visit, and no health (D-257, D-389). A rest at a hub restores both (D-42). How much MP? Raised 2026-09-16. Blocks PR-67.
+    - All of it at a hub, and all of it at a save point, the recommendation. The rule is simple to read and to explain in the game. A dungeon with many save points then holds few limits on rites.
+    - All of it at a hub, and a part at a save point, from a number in content. The scarcity of D-35 stays under control. The player must learn a number that the screen has to show.
+136. **OQ-136. The shrink of the experience of an enemy.** The experience from an enemy shrinks as the party outlevels it (D-388). What is the rule? Raised 2026-09-16. Blocks PR-67.
+    - A cut for each level above the enemy, to a floor, the recommendation. The player who grinds sees the reward fade, and the floor keeps a fight worth something. The numbers need M-4 and PR-30.
+    - No experience at all past a set gap. The soft cap bites hard, and the party stays in the band of its region. A player who wants to clear a map gains nothing for it.
+137. **OQ-137. The lesson slots at each level.** The slot count grows with the character level (D-356). How many slots, and at which levels? Raised 2026-09-16. Blocks PR-12.
+    - Two at the start, and one more at set levels, to six, the recommendation. Early choices stay tight, and a late build carries a shape. The numbers need the balance pass of PR-30.
+    - A slot for each kind that the character can use. The build reads as wide from the start. A character can carry most of the lessons of the party, which weakens the choice of D-272.
+138. **OQ-138. The points that a lesson gains.** Every equipped lesson gains points from each battle won, used or not, and a reserve character gains half (D-357). What sets the points? Raised 2026-09-16. Blocks PR-12.
+    - The level of the enemy group, with the same shrink as the experience, the recommendation. A lesson grows where the fights are hard, and a weak enemy gives few points. It needs the numbers of OQ-136.
+    - A flat count for each battle won. Every fight moves each lesson the same way. A player can farm the easiest fight in the region to open every form.
+139. **OQ-139. Two copies of one lesson.** A shop can sell a second copy of a lesson, and the growth belongs to the character (D-361, D-365). Can two characters carry the same lesson at once? Raised 2026-09-16. Blocks PR-12.
+    - Yes, and each character keeps its own points for it, the recommendation. D-361 already holds the points for each character, so the rules need nothing new. A party can put the same rite on three characters.
+    - No, one copy of a lesson is equipped at a time. Each rite feels rare, and the party must choose who carries it. The shops of D-365 then need a rule against a second sale.
+140. **OQ-140. What a piece of gear changes.** Six slots hold gear, and nothing limits what a character wears (D-44, D-374). What does a piece of gear do? Raised 2026-09-16. Blocks PR-13.
+    - Flat changes to the five stats, and an affinity row for the eight elements, the recommendation. Gear reads at a glance, and it meets the affinities of D-43. Each item needs up to 13 numbers.
+    - Flat changes to the five stats alone. The item text is short, and the balance is simple. Gear then never answers an element, so a fire dungeon has no gear answer.
+141. **OQ-141. Two accessories with one effect.** A character wears two accessories (D-44). What happens when both carry the same effect? Raised 2026-09-16. Blocks PR-13.
+    - The effects add, the recommendation. The player builds toward one thing on purpose, which fits the build decision of D-272. A doubled effect needs a cap in the balance pass.
+    - The stronger of the two applies, and the other does nothing. No stack ever breaks the balance. The screen must explain why the second accessory gives nothing.
+142. **OQ-142. The stack limit of each item.** The pack holds a small, fixed number of each item (D-382). A find over the limit stays in its chest (D-385). What is the limit? Raised 2026-09-16. Blocks PR-13.
+    - Five of each item, the recommendation. A dungeon visit carries a real limit, and the number is easy to read. A long dungeon can leave the party short.
+    - A limit for each item in content, from three to ten. A revive stays rare while a cure is common. Each item needs one more number, and the screen must show it.
+143. **OQ-143. What a rarity tier changes.** Items come in a few rarity tiers (D-45). What does a tier mean in play? Raised 2026-09-16. Blocks PR-13.
+    - The place of the item alone, the recommendation. A rare item sits behind a boss, a puzzle, or a secret, and its numbers need no rule. The tier is then a note for the author, not a rule in Core.
+    - The place and a color in the menu. The player reads the value of a find at a glance. The color needs a palette key and a rule for each tier (D-181).

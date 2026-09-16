@@ -225,7 +225,8 @@ The systems that later areas add to Core are below. Each area file confirms its 
 | Battle and the timeline | `area-battle.md` | PR-9 |
 | The elements and the statuses | `area-battle.md` | PR-66 |
 | The evaluator and profiles | `area-battle.md` | PR-11 |
-| Lessons, aptitudes, and levels | `area-progression.md` | PR-12 |
+| The character level, the experience, MP, and the stat curves | `area-progression.md` | PR-67 |
+| Lessons, the slots, the growth, and the aptitudes | `area-progression.md` | PR-12 |
 | Gear, items, and the inventory | `area-progression.md` | PR-13 |
 | Hub services | `area-exploration.md` | PR-14 |
 | Scene choices | `area-story.md` | PR-36 |
