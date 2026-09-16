@@ -95,10 +95,11 @@ Area files: `area-ci.md` sections 7.1 to 7.6, `area-tools.md` section 7.1, `area
 - The coverage report on every PR, with no number that fails the build (D-174, D-506).
 - Two tests: `CLAUDE.md` equals `AGENTS.md` (D-20), and Core has the reference list of G-1.
 - The renderer that the Deck test picked, in the Game project (D-160).
+- A boot Godot scene file and the `--smoke` argument, which boot the engine and quit, so the smoke job can pass (D-117, G-16).
 
 **Out of scope.**
 
-- No game code, no content file, and no Core rule.
+- No game system, no screen, no content file, and no Core rule.
 - det-lint (PR-46), the identity job (PR-4), the export job (PR-54), and the screen tests (PR-41).
 
 **Exit tests.**
@@ -167,7 +168,7 @@ Area files: `area-tools.md` section 7.3, `area-ci.md` section 7.7.
 - The `review-gate` command in Tools as new code (D-15, D-101, D-277).
 - The workflow on `pull_request_target`, which runs from `main` and reads the PR head as data alone (D-15).
 - The three rules of the `pr-review` skill: the record exists, the verdict is `Ready for owner merge`, and the head field names the effective head.
-- The override rules of D-16, D-71, D-239, and D-401, with the eligible path set.
+- The override rules of D-16, D-71, D-239, D-401, and D-560, with the eligible path set. `.github/workflows/` sits outside that set.
 - A check run as the result, and a second run when a label changes (D-67).
 
 **Out of scope.**
@@ -182,8 +183,9 @@ Area files: `area-tools.md` section 7.3, `area-ci.md` section 7.7.
 3. It passes a documentation PR with the label that changes no decision row.
 4. It fails a PR with the label that changes a row of `docs/decisions.md` (D-401).
 5. It fails a PR outside the override set that carries the label.
-6. A metadata commit does not move the effective head.
-7. The PR description shows the output of each fixture (D-500).
+6. It fails a PR that changes `.github/workflows/` and carries the label (D-560).
+7. A metadata commit does not move the effective head.
+8. The PR description shows the output of each fixture (D-500).
 
 **Review focus.**
 
@@ -287,7 +289,7 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 **Scope.**
 
 - One C# record for each content type, with a strict reader (D-116, D-177, G-6).
-- A reader with no runtime reflection, and the MSBuild property that proves it (F-36).
+- A reader with no runtime reflection, with the reflection switch in the place that OQ-179 sets (F-36).
 - The permanent content id, in the form of OQ-63 (D-166).
 - The content hash over the rule files alone, and the layout of `content/` that draws the line (D-495).
 - The string table, from an id to text, with a test for each id that content names (D-167, G-7).
@@ -317,7 +319,7 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 - The line-end rule holds on the Windows leg (the external facts of `area-core.md`).
 - The Godot export needs no filter for content, because the assembly carries it (F-42).
 
-**Questions.** OQ-62 and OQ-63.
+**Questions.** OQ-62, OQ-63, and OQ-179.
 
 > *In plain English:* every enemy, item, and map lives in a strict data file. A gap or a typo stops the load with the file and the field, instead of a silent zero.
 
@@ -409,12 +411,13 @@ Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 
 - The crash file beside the save, written through Storage on a crash or a failed assertion (D-170, T-2).
 - The content of the crash file: the error with its context, the versions, and the run record (D-448).
-- The message of D-170, with the studio address of D-473.
+- A log line on a crash, and an exit. PR-61 adds the message on screen through the text helper (D-559).
 - The log entries that a step of Core returns, with the tick and the subsystem (D-179).
 - One JSON object for each log line, written by Storage, with the wall-clock time from Game (D-179).
 
 **Out of scope.**
 
+- The message on screen and the studio address of D-473, which PR-61 adds with the text helper (D-559).
 - The title screen and its version line (PR-33).
 - The night records and the bot reports (PR-15, PR-49).
 
@@ -426,14 +429,15 @@ Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 4. A test loads the record of a crash file and reaches the same state hash.
 5. Each log line parses as one JSON object.
 6. Core adds no time value and no file path to a log entry (G-1, G-3).
+7. A crash writes its file and a log line, and it draws no Godot text property, so det-lint passes (D-499, D-559).
 
 **Review focus.**
 
 - No empty catch, and no error that hides the first error (T-2, G-18).
-- The address waits for OQ-57, and the PR says what it writes until the answer arrives.
+- PR-44 shows no message, so no Godot text property appears before the text helper of PR-61 exists (D-499, D-559).
 - The crash path runs with no content loaded, because a load failure can start it.
 
-**Questions.** OQ-57.
+**Questions.** None. OQ-57 blocks the address, which PR-61 adds (D-559).
 
 > *In plain English:* when the game stops with an error, it leaves one file that holds everything a replay needs. Logs are plain one-line notes that the tools can read.
 
@@ -520,7 +524,8 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 
 **Scope.**
 
-- M-1 records the harness usage of each of the first ten PRs.
+- M-1 records the harness usage of each of the first ten code PRs, in the order of section 8.
+- The ten are PR-1, PR-2, PR-3, PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, and PR-47. PR-34 is the eleventh.
 - M-2 records the wall time of each CI job on each leg, for the same ten PRs.
 
 **Out of scope.**
@@ -529,7 +534,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 
 **Exit tests.**
 
-1. Each of the first ten PRs adds its two numbers to the cost model.
+1. Each of the first ten code PRs adds its two numbers to the cost model.
 2. The Gate 1 report states the mean and the worst case of each number.
 
 **Review focus.** Each PR review confirms that the two numbers reached the cost model.
@@ -550,7 +555,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 6. The `replay-identity` job is green, and the three legs and the Mac agree with the identity file (D-504).
 7. `make verify` passes on the Mac.
 8. The atlas pixel test passes on the three legs (F-19).
-9. The cost model holds the M-1 and M-2 numbers of the first ten PRs.
+9. The cost model holds the M-1 and M-2 numbers of the first ten code PRs.
 
 **What the gate does not ask.** No play, no screen, and no sign-off on feel. Gates 2 to 5 hold those (D-52).
 
@@ -575,7 +580,7 @@ The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #
 13. PR-44: the crash files and the log files.
 14. PR-47: the PNG code, right before the atlas (D-496).
 15. PR-34: the atlas, the palette, and the drawing files.
-16. M-1 and M-2: the numbers of the first ten PRs.
+16. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above.
 17. **← GATE 1 (foundation).** Section 7.14 holds each line.
 
 The next phase file is `phase-2-first-playable.md`. Between the two, the owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).
@@ -587,7 +592,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | Question | Subject | Blocks |
 |---|---|---|
 | OQ-3 | The required checks on `main` | Waits for PR-3 |
-| OQ-57 | The studio name | PR-44 |
 | OQ-60 | The rounding rule of fixed-point math | PR-4 |
 | OQ-61 | The random generator and the stream split | PR-4 |
 | OQ-62 | The hash function of Core | PR-4 and PR-5 |
@@ -613,5 +617,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-92 | Where the source of the Deck test scene lives | The Deck test |
 | OQ-93 | How the owner reads the frame time on the Deck | The Deck test |
 | OQ-168 | Where the game version lives in the build | PR-6 and PR-31 |
+| OQ-179 | Where the reflection switch of the JSON reader lives | PR-5 |
 
 No open question blocks this file.

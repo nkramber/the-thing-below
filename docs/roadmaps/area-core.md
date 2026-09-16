@@ -187,7 +187,7 @@ Built by PR-43. Phase file: `phase-1-foundations.md`.
 
 Built by PR-44. Phase file: `phase-1-foundations.md`.
 
-- On a crash or a failed assertion, Game writes a crash file beside the save through Storage (T-2). Then it shows the message of D-170 and exits. The address of D-473 waits for OQ-57.
+- On a crash or a failed assertion, Game writes a crash file beside the save through Storage (T-2). Then it writes a log line and exits. PR-61 adds the message on screen through the text helper, with the address of D-473 (D-559).
 - The crash file holds the error with its context, the versions, and the run record, and no personal data (D-170).
 - A step of Core returns its log entries with the tick and the subsystem, and Storage writes each entry as one JSON line (D-179). Game adds the wall-clock time, and Core never does (D-179).
 
@@ -269,6 +269,6 @@ The register is `docs/questions.md` (D-19). These questions block Core PRs, and 
 - OQ-64: the tick while a menu is open. Blocks PR-6.
 - OQ-65: when the run record takes a new snapshot. Blocks PR-6 and PR-43.
 - OQ-66: the encoding of records and snapshots. Blocks PR-6 and PR-43.
-- OQ-57: the studio name. Blocks the crash address of PR-44 (D-473).
+- OQ-57: the studio name. Blocks the crash address, which PR-61 adds (D-473, D-559).
 
 No open question blocks this file.

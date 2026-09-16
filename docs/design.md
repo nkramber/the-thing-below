@@ -192,8 +192,8 @@ What we pay:
 
 Measurements that answer the unknowns:
 
-- M-1: tokens per PR from the harness usage reports, over the first ten PRs.
-- M-2: CI wall time per PR, per platform, over the first ten PRs.
+- M-1: tokens per PR from the harness usage reports, over the first ten code PRs in the order of section 8.
+- M-2: CI wall time per PR, per platform, over the first ten code PRs in the order of section 8.
 - M-3: the night run wall time and the crash and softlock counts, over the first seven nights (D-64).
 - M-4: turns per encounter and party downs per dungeon by bot policy, on the first dungeon. Binds the resource numbers of D-35.
 - M-5: the owner's play time from the first hub to the end of the arc, against D-56.
@@ -271,7 +271,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 - **T-1. Readable, simple, not wasteful.** Explicit over implicit. A fresh model must understand a function from the function and its helper signatures. Helpers go one level deep. Two concrete cases before any abstraction. No clever one-liners. Tune only on measurement.
 - **T-2. Zero silent failures.** No swallowed error. An absent value is an error, never a zero. Every error carries its context. Assertions stay on in shipped builds.
 - **T-3. Tests cover everything.** No merge without tests. A bug fix ships with a regression test that fails on the old code.
-- **T-4. Cross-provider review before merge.** The provider that wrote the code does not review it. The review file records the findings (D-17). A PR in the override set that changes no decision row merges without a review when the `review-override` label is on (D-16, D-71, D-239, D-401).
+- **T-4. Cross-provider review before merge.** The provider that wrote the code does not review it. The review file records the findings (D-17). A PR in the override set that changes no decision row merges without a review when the `review-override` label is on (D-16, D-71, D-239, D-401, D-560).
 - **T-5. Document everything.** Continuity is the first duty. Each session adds its handoff entry. The other documents update when intent, a decision, or a plan changes.
 - **T-6. No attribution.** No code, game text, commit, PR description, or GitHub comment names an agent, harness, or model as the source of work (D-22). Two places are exempt: the author field in the session handoff, and the review files.
 - **T-7. Deterministic simulation.** Every run replays from a seed and an input record. The core uses integer math, seeded random streams, and no clock. A replay gives the same state hash on every platform (D-6).
@@ -331,8 +331,8 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 13. PR-44: the crash files and the log files (D-170, D-179, D-491).
 14. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).
 15. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517).
-16. M-1: the harness usage of each of the first ten PRs.
-17. M-2: the CI wall time of each job of the first ten PRs.
+16. M-1: the harness usage of each of the first ten code PRs in the order of section 8.
+17. M-2: the CI wall time of each job of the first ten code PRs in the order of section 8.
 18. **← GATE 1 (foundation).**
 
 > *In plain English:* this phase builds the machinery and the checks, and nothing that a player can see. At the end of it, four computers play the same run and agree on one number.

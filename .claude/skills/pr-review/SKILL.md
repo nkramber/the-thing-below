@@ -388,7 +388,7 @@ PR-3 adds a `review-gate` check (D-15). It applies three rules:
 2. The verdict is `Ready for owner merge`.
 3. The head in the Identity list is the effective head.
 
-The check also passes a PR in the override set that has the `review-override` label and changes no decision row (D-16, D-401).
+The check also passes a PR in the override set that has the `review-override` label and changes no decision row (D-16, D-401). A PR that changes `.github/workflows/` never passes on the label, because each gate lives in a workflow file (D-560).
 
 The check has three states. Read the color before you start:
 

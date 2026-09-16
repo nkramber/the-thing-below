@@ -26,7 +26,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 |---|---|---|
 | F-23 | `--headless` draws nothing, so no headless run captures an image | PR-74: the capture runs in a development build with a window, never in CI (D-172) |
 | F-32 | The cost model listed the Steam Direct fee alone | PR-79: the Apple Developer Program at 99 USD a year (D-455) |
-| F-33 | The release block found five gaps in the plan | PR-77, PR-79, and PR-44: the credits, the private repository, and the crash address (D-456, D-467, D-473) |
+| F-33 | The release block found five gaps in the plan | PR-77, PR-79, and PR-61: the credits, the private repository, and the crash address (D-456, D-467, D-473, D-559) |
 | F-34 | Steam needs five screenshots at 1920 by 1080 in 16:9 | PR-76: a screenshot comes from the 2x scale at 2560 by 1440 (D-568) |
 | F-42 | No command-line option installs the Godot export templates | PR-54: the job unpacks them, and OQ-83 holds how (D-508) |
 
@@ -311,7 +311,7 @@ Each later PR that changes how the game reaches a player keeps this list. The ph
 The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The release work keeps this order inside it:
 
 1. PR-6: the game version in the run record header (D-448).
-2. PR-44: the game version in the crash file, with the studio address (D-473).
+2. PR-44: the game version in the crash file. PR-61 adds the studio address to the message (D-473, D-559).
 3. PR-54: the export job, right before PR-7 (D-503).
 4. PR-17: the first playable.
 5. **← GATE 2 (first playable).** The owner plays on both machines and signs off on feel (D-52, D-362).

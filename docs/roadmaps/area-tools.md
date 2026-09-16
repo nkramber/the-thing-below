@@ -79,6 +79,7 @@ Built by PR-3. Phase file: `phase-1-foundations.md`.
 - The workflow runs the command from `main` and reads the files of the PR head as data. It never runs code from the head (D-15).
 - The command applies the three rules of the `pr-review` skill. The record exists, the verdict is `Ready for owner merge`, and the head field names the effective head.
 - The command passes a PR in the override set with the `review-override` label that changes no decision row (D-16, D-71, D-239, D-401). OQ-69 holds what counts as a change to a row.
+- A PR that changes `.github/workflows/` fails on the label, because each gate lives in a workflow file (D-560).
 - The workflow also runs when a label changes, because the label changes the result (D-67).
 - A metadata commit never moves the effective head (the `pr-review` skill).
 - GitHub starts this trigger only from `main`, so the check cannot run on PR-3 (F-37). PR-3 proves the command in Tests, and the live check first runs on the next PR (D-500).
