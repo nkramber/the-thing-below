@@ -4,7 +4,7 @@ Status: world file, v1. Owner: Nate. Started 2026-09-13 in the arc block of the 
 
 This file holds the story of region one, the free prologue (D-133). Its source is the decision register, entries D-309 onward, and each fact cites its decision. The places are in `places.md`, and the characters are in `cast.md`.
 
-The text that the player reads has its own voice (D-11). This file gives facts for writers, not player text. The arc content PRs write the scenes and the lines (PR-28, PR-29).
+The text that the player reads has its own voice (D-11). This file gives facts for writers, not player text. The arc content PRs write the story scenes and the lines (PR-28, PR-29).
 
 ## The shape of the arc
 
@@ -16,10 +16,10 @@ Region one is a fixed story with set choices (D-328, D-350). The party grows fro
 | First dungeon | The hanging cells | The party frees Dagvar (D-330) |
 | Second dungeon | The deep mine | The sealed crew, the trace of the parent, and a wrong thing (D-311, D-312, D-344) |
 | First dungeon, again | The hanging cells | The party breaks out and kills the bishop (D-319, D-327) |
-| Flight | The sealed gallery and the refuge | The party shelters with the old faith and leaves before the wardens come (D-331, D-340) |
+| Third dungeon and flight | The sealed gallery and the refuge | The party shelters with the old faith and leaves before the wardens come (D-331, D-340, D-575) |
 | Flight | The mining town, by night | The party passes the town to the road up (D-333, D-343) |
-| Third dungeon | The border fort | The bandits sell the party to the church wardens (D-341) |
-| Fourth dungeon | The ice crossing | The last fight, against the captain of the wardens (D-345) |
+| Fourth dungeon | The border fort | The bandits sell the party to the church wardens (D-341) |
+| Fifth dungeon | The ice crossing | The last fight, against the captain of the wardens (D-345) |
 
 The game starts in the village, a small start area with no services (D-368, D-369). The mining town is the first hub, and the refuge of the old faith opens as the second hub late in the region (D-331).
 
@@ -97,7 +97,7 @@ After region one, Elio dies in a fight against the foreign church, and his death
 
 ## Choices
 
-The player speaks the dialogue choices of the lead (D-267). A choice sets a story flag that a later scene or region reads, and no relationship or reputation value exists (D-329). The player always picks the three who fight, and no scene sets the fighters (D-351).
+The player speaks the dialogue choices of the lead (D-267). A choice sets a story flag that a later story scene or region reads, and no relationship or reputation value exists (D-329). The player always picks the three who fight, and no scene sets the fighters (D-351).
 
 Region one holds set choices at set points (D-350):
 
@@ -107,7 +107,7 @@ PR-28 and PR-29 propose one or two more set choices for the approval of the owne
 
 ## Limits
 
-No text or scene shows harm to a child directly (D-335). Text can imply that harm or state it without direct detail, and a scene can show the aftermath. The raid on the refuge keeps to this limit, and the party hears of the raid from a survivor (D-340). The world copies no device on the banned list (`banned-devices.md`).
+No text or story scene shows harm to a child directly (D-335). Text can imply that harm or state it without direct detail, and a story scene can show the aftermath. The raid on the refuge keeps to this limit, and the party hears of the raid from a survivor (D-340). The world copies no device on the banned list (`banned-devices.md`).
 
 ## After region one
 

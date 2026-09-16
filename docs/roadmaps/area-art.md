@@ -1,6 +1,6 @@
 # Area roadmap: Art
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the art of the game works, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the art of the game works, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-tools.md` holds the commands that render art, and `area-ci.md` holds the jobs that test it. The file `area-effects.md` holds light, normal maps, particles, and the CRT shader. The file `area-ui-input.md` holds the frame, the fit to a screen, the fonts, and the menus.
 
@@ -116,7 +116,7 @@ Built by PR-34, and drawn by the content PRs. Phase files: every phase file.
 Built by PR-55. Phase file: `phase-2-first-playable.md`.
 
 - A large picture places pieces at pixel positions, with repeats (D-516). A piece is a drawing file of section 7.3.
-- A backdrop layer, other full-screen art, and a store image are each a large picture (D-205, D-475, D-516). Full-screen art covers the 16:9 view (D-480).
+- A backdrop layer, other full-screen art, and a store image are each a large picture (D-205, D-475, D-516). Full-screen art covers the frame of 1280 by 720 (D-568).
 - PR-55 adds the format with its load test, a render as a PNG in Tools, and the draw in Game (D-518).
 - PR-55 lands right before PR-10, the first PR that draws a backdrop (D-518).
 - A large picture that names an absent piece fails with the file and the entry (T-2).
@@ -149,7 +149,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - An error code from the load, or a null texture, stops the game with the resource name and the reason (T-2). Godot only logs these failures (F-45).
 - Game finds each frame through the index and the content ids of D-519. A content id with no drawing fails with the id (T-2).
 - Every texture draws with the Nearest filter. The project setting starts as Linear, so PR-7 sets it, and a test reads it in `project.godot` (F-45).
-- Game draws art at 1x on the 1280 by 800 frame or the 16:9 view, so art pixels match text pixels (D-228, D-230, D-480).
+- Game draws art at 1x on the frame of 1280 by 720, so art pixels match text pixels (D-228, D-230, D-568).
 - `area-ui-input.md` holds the frame, the fit, and the stretch mode, which the editor of 4.7 sets to `canvas_items` in a new project (F-45).
 - Core positions stay on whole tiles, and each step slides between tiles on screen (D-203). OQ-89 holds how each sprite stays on a whole pixel during a slide.
 - No Godot resource file holds art, such as a `SpriteFrames` file or a `TileSet` file (G-6). Game builds each Godot object from the atlas at load.
@@ -164,7 +164,7 @@ Built by PR-34, and used by every art PR. Phase files: every phase file.
 - The session uploads the sheets into the PR description with `gh pr edit --attach` (D-514, G-25).
 - The description names each drawing on each sheet, and the commit that the sheets show.
 - A changed batch gets new sheets in the description.
-- The swatch sheet, the map preview, and the normal-map preview reach the owner the same way (D-165, D-184, D-185, D-514).
+- The swatch sheet, the map preview, and the normal-map review sheet reach the owner the same way (D-165, D-185, D-514, D-521).
 - The committed atlas also shows in the Files changed tab, where GitHub compares two versions of an image. That tab shows 25 images at most (the external facts above).
 - An upload needs push access and `gh` 2.99.0 or later (the external facts above). `docs/runbooks/dev-machine.md` names the version.
 - After the repository goes private, only people with access see the uploads (D-456).
@@ -182,15 +182,15 @@ The phase files give each batch its scope. This table names the art that the dec
 | PR-10 | The attack pose, the hit flash, and a fixture backdrop as a large picture | D-96, D-108, D-111, D-516 |
 | PR-36 | Fixture portraits | D-234 |
 | PR-17 | The tile sets of the village, the land near it, the mining town, and the hanging cells, with their edge tiles. The enemies, the NPCs, and the backdrop. The map and battle frames of Marrek, Bergit, and Dagvar | D-110, D-199, D-200, D-204, D-362, D-369 |
-| PR-23 to PR-27 | The tile sets, enemies, bosses, and backdrops of each later place, and the NPCs of the second hub | D-110, D-313 |
+| PR-23 to PR-27 and PR-81 | The tile sets, enemies, bosses, and backdrops of each later place, the sealed gallery included, and the NPCs of the second hub | D-110, D-313, D-575 |
 | PR-28 and PR-29 | The portraits of the cast | D-109, D-234 |
 | PR-42 | The icons of the lessons of region one | PR-42 in `docs/design.md` |
 | PR-33 | The studio mark (OQ-57, OQ-90) | D-468 |
 | The store page work at Gate 2 | The capsules, the logo, and the library images, as large pictures | D-475, D-516 |
 | Phase 6 | The icons of the achievements | D-466 |
 
-- The design text of PR-17 names the sprite set of Marrek alone. Bergit and Dagvar fight and act in scenes of the first playable, so PR-17 also needs their frames (D-114, D-200, D-362).
-- The frames of Ottild and Elio land before the place where each joins the party (D-342). The phase file of Phase 4 names the PR.
+- The design text of PR-17 names the sprite set of Marrek alone. Bergit and Dagvar fight and act in story scenes of the first playable, so PR-17 also needs their frames (D-114, D-200, D-362).
+- The frames of Ottild and Elio land before the place where each joins the party (D-342). PR-23 draws them, because both join between the hanging cells and the deep mine.
 - `area-ui-input.md` places the window frames of D-220, the icons of D-214, and the glyphs of D-222.
 
 ### 7.10 Art that other area files hold
@@ -220,7 +220,7 @@ Each later PR that adds or changes art keeps this list. The phase files make exi
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The art work keeps this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The art work keeps this order inside it:
 
 1. PR-47: the PNG code, right before the atlas (D-496).
 2. PR-34: the palette, the drawing files, the atlas and its index, the review sheets, and the five cast drawings.

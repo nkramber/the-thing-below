@@ -28,7 +28,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 - **T-1. Readable, simple, not wasteful.** Explicit over implicit. A fresh model must understand a function from the function and its helper signatures. Helpers go one level deep. Two concrete cases before any abstraction. No clever one-liners. Tune only on measurement.
 - **T-2. Zero silent failures.** No swallowed error. An absent value is an error, never a zero. Every error carries its context. Assertions stay on in shipped builds.
 - **T-3. Tests cover everything.** No merge without tests. A bug fix ships with a regression test that fails on the old code.
-- **T-4. Cross-provider review before merge.** The provider that wrote the code does not review it. The review file in `docs/reviews/` records the findings (D-17). A PR in the override set that changes no decision row merges without a review when the `review-override` label is on (D-16, D-71, D-239, D-401).
+- **T-4. Cross-provider review before merge.** The provider that wrote the code does not review it. The review file in `docs/reviews/` records the findings (D-17). A PR in the override set that changes no decision row merges without a review when the `review-override` label is on (D-16, D-71, D-239, D-401, D-560).
 - **T-5. Document everything.** Continuity is the first duty. Each session adds its entry at the top of `docs/session-handoff.md` (D-18). The other documents update when intent, a decision, or a plan changes.
 - **T-6. No attribution.** No code, game text, commit, PR description, or GitHub comment names an agent, harness, or model as the source of work (D-22). Two places are exempt: the author field in `docs/session-handoff.md`, and the files in `docs/reviews/`.
 - **T-7. Deterministic simulation.** Every run replays from a seed and an input record. The core uses integer math, seeded random streams, and no clock. A replay gives the same state hash on every platform (D-6).
@@ -89,7 +89,7 @@ Set the author field to `Claude Code` or `Codex`. Commit the entry with the revi
 - Every dependency needs a decision entry (G-13).
 - Every optimization needs a profile before and a measurement after (G-14).
 - Every `Core` behavior change bumps the simulation version constant, and the review confirms it (G-17).
-- Every screen designs to 1280 by 800 with 32-pixel tiles, and it also holds the 16:9 view of about 1422 by 800 (D-480). The Steam Deck at 1x is the readability and performance floor (D-92, D-228, G-19).
+- Every screen designs to one 16:9 frame of 1280 by 720 with 32-pixel tiles (D-568). Every other screen shape shows black bars, the Steam Deck included. The Steam Deck at 1x is the readability and performance floor (D-92, D-228, G-19). A desktop at 1920 by 1080 must look good (D-568).
 - The game supports Windows and Linux on x86_64, macOS on Apple silicon, and the Steam Deck, and nothing else (D-481, D-482).
 
 ## Git rules
@@ -111,7 +111,7 @@ An automated reviewer, gitar, comments on every PR after a push (D-14). The auth
 - The reviewing provider reads the existing PR comments into its review and never addresses gitar.
 - The `pr-review` skill holds both procedures. A reply names no provider, harness, or model as the source of work (T-6).
 - Every PR answers the pass, a documentation PR included (D-66). The `review-override` label exempts a documentation PR from the Codex review alone, and only when the PR changes no row of `docs/decisions.md` (D-401).
-- The override set holds `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/`, `.github/pull_request_template.md`, and `.github/workflows/` (D-16, D-71, D-239). A change to any other path, such as `content/`, takes the review (D-185).
+- The override set holds `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/`, and `.github/pull_request_template.md` (D-16, D-71, D-239). A change to `.github/workflows/` takes the review, because each gate lives in a workflow file (D-560). A change to any other path, such as `content/`, takes the review (D-185).
 - On a documentation PR that changes no decision row, the session applies the `review-override` label itself, only after the pass approves the head (D-67, D-401). A later push needs a new approval before the label applies again. A PR that adds or revises a decision goes to the other provider instead.
 - Before you open a documentation PR, ask the owner every open question that the PR can settle (D-68). Ask in batches, and record the answers in the PR.
 
@@ -149,7 +149,7 @@ A PR merges only when every line holds:
 - [ ] The `night-gate` job is green: a success record from a night inside 48 hours (G-22). PR-49 creates it (D-496). A docs-only PR passes it (D-513).
 - [ ] The `ste-check` job is green (G-12). PR-1 creates it with the interim checker, and PR-2 moves it to C#.
 - [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14).
-- [ ] The other provider reviewed it, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). A PR in the override set that changes no decision row is exempt when the `review-override` label is on (D-16, D-401).
+- [ ] The other provider reviewed it, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). A PR in the override set that changes no decision row is exempt when the `review-override` label is on (D-16, D-401, D-560).
 - [ ] The `review-gate` check is green (D-15). PR-3 creates it.
 - [ ] `docs/decisions.md` has every new decision.
 - [ ] `docs/questions.md` has every new question.

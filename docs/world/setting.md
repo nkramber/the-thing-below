@@ -10,7 +10,7 @@ The text that the player reads has its own voice (D-11). This file gives facts f
 
 - Final Fantasy Tactics sets the feel: church and crown politics, class war, betrayal, and a story that turns on faction choices (D-125).
 - The world copies no plot device of FFT (D-136, D-140). Lessons follow the materia mechanic of Final Fantasy VII, and no gem or orb in the world stores power (D-272, D-307). The file `banned-devices.md` lists the devices.
-- Text shows violence and cruelty in short physical detail. It never shows sexual violence, and it never shows harm to a child directly (D-126, D-335). A line can imply or state that harm without detail, and a scene can show the aftermath, the dead of any age included.
+- Text shows violence and cruelty in short physical detail. It never shows sexual violence, and it never shows harm to a child directly (D-126, D-335). A line can imply or state that harm without detail, and a story scene can show the aftermath, the dead of any age included.
 - Every plotline converges at the end of the game. No region ends with the destruction of its own faction (D-131).
 
 ## The war and the treaty

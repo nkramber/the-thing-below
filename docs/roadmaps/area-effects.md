@@ -1,6 +1,6 @@
 # Area roadmap: Effects
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the effects of the game work, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-15 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the effects of the game work, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-15 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-art.md` holds the drawing files, the palette, and the atlas, and `area-tools.md` holds the command that builds normal maps. The file `area-ci.md` holds the screen-test job, and `area-ui-input.md` holds the frame, the fit to a screen, and the settings. The files `area-exploration.md` and `area-battle.md` hold the map scene and the battle scene that the effects draw on.
 
@@ -41,7 +41,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-18 | The full CRT is on by default on the Deck before any Deck measurement | PR-37 and M-6: the Deck play reads the text with the CRT on |
 | F-19 | Compressed PNG bytes depend on the encoder | PR-48 and PR-41: tests compare decoded pixels |
 | F-23 | `--headless` draws nothing | PR-41 and each effect PR: every effect meets its screen test under Xvfb (D-172) |
-| F-24 | A 32-pixel frame holds four times the pixels, and the Deck lights and fills four times the pixels of a 640 by 400 frame | The Deck test, PR-48, and PR-56: the effect budget at 1280 by 800 (D-523) |
+| F-24 | A 32-pixel frame holds four times the pixels, and the Deck lights and fills four times the pixels of a 640 by 400 frame | The Deck test, PR-48, and PR-56: the effect budget at the frame of 1280 by 720 (D-523, D-568) |
 | F-26 | The gate of PR-37 relied on a headless run, and the Deck test had no failure branch | PR-37: a capture of the toggle. The Deck test: the owner decides a miss (D-261) |
 | F-38 | Double math can differ by platform | PR-48: integer math for normal maps (D-502) |
 | F-45 | Three Godot defaults meet the pixel art | PR-56: the normal-map atlas takes the Nearest filter too |
@@ -87,9 +87,9 @@ The table lists what a frame draws, from the bottom to the top.
 | UI | Menus, the HUD, text, portraits, and damage numbers | No | D-210, D-213 |
 | Transition | The full-screen effect that starts a battle | No | D-191, D-195 |
 | CRT | Curvature, bleed, flicker, and scanlines over the whole frame | No | D-105, D-240 |
-| Fit | The scale to the screen, with black bars | No | D-232, D-480 |
+| Fit | The scale to the screen, with black bars | No | D-232, D-568 |
 
-- Game draws the world, the UI, the transition, and the CRT into the frame at 1x, 1280 by 800 or the 16:9 view (D-227, D-230, D-480). The fit to the screen comes last (D-232, D-240).
+- Game draws the world, the UI, the transition, and the CRT into the frame at 1x, 1280 by 720 (D-230, D-568). The fit to the screen comes last (D-232, D-240).
 - Godot computes 2D light at the pixel size of the viewport, and the Nearest filter does not change that (the external facts above). So the frame at 1x gives light and shadows the pixel size of the art.
 - PR-61 draws the world in a `SubViewport` at 1x, and `area-ui-input.md` holds the stretch mode and the fit (F-45, F-48). Otherwise light falls on screen pixels, not on art pixels.
 - The UI sits on a canvas layer above the world, and a light reaches only the canvas layers in its range. So the UI never takes scene light (D-210).
@@ -104,14 +104,14 @@ The table lists what a frame draws, from the bottom to the top.
 Built by the owner and a session, before PR-1. Phase file: `phase-1-foundations.md`.
 
 - A throwaway scene runs on the Deck of the owner under Forward+ and under Mobile. The renderer that holds 60 frames per second with more room wins (D-160, D-161).
-- The scene runs at 1280 by 800 with the load of D-160 (D-228). That load holds particles, point lights with normal maps and shadows, glow, and the four ambient kinds.
+- The test scene runs at the frame of 1280 by 720 with the load of D-160 (D-228, D-568). That load holds particles, point lights with normal maps and shadows, glow, and the four ambient kinds.
 - The load also holds a transition, a backdrop, and the CRT with its scanlines (D-160).
-- The scene runs as the native Linux export (D-458).
+- The test scene runs as the native Linux export (D-458).
 - The test also finds the effect budget, the most load that still holds 60 frames per second (D-523). Section 7.4 holds the budget.
 - The pick becomes a decision before PR-1, and PR-1 sets that renderer in the Game project (D-160).
 - If neither renderer holds 60 frames per second, the owner decides then (D-261).
-- The scene is throwaway, so it never merges to `main` (D-160). OQ-92 holds where its source lives.
-- Godot can report the time of each frame to the scene itself (the external facts above). OQ-93 holds how the owner reads the frame time.
+- The test scene is throwaway, so it never merges to `main` (D-160). OQ-92 holds where its source lives.
+- Godot can report the time of each frame to the test scene itself (the external facts above). OQ-93 holds how the owner reads the frame time.
 - The LCD Deck has a 60 Hz screen, and the OLED Deck runs up to 90 Hz (the external facts above). The test records the model of the Deck and its refresh rate.
 - Valve asks for 30 frames per second at 800p for the Deck rating, so D-161 sets a stricter target (the external facts above).
 - The screen tests of CI use the Compatibility renderer, whatever the Deck test picks (D-172). The contact sheet on the Mac of the owner shows the real renderer.
@@ -252,7 +252,7 @@ Built by PR-60. Phase file: `phase-2-first-playable.md`.
 Built by PR-37. Phase file: `phase-2-first-playable.md`.
 
 - The full CRT has curvature, bleed, flicker, and faint scanlines, on by default, with a toggle (D-105, D-120, D-240).
-- The pass runs on the frame at 1x before the fit, so the lines keep the look of the Deck on every screen (D-240, D-480).
+- The pass runs on the frame at 1x before the fit, so the lines keep the look of the Deck on every screen (D-240, D-568).
 - The CRT covers the UI and the transitions (D-210, section 7.2).
 - The flicker has a reduced form under the flash and shake reduction (D-214).
 - The screen tests capture the toggle on and off with a fixed flicker phase (D-172, PR-41).
@@ -267,7 +267,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 
 - `--headless` draws nothing, so the smoke session never tests an effect (F-23).
 - The screen-test job of PR-41 captures each effect in a fixture scene under Xvfb with the Compatibility renderer. A changed pixel fails the job (D-172, `area-ci.md` section 7.12).
-- Each effect PR adds its captures in both views of D-480, and the reduced form of each flash and shake (D-214).
+- Each effect PR adds its captures, and the reduced form of each flash and shake (D-214).
 - A shader that fails to compile writes its failure to the log (the external facts above). So the screen-test job fails on an error line in the Godot log (T-2).
 - The test job loads each effect file and light setup, and it runs the budget test on every CI leg (D-517, D-523).
 - The contact sheet shows the real renderer on the Mac of the owner at milestones (D-172).
@@ -290,9 +290,9 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | PR-37 | The CRT and its toggle | D-105, D-120, D-240 |
 | PR-17 | The light setups, the ambient effects, and the effect files of the first places | D-362, D-520 |
 | PR-21 | The light of the puzzles of light and dark | D-41 |
-| PR-23 to PR-27 | The light setups and the effects of each later place | D-313 |
+| PR-23 to PR-27 and PR-81 | The light setups and the effects of each later place, the sealed gallery included | D-313, D-575 |
 
-- A place that the story shows at another time of day adds a light setup in the PR of that scene (D-442). The phase file of Phase 4 names the PR of the night pass through the mining town (D-333).
+- A place that the story shows at another time of day adds a light setup in the PR of that story scene (D-442). The arc batch of PR-28 or PR-29 that writes the night pass through the mining town adds its night light setup (D-333, D-442).
 - Each later region adds its own transitions (D-194).
 
 ### 7.15 Effects that other area files hold
@@ -323,7 +323,7 @@ Each later PR that adds or changes an effect keeps this list. The phase files ma
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The effects work keeps this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The effects work keeps this order inside it:
 
 1. Owner and a session: the Deck test picks the renderer and measures the effect budget, before PR-1 (D-160, D-523).
 2. PR-1: the Game project with the renderer of the Deck test.

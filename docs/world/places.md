@@ -18,16 +18,17 @@ From the high pass down to the foothills (D-250, D-255, D-371):
 | High pass | The border fort, below the ice crossing, on the new border | Dungeon |
 | High valley | The mining town, with the hanging cells under its chapel and the deep mine beside it | Hub, with two dungeons |
 | Far cliff | The cave community, across the gorge from the town | Hub |
+| Under the gorge | The sealed gallery, a mine gallery from before the war | Dungeon (D-575) |
 | Below the high valley | The village of Marrek, on the road in | Start area |
 | Foothills | The road in from the land of the enemy crown, with no fort | Route |
 
 The land of the old crown lies beyond the high pass, and the enemy crown came up the road from the foothills (D-254). The supply road of the occupier runs up from the foothills.
 
-A mine gallery from before the war runs under the gorge (D-251). The guild sealed it, and the old faith keeps the far end. The sealed door is a story gate on the region map. The party flees through the gallery to the refuge late in region one (D-331). A second passage lets the party and the church wardens pass each other in it (D-343).
+A mine gallery from before the war runs under the gorge (D-251). The guild sealed it, and the old faith keeps the far end. The sealed door is a story gate on the region map. The party flees through the gallery to the refuge late in region one (D-331). A second passage lets the party and the church wardens pass each other in it (D-343). The gallery is the fifth dungeon of region one (D-575).
 
 ## The village
 
-- Kind: a small start area of a few houses, with scenes and people, and no shop or rest service (D-369).
+- Kind: a small start area of a few houses, with story scenes and people, and no shop or rest service (D-369).
 - Place: on the road in, below the high valley, a short walk from the mining town (D-371). The supply road of the occupier passes it.
 - Marrek grew up here, and his parent walked from here to work the deep mine (D-368).
 - Marrek fights hungry winter beasts near the village alone, and Bergit, who guards the road for coin, finds him there (D-370, D-372, D-373).
@@ -70,7 +71,7 @@ Four factions hold power in region one (D-242). No faction tracks reputation, an
 
 ## The order of play
 
-The party plays the four dungeons in this order: the hanging cells, the deep mine, the border fort, and the ice crossing (D-313). The cells return as a second visit between the deep mine and the fort (D-327). The file `arc.md` gives the story in order.
+The party plays the five dungeons in this order (D-313, D-575). They are the hanging cells, the deep mine, the sealed gallery, the border fort, and the ice crossing. The cells return as a second visit between the deep mine and the fort (D-327). The flight through the sealed gallery follows that second visit, then the refuge of the old faith, before the fort (D-574, D-575). The file `arc.md` gives the story in order.
 
 ## Open items
 

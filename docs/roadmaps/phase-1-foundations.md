@@ -1,6 +1,6 @@
 # Phase roadmap: Phase 1, Foundations
 
-Status: **focused phase roadmap, draft in PR #11.** This file gives each item of Phase 1 its scope, its exit tests, its review focus, and its questions (D-144, D-485, D-487). The area files say how each part works, and each entry names the area file that it cites. This file supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused phase roadmap, which PR #11 merged on 2026-09-16.** This file gives each item of Phase 1 its scope, its exit tests, its review focus, and its questions (D-144, D-485, D-487). The area files say how each part works, and each entry names the area file that it cites. This file supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
 The design doc holds the thesis of the game, the system map (section 3), and the cost model (section 4). It also holds the guardrails (section 6) and the global order of every PR (section 8). This file cites each decision by its id and never restates it. The index of this folder is `docs/roadmaps/readme.md`.
 
@@ -31,7 +31,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-17 | The 32-color palette had too few free colors | PR-34: the palette of 64 colors (D-181) |
 | F-19 | An atlas cannot match byte for byte across encoders | PR-34: a pixel test, never a byte test |
 | F-20 | The interim atlas tool kept the last of two equal palette keys | PR-34: a repeated key fails with the key |
-| F-24 | A 32-pixel tile holds four times the pixels of the earlier plan | The Deck test: the load runs at 1280 by 800 |
+| F-24 | A 32-pixel tile holds four times the pixels of the earlier plan | The Deck test: the load runs at the frame of 1280 by 720 (D-568) |
 | F-25 | A quit autosave can trap a run (C-3), and a Core patch refuses old saves (C-4) | PR-43: the resume file of D-258 and the load of D-259 |
 | F-27 | The debug console of D-171 meets the rule of no conditional compilation in Core | PR-6: the seam of D-260 and D-492 |
 | F-35 | Two hash paths of .NET break G-1 and T-7 | PR-4 and PR-5: a hash function that Core holds (OQ-61, OQ-62) |
@@ -56,13 +56,13 @@ Owner and a session, before PR-1. Area file: `area-effects.md`, sections 7.3 and
 **Scope.**
 
 - A throwaway scene runs on the Deck of the owner under Forward+ and under Mobile (D-160, D-161).
-- The scene runs as a native Linux export at 1280 by 800, with the load of D-160 (D-228, D-458).
+- The test scene runs as a native Linux export at the frame of 1280 by 720, with the load of D-160 (D-228, D-458, D-568).
 - The test picks the renderer, and it measures the effect budget (D-160, D-523).
 - The pick becomes a decision before PR-1, and PR-1 sets that renderer in the Game project.
 
 **Out of scope.**
 
-- The scene never merges to `main` (D-160).
+- The test scene never merges to `main` (D-160).
 - The budget file and its test come with PR-56 (D-523).
 
 **Exit tests.**
@@ -95,10 +95,11 @@ Area files: `area-ci.md` sections 7.1 to 7.6, `area-tools.md` section 7.1, `area
 - The coverage report on every PR, with no number that fails the build (D-174, D-506).
 - Two tests: `CLAUDE.md` equals `AGENTS.md` (D-20), and Core has the reference list of G-1.
 - The renderer that the Deck test picked, in the Game project (D-160).
+- A boot Godot scene file and the `--smoke` argument, which boot the engine and quit, so the smoke job can pass (D-117, G-16).
 
 **Out of scope.**
 
-- No game code, no content file, and no Core rule.
+- No game system, no screen, no content file, and no Core rule.
 - det-lint (PR-46), the identity job (PR-4), the export job (PR-54), and the screen tests (PR-41).
 
 **Exit tests.**
@@ -107,8 +108,8 @@ Area files: `area-ci.md` sections 7.1 to 7.6, `area-tools.md` section 7.1, `area
 2. The build, test, and format job passes on each of the three legs.
 3. The smoke job starts the editor with `--headless` on each leg and quits with no log error.
 4. The `ste-check` job passes on every live document.
-5. The identity test fails on a changed copy of `AGENTS.md`.
-6. The reference test fails on an added project reference in Core.
+5. The agent-file match test fails on a changed copy of `AGENTS.md`.
+6. The Core reference test fails on an added project reference.
 7. The coverage report appears on the PR.
 
 **Review focus.**
@@ -132,7 +133,7 @@ Area files: `area-tools.md` section 7.2, `area-ci.md` section 7.5.
 - The rules of the checker table in the `ste-writing` skill, and the comment rule of F-11.
 - The reference check, and the session-number check of D-18 and L-12.
 - One rule for a numbered item, from OQ-67, and a skill text that follows it (F-5).
-- The move of the `ste-check` job to the command, and the retirement of the Python script (D-10).
+- The move of the `ste-check` job to the command, and the retirement of `docs/tools/ste-check.py` (D-10).
 
 **Out of scope.**
 
@@ -167,7 +168,7 @@ Area files: `area-tools.md` section 7.3, `area-ci.md` section 7.7.
 - The `review-gate` command in Tools as new code (D-15, D-101, D-277).
 - The workflow on `pull_request_target`, which runs from `main` and reads the PR head as data alone (D-15).
 - The three rules of the `pr-review` skill: the record exists, the verdict is `Ready for owner merge`, and the head field names the effective head.
-- The override rules of D-16, D-71, D-239, and D-401, with the eligible path set.
+- The override rules of D-16, D-71, D-239, D-401, and D-560, with the eligible path set. `.github/workflows/` sits outside that set.
 - A check run as the result, and a second run when a label changes (D-67).
 
 **Out of scope.**
@@ -182,8 +183,9 @@ Area files: `area-tools.md` section 7.3, `area-ci.md` section 7.7.
 3. It passes a documentation PR with the label that changes no decision row.
 4. It fails a PR with the label that changes a row of `docs/decisions.md` (D-401).
 5. It fails a PR outside the override set that carries the label.
-6. A metadata commit does not move the effective head.
-7. The PR description shows the output of each fixture (D-500).
+6. It fails a PR that changes `.github/workflows/` and carries the label (D-560).
+7. A metadata commit does not move the effective head.
+8. The PR description shows the output of each fixture (D-500).
 
 **Review focus.**
 
@@ -250,7 +252,7 @@ Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.
 - The exception types that carry context, and the assertion helper that stays on in a release export (T-2, G-18).
 - The simulation version constant (G-17).
 - The `replay-identity` job, the identity file in Tests, and the Tools command that writes the file again (D-504).
-- The identity check and the det-lint step in `make verify`.
+- The identity check in `make verify`. PR-46 already added the det-lint step (D-496).
 
 **Out of scope.**
 
@@ -266,7 +268,7 @@ Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.
 5. One seed gives one state hash on the three legs and on the Mac (D-504).
 6. A changed expected hash fails the job until the identity file changes on purpose.
 7. det-lint passes on the new Core code.
-8. An assertion still stops a release export.
+8. A Release build of Tests proves that the assertion helper still throws (T-2, G-18).
 
 **Review focus.**
 
@@ -274,6 +276,7 @@ Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.
 - No call reaches `GetHashCode` or a .NET hash class from Core (F-35).
 - Each string order in Core is ordinal, and det-lint proves it (F-39).
 - The rounding rule of OQ-60 has one implementation, not one for each system (T-1).
+- A release export cannot run here, because PR-54 creates the export job (D-503, G-16). PR-54 adds the export check.
 
 **Questions.** OQ-60, OQ-61, and OQ-62.
 
@@ -286,7 +289,7 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 **Scope.**
 
 - One C# record for each content type, with a strict reader (D-116, D-177, G-6).
-- A reader with no runtime reflection, and the MSBuild property that proves it (F-36).
+- A reader with no runtime reflection, with the reflection switch in the place that OQ-179 sets (F-36).
 - The permanent content id, in the form of OQ-63 (D-166).
 - The content hash over the rule files alone, and the layout of `content/` that draws the line (D-495).
 - The string table, from an id to text, with a test for each id that content names (D-167, G-7).
@@ -316,7 +319,7 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 - The line-end rule holds on the Windows leg (the external facts of `area-core.md`).
 - The Godot export needs no filter for content, because the assembly carries it (F-42).
 
-**Questions.** OQ-62 and OQ-63.
+**Questions.** OQ-62, OQ-63, and OQ-179.
 
 > *In plain English:* every enemy, item, and map lives in a strict data file. A gap or a typo stops the load with the file and the field, instead of a silent zero.
 
@@ -388,16 +391,15 @@ Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 4. A stored save of each older format loads through its migration.
 5. A save from an older simulation version loads (D-259).
 6. The resume file works one time, and a second use fails with its reason (D-258).
-7. Core holds no reference to Storage, and the reference test proves it (G-1).
+7. Core holds no reference to Storage, and the Core reference test proves it (G-1).
 
 **Review focus.**
 
 - One copy of the safe write exists, with its test (D-494, T-1).
 - The folder name is right on each of the three systems (D-465, F-33).
 - The migration test reads a real stored save, not a save that the test just wrote.
-- The answer of OQ-116 says whether the fog of a map lives in the snapshot.
 
-**Questions.** OQ-65, OQ-66, and OQ-116.
+**Questions.** OQ-65 and OQ-66.
 
 > *In plain English:* a save is a full picture of the game at one moment. A crash during a save never destroys the old one, and a save from an older build still loads through a converter.
 
@@ -409,12 +411,13 @@ Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 
 - The crash file beside the save, written through Storage on a crash or a failed assertion (D-170, T-2).
 - The content of the crash file: the error with its context, the versions, and the run record (D-448).
-- The message of D-170, with the studio address of D-473.
+- A log line on a crash, and an exit. PR-61 adds the message on screen through the text helper (D-559).
 - The log entries that a step of Core returns, with the tick and the subsystem (D-179).
 - One JSON object for each log line, written by Storage, with the wall-clock time from Game (D-179).
 
 **Out of scope.**
 
+- The message on screen and the studio address of D-473, which PR-61 adds with the text helper (D-559).
 - The title screen and its version line (PR-33).
 - The night records and the bot reports (PR-15, PR-49).
 
@@ -426,14 +429,15 @@ Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 4. A test loads the record of a crash file and reaches the same state hash.
 5. Each log line parses as one JSON object.
 6. Core adds no time value and no file path to a log entry (G-1, G-3).
+7. A crash writes its file and a log line, and it draws no Godot text property, so det-lint passes (D-499, D-559).
 
 **Review focus.**
 
 - No empty catch, and no error that hides the first error (T-2, G-18).
-- The address waits for OQ-57, and the PR says what it writes until the answer arrives.
+- PR-44 shows no message, so no Godot text property appears before the text helper of PR-61 exists (D-499, D-559).
 - The crash path runs with no content loaded, because a load failure can start it.
 
-**Questions.** OQ-57.
+**Questions.** None. OQ-57 blocks the address, which PR-61 adds (D-559).
 
 > *In plain English:* when the game stops with an error, it leaves one file that holds everything a replay needs. Logs are plain one-line notes that the tools can read.
 
@@ -485,7 +489,7 @@ Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7
 - The palette of 64 colors, with the swatch sheet for the approval of the owner (D-181, D-185, D-238, F-17).
 - The atlas index, and the record of it in Core that no rule reads (D-517).
 - The review sheets of the batch, which `gh` attaches to the PR description (D-514, G-25).
-- The pixel test of F-19, and the retirement of the Python script.
+- The pixel test of F-19, and the retirement of `docs/tools/make-atlas.py`.
 
 **Out of scope.**
 
@@ -520,7 +524,8 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 
 **Scope.**
 
-- M-1 records the harness usage of each of the first ten PRs.
+- M-1 records the harness usage of each of the first ten code PRs, in the order of section 8.
+- The ten are PR-1, PR-2, PR-3, PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, and PR-47. PR-34 is the eleventh.
 - M-2 records the wall time of each CI job on each leg, for the same ten PRs.
 
 **Out of scope.**
@@ -529,7 +534,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 
 **Exit tests.**
 
-1. Each of the first ten PRs adds its two numbers to the cost model.
+1. Each of the first ten code PRs adds its two numbers to the cost model.
 2. The Gate 1 report states the mean and the worst case of each number.
 
 **Review focus.** Each PR review confirms that the two numbers reached the cost model.
@@ -550,7 +555,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 6. The `replay-identity` job is green, and the three legs and the Mac agree with the identity file (D-504).
 7. `make verify` passes on the Mac.
 8. The atlas pixel test passes on the three legs (F-19).
-9. The cost model holds the M-1 and M-2 numbers of the first ten PRs.
+9. The cost model holds the M-1 and M-2 numbers of the first ten code PRs.
 
 **What the gate does not ask.** No play, no screen, and no sign-off on feel. Gates 2 to 5 hold those (D-52).
 
@@ -558,7 +563,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). Phase 1 holds this order:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). Phase 1 holds this order:
 
 1. Owner: enable the repository setting that requires a SHA pin for an action (D-511). Done on 2026-09-14.
 2. Owner and a session: the Deck test, which picks the renderer and measures the budget (D-160, D-523).
@@ -575,7 +580,7 @@ The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #
 13. PR-44: the crash files and the log files.
 14. PR-47: the PNG code, right before the atlas (D-496).
 15. PR-34: the atlas, the palette, and the drawing files.
-16. M-1 and M-2: the numbers of the first ten PRs.
+16. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above.
 17. **← GATE 1 (foundation).** Section 7.14 holds each line.
 
 The next phase file is `phase-2-first-playable.md`. Between the two, the owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).
@@ -587,7 +592,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | Question | Subject | Blocks |
 |---|---|---|
 | OQ-3 | The required checks on `main` | Waits for PR-3 |
-| OQ-57 | The studio name | PR-44 |
 | OQ-60 | The rounding rule of fixed-point math | PR-4 |
 | OQ-61 | The random generator and the stream split | PR-4 |
 | OQ-62 | The hash function of Core | PR-4 and PR-5 |
@@ -612,7 +616,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-88 | The unit of the time of a frame | PR-34 |
 | OQ-92 | Where the source of the Deck test scene lives | The Deck test |
 | OQ-93 | How the owner reads the frame time on the Deck | The Deck test |
-| OQ-116 | What the fog remembers, and where it lives | PR-7 and PR-43 |
 | OQ-168 | Where the game version lives in the build | PR-6 and PR-31 |
+| OQ-179 | Where the reflection switch of the JSON reader lives | PR-5 |
 
 No open question blocks this file.

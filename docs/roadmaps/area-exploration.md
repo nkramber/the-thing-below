@@ -1,6 +1,6 @@
 # Area roadmap: Exploration
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the maps and the places of the game work, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the maps and the places of the game work, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-core.md` holds the tick, the intents, and the snapshot, and `area-battle.md` holds the fight that an encounter starts. The file `area-ui-input.md` holds the frame, the camera input, the map HUD, and the menus. The file `area-effects.md` holds the light setup of each map, and `area-art.md` holds the tile sets. The file `area-tools.md` holds the map preview and the tile-edge tool.
 
@@ -80,7 +80,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - Godot sorts each canvas item by one Y value, and a tile takes the center of its cell (the external facts above).
 - A sprite of more than one tile needs its sort value at the front row of its body (D-206). OQ-115 holds the rule.
 - A layer holds coordinates from `-32768` to `32767`, which every map of the game fits (the external facts above).
-- The fog draws over each tile that the party never saw (section 7.5).
+- No fog of war covers a map, so Game draws every tile of the ground from the moment the party enters (D-566).
 
 > *In plain English:* the ground, the walls, and the borders come from one packed image. Each figure draws in front of what is behind it, so a character can walk behind a pillar.
 
@@ -88,22 +88,23 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-7. Phase file: `phase-2-first-playable.md`.
 
-- The camera follows the lead, and it never scrolls past the edge of a map larger than the view (D-106, PR-7 in `docs/design.md`).
+- The camera follows the lead, and it never scrolls past the edge of a map larger than the view (D-106).
 - A map smaller than the view sits centered. Godot centers it, and no page of the docs states that, so a test locks the behavior (F-52).
 - Game moves the camera from the tick of the step, never from the smoothing of Godot (D-203, F-52). That smoothing can run more than once in a frame.
-- The camera reads the size of the view from the viewport, so both views of D-480 work with one rule (the external facts above).
+- The camera reads the size of the frame from the viewport (D-568, the external facts above).
 - The camera lives in Game and never reaches Core (G-23, D-106).
 - OQ-118 holds whether Godot or Game computes the limits of a small map. OQ-89 holds the pixel snap of each sprite.
 
 > *In plain English:* the view follows the party, and it stops at the edge of the place. A place smaller than the screen sits in the middle. The game moves the view itself, so every replay shows the same picture.
 
-### 7.5 Sight, fog, and the time of day
+### 7.5 Sight, the walked tiles, and the time of day
 
 Built by PR-7. Phase file: `phase-2-first-playable.md`.
 
-- Core computes what the party sees, and the fog covers each tile that the party never saw (PR-7 in `docs/design.md`).
-- A patrol sees the party by its own sight, and a wall stops it (D-37, PR-8 gate).
-- OQ-114 holds the rule of sight, and OQ-116 holds what the fog remembers between visits.
+- Core computes what the party sees (D-37). No fog of war covers a map, so the ground is visible from the moment the party enters (D-566).
+- Core records each tile that the party walked, and the dungeon map screen of PR-62 draws those tiles (D-567). The snapshot holds the record.
+- A patrol sees the party by its own sight, and a wall stops it (D-37, the exit tests of PR-8).
+- OQ-114 holds the rule of sight. D-566 resolved OQ-116, because no fog exists to remember.
 - The time of day of the map sets the sight range, the routes, and the enemies, and the story sets the time (D-193, D-442).
 - The wrong things keep no time rule, and the story places each one (D-446).
 - A story flag can change the time of day while the party stands on the map. The light and the music then change on the spot (D-428, D-442).
@@ -122,7 +123,7 @@ Built by PR-8. Phase file: `phase-2-first-playable.md`.
 - An elite holds two by two tiles, and a boss three by three, on the map as in battle (D-206, D-236).
 - A large enemy keeps its place inside its own area, and a load proves that its body fits everywhere in that area (D-209, T-2).
 - After a flee, the group returns to its route, and no battle with it starts for a short grace time (D-381).
-- Property tests over one thousand seeds prove that a patrol never leaves its route and never sees through a wall (PR-8 gate).
+- Property tests over one thousand seeds prove that a patrol never leaves its route and never sees through a wall (the exit tests of PR-8).
 
 > *In plain English:* you see every enemy before it sees you. Sneak past it, take it from behind for the first blow, or walk away and it goes back to its rounds.
 
@@ -136,7 +137,7 @@ Built by PR-8, PR-9, and PR-60. Phase file: `phase-2-first-playable.md`.
 - A test proves that no map system moves during a battle (D-531, T-3).
 - The transition of PR-60 plays over the hand-off, and the kind of the encounter picks it (D-196).
 - After the battle, the map waits for the screen, and a wait intent ends the wait (D-522).
-- A killed enemy stays dead until the party leaves the dungeon (D-257).
+- A killed enemy stays dead until a story event reopens the place, and the exit does not bring it back (D-555).
 - A party wipe reloads the newer of the slot save and the autosave (D-231).
 
 > *In plain English:* the map freezes while a fight runs, so nothing sneaks up during the fight. When the fight ends, the party stands exactly where it was.
@@ -147,11 +148,12 @@ Built by PR-16. Phase file: `phase-2-first-playable.md`.
 
 - PR-16 builds the treasure, the locked doors, the keys, and the save points (D-41, D-529).
 - A save point saves, swaps the party, and swaps the lessons (D-36, D-58, D-356).
-- A save point restores MP once for each visit, and no health (D-257, D-389).
+- A save point restores MP once for the place, until a story event reopens it, and it restores no health (D-389, D-555).
+- The exit to the region map and a rest at a hub restore the party. So a run never traps itself (D-555).
 - A Theft drill on one of the three who fight opens a lock that the map marks as pickable. A story lock always needs its key (D-386).
 - A chest over the stack limit keeps what the party cannot carry, and the save records what remains (D-385).
-- The exit of the dungeon returns the party to the region map (PR-16 in `docs/design.md`).
-- A bot run that wipes reloads and continues, and a two-character party can still reach the exit (PR-16 gate).
+- The exit of the dungeon returns the party to the region map (D-113).
+- A bot run that wipes reloads and continues, and a two-character party can still reach the exit (the exit tests of PR-16).
 
 > *In plain English:* dungeons gain their chests, doors, keys, and resting stones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
@@ -164,7 +166,7 @@ Built by PR-64. Phase file: `phase-2-first-playable.md`.
 - OQ-120 holds which hazards region one holds.
 - Poison, blind, and silence last past a battle, until a cure or a rest at a hub (D-390).
 - Poison ticks on the map and can down a character (D-392). Blind does nothing outside battle, and silence stops a rite from the menu (D-393).
-- When poison downs all three who fight, the party wipes, even with a healthy reserve (D-397).
+- When poison downs every character who fights, the party wipes, even with a healthy reserve (D-336, D-397).
 - Property tests over one thousand seeds prove each rule, and the bots play the maps of the first playable (D-64).
 
 > *In plain English:* the dungeon itself can hurt you. Poison still hurts while you walk, and a party can go down between fights.
@@ -177,7 +179,7 @@ Built by PR-21. Phase file: `phase-3-story-systems.md`.
 - A puzzle of light and dark keeps its state in Core, and Game draws the light from that state (D-41, `area-effects.md` section 7.1).
 - The map file holds each switch, each block, and each secret marker (D-528).
 - OQ-123 holds how the player finds a secret.
-- A fixture puzzle opens a door, and a hidden room stays hidden until the party finds it (PR-21 gate).
+- A fixture puzzle opens a door, and a hidden room stays hidden until the party finds it (the exit tests of PR-21).
 
 > *In plain English:* dungeons hold switches, blocks to push, dark rooms, and rooms that a straight walk never finds.
 
@@ -191,7 +193,7 @@ Built by PR-14. Phase file: `phase-2-first-playable.md`.
 - Each hub has a shape of its own, so no hub offers every service (D-28, D-59).
 - The hanging cells are a dungeon under a hub, and the same map rules cover it (D-244, D-112).
 - The village is a start area with no shop and no rest (D-369).
-- A scene can play on a hub map or a dungeon map, and `area-story.md` holds the scene runner (D-114, D-540). The map file lists each scene trigger with its condition (D-528, D-543).
+- A story scene can play on a hub map or a dungeon map, and `area-story.md` holds the story scene runner (D-114, D-540). The map file lists each story scene trigger with its condition (D-528, D-543).
 
 > *In plain English:* a hub is a place you walk through, with people to talk to, a bed, and a stone to save at. Every hub has a different shape.
 
@@ -218,7 +220,7 @@ Built by PR-35. Phase file: `phase-2-first-playable.md`.
 - No clock runs, so a route costs no time (D-442). OQ-122 holds the format and the cost of a route.
 - The region map plays one track, and it shows no sign of night (D-430, D-445).
 - The layout of region one follows `docs/world/places.md` (D-250, D-255, D-371).
-- A closed route refuses the move, the screen says why, and a replay reproduces the path (PR-35 gate).
+- A closed route refuses the move, the screen says why, and a replay reproduces the path (the exit tests of PR-35).
 
 > *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
 
@@ -226,7 +228,7 @@ Built by PR-35. Phase file: `phase-2-first-playable.md`.
 
 | PR | Maps and rules | Decisions |
 |---|---|---|
-| PR-7 | The map format, the movement, the sight, the fog, the camera, and a fixture dungeon | D-106, D-165, D-528 |
+| PR-7 | The map format, the movement, the sight, the walked-tile record, the camera, and a fixture dungeon | D-106, D-165, D-528, D-566, D-567 |
 | PR-8 | The enemies on the map, the patrols, the sight mark, and the grace time | D-37, D-208, D-381 |
 | PR-16 | The treasure, the doors, the keys, and the save points | D-41, D-529 |
 | PR-64 | The traps, the hazards, and the statuses that last on the map | D-390 to D-393, D-529 |
@@ -235,7 +237,8 @@ Built by PR-35. Phase file: `phase-2-first-playable.md`.
 | PR-35 | The region map, its nodes, and its routes | D-113 |
 | PR-21 | The switches, the blocks, the light and dark, and the secrets | D-41 |
 | PR-17 | The village, the land near it, the mining town, and the hanging cells | D-313, D-362, D-369 |
-| PR-23 to PR-27 | The deep mine, the second visit to the cells, the border fort, the ice crossing, and the second hub | D-313, D-327 |
+| PR-23 to PR-27 | The deep mine, the second visit to the cells, the border fort, the ice crossing, and the second hub, the refuge | D-313, D-327, D-574 |
+| PR-81 | The sealed gallery, the fifth dungeon, with its second passage | D-343, D-562, D-575 |
 
 ### 7.15 Exploration that other area files hold
 
@@ -246,7 +249,7 @@ Built by PR-35. Phase file: `phase-2-first-playable.md`.
 | The frame, the camera input, the map HUD, and the dungeon map screen | `area-ui-input.md` | PR-61 and PR-62 |
 | The light setup and the ambient effects of each map | `area-effects.md` | PR-56 and PR-58 |
 | The tile sets, the edge tiles, and the map preview | `area-art.md` and `area-tools.md` | PR-17, PR-52, and PR-53 |
-| The scenes that play on a map, and their triggers | `area-story.md` | PR-68 and PR-36 |
+| The story scenes that play on a map, and their triggers | `area-story.md` | PR-68 and PR-36 |
 | The lessons, the gear, and the items that a chest holds | `area-progression.md` | PR-12 and PR-13 |
 
 ### 7.16 The contract of every later exploration PR
@@ -265,10 +268,10 @@ Each later PR that adds a map rule or a place keeps this list. The phase files m
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The exploration work keeps this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The exploration work keeps this order inside it:
 
 1. PR-61: the UI base (`area-ui-input.md`).
-2. PR-7: the map format, the movement, the sight, the fog, the camera, and the map scene.
+2. PR-7: the map format, the movement, the sight, the walked-tile record, the camera, and the map scene.
 3. PR-41: the screen test of the map scene.
 4. PR-8: the enemies on the map.
 5. PR-9 and PR-10: the battle and its screen (`area-battle.md`).
@@ -283,7 +286,7 @@ The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #
 14. PR-17: the village, the town, and the first dungeons.
 15. **← GATE 2 (first playable).**
 16. PR-21: the puzzles and the secrets, in Phase 3.
-17. PR-23 to PR-27: the other places of region one, in Phase 4.
+17. PR-23, PR-24, PR-81, PR-27, PR-25, and PR-26: the other places of region one, in the order of play (D-562, D-574).
 
 ## 9. Open questions
 
@@ -291,7 +294,6 @@ The register is `docs/questions.md` (D-19). These questions block exploration PR
 
 - OQ-114: the rule of sight for the party and a patrol. Blocks PR-7 and PR-8.
 - OQ-115: how a large enemy holds its tiles and sorts on screen. Blocks PR-8.
-- OQ-116: what the fog remembers, and where it lives. Blocks PR-7 and PR-43.
 - OQ-117: a diagonal step on the map. Blocks PR-7.
 - OQ-118: the limits of the camera on a map smaller than the view. Blocks PR-7.
 - OQ-119: what a trap does, and what a Theft drill does to it. Blocks PR-64.

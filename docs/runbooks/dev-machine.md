@@ -34,7 +34,7 @@ Facts checked on 2026-09-12:
 3. Copy the build to the Deck. Run it from a shell until the Steam build exists (D-85, D-92, D-458).
 4. Find the save folder on the Deck at `~/.local/share/the-thing-below` (D-465).
 5. Record the readability and the frame time under M-6 in `docs/design.md` (D-161).
-6. Before PR-1, run the Deck test of D-160, and record the model, the refresh rate, and the effect budget (D-523). OQ-92 and OQ-93 hold where the scene lives and how to read the frame time.
+6. Before PR-1, run the Deck test of D-160, and record the model, the refresh rate, and the effect budget (D-523). OQ-92 and OQ-93 hold where the test scene lives and how to read the frame time.
 
 ## Owner actions on GitHub
 

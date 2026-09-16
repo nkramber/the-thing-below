@@ -1,6 +1,6 @@
 # Phase roadmap: Phase 2, First playable
 
-Status: **focused phase roadmap, draft in PR #11.** This file gives each item of Phase 2 its scope, its exit tests, its review focus, and its questions (D-144, D-485, D-487). The area files say how each part works, and each entry names the area file that it cites. This file supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused phase roadmap, which PR #11 merged on 2026-09-16.** This file gives each item of Phase 2 its scope, its exit tests, its review focus, and its questions (D-144, D-485, D-487). The area files say how each part works, and each entry names the area file that it cites. This file supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
 The design doc holds the thesis of the game, the system map (section 3), and the cost model (section 4). It also holds the guardrails (section 6) and the global order of every PR (section 8). This file cites each decision by its id and never restates it. The index of this folder is `docs/roadmaps/readme.md`.
 
@@ -12,11 +12,11 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 Phase 2 turns the machine of Phase 1 into a game that the owner plays. It ends at Gate 2. There the owner walks the village, one hub, and one dungeon on the desktop and on the Deck. Then the owner signs off on feel (D-51, D-92, D-362).
 
-Phase 2 is the largest phase of the plan. It holds 42 PRs, because each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
+Phase 2 is the largest phase of the plan. It holds 46 PRs, and 43 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
 
-Four lines of work run through the phase. The walk comes first: the frame, the map, the camera, and the enemies on it (PR-61, PR-7, PR-8). The fight follows, with its screen (PR-9, PR-66, PR-10). The light and the effects then land, each right after the first scene that it needs (PR-48 to PR-60, D-520). The build, the story, and the audio close the phase, and PR-17 writes the content that the owner plays.
+Four lines of work run through the phase. The walk comes first: the frame, the map, the camera, and the enemies on it (PR-61, PR-7, PR-8). The fight follows, with the enemy record and the screen (PR-9, PR-80, PR-66, PR-10). The light and the effects then land, each right after the first map scene or battle scene that it needs (PR-48 to PR-60, D-520). The build, the story, and the audio close the phase, and PR-17 writes the content that the owner plays.
 
-Two PRs land after the Gate 2 build, and this file holds them. They are the store page work of PR-75 and PR-76, and the capture of PR-74 that takes its screenshots (D-550, D-551). The store page goes public at Gate 2 in the Coming Soon state (D-471).
+Three PRs land after the Gate 2 build, and this file holds them. They are the store page work of PR-75 and PR-76, and the capture of PR-74 that takes its screenshots (D-550, D-551). The store page goes public at Gate 2 in the Coming Soon state (D-471).
 
 ## 5. Findings that bind this phase
 
@@ -28,7 +28,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-8 | An empty MP pool left a caster with no action | PR-9 and PR-12: the basic attack of D-359 |
 | F-18 | The CRT is on by default on the Deck before any measurement | M-6 and Gate 2: the Deck play reads the text with it on |
 | F-23 | A headless session draws nothing, so no CI job can capture a screen | PR-41: the Linux job under Xvfb with a pinned Mesa (D-172) |
-| F-24 | A 32-pixel tile holds four times the pixels of the earlier plan | M-6: the Deck at 1280 by 800 |
+| F-24 | A 32-pixel tile holds four times the pixels of the earlier plan | M-6: the Deck at the frame of 1280 by 720 (D-568) |
 | F-26 | Four gates rested on a run that draws nothing | PR-41, PR-7, PR-8, and PR-37: the captures of D-172 |
 | F-31 | Every rendered audio file in git would pass 500 MB | PR-38: the build renders the audio, and git holds the hashes (D-432) |
 | F-37 | GitHub starts a schedule only from the default branch | PR-49: the command proves itself in Tests (D-500) |
@@ -46,7 +46,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-52 | The camera centers a small map, and its smoothing can run twice in a frame | PR-7: a test locks the centering, and the tick moves the camera |
 | F-53 | The evaluator of D-534 has no measurement | PR-11: the PR reports the cost of a turn before Gate 2 |
 | F-54 | The end of the job system left the stats with no source | PR-67: each character carries its own stat curve (D-537) |
-| F-55 | The scene runner needs the flags that PR-18 held in Phase 3 | PR-68: the flag set and the condition form move here (D-544) |
+| F-55 | The story scene runner needs the flags that PR-18 held in Phase 3 | PR-68: the flag set and the condition form move here (D-544) |
 | F-56 | Two Godot audio calls report a failure in the log alone | PR-69 and PR-70: a check on each stream, and a count of its own |
 
 ## 7. Roadmap
@@ -100,13 +100,15 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 
 **Scope.**
 
-- The frame of 1280 by 800, the 16:9 view of about 1422 by 800, and black bars for every other shape (D-228, D-480).
-- The world in a `SubViewport` at 1x, and both steps of the fit that Godot cannot make (D-230, D-232, F-48, OQ-105).
+- The one 16:9 frame of 1280 by 720, with black bars for every other shape, the Deck included (D-228, D-568).
+- The world in a `SubViewport` at 1x, and both steps of the fit that Godot cannot make (D-230, D-232, D-573, F-48).
 - The two fonts from the bytes of the Game assembly, with the antialiasing, the hinting, and the subpixel settings of a pixel font (D-263, D-264, D-508, F-49).
 - The text helper that puts a string table entry on screen, which det-lint guards (D-499, G-7).
 - The UI style file, and the Godot `Theme` that Game builds from it at load (D-527, G-6).
 - The input map, and an intent from each input event, never from a poll (D-84, D-493, F-50).
-- The glyph sets for the keyboard, Xbox, PlayStation, and the Deck, and the rule for the last device (D-222, OQ-107).
+- The glyph sets for the keyboard, Xbox, PlayStation, and the Deck, and the rule for the last device (D-222, D-561, OQ-107).
+- The message of a crash on screen, through the text helper, with the studio address of D-473 (D-170, D-559).
+- The review sheets of the window frames and the four glyph sets (D-514, G-25).
 
 **Out of scope.**
 
@@ -117,22 +119,26 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 
 **Exit tests.**
 
-1. A test computes both views of D-480 and both steps of the fit, and it locks each size (D-232, F-48).
-2. A test reads back the stretch settings, the filter, and the three font settings (F-45, F-49).
-3. A test proves that the fixture panel holds the longest string of the string table (D-241).
-4. det-lint fails a Godot text property outside the text helper.
-5. A test proves that no intent comes from a poll of the input singleton (F-50).
-6. A prompt shows the glyph of the last device, for each of the four sets.
-7. No text falls below 9 pixels on the Deck frame (D-459).
+1. A test locks the size of the frame and of both fit modes on three screens (D-232, D-568, F-48).
+2. Those screens are 1280 by 800, 1920 by 1080, and 2560 by 1440.
+3. A test reads back the stretch settings, the filter, and the three font settings (F-45, F-49).
+4. A test proves that the fixture panel holds the longest string of the string table (D-241).
+5. det-lint fails a Godot text property outside the text helper.
+6. A test proves that no intent comes from a poll of the input singleton (F-50).
+7. A prompt shows the glyph of the last device, for each of the four sets.
+8. No text falls below 9 pixels on the Deck frame (D-459).
+9. A crash shows its message through the text helper, and det-lint passes (D-499, D-559).
+10. The review sheets of the window frames and the glyph sets reach the PR description (D-514).
+11. The owner approves that art batch (G-25).
 
 **Review focus.**
 
-- The two steps of the fit, from the answer of OQ-105, and the 1x frame under them (F-48).
+- The two steps of the fit of D-573, and the 1x frame under them (F-48).
 - Font oversampling stays off, and each font setting has a test (F-49).
 - The `Theme` comes from the style file, and no theme resource file exists (D-527, G-6).
-- Core sight never changes with the view, so a wider screen shows no more knowledge (D-480).
+- Every screen shows the same part of the map, so no screen shape gains knowledge (D-566, D-568).
 
-**Questions.** OQ-104, OQ-105, and OQ-107.
+**Questions.** OQ-57, OQ-104, and OQ-107. D-573 resolved OQ-105.
 
 > *In plain English:* this builds the picture frame of the game. It sets one fixed size that the handheld shows exactly, the two fonts, and the look of every menu. It also turns keys and buttons into choices that the rules understand.
 
@@ -145,7 +151,8 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 - The map file of D-528, which holds the terrain rows and every thing that a rule reads (D-39, D-41).
 - Those things are the doors, the locks, the chests, the traps, the save points, the spawn points, and the markers (D-386).
 - The time of day of the map, which a story flag can change (D-442).
-- Tile-locked movement, sight, and the fog over each tile that the party never saw, in Core (D-100, D-106).
+- Tile-locked movement and sight, in Core (D-100, D-106). No fog of war covers a map (D-566).
+- The record of each tile that the party walked, in Core and in the snapshot, which the map screen of PR-62 reads (D-567).
 - The map scene in Game, with the tiles from the atlas and the Nearest filter (F-45).
 - The camera on the lead, with the limits of a large map and the centering of a small map (D-106, F-52).
 - The map HUD: the health mark and the status mark at the edge (D-212, D-390).
@@ -155,16 +162,16 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 
 - The enemies on the map (PR-8) and the dungeon parts (PR-16, PR-64).
 - The light (PR-56) and the edge tiles (PR-53).
-- The scene triggers, which PR-68 reads from the same file (D-528).
+- The story scene triggers, which PR-68 reads from the same file (D-528).
 
 **Exit tests.**
 
 1. The party walks the fixture dungeon on the three systems, with a keyboard and with a gamepad.
-2. The camera never scrolls past the edge of a map larger than the view, in both views.
+2. The camera never scrolls past the edge of a map larger than the view.
 3. A test locks the centering of a map smaller than the view (F-52).
 4. A test reads back the tile size, the region size, the collision switch, and the navigation switch (F-51).
 5. A thing on a tile of the wrong kind fails the load with the map, the position, and the kind.
-6. A property test over one thousand seeds proves that the fog never forgets a seen tile.
+6. A property test over one thousand seeds proves that the walked-tile record never forgets a walked tile (D-567).
 7. The replay of a walk gives the same state hash on every leg.
 
 **Review focus.**
@@ -174,7 +181,7 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 - The answer of OQ-86 settles whether Game draws through a tile map layer or draws each tile.
 - The sort value of a sprite larger than one tile (D-206, OQ-115).
 
-**Questions.** OQ-86, OQ-89, OQ-114, OQ-116, OQ-117, and OQ-118.
+**Questions.** OQ-86, OQ-89, OQ-114, OQ-117, and OQ-118. D-566 resolved OQ-116.
 
 > *In plain English:* this is the first thing that the owner can open and move in. The dungeon is a grid of tiles, the party walks it one tile at a time, and the view follows.
 
@@ -217,7 +224,7 @@ Area files: `area-ci.md` section 7.12, `area-effects.md` section 7.13, `area-ui-
 **Scope.**
 
 - The Linux job of D-172, which runs Godot under Xvfb with the OpenGL driver and a pinned Mesa (F-23, OQ-79).
-- The capture of each fixture scene in both views, and the fit at 1080 and 1440 screen rows (D-240, D-480).
+- The capture of each fixture scene at 1x, and both fit modes at 1080 and 1440 screen rows (D-232, D-240, D-568).
 - The frame compare in Tools, which compares decoded pixels with a committed CI baseline (F-19).
 - The fixed sources of change at capture: the particle seeds, the CRT flicker phase, and the time of day.
 - The desktop command that makes a contact sheet with the real renderer (D-172).
@@ -230,7 +237,7 @@ Area files: `area-ci.md` section 7.12, `area-effects.md` section 7.13, `area-ui-
 **Exit tests.**
 
 1. The job passes on the map scene of PR-7.
-2. The job captures the frame and the fit of PR-61, in both views and at both screen row counts (D-232, D-480).
+2. The job captures the frame of PR-61 at 1x, and both fit modes at 1080 and 1440 screen rows (D-232, D-568).
 3. One changed pixel of the baseline fails the job.
 4. Two runs of the job give the same frames.
 5. The job fails on an error line in the Godot log (T-2).
@@ -240,7 +247,8 @@ Area files: `area-ci.md` section 7.12, `area-effects.md` section 7.13, `area-ui-
 
 - The Mesa pin, from the answer of OQ-79, and its decision row (G-13).
 - The Compatibility renderer of CI differs from the Deck, and the PR says where (D-172).
-- The baseline holds both views and both screen row counts (D-240, D-480).
+- The baseline holds both fit modes at both screen row counts (D-232, D-240, D-568).
+- The capture at 1080 rows proves the rule of D-573. Every pixel keeps the same size, with a slight softness at pixel edges.
 
 **Questions.** OQ-79.
 
@@ -258,11 +266,10 @@ Area file: `area-exploration.md` sections 7.6 and 7.7.
 - The return of a fled group to its route, with a grace time before the next fight (D-381).
 - Three views with a two-frame walk for an enemy that moves, and a flip for one that stands (D-108, D-207).
 - The area of a large enemy, and the proof that its body fits everywhere in that area (D-206, D-209).
-- The hand-off of the encounter, where no map system ticks during a battle (D-531).
 
 **Out of scope.**
 
-- The fight itself (PR-9) and the battle screen (PR-10).
+- The fight itself and the hand-off of the encounter (PR-9, D-531), and the battle screen (PR-10).
 - The transition over the hand-off (PR-60).
 - The enemy groups of the first playable (PR-17).
 
@@ -273,7 +280,6 @@ Area file: `area-exploration.md` sections 7.6 and 7.7.
 3. The time of day of the map picks the route (D-193, D-442).
 4. A large enemy never leaves its area, and a load proves the fit (D-209).
 5. A fled group starts no battle inside its grace time (D-381).
-6. A test proves that no map system moves during a battle (D-531).
 
 **Review focus.**
 
@@ -297,11 +303,14 @@ Area files: `area-battle.md` sections 7.1, 7.2, 7.3, 7.5, and 7.9.
 - Haste, slow, and heavy actions as timeline shifts, and the stun push (D-376).
 - The reach rule: melee takes the front row while anyone stands in it (D-377).
 - The row step, the item use, and the flee, each with its delay and its rule (D-378, D-380, D-382).
-- The down, the party wipe, and the reload of the newer save (D-36, D-231, D-397).
+- The down, the party wipe when every character who fights goes down, and the reload of the newer save (D-36, D-231, D-397).
+- The hand-off of the encounter, where no map system ticks during a battle (D-531).
+- Fixture enemies with fixture stats, until PR-80 builds the enemy record (D-557).
 - The pace of one turn: Core resolves at once and emits events, and Game drains the queue (D-532).
 
 **Out of scope.**
 
+- The enemy record with its stats and its abilities (PR-80, D-557).
 - The elements and the statuses (PR-66, D-533).
 - The battle screen (PR-10) and the evaluator (PR-11).
 - The boss phases (PR-20) and the balance pass (PR-30).
@@ -312,9 +321,10 @@ Area files: `area-battle.md` sections 7.1, 7.2, 7.3, 7.5, and 7.9.
 2. Melee never reaches a back row while its front row stands (D-377).
 3. No flee starts in a boss fight (D-378).
 4. A failed flee costs the turn (D-378).
-5. A wipe with a healthy reserve still reloads (D-397).
+5. A wipe with a healthy reserve still reloads, for a party of one, two, or three (D-336, D-397).
 6. A test proves that the event queue of Game always drains (D-532).
 7. The replay of a fixture fight gives the same state hash on every leg.
+8. A test proves that no map system moves during a battle (D-531).
 
 **Review focus.**
 
@@ -327,7 +337,41 @@ Area files: `area-battle.md` sections 7.1, 7.2, 7.3, 7.5, and 7.9.
 
 > *In plain English:* this is the fight itself, with the order of turns shaped by speed. Nothing draws it yet.
 
-### 7.8 PR-66: the elements and the statuses
+### 7.8 PR-80: the enemy record
+
+Area file: `area-battle.md` section 7.7.
+
+**Scope.**
+
+- The enemy record in content: the stats of each enemy and the ids of its abilities (D-557).
+- The strict reader of the record in Core, with a load test (D-177, G-6).
+- The switch of PR-9 from fixture stats to the record (D-557).
+
+**Out of scope.**
+
+- The element table of each enemy, which PR-66 adds to the record (D-533).
+- The profile, the steal list, and the group file (PR-11, D-65, D-535).
+- The enemies of the first playable, which PR-17 writes.
+
+**Exit tests.**
+
+1. A fixture enemy record loads, and PR-9 fights it in place of its fixture stats (D-557).
+2. A record with an absent field fails the load with the file and the field (T-2).
+3. A record that names an absent ability id fails the load with the file and the id.
+4. A number with a fraction in a record fails the load (G-2).
+5. The replay of a fixture fight against the record gives the same state hash on every leg.
+
+**Review focus.**
+
+- The record holds the stats and the ability ids alone, so the profile of PR-11 keeps its own file (D-557, G-8).
+- The simulation version bumps, and the identity file gains a run (G-17, D-504).
+- Each new content id is permanent (D-166).
+
+**Questions.** None. OQ-132 holds a group larger than its rows, and PR-9 and PR-11 ask it.
+
+> *In plain English:* each enemy gets its numbers and its list of moves in a data file. The fight reads that file in place of the placeholder numbers.
+
+### 7.9 PR-66: the elements and the statuses
 
 Area file: `area-battle.md` section 7.4.
 
@@ -336,7 +380,7 @@ Area file: `area-battle.md` section 7.4.
 - The eight elements, each with weakness, resist, and absorb (D-74).
 - The ten statuses, and the rule that every status but poison, blind, and silence ends with its fight (D-75, D-390).
 - The aptitude bonus and the half bonus of a side aptitude, in basis points (D-358, D-360).
-- The content rows that give each enemy and each piece of gear its element table.
+- The element table of each enemy, on the record of PR-80, and of each piece of gear (D-557).
 
 **Out of scope.**
 
@@ -362,7 +406,7 @@ Area file: `area-battle.md` section 7.4.
 
 > *In plain English:* fire, ice, and six more elements meet armor that likes or hates each one. Poison, blindness, and silence follow you out of the fight.
 
-### 7.9 PR-55: the large pictures
+### 7.10 PR-55: the large pictures
 
 Area files: `area-art.md` section 7.5, `area-tools.md` section 7.5.
 
@@ -371,7 +415,7 @@ Area files: `area-art.md` section 7.5, `area-tools.md` section 7.5.
 - The large picture format, which places drawn pieces at pixel positions, with repeats (D-516, F-44).
 - The load test of the format, and a failure that names the file and the entry (T-2).
 - The render of a large picture as a PNG in Tools, and the draw in Game (D-518).
-- Full-screen art that covers the 16:9 view (D-480).
+- Full-screen art that covers the frame of 1280 by 720 (D-568).
 
 **Out of scope.**
 
@@ -383,7 +427,7 @@ Area files: `area-art.md` section 7.5, `area-tools.md` section 7.5.
 
 1. A test decodes the render of a fixture large picture and compares its pixels with its pieces (F-19).
 2. A large picture that names an absent piece fails with the file and the entry.
-3. The render covers the 16:9 view with no gap (D-480).
+3. The render covers the frame of 1280 by 720 with no gap (D-568).
 4. det-lint finds no float type in the render code (D-502).
 
 **Review focus.**
@@ -396,7 +440,7 @@ Area files: `area-art.md` section 7.5, `area-tools.md` section 7.5.
 
 > *In plain English:* a battle background is too big to write as one text picture. The game builds it like a stage set from small drawn parts.
 
-### 7.10 PR-10: the battle scene
+### 7.11 PR-10: the battle scene
 
 Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7.5, `area-effects.md` section 7.8.
 
@@ -412,12 +456,12 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 **Out of scope.**
 
 - The blood, the sparks, the shake, and the hit-stop (PR-57, D-186).
-- The light on the scene (PR-56) and the battle music (PR-70, PR-72).
+- The light on the battle scene (PR-56) and the battle music (PR-70, PR-72).
 - The boss phases (PR-20).
 
 **Exit tests.**
 
-1. A screen test renders a fixture battle in both views (D-172, D-480).
+1. A screen test renders a fixture battle (D-172).
 2. The owner reads a fight from the screen alone.
 3. Each message comes from the string table, and det-lint proves it.
 4. A test proves that each panel holds its longest string (D-241).
@@ -433,7 +477,7 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 
 > *In plain English:* the fight appears on screen: who acts next, who is low, and what you can do. Every line reads in the voice of the game.
 
-### 7.11 PR-48: the normal maps
+### 7.12 PR-48: the normal maps
 
 Area files: `area-tools.md` section 7.7, `area-effects.md` section 7.5, `area-art.md` section 7.11.
 
@@ -468,7 +512,7 @@ Area files: `area-tools.md` section 7.7, `area-effects.md` section 7.5, `area-ar
 
 > *In plain English:* a normal map tells the light which way each pixel faces. A tool builds it from the drawing, and the owner checks a sheet of each sprite lit from eight sides.
 
-### 7.12 PR-56: the light and the shadows
+### 7.13 PR-56: the light and the shadows
 
 Area file: `area-effects.md` sections 7.4 and 7.6.
 
@@ -509,7 +553,7 @@ Area file: `area-effects.md` sections 7.4 and 7.6.
 
 > *In plain English:* each place gets its light from a small file: how dark it is and where each torch glows. Walls throw hard shadows, and each sprite catches light on the side that faces the flame.
 
-### 7.13 PR-63: the settings and the accessibility settings
+### 7.14 PR-63: the settings and the accessibility settings
 
 Area file: `area-ui-input.md` sections 7.11 and 7.12.
 
@@ -523,6 +567,8 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 - The four accessibility settings: the flash and shake reduction, the text speed and skip, the shape icons, and the remap (D-214).
 - The 18 shape drawings of 16 by 16, one for each element and each status (D-74, D-75).
 - The settings file outside the save files, which never enters a run record (D-494, T-7, OQ-106).
+- The format version of the settings file, and one migration step with a fixture file for each new setting (D-570).
+- The review sheets of the 18 shape drawings (D-514, G-25).
 
 **Out of scope.**
 
@@ -535,10 +581,13 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 1. Each setting saves and loads through the settings file.
 2. A remap lasts across a restart, because Godot does not save one (F-50).
 3. A remap conflict follows the rule of OQ-108, and the screen states it.
-4. A setting that is absent from the file fails loudly, and never takes a silent default (T-2).
-5. No setting reaches a run record, and a test proves it (T-7).
-6. The stick dead zone takes the value of OQ-109, not the value of the docs (F-50).
-7. A screen test captures the settings screen in both views.
+4. A settings file of an older format version loads through its migration step (D-570).
+5. A key that no version declares fails the load with the file and the key (T-2, D-570).
+6. No setting reaches a run record, and a test proves it (T-7).
+7. The stick dead zone takes the value of OQ-109, not the value of the docs (F-50).
+8. A screen test captures the settings screen.
+9. The review sheets of the 18 shape drawings reach the PR description (D-514).
+10. The owner approves that art batch (G-25).
 
 **Review focus.**
 
@@ -551,7 +600,7 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 
 > *In plain English:* one screen holds every choice about the game: the picture, the sound, the buttons, and the pace of battle. A player who needs calm can turn the flashes and the shakes down.
 
-### 7.14 PR-57: the effect files, the particles, and the battle effects
+### 7.15 PR-57: the effect files, the particles, and the battle effects
 
 Area file: `area-effects.md` sections 7.7 and 7.8.
 
@@ -572,7 +621,7 @@ Area file: `area-effects.md` sections 7.7 and 7.8.
 
 **Exit tests.**
 
-1. A screen test captures each battle effect, in both views and in both reduced forms (D-214).
+1. A screen test captures each battle effect, in both reduced forms (D-214).
 2. An effect file with a bad field fails the load with the file and the field.
 3. The budget test counts each live emitter against the particle rows (D-523).
 4. A test proves that no rule reads the length of an effect (D-522).
@@ -588,7 +637,7 @@ Area file: `area-effects.md` sections 7.7 and 7.8.
 
 > *In plain English:* a burst of sparks is a small data file: how many bits, which colors, and how long. A hit in battle shows blood, sparks, and a jolt, and it passes fast.
 
-### 7.15 PR-58: the ambient effects
+### 7.16 PR-58: the ambient effects
 
 Area file: `area-effects.md` section 7.9.
 
@@ -607,7 +656,7 @@ Area file: `area-effects.md` section 7.9.
 
 **Exit tests.**
 
-1. A screen test captures each of the four kinds, in both views.
+1. A screen test captures each of the four kinds.
 2. Fog never hides an enemy that the player must see, by the rule of OQ-101.
 3. The budget test counts each full-screen pass (D-523).
 4. An ambient effect file that names an absent map id fails with the file and the id.
@@ -622,7 +671,7 @@ Area file: `area-effects.md` section 7.9.
 
 > *In plain English:* each place has its own weather: snow in the pass, smoke by a fire, dust in the mine. The weather never hides an enemy that the player needs to see.
 
-### 7.16 PR-59: the glow
+### 7.17 PR-59: the glow
 
 Area file: `area-effects.md` section 7.10.
 
@@ -639,7 +688,7 @@ Area file: `area-effects.md` section 7.10.
 
 **Exit tests.**
 
-1. A screen test captures a lit fixture scene with glow, in both views.
+1. A screen test captures a lit fixture scene with glow.
 2. A bright light on a pale sprite never makes that sprite glow (F-47).
 3. The budget test counts the glow pass (D-523).
 4. The PR names each capture where the Compatibility renderer differs from the Deck (D-172).
@@ -653,7 +702,7 @@ Area file: `area-effects.md` section 7.10.
 
 > *In plain English:* flames and magic give off a soft haze of light, and the people and walls that they light stay crisp.
 
-### 7.17 PR-60: the transitions
+### 7.18 PR-60: the transitions
 
 Area file: `area-effects.md` section 7.11.
 
@@ -673,7 +722,7 @@ Area file: `area-effects.md` section 7.11.
 
 **Exit tests.**
 
-1. A screen test captures each of the ten transitions, in both views.
+1. A screen test captures each of the ten transitions.
 2. The color split has a reduced form, and the test captures both (D-214).
 3. A transition table that names an absent encounter kind fails with the file and the kind.
 4. A test proves that the map waits for the wait intent, and never for a timer (D-522, G-23).
@@ -689,7 +738,7 @@ Area file: `area-effects.md` section 7.11.
 
 > *In plain English:* each fight starts with a screen effect, such as shattered glass or a whiteout of snow. The kind of fight picks the effect, so a boss always looks different.
 
-### 7.18 PR-11: the evaluator, the profiles, and the groups
+### 7.19 PR-11: the evaluator, the profiles, and the groups
 
 Area file: `area-battle.md` sections 7.6 and 7.7.
 
@@ -700,7 +749,7 @@ Area file: `area-battle.md` sections 7.6 and 7.7.
 - The profile content format with its term weights and its traits, and its validator (D-65, G-21).
 - The steal list of items and gold on each profile (D-383).
 - The group file of each region, which holds each enemy group with its rows and its profiles (D-535).
-- Four profiles for the first dungeon.
+- The fixture profiles that prove the evaluator. PR-17 writes the profiles of the first playable.
 - The measurement of the cost of a turn, before Gate 2 (F-53, G-14).
 
 **Out of scope.**
@@ -727,7 +776,7 @@ Area file: `area-battle.md` sections 7.6 and 7.7.
 
 > *In plain English:* each enemy tries every move it can make, imagines your best answer, and picks the move that leaves it best off. That is what makes the fights hard.
 
-### 7.19 PR-67: the character level, the experience, MP, and the stat curves
+### 7.20 PR-67: the character level, the experience, MP, and the stat curves
 
 Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
@@ -736,7 +785,7 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 - The character level from experience, and half experience for the reserve and for a downed character (D-34, D-73, D-387).
 - The shrink of the experience of an enemy as the party outlevels it (D-388, OQ-136).
 - The start level of a character who joins late, from content (D-363).
-- MP, and its recovery at a hub, at a save point once for each visit, and from scarce items (D-42, D-257, D-389).
+- MP, and its recovery at a hub, at a save point once for the place, and from scarce items (D-42, D-389, D-555).
 - The stat curve of each character in content: the health, the MP, the attack, the defense, and the speed at each level (D-537, F-54).
 - The level-up sting event, which PR-70 plays (D-422).
 
@@ -747,9 +796,9 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
 **Exit tests.**
 
-1. A property test over one thousand seeds proves that no run passes the soft cap of its region.
+1. A property test proves that the experience from one enemy falls as the level of the party rises (D-388).
 2. A character in reserve and a downed character each earn half (D-73, D-387).
-3. A save point restores MP once for each visit, and no health (D-257, D-389).
+3. A save point restores MP once for the place, and no health (D-389, D-555).
 4. A curve with a number that is not an integer fails the load (G-2, D-169).
 5. A character who joins late starts at the level that content names (D-363).
 6. The snapshot holds the level, the experience, and the MP of each character.
@@ -764,32 +813,37 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
 > *In plain English:* a fight makes each character stronger, and the people who wait or fall behind still learn a little. Each person grows on their own line.
 
-### 7.20 PR-62: the menu windows and the dungeon map screen
+### 7.21 PR-62: the menu windows and the dungeon map screen
 
 Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
 **Scope.**
 
 - The main list, which opens one window for each task: party, lessons, gear, items, status, and save (D-211).
+- The party window, which sets the starting row of each character, and the snapshot that keeps the row (D-377, D-558).
+- The status window, which reads the state of PR-9, PR-12, and PR-67 (D-569).
 - The window stack, where back closes one window and the map stays visible behind (D-211).
 - The pause of the world while a menu is open (D-162, OQ-64).
 - The mouse on menus alone, which makes the same intent as a key or a button (D-219, D-493, OQ-110).
-- The dungeon map screen, which draws every tile that the party saw (D-218, OQ-111).
+- The dungeon map screen, which draws each tile that the party walked (D-567, OQ-111).
 - The notice that slides in at the top edge, and the notice log in the menu (D-221, OQ-113).
 
 **Out of scope.**
 
-- The content of each window, which PR-12, PR-13, PR-14, and PR-16 add (D-525).
+- The content of the lesson, gear, item, service, and save windows, which PR-12, PR-13, PR-14, and PR-16 add (D-525).
 - The settings screen (PR-63) and the dialogue box (PR-36).
 
 **Exit tests.**
 
 1. A fixture menu opens, stacks a second window, and closes each with back.
-2. A screen test captures the stack and the dungeon map screen, in both views.
+2. A screen test captures the stack and the dungeon map screen.
 3. A menu action makes an intent, and the record holds no cursor move (D-493).
 4. The mouse, the keyboard, and the gamepad each move the same cursor (D-219).
 5. A test proves that the world does not tick while a menu is open (D-162, OQ-64).
-6. The dungeon map screen shows each seen tile, its doors, its save points, and its exits (D-218).
+6. The dungeon map screen shows each walked tile, with the doors, the save points, and the exits on it (D-567).
+7. The party window sets the row of a character, and a fight starts with that row (D-377, D-558).
+8. The row survives a save and a load, through a snapshot format bump and its migration (D-166, D-558).
+9. The status window shows the level, the MP, and the stats of each character (D-569).
 
 **Review focus.**
 
@@ -799,9 +853,86 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
 **Questions.** OQ-64, OQ-110, OQ-111, and OQ-113.
 
-> *In plain English:* menus are windows that stack on each other, and the world stops while one is open. A second screen draws each tile of the dungeon that the party saw.
+> *In plain English:* menus are windows that stack on each other, and the world stops while one is open. A second screen draws each tile of the dungeon that the party walked.
 
-### 7.21 PR-12: the lessons, the slots, and the aptitudes
+### 7.22 PR-68: the story scene format, the story scene runner, the flags, and the conditions
+
+Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
+
+**Scope.**
+
+- The story scene format: a JSON list of steps, such as move, face, wait, say, choose, and set flag (D-173, OQ-144).
+- The join step, which adds a cast member to the party (D-342, D-563).
+- The story scene runner in Core, which holds the step index and every flag that a step sets (D-540).
+- The wait intent that Game sends at the end of a move, a face, or a line (D-493, D-522).
+- The story flag, a name that is on or off, and the set of the flags that are on (D-542).
+- The declaration of every flag id in content, and a load that fails on an id that no file declares (OQ-147).
+- One condition form for every reader: a story scene step, a route, a hub line, a quest, and an enemy group (D-543).
+- The story scene triggers in the map file, each with its condition (D-528, OQ-148).
+- The story scene state in the snapshot, the state hash, and the migration set (D-166, G-5).
+
+**Out of scope.**
+
+- The dialogue box and the portraits (PR-36, D-541).
+- The branches, the choice effects, and the lost ally (PR-18, D-544).
+- The quest state and the personal tasks (PR-19).
+- The screenplay tool (PR-50, D-545).
+
+**Exit tests.**
+
+1. A property test over one thousand seeds replays a run with story scenes to the same end-state hash.
+2. A scripted intent list answers each wait intent at once, and it plays a fixture scene to its end.
+3. A step that names an absent string id fails with the story scene, the step, and the id.
+4. A condition that names an undeclared flag id fails at load with the file and the id.
+5. A story scene that plays once sets its flag, and its condition then refuses it (D-542).
+6. A trigger fires from the tick, and two replays start the story scene at the same tick.
+7. The snapshot carries the flag set through a migration.
+8. A join step adds a fixture cast member to the party, and the snapshot keeps the party (D-563).
+
+**Review focus.**
+
+- D-540 revises D-114 in part, and the PR cites the revision.
+- One parser, one test, and one error message cover every reader of a condition (T-1, D-543).
+- The bots of PR-15 answer the same wait intent, so they play every story scene when PR-15 lands (D-64, D-540, G-16).
+- Core reads no clock, so the length of a step comes from content or from the wait intent (G-3, OQ-145).
+- A story scene names no art and no track (D-519, D-548).
+
+**Questions.** OQ-144, OQ-145, OQ-146, OQ-147, OQ-148, and OQ-149.
+
+> *In plain English:* a story scene is a list of simple steps in a data file: walk here, say this line, ask this question. The rules run it, so a robot can play it and a replay always matches.
+
+### 7.23 PR-50: the screenplay tool
+
+Area files: `area-tools.md` section 7.10, `area-story.md` section 7.8.
+
+**Scope.**
+
+- The `screenplay` command, which prints each story scene script as a screenplay with the text of each string id (D-173, G-25).
+- The look-up of a cue in the audio file, because a story scene names no cue (D-548).
+- The attachment of the output to the PR description, where the owner approves the batch (D-57, G-25).
+
+**Out of scope.**
+
+- No game code. The tool reads content alone.
+- The audio files themselves (PR-38, PR-70, PR-72).
+
+**Exit tests.**
+
+1. The command prints a fixture scene with each line in the order of the steps.
+2. A story scene that names an absent string id fails with the story scene, the step, and the id.
+3. The output reaches the PR description of a fixture batch.
+4. A cue in an audio file appears beside its line.
+
+**Review focus.**
+
+- The tool needs the story scene format and the string table alone, so it lands right after PR-68 (D-545).
+- Every player string follows the `game-text-style` skill (D-63, G-20).
+
+**Questions.** None.
+
+> *In plain English:* a tool prints each story scene in the shape of a film script. The owner reads the story as a story before anybody builds it.
+
+### 7.24 PR-12: the lessons, the slots, and the aptitudes
 
 Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 
@@ -814,7 +945,7 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 - The named forms of each lesson, and the point total that opens each form (D-539).
 - The growth that belongs to the character, not to the lesson (D-361).
 - The eight kinds, the main aptitude of each character, and the bonus of a lesson of that kind (D-274, D-281, D-358).
-- The side aptitude behind a fixture flag, with an empty mark in the menu before the unlock (D-282, D-283, D-538).
+- The side aptitude behind a story flag of PR-68, with an empty mark in the menu before the unlock (D-282, D-283, D-538, D-556).
 - The Mend rites and the cure rites that also work from the menu outside battle (D-391).
 - The lesson window in the stack of PR-62.
 
@@ -826,12 +957,11 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 **Exit tests.**
 
 1. A character equips a lesson and uses its ability in a fixture battle.
-2. A fixture flag unlocks a side aptitude, and the menu shows an empty mark before it (D-283).
+2. A story flag of PR-68 unlocks a side aptitude, and the menu shows an empty mark before it (D-283, D-556).
 3. An equipped lesson gains points from a fixture battle, used or not (D-357).
-4. A save point swaps lessons, and a hub swaps them too (D-356).
-5. A lesson passed to a new character starts at its first form for that character (D-361).
-6. A lesson passed back to a character resumes at the level of that character (D-361).
-7. A cure rite works from the menu outside battle, and silence stops it (D-391, D-393).
+4. A lesson passed to a new character starts at its first form for that character (D-361).
+5. A lesson passed back to a character resumes at the level of that character (D-361).
+6. A cure rite works from the menu outside battle, and silence stops it (D-391, D-393).
 
 **Review focus.**
 
@@ -844,7 +974,7 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 
 > *In plain English:* abilities come from rites and drills that anybody can carry. Use one long enough and it opens a stronger form, and that progress belongs to the person who carried it.
 
-### 7.22 PR-13: the gear, the items, and the inventory
+### 7.25 PR-13: the gear, the items, and the inventory
 
 Area file: `area-progression.md` sections 7.8 and 7.9.
 
@@ -868,10 +998,10 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 
 1. A character equips and removes gear in each of the six slots.
 2. The screen shows each empty slot (D-44).
-3. A find over the stack limit stays in its chest, and the save records what remains (D-385).
+3. A pickup over the stack limit leaves a remainder, and the pack names it (D-385). PR-16 builds the chest that holds it.
 4. An item restores less in a fight than outside one (D-382).
 5. A test proves that two accessories with one effect follow the rule of OQ-141.
-6. The snapshot holds the pack, the slots, and what each chest still owes.
+6. The snapshot holds the pack and the slots.
 
 **Review focus.**
 
@@ -883,7 +1013,7 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 
 > *In plain English:* six slots, and anyone can wear anything. What you find is what the author placed, so a good weapon is a real event.
 
-### 7.23 PR-14: the hub map, the NPCs, and the services
+### 7.26 PR-14: the hub map, the NPCs, and the services
 
 Area file: `area-exploration.md` section 7.11.
 
@@ -892,24 +1022,27 @@ Area file: `area-exploration.md` section 7.11.
 - The hub as a walkable map with NPC sprites, on the same code path as a dungeon (D-112).
 - The hub content format, with the services that each hub offers (D-28, D-59).
 - The rest, which restores health and MP and cures poison, blind, and silence (D-42, D-390).
-- The save and the party swap at the hub (D-59, D-62).
+- The save, the party swap, and the lesson swap at the hub (D-59, D-62, D-356).
+- A condition of PR-68 on each service, so a story flag can close one (D-543, D-544, D-556).
 - The service screens in the window stack of PR-62.
 - The village as a start area with no shop and no rest (D-369).
 
 **Out of scope.**
 
 - The shop and the gold (PR-65, D-530).
-- The scenes and the hub lines that read a condition (PR-68, PR-36).
+- The hub lines that the dialogue box shows (PR-36).
 - The hub content of the first playable (PR-17).
 
 **Exit tests.**
 
-1. A fixture party of four walks the hub, rests, swaps the reserve, and saves (D-356, D-362).
-2. The save reloads to the same state hash.
-3. The lead moves to the reserve, and the lead still walks the map with the camera on it (D-292, D-306).
-4. A rest cures poison, blind, and silence (D-390).
-5. A hub that offers no rest refuses the rest, and the screen says so.
-6. A hub file that names an absent service fails with the file and the service.
+1. A fixture group of four characters, three of them in the party, walks the hub and rests (D-362).
+2. The group swaps the reserve and a lesson, then saves (D-356).
+3. The save reloads to the same state hash.
+4. The lead moves to the reserve, and the lead still walks the map with the camera on it (D-292, D-306).
+5. A rest cures poison, blind, and silence (D-390).
+6. A hub that offers no rest refuses the rest, and the screen says so.
+7. A hub file that names an absent service fails with the file and the service.
+8. A story flag closes a fixture service, and the hub refuses it (D-543).
 
 **Review focus.**
 
@@ -921,7 +1054,7 @@ Area file: `area-exploration.md` section 7.11.
 
 > *In plain English:* the hub is a place you walk through, where the party recovers and reshapes itself before the next dungeon. Every hub has a different shape.
 
-### 7.24 PR-65: the shop and the gold
+### 7.27 PR-65: the shop and the gold
 
 Area file: `area-exploration.md` section 7.12.
 
@@ -956,82 +1089,7 @@ Area file: `area-exploration.md` section 7.12.
 
 > *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
 
-### 7.25 PR-68: the scene format, the scene runner, the flags, and the conditions
-
-Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
-
-**Scope.**
-
-- The scene format: a JSON list of steps, such as move, face, wait, say, choose, and set flag (D-173, OQ-144).
-- The scene runner in Core, which holds the step index and every flag that a step sets (D-540).
-- The wait intent that Game sends at the end of a move, a face, or a line (D-493, D-522).
-- The story flag, a name that is on or off, and the set of the flags that are on (D-542).
-- The declaration of every flag id in content, and a load that fails on an id that no file declares (OQ-147).
-- One condition form for every reader: a scene step, a route, a hub line, a quest, and an enemy group (D-543).
-- The scene triggers in the map file, each with its condition (D-528, OQ-148).
-- The scene state in the snapshot, the state hash, and the migration set (D-166, G-5).
-
-**Out of scope.**
-
-- The dialogue box and the portraits (PR-36, D-541).
-- The branches, the choice effects, and the lost ally (PR-18, D-544).
-- The quest state and the personal tasks (PR-19).
-- The screenplay tool (PR-50, D-545).
-
-**Exit tests.**
-
-1. A property test over one thousand seeds replays a run with scenes to the same end-state hash.
-2. A scripted intent list answers each wait intent at once, and it plays a fixture scene to its end.
-3. A step that names an absent string id fails with the scene, the step, and the id.
-4. A condition that names an undeclared flag id fails at load with the file and the id.
-5. A scene that plays once sets its flag, and its condition then refuses it (D-542).
-6. A trigger fires from the tick, and two replays start the scene at the same tick.
-7. The snapshot carries the flag set through a migration.
-
-**Review focus.**
-
-- D-540 revises D-114 in part, and the PR cites the revision.
-- One parser, one test, and one error message cover every reader of a condition (T-1, D-543).
-- The bots of PR-15 answer the same wait intent, so they play every scene when PR-15 lands (D-64, D-540, G-16).
-- Core reads no clock, so the length of a step comes from content or from the wait intent (G-3, OQ-145).
-- A scene names no art and no track (D-519, D-548).
-
-**Questions.** OQ-144, OQ-145, OQ-146, OQ-147, OQ-148, and OQ-149.
-
-> *In plain English:* a scene is a list of simple steps in a data file: walk here, say this line, ask this question. The rules run it, so a robot can play it and a replay always matches.
-
-### 7.26 PR-50: the screenplay tool
-
-Area files: `area-tools.md` section 7.10, `area-story.md` section 7.8.
-
-**Scope.**
-
-- The `screenplay` command, which prints each scene script as a screenplay with the text of each string id (D-173, G-25).
-- The look-up of a cue in the audio file, because a scene names no cue (D-548).
-- The attachment of the output to the PR description, where the owner approves the batch (D-57, G-25).
-
-**Out of scope.**
-
-- No game code. The tool reads content alone.
-- The audio files themselves (PR-38, PR-70, PR-72).
-
-**Exit tests.**
-
-1. The command prints a fixture scene with each line in the order of the steps.
-2. A scene that names an absent string id fails with the scene, the step, and the id.
-3. The output reaches the PR description of a fixture batch.
-4. A cue in an audio file appears beside its line.
-
-**Review focus.**
-
-- The tool needs the scene format and the string table alone, so it lands right after PR-68 (D-545).
-- Every player string follows the `game-text-style` skill (D-63, G-20).
-
-**Questions.** None.
-
-> *In plain English:* a tool prints each scene in the shape of a film script. The owner reads the story as a story before anybody builds it.
-
-### 7.27 PR-36: the dialogue box, the portraits, and the scene on screen
+### 7.28 PR-36: the dialogue box, the portraits, and the story scene on screen
 
 Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
@@ -1039,29 +1097,29 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 - The dialogue box at the bottom, with the portrait, a name plate, and the choices (D-109, D-114, D-223).
 - The type-out at the chosen speed, in silence (D-223, OQ-112).
-- The draw of each scene step: a sprite that moves and faces, from the tick of Core (D-540, F-52).
+- The draw of each story scene step: a sprite that moves and faces, from the tick of Core (D-540, F-52).
 - The choice as an intent, whose result Core holds (D-493, D-540).
 - Fixture portraits as 64 by 64 grids, because PR-28 and PR-29 draw the cast (D-234).
 - The skip, which the accessibility settings of PR-63 hold (D-214, OQ-150).
 
 **Out of scope.**
 
-- The scene format and the runner (PR-68, D-541).
+- The story scene format and the runner (PR-68, D-541).
 - The portraits of the cast (PR-28, PR-29).
-- The music cue of a scene (PR-70, D-548).
+- The music cue of a story scene (PR-70, D-548).
 
 **Exit tests.**
 
 1. A fixture scene walks two sprites, shows a line with a portrait, and records a choice.
-2. A screen test captures the box with a portrait and with choices, in both views.
-3. A test proves that Game moves a scene sprite from the tick, never from a timer (G-23, F-52).
+2. A screen test captures the box with a portrait and with choices.
+3. A test proves that Game moves a story scene sprite from the tick, never from a timer (G-23, F-52).
 4. The type-out follows the layout rule of OQ-112 at each speed.
 5. The skip follows the rule of OQ-150, and the player never loses a choice.
 6. Each string comes from the string table, and det-lint proves it.
 
 **Review focus.**
 
-- The answer of OQ-151 lays the choices out, and the count fits the height of D-480.
+- The answer of OQ-151 lays the choices out, and the count fits the height of the frame of D-568.
 - The player speaks the choices of the lead, and the map always follows the lead (D-267, D-292).
 - The box types in silence, and no beep plays (D-223).
 
@@ -1069,7 +1127,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 > *In plain English:* people walk, turn, and speak on the map you already walk on. Their words appear in a box at the bottom, with a face beside them.
 
-### 7.28 PR-15: the headless runner and the bots
+### 7.29 PR-15: the headless runner and the bots
 
 Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
@@ -1101,13 +1159,13 @@ Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
 - The answer of OQ-74 sets how the runner finds a softlock.
 - The answer of OQ-80 sets the count of runs on each leg, against the CI time of D-505.
-- The bots play every scene, because a bot answers each wait intent (D-540).
+- The bots play every story scene, because a bot answers each wait intent (D-540).
 
 **Questions.** OQ-74 and OQ-80.
 
 > *In plain English:* simple robots play the game with no screen. They make the same choices a player makes, and every crash they find comes with the seed that repeats it.
 
-### 7.29 PR-49: the night job and the night gate
+### 7.30 PR-49: the night job and the night gate
 
 Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
@@ -1145,7 +1203,7 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
 > *In plain English:* every night the robots play thousands of runs on all three systems. No change merges unless a recent night ended with no crash and no dead end.
 
-### 7.30 PR-16: the dungeon parts, the death, and the save points
+### 7.31 PR-16: the dungeon parts, the death, and the save points
 
 Area file: `area-exploration.md` section 7.8.
 
@@ -1153,11 +1211,11 @@ Area file: `area-exploration.md` section 7.8.
 
 - The treasure, the locked doors, and the keys (D-41).
 - The save points, which save, swap the party, and swap the lessons (D-36, D-58, D-356).
-- The MP that a save point restores once for each visit, and the health that it does not (D-257, D-389).
+- The MP that a save point restores once for the place, and the health that it does not (D-389, D-555).
 - The Theft drill that opens a lock that the map marks as pickable, where a story lock always needs its key (D-386).
 - The chest that keeps what the party cannot carry (D-385).
 - The dungeon exit, which returns the party to the region map.
-- The killed enemy that stays dead until the party leaves (D-257).
+- The killed enemy that stays dead until a story event reopens the place (D-555).
 - The save window in the stack of PR-62.
 
 **Out of scope.**
@@ -1170,10 +1228,12 @@ Area file: `area-exploration.md` section 7.8.
 
 1. A bot run that wipes reloads and continues (D-231).
 2. A two-character party after a down still reaches the exit of the fixture dungeon (F-7).
-3. A save point restores MP once for each visit, and a second use restores none (D-257).
-4. A Theft drill opens a pickable lock, and it never opens a story lock (D-386).
-5. A killed enemy stays dead until the party leaves the dungeon (D-257).
-6. A chest over the stack limit keeps the rest, and the save records it (D-385).
+3. A save point restores MP once for the place (D-555).
+4. A second use restores none, after an exit and a return too (D-555).
+5. A Theft drill opens a pickable lock, and it never opens a story lock (D-386).
+6. A killed enemy stays dead after the party leaves the dungeon and returns (D-555).
+7. A story event that reopens a fixture place brings its enemies and its MP restore back (D-555).
+8. A chest over the stack limit keeps the rest, and the save records it (D-385).
 
 **Review focus.**
 
@@ -1185,7 +1245,7 @@ Area file: `area-exploration.md` section 7.8.
 
 > *In plain English:* the dungeon gains its chests, doors, keys, and resting stones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
-### 7.31 PR-64: the traps, the hazards, and the statuses on the map
+### 7.32 PR-64: the traps, the hazards, and the statuses on the map
 
 Area file: `area-exploration.md` section 7.9.
 
@@ -1197,7 +1257,7 @@ Area file: `area-exploration.md` section 7.9.
 - Poison, blind, and silence that last past a battle until a cure or a rest at a hub (D-390).
 - The poison that ticks on the map and can down a character (D-392).
 - The silence that stops a rite from the menu, and the blind that does nothing outside battle (D-393).
-- The wipe when poison downs all three who fight, even with a healthy reserve (D-397).
+- The wipe when poison downs every character who fights, even with a healthy reserve (D-397).
 - The status mark in the map HUD (D-390).
 
 **Out of scope.**
@@ -1210,9 +1270,10 @@ Area file: `area-exploration.md` section 7.9.
 1. A property test over one thousand seeds proves each trap and each hazard rule.
 2. A Theft drill reveals and disarms a fixture trap (D-386).
 3. A fixture party that poison downs on the map wipes and reloads (D-397).
-4. Silence stops a rite from the menu, and a rest cures it (D-390, D-393).
-5. The bots play the maps of the first playable with these rules (D-64).
-6. The snapshot holds each status that lasts on the map.
+4. The same rule holds for a party of one, two, or three (D-336).
+5. Silence stops a rite from the menu, and a rest cures it (D-390, D-393).
+6. The bots play the fixture dungeon with these rules (D-64). PR-17 runs the bots over each map of the first playable.
+7. The snapshot holds each status that lasts on the map.
 
 **Review focus.**
 
@@ -1224,7 +1285,7 @@ Area file: `area-exploration.md` section 7.9.
 
 > *In plain English:* the dungeon itself can hurt you. Poison still hurts while you walk, and a party can go down between fights.
 
-### 7.32 PR-35: the region map
+### 7.33 PR-35: the region map
 
 Area file: `area-exploration.md` section 7.13.
 
@@ -1239,7 +1300,7 @@ Area file: `area-exploration.md` section 7.13.
 
 **Out of scope.**
 
-- The other nodes of region one (PR-23 to PR-27).
+- The other nodes of region one (PR-23 to PR-27, PR-81).
 - The cost of a route in time, because no clock runs (D-442).
 
 **Exit tests.**
@@ -1247,7 +1308,7 @@ Area file: `area-exploration.md` section 7.13.
 1. A closed route refuses the move, and the screen shows why.
 2. A replay reproduces the path through the nodes.
 3. The autosave writes on each arrival, and it reloads to the same state hash (D-224).
-4. A screen test captures the region map, in both views.
+4. A screen test captures the region map.
 5. A route that names an absent node id fails with the file and the id.
 
 **Review focus.**
@@ -1260,14 +1321,14 @@ Area file: `area-exploration.md` section 7.13.
 
 > *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
 
-### 7.33 PR-37: the CRT shader and the toggle
+### 7.34 PR-37: the CRT shader and the toggle
 
 Area file: `area-effects.md` section 7.12.
 
 **Scope.**
 
 - The full CRT as a Godot screen shader: curvature, bleed, flicker, and faint scanlines (D-105, D-240).
-- The pass on the frame at 1x, before the fit, so the lines match the Deck on every screen (D-240, D-480).
+- The pass on the frame at 1x, before the fit, so the lines match the Deck on every screen (D-240, D-568).
 - The default of on, with the toggle in the display group of the settings of PR-63 (D-120, D-526).
 - The reduced form of the flicker under the flash and shake reduction (D-214).
 - The CRT over the UI and the transitions (D-210).
@@ -1295,7 +1356,7 @@ Area file: `area-effects.md` section 7.12.
 
 > *In plain English:* the whole picture looks like an old monitor, and one setting turns the look off. The look runs before the picture scales, so it matches the handheld on a bigger screen.
 
-### 7.34 PR-38: the audio synthesizer and the first sounds
+### 7.35 PR-38: the audio synthesizer and the first sounds
 
 Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
@@ -1334,7 +1395,7 @@ Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
 > *In plain English:* music and sound start as rows of numbers in a text file. A tool of ours turns those rows into sound, the same way on every computer.
 
-### 7.35 PR-69: the audio player base
+### 7.36 PR-69: the audio player base
 
 Area file: `area-audio.md` sections 7.2 and 7.3.
 
@@ -1370,17 +1431,17 @@ Area file: `area-audio.md` sections 7.2 and 7.3.
 
 > *In plain English:* this part makes sound come out. It sets the volumes, and it mutes the game when the window loses focus.
 
-### 7.36 PR-70: the rules of what plays when
+### 7.37 PR-70: the rules of what plays when
 
 Area file: `area-audio.md` sections 7.4 to 7.10.
 
 **Scope.**
 
-- The music of a place: one track for each map, battle, scene, and menu (D-413).
+- The music of a place: one track for each map, battle, story scene, and menu (D-413).
 - The night version of a place track where the story sets dusk or night, with the phrase end and the crossfade (D-428, D-443, OQ-159, OQ-160).
 - The three battle tracks of a region, and the quiet and the resume after a fight (D-415, D-429).
 - The music that plays on under every in-game menu (D-421).
-- The cue of a scene, from a small set of mood tracks (D-418, D-548).
+- The cue of a story scene, from a small set of mood tracks (D-418, D-548).
 - The main theme, the four faction themes, and the five character themes of region one (D-419, D-427).
 - The four stings: a wipe, a level up, a victory, and a key find (D-422).
 - The ambience of each map in two layers, and the four kinds of map sound (D-424, D-425, OQ-162, OQ-163, OQ-166).
@@ -1415,7 +1476,7 @@ Area file: `area-audio.md` sections 7.4 to 7.10.
 
 > *In plain English:* every place has its own music, a low bed of wind or fire under it, and its own footsteps. The music changes when the story turns the day to night.
 
-### 7.37 PR-71: the sound room
+### 7.38 PR-71: the sound room
 
 Area file: `area-audio.md` section 7.11.
 
@@ -1445,7 +1506,7 @@ Area file: `area-audio.md` section 7.11.
 
 > *In plain English:* the owner listens to every piece of music before it ships. One tool plays a batch on the desk, and this one plays it inside the game.
 
-### 7.38 PR-51: the PNG import
+### 7.39 PR-51: the PNG import
 
 Area file: `area-tools.md` section 7.11.
 
@@ -1476,7 +1537,7 @@ Area file: `area-tools.md` section 7.11.
 
 > *In plain English:* the owner can fix a sprite in a paint program. This tool writes the edited image as a text grid again, and it refuses any color that the palette lacks.
 
-### 7.39 PR-52: the map preview
+### 7.40 PR-52: the map preview
 
 Area file: `area-tools.md` section 7.12.
 
@@ -1506,7 +1567,7 @@ Area file: `area-tools.md` section 7.12.
 
 > *In plain English:* maps are text files too. This tool draws a map as a picture, so the owner can see and approve a place before anyone walks it.
 
-### 7.40 PR-53: the tile-edge tool
+### 7.41 PR-53: the tile-edge tool
 
 Area file: `area-tools.md` section 7.13.
 
@@ -1539,7 +1600,7 @@ Area file: `area-tools.md` section 7.13.
 
 > *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own.
 
-### 7.41 PR-72: the music and the sounds of the first playable
+### 7.42 PR-72: the music and the sounds of the first playable
 
 Area file: `area-audio.md` section 7.12.
 
@@ -1574,7 +1635,7 @@ Area file: `area-audio.md` section 7.12.
 
 > *In plain English:* the music arrives in two batches. This is the first: enough for the first thing that the owner plays.
 
-### 7.42 PR-17: the village, the first hub, and the first dungeon
+### 7.43 PR-17: the village, the first hub, and the first dungeon
 
 Area files: every area file. The content PR touches each area.
 
@@ -1587,15 +1648,16 @@ Area files: every area file. The content PR touches each area.
 - The light setup of each map, at its time of day (D-442, D-519).
 - The ambient effects of each place (D-187, D-520).
 - The treasure, the shop stock, the NPC sprites, and the sprite set of Marrek (D-292).
-- A placeholder scene in the village (D-292).
+- A placeholder story scene in the village (D-292).
 - The text of Marrek, Bergit, and Dagvar, and of the lessons of the first playable, in the voice (D-362, G-20).
 - The normal map of each new drawing (D-183, D-521).
 
 **Out of scope.**
 
-- The arc content of region one (PR-28, PR-29) and the other places (PR-23 to PR-27).
+- The arc content of region one (PR-28, PR-29) and the other places (PR-23 to PR-27, PR-81).
 - The portraits of the cast (PR-28, PR-29). PR-36 uses fixture portraits.
 - The rest of the music of region one (PR-73).
+- A boss. The first playable ends when Dagvar joins, and PR-20 builds the phase layer on a fixture boss (D-564).
 
 **Exit tests.**
 
@@ -1611,14 +1673,13 @@ Area files: every area file. The content PR touches each area.
 
 - The text follows the `game-text-style` skill, and no line names an agent or a model (D-63, T-6).
 - The places follow `docs/world/places.md` (D-250, D-371).
-- The M-4 numbers land inside the band that the sign-off sets.
 - The art batches carry their review sheets, and the owner approves each one (D-514, G-25).
 
 **Questions.** None. Every question of the systems above closes before this PR.
 
 > *In plain English:* the first real place to play. Everything before this was machinery.
 
-### 7.43 M-3, M-4, and M-6: the measurements of the phase
+### 7.44 M-3, M-4, and M-6: the measurements of the phase
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
@@ -1628,6 +1689,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 - M-4 records the turns of each encounter and the party downs of each dungeon, by bot policy.
 - M-6 records the frame time of the first playable on the Deck, against 60 frames each second (D-161).
 - M-6 also records the readability of the font and the sprites at 1x, with the CRT on and off (D-92, D-120, F-18).
+- After M-4 reports, the owner sets the M-4 band that Gate 2 checks (D-571).
 
 **Out of scope.**
 
@@ -1646,23 +1708,25 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* three sets of numbers close the phase. They are the cost of the robots each night, the length of a fight, and the speed on the handheld.
 
-### 7.44 Gate 2: the first playable
+### 7.45 Gate 2: the first playable
 
 **The gate.** Gate 2 passes when every line holds:
 
 1. The owner plays from the village until Dagvar joins, on the desktop and on the Deck (D-362).
 2. The owner signs off on feel (D-52, D-92).
-3. The M-4 numbers land inside the band that the sign-off sets.
+3. The M-4 numbers land inside the band that the owner set after M-4 (D-571).
 4. M-6 records 60 frames each second on the Deck, with the CRT on (D-161, F-18).
-5. Every job of the PR gate is green on every leg (D-481).
-6. The `screen-test`, bot, and `night-gate` jobs are green (D-172, D-505, G-22).
-7. The budget test passes for every place of the first playable (D-523).
+5. M-6 reads the text and the sprites at 1x on the Deck with the CRT on (F-18).
+6. A miss of that reading reopens D-120.
+7. Every job of the PR gate is green on every leg (D-481).
+8. The `screen-test`, bot, and `night-gate` jobs are green (D-172, D-505, G-22).
+9. The budget test passes for every place of the first playable (D-523).
 
-**After the gate.** The owner pays the Steam Direct fee, and the store page goes public as Coming Soon (D-471). Sections 7.45 to 7.47 hold the work that the page needs.
+**After the gate.** The owner pays the Steam Direct fee, and the store page goes public as Coming Soon (D-471). Sections 7.46 to 7.48 hold the work that the page needs.
 
 > *In plain English:* at this point the game is a game. The owner walks a village, fights in a mine, and says whether it feels right.
 
-### 7.45 PR-74: the capture
+### 7.46 PR-74: the capture
 
 Area file: `area-release.md` section 7.6.
 
@@ -1696,7 +1760,7 @@ Area file: `area-release.md` section 7.6.
 
 > *In plain English:* the game can replay a recorded run and write every frame to disk. That gives the same picture each time, so a screenshot or a trailer shot is repeatable.
 
-### 7.46 PR-75: the store text and the owner steps
+### 7.47 PR-75: the store text and the owner steps
 
 Area file: `area-release.md` section 7.7.
 
@@ -1720,7 +1784,7 @@ Area file: `area-release.md` section 7.7.
 
 1. The owner approves the store text in the PR description (D-57, G-25).
 2. The checklist names each owner step with its cost and its wait (D-85, D-455).
-3. The register search runs, and the PR records each query and its result (D-408).
+3. The checklist names each register, and the PR records the result that the owner reports (D-408).
 4. The AI disclosure answer of OQ-59 enters the checklist.
 
 **Review focus.**
@@ -1733,61 +1797,64 @@ Area file: `area-release.md` section 7.7.
 
 > *In plain English:* the shop page words get written and approved like any other text in the game. The owner pays the fee and answers the questions that only Valve asks.
 
-### 7.47 PR-76: the store art and the screenshots
+### 7.48 PR-76: the store art and the screenshots
 
 Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
 **Scope.**
 
 - The capsules, the logo, and the library images, each as a large picture of drawn pieces (D-475, D-516).
-- At least five screenshots at 1920 by 1080, straight from the 16:9 view (D-480, F-34).
+- At least five screenshots from the frame at 2x, 2560 by 1440, which is 16:9 and larger than 1920 by 1080 (D-568, F-34).
 - The capture of PR-74, which takes each screenshot from a run record (D-551).
+- The capsules of the demo app, which mark it as a demo, in the same art batch (D-475, D-478).
 - The review sheets of the art batch, which `gh` attaches to the PR description (D-514, G-25).
 - The sizes of the store images, and the choice of the five screenshots (OQ-173, OQ-174).
 
 **Out of scope.**
 
 - The store text and the owner steps (PR-75).
-- The trailer (D-476) and the demo capsules, which PR-40 needs (D-470).
+- The trailer (D-476).
 
 **Exit tests.**
 
 1. Each store image renders from its pieces, and a test compares the pixels (F-19).
 2. Each screenshot comes from a run record, and a second take gives the same image (D-551).
-3. No screenshot holds a bar or a crop (D-480, F-34).
+3. No screenshot holds a bar or a crop (D-568, F-34).
 4. The owner approves the art batch from its review sheets (D-514, G-25).
 
 **Review focus.**
 
 - The answer of OQ-173 sets each size that Valve asks for.
 - A capsule shows only game art, the game name, and an official subtitle (D-475).
-- The screenshots show real play, not a posed scene (D-475).
+- The screenshots show real play, not a posed shot (D-475).
 
 **Questions.** OQ-173 and OQ-174.
 
 > *In plain English:* a session draws the pictures on the shop page the same way as everything else in the game. The screenshots come from real play.
-
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). Phase 2 holds this order:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). Phase 2 holds this order:
 
 1. The owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).
 2. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8: the export job, the frame, the map, and the enemies.
-3. PR-9, PR-66, PR-55, PR-10: the fight and its screen.
+3. PR-9, PR-80, PR-66, PR-55, PR-10: the fight, the enemy record, and the screen (D-557).
 4. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60: the normal maps, the light, the settings, and the effects.
-5. PR-11, PR-67, PR-62, PR-12, PR-13, PR-14, PR-65: the enemies that think, and the build of a party.
-6. PR-68, PR-50, PR-36: the scenes and the dialogue box.
-7. PR-15, PR-49: the bots, the night job, and the night gate.
-8. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-9. PR-16, PR-64, PR-35, PR-37: the dungeon, the region map, and the CRT.
-10. PR-38, PR-69, PR-70, PR-71: the audio tool, the player, the rules, and the sound room.
-11. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
-12. PR-72: the music and the sounds of the first playable.
-13. PR-17: the village, the mining town, and the hanging cells.
-14. M-3, M-4, M-6: the night numbers, the encounter numbers, and the Deck.
-15. **← GATE 2 (first playable).** Section 7.44 holds each line.
-16. PR-74, PR-75, PR-76: the capture, the store text, and the store art.
-17. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
+5. PR-11, PR-67, PR-62: the enemies that think, the character level, and the menu windows.
+6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
+7. PR-12, PR-13, PR-14, PR-65: the build of a party, the hub, and the shop.
+8. PR-36: the dialogue box.
+9. PR-15, PR-49: the bots, the night job, and the night gate.
+10. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+11. PR-16, PR-64, PR-35, PR-37: the dungeon, the region map, and the CRT.
+12. PR-38, PR-69, PR-70, PR-71: the audio tool, the player, the rules, and the sound room.
+13. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
+14. PR-72: the music and the sounds of the first playable.
+15. PR-17: the village, the mining town, and the hanging cells.
+16. M-3, M-4, M-6: the night numbers, the encounter numbers, and the Deck.
+17. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
+18. **← GATE 2 (first playable).** Section 7.45 holds each line.
+19. PR-74, PR-75, PR-76: the capture, the store text, and the store art.
+20. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 
 The next phase file is `phase-3-story-systems.md`.
 
@@ -1797,7 +1864,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 
 | Question | Subject | Blocks |
 |---|---|---|
-| OQ-57 | The studio name | PR-75 |
+| OQ-57 | The studio name | PR-61 and PR-75 |
 | OQ-59 | The AI disclosure of the content survey | PR-75 |
 | OQ-64 | The tick while a menu is open | PR-62 |
 | OQ-74 | How the runner finds a softlock | PR-15 |
@@ -1821,7 +1888,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-102 | How glow stays off sprites | PR-59 |
 | OQ-103 | Where shader code lives | PR-10 and PR-60 |
 | OQ-104 | The font settings and the load from bytes | PR-61 |
-| OQ-105 | How Game builds the two steps of the fit | PR-61 |
 | OQ-106 | Where the settings file lives, and its form | PR-63 |
 | OQ-107 | How Game knows the last device of the player | PR-61 |
 | OQ-108 | Where a remap lives, and what a conflict does | PR-63 |
@@ -1832,7 +1898,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-113 | The notice log | PR-62 |
 | OQ-114 | The rule of sight for the party and a patrol | PR-7 and PR-8 |
 | OQ-115 | How a large enemy holds its tiles and sorts | PR-8 |
-| OQ-116 | What the fog remembers, and where it lives | PR-7 |
 | OQ-117 | A diagonal step on the map | PR-7 |
 | OQ-118 | The limits of the camera on a small map | PR-7 |
 | OQ-119 | What a trap does, and what a Theft drill does to it | PR-64 |
@@ -1858,13 +1923,13 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-141 | Two accessories with one effect | PR-13 |
 | OQ-142 | The stack limit of each item | PR-13 |
 | OQ-143 | What a rarity tier changes | PR-13 |
-| OQ-144 | The full step list of a scene script | PR-68 |
+| OQ-144 | The full step list of a story scene script | PR-68 |
 | OQ-145 | How a step that takes time ends | PR-68 |
 | OQ-146 | The shape of a condition | PR-68 |
 | OQ-147 | Where content declares each flag id | PR-68 |
-| OQ-148 | What fires a scene trigger | PR-68 |
-| OQ-149 | Whether a scene step starts a battle | PR-68 |
-| OQ-150 | How the player skips a scene | PR-36 |
+| OQ-148 | What fires a story scene trigger | PR-68 |
+| OQ-149 | Whether a story scene step starts a battle | PR-68 |
+| OQ-150 | How the player skips a story scene | PR-36 |
 | OQ-151 | How the choices lay out in the dialogue box | PR-36 |
 | OQ-156 | The instrument voices of the synthesizer | PR-38 |
 | OQ-157 | The schema of the tracker rows | PR-38 |

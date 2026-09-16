@@ -6,7 +6,7 @@ The world keeps the broad shapes that the genre shares, and it bans the specific
 
 ## How to use this list
 
-1. Read the list before you write an option, a scene, a faction, or lore.
+1. Read the list before you write an option, a story scene, a faction, or lore.
 2. Compare the idea with each device, not with the shape.
 3. Stop when the idea matches a device. Change the idea, or ask the owner.
 4. Add a device when an interview option comes close to FFT (D-140).

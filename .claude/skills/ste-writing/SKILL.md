@@ -152,7 +152,7 @@ Game terms from the roadmap interview of 2026-09-12:
 | kind | one of the eight families of ability, written with a capital letter: Mend, Harm, Blight, Boon, Blade, Guard, Shot, Theft (D-281) | school, family, when the text means these eight |
 | main aptitude | the kind that a character does best (D-274) | class, role, specialty |
 | side aptitude | the second kind of a character, which a personal task unlocks (D-282) | side role, side job, subclass |
-| lead | the one character whom scenes center on (D-267) | hero, protagonist, main character |
+| lead | the one character whom story scenes center on (D-267) | hero, protagonist, main character |
 | ability | an action that a lesson gives (D-272, D-278) | skill, technique, move |
 | spell | an ability that costs MP (D-42) | magic, cast |
 | party | the one to three characters in battle (D-31, D-336) | team, group |
@@ -180,7 +180,11 @@ Game terms from the roadmap interview of 2026-09-12:
 | portrait | the 64 by 64 face in the dialogue box (D-109, D-234) | avatar, face |
 | backdrop | the battle background of a place (D-111) | background, stage |
 | region map | the node and route screen between places (D-113) | overworld, world map |
-| scene | a scripted story beat on the map, which Core runs (D-114, D-540) | cutscene, event |
+| story scene | a scripted story beat on the map, which Core runs (D-114, D-540, D-572) | cutscene, event, scene alone |
+| map scene | the Game screen that draws a map (D-572) | scene alone |
+| battle scene | the Game screen that draws a fight (D-572) | scene alone |
+| hub scene | the Game screen that draws a hub (D-572) | scene alone |
+| scene light | the 2D light of the world, which the UI never takes (D-183, D-210) | lighting |
 | Godot scene file | the `.tscn` file of a node tree in the Game project | scene, which names a story beat (D-114) |
 
 World terms from the world-building interview of 2026-09-12:
@@ -198,10 +202,10 @@ Audio and time terms from the audio block of 2026-09-14:
 
 | Term | Use for | Do not use |
 |---|---|---|
-| track | a piece of music that loops, for a place, a battle, or a scene (D-413) | song, tune, when the text means the file |
+| track | a piece of music that loops, for a place, a battle, or a story scene (D-413) | song, tune, when the text means the file |
 | night version | the version of a place track that plays at dusk or night (D-443) | night track, variant |
 | theme | a short recurring tune that other tracks borrow (D-419) | leitmotif, motif |
-| cue | a track that a scene script names, from the mood set or for a key scene (D-418) | scene track, stinger |
+| cue | a track that the audio file names for a story scene and its step, from the mood set or for a key story scene (D-418, D-548) | scene track, stinger |
 | sting | a short musical piece of a few seconds for an event (D-422) | jingle, fanfare |
 | ambience | the low background sound of a map (D-424) | ambient sound, soundscape |
 | sound effect | a short sound for an action or an event (D-423) | SFX, and effect alone when the text means a sound |
@@ -266,7 +270,7 @@ UI and input terms from the roadmaps PR of 2026-09-16:
 
 | Term | Use for | Do not use |
 |---|---|---|
-| view | the 16:10 shape or the 16:9 shape of the frame that the player sees (D-480) | resolution, when the text means one of these two |
+| view | the part of the map that the frame of 1280 by 720 shows (D-568) | resolution, screen |
 | fit | the scale of the frame to the screen of the player (D-232) | scaling, and stretch, which names the Godot setting |
 | UI style file | the content file of the font sizes, the colors, and the frame drawings, which Game turns into a Godot `Theme` (D-527) | theme file, skin |
 | button prompt | the glyph of the button that a line of text names (D-222) | icon, when the text means a button |
@@ -277,8 +281,8 @@ Story terms from the roadmaps PR of 2026-09-16:
 
 | Term | Use for | Do not use |
 |---|---|---|
-| scene step | one entry of a scene script, such as a move, a line, or a choice (D-173) | command, action, when the text means a step |
-| story flag | a name that is on or off, which a choice or a scene sets (D-329, D-542) | switch, variable, state bit |
+| story scene step | one entry of a story scene script, such as a move, a line, a choice, or a join (D-173, D-563) | command, action, when the text means a step |
+| story flag | a name that is on or off, which a choice or a story scene sets (D-329, D-542) | switch, variable, state bit |
 | condition | the one content form that reads the story flags, which every reader uses (D-543) | requirement, gate, predicate |
 | quest | one entry of the quest state, a personal task included (D-59, D-538) | mission, task, when the text means the entry |
 | personal task | the quest of one character that unlocks the side aptitude (D-282) | side quest, character quest |
@@ -298,7 +302,7 @@ Release terms from the roadmaps PR of 2026-09-16:
 |---|---|---|
 | capture | the development-build command that replays a run record into PNG frames and a WAV file (D-476, D-551) | recorder, screen capture |
 | store image | a capsule, a logo, or a library image of the store page (D-475) | asset, art, when the text means these |
-| credits roll | the scene that plays the credits after the last scene of region one (D-467, D-552) | end credits, roll, alone |
+| credits roll | the story scene that plays the credits after the last story scene of region one (D-467, D-552) | end credits, roll, alone |
 
 ## The checker
 

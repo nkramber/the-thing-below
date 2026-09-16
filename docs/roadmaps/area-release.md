@@ -1,8 +1,8 @@
 # Area roadmap: Release
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the game reaches a player, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the game reaches a player, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
-The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-ci.md` holds the export job and every other CI job. The file `area-ui-input.md` holds the title screen and the settings, and `area-art.md` holds the drawing of each store image. The file `area-core.md` holds the run record, the save, and the crash file, and `area-story.md` holds the scene that the credits roll uses.
+The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-ci.md` holds the export job and every other CI job. The file `area-ui-input.md` holds the title screen and the settings, and `area-art.md` holds the drawing of each store image. The file `area-core.md` holds the run record, the save, and the crash file, and `area-story.md` holds the story scene that the credits roll uses.
 
 External facts: the external facts of `docs/design.md` hold every fact of this area, each read 2026-09-14. They cover Steam, the Steam Deck, Steam Cloud, Next Fest, the store assets, the trailer format, Apple notarization, Windows signing, GitHub Releases, GitHub runner prices, the Godot export templates, the Godot and OFL license notices, the Godot boot splash, and Movie Maker. This file cites them and never restates one.
 
@@ -26,8 +26,8 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 |---|---|---|
 | F-23 | `--headless` draws nothing, so no headless run captures an image | PR-74: the capture runs in a development build with a window, never in CI (D-172) |
 | F-32 | The cost model listed the Steam Direct fee alone | PR-79: the Apple Developer Program at 99 USD a year (D-455) |
-| F-33 | The release block found five gaps in the plan | PR-77, PR-79, and PR-44: the credits, the private repository, and the crash address (D-456, D-467, D-473) |
-| F-34 | Steam needs five screenshots at 1920 by 1080 in 16:9 | PR-76: a screenshot comes straight from the 16:9 view (D-480) |
+| F-33 | The release block found five gaps in the plan | PR-77, PR-79, and PR-61: the credits, the private repository, and the crash address (D-456, D-467, D-473, D-559) |
+| F-34 | Steam needs five screenshots at 1920 by 1080 in 16:9 | PR-76: a screenshot comes from the 2x scale at 2560 by 1440 (D-568) |
 | F-42 | No command-line option installs the Godot export templates | PR-54: the job unpacks them, and OQ-83 holds how (D-508) |
 
 ## 7. Roadmap
@@ -93,9 +93,9 @@ Built by PR-33. Phase file: `phase-5-first-release.md`.
 
 Built by PR-77 and PR-33. Phase files: `phase-4-region-one.md` and `phase-5-first-release.md`.
 
-- Credits appear in three places (D-467). They are a roll after the last scene of region one, a screen in the title menu, and the license files in each export.
-- PR-77 holds the roll as a scene, its text, its timing, and the license notices, and it lands right after PR-29 (D-552).
-- The roll plays under the main theme (D-427). The file `area-story.md` holds the scene runner that plays it.
+- Credits appear in three places (D-467). They are a credits roll after the last story scene of region one, and a screen in the title menu. The license files in each export are the third place.
+- PR-77 holds the credits roll as a story scene, its text, its timing, and the license notices, and it lands right after PR-29 (D-552).
+- The credits roll plays under the main theme (D-427). The file `area-story.md` holds the story scene runner that plays it.
 - The owner sees the roll at Gate 4, when they play region one end to end and sign off (D-56, D-552).
 - PR-33 shows the same text on the credits screen of the title menu (D-552).
 - The credits name the studio, and no agent, harness, or model (D-450, T-6).
@@ -142,7 +142,7 @@ Built by PR-76. Phase file: `phase-2-first-playable.md`.
 - Each store image is a large picture of drawn pieces, in the pixel style of the game (D-475, D-516). The file `area-art.md` holds the drawing and the render.
 - The owner approves each art batch from its review sheets, which `gh` attaches to the PR description (D-514, G-25).
 - Capsule art shows only game art, the game name, and an official subtitle. The capsules of the demo mark it as a demo (the external facts of `docs/design.md`).
-- A screenshot at 1920 by 1080 comes straight from the 16:9 view, with no bars and no crop (D-480, F-34).
+- A screenshot comes from the frame at 2x, 2560 by 1440, with no bars and no crop (D-568, F-34). That size is 16:9 and larger than 1920 by 1080.
 - The capture of PR-74 takes each screenshot from a run record, so the owner can take it again (D-551).
 - OQ-173 holds the sizes of the store images, and OQ-174 holds which five screenshots.
 
@@ -164,7 +164,8 @@ Built by the owner, on the capture of PR-74. Phase file: `phase-5-first-release.
 
 Built by PR-39. Phase file: `phase-5-first-release.md`.
 
-- PR-39 walks the Steam Deck checklist to the rating Verified (D-459).
+- PR-39 lands after PR-78, and it proves each check of the Steam Deck checklist (D-459, D-565).
+- The owner requests the Deck compatibility review after PR-40, and Valve grants the rating after Gate 5 (D-565).
 - Verified needs four things (the external facts of `docs/design.md`):
   - Glyphs that match the input in use.
   - Playable default bindings.
@@ -289,7 +290,7 @@ Built by PR-31, PR-54, PR-74, PR-78, PR-79, and PR-40. Phase files: `phase-2-fir
 | The settings screen and the button prompts | `area-ui-input.md` | PR-63 |
 | The drawing and the render of each store image | `area-art.md` | PR-55 and PR-76 |
 | The main theme under the credits roll | `area-audio.md` | PR-72 |
-| The scene runner that plays the roll | `area-story.md` | PR-68 |
+| The story scene runner that plays the credits roll | `area-story.md` | PR-68 |
 | The effect budget that holds 60 frames per second on the Deck | `area-effects.md` | The Deck test and PR-56 |
 
 ### 7.19 The contract of every later release PR
@@ -308,10 +309,10 @@ Each later PR that changes how the game reaches a player keeps this list. The ph
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The release work keeps this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The release work keeps this order inside it:
 
 1. PR-6: the game version in the run record header (D-448).
-2. PR-44: the game version in the crash file, with the studio address (D-473).
+2. PR-44: the game version in the crash file. PR-61 adds the studio address to the message (D-473, D-559).
 3. PR-54: the export job, right before PR-7 (D-503).
 4. PR-17: the first playable.
 5. **← GATE 2 (first playable).** The owner plays on both machines and signs off on feel (D-52, D-362).
@@ -324,13 +325,14 @@ The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #
 12. **← GATE 4 (region one).** Then the trusted players play the build artifacts (D-469).
 13. PR-31: the release workflow and the first GitHub Release of the prologue.
 14. PR-33: the title screen, the settings, the version line, and the credits screen.
-15. PR-39: the Steam Deck verification pass.
-16. Owner: join the Apple Developer Program (D-455).
-17. PR-78: the Steamworks binding, the start, and the controller type call (D-553).
+15. Owner: join the Apple Developer Program (D-455, D-565).
+16. PR-78: the Steamworks binding, the start, and the controller type call (D-553).
+17. PR-39: the Steam Deck verification pass, after PR-78 (D-565).
 18. PR-79: the signature and the notarization of the macOS build (D-553).
 19. PR-40: Auto-Cloud, the demo app, and the Linux runtime.
-20. **← GATE 5 (first release).** A fresh machine runs the tagged build, and the Deck runs the Steam demo.
-21. Phase 6 stays parked (D-456, D-466, D-472).
+20. Owner: request the Deck compatibility review from Valve (D-565).
+21. **← GATE 5 (first release).** A fresh machine runs the tagged build, and the Deck runs the Steam demo.
+22. Phase 6 stays parked (D-456, D-466, D-472).
 
 ## 9. Open questions
 

@@ -43,7 +43,7 @@ Lessons sit in slots on the character and swap at hubs and save points (D-356). 
 
 ## The lead
 
-One character is the lead (D-267). Scenes center on the lead, and the dialogue choices of the player are the lines of the lead. The lead can wait in reserve like any other character, but the map always follows the lead (D-292). The lead walks the map in every case, in the party or in reserve (D-306).
+One character is the lead (D-267). Story scenes center on the lead, and the dialogue choices of the player are the lines of the lead. The lead can wait in reserve like any other character, but the map always follows the lead (D-292). The lead walks the map in every case, in the party or in reserve (D-306).
 
 ## The party of region one
 

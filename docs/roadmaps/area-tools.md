@@ -1,6 +1,6 @@
 # Area roadmap: Tools
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the Tools project works, and it names the PR that builds each tool (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the Tools project works, and it names the PR that builds each tool (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-core.md` holds the Core contracts that det-lint enforces, and `area-ci.md` holds the jobs that run each tool. The files `area-art.md`, `area-exploration.md`, `area-story.md`, and `area-audio.md` hold the formats that the content tools read.
 
@@ -79,6 +79,7 @@ Built by PR-3. Phase file: `phase-1-foundations.md`.
 - The workflow runs the command from `main` and reads the files of the PR head as data. It never runs code from the head (D-15).
 - The command applies the three rules of the `pr-review` skill. The record exists, the verdict is `Ready for owner merge`, and the head field names the effective head.
 - The command passes a PR in the override set with the `review-override` label that changes no decision row (D-16, D-71, D-239, D-401). OQ-69 holds what counts as a change to a row.
+- A PR that changes `.github/workflows/` fails on the label, because each gate lives in a workflow file (D-560).
 - The workflow also runs when a label changes, because the label changes the result (D-67).
 - A metadata commit never moves the effective head (the `pr-review` skill).
 - GitHub starts this trigger only from `main`, so the check cannot run on PR-3 (F-37). PR-3 proves the command in Tests, and the live check first runs on the next PR (D-500).
@@ -95,7 +96,8 @@ Built by PR-46. Phase file: `phase-1-foundations.md`.
 - In Core, it fails a float type, the clock, OS random, reflection, and the two hash paths of F-35 (G-2, G-3, F-36).
 - In Core, it fails a string order that does not use an ordinal comparison (G-4, F-39). OQ-71 holds which uses of `Dictionary` and `HashSet` it fails.
 - In Game, it fails a Godot text property outside the text helper, and a text value in a scene file (D-499, G-7). OQ-70 holds how it finds each text property.
-- It reads the code of the atlas, the normal maps, and the synthesizer (D-502). There it applies the Core rules for float types, the clock, and OS random.
+- It reads the code of the atlas, the normal maps, the PNG reader and writer, and the synthesizer (D-502). There it applies the Core rules for float types, the clock, and OS random.
+- D-502 binds each tool whose output a test compares on every leg, so a later tool of that kind joins the list.
 - PR-46 proves each rule on a fixture that breaks it, such as a fixture with `double` (G-16).
 - `area-ci.md` holds the `det-lint` job.
 
@@ -169,12 +171,12 @@ Built by PR-49. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-50. Phase file: `phase-2-first-playable.md`.
 
-- The command prints each scene script as a screenplay, with the text of each string id, for the PR description (D-173, G-25). It lands right after PR-68, because it needs the scene format and the string table alone (D-545).
-- A scene that names an absent string id fails with the scene, the step, and the id (T-2).
-- The tool looks each cue up in the audio file, because a scene names no cue (D-548).
-- `area-story.md` holds the scene format.
+- The command prints each story scene script as a screenplay, with the text of each string id, for the PR description (D-173, G-25). It lands right after PR-68, because it needs the scene format and the string table alone (D-545).
+- A story scene that names an absent string id fails with the story scene, the step, and the id (T-2).
+- The tool looks each cue up in the audio file, because a story scene names no cue (D-548).
+- `area-story.md` holds the story scene format.
 
-> *In plain English:* a scene is a list of steps in a data file. This tool prints it like a script, so the owner reads the scene as a story before approval.
+> *In plain English:* a story scene is a list of steps in a data file. This tool prints it like a script, so the owner reads the story scene as a story before approval.
 
 ### 7.11 The PNG import
 
@@ -239,7 +241,7 @@ Each later tool PR keeps this list. The phase files make exit tests from it.
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The Tools PRs keep this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The Tools PRs keep this order inside it:
 
 1. PR-1: the Tools project, with no command.
 2. PR-2: the STE checker.

@@ -1,6 +1,6 @@
 # Phase roadmap: Phase 3, Story systems
 
-Status: **focused phase roadmap, draft in PR #11.** This file gives each item of Phase 3 its scope, its exit tests, its review focus, and its questions (D-144, D-485, D-487). The area files say how each part works, and each entry names the area file that it cites. This file supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused phase roadmap, which PR #11 merged on 2026-09-16.** This file gives each item of Phase 3 its scope, its exit tests, its review focus, and its questions (D-144, D-485, D-487). The area files say how each part works, and each entry names the area file that it cites. This file supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
 The design doc holds the thesis of the game, the system map (section 3), and the cost model (section 4). It also holds the guardrails (section 6) and the global order of every PR (section 8). This file cites each decision by its id and never restates it. The index of this folder is `docs/roadmaps/readme.md`.
 
@@ -10,7 +10,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 ## 1. Thesis
 
-Phase 3 teaches the game to remember a choice and to answer it. Phase 2 gave the scene runner, the story flags, and one condition form (D-544). Phase 3 builds the readers of those flags: the branches, the quests, and the tasks that open a hidden talent.
+Phase 3 teaches the game to remember a choice and to answer it. Phase 2 gave the story scene runner, the story flags, and one condition form (D-544). Phase 3 builds the readers of those flags: the branches, the quests, and the tasks that open a hidden talent.
 
 Two other systems close the phase, because each one needs the parts of Phase 2 and no content of Phase 4. They are the boss phases over the evaluator, and the puzzles and secrets of a dungeon.
 
@@ -24,7 +24,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 
 | # | Finding | Binds |
 |---|---|---|
-| F-22 | Three recorded answers sit close to the plot devices of one game | PR-18: the set choices keep the shapes and ban the devices (D-136, D-140) |
+| F-22 | Three recorded answers sit close to the plot devices of one game | PR-18: the choice effects keep the shapes and ban the devices, and PR-28 and PR-29 write each set choice (D-136, D-140) |
 | F-28 | The design critic found that a player choice could remove a cast member | PR-18: D-301 forbids it, and the four flag effects hold instead |
 
 No other row of the register binds an item of Phase 3.
@@ -45,15 +45,15 @@ Area file: `area-story.md` section 7.6.
 
 - The branch conditions in content, on the one condition form of PR-68 (D-40, D-329, D-543).
 - The four flag effects: a closed route, a lost ally outside the cast, a changed hub, and a new time of day (D-301, D-442).
-- The set choices of region one, two or three of them (D-350).
-- The choice on the ice crossing: the party spares the beaten captain of the wardens, or kills him (D-354).
+- The fixture branches that prove each of the four flag effects.
 - The flags of the prologue in the save, which region two reads (D-163, D-353).
 
 **Out of scope.**
 
 - The flag set and the condition form, which PR-68 built (D-544).
 - The quest state and the personal tasks (PR-19).
-- The scene content of region one (PR-28, PR-29), which proposes one or two more set choices (D-355).
+- The set choices of region one and the choice on the ice crossing, which PR-28 and PR-29 write with their story scenes (D-350, D-354, D-355).
+- The story scene content of region one (PR-28, PR-29).
 
 **Exit tests.**
 
@@ -66,7 +66,7 @@ Area file: `area-story.md` section 7.6.
 
 **Review focus.**
 
-- No set choice copies a device from `docs/world/banned-devices.md` (D-136, D-140, F-22).
+- No choice effect copies a device from `docs/world/banned-devices.md`, and each set choice of PR-28 and PR-29 keeps that rule (D-136, D-140, F-22).
 - The lost ally sits outside the cast, because the one death in the cast is Elio (D-279, D-321).
 - Each branch reads the same condition form as a route, a hub line, and a quest (D-543, T-1).
 
@@ -117,18 +117,18 @@ Area files: `area-battle.md` section 7.8, `area-story.md` section 7.2.
 **Scope.**
 
 - The scripted phase layer over the evaluator, where a phase changes the profile and adds a move (D-65).
-- One boss for the first dungeon, with its sprite and its backdrop.
+- A fixture boss, with no content of the first playable (D-564).
 - The rule that no party flees from a boss (D-378).
 - What starts a phase, from the answer of OQ-130.
 
 **Out of scope.**
 
-- The bosses of the other dungeons, which PR-23 to PR-26 write.
+- The bosses of region one, with their sprites and their backdrops, which PR-23 to PR-26 and PR-81 write (D-564, D-575).
 - The balance of the boss numbers (PR-30).
 
 **Exit tests.**
 
-1. The boss changes phase at the scripted threshold in every one of one thousand seeds.
+1. The fixture boss changes phase at the scripted threshold in every one of one thousand seeds.
 2. A phase change swaps the profile, and the evaluator then scores the new move.
 3. No flee starts in the boss fight (D-378).
 4. The replay of a boss fight gives the same state hash on every leg.
@@ -136,7 +136,7 @@ Area files: `area-battle.md` section 7.8, `area-story.md` section 7.2.
 
 **Review focus.**
 
-- The answer of OQ-155 settles whether a scene can play inside a battle.
+- The answer of OQ-155 settles whether a story scene can play inside a battle.
 - The phase layer never reads a clock, and it counts ticks alone (G-3).
 - A boss of region one is a bandit, a church warden, or a wrong thing (D-155, D-310).
 
@@ -157,7 +157,7 @@ Area file: `area-exploration.md` section 7.10.
 
 **Out of scope.**
 
-- The puzzles of region one, which PR-23 to PR-26 write.
+- The puzzles of region one, which PR-23 to PR-26 and PR-81 write (D-575).
 - The light setup of a map, which PR-56 holds (D-519).
 
 **Exit tests.**
@@ -191,7 +191,7 @@ PR-22 held jobs five to eight, which have no purpose after D-268. No later item 
 1. The owner plays a branch that closes a route (D-329).
 2. The owner plays a hub that changes with an earlier choice (D-329).
 3. A finished personal task unlocks a side aptitude in play (D-282).
-4. The boss of the first dungeon changes phase in the play.
+4. A fixture boss changes phase at its threshold in the play (D-564).
 5. Every job of the PR gate is green on every leg (D-481).
 6. The bots play each fixture with no crash and no softlock (D-64).
 
@@ -201,7 +201,7 @@ PR-22 held jobs five to eight, which have no purpose after D-268. No later item 
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). Phase 3 holds this order:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). Phase 3 holds this order:
 
 1. PR-18: the branches and the choice effects.
 2. PR-19: the quests, the rumor board, and the personal tasks.
@@ -222,6 +222,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-152 | What a quest holds | PR-19 |
 | OQ-153 | What the rumor board shows | PR-19 |
 | OQ-154 | What ends a region for a missed task | PR-19 |
-| OQ-155 | Whether a scene can play inside a battle | PR-20 |
+| OQ-155 | Whether a story scene can play inside a battle | PR-20 |
 
 No open question blocks this file.

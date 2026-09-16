@@ -1,6 +1,6 @@
 # Area roadmap: Progression
 
-Status: **focused area roadmap, draft in PR #11.** This file says how a character grows, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how a character grows, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-core.md` holds the content reader, the snapshot, and the state hash. The file `area-battle.md` holds the fight that spends what a character carries. The file `area-exploration.md` holds the chests, the shops, and the save points that fill it. The file `area-story.md` holds the quests and the personal tasks, and `area-ui-input.md` holds the menus that show a build.
 
@@ -38,7 +38,7 @@ Built by PR-67. Phase file: `phase-2-first-playable.md`.
 - A character who joins late starts at a set level in content (D-363).
 - The level raises the stats through the curve of section 7.3, and it raises the lesson slots of section 7.4 (D-356).
 - A level up plays its sting (D-422).
-- Property tests over one thousand seeds prove that no run passes the soft cap of its region (PR-67 gate).
+- A property test proves that the experience from one enemy falls as the level of the party rises (D-388, the exit tests of PR-67). OQ-136 holds whether a floor or a gap ends the fall.
 
 > *In plain English:* a fight makes each character stronger, and the people who wait or fall behind still learn a little. The same weak enemies soon give almost nothing.
 
@@ -47,7 +47,7 @@ Built by PR-67. Phase file: `phase-2-first-playable.md`.
 Built by PR-67. Phase file: `phase-2-first-playable.md`.
 
 - Each character holds MP, and a rite spends it (D-42).
-- MP comes back at a hub, at a save point once for each visit, and from scarce items (D-42, D-257, D-389).
+- MP comes back at a hub, at a save point once for the place, and from scarce items (D-42, D-389, D-555).
 - A save point restores no health, so health stays the scarce resource inside a dungeon (D-389).
 - Every character can attack with the weapon in hand, so an empty MP pool never leaves a dead turn (D-359, F-8).
 - A fresh character from the reserve brings its own MP at a save point, and the balance of D-35 must hold with it (D-356).
@@ -104,7 +104,7 @@ Built by PR-12 and PR-19. Phase files: `phase-2-first-playable.md` and `phase-3-
 - Each character hides a side aptitude until a personal task unlocks it (D-282, D-283).
 - The menu shows an empty mark before the unlock, so the player cannot plan a party around it (D-283).
 - The quest state of PR-19 holds every task, and the aptitude reads a story flag (D-538).
-- PR-12 ships with the side aptitude behind a fixture flag, because PR-19 comes later (D-538, T-3).
+- PR-12 reads a story flag of PR-68, which lands first, and PR-19 unlocks the side aptitude in play (D-538, D-556).
 - A missed task closes when its region ends, and the save carries the result (D-375).
 - The balance must hold with any side aptitude absent, and the bots test each one in turn (D-282, D-304).
 - PR-28 and PR-29 write the content of each personal task (D-352).
@@ -120,7 +120,7 @@ Built by PR-12, PR-16, PR-65, and PR-42. Phase files: `phase-2-first-playable.md
 - A shop can sell a second copy of a lesson, so content plans for copies and progress stays with the character (D-361, D-365).
 - The party never gets a license or a stamp, so every rite that it uses breaks the law (D-366).
 - PR-42 writes the lessons of region one across the eight kinds, with their icons and their text (D-304, G-20).
-- Every lesson has a place in a dungeon, a hub, or a scene, and the gate of PR-42 proves it (D-304).
+- Every lesson has a place in a dungeon, a hub, or a story scene, and the gate of PR-42 proves it (D-304).
 
 > *In plain English:* you find rites in chests, buy them in towns, and earn them from people. The party never has the papers that make using them legal.
 
@@ -133,7 +133,7 @@ Built by PR-13. Phase file: `phase-2-first-playable.md`.
 - Gear is fixed and hand-authored, with a few rarity tiers, and no random affix and no crafting exist (D-45).
 - OQ-140 holds what a piece of gear changes, and OQ-141 holds two accessories with one effect.
 - The gear of Elio leaves the game with him (D-364).
-- The screen shows each empty slot, and `area-ui-input.md` holds that screen (D-44, PR-13 gate).
+- The screen shows each empty slot, and `area-ui-input.md` holds that screen (D-44, the exit tests of PR-13).
 
 > *In plain English:* six slots, and anyone can wear anything. What you find is what the author placed, so a good weapon is a real event.
 
@@ -159,7 +159,7 @@ Built by the content of Phase 4 and later. Phase file: `phase-4-region-one.md`.
 - The death costs the main Mend of region one, and later content must offer lessons that take the place of his (D-270, D-364, D-394).
 - The replacement can share his main aptitude, and its side aptitude differs (D-274, D-303).
 - The save of the prologue carries all five characters, because the death falls after region one (D-163, D-309).
-- A player who loaded Elio heavily loses a large share of the build in one scene (D-364).
+- A player who loaded Elio heavily loses a large share of the build in one story scene (D-364).
 
 > *In plain English:* when Elio dies, everything he carried goes with him. The game has to stay winnable for a player who gave him the best rites.
 
@@ -197,7 +197,7 @@ Built by PR-67, PR-12, PR-13, and PR-15. Phase files: `phase-2-first-playable.md
 | The content reader, the snapshot, and the migrations | `area-core.md` | PR-5 and PR-43 |
 | The fight that spends MP, items, and gear | `area-battle.md` | PR-9 and PR-66 |
 | The chests, the save points, and the shops | `area-exploration.md` | PR-16 and PR-65 |
-| The quests, the flags, and the scenes of each task | `area-story.md` | PR-68, PR-18, and PR-19 |
+| The quests, the flags, and the story scenes of each task | `area-story.md` | PR-68, PR-18, and PR-19 |
 | The party, lesson, gear, item, and status screens | `area-ui-input.md` | PR-62 |
 | The icons of the lessons, the elements, and the statuses | `area-art.md` | PR-42 |
 
@@ -217,7 +217,7 @@ Each later PR that adds or changes a rule of growth keeps this list. The phase f
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The progression work keeps this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The progression work keeps this order inside it:
 
 1. PR-9 and PR-66: the fight that reads the numbers (`area-battle.md`).
 2. PR-10: the battle screen.

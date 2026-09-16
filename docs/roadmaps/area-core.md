@@ -1,6 +1,6 @@
 # Area roadmap: Core
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the Core project works, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the Core project works, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
 
 The design doc holds the thesis of the game, the system map (section 3), the cost model (section 4), and the guardrails (section 6). The `csharp-conventions` skill gives the code rules that apply these contracts. The files `area-tools.md` and `area-ci.md` hold the tools and the CI jobs that enforce them.
 
@@ -187,7 +187,7 @@ Built by PR-43. Phase file: `phase-1-foundations.md`.
 
 Built by PR-44. Phase file: `phase-1-foundations.md`.
 
-- On a crash or a failed assertion, Game writes a crash file beside the save through Storage (T-2). Then it shows the message of D-170 and exits. The address of D-473 waits for OQ-57.
+- On a crash or a failed assertion, Game writes a crash file beside the save through Storage (T-2). Then it writes a log line and exits. PR-61 adds the message on screen through the text helper, with the address of D-473 (D-559).
 - The crash file holds the error with its context, the versions, and the run record, and no personal data (D-170).
 - A step of Core returns its log entries with the tick and the subsystem, and Storage writes each entry as one JSON line (D-179). Game adds the wall-clock time, and Core never does (D-179).
 
@@ -224,13 +224,14 @@ The systems that later areas add to Core are below. Each area file confirms its 
 | Tile map, movement, sight, and the time of day of a map | `area-exploration.md` | PR-7 |
 | Enemies on the map | `area-exploration.md` | PR-8 |
 | Battle and the timeline | `area-battle.md` | PR-9 |
+| The enemy record: stats and ability ids | `area-battle.md` | PR-80 |
 | The elements and the statuses | `area-battle.md` | PR-66 |
 | The evaluator and profiles | `area-battle.md` | PR-11 |
 | The character level, the experience, MP, and the stat curves | `area-progression.md` | PR-67 |
 | Lessons, the slots, the growth, and the aptitudes | `area-progression.md` | PR-12 |
 | Gear, items, and the inventory | `area-progression.md` | PR-13 |
 | Hub services | `area-exploration.md` | PR-14 |
-| Scenes, the scene runner, and the choices | `area-story.md` | PR-68 |
+| Story scenes, the story scene runner, the join step, and the choices | `area-story.md` | PR-68 |
 | Dungeon parts, downs, and save points | `area-exploration.md` | PR-16 |
 | Traps, hazards, and the statuses that last on the map | `area-exploration.md` | PR-64 |
 | The shop and the gold economy | `area-exploration.md` | PR-65 |
@@ -245,7 +246,7 @@ The systems that later areas add to Core are below. Each area file confirms its 
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The Core PRs keep this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The Core PRs keep this order inside it:
 
 1. PR-1: the Core project and the test of its reference list.
 2. PR-4: integer math, the streams, the state hash, the errors, and the simulation version.
@@ -269,6 +270,6 @@ The register is `docs/questions.md` (D-19). These questions block Core PRs, and 
 - OQ-64: the tick while a menu is open. Blocks PR-6.
 - OQ-65: when the run record takes a new snapshot. Blocks PR-6 and PR-43.
 - OQ-66: the encoding of records and snapshots. Blocks PR-6 and PR-43.
-- OQ-57: the studio name. Blocks the crash address of PR-44 (D-473).
+- OQ-57: the studio name. Blocks the crash address, which PR-61 adds (D-473, D-559).
 
 No open question blocks this file.
