@@ -72,3 +72,24 @@ If neither renderer holds 60 frames each second, the owner decides then (D-261).
 | `shaders/` | The CRT pass, the fog pass, and the transition |
 | `fetch-export-templates.sh` | Gets the export templates and checks the SHA-512 (OQ-83) |
 | `run-deck-test.sh` | Runs both renderers on the Deck |
+
+## Traps that this spike found
+
+These traps apply to PR-1 and to PR-54, and a session there must plan for them.
+
+- **The export needs a solution file.** With no `.sln` and no `.slnx` beside `project.godot`,
+  the Godot export writes an ELF file and exits 0, but it packs no managed assembly. The
+  build then starts and does nothing. A test proved that the plugin reads either format, so
+  the `.slnx` of D-217 stands. The export job must fail on the message `no solution file was
+  found`, because the exit code alone does not show this fault.
+
+- **An exit code of 0 hides an export fault.** The export gives `completed with warnings` and
+  exits 0. PR-54 must read the log, or count the packed assembly, and not the exit code.
+
+- **macOS caps the frame rate whatever the vsync setting says.** A run on the Mac reports
+  `vsync Disabled` and still measures 16.67 ms in every stage, the refresh interval of the
+  screen. The report detects this and refuses to give a budget (T-2). The Deck runs Vulkan on
+  Linux, where the setting holds, so the Deck run gives the true numbers.
+
+- **The Mac gives no renderer pick.** Because of the cap above, only the Deck run answers
+  D-160. A Mac run tests the scene and the report, and nothing else.
