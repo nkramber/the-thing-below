@@ -79,6 +79,59 @@ None for PR #10. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR
 
 The author adds the D-488 revision note and runs a repeat Gitar pass. Then a Codex session updates `docs/reviews/pr-10.md` for the new effective head.
 
+## Session 27: 2026-09-14, Claude Code
+
+Author: Claude Code
+Session: the first area file of PR #11, `docs/roadmaps/area-core.md`, on branch `docs/pr-11-roadmaps`.
+
+### What this session did, and why
+
+- Session 26 (Codex) gave PR #10 the verdict `Ready for owner merge` at `7eb2abc`. The owner merged PR #10 as `63803d9`.
+- The session started PR #11 on the new branch `docs/pr-11-roadmaps` from `63803d9`, and it wrote an area file first (D-488).
+- The session read the design, the whole decision register, the questions register, the skills, and one focused roadmap of what-you-carry, for its document shape alone (D-277).
+- The session asked four contract questions (D-487), and the owner took each recommendation:
+  - PR-6 splits into three PRs. PR-6 keeps the loop, the intents, the run record, and replay. PR-43 takes the save files, and PR-44 takes crash files and log files (D-491).
+  - PR-6 adds the debug seam, and PR-45 creates the debug assembly right after PR-7 (D-492).
+  - The run record holds intents, with no device kind (D-493).
+  - A sixth project, `TheThingBelow.Storage`, holds the file code (D-494).
+- A fifth question came up while the file took shape, and the owner took the recommendation: the content hash covers the rule files alone (D-495).
+- The session read eight sources on .NET, Git for Windows, the GitHub runner image, and git before a fact entered a document. F-35 records that the .NET hash classes call OS libraries and that a string hash code can change between runs. F-36 records that System.Text.Json uses reflection by default.
+- A check found that `.gitattributes` already sets `eol=lf` from PR #1, so the Windows CI leg needs no finding for line ends. The area file cites the rule beside the default of Git for Windows.
+- The session filed seven detail questions for PR-4, PR-5, PR-6, and PR-43 (OQ-60 to OQ-66), as D-487 asks. None blocks PR #11.
+- The session wrote `docs/roadmaps/area-core.md` and added 18 revision notes to earlier rows. It updated the system map, the finding register, and a dated line in `docs/design.md`, and the `csharp-conventions` and `pr-review` skills.
+- The handoff held ten entries before this one, so Session 17 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `63803d9` (PR #10).
+- The branch `docs/pr-11-roadmaps` holds one commit on `main`, and its remote head is the commit that holds this entry. No PR is open, because PR #11 opens when the roadmaps and the rebuild are complete (D-489).
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #11: one of twelve area files is done. Next come `area-tools.md` and `area-ci.md`, then the other nine area files in the order of D-485. Then come the five phase files and the rebuild of sections 7 and 8 (D-488).
+
+### Traps and gotchas
+
+- Sections 7 and 8 of `docs/design.md` still show PR-6 whole, with no PR-43, PR-44, or PR-45. The rebuild at the end of PR #11 changes them (D-488, D-491, D-492). Do not edit them before the phase files exist.
+- New PR ids so far: PR-43, PR-44, and PR-45, three of about 20 (D-486). The next id is PR-46.
+- The export job of D-449 still needs its PR id in `area-ci.md`, and PR-45 comes after that job (D-492).
+- Where the exported Game reads its content files is open. Godot exports a JSON file only through the filter for non-resource files, and `content/` sits outside the Game project folder (D-118). The session did not check whether an export can take a file from outside that folder. Ask it as a contract question in `area-ci.md` (D-487).
+- Storage holds the file code for saves, records, crash files, and logs (D-494). The reader of content files for Tools and Tests has no home yet. Settle it with the content question above.
+- D-495 keeps the string text out of the content hash. A rule file that names a string id still needs the id test of section 7.7 of the area file.
+- The system map now splits the snapshot bytes of Core from the files of Storage. A later area file keeps that split.
+- Every later Core PR carries the seven steps of section 7.14 of the area file. The phase files turn them into exit tests.
+- The owner took every recommendation in this block. Still show running counts of PR ids and files in each batch (Session 23).
+- The next ids are D-496, OQ-67, F-37, L-16, G-26, PR-46, M-7, and Session 28.
+
+### Open questions that block progress
+
+None for PR #11. OQ-60 to OQ-66 block PR-4, PR-5, PR-6, and PR-43. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
+
+### Next concrete action
+
+A session continues PR #11 on `docs/pr-11-roadmaps`. It reads `docs/roadmaps/area-core.md`, D-491 to D-495, and the Phase 1 entries of `docs/design.md`. Then it writes `docs/roadmaps/area-tools.md`, asks contract questions alone, and files detail questions with their PRs (D-487, D-488).
+
 ## Session 25: 2026-09-14, Claude Code
 
 Author: Claude Code
