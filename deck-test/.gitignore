@@ -1,0 +1,7 @@
+# Godot and .NET build output. The spike commits source alone.
+.godot/
+build/
+bin/
+obj/
+reports/
+*.tpz

@@ -1,0 +1,30 @@
+; Throwaway Deck test project (D-160, D-523). This project never merges to main.
+
+config_version=5
+
+[application]
+
+config/name="DeckTest"
+run/main_scene="res://Main.tscn"
+config/features=PackedStringArray("4.4", "C#", "Forward Plus")
+config/quit_on_go_back=false
+boot_splash/show_image=false
+
+[dotnet]
+
+project/assembly_name="DeckTest"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
+window/vsync/vsync_mode=0
+
+[rendering]
+
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="mobile"
+viewport/hdr_2d=true
+textures/canvas_textures/default_texture_filter=0
