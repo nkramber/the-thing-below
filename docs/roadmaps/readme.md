@@ -59,7 +59,3 @@ Twelve files in four groups (D-485).
 ## The shape of a file
 
 Each file here keeps the status header and the sections 1, 5, 7, 8, and 9 of the design doc template. The `design-doc-style` skill holds that template, and a session loads it before it writes or edits a file here.
-
-## Status, 2026-09-16
-
-The twelve area files and the five phase files are complete. Until PR #11 merges, section 8 of `docs/design.md` holds the order from before the new PR ids of D-486. For the order of a phase, read section 8 of its phase file. For the order inside one area, read section 8 of its area file. The session that rebuilds sections 7 and 8 removes this paragraph (D-488).

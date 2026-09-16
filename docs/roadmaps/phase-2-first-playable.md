@@ -1621,7 +1621,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 **Scope.**
 
-- M-3 records the night wall time and the crash and softlock counts of seven nights (D-509).
+- M-3 records the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
 - M-4 records the turns of each encounter and the party downs of each dungeon, by bot policy.
 - M-6 records the frame time of the first playable on the Deck, against 60 frames each second (D-161).
 - M-6 also records the readability of the font and the sprites at 1x, with the CRT on and off (D-92, D-120, F-18).
