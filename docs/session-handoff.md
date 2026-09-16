@@ -2,6 +2,46 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md`. Read the first entry first.
 
+## Session 36: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat cross-provider review of PR #11 at effective head `6266d54`.
+
+### What this session did, and why
+
+- Read the current handoff first, then the review response, the review skill, the STE skill, the corrected diff, the roadmap contracts, and the PR comments.
+- Verified that Claude Code made the substantive PR changes and that Codex remains the eligible opposite provider under T-4 and D-17.
+- Recomputed the effective head. `6266d54` is the newest substantive commit. The later commit `7899972` changes only `docs/session-handoff.md`.
+- Reproduced both original triggers and verified their corrections. PR-61 now tests the fit without the later screen-test job, names its fixture panel, and leaves screen captures to PR-41. D-543 now records D-544 as a partial revision and gives PR-68 sole ownership of the condition form.
+- Verified the additional PR-68 correction. Its exit test uses a scripted intent list, while the later bot dependency stays in its review focus.
+- The exit-test dependency scan, PR-id coverage check, order check, interim STE check, `git diff --check`, and guidance identity check pass.
+- Updated `docs/reviews/pr-11.md`, preserved P1-1 and P2-1 under `## Earlier verdicts`, and set the verdict `Ready for owner merge` for `6266d54`.
+
+### State of the build
+
+- No code exists. `main` is `63803d9` (PR #10).
+- PR #11 is open on `docs/pr-11-roadmaps`. Its remote tip is `7899972`, and its effective head is `6266d54`.
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #11 is ready for owner merge. PR #12 holds the next design-critic pass after the merge (D-484, D-490).
+
+### Traps and gotchas
+
+- The review verdict covers `6266d54`, not the metadata tip `7899972`.
+- P1-1 had partial merit. The screen-capture part was fixed. The fixture-panel part remains owned by PR-61.
+- P2-1 is fixed by the explicit revision note in D-543. A later decision must keep the same revision form.
+- The next ids are D-555, OQ-179, F-57, L-16, G-26, PR-80, M-7, and Session 37.
+
+### Open questions that block progress
+
+None for PR #11. OQ-60 to OQ-178 remain assigned to later PRs.
+
+### Next concrete action
+
+The owner can merge PR #11. Then a fresh session starts PR #12 after the merge.
+
 ## Session 35: 2026-09-16, Claude Code
 
 Author: Claude Code
@@ -522,42 +562,3 @@ None for PR #11. OQ-60 to OQ-66 block PR-4, PR-5, PR-6, and PR-43. OQ-57 and OQ-
 ### Next concrete action
 
 A session continues PR #11 on `docs/pr-11-roadmaps`. It reads `docs/roadmaps/area-core.md`, D-491 to D-495, and the Phase 1 entries of `docs/design.md`. Then it writes `docs/roadmaps/area-tools.md`, asks contract questions alone, and files detail questions with their PRs (D-487, D-488).
-
-## Session 26: 2026-09-14, Codex
-
-Author: Codex
-Session: repeat review of PR #10 at effective head `7eb2abc`.
-
-### What this session did, and why
-
-- Verified the new base, effective head, changed paths, provider gate, response file, and existing PR comments.
-- Read the correction diff, the complete PR diff, the design and decision contracts, the question register, the skills, the agent guidance, the handoff archive, and the PR description.
-- Reproduced P2-1. D-488 now uses `Revised in part by D-490`, names PR #11 as the changed part, and keeps the writing order.
-- Confirmed D-490 names D-488 among the revised decisions and that the design and handoff identify PR #11.
-- Confirmed the repeat Gitar check passed on `7eb2abc` with no new comment.
-- Updated `docs/reviews/pr-10.md`, preserved P2-1 with its earlier evidence, and set the verdict to `Ready for owner merge` for `7eb2abc`.
-- Ran the interim STE check with 0 findings, `git diff --check`, and the guidance identity check.
-
-### State of the build
-
-- No code exists. `main` is `4f37c99` (PR #9).
-- PR #10 is open on `docs/pr-10-roadmaps`. Its effective head is `7eb2abc`.
-- The interim STE check passes with 0 findings. The repeat review metadata and handoff are pushed in `e8cc765`.
-
-### In flight
-
-PR #10 is ready for owner merge. Then PR #11 starts the roadmaps on a new branch.
-
-### Traps and gotchas
-
-- D-488 and D-489 keep `PR #10` in their topic columns as dated text. Their revision notes carry the current PR number.
-- The build, test, format, det-lint, replay-identity, smoke, night-gate, and review-gate checks do not exist until the PRs named in `AGENTS.md` create them.
-- The next ids are D-491, OQ-60, F-35, L-16, G-26, PR-43, M-7, and Session 27.
-
-### Open questions that block progress
-
-None for PR #10. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
-
-### Next concrete action
-
-The owner can merge PR #10. Then a fresh session starts PR #11 with `docs/roadmaps/area-core.md`.

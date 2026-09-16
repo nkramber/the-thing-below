@@ -2,6 +2,45 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 26: 2026-09-14, Codex
+
+Author: Codex
+Session: repeat review of PR #10 at effective head `7eb2abc`.
+
+### What this session did, and why
+
+- Verified the new base, effective head, changed paths, provider gate, response file, and existing PR comments.
+- Read the correction diff, the complete PR diff, the design and decision contracts, the question register, the skills, the agent guidance, the handoff archive, and the PR description.
+- Reproduced P2-1. D-488 now uses `Revised in part by D-490`, names PR #11 as the changed part, and keeps the writing order.
+- Confirmed D-490 names D-488 among the revised decisions and that the design and handoff identify PR #11.
+- Confirmed the repeat Gitar check passed on `7eb2abc` with no new comment.
+- Updated `docs/reviews/pr-10.md`, preserved P2-1 with its earlier evidence, and set the verdict to `Ready for owner merge` for `7eb2abc`.
+- Ran the interim STE check with 0 findings, `git diff --check`, and the guidance identity check.
+
+### State of the build
+
+- No code exists. `main` is `4f37c99` (PR #9).
+- PR #10 is open on `docs/pr-10-roadmaps`. Its effective head is `7eb2abc`.
+- The interim STE check passes with 0 findings. The repeat review metadata and handoff are pushed in `e8cc765`.
+
+### In flight
+
+PR #10 is ready for owner merge. Then PR #11 starts the roadmaps on a new branch.
+
+### Traps and gotchas
+
+- D-488 and D-489 keep `PR #10` in their topic columns as dated text. Their revision notes carry the current PR number.
+- The build, test, format, det-lint, replay-identity, smoke, night-gate, and review-gate checks do not exist until the PRs named in `AGENTS.md` create them.
+- The next ids are D-491, OQ-60, F-35, L-16, G-26, PR-43, M-7, and Session 27.
+
+### Open questions that block progress
+
+None for PR #10. OQ-57 and OQ-59 block the store page at Gate 2, OQ-58 blocks PR-40, and OQ-3 waits for PR-3.
+
+### Next concrete action
+
+The owner can merge PR #10. Then a fresh session starts PR #11 with `docs/roadmaps/area-core.md`.
+
 ## Session 24: 2026-09-14, Codex
 
 Author: Codex
