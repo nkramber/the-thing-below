@@ -2,6 +2,48 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 53: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat review of PR #16 at effective head `d2479ce`.
+Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: reviewer. Base: `2bc7d56`.
+
+### What this session did, and why
+
+- Read the top handoff entry and the one-PR, repeat-review, review-record, and STE skills.
+- Verified Claude Code authored PR #16 and its correction. Codex remains eligible under T-4 and D-17.
+- Verified the base and head with GitHub PR metadata. The effective head is `d2479ce` because it changes the runbook.
+- Reproduced P2-1 against the old and corrected runbook commands in bash and zsh. The old command returned 0 and left a partial file. The corrected command returned 1 and left no file.
+- Set P2-1 to fixed in `d2479ce` and updated the existing review record.
+- GitHub API access failed during the required comment export and check query. The current PR comments and fresh Gitar/check evidence remain unverified.
+- The handoff held ten entries. Session 43 moved word for word to the archive (D-18).
+
+### State of the build
+
+- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
+- PR #16 is open on `docs/pr-16-context-budget`, with head `d2479ce` and base `2bc7d56` per `gh pr view`.
+- The interim STE check, diff check, identity check, and P2-1 regression check pass.
+- The review verdict is Blocked until GitHub comments and fresh Gitar/check evidence can be read.
+
+### In flight
+
+PR #16 needs a successful current comment export and verification of the Gitar pass and applicable checks for `d2479ce`.
+
+### Traps and gotchas
+
+- `git fetch` cannot write `.git/FETCH_HEAD` under the current filesystem permissions.
+- The PR comment export safely removes its output after a GitHub API error.
+- The regression harness is `/tmp/pr16_export_regression.sh`.
+- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 54.
+
+### Open questions that block progress
+
+No owner question blocks PR #16. GitHub API access blocks fresh review evidence.
+
+### Next concrete action
+
+Retry the comment export and check query after GitHub API access returns. Then update the verdict for the same effective head.
+
 ## Session 52: 2026-09-16, Claude Code
 
 Author: Claude Code
@@ -391,43 +433,3 @@ None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
 ### Next concrete action
 
 The owner can merge PR #12.
-
-## Session 43: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: the answer to the second repeat review of PR #12, on branch `docs/pr-12-critic`.
-
-### What this session did, and why
-
-- The session read the second repeat review of Session 42. It set P2-6 to `fixed in 0fbfa82`, and it added P2-7 with the verdict `Changes required` for head `0fbfa82`.
-- P2-7 has full merit. The art and effects tables gave the later places to PR-23 to PR-27 alone, and the budget exit test of PR-81 left out its battle place, which the boss of D-575 needs.
-- The art row and the effects row now name PR-81 and cite D-575. The budget test of PR-81 now uses the boundary of the other dungeon builds: each map and each battle place.
-- A scan for the same class found two more lines in Phase 2, the scope limits of PR-35 and PR-17. The sealed door is a story gate on the region map, so both lines now name PR-81.
-- `docs/reviews/pr-12-response.md` gained the answer of this round.
-- The handoff held ten entries before this one, so Session 33 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. `main` is `c4d39fe` (PR #11).
-- PR #12 is open on branch `docs/pr-12-critic`. Its remote head is the commit that holds this entry.
-- The correction changes four roadmap files outside the metadata set, so the effective head moves off `0fbfa82` to the commit of this answer.
-- The automated pass on `ff04f87` reported `Approved with suggestions`, with one finding. It had merit: the response and this entry said three roadmap files, and the commit changed four. The same count was wrong for the first round too, and a follow-up commit corrected all three lines.
-- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-
-### In flight
-
-PR #12 waits for the repeat cross-provider review of P2-7 at the effective head `ff04f87` (T-4, D-17). The automated pass is complete, and no comment of it waits for an answer (D-14, D-66).
-
-### Traps and gotchas
-
-- A new PR that joins a group of PRs must join every table and every scope limit that names the group. PR-81 joined the sequence first and the ownership tables later.
-- The budget test of a dungeon covers each map and each battle place (D-523).
-- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 44.
-
-### Open questions that block progress
-
-None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
-
-### Next concrete action
-
-A Codex session repeats the review of PR #12 at the effective head `ff04f87`. It reads the P2-7 section of `docs/reviews/pr-12-response.md`, checks the trigger and the regression check, and writes the verdict (T-4, D-17).

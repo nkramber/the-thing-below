@@ -2,6 +2,46 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 43: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the second repeat review of PR #12, on branch `docs/pr-12-critic`.
+
+### What this session did, and why
+
+- The session read the second repeat review of Session 42. It set P2-6 to `fixed in 0fbfa82`, and it added P2-7 with the verdict `Changes required` for head `0fbfa82`.
+- P2-7 has full merit. The art and effects tables gave the later places to PR-23 to PR-27 alone, and the budget exit test of PR-81 left out its battle place, which the boss of D-575 needs.
+- The art row and the effects row now name PR-81 and cite D-575. The budget test of PR-81 now uses the boundary of the other dungeon builds: each map and each battle place.
+- A scan for the same class found two more lines in Phase 2, the scope limits of PR-35 and PR-17. The sealed door is a story gate on the region map, so both lines now name PR-81.
+- `docs/reviews/pr-12-response.md` gained the answer of this round.
+- The handoff held ten entries before this one, so Session 33 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `c4d39fe` (PR #11).
+- PR #12 is open on branch `docs/pr-12-critic`. Its remote head is the commit that holds this entry.
+- The correction changes four roadmap files outside the metadata set, so the effective head moves off `0fbfa82` to the commit of this answer.
+- The automated pass on `ff04f87` reported `Approved with suggestions`, with one finding. It had merit: the response and this entry said three roadmap files, and the commit changed four. The same count was wrong for the first round too, and a follow-up commit corrected all three lines.
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #12 waits for the repeat cross-provider review of P2-7 at the effective head `ff04f87` (T-4, D-17). The automated pass is complete, and no comment of it waits for an answer (D-14, D-66).
+
+### Traps and gotchas
+
+- A new PR that joins a group of PRs must join every table and every scope limit that names the group. PR-81 joined the sequence first and the ownership tables later.
+- The budget test of a dungeon covers each map and each battle place (D-523).
+- The next ids are D-576, OQ-181, F-58, L-16, G-26, PR-82, M-7, and Session 44.
+
+### Open questions that block progress
+
+None for PR #12. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### Next concrete action
+
+A Codex session repeats the review of PR #12 at the effective head `ff04f87`. It reads the P2-7 section of `docs/reviews/pr-12-response.md`, checks the trigger and the regression check, and writes the verdict (T-4, D-17).
+
 ## Session 42: 2026-09-16, Codex
 
 Author: Codex
