@@ -2,6 +2,51 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 38: 2026-09-16, Codex
+
+Author: Codex
+Session: cross-provider review of PR #12 at effective head `84b4128`.
+
+### What this session did, and why
+
+- Read the current handoff first, then the review skill, the STE skill, the complete PR diff, the changed contracts, the PR description, and the PR comments.
+- Verified the provider gate under T-4 and D-17. Session 37 identifies the other provider as the author of the substantive changes.
+- Recomputed the effective head. `84b4128` is the newest substantive commit. The four commits above it change only `docs/session-handoff.md` and `docs/session-handoff-archive.md`.
+- Found six blockers. D-568 requires a 1.5 scale with neither blur nor uneven pixels, which no raster filter can supply. Current consumers retain the old frame, fog, save-point, and M-4 band rules. OQ-93 assigns Deck test instrumentation to a story scene. The PR description attributes the critic work to an agent. Session 27 is out of order in the handoff archive.
+- Added `docs/reviews/pr-12.md` with the verdict `Changes required` for `84b4128`.
+- Verified the PR order and id coverage, the roadmap list numbers, the guidance identity, the interim STE check, and `git diff --check`. The automated pass has one approval comment and no inline thread.
+- The handoff held ten entries before this one, so Session 28 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. The current target tip of `main` is `6910017`, and the PR merge base is `c4d39fe`.
+- PR #12 is open on `docs/pr-12-critic`. Before the review commit, its remote tip is `d4330d1`, and its effective head is `84b4128`.
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- GitHub reports no check run on the branch. The automated-pass issue comment reports `Approved` and no issue.
+
+### In flight
+
+PR #12 needs the six corrections in `docs/reviews/pr-12.md`, then a repeat cross-provider review at the new effective head.
+
+### Traps and gotchas
+
+- A 1280 by 720 image cannot scale to 1920 by 1080 with both equal source-pixel widths and no sample mixing. OQ-105 needs an owner choice that relaxes one property.
+- D-568 supersedes D-480. Current implementation contracts must use the one 1280 by 720 frame, not only add a citation.
+- D-555, D-566, and D-571 also need propagation into the questions and exit tests that implement them.
+- The term correction in OQ-93 is `test scene`, not `story scene`.
+- A PR description cannot credit an agent as the source of work, even when the named agent is a configured repository tool (T-6, D-22).
+- D-18 requires every archive block to stay newest first. Session 27 is below Sessions 26 and 24 and needs a block-only move.
+- The review verdict covers `84b4128`, not the metadata tip.
+- The next ids are D-573, OQ-180, F-58, L-16, G-26, PR-82, M-7, and Session 39.
+
+### Open questions that block progress
+
+OQ-105 blocks PR-61 and needs an owner answer that resolves P1-1. OQ-179 continues to block PR-5.
+
+### Next concrete action
+
+The author assesses each finding, asks the owner to settle the 1080p tradeoff in OQ-105, corrects the findings with their adjacent consumers, and writes `docs/reviews/pr-12-response.md`. Then a Codex session repeats the review at the new effective head.
+
 ## Session 37: 2026-09-16, Claude Code
 
 Author: Claude Code

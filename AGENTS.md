@@ -156,5 +156,5 @@ A PR merges only when every line holds:
 - [ ] `docs/design.md` matches intent.
 - [ ] Each check that does not exist yet has a line that names the PR that creates it (G-16).
 - [ ] `docs/session-handoff.md` is current.
-- [ ] The Documents section has a line for each row of the `one-pr-one-session` skill, and no line defers work (D-577, D-581). PR-3 checks it (D-579).
+- [ ] The Documents section has a line for each row of the `one-pr-one-session` skill (D-581). No line defers a document or a record of the PR (D-577). PR-3 checks it (D-579).
 - [ ] No attribution anywhere (T-6).

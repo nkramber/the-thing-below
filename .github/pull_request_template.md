@@ -25,7 +25,7 @@ Each line holds before the owner merges (`CLAUDE.md`, PR gate).
 - [ ] `docs/design.md` matches intent.
 - [ ] Every check that does not exist yet has a line above with the PR that creates it (G-16).
 - [ ] `docs/session-handoff.md` is current, and the handoff entry of each session is on the PR branch.
-- [ ] No work waits for a later PR: no document, handoff, review record, or merge record (D-577, D-578).
+- [ ] No document, handoff entry, review record, or merge record of this PR waits for a later PR (D-577, D-578). A line that names the PR of independent roadmap work is valid (G-16).
 - [ ] No attribution anywhere (T-6). No commit subject or body names an agent, harness, or model as the source of the work (D-22).
 
 ## Documents

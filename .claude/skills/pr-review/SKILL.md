@@ -556,7 +556,7 @@ The status line must show no `[ahead N]`. The hash from `gh pr view` must equal 
 Write the push line in the Verification section of the review record, and name the remote head in the handoff entry.
 A record with no push line is incomplete, and the next session treats it as unpushed.
 
-After the gate passes, give the result of the completion gate of the `one-pr-one-session` skill, and end the session.
+After the gate passes, apply the completion gate of the `one-pr-one-session` skill. End the session only at the hand-over point of its role (D-582).
 
 If the remote refuses the push, the review is not complete. Do not end the session.
 Ask the owner to approve the push, and say in the handoff that the record has a commit and no push.

@@ -21,21 +21,21 @@ Write the binding in the first reply of the PR work and in the handoff entry:
 
 - Repository: `the-thing-below`.
 - Branch: `<prefix>/pr-<n>-<slug>` (D-8).
-- PR: `#<n>`, the GitHub number, or the one PR intent before GitHub gives a number.
+- PR: `#<n>`, the GitHub number, or the one PR intent before GitHub gives a number. A roadmap id such as PR-5 is a different number.
 - Role: author, reviewer, or correction author.
 
-A session can take many turns and many commits for its PR. Many clean sessions can work on one PR, for example the author, the reviewer, and the correction author. A session never works on a second PR.
+A session can take many turns and many commits for its PR. The author session answers each gitar comment and each review of its PR, and a review answer needs no new session (D-582). A correction author continues the author role only when the author session no longer exists, and it comes from the provider of the author (T-4). The reviewer session repeats its review of the same PR after each correction. Each round adds a new handoff entry. A session never works on a second PR.
 
 Stop with this result, and do no other work, when one of the conditions below holds:
 
 `Blocked: start a new clean session for this PR.`
 
 - The conversation holds substantive work on another PR or another repository. Substantive work is a change, a commit, a push, a review record, or a PR comment. A file read alone is not.
-- The conversation holds a PR that reached its hand-over point.
+- The conversation holds a PR that the owner merged or closed.
 - The request asks for a second PR or the next PR.
 - The session is a fork, a subagent, a compaction, or a summary of a session that worked on another PR.
 
-The PR in the result is the PR that the request names.
+After the hand-over point, a request for the next PR gets this result too.
 
 A request for a second concern in the bound PR breaks G-8. Push back, and ask the owner (D-24). Never add the concern without an answer.
 
@@ -84,13 +84,13 @@ The `docs/session-handoff.md` line is always `Changed`. Before the review, the a
 
 Correct the PR when a line or a record holds one of these:
 
-- A deferral: "later", "after the merge", "follow-up PR", "TBD", or a plan for a docs PR.
+- A deferral of a document or a record of this PR: "later", "after the merge", "follow-up PR", "TBD", or a plan for a docs PR.
 - A general claim, such as "no documentation impact", with no path or category.
 - A handoff line in a form other than `Changed`.
 - A handoff entry that describes work that the PR does not hold.
 - A design, a decision, a roadmap, or a question that the diff contradicts.
 
-A document that the diff makes wrong changes in this PR (D-577).
+A document that the diff makes wrong changes in this PR (D-577). A line that names the PR of independent roadmap work is not a deferral, for example the PR that creates an absent check (G-16, D-579).
 
 ## 4. Merge facts
 
@@ -103,7 +103,7 @@ A PR cannot hold its own squash commit or its merge time. Before the merge, the 
 
 Git and GitHub hold the merge commit and the merge time (D-578). The next PR reads its base from git, and its documents gate corrects any state text that the merge made old. A docs PR with its own concern, such as a critic pass, is a PR of its own (D-580).
 
-No PR exists only to record the merge, the handoff, the review record, or the documents of an earlier PR. Refuse such a request with this result, and start no PR:
+No PR exists only to record the merge, the handoff, the review record, or the documents of an earlier PR. A new concern that edits a file of a merged PR is a PR of its own. Refuse such a request with this result, and start no PR:
 
 `Refused: no PR records the merge or the documents of an earlier PR (D-578).`
 
@@ -120,11 +120,13 @@ The PR reaches its hand-over point only when each line holds:
 5. The handoff entry of this session is on the PR branch.
 6. Each review record and each response file is on the PR branch.
 7. The checks of `CLAUDE.md` pass, and each gitar comment has its answer.
-8. No line gives work to another PR.
+8. No document, handoff entry, review record, or merge record of this PR waits for another PR. A line that names the PR of independent roadmap work holds this line.
 
-A reviewer checks lines 1 to 4, 7, and 8 in the review, and it does not make them hold. The reviewer reaches the hand-over point when its review record is on the remote, with any verdict.
+A reviewer checks lines 1 to 4, 7, and 8 in the review, and it does not make them hold. The reviewer reaches the hand-over point when its review record gives `Ready for owner merge` for the effective head, or when the owner ends the review.
 
-The author reaches the hand-over point when the PR waits for the other provider or the label is on. At the hand-over point, each role writes this result and stops:
+The author reaches the hand-over point when a review record gives `Ready for owner merge` for the effective head, or the label is on. While the PR waits for gitar or the other provider, the author session stays bound to the PR and answers each finding (D-582). A message that the PR is ready for the other provider is not the hand-over point.
+
+At the hand-over point, each role writes this result and stops:
 
 `This session is bound to PR #N and is complete. End this session. Start a new clean session before beginning another PR.`
 
@@ -134,7 +136,7 @@ Do not offer to start the next PR.
 
 | Rule | Enforced by |
 |---|---|
-| The handoff changes, each row has a line, and no line defers work | Machine after PR-3 (D-579). Agent and owner until then |
+| The handoff changes, each row has a line, and no line defers a document or a record of the PR | Machine after PR-3 (D-579). Agent and owner until then |
 | The review record and the effective head | Machine after PR-3 (D-15). Agent and owner until then |
 | `CLAUDE.md` and `AGENTS.md` stay identical | Agent now. The reviewer checks it |
 | The binding, the start gate, and the completion gate | Agent |

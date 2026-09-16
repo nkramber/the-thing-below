@@ -170,7 +170,7 @@ Area files: `area-tools.md` section 7.3, `area-ci.md` section 7.7.
 - The workflow on `pull_request_target`, which runs from `main` and reads the PR head as data alone (D-15).
 - The three rules of the `pr-review` skill: the record exists, the verdict is `Ready for owner merge`, and the head field names the effective head.
 - The override rules of D-16, D-71, D-239, D-401, and D-560, with the eligible path set. `.github/workflows/` sits outside that set.
-- The document rules of D-579. The handoff changes, and no line defers work (D-577). The Documents section has a line in a form of D-581 for each required row.
+- The document rules of D-579. The handoff changes, and no line defers a document or a record of the PR (D-577). The Documents section has a line in a form of D-581 for each required row.
 - A check run as the result, and a second run when a label or the PR description changes (D-67, D-579).
 
 **Out of scope.**
@@ -189,9 +189,10 @@ Area files: `area-tools.md` section 7.3, `area-ci.md` section 7.7.
 7. A metadata commit does not move the effective head.
 8. It fails a PR whose diff does not change `docs/session-handoff.md` (D-579).
 9. It fails a PR whose Documents section lacks a required row, or holds a line in no form of D-581.
-10. It fails a PR whose description or Documents section defers work to a later PR (D-577, D-578).
-11. It passes a PR with a line of the form "No change needed because" and a specific reason (D-581).
-12. The PR description shows the output of each fixture (D-500).
+10. It fails a PR that defers one of its own documents or records to a later PR (D-577, D-578).
+11. It passes a PR with complete documents that names the PR of an absent check (G-16).
+12. It passes a PR with a line of the form "No change needed because" and a specific reason (D-581).
+13. The PR description shows the output of each fixture (D-500).
 
 **Review focus.**
 

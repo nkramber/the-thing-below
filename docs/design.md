@@ -62,7 +62,7 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-16 critic pass: the design-critic pass of PR #12 read the merged plan in five slices and found 52 defects, which F-57 records. The owner answered 18 questions (D-555 to D-572). A place stays cleared until a story event, and the game has no fog of war (D-555, D-566). The game draws one 16:9 frame of 1280 by 720 (D-568). PR-80 holds the enemy record, and PR-81 holds the sealed gallery (D-557, D-562).
 
-2026-09-16 session pass: PR #14 binds each session to one PR and makes the PR the complete unit of its work (D-576, D-577). No PR exists only to record the merge or the documents of an earlier PR, and git holds the merge commit (D-578, D-580). The `one-pr-one-session` skill holds the gates, and PR-3 adds the document rules to the review gate (D-579). F-58 records that no check can see the conversation of a session.
+2026-09-16 session pass: PR #14 binds each session to one PR and makes the PR the complete unit of its work (D-576, D-577). No PR exists only to record the merge or the documents of an earlier PR, and git holds the merge commit (D-578, D-580). The `one-pr-one-session` skill holds the gates, and PR-3 adds the document rules to the review gate (D-579). The author session answers each review of its PR (D-582). F-58 records that no check can see the conversation of a session.
 
 External facts, each with the date of its check:
 
@@ -472,7 +472,7 @@ Parked until Gate 5, with no phase file yet. Each later region repeats Phase 4 w
 Section 7 gives the same order inside each phase, with a link to each phase file. This list is the one strict order across the phases, and it holds each owner step and the current position.
 
 1. Owner: create no label, install no tool. gitar and the label exist (D-66, D-67).
-2. PR #2 to PR #10 merged on 2026-09-14, and PR #11 to PR #13 on 2026-09-16 (D-554, D-555 to D-575). PR #14 sets one PR for each session (D-576 to D-581).
+2. PR #2 to PR #10 merged on 2026-09-14, and PR #11 to PR #13 on 2026-09-16 (D-554, D-555 to D-575). PR #14 sets one PR for each session (D-576 to D-582).
 3. Owner: enable the setting that requires a SHA pin for each action (D-511). Done on 2026-09-14.
 4. Owner and a session: the Deck test of D-160 on the Linux export, before PR-1 (D-458, D-523).
 5. PR-1, PR-2, PR-3.

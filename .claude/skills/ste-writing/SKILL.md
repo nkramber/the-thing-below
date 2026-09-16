@@ -244,7 +244,7 @@ CI terms from the roadmaps PR of 2026-09-14:
 | night record | the result file that one leg of a night uploads as an artifact of its run (D-509) | night result, night report |
 | docs-only PR | a PR that changes only `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/`, and the PR template (D-513) | documentation PR, when the text means this set |
 | Documents section | the part of the PR description with one line for each required document (D-577, D-581) | documentation-impact matrix, doc checklist |
-| hand-over point | the point where a PR waits for the other provider or the owner, and its session ends (D-576) | handoff, which names the entry in `docs/session-handoff.md` |
+| hand-over point | the end of the work of a session on its PR: the verdict `Ready for owner merge` for the effective head, or the label (D-576, D-582) | handoff, which names the entry in `docs/session-handoff.md` |
 
 Art terms from the roadmaps PR of 2026-09-14:
 

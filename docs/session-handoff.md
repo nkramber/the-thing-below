@@ -2,6 +2,48 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md`. Read the first entry first.
 
+## Session 48: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the review of PR #14, on branch `docs/pr-14-one-pr-one-session`. Role: author, in the same conversation as Session 46 (D-582). Base: `26152c5`.
+
+### What this session did, and why
+
+- The owner asked the session to answer the review of Session 47. The skill of this PR blocked the answer, because the author session had reached its hand-over point. The owner said: "Addressing Codex/gitar review feedback does NOT qualify for a new session."
+- D-582 records that rule and revises D-576 in part. The author session now answers each gitar comment and each review, and it ends at `Ready for owner merge` or the label.
+- P2-1 has full merit. Completion line 8 rejected any line that names another PR, so it rejected PR #14 and the PR template. The gate now rejects only a document or a record of this PR that waits for another PR.
+- The same boundary reaches `CLAUDE.md`, `AGENTS.md`, the PR template, D-579, and the PR-3 scope. PR-3 gains exit test 11, which passes a PR that names the PR of an absent check.
+- `pr-review`, the glossary, and `docs/design.md` follow D-582.
+- `docs/reviews/pr-14-response.md` records both answers.
+- A separate evaluator ran the corrected skill on seven requests, the two fixtures of the review included. The deferral failed, and the PR that names PR-3 passed. Its notes found a clash that the first correction made: the reviewer could repeat a review, yet it ended at its first record. The reviewer now ends at the same verdict as the author. A correction author comes from the provider of the author (T-4).
+- The handoff held ten entries before this one, so Session 38 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `26152c5` (PR #13).
+- PR #14 is open on branch `docs/pr-14-one-pr-one-session`. The commit that holds this entry changes paths outside the metadata set, so it is the new effective head.
+- The interim STE check passes with 0 findings, the skill validator passes, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- Size: `CLAUDE.md` is 15,004 bytes, and the skill is 8588 bytes.
+
+### In flight
+
+PR #14 waits for a current gitar review of the new head, then the repeat Codex review of P2-1 (T-4, D-17). This author session stays bound to PR #14 and answers each finding (D-582).
+
+### Traps and gotchas
+
+- A line that names the PR of independent roadmap work is not a deferral (G-16). Only a document or a record of the current PR can defer.
+- D-579 changed its text inside this PR, before any merge. The response file says why.
+- The author session and the reviewer session each end at `Ready for owner merge` for the effective head, or at the label, not at the request for a review (D-582). Each round of a session adds a new handoff entry.
+- The next ids are D-583, OQ-182, F-59, L-16, G-27, PR-82, M-7, and Session 49.
+
+### Open questions that block progress
+
+None for PR #14. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Get a current gitar review of the new head and answer each finding. Then a Codex session repeats the review of P2-1 from `docs/reviews/pr-14-response.md`.
+
 ## Session 47: 2026-09-16, Codex
 
 Author: Codex
@@ -400,48 +442,3 @@ None for PR #12. OQ-179 blocks PR-5.
 ### Next concrete action
 
 A Codex session repeats the review of PR #12 at the effective head `d31ae6b`. It reads `docs/reviews/pr-12-response.md`, checks each trigger and regression check, and writes the verdict (T-4, D-17). The automated pass is complete, and no comment of it waits for an answer.
-
-## Session 38: 2026-09-16, Codex
-
-Author: Codex
-Session: cross-provider review of PR #12 at effective head `84b4128`.
-
-### What this session did, and why
-
-- Read the current handoff first, then the review skill, the STE skill, the complete PR diff, the changed contracts, the PR description, and the PR comments.
-- Verified the provider gate under T-4 and D-17. Session 37 identifies the other provider as the author of the substantive changes.
-- Recomputed the effective head. `84b4128` is the newest substantive commit. The four commits above it change only `docs/session-handoff.md` and `docs/session-handoff-archive.md`.
-- Found six blockers. D-568 requires a 1.5 scale with neither blur nor uneven pixels, which no raster filter can supply. Current consumers retain the old frame, fog, save-point, and M-4 band rules. OQ-93 assigns Deck test instrumentation to a story scene. The PR description attributes the critic work to an agent. Session 27 is out of order in the handoff archive.
-- Added `docs/reviews/pr-12.md` with the verdict `Changes required` for `84b4128`.
-- Verified the PR order and id coverage, the roadmap list numbers, the guidance identity, the interim STE check, and `git diff --check`. The automated pass has one approval comment and no inline thread.
-- The handoff held ten entries before this one, so Session 28 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. The current target tip of `main` is `6910017`, and the PR merge base is `c4d39fe`.
-- PR #12 is open on `docs/pr-12-critic`. Before the review commit, its remote tip is `d4330d1`, and its effective head is `84b4128`.
-- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-- GitHub reports no check run on the branch. The automated-pass issue comment reports `Approved` and no issue.
-
-### In flight
-
-PR #12 needs the six corrections in `docs/reviews/pr-12.md`, then a repeat cross-provider review at the new effective head.
-
-### Traps and gotchas
-
-- A 1280 by 720 image cannot scale to 1920 by 1080 with both equal source-pixel widths and no sample mixing. OQ-105 needs an owner choice that relaxes one property.
-- D-568 supersedes D-480. Current implementation contracts must use the one 1280 by 720 frame, not only add a citation.
-- D-555, D-566, and D-571 also need propagation into the questions and exit tests that implement them.
-- The term correction in OQ-93 is `test scene`, not `story scene`.
-- A PR description cannot credit an agent as the source of work, even when the named agent is a configured repository tool (T-6, D-22).
-- D-18 requires every archive block to stay newest first. Session 27 is below Sessions 26 and 24 and needs a block-only move.
-- The review verdict covers `84b4128`, not the metadata tip.
-- The next ids are D-573, OQ-180, F-58, L-16, G-26, PR-82, M-7, and Session 39.
-
-### Open questions that block progress
-
-OQ-105 blocks PR-61 and needs an owner answer that resolves P1-1. OQ-179 continues to block PR-5.
-
-### Next concrete action
-
-The author assesses each finding, asks the owner to settle the 1080p tradeoff in OQ-105, corrects the findings with their adjacent consumers, and writes `docs/reviews/pr-12-response.md`. Then a Codex session repeats the review at the new effective head.
