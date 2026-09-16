@@ -1,6 +1,7 @@
 ## Summary
 
 <!-- What the PR changes, and why. One concern per PR (G-8). -->
+<!-- The session binding: the branch, the PR, and the role (D-576). -->
 
 ## PR gate
 
@@ -23,17 +24,23 @@ Each line holds before the owner merges (`CLAUDE.md`, PR gate).
 - [ ] `docs/questions.md` has every new question.
 - [ ] `docs/design.md` matches intent.
 - [ ] Every check that does not exist yet has a line above with the PR that creates it (G-16).
-- [ ] `docs/session-handoff.md` is current.
+- [ ] `docs/session-handoff.md` is current, and the handoff entry of each session is on the PR branch.
+- [ ] No document, handoff entry, review record, or merge record of this PR waits for a later PR (D-577, D-578). A line that names the PR of independent roadmap work is valid (G-16).
 - [ ] No attribution anywhere (T-6). No commit subject or body names an agent, harness, or model as the source of the work (D-22).
 
 ## Documents
 
-One line per document. Say what changed, or say "no change needed because ...".
+One line per row, in one of three forms (D-581): `Changed: <path>. <reason>`, `No change needed because <reason that names the path>`, or `Not applicable because <reason>`. The `one-pr-one-session` skill holds the rows.
 
 - `docs/design.md`:
 - `docs/decisions.md`:
 - `docs/questions.md`:
 - `docs/roadmaps/`:
 - `docs/world/`:
+- `docs/runbooks/`:
+- `docs/reviews/`:
 - `docs/session-handoff.md`:
 - `CLAUDE.md` and `AGENTS.md`:
+- `.claude/skills/` and `.claude/agents/`:
+- `.github/pull_request_template.md`:
+- `README.md`:

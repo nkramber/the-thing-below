@@ -2,6 +2,201 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 39: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the review of PR #12, and the place of PR-27, on branch `docs/pr-12-critic`.
+
+### What this session did, and why
+
+- The session read `docs/reviews/pr-12.md`, the `Changes required` verdict of Session 38 for head `84b4128`. The owner also asked the session to examine the order of PR-27. The session assessed each finding against the evidence before it changed a file (the `pr-review` skill).
+- Five findings have full merit, and one has partial merit. `docs/reviews/pr-12-response.md` holds each disposition, its evidence, and its regression check.
+- P1-1: the rule of D-568, "no blur and no uneven pixels", cannot hold at a scale of 1.5. The session had written that absolute, and the owner had said "It won't be perfect pixel scaling, but it MUST look good." The owner chose even pixel sizes with a slight softness (D-573), which resolves OQ-105.
+- P2-1: the scan of Session 37 left out the decision register and skipped each line that already named D-568, so it passed stale frame contracts. A corrected scan found the four that the review listed and five more, and each now names D-568.
+- P2-2 and P2-3: OQ-114, OQ-135, the PR-30 exit test, Gate 4, and OQ-93 now match D-566, D-555, D-571, and D-572. D-42 gained its mark for D-555.
+- P2-4 has partial merit. The PR description and a new dated line named the design-critic agent as the source of work, and both now name the pass of D-484. The name of the pass stays, because D-484 names it as a plan item.
+- P2-5: the archive step of Sessions 35 and 37 inserted a session above a named older session, not at the top. The archive now runs from Session 29 down to Session 1, with no text changed, and this session inserted Session 29 at the top.
+- The place of PR-27: the second hub is the refuge of the old faith (D-243, `docs/world/arc.md`). The party reaches it right after the sealed gallery (D-331), and it serves the fort and the ice (D-356). The owner moved PR-27 right after PR-81 (D-574).
+- The handoff held ten entries before this one, so Session 29 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `c4d39fe` (PR #11).
+- PR #12 is open on branch `docs/pr-12-critic`. Its remote head is the commit that holds this entry.
+- The corrections change files outside the metadata set, so the effective head moves off `84b4128` to the commit of this answer. The repeat review reads that head.
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- The phase lists of section 7, the sequence of section 8, and the five phase sequences give the same 79 PR items.
+
+### In flight
+
+PR #12 waits for the repeat cross-provider review (T-4, D-17).
+
+- The effective head is `d31ae6b`. The commits above it change `docs/reviews/` and `docs/session-handoff.md` alone.
+- The automated pass on `d31ae6b` reported `Approved with suggestions`, with one comment. That comment had merit: the response gave the archive range as Session 28 down to Session 1, and the same commit had archived Session 29 at the top. `aa3c5e2` corrected both lines, and the thread is resolved (D-14, D-66).
+- An on-demand pass writes no check run, so the evidence of the pass is its review comment.
+
+### Traps and gotchas
+
+- A scan for a superseded rule must read `docs/decisions.md` too, and it must show each hit with its context. A filter that skips a line because it names the new decision passes a line that names both.
+- The size 1280 by 800 stays true in three places: the Deck screen, the rule of Valve for text at 1280 by 800, and the display list of the fit test of PR-61. Each is a fact about the Deck, not about the frame.
+- The archive step inserts a moved session at the top of the archive, above the newest archived session.
+- An owner statement that accepts a tradeoff stays a tradeoff in the decision row. Never turn "must look good" into an absolute rule.
+- The next ids are D-575, OQ-180, F-58, L-16, G-26, PR-82, M-7, and Session 40.
+
+### Open questions that block progress
+
+None for PR #12. OQ-179 blocks PR-5.
+
+### Next concrete action
+
+A Codex session repeats the review of PR #12 at the effective head `d31ae6b`. It reads `docs/reviews/pr-12-response.md`, checks each trigger and regression check, and writes the verdict (T-4, D-17). The automated pass is complete, and no comment of it waits for an answer.
+
+## Session 38: 2026-09-16, Codex
+
+Author: Codex
+Session: cross-provider review of PR #12 at effective head `84b4128`.
+
+### What this session did, and why
+
+- Read the current handoff first, then the review skill, the STE skill, the complete PR diff, the changed contracts, the PR description, and the PR comments.
+- Verified the provider gate under T-4 and D-17. Session 37 identifies the other provider as the author of the substantive changes.
+- Recomputed the effective head. `84b4128` is the newest substantive commit. The four commits above it change only `docs/session-handoff.md` and `docs/session-handoff-archive.md`.
+- Found six blockers. D-568 requires a 1.5 scale with neither blur nor uneven pixels, which no raster filter can supply. Current consumers retain the old frame, fog, save-point, and M-4 band rules. OQ-93 assigns Deck test instrumentation to a story scene. The PR description attributes the critic work to an agent. Session 27 is out of order in the handoff archive.
+- Added `docs/reviews/pr-12.md` with the verdict `Changes required` for `84b4128`.
+- Verified the PR order and id coverage, the roadmap list numbers, the guidance identity, the interim STE check, and `git diff --check`. The automated pass has one approval comment and no inline thread.
+- The handoff held ten entries before this one, so Session 28 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. The current target tip of `main` is `6910017`, and the PR merge base is `c4d39fe`.
+- PR #12 is open on `docs/pr-12-critic`. Before the review commit, its remote tip is `d4330d1`, and its effective head is `84b4128`.
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- GitHub reports no check run on the branch. The automated-pass issue comment reports `Approved` and no issue.
+
+### In flight
+
+PR #12 needs the six corrections in `docs/reviews/pr-12.md`, then a repeat cross-provider review at the new effective head.
+
+### Traps and gotchas
+
+- A 1280 by 720 image cannot scale to 1920 by 1080 with both equal source-pixel widths and no sample mixing. OQ-105 needs an owner choice that relaxes one property.
+- D-568 supersedes D-480. Current implementation contracts must use the one 1280 by 720 frame, not only add a citation.
+- D-555, D-566, and D-571 also need propagation into the questions and exit tests that implement them.
+- The term correction in OQ-93 is `test scene`, not `story scene`.
+- A PR description cannot credit an agent as the source of work, even when the named agent is a configured repository tool (T-6, D-22).
+- D-18 requires every archive block to stay newest first. Session 27 is below Sessions 26 and 24 and needs a block-only move.
+- The review verdict covers `84b4128`, not the metadata tip.
+- The next ids are D-573, OQ-180, F-58, L-16, G-26, PR-82, M-7, and Session 39.
+
+### Open questions that block progress
+
+OQ-105 blocks PR-61 and needs an owner answer that resolves P1-1. OQ-179 continues to block PR-5.
+
+### Next concrete action
+
+The author assesses each finding, asks the owner to settle the 1080p tradeoff in OQ-105, corrects the findings with their adjacent consumers, and writes `docs/reviews/pr-12-response.md`. Then a Codex session repeats the review at the new effective head.
+
+## Session 37: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the design-critic pass of PR #12 on the merged plan, the owner answers, and the fixes, on branch `docs/pr-12-critic`.
+
+### What this session did, and why
+
+- The owner merged PR #11 as `c4d39fe` on 2026-09-16. The session synced `main` and started PR #12, the design-critic pass of D-484 and D-490.
+- The merged plan holds about 5,800 lines of roadmap files and 554 decisions, so the session ran the `design-critic` agent in five slices at once: the foundations, the frame and the effects, the play systems, the story and the release, and the registers.
+- The five reports held 52 defects. The session checked each high-impact claim against the files before it acted, and F-57 records the pass.
+- The owner answered 18 questions in five batches (D-555 to D-572). Four answers went against the recommendation, and two were answers that no option offered:
+  - Nothing resets when the party leaves a dungeon, until a story event (D-555). That closes a loop that refilled every resource for one walk.
+  - PR-80 holds the enemy record as a PR of its own (D-557).
+  - The game has no fog of war (D-566), and the dungeon map screen shows the walked tiles (D-567).
+  - The game draws one 16:9 frame of 1280 by 720, with black bars on the Deck, and 1920 by 1080 must look good (D-568). D-568 supersedes D-480.
+  - Each use of "scene" names its kind: story scene, map scene, battle scene, or hub scene (D-572).
+- The other answers took the recommendation. PR-68 and PR-50 move before PR-12 (D-556), the party window sets the starting row (D-558), and PR-61 shows the crash message and holds the input map (D-559, D-561). A workflow change takes the other review (D-560), PR-81 builds the sealed gallery (D-562), and a scene step joins a cast member (D-563). The first playable holds no boss (D-564), PR-39 lands after PR-78 (D-565), and the status window, the settings version, and the M-4 band have owners (D-569 to D-571).
+- The session applied every answer and every forced fix across `docs/design.md`, the registers, the 17 roadmap files, the agent files, the PR template, three skills, the `playtest-bot` agent file, a runbook, and five world files. Twenty earlier decision rows gained their revision marks, and the note on D-543 gained its correction.
+- Four fixes needed evidence, not a vote:
+  - A read of the Valve Deck page on 2026-09-16 confirmed all four Verified rules. `docs/design.md` held two, so the session recorded the other two with the source and the date.
+  - The note that the session wrote on D-543 while it answered the review of PR #11 was wrong: it put PR-68 before PR-14. D-556 now makes it true, and the row says so.
+  - The rebuild of D-554 removed text that five area citations still pointed at. Each now cites a decision.
+  - The critic claim that the reflection switch on Core reaches no program needs code to check. OQ-179 holds it for PR-5.
+- The session placed two items with no question, because a stated rule forces each one. PR-23 draws the sprite frames of Ottild and Elio, under the rule of `area-art.md` that the frames land before each join. The night light setup of the mining town goes to the arc batch that writes the night pass, under D-442. The owner can move either.
+- The handoff held ten entries before this one, so Session 27 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `c4d39fe` (PR #11).
+- The branch `docs/pr-12-critic` sits on `main`, and its remote head is the commit that holds this entry. A count of its commits goes stale with each fix to this entry, so the entry gives none.
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- The ids stay gap-free: D-1 to D-572, OQ-1 to OQ-179, and F-1 to F-57.
+- A check proves that the phase lists of section 7, the sequence of section 8, and the five phase sequences give the same 79 PR items. Every active id from PR-1 to PR-81 has one place, and every numbered list in `docs/roadmaps/` counts from 1.
+
+### In flight
+
+PR #12 is open and waits for the cross-provider review.
+
+- The automated pass is complete. The `Gitar` check run on the PR head `b9b0f24` completed with the conclusion `success`, and the review comment reported `Approved` with no issue (D-14, D-66).
+- The pass left no inline comment, so no comment waits for an answer.
+- The effective head is `84b4128`. The commits above it change `docs/session-handoff.md` alone, so each is a metadata commit and keeps that approval (the `pr-review` skill).
+- PR #12 adds decision rows, so it takes the review of the other provider and never the `review-override` label (D-401).
+
+### Traps and gotchas
+
+- PR #12 changes `.github/pull_request_template.md` and the agent files, not `.github/workflows/`. D-560 moves workflow changes out of the override set from now on.
+- D-568 supersedes D-480. A new citation of D-480 must name D-568. The external facts at 1280 by 800 stay, because they state the size of the Deck screen and the rule of Valve.
+- A bare "scene" is not a term (D-572). The dated records, the resolved questions, the quoted source text, "scene light", "test scene", and "Godot scene file" keep their words.
+- A renumber helper of this session once restarted a list at its anchor. The session repaired three lists and then checked every list of `docs/roadmaps/`. A later session that inserts a numbered item renumbers the whole list and runs that check.
+- Phase 2 holds 46 PRs, and 43 of them land before Gate 2.
+- The order of PR-27, the second hub, against the flight through the refuge is not checked. A later critic pass can read it.
+- The next ids are D-573, OQ-180, F-58, L-16, G-26, PR-82, M-7, and Session 38.
+
+### Open questions that block progress
+
+None for PR #12. OQ-179 blocks PR-5. Every other detail question stays with the PR that the registers name (D-487).
+
+### Next concrete action
+
+A Codex session reviews PR #12 at the effective head `84b4128` and writes `docs/reviews/pr-12.md` (T-4, D-17, D-401). The automated pass is complete, and no comment of it waits for an answer.
+
+## Session 36: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat cross-provider review of PR #11 at effective head `6266d54`.
+
+### What this session did, and why
+
+- Read the current handoff first, then the review response, the review skill, the STE skill, the corrected diff, the roadmap contracts, and the PR comments.
+- Verified that Claude Code made the substantive PR changes and that Codex remains the eligible opposite provider under T-4 and D-17.
+- Recomputed the effective head. `6266d54` is the newest substantive commit. The later commit `7899972` changes only `docs/session-handoff.md`.
+- Reproduced both original triggers and verified their corrections. PR-61 now tests the fit without the later screen-test job, names its fixture panel, and leaves screen captures to PR-41. D-543 now records D-544 as a partial revision and gives PR-68 sole ownership of the condition form.
+- Verified the additional PR-68 correction. Its exit test uses a scripted intent list, while the later bot dependency stays in its review focus.
+- The exit-test dependency scan, PR-id coverage check, order check, interim STE check, `git diff --check`, and guidance identity check pass.
+- Updated `docs/reviews/pr-11.md`, preserved P1-1 and P2-1 under `## Earlier verdicts`, and set the verdict `Ready for owner merge` for `6266d54`.
+
+### State of the build
+
+- No code exists. `main` is `63803d9` (PR #10).
+- PR #11 is open on `docs/pr-11-roadmaps`. Its remote tip is `7899972`, and its effective head is `6266d54`.
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #11 is ready for owner merge. PR #12 holds the next design-critic pass after the merge (D-484, D-490).
+
+### Traps and gotchas
+
+- The review verdict covers `6266d54`, not the metadata tip `7899972`.
+- P1-1 had partial merit. The screen-capture part was fixed. The fixture-panel part remains owned by PR-61.
+- P2-1 is fixed by the explicit revision note in D-543. A later decision must keep the same revision form.
+- The next ids are D-555, OQ-179, F-57, L-16, G-26, PR-80, M-7, and Session 37.
+
+### Open questions that block progress
+
+None for PR #11. OQ-60 to OQ-178 remain assigned to later PRs.
+
+### Next concrete action
+
+The owner can merge PR #11. Then a fresh session starts PR #12 after the merge.
+
 ## Session 35: 2026-09-16, Claude Code
 
 Author: Claude Code

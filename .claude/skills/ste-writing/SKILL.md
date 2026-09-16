@@ -133,7 +133,8 @@ One term per concept (D-12). The roadmap interview fills the game terms. Add a r
 | Term | Use for | Do not use |
 |---|---|---|
 | owner | the person who owns the repository and answers every question | user, maintainer, Nate in prose |
-| session | one harness invocation | run, conversation |
+| session | one harness invocation, bound to one PR (D-576) | run, conversation |
+| clean session | a new top-level session that holds no work of another PR (D-576) | fresh context, new chat |
 | provider | Anthropic or OpenAI, as the source of a harness | vendor, model |
 | PR | a GitHub pull request | MR, change request |
 | run | one play of the game from a seed | playthrough, game |
@@ -242,6 +243,8 @@ CI terms from the roadmaps PR of 2026-09-14:
 | identity file | the committed file that lists each run of the replay-identity set and its expected state hash (D-504) | golden file, baseline, hash list |
 | night record | the result file that one leg of a night uploads as an artifact of its run (D-509) | night result, night report |
 | docs-only PR | a PR that changes only `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/`, and the PR template (D-513) | documentation PR, when the text means this set |
+| Documents section | the part of the PR description with one line for each required document (D-577, D-581) | documentation-impact matrix, doc checklist |
+| hand-over point | the end of the work of a session on its PR: the verdict `Ready for owner merge` for the effective head, or the label (D-576, D-582) | handoff, which names the entry in `docs/session-handoff.md` |
 
 Art terms from the roadmaps PR of 2026-09-14:
 

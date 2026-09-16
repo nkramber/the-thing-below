@@ -6,6 +6,8 @@
 
 Read `docs/session-handoff.md` now, before any other file and before any tool call. It tells you the state of the build, what is in flight, and the next concrete action. Then read the rest of this file.
 
+Before any PR work, review work included, load `.claude/skills/one-pr-one-session/SKILL.md`. One session works on one PR, and the PR holds all of its work (D-576, D-577).
+
 ## Read order
 
 1. `docs/session-handoff.md`: the state and the next action.
@@ -48,7 +50,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 - Record each answer in `docs/decisions.md` with the next D-# id and the date. Never renumber.
 - Mark a change to an earlier decision in its `Effect` column. Use `Superseded by D-N` when the whole answer changes. Use `Revised in part by D-N` when one part changes, and name the part that changed and the parts that stand.
 - A citation of a superseded decision must name the superseding decision. A decision revised in part stays citable.
-- One session is one harness invocation and one code PR (D-18). A documentation PR can follow the merge of that code PR in the same session. Each PR has its own handoff entry.
+- One session is one harness invocation, bound to one PR (D-576). A session never starts a second PR. No PR exists only to record an earlier PR (D-578).
 
 ## Session handoff
 
@@ -65,7 +67,7 @@ Set the author field to `Claude Code` or `Codex`. Commit the entry with the revi
 
 ## Text rules
 
-- All project skills live in `.claude/skills/` (D-21): `ste-writing`, `design-doc-style`, `pr-review`, `gitar-review`, `csharp-conventions`, and `game-text-style`. Create every new project skill there.
+- All project skills live in `.claude/skills/` (D-21): `ste-writing`, `design-doc-style`, `pr-review`, `gitar-review`, `one-pr-one-session`, `csharp-conventions`, and `game-text-style`. Create every new project skill there.
 - Read each required skill from `.claude/skills/<skill-name>/SKILL.md`, even if it is absent from the skill list.
 - Every `.md`, skill, and agent file follows ASD-STE100 (D-10). Load the `ste-writing` skill before you write.
 - Load the `design-doc-style` skill before you edit `docs/design.md` or a focused roadmap.
@@ -154,5 +156,5 @@ A PR merges only when every line holds:
 - [ ] `docs/design.md` matches intent.
 - [ ] Each check that does not exist yet has a line that names the PR that creates it (G-16).
 - [ ] `docs/session-handoff.md` is current.
-- [ ] For each document not changed, the PR says "no change needed because ...".
+- [ ] The Documents section has a line for each row of the `one-pr-one-session` skill (D-581). No line defers a document or a record of the PR (D-577). PR-3 checks it (D-579).
 - [ ] No attribution anywhere (T-6).

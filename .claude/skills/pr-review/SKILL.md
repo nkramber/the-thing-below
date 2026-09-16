@@ -47,6 +47,7 @@ Do not approve through reciprocal review of selected hunks.
 ## Establish the review scope
 
 - Follow the read order in `AGENTS.md`.
+- Load `.claude/skills/one-pr-one-session/SKILL.md` first. A review session works on one PR alone (D-576).
 - Load `.claude/skills/ste-writing/SKILL.md` before any review text (D-10).
 - Load `.claude/skills/csharp-conventions/SKILL.md` before any C# review (D-21, D-99).
 - Read the PR request, its acceptance criteria, prior review, and applicable focused roadmap.
@@ -139,7 +140,7 @@ Do not reintroduce an earlier contract that a later decision supersedes.
 - Check each roadmap prerequisite against the first gate that needs it.
 - Distinguish proposed work, implemented work, measured behavior, and owner approval.
 - Verify material external claims against dated primary sources.
-- Check the document dispositions in the PR template.
+- Check the Documents section against the documents gate of the `one-pr-one-session` skill. A deferral to a later PR is a finding (D-577, D-578).
 - Confirm `AGENTS.md` and `CLAUDE.md` remain identical when either changes (D-20).
 - Check attribution restrictions in commits, PR text, comments, and deliverables (D-22).
 
@@ -554,6 +555,8 @@ gh pr view <number> --json headRefOid --jq .headRefOid
 The status line must show no `[ahead N]`. The hash from `gh pr view` must equal `git rev-parse HEAD`.
 Write the push line in the Verification section of the review record, and name the remote head in the handoff entry.
 A record with no push line is incomplete, and the next session treats it as unpushed.
+
+After the gate passes, apply the completion gate of the `one-pr-one-session` skill. End the session only at the hand-over point of its role (D-582).
 
 If the remote refuses the push, the review is not complete. Do not end the session.
 Ask the owner to approve the push, and say in the handoff that the record has a commit and no push.
