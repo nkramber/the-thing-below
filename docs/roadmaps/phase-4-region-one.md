@@ -10,7 +10,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 ## 1. Thesis
 
-Phase 4 writes the free prologue. Every system exists after Phase 3, so this phase adds content alone. It adds four more dungeon builds, a second hub, the lessons, the music, and the story of region one.
+Phase 4 writes the free prologue. Every system exists after Phase 3, so this phase adds content alone. It adds four more dungeon builds, the sealed gallery, a second hub, the lessons, the music, and the story of region one.
 
 The order follows the order of play (D-313). A place lands before the story scenes that play on it, and the lessons land before the balance pass that tunes them. The arc comes in two batches, because one batch of that size cannot take a careful review (L-1, D-57).
 
@@ -52,8 +52,9 @@ One content PR for each dungeon build, in the order of play (D-313). PR-23 is th
 - One boss with its sprite, its phases, and its backdrop (D-65, D-205).
 - The treasure, the puzzles, and the secrets of the place (D-41).
 - The light setup of each map, at its time of day (D-442, D-519).
-- The ambient effects and the ambience of the place (D-187, D-424).
+- The ambient effects of the place (D-187). PR-73 holds its ambience (D-424, D-549).
 - The normal map of each new drawing (D-183, D-521).
+- PR-23 also draws the sprite frames of Ottild and Elio, who join between the hanging cells and the deep mine (D-342).
 
 **Out of scope of each PR.**
 
@@ -82,7 +83,43 @@ One content PR for each dungeon build, in the order of play (D-313). PR-23 is th
 
 > *In plain English:* four more places to walk and fight in, each with its own ground, its own enemies, and one boss. The story that happens in them comes later.
 
-### 7.2 PR-27: the second hub
+### 7.2 PR-81: the sealed gallery
+
+Area files: `area-exploration.md` sections 7.1 and 7.8, `area-art.md` sections 7.3 to 7.5.
+
+**Scope.**
+
+- The sealed gallery under the gorge as a dungeon map, after the second visit to the hanging cells in the order of play (D-313, D-562).
+- The second passage, where the party and the church wardens pass each other (D-343).
+- Its tile set, its map file, its edge file, and its light setup (D-110, D-501, D-519).
+- The ambient effects of the place (D-187). PR-73 holds its ambience (D-424).
+- The normal map of each new drawing (D-183, D-521).
+
+**Out of scope.**
+
+- The story scenes of the flight, which PR-28 and PR-29 write (D-331, D-343).
+- The night pass through the mining town, which the arc batches write (D-333).
+
+**Exit tests.**
+
+1. Every content file of the PR loads, and no id is absent.
+2. The map holds a second passage, so two groups can pass each other in it (D-343).
+3. The map preview and the review sheets reach the PR description (D-514, G-25).
+4. The budget test passes for each map of the place (D-523).
+5. The bots play the map with no crash and no softlock (D-64).
+6. Each edge file matches its map and the edge rules (D-501).
+
+**Review focus.**
+
+- The place follows `docs/world/places.md` and `docs/world/arc.md` (D-251, D-331, D-343).
+- The layout of the second passage, an open item of `docs/world/places.md`, comes to the owner in this PR.
+- The owner approves each art batch from its review sheets (D-514, G-25).
+
+**Questions.** None. The layout of the second passage is an open item of `docs/world/places.md`, and this PR proposes it.
+
+> *In plain English:* the old sealed tunnel that the party escapes through. It has a second passage, so the party and its hunters can slip past each other.
+
+### 7.3 PR-27: the second hub
 
 Area file: `area-exploration.md` section 7.11.
 
@@ -90,7 +127,7 @@ Area file: `area-exploration.md` section 7.11.
 
 - A hub of another shape than the first, with a different set of services (D-28, D-59).
 - Its tile set, its map, its NPC sprites, and its shop stock (D-112, D-365).
-- Its light setup, its ambient effects, and its ambience (D-424, D-519).
+- Its light setup and its ambient effects (D-187, D-519). PR-73 holds its ambience (D-424, D-549).
 - The story scene triggers of the hub, with their conditions (D-528, D-543).
 
 **Out of scope.**
@@ -115,7 +152,7 @@ Area file: `area-exploration.md` section 7.11.
 
 > *In plain English:* a second town, built on a different plan from the first. What it offers and what it lacks are part of the story.
 
-### 7.3 PR-42: the lessons of region one
+### 7.4 PR-42: the lessons of region one
 
 Area file: `area-progression.md` section 7.7.
 
@@ -149,7 +186,7 @@ Area file: `area-progression.md` section 7.7.
 
 > *In plain English:* every rite and drill that the first region offers, with its picture and its words. Each one sits in a chest, a shop, or the hands of a person.
 
-### 7.4 PR-73: the rest of the music and the sounds of region one
+### 7.5 PR-73: the rest of the music and the sounds of region one
 
 Area file: `area-audio.md` section 7.12.
 
@@ -159,6 +196,7 @@ Area file: `area-audio.md` section 7.12.
 - The night version of the mining town, for the night pass of the flight (D-333, D-443).
 - The remaining themes of region one, to ten in all (D-419).
 - The sounds that the new places and the new abilities need (D-425, D-426).
+- The ambience of each place that Phase 4 adds, the sealed gallery included (D-424).
 
 **Out of scope.**
 
@@ -170,8 +208,9 @@ Area file: `area-audio.md` section 7.12.
 1. Each render matches its hash on every CI leg (D-432).
 2. Each audio file names the content ids that it serves, and no id is absent (D-548).
 3. The night version crossfades at the phrase end of its day version (D-428).
-4. The owner approves the batch in the PR description, after a listen (D-57, D-433, G-25).
-5. Region one holds about 20 tracks and ten themes (D-419, D-444).
+4. Each place of Phase 4 plays its ambience under its music (D-424).
+5. The owner approves the batch in the PR description, after a listen (D-57, D-433, G-25).
+6. Region one holds about 20 tracks and ten themes (D-419, D-444).
 
 **Review focus.**
 
@@ -183,7 +222,7 @@ Area file: `area-audio.md` section 7.12.
 
 > *In plain English:* the second and last batch of music for the first region, with a night version of the mining town for the escape.
 
-### 7.5 PR-28 and PR-29: the arc of region one
+### 7.6 PR-28 and PR-29: the arc of region one
 
 Area files: `area-story.md` sections 7.9 and 7.10, `area-progression.md` sections 7.6 and 7.10.
 
@@ -197,6 +236,9 @@ Two content PRs hold the story of region one, in two batches (D-56, D-57, D-350)
 - The personal task of each character, which these PRs propose for approval (D-282, D-352).
 - The cast text of the five characters, in the voice (D-342, G-20).
 - The open items of `docs/world/arc.md`, such as the names of the bishop, the priest, and the captain.
+- The join step of each cast member who joins in region one, in the order of D-342 (D-563).
+- The night light setup of the mining town, in the batch that writes the night pass of the flight (D-333, D-442).
+- The story scenes of the flight in the sealed gallery, on the map of PR-81 (D-331, D-343, D-562).
 
 **Out of scope.**
 
@@ -225,7 +267,7 @@ Two content PRs hold the story of region one, in two batches (D-56, D-57, D-350)
 
 > *In plain English:* a world file holds the whole first part of the story. Two content changes turn it into story scenes, faces, and lines that the player reads.
 
-### 7.6 PR-77: the credits roll
+### 7.7 PR-77: the credits roll
 
 Area file: `area-release.md` section 7.5.
 
@@ -259,7 +301,7 @@ Area file: `area-release.md` section 7.5.
 
 > *In plain English:* the game says who made it and which free tools it uses, at the end of the first story. The same text also sits in a menu and in a file beside the program.
 
-### 7.7 PR-30: the balance pass
+### 7.8 PR-30: the balance pass
 
 Area files: `area-progression.md` section 7.3, `area-battle.md` section 7.6, `area-exploration.md` section 7.12.
 
@@ -295,7 +337,7 @@ Area files: `area-progression.md` section 7.3, `area-battle.md` section 7.6, `ar
 
 > *In plain English:* the last pass over every number of the first region. Robots and the owner play, and the numbers move to match what they found.
 
-### 7.8 M-5: the play time of region one
+### 7.9 M-5: the play time of region one
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds the row.
 
@@ -319,7 +361,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds the row.
 
 > *In plain English:* the owner times one full play of the first region. The target is six to eight hours, and a big miss changes the content.
 
-### 7.9 Gate 4: region one
+### 7.10 Gate 4: region one
 
 **The gate.** Gate 4 passes when every line holds:
 
@@ -334,25 +376,25 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds the row.
 **After the gate.** A few players whom the owner picks play the CI build artifacts and send their notes outside Steam (D-469). No Steam Playtest runs. Each player installs an unsigned build with the steps of the runbook, and each build carries the license files (D-463, D-467). Their notes feed the fixes before the release.
 
 > *In plain English:* the free part of the game is complete. The owner plays all of it, then a few trusted people play it and write back.
-
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). Phase 4 holds this order:
 
 1. PR-23: the deep mine.
 2. PR-24: the second visit to the hanging cells (D-327).
-3. PR-25: the border fort.
-4. PR-26: the ice crossing.
-5. PR-27: the second hub.
-6. PR-42: the lessons of region one.
-7. PR-73: the rest of the music and the sounds of region one (D-549).
-8. PR-28: the arc, the first batch.
-9. PR-29: the arc, the second batch.
-10. PR-77: the credits roll, right after PR-29 (D-552).
-11. PR-30: the balance pass.
-12. M-5: the play time of region one.
-13. **← GATE 4 (region one).** Section 7.9 holds each line.
-14. The trusted players play the build artifacts (D-469).
+3. PR-81: the sealed gallery, where the flight begins (D-562).
+4. PR-25: the border fort.
+5. PR-26: the ice crossing.
+6. PR-27: the second hub.
+7. PR-42: the lessons of region one.
+8. PR-73: the rest of the music and the sounds of region one (D-549).
+9. PR-28: the arc, the first batch.
+10. PR-29: the arc, the second batch.
+11. PR-77: the credits roll, right after PR-29 (D-552).
+12. PR-30: the balance pass.
+13. M-5: the play time of region one.
+14. **← GATE 4 (region one).** Section 7.10 holds each line.
+15. The trusted players play the build artifacts (D-469).
 
 The next phase file is `phase-5-first-release.md`.
 

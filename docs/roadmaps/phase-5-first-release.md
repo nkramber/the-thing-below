@@ -12,9 +12,9 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 Phase 5 turns the prologue into something that a stranger downloads and runs. Phase 4 ended with a build that the owner and a few trusted players played from a CI artifact (D-469). This phase gives that build a front door, a tag, a rating, and a Steam page.
 
-The order follows risk. The GitHub Release comes first, because it needs no account and no fee (PR-31). The title screen follows, because a release with no first screen reads as unfinished (PR-33). The Deck pass comes next, because its findings can change the UI (PR-39). The Steam work closes the phase: the binding, the macOS signature, and the publish (PR-78, PR-79, PR-40).
+The order follows risk. The GitHub Release comes first, because it needs no account and no fee (PR-31). The title screen follows, because a release with no first screen reads as unfinished (PR-33). The Steam binding comes next, because the Deck pass needs its controller type call (PR-78, D-565). The Deck pass follows, because its findings can change the UI (PR-39). The macOS signature and the publish close the phase (PR-79, PR-40).
 
-Two owner steps sit inside the order. The owner joins the Apple Developer Program before PR-79, and the owner cuts the first trailer before PR-40 (D-455, D-476).
+Three owner steps sit inside the order. The owner joins the Apple Developer Program before PR-78, and the owner cuts the first trailer before PR-40 (D-455, D-476, D-565). After PR-40, the owner requests the Deck compatibility review from Valve (D-565).
 
 Gate 5 asks two runs: a fresh machine runs the tagged build, and the Deck runs the Steam demo.
 
@@ -111,44 +111,9 @@ Area files: `area-release.md` sections 7.4 and 7.5, `area-ui-input.md` section 7
 
 > *In plain English:* the first thing a player sees: a name, a theme, and a short list of choices. One of them is the settings that the handheld rating needs.
 
-### 7.3 PR-39: the Deck verification pass
+### 7.3 The owner step: the Apple Developer Program
 
-Area files: `area-release.md` section 7.10, `area-ui-input.md` section 7.10.
-
-**Scope.**
-
-- The walk of the Steam Deck checklist to the rating Verified (D-459).
-- The four checks of Verified: the glyphs, the default bindings, the text height, and the on-screen keyboard.
-- The check of suspend and resume, and of the 1x frame (D-85, D-92, D-228).
-- The fixes that the walk finds, inside this PR.
-
-**Out of scope.**
-
-- The Steamworks controller type call, which PR-78 adds (D-460).
-- The Steam publish (PR-40).
-
-**Exit tests.**
-
-1. No text falls below 9 pixels at 1280 by 800 (D-459).
-2. The default bindings play the whole game on the Deck (D-459).
-3. The game shows the Deck glyph set for the Deck controller (D-222).
-4. A suspend and a resume leave the run in the same state (D-85).
-5. The frame draws at 1x on the Deck, and a screen test locks it (D-228).
-6. The game holds no text entry, so the keyboard rule does not apply (D-459).
-
-**Review focus.**
-
-- The 16-pixel font and the 60-frame target clear the text and frame rules (D-263, G-19).
-- Valve tests the native Linux build first (D-458).
-- The glyph work depends on PR-78 under Steam, and this PR states what it can prove before that (D-460).
-
-**Questions.** None. OQ-176 blocks the controller type of PR-78.
-
-> *In plain English:* the handheld has a checklist, and this pass walks it. The game meets most of it, and the button pictures are the real work.
-
-### 7.4 The owner step: the Apple Developer Program
-
-Owner work, before PR-79. Area file: `area-release.md` section 7.12.
+Owner work, before PR-78. Area file: `area-release.md` section 7.12.
 
 **Scope.**
 
@@ -170,7 +135,7 @@ Owner work, before PR-79. Area file: `area-release.md` section 7.12.
 
 > *In plain English:* Apple charges a yearly fee before it will check a program. The owner pays it before the step that needs it.
 
-### 7.5 PR-78: the Steamworks binding and the glyphs
+### 7.4 PR-78: the Steamworks binding and the glyphs
 
 Area files: `area-release.md` section 7.11, `area-ui-input.md` section 7.10.
 
@@ -204,6 +169,42 @@ Area files: `area-release.md` section 7.11, `area-ui-input.md` section 7.10.
 **Questions.** OQ-58 and OQ-176.
 
 > *In plain English:* on Steam the game asks which controller a player holds, so the button pictures match. That is the only thing Steam tells it.
+
+### 7.5 PR-39: the Deck verification pass
+
+Area files: `area-release.md` section 7.10, `area-ui-input.md` section 7.10.
+
+**Scope.**
+
+- The walk of the Steam Deck checklist to the rating Verified (D-459).
+- The four checks of Verified: the glyphs, the default bindings, the text height, and the on-screen keyboard (the external facts of `docs/design.md`).
+- The check of suspend and resume, and of the 1x frame (D-85, D-92, D-228).
+- The fixes that the walk finds, inside this PR.
+
+**Out of scope.**
+
+- The Steamworks controller type call, which PR-78 adds (D-460).
+- The Steam publish (PR-40).
+
+**Exit tests.**
+
+1. No text falls below 9 pixels at 1280 by 800 (D-459).
+2. The default bindings play the whole game on the Deck (D-459).
+3. Under Steam, the game shows the Deck glyph set for the Deck controller, through the call of PR-78 (D-222, D-565).
+4. A suspend and a resume leave the run in the same state (D-85).
+5. The frame draws at 1x on the Deck, and a screen test locks it (D-228).
+6. The game holds no text entry, so the keyboard rule does not apply (D-459).
+
+**Review focus.**
+
+- The 16-pixel font and the 60-frame target clear the text and frame rules (D-263, G-19).
+- Valve tests the native Linux build first (D-458).
+- PR-78 lands first, so this PR proves the Deck glyphs under Steam (D-460, D-565).
+- This PR proves each check. Valve grants the rating later, after the owner requests the review (D-565).
+
+**Questions.** None. OQ-176 blocks the controller type of PR-78.
+
+> *In plain English:* the handheld has a checklist, and this pass walks it. The game meets most of it, and the button pictures are the real work.
 
 ### 7.6 PR-79: the macOS signature and the notarization
 
@@ -294,7 +295,7 @@ Area file: `area-release.md` section 7.13.
 2. A save follows the player between two machines through Auto-Cloud (D-461).
 3. A cloud conflict follows D-93, and the PR reports what Steam did (D-461).
 4. The Linux build runs under the Steam Linux Runtime of D-458.
-5. The demo app carries the capsules that mark it as a demo (D-475).
+5. The demo app carries the capsules that PR-76 drew, which mark it as a demo (D-475, D-478).
 6. The PR states whether the demo needed a fee of its own (D-478).
 
 **Review focus.**
@@ -307,41 +308,66 @@ Area file: `area-release.md` section 7.13.
 
 > *In plain English:* this is the step where a stranger can find the game on Steam and play it for free. Their save follows them between machines.
 
-### 7.9 PR-32: retired
+### 7.9 The owner step: the Deck compatibility review
+
+Owner work, after PR-40. Area file: `area-release.md` section 7.10.
+
+**Scope.**
+
+- The owner requests the Deck compatibility review from Valve for the demo app (D-565).
+- The request comes after PR-40, because Valve reviews a game that is on Steam.
+
+**Out of scope.**
+
+- No code. PR-39 already proved each check (D-565).
+- The rating itself, which Valve grants after Gate 5.
+
+**Exit tests.**
+
+1. The owner request reaches Valve, and the date enters the cost model.
+2. The rating that Valve gives enters `docs/design.md` with its date, after Gate 5.
+
+**Review focus.** No PR and no review. The session records the request and the rating.
+
+**Questions.** None.
+
+> *In plain English:* the handheld rating comes from Valve, not from us. After the game is on Steam, the owner asks Valve to test it.
+
+### 7.10 PR-32: retired
 
 PR-32 held the fallback pass of the first plan, which has no purpose after D-98. No later item takes the id (G-10). This entry exists so that a reader of the sequence finds the gap and its reason.
 
 > *In plain English:* one planned change no longer exists, and its number stays empty forever, so old notes never point at new work.
 
-### 7.10 Gate 5: the first release
+### 7.11 Gate 5: the first release
 
 **The gate.** Gate 5 passes when every line holds:
 
 1. A fresh machine of each system runs the tagged build from GitHub (D-53, D-463).
 2. The Deck runs the Steam demo from the store page (D-459).
 3. The macOS build opens with no Open Anyway step (D-455).
-4. The Deck checklist reaches the rating Verified (D-459).
+4. PR-39 proves each check of the Deck checklist (D-459, D-565).
 5. A save follows the player between two machines (D-461).
 6. Every job of the PR gate is green on every leg (D-481).
 
-**After the gate.** Phase 6 stays parked (D-456, D-466, D-472). Before the first content of a paid region, the repository goes private (D-456). A session first checks that gitar, the review gate, and every workflow work on a private repository.
+**After the gate.** Valve answers the Deck compatibility review that the owner requested, and the rating follows (D-565). Phase 6 stays parked (D-456, D-466, D-472). Before the first content of a paid region, the repository goes private (D-456). A session first checks that gitar, the review gate, and every workflow work on a private repository.
 
 > *In plain English:* the free part of the game is out. Anybody can download it, and anybody on Steam can play it on the handheld.
-
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). Phase 5 holds this order:
 
 1. PR-31: the release workflow and the first GitHub Release of the prologue.
 2. PR-33: the title screen, the settings, the version line, and the credits screen.
-3. PR-39: the Steam Deck verification pass.
-4. Owner: join the Apple Developer Program (D-455).
-5. PR-78: the Steamworks binding, the start, and the controller type (D-553).
+3. Owner: join the Apple Developer Program (D-455, D-565).
+4. PR-78: the Steamworks binding, the start, and the controller type (D-553).
+5. PR-39: the Steam Deck verification pass, after PR-78 (D-565).
 6. PR-79: the signature and the notarization of the macOS build (D-553).
 7. Owner and a session: the shot list and the cut of the first trailer (D-476).
 8. PR-40: Auto-Cloud, the demo app, and the Linux runtime.
-9. **← GATE 5 (first release).** Section 7.10 holds each line.
-10. Phase 6 stays parked (D-456, D-466, D-472).
+9. Owner: request the Deck compatibility review from Valve (D-565).
+10. **← GATE 5 (first release).** Section 7.11 holds each line.
+11. Valve answers the review, and Phase 6 stays parked (D-456, D-466, D-472, D-565).
 
 Phase 6 has no phase file yet. Each later region repeats Phase 4 with a roadmap of its own (D-144).
 

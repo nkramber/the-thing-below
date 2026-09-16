@@ -292,7 +292,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | PR-21 | The light of the puzzles of light and dark | D-41 |
 | PR-23 to PR-27 | The light setups and the effects of each later place | D-313 |
 
-- A place that the story shows at another time of day adds a light setup in the PR of that story scene (D-442). The phase file of Phase 4 names the PR of the night pass through the mining town (D-333).
+- A place that the story shows at another time of day adds a light setup in the PR of that story scene (D-442). The arc batch of PR-28 or PR-29 that writes the night pass through the mining town adds its night light setup (D-333, D-442).
 - Each later region adds its own transitions (D-194).
 
 ### 7.15 Effects that other area files hold

@@ -18,12 +18,13 @@ From the high pass down to the foothills (D-250, D-255, D-371):
 | High pass | The border fort, below the ice crossing, on the new border | Dungeon |
 | High valley | The mining town, with the hanging cells under its chapel and the deep mine beside it | Hub, with two dungeons |
 | Far cliff | The cave community, across the gorge from the town | Hub |
+| Under the gorge | The sealed gallery, a mine gallery from before the war | Dungeon (D-562) |
 | Below the high valley | The village of Marrek, on the road in | Start area |
 | Foothills | The road in from the land of the enemy crown, with no fort | Route |
 
 The land of the old crown lies beyond the high pass, and the enemy crown came up the road from the foothills (D-254). The supply road of the occupier runs up from the foothills.
 
-A mine gallery from before the war runs under the gorge (D-251). The guild sealed it, and the old faith keeps the far end. The sealed door is a story gate on the region map. The party flees through the gallery to the refuge late in region one (D-331). A second passage lets the party and the church wardens pass each other in it (D-343).
+A mine gallery from before the war runs under the gorge (D-251). The guild sealed it, and the old faith keeps the far end. The sealed door is a story gate on the region map. The party flees through the gallery to the refuge late in region one (D-331). A second passage lets the party and the church wardens pass each other in it (D-343). The gallery is a dungeon map with its own content PR (D-562).
 
 ## The village
 
@@ -70,7 +71,7 @@ Four factions hold power in region one (D-242). No faction tracks reputation, an
 
 ## The order of play
 
-The party plays the four dungeons in this order: the hanging cells, the deep mine, the border fort, and the ice crossing (D-313). The cells return as a second visit between the deep mine and the fort (D-327). The file `arc.md` gives the story in order.
+The party plays the four dungeons in this order: the hanging cells, the deep mine, the border fort, and the ice crossing (D-313). The cells return as a second visit between the deep mine and the fort (D-327). The flight through the sealed gallery follows that second visit, before the fort (D-562). The file `arc.md` gives the story in order.
 
 ## Open items
 

@@ -190,7 +190,7 @@ The phase files give each batch its scope. This table names the art that the dec
 | Phase 6 | The icons of the achievements | D-466 |
 
 - The design text of PR-17 names the sprite set of Marrek alone. Bergit and Dagvar fight and act in story scenes of the first playable, so PR-17 also needs their frames (D-114, D-200, D-362).
-- The frames of Ottild and Elio land before the place where each joins the party (D-342). The phase file of Phase 4 names the PR.
+- The frames of Ottild and Elio land before the place where each joins the party (D-342). PR-23 draws them, because both join between the hanging cells and the deep mine.
 - `area-ui-input.md` places the window frames of D-220, the icons of D-214, and the glyphs of D-222.
 
 ### 7.10 Art that other area files hold
