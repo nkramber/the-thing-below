@@ -42,6 +42,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-40 | The test command of `CLAUDE.md` works in VSTest mode alone | PR-1: OQ-75 picks the mode, and the commands follow |
 | F-41 | Four rules of GitHub Actions meet the CI plan | PR-1: OQ-78 holds the required checks on a docs PR |
 | F-42 | The Godot export walks the project folder alone, and `content/` lies outside it | PR-5: the Game assembly carries the content files (D-508) |
+| F-58 | No check can see the conversation of a session | PR-3: the document rules read the diff and the description alone (D-579) |
 
 ## 7. Roadmap
 
@@ -169,7 +170,8 @@ Area files: `area-tools.md` section 7.3, `area-ci.md` section 7.7.
 - The workflow on `pull_request_target`, which runs from `main` and reads the PR head as data alone (D-15).
 - The three rules of the `pr-review` skill: the record exists, the verdict is `Ready for owner merge`, and the head field names the effective head.
 - The override rules of D-16, D-71, D-239, D-401, and D-560, with the eligible path set. `.github/workflows/` sits outside that set.
-- A check run as the result, and a second run when a label changes (D-67).
+- The document rules of D-579. The handoff changes, and no line defers work (D-577). The Documents section has a line in a form of D-581 for each required row.
+- A check run as the result, and a second run when a label or the PR description changes (D-67, D-579).
 
 **Out of scope.**
 
@@ -185,17 +187,23 @@ Area files: `area-tools.md` section 7.3, `area-ci.md` section 7.7.
 5. It fails a PR outside the override set that carries the label.
 6. It fails a PR that changes `.github/workflows/` and carries the label (D-560).
 7. A metadata commit does not move the effective head.
-8. The PR description shows the output of each fixture (D-500).
+8. It fails a PR whose diff does not change `docs/session-handoff.md` (D-579).
+9. It fails a PR whose Documents section lacks a required row, or holds a line in no form of D-581.
+10. It fails a PR whose description or Documents section defers work to a later PR (D-577, D-578).
+11. It passes a PR with a line of the form "No change needed because" and a specific reason (D-581).
+12. The PR description shows the output of each fixture (D-500).
 
 **Review focus.**
 
 - The workflow never runs code from the head, and its token holds the least access (D-15).
 - The live check cannot run on this PR, and the PR says so (F-37, G-16, D-500).
 - The answer of OQ-69 decides what counts as a change to a decision row.
+- The document rules read the diff and the description alone. No check can prove a clean session (F-58).
+- The required rows match the table of the `one-pr-one-session` skill, and the skill and the command change together.
 
-**Questions.** OQ-69 before the code, and OQ-3 right after the merge.
+**Questions.** OQ-69 and OQ-181 before the code, and OQ-3 right after the merge.
 
-> *In plain English:* this adds a check that turns red when a change has no approved review from the other provider. It reads each change as data and never runs it, so a change cannot approve itself.
+> *In plain English:* this adds a check that turns red when a change has no approved review from the other provider. It also turns red when a change leaves its notes or documents for later. It reads each change as data and never runs it, so a change cannot approve itself.
 
 ### 7.5 PR-46: det-lint
 
@@ -602,6 +610,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-67 | The rule for numbered items | PR-2 |
 | OQ-68 | What the reference check fails | PR-2 |
 | OQ-69 | What counts as a change to a decision row | PR-3 |
+| OQ-181 | The paths of the metadata set | PR-3 |
 | OQ-70 | How det-lint finds the Godot assembly | PR-46 |
 | OQ-71 | Which collection uses det-lint fails in Core | PR-46 |
 | OQ-72 | The CRC-32 of the PNG code | PR-47 |

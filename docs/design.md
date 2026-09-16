@@ -62,6 +62,8 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-16 critic pass: the design-critic pass of PR #12 read the merged plan in five slices and found 52 defects, which F-57 records. The owner answered 18 questions (D-555 to D-572). A place stays cleared until a story event, and the game has no fog of war (D-555, D-566). The game draws one 16:9 frame of 1280 by 720 (D-568). PR-80 holds the enemy record, and PR-81 holds the sealed gallery (D-557, D-562).
 
+2026-09-16 session pass: PR #14 binds each session to one PR and makes the PR the complete unit of its work (D-576, D-577). No PR exists only to record the merge or the documents of an earlier PR, and git holds the merge commit (D-578, D-580). The `one-pr-one-session` skill holds the gates, and PR-3 adds the document rules to the review gate (D-579). F-58 records that no check can see the conversation of a session.
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -265,6 +267,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-55 | A scene step can set a story flag (D-173), and the scene runner lands in Phase 2. PR-18, which defines the flags and the condition form, sat in Phase 3. PR-14 and PR-35 also read a condition in Phase 2, for a hub line and a closed route (D-59, D-113) | 2026-09-16 | ✅ doc. D-544: PR-68 takes the flag set and the condition form with the scene runner, and PR-18 keeps the branches and the choice effects. ⚠ Binds PR-68 |
 | F-56 | Two Godot audio calls meet the plan. `AudioStreamWAV.load_from_buffer` returns an empty reference on data that is not WAV, and it prints the reason to the log alone, as `ImageTexture.create_from_image` does (F-45). `AudioStreamPlayer.get_playback_position` "Returns 0.0 if no sounds are playing", and its note says that "The position is not always accurate, as the [AudioServer] does not mix audio every processed frame". Sources: the external facts of `docs/roadmaps/area-audio.md`, read 2026-09-16 | 2026-09-16 | ⚠ Binds PR-69 and PR-70: Game checks every stream that it makes and fails with the id of the render, and the audio player holds its own count for the crossfade of D-428 and the resume of D-429 (T-2) |
 | F-57 | The third design-critic pass read the merged plan of PR #11 in five slices and found 52 defects. Seven exit tests needed a PR that lands later, such as a shop flag in PR-65 before the flags of PR-68. A party could leave a dungeon and return for fresh enemies, fresh MP, and free health. No PR built the enemy record, the starting row, the party join, the party and status windows, or the sealed gallery. D-538 and D-544 clashed, a workflow change could merge on its own label, and "scene" named two concepts. Five area citations pointed at text that the rebuild of D-554 removed | 2026-09-16 | ✅ doc. D-555 to D-572 answer the owner questions, and PR #12 fixes the rest. OQ-179 holds the reflection switch, which needs code to check |
+| F-58 | The harness gives no session id and no record of the conversation to a check. No check can prove that a session is clean or that it worked on one PR alone. A check can read the diff, the changed paths, and the PR description | 2026-09-16 | ⚠ Binds PR-3: the document rules read the diff and the description alone (D-579). The session and the owner enforce the binding of D-576 |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -307,6 +310,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 23. **G-23.** Godot physics, timers, and navigation never feed the simulation. The camera, the shader, the audio, and the input map live in Game (D-100, D-106).
 24. **G-24.** Every sprite, tile, and portrait is a text grid in content. The atlas tool renders the PNG, and a test proves the committed atlas matches (D-107). A normal map comes from the grid, and its atlas gets the same test (D-184). A drawing file is JSON with its rows as strings, and a large picture places drawn pieces (D-515, D-516).
 25. **G-25.** Every content batch the owner approves, sprites and text alike, appears in its PR description in full (D-57, D-107). A tool renders each art batch as review sheets, and the session attaches them with `gh` (D-514).
+26. **G-26.** One session works on one PR, and the PR holds its tests, its documents, its review records, and its handoff. No later PR carries them, and no PR only records a merge (D-576 to D-578).
 
 ## 7. Roadmap
 
@@ -325,7 +329,7 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 3. Owner: run that test on the Linux export, before PR-1 (D-458).
 4. PR-1: the solution, the four projects, the Makefile, the hook, and the build, test, format, smoke, and STE jobs (D-118, D-217, D-506).
 5. PR-2: the `ste-check` command in C#, which replaces the Python script (D-10, D-101).
-6. PR-3: the `review-gate` command and its workflow (D-15, D-500).
+6. PR-3: the `review-gate` command and its workflow, with the document rules (D-15, D-500, D-579).
 7. Owner: require the checks on `main` (OQ-3).
 8. PR-46: `det-lint`, before the first Core code (D-496, D-498).
 9. PR-4: integer math, the random streams, the state hash, the simulation version, and the `replay-identity` job (D-169, D-504).
@@ -468,7 +472,7 @@ Parked until Gate 5, with no phase file yet. Each later region repeats Phase 4 w
 Section 7 gives the same order inside each phase, with a link to each phase file. This list is the one strict order across the phases, and it holds each owner step and the current position.
 
 1. Owner: create no label, install no tool. gitar and the label exist (D-66, D-67).
-2. PR #2 to PR #10 merged on 2026-09-14, and PR #11 on 2026-09-16 (D-554). PR #12 holds this design-critic pass and its fixes (D-484, D-490, D-555 to D-572).
+2. PR #2 to PR #10 merged on 2026-09-14, and PR #11 to PR #13 on 2026-09-16 (D-554, D-555 to D-575). PR #14 sets one PR for each session (D-576 to D-581).
 3. Owner: enable the setting that requires a SHA pin for each action (D-511). Done on 2026-09-14.
 4. Owner and a session: the Deck test of D-160 on the Linux export, before PR-1 (D-458, D-523).
 5. PR-1, PR-2, PR-3.

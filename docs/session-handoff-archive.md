@@ -2,6 +2,46 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 36: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat cross-provider review of PR #11 at effective head `6266d54`.
+
+### What this session did, and why
+
+- Read the current handoff first, then the review response, the review skill, the STE skill, the corrected diff, the roadmap contracts, and the PR comments.
+- Verified that Claude Code made the substantive PR changes and that Codex remains the eligible opposite provider under T-4 and D-17.
+- Recomputed the effective head. `6266d54` is the newest substantive commit. The later commit `7899972` changes only `docs/session-handoff.md`.
+- Reproduced both original triggers and verified their corrections. PR-61 now tests the fit without the later screen-test job, names its fixture panel, and leaves screen captures to PR-41. D-543 now records D-544 as a partial revision and gives PR-68 sole ownership of the condition form.
+- Verified the additional PR-68 correction. Its exit test uses a scripted intent list, while the later bot dependency stays in its review focus.
+- The exit-test dependency scan, PR-id coverage check, order check, interim STE check, `git diff --check`, and guidance identity check pass.
+- Updated `docs/reviews/pr-11.md`, preserved P1-1 and P2-1 under `## Earlier verdicts`, and set the verdict `Ready for owner merge` for `6266d54`.
+
+### State of the build
+
+- No code exists. `main` is `63803d9` (PR #10).
+- PR #11 is open on `docs/pr-11-roadmaps`. Its remote tip is `7899972`, and its effective head is `6266d54`.
+- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+
+### In flight
+
+PR #11 is ready for owner merge. PR #12 holds the next design-critic pass after the merge (D-484, D-490).
+
+### Traps and gotchas
+
+- The review verdict covers `6266d54`, not the metadata tip `7899972`.
+- P1-1 had partial merit. The screen-capture part was fixed. The fixture-panel part remains owned by PR-61.
+- P2-1 is fixed by the explicit revision note in D-543. A later decision must keep the same revision form.
+- The next ids are D-555, OQ-179, F-57, L-16, G-26, PR-80, M-7, and Session 37.
+
+### Open questions that block progress
+
+None for PR #11. OQ-60 to OQ-178 remain assigned to later PRs.
+
+### Next concrete action
+
+The owner can merge PR #11. Then a fresh session starts PR #12 after the merge.
+
 ## Session 35: 2026-09-16, Claude Code
 
 Author: Claude Code

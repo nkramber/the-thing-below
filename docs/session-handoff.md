@@ -2,6 +2,50 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md`. Read the first entry first.
 
+## Session 46: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: PR #14, the rule of one PR in one session, on branch `docs/pr-14-one-pr-one-session`. Role: author. Base: `26152c5`.
+
+### What this session did, and why
+
+- The owner asked for one clean session for each PR, and for each PR as the complete unit of its work, to keep the context of each session small. The same instruction went to three other repositories of the owner. Each of those repositories gets its own session and its own PR.
+- The harness of this session had no tool to start a top-level session in another project. So this session wrote this repository alone, and it gave the owner the prompts for the other three.
+- The new skill `.claude/skills/one-pr-one-session/SKILL.md` holds the session binding, the start gate, the documents gate, the merge facts, the completion gate, and an enforcement table.
+- `CLAUDE.md` and `AGENTS.md` require the skill before any PR work. The D-18 line "A documentation PR can follow the merge" is gone. The PR gate line on documents points at the skill.
+- The owner answered three questions: the document rules go into PR-3 (D-579), a docs PR with its own concern stays allowed (D-580), and the Documents lines use three STE forms (D-581). D-576 to D-578 record the owner instruction. D-18 and D-15 carry `Revised in part` notes.
+- `docs/design.md` gains the session pass line, F-58, and G-26. The PR-3 line of Phase 1 and the sequence position change.
+- The PR-3 entry of `phase-1-foundations.md` gains scope lines, exit tests 8 to 11, and review focus lines. `area-tools.md` and `area-ci.md` follow, and `area-tools.md` gains a dated fact on the `edited` type of `pull_request_target`.
+- `pr-review` loads the new skill, checks the Documents section, and ends the session after the end gate. The glossary gains "clean session", "Documents section", and "hand-over point". The PR template gains the rows and a no-deferral line.
+- A forward test with a separate evaluator ran the skill on ten realistic requests. Each of the ten gave the result that the rule needs. Its notes added a refusal result for a PR that records an earlier PR, the gates of a reviewer, a meaning of substantive work, a rule for a second concern, and the form of each line. It also found a gap in the metadata set of `pr-review`, which OQ-181 holds.
+- The handoff held ten entries before this one, so Session 36 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `26152c5` (PR #13).
+- PR #14 is open on branch `docs/pr-14-one-pr-one-session`. Its head is the commit that holds this entry, and the PR waits for the gitar pass and the Codex review.
+- The interim STE check passes with 0 findings, the skill validator passes, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- Size: `CLAUDE.md` grows from 14,735 to 14,976 bytes. The skill is 7,550 bytes, and a session loads it for PR work alone.
+
+### In flight
+
+PR #14 waits for a current gitar review under the `gitar-review` skill. It changes rows of `docs/decisions.md`, so it takes the Codex review and not the label (D-401). This session ends at that hand-over point (D-576).
+
+### Traps and gotchas
+
+- No check can see the conversation of a session (F-58). The binding and the clean start stay agent-enforced and owner-enforced. PR-3 enforces the document rules from its merge on (D-579).
+- The handoff says "open" for a PR that the owner merges later. Git holds the merge. Do not open a PR to correct it (D-578).
+- A PR-3 session must keep the rows of the skill table and the rows of the command in step. Exit tests 8 to 11 of PR-3 name them.
+- The next ids are D-582, OQ-182, F-59, L-16, G-27, PR-82, M-7, and Session 47.
+
+### Open questions that block progress
+
+None for PR #14. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+A new clean Codex session reviews PR #14 at its effective head under the `pr-review` skill (T-4, D-17). Then the owner merges.
+
 ## Session 45: 2026-09-16, Claude Code
 
 Author: Claude Code
@@ -418,43 +462,3 @@ None for PR #12. OQ-179 blocks PR-5. Every other detail question stays with the 
 ### Next concrete action
 
 A Codex session reviews PR #12 at the effective head `84b4128` and writes `docs/reviews/pr-12.md` (T-4, D-17, D-401). The automated pass is complete, and no comment of it waits for an answer.
-
-## Session 36: 2026-09-16, Codex
-
-Author: Codex
-Session: repeat cross-provider review of PR #11 at effective head `6266d54`.
-
-### What this session did, and why
-
-- Read the current handoff first, then the review response, the review skill, the STE skill, the corrected diff, the roadmap contracts, and the PR comments.
-- Verified that Claude Code made the substantive PR changes and that Codex remains the eligible opposite provider under T-4 and D-17.
-- Recomputed the effective head. `6266d54` is the newest substantive commit. The later commit `7899972` changes only `docs/session-handoff.md`.
-- Reproduced both original triggers and verified their corrections. PR-61 now tests the fit without the later screen-test job, names its fixture panel, and leaves screen captures to PR-41. D-543 now records D-544 as a partial revision and gives PR-68 sole ownership of the condition form.
-- Verified the additional PR-68 correction. Its exit test uses a scripted intent list, while the later bot dependency stays in its review focus.
-- The exit-test dependency scan, PR-id coverage check, order check, interim STE check, `git diff --check`, and guidance identity check pass.
-- Updated `docs/reviews/pr-11.md`, preserved P1-1 and P2-1 under `## Earlier verdicts`, and set the verdict `Ready for owner merge` for `6266d54`.
-
-### State of the build
-
-- No code exists. `main` is `63803d9` (PR #10).
-- PR #11 is open on `docs/pr-11-roadmaps`. Its remote tip is `7899972`, and its effective head is `6266d54`.
-- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-
-### In flight
-
-PR #11 is ready for owner merge. PR #12 holds the next design-critic pass after the merge (D-484, D-490).
-
-### Traps and gotchas
-
-- The review verdict covers `6266d54`, not the metadata tip `7899972`.
-- P1-1 had partial merit. The screen-capture part was fixed. The fixture-panel part remains owned by PR-61.
-- P2-1 is fixed by the explicit revision note in D-543. A later decision must keep the same revision form.
-- The next ids are D-555, OQ-179, F-57, L-16, G-26, PR-80, M-7, and Session 37.
-
-### Open questions that block progress
-
-None for PR #11. OQ-60 to OQ-178 remain assigned to later PRs.
-
-### Next concrete action
-
-The owner can merge PR #11. Then a fresh session starts PR #12 after the merge.

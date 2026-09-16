@@ -132,7 +132,7 @@ Built by PR-1. Phase file: `phase-1-foundations.md`.
 Built by PR-3. Phase file: `phase-1-foundations.md`.
 
 - The workflow runs on `pull_request_target` from `main`, and it reads the files of the PR head as data alone (D-15). It never runs code from the head.
-- It runs again when a label changes, and it publishes a check run (D-67, `area-tools.md` section 7.3). Its token gets the access that the check run needs and read access for the rest.
+- It runs again when a label or the PR description changes, and it publishes a check run (D-67, D-579, `area-tools.md` section 7.3). Its token gets the access that the check run needs and read access for the rest.
 - GitHub starts this trigger only from `main`, so PR-3 proves the command in Tests. The live check first runs on the next PR (F-37, D-500).
 - After PR-3 merges, the owner requires the checks on `main` (OQ-3). A check must run once before GitHub lists it as a choice.
 

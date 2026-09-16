@@ -14,6 +14,7 @@ External facts, each with the date of its check:
 - The API page of `ZLibStream` names the assembly `System.IO.Compression.dll` and no package, from .NET 6 on. The API page of `Crc32` names the package `System.IO.Hashing`. Sources: `https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.zlibstream` and `https://learn.microsoft.com/en-us/dotnet/api/system.io.hashing.crc32`, read 2026-09-14.
 - A PNG chunk ends with "A four-byte CRC calculated on the preceding bytes in the chunk", which covers the chunk type and the data and not the length. Source: `https://www.w3.org/TR/png-3/`, the W3C Recommendation of 2025-06-24, read 2026-09-14.
 - `pull_request_target` runs "in the context of the default branch of the base repository". The events `pull_request_target`, `schedule`, and `workflow_dispatch` each "will only trigger a workflow run if the workflow file exists on the default branch". The activity types of `pull_request_target` include `labeled` and `unlabeled`. Source: `https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows`, read 2026-09-14.
+- The activity types of `pull_request_target` also include `edited`. "By default, a workflow only runs when a `pull_request_target` event's activity type is `opened`, `synchronize`, or `reopened`." Source: the events page above, read 2026-09-16.
 
 Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence-length counts.
 
@@ -38,6 +39,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-37 | Two GitHub triggers start only from `main`, so their checks cannot run on the PR that creates them | PR-3 and PR-49: a proof in Tests (D-500) |
 | F-38 | A double hides in C# with no keyword, and double results can differ by platform | PR-46 and PR-48: a lint that reads types, and integer math (D-498, D-502) |
 | F-39 | The default string order of .NET follows the culture and the ICU version of the machine | PR-4 and PR-46: an ordinal order for strings in Core |
+| F-58 | No check can see the conversation of a session | PR-3: the document rules read the diff and the description alone (D-579) |
 
 ## 7. Roadmap
 
@@ -80,12 +82,13 @@ Built by PR-3. Phase file: `phase-1-foundations.md`.
 - The command applies the three rules of the `pr-review` skill. The record exists, the verdict is `Ready for owner merge`, and the head field names the effective head.
 - The command passes a PR in the override set with the `review-override` label that changes no decision row (D-16, D-71, D-239, D-401). OQ-69 holds what counts as a change to a row.
 - A PR that changes `.github/workflows/` fails on the label, because each gate lives in a workflow file (D-560).
-- The workflow also runs when a label changes, because the label changes the result (D-67).
+- The command applies the document rules of D-579. The handoff changes, the Documents section has a line for each required row, and no line defers work (D-577, D-581).
+- The workflow also runs when a label or the PR description changes, because both change the result (D-67, D-579). The type `edited` needs its own line in the workflow.
 - A metadata commit never moves the effective head (the `pr-review` skill).
 - GitHub starts this trigger only from `main`, so the check cannot run on PR-3 (F-37). PR-3 proves the command in Tests, and the live check first runs on the next PR (D-500).
 - After PR-3 merges, the owner requires the check on `main` (OQ-3).
 
-> *In plain English:* this check turns red when a change has no approved review from the other provider. It reads each change as data and never runs it, so a change cannot approve itself.
+> *In plain English:* this check turns red when a change has no approved review from the other provider. It also turns red when a change leaves its documents for later. It reads each change as data and never runs it, so a change cannot approve itself.
 
 ### 7.4 det-lint
 
@@ -266,6 +269,7 @@ The register is `docs/questions.md` (D-19). These questions block Tools PRs, and
 - OQ-67: the rule for numbered items (F-5). Blocks PR-2.
 - OQ-68: what the reference check fails. Blocks PR-2.
 - OQ-69: what counts as a change to a decision row. Blocks PR-3.
+- OQ-181: the paths of the metadata set. Blocks PR-3.
 - OQ-70: how det-lint finds Godot text. Blocks PR-46.
 - OQ-71: which uses of `Dictionary` and `HashSet` det-lint fails in Core. Blocks PR-46.
 - OQ-72: the CRC-32 of the PNG code. Blocks PR-47.
