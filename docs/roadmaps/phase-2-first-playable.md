@@ -12,11 +12,11 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 Phase 2 turns the machine of Phase 1 into a game that the owner plays. It ends at Gate 2. There the owner walks the village, one hub, and one dungeon on the desktop and on the Deck. Then the owner signs off on feel (D-51, D-92, D-362).
 
-Phase 2 is the largest phase of the plan. It holds 42 PRs, because each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
+Phase 2 is the largest phase of the plan. It holds 46 PRs, and 43 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
 
-Four lines of work run through the phase. The walk comes first: the frame, the map, the camera, and the enemies on it (PR-61, PR-7, PR-8). The fight follows, with its screen (PR-9, PR-66, PR-10). The light and the effects then land, each right after the first map scene or battle scene that it needs (PR-48 to PR-60, D-520). The build, the story, and the audio close the phase, and PR-17 writes the content that the owner plays.
+Four lines of work run through the phase. The walk comes first: the frame, the map, the camera, and the enemies on it (PR-61, PR-7, PR-8). The fight follows, with the enemy record and the screen (PR-9, PR-80, PR-66, PR-10). The light and the effects then land, each right after the first map scene or battle scene that it needs (PR-48 to PR-60, D-520). The build, the story, and the audio close the phase, and PR-17 writes the content that the owner plays.
 
-Two PRs land after the Gate 2 build, and this file holds them. They are the store page work of PR-75 and PR-76, and the capture of PR-74 that takes its screenshots (D-550, D-551). The store page goes public at Gate 2 in the Coming Soon state (D-471).
+Three PRs land after the Gate 2 build, and this file holds them. They are the store page work of PR-75 and PR-76, and the capture of PR-74 that takes its screenshots (D-550, D-551). The store page goes public at Gate 2 in the Coming Soon state (D-471).
 
 ## 5. Findings that bind this phase
 
@@ -337,7 +337,41 @@ Area files: `area-battle.md` sections 7.1, 7.2, 7.3, 7.5, and 7.9.
 
 > *In plain English:* this is the fight itself, with the order of turns shaped by speed. Nothing draws it yet.
 
-### 7.8 PR-66: the elements and the statuses
+### 7.8 PR-80: the enemy record
+
+Area file: `area-battle.md` section 7.7.
+
+**Scope.**
+
+- The enemy record in content: the stats of each enemy and the ids of its abilities (D-557).
+- The strict reader of the record in Core, with a load test (D-177, G-6).
+- The switch of PR-9 from fixture stats to the record (D-557).
+
+**Out of scope.**
+
+- The element table of each enemy, which PR-66 adds to the record (D-533).
+- The profile, the steal list, and the group file (PR-11, D-65, D-535).
+- The enemies of the first playable, which PR-17 writes.
+
+**Exit tests.**
+
+1. A fixture enemy record loads, and PR-9 fights it in place of its fixture stats (D-557).
+2. A record with an absent field fails the load with the file and the field (T-2).
+3. A record that names an absent ability id fails the load with the file and the id.
+4. A number with a fraction in a record fails the load (G-2).
+5. The replay of a fixture fight against the record gives the same state hash on every leg.
+
+**Review focus.**
+
+- The record holds the stats and the ability ids alone, so the profile of PR-11 keeps its own file (D-557, G-8).
+- The simulation version bumps, and the identity file gains a run (G-17, D-504).
+- Each new content id is permanent (D-166).
+
+**Questions.** None. OQ-132 holds a group larger than its rows, and PR-9 and PR-11 ask it.
+
+> *In plain English:* each enemy gets its numbers and its list of moves in a data file. The fight reads that file in place of the placeholder numbers.
+
+### 7.9 PR-66: the elements and the statuses
 
 Area file: `area-battle.md` section 7.4.
 
@@ -372,7 +406,7 @@ Area file: `area-battle.md` section 7.4.
 
 > *In plain English:* fire, ice, and six more elements meet armor that likes or hates each one. Poison, blindness, and silence follow you out of the fight.
 
-### 7.9 PR-55: the large pictures
+### 7.10 PR-55: the large pictures
 
 Area files: `area-art.md` section 7.5, `area-tools.md` section 7.5.
 
@@ -406,7 +440,7 @@ Area files: `area-art.md` section 7.5, `area-tools.md` section 7.5.
 
 > *In plain English:* a battle background is too big to write as one text picture. The game builds it like a stage set from small drawn parts.
 
-### 7.10 PR-10: the battle scene
+### 7.11 PR-10: the battle scene
 
 Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7.5, `area-effects.md` section 7.8.
 
@@ -443,7 +477,7 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 
 > *In plain English:* the fight appears on screen: who acts next, who is low, and what you can do. Every line reads in the voice of the game.
 
-### 7.11 PR-48: the normal maps
+### 7.12 PR-48: the normal maps
 
 Area files: `area-tools.md` section 7.7, `area-effects.md` section 7.5, `area-art.md` section 7.11.
 
@@ -478,7 +512,7 @@ Area files: `area-tools.md` section 7.7, `area-effects.md` section 7.5, `area-ar
 
 > *In plain English:* a normal map tells the light which way each pixel faces. A tool builds it from the drawing, and the owner checks a sheet of each sprite lit from eight sides.
 
-### 7.12 PR-56: the light and the shadows
+### 7.13 PR-56: the light and the shadows
 
 Area file: `area-effects.md` sections 7.4 and 7.6.
 
@@ -519,7 +553,7 @@ Area file: `area-effects.md` sections 7.4 and 7.6.
 
 > *In plain English:* each place gets its light from a small file: how dark it is and where each torch glows. Walls throw hard shadows, and each sprite catches light on the side that faces the flame.
 
-### 7.13 PR-63: the settings and the accessibility settings
+### 7.14 PR-63: the settings and the accessibility settings
 
 Area file: `area-ui-input.md` sections 7.11 and 7.12.
 
@@ -566,7 +600,7 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 
 > *In plain English:* one screen holds every choice about the game: the picture, the sound, the buttons, and the pace of battle. A player who needs calm can turn the flashes and the shakes down.
 
-### 7.14 PR-57: the effect files, the particles, and the battle effects
+### 7.15 PR-57: the effect files, the particles, and the battle effects
 
 Area file: `area-effects.md` sections 7.7 and 7.8.
 
@@ -603,7 +637,7 @@ Area file: `area-effects.md` sections 7.7 and 7.8.
 
 > *In plain English:* a burst of sparks is a small data file: how many bits, which colors, and how long. A hit in battle shows blood, sparks, and a jolt, and it passes fast.
 
-### 7.15 PR-58: the ambient effects
+### 7.16 PR-58: the ambient effects
 
 Area file: `area-effects.md` section 7.9.
 
@@ -637,7 +671,7 @@ Area file: `area-effects.md` section 7.9.
 
 > *In plain English:* each place has its own weather: snow in the pass, smoke by a fire, dust in the mine. The weather never hides an enemy that the player needs to see.
 
-### 7.16 PR-59: the glow
+### 7.17 PR-59: the glow
 
 Area file: `area-effects.md` section 7.10.
 
@@ -668,7 +702,7 @@ Area file: `area-effects.md` section 7.10.
 
 > *In plain English:* flames and magic give off a soft haze of light, and the people and walls that they light stay crisp.
 
-### 7.17 PR-60: the transitions
+### 7.18 PR-60: the transitions
 
 Area file: `area-effects.md` section 7.11.
 
@@ -704,7 +738,7 @@ Area file: `area-effects.md` section 7.11.
 
 > *In plain English:* each fight starts with a screen effect, such as shattered glass or a whiteout of snow. The kind of fight picks the effect, so a boss always looks different.
 
-### 7.18 PR-11: the evaluator, the profiles, and the groups
+### 7.19 PR-11: the evaluator, the profiles, and the groups
 
 Area file: `area-battle.md` sections 7.6 and 7.7.
 
@@ -742,7 +776,7 @@ Area file: `area-battle.md` sections 7.6 and 7.7.
 
 > *In plain English:* each enemy tries every move it can make, imagines your best answer, and picks the move that leaves it best off. That is what makes the fights hard.
 
-### 7.19 PR-67: the character level, the experience, MP, and the stat curves
+### 7.20 PR-67: the character level, the experience, MP, and the stat curves
 
 Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
@@ -779,7 +813,7 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
 > *In plain English:* a fight makes each character stronger, and the people who wait or fall behind still learn a little. Each person grows on their own line.
 
-### 7.20 PR-62: the menu windows and the dungeon map screen
+### 7.21 PR-62: the menu windows and the dungeon map screen
 
 Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
@@ -821,164 +855,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
 > *In plain English:* menus are windows that stack on each other, and the world stops while one is open. A second screen draws each tile of the dungeon that the party walked.
 
-### 7.21 PR-12: the lessons, the slots, and the aptitudes
-
-Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
-
-**Scope.**
-
-- The lesson, a rite or a drill that any character equips to gain an ability (D-272, D-275, D-278).
-- The lesson slots on the character, which grow with the character level (D-356, OQ-137).
-- The swap of lessons at a hub and at a save point, which holds for the dungeon visit (D-356).
-- The points that every equipped lesson gains from each battle won, and half for a reserve character (D-357).
-- The named forms of each lesson, and the point total that opens each form (D-539).
-- The growth that belongs to the character, not to the lesson (D-361).
-- The eight kinds, the main aptitude of each character, and the bonus of a lesson of that kind (D-274, D-281, D-358).
-- The side aptitude behind a story flag of PR-68, with an empty mark in the menu before the unlock (D-282, D-283, D-538, D-556).
-- The Mend rites and the cure rites that also work from the menu outside battle (D-391).
-- The lesson window in the stack of PR-62.
-
-**Out of scope.**
-
-- The quest state that unlocks a side aptitude in play (PR-19, D-538).
-- The lessons of region one (PR-42, D-304) and the balance pass (PR-30).
-
-**Exit tests.**
-
-1. A character equips a lesson and uses its ability in a fixture battle.
-2. A story flag of PR-68 unlocks a side aptitude, and the menu shows an empty mark before it (D-283, D-556).
-3. An equipped lesson gains points from a fixture battle, used or not (D-357).
-4. A lesson passed to a new character starts at its first form for that character (D-361).
-5. A lesson passed back to a character resumes at the level of that character (D-361).
-6. A cure rite works from the menu outside battle, and silence stops it (D-391, D-393).
-
-**Review focus.**
-
-- The answer of OQ-137 sets the slots at each level, and OQ-138 the points of a battle.
-- The answer of OQ-139 settles two copies of one lesson in one party.
-- No lesson ever copies itself, so the loot table stays finite (D-45, D-357).
-- The balance must hold with any side aptitude absent (D-282, D-304).
-
-**Questions.** OQ-137, OQ-138, and OQ-139.
-
-> *In plain English:* abilities come from rites and drills that anybody can carry. Use one long enough and it opens a stronger form, and that progress belongs to the person who carried it.
-
-### 7.22 PR-13: the gear, the items, and the inventory
-
-Area file: `area-progression.md` sections 7.8 and 7.9.
-
-**Scope.**
-
-- The six equipment slots: the weapon, the shield or off-hand, the head, the body, and two accessories (D-44).
-- Gear that any character wears, because the aptitudes carry the difference (D-374).
-- Fixed, hand-authored gear with a few rarity tiers, and no random affix and no crafting (D-45, OQ-143).
-- The pack, with a small fixed number of each item (D-382, OQ-142).
-- The item use on a turn, which restores less in a fight than outside one (D-382).
-- The find over the stack limit, which stays in its chest and which the save records (D-385).
-- The gear window and the item window in the stack of PR-62.
-
-**Out of scope.**
-
-- The shop and the gold (PR-65, D-530).
-- The chests that hold gear and items (PR-16).
-- The items of region one (PR-42 and the content PRs).
-
-**Exit tests.**
-
-1. A character equips and removes gear in each of the six slots.
-2. The screen shows each empty slot (D-44).
-3. A pickup over the stack limit leaves a remainder, and the pack names it (D-385). PR-16 builds the chest that holds it.
-4. An item restores less in a fight than outside one (D-382).
-5. A test proves that two accessories with one effect follow the rule of OQ-141.
-6. The snapshot holds the pack and the slots.
-
-**Review focus.**
-
-- The answer of OQ-140 sets what a piece of gear changes, and OQ-143 what a rarity tier changes.
-- The gear of Elio leaves the game with him, and content marks it (D-364).
-- A steal takes one entry from the list of an enemy, which PR-11 holds (D-383).
-
-**Questions.** OQ-140, OQ-141, OQ-142, and OQ-143.
-
-> *In plain English:* six slots, and anyone can wear anything. What you find is what the author placed, so a good weapon is a real event.
-
-### 7.23 PR-14: the hub map, the NPCs, and the services
-
-Area file: `area-exploration.md` section 7.11.
-
-**Scope.**
-
-- The hub as a walkable map with NPC sprites, on the same code path as a dungeon (D-112).
-- The hub content format, with the services that each hub offers (D-28, D-59).
-- The rest, which restores health and MP and cures poison, blind, and silence (D-42, D-390).
-- The save, the party swap, and the lesson swap at the hub (D-59, D-62, D-356).
-- A condition of PR-68 on each service, so a story flag can close one (D-543, D-544, D-556).
-- The service screens in the window stack of PR-62.
-- The village as a start area with no shop and no rest (D-369).
-
-**Out of scope.**
-
-- The shop and the gold (PR-65, D-530).
-- The hub lines that the dialogue box shows (PR-36).
-- The hub content of the first playable (PR-17).
-
-**Exit tests.**
-
-1. A fixture group of four characters, three of them in the party, walks the hub and rests (D-362).
-2. The group swaps the reserve and a lesson, then saves (D-356).
-3. The save reloads to the same state hash.
-4. The lead moves to the reserve, and the lead still walks the map with the camera on it (D-292, D-306).
-5. A rest cures poison, blind, and silence (D-390).
-6. A hub that offers no rest refuses the rest, and the screen says so.
-7. A hub file that names an absent service fails with the file and the service.
-8. A story flag closes a fixture service, and the hub refuses it (D-543).
-
-**Review focus.**
-
-- One code path draws a hub and a dungeon (D-112, T-1).
-- The hanging cells are a dungeon under a hub, and the same map rules cover it (D-244).
-- The party swap keeps the lead on the map in every case (D-292, D-306).
-
-**Questions.** None. OQ-121 blocks the shop of PR-65.
-
-> *In plain English:* the hub is a place you walk through, where the party recovers and reshapes itself before the next dungeon. Every hub has a different shape.
-
-### 7.24 PR-65: the shop and the gold
-
-Area file: `area-exploration.md` section 7.12.
-
-**Scope.**
-
-- The gold economy: gold from enemies and from treasure, which buys gear, items, and rest (D-60).
-- The shop screen in the window stack of PR-62.
-- The shop stock in content, with its prices and its buy-back rule (D-60, OQ-121).
-- A shop that sells a lesson too (D-365).
-- A shop that a story flag closes or opens, such as the shops of the mining town (D-319, D-331).
-
-**Out of scope.**
-
-- The people of the story who teach or give a lesson (PR-42 and the content PRs).
-- The balance of the prices (PR-30, G-14).
-
-**Exit tests.**
-
-1. A fixture party buys gear, an item, and a lesson, and the gold falls by the price.
-2. A buy-back follows the rule of OQ-121.
-3. A purchase over the stack limit fails, and the screen says why (D-385).
-4. A story flag closes a shop, and the shop refuses the party (D-319).
-5. The snapshot holds the gold and the stock that remains.
-
-**Review focus.**
-
-- The condition of a shop uses the one condition form of PR-68 (D-543).
-- The stock and the prices sit in content, never in code (D-116, G-6).
-- The balance pass of PR-30 tunes each number later (G-14).
-
-**Questions.** OQ-121.
-
-> *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
-
-### 7.25 PR-68: the story scene format, the story scene runner, the flags, and the conditions
+### 7.22 PR-68: the story scene format, the story scene runner, the flags, and the conditions
 
 Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
@@ -1024,7 +901,7 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
 > *In plain English:* a story scene is a list of simple steps in a data file: walk here, say this line, ask this question. The rules run it, so a robot can play it and a replay always matches.
 
-### 7.26 PR-50: the screenplay tool
+### 7.23 PR-50: the screenplay tool
 
 Area files: `area-tools.md` section 7.10, `area-story.md` section 7.8.
 
@@ -1055,7 +932,164 @@ Area files: `area-tools.md` section 7.10, `area-story.md` section 7.8.
 
 > *In plain English:* a tool prints each story scene in the shape of a film script. The owner reads the story as a story before anybody builds it.
 
-### 7.27 PR-36: the dialogue box, the portraits, and the story scene on screen
+### 7.24 PR-12: the lessons, the slots, and the aptitudes
+
+Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
+
+**Scope.**
+
+- The lesson, a rite or a drill that any character equips to gain an ability (D-272, D-275, D-278).
+- The lesson slots on the character, which grow with the character level (D-356, OQ-137).
+- The swap of lessons at a hub and at a save point, which holds for the dungeon visit (D-356).
+- The points that every equipped lesson gains from each battle won, and half for a reserve character (D-357).
+- The named forms of each lesson, and the point total that opens each form (D-539).
+- The growth that belongs to the character, not to the lesson (D-361).
+- The eight kinds, the main aptitude of each character, and the bonus of a lesson of that kind (D-274, D-281, D-358).
+- The side aptitude behind a story flag of PR-68, with an empty mark in the menu before the unlock (D-282, D-283, D-538, D-556).
+- The Mend rites and the cure rites that also work from the menu outside battle (D-391).
+- The lesson window in the stack of PR-62.
+
+**Out of scope.**
+
+- The quest state that unlocks a side aptitude in play (PR-19, D-538).
+- The lessons of region one (PR-42, D-304) and the balance pass (PR-30).
+
+**Exit tests.**
+
+1. A character equips a lesson and uses its ability in a fixture battle.
+2. A story flag of PR-68 unlocks a side aptitude, and the menu shows an empty mark before it (D-283, D-556).
+3. An equipped lesson gains points from a fixture battle, used or not (D-357).
+4. A lesson passed to a new character starts at its first form for that character (D-361).
+5. A lesson passed back to a character resumes at the level of that character (D-361).
+6. A cure rite works from the menu outside battle, and silence stops it (D-391, D-393).
+
+**Review focus.**
+
+- The answer of OQ-137 sets the slots at each level, and OQ-138 the points of a battle.
+- The answer of OQ-139 settles two copies of one lesson in one party.
+- No lesson ever copies itself, so the loot table stays finite (D-45, D-357).
+- The balance must hold with any side aptitude absent (D-282, D-304).
+
+**Questions.** OQ-137, OQ-138, and OQ-139.
+
+> *In plain English:* abilities come from rites and drills that anybody can carry. Use one long enough and it opens a stronger form, and that progress belongs to the person who carried it.
+
+### 7.25 PR-13: the gear, the items, and the inventory
+
+Area file: `area-progression.md` sections 7.8 and 7.9.
+
+**Scope.**
+
+- The six equipment slots: the weapon, the shield or off-hand, the head, the body, and two accessories (D-44).
+- Gear that any character wears, because the aptitudes carry the difference (D-374).
+- Fixed, hand-authored gear with a few rarity tiers, and no random affix and no crafting (D-45, OQ-143).
+- The pack, with a small fixed number of each item (D-382, OQ-142).
+- The item use on a turn, which restores less in a fight than outside one (D-382).
+- The find over the stack limit, which stays in its chest and which the save records (D-385).
+- The gear window and the item window in the stack of PR-62.
+
+**Out of scope.**
+
+- The shop and the gold (PR-65, D-530).
+- The chests that hold gear and items (PR-16).
+- The items of region one (PR-42 and the content PRs).
+
+**Exit tests.**
+
+1. A character equips and removes gear in each of the six slots.
+2. The screen shows each empty slot (D-44).
+3. A pickup over the stack limit leaves a remainder, and the pack names it (D-385). PR-16 builds the chest that holds it.
+4. An item restores less in a fight than outside one (D-382).
+5. A test proves that two accessories with one effect follow the rule of OQ-141.
+6. The snapshot holds the pack and the slots.
+
+**Review focus.**
+
+- The answer of OQ-140 sets what a piece of gear changes, and OQ-143 what a rarity tier changes.
+- The gear of Elio leaves the game with him, and content marks it (D-364).
+- A steal takes one entry from the list of an enemy, which PR-11 holds (D-383).
+
+**Questions.** OQ-140, OQ-141, OQ-142, and OQ-143.
+
+> *In plain English:* six slots, and anyone can wear anything. What you find is what the author placed, so a good weapon is a real event.
+
+### 7.26 PR-14: the hub map, the NPCs, and the services
+
+Area file: `area-exploration.md` section 7.11.
+
+**Scope.**
+
+- The hub as a walkable map with NPC sprites, on the same code path as a dungeon (D-112).
+- The hub content format, with the services that each hub offers (D-28, D-59).
+- The rest, which restores health and MP and cures poison, blind, and silence (D-42, D-390).
+- The save, the party swap, and the lesson swap at the hub (D-59, D-62, D-356).
+- A condition of PR-68 on each service, so a story flag can close one (D-543, D-544, D-556).
+- The service screens in the window stack of PR-62.
+- The village as a start area with no shop and no rest (D-369).
+
+**Out of scope.**
+
+- The shop and the gold (PR-65, D-530).
+- The hub lines that the dialogue box shows (PR-36).
+- The hub content of the first playable (PR-17).
+
+**Exit tests.**
+
+1. A fixture group of four characters, three of them in the party, walks the hub and rests (D-362).
+2. The group swaps the reserve and a lesson, then saves (D-356).
+3. The save reloads to the same state hash.
+4. The lead moves to the reserve, and the lead still walks the map with the camera on it (D-292, D-306).
+5. A rest cures poison, blind, and silence (D-390).
+6. A hub that offers no rest refuses the rest, and the screen says so.
+7. A hub file that names an absent service fails with the file and the service.
+8. A story flag closes a fixture service, and the hub refuses it (D-543).
+
+**Review focus.**
+
+- One code path draws a hub and a dungeon (D-112, T-1).
+- The hanging cells are a dungeon under a hub, and the same map rules cover it (D-244).
+- The party swap keeps the lead on the map in every case (D-292, D-306).
+
+**Questions.** None. OQ-121 blocks the shop of PR-65.
+
+> *In plain English:* the hub is a place you walk through, where the party recovers and reshapes itself before the next dungeon. Every hub has a different shape.
+
+### 7.27 PR-65: the shop and the gold
+
+Area file: `area-exploration.md` section 7.12.
+
+**Scope.**
+
+- The gold economy: gold from enemies and from treasure, which buys gear, items, and rest (D-60).
+- The shop screen in the window stack of PR-62.
+- The shop stock in content, with its prices and its buy-back rule (D-60, OQ-121).
+- A shop that sells a lesson too (D-365).
+- A shop that a story flag closes or opens, such as the shops of the mining town (D-319, D-331).
+
+**Out of scope.**
+
+- The people of the story who teach or give a lesson (PR-42 and the content PRs).
+- The balance of the prices (PR-30, G-14).
+
+**Exit tests.**
+
+1. A fixture party buys gear, an item, and a lesson, and the gold falls by the price.
+2. A buy-back follows the rule of OQ-121.
+3. A purchase over the stack limit fails, and the screen says why (D-385).
+4. A story flag closes a shop, and the shop refuses the party (D-319).
+5. The snapshot holds the gold and the stock that remains.
+
+**Review focus.**
+
+- The condition of a shop uses the one condition form of PR-68 (D-543).
+- The stock and the prices sit in content, never in code (D-116, G-6).
+- The balance pass of PR-30 tunes each number later (G-14).
+
+**Questions.** OQ-121.
+
+> *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
+
+### 7.28 PR-36: the dialogue box, the portraits, and the story scene on screen
 
 Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
@@ -1093,7 +1127,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 > *In plain English:* people walk, turn, and speak on the map you already walk on. Their words appear in a box at the bottom, with a face beside them.
 
-### 7.28 PR-15: the headless runner and the bots
+### 7.29 PR-15: the headless runner and the bots
 
 Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
@@ -1131,7 +1165,7 @@ Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
 > *In plain English:* simple robots play the game with no screen. They make the same choices a player makes, and every crash they find comes with the seed that repeats it.
 
-### 7.29 PR-49: the night job and the night gate
+### 7.30 PR-49: the night job and the night gate
 
 Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
@@ -1169,7 +1203,7 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
 > *In plain English:* every night the robots play thousands of runs on all three systems. No change merges unless a recent night ended with no crash and no dead end.
 
-### 7.30 PR-16: the dungeon parts, the death, and the save points
+### 7.31 PR-16: the dungeon parts, the death, and the save points
 
 Area file: `area-exploration.md` section 7.8.
 
@@ -1211,7 +1245,7 @@ Area file: `area-exploration.md` section 7.8.
 
 > *In plain English:* the dungeon gains its chests, doors, keys, and resting stones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
-### 7.31 PR-64: the traps, the hazards, and the statuses on the map
+### 7.32 PR-64: the traps, the hazards, and the statuses on the map
 
 Area file: `area-exploration.md` section 7.9.
 
@@ -1251,7 +1285,7 @@ Area file: `area-exploration.md` section 7.9.
 
 > *In plain English:* the dungeon itself can hurt you. Poison still hurts while you walk, and a party can go down between fights.
 
-### 7.32 PR-35: the region map
+### 7.33 PR-35: the region map
 
 Area file: `area-exploration.md` section 7.13.
 
@@ -1287,7 +1321,7 @@ Area file: `area-exploration.md` section 7.13.
 
 > *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
 
-### 7.33 PR-37: the CRT shader and the toggle
+### 7.34 PR-37: the CRT shader and the toggle
 
 Area file: `area-effects.md` section 7.12.
 
@@ -1322,7 +1356,7 @@ Area file: `area-effects.md` section 7.12.
 
 > *In plain English:* the whole picture looks like an old monitor, and one setting turns the look off. The look runs before the picture scales, so it matches the handheld on a bigger screen.
 
-### 7.34 PR-38: the audio synthesizer and the first sounds
+### 7.35 PR-38: the audio synthesizer and the first sounds
 
 Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
@@ -1361,7 +1395,7 @@ Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
 > *In plain English:* music and sound start as rows of numbers in a text file. A tool of ours turns those rows into sound, the same way on every computer.
 
-### 7.35 PR-69: the audio player base
+### 7.36 PR-69: the audio player base
 
 Area file: `area-audio.md` sections 7.2 and 7.3.
 
@@ -1397,7 +1431,7 @@ Area file: `area-audio.md` sections 7.2 and 7.3.
 
 > *In plain English:* this part makes sound come out. It sets the volumes, and it mutes the game when the window loses focus.
 
-### 7.36 PR-70: the rules of what plays when
+### 7.37 PR-70: the rules of what plays when
 
 Area file: `area-audio.md` sections 7.4 to 7.10.
 
@@ -1442,7 +1476,7 @@ Area file: `area-audio.md` sections 7.4 to 7.10.
 
 > *In plain English:* every place has its own music, a low bed of wind or fire under it, and its own footsteps. The music changes when the story turns the day to night.
 
-### 7.37 PR-71: the sound room
+### 7.38 PR-71: the sound room
 
 Area file: `area-audio.md` section 7.11.
 
@@ -1472,7 +1506,7 @@ Area file: `area-audio.md` section 7.11.
 
 > *In plain English:* the owner listens to every piece of music before it ships. One tool plays a batch on the desk, and this one plays it inside the game.
 
-### 7.38 PR-51: the PNG import
+### 7.39 PR-51: the PNG import
 
 Area file: `area-tools.md` section 7.11.
 
@@ -1503,7 +1537,7 @@ Area file: `area-tools.md` section 7.11.
 
 > *In plain English:* the owner can fix a sprite in a paint program. This tool writes the edited image as a text grid again, and it refuses any color that the palette lacks.
 
-### 7.39 PR-52: the map preview
+### 7.40 PR-52: the map preview
 
 Area file: `area-tools.md` section 7.12.
 
@@ -1533,7 +1567,7 @@ Area file: `area-tools.md` section 7.12.
 
 > *In plain English:* maps are text files too. This tool draws a map as a picture, so the owner can see and approve a place before anyone walks it.
 
-### 7.40 PR-53: the tile-edge tool
+### 7.41 PR-53: the tile-edge tool
 
 Area file: `area-tools.md` section 7.13.
 
@@ -1566,7 +1600,7 @@ Area file: `area-tools.md` section 7.13.
 
 > *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own.
 
-### 7.41 PR-72: the music and the sounds of the first playable
+### 7.42 PR-72: the music and the sounds of the first playable
 
 Area file: `area-audio.md` section 7.12.
 
@@ -1601,7 +1635,7 @@ Area file: `area-audio.md` section 7.12.
 
 > *In plain English:* the music arrives in two batches. This is the first: enough for the first thing that the owner plays.
 
-### 7.42 PR-17: the village, the first hub, and the first dungeon
+### 7.43 PR-17: the village, the first hub, and the first dungeon
 
 Area files: every area file. The content PR touches each area.
 
@@ -1623,6 +1657,7 @@ Area files: every area file. The content PR touches each area.
 - The arc content of region one (PR-28, PR-29) and the other places (PR-23 to PR-27).
 - The portraits of the cast (PR-28, PR-29). PR-36 uses fixture portraits.
 - The rest of the music of region one (PR-73).
+- A boss. The first playable ends when Dagvar joins, and PR-20 builds the phase layer on a fixture boss (D-564).
 
 **Exit tests.**
 
@@ -1644,7 +1679,7 @@ Area files: every area file. The content PR touches each area.
 
 > *In plain English:* the first real place to play. Everything before this was machinery.
 
-### 7.43 M-3, M-4, and M-6: the measurements of the phase
+### 7.44 M-3, M-4, and M-6: the measurements of the phase
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
@@ -1654,6 +1689,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 - M-4 records the turns of each encounter and the party downs of each dungeon, by bot policy.
 - M-6 records the frame time of the first playable on the Deck, against 60 frames each second (D-161).
 - M-6 also records the readability of the font and the sprites at 1x, with the CRT on and off (D-92, D-120, F-18).
+- After M-4 reports, the owner sets the M-4 band that Gate 2 checks (D-571).
 
 **Out of scope.**
 
@@ -1672,7 +1708,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* three sets of numbers close the phase. They are the cost of the robots each night, the length of a fight, and the speed on the handheld.
 
-### 7.44 Gate 2: the first playable
+### 7.45 Gate 2: the first playable
 
 **The gate.** Gate 2 passes when every line holds:
 
@@ -1686,11 +1722,11 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 8. The `screen-test`, bot, and `night-gate` jobs are green (D-172, D-505, G-22).
 9. The budget test passes for every place of the first playable (D-523).
 
-**After the gate.** The owner pays the Steam Direct fee, and the store page goes public as Coming Soon (D-471). Sections 7.45 to 7.47 hold the work that the page needs.
+**After the gate.** The owner pays the Steam Direct fee, and the store page goes public as Coming Soon (D-471). Sections 7.46 to 7.48 hold the work that the page needs.
 
 > *In plain English:* at this point the game is a game. The owner walks a village, fights in a mine, and says whether it feels right.
 
-### 7.45 PR-74: the capture
+### 7.46 PR-74: the capture
 
 Area file: `area-release.md` section 7.6.
 
@@ -1724,7 +1760,7 @@ Area file: `area-release.md` section 7.6.
 
 > *In plain English:* the game can replay a recorded run and write every frame to disk. That gives the same picture each time, so a screenshot or a trailer shot is repeatable.
 
-### 7.46 PR-75: the store text and the owner steps
+### 7.47 PR-75: the store text and the owner steps
 
 Area file: `area-release.md` section 7.7.
 
@@ -1761,7 +1797,7 @@ Area file: `area-release.md` section 7.7.
 
 > *In plain English:* the shop page words get written and approved like any other text in the game. The owner pays the fee and answers the questions that only Valve asks.
 
-### 7.47 PR-76: the store art and the screenshots
+### 7.48 PR-76: the store art and the screenshots
 
 Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
@@ -1795,28 +1831,30 @@ Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 **Questions.** OQ-173 and OQ-174.
 
 > *In plain English:* a session draws the pictures on the shop page the same way as everything else in the game. The screenshots come from real play.
-
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). Phase 2 holds this order:
 
 1. The owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).
 2. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8: the export job, the frame, the map, and the enemies.
-3. PR-9, PR-66, PR-55, PR-10: the fight and its screen.
+3. PR-9, PR-80, PR-66, PR-55, PR-10: the fight, the enemy record, and the screen (D-557).
 4. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60: the normal maps, the light, the settings, and the effects.
-5. PR-11, PR-67, PR-62, PR-12, PR-13, PR-14, PR-65: the enemies that think, and the build of a party.
-6. PR-68, PR-50, PR-36: the story scenes and the dialogue box.
-7. PR-15, PR-49: the bots, the night job, and the night gate.
-8. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-9. PR-16, PR-64, PR-35, PR-37: the dungeon, the region map, and the CRT.
-10. PR-38, PR-69, PR-70, PR-71: the audio tool, the player, the rules, and the sound room.
-11. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
-12. PR-72: the music and the sounds of the first playable.
-13. PR-17: the village, the mining town, and the hanging cells.
-14. M-3, M-4, M-6: the night numbers, the encounter numbers, and the Deck.
-15. **← GATE 2 (first playable).** Section 7.44 holds each line.
-16. PR-74, PR-75, PR-76: the capture, the store text, and the store art.
-17. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
+5. PR-11, PR-67, PR-62: the enemies that think, the character level, and the menu windows.
+6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
+7. PR-12, PR-13, PR-14, PR-65: the build of a party, the hub, and the shop.
+8. PR-36: the dialogue box.
+9. PR-15, PR-49: the bots, the night job, and the night gate.
+10. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+11. PR-16, PR-64, PR-35, PR-37: the dungeon, the region map, and the CRT.
+12. PR-38, PR-69, PR-70, PR-71: the audio tool, the player, the rules, and the sound room.
+13. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
+14. PR-72: the music and the sounds of the first playable.
+15. PR-17: the village, the mining town, and the hanging cells.
+16. M-3, M-4, M-6: the night numbers, the encounter numbers, and the Deck.
+17. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
+18. **← GATE 2 (first playable).** Section 7.45 holds each line.
+19. PR-74, PR-75, PR-76: the capture, the store text, and the store art.
+20. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 
 The next phase file is `phase-3-story-systems.md`.
 
@@ -1826,7 +1864,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 
 | Question | Subject | Blocks |
 |---|---|---|
-| OQ-57 | The studio name | PR-75 |
+| OQ-57 | The studio name | PR-61 and PR-75 |
 | OQ-59 | The AI disclosure of the content survey | PR-75 |
 | OQ-64 | The tick while a menu is open | PR-62 |
 | OQ-74 | How the runner finds a softlock | PR-15 |
