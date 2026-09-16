@@ -249,7 +249,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | The drawings of the window frames, the icons, and the glyphs | `area-art.md` | PR-17 and the art PRs |
 | The intents, the run record, and the tick of a menu | `area-core.md` | PR-6 |
 | The screen-test job and its baselines | `area-ci.md` | PR-41 |
-| The menu sounds and the audio settings | `area-audio.md` | PR-38 |
+| The menu sounds | `area-audio.md` | PR-70 |
 | The studio mark, the boot splash, and the credits text | `area-release.md` | PR-33 |
 | The scene format and the scene runner behind the box | `area-story.md` | PR-68 |
 

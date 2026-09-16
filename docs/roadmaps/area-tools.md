@@ -171,6 +171,7 @@ Built by PR-50. Phase file: `phase-2-first-playable.md`.
 
 - The command prints each scene script as a screenplay, with the text of each string id, for the PR description (D-173, G-25). It lands right after PR-68, because it needs the scene format and the string table alone (D-545).
 - A scene that names an absent string id fails with the scene, the step, and the id (T-2).
+- The tool looks each cue up in the audio file, because a scene names no cue (D-548).
 - `area-story.md` holds the scene format.
 
 > *In plain English:* a scene is a list of steps in a data file. This tool prints it like a script, so the owner reads the scene as a story before approval.
@@ -215,6 +216,7 @@ The table names the tools that live in Tools while another area file holds their
 | Tool | Area file | PR |
 |---|---|---|
 | Audio synthesizer, hash list, and listen command | `area-audio.md` | PR-38 |
+| The sound room in a development build | `area-audio.md` | PR-71 |
 | The runs that the `replay-identity` job compares | `area-ci.md` | PR-4 |
 | Frame compare of the screen tests | `area-ci.md` | PR-41 |
 | The render of large pictures | `area-art.md` | PR-55 |

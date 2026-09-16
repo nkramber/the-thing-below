@@ -304,7 +304,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | The screen-test job | `area-ci.md` | PR-41 |
 | The battle scene and the pace of a turn | `area-battle.md` | PR-10 |
 | The map scene, the slide of a step, and the puzzles of light and dark | `area-exploration.md` | PR-7 and PR-21 |
-| The ambience and the vibration | `area-audio.md` and `area-ui-input.md` | The PRs that each file names |
+| The ambience and the vibration | `area-audio.md` and `area-ui-input.md` | PR-70 and PR-63 |
 | The trailer capture with fixed seeds | `area-release.md` | The PR that `area-release.md` names |
 
 ### 7.16 The contract of every later effect PR

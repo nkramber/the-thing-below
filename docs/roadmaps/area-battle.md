@@ -210,7 +210,7 @@ Built by PR-9, PR-11, and PR-15. Phase files: `phase-2-first-playable.md` and ev
 | The lessons, the aptitudes, the gear, and the items | `area-progression.md` | PR-12 and PR-13 |
 | The battle screen, the timeline strip, and the command menu | `area-ui-input.md` | PR-10 and PR-61 |
 | The blood, the flash, the shake, the hit-stop, and the transition | `area-effects.md` | PR-57 and PR-60 |
-| The battle tracks, the stings, and the ability sounds | `area-audio.md` | PR-38 |
+| The battle tracks, the stings, and the ability sounds | `area-audio.md` | PR-70 |
 | The sprites of each enemy and the backdrop of each place | `area-art.md` | PR-17 and PR-55 |
 
 ### 7.14 The contract of every later battle PR

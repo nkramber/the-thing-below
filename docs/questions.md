@@ -479,3 +479,39 @@ How to file a question (D-19, D-24):
 155. **OQ-155. Whether a scene can play inside a battle.** A boss changes phase at a scripted threshold (D-65, PR-20). Does a scene play at that moment? Raised 2026-09-16. Blocks PR-20.
     - A line in the battle message area alone, with no scene, the recommendation. The battle rules stay whole, and the timeline never stops for a scene. A phase change then carries less weight than the story wants.
     - A short scene that the battle runs, with the dialogue box over the battle screen. A boss turn lands as a story beat. The scene runner and the battle runner must then share one tick, with a test for each.
+156. **OQ-156. The instrument voices of the synthesizer.** The music imitates strings, brass, choir, bells, and drums, with echo (D-412). What makes a voice? Raised 2026-09-16. Blocks PR-38.
+    - A parameter file for each voice, with its wave, its envelope, and its filter, the recommendation. A new instrument is content, not code, and the owner hears a change in the listen command. The first set takes tuning by ear.
+    - A fixed set of voices in the code of the tool. The tool is smaller, and one test covers each voice. A new instrument then needs a code change and a review.
+157. **OQ-157. The schema of the tracker rows.** A track is a grid of rows, one row for each step and one column for each voice (D-438). What does a row hold? Raised 2026-09-16. Blocks PR-38.
+    - A note, a voice, a volume, and an effect column for each voice, the recommendation. That is the shape of a tracker, and a change shows as a clear diff. A long track makes a long file.
+    - A note and a voice alone, with the volume in the voice file. Rows stay short and easy to read. A track then cannot make one note quiet without a new voice.
+158. **OQ-158. The shape of a render.** The build renders each track and sound into the Game assembly (D-547). Godot takes uncompressed PCM or IEEE float WAV data. What shape? Raised 2026-09-16. Blocks PR-38.
+    - 16-bit PCM, stereo, at 44100 samples each second, the recommendation. That matches the 16-bit style of D-412 and the size estimate of F-31. Region one then adds a few hundred megabytes to the Game assembly.
+    - 16-bit PCM, mono, at 22050 samples each second for the sound effects, and stereo at 44100 for the tracks. The assembly grows far less. Two shapes need two paths in the tool and two tests.
+159. **OQ-159. How a track marks a phrase.** At a change of the time of day, a place track finishes its musical phrase, then it crossfades (D-428). How does the player find the phrase end? Raised 2026-09-16. Blocks PR-70.
+    - A column of marks in the tracker rows, which the render turns into a list of sample positions, the recommendation. The author sets each mark where the music breathes. Every track needs the marks, and a track with none never crossfades.
+    - A fixed length, such as every 32 rows. No track needs a mark, and the rule is one line. A crossfade then lands in the middle of a phrase in any track that does not fit the count.
+160. **OQ-160. The length of a crossfade.** The place track crossfades to its night version at a phrase end (D-428). How long? Raised 2026-09-16. Blocks PR-70.
+    - About two seconds, as a number in the audio file, the recommendation. A slow fade reads as a change of light, and each track can set its own. One more number for each track.
+    - One length for the whole game, in the audio player. Nothing to set, and every change feels the same. A short track and a long one then fade at the same rate.
+161. **OQ-161. How the mono mixdown works.** The audio settings hold a mono toggle, and the audio player makes the mixdown (D-435). How? Raised 2026-09-16. Blocks PR-69.
+    - An effect on the master audio bus that sums the two channels, the recommendation. It works for every sound with no change to a render, and the toggle switches one effect. The sum needs a test for its level.
+    - A second render of each sound in mono, which the toggle picks. The mix is exact, and no effect runs. The build renders twice, and the assembly holds two copies of every sound.
+162. **OQ-162. The shape of the ambience of a map.** Each map plays its ambience low under its music, and each map mixes two layers (D-424). What is an ambience? Raised 2026-09-16. Blocks PR-70.
+    - One looped track for each kind of place, such as snow, mine, fire, and drips, the recommendation. A map names a kind, and a few files serve every map. Two maps of one kind sound the same.
+    - A set of short sounds that the player places at random times. Each visit sounds a little different. The player then needs a random source, which no run record holds.
+163. **OQ-163. The volume of the ambience under the music.** Each map mixes ambience under its music, and a setting sets the ambience volume (D-424, D-435). What is the default mix? Raised 2026-09-16. Blocks PR-70.
+    - The ambience well under the music, and near a save point the music drops instead, the recommendation. The music leads, and a save point feels quiet (D-425). The exact numbers need the ear of the owner.
+    - The ambience level with the music in a dungeon, and under it in a hub. Dungeons feel like places, not like scored scenes. Two rules for one idea, and each map needs a choice.
+164. **OQ-164. How an element layers on its kind.** Each of the eight kinds has a base sound, and an element adds its own layer (D-426). How do the two mix? Raised 2026-09-16. Blocks PR-70.
+    - Two sounds play at once, the base at full and the element under it, the recommendation. Eight base sounds and eight element sounds cover every ability. Two streams play for each hit.
+    - One rendered sound for each pair of a kind and an element. The mix is exact, and one stream plays. That is 64 renders before any ability varies its kind.
+165. **OQ-165. What the sound room shows.** A sound room in a development build plays every track and sound with a map or a battle (D-439). What is on it? Raised 2026-09-16. Blocks PR-71.
+    - A list of every track and sound, with a play control and a switch for a map or a battle behind it, the recommendation. The owner hears each piece where it belongs. It needs a map and a battle to load on demand.
+    - A list with a play control alone, and no map behind it. It is a short screen with no load path. It then repeats what the listen command already does.
+166. **OQ-166. The kinds of ground for footsteps.** Footsteps change with the ground (D-425). Which kinds does region one need? Raised 2026-09-16. Blocks PR-72.
+    - Snow, rock, wood, water, and metal, the recommendation. The village, the mine, the cells, the fort, and the ice each get their own step. Each map must mark the kind of every tile.
+    - Snow, rock, and wood. Three sounds cover most of region one, and the tile mark is simpler. The ice crossing and the border fort then sound like rock.
+167. **OQ-167. The tracks of the first playable.** PR-72 holds the tracks, themes, and sounds of the first playable, before PR-17 (D-549). Which tracks? Raised 2026-09-16. Blocks PR-72.
+    - The village, the mining town, the hanging cells, the three battle tracks, the main theme, and the four stings, the recommendation. That covers every place of D-362 and D-369. It is about seven tracks in one batch.
+    - The three place tracks and the common battle track alone. The batch is small, and a rewrite costs little. The owner then signs off on feel at Gate 2 with no boss music (D-52).

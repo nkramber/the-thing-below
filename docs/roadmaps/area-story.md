@@ -12,11 +12,13 @@ Text rules: this file follows ASD-STE100 (D-10). Game text has its own voice, an
 
 ## 1. Thesis
 
-The story is fixed, and the player shapes a small part of it. A choice sets a story flag, and a scene, a route, a hub line, or a quest reads that flag (D-329, D-350). No relationship value and no faction reputation exist (D-328). The text volume is the largest cost of the game, so every string sits in the string table and every batch takes the approval of the owner (D-40, D-57, G-7, G-20).
+The story is fixed, and the player shapes a small part of it. A choice sets a story flag, and a scene, a route, a hub line, or a quest reads that flag (D-329, D-350). No relationship value and no faction reputation exist (D-328). The text volume is the largest cost of the game (D-40). Every string sits in the string table, and every batch takes the approval of the owner (D-57, G-7, G-20).
 
-Core runs each scene, and Game draws it (D-540). That choice makes a scene a rule, not a picture. The bots of PR-15 play every scene, the night of PR-49 reaches every part of region one, and a replay reproduces each flag that a scene sets (G-5, T-7).
+Core runs each scene, and Game draws it (D-540). That choice makes a scene a rule, not a picture. The bots of PR-15 play every scene, and the night of PR-49 reaches every part of region one. A replay reproduces each flag that a scene sets (G-5, T-7).
 
-The order of the area follows dependency. PR-68 lands first with the scene format, the scene runner, the flag set, and the condition form, because a map, a route, a hub, and a quest all read a condition (D-544). PR-36 then draws the scene. PR-50 prints each scene as a screenplay for the owner. PR-18 adds the branches and the choice effects, and PR-19 adds the quests and the personal tasks. PR-28 and PR-29 write the arc of region one.
+The order of the area follows dependency. PR-68 lands first with the scene format, the scene runner, the flag set, and the condition form (D-544). A map, a route, a hub, and a quest all read a condition. PR-36 then draws the scene, and PR-50 prints each scene as a screenplay for the owner.
+
+PR-18 adds the branches and the choice effects, and PR-19 adds the quests and the personal tasks. PR-28 and PR-29 write the arc of region one.
 
 ## 5. Findings that bind this area
 
@@ -40,7 +42,7 @@ Built by PR-68. Phase file: `phase-2-first-playable.md`.
 
 - A scene is a JSON list of steps, such as move, face, wait, say, choose, and set flag (D-173). Each step that shows text points at a string id (G-7).
 - The scene files are rule files, so a change to one changes the content hash (D-495).
-- A scene names its cue when the music must change, and the audio file names no scene (D-418, `area-audio.md`).
+- A scene names no track and no cue. The audio file names the scene and the step that its cue serves (D-548, `area-audio.md`).
 - A scene names no art. An art file names the content ids that it draws, as D-519 asks.
 - The schema validates each scene at load, and an absent field is an error (G-6, T-2). A step that names an absent string id, flag id, or sprite id fails with the scene, the step, and the id.
 - OQ-144 holds the full step list, and OQ-149 holds a step that starts a battle.
@@ -52,7 +54,7 @@ Built by PR-68. Phase file: `phase-2-first-playable.md`.
 Built by PR-68. Phase file: `phase-2-first-playable.md`.
 
 - Core runs the scene script and holds the step index and every flag that a step sets (D-540). Game draws each step.
-- Game sends a wait intent when a move, a face, or a line ends, as it does for an effect that the world waits for (D-522, D-493).
+- Game sends a wait intent when a move, a face, or a line ends (D-493, D-522). An effect that the world waits for uses the same intent.
 - A bot answers each wait intent at once, so the bots and the night gate play every scene (D-64, G-22).
 - The scene state joins the snapshot, the state hash, and the migration set (G-5, D-166).
 - Core never reads a clock, so the length of a step comes from content or from the wait intent (G-3). OQ-145 holds which.
@@ -67,7 +69,7 @@ Built by PR-68, and used by PR-18, PR-14, PR-35, and PR-19. Phase file: `phase-2
 
 - A story flag is a name that is on or off, and Core holds the set of the flags that are on (D-542).
 - Content declares every flag id, and a load fails on an id that no file declares (T-2). OQ-147 holds where the declaration lives.
-- One condition form serves every reader: a scene step, a route of the region map, a hub line, a quest, and an enemy group (D-543).
+- One condition form serves every reader (D-543). The readers are a scene step, a route of the region map, a hub line, a quest, and an enemy group.
 - Core validates each condition at load against the declared ids, so one parser, one test, and one error message cover every reader (T-1, T-2).
 - PR-68 takes the flag set and the condition form, because a scene step sets a flag and PR-18 lands in Phase 3 (D-544, F-55).
 - A flag id is permanent, and the snapshot of the prologue carries each flag into the full game (D-163, D-166).
@@ -143,7 +145,7 @@ Built by PR-50. Phase file: `phase-2-first-playable.md`.
 - The owner approves each text batch in its PR description, in full (D-57, G-25).
 - Every player string follows the `game-text-style` skill (D-63, G-20).
 
-> *In plain English:* a tool prints each scene the way a script is printed, so the owner reads the story as a story before anybody builds it.
+> *In plain English:* a tool prints each scene in the shape of a film script. The owner reads the story as a story before anybody builds it.
 
 ### 7.9 The arc of region one as content
 
@@ -151,14 +153,14 @@ Built by PR-17, PR-28, and PR-29. Phase files: `phase-2-first-playable.md` and `
 
 - The file `docs/world/arc.md` holds the arc, step by step, and each step cites its decision (D-309 onward).
 - PR-17 writes the text of Marrek, Bergit, and Dagvar and a placeholder scene, for the first playable (D-292, D-362).
-- PR-28 and PR-29 write the scenes, the set choices, the portraits, the personal tasks, and the cast text of region one, in two batches (D-56, D-57, D-350, D-352).
+- PR-28 and PR-29 write region one in two batches (D-56, D-57, D-350, D-352). Each batch holds scenes, set choices, portraits, personal tasks, and cast text.
 - The party grows from Marrek alone to five characters, in the order that D-342 sets.
 - The region ends on the ice crossing with the choice of D-354, and two months pass before region two (D-345, D-353).
 - Elio is an innocent type, and the player loves him (D-322). Every scene, line, portrait, and sprite of Elio keeps that rule.
 - The open items of `docs/world/arc.md` name what region one still needs, such as the names of the bishop, the priest, and the captain.
-- M-5 records the play time of the owner from the first hub to the end of the arc, against the six to eight hours of D-56.
+- M-5 records the play time of the owner from the first hub to the end of the arc (D-56). The target is six to eight hours.
 
-> *In plain English:* the whole first part of the story is written down in a world file. Two content changes turn it into scenes, faces, and lines you read.
+> *In plain English:* a world file holds the whole first part of the story. Two content changes turn it into scenes, faces, and lines you read.
 
 ### 7.10 The limits on story content
 
@@ -172,7 +174,7 @@ Built by every content PR with text. Phase files: every phase file from `phase-2
 - Each killing carries weight, and no scene treats one as nothing (D-126).
 - Rule 13 of the `game-text-style` skill carries these limits (D-70, D-335).
 
-> *In plain English:* the story is grim, and it has lines it does not cross. The rules for those lines are written down, not left to taste.
+> *In plain English:* the story is grim, and it has lines it does not cross. A document holds those lines, and no session decides them by taste.
 
 ### 7.11 The story in the tests
 
@@ -214,7 +216,7 @@ Built by PR-68, PR-18, PR-19, PR-15, and PR-49. Phase files: `phase-2-first-play
 | The side aptitude that a personal task unlocks | `area-progression.md` | PR-12 |
 | The boss phases with their scripted moves | `area-battle.md` | PR-20 |
 | The screenplay tool and the headless runner | `area-tools.md` | PR-50 and PR-15 |
-| The cue of a scene and the main theme | `area-audio.md` | The PRs that `area-audio.md` names |
+| The cue of a scene and the main theme | `area-audio.md` | PR-70 |
 | The credits roll after the last scene of region one | `area-release.md` | The PR that `area-release.md` names |
 
 ### 7.14 The contract of every later story PR

@@ -283,6 +283,14 @@ Story terms from the roadmaps PR of 2026-09-16:
 | personal task | the quest of one character that unlocks the side aptitude (D-282) | side quest, character quest |
 | rumor board | the NPC in a hub that shows the open quests (D-59) | quest board, notice board |
 
+Audio terms from the roadmaps PR of 2026-09-16:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| audio file | the JSON file that names the content ids a track, a sting, an ambience, or a sound effect serves (D-548) | music file, sound map |
+| audio bus | one channel of the audio player that a volume setting sets (D-435) | channel, group, mixer |
+| sound room | the screen in a development build that plays every track and sound (D-439) | jukebox, audio test |
+
 ## The checker
 
 Until PR-2, the Python script `docs/tools/ste-check.py` is the checker (D-10). Run it before you commit:

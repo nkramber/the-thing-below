@@ -171,7 +171,8 @@ Built by PR-5. Phase files: `phase-1-foundations.md` and `phase-2-first-playable
 - A test proves that the embedded resources match the files of `content/` by name and by bytes, on every leg (D-508). A resource name that differs by system fails the test.
 - A read of a resource that the assembly lacks fails with the resource name, because the .NET call returns null for it (T-2).
 - The Godot export needs no filter and no copy for content, because it already publishes the Game assembly (F-42).
-- The atlas loads from bytes as an image and a texture, not as an imported texture (D-508). The file `area-art.md` holds the atlas, and `area-audio.md` holds the rendered audio.
+- The atlas loads from bytes as an image and a texture, not as an imported texture (D-508). The file `area-art.md` holds the atlas.
+- The build renders each track and each sound effect into the same assembly, and Game makes each stream from those bytes (D-547). The file `area-audio.md` holds the render.
 
 > *In plain English:* the game carries its data files inside its own program file, so every build holds exactly the data that the tests checked. The tools read the same files from the folder, and a test proves that the two match.
 
