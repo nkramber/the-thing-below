@@ -1,5 +1,51 @@
 # Session handoff
 
+Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). Read the first entry first.
+
+## Session 49: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat cross-provider review of PR #14 at effective head 7e65c7e.
+Repository: the-thing-below. Branch: docs/pr-14-one-pr-one-session. PR: #14. Role: reviewer. Base: 26152c5.
+
+### What this session did, and why
+
+- Read the handoff first, then the one-PR, review, STE, and gitar skills. Read the prior review, its response, the complete correction diff, the affected contracts, the PR description, and all PR comments.
+- Verified the provider gate under T-4 and D-17. Session 46 identifies Claude Code as the author. Session 48 identifies Claude Code as the correction author. Codex is the eligible reviewer.
+- Recomputed the effective head. 7e65c7e changes substantive paths. The review and handoff commits change only metadata paths.
+- Reproduced P2-1 and checked its correction. The gate rejects a deferral of this PR's own documents or records, and it permits a line that names PR-3 as the owner of independent roadmap work. D-579, the PR template, and PR-3 exit tests 10 and 11 agree.
+- Checked the D-582 session-end changes and the author and reviewer instructions. They agree with the revised decision.
+- Verified the latest manual Gitar review after the correction push. Its dashboard reports approval, its check passes, and no review thread or formal PR review remains.
+- Updated docs/reviews/pr-14.md, kept the earlier Changes required verdict under Earlier verdicts, and set the current verdict to Ready for owner merge for 7e65c7e.
+- Corrected the PR description's other-provider checkbox after recording the verified verdict.
+- The handoff held ten entries before this one, so Session 39 moved word for word to the top of docs/session-handoff-archive.md (D-18).
+
+### State of the build
+
+- No code, solution, or Makefile exists. main is 26152c5 (PR #13).
+- PR #14 is open on docs/pr-14-one-pr-one-session. Its remote tip before this review is 7e65c7e, and its effective head is 7e65c7e.
+- The interim STE check passes with 0 findings, git diff --check passes, and CLAUDE.md and AGENTS.md stay identical.
+- Build and test commands did not run because the repository has no code, solution, or Makefile.
+
+### In flight
+
+PR #14 is ready for owner merge. The review record applies to effective head 7e65c7e (T-4, D-17).
+
+### Traps and gotchas
+
+- Completion line 8 now applies only to documents and records of the current PR. A line that assigns independent roadmap work to its owner PR passes under D-579 and G-16.
+- P2-1 stays in the review history as fixed. The earlier verdict remains under Earlier verdicts.
+- The next ids are D-583, OQ-182, F-59, L-16, G-27, PR-82, M-7, and Session 50.
+
+### Open questions that block progress
+
+None for PR #14. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+The owner can merge PR #14.
+
+
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md`. Read the first entry first.
 
 ## Session 48: 2026-09-16, Claude Code
@@ -393,52 +439,3 @@ The owner must classify the sealed gallery as a fifth dungeon or as a route that
 ### Next concrete action
 
 The author asks the owner to classify the sealed gallery, records the answer, corrects P2-6 and its adjacent consumers, and updates `docs/reviews/pr-12-response.md`. Then a Codex session repeats the review at the new effective head.
-
-## Session 39: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: the answer to the review of PR #12, and the place of PR-27, on branch `docs/pr-12-critic`.
-
-### What this session did, and why
-
-- The session read `docs/reviews/pr-12.md`, the `Changes required` verdict of Session 38 for head `84b4128`. The owner also asked the session to examine the order of PR-27. The session assessed each finding against the evidence before it changed a file (the `pr-review` skill).
-- Five findings have full merit, and one has partial merit. `docs/reviews/pr-12-response.md` holds each disposition, its evidence, and its regression check.
-- P1-1: the rule of D-568, "no blur and no uneven pixels", cannot hold at a scale of 1.5. The session had written that absolute, and the owner had said "It won't be perfect pixel scaling, but it MUST look good." The owner chose even pixel sizes with a slight softness (D-573), which resolves OQ-105.
-- P2-1: the scan of Session 37 left out the decision register and skipped each line that already named D-568, so it passed stale frame contracts. A corrected scan found the four that the review listed and five more, and each now names D-568.
-- P2-2 and P2-3: OQ-114, OQ-135, the PR-30 exit test, Gate 4, and OQ-93 now match D-566, D-555, D-571, and D-572. D-42 gained its mark for D-555.
-- P2-4 has partial merit. The PR description and a new dated line named the design-critic agent as the source of work, and both now name the pass of D-484. The name of the pass stays, because D-484 names it as a plan item.
-- P2-5: the archive step of Sessions 35 and 37 inserted a session above a named older session, not at the top. The archive now runs from Session 29 down to Session 1, with no text changed, and this session inserted Session 29 at the top.
-- The place of PR-27: the second hub is the refuge of the old faith (D-243, `docs/world/arc.md`). The party reaches it right after the sealed gallery (D-331), and it serves the fort and the ice (D-356). The owner moved PR-27 right after PR-81 (D-574).
-- The handoff held ten entries before this one, so Session 29 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. `main` is `c4d39fe` (PR #11).
-- PR #12 is open on branch `docs/pr-12-critic`. Its remote head is the commit that holds this entry.
-- The corrections change files outside the metadata set, so the effective head moves off `84b4128` to the commit of this answer. The repeat review reads that head.
-- The interim STE check passes with 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-- The phase lists of section 7, the sequence of section 8, and the five phase sequences give the same 79 PR items.
-
-### In flight
-
-PR #12 waits for the repeat cross-provider review (T-4, D-17).
-
-- The effective head is `d31ae6b`. The commits above it change `docs/reviews/` and `docs/session-handoff.md` alone.
-- The automated pass on `d31ae6b` reported `Approved with suggestions`, with one comment. That comment had merit: the response gave the archive range as Session 28 down to Session 1, and the same commit had archived Session 29 at the top. `aa3c5e2` corrected both lines, and the thread is resolved (D-14, D-66).
-- An on-demand pass writes no check run, so the evidence of the pass is its review comment.
-
-### Traps and gotchas
-
-- A scan for a superseded rule must read `docs/decisions.md` too, and it must show each hit with its context. A filter that skips a line because it names the new decision passes a line that names both.
-- The size 1280 by 800 stays true in three places: the Deck screen, the rule of Valve for text at 1280 by 800, and the display list of the fit test of PR-61. Each is a fact about the Deck, not about the frame.
-- The archive step inserts a moved session at the top of the archive, above the newest archived session.
-- An owner statement that accepts a tradeoff stays a tradeoff in the decision row. Never turn "must look good" into an absolute rule.
-- The next ids are D-575, OQ-180, F-58, L-16, G-26, PR-82, M-7, and Session 40.
-
-### Open questions that block progress
-
-None for PR #12. OQ-179 blocks PR-5.
-
-### Next concrete action
-
-A Codex session repeats the review of PR #12 at the effective head `d31ae6b`. It reads `docs/reviews/pr-12-response.md`, checks each trigger and regression check, and writes the verdict (T-4, D-17). The automated pass is complete, and no comment of it waits for an answer.
