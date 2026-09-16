@@ -23,13 +23,14 @@ Session: PR #14, the rule of one PR in one session, on branch `docs/pr-14-one-pr
 ### State of the build
 
 - No code exists. `main` is `26152c5` (PR #13).
-- PR #14 is open on branch `docs/pr-14-one-pr-one-session`. Its head is the commit that holds this entry, and the PR waits for the gitar pass and the Codex review.
+- PR #14 is open on branch `docs/pr-14-one-pr-one-session`. Its effective head is `9837c1d`. The later commit that records the gitar pass changes this file alone, so it is a metadata commit.
+- The gitar pass on `9837c1d` approved with no comment: 0 comments, 0 with merit, and no thread. The dashboard edit came after the push, and its summary names this change.
 - The interim STE check passes with 0 findings, the skill validator passes, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
 - Size: `CLAUDE.md` grows from 14,735 to 14,976 bytes. The skill is 7,550 bytes, and a session loads it for PR work alone.
 
 ### In flight
 
-PR #14 waits for a current gitar review under the `gitar-review` skill. It changes rows of `docs/decisions.md`, so it takes the Codex review and not the label (D-401). This session ends at that hand-over point (D-576).
+PR #14 waits for the Codex review at effective head `9837c1d`. It changes rows of `docs/decisions.md`, so it takes the review and not the label (D-401). A manual gitar review of the metadata commit confirms that the pass is current. This session ends at that hand-over point (D-576).
 
 ### Traps and gotchas
 
