@@ -123,7 +123,7 @@ Built by PR-55. Phase file: `phase-2-first-playable.md`.
 - A test decodes the render of a fixture large picture and compares its pixels with its pieces (F-19).
 - OQ-91 holds which operations a large picture offers on a piece.
 - The battle scene of PR-10 draws the drift of the backdrop layers and the ambient effects over them (D-205).
-- `area-release.md` holds the sizes and the upload of the store images (D-475).
+- `area-release.md` holds the sizes and the upload of the store images, in PR-76 (D-475, D-550).
 
 > *In plain English:* a battle background is too big to write as one text picture. The game builds it like a stage set from small drawn parts. Each part stays small enough to draw and to check.
 
@@ -202,7 +202,7 @@ The phase files give each batch its scope. This table names the art that the dec
 | Normal maps, light, particles, glow, transitions, and the CRT shader | `area-effects.md` | PR-48, PR-56 to PR-60, and PR-37 |
 | The frame, the fit, the fonts, the window frames, the icons, and the glyphs | `area-ui-input.md` | PR-7, PR-10, and the PRs that `area-ui-input.md` names |
 | The pixel tests in the test job, and the screen tests | `area-ci.md` | PR-34, PR-55, and PR-41 |
-| The store images on the store page | `area-release.md` | The store page work at Gate 2 |
+| The store images on the store page | `area-release.md` | PR-76 |
 
 ### 7.11 The contract of every later art PR
 

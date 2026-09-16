@@ -251,7 +251,7 @@ The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #
 8. **← GATE 1 (foundation).** The gate tools and the atlas test pass on every CI leg.
 9. PR-55: the render of large pictures, right before PR-10 (D-518).
 10. PR-48: the normal maps, right after PR-10 and right before PR-56, the first PR that draws light (D-520, D-521).
-11. PR-50: the screenplay tool, right after PR-36 (D-497).
+11. PR-50: the screenplay tool, right after PR-68 (D-545).
 12. PR-15: the headless runner and the bots.
 13. PR-49: the night gate. Its live check first runs after the first night (D-500).
 14. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).

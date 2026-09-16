@@ -291,6 +291,14 @@ Audio terms from the roadmaps PR of 2026-09-16:
 | audio bus | one channel of the audio player that a volume setting sets (D-435) | channel, group, mixer |
 | sound room | the screen in a development build that plays every track and sound (D-439) | jukebox, audio test |
 
+Release terms from the roadmaps PR of 2026-09-16:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| capture | the development-build command that replays a run record into PNG frames and a WAV file (D-476, D-551) | recorder, screen capture |
+| store image | a capsule, a logo, or a library image of the store page (D-475) | asset, art, when the text means these |
+| credits roll | the scene that plays the credits after the last scene of region one (D-467, D-552) | end credits, roll, alone |
+
 ## The checker
 
 Until PR-2, the Python script `docs/tools/ste-check.py` is the checker (D-10). Run it before you commit:

@@ -56,6 +56,8 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-16 audio area pass: three PRs take the audio work that PR-38 leaves, PR-69 to PR-71 (D-546). The build renders each track into the Game assembly, beside the content files (D-547). An audio file names the content ids that it serves, and a rule file names no track (D-548). PR-72 and PR-73 hold the music and the sounds of region one (D-549). F-56 records a Godot audio call that fails in silence and a position that is not exact.
 
+2026-09-16 release area pass: the store page work at Gate 2 splits into PR-75 and PR-76 (D-550). PR-74 adds the capture that takes each screenshot and each trailer shot (D-551). PR-77 holds the credits roll, right after PR-29, so the owner sees it at Gate 4 (D-552). PR-40 splits into PR-78, PR-79, and PR-40 (D-553). That closes the twelve area files of D-485, and the five phase files and the rebuild of sections 7 and 8 follow (D-488).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -168,13 +170,13 @@ From the roadmap interview of 2026-09-12:
 | Light, particles, glow, and transitions | Game | effect files, light setups, normal maps, the effect budget, Core state | screen, wait intents | Medium. The effect budget of the Deck test holds them inside 60 frames per second, and no rule waits for an effect (D-139, D-160, D-182, D-183, D-522, D-523) |
 | Crash file and replay viewer | Game | run record, crash file | screen, and a crash file through Storage | High. The crash report, and a viewer in development builds alone (D-170, D-175, D-494) |
 | Audio player | Game | rendered audio from the Game assembly, Core state, audio files, settings | sound | Low. Music by place and time of day, ambience, stings, and the mix (D-413, D-424, D-429, D-435). An audio file names the content ids that it serves, and each stream comes from bytes with a checked return (D-547, D-548, F-56) |
-| Steamworks glue | Game | Steam client | controller type for the glyphs | Low. Steam builds alone, with no cloud code (D-460, D-461) |
+| Steamworks glue | Game | Steam client | controller type for the glyphs | Low. Steam builds alone, with no cloud code (D-460, D-461). PR-78 adds the binding and the call, and PR-40 sets Auto-Cloud (D-553) |
 | Atlas tool, large picture render, normal maps, PNG code, PNG import, audio synthesizer | Tools | drawing files, large pictures, palette, edited PNG files, tracker rows, parameter files | atlas PNG, atlas index, normal-map atlas, drawing files, review sheets, large picture renders, rendered audio, hash list | Medium. The atlas, its index, and the normal-map atlas are committed with a pixel test (D-107, D-184, F-19), and the audio renders at build against its hash list (D-432). Review sheets reach the PR description through `gh`, never git (D-514). Integer math gives the same output on every CI leg (D-502) |
 | Map preview, tile edges, screenplay | Tools | map content, edge rules, scene content, string table | preview PNG, edge files, screenplay text | Low. The owner approves maps and scenes from them (D-165, D-173, D-204). An edge file stays outside the content hash, and a test proves that it matches its map (D-501) |
 | STE checker, det-lint, review gate, night gate | Tools | source, docs, review records, night records | pass or fail | Gate. det-lint reads types through the Roslyn compiler library (D-498) |
 | Headless runner and bots | Tools | policies, seeds | run records | High. The night gate (D-64) |
 | CI checks and the night job | CI | source, content, the identity file, night records | pass or fail, a coverage report, night records as run artifacts | Gate. The actions of GitHub alone, with SHA pins, and bot runs on all three legs (D-504, D-505, D-509, D-511) |
-| Export and release | CI | merge, release tag, a PR that changes the export | three exports as build artifacts, a smoke session on each, the GitHub Release of a prologue tag | Low (D-53, D-85, D-449, D-457, D-481, D-503, D-512) |
+| Export and release | CI | merge, release tag, a PR that changes the export | three exports as build artifacts, a smoke session on each, the GitHub Release of a prologue tag | Low (D-53, D-85, D-449, D-457, D-481, D-503, D-512). PR-79 signs and notarizes the macOS build from Phase 5 (D-455, D-553) |
 
 ## 4. Cost model (what we pay, what we do not know)
 
@@ -183,7 +185,7 @@ What we pay:
 - Owner time: the interviews, the approvals of every text batch (D-57), and the play sign-off of every phase (D-52). The owner also approves every art batch from its review sheets (D-107, D-514), and every music and sound batch by ear (D-433). The owner also cuts each trailer (D-476), and reads the crash emails and the notes of the trusted players (D-469, D-473). Before PR-1, the owner runs the Deck test with its effect budget (D-160, D-523).
 - Tokens: two harnesses, Claude Code and Codex, on every PR (D-14, D-17). The amount per PR is unknown until M-1.
 - CI: GitHub-hosted minutes on three legs per PR, the bot runs included (D-2, D-481, D-505). Three exports run on each merge and on each PR that changes the export (D-449, D-512). A night plays fourteen thousand bot runs on three legs (D-507). The minutes are free while the repository stays public (D-4). From Phase 6 the repository is private, and minutes past the free quota cost money (D-456). Wall time per PR is unknown until M-2. The build renders the audio, which adds to that time (D-432).
-- Purchases: the Steam Direct fee, 100 USD, at Gate 2 (D-85, D-471). The Apple Developer Program costs 99 USD a year from PR-40 on (D-455). GitHub Pro comes before the switch to a private repository, so the required checks stay on `main` (D-456).
+- Purchases: the Steam Direct fee, 100 USD, at Gate 2 (D-85, D-471). The Apple Developer Program costs 99 USD a year from PR-79 on (D-455, D-553). GitHub Pro comes before the switch to a private repository, so the required checks stay on `main` (D-456).
 - No purchase: no code signing certificate for Windows (D-463), no asset license, and no font fee, because every font is OFL (D-104, D-122). Godot is free.
 
 Measurements that answer the unknowns:

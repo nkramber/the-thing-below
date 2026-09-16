@@ -201,6 +201,7 @@ Built by PR-6 and PR-45. Phase files: `phase-1-foundations.md` and `phase-2-firs
 - A development build passes the debug handlers, and a release build passes none (D-260). A debug intent in a record carries a mark (D-171).
 - A host with no debug handlers refuses a record with a debug intent. The report names the intent and the tick (T-2).
 - PR-45 creates the debug assembly, the console, and the test that a release export never loads the assembly (D-492).
+- Two later features live behind the same seam: the capture of PR-74, and the sound room of PR-71 (D-439, D-546, D-551).
 
 > *In plain English:* cheats exist only in development builds, as a separate part that the shipped game never contains. A run that used a cheat still replays, and the record says so.
 

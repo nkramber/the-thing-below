@@ -174,12 +174,12 @@ Built by PR-61, on the intents of PR-6. Phase files: `phase-1-foundations.md` an
 
 ### 7.10 Button prompts and glyphs
 
-Built by PR-61, and finished by PR-40. Phase files: `phase-2-first-playable.md` and `phase-5-first-release.md`.
+Built by PR-61, and finished by PR-78. Phase files: `phase-2-first-playable.md` and `phase-5-first-release.md`.
 
 - A prompt shows the glyph of the last device that the player touched, keyboard or gamepad (D-222).
 - Glyph sets cover Xbox, PlayStation, and Steam Deck controllers, drawn as 16 by 16 drawings (D-222, `area-art.md` section 7.4).
 - Godot gives no controller type, so Game reads the event kind and the name of the pad (F-50). OQ-107 holds the rule.
-- Under Steam, PR-40 adds the one Steamworks call that reports the controller type, and the prompts follow it (D-460, D-462).
+- Under Steam, PR-78 adds the one Steamworks call that reports the controller type, and the prompts follow it (D-460, D-462, D-553).
 - A button constant of Godot names the place of a button, not its label, so one constant means Cross, A, or B (F-50).
 - The rating Verified needs glyphs that match the input in use, and PR-39 checks them (D-459).
 
@@ -239,7 +239,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | PR-35 | The region map screen | D-113 |
 | PR-33 | The title screen, the version line, the settings entry, and the credits screen | D-454, D-467 |
 | PR-39 | The Deck checklist: the glyphs, the default bindings, and the 9-pixel text floor | D-222, D-459 |
-| PR-40 | The Steamworks call that reports the controller type | D-460, D-462 |
+| PR-78 | The Steamworks call that reports the controller type | D-460, D-462, D-553 |
 
 ### 7.15 UI that other area files hold
 
@@ -250,7 +250,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | The intents, the run record, and the tick of a menu | `area-core.md` | PR-6 |
 | The screen-test job and its baselines | `area-ci.md` | PR-41 |
 | The menu sounds | `area-audio.md` | PR-70 |
-| The studio mark, the boot splash, and the credits text | `area-release.md` | PR-33 |
+| The studio mark, the boot splash, and the credits text | `area-release.md` | PR-33 and PR-77 |
 | The scene format and the scene runner behind the box | `area-story.md` | PR-68 |
 
 ### 7.16 The contract of every later UI PR
@@ -280,12 +280,12 @@ The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #
 7. PR-57 to PR-60: the effects that the settings turn down.
 8. PR-62: the menu windows, right before PR-12 (D-525).
 9. PR-12, PR-13, PR-14, and PR-16: one screen for each system.
-10. PR-36: the dialogue box. PR-35: the region map screen.
+10. PR-68 and PR-36: the scene runner, then the dialogue box (D-541). PR-35: the region map screen.
 11. PR-37: the CRT toggle joins the display group.
 12. PR-17: the first playable, read on the Deck (M-6).
 13. **← GATE 2 (first playable).**
 14. PR-33: the title screen, the version line, and the credits.
-15. PR-39 and PR-40: the Deck checklist and the controller type of Steam.
+15. PR-39 and PR-78: the Deck checklist and the controller type of Steam.
 
 ## 9. Open questions
 

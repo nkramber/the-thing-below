@@ -163,15 +163,15 @@ How to file a question (D-19, D-24):
     - PR-2 and PR-3 after PR-7. The STE checker in C# and the review gate wait, so the first walk comes about 4 to 8 sessions sooner. The checks on `main` of OQ-3 wait too.
     - A throwaway feel prototype that never merges, like the Deck test scene of D-160. It gives the fastest feel, but it is not the real game, and the tenets keep it out of `main`.
     - No change. The sequence of section 8 stands.
-57. **OQ-57. The studio name.** D-450 puts a studio name on the store page and in the credits. D-451 sets the pick before the store page goes public, and D-471 puts that page at Gate 2. Which name? Raised 2026-09-14. Blocks the store page at Gate 2, PR-33, PR-40, and the crash address of D-473.
+57. **OQ-57. The studio name.** D-450 puts a studio name on the store page and in the credits. D-451 sets the pick before the store page goes public, and D-471 puts that page at Gate 2. Which name? Raised 2026-09-14. Blocks PR-75, PR-33, PR-44, and the crash address of D-473 (D-550).
     - The owner names it, the recommendation. The name is a personal choice, and PR-40 searches it for clashes (D-408).
     - The session proposes three names with a search for clashes. The owner picks one or gives another.
-58. **OQ-58. The Steamworks binding.** PR-40 needs a C# binding for the startup and the controller type call (D-460, D-462). Every dependency needs a decision (G-13). Which binding? Raised 2026-09-14. Blocks PR-40.
+58. **OQ-58. The Steamworks binding.** PR-78 needs a C# binding for the startup and the controller type call (D-460, D-462, D-553). Every dependency needs a decision (G-13). Which binding? Raised 2026-09-14. Blocks PR-78.
     - Steamworks.NET: MIT, a thin wrapper of the C API. Its last release came on 2026-08-02, and NuGet stops at 2024.
     - Facepunch.Steamworks: MIT, a C# API at a higher level. Release 2.5.2 came on 2026-04-23, and NuGet stops at 2020.
     - A small interop of our own: a few calls into the Steamworks library, with no wrapper. PR-40 first checks the C interface of the SDK.
     - No recommendation until PR-40 reads each project again (D-462).
-59. **OQ-59. The AI disclosure on Steam.** Steam asks about "Pre-Generated" AI content in the content survey, before the review of a store page. Sessions draft the art grids, the music rows, and the text, and the owner approves each batch (D-57, D-107, D-433). How does the owner answer the survey? Raised 2026-09-14. Blocks the store page at Gate 2 (D-471, D-477).
+59. **OQ-59. The AI disclosure on Steam.** Steam asks about "Pre-Generated" AI content in the content survey, before the review of a store page. Sessions draft the art grids, the music rows, and the text, and the owner approves each batch (D-57, D-107, D-433). How does the owner answer the survey? Raised 2026-09-14. Blocks PR-75, the store page work at Gate 2 (D-471, D-477, D-550).
     - Disclose, and name no tool, the recommendation. The survey marks the art, the music, and the text as Pre-Generated, made with AI tools under the direction and approval of the owner. T-6 stands, because the answer names no agent, harness, or model.
     - Disclose, and name the tools. The most open answer. T-6 does not list the survey, but T-6 bars any text that names an agent as the source of work.
     - The owner answers before the store page goes public, from a fresh read of the rules of Valve (D-477).
@@ -515,3 +515,36 @@ How to file a question (D-19, D-24):
 167. **OQ-167. The tracks of the first playable.** PR-72 holds the tracks, themes, and sounds of the first playable, before PR-17 (D-549). Which tracks? Raised 2026-09-16. Blocks PR-72.
     - The village, the mining town, the hanging cells, the three battle tracks, the main theme, and the four stings, the recommendation. That covers every place of D-362 and D-369. It is about seven tracks in one batch.
     - The three place tracks and the common battle track alone. The batch is small, and a rewrite costs little. The owner then signs off on feel at Gate 2 with no boss music (D-52).
+168. **OQ-168. Where the game version lives in the build.** The version is 0.MINOR.PATCH, and a tag has the form `v0.5.0` (D-448). The record header, the crash file, and the title screen all read it. Where does it come from? Raised 2026-09-16. Blocks PR-6 and PR-31.
+    - One constant in Core, which the export preset and the workflow read, the recommendation. One place holds the number, and a test proves that the tag matches it. A release then needs a commit before the tag.
+    - The git tag alone, which the build writes into the assembly. No file needs an edit for a release. A build from a branch with no tag then has no version, which breaks a crash report (T-2).
+169. **OQ-169. Where the release notes live.** Each release tag and each Steam update carries short notes in the voice of the store text (D-453). Where do they live? Raised 2026-09-16. Blocks PR-31.
+    - One file for each release under `docs/`, which the workflow reads by version, the recommendation. The notes take a review like any other text, and the history keeps each one. A release needs the file before the tag.
+    - The body of the git tag. Nothing new enters the repository, and the tag carries its own text. The notes then take no review, and a typo needs a new tag (G-20).
+170. **OQ-170. What the title menu holds.** The first screen plays the main theme and shows the version (D-427, D-454). What are its entries? Raised 2026-09-16. Blocks PR-33.
+    - Continue, New, Settings, Credits, and Quit, the recommendation. Continue reads the resume file of D-258, so a player returns in one press. Continue must gray out with no save, which needs a state for it.
+    - New, Load, Settings, Credits, and Quit. The player always picks a slot, so no hidden state decides what loads. It is one more press for every session of play.
+171. **OQ-171. What the capture command takes.** The capture replays a run record under Movie Maker into frames (D-476, D-551). What does the owner give it? Raised 2026-09-16. Blocks PR-74.
+    - A run record, a start tick, and an end tick, the recommendation. One command gives one shot, and a shot list is a list of those lines. A long trailer needs many runs of the command.
+    - A run record and a shot list file, which the command walks. One run makes every shot of a trailer. The shot list is a new format with its own schema and test.
+172. **OQ-172. The output format of the capture.** Movie Maker writes an AVI file with MJPEG video, or a PNG sequence with a WAV file. An OGV file comes from editor builds alone. Which does the capture write? Raised 2026-09-16. Blocks PR-74.
+    - A PNG sequence with a WAV file, the recommendation. Each frame keeps every pixel, which a screenshot needs, and a video editor takes a sequence. A minute of frames is a large folder.
+    - An AVI file with MJPEG video. One file for each shot, and the folder stays small. MJPEG loses pixels, so no screenshot can come from it.
+173. **OQ-173. The sizes of the store images.** Sessions draw the capsules, the logo, and the library images as large pictures (D-475, D-516). Which sizes does the batch hold? Raised 2026-09-16. Blocks PR-76.
+    - Every size that the Steam asset rules name, in one batch, the recommendation. The page is complete at its first review, and no second batch waits. It is the largest art batch of the project.
+    - The sizes that a Coming Soon page needs, and the rest before the demo. The first batch is small, and the art can improve before launch. Two batches take two reviews and two approvals.
+174. **OQ-174. Which five screenshots.** Steam needs at least five screenshots at 1920 by 1080 in 16:9 (F-34). Which moments? Raised 2026-09-16. Blocks PR-76.
+    - A fight, a dungeon, a hub, a scene with the dialogue box, and a menu with a build, the recommendation. Each shows one system, and together they say what the game is. A menu shot sells the game less than a fight.
+    - Five moments of play with no menu. Every shot shows the world. The build decision of D-272, which is the point of the game, then appears in no shot.
+175. **OQ-175. The shot list of the first trailer.** Sessions write a shot list, and the owner cuts the trailer (D-476). What does the first trailer show? Raised 2026-09-16. Blocks the trailer cut.
+    - The hook, the world, a fight, the build, and the end card, in about 60 seconds, the recommendation. It follows the shape that a store trailer needs. The end card needs the studio name of OQ-57.
+    - A longer cut of about two minutes with a story beat. The tone of the game reaches the viewer. A long trailer loses viewers, and it needs far more shots.
+176. **OQ-176. How the game reads the controller type.** The game does not use the Steam Input API, and it asks Steamworks for the controller type (D-460). How does the glyph set follow? Raised 2026-09-16. Blocks PR-78.
+    - The game asks once at the start and after each device change, and it holds one glyph set, the recommendation. One read covers every prompt, and no frame pays for it. A second controller of another type then shows the wrong glyphs.
+    - The game asks for the type of the device that sent the last input. Every prompt matches the hand that holds the pad. Each input event then reaches a Steam call, which a build with no Steam client must answer for itself.
+177. **OQ-177. Where the signing identity and the secrets live.** CI signs and notarizes the macOS export from PR-79 (D-455). Where do the certificate and the Apple credentials live? Raised 2026-09-16. Blocks PR-79.
+    - Repository secrets on GitHub, read by the macOS leg alone, the recommendation. The workflow needs no manual step, and no secret enters the repository. A secret in a public repository needs care, because a workflow of a fork must never read it.
+    - The owner signs and notarizes each release build by hand on the Mac. No secret leaves the machine of the owner. Every release then waits on the owner, and the step is not repeatable by a job.
+178. **OQ-178. What the demo build changes.** The prologue ships as the demo app "The Thing Below: Prologue" (D-478). How does that build differ from the full build? Raised 2026-09-16. Blocks PR-40.
+    - The same build with a different Steam app id and the content of region one alone, the recommendation. One code path serves both, so no demo bug hides from the tests. The content split must be clean by then.
+    - A build with a demo flag that closes the later regions. One content set ships, and a player who buys the game needs no new download. The flag is a rule with no test until region two exists (T-3).

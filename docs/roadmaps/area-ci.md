@@ -182,7 +182,7 @@ Built by PR-54. Phase file: `phase-2-first-playable.md`.
 
 - The job lands right before PR-7, so the merge of PR-7 exports the first walkable build (D-503).
 - It runs on each merge to `main`, and on each PR that changes its workflow file, the export presets, or the export code (D-449, D-512). It is not a line of the PR gate.
-- Each leg exports the build of its own system: Windows and Linux on x86_64, and the universal macOS build (D-481, D-482). From PR-40 on, the macOS leg signs and notarizes its build (D-455).
+- Each leg exports the build of its own system: Windows and Linux on x86_64, and the universal macOS build (D-481, D-482). From PR-79 on, the macOS leg signs and notarizes its build (D-455, D-553).
 - The job unpacks the .NET export templates into the editor data folder of the runner, because no command-line option installs them (F-42). OQ-83 holds how the job gets the file.
 - Each export starts with `--headless` and runs the smoke session, which an export template supports (D-512).
 - Each export carries the license files of D-467. CI keeps each export as a build artifact for 90 days, the longest time that GitHub allows in a public repository (D-449).
@@ -280,7 +280,7 @@ The table names the jobs that run in CI while another area file holds their cont
 | The captures of the two views, and of the fit at 1080 and 1440 screen rows | `area-ui-input.md` | PR-41 and PR-61 |
 | The hash test of the rendered audio, inside the test job | `area-audio.md` | PR-38 |
 | The release workflow on a release tag | `area-release.md` | PR-31 |
-| The signature and the notarization of the macOS build | `area-release.md` | PR-40 |
+| The signature and the notarization of the macOS build | `area-release.md` | PR-79 |
 
 ### 7.18 The contract of every later CI PR
 

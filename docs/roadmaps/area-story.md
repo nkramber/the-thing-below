@@ -217,7 +217,7 @@ Built by PR-68, PR-18, PR-19, PR-15, and PR-49. Phase files: `phase-2-first-play
 | The boss phases with their scripted moves | `area-battle.md` | PR-20 |
 | The screenplay tool and the headless runner | `area-tools.md` | PR-50 and PR-15 |
 | The cue of a scene and the main theme | `area-audio.md` | PR-70 |
-| The credits roll after the last scene of region one | `area-release.md` | The PR that `area-release.md` names |
+| The credits roll after the last scene of region one | `area-release.md` | PR-77 |
 
 ### 7.14 The contract of every later story PR
 
