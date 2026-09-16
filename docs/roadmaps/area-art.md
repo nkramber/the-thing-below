@@ -1,6 +1,6 @@
 # Area roadmap: Art
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the art of the game works, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the art of the game works, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-tools.md` holds the commands that render art, and `area-ci.md` holds the jobs that test it. The file `area-effects.md` holds light, normal maps, particles, and the CRT shader. The file `area-ui-input.md` holds the frame, the fit to a screen, the fonts, and the menus.
 
@@ -220,7 +220,7 @@ Each later PR that adds or changes art keeps this list. The phase files make exi
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The art work keeps this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The art work keeps this order inside it:
 
 1. PR-47: the PNG code, right before the atlas (D-496).
 2. PR-34: the palette, the drawing files, the atlas and its index, the review sheets, and the five cast drawings.

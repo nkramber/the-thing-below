@@ -1,6 +1,6 @@
 # Area roadmap: Release
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the game reaches a player, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the game reaches a player, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-ci.md` holds the export job and every other CI job. The file `area-ui-input.md` holds the title screen and the settings, and `area-art.md` holds the drawing of each store image. The file `area-core.md` holds the run record, the save, and the crash file, and `area-story.md` holds the story scene that the credits roll uses.
 
@@ -164,7 +164,8 @@ Built by the owner, on the capture of PR-74. Phase file: `phase-5-first-release.
 
 Built by PR-39. Phase file: `phase-5-first-release.md`.
 
-- PR-39 walks the Steam Deck checklist to the rating Verified (D-459).
+- PR-39 lands after PR-78, and it proves each check of the Steam Deck checklist (D-459, D-565).
+- The owner requests the Deck compatibility review after PR-40, and Valve grants the rating after Gate 5 (D-565).
 - Verified needs four things (the external facts of `docs/design.md`):
   - Glyphs that match the input in use.
   - Playable default bindings.
@@ -308,7 +309,7 @@ Each later PR that changes how the game reaches a player keeps this list. The ph
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The release work keeps this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The release work keeps this order inside it:
 
 1. PR-6: the game version in the run record header (D-448).
 2. PR-44: the game version in the crash file. PR-61 adds the studio address to the message (D-473, D-559).
@@ -324,13 +325,14 @@ The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #
 12. **← GATE 4 (region one).** Then the trusted players play the build artifacts (D-469).
 13. PR-31: the release workflow and the first GitHub Release of the prologue.
 14. PR-33: the title screen, the settings, the version line, and the credits screen.
-15. PR-39: the Steam Deck verification pass.
-16. Owner: join the Apple Developer Program (D-455).
-17. PR-78: the Steamworks binding, the start, and the controller type call (D-553).
+15. Owner: join the Apple Developer Program (D-455, D-565).
+16. PR-78: the Steamworks binding, the start, and the controller type call (D-553).
+17. PR-39: the Steam Deck verification pass, after PR-78 (D-565).
 18. PR-79: the signature and the notarization of the macOS build (D-553).
 19. PR-40: Auto-Cloud, the demo app, and the Linux runtime.
-20. **← GATE 5 (first release).** A fresh machine runs the tagged build, and the Deck runs the Steam demo.
-21. Phase 6 stays parked (D-456, D-466, D-472).
+20. Owner: request the Deck compatibility review from Valve (D-565).
+21. **← GATE 5 (first release).** A fresh machine runs the tagged build, and the Deck runs the Steam demo.
+22. Phase 6 stays parked (D-456, D-466, D-472).
 
 ## 9. Open questions
 

@@ -1,6 +1,6 @@
 # Area roadmap: Progression
 
-Status: **focused area roadmap, draft in PR #11.** This file says how a character grows, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how a character grows, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-core.md` holds the content reader, the snapshot, and the state hash. The file `area-battle.md` holds the fight that spends what a character carries. The file `area-exploration.md` holds the chests, the shops, and the save points that fill it. The file `area-story.md` holds the quests and the personal tasks, and `area-ui-input.md` holds the menus that show a build.
 
@@ -38,7 +38,7 @@ Built by PR-67. Phase file: `phase-2-first-playable.md`.
 - A character who joins late starts at a set level in content (D-363).
 - The level raises the stats through the curve of section 7.3, and it raises the lesson slots of section 7.4 (D-356).
 - A level up plays its sting (D-422).
-- Property tests over one thousand seeds prove that no run passes the soft cap of its region (PR-67 gate).
+- A property test proves that the experience from one enemy falls as the level of the party rises (D-388, the exit tests of PR-67). OQ-136 holds whether a floor or a gap ends the fall.
 
 > *In plain English:* a fight makes each character stronger, and the people who wait or fall behind still learn a little. The same weak enemies soon give almost nothing.
 
@@ -104,7 +104,7 @@ Built by PR-12 and PR-19. Phase files: `phase-2-first-playable.md` and `phase-3-
 - Each character hides a side aptitude until a personal task unlocks it (D-282, D-283).
 - The menu shows an empty mark before the unlock, so the player cannot plan a party around it (D-283).
 - The quest state of PR-19 holds every task, and the aptitude reads a story flag (D-538).
-- PR-12 ships with the side aptitude behind a fixture flag, because PR-19 comes later (D-538, T-3).
+- PR-12 reads a story flag of PR-68, which lands first, and PR-19 unlocks the side aptitude in play (D-538, D-556).
 - A missed task closes when its region ends, and the save carries the result (D-375).
 - The balance must hold with any side aptitude absent, and the bots test each one in turn (D-282, D-304).
 - PR-28 and PR-29 write the content of each personal task (D-352).
@@ -133,7 +133,7 @@ Built by PR-13. Phase file: `phase-2-first-playable.md`.
 - Gear is fixed and hand-authored, with a few rarity tiers, and no random affix and no crafting exist (D-45).
 - OQ-140 holds what a piece of gear changes, and OQ-141 holds two accessories with one effect.
 - The gear of Elio leaves the game with him (D-364).
-- The screen shows each empty slot, and `area-ui-input.md` holds that screen (D-44, PR-13 gate).
+- The screen shows each empty slot, and `area-ui-input.md` holds that screen (D-44, the exit tests of PR-13).
 
 > *In plain English:* six slots, and anyone can wear anything. What you find is what the author placed, so a good weapon is a real event.
 
@@ -217,7 +217,7 @@ Each later PR that adds or changes a rule of growth keeps this list. The phase f
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The progression work keeps this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The progression work keeps this order inside it:
 
 1. PR-9 and PR-66: the fight that reads the numbers (`area-battle.md`).
 2. PR-10: the battle screen.

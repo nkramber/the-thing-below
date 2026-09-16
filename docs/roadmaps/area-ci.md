@@ -1,6 +1,6 @@
 # Area roadmap: CI
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the CI jobs, the workflows, and the local gate work, and it names the PR that builds each job (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the CI jobs, the workflows, and the local gate work, and it names the PR that builds each job (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-core.md` holds the Core contracts that the replay-identity job proves, and `area-tools.md` holds the commands that the jobs run. The file `area-release.md` holds the release workflow and the signature of the macOS build.
 
@@ -210,7 +210,7 @@ Built by PR-15. Phase file: `phase-2-first-playable.md`.
 - Each leg runs the headless runner of `area-tools.md` section 7.8 with both policies over a fixed seed range (D-64, D-505).
 - OQ-80 holds the count of runs for each policy on each leg.
 - A crash or a softlock fails the job with the seed, the policy, and the leg (T-2). The job uploads the run record of that run (T-7). OQ-74 holds how the runner finds a softlock.
-- The rebuild of PR #11 adds a line for the bot job to the PR gate, with PR-15 as its creator (G-16).
+- PR #11 added a line for the bot job to the PR gate, with PR-15 as its creator (G-16).
 
 > *In plain English:* on every change, simple robots play a few hundred games on each of the three systems. A crash or a dead end on any system stops the change, with the seed that repeats it.
 
@@ -246,7 +246,7 @@ Built by PR-49. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-1, PR-3, PR-4, PR-15, PR-46, and PR-49. Phase files: `phase-1-foundations.md` and `phase-2-first-playable.md`.
 
-The table maps each check of the PR gate in `CLAUDE.md` to its job. The rebuild of PR #11 brings the PR gate, the PR template, and G-22 in line with it (D-488, D-496).
+The table maps each check of the PR gate in `CLAUDE.md` to its job. PR #11 brought the PR gate, the PR template, and G-22 in line with it (D-488, D-496).
 
 | Check | Legs | Created by | Fails the PR |
 |---|---|---|---|
@@ -298,7 +298,7 @@ Each later PR that adds or changes a workflow keeps this list. The phase files m
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The CI work keeps this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The CI work keeps this order inside it:
 
 1. Owner: enable the setting that requires SHA pins for actions (D-511). Done on 2026-09-14.
 2. PR-1: the CI legs, the build, test, format, smoke, and STE jobs, the coverage report, and the local gate.

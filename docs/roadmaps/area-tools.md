@@ -1,6 +1,6 @@
 # Area roadmap: Tools
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the Tools project works, and it names the PR that builds each tool (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the Tools project works, and it names the PR that builds each tool (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-core.md` holds the Core contracts that det-lint enforces, and `area-ci.md` holds the jobs that run each tool. The files `area-art.md`, `area-exploration.md`, `area-story.md`, and `area-audio.md` hold the formats that the content tools read.
 
@@ -241,7 +241,7 @@ Each later tool PR keeps this list. The phase files make exit tests from it.
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The Tools PRs keep this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The Tools PRs keep this order inside it:
 
 1. PR-1: the Tools project, with no command.
 2. PR-2: the STE checker.

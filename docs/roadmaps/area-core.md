@@ -1,6 +1,6 @@
 # Area roadmap: Core
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the Core project works, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the Core project works, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
 
 The design doc holds the thesis of the game, the system map (section 3), the cost model (section 4), and the guardrails (section 6). The `csharp-conventions` skill gives the code rules that apply these contracts. The files `area-tools.md` and `area-ci.md` hold the tools and the CI jobs that enforce them.
 
@@ -224,6 +224,7 @@ The systems that later areas add to Core are below. Each area file confirms its 
 | Tile map, movement, sight, and the time of day of a map | `area-exploration.md` | PR-7 |
 | Enemies on the map | `area-exploration.md` | PR-8 |
 | Battle and the timeline | `area-battle.md` | PR-9 |
+| The enemy record: stats and ability ids | `area-battle.md` | PR-80 |
 | The elements and the statuses | `area-battle.md` | PR-66 |
 | The evaluator and profiles | `area-battle.md` | PR-11 |
 | The character level, the experience, MP, and the stat curves | `area-progression.md` | PR-67 |
@@ -245,7 +246,7 @@ The systems that later areas add to Core are below. Each area file confirms its 
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The Core PRs keep this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The Core PRs keep this order inside it:
 
 1. PR-1: the Core project and the test of its reference list.
 2. PR-4: integer math, the streams, the state hash, the errors, and the simulation version.

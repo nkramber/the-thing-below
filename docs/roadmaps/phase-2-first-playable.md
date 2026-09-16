@@ -1,6 +1,6 @@
 # Phase roadmap: Phase 2, First playable
 
-Status: **focused phase roadmap, draft in PR #11.** This file gives each item of Phase 2 its scope, its exit tests, its review focus, and its questions (D-144, D-485, D-487). The area files say how each part works, and each entry names the area file that it cites. This file supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused phase roadmap, which PR #11 merged on 2026-09-16.** This file gives each item of Phase 2 its scope, its exit tests, its review focus, and its questions (D-144, D-485, D-487). The area files say how each part works, and each entry names the area file that it cites. This file supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
 The design doc holds the thesis of the game, the system map (section 3), and the cost model (section 4). It also holds the guardrails (section 6) and the global order of every PR (section 8). This file cites each decision by its id and never restates it. The index of this folder is `docs/roadmaps/readme.md`.
 
@@ -749,7 +749,7 @@ Area file: `area-battle.md` sections 7.6 and 7.7.
 - The profile content format with its term weights and its traits, and its validator (D-65, G-21).
 - The steal list of items and gold on each profile (D-383).
 - The group file of each region, which holds each enemy group with its rows and its profiles (D-535).
-- Four profiles for the first dungeon.
+- The fixture profiles that prove the evaluator. PR-17 writes the profiles of the first playable.
 - The measurement of the cost of a turn, before Gate 2 (F-53, G-14).
 
 **Out of scope.**
@@ -1833,7 +1833,7 @@ Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 > *In plain English:* a session draws the pictures on the shop page the same way as everything else in the game. The screenshots come from real play.
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). Phase 2 holds this order:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). Phase 2 holds this order:
 
 1. The owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).
 2. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8: the export job, the frame, the map, and the enemies.

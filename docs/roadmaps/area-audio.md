@@ -1,6 +1,6 @@
 # Area roadmap: Audio
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the game makes and plays its music and its sounds, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the game makes and plays its music and its sounds, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-tools.md` holds the synthesizer and the listen command, and `area-ci.md` holds the job that renders and checks each hash. The file `area-core.md` holds the content reader and the events that Core emits. The file `area-story.md` holds the story scene that a cue serves, and `area-battle.md` the fight that makes each sound. The file `area-exploration.md` holds the maps, and `area-ui-input.md` the settings screen and the menu sounds.
 
@@ -194,7 +194,7 @@ Built by PR-72 and PR-73. Phase files: `phase-2-first-playable.md` and `phase-4-
 
 - PR-72 holds the tracks, the themes, and the sounds of the first playable, right before PR-17 (D-549).
 - The first playable needs the village, the mining town, the hanging cells, and the three battle tracks (D-362, D-369, D-415).
-- PR-73 holds the rest of region one, in Phase 4 beside PR-42 (D-549).
+- PR-73 holds the rest of region one, in Phase 4 beside PR-42 (D-549). That includes the ambience of each place that Phase 4 adds, as PR-72 holds it for the first playable (D-424).
 - Region one needs about 20 tracks and ten themes (D-419, D-432, D-443, D-444).
 - The mining town needs a night version for the night pass of the flight (D-333, D-443).
 - Each later region adds its tracks, its three battle tracks, and a theme for each new cast member (D-299, D-419).
@@ -206,7 +206,7 @@ Built by PR-72 and PR-73. Phase files: `phase-2-first-playable.md` and `phase-4-
 
 Built by PR-38, PR-69, PR-70, and PR-15. Phase files: `phase-2-first-playable.md` and every later phase file.
 
-- Every render matches its hash on every CI leg, and a changed parameter fails the hash test (D-432, PR-38 gate).
+- Every render matches its hash on every CI leg, and a changed parameter fails the hash test (D-432, the exit tests of PR-38).
 - A test proves that the embedded set of renders matches the note files, file by file (D-508, D-547).
 - A load of a render that is not WAV fails with the id of the render, not with a silent absence of sound (T-2, F-56).
 - A test reads back each audio bus and each default volume, as `area-ui-input.md` does for the font settings (T-2, F-49).
@@ -259,7 +259,7 @@ Each later PR that adds or changes a sound keeps this list. The phase files make
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The audio work keeps this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The audio work keeps this order inside it:
 
 1. PR-5: the content reader and the content embed in the Game assembly (`area-core.md`).
 2. PR-45: the debug assembly that the sound room needs (`area-core.md`).

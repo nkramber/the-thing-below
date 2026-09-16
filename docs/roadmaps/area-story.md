@@ -1,6 +1,6 @@
 # Area roadmap: Story
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the game tells its story, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the game tells its story, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-core.md` holds the content reader, the snapshot, and the state hash. The file `area-ui-input.md` holds the screen that draws the dialogue box, and `area-art.md` holds the portraits. The file `area-exploration.md` holds the maps that a story scene plays on, and `area-progression.md` holds the side aptitude that a personal task unlocks. The file `area-tools.md` holds the screenplay tool, and `area-audio.md` holds the cue of a story scene.
 
@@ -41,7 +41,8 @@ Each part below says how one part of the story works, which decisions set it, an
 Built by PR-68. Phase file: `phase-2-first-playable.md`.
 
 - A story scene is a JSON list of steps, such as move, face, wait, say, choose, and set flag (D-173). Each step that shows text points at a string id (G-7).
-- The scene files are rule files, so a change to one changes the content hash (D-495).
+- The story scene files are rule files, so a change to one changes the content hash (D-495).
+- A join step adds a cast member to the party, and it changes the party state in the snapshot (D-342, D-563).
 - A story scene names no track and no cue. The audio file names the story scene and the step that its cue serves (D-548, `area-audio.md`).
 - A story scene names no art. An art file names the content ids that it draws, as D-519 asks.
 - The schema validates each story scene at load, and an absent field is an error (G-6, T-2). A step that names an absent string id, flag id, or sprite id fails with the story scene, the step, and the id.
@@ -112,7 +113,8 @@ Built by PR-18. Phase file: `phase-3-story-systems.md`.
 - PR-18 adds the branch conditions in content and the choice effects (D-40, D-329).
 - Four flag effects exist: a closed route, a lost ally outside the cast, a changed hub, and a new time of day (D-301, D-442).
 - A choice of the player never removes a cast member. The one death in the cast is Elio, after region one (D-279, D-301, D-321).
-- Region one holds two or three set choices (D-350). The choice on the ice crossing is set: the party spares the beaten captain of the wardens, or kills him (D-354).
+- Region one holds two or three set choices, and PR-28 and PR-29 write each one with its story scene (D-350). The choice on the ice crossing is one of them: the party spares the beaten captain of the wardens, or kills him (D-354).
+- PR-18 proves each of the four flag effects on a fixture branch.
 - PR-28 and PR-29 propose one or two more set choices for the approval of the owner (D-355).
 - The save of the prologue carries each flag, and region two reads them (D-163, D-353).
 - The gate of Phase 3 is a branch that closes a route and a hub that changes with an earlier choice (D-329).
@@ -128,7 +130,7 @@ Built by PR-19. Phase file: `phase-3-story-systems.md`.
 - Each character hides a side aptitude until a personal task unlocks it, and the side aptitude reads a story flag (D-282, D-538).
 - The menu shows an empty mark before the unlock (D-283). The file `area-progression.md` holds the aptitudes.
 - A missed task closes when its region ends, and the save carries the result (D-375). A task in the mining town becomes impossible at the breakout, with no notice (D-319).
-- PR-12 ships with the side aptitude behind a fixture flag, because PR-19 comes later (D-538, T-3).
+- PR-12 reads a story flag of PR-68, which lands first, and PR-19 unlocks the side aptitude in play (D-538, D-556).
 - The balance must hold with any side aptitude absent, and the bots test each one in turn (D-282, D-304).
 - PR-28 and PR-29 write the content of each personal task (D-352).
 - OQ-152 holds what a quest holds, OQ-153 the rumor board, and OQ-154 the end of a region.
@@ -184,8 +186,8 @@ Built by PR-68, PR-18, PR-19, PR-15, and PR-49. Phase files: `phase-2-first-play
 - A fixture scene runs to its end, and a replay of that run gives the same state hash (G-5, D-504).
 - Each PR adds its fixture run and its hash to the identity file (G-5, D-504).
 - A bot answers each wait intent, so the night of PR-49 plays every story scene of region one (D-64, G-22).
-- A fixture branch closes a route on the region map, and a replay reproduces the branch (PR-18 gate).
-- A fixture quest completes, a hub line changes with a story flag, and a finished task unlocks a side aptitude (PR-19 gate).
+- A fixture branch closes a route on the region map, and a replay reproduces the branch (the exit tests of PR-18).
+- A fixture quest completes, a hub line changes with a story flag, and a finished task unlocks a side aptitude (the exit tests of PR-19).
 - The bots play the fixture dungeon with each side aptitude absent in turn (D-282, D-304).
 - A save from an older snapshot format loads through its migration, with a fixture save (D-166).
 - Every Core change here bumps the simulation version (G-17).
@@ -196,13 +198,13 @@ Built by PR-68, PR-18, PR-19, PR-15, and PR-49. Phase files: `phase-2-first-play
 
 | PR | Rules | Decisions |
 |---|---|---|
-| PR-68 | The story scene format, the story scene runner, the flag set, and the condition form | D-114, D-173, D-540 to D-544 |
+| PR-68 | The story scene format, the story scene runner, the join step, the flag set, and the condition form | D-114, D-173, D-540 to D-544, D-563 |
 | PR-36 | The dialogue box, the portraits, and the story scene presentation | D-109, D-114, D-223, D-541 |
 | PR-50 | The screenplay tool | D-173, D-545 |
 | PR-18 | The branches, the choice effects, and the lost ally | D-40, D-301, D-329 |
 | PR-19 | The quest state, the rumor board, and the personal tasks | D-59, D-282, D-375, D-538 |
 | PR-17 | The text of three characters and a placeholder story scene | D-292, D-362 |
-| PR-28 and PR-29 | The story scenes, the choices, the portraits, and the tasks of region one | D-56, D-57, D-350 to D-355 |
+| PR-28 and PR-29 | The story scenes, the choices, the joins, the portraits, the tasks, and the night light of the mining town | D-56, D-57, D-350 to D-355, D-442, D-563 |
 
 ### 7.13 Story that other area files hold
 
@@ -237,13 +239,13 @@ Each later PR that adds or changes a rule of the story keeps this list. The phas
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The story work keeps this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The story work keeps this order inside it:
 
 1. PR-5: the content reader and the string table (`area-core.md`).
 2. PR-7: the first map that a story scene can play on (`area-exploration.md`).
-3. PR-14: the first hub, with its NPCs (`area-exploration.md`).
-4. PR-68: the story scene format, the story scene runner, the flag set, and the condition form (D-541, D-544).
-5. PR-50: the screenplay tool (D-545).
+3. PR-68: the story scene format and runner, the join step, the flags, and the conditions, before PR-12 (D-556, D-563).
+4. PR-50: the screenplay tool (D-545).
+5. PR-14: the first hub, whose services read a condition of PR-68 (`area-exploration.md`).
 6. PR-36: the dialogue box, the portraits, and the story scene presentation.
 7. PR-35: the region map, with routes that a condition closes.
 8. PR-17: the text of three characters and a placeholder story scene.
@@ -252,7 +254,7 @@ The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #
 11. PR-19: the quest state, the rumor board, and the personal tasks.
 12. PR-20: the boss phases, with their scripted moves (`area-battle.md`).
 13. **← GATE 3 (story systems).**
-14. PR-28 and PR-29: the arc of region one, in Phase 4.
+14. PR-81, PR-28, and PR-29: the sealed gallery and the arc of region one, in Phase 4 (D-562).
 15. M-5: the play time of the owner through region one.
 16. **← GATE 4 (region one).**
 

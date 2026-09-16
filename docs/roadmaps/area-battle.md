@@ -1,6 +1,6 @@
 # Area roadmap: Battle
 
-Status: **focused area roadmap, draft in PR #11.** This file says how a fight works, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how a fight works, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-core.md` holds the tick, the intents, the streams, and the state hash that every rule here uses. The file `area-exploration.md` holds the map that starts a fight, and `area-progression.md` holds the lessons, the gear, and the items that a fight spends. The file `area-ui-input.md` holds the battle screen, and `area-effects.md` holds the blood, the flash, and the shake.
 
@@ -36,6 +36,7 @@ Built by PR-9. Phase file: `phase-2-first-playable.md`.
 - One to three characters fight, and the player always picks them (D-31, D-336, D-351).
 - Up to six enemies stand against them, from the group of the encounter (D-31, D-535).
 - Each side has a front row and a back row (D-377). A character or an enemy stands in one row.
+- The party window of PR-62 sets the starting row of each character, and the snapshot keeps it (D-558).
 - Melee reaches the front row alone, while anyone stands in it. Shot drills and rites reach either row (D-377).
 - The map pauses while the fight runs, and one run holds both states (D-531).
 - Whoever reached the other from behind acts first (D-265).
@@ -54,7 +55,7 @@ Built by PR-9. Phase file: `phase-2-first-playable.md`.
 - A fast character can act twice before a slow one, which the balance of PR-30 must hold (D-376, M-4).
 - The delays count ticks, and Core computes them with integer math alone (D-164, D-169, G-2).
 - OQ-126 holds where the delay of each action lives.
-- Property tests over one thousand seeds prove that the timeline never stalls (PR-9 gate).
+- Property tests over one thousand seeds prove that the timeline never stalls (the exit tests of PR-9).
 
 > *In plain English:* turn order is a strip across the top that you can read ahead. A heavy swing buys its power with a longer wait.
 
@@ -84,7 +85,7 @@ Built by PR-66. Phase file: `phase-2-first-playable.md`.
 - Every status but poison, blind, and silence ends with its fight (D-390).
 - Poison, blind, and silence last until a cure or a rest at a hub, and `area-exploration.md` holds what they do on the map (D-390, D-393).
 - A rite that cures an affliction belongs to Mend (D-394).
-- Property tests over one thousand seeds prove each element and each status (PR-66 gate).
+- Property tests over one thousand seeds prove each element and each status (the exit tests of PR-66).
 
 > *In plain English:* fire, ice, and six more elements meet armor that likes or hates each one. Poison, blindness, and silence follow you out of the fight.
 
@@ -94,7 +95,7 @@ Built by PR-9. Phase file: `phase-2-first-playable.md`.
 
 - A fallen character stays down until a hub or a rare item (D-36). A down is a battle fact, and no story line names it (D-135).
 - A downed character earns half experience, as a character in reserve does (D-73, D-387).
-- When all three who fight go down, the party wipes, even with a healthy reserve (D-397).
+- When every character who fights goes down, the party wipes, even with a healthy reserve (D-336, D-397).
 - A wipe reloads the newer of the slot save and the autosave (D-231).
 - The wipe screen drains to dark and shows one terse line, and a press reloads (D-225).
 - The wipe sting plays before the reload (D-422).
@@ -125,7 +126,8 @@ Built by PR-11 and PR-9. Phase file: `phase-2-first-playable.md`.
 - Each profile carries a steal list of items and some gold, and a human enemy carries what a person carries (D-383). OQ-129 holds the chance of a steal.
 - A group file for each region holds each enemy group: its enemies, their rows, and their profiles (D-535).
 - A map names a group by its id, and a test proves that each named group exists (D-528, D-535).
-- Four profiles cover the first dungeon (PR-11 in `docs/design.md`).
+- PR-11 proves the evaluator on fixture profiles, and PR-17 writes the profiles of the first playable.
+- PR-80 holds the enemy record: the stats of each enemy and the ids of its abilities. PR-66 adds the element table to it (D-557).
 - OQ-132 holds what a group larger than its rows does.
 
 > *In plain English:* each kind of enemy weighs the same choices differently, so a brute and a healer act unlike each other. The groups they come in live in one file for each region.
@@ -135,10 +137,10 @@ Built by PR-11 and PR-9. Phase file: `phase-2-first-playable.md`.
 Built by PR-20. Phase file: `phase-3-story-systems.md`.
 
 - A scripted phase layer sits over the evaluator. A phase changes the profile and adds a move (D-65).
-- One boss serves the first dungeon, with its own sprite and its backdrop (PR-20 in `docs/design.md`).
+- PR-20 builds the phase layer on a fixture boss. The first playable holds no boss, and the bosses of region one come with PR-23 to PR-26 (D-564).
 - No party flees from a boss (D-378).
 - OQ-130 holds what starts a phase.
-- The boss changes phase at the scripted threshold in every one of one thousand seeds (PR-20 gate).
+- The boss changes phase at the scripted threshold in every one of one thousand seeds (the exit tests of PR-20).
 - A boss of region one is a bandit, a church warden, or a wrong thing, and the bishop closes the breakout (D-155, D-310, D-319).
 
 > *In plain English:* a boss does not just have more health. At set moments it changes how it thinks, and it gains a move that the player never saw.
@@ -229,22 +231,23 @@ Each later PR that adds or changes a battle rule keeps this list. The phase file
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The battle work keeps this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The battle work keeps this order inside it:
 
 1. PR-7 and PR-8: the map and the enemies that start a fight (`area-exploration.md`).
 2. PR-9: the timeline, the actions, the damage, and the rows.
-3. PR-66: the eight elements and the ten statuses (D-533).
-4. PR-10: the battle screen.
-5. PR-48, PR-56, and PR-57: the normal maps, the light, and the battle effects (`area-effects.md`).
-6. PR-11: the evaluator, the profiles, and the groups, with the cost of a turn (F-53).
-7. PR-12 and PR-13: the lessons, the gear, and the items that a fight uses.
-8. PR-15: the bots that play the fixture dungeon.
-9. PR-16 and PR-64: the dungeon parts around the fights.
-10. PR-17: the enemies and the groups of the first playable.
-11. M-4: the turns of an encounter and the downs of a dungeon.
-12. **← GATE 2 (first playable).**
-13. PR-20: the boss phases, in Phase 3.
-14. PR-30: the balance pass, in Phase 4.
+3. PR-80: the enemy record, with the stats and the ability ids (D-557).
+4. PR-66: the eight elements and the ten statuses (D-533).
+5. PR-10: the battle screen.
+6. PR-48, PR-56, and PR-57: the normal maps, the light, and the battle effects (`area-effects.md`).
+7. PR-11: the evaluator, the profiles, and the groups, with the cost of a turn (F-53).
+8. PR-12 and PR-13: the lessons, the gear, and the items that a fight uses.
+9. PR-15: the bots that play the fixture dungeon.
+10. PR-16 and PR-64: the dungeon parts around the fights.
+11. PR-17: the enemies and the groups of the first playable.
+12. M-4: the turns of an encounter and the downs of a dungeon.
+13. **← GATE 2 (first playable).**
+14. PR-20: the boss phases, in Phase 3.
+15. PR-30: the balance pass, in Phase 4.
 
 ## 9. Open questions
 

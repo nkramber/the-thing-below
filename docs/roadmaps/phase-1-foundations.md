@@ -1,6 +1,6 @@
 # Phase roadmap: Phase 1, Foundations
 
-Status: **focused phase roadmap, draft in PR #11.** This file gives each item of Phase 1 its scope, its exit tests, its review focus, and its questions (D-144, D-485, D-487). The area files say how each part works, and each entry names the area file that it cites. This file supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused phase roadmap, which PR #11 merged on 2026-09-16.** This file gives each item of Phase 1 its scope, its exit tests, its review focus, and its questions (D-144, D-485, D-487). The area files say how each part works, and each entry names the area file that it cites. This file supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
 The design doc holds the thesis of the game, the system map (section 3), and the cost model (section 4). It also holds the guardrails (section 6) and the global order of every PR (section 8). This file cites each decision by its id and never restates it. The index of this folder is `docs/roadmaps/readme.md`.
 
@@ -563,7 +563,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). Phase 1 holds this order:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). Phase 1 holds this order:
 
 1. Owner: enable the repository setting that requires a SHA pin for an action (D-511). Done on 2026-09-14.
 2. Owner and a session: the Deck test, which picks the renderer and measures the budget (D-160, D-523).

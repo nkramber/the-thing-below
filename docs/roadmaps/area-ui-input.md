@@ -1,6 +1,6 @@
 # Area roadmap: UI and input
 
-Status: **focused area roadmap, draft in PR #11.** This file says how the screens and the input of the game work, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
+Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the screens and the input of the game work, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
 The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-effects.md` holds the light, the effects, and the CRT pass inside the frame. The file `area-art.md` holds the drawings of the window frames, the icons, and the glyphs. The file `area-core.md` holds the intents and the run record, and `area-ci.md` holds the screen-test job. The `game-text-style` skill holds the voice and the length limits of every player string.
 
@@ -133,6 +133,8 @@ Built by PR-62. Phase file: `phase-2-first-playable.md`.
 - A menu action is an intent, and the record holds no cursor move (D-493).
 - The mouse works on menus alone, and a mouse action on a menu makes the same intent as a key (D-219, D-493). OQ-110 holds the rules of the cursor.
 - The dungeon map screen draws each tile that the party walked, with the doors, the save points, and the exits on those tiles (D-567). OQ-111 holds its scale.
+- The party window sets the starting row of each character, and the snapshot keeps the row (D-377, D-558).
+- The status window shows the level, the MP, and the stats of each character (D-569).
 - PR-62 proves the stack with a fixture menu, and each later system PR adds one screen (D-525).
 
 > *In plain English:* menus are windows that stack on each other, and the world stops while one is open. The keyboard, the gamepad, and the mouse all move the same cursor.
@@ -199,7 +201,8 @@ Built by PR-63. Phase file: `phase-2-first-playable.md`.
 - Controls hold the remap, the stick dead zone, and the vibration setting (D-214, D-226, D-434).
 - Battle holds the message speed and the remembered cursor (D-226).
 - The settings file lives outside the save files and never enters a run record (T-7, D-494). OQ-106 holds its place and its form.
-- A setting that is absent from the file fails loudly or takes the value that the file says, never a silent default (T-2, F-50).
+- The settings file carries a format version, and each new setting ships with a migration step and a fixture file (D-570).
+- A key that no version declares fails the load with the file and the key, and no setting takes a silent default (T-2, D-570).
 - Vibration has limits on macOS, and the setting turns it off for any player (F-50).
 
 > *In plain English:* one screen holds every choice about the game: the picture, the sound, the buttons, and the pace of battle.
@@ -272,7 +275,7 @@ Each later PR that adds or changes a screen keeps this list. The phase files mak
 
 ## 8. Sequence
 
-The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #11 sets it (D-488). The UI work keeps this order inside it:
+The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The UI work keeps this order inside it:
 
 1. PR-61: the UI base, right before PR-7 (D-524).
 2. PR-7: the map scene and the map HUD. PR-61 already built the input map (D-561).
@@ -281,14 +284,15 @@ The global order lives in section 8 of `docs/design.md`, and the rebuild of PR #
 5. PR-48 and PR-56: the normal maps and the light (`area-effects.md`).
 6. PR-63: the settings and the accessibility settings, right before PR-57 (D-526).
 7. PR-57 to PR-60: the effects that the settings turn down.
-8. PR-62: the menu windows, right before PR-12 (D-525).
-9. PR-12, PR-13, PR-14, and PR-16: one screen for each system.
-10. PR-68 and PR-36: the story scene runner, then the dialogue box (D-541). PR-35: the region map screen.
-11. PR-37: the CRT toggle joins the display group.
-12. PR-17: the first playable, read on the Deck (M-6).
-13. **← GATE 2 (first playable).**
-14. PR-33: the title screen, the version line, and the credits.
-15. PR-39 and PR-78: the Deck checklist and the controller type of Steam.
+8. PR-62: the menu windows, the party window, and the status window, right before PR-68 (D-525, D-558, D-569).
+9. PR-68: the story scene runner, before PR-12 (D-541, D-556).
+10. PR-12, PR-13, PR-14, and PR-16: one screen for each system.
+11. PR-36: the dialogue box. PR-35: the region map screen.
+12. PR-37: the CRT toggle joins the display group.
+13. PR-17: the first playable, read on the Deck (M-6).
+14. **← GATE 2 (first playable).**
+15. PR-33: the title screen, the version line, and the credits.
+16. PR-78 and PR-39: the controller type of Steam, then the Deck checklist (D-565).
 
 ## 9. Open questions
 
