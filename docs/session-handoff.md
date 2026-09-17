@@ -22,11 +22,13 @@ Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19, wh
 - `main` is `ee4305a`. The branch `docs/pr-83-skip-set-decision` sits on that base.
 - `make verify` passes on the Mac of the owner: the build, 8 tests, the format check, the STE check, and the smoke session.
 - The PR adds two decision rows and changes `.github/workflows/`, so the `review-override` label does not apply (D-401, D-560). The PR needs the Codex review.
+- The nine CI checks pass on `c065a11`, and the Gitar pass approves that head with no finding. The head of command B is `c065a11`, and the dashboard edit at `2026-09-17T03:55:13Z` is later than the push at `2026-09-17T03:54:29Z`. The PR has zero review threads.
+- The build and test legs ran on this PR and did not skip, because the PR changes the agent files. This is the rule of D-600 at work.
 - The change to `CLAUDE.md` and `AGENTS.md` keeps the two files identical, and it takes both files out of the skip set of D-600. The build and test job runs on this PR.
 
 ### In flight
 
-The push of the branch, then the PR, then the Gitar pass, then the Codex review (T-4, D-17).
+The Codex review of PR #19 at the effective head `c065a11` (T-4, D-17). The commit of this record changes `docs/session-handoff.md` alone, which is in the metadata set, so it does not move the effective head.
 
 ### Traps and gotchas
 
@@ -42,7 +44,7 @@ None for PR-83. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
 
 ### Next concrete action
 
-Push the branch, open the PR with the Documents section, then get a Gitar review of the head.
+Hand PR #19 to Codex for the review, and write `docs/reviews/pr-19.md`.
 
 ## Session 63: 2026-09-16, Codex
 
