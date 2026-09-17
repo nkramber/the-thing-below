@@ -24,7 +24,7 @@ Session: review PR #20 at effective head `e800f4c`. Repository: the-thing-below.
 
 ### In flight
 
-The review record and this entry need one metadata commit and push.
+The review record and this entry are committed in `93ef194` and pushed to the PR branch. GitHub reports the same head.
 
 ### Traps and gotchas
 
@@ -37,7 +37,7 @@ None for PR #20. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 
 ### Next concrete action
 
-Push the review record and verify the remote handoff state.
+The review record and handoff are on the remote. The owner can merge PR #20.
 
 ## Session 76: 2026-09-17, Claude Code
 
@@ -147,7 +147,7 @@ Session: repeat review of PR #19 at effective head `7732b1b`, on branch `docs/pr
 
 ### In flight
 
-The review record and this entry need one metadata commit and push. The verdict applies to effective head `7732b1b`.
+The review record and this entry are committed in `93ef194` and pushed to the PR branch. GitHub reports the same head. The verdict applies to effective head `7732b1b`.
 
 ### Traps and gotchas
 
