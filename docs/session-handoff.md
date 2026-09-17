@@ -2,6 +2,48 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 64: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: PR-83, the decision row of the docs-only skip set and the transitional prompt rule.
+Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: PR-83, with no GitHub number yet. Role: author. Base: `ee4305a`.
+
+### What this session did, and why
+
+- PR #18 merged as `ee4305a`. Its `changed-paths` job holds a skip set, and no decision recorded the paths. The reasoning was a comment of `.github/workflows/ci.yml` alone, and no file in `docs/` named it.
+- D-600 records the skip set: `docs/`, `.claude/`, `README.md`, `LICENSE`, and `.github/pull_request_template.md`. `CLAUDE.md` and `AGENTS.md` stay out of it, because `AgentFileTests` reads both files and fails when they differ (D-20). A skipped job reports `Success`, so a skip of the agent files would pass the PR shape that breaks D-20 most often.
+- The skip set and the override set of D-16 are not the same set. The override set holds both agent files, and `LICENSE` is in the skip set alone.
+- The comment of the `changed-paths` job and a bullet of `docs/roadmaps/area-ci.md` now cite D-600.
+- D-601 records the transitional prompt. After the owner says `Merged PR #x` for the PR of the session, the session writes one fenced block for the next clean session, and then it ends. `CLAUDE.md` and `AGENTS.md` hold the rule, and step 6 of the `one-pr-one-session` skill holds the template.
+- The owner approved the two concerns of this PR before the work started. G-8 refuses a second concern without that answer.
+
+### State of the build
+
+- `main` is `ee4305a`. The branch `docs/pr-83-skip-set-decision` sits on that base.
+- `make verify` passes on the Mac of the owner: the build, 8 tests, the format check, the STE check, and the smoke session.
+- The PR adds two decision rows and changes `.github/workflows/`, so the `review-override` label does not apply (D-401, D-560). The PR needs the Codex review.
+- The change to `CLAUDE.md` and `AGENTS.md` keeps the two files identical, and it takes both files out of the skip set of D-600. The build and test job runs on this PR.
+
+### In flight
+
+The push of the branch, then the PR, then the Gitar pass, then the Codex review (T-4, D-17).
+
+### Traps and gotchas
+
+- The session verified each claim of D-600 against the code: the `case` pattern of the job, the paths that `AgentFileTests` reads, and the run time of the three legs on PR #18, which was 37 to 79 seconds. The `ste-check` job holds no skip condition, so a docs PR still gets the STE check.
+- `CLAUDE.md` is 16823 bytes, and the size check of OQ-182 proposes a limit of 16 KB. The file passed that limit on `main` at `ee4305a`, before this PR. OQ-182 has no answer, and no check exists.
+- The uncommitted work of the merged branch `feat/pr-1-scaffold` is in a git stash of this machine. The patch of the owner replaced it. Drop the stash after the merge.
+- A skipped job reports `Success`. A path rule that is too wide passes a PR that ran no check.
+- The next ids are D-602, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 65.
+
+### Open questions that block progress
+
+None for PR-83. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3. OQ-182 blocks nothing. The owner has not run the Deck test, so PR-82 waits and the renderer stays provisional (D-599).
+
+### Next concrete action
+
+Push the branch, open the PR with the Documents section, then get a Gitar review of the head.
+
 ## Session 63: 2026-09-16, Codex
 
 Author: Codex
@@ -411,44 +453,3 @@ None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81,
 ### Next concrete action
 
 Push this metadata update, fetch the remote, and verify the clean branch status and PR head.
-
-## Session 54: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: the answer to the repeat review of PR #16, in the same conversation as Sessions 50 and 52 (D-582).
-Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: author. Base: `2bc7d56`.
-
-### What this session did, and why
-
-- The owner asked the session to address the review feedback again. The repeat review of Session 53 set P2-1 to fixed and gave `Blocked` for head `d2479ce`, with P2-2 open.
-- Before that review, a manual Gitar review approved `d2479ce` with 0 findings. The first wait stopped at the "On it" reply, and the second at the new dashboard comment, which had a new id.
-- P2-2 has partial merit. The runbook block commits in a plain run with dated records alone. It made no commit under `set -e`, or with the `files=` line joined by `&&`, in bash and in zsh. Both providers ran it in a joined form.
-- The filter now treats a `grep` status of 1 as an empty list, and a status of 2 still fails (D-585, T-2). The regression check fails on the old text under `set -e` and passes on the new text in each of the eight runs. A checker finding still stops the commit.
-- The stale Gitar review has full merit, and a new request follows this push. The absent check runs have no merit as a blocker, because PR-1 and later PRs create the checks (G-16).
-- `docs/reviews/pr-16-response.md` records both answers.
-- The handoff held ten entries before this one, so Session 44 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
-- PR #16 is open on branch `docs/pr-16-context-budget`. The commit that holds this entry changes the runbook, so it is the new effective head.
-- The full interim STE check gives 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-
-### In flight
-
-PR #16 waits for a current Gitar review of the new head, then the repeat Codex review of P2-2 (T-4, D-17).
-
-### Traps and gotchas
-
-- A review commit makes the Gitar review of the effective head stale for the branch head. The author requests a new Gitar review after its next push.
-- A shell run with `set -e` stops at a command substitution that returns nonzero. Test runbook commands in the plain form and under `set -e`.
-- Gitar can replace the dashboard comment with a new id. Read the newest dashboard comment in each check.
-- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 55.
-
-### Open questions that block progress
-
-None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-The author gets a current Gitar review of the new head and answers each finding. Then the Codex reviewer repeats the review of P2-2.

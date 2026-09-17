@@ -55,8 +55,10 @@ jobs:
           echo "The PR changes these paths:"
           echo "$changed"
 
-          # `CLAUDE.md` and `AGENTS.md` are not in this set. A test reads both files, so a
-          # change to one of them runs the build and test job (D-20, D-595).
+          # D-600 sets these paths. `CLAUDE.md` and `AGENTS.md` are not in this set,
+          # because a test reads both files and fails when they differ (D-20). A skipped
+          # job reports `Success`, so a skip would pass the PR shape that breaks D-20 most
+          # often. This set and the override set of D-16 are not the same set.
           documents_alone=true
           for path in $changed; do
             case "$path" in

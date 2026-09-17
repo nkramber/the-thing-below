@@ -71,6 +71,7 @@ Built by PR-1. Phase file: `phase-1-foundations.md`.
 - Each job sets a time limit below the 6 hours of GitHub, so a hung Godot process fails fast with a clear status (T-2).
 - A new push to a PR stops the older runs of its workflows, so no leg spends time on a stale head.
 - A first job reads the changed paths of the PR. Each build and test job reads that result in a condition, and it skips on a docs PR (D-595). No path filter goes on a workflow, because a check that stays "Pending" stops the merge (F-41).
+- The skip set holds `docs/`, `.claude/`, `README.md`, `LICENSE`, and `.github/pull_request_template.md` (D-600). `CLAUDE.md` and `AGENTS.md` stay out of it, because a test reads both files and fails when they differ (D-20). The skip set and the override set of D-16 are not the same set.
 
 > *In plain English:* every change runs its checks on three kinds of computer, the same three that the game supports. Each check has a time limit, so a stuck test fails in minutes, not hours.
 
