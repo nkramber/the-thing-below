@@ -1,5 +1,46 @@
 # Session handoff archive
 
+## Session 76: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the Gitar pass of PR #20, in the same session as Session 75 (D-582).
+Repository: the-thing-below. Branch: `feat/pr-2-ste-checker`. PR: #20. Role: author. Base: `9b84158`.
+
+### What this session did, and why
+
+- The Gitar pass on head `a155ebc` gives `Approved with suggestions` with one finding.
+- The finding says that the contraction rule misses `he's`, `she's`, and `who's`. The claim holds. A run of the pattern on each form gives no match, and the table of the skill promises a pronoun with `'s`.
+- Fixed the pattern. The possessive of each of these pronouns has no apostrophe, so each form is always a contraction: its, his, hers, and whose.
+- Added seven tests: four forms that fail the rule, and three possessives that pass it. Three of the four fail on the old pattern.
+- Hoisted two patterns that a method built on each call. The result does not change, and the tool no longer compiles a pattern in a loop (T-1).
+
+### State of the build
+
+- `main` is `9b84158`. The head before this round was `a155ebc`, and the ten checks passed on it.
+- `make verify` passes on this round: the build, 53 tests, the format check, the STE check with 0 findings, and the smoke session.
+- This round changes code and a test, so the effective head moved to `e800f4c`.
+- Session 66 moves to the archive. The handoff keeps the 10 newest entries (D-18, D-607).
+- The nine CI checks pass on `e800f4c`: three build legs, three smoke legs, the changed paths job, the coverage report, and `ste-check`.
+- The Gitar pass approves `e800f4c` with the verdict `Approved`, and it names the fix. The dashboard comment `5718363510` has the edit time `17:11:42Z`, which is after the push time `17:10:29Z`. The one thread is resolved, and no thread is open.
+
+### In flight
+
+The Codex review of PR #20 at the effective head `e800f4c`.
+
+### Traps and gotchas
+
+- Automatic Gitar reviews are paused on this trial, and the pass on `a155ebc` still ran. Read the Gitar check on the head before a `Gitar review` comment.
+- The reply to the thread names the commit that fixes the finding.
+- The next ids are D-609, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 77.
+
+### Open questions that block progress
+
+None for PR #20. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Get the Gitar pass on the new head, then hand PR #20 to Codex for the review.
+
 ## Session 75: 2026-09-17, Claude Code
 
 Author: Claude Code

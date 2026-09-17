@@ -2,6 +2,49 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 86: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: PR-84, the context budget check in the `ste-check` command.
+Repository: the-thing-below. Branch: `feat/pr-84-context-budget`. Role: author. Base: `9787b2d`.
+
+### What this session did, and why
+
+- Added `TheThingBelow.Tools/SteCheck/SizeRules.cs`, the size rules of the context budget (D-583, D-611). It holds the three limits in one place, and the `ste-check` command runs it after the session number check.
+- SIZE 1 reads `CLAUDE.md` and `AGENTS.md` at 16 KB. D-20 keeps the two files identical, and D-583 names each one in the start set.
+- SIZE 2 reads the top handoff entry at 5 KB, from its heading to the heading of the next entry. An older entry takes no limit (D-584).
+- SIZE 3 reads every `.md` file of `.claude/skills/` at 36 KB.
+- The count reads the lines of a file, and each line ending counts as one byte. Thus every CI leg reads the same number, whatever the line ending of the checkout.
+- `CLAUDE.md` held 17015 bytes, 631 above the limit. The session trimmed 783 bytes from each instructions file: stale sentences that name PR-1, PR-2, and PR-3 as the creator of a check that exists now, and prose that the `ste-writing` and `gitar-review` skills already hold. No rule left the file.
+- The owner answered the headroom question. D-613 keeps the file at 16232 bytes, refuses a move of the command list to a runbook, and asks each later PR to find its own bytes.
+- Added 12 tests. They cover the five exit tests of section 7.6 of `docs/roadmaps/phase-1-foundations.md`.
+
+### The state of the build
+
+- `main` is `9787b2d`, which merged PR #21. The branch is `feat/pr-84-context-budget`, and it has no GitHub number yet.
+- `make verify` passes: the build, 135 tests, the format check, the STE check with 0 findings, and the smoke session.
+- `CLAUDE.md` and `AGENTS.md` hold 16232 bytes each. The largest skill file is `.claude/skills/pr-review/SKILL.md` at 19216 bytes.
+
+### What is in flight
+
+The first commit, the push, the Gitar pass, and the Codex review.
+
+### Traps and gotchas
+
+- This PR is the first live run of the `review-gate` check (F-37, D-500). PR-3 could not run it. A failure of that check needs a read of the workflow, not a change to the command.
+- `CLAUDE.md` holds 152 free bytes. A later PR that adds a rule first removes the bytes that it needs (D-613).
+- The size rules need `CLAUDE.md`, `AGENTS.md`, the handoff, and one skill file. `SteCheckCheckout.Build` writes each one, so a new fixture checkout gets them.
+- This PR adds a decision row, so the `review-override` label does not apply (D-401, D-609). It goes to Codex.
+- The next ids are D-614, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 87.
+
+### The questions that block progress
+
+None for this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### The next concrete action
+
+Commit the work, push, then get the Gitar pass on the head.
+
 ## Session 85: 2026-09-17, Codex
 
 Author: Codex
@@ -370,44 +413,3 @@ None for PR #20. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 ### Next concrete action
 
 The review record and handoff are on the remote. The owner can merge PR #20.
-
-## Session 76: 2026-09-17, Claude Code
-
-Author: Claude Code
-Session: the answer to the Gitar pass of PR #20, in the same session as Session 75 (D-582).
-Repository: the-thing-below. Branch: `feat/pr-2-ste-checker`. PR: #20. Role: author. Base: `9b84158`.
-
-### What this session did, and why
-
-- The Gitar pass on head `a155ebc` gives `Approved with suggestions` with one finding.
-- The finding says that the contraction rule misses `he's`, `she's`, and `who's`. The claim holds. A run of the pattern on each form gives no match, and the table of the skill promises a pronoun with `'s`.
-- Fixed the pattern. The possessive of each of these pronouns has no apostrophe, so each form is always a contraction: its, his, hers, and whose.
-- Added seven tests: four forms that fail the rule, and three possessives that pass it. Three of the four fail on the old pattern.
-- Hoisted two patterns that a method built on each call. The result does not change, and the tool no longer compiles a pattern in a loop (T-1).
-
-### State of the build
-
-- `main` is `9b84158`. The head before this round was `a155ebc`, and the ten checks passed on it.
-- `make verify` passes on this round: the build, 53 tests, the format check, the STE check with 0 findings, and the smoke session.
-- This round changes code and a test, so the effective head moved to `e800f4c`.
-- Session 66 moves to the archive. The handoff keeps the 10 newest entries (D-18, D-607).
-- The nine CI checks pass on `e800f4c`: three build legs, three smoke legs, the changed paths job, the coverage report, and `ste-check`.
-- The Gitar pass approves `e800f4c` with the verdict `Approved`, and it names the fix. The dashboard comment `5718363510` has the edit time `17:11:42Z`, which is after the push time `17:10:29Z`. The one thread is resolved, and no thread is open.
-
-### In flight
-
-The Codex review of PR #20 at the effective head `e800f4c`.
-
-### Traps and gotchas
-
-- Automatic Gitar reviews are paused on this trial, and the pass on `a155ebc` still ran. Read the Gitar check on the head before a `Gitar review` comment.
-- The reply to the thread names the commit that fixes the finding.
-- The next ids are D-609, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 77.
-
-### Open questions that block progress
-
-None for PR #20. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-Get the Gitar pass on the new head, then hand PR #20 to Codex for the review.

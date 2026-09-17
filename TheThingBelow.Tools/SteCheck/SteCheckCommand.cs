@@ -75,6 +75,7 @@ public static class SteCheckCommand
         }
 
         findings.AddRange(SessionNumberRules.Check(documents));
+        findings.AddRange(SizeRules.Check(documents));
 
         findings.Sort(CompareFindings);
         foreach (Finding finding in findings)

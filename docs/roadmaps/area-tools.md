@@ -71,6 +71,11 @@ Built by PR-2, and PR-84 adds the size rules. Phase file: `phase-1-foundations.m
 - The reference check reads each id, each path of this repository, and each superseded decision that a live document cites (D-605, D-606).
 - The session number check fails a number that appears twice in the handoff and its archive, and an entry out of order (D-18, L-12). It also fails more than 10 entries in the handoff (D-607).
 - PR-84 adds the size rules of the context budget (D-611). The limits are 16 KB for `CLAUDE.md`, 5 KB for the top entry of the handoff, and 36 KB for a skill file.
+- The rules SIZE 1, SIZE 2, and SIZE 3 give one finding for each file above its limit. The finding names the size and the limit.
+- `AGENTS.md` takes the limit of `CLAUDE.md`, because D-20 keeps the two files identical and D-583 names each one in the start set.
+- SIZE 3 reads every `.md` file of `.claude/skills/`. SIZE 2 reads the top entry alone, from its heading to the next heading (D-584).
+- The count reads the lines of a file, and each line ending counts as one byte. Thus every CI leg reads the same number.
+- `TheThingBelow.Tools/SteCheck/SizeRules.cs` holds the three limits, and the `ste-writing` skill repeats them.
 
 > *In plain English:* every document must pass a check for plain technical English. This moves the check from a borrowed script into the language of the project, with the same rules and a few more.
 
