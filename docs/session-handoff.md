@@ -19,12 +19,13 @@ Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19. Ro
 ### State of the build
 
 - `main` is `ee4305a`. The new effective head is the head of this round.
-- The nine CI checks passed on `d6d1529`, and the Gitar pass approved `c065a11`.
+- The ten checks pass on `38aa19f`, the Gitar check included. The Gitar pass approves that head with no finding, and the PR has zero review threads.
+- The freshness check passes for the new head: the reply "Running the review now" came at `12:29:51Z`, and the new dashboard comment `5714387972` has the edit time `12:31:10Z`.
 - `make verify` passes on the Mac of the owner.
 
 ### In flight
 
-The Gitar pass of the new head, then the review round that gives the verdict under D-602.
+The review round of PR #19 at the effective head `38aa19f`, which gives the verdict under D-602.
 
 ### Traps and gotchas
 
@@ -39,7 +40,7 @@ None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 
 ### Next concrete action
 
-Get the Gitar pass of the new head, then get the review round that applies D-602.
+Get the review round of PR #19 from Codex at the effective head `38aa19f`, under D-602.
 
 ## Session 68: 2026-09-17, Claude Code
 
