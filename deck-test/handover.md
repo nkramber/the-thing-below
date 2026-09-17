@@ -20,6 +20,7 @@ The owner gave these answers on 2026-09-16. Each one needs a decision row, from 
 | OQ-83 | The cache action of D-511, with a SHA-512 check on every run | This session ran it, and the SHA-512 matched |
 | OQ-92 | A branch of its own, `spike/deck-test` | This branch. It never merges |
 | OQ-93 | The test scene measures itself | Done. `scripts/FrameMeter.cs` holds the measurement |
+| The renderer of PR-1 | Forward+, as a provisional setting | Revises D-160 in part. Read the section below |
 
 ## The trap in the answer to OQ-78
 
@@ -28,6 +29,21 @@ The owner chose the path filter. A path filter at the level of the workflow leav
 
 Thus PR-1 puts the condition on each job, and never on the workflow. A job that a condition
 skips reports `Success`, and the required check passes.
+
+## The deferral of the renderer pick
+
+The owner deferred the Deck test on 2026-09-16, and PR-1 starts before it. This answer
+revises D-160 in part: the pick can come after PR-1. Each other part of D-160 stands.
+
+PR-1 sets Forward+ in the Game project as a provisional setting. Forward+ is the default of
+Godot, and it gives the HDR 2D that the glow of D-188 needs. Mobile also gives HDR 2D.
+
+After the owner runs the Deck test, a PR of its own sets the renderer that the test picked.
+That PR changes one line of `project.godot`, and it cites the reports of the Deck.
+
+No exit test of PR-1 reads the renderer. Four of the seven cover `make verify`, the three CI
+legs, the headless smoke session, and the STE check. The other three cover the agent-file
+match test, the Core reference test, and the coverage report.
 
 ## The state of the Deck test
 
@@ -43,11 +59,12 @@ next step, and the owner does it.
 
 1. Fetch this branch, and read this file and `readme.md`.
 2. Record a decision row for each answer above, from D-592, with the date 2026-09-16.
-3. Record the renderer pick and the effect budget from the reports of the owner.
+3. Record the deferral of the renderer pick, which revises D-160 in part.
 4. Add the cost model rows of the Deck test to `docs/design.md`, section 4.
 5. Mark OQ-75, OQ-76, OQ-77, OQ-78, OQ-83, OQ-92, and OQ-93 as resolved in `docs/questions.md`.
 6. Add the handoff entry of the Deck test session, and then its own entry.
-7. Build the scaffold of PR-1, with the renderer that the Deck test picked.
+7. Build the scaffold of PR-1, with Forward+ as the provisional renderer.
+8. Add a line to the roadmap entry 7.2, because the renderer bullet now waits for a later PR.
 
 The traps of `readme.md` apply to PR-1 and to PR-54. The trap of the solution file and the
 trap of the exit code both hide a broken export.
