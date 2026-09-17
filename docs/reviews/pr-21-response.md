@@ -73,8 +73,10 @@ against the old code.
 - The first round: seven tests failed. They are the five of P1-1 and P1-2, and the two new rows of
   the deferral theory of P2-1.
 - The second round: the two new fault tests of P1-3 failed.
+- The third round: the new fault test of P1-4 failed. The two tests of P1-3 failed too, because
+  they read the new message of the rule.
 
-Each of these tests passes on the corrected code. The solution holds 122 tests.
+Each of these tests passes on the corrected code. The solution holds 123 tests.
 
 ## P1-3: the verdict check ignores a later conflicting verdict
 
@@ -104,6 +106,31 @@ Regression checks:
 - `AnEarlierVerdictInAnotherSectionPasses`: a verdict in `## Earlier verdicts` passes. This test
   guards the record shape of a repeat review, and it passes on both versions of the rule.
 
+## P1-4: the verdict check ignores an invalid bold contradiction
+
+Disposition: full merit.
+
+The trigger reproduces. The rule of the second round counted the bold spans that match a verdict
+name. The span `**Not Ready for owner merge.**` matches no name, so a section with the approved
+name beside it gave one verdict name, and it passed.
+
+Correction: the `## Verdict` section now holds one bold span, and that span is the verdict name.
+A second bold span gives a fault, whatever its text. The rule then covers every bold contradiction,
+and not the one form of this finding.
+
+This is the third round of findings on RG 4: a match of a part of the text (P1-1), a read of the
+first bold line alone (P1-3), and a bold negation beside the approved name (P1-4). Each finding
+reproduces, and each correction was narrow. The session asked the owner to settle the scope of the
+rule (D-19), and the answer is D-612: one bold span, which is the verdict name, and free prose after
+it. A check of the prose stays out of scope, because the reference file asks the reviewer to give
+the reason of the verdict in that prose.
+
+The new rule passes each of the 16 records of `docs/reviews/`. A count of the bold spans of the
+`## Verdict` section of each record gives one span in each file.
+
+Regression check: `ABoldNegationAfterTheApprovedVerdictFails` gives a fault, and it passes on no
+older version of the rule. The two tests of P1-3 now read the new message.
+
 ## One correction outside the findings
 
 The commit `1bdaa89` of the review put the Session 69 entry above the title of
@@ -113,7 +140,8 @@ because it is a dated record (D-10), so no check saw the loss.
 
 ## Ids and the head
 
-- No new decision and no new question. The corrections apply D-15, D-17, D-577, D-578, and D-579.
+- D-612 gives the scope of RG 4, and the owner answered it on 2026-09-17. The other corrections
+  apply D-15, D-17, D-577, D-578, and D-579. No new question.
 - No new finding id. The three review findings keep their ids in `docs/reviews/pr-21.md`.
-- The effective head of the first round is `3a75767`. The effective head of the second round is
-  the commit that holds the correction of P1-3.
+- The effective head of the first round is `3a75767`, and of the second round `b466a64`. The
+  effective head of the third round is the commit that holds the correction of P1-4.

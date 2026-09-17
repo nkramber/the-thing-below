@@ -201,7 +201,7 @@ public sealed class ReviewGateRecordRuleTests
         GateCheck check = ReviewRecordRules.CheckVerdict("docs/reviews/pr-21.md", text);
 
         Assert.Equal(GateResult.Fault, check.Result);
-        Assert.Contains("gives 2 verdicts", check.Detail, StringComparison.Ordinal);
+        Assert.Contains("gives 2 bold names", check.Detail, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -212,7 +212,26 @@ public sealed class ReviewGateRecordRuleTests
         GateCheck check = ReviewRecordRules.CheckVerdict("docs/reviews/pr-21.md", text);
 
         Assert.Equal(GateResult.Fault, check.Result);
-        Assert.Contains("gives 2 verdicts", check.Detail, StringComparison.Ordinal);
+        Assert.Contains("gives 2 bold names", check.Detail, StringComparison.Ordinal);
+    }
+
+    // The regression test of P1-4 of `docs/reviews/pr-21.md`. The rule counted the verdict names
+    // alone, so a bold negation beside the approved name passed.
+    [Fact]
+    public void ABoldNegationAfterTheApprovedVerdictFails()
+    {
+        string text = string.Join(
+            '\n',
+            "## Verdict",
+            string.Empty,
+            "**Ready for owner merge.** This verdict applies to head `1111111`.",
+            "**Not Ready for owner merge.** The record needs the new head.",
+            string.Empty);
+
+        GateCheck check = ReviewRecordRules.CheckVerdict("docs/reviews/pr-21.md", text);
+
+        Assert.Equal(GateResult.Fault, check.Result);
+        Assert.Contains("Not Ready for owner merge", check.Detail, StringComparison.Ordinal);
     }
 
     [Fact]

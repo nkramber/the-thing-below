@@ -84,10 +84,11 @@ public static class ReviewRecordRules
             return new GateCheck("RG 4", GateResult.Fault, $"`{path}` holds no `## Verdict` section (D-17).");
         }
 
-        // The rule reads each bold name of the section, and never the text between them. A
-        // search of the whole section passes a record that refuses the merge, such as one with
+        // The section gives one bold name, and that name is the verdict. A search of the whole
+        // section passes a record that refuses the merge, such as one with
         // `**Not Ready for owner merge.**`. A read of the first bold name alone passes a record
-        // that holds a second verdict after the first one (T-2).
+        // that holds a second verdict after the first one. A count of the verdict names alone
+        // passes a record that holds a bold negation beside the approved name (T-2).
         List<string> bold = [];
         foreach (string line in section)
         {
@@ -105,33 +106,24 @@ public static class ReviewRecordRules
                 $"the `## Verdict` section of `{path}` holds no verdict line. That line starts with the verdict name in bold.");
         }
 
-        List<string> verdicts = [];
-        foreach (string name in bold)
-        {
-            if (IsVerdictName(name))
-            {
-                verdicts.Add(name);
-            }
-        }
-
-        if (verdicts.Count == 0)
+        if (bold.Count > 1)
         {
             return new GateCheck(
                 "RG 4",
                 GateResult.Fault,
-                $"the verdict line of `{path}` gives `{bold[0]}`, which is no verdict name of the `pr-review` skill.");
+                $"the `## Verdict` section of `{path}` gives {bold.Count} bold names: {string.Join(", ", bold)}. " +
+                "That section gives one bold name, and an earlier verdict goes in another section.");
         }
 
-        if (verdicts.Count > 1)
+        string verdict = bold[0];
+        if (!IsVerdictName(verdict))
         {
             return new GateCheck(
                 "RG 4",
                 GateResult.Fault,
-                $"the `## Verdict` section of `{path}` gives {verdicts.Count} verdicts: {string.Join(", ", verdicts)}. " +
-                "That section gives one verdict, and an earlier verdict goes in another section.");
+                $"the verdict line of `{path}` gives `{verdict}`, which is no verdict name of the `pr-review` skill.");
         }
 
-        string verdict = verdicts[0];
         if (!string.Equals(verdict, ApprovedVerdict, StringComparison.Ordinal))
         {
             return new GateCheck(
