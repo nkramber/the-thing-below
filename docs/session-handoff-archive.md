@@ -1,5 +1,44 @@
 # Session handoff archive
 
+## Session 59: 2026-09-16, Codex
+
+Author: Codex
+Session: follow-up verification for the PR #18 review at effective head `0c402dd`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Verified that review commit `a9a3d07` is the remote branch tip and does not change the effective head.
+- Verified that CI run 35171555340 passed all nine checks on the pushed review commit.
+- Read the current Gitar PR comment through `gh pr view`. Its macOS finding is fixed in `0c402dd`, and the smoke job passes on macOS.
+- Tried the required export of issue comments, review bodies, and inline threads. GitHub API access failed for the thread data.
+- Updated `docs/reviews/pr-18.md` with the final CI results, the verified push, and the Gitar claim.
+- The handoff held ten entries before this one, so Session 49 moves to the archive (D-18).
+
+### State of the build
+
+- `main` is `9f27f12` (PR #17). PR #18 is open on `feat/pr-1-scaffold`.
+- The effective head is `0c402dd`. The review metadata commit `a9a3d07` is the remote tip.
+- CI run 35171555340 passed all nine checks on the remote tip.
+- The required inline thread export remains unavailable. The local `make verify` command did not complete.
+
+### In flight
+
+PR #18 has two open P2 findings. The review verdict is Blocked until the findings and required comment evidence are resolved.
+
+### Traps and gotchas
+
+- `gh pr view` returned the issue comment and review summaries, but the API calls for inline review threads failed.
+- The workspace has an untracked `deck-test/` directory. It remains unchanged.
+- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 60.
+
+### Open questions that block progress
+
+No owner question blocks the review. GitHub API access blocks the remaining thread evidence.
+
+### Next concrete action
+
+Export all inline threads when GitHub API access works, verify each claim and reply, and then update the review record.
+
 ## Session 58: 2026-09-16, Codex
 
 Author: Codex

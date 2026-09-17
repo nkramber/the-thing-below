@@ -2,6 +2,45 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 69: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the owner answer for the review gate of PR #19, in the same session as Sessions 64, 66, and 68 (D-582).
+Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19. Role: author. Base: `ee4305a`.
+
+### What this session did, and why
+
+- Two review rounds of PR #19 gave no finding and no verdict, because the review session has no GitHub access and a read-only `.git` directory.
+- The session asked the owner and gave four options. The owner chose the verdict from the local evidence, and asked for the rule in the `pr-review` skill.
+- D-602 records the rule. A review session with no network can give `Ready for owner merge` when the local branch holds the effective head, the review reads the whole diff, and each local check runs. The record marks the evidence of the author and lists each item that the session cannot verify.
+- The `pr-review` skill gets the section "A review with no network", and the Verification and Verdicts sections point to it.
+- The change moves the effective head, because it changes `docs/decisions.md` and `.claude/skills/`. The PR needs a new Gitar pass and a new review round.
+
+### State of the build
+
+- `main` is `ee4305a`. The new effective head is the head of this round.
+- The nine CI checks passed on `d6d1529`, and the Gitar pass approved `c065a11`.
+- `make verify` passes on the Mac of the owner.
+
+### In flight
+
+The Gitar pass of the new head, then the review round that gives the verdict under D-602.
+
+### Traps and gotchas
+
+- A decision that comes from a review can move the effective head. This round does, so the earlier Gitar pass and the earlier review rounds do not cover it.
+- Automatic Gitar reviews are paused on this trial, so the new head needs a `Gitar review` comment after the push wait.
+- D-602 gives no permission to skip a local check. A session that cannot run a check names it in the record.
+- The next ids are D-603, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 70.
+
+### Open questions that block progress
+
+None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Get the Gitar pass of the new head, then get the review round that applies D-602.
+
 ## Session 68: 2026-09-17, Claude Code
 
 Author: Claude Code
@@ -391,42 +430,3 @@ None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 ### Next concrete action
 
 Hand PR #18 back to Codex for the repeat review of `6e0622a`. The session stays bound to PR #18 and answers each finding (D-582).
-
-## Session 59: 2026-09-16, Codex
-
-Author: Codex
-Session: follow-up verification for the PR #18 review at effective head `0c402dd`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
-
-### What this session did, and why
-
-- Verified that review commit `a9a3d07` is the remote branch tip and does not change the effective head.
-- Verified that CI run 35171555340 passed all nine checks on the pushed review commit.
-- Read the current Gitar PR comment through `gh pr view`. Its macOS finding is fixed in `0c402dd`, and the smoke job passes on macOS.
-- Tried the required export of issue comments, review bodies, and inline threads. GitHub API access failed for the thread data.
-- Updated `docs/reviews/pr-18.md` with the final CI results, the verified push, and the Gitar claim.
-- The handoff held ten entries before this one, so Session 49 moves to the archive (D-18).
-
-### State of the build
-
-- `main` is `9f27f12` (PR #17). PR #18 is open on `feat/pr-1-scaffold`.
-- The effective head is `0c402dd`. The review metadata commit `a9a3d07` is the remote tip.
-- CI run 35171555340 passed all nine checks on the remote tip.
-- The required inline thread export remains unavailable. The local `make verify` command did not complete.
-
-### In flight
-
-PR #18 has two open P2 findings. The review verdict is Blocked until the findings and required comment evidence are resolved.
-
-### Traps and gotchas
-
-- `gh pr view` returned the issue comment and review summaries, but the API calls for inline review threads failed.
-- The workspace has an untracked `deck-test/` directory. It remains unchanged.
-- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 60.
-
-### Open questions that block progress
-
-No owner question blocks the review. GitHub API access blocks the remaining thread evidence.
-
-### Next concrete action
-
-Export all inline threads when GitHub API access works, verify each claim and reply, and then update the review record.
