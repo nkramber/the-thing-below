@@ -1,5 +1,49 @@
 # Session handoff archive
 
+## Session 78: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: PR-3, the review gate. Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. PR: #21. Role: author. Base: `04953e4`.
+
+### What this session did, and why
+
+- Asked the owner OQ-69, OQ-181, and OQ-182 before any change (D-19). The answers are D-609, D-610, and D-611.
+- Wrote the `review-gate` command in Tools, with eight rules from RG 1 to RG 8 (D-15, D-579).
+- RG 1 and RG 2 read the override label. RG 3 to RG 5 read the review record. RG 6 to RG 8 read the documents.
+- The command takes one JSON file with the facts of the PR, and one folder with the files of the head.
+- Added `.github/workflows/review-gate.yml` on `pull_request_target`. The job runs from `main`, and it never builds the head.
+- Added 60 tests. They hold each exit test of the roadmap entry, and the report of each fixture is in the PR description (D-500).
+- D-610 made the metadata set the four paths of the PR. The `pr-review` reference, the `gitar-review` skill, and the `one-pr-one-session` skill hold the new set.
+- D-611 made PR-84, the context budget check in the `ste-check` command, right after PR-3. The roadmaps and the sequence hold it.
+
+### The state of the build
+
+- `main` is `04953e4`. This branch holds the commit of this entry.
+- `make verify` passes: the build, 113 tests, the format check, the STE check with 0 findings, and the smoke session.
+- The nine CI checks pass on the head `40ea275`: three build legs, three smoke legs, the changed paths job, the coverage report, and `ste-check`.
+- The Gitar pass approves `40ea275` with the verdict `Approved` and no finding. The dashboard comment `5718999630` has the edit time `18:03:21Z`, which is after the push. No thread is open.
+- The `review-gate` check is absent from the head, because GitHub starts its trigger from `main` alone (F-37, D-500).
+- The unrelated untracked `deck-test/` stays untouched.
+
+### What is in flight
+
+The review of the other provider at the effective head `40ea275`.
+
+### Traps and gotchas
+
+- GitHub starts `pull_request_target` from the default branch alone, so the live check cannot run on this PR (F-37). The first live run is the next PR (D-500).
+- The command reads the description of the PR. An edit of the description changes the result, so the workflow also runs on the `edited` type.
+- The deferral rule reads the Documents lines alone, and it reads a set of phrases. `DocumentRules.DeferralPhrases` holds each one.
+- The next ids are D-612, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 79.
+
+### The questions that block progress
+
+None for PR #21. OQ-3 comes right after the merge of this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### The next concrete action
+
+Open PR #21, answer the Gitar pass, then hand the PR to the other provider.
+
 ## Session 77: 2026-09-17, Codex
 
 Author: Codex
