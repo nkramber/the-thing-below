@@ -20,11 +20,12 @@ Session: PR-46, the `det-lint` command and its job. Repository: the-thing-below.
 
 - `main` is `0fbecab`. The head of PR #23 is `f5eba68` before this entry.
 - `make verify` passes: the build with 0 warnings, 186 tests, the format check, `det-lint` with 0 findings, `ste-check` with 0 findings, and the smoke session.
-- The CI checks of this head wait for their first run.
+- Every CI check passes on `88215f8`: three build legs, three smoke legs, the changed paths job, the coverage report, `ste-check`, and the new `det-lint` job. The `det-lint` job takes 26 seconds.
+- `review-gate` fails on RG 3 alone, because no record exists at `docs/reviews/pr-23.md` yet. RG 1, RG 2, RG 6, RG 7, and RG 8 pass.
 
 ### What is in flight
 
-The Gitar pass of PR #23, and then the Codex review. This PR changes code and `.github/workflows/`, so no label exempts it (D-560).
+The Codex review of the effective head `f5eba68`. The Gitar pass gives the verdict `Approved` with no finding and no open thread. This PR changes code and `.github/workflows/`, so no label exempts it (D-560).
 
 ### Traps and gotchas
 
@@ -33,6 +34,8 @@ The Gitar pass of PR #23, and then the Codex review. This PR changes code and `.
 - DL 4 passes `typeof(X)` alone, because the content reader of PR-5 needs it in an attribute (F-36). It fails each member of `Type` that reflects.
 - `GodotTextRule.TextHelperType` holds the name of the text helper of PR-61. That PR confirms the name or changes the constant (G-16).
 - `deck-test/` stays untracked, as it was before this session.
+- The commit `88215f8` changes the two handoff files alone, so the effective head stays `f5eba68` (D-610).
+- Gitar paused automatic reviews for the trial, and the pass of this PR ran on the first push.
 - The next ids are D-616, OQ-183, F-66, L-16, G-27, PR-85, M-8, and Session 90.
 
 ### The questions that block progress
@@ -41,7 +44,7 @@ None for this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
 
 ### The next concrete action
 
-Run the Gitar pass on the head of PR #23, answer each finding, and then hand the PR to Codex for the cross-provider review.
+The Codex review of PR #23 at the effective head `f5eba68`. The review record goes to `docs/reviews/pr-23.md`, and RG 3 passes with it.
 
 ## Session 88: 2026-09-17, Codex
 
