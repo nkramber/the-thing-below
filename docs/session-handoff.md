@@ -18,13 +18,16 @@ Repository: the-thing-below. Branch: `feat/pr-1-scaffold`. PR: PR-1. Role: autho
 - Added the PR-82 entry to `phase-1-foundations.md`, section 7.3, and renumbered the later entries of section 7.
 - Built the scaffold: `TheThingBelow.slnx`, `global.json`, `Directory.Build.props`, the Makefile, the pre-commit hook, the four projects of D-217, and the CI workflow.
 - Wrote eight tests: the agent-file match test, three Core reference tests, and four tests of the tools command line.
+- Opened PR #18. The first CI run failed two smoke legs, and a second commit corrected the workflow (F-62, F-63).
 
 ### State of the build
 
 - `main` is `9f27f12` (PR #17). The branch `feat/pr-1-scaffold` holds the scaffold.
 - `make verify` passes on the Mac of the owner: the build, the 8 tests, `dotnet format`, the STE check with 0 findings, and the Godot smoke session.
 - The smoke session prints the renderer as `forward_plus` and the frame as 1280 by 720, and it ends with no error.
-- The CI workflow holds five jobs: `changed-paths`, `build-test-format`, `coverage`, `smoke`, and `ste-check`. No leg ran them yet.
+- The CI workflow holds five jobs: `changed-paths`, `build-test-format`, `coverage`, `smoke`, and `ste-check`.
+- The first run of PR #18 passed `changed paths`, `ste-check`, `coverage report`, the three legs of the build and test job, and `smoke (ubuntu-24.04)`.
+- The first run failed `smoke (macos-26)` and `smoke (windows-2025)`. The second commit corrects both, and the next run reads them.
 
 ### In flight
 
@@ -38,8 +41,11 @@ The push of this branch, the gitar pass, and then the Codex review (T-4, D-17). 
 - The compiler writes no metadata entry for a project reference that no code uses. A second test reads the Core project file, so an added reference fails (F-61).
 - The generated entry point of `xunit.v3` runs the console runner unless `UseMicrosoftTestingPlatformRunner` is on. The console runner reads no Coverlet option.
 - Coverlet 10 takes `--coverlet`, and not `--coverage`. It writes its file to the results directory, and it takes no output path.
+- The macOS archive of Godot holds `Godot_mono.app`, and not `Godot.app` (F-62). The find pattern of the smoke job reads `*.app/Contents/MacOS/Godot`.
+- The git-bash of the Windows runner carries `sha512sum` and no `shasum` (F-63). The checksum step reads the digest itself and names both values.
+- A Gitar review of the first head approved it. The second commit made that review stale, and the session asks for a new one.
 - The owner ran no Deck test yet. PR-82 waits for that run.
-- The next ids are D-600, OQ-183, F-62, L-16, G-27, PR-83, M-8, and Session 58.
+- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 58.
 
 ### Open questions that block progress
 
@@ -47,7 +53,7 @@ None for PR-1. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
 
 ### Next concrete action
 
-Push the branch, open PR-1, then answer the gitar pass and hand the PR to Codex.
+Push the workflow fix, request a current Gitar review, then hand PR #18 to Codex.
 
 ## Session 56: 2026-09-16, Claude Code
 

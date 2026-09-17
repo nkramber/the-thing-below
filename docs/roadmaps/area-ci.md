@@ -52,6 +52,8 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-43 | A failed night blocked the PR that fixes it | PR-49: a night on the head of a PR, and docs-only PRs pass (D-510, D-513) |
 | F-60 | The Godot editor build gives an exit code of 0 when its build callback fails | PR-1: the smoke job reads the log of the editor build (T-2) |
 | F-61 | A coverage run instruments the Core copy and adds references to it | PR-1: the reference test reads the file that the Core project built |
+| F-62 | The macOS archive of Godot holds `Godot_mono.app`, and not `Godot.app` | PR-1: the smoke job reads `*.app/Contents/MacOS/Godot` |
+| F-63 | The git-bash of the Windows image carries no `shasum` | PR-1: the checksum step reads the digest with `sha512sum` or `shasum` |
 
 ## 7. Roadmap
 

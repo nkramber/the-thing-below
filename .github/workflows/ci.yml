@@ -199,11 +199,24 @@ jobs:
               "https://github.com/godotengine/godot-builds/releases/download/$GODOT_VERSION/$ARCHIVE"
           fi
 
-          printf '%s  %s\n' "$EXPECTED_SHA512" "godot-download/$ARCHIVE" > /tmp/godot.sha512
-          if ! shasum --algorithm 512 --check /tmp/godot.sha512; then
-            echo "The SHA-512 of $ARCHIVE does not match the value of this workflow (T-2)." >&2
+          # The Linux and Windows images carry `sha512sum`, and the macOS image carries
+          # `shasum`. The step reads the digest itself, so the error names both values (T-2).
+          if command -v sha512sum > /dev/null 2>&1; then
+            actual=$(sha512sum "godot-download/$ARCHIVE" | cut -d ' ' -f 1)
+          elif command -v shasum > /dev/null 2>&1; then
+            actual=$(shasum --algorithm 512 "godot-download/$ARCHIVE" | cut -d ' ' -f 1)
+          else
+            echo "This image carries no sha512sum and no shasum command (T-2)." >&2
             exit 1
           fi
+
+          if [ "$actual" != "$EXPECTED_SHA512" ]; then
+            echo "The SHA-512 of $ARCHIVE does not match the value of this workflow (T-2)." >&2
+            echo "  expected: $EXPECTED_SHA512" >&2
+            echo "  actual:   $actual" >&2
+            exit 1
+          fi
+          echo "The SHA-512 of $ARCHIVE matches."
 
       - name: Unpack the Godot editor
         env:
@@ -219,7 +232,7 @@ jobs:
           matches=$(find godot-editor -type f \
             \( -name 'Godot_v*_mono_linux.x86_64' \
             -o -name 'Godot_v*_mono_win64.exe' \
-            -o -path '*/Godot.app/Contents/MacOS/Godot' \))
+            -o -path '*.app/Contents/MacOS/Godot' \))
           count=$(printf '%s\n' "$matches" | grep -c . || true)
           if [ "$count" != "1" ]; then
             echo "The archive $ARCHIVE holds $count Godot executables, and not one (T-2)." >&2
