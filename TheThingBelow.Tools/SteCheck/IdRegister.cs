@@ -33,6 +33,7 @@ public sealed class IdRegister
     private static readonly Regex PullRequestHeading = new Regex(@"^#{2,4} [\d.]+ PR-(\d+):", Options);
     private static readonly Regex SupersededBy = new Regex(@"Superseded by ((?:D-\d+(?: and )?)+)", Options);
     private static readonly Regex DecisionId = new Regex(@"D-(\d+)", Options);
+    private static readonly Regex DecisionRow = new Regex(@"^\| (D-\d+) \|", Options);
 
     private readonly HashSet<string> defined = new HashSet<string>(StringComparer.Ordinal);
     private readonly Dictionary<string, List<string>> supersededBy =
@@ -154,7 +155,7 @@ public sealed class IdRegister
     {
         foreach (string line in documents.ReadLines("docs/decisions.md"))
         {
-            Match row = Regex.Match(line, @"^\| (D-\d+) \|", Options);
+            Match row = DecisionRow.Match(line);
             if (!row.Success)
             {
                 continue;

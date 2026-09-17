@@ -15,9 +15,14 @@ public static class EnglishWords
     private const RegexOptions Options =
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled;
 
-    /// <summary>A contraction, which rule 4.2 refuses. A possessive `'s` on a noun passes.</summary>
+    /// <summary>
+    /// A contraction, which rule 4.2 refuses. A possessive `'s` on a noun passes. The `'s` forms
+    /// here are always a contraction, because the possessive of each one has no apostrophe:
+    /// its, his, hers, and whose.
+    /// </summary>
     public static readonly Regex Contraction = new Regex(
-        @"\b(\w+n't|\w+'(re|ve|ll|d|m)|it's|let's|that's|there's|what's|here's)\b", Options);
+        @"\b(\w+n't|\w+'(re|ve|ll|d|m)|it's|he's|she's|who's|let's|that's|there's|what's|here's)\b",
+        Options);
 
     /// <summary>A modal verb, which rule 3.2 refuses. "can", "must", and "will" pass.</summary>
     public static readonly Regex Modal = new Regex(

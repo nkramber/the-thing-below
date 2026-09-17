@@ -223,13 +223,24 @@ public static class ReferenceRules
         return lastSlash < 0 ? string.Empty : path[..lastSlash];
     }
 
+    /// <summary>
+    /// Reads the line for a citation of one of the ids. A digit after the id makes another id,
+    /// so `D-10` does not satisfy a rule that asks for `D-1`.
+    /// </summary>
     private static bool NamesOneOf(string line, IReadOnlyList<string> ids)
     {
         foreach (string id in ids)
         {
-            if (Regex.IsMatch(line, $@"\b{Regex.Escape(id)}\b", Options))
+            int index = line.IndexOf(id, StringComparison.Ordinal);
+            while (index >= 0)
             {
-                return true;
+                int after = index + id.Length;
+                if (after >= line.Length || !char.IsDigit(line[after]))
+                {
+                    return true;
+                }
+
+                index = line.IndexOf(id, after, StringComparison.Ordinal);
             }
         }
 

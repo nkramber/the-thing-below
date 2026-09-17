@@ -92,6 +92,30 @@ public sealed class SteCheckWritingRuleTests
         Assert.Empty(findings);
     }
 
+    [Theory]
+    [InlineData("The reviewer says that he's ready.")]
+    [InlineData("The reviewer says that she's ready.")]
+    [InlineData("The record names who's on the PR.")]
+    [InlineData("The record says that it's ready.")]
+    public void APronounWithAnApostropheAndAnSIsAContraction(string line)
+    {
+        // The possessive of each of these pronouns has no apostrophe: its, his, hers, and whose.
+        IReadOnlyList<Finding> findings = WritingRules.Check("fixture.md", [line]);
+
+        Assert.Contains(findings, found => found.Rule == "STE 4.2");
+    }
+
+    [Theory]
+    [InlineData("The answer of the owner stands, and the owner's word is the rule.")]
+    [InlineData("The record names whose branch holds the head.")]
+    [InlineData("The record names its branch and its head.")]
+    public void APossessiveIsNotAContraction(string line)
+    {
+        IReadOnlyList<Finding> findings = WritingRules.Check("fixture.md", [line]);
+
+        Assert.DoesNotContain(findings, found => found.Rule == "STE 4.2");
+    }
+
     [Fact]
     public void ATableAndAFencedBlockTakeNoRule()
     {

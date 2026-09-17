@@ -2,6 +2,45 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 76: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the Gitar pass of PR #20, in the same session as Session 75 (D-582).
+Repository: the-thing-below. Branch: `feat/pr-2-ste-checker`. PR: #20. Role: author. Base: `9b84158`.
+
+### What this session did, and why
+
+- The Gitar pass on head `a155ebc` gives `Approved with suggestions` with one finding.
+- The finding says that the contraction rule misses `he's`, `she's`, and `who's`. The claim holds. A run of the pattern on each form gives no match, and the table of the skill promises a pronoun with `'s`.
+- Fixed the pattern. The possessive of each of these pronouns has no apostrophe, so each form is always a contraction: its, his, hers, and whose.
+- Added seven tests: four forms that fail the rule, and three possessives that pass it. Three of the four fail on the old pattern.
+- Hoisted two patterns that a method built on each call. The result does not change, and the tool no longer compiles a pattern in a loop (T-1).
+
+### State of the build
+
+- `main` is `9b84158`. The head before this round was `a155ebc`, and the ten checks passed on it.
+- `make verify` passes on this round: the build, 53 tests, the format check, the STE check with 0 findings, and the smoke session.
+- This round changes code and a test, so the effective head moves.
+- Session 66 moves to the archive. The handoff keeps the 10 newest entries (D-18, D-607).
+
+### In flight
+
+The Gitar pass on the new head, then the Codex review of PR #20.
+
+### Traps and gotchas
+
+- Automatic Gitar reviews are paused on this trial, and the pass on `a155ebc` still ran. Read the Gitar check on the head before a `Gitar review` comment.
+- The reply to the thread names the commit that fixes the finding.
+- The next ids are D-609, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 77.
+
+### Open questions that block progress
+
+None for PR #20. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Get the Gitar pass on the new head, then hand PR #20 to Codex for the review.
+
 ## Session 75: 2026-09-17, Claude Code
 
 Author: Claude Code
@@ -364,42 +403,3 @@ No owner question blocks PR #19. GitHub access and Git metadata write access blo
 ### Next concrete action
 
 Restore GitHub API and Git write access. Verify the PR comments and checks, then commit and push the existing review record and this entry.
-
-## Session 66: 2026-09-17, Claude Code
-
-Author: Claude Code
-Session: the answer to the review of PR #19, in the same session as Session 64 (D-582).
-Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19. Role: author. Base: `ee4305a`.
-
-### What this session did, and why
-
-- The review of Session 65 gives no finding on the change. Its verdict is `Blocked`, because that session had no GitHub access, no writable `.git/FETCH_HEAD`, and no build result.
-- `docs/reviews/pr-19-response.md` gives each piece of evidence that the review session could not get: the head, the state, the comment export, the thread count, the nine checks, and the result of `make verify`.
-- The review session could not push. This round commits `docs/reviews/pr-19.md` and the Session 65 entry with no change to their text, so the PR holds each record of its review (D-577).
-- The round moves the Session 55 and Session 56 entries to `docs/session-handoff-archive.md`, because the file keeps the 10 newest entries (D-18).
-
-### State of the build
-
-- `main` is `ee4305a`. The PR head on GitHub is `0bcd246`, the state is `OPEN`, and the merge state is `CLEAN`.
-- The effective head is `c065a11`. This round changes `docs/reviews/` and `docs/session-handoff.md` alone, which is the metadata set, so the effective head does not move.
-- The nine CI checks pass, and the Gitar pass approves `c065a11` with no finding. The comment export gives one comment, which is the Gitar dashboard, and zero review threads.
-- `make verify` passes on the Mac of the owner in 9 seconds with a warm build.
-
-### In flight
-
-The repeat review of PR #19 at the effective head `c065a11` (T-4, D-17). Only the reviewer can set the verdict.
-
-### Traps and gotchas
-
-- A `Blocked` verdict can name no defect. This one names missing evidence of the review session, and the author cannot clear it.
-- The review session read 30 seconds of `dotnet build` as an unknown result. A cold build takes longer than that, and a restore with no network fails.
-- A metadata commit does not move the effective head, and it needs no new Gitar request. Automatic Gitar reviews are paused on this trial, so a request costs one of a limited set.
-- The next ids are D-602, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 67.
-
-### Open questions that block progress
-
-No owner question blocks PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3. OQ-182 blocks nothing.
-
-### Next concrete action
-
-Get the repeat review of PR #19 from Codex at the effective head `c065a11`.
