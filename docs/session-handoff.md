@@ -18,11 +18,11 @@ Session: review PR #22 at effective head `1f07b6b`. Repository: the-thing-below.
 
 - `main` is `9787b2d`. The PR branch is `feat/pr-84-context-budget`, with effective head `1f07b6b` and metadata tip `b55f8e6` before this review commit.
 - Local build, 136 tests, format check, and `ste-check` pass. CI build, test, format, smoke, changed paths, coverage, and `ste-check` pass on `1f07b6b`.
-- The `review-gate` check failed RG 3 because the review record was not on the head. RG 1, 2, 6, 7, and 8 passed.
+- The initial `review-gate` run failed RG 3 because the review record was not on the head. After the metadata push, all ten checks pass, including `review-gate`.
 
 ### What is in flight
 
-The review record and this entry need a commit, push, and remote verification. Then the review-gate check must pass on the metadata tip.
+The review record and this entry are pushed as `d7f6fb3`. GitHub reports this commit as the head, the tree has no staged or tracked changes, and all ten checks pass, including `review-gate`.
 
 ### Traps and gotchas
 
@@ -36,7 +36,7 @@ None for this PR. Future checks remain named with their creating PR in the PR ga
 
 ### The next concrete action
 
-Commit the review record and this entry, push them to the PR branch, then verify the remote head and review-gate result.
+The review is published at `d7f6fb3`, and all checks pass. The owner can merge PR #22.
 
 ## Session 87: 2026-09-17, Claude Code
 
