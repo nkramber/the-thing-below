@@ -11,6 +11,7 @@ Session: review PR #21 at effective head `40ea275`. Repository: the-thing-below.
 
 - Reviewed PR #21, the review gate, from its merge base to effective head `40ea275`.
 - Added three findings to `docs/reviews/pr-21.md`: a negated approval can pass RG 4, an out-of-section head can pass RG 5, and RG 8 misses spelled-out deferrals.
+- Corrected the `docs/reviews/` line in the PR description after the review record landed.
 - Verified the author provider from Session 78 and the opposite-provider rule of T-4 and D-17.
 - Checked all 28 changed paths, the workflow trust boundary, the command rules, the test fixtures, and the Documents section.
 
@@ -19,6 +20,7 @@ Session: review PR #21 at effective head `40ea275`. Repository: the-thing-below.
 - `main` is `04953e4`, and the implementation head is `40ea275`.
 - `make verify` passes locally with 113 tests, clean format, 0 STE findings, and a successful smoke session.
 - All nine CI checks pass on PR tip `d5d9332`. The live review-gate check is absent on PR-3 by design (F-37, D-500).
+- All nine CI checks also pass on metadata tip `75b5f63`, after the review record and corrected Documents row were pushed.
 - The Gitar pass is current on `40ea275`, and it reports approval with no finding.
 - The remote PR tip before this review publication was `d5d9332`. The untracked `deck-test/` stays untouched.
 - The review record and this handoff are published at `1bdaa89`. The record gives the findings for the author to correct.
