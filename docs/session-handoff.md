@@ -23,12 +23,14 @@ Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. PR: #21. Role: aut
 
 - `main` is `04953e4`. The head before this round was `40ea275`, and the remote tip was `755cd67`, which holds the review record.
 - `make verify` passes: the build, 119 tests, the format check, the STE check with 0 findings, and the smoke session.
-- This round changes code, tests, and two skill files, so the effective head moves to the commit of this round.
+- This round changes code, tests, and two skill files, so the effective head moves to `3a75767`.
+- The nine CI checks pass on `3a75767`: three build legs, three smoke legs, the changed paths job, the coverage report, and `ste-check`.
+- The Gitar pass approves `3a75767` with the verdict `Approved` and no finding. The pass needed a request, because the head got no automatic pass in the wait of five minutes. Gitar replied `On it` at `18:32:04Z`, and it posted a new dashboard comment `5719382142` with the edit time `18:34:50Z`. No thread is open.
 - Session 70 moves to the archive. The handoff keeps the 10 newest entries (D-18, D-607).
 
 ### What is in flight
 
-The Gitar pass of the new head, then the repeat review of the other provider.
+The repeat review of the other provider at the effective head `3a75767`.
 
 ### Traps and gotchas
 
