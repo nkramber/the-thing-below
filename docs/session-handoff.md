@@ -20,7 +20,8 @@ Session: review PR #23, roadmap PR-46, the `det-lint` command. Repository: the-t
 - `main` is `0fbecab`. The PR head is `764390c`, and its effective head is `f5eba68` (D-610).
 - `make verify` passes locally: build, 186 tests, format, `det-lint`, `ste-check`, and smoke.
 - GitHub checks pass on `764390c` except `review-gate`, which fails RG 3 because the review record was absent before this commit.
-- The review record, handoff entry, and archived Session 80 are ready for publication. The remote head and checks need verification after the push.
+- The review record, handoff entry, and archived Session 80 were published as `b63cfb0`. GitHub confirms that head. All checks pass except `review-gate`, which fails RG 4 because the verdict is `Changes required`.
+- This follow-up metadata commit records the publication verification. The effective head stays `f5eba68` (D-610).
 
 ### What is in flight
 
