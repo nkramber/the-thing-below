@@ -22,11 +22,11 @@ Session: the answer to the review of PR #23, in the same session as Session 89 (
 
 - `main` is `0fbecab`. The head before this round is `44f99a8`, and the PR is #23.
 - `make verify` passes: the build with 0 warnings, 187 tests, the format check, `det-lint` with 0 findings, `ste-check` with 0 findings, and the smoke session.
-- On `44f99a8`, every CI check passes except `review-gate`. RG 4 fails there, because the record gives the verdict `Changes required`.
+- On `70df5ef`, every CI check passes except `review-gate`: three build legs, three smoke legs, the changed paths job, the coverage report, `ste-check`, `det-lint`, and the Gitar check. RG 4 fails, because the record still gives the verdict `Changes required`.
 
 ### What is in flight
 
-The Gitar pass of the correction, and then the repeat review of Codex. The new effective head is the commit of this round.
+The repeat review of Codex at the effective head `70df5ef`. The Gitar pass of that head gives the verdict `Approved` with no finding and no open thread.
 
 ### Traps and gotchas
 
@@ -34,6 +34,8 @@ The Gitar pass of the correction, and then the repeat review of Codex. The new e
 - RG 4 stays red until the record of the repeat review gives `Ready for owner merge`.
 - A scene file has no comment syntax, so the pattern of DL 9 reads a whole line and needs no comment rule.
 - `deck-test/` stays untracked, as it was before this session.
+- Gitar deleted the dashboard comment of the first pass and posted a new one with the id 5721871935. The summary of the new pass repeats the words of the first one, and its three times prove that the pass is current.
+- The push wait and each poll of Gitar run in the background, and never in the foreground.
 - The next ids are D-616, OQ-183, F-66, L-16, G-27, PR-85, M-8, and Session 92.
 
 ### The questions that block progress
@@ -42,7 +44,7 @@ None for this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
 
 ### The next concrete action
 
-Run the Gitar pass on the new head of PR #23, answer each finding, and then ask Codex for the repeat review.
+The repeat review of Codex at the effective head `70df5ef`. The record at `docs/reviews/pr-23.md` sets P2-1 to closed and gives a verdict for that head, and RG 4 passes with it.
 
 ## Session 90: 2026-09-17, Codex
 
