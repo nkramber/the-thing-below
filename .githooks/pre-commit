@@ -1,8 +1,8 @@
 #!/bin/sh
 # The pre-commit hook of the repository. `make hooks` sets the hook path (D-8, D-25).
 #
-# It refuses a commit on `main`, and it runs the STE checker on the staged documents
-# (D-10, D-585). A finding stops the commit.
+# It refuses a commit on `main`, and it runs the STE checker over the checkout
+# (D-10, D-585, D-608). A finding stops the commit.
 
 set -e
 
@@ -19,15 +19,9 @@ if [ "$branch" = "main" ]; then
     exit 1
 fi
 
-# The four exempt paths are dated records, and the checker never reads them (D-10).
-files=$(git diff --cached --name-only --diff-filter=ACM -- '*.md' |
-    grep -v -e '^docs/reviews/' -e '^docs/session-handoff' -e '^docs/archive/' || true)
-
-if [ -z "$files" ]; then
-    exit 0
-fi
-
-if ! python3 docs/tools/ste-check.py $files; then
+# The command reads every live document of the checkout, and it takes no file list
+# (D-608). It holds the four dated record paths itself (D-10).
+if ! dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .; then
     echo "pre-commit: the STE checker found a fault. Correct it, then commit again (G-12)." >&2
     exit 1
 fi

@@ -1,5 +1,168 @@
 # Session handoff archive
 
+
+## Session 67: 2026-09-17, Codex
+
+Author: Codex
+Session: repeat review of PR #19 at effective head `c065a11`, on branch `docs/pr-83-skip-set-decision`. Role: reviewer. Base: `ee4305a`.
+
+### What this session did, and why
+
+- Re-read the review instructions and the existing PR #19 review record and response file.
+- The local branch advanced to `d6d1529`. Commits after `c065a11` only change review and session handoff records, so the effective head remains `c065a11`.
+- The response file reports the PR head, Gitar result, comments, checks, and build result. GitHub access failed again, so this session could not verify those claims independently.
+- The review record still gives `Blocked`. It also records that the Git index is read-only, so this session cannot commit or push its update.
+
+### State of the build
+
+- `main` points to `ee4305a`. The local branch and its tracking ref point to `d6d15294f7fe4772e693ccf949a0154056102a1d`.
+- The effective head remains `c065a11` because later commits change metadata only.
+- `git diff --check` passes for the PR changes. The previous session's STE and identity checks pass; its build result remains unknown from this environment.
+- GitHub checks, comments, PR state, and live remote head remain unverified.
+
+### In flight
+
+The review remains blocked until GitHub evidence can be verified and the updated record can be committed and pushed.
+
+### Traps and gotchas
+
+- `gh` cannot connect to `api.github.com`.
+- `git fetch` cannot write `.git/FETCH_HEAD`, and Git cannot create `.git/index.lock`.
+- The response file is author-provided evidence, not independent confirmation by this review.
+- The next ids are D-602, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 68.
+
+### Open questions that block progress
+
+No owner question blocks PR #19. GitHub access and Git metadata write access block the final review publication.
+
+### Next concrete action
+
+Restore GitHub API and Git write access. Verify the PR comments and checks, then commit and push the existing review record and this entry.
+
+## Session 66: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the review of PR #19, in the same session as Session 64 (D-582).
+Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19. Role: author. Base: `ee4305a`.
+
+### What this session did, and why
+
+- The review of Session 65 gives no finding on the change. Its verdict is `Blocked`, because that session had no GitHub access, no writable `.git/FETCH_HEAD`, and no build result.
+- `docs/reviews/pr-19-response.md` gives each piece of evidence that the review session could not get: the head, the state, the comment export, the thread count, the nine checks, and the result of `make verify`.
+- The review session could not push. This round commits `docs/reviews/pr-19.md` and the Session 65 entry with no change to their text, so the PR holds each record of its review (D-577).
+- The round moves the Session 55 and Session 56 entries to `docs/session-handoff-archive.md`, because the file keeps the 10 newest entries (D-18).
+
+### State of the build
+
+- `main` is `ee4305a`. The PR head on GitHub is `0bcd246`, the state is `OPEN`, and the merge state is `CLEAN`.
+- The effective head is `c065a11`. This round changes `docs/reviews/` and `docs/session-handoff.md` alone, which is the metadata set, so the effective head does not move.
+- The nine CI checks pass, and the Gitar pass approves `c065a11` with no finding. The comment export gives one comment, which is the Gitar dashboard, and zero review threads.
+- `make verify` passes on the Mac of the owner in 9 seconds with a warm build.
+
+### In flight
+
+The repeat review of PR #19 at the effective head `c065a11` (T-4, D-17). Only the reviewer can set the verdict.
+
+### Traps and gotchas
+
+- A `Blocked` verdict can name no defect. This one names missing evidence of the review session, and the author cannot clear it.
+- The review session read 30 seconds of `dotnet build` as an unknown result. A cold build takes longer than that, and a restore with no network fails.
+- A metadata commit does not move the effective head, and it needs no new Gitar request. Automatic Gitar reviews are paused on this trial, so a request costs one of a limited set.
+- The next ids are D-602, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 67.
+
+### Open questions that block progress
+
+No owner question blocks PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3. OQ-182 blocks nothing.
+
+### Next concrete action
+
+Get the repeat review of PR #19 from Codex at the effective head `c065a11`.
+
+## Session 65: 2026-09-16, Codex
+
+Author: Codex
+Session: review of PR #19 at effective head `c065a11`, on branch `docs/pr-83-skip-set-decision`. Role: reviewer. Base: `ee4305a`.
+
+### What this session did, and why
+
+- Read the handoff, the one-PR, PR-review, project-contract, review-record, commit, and STE instructions.
+- Verified the provider gate. Session 64 names Claude Code as the PR author, so Codex is eligible under T-4 and D-17.
+- Inspected all eight changed paths and checked the D-600 path set against the workflow and the equal agent files against D-20.
+- The STE check and whitespace check pass. The build did not finish within 30 seconds.
+- GitHub API access failed. The PR description, current comments, live checks, and remote head could not be verified.
+- The review record gives `Blocked` for effective head `c065a11`, because required current PR evidence is unavailable.
+
+### State of the build
+
+- `main` points to `ee4305a`. The checked-out PR branch and its tracking ref point to `0bcd246`.
+- The effective head is `c065a11`; later commits only change metadata.
+- The STE check gives zero findings, the diff check passes, and `CLAUDE.md` equals `AGENTS.md`.
+- The build result is unknown. GitHub checks and the current remote head were not available.
+- The unrelated untracked `deck-test/` directory remains untouched.
+
+### In flight
+
+The PR review is blocked on GitHub evidence and cannot reach its hand-over point.
+
+### Traps and gotchas
+
+- `git fetch` failed because `.git/FETCH_HEAD` is not writable in this environment.
+- `gh` could not connect to `api.github.com`, so the required comment export produced no file.
+- Do not treat handoff reports of a green Gitar pass and CI as independent verification.
+- The next ids are D-602, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 66.
+
+### Open questions that block progress
+
+No owner question blocks PR #19. The missing network evidence blocks a final review verdict.
+
+### Next concrete action
+
+Restore GitHub API access, export the PR description and all comments in one command, verify the live checks and remote head, then update this review record.
+
+## Session 64: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: PR-83, the decision row of the docs-only skip set and the transitional prompt rule.
+Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19, which is PR-83 of the roadmap. Role: author. Base: `ee4305a`.
+
+### What this session did, and why
+
+- PR #18 merged as `ee4305a`. Its `changed-paths` job holds a skip set, and no decision recorded the paths. The reasoning was a comment of `.github/workflows/ci.yml` alone, and no file in `docs/` named it.
+- D-600 records the skip set: `docs/`, `.claude/`, `README.md`, `LICENSE`, and `.github/pull_request_template.md`. `CLAUDE.md` and `AGENTS.md` stay out of it, because `AgentFileTests` reads both files and fails when they differ (D-20). A skipped job reports `Success`, so a skip of the agent files would pass the PR shape that breaks D-20 most often.
+- The skip set and the override set of D-16 are not the same set. The override set holds both agent files, and `LICENSE` is in the skip set alone.
+- The comment of the `changed-paths` job and a bullet of `docs/roadmaps/area-ci.md` now cite D-600.
+- D-601 records the transitional prompt. After the owner says `Merged PR #x` for the PR of the session, the session writes one fenced block for the next clean session, and then it ends. `CLAUDE.md` and `AGENTS.md` hold the rule, and step 6 of the `one-pr-one-session` skill holds the template.
+- The owner approved the two concerns of this PR before the work started. G-8 refuses a second concern without that answer.
+
+### State of the build
+
+- `main` is `ee4305a`. The branch `docs/pr-83-skip-set-decision` sits on that base.
+- `make verify` passes on the Mac of the owner: the build, 8 tests, the format check, the STE check, and the smoke session.
+- The PR adds two decision rows and changes `.github/workflows/`, so the `review-override` label does not apply (D-401, D-560). The PR needs the Codex review.
+- The nine CI checks pass on `c065a11`, and the Gitar pass approves that head with no finding. The head of command B is `c065a11`, and the dashboard edit at `2026-09-17T03:55:13Z` is later than the push at `2026-09-17T03:54:29Z`. The PR has zero review threads.
+- The build and test legs ran on this PR and did not skip, because the PR changes the agent files. This is the rule of D-600 at work.
+- The change to `CLAUDE.md` and `AGENTS.md` keeps the two files identical, and it takes both files out of the skip set of D-600. The build and test job runs on this PR.
+
+### In flight
+
+The Codex review of PR #19 at the effective head `c065a11` (T-4, D-17). The commit of this record changes `docs/session-handoff.md` alone, which is in the metadata set, so it does not move the effective head.
+
+### Traps and gotchas
+
+- The session verified each claim of D-600 against the code: the `case` pattern of the job, the paths that `AgentFileTests` reads, and the run time of the three legs on PR #18, which was 37 to 79 seconds. The `ste-check` job holds no skip condition, so a docs PR still gets the STE check.
+- `CLAUDE.md` is 16823 bytes, and the size check of OQ-182 proposes a limit of 16 KB. The file passed that limit on `main` at `ee4305a`, before this PR. OQ-182 has no answer, and no check exists.
+- The uncommitted work of the merged branch `feat/pr-1-scaffold` is in a git stash of this machine. The patch of the owner replaced it. Drop the stash after the merge.
+- A skipped job reports `Success`. A path rule that is too wide passes a PR that ran no check.
+- The next ids are D-602, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 65.
+
+### Open questions that block progress
+
+None for PR-83. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3. OQ-182 blocks nothing. The owner has not run the Deck test, so PR-82 waits and the renderer stays provisional (D-599).
+
+### Next concrete action
+
+Hand PR #19 to Codex for the review, and write `docs/reviews/pr-19.md`.
+
 ## Session 63: 2026-09-16, Codex
 
 Author: Codex
