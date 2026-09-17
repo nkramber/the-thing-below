@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using TheThingBelow.Tools.DetLint;
 using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.SteCheck;
 
@@ -17,7 +18,6 @@ public static class Program
         new SortedDictionary<string, string>(StringComparer.Ordinal)
         {
             ["atlas"] = "PR-34",
-            ["det-lint"] = "PR-46",
             ["night-gate"] = "PR-49",
         };
 
@@ -58,6 +58,11 @@ public static class Program
             return ReviewGateCommand.Run(args[1..], output, errors);
         }
 
+        if (command == DetLintCommand.Name)
+        {
+            return DetLintCommand.Run(args[1..], output, errors);
+        }
+
         if (PlannedCommands.TryGetValue(command, out string? pullRequest))
         {
             errors.WriteLine(
@@ -75,6 +80,7 @@ public static class Program
         errors.WriteLine("The commands that exist:");
         errors.WriteLine($"  {SteCheckCommand.Name}: ready");
         errors.WriteLine($"  {ReviewGateCommand.Name}: ready");
+        errors.WriteLine($"  {DetLintCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {

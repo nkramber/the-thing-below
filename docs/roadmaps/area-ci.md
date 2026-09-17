@@ -152,7 +152,7 @@ Built by PR-3. Phase file: `phase-1-foundations.md`.
 Built by PR-46. Phase file: `phase-1-foundations.md`.
 
 - The job runs `det-lint` on the Linux leg alone, because the lint gives the same result on every system (`area-tools.md` section 7.4).
-- The lint reads Godot types in Game code, so the job builds Game first. OQ-70 holds how the lint finds the Godot assembly.
+- The lint reads Godot types in Game code, so the job builds the solution first. The build output of Game holds `GodotSharp.dll` from the NuGet restore, and the leg needs no Godot editor (D-614, F-65).
 - The job prints one line per finding: the file, the line, the rule, and what it saw (T-2).
 
 > *In plain English:* a tool reads the code of the rules and refuses anything that can make two computers disagree. It reads code, not results, so one computer runs it.
@@ -332,7 +332,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 The register is `docs/questions.md` (D-19). These questions block CI PRs, and each PR asks its questions when it starts (D-487):
 
 - OQ-75, OQ-76, OQ-77, OQ-78, and OQ-83 are resolved. D-592 to D-596 hold the answers, and PR-1 builds them.
-- OQ-70: how det-lint finds the Godot assembly. Blocks PR-46.
+- D-614 answers OQ-70, and the lint reads the Godot assembly of the Game build output.
 - OQ-79: how the screen-test job pins Mesa. Blocks PR-41.
 - OQ-74: how the runner finds a softlock. Blocks PR-15.
 - OQ-80: the count of bot runs on each PR. Blocks PR-15.

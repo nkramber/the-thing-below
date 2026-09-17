@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Xml.Linq;
+using TheThingBelow.Core;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -107,6 +108,12 @@ public sealed class CoreReferenceTests
         }
 
         string path = Path.GetFullPath(entry.Value);
+        if (Path.GetFileNameWithoutExtension(path) != CoreAssembly.Name)
+        {
+            throw new InvalidOperationException(
+                $"The path '{path}' does not name the assembly '{CoreAssembly.Name}' (T-2).");
+        }
+
         if (!File.Exists(path))
         {
             throw new InvalidOperationException(

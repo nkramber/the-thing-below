@@ -25,6 +25,7 @@ public sealed class ToolsCommandLineTests
         Assert.Contains("no command", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("ste-check: ready", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("review-gate: ready", errors.ToString(), StringComparison.Ordinal);
+        Assert.Contains("det-lint: ready", errors.ToString(), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -33,10 +34,10 @@ public sealed class ToolsCommandLineTests
         using StringWriter output = new StringWriter();
         using StringWriter errors = new StringWriter();
 
-        int exitCode = Program.Run(["det-lint"], output, errors);
+        int exitCode = Program.Run(["night-gate"], output, errors);
 
         Assert.Equal(Program.FaultExitCode, exitCode);
-        Assert.Contains("PR-46 adds it", errors.ToString(), StringComparison.Ordinal);
+        Assert.Contains("PR-49 adds it", errors.ToString(), StringComparison.Ordinal);
     }
 
     [Fact]

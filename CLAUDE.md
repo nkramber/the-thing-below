@@ -139,7 +139,7 @@ The solution and the project names follow D-217. Run each command from the check
 - Coverage report: `dotnet test --solution TheThingBelow.slnx --no-build -- --coverlet --coverlet-output-format cobertura --results-directory artifacts/coverage`
 - Format check: `dotnet format TheThingBelow.slnx --verify-no-changes`
 - STE check: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .`
-- Determinism and string lint, after PR-46: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- det-lint --root .`
+- Determinism and string lint: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- det-lint --root .`
 - Review gate: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- review-gate --pull-request <file> --head-files <folder>`
 - Godot build check: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --editor --path TheThingBelow.Game --build-solutions --quit`
 - Smoke session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path TheThingBelow.Game -- --smoke`
@@ -157,7 +157,7 @@ A PR merges only when every line holds:
 - [ ] No silent failure. Every error carries context (T-2).
 - [ ] The build, test, and format job is green on every CI leg (D-2, D-117, D-481).
 - [ ] The `smoke` job is green on every CI leg: the headless Godot session (D-117, D-481).
-- [ ] The `det-lint` job is green: no float, clock, or OS random in `core`, and no inline player string (G-2, G-3, G-7). PR-46 creates it (D-496).
+- [ ] The `det-lint` job is green: no float, clock, or OS random in `core`, and no inline player string (G-2, G-3, G-7).
 - [ ] The `replay-identity` job is green: the same state hash on every CI leg for the fixed seed set (G-5, D-481, D-504). PR-4 creates it.
 - [ ] The `screen-test` job is green: each fixture screen matches the committed baseline (D-172, F-23). PR-41 creates it.
 - [ ] The bot job is green on every CI leg: the bot runs end with no crash and no softlock (D-64, D-505). PR-15 creates it.

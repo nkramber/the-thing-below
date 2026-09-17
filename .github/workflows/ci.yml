@@ -1,4 +1,4 @@
-# The build, test, format, smoke, coverage, and STE checks of every PR (D-2, D-117, D-481).
+# The build, test, format, lint, smoke, coverage, and STE checks of every PR (D-2, D-117, D-481).
 #
 # The three legs use a label with a version, and a move to a newer image takes a PR (D-594).
 # Each action pins a full commit SHA, and every other download checks its SHA-512 (D-511).
@@ -146,6 +146,32 @@ jobs:
           name: coverage-report
           path: artifacts/coverage-report
           retention-days: 14
+
+  det-lint:
+    name: det-lint
+    needs: changed-paths
+    # A job that a condition skips reports Success, so the required check passes (D-595).
+    if: needs.changed-paths.outputs.documents-alone != 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out the branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install the .NET SDK of global.json
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # The lint reads the Godot assembly from the build output of the Game project, which
+      # the NuGet restore of Godot.NET.Sdk writes. This leg needs no Godot editor (D-614, F-65).
+      - name: Build the solution
+        run: dotnet build TheThingBelow.slnx --configuration Release
+
+      - name: Run the determinism and string lint
+        run: |
+          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj \
+            --configuration Release --no-build -- det-lint --root . --configuration Release
 
   smoke:
     name: smoke (${{ matrix.leg }})
