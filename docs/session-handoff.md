@@ -24,7 +24,7 @@ Session: review PR #20 at effective head `e800f4c`. Repository: the-thing-below.
 
 ### In flight
 
-The review record and this entry are committed in `f1dc090` and pushed to the PR branch. GitHub reports the same head.
+The review record and this entry are committed in `dfc3ba3` and pushed to the PR branch. GitHub reports the same head.
 
 ### Traps and gotchas
 
@@ -147,7 +147,7 @@ Session: repeat review of PR #19 at effective head `7732b1b`, on branch `docs/pr
 
 ### In flight
 
-The review record and this entry are committed in `f1dc090` and pushed to the PR branch. GitHub reports the same head. The verdict applies to effective head `7732b1b`.
+The review record and this entry are committed in `dfc3ba3` and pushed to the PR branch. GitHub reports the same head. The verdict applies to effective head `7732b1b`.
 
 ### Traps and gotchas
 
