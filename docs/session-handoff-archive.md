@@ -1,5 +1,56 @@
 # Session handoff archive
 
+## Session 60: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the Codex review of PR #18, in the same session that authored it (D-582).
+Repository: the-thing-below. Branch: `feat/pr-1-scaffold`. PR: #18. Role: author. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read `docs/reviews/pr-18.md`. The verdict was `Blocked` for head `0c402dd`, with P2-1 and P2-2 open.
+- P2-1 has partial merit. Its trigger does not reproduce, and the defect that it aims at is real.
+- The editor gives an exit code of 1 when its build callback fails, and not 0. The first measurement of this PR read `$?` after a pipe to `tail`, so it read the exit code of `tail`. F-60 carried that wrong claim, and the row now marks that part refuted and keeps it.
+- The verification found the real failure. A headless session whose managed assembly does not load never reaches `Quit`, and it runs without end. With `--quit-after` it ends with an exit code of 0 and no success line. This is F-64.
+- The `smoke` target of the Makefile now writes each log to a file, fails on a nonzero build code, runs the session with `--quit-after 600`, and fails when the success line is absent.
+- The `smoke` job of CI runs the session with `--quit-after 600` too, so a broken session fails in seconds and not at the time limit of 30 minutes.
+- P2-2 has full merit. The `docs/reviews/` line of the Documents section matched none of the three forms of D-581, and it named a placeholder path. The PR description now names `docs/reviews/pr-18.md` and `docs/reviews/pr-18-response.md` in the `Changed` form.
+- `docs/reviews/pr-18-response.md` records each disposition, the evidence, and the regression checks.
+
+### State of the build
+
+- `main` is `9f27f12`. The branch holds the scaffold, the two corrections, and the review records.
+- `make verify` passes on the Mac of the owner: the build, the 8 tests, `dotnet format`, the STE check with 0 findings, and the smoke session.
+- The regression checks pass. `make smoke` gives 2 on a failed Godot build, gives 2 in about 6.5 seconds on a boot class that the scene cannot instantiate, and gives 0 on a healthy tree.
+- The Gitar review of `0c402dd` gave `Approved`, with 1 finding closed and 0 unresolved threads.
+- The Gitar pass of the correction head `6e0622a` gives `Approved`, with 1 comment, 1 with merit, and 0 open issues. Commit `0c402dd` answered that comment, and the thread is resolved.
+- That review is current. The head matches, the dashboard edit time of 02:33:02Z is later than the push time of 02:25:14Z and later than the `On it` reply of 02:29:01Z.
+- CI run on `6e0622a` passed each of the nine checks, the three smoke legs with `--quit-after` included.
+
+### In flight
+
+The repeat Codex review of PR #18 at effective head `6e0622a` (T-4, D-17). The Gitar pass of that head is complete and approves it.
+
+The commit that holds this entry changes `docs/session-handoff.md` alone, so it is a metadata commit and it does not move the effective head.
+
+### Traps and gotchas
+
+- A measurement of an exit code through a pipe reads the exit code of the last command of the pipe. Redirect to a file, or set `pipefail`, before you record an exit code as evidence.
+- A headless Godot session that cannot instantiate its boot script waits without end. Always give `--quit-after` to a session that a check runs (F-64).
+- An exit code of 0 from a smoke session proves nothing. The success line in the log is the proof (T-2).
+- A finding can name a real defect through a trigger that does not reproduce. Reproduce the trigger, then look for the defect that the finding aims at.
+- Gitar replaced its dashboard comment during this round. The id moved from `5706916715` to `5707572860`. Read the newest id in each check, and never a saved one.
+- A string comparison with `\>` inside `[ ]` fails in zsh. Use `sort`, or read the times in Python.
+- The next ids are D-600, OQ-183, F-65, L-16, G-27, PR-83, M-8, and Session 61.
+
+### Open questions that block progress
+
+None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Hand PR #18 back to Codex for the repeat review of `6e0622a`. The session stays bound to PR #18 and answers each finding (D-582).
+
 ## Session 59: 2026-09-16, Codex
 
 Author: Codex

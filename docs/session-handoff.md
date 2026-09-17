@@ -2,6 +2,48 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 70: 2026-09-17, Codex
+
+Author: Codex
+Session: repeat review of PR #19 at effective head `38aa19f`, on branch `docs/pr-83-skip-set-decision`. Role: reviewer. Base: `ee4305a`.
+
+### What this session did, and why
+
+- Read the PR review instructions, earlier review record, and response file.
+- Verified that Session 64 names Claude Code as the author. Codex is the eligible reviewer (T-4, D-17).
+- Reviewed all 11 changed paths, including the new D-602 review procedure.
+- Found P2-1: the merged-PR stop rule conflicts with the transitional prompt that D-601 requires.
+- Ran `make verify`. The build, 8 tests, format, STE, and smoke checks passed.
+- Verified that all 9 live CI checks pass on PR head `a4a86a3`.
+- The Gitar dashboard approves effective head `38aa19f`, but no Gitar run exists on the current PR head. Its pass is stale.
+- Updated `docs/reviews/pr-19.md` with the finding and the verdict `Changes required` for effective head `38aa19f`.
+
+### State of the build
+
+- `main` is `ee4305a`. The effective head is `38aa19f`, and the remote PR tip is `a4a86a3`.
+- `make verify` passes. All 9 live CI checks pass on `a4a86a3`.
+- The latest Gitar approval is for `38aa19f`, so the automated review is stale for the branch tip.
+- The review and handoff commit changes metadata only, so it does not move effective head `38aa19f`. The unrelated untracked `deck-test/` remains untouched.
+
+### In flight
+
+P2-1 needs a correction. A current Gitar review also needs to cover the branch tip before merge.
+
+### Traps and gotchas
+
+- Step 1 of the one-PR skill blocks work when the bound PR is merged. Step 6 requires a prompt after that merge (D-601).
+- The PR tip can move through a metadata commit while its effective head stays `38aa19f`.
+- D-602 does not apply because this review session has network and writable Git metadata.
+- The next ids are D-603, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 71.
+
+### Open questions that block progress
+
+No owner question blocks PR #19. P2-1 and the stale Gitar review block the merge.
+
+### Next concrete action
+
+Correct P2-1, push the correction, complete the Gitar pass, then repeat the Codex review (D-582).
+
 ## Session 69: 2026-09-17, Claude Code
 
 Author: Claude Code
@@ -380,54 +422,3 @@ No owner question blocks the review. P2-4 and the inline comment export remain u
 ### Next concrete action
 
 Correct the conflicting statement in the response file. Then repeat the review of PR #18 at its new effective head.
-
-## Session 60: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: the answer to the Codex review of PR #18, in the same session that authored it (D-582).
-Repository: the-thing-below. Branch: `feat/pr-1-scaffold`. PR: #18. Role: author. Base: `9f27f12`.
-
-### What this session did, and why
-
-- Read `docs/reviews/pr-18.md`. The verdict was `Blocked` for head `0c402dd`, with P2-1 and P2-2 open.
-- P2-1 has partial merit. Its trigger does not reproduce, and the defect that it aims at is real.
-- The editor gives an exit code of 1 when its build callback fails, and not 0. The first measurement of this PR read `$?` after a pipe to `tail`, so it read the exit code of `tail`. F-60 carried that wrong claim, and the row now marks that part refuted and keeps it.
-- The verification found the real failure. A headless session whose managed assembly does not load never reaches `Quit`, and it runs without end. With `--quit-after` it ends with an exit code of 0 and no success line. This is F-64.
-- The `smoke` target of the Makefile now writes each log to a file, fails on a nonzero build code, runs the session with `--quit-after 600`, and fails when the success line is absent.
-- The `smoke` job of CI runs the session with `--quit-after 600` too, so a broken session fails in seconds and not at the time limit of 30 minutes.
-- P2-2 has full merit. The `docs/reviews/` line of the Documents section matched none of the three forms of D-581, and it named a placeholder path. The PR description now names `docs/reviews/pr-18.md` and `docs/reviews/pr-18-response.md` in the `Changed` form.
-- `docs/reviews/pr-18-response.md` records each disposition, the evidence, and the regression checks.
-
-### State of the build
-
-- `main` is `9f27f12`. The branch holds the scaffold, the two corrections, and the review records.
-- `make verify` passes on the Mac of the owner: the build, the 8 tests, `dotnet format`, the STE check with 0 findings, and the smoke session.
-- The regression checks pass. `make smoke` gives 2 on a failed Godot build, gives 2 in about 6.5 seconds on a boot class that the scene cannot instantiate, and gives 0 on a healthy tree.
-- The Gitar review of `0c402dd` gave `Approved`, with 1 finding closed and 0 unresolved threads.
-- The Gitar pass of the correction head `6e0622a` gives `Approved`, with 1 comment, 1 with merit, and 0 open issues. Commit `0c402dd` answered that comment, and the thread is resolved.
-- That review is current. The head matches, the dashboard edit time of 02:33:02Z is later than the push time of 02:25:14Z and later than the `On it` reply of 02:29:01Z.
-- CI run on `6e0622a` passed each of the nine checks, the three smoke legs with `--quit-after` included.
-
-### In flight
-
-The repeat Codex review of PR #18 at effective head `6e0622a` (T-4, D-17). The Gitar pass of that head is complete and approves it.
-
-The commit that holds this entry changes `docs/session-handoff.md` alone, so it is a metadata commit and it does not move the effective head.
-
-### Traps and gotchas
-
-- A measurement of an exit code through a pipe reads the exit code of the last command of the pipe. Redirect to a file, or set `pipefail`, before you record an exit code as evidence.
-- A headless Godot session that cannot instantiate its boot script waits without end. Always give `--quit-after` to a session that a check runs (F-64).
-- An exit code of 0 from a smoke session proves nothing. The success line in the log is the proof (T-2).
-- A finding can name a real defect through a trigger that does not reproduce. Reproduce the trigger, then look for the defect that the finding aims at.
-- Gitar replaced its dashboard comment during this round. The id moved from `5706916715` to `5707572860`. Read the newest id in each check, and never a saved one.
-- A string comparison with `\>` inside `[ ]` fails in zsh. Use `sort`, or read the times in Python.
-- The next ids are D-600, OQ-183, F-65, L-16, G-27, PR-83, M-8, and Session 61.
-
-### Open questions that block progress
-
-None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-Hand PR #18 back to Codex for the repeat review of `6e0622a`. The session stays bound to PR #18 and answers each finding (D-582).
