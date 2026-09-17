@@ -6,7 +6,7 @@ Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of
 
 Author: Claude Code
 Session: PR-83, the decision row of the docs-only skip set and the transitional prompt rule.
-Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: PR-83, with no GitHub number yet. Role: author. Base: `ee4305a`.
+Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19, which is PR-83 of the roadmap. Role: author. Base: `ee4305a`.
 
 ### What this session did, and why
 
