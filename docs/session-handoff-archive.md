@@ -1,5 +1,51 @@
 # Session handoff archive
 
+## Session 53: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat review of PR #16 at effective head `d2479ce`.
+Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: reviewer. Base: `2bc7d56`.
+
+### What this session did, and why
+
+- Read the top handoff entry and the one-PR, repeat-review, review-record, and STE skills.
+- Verified Claude Code authored PR #16 and its correction. Codex remains eligible under T-4 and D-17.
+- Verified the base and head with GitHub PR metadata. The effective head is `d2479ce` because it changes the runbook.
+- Reproduced P2-1 against the old and corrected runbook commands in bash and zsh. The old command returned 0 and left a partial file. The corrected command returned 1 and left no file.
+- Set P2-1 to fixed in `d2479ce` and updated the existing review record.
+- Found P2-2 in the staged-file commit command. With only review and handoff records staged, `grep -v` returns 1 and stops the `&&` chain before the commit.
+- The current comment export confirms Gitar approved `d2479ce` with 0 findings and 0 threads. That pass predates the review metadata push to `60260ef`, so it is stale for the current branch head. GitHub reports no check runs.
+- The handoff held ten entries. Session 43 moved word for word to the archive (D-18).
+
+### State of the build
+
+- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
+- PR #16 is open on `docs/pr-16-context-budget`, with metadata head `60260ef` and base `2bc7d56` per `gh pr view`. The effective implementation head remains `d2479ce`.
+- The interim STE check, diff check, identity check, and P2-1 regression check pass.
+- The P2-2 reproduction fails the documented commit chain for this metadata-only commit. A local safe empty-list handling lets the review records commit without skipping any eligible STE file.
+- The review verdict is Blocked for open P2-2, the stale Gitar review, and absent check runs.
+
+### In flight
+
+PR #16 needs the author to fix P2-2 and push the correction. The author then gets a current Gitar review and required check results. The current review record says Blocked for effective head `d2479ce`.
+
+### Traps and gotchas
+
+- `git fetch` failed under the default sandbox, then succeeded with elevated access.
+- The current Gitar dashboard approval is for `d2479ce`; the later review metadata push makes it stale for the branch head.
+- GitHub reports no check runs for the branch.
+- The documented commit pipeline fails when its path filter finds no STE-eligible staged Markdown files.
+- The regression harness is `/tmp/pr16_export_regression.sh`.
+- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 54.
+
+### Open questions that block progress
+
+No owner question blocks PR #16. Fresh Gitar and CI evidence remains unavailable.
+
+### Next concrete action
+
+The author fixes P2-2 so an empty eligible-file list does not stop the commit command. Then the author pushes the correction, requests a current Gitar review, and checks why no CI jobs report. Codex repeats the review at the new effective head.
+
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
 ## Session 52: 2026-09-16, Claude Code

@@ -2,6 +2,50 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 63: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat review of PR #18 at effective head `d8c31b8`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read the start set and the repeat-review, review-record, commit, and STE instructions.
+- Verified that Claude Code authored PR #18. Codex remains the eligible reviewer under T-4 and D-17.
+- Verified that the current effective head is `d8c31b8`; the later commits only change metadata.
+- Read the P2-4 answer with the regression table. Each says the old target runs without end, and a frame limit alone would leave a false pass.
+- Checked that the Makefile and CI set a frame limit and require the success line.
+- The latest Gitar dashboard approves `d8c31b8`. All nine CI checks pass on the current branch tip.
+- The saved GraphQL query reports zero unresolved threads. A fresh export failed to connect.
+- Set P2-4 to fixed in `d8c31b8`. The current verdict is `Ready for owner merge`.
+- The handoff held ten entries. Session 53 moved to the archive (D-18).
+
+### State of the build
+
+- `main` is `9f27f12`. The PR branch tip before this review commit is `47a7e1639104b69d726c993c4404e4bcbbe552fd`.
+- The effective head is `d8c31b8`. The response, design row, and roadmap row now state the same two-fault behavior.
+- All nine checks pass on the branch tip: changed paths, STE check, build/test/format on three platforms, coverage, and smoke on three platforms.
+- The Gitar dashboard approves the effective head with one closed finding and no open issues.
+- No uncommitted source or project changes exist. The unrelated untracked `deck-test/` directory remains unchanged.
+
+### In flight
+
+The review record and this entry need one metadata commit and push. The verdict applies to effective head `d8c31b8`.
+
+### Traps and gotchas
+
+- A frame limit and a success-line check are both needed for the smoke contract (F-64).
+- The API did not return inline threads in this session. The response file records the last successful query and result.
+- Do not add unrelated paths to the review commit. Keep `deck-test/` untouched.
+- The next ids are D-600, OQ-183, F-65, L-16, G-27, PR-83, M-8, and Session 64.
+
+### Open questions that block progress
+
+None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Commit this review record and handoff entry, push them, then verify the remote head and status.
+
 ## Session 62: 2026-09-16, Claude Code
 
 Author: Claude Code
@@ -407,49 +451,3 @@ None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81,
 ### Next concrete action
 
 The author gets a current Gitar review of the new head and answers each finding. Then the Codex reviewer repeats the review of P2-2.
-
-## Session 53: 2026-09-16, Codex
-
-Author: Codex
-Session: repeat review of PR #16 at effective head `d2479ce`.
-Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: reviewer. Base: `2bc7d56`.
-
-### What this session did, and why
-
-- Read the top handoff entry and the one-PR, repeat-review, review-record, and STE skills.
-- Verified Claude Code authored PR #16 and its correction. Codex remains eligible under T-4 and D-17.
-- Verified the base and head with GitHub PR metadata. The effective head is `d2479ce` because it changes the runbook.
-- Reproduced P2-1 against the old and corrected runbook commands in bash and zsh. The old command returned 0 and left a partial file. The corrected command returned 1 and left no file.
-- Set P2-1 to fixed in `d2479ce` and updated the existing review record.
-- Found P2-2 in the staged-file commit command. With only review and handoff records staged, `grep -v` returns 1 and stops the `&&` chain before the commit.
-- The current comment export confirms Gitar approved `d2479ce` with 0 findings and 0 threads. That pass predates the review metadata push to `60260ef`, so it is stale for the current branch head. GitHub reports no check runs.
-- The handoff held ten entries. Session 43 moved word for word to the archive (D-18).
-
-### State of the build
-
-- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
-- PR #16 is open on `docs/pr-16-context-budget`, with metadata head `60260ef` and base `2bc7d56` per `gh pr view`. The effective implementation head remains `d2479ce`.
-- The interim STE check, diff check, identity check, and P2-1 regression check pass.
-- The P2-2 reproduction fails the documented commit chain for this metadata-only commit. A local safe empty-list handling lets the review records commit without skipping any eligible STE file.
-- The review verdict is Blocked for open P2-2, the stale Gitar review, and absent check runs.
-
-### In flight
-
-PR #16 needs the author to fix P2-2 and push the correction. The author then gets a current Gitar review and required check results. The current review record says Blocked for effective head `d2479ce`.
-
-### Traps and gotchas
-
-- `git fetch` failed under the default sandbox, then succeeded with elevated access.
-- The current Gitar dashboard approval is for `d2479ce`; the later review metadata push makes it stale for the branch head.
-- GitHub reports no check runs for the branch.
-- The documented commit pipeline fails when its path filter finds no STE-eligible staged Markdown files.
-- The regression harness is `/tmp/pr16_export_regression.sh`.
-- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 54.
-
-### Open questions that block progress
-
-No owner question blocks PR #16. Fresh Gitar and CI evidence remains unavailable.
-
-### Next concrete action
-
-The author fixes P2-2 so an empty eligible-file list does not stop the commit command. Then the author pushes the correction, requests a current Gitar review, and checks why no CI jobs report. Codex repeats the review at the new effective head.
