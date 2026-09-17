@@ -20,12 +20,14 @@ Repository: the-thing-below. Branch: `feat/pr-2-ste-checker`. PR: #20. Role: aut
 
 - `main` is `9b84158`. The head before this round was `a155ebc`, and the ten checks passed on it.
 - `make verify` passes on this round: the build, 53 tests, the format check, the STE check with 0 findings, and the smoke session.
-- This round changes code and a test, so the effective head moves.
+- This round changes code and a test, so the effective head moved to `e800f4c`.
 - Session 66 moves to the archive. The handoff keeps the 10 newest entries (D-18, D-607).
+- The nine CI checks pass on `e800f4c`: three build legs, three smoke legs, the changed paths job, the coverage report, and `ste-check`.
+- The Gitar pass approves `e800f4c` with the verdict `Approved`, and it names the fix. The dashboard comment `5718363510` has the edit time `17:11:42Z`, which is after the push time `17:10:29Z`. The one thread is resolved, and no thread is open.
 
 ### In flight
 
-The Gitar pass on the new head, then the Codex review of PR #20.
+The Codex review of PR #20 at the effective head `e800f4c`.
 
 ### Traps and gotchas
 
