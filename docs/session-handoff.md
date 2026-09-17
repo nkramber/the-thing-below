@@ -23,11 +23,15 @@ Repository: the-thing-below. Branch: `feat/pr-1-scaffold`. PR: #18. Role: author
 - `main` is `9f27f12`. The effective head stays `6e0622a`, and the Gitar pass approves it.
 - This round changes `docs/reviews/pr-18-response.md`, `docs/design.md`, `docs/roadmaps/phase-1-foundations.md`, and this file.
 - `docs/design.md` and `docs/roadmaps/` are outside the metadata set, so this commit moves the effective head and needs a new Gitar review.
-- `make verify` passes on the Mac of the owner. The nine CI checks passed on `6e0622a`.
+- `make verify` passes on the Mac of the owner. The nine CI checks passed on `6e0622a` and on `d8c31b8`.
+- The new effective head is `d8c31b8`. The Gitar pass of that head gives `Approved`, with 1 comment, 1 with merit, 0 open issues, and 0 unresolved threads. Commit `0c402dd` answered that comment.
+- That review is current. The head matches, and the dashboard edit time of 03:04:49Z is later than the push time of 03:00:57Z and later than the reply of 03:04:30Z.
 
 ### In flight
 
-The repeat Codex review of the new effective head (T-4, D-17), after the Gitar pass of that head.
+The repeat Codex review of effective head `d8c31b8` (T-4, D-17). The Gitar pass of that head is complete and approves it.
+
+The commit that holds this entry changes `docs/session-handoff.md` alone, so it is a metadata commit and it does not move the effective head.
 
 ### Traps and gotchas
 
@@ -35,6 +39,7 @@ The repeat Codex review of the new effective head (T-4, D-17), after the Gitar p
 - Two faults in one command can compose. Name each one, and say which fault a partial correction leaves.
 - A wrong claim in a response file can also sit in the design register. Grep for the sentence, and not for the id.
 - The metadata set is `docs/reviews/`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md`. A round that also changes `docs/design.md` moves the effective head.
+- Gitar replaced its dashboard comment in each round of this PR. The id moved from `5706916715` to `5707572860`, and then to `5707837154`. Read the newest id in each check.
 - The next ids are D-600, OQ-183, F-65, L-16, G-27, PR-83, M-8, and Session 63.
 
 ### Open questions that block progress
@@ -43,7 +48,7 @@ None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 
 ### Next concrete action
 
-Push this round, request a Gitar review of the new head, then hand PR #18 back to Codex.
+Hand PR #18 back to Codex for the repeat review of `d8c31b8`. The session stays bound to PR #18 and answers each finding (D-582).
 
 ## Session 61: 2026-09-16, Codex
 
