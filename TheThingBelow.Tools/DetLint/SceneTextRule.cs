@@ -17,8 +17,10 @@ public static class SceneTextRule
     private const string Reason =
         "A scene file holds layout alone. Draw each player string from the string table (D-499, G-6, G-7).";
 
+    // Godot writes a quote inside a string value as `\"`, so the value part reads an escaped
+    // character as one unit. A pattern that stops at the first quote misses such a value.
     private static readonly Regex Assignment = new(
-        "^\\s*(?<name>[A-Za-z0-9_/]+)\\s*=\\s*\"(?<value>[^\"]*)\"\\s*$",
+        "^\\s*(?<name>[A-Za-z0-9_/]+)\\s*=\\s*\"(?<value>(?:[^\"\\\\]|\\\\.)*)\"\\s*$",
         RegexOptions.CultureInvariant,
         TimeSpan.FromSeconds(1));
 

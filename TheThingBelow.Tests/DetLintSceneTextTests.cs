@@ -27,6 +27,23 @@ public sealed class DetLintSceneTextTests
     }
 
     [Fact]
+    public void ATextValueWithAnEscapedQuoteFails()
+    {
+        // Godot writes a quote of a string value as `\"`, and the rule reads the whole value
+        // to its closing quote (P2-1 of `docs/reviews/pr-23.md`).
+        IReadOnlyList<LintFinding> findings = SceneTextRule.Check(
+            "TheThingBelow.Game/Fixture.tscn",
+            [
+                "[node name=\"Title\" type=\"Label\"]",
+                "text = \"Say \\\"hello\\\"\"",
+            ]);
+
+        LintFinding finding = Assert.Single(findings);
+        Assert.Equal("DL 9", finding.Rule);
+        Assert.Equal(2, finding.Line);
+    }
+
+    [Fact]
     public void ALayoutValueInASceneFilePasses()
     {
         IReadOnlyList<LintFinding> findings = SceneTextRule.Check(

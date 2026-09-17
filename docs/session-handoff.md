@@ -2,6 +2,48 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 91: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the review of PR #23, in the same session as Session 89 (D-582). Repository: the-thing-below. Branch: `feat/pr-46-det-lint`. PR: #23. Role: author. Base: `0fbecab`.
+
+### What this session did, and why
+
+- The review of `f5eba68` gives the verdict `Changes required` with one finding, P2-1.
+- The finding: DL 9 read the value of a scene property as `[^"]*`, which stops at the first quote. Godot writes a quote inside a string value as `\"`, so a line such as `text = "Say \"hello\""` matched no part of the pattern, and the rule read no property.
+- The claim reproduces. The probe gave `0 finding(s)` and an exit code of 0 on the old code.
+- The finding has full merit. A player string with a quote in a scene file is a supported case of D-499 and G-7.
+- The correction: the value part of the pattern is now `(?:[^"\\]|\\.)*`, which reads an escaped character as one unit. One line of `TheThingBelow.Tools/DetLint/SceneTextRule.cs` changes.
+- One regression test, `ATextValueWithAnEscapedQuoteFails`. It fails on the old code with 186 tests and passes on the new code with 187.
+- The probe of the reviewer now gives one DL 9 finding, and the command exits 1.
+- `docs/reviews/pr-23-response.md` holds the disposition and the evidence.
+
+### The state of the build
+
+- `main` is `0fbecab`. The head before this round is `44f99a8`, and the PR is #23.
+- `make verify` passes: the build with 0 warnings, 187 tests, the format check, `det-lint` with 0 findings, `ste-check` with 0 findings, and the smoke session.
+- On `44f99a8`, every CI check passes except `review-gate`. RG 4 fails there, because the record gives the verdict `Changes required`.
+
+### What is in flight
+
+The Gitar pass of the correction, and then the repeat review of Codex. The new effective head is the commit of this round.
+
+### Traps and gotchas
+
+- The correction moves the effective head, so the review of `f5eba68` no longer covers the head. The repeat review reads the new head (D-603).
+- RG 4 stays red until the record of the repeat review gives `Ready for owner merge`.
+- A scene file has no comment syntax, so the pattern of DL 9 reads a whole line and needs no comment rule.
+- `deck-test/` stays untracked, as it was before this session.
+- The next ids are D-616, OQ-183, F-66, L-16, G-27, PR-85, M-8, and Session 92.
+
+### The questions that block progress
+
+None for this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### The next concrete action
+
+Run the Gitar pass on the new head of PR #23, answer each finding, and then ask Codex for the repeat review.
+
 ## Session 90: 2026-09-17, Codex
 
 Author: Codex
@@ -368,43 +410,3 @@ None for PR #21. OQ-3 comes right after the merge of this PR. OQ-179 blocks PR-5
 ### The next concrete action
 
 Get a Gitar pass of the new head, then get the repeat review of the other provider.
-
-## Session 81: 2026-09-17, Codex
-
-Author: Codex
-Session: repeat review PR #21 at effective head `3a75767`. Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. Role: reviewer. Base: `04953e4`.
-
-### What this session did, and why
-
-- Re-reviewed the three findings from Session 79 against the correction commit `3a75767`.
-- Set P1-1, P1-2, and P2-1 to fixed in `3a75767` after their regression cases passed.
-- Found P1-3: RG 4 accepts the first approved verdict and ignores a conflicting later verdict line.
-- Corrected four stale facts in the PR description: the test count, the solution count, the verification count, and the session handoff row.
-- Verified the author provider from Sessions 78 and 80. Codex remains the eligible reviewer under T-4 and D-17.
-
-### The state of the build
-
-- `main` and the merge base are `04953e4`. The effective code head is `3a75767`, and the remote tip before this review publication is `0a811b1`.
-- `make verify` passes with 119 tests, clean format, 0 STE findings, and a successful smoke session.
-- All nine CI checks pass on metadata tip `0a811b1`.
-- The repeat review record and this handoff were published at `c9b17ab`.
-- The Gitar pass approves effective head `3a75767` with no finding, and no inline review comment exists.
-- The unrelated untracked `deck-test/` stays untouched.
-
-### What is in flight
-
-P1-3 remains open. The PR needs another correction and a third review round.
-
-### Traps and gotchas
-
-- RG 4 reads the first bold verdict line. It does not check for a second conflicting verdict line or for conflicting text after the approved line.
-- PR #21 cannot run its live `review-gate` check because GitHub starts the workflow from `main` alone (F-37, D-500).
-- The current Gitar approval covers effective head `3a75767`, even though the remote tip is a metadata commit.
-
-### The questions that block progress
-
-None for PR #21. OQ-3 remains for the owner after the first live check run.
-
-### The next concrete action
-
-Correct P1-3, then have Codex review the new effective head.
