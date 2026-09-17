@@ -172,6 +172,21 @@ The clause does not excuse a failed existing check.
 Do not repeat broad suites without a new change, failure, or unresolved risk.
 Do not weaken a test or threshold to obtain a pass.
 Absent required evidence blocks approval. Optional evidence gaps belong in the limitations.
+The section "A review with no network" gives the one exception (D-602).
+
+## A review with no network
+
+A review session can have no GitHub access, or a read-only `.git` directory. That session can still give a verdict (D-602). Each condition below must hold:
+
+- The local branch holds the effective head of the review, and `git log` shows it.
+- The review reads the whole diff from the merge base to the effective head.
+- Each local check runs: the build, the tests, the format check, and the STE check. The record names each check that the machine refuses.
+- The record marks each piece of evidence that comes from the author. The CI result and the comment export of the response file are such evidence.
+- The record lists each item that the session cannot verify under `## Open questions and accepted risks`.
+
+With each condition, the verdict can be `Ready for owner merge`. The record says which evidence is live, and which evidence comes from the author. Give `Blocked` when the local branch does not hold the effective head, or when the diff and the records of the PR disagree.
+
+A session with no network cannot commit or push. The author of the PR then commits the review record and the handoff entry of that session, with no change to their text.
 
 ## Precise findings
 
@@ -218,7 +233,7 @@ Quote both statements when owner decisions conflict. File the question in `docs/
 
 | Verdict | Required condition |
 |---|---|
-| Blocked | Provider independence, the review target, a necessary owner decision, or required evidence remains unresolved. Record any verified defects too. |
+| Blocked | Provider independence, the review target, a necessary owner decision, or required evidence remains unresolved. Record any verified defects too. A session with no network follows D-602. |
 | Changes required | The eligible review found in-scope defects or contract violations that need correction. List the required changes. |
 | Ready for owner merge | The provider gate passes, the complete scope has review coverage, all required checks pass, and no blocking finding remains. |
 

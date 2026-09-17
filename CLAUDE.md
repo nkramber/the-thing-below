@@ -70,6 +70,12 @@ Commit the entry of a round before the push of that round. While the PR waits fo
 - The questions that block progress.
 - The next concrete action.
 
+### The transitional prompt
+
+After the hand-over point, the owner says `Merged PR #x`. The session then writes one transitional prompt for the next clean session, and it does no other work (D-601). The session writes the prompt for its own PR alone.
+
+The prompt is one fenced block that the owner pastes into the next session. Step 6 of the `one-pr-one-session` skill holds the template and the fields.
+
 ## Text rules
 
 - All project skills live in `.claude/skills/` (D-21): `ste-writing`, `design-doc-style`, `pr-review`, `gitar-review`, `one-pr-one-session`, `csharp-conventions`, and `game-text-style`. Create every new project skill there.

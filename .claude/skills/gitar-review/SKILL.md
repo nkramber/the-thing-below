@@ -15,8 +15,10 @@ Each repo that uses Gitar keeps a copy of this file. A rule of the repo wins ove
 - **Dashboard comment**: the Gitar comment on the pull request that holds the collapsed `Code Review` block. Gitar edits this comment for each review. Gitar can also delete it and post a new one with a new id.
 - **Pause note**: the note at the top of the dashboard comment that starts "Automatic reviews are paused".
 - **Manual review**: the review that a `Gitar review` comment starts.
-- **Current review**: a review of the head.
-- **Stale review**: a review of a commit older than the head.
+- **Effective head**: the newest commit that changes a path outside the metadata set (D-603).
+- **Metadata set**: `docs/reviews/`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md`.
+- **Current review**: a review of the effective head.
+- **Stale review**: a review of a commit older than the effective head.
 - **Push wait**: the minimum wait of three minutes after a push, before a `Gitar review` comment (D-160).
 
 ## Why a review goes stale
@@ -73,7 +75,7 @@ On 2026-09-16, the Gitar check on the heads of #30, #31, and #32 started 8 to 31
 
 A review is current only when each of these conditions is true:
 
-- The head from command B is the head that you recorded in step 3.
+- The head from command B is the head of step 3. A later commit in the metadata set also passes this condition (D-603).
 - The dashboard comment has an edit time later than the push time that you recorded in step 3.
 - After a `Gitar review` comment, Gitar replied "On it", and the dashboard comment has an edit time later than that reply.
 - You read the newest dashboard comment. Gitar can delete the dashboard comment and post a new one with a new id.
@@ -81,6 +83,8 @@ A review is current only when each of these conditions is true:
 The summary is not a condition. A review that adds no finding can keep the summary of the older review, word for word. On 2026-09-16, the review of a correction push did this, and its three times proved it current. Do not ask for a review again only because the summary did not change.
 
 When one condition is false, the review is stale. When you cannot check one condition, treat the review as stale. A request for a manual review costs little. A merge on a stale review costs more.
+
+A metadata commit does not make a pass stale (D-603). The record of a Gitar pass goes in the handoff, which is in the metadata set. A rule that reads the branch tip alone makes each pass stale at the moment of its record, and the gate then never passes. Prove the effective head with `git diff --stat <reviewed head>..<tip>`, and list each path of the result in the record.
 
 ## Rules for each reply
 

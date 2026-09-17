@@ -33,11 +33,11 @@ Stop with this result, and do no other work, when one of the conditions below ho
 `Blocked: start a new clean session for this PR.`
 
 - The conversation holds substantive work on another PR or another repository. Substantive work is a change, a commit, a push, a review record, or a PR comment. A file read alone is not.
-- The conversation holds a PR that the owner merged or closed.
+- The conversation holds a PR that the owner merged or closed. The transitional prompt of step 6, for the bound PR of the session, is the one exception (D-601).
 - The request asks for a second PR or the next PR.
 - The session is a fork, a subagent, a context compaction, or a summary of a session that worked on another PR.
 
-After the hand-over point, a request for the next PR gets this result too.
+After the hand-over point, a request for the next PR gets this result too. The transitional prompt of step 6 is not work on the next PR. Write that prompt for the bound PR of the session, and for the merge message of that PR alone. A merge message for another PR gets the stop result above.
 
 A request for a second concern in the bound PR breaks G-8. Push back, and ask the owner (D-24). Never add the concern without an answer.
 
@@ -132,7 +132,33 @@ At the hand-over point, each role writes this result and stops:
 
 `This session is bound to PR #N and is complete. End this session. Start a new clean session before beginning another PR.`
 
-Do not offer to start the next PR.
+Do not offer to start the next PR. After the owner merges the PR, write the transitional prompt of step 6.
+
+## 6. The transitional prompt
+
+After the hand-over point, the owner merges the PR and says `Merged PR #x`. The session then writes one transitional prompt, and it does no other work (D-601). Write the prompt for the PR of the session alone. A merge message for another PR gets the blocked result of step 1.
+
+Get the merge commit from git first:
+
+```
+git fetch origin && git log --oneline -1 origin/main
+```
+
+Read `docs/roadmaps/readme.md` and the phase file, and name the next PR. The pick is provisional, and the owner can name a different PR. Read `docs/questions.md`, and name each open question of that PR. The next session gets an answer for each one before it writes a change (D-19).
+
+The prompt is one fenced block, and the owner pastes it into the next clean session:
+
+```
+Start PR-<n>: <the one concern>
+
+PR #<x> merged to `main` as <sha>. Read the top handoff entry first.
+Repository: the-thing-below. Branch: `<prefix>/pr-<n>-<slug>`. Base: `<sha>`. Role: author.
+Load the `one-pr-one-session` skill and the skills of the task before any change.
+Open questions for this PR: <each OQ-# with its subject, or `none`>.
+First action: <the first concrete action>.
+```
+
+The session ends with this prompt. It makes no branch and no change for the next PR (D-576).
 
 ## Enforcement
 
