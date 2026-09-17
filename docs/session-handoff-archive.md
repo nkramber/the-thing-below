@@ -1,5 +1,44 @@
 # Session handoff archive
 
+## Session 71: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the finding P2-1 of PR #19, in the same session as Sessions 64, 66, 68, and 69 (D-582).
+Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19. Role: author. Base: `ee4305a`.
+
+### What this session did, and why
+
+- The review round of Session 70 gives the verdict `Changes required` for the effective head `38aa19f`, with one finding. That session had network access, and it pushed its own record.
+- P2-1 has full merit. Step 1 of the `one-pr-one-session` skill stops a session when the conversation holds a merged PR. The round of D-601 put the exception in a later paragraph, and the word "this rule" did not name the condition. A session that reads the list stops before it writes the prompt of D-601.
+- The correction puts the exception in the condition itself, and it names the bound PR. The paragraph now says to write the prompt for the bound PR and its merge message alone.
+- `docs/reviews/pr-19-response.md` holds the answer, the correction, and the regression check. It also notes two lines of the record that the verification of the same record refutes.
+- The correction changes a skill, so the effective head moves again. The PR needs a new Gitar pass and a repeat review.
+
+### State of the build
+
+- `main` is `ee4305a`. The effective head before this round was `38aa19f`, and the ten checks passed on it.
+- `make verify` passes on the Mac of the owner for this round: the build, 8 tests, the format check, the STE check, and the smoke session.
+- The ten checks pass on `6f82d26`, the Gitar check included. The Gitar pass approves that head with no finding, and the PR has zero review threads.
+- The freshness check passes: the reply "Running the review now" came at `13:02:11Z`, and the new dashboard comment `5714796386` has the edit time `13:02:51Z`.
+
+### In flight
+
+The repeat review of PR #19 at the effective head `6f82d26`, which gives the verdict.
+
+### Traps and gotchas
+
+- An exception that sits under a list, and not in the condition, does not change the condition. Put the exception in the line that stops the work.
+- Automatic Gitar reviews are paused on this trial. A new head needs a `Gitar review` comment after the push wait of three minutes.
+- The review session of this round reached GitHub, and the earlier two did not. The environment of that harness is not stable, and D-602 covers the case with no network.
+- The next ids are D-603, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 72.
+
+### Open questions that block progress
+
+None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Get the repeat review of PR #19 from Codex at the effective head `6f82d26`.
 ## Session 70: 2026-09-17, Codex
 
 Author: Codex
