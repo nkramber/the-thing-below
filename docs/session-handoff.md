@@ -41,7 +41,7 @@ No owner question blocks PR #19. The stale Gitar pass blocks approval.
 
 ### Next concrete action
 
-Publish this review, then get a fresh Gitar pass on the branch tip and repeat the review.
+Get a fresh Gitar pass on the branch tip, then repeat the review.
 
 ## Session 71: 2026-09-17, Claude Code
 
