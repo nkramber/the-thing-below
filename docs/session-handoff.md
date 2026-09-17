@@ -20,11 +20,13 @@ Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19. Ro
 
 - `main` is `ee4305a`. The effective head before this round was `6f82d26`, and the ten checks passed on it.
 - `make verify` passes on the Mac of the owner for this round.
-- This round changes `docs/decisions.md` and a skill, so the effective head moves, and the new head needs a Gitar pass.
+- This round changes `docs/decisions.md` and a skill, so the effective head moved to `7732b1b`.
+- The ten checks pass on `7732b1b`, the Gitar check included. The Gitar pass approves that head with no finding, and the PR has zero review threads.
+- The freshness check passes: the reply "On it" came at `14:44:17Z`, and the dashboard comment `5716314911` has the edit time `14:45:06Z`. Under D-603, this record does not make the pass stale.
 
 ### In flight
 
-The Gitar pass of the new head, then the repeat review that gives the verdict.
+The repeat review of PR #19 at the effective head `7732b1b`, which gives the verdict.
 
 ### Traps and gotchas
 
@@ -39,7 +41,7 @@ None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 
 ### Next concrete action
 
-Get the Gitar pass of the new head, then get the repeat review of PR #19.
+Get the repeat review of PR #19 from Codex at the effective head `7732b1b`, under D-602 and D-603.
 
 ## Session 72: 2026-09-17, Codex
 
