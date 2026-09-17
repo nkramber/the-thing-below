@@ -2,6 +2,49 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 80: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the review of PR #21, in the same session as Session 78 (D-582).
+Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. PR: #21. Role: author. Base: `04953e4`.
+
+### What this session did, and why
+
+- The review of `docs/reviews/pr-21.md` gives `Changes required` for head `40ea275`, with three findings. Each one reproduces, and each one has full merit.
+- P1-1: RG 4 read the whole Verdict section, so `**Not Ready for owner merge.**` passed. The rule now reads the verdict line, which starts with the name in bold.
+- P1-2: RG 5 read every line of the record, so a head field of another section passed a record with no head field in its Identity list. The rule now reads the `## Identity` list alone.
+- P2-1: RG 8 held `a separate pr` and not `a separate pull request`. The rule now reads `pull request` as `pr`, which covers every phrase of the set at one time.
+- Added seven regression tests. Each one fails on the old code, and the round proved that with `git stash` (T-3).
+- The `pr-review` reference file and the `one-pr-one-session` skill changed with the command, because the two hold the form that the command reads (D-579).
+- `docs/reviews/pr-21-response.md` holds the disposition and the evidence of each finding.
+- Put the title back at the top of `docs/session-handoff-archive.md`. The commit `1bdaa89` moved an entry above it, and the title left the file.
+
+### The state of the build
+
+- `main` is `04953e4`. The head before this round was `40ea275`, and the remote tip was `755cd67`, which holds the review record.
+- `make verify` passes: the build, 119 tests, the format check, the STE check with 0 findings, and the smoke session.
+- This round changes code, tests, and two skill files, so the effective head moves to the commit of this round.
+- Session 70 moves to the archive. The handoff keeps the 10 newest entries (D-18, D-607).
+
+### What is in flight
+
+The Gitar pass of the new head, then the repeat review of the other provider.
+
+### Traps and gotchas
+
+- A review record must now hold the verdict name in bold on its own line, and the head field in the `## Identity` list. An older record in another form fails RG 4 or RG 5.
+- The proof that a regression test fails on the old code needs the old source of the tool alone. The tests build against both, because they use the public members of the rules.
+- The first test of P1-2 used a stale head in the Identity list, and the old rule failed that record for another reason. The test now uses an Identity list with no head field, which is the true trigger.
+- The next ids are D-612, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 81.
+
+### The questions that block progress
+
+None for PR #21. OQ-3 comes right after the merge of this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### The next concrete action
+
+Answer the Gitar pass of the new head, then get the repeat review of the other provider.
+
 ## Session 79: 2026-09-17, Codex
 
 Author: Codex
@@ -369,45 +412,3 @@ None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 ### Next concrete action
 
 Get the repeat review of PR #19 from Codex at the effective head `6f82d26`.
-
-## Session 70: 2026-09-17, Codex
-
-Author: Codex
-Session: repeat review of PR #19 at effective head `38aa19f`, on branch `docs/pr-83-skip-set-decision`. Role: reviewer. Base: `ee4305a`.
-
-### What this session did, and why
-
-- Read the PR review instructions, earlier review record, and response file.
-- Verified that Session 64 names Claude Code as the author. Codex is the eligible reviewer (T-4, D-17).
-- Reviewed all 11 changed paths, including the new D-602 review procedure.
-- Found P2-1: the merged-PR stop rule conflicts with the transitional prompt that D-601 requires.
-- Ran `make verify`. The build, 8 tests, format, STE, and smoke checks passed.
-- Verified that all 9 live CI checks pass on PR head `cd5ee36`.
-- The Gitar dashboard approves effective head `38aa19f`, but no Gitar run exists on current PR head `cd5ee36`. Its pass is stale.
-- Updated `docs/reviews/pr-19.md` with the finding and the verdict `Changes required` for effective head `38aa19f`.
-
-### State of the build
-
-- `main` is `ee4305a`. The effective head is `38aa19f`, and the remote PR tip is `cd5ee36`.
-- `make verify` passes. All 9 live CI checks pass on `cd5ee36`.
-- The latest Gitar approval is for `38aa19f`, so the automated review is stale for the branch tip.
-- The review and handoff commit `cd5ee36` changes metadata only, so it does not move effective head `38aa19f`. The unrelated untracked `deck-test/` remains untouched.
-
-### In flight
-
-P2-1 needs a correction. A current Gitar review also needs to cover the branch tip before merge.
-
-### Traps and gotchas
-
-- Step 1 of the one-PR skill blocks work when the bound PR is merged. Step 6 requires a prompt after that merge (D-601).
-- The PR tip can move through a metadata commit while its effective head stays `38aa19f`.
-- D-602 does not apply because this review session has network and writable Git metadata.
-- The next ids are D-603, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 71.
-
-### Open questions that block progress
-
-No owner question blocks PR #19. P2-1 and the stale Gitar review block the merge.
-
-### Next concrete action
-
-Correct P2-1, push the correction, complete the Gitar pass, then repeat the Codex review (D-582).

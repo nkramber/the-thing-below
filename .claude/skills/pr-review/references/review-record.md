@@ -14,8 +14,8 @@ The `review-gate` job reads this file once PR-3 creates it (D-15). Three parts o
 | Part | Exact form | Rule |
 |---|---|---|
 | The file name | `docs/reviews/pr-<number>.md` | The number is the GitHub PR number, not the roadmap id. |
-| The head field | `- Head: ` and the hash in backticks, in the Identity list | The hash is the effective head. A short hash is permitted. |
-| The verdict | One of the three verdict names, in the `## Verdict` section | Write the name exactly. Do not reword it. |
+| The head field | `- Head: ` and the hash in backticks, in the `## Identity` list | The hash is the effective head. A short hash is permitted. The rule reads that list alone. |
+| The verdict | The verdict line of the `## Verdict` section, such as `**Ready for owner merge.**` | The line starts with one of the three names in bold. Write the name exactly, and add no word to it. |
 
 The effective head is the newest commit that changes a path outside the metadata set.
 The metadata set holds four paths of this pull request (D-610):

@@ -86,7 +86,7 @@ The `docs/session-handoff.md` line is always `Changed`. Before the review, the a
 
 Correct the PR when a line or a record holds one of these:
 
-- A deferral of a document or a record of this PR, such as "later PR", "after the merge", "TBD", or "a docs PR". The `review-gate` command reads the full set of phrases, and `DocumentRules.DeferralPhrases` holds it (D-579).
+- A deferral of a document or a record of this PR, such as "later PR", "after the merge", "TBD", or "a docs PR". The `review-gate` command reads the full set of phrases, and `DocumentRules.DeferralPhrases` holds it (D-579). The command reads `pull request` as `pr`, so the spelled-out form of a phrase fails too.
 - A general claim, such as "no documentation impact", with no path or category.
 - A handoff line in a form other than `Changed`.
 - A handoff entry that describes work that the PR does not hold.

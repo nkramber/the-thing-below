@@ -206,11 +206,14 @@ public static class DocumentRules
 
     /// <summary>Reads one Documents line and gives the words of a deferral (D-577, D-578).</summary>
     /// <param name="content">The text after the colon of one row.</param>
-    /// <returns>The first deferral phrase of the line, or null when the line holds none.</returns>
+    /// <returns>
+    /// The first deferral phrase of the line, or null when the line holds none. The rule reads
+    /// `pull request` as `pr`, so the spelled-out form of each phrase fails too.
+    /// </returns>
     public static string? DeferralPhrase(string content)
     {
         ArgumentNullException.ThrowIfNull(content);
-        string text = content.ToLowerInvariant();
+        string text = content.ToLowerInvariant().Replace("pull request", "pr", StringComparison.Ordinal);
         foreach (string phrase in DeferralPhrases)
         {
             if (text.Contains(phrase, StringComparison.Ordinal))

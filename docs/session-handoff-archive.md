@@ -1,3 +1,47 @@
+# Session handoff archive
+
+## Session 70: 2026-09-17, Codex
+
+Author: Codex
+Session: repeat review of PR #19 at effective head `38aa19f`, on branch `docs/pr-83-skip-set-decision`. Role: reviewer. Base: `ee4305a`.
+
+### What this session did, and why
+
+- Read the PR review instructions, earlier review record, and response file.
+- Verified that Session 64 names Claude Code as the author. Codex is the eligible reviewer (T-4, D-17).
+- Reviewed all 11 changed paths, including the new D-602 review procedure.
+- Found P2-1: the merged-PR stop rule conflicts with the transitional prompt that D-601 requires.
+- Ran `make verify`. The build, 8 tests, format, STE, and smoke checks passed.
+- Verified that all 9 live CI checks pass on PR head `cd5ee36`.
+- The Gitar dashboard approves effective head `38aa19f`, but no Gitar run exists on current PR head `cd5ee36`. Its pass is stale.
+- Updated `docs/reviews/pr-19.md` with the finding and the verdict `Changes required` for effective head `38aa19f`.
+
+### State of the build
+
+- `main` is `ee4305a`. The effective head is `38aa19f`, and the remote PR tip is `cd5ee36`.
+- `make verify` passes. All 9 live CI checks pass on `cd5ee36`.
+- The latest Gitar approval is for `38aa19f`, so the automated review is stale for the branch tip.
+- The review and handoff commit `cd5ee36` changes metadata only, so it does not move effective head `38aa19f`. The unrelated untracked `deck-test/` remains untouched.
+
+### In flight
+
+P2-1 needs a correction. A current Gitar review also needs to cover the branch tip before merge.
+
+### Traps and gotchas
+
+- Step 1 of the one-PR skill blocks work when the bound PR is merged. Step 6 requires a prompt after that merge (D-601).
+- The PR tip can move through a metadata commit while its effective head stays `38aa19f`.
+- D-602 does not apply because this review session has network and writable Git metadata.
+- The next ids are D-603, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 71.
+
+### Open questions that block progress
+
+No owner question blocks PR #19. P2-1 and the stale Gitar review block the merge.
+
+### Next concrete action
+
+Correct P2-1, push the correction, complete the Gitar pass, then repeat the Codex review (D-582).
+
 ## Session 69: 2026-09-17, Claude Code
 
 Author: Claude Code

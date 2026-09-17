@@ -151,14 +151,77 @@ public sealed class ReviewGateRecordRuleTests
     }
 
     [Fact]
-    public void ARecordWithTwoVerdictNamesFails()
+    public void AVerdictLineOfBlockedFailsWhenTheProseNamesTheApprovedVerdict()
     {
         string text = "## Verdict\n\n**Blocked.** The review needs the head. Ready for owner merge is not the result.\n";
 
         GateCheck check = ReviewRecordRules.CheckVerdict("docs/reviews/pr-21.md", text);
 
         Assert.Equal(GateResult.Fault, check.Result);
-        Assert.Contains("names 2 verdicts", check.Detail, StringComparison.Ordinal);
+        Assert.Contains("is `Blocked`", check.Detail, StringComparison.Ordinal);
+    }
+
+    // The regression test of P1-1 of `docs/reviews/pr-21.md`. The rule read the section as one
+    // text, so a record that refuses the merge held the approved verdict as a part of a word group.
+    [Fact]
+    public void ANegatedApprovedVerdictFails()
+    {
+        string text = "## Verdict\n\n**Not Ready for owner merge.** This verdict applies to head `1111111`.\n";
+
+        GateCheck check = ReviewRecordRules.CheckVerdict("docs/reviews/pr-21.md", text);
+
+        Assert.Equal(GateResult.Fault, check.Result);
+        Assert.Contains("Not Ready for owner merge", check.Detail, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AVerdictSectionWithNoBoldVerdictLineFails()
+    {
+        string text = "## Verdict\n\nReady for owner merge. This verdict applies to head `1111111`.\n";
+
+        GateCheck check = ReviewRecordRules.CheckVerdict("docs/reviews/pr-21.md", text);
+
+        Assert.Equal(GateResult.Fault, check.Result);
+        Assert.Contains("holds no verdict line", check.Detail, StringComparison.Ordinal);
+    }
+
+    // The regression test of P1-2 of `docs/reviews/pr-21.md`. The rule read every line of the
+    // record, so a head field of another section passed a stale Identity list.
+    [Fact]
+    public void AHeadFieldOutsideTheIdentityListFails()
+    {
+        // The Identity list holds no head field, and another section names the effective head.
+        string text = string.Join(
+            '\n',
+            "## Identity",
+            string.Empty,
+            "- PR: 21",
+            "- Target: `main`",
+            string.Empty,
+            "## Verification",
+            string.Empty,
+            $"- Head: `{Head}` is the head of origin/feat/pr-3-review-gate.",
+            string.Empty);
+
+        GateCheck check = ReviewRecordRules.CheckHead(
+            "docs/reviews/pr-21.md",
+            text,
+            new CommitFacts(Head, ["docs/design.md"]));
+
+        Assert.Equal(GateResult.Fault, check.Result);
+        Assert.Contains("holds no head field", check.Detail, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ARecordWithNoIdentitySectionFails()
+    {
+        GateCheck check = ReviewRecordRules.CheckHead(
+            "docs/reviews/pr-21.md",
+            $"# PR-21 review\n\n- Head: `{Head}`\n",
+            new CommitFacts(Head, ["docs/design.md"]));
+
+        Assert.Equal(GateResult.Fault, check.Result);
+        Assert.Contains("no `## Identity` section", check.Detail, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -274,6 +337,10 @@ public sealed class ReviewGateDocumentRuleTests
     [InlineData("No change needed because `docs/design.md` gets its section after the merge.")]
     [InlineData("Changed: `docs/design.md`. The roadmap entry is TBD.")]
     [InlineData("No change needed because a docs PR records `docs/design.md`.")]
+    // The regression test of P2-1 of `docs/reviews/pr-21.md`. The rule read `pr` alone, so each
+    // spelled-out form of a phrase passed.
+    [InlineData("No change needed because a separate pull request holds `docs/design.md`.")]
+    [InlineData("Changed: `docs/design.md`. A later pull request adds the section.")]
     public void EachDeferralOfADocumentOfThisPullRequestFails(string content)
     {
         Assert.NotNull(DocumentRules.DeferralPhrase(content));

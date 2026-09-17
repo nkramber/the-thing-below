@@ -25,6 +25,9 @@ public static class ReviewRecordRules
     /// <summary>The head field of the Identity list, with the hash in backticks.</summary>
     private static readonly Regex HeadField = new Regex(@"^\s*-\s*Head:\s*`([0-9a-fA-F]+)`", Options);
 
+    /// <summary>The verdict line, which starts with the verdict name in bold.</summary>
+    private static readonly Regex VerdictLine = new Regex(@"^\*\*([^*]+?)\.?\*\*", Options);
+
     /// <summary>The shortest hash that names one commit without doubt.</summary>
     private const int ShortestHash = 7;
 
@@ -68,7 +71,7 @@ public static class ReviewRecordRules
         ];
     }
 
-    /// <summary>RG 4: the Verdict section names `Ready for owner merge` and nothing else.</summary>
+    /// <summary>RG 4: the verdict line of the Verdict section is the approved verdict.</summary>
     /// <param name="path">The path of the record, for the message.</param>
     /// <param name="text">The text of the record.</param>
     /// <returns>The result of the rule.</returns>
@@ -81,38 +84,42 @@ public static class ReviewRecordRules
             return new GateCheck("RG 4", GateResult.Fault, $"`{path}` holds no `## Verdict` section (D-17).");
         }
 
-        string body = string.Join('\n', section);
-        List<string> found = [];
-        foreach (string name in VerdictNames)
+        // The rule reads the bold name of the verdict line, and never the text of the section.
+        // A search for the name in the whole section passes a record that refuses the merge,
+        // such as one that starts with `**Not Ready for owner merge.**` (T-2).
+        string? verdict = null;
+        foreach (string line in section)
         {
-            if (body.Contains(name, StringComparison.Ordinal))
+            Match match = VerdictLine.Match(line.Trim());
+            if (match.Success)
             {
-                found.Add(name);
+                verdict = match.Groups[1].Value.Trim();
+                break;
             }
         }
 
-        if (found.Count == 0)
+        if (verdict is null)
         {
             return new GateCheck(
                 "RG 4",
                 GateResult.Fault,
-                $"the `## Verdict` section of `{path}` names no verdict of the `pr-review` skill.");
+                $"the `## Verdict` section of `{path}` holds no verdict line. That line starts with the verdict name in bold.");
         }
 
-        if (found.Count > 1)
+        if (!IsVerdictName(verdict))
         {
             return new GateCheck(
                 "RG 4",
                 GateResult.Fault,
-                $"the `## Verdict` section of `{path}` names {found.Count} verdicts: {string.Join(", ", found)}.");
+                $"the verdict line of `{path}` gives `{verdict}`, which is no verdict name of the `pr-review` skill.");
         }
 
-        if (!string.Equals(found[0], ApprovedVerdict, StringComparison.Ordinal))
+        if (!string.Equals(verdict, ApprovedVerdict, StringComparison.Ordinal))
         {
             return new GateCheck(
                 "RG 4",
                 GateResult.Fault,
-                $"the verdict of `{path}` is `{found[0]}`, and the gate needs `{ApprovedVerdict}` (T-4).");
+                $"the verdict of `{path}` is `{verdict}`, and the gate needs `{ApprovedVerdict}` (T-4).");
         }
 
         return new GateCheck("RG 4", GateResult.Pass, $"the verdict of `{path}` is `{ApprovedVerdict}`.");
@@ -134,8 +141,16 @@ public static class ReviewRecordRules
                 "every commit of the PR changes the metadata set alone, so the PR has no effective head (D-578, D-610).");
         }
 
+        // The rule reads the Identity list alone. A scan of the whole record accepts a head
+        // field of another section, and a stale Identity list then passes (T-2).
+        IReadOnlyList<string>? identity = MarkdownSection.ReadLines(text, "## Identity");
+        if (identity is null)
+        {
+            return new GateCheck("RG 5", GateResult.Fault, $"`{path}` holds no `## Identity` section (D-17).");
+        }
+
         string? recorded = null;
-        foreach (string line in text.Split('\n'))
+        foreach (string line in identity)
         {
             Match match = HeadField.Match(line);
             if (match.Success)
@@ -150,7 +165,7 @@ public static class ReviewRecordRules
             return new GateCheck(
                 "RG 5",
                 GateResult.Fault,
-                $"`{path}` holds no head field. The Identity list needs a line `- Head: ` with the hash in backticks.");
+                $"the `## Identity` list of `{path}` holds no head field. It needs a line `- Head: ` with the hash in backticks.");
         }
 
         if (recorded.Length < ShortestHash)
@@ -173,5 +188,18 @@ public static class ReviewRecordRules
             "RG 5",
             GateResult.Pass,
             $"the head field of `{path}` names the effective head `{effectiveHead.Sha}`.");
+    }
+
+    private static bool IsVerdictName(string verdict)
+    {
+        foreach (string name in VerdictNames)
+        {
+            if (string.Equals(verdict, name, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
