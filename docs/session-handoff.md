@@ -22,11 +22,14 @@ Session: PR-3, the review gate. Repository: the-thing-below. Branch: `feat/pr-3-
 
 - `main` is `04953e4`. This branch holds the commit of this entry.
 - `make verify` passes: the build, 113 tests, the format check, the STE check with 0 findings, and the smoke session.
+- The nine CI checks pass on the head `40ea275`: three build legs, three smoke legs, the changed paths job, the coverage report, and `ste-check`.
+- The Gitar pass approves `40ea275` with the verdict `Approved` and no finding. The dashboard comment `5718999630` has the edit time `18:03:21Z`, which is after the push. No thread is open.
+- The `review-gate` check is absent from the head, because GitHub starts its trigger from `main` alone (F-37, D-500).
 - The unrelated untracked `deck-test/` stays untouched.
 
 ### What is in flight
 
-The first push of PR #21, then the Gitar pass, then the review of the other provider.
+The review of the other provider at the effective head `40ea275`.
 
 ### Traps and gotchas
 
