@@ -25,10 +25,15 @@ Repository: the-thing-below. Branch: `feat/pr-1-scaffold`. PR: #18. Role: author
 - `make verify` passes on the Mac of the owner: the build, the 8 tests, `dotnet format`, the STE check with 0 findings, and the smoke session.
 - The regression checks pass. `make smoke` gives 2 on a failed Godot build, gives 2 in about 6.5 seconds on a boot class that the scene cannot instantiate, and gives 0 on a healthy tree.
 - The Gitar review of `0c402dd` gave `Approved`, with 1 finding closed and 0 unresolved threads.
+- The Gitar pass of the correction head `6e0622a` gives `Approved`, with 1 comment, 1 with merit, and 0 open issues. Commit `0c402dd` answered that comment, and the thread is resolved.
+- That review is current. The head matches, the dashboard edit time of 02:33:02Z is later than the push time of 02:25:14Z and later than the `On it` reply of 02:29:01Z.
+- CI run on `6e0622a` passed each of the nine checks, the three smoke legs with `--quit-after` included.
 
 ### In flight
 
-The repeat Codex review of PR #18. The correction commit changes `Makefile` and `.github/workflows/ci.yml`, so it is the new effective head, and it needs a new Gitar review and a repeat review (T-4, D-17).
+The repeat Codex review of PR #18 at effective head `6e0622a` (T-4, D-17). The Gitar pass of that head is complete and approves it.
+
+The commit that holds this entry changes `docs/session-handoff.md` alone, so it is a metadata commit and it does not move the effective head.
 
 ### Traps and gotchas
 
@@ -36,6 +41,8 @@ The repeat Codex review of PR #18. The correction commit changes `Makefile` and 
 - A headless Godot session that cannot instantiate its boot script waits without end. Always give `--quit-after` to a session that a check runs (F-64).
 - An exit code of 0 from a smoke session proves nothing. The success line in the log is the proof (T-2).
 - A finding can name a real defect through a trigger that does not reproduce. Reproduce the trigger, then look for the defect that the finding aims at.
+- Gitar replaced its dashboard comment during this round. The id moved from `5706916715` to `5707572860`. Read the newest id in each check, and never a saved one.
+- A string comparison with `\>` inside `[ ]` fails in zsh. Use `sort`, or read the times in Python.
 - The next ids are D-600, OQ-183, F-65, L-16, G-27, PR-83, M-8, and Session 61.
 
 ### Open questions that block progress
@@ -44,7 +51,7 @@ None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 
 ### Next concrete action
 
-Push the corrections, request a current Gitar review of the new head, then hand PR #18 back to Codex for the repeat review.
+Hand PR #18 back to Codex for the repeat review of `6e0622a`. The session stays bound to PR #18 and answers each finding (D-582).
 
 ## Session 59: 2026-09-16, Codex
 
