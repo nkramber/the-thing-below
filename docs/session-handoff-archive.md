@@ -1,5 +1,46 @@
 # Session handoff archive
 
+## Session 73: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the block of the Gitar freshness rule of PR #19, in the same session as Sessions 64, 66, 68, 69, and 71 (D-582).
+Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19. Role: author. Base: `ee4305a`.
+
+### What this session did, and why
+
+- The review round of Session 72 sets P2-1 to fixed, and it gives `Blocked` for one reason: the Gitar pass names `6f82d26`, and the tip was `b862cfb`.
+- The block is correct under the text of the `gitar-review` skill, and that rule cannot pass. The repository requires a record of each Gitar pass in the handoff, which is a metadata commit, so each pass was stale at the moment of its record.
+- The review gives the evidence itself. It pushed `a11f6d7` and `168e602` after it wrote the block, and `git diff --stat 6f82d26..168e602` gives three metadata paths alone. The tip has no Gitar check run.
+- The owner answered the question. D-603 sets the rule: a Gitar pass covers the effective head, and a metadata commit does not make it stale.
+- The `gitar-review` skill follows D-603. It gets the terms of the effective head and the metadata set, a new first condition, and the command that proves the effective head.
+
+### State of the build
+
+- `main` is `ee4305a`. The effective head before this round was `6f82d26`, and the ten checks passed on it.
+- `make verify` passes on the Mac of the owner for this round.
+- This round changes `docs/decisions.md` and a skill, so the effective head moved to `7732b1b`.
+- The ten checks pass on `7732b1b`, the Gitar check included. The Gitar pass approves that head with no finding, and the PR has zero review threads.
+- The freshness check passes: the reply "On it" came at `14:44:17Z`, and the dashboard comment `5716314911` has the edit time `14:45:06Z`. Under D-603, this record does not make the pass stale.
+
+### In flight
+
+The repeat review of PR #19 at the effective head `7732b1b`, which gives the verdict.
+
+### Traps and gotchas
+
+- A rule that reads the branch tip fights a rule that reads the effective head. The record of a pass then makes the pass stale, and each side of the review moves the tip.
+- D-603 does not weaken the pass. A commit outside the metadata set still needs a new pass.
+- Automatic Gitar reviews are paused on this trial. Each new head needs a `Gitar review` comment after the push wait of three minutes.
+- The next ids are D-604, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 74.
+
+### Open questions that block progress
+
+None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Get the repeat review of PR #19 from Codex at the effective head `7732b1b`, under D-602 and D-603.
+
 ## Session 72: 2026-09-17, Codex
 
 Author: Codex
