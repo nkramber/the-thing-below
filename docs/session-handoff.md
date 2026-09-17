@@ -2,6 +2,45 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 59: 2026-09-16, Codex
+
+Author: Codex
+Session: follow-up verification for the PR #18 review at effective head `0c402dd`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Verified that review commit `a9a3d07` is the remote branch tip and does not change the effective head.
+- Verified that CI run 35171555340 passed all nine checks on the pushed review commit.
+- Read the current Gitar PR comment through `gh pr view`. Its macOS finding is fixed in `0c402dd`, and the smoke job passes on macOS.
+- Tried the required export of issue comments, review bodies, and inline threads. GitHub API access failed for the thread data.
+- Updated `docs/reviews/pr-18.md` with the final CI results, the verified push, and the Gitar claim.
+- The handoff held ten entries before this one, so Session 49 moves to the archive (D-18).
+
+### State of the build
+
+- `main` is `9f27f12` (PR #17). PR #18 is open on `feat/pr-1-scaffold`.
+- The effective head is `0c402dd`. The review metadata commit `a9a3d07` is the remote tip.
+- CI run 35171555340 passed all nine checks on the remote tip.
+- The required inline thread export remains unavailable. The local `make verify` command did not complete.
+
+### In flight
+
+PR #18 has two open P2 findings. The review verdict is Blocked until the findings and required comment evidence are resolved.
+
+### Traps and gotchas
+
+- `gh pr view` returned the issue comment and review summaries, but the API calls for inline review threads failed.
+- The workspace has an untracked `deck-test/` directory. It remains unchanged.
+- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 60.
+
+### Open questions that block progress
+
+No owner question blocks the review. GitHub API access blocks the remaining thread evidence.
+
+### Next concrete action
+
+Export all inline threads when GitHub API access works, verify each claim and reply, and then update the review record.
+
 ## Session 58: 2026-09-16, Codex
 
 Author: Codex
@@ -399,46 +438,3 @@ None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81,
 ### Next concrete action
 
 The author gets a current Gitar review of the PR #16 head and answers each finding. Then the Codex review of PR #16 runs.
-
-## Session 49: 2026-09-16, Codex
-
-Author: Codex
-Session: repeat cross-provider review of PR #14 at effective head 7e65c7e.
-Repository: the-thing-below. Branch: docs/pr-14-one-pr-one-session. PR: #14. Role: reviewer. Base: 26152c5.
-
-### What this session did, and why
-
-- Read the handoff first, then the one-PR, review, STE, and gitar skills. Read the prior review, its response, the complete correction diff, the affected contracts, the PR description, and all PR comments.
-- Verified the provider gate under T-4 and D-17. Session 46 identifies Claude Code as the author. Session 48 identifies Claude Code as the correction author. Codex is the eligible reviewer.
-- Recomputed the effective head. 7e65c7e changes substantive paths. The review and handoff commits change only metadata paths.
-- Reproduced P2-1 and checked its correction. The gate rejects a deferral of this PR's own documents or records, and it permits a line that names PR-3 as the owner of independent roadmap work. D-579, the PR template, and PR-3 exit tests 10 and 11 agree.
-- Checked the D-582 session-end changes and the author and reviewer instructions. They agree with the revised decision.
-- Verified the latest manual Gitar review after the correction push. Its dashboard reports approval, its check passes, and no review thread or formal PR review remains.
-- Updated docs/reviews/pr-14.md, kept the earlier Changes required verdict under Earlier verdicts, and set the current verdict to Ready for owner merge for 7e65c7e.
-- Corrected the PR description's other-provider checkbox after recording the verified verdict.
-- The handoff held ten entries before this one, so Session 39 moved word for word to the top of docs/session-handoff-archive.md (D-18).
-
-### State of the build
-
-- No code, solution, or Makefile exists. main is 26152c5 (PR #13).
-- PR #14 is open on docs/pr-14-one-pr-one-session. Its remote tip before this review is 7e65c7e, and its effective head is 7e65c7e.
-- The interim STE check passes with 0 findings, git diff --check passes, and CLAUDE.md and AGENTS.md stay identical.
-- Build and test commands did not run because the repository has no code, solution, or Makefile.
-
-### In flight
-
-The cross-provider review is ready for owner merge at effective head 7e65c7e (T-4, D-17). The PR still needs a current Gitar review of its latest metadata tip before merge. The last Gitar dashboard edit predates the review publication, and GitHub reports no check on the new tip.
-
-### Traps and gotchas
-
-- Completion line 8 now applies only to documents and records of the current PR. A line that assigns independent roadmap work to its owner PR passes under D-579 and G-16.
-- P2-1 stays in the review history as fixed. The earlier verdict remains under Earlier verdicts.
-- The next ids are D-583, OQ-182, F-59, L-16, G-27, PR-82, M-7, and Session 50.
-
-### Open questions that block progress
-
-None for PR #14. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-The author requests a current Gitar review of the latest PR tip and answers each finding. P2-1 is fixed; the Gitar review is the remaining merge gate.
