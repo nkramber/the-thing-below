@@ -62,7 +62,7 @@ Built by PR-1 and PR-2. Phase file: `phase-1-foundations.md`.
 
 ### 7.2 The STE checker
 
-Built by PR-2. Phase file: `phase-1-foundations.md`.
+Built by PR-2, and PR-84 adds the size rules. Phase file: `phase-1-foundations.md`.
 
 - The `ste-check` command is new code (D-101, D-277). PR-2 retired the Python script `docs/tools/ste-check.py`, and the `ste-check` job now runs the command (D-10).
 - It carries the rules of the checker table in the `ste-writing` skill and the comment rule of F-11.
@@ -70,6 +70,7 @@ Built by PR-2. Phase file: `phase-1-foundations.md`.
 - F-5 needed one rule for numbered items. D-604 sets it: the limit reads every numbered item, under any heading.
 - The reference check reads each id, each path of this repository, and each superseded decision that a live document cites (D-605, D-606).
 - The session number check fails a number that appears twice in the handoff and its archive, and an entry out of order (D-18, L-12). It also fails more than 10 entries in the handoff (D-607).
+- PR-84 adds the size rules of the context budget (D-611). The limits are 16 KB for `CLAUDE.md`, 5 KB for the top entry of the handoff, and 36 KB for a skill file.
 
 > *In plain English:* every document must pass a check for plain technical English. This moves the check from a borrowed script into the language of the project, with the same rules and a few more.
 
@@ -80,11 +81,12 @@ Built by PR-3. Phase file: `phase-1-foundations.md`.
 - The `review-gate` command is new code, and its workflow runs on `pull_request_target` (D-15, D-101, D-277).
 - The workflow runs the command from `main` and reads the files of the PR head as data. It never runs code from the head (D-15).
 - The command applies the three rules of the `pr-review` skill. The record exists, the verdict is `Ready for owner merge`, and the head field names the effective head.
-- The command passes a PR in the override set with the `review-override` label that changes no decision row (D-16, D-71, D-239, D-401). OQ-69 holds what counts as a change to a row.
+- The command passes a PR in the override set with the `review-override` label that changes no decision row (D-16, D-71, D-239, D-401). A change to a row is a change to a line of a decision table (D-609).
 - A PR that changes `.github/workflows/` fails on the label, because each gate lives in a workflow file (D-560).
 - The command applies the document rules of D-579. The handoff changes, and the Documents section has a line for each required row (D-581). No line defers a document or a record of the PR (D-577). A line that names the PR of independent roadmap work passes (G-16).
 - The workflow also runs when a label or the PR description changes, because both change the result (D-67, D-579). The type `edited` needs its own line in the workflow.
-- A metadata commit never moves the effective head (the `pr-review` skill).
+- A metadata commit never moves the effective head. The metadata set holds the two review files of the PR and the two handoff files (D-610).
+- The workflow gives the command one JSON file with the facts of the PR, and one folder with the files of the head.
 - GitHub starts this trigger only from `main`, so the check cannot run on PR-3 (F-37). PR-3 proves the command in Tests, and the live check first runs on the next PR (D-500).
 - After PR-3 merges, the owner requires the check on `main` (OQ-3).
 
@@ -249,26 +251,28 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 1. PR-1: the Tools project, with no command.
 2. PR-2: the STE checker.
 3. PR-3: the review gate. Its live check first runs on the next PR (D-500).
-4. PR-46: det-lint, before the first Core code (D-496).
-5. PR-4, PR-5, PR-6, PR-43, and PR-44: the Core PRs of `area-core.md`.
-6. PR-47: the PNG code, right before the atlas (D-496).
-7. PR-34: the atlas.
-8. **← GATE 1 (foundation).** The gate tools and the atlas test pass on every CI leg.
-9. PR-55: the render of large pictures, right before PR-10 (D-518).
-10. PR-48: the normal maps, right after PR-10 and right before PR-56, the first PR that draws light (D-520, D-521).
-11. PR-50: the screenplay tool, right after PR-68 (D-545).
-12. PR-15: the headless runner and the bots.
-13. PR-49: the night gate. Its live check first runs after the first night (D-500).
-14. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
-15. **← GATE 2 (first playable).**
+4. PR-84: the context budget check in the `ste-check` command (D-611).
+5. PR-46: det-lint, before the first Core code (D-496).
+6. PR-4, PR-5, PR-6, PR-43, and PR-44: the Core PRs of `area-core.md`.
+7. PR-47: the PNG code, right before the atlas (D-496).
+8. PR-34: the atlas.
+9. **← GATE 1 (foundation).** The gate tools and the atlas test pass on every CI leg.
+10. PR-55: the render of large pictures, right before PR-10 (D-518).
+11. PR-48: the normal maps, right after PR-10 and right before PR-56, the first PR that draws light (D-520, D-521).
+12. PR-50: the screenplay tool, right after PR-68 (D-545).
+13. PR-15: the headless runner and the bots.
+14. PR-49: the night gate. Its live check first runs after the first night (D-500).
+15. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
+16. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 
 The register is `docs/questions.md` (D-19). These questions block Tools PRs, and each PR asks its questions when it starts (D-487):
 
 - D-604 answers OQ-67, and it sets the rule for a numbered item. D-605 answers OQ-68, and it sets what the reference check fails.
-- OQ-69: what counts as a change to a decision row. Blocks PR-3.
-- OQ-181: the paths of the metadata set. Blocks PR-3.
+- D-609 answers OQ-69, and a change to a decision row is a change to a line of a decision table.
+- D-610 answers OQ-181, and the metadata set holds four paths of the PR.
+- D-611 answers OQ-182, and the size rules of the context budget go in PR-84.
 - OQ-70: how det-lint finds Godot text. Blocks PR-46.
 - OQ-71: which uses of `Dictionary` and `HashSet` det-lint fails in Core. Blocks PR-46.
 - OQ-72: the CRC-32 of the PNG code. Blocks PR-47.

@@ -16,7 +16,7 @@ Each repo that uses Gitar keeps a copy of this file. A rule of the repo wins ove
 - **Pause note**: the note at the top of the dashboard comment that starts "Automatic reviews are paused".
 - **Manual review**: the review that a `Gitar review` comment starts.
 - **Effective head**: the newest commit that changes a path outside the metadata set (D-603).
-- **Metadata set**: `docs/reviews/`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md`.
+- **Metadata set**: the four paths of this pull request (D-610): `docs/reviews/pr-<number>.md`, `docs/reviews/pr-<number>-response.md`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md`.
 - **Current review**: a review of the effective head.
 - **Stale review**: a review of a commit older than the effective head.
 - **Push wait**: the minimum wait of three minutes after a push, before a `Gitar review` comment (D-160).

@@ -14,15 +14,27 @@ The `review-gate` job reads this file once PR-3 creates it (D-15). Three parts o
 | Part | Exact form | Rule |
 |---|---|---|
 | The file name | `docs/reviews/pr-<number>.md` | The number is the GitHub PR number, not the roadmap id. |
-| The head field | `- Head: ` and the hash in backticks, in the Identity list | The hash is the effective head. A short hash is permitted. |
-| The verdict | One of the three verdict names, in the `## Verdict` section | Write the name exactly. Do not reword it. |
+| The head field | `- Head: ` and the hash in backticks, in the `## Identity` list | The hash is the effective head. A short hash is permitted. The rule reads that list alone. |
+| The verdict | The verdict line of the `## Verdict` section, such as `**Ready for owner merge.**` | The line starts with one of the three names in bold. Write the name exactly, and add no word to it. The section gives one bold span, and that span is the name (D-612). |
 
 The effective head is the newest commit that changes a path outside the metadata set.
-The metadata set is `docs/reviews/`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md`.
+The metadata set holds four paths of this pull request (D-610):
+
+- `docs/reviews/pr-<number>.md`
+- `docs/reviews/pr-<number>-response.md`
+- `docs/session-handoff.md`
+- `docs/session-handoff-archive.md`
+
 A commit that changes only those paths is a metadata commit, and it does not change the effective head.
+A commit that changes the record of another pull request moves the effective head.
 The required review commit holds the review record and the handoff entry, so it is always a metadata commit.
 Without that rule the review commit invalidates the review that it publishes.
 Record the effective head, not the tip, when the review commit is the last commit.
+
+A repeat review replaces the verdict of the `## Verdict` section. Put each earlier verdict in a
+section of its own, such as `## Earlier verdicts`. A second bold span in the `## Verdict` section
+gives a fault, because the gate cannot know which span is the current verdict (D-612). Give the
+reason of the verdict in prose after the name, and use no bold in that prose.
 
 Use this skeleton. Keep the heading text and the order.
 

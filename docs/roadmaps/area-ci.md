@@ -114,11 +114,12 @@ Built by PR-1. Phase file: `phase-1-foundations.md`.
 
 ### 7.5 The STE check job
 
-Built by PR-1 and PR-2. Phase file: `phase-1-foundations.md`.
+Built by PR-1 and PR-2, and PR-84 adds the size rules. Phase file: `phase-1-foundations.md`.
 
 - The job runs on the Linux leg alone, because the check reads text and gives the same result on every system (G-12).
 - PR-1 ran the interim Python checker, and PR-2 moved the job to the `ste-check` command of Tools (D-10, `area-tools.md` section 7.2).
 - The job reads every `.md` file outside the dated records that the `ste-writing` skill names.
+- PR-84 adds the size rules of the context budget to the command, and the job then fails a file above its limit (D-611).
 
 > *In plain English:* every document must pass the plain-English check. The check reads text alone, so one computer runs it.
 
@@ -138,7 +139,8 @@ Built by PR-1. Phase file: `phase-1-foundations.md`.
 Built by PR-3. Phase file: `phase-1-foundations.md`.
 
 - The workflow runs on `pull_request_target` from `main`, and it reads the files of the PR head as data alone (D-15). It never runs code from the head.
-- It runs again when a label or the PR description changes, and it publishes a check run (D-67, D-579, `area-tools.md` section 7.3). Its token gets the access that the check run needs and read access for the rest.
+- It runs again when a label or the PR description changes (D-67, D-579, `area-tools.md` section 7.3). The job of the workflow is the check run, so the token needs read access alone.
+- The workflow collects the facts of the PR with `gh` and with git, and it writes them to one JSON file. It also writes the files of the head to a folder, and it never builds them.
 - GitHub starts this trigger only from `main`, so PR-3 proves the command in Tests. The live check first runs on the next PR (F-37, D-500).
 - After PR-3 merges, the owner requires the checks on `main` (OQ-3). A check must run once before GitHub lists it as a choice.
 
@@ -310,18 +312,19 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 2. PR-1: the CI legs, the build, test, format, smoke, and STE jobs, the coverage report, and the local gate.
 3. PR-2: the STE job moves to the C# checker.
 4. PR-3: the review gate. Its live check first runs on the next PR (D-500).
-5. Owner: require the checks on `main` (OQ-3).
-6. PR-46: the det-lint job, before the first Core code (D-496).
-7. PR-4: the replay-identity job and the identity file (D-504).
-8. PR-5: the content embed in Game, the folder reader in Tools, and the match test (D-508).
-9. **← GATE 1 (foundation).** The jobs above are green on every CI leg.
-10. PR-54: the export job, right before PR-7 (D-503).
-11. PR-7: the first merge that exports a walkable build.
-12. PR-41: the screen-test job, after PR-45 (D-492).
-13. PR-15: the bot runs on every leg (D-505).
-14. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
-15. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-16. **← GATE 2 (first playable).**
+5. PR-84: the size rules of the context budget in the `ste-check` job (D-611).
+6. Owner: require the checks on `main` (OQ-3).
+7. PR-46: the det-lint job, before the first Core code (D-496).
+8. PR-4: the replay-identity job and the identity file (D-504).
+9. PR-5: the content embed in Game, the folder reader in Tools, and the match test (D-508).
+10. **← GATE 1 (foundation).** The jobs above are green on every CI leg.
+11. PR-54: the export job, right before PR-7 (D-503).
+12. PR-7: the first merge that exports a walkable build.
+13. PR-41: the screen-test job, after PR-45 (D-492).
+14. PR-15: the bot runs on every leg (D-505).
+15. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
+16. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+17. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 

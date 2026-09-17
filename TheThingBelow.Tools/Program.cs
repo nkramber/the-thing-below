@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.SteCheck;
 
 namespace TheThingBelow.Tools;
@@ -18,7 +19,6 @@ public static class Program
             ["atlas"] = "PR-34",
             ["det-lint"] = "PR-46",
             ["night-gate"] = "PR-49",
-            ["review-gate"] = "PR-3",
         };
 
     /// <summary>Reads the command name and runs it.</summary>
@@ -53,6 +53,11 @@ public static class Program
             return SteCheckCommand.Run(args[1..], output, errors);
         }
 
+        if (command == ReviewGateCommand.Name)
+        {
+            return ReviewGateCommand.Run(args[1..], output, errors);
+        }
+
         if (PlannedCommands.TryGetValue(command, out string? pullRequest))
         {
             errors.WriteLine(
@@ -67,7 +72,9 @@ public static class Program
 
     private static void WriteCommands(TextWriter errors)
     {
+        errors.WriteLine("The commands that exist:");
         errors.WriteLine($"  {SteCheckCommand.Name}: ready");
+        errors.WriteLine($"  {ReviewGateCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {

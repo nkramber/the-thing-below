@@ -200,8 +200,10 @@ Area files: `area-tools.md` section 7.3, `area-ci.md` section 7.7.
 **Scope.**
 
 - The `review-gate` command in Tools as new code (D-15, D-101, D-277).
+- The input of the command: one JSON file with the facts of the PR, and one folder with the files of the head.
 - The workflow on `pull_request_target`, which runs from `main` and reads the PR head as data alone (D-15).
 - The three rules of the `pr-review` skill: the record exists, the verdict is `Ready for owner merge`, and the head field names the effective head.
+- The metadata set of D-610, which holds the two review files of this PR and the two handoff files.
 - The override rules of D-16, D-71, D-239, D-401, and D-560, with the eligible path set. `.github/workflows/` sits outside that set.
 - The document rules of D-579. The handoff changes, and no line defers a document or a record of the PR (D-577). The Documents section has a line in a form of D-581 for each required row.
 - A check run as the result, and a second run when a label or the PR description changes (D-67, D-579).
@@ -231,15 +233,48 @@ Area files: `area-tools.md` section 7.3, `area-ci.md` section 7.7.
 
 - The workflow never runs code from the head, and its token holds the least access (D-15).
 - The live check cannot run on this PR, and the PR says so (F-37, G-16, D-500).
-- The answer of OQ-69 decides what counts as a change to a decision row.
+- D-609 sets what counts as a change to a decision row: a line of a decision table.
 - The document rules read the diff and the description alone. No check can prove a clean session (F-58).
 - The required rows match the table of the `one-pr-one-session` skill, and the skill and the command change together.
 
-**Questions.** OQ-69 and OQ-181 before the code, and OQ-3 right after the merge.
+**Questions.** D-609 answers OQ-69, and D-610 answers OQ-181. OQ-3 comes right after the merge.
 
 > *In plain English:* this adds a check that turns red when a change has no approved review from the other provider. It also turns red when a change leaves its notes or documents for later. It reads each change as data and never runs it, so a change cannot approve itself.
 
-### 7.6 PR-46: det-lint
+### 7.6 PR-84: the context budget check
+
+Area files: `area-tools.md` section 7.2, `area-ci.md` section 7.5.
+
+**Scope.**
+
+- The size rules of the context budget in the `ste-check` command (D-611).
+- Three limits: `CLAUDE.md` at 16 KB, the top entry of the handoff at 5 KB, and a skill file at 36 KB (D-583).
+- One finding for each file above its limit, with the size of the file and the limit.
+- The limits in one place of the code, and the same numbers in the `ste-writing` skill.
+
+**Out of scope.**
+
+- No new writing rule, and no change to the `review-gate` command of PR-3.
+- No limit for a document that no session reads at the start of a session (D-584).
+
+**Exit tests.**
+
+1. The command passes on every live document of the repository.
+2. A fixture `CLAUDE.md` above 16 KB fails, and the finding names the size and the limit.
+3. A fixture handoff with a top entry above 5 KB fails.
+4. A fixture skill file above 36 KB fails.
+5. A fixture file of the exact size of its limit passes.
+
+**Review focus.**
+
+- The size comes from the bytes of the file, so each CI leg reads the same number.
+- The handoff rule reads the top entry alone, and not the whole file.
+
+**Questions.** None. D-611 sets the command and the PR.
+
+> *In plain English:* the rules of this repository must stay small enough for a session to read at the start. This adds a check that turns red when one of the three files grows past its limit.
+
+### 7.7 PR-46: det-lint
 
 Area files: `area-tools.md` section 7.4, `area-ci.md` section 7.8.
 
@@ -280,7 +315,7 @@ Area files: `area-tools.md` section 7.4, `area-ci.md` section 7.8.
 
 > *In plain English:* two computers can disagree on decimal math and on the order of words. This tool reads the rules code as the compiler does and refuses anything that can make two machines disagree.
 
-### 7.7 PR-4: integer math, the streams, the state hash, and the identity job
+### 7.8 PR-4: integer math, the streams, the state hash, and the identity job
 
 Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.9.
 
@@ -324,7 +359,7 @@ Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.
 
 > *In plain English:* different computers can give different answers for decimal math. This adds our own whole-number math and a check that proves the same result on every machine.
 
-### 7.8 PR-5: content, the content hash, and the string table
+### 7.9 PR-5: content, the content hash, and the string table
 
 Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.md` section 7.1.
 
@@ -365,7 +400,7 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 
 > *In plain English:* every enemy, item, and map lives in a strict data file. A gap or a typo stops the load with the file and the field, instead of a silent zero.
 
-### 7.9 PR-6: the tick, the intents, the run record, and replay
+### 7.10 PR-6: the tick, the intents, the run record, and replay
 
 Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` section 7.9, `area-release.md` section 7.1.
 
@@ -406,7 +441,7 @@ Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` secti
 
 > *In plain English:* the game writes down its start state and every choice after it. That record plays any run again on any machine, so every bug becomes repeatable on demand.
 
-### 7.10 PR-43: the Storage project, the snapshots, and the saves
+### 7.11 PR-43: the Storage project, the snapshots, and the saves
 
 Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 
@@ -445,7 +480,7 @@ Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 
 > *In plain English:* a save is a full picture of the game at one moment. A crash during a save never destroys the old one, and a save from an older build still loads through a converter.
 
-### 7.11 PR-44: the crash files and the log files
+### 7.12 PR-44: the crash files and the log files
 
 Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 
@@ -483,7 +518,7 @@ Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 
 > *In plain English:* when the game stops with an error, it leaves one file that holds everything a replay needs. Logs are plain one-line notes that the tools can read.
 
-### 7.12 PR-47: the PNG code
+### 7.13 PR-47: the PNG code
 
 Area file: `area-tools.md` section 7.5.
 
@@ -518,7 +553,7 @@ Area file: `area-tools.md` section 7.5.
 
 > *In plain English:* every picture that the tools make or read is a PNG file. The project writes its own small PNG code, so a new version of a library never breaks a picture test.
 
-### 7.13 PR-34: the atlas, the palette, and the drawing files
+### 7.14 PR-34: the atlas, the palette, and the drawing files
 
 Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7.6.
 
@@ -560,7 +595,7 @@ Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7
 
 > *In plain English:* every picture in the game starts as a text file of letters, one for each pixel. This command turns the letters into the one image that the engine draws, and a test proves that they still match.
 
-### 7.14 M-1 and M-2: the first measurements
+### 7.15 M-1 and M-2: the first measurements
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds both rows.
 
@@ -585,7 +620,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 
 > *In plain English:* the first ten changes each record what they cost in machine time and in money. That gives the owner real numbers before the plan grows.
 
-### 7.15 Gate 1: the foundation gate
+### 7.16 Gate 1: the foundation gate
 
 **The gate.** Gate 1 passes when every line holds:
 
@@ -614,17 +649,18 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 5. PR-82: the renderer of the Deck test, which is one line of `project.godot` (D-599).
 6. PR-2: the STE checker in C#.
 7. PR-3: the review gate.
-8. Owner: require the checks on `main` (OQ-3).
-9. PR-46: det-lint, before the first Core code (D-496).
-10. PR-4: integer math, the streams, the state hash, and the identity job.
-11. PR-5: content, the content hash, and the string table.
-12. PR-6: the tick, the intents, the run record, and replay.
-13. PR-43: the Storage project, the snapshots, and the saves.
-14. PR-44: the crash files and the log files.
-15. PR-47: the PNG code, right before the atlas (D-496).
-16. PR-34: the atlas, the palette, and the drawing files.
-17. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above.
-18. **← GATE 1 (foundation).** Section 7.15 holds each line.
+8. PR-84: the context budget check, right after PR-3 (D-611).
+9. Owner: require the checks on `main` (OQ-3).
+10. PR-46: det-lint, before the first Core code (D-496).
+11. PR-4: integer math, the streams, the state hash, and the identity job.
+12. PR-5: content, the content hash, and the string table.
+13. PR-6: the tick, the intents, the run record, and replay.
+14. PR-43: the Storage project, the snapshots, and the saves.
+15. PR-44: the crash files and the log files.
+16. PR-47: the PNG code, right before the atlas (D-496).
+17. PR-34: the atlas, the palette, and the drawing files.
+18. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above.
+19. **← GATE 1 (foundation).** Section 7.16 holds each line.
 
 The next phase file is `phase-2-first-playable.md`. Between the two, the owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).
 
@@ -644,8 +680,9 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-66 | The encoding of records and snapshots | PR-6 and PR-43 |
 | OQ-67 | The rule for numbered items | Answered by D-604 |
 | OQ-68 | What the reference check fails | Answered by D-605 |
-| OQ-69 | What counts as a change to a decision row | PR-3 |
-| OQ-181 | The paths of the metadata set | PR-3 |
+| OQ-69 | What counts as a change to a decision row | PR-3, answered by D-609 |
+| OQ-181 | The paths of the metadata set | PR-3, answered by D-610 |
+| OQ-182 | Where the context budget check goes | PR-84, answered by D-611 |
 | OQ-70 | How det-lint finds the Godot assembly | PR-46 |
 | OQ-71 | Which collection uses det-lint fails in Core | PR-46 |
 | OQ-72 | The CRC-32 of the PNG code | PR-47 |

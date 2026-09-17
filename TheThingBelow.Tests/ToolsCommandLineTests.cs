@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using TheThingBelow.Tools;
+using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.SteCheck;
 using Xunit;
 
@@ -23,7 +24,7 @@ public sealed class ToolsCommandLineTests
         Assert.Equal(Program.FaultExitCode, exitCode);
         Assert.Contains("no command", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("ste-check: ready", errors.ToString(), StringComparison.Ordinal);
-        Assert.Contains("review-gate: PR-3", errors.ToString(), StringComparison.Ordinal);
+        Assert.Contains("review-gate: ready", errors.ToString(), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -60,9 +61,10 @@ public sealed class ToolsCommandLineTests
     }
 
     [Fact]
-    public void ThePlannedCommandsNoLongerHoldTheSteCheckCommand()
+    public void ThePlannedCommandsNoLongerHoldTheCommandsThatExist()
     {
         Assert.DoesNotContain(SteCheckCommand.Name, Program.PlannedCommands.Keys);
+        Assert.DoesNotContain(ReviewGateCommand.Name, Program.PlannedCommands.Keys);
     }
 
     [Fact]
