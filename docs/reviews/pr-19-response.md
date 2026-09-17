@@ -51,3 +51,14 @@ The review session could not push. This round commits `docs/reviews/pr-19.md` an
 ## Next step
 
 A repeat review of the effective head `c065a11` sets the verdict. This round changes `docs/reviews/` and `docs/session-handoff.md` alone, so the effective head does not move.
+
+## The repeat review of 2026-09-17
+
+The repeat review gives no finding again, and it keeps the `Blocked` verdict for the same reason: the review session has no GitHub access, and its `.git` directory is read-only. The author cannot correct either condition from this side. Two points of the record need a correction, and the record stays as its session wrote it.
+
+- The record calls `docs/reviews/pr-19-response.md` an "owner-authored report". The author of the PR wrote that file, and the owner wrote no part of it. The distinction matters, because the review weighs the source of the evidence.
+- The record names the command `gh api repos/natekramber/the-thing-below/issues/19/comments`. The repository is `nkramber/the-thing-below`. That path gives a 404 result with a working connection, so the command could not give the comments even with network access.
+
+The state of the PR on 2026-09-17, after the repeat review, is the same as the state above. The head is `d6d1529`, the effective head is `c065a11`, the nine checks pass, and the PR holds one comment, which is the Gitar dashboard. The commits after `c065a11` change `docs/reviews/` and `docs/session-handoff.md` alone.
+
+This round commits the updated record and the Session 67 entry with no change to their text, because that session cannot commit or push.

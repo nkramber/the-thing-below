@@ -2,6 +2,82 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 68: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the repeat review of PR #19, in the same session as Sessions 64 and 66 (D-582).
+Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19. Role: author. Base: `ee4305a`.
+
+### What this session did, and why
+
+- The repeat review of Session 67 gives no finding and keeps the `Blocked` verdict. The reason is the environment of the review session: no GitHub access, and a read-only `.git` directory.
+- This round commits the updated `docs/reviews/pr-19.md` and the Session 67 entry with no change to their text, because that session cannot commit or push.
+- `docs/reviews/pr-19-response.md` gets a section for the repeat review. It corrects two points of the record: the response file is the work of the author and not of the owner, and the record names the repository `natekramber/the-thing-below`, which does not exist.
+- The round moves the Session 57 and Session 58 entries to `docs/session-handoff-archive.md`, because the file keeps the 10 newest entries (D-18).
+- Two review rounds now give no finding and no verdict. The session asked the owner how to unblock the gate of T-4.
+
+### State of the build
+
+- `main` is `ee4305a`. The effective head is `c065a11`, and this round changes `docs/reviews/` and `docs/session-handoff.md` alone.
+- The nine CI checks pass, and the Gitar pass approves `c065a11` with no finding.
+- `make verify` passes on the Mac of the owner.
+
+### In flight
+
+The answer of the owner about the review gate of PR #19.
+
+### Traps and gotchas
+
+- The review session of this machine has no network and a read-only `.git` directory. A review in that environment can read the diff, and it cannot verify the PR, the comments, or the checks.
+- An author cannot clear a `Blocked` verdict, and evidence from the author is not independent evidence for the reviewer.
+- The next ids are D-602, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 69.
+
+### Open questions that block progress
+
+The review gate of PR #19 blocks the merge. The session asked the owner, and the answer becomes D-602 or OQ-183.
+
+### Next concrete action
+
+Get the answer of the owner about the review gate, then apply it to PR #19.
+
+## Session 67: 2026-09-17, Codex
+
+Author: Codex
+Session: repeat review of PR #19 at effective head `c065a11`, on branch `docs/pr-83-skip-set-decision`. Role: reviewer. Base: `ee4305a`.
+
+### What this session did, and why
+
+- Re-read the review instructions and the existing PR #19 review record and response file.
+- The local branch advanced to `d6d1529`. Commits after `c065a11` only change review and session handoff records, so the effective head remains `c065a11`.
+- The response file reports the PR head, Gitar result, comments, checks, and build result. GitHub access failed again, so this session could not verify those claims independently.
+- The review record still gives `Blocked`. It also records that the Git index is read-only, so this session cannot commit or push its update.
+
+### State of the build
+
+- `main` points to `ee4305a`. The local branch and its tracking ref point to `d6d15294f7fe4772e693ccf949a0154056102a1d`.
+- The effective head remains `c065a11` because later commits change metadata only.
+- `git diff --check` passes for the PR changes. The previous session's STE and identity checks pass; its build result remains unknown from this environment.
+- GitHub checks, comments, PR state, and live remote head remain unverified.
+
+### In flight
+
+The review remains blocked until GitHub evidence can be verified and the updated record can be committed and pushed.
+
+### Traps and gotchas
+
+- `gh` cannot connect to `api.github.com`.
+- `git fetch` cannot write `.git/FETCH_HEAD`, and Git cannot create `.git/index.lock`.
+- The response file is author-provided evidence, not independent confirmation by this review.
+- The next ids are D-602, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 68.
+
+### Open questions that block progress
+
+No owner question blocks PR #19. GitHub access and Git metadata write access block the final review publication.
+
+### Next concrete action
+
+Restore GitHub API and Git write access. Verify the PR comments and checks, then commit and push the existing review record and this entry.
+
 ## Session 66: 2026-09-17, Claude Code
 
 Author: Claude Code
@@ -354,103 +430,3 @@ No owner question blocks the review. GitHub API access blocks the remaining thre
 ### Next concrete action
 
 Export all inline threads when GitHub API access works, verify each claim and reply, and then update the review record.
-
-## Session 58: 2026-09-16, Codex
-
-Author: Codex
-Session: review of PR #18 at effective head `0c402dd`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
-
-### What this session did, and why
-
-- Read the top handoff entry, the one-PR skill, the PR review skill, the contract reference, the review-record reference, and the STE skill.
-- Verified the provider gate. Session 57 names Claude Code as the author, and Codex is the eligible reviewer (T-4, D-17).
-- Verified that `b32a971` changes the handoff alone, so the effective head remains `0c402dd`.
-- Inspected all 34 paths of the effective diff and checked the PR description and current CI run.
-- Found P2-1: the local smoke target can accept the Godot build callback failure that F-60 documents.
-- Found P2-2: the PR description's review Documents line does not use the form of D-581.
-- The required comment export failed twice because GitHub's API did not connect. Local `make verify` stalled in `dotnet build` and was interrupted.
-- Wrote `docs/reviews/pr-18.md` with the verdict `Blocked` for effective head `0c402dd`.
-- Moved Session 48 to the archive because this entry makes it the eleventh handoff entry (D-18).
-
-### State of the build
-
-- `main` is `9f27f12` (PR #17). PR #18 is open on `feat/pr-1-scaffold`.
-- CI run 35169864293 on tip `b32a971` passed all nine checks. Its implementation head is `0c402dd`.
-- The local build produced no output for 60 seconds. The review interrupted it, so local tests, format, STE, and smoke did not run.
-- The comment export did not complete. The existing PR comments remain unverified.
-
-### In flight
-
-PR #18 needs both findings corrected. The review also needs the full comment export before it can give a final verdict.
-
-### Traps and gotchas
-
-- The Godot editor can return 0 when its build callback fails. The CI workflow reads the log, but the Makefile does not (F-60, T-2).
-- The PR description line for `docs/reviews/` uses a placeholder path and omits the required `Changed:` form (D-577, D-581).
-- The working tree held an untracked `deck-test/` directory before the review. It remains unchanged.
-- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 59.
-
-### Open questions that block progress
-
-No owner question blocks the review. GitHub API access blocks the required comment evidence.
-
-### Next concrete action
-
-Export every comment on PR #18 when GitHub API access works. Verify the claims, then complete the review of the same head.
-
-## Session 57: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: PR-1, the repository scaffold, which is the first code of the repository.
-Repository: the-thing-below. Branch: `feat/pr-1-scaffold`. PR: PR-1. Role: author. Base: `9f27f12`.
-
-### What this session did, and why
-
-- Read the top handoff entry, `CLAUDE.md`, and the `one-pr-one-session`, `ste-writing`, `design-doc-style`, and `csharp-conventions` skills.
-- Read `deck-test/handover.md` and `deck-test/readme.md` on `spike/deck-test`. That step has no PR, so no document held its eight owner answers.
-- Wrote D-592 to D-599 for those answers, and resolved OQ-75, OQ-76, OQ-77, OQ-78, OQ-83, OQ-92, and OQ-93.
-- D-599 revises D-160 in part. The renderer pick comes after PR-1, and PR-1 sets Forward+ as a provisional renderer. PR-82 sets the picked renderer in one line.
-- Added the cost model rows of the Deck test to section 4 of `docs/design.md`, with M-7 for the frame time of the test scene.
-- Added the PR-82 entry to `phase-1-foundations.md`, section 7.3, and renumbered the later entries of section 7.
-- Built the scaffold: `TheThingBelow.slnx`, `global.json`, `Directory.Build.props`, the Makefile, the pre-commit hook, the four projects of D-217, and the CI workflow.
-- Wrote eight tests: the agent-file match test, three Core reference tests, and four tests of the tools command line.
-- Opened PR #18. The first CI run failed two smoke legs, and a second commit corrected the workflow (F-62, F-63).
-
-### State of the build
-
-- `main` is `9f27f12` (PR #17). The branch `feat/pr-1-scaffold` holds the scaffold.
-- `make verify` passes on the Mac of the owner: the build, the 8 tests, `dotnet format`, the STE check with 0 findings, and the Godot smoke session.
-- The smoke session prints the renderer as `forward_plus` and the frame as 1280 by 720, and it ends with no error.
-- The CI workflow holds five jobs: `changed-paths`, `build-test-format`, `coverage`, `smoke`, and `ste-check`.
-- The first run of PR #18, 35169279617 on `0b319f8`, failed `smoke (macos-26)` and `smoke (windows-2025)`. Each other check passed.
-- The second run, 35169532179 on `0c402dd`, passed each of the nine checks, the two corrected legs included.
-- The Gitar review of `0c402dd` gives `Approved`, with 1 finding closed and no open issue. That review is current: the head matches, and the dashboard edit time of 01:14:25Z is later than the push time of 01:10:42Z.
-
-### In flight
-
-The Codex review of PR #18 (T-4, D-17). The PR adds decision rows, so the `review-override` label does not apply (D-401). It also changes `.github/workflows/`, which is never exempt (D-560).
-
-The effective head is `0c402dd`. The commit that holds this entry changes `docs/session-handoff.md` alone, so it is a metadata commit and it does not move the effective head.
-
-### Traps and gotchas
-
-- The Godot editor writes `net8.0` into a `.csproj` that holds no target framework, over `Directory.Build.props` (F-60). The Game project pins `net10.0` in its own file, and `.gitignore` holds `*.csproj.old`.
-- The Godot editor build gives an exit code of 0 when its build callback fails. The smoke job reads the log for `build callback failed` (F-60, T-2).
-- A coverage run instruments the Core copy in the test output folder and adds `System.Threading` to it (F-61). The reference test reads the file that the Core project built.
-- The compiler writes no metadata entry for a project reference that no code uses. A second test reads the Core project file, so an added reference fails (F-61).
-- The generated entry point of `xunit.v3` runs the console runner unless `UseMicrosoftTestingPlatformRunner` is on. The console runner reads no Coverlet option.
-- Coverlet 10 takes `--coverlet`, and not `--coverage`. It writes its file to the results directory, and it takes no output path.
-- The macOS archive of Godot holds `Godot_mono.app`, and not `Godot.app` (F-62). The find pattern of the smoke job reads `*.app/Contents/MacOS/Godot`.
-- The git-bash of the Windows runner carries `sha512sum` and no `shasum` (F-63). The checksum step reads the digest itself and names both values.
-- Gitar found the macOS fault of F-62 by reading the workflow, and CI found the same fault by running it. Gitar found no fault in the Windows checksum step, which only the Windows runner showed.
-- Gitar paused automatic reviews for the trial period, and a review still ran on each push of this PR. Read the dashboard comment, and never the pause note alone.
-- The owner ran no Deck test yet. PR-82 waits for that run.
-- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 58.
-
-### Open questions that block progress
-
-None for PR-1. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-Hand PR #18 to Codex for the review of T-4. The session stays bound to PR #18 and answers each finding (D-582).
