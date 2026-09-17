@@ -2,6 +2,49 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 62: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the repeat Codex review of PR #18, in the session that authored it (D-582).
+Repository: the-thing-below. Branch: `feat/pr-1-scaffold`. PR: #18. Role: author. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read `docs/reviews/pr-18.md` at head `6e0622a`. The repeat review withdrew P2-1, set P2-2 and P2-3 to fixed, and opened P2-4. The verdict is `Blocked`.
+- P2-4 has full merit. The response file said that the `smoke` target of `0c402dd` reported success for a broken session, and its table said that the case runs without end. Both cannot hold.
+- The table holds. With no frame limit the session waits until a kill, so the target reports no result.
+- The sentence conflated the two faults of the old target. The target has no frame limit, and it reads no log. A frame limit alone turns the first fault into the second, which is a false pass. The correction needs both parts.
+- `docs/reviews/pr-18-response.md` now names the two faults, agrees with its table, and holds a P2-4 section.
+- The same wrong sentence was in the F-64 row of `docs/design.md`, which this PR wrote. That row and the F-64 row of `phase-1-foundations.md` now name the two faults.
+- The review could not enumerate the inline threads, because its API calls failed. The response file now holds the exact query and its result, which is 0 unresolved threads.
+
+### State of the build
+
+- `main` is `9f27f12`. The effective head stays `6e0622a`, and the Gitar pass approves it.
+- This round changes `docs/reviews/pr-18-response.md`, `docs/design.md`, `docs/roadmaps/phase-1-foundations.md`, and this file.
+- `docs/design.md` and `docs/roadmaps/` are outside the metadata set, so this commit moves the effective head and needs a new Gitar review.
+- `make verify` passes on the Mac of the owner. The nine CI checks passed on `6e0622a`.
+
+### In flight
+
+The repeat Codex review of the new effective head (T-4, D-17), after the Gitar pass of that head.
+
+### Traps and gotchas
+
+- A response file can hold a prose claim and a table that disagree. Read them together before the commit, and give one result for one command and one trigger (T-5).
+- Two faults in one command can compose. Name each one, and say which fault a partial correction leaves.
+- A wrong claim in a response file can also sit in the design register. Grep for the sentence, and not for the id.
+- The metadata set is `docs/reviews/`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md`. A round that also changes `docs/design.md` moves the effective head.
+- The next ids are D-600, OQ-183, F-65, L-16, G-27, PR-83, M-8, and Session 63.
+
+### Open questions that block progress
+
+None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Push this round, request a Gitar review of the new head, then hand PR #18 back to Codex.
+
 ## Session 61: 2026-09-16, Codex
 
 Author: Codex
@@ -405,43 +448,3 @@ No owner question blocks PR #16. Fresh Gitar and CI evidence remains unavailable
 ### Next concrete action
 
 The author fixes P2-2 so an empty eligible-file list does not stop the commit command. Then the author pushes the correction, requests a current Gitar review, and checks why no CI jobs report. Codex repeats the review at the new effective head.
-
-## Session 52: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: the answer to the review of PR #16, in the same conversation as Session 50 (D-582).
-Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: author. Base: `2bc7d56`.
-
-### What this session did, and why
-
-- The owner asked the session to address the review feedback. The Codex review of Session 51 gave `Changes required` for head `45e960d`, with one finding, P2-1.
-- Before the review, the session requested a manual Gitar review of `45e960d`. It waited with the one wait command of D-586 two times: the first wait stopped at the placeholder comment, and the second at the review. Gitar approved with 0 findings and 0 threads.
-- P2-1 has full merit. The comment export of `docs/runbooks/session-context.md` returned 0 and left a comments file after a failed GitHub call. A fake `gh` reproduced it in bash and in zsh.
-- The export now runs in one `&&` chain into a part file, renames the file only after every call passes, and fails with a message otherwise (T-2, D-589). The regression check fails on the old runbook text and passes on the new text in both shells. The real `gh` run saved three comments.
-- `docs/reviews/pr-16-response.md` records the answer.
-- The handoff held ten entries before this one, so Session 42 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
-- PR #16 is open on branch `docs/pr-16-context-budget`. The commit that holds this entry changes the runbook, so it is the new effective head.
-- The full interim STE check gives 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-
-### In flight
-
-PR #16 waits for a current Gitar review of the new head, then the repeat Codex review of P2-1 (T-4, D-17).
-
-### Traps and gotchas
-
-- The first Gitar comment after a request can be a placeholder with the pause note and a spinner. Wait again with `since` at its time (D-586).
-- The review commit of Session 51 came from the same checkout. `git fetch` alone did not show it, because the local branch already held it.
-- The push line of `docs/reviews/pr-16.md` holds the placeholder `<review metadata sha>`. The response file asks the reviewer to correct it.
-- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 53.
-
-### Open questions that block progress
-
-None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-The author gets a current Gitar review of the new head and answers each finding. Then the Codex reviewer repeats the review of P2-1.

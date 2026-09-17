@@ -45,7 +45,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-58 | No check can see the conversation of a session | PR-3: the document rules read the diff and the description alone (D-579) |
 | F-60 | The Godot editor writes `net8.0` into a `.csproj` that holds no target framework | PR-1: the Game project pins `net10.0` in its own file. The exit-code part of this finding is refuted |
 | F-61 | A coverage run instruments the Core copy and adds references to it | PR-1: the reference test reads the file that the Core project built |
-| F-64 | A headless session whose managed assembly does not load runs without end, and it hides the fault | PR-1: the smoke session runs with `--quit-after`, and each caller reads the success line |
+| F-64 | A headless session whose managed assembly does not load runs without end. A frame limit alone makes it end with an exit code of 0 and no success line | PR-1: the smoke session runs with `--quit-after`, and each caller reads the success line. Both parts are needed |
 
 ## 7. Roadmap
 
