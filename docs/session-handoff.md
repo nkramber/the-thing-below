@@ -6,7 +6,7 @@ Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of
 
 Author: Claude Code
 Session: PR-84, the context budget check in the `ste-check` command.
-Repository: the-thing-below. Branch: `feat/pr-84-context-budget`. Role: author. Base: `9787b2d`.
+Repository: the-thing-below. Branch: `feat/pr-84-context-budget`. PR: #22. Role: author. Base: `9787b2d`.
 
 ### What this session did, and why
 
@@ -21,13 +21,13 @@ Repository: the-thing-below. Branch: `feat/pr-84-context-budget`. Role: author. 
 
 ### The state of the build
 
-- `main` is `9787b2d`, which merged PR #21. The branch is `feat/pr-84-context-budget`, and it has no GitHub number yet.
+- `main` is `9787b2d`, which merged PR #21. The branch is `feat/pr-84-context-budget`, and the PR is #22. The first head is `5a8bae7`.
 - `make verify` passes: the build, 135 tests, the format check, the STE check with 0 findings, and the smoke session.
 - `CLAUDE.md` and `AGENTS.md` hold 16232 bytes each. The largest skill file is `.claude/skills/pr-review/SKILL.md` at 19216 bytes.
 
 ### What is in flight
 
-The first commit, the push, the Gitar pass, and the Codex review.
+The Gitar pass on `5a8bae7`, the CI checks, and the Codex review.
 
 ### Traps and gotchas
 
