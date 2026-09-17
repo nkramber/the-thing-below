@@ -14,16 +14,16 @@ Session: repeat review of PR #19 at effective head `38aa19f`, on branch `docs/pr
 - Reviewed all 11 changed paths, including the new D-602 review procedure.
 - Found P2-1: the merged-PR stop rule conflicts with the transitional prompt that D-601 requires.
 - Ran `make verify`. The build, 8 tests, format, STE, and smoke checks passed.
-- Verified that all 9 live CI checks pass on PR head `a4a86a3`.
-- The Gitar dashboard approves effective head `38aa19f`, but no Gitar run exists on the current PR head. Its pass is stale.
+- Verified that all 9 live CI checks pass on PR head `cd5ee36`.
+- The Gitar dashboard approves effective head `38aa19f`, but no Gitar run exists on current PR head `cd5ee36`. Its pass is stale.
 - Updated `docs/reviews/pr-19.md` with the finding and the verdict `Changes required` for effective head `38aa19f`.
 
 ### State of the build
 
-- `main` is `ee4305a`. The effective head is `38aa19f`, and the remote PR tip is `a4a86a3`.
-- `make verify` passes. All 9 live CI checks pass on `a4a86a3`.
+- `main` is `ee4305a`. The effective head is `38aa19f`, and the remote PR tip is `cd5ee36`.
+- `make verify` passes. All 9 live CI checks pass on `cd5ee36`.
 - The latest Gitar approval is for `38aa19f`, so the automated review is stale for the branch tip.
-- The review and handoff commit changes metadata only, so it does not move effective head `38aa19f`. The unrelated untracked `deck-test/` remains untouched.
+- The review and handoff commit `cd5ee36` changes metadata only, so it does not move effective head `38aa19f`. The unrelated untracked `deck-test/` remains untouched.
 
 ### In flight
 
