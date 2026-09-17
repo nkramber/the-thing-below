@@ -50,10 +50,11 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-41 | Four rules of GitHub Actions meet the CI plan | PR-1 and PR-49: the skip condition on each job (D-595), and the night (OQ-81, OQ-82) |
 | F-42 | The Godot export reads the project folder alone, and no command installs export templates | PR-5 and PR-54: content in the Game assembly (D-508), and the cache of D-596 |
 | F-43 | A failed night blocked the PR that fixes it | PR-49: a night on the head of a PR, and docs-only PRs pass (D-510, D-513) |
-| F-60 | The Godot editor build gives an exit code of 0 when its build callback fails | PR-1: the smoke job reads the log of the editor build (T-2) |
+| F-60 | The Godot editor writes `net8.0` into a `.csproj` that holds none. A pipe hid the exit code of the editor | PR-1: the Game project pins `net10.0`, and each smoke command writes its log to a file |
 | F-61 | A coverage run instruments the Core copy and adds references to it | PR-1: the reference test reads the file that the Core project built |
 | F-62 | The macOS archive of Godot holds `Godot_mono.app`, and not `Godot.app` | PR-1: the smoke job reads `*.app/Contents/MacOS/Godot` |
 | F-63 | The git-bash of the Windows image carries no `shasum` | PR-1: the checksum step reads the digest with `sha512sum` or `shasum` |
+| F-64 | A headless session whose managed assembly does not load runs without end | PR-1: the smoke session runs with `--quit-after`, and the job reads the success line |
 
 ## 7. Roadmap
 

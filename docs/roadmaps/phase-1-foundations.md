@@ -43,8 +43,9 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-41 | Four rules of GitHub Actions meet the CI plan | PR-1: D-595 puts the skip condition on each job, and never on the workflow |
 | F-42 | The Godot export walks the project folder alone, and `content/` lies outside it | PR-5: the Game assembly carries the content files (D-508) |
 | F-58 | No check can see the conversation of a session | PR-3: the document rules read the diff and the description alone (D-579) |
-| F-60 | The Godot editor writes `net8.0` into a `.csproj` that holds no target framework | PR-1: the Game project pins `net10.0` in its own file |
+| F-60 | The Godot editor writes `net8.0` into a `.csproj` that holds no target framework | PR-1: the Game project pins `net10.0` in its own file. The exit-code part of this finding is refuted |
 | F-61 | A coverage run instruments the Core copy and adds references to it | PR-1: the reference test reads the file that the Core project built |
+| F-64 | A headless session whose managed assembly does not load runs without end, and it hides the fault | PR-1: the smoke session runs with `--quit-after`, and each caller reads the success line |
 
 ## 7. Roadmap
 

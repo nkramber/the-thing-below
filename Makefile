@@ -8,6 +8,9 @@ GAME_DIR := TheThingBelow.Game
 TOOLS_PROJECT := TheThingBelow.Tools/TheThingBelow.Tools.csproj
 GODOT ?= /Applications/Godot_mono.app/Contents/MacOS/Godot
 
+# The frame limit of the smoke session. It ends a session that does not reach `Quit` (F-64).
+SMOKE_FRAME_LIMIT := 600
+
 # The documents that the STE checker reads. Four paths are dated records and stay out (D-10).
 STE_EXCLUDE := -e '^docs/reviews/' -e '^docs/session-handoff' -e '^docs/archive/'
 STE_FILES = $(shell git ls-files '*.md' | grep -v $(STE_EXCLUDE))
@@ -38,9 +41,32 @@ ste-check:
 	python3 docs/tools/ste-check.py $(STE_FILES)
 
 ## smoke: build the Godot solution, then run the headless session (D-117).
+#
+# Each command writes its log to a file, and never through a pipe. A pipe gives the exit
+# code of the last command of the pipe, and it hides the code of the Godot process (F-60).
+#
+# The session runs with `--quit-after`, because a session whose managed assembly does not
+# load never reaches `Quit` and runs without end (F-64). The session then gives an exit
+# code of 0 with no success line, so this target reads the log and not the code (T-2).
 smoke:
-	"$(GODOT)" --headless --editor --path $(GAME_DIR) --build-solutions --quit
-	"$(GODOT)" --headless --path $(GAME_DIR) -- --smoke
+	@set -eu; \
+	mkdir -p artifacts; \
+	echo "smoke: the Godot build"; \
+	"$(GODOT)" --headless --editor --path $(GAME_DIR) --build-solutions --quit \
+	    > artifacts/godot-build.log 2>&1 \
+	  || { echo "smoke: the Godot build failed. Read artifacts/godot-build.log (T-2)." >&2; \
+	       tail -5 artifacts/godot-build.log >&2; exit 1; }; \
+	echo "smoke: the headless session"; \
+	"$(GODOT)" --headless --path $(GAME_DIR) --quit-after $(SMOKE_FRAME_LIMIT) -- --smoke \
+	    > artifacts/smoke.log 2>&1 || true; \
+	if ! grep -q "smoke: the session ends with no error." artifacts/smoke.log; then \
+	    echo "smoke: the session wrote no success line. Read artifacts/smoke.log (T-2)." >&2; \
+	    tail -5 artifacts/smoke.log >&2; exit 1; \
+	fi; \
+	if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR)" artifacts/smoke.log; then \
+	    echo "smoke: the session wrote an error line (T-2)." >&2; exit 1; \
+	fi; \
+	cat artifacts/smoke.log
 
 ## where: the branch, the tree, and the PR state.
 where:

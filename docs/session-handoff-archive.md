@@ -2,6 +2,53 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 50: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the token audit of the repository, then PR #16, the session context budget.
+Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: author. Base: `2bc7d56` (PR #15).
+
+### What this session did, and why
+
+- The owner asked for a read-only audit of token use. The audit read the usage records of 10 Claude Code sessions and 10 Codex sessions of this repository, and the size of every instruction file.
+- Each harness call sends the whole context again. The Claude Code sessions sent a median of 350k tokens in each call, and a maximum of 886k, with no context compaction. Whole reads of the read order held about 29% of the carried context. A call for each STE check cost 19% of the input tokens, and a call for each GitHub poll cost 14%. `CLAUDE.md` cost about 1.5%.
+- The owner said "Implement all fixes as recommended." D-583 to D-591 record the answers. OQ-182 asks where a size check goes. F-59 records the finding.
+- The start set replaces the whole read order at the start (D-583, D-584). The STE check runs in the commit command (D-585). One command waits for Gitar (D-586). The session tells the owner when it is ready for a context compaction (D-587).
+- `pr-review` split into a core of 17,922 bytes and five reference files (D-588, D-589). The glossary of the project areas moved word for word to `ste-writing/references/glossary.md` (D-590). D-591 covers scripts and edits.
+- `docs/runbooks/session-context.md` holds the evidence and the commands. Each command ran on this machine, in zsh.
+- The auto mode classifier of the harness refused the edits of the session skill and of `CLAUDE.md` two times. The owner then approved the edits in the conversation.
+- A separate evaluator ran the changed rules on four requests and found five defects. All five had merit, and this PR fixes them: a handoff push during the Gitar wait, the lost full STE check, unset variables in the comments command, the provider gate against D-584, and the wait after "On it".
+- The shared `gitar-review` skill did not change, because it is the same file in each repo.
+- The handoff held ten entries before this one, so Session 40 moved word for word to the top of `docs/session-handoff-archive.md` (D-18). A repeated rule line between two entries left this file.
+
+### State of the build
+
+- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
+- PR #16 is open on branch `docs/pr-16-context-budget`. The commit that holds this entry is its effective head.
+- The full interim STE check gives 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- The start set fell from 55,786 bytes to 28,491 bytes, about 20.7k to 10.6k tokens at 2.7 bytes for each token. `CLAUDE.md` grew from 15,001 to 16,052 bytes.
+
+### In flight
+
+PR #16 waits for a Gitar pass and for the Codex review, because it adds decision rows (T-4, D-17, D-401). For this work the owner told the session to set aside the Gitar procedure, so no Gitar request ran.
+
+### Traps and gotchas
+
+- The shell of this machine is zsh. zsh does not split `$files` into words, so the commit command pipes the file list to `xargs`.
+- The harness gives the compaction command to the owner alone. A session cannot compact itself, so D-587 tells the owner.
+- A push while Gitar reviews makes the review stale. Commit the handoff entry of a round before the push of that round.
+- The checker does not read the glossary. A session that writes about a project area loads `references/glossary.md` (D-590).
+- The audit scripts lived in the scratch folder of the session. No tool of this repository reads the usage records (D-99).
+- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 51.
+
+### Open questions that block progress
+
+None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+The author gets a current Gitar review of the PR #16 head and answers each finding. Then the Codex review of PR #16 runs.
+
 ## Session 49: 2026-09-16, Codex
 
 Author: Codex

@@ -2,6 +2,50 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 60: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the Codex review of PR #18, in the same session that authored it (D-582).
+Repository: the-thing-below. Branch: `feat/pr-1-scaffold`. PR: #18. Role: author. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read `docs/reviews/pr-18.md`. The verdict was `Blocked` for head `0c402dd`, with P2-1 and P2-2 open.
+- P2-1 has partial merit. Its trigger does not reproduce, and the defect that it aims at is real.
+- The editor gives an exit code of 1 when its build callback fails, and not 0. The first measurement of this PR read `$?` after a pipe to `tail`, so it read the exit code of `tail`. F-60 carried that wrong claim, and the row now marks that part refuted and keeps it.
+- The verification found the real failure. A headless session whose managed assembly does not load never reaches `Quit`, and it runs without end. With `--quit-after` it ends with an exit code of 0 and no success line. This is F-64.
+- The `smoke` target of the Makefile now writes each log to a file, fails on a nonzero build code, runs the session with `--quit-after 600`, and fails when the success line is absent.
+- The `smoke` job of CI runs the session with `--quit-after 600` too, so a broken session fails in seconds and not at the time limit of 30 minutes.
+- P2-2 has full merit. The `docs/reviews/` line of the Documents section matched none of the three forms of D-581, and it named a placeholder path. The PR description now names `docs/reviews/pr-18.md` and `docs/reviews/pr-18-response.md` in the `Changed` form.
+- `docs/reviews/pr-18-response.md` records each disposition, the evidence, and the regression checks.
+
+### State of the build
+
+- `main` is `9f27f12`. The branch holds the scaffold, the two corrections, and the review records.
+- `make verify` passes on the Mac of the owner: the build, the 8 tests, `dotnet format`, the STE check with 0 findings, and the smoke session.
+- The regression checks pass. `make smoke` gives 2 on a failed Godot build, gives 2 in about 6.5 seconds on a boot class that the scene cannot instantiate, and gives 0 on a healthy tree.
+- The Gitar review of `0c402dd` gave `Approved`, with 1 finding closed and 0 unresolved threads.
+
+### In flight
+
+The repeat Codex review of PR #18. The correction commit changes `Makefile` and `.github/workflows/ci.yml`, so it is the new effective head, and it needs a new Gitar review and a repeat review (T-4, D-17).
+
+### Traps and gotchas
+
+- A measurement of an exit code through a pipe reads the exit code of the last command of the pipe. Redirect to a file, or set `pipefail`, before you record an exit code as evidence.
+- A headless Godot session that cannot instantiate its boot script waits without end. Always give `--quit-after` to a session that a check runs (F-64).
+- An exit code of 0 from a smoke session proves nothing. The success line in the log is the proof (T-2).
+- A finding can name a real defect through a trigger that does not reproduce. Reproduce the trigger, then look for the defect that the finding aims at.
+- The next ids are D-600, OQ-183, F-65, L-16, G-27, PR-83, M-8, and Session 61.
+
+### Open questions that block progress
+
+None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Push the corrections, request a current Gitar review of the new head, then hand PR #18 back to Codex for the repeat review.
+
 ## Session 59: 2026-09-16, Codex
 
 Author: Codex
@@ -391,50 +435,3 @@ None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81,
 ### Next concrete action
 
 The author makes each failed GitHub retrieval fail the comment-export command, tests that a partial export returns nonzero, and requests a repeat Codex review after the fix.
-
-## Session 50: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: the token audit of the repository, then PR #16, the session context budget.
-Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: author. Base: `2bc7d56` (PR #15).
-
-### What this session did, and why
-
-- The owner asked for a read-only audit of token use. The audit read the usage records of 10 Claude Code sessions and 10 Codex sessions of this repository, and the size of every instruction file.
-- Each harness call sends the whole context again. The Claude Code sessions sent a median of 350k tokens in each call, and a maximum of 886k, with no context compaction. Whole reads of the read order held about 29% of the carried context. A call for each STE check cost 19% of the input tokens, and a call for each GitHub poll cost 14%. `CLAUDE.md` cost about 1.5%.
-- The owner said "Implement all fixes as recommended." D-583 to D-591 record the answers. OQ-182 asks where a size check goes. F-59 records the finding.
-- The start set replaces the whole read order at the start (D-583, D-584). The STE check runs in the commit command (D-585). One command waits for Gitar (D-586). The session tells the owner when it is ready for a context compaction (D-587).
-- `pr-review` split into a core of 17,922 bytes and five reference files (D-588, D-589). The glossary of the project areas moved word for word to `ste-writing/references/glossary.md` (D-590). D-591 covers scripts and edits.
-- `docs/runbooks/session-context.md` holds the evidence and the commands. Each command ran on this machine, in zsh.
-- The auto mode classifier of the harness refused the edits of the session skill and of `CLAUDE.md` two times. The owner then approved the edits in the conversation.
-- A separate evaluator ran the changed rules on four requests and found five defects. All five had merit, and this PR fixes them: a handoff push during the Gitar wait, the lost full STE check, unset variables in the comments command, the provider gate against D-584, and the wait after "On it".
-- The shared `gitar-review` skill did not change, because it is the same file in each repo.
-- The handoff held ten entries before this one, so Session 40 moved word for word to the top of `docs/session-handoff-archive.md` (D-18). A repeated rule line between two entries left this file.
-
-### State of the build
-
-- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
-- PR #16 is open on branch `docs/pr-16-context-budget`. The commit that holds this entry is its effective head.
-- The full interim STE check gives 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-- The start set fell from 55,786 bytes to 28,491 bytes, about 20.7k to 10.6k tokens at 2.7 bytes for each token. `CLAUDE.md` grew from 15,001 to 16,052 bytes.
-
-### In flight
-
-PR #16 waits for a Gitar pass and for the Codex review, because it adds decision rows (T-4, D-17, D-401). For this work the owner told the session to set aside the Gitar procedure, so no Gitar request ran.
-
-### Traps and gotchas
-
-- The shell of this machine is zsh. zsh does not split `$files` into words, so the commit command pipes the file list to `xargs`.
-- The harness gives the compaction command to the owner alone. A session cannot compact itself, so D-587 tells the owner.
-- A push while Gitar reviews makes the review stale. Commit the handoff entry of a round before the push of that round.
-- The checker does not read the glossary. A session that writes about a project area loads `references/glossary.md` (D-590).
-- The audit scripts lived in the scratch folder of the session. No tool of this repository reads the usage records (D-99).
-- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 51.
-
-### Open questions that block progress
-
-None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-The author gets a current Gitar review of the PR #16 head and answers each finding. Then the Codex review of PR #16 runs.

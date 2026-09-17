@@ -250,8 +250,9 @@ jobs:
           "$GODOT" --headless --editor --path TheThingBelow.Game \
             --build-solutions --quit 2>&1 | tee godot-build.log
 
-          # The editor gives an exit code of 0 when the build callback fails, so this step
-          # reads the log (T-2). The spike of the Deck test found this trap.
+          # The editor gives a nonzero exit code when the build callback fails, and
+          # `pipefail` carries that code through `tee`. This grep is a second guard, and it
+          # names the fault in the log (T-2, F-60).
           if grep -q "build callback failed" godot-build.log; then
             echo "The Godot build callback failed. Read godot-build.log (T-2)." >&2
             exit 1
@@ -260,10 +261,14 @@ jobs:
       - name: Run the headless smoke session
         run: |
           set -euo pipefail
-          "$GODOT" --headless --path TheThingBelow.Game -- --smoke 2>&1 | tee smoke.log
+          # A session whose managed assembly does not load never reaches `Quit`, and it
+          # runs without end. `--quit-after` ends it, so the job fails in seconds and not
+          # at the time limit of the job (F-64).
+          "$GODOT" --headless --path TheThingBelow.Game --quit-after 600 \
+            -- --smoke 2>&1 | tee smoke.log
 
-          # An exit code of 0 hides a fault, so this step reads the log for the last line
-          # of the session and for any error (T-2, D-117).
+          # Such a session gives an exit code of 0 and writes no success line, so this step
+          # reads the log and not the code (T-2, D-117, F-64).
           if ! grep -q "smoke: the session ends with no error." smoke.log; then
             echo "The smoke session wrote no success line. Read smoke.log (T-2)." >&2
             exit 1
