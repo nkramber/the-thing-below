@@ -2,6 +2,47 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 89: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: PR-46, the `det-lint` command and its job. Repository: the-thing-below. Branch: `feat/pr-46-det-lint`. PR: #23. Role: author. Base: `0fbecab`.
+
+### What this session did, and why
+
+- Asked the owner OQ-70 and OQ-71, which blocked PR-46. The owner took the recommended option of each one, and D-614 and D-615 record the answers.
+- Wrote the `det-lint` command in Tools on the Roslyn compiler library, version 5.9.0 of `Microsoft.CodeAnalysis.CSharp` (D-498). The command reads the type of each expression, so a real literal with no suffix fails too (F-38).
+- Ten rules: DL 0 for a compilation error, DL 1 to DL 7 for Core, and DL 8 and DL 9 for Game. Section 7.4 of `docs/roadmaps/area-tools.md` holds the table.
+- Added the `det-lint` job to the Linux leg of CI and the `lint` target of `make verify`.
+- The first live run found a real fault: `CoreAssembly.Self` gave a `System.Reflection.Assembly` from Core. No code read it, because the reference test of G-1 reads the built file (F-61). The member now gives the name of the assembly, and that test reads the name.
+- F-65 joins the finding register: Godot.NET.Sdk writes the build output of a Godot project to `.godot/mono/temp/bin/<configuration>/`, and that folder holds `GodotSharp.dll` from the NuGet restore.
+
+### The state of the build
+
+- `main` is `0fbecab`. The head of PR #23 is `f5eba68` before this entry.
+- `make verify` passes: the build with 0 warnings, 186 tests, the format check, `det-lint` with 0 findings, `ste-check` with 0 findings, and the smoke session.
+- The CI checks of this head wait for their first run.
+
+### What is in flight
+
+The Gitar pass of PR #23, and then the Codex review. This PR changes code and `.github/workflows/`, so no label exempts it (D-560).
+
+### Traps and gotchas
+
+- The lint needs a build first. `ReferenceSet` reads the Godot assembly from the Game build output, and the error of an absent folder names the build command (T-2).
+- The `bin` folder of the Game project stays empty. F-65 names the real output folder.
+- DL 4 passes `typeof(X)` alone, because the content reader of PR-5 needs it in an attribute (F-36). It fails each member of `Type` that reflects.
+- `GodotTextRule.TextHelperType` holds the name of the text helper of PR-61. That PR confirms the name or changes the constant (G-16).
+- `deck-test/` stays untracked, as it was before this session.
+- The next ids are D-616, OQ-183, F-66, L-16, G-27, PR-85, M-8, and Session 90.
+
+### The questions that block progress
+
+None for this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### The next concrete action
+
+Run the Gitar pass on the head of PR #23, answer each finding, and then hand the PR to Codex for the cross-provider review.
+
 ## Session 88: 2026-09-17, Codex
 
 Author: Codex
@@ -370,44 +411,3 @@ None for PR #21. OQ-3 comes right after the merge of this PR. OQ-179 blocks PR-5
 ### The next concrete action
 
 Answer the Gitar pass of the new head, then get the repeat review of the other provider.
-
-## Session 79: 2026-09-17, Codex
-
-Author: Codex
-Session: review PR #21 at effective head `40ea275`. Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. Role: reviewer. Base: `04953e4`.
-
-### What this session did, and why
-
-- Reviewed PR #21, the review gate, from its merge base to effective head `40ea275`.
-- Added three findings to `docs/reviews/pr-21.md`: a negated approval can pass RG 4, an out-of-section head can pass RG 5, and RG 8 misses spelled-out deferrals.
-- Corrected the `docs/reviews/` line in the PR description after the review record landed.
-- Verified the author provider from Session 78 and the opposite-provider rule of T-4 and D-17.
-- Checked all 28 changed paths, the workflow trust boundary, the command rules, the test fixtures, and the Documents section.
-
-### The state of the build
-
-- `main` is `04953e4`, and the implementation head is `40ea275`.
-- `make verify` passes locally with 113 tests, clean format, 0 STE findings, and a successful smoke session.
-- All nine CI checks pass on PR tip `d5d9332`. The live review-gate check is absent on PR-3 by design (F-37, D-500).
-- All nine CI checks also pass on metadata tip `75b5f63`, after the review record and corrected Documents row were pushed.
-- The Gitar pass is current on `40ea275`, and it reports approval with no finding.
-- The remote PR tip before this review publication was `d5d9332`. The untracked `deck-test/` stays untouched.
-- The review record and this handoff are published at `1bdaa89`. The record gives the findings for the author to correct.
-
-### What is in flight
-
-The PR waits for the author to correct the findings and for a repeat review.
-
-### Traps and gotchas
-
-- A review record and handoff commit do not move the effective head (D-610).
-- `make verify` cannot run the live review-gate workflow on this PR. The first live run is on the next PR (D-500).
-- The absent checks are det-lint (PR-46), replay identity (PR-4), screen test (PR-41), bot (PR-15), and night gate (PR-49).
-
-### The questions that block progress
-
-None for the findings. OQ-3 remains for the owner after the first live check run.
-
-### The next concrete action
-
-The author corrects the findings, then Codex reviews the new effective head.

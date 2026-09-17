@@ -1,5 +1,46 @@
 # Session handoff archive
 
+## Session 79: 2026-09-17, Codex
+
+Author: Codex
+Session: review PR #21 at effective head `40ea275`. Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. Role: reviewer. Base: `04953e4`.
+
+### What this session did, and why
+
+- Reviewed PR #21, the review gate, from its merge base to effective head `40ea275`.
+- Added three findings to `docs/reviews/pr-21.md`: a negated approval can pass RG 4, an out-of-section head can pass RG 5, and RG 8 misses spelled-out deferrals.
+- Corrected the `docs/reviews/` line in the PR description after the review record landed.
+- Verified the author provider from Session 78 and the opposite-provider rule of T-4 and D-17.
+- Checked all 28 changed paths, the workflow trust boundary, the command rules, the test fixtures, and the Documents section.
+
+### The state of the build
+
+- `main` is `04953e4`, and the implementation head is `40ea275`.
+- `make verify` passes locally with 113 tests, clean format, 0 STE findings, and a successful smoke session.
+- All nine CI checks pass on PR tip `d5d9332`. The live review-gate check is absent on PR-3 by design (F-37, D-500).
+- All nine CI checks also pass on metadata tip `75b5f63`, after the review record and corrected Documents row were pushed.
+- The Gitar pass is current on `40ea275`, and it reports approval with no finding.
+- The remote PR tip before this review publication was `d5d9332`. The untracked `deck-test/` stays untouched.
+- The review record and this handoff are published at `1bdaa89`. The record gives the findings for the author to correct.
+
+### What is in flight
+
+The PR waits for the author to correct the findings and for a repeat review.
+
+### Traps and gotchas
+
+- A review record and handoff commit do not move the effective head (D-610).
+- `make verify` cannot run the live review-gate workflow on this PR. The first live run is on the next PR (D-500).
+- The absent checks are det-lint (PR-46), replay identity (PR-4), screen test (PR-41), bot (PR-15), and night gate (PR-49).
+
+### The questions that block progress
+
+None for the findings. OQ-3 remains for the owner after the first live check run.
+
+### The next concrete action
+
+The author corrects the findings, then Codex reviews the new effective head.
+
 ## Session 78: 2026-09-17, Claude Code
 
 Author: Claude Code
