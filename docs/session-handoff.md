@@ -2,6 +2,44 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 85: 2026-09-17, Codex
+
+Author: Codex
+Session: repeat review of PR #21 at effective head `89d125e`. Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. Role: reviewer. Base: `04953e4`.
+
+### What this session did, and why
+
+- Read the author response and verified the P1-4 correction against its trigger.
+- Verified that D-612 requires one bold span in the Verdict section, and that the new rule enforces it.
+- Set P1-1, P1-2, P1-3, P1-4, and P2-1 to fixed in `89d125e`.
+- Ran the 14 focused review-gate tests and `make verify`. All checks passed, including 123 tests and Godot smoke.
+- Verified all nine CI checks pass on metadata tip `1d3398b`. The Gitar pass approves effective head `89d125e`; its report says no rules were evaluated and functional validation was not enabled.
+- Updated the review record with `Ready for owner merge` for effective head `89d125e`.
+
+### The state of the build
+
+- `main` and the merge base are `04953e4`. The effective head is `89d125e`, and the remote tip is metadata commit `1d3398b`.
+- `make verify` passes: build, 123 tests, format, STE with 0 findings, and Godot smoke.
+- All nine CI checks pass on `1d3398b`. The unrelated untracked `deck-test/` remains untouched.
+
+### What is in flight
+
+The review record and this entry need a commit and push to the PR branch.
+
+### Traps and gotchas
+
+- D-612 closes the scope of RG 4. A review that requires a check of Verdict prose needs a new owner answer.
+- PR-3 has no live `review-gate` check. D-500 accepts the command tests as evidence, and the first live run is on the next PR.
+- The next ids are D-613, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 86.
+
+### The questions that block progress
+
+None for PR #21. OQ-3 applies after the first live check run. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### The next concrete action
+
+Commit this review and handoff, push, then verify the published head.
+
 ## Session 84: 2026-09-17, Claude Code
 
 Author: Claude Code
@@ -373,45 +411,3 @@ None for PR #20. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 ### Next concrete action
 
 Get the Gitar pass on the new head, then hand PR #20 to Codex for the review.
-
-## Session 75: 2026-09-17, Claude Code
-
-Author: Claude Code
-Session: PR-2, the STE checker in C#. Repository: the-thing-below. Branch: `feat/pr-2-ste-checker`. Role: author. Base: `9b84158`.
-
-### What this session did, and why
-
-- Asked the owner OQ-67 and OQ-68 before any change (D-19). The answers are D-604 and D-605.
-- Asked three more questions that the work raised, and the answers are D-606, D-607, and D-608.
-- Wrote the `ste-check` command of Tools as new code (D-101, D-277). It holds the eight writing rules of the `ste-writing` skill, the comment rule of F-11, the reference check, and the session number check.
-- The writing rules give the same result as the interim Python script on every live document. The run gives 0 findings.
-- Retired `docs/tools/ste-check.py`. The Makefile target, the `ste-check` CI job, `CLAUDE.md`, `AGENTS.md`, the skill, and the two runbooks now name the command.
-- Corrected six citations that the new reference check found: two dead paths in decision rows, one bare `SKILL.md`, one external path under `.github/`, and two range markers that read as a citation of D-1.
-- Moved Session 65 and Session 64 to the archive. The handoff held 11 entries, and D-18 keeps 10.
-
-### State of the build
-
-- `main` is `9b84158`. The branch is `feat/pr-2-ste-checker`.
-- `make verify` passes: the build, 46 tests, the format check, the STE check with 0 findings, and the Godot smoke session.
-- The new command runs the whole checkout in about one second.
-- The unrelated untracked `deck-test/` remains untouched.
-
-### In flight
-
-The first push of PR-2, then the Gitar pass, then the Codex review.
-
-### Traps and gotchas
-
-- The reference check reads a path in backticks. Write a branch name, an external path, and a refused file name without backticks, or name the PR that creates the file (G-16).
-- A line that names a `PR-#` marks every path on that line. The mark is broad by design.
-- The checker reads the working tree, and not the staged files (D-608). A fault in an unstaged file stops the commit.
-- The rule MD 1 fails an HTML comment across lines. The removal of such a comment hides prose from every rule (F-11).
-- The next ids are D-609, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 76.
-
-### Open questions that block progress
-
-None for PR-2. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-Push the branch, open PR-2, and get the Gitar pass on the head.
