@@ -62,3 +62,37 @@ The repeat review gives no finding again, and it keeps the `Blocked` verdict for
 The state of the PR on 2026-09-17, after the repeat review, is the same as the state above. The head is `d6d1529`, the effective head is `c065a11`, the nine checks pass, and the PR holds one comment, which is the Gitar dashboard. The commits after `c065a11` change `docs/reviews/` and `docs/session-handoff.md` alone.
 
 This round commits the updated record and the Session 67 entry with no change to their text, because that session cannot commit or push.
+
+## The review round of the head 38aa19f
+
+### P2-1: The merged-PR stop rule blocks the transitional prompt
+
+Disposition: full merit. The finding is correct.
+
+Step 1 of the `one-pr-one-session` skill stops a session when "the conversation holds a PR that the owner merged or closed". The round of D-601 added one sentence under the list: "The transitional prompt of step 6 is not work on the next PR, and this rule permits it." That sentence sits in the paragraph about a request for the next PR, and the word "this rule" does not name the stop condition. A session that follows the list stops before it writes the prompt that D-601 requires.
+
+#### Correction
+
+`.claude/skills/one-pr-one-session/SKILL.md`, step 1. The exception now sits in the condition itself:
+
+- The bullet reads: "The conversation holds a PR that the owner merged or closed. The transitional prompt of step 6, for the bound PR of the session, is the one exception (D-601)."
+- The paragraph reads: "The transitional prompt of step 6 is not work on the next PR. Write that prompt for the bound PR of the session, and for the merge message of that PR alone. A merge message for another PR gets the stop result above."
+
+The exception stays narrow. It names the bound PR, and step 6 gives the same limit: "A merge message for another PR gets the blocked result of step 1."
+
+#### Regression check
+
+Read step 1 for two cases. A merge message for the bound PR permits the prompt of step 6 and nothing else. A merge message for another PR gives the stop result. The two readings now come from the condition and not from a later paragraph.
+
+## Two notes on the record
+
+The record of this round holds text from the earlier rounds that its own verification refutes.
+
+- The section `## PR comments` says "Unknown", and that the export failed. The `## Verification` section of the same record says that the export passed, and the `## Out of scope` section lists the comments. The verification is the current state.
+- The same section calls `docs/reviews/pr-19-response.md` an "owner-authored report". The author of the PR wrote that file.
+
+Neither note changes a finding. The dated record stays as its session wrote it.
+
+## The state after the correction
+
+The correction changes `.claude/skills/one-pr-one-session/SKILL.md`, so the effective head moves. The PR needs a new Gitar pass and a repeat review of the new head. The Gitar pass of `38aa19f` gave no finding, and it does not cover the correction.

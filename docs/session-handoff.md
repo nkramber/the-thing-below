@@ -2,6 +2,45 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 71: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the finding P2-1 of PR #19, in the same session as Sessions 64, 66, 68, and 69 (D-582).
+Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19. Role: author. Base: `ee4305a`.
+
+### What this session did, and why
+
+- The review round of Session 70 gives the verdict `Changes required` for the effective head `38aa19f`, with one finding. That session had network access, and it pushed its own record.
+- P2-1 has full merit. Step 1 of the `one-pr-one-session` skill stops a session when the conversation holds a merged PR. The round of D-601 put the exception in a later paragraph, and the word "this rule" did not name the condition. A session that reads the list stops before it writes the prompt of D-601.
+- The correction puts the exception in the condition itself, and it names the bound PR. The paragraph now says to write the prompt for the bound PR and its merge message alone.
+- `docs/reviews/pr-19-response.md` holds the answer, the correction, and the regression check. It also notes two lines of the record that the verification of the same record refutes.
+- The correction changes a skill, so the effective head moves again. The PR needs a new Gitar pass and a repeat review.
+
+### State of the build
+
+- `main` is `ee4305a`. The effective head before this round was `38aa19f`, and the ten checks passed on it.
+- `make verify` passes on the Mac of the owner for this round: the build, 8 tests, the format check, the STE check, and the smoke session.
+- The Gitar pass of `38aa19f` gave no finding, and it does not cover this correction.
+
+### In flight
+
+The Gitar pass of the new head, then the repeat review that gives the verdict.
+
+### Traps and gotchas
+
+- An exception that sits under a list, and not in the condition, does not change the condition. Put the exception in the line that stops the work.
+- Automatic Gitar reviews are paused on this trial. A new head needs a `Gitar review` comment after the push wait of three minutes.
+- The review session of this round reached GitHub, and the earlier two did not. The environment of that harness is not stable, and D-602 covers the case with no network.
+- The next ids are D-603, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 72.
+
+### Open questions that block progress
+
+None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Get the Gitar pass of the new head, then get the repeat review of PR #19.
+
 ## Session 70: 2026-09-17, Codex
 
 Author: Codex
@@ -376,49 +415,3 @@ None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 ### Next concrete action
 
 Hand PR #18 back to Codex for the repeat review of `d8c31b8`. The session stays bound to PR #18 and answers each finding (D-582).
-
-## Session 61: 2026-09-16, Codex
-
-Author: Codex
-Session: repeat review of PR #18 at effective head `6e0622a`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
-
-### What this session did, and why
-
-- Read the current handoff, the PR response, and the repeat-review, review-record, contract, Gitar, and commit skills.
-- Verified the provider gate. Session 60 names Claude Code as the author, and Codex remains the opposite provider (T-4, D-17).
-- Verified that `a56a7ce` changes the handoff alone, so the effective head is `6e0622a`.
-- Reproduced the F-60 build callback failure. Godot logged the error and returned 1, so P2-1's exact trigger is withdrawn.
-- Verified P2-2. The Documents line now names both actual review files in the `Changed:` form.
-- Verified the corrected smoke path. `make smoke` passed on a healthy tree and failed when a wrapper removed the managed assembly during the real Godot session.
-- Found P2-4 in the response file: its prose says the old target reported success, but its table says that case ran without end.
-- CI run 35175182671 passed all nine checks on tip `a56a7ce`.
-- GitHub API calls for inline review threads failed. The current Gitar dashboard summary says the pass approved the correction head, with one closed finding and no open issue.
-- Updated `docs/reviews/pr-18.md`. The current verdict remains `Blocked` for head `6e0622a`.
-- The handoff held ten entries before this one, so Session 51 moves to the archive (D-18).
-
-### State of the build
-
-- `main` is `9f27f12` (PR #17). PR #18 is open on `feat/pr-1-scaffold`.
-- The effective head is `6e0622a`. The current remote tip is `a56a7ce`, a metadata commit.
-- CI run 35175182671 passed all nine checks on the remote tip.
-- The healthy smoke run passed. The missing-assembly regression failed on the absent success line, as required.
-- The inline review-thread export remains incomplete.
-
-### In flight
-
-P2-1 is withdrawn, P2-2 and P2-3 are fixed, and P2-4 remains open. The review cannot reach its hand-over point until the response text is corrected and the remaining review evidence is complete.
-
-### Traps and gotchas
-
-- The editor returns 1 on the F-60 build callback error. The original evidence read the code of `tail` through a pipe.
-- A session with no loadable boot assembly waits without end. The new frame limit ends the session, and the missing success line fails the smoke check (F-64).
-- `docs/reviews/pr-18-response.md` line 28 conflicts with the regression table at line 47.
-- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 62.
-
-### Open questions that block progress
-
-No owner question blocks the review. P2-4 and the inline comment export remain unresolved.
-
-### Next concrete action
-
-Correct the conflicting statement in the response file. Then repeat the review of PR #18 at its new effective head.

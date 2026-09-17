@@ -1,5 +1,51 @@
 # Session handoff archive
 
+## Session 61: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat review of PR #18 at effective head `6e0622a`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read the current handoff, the PR response, and the repeat-review, review-record, contract, Gitar, and commit skills.
+- Verified the provider gate. Session 60 names Claude Code as the author, and Codex remains the opposite provider (T-4, D-17).
+- Verified that `a56a7ce` changes the handoff alone, so the effective head is `6e0622a`.
+- Reproduced the F-60 build callback failure. Godot logged the error and returned 1, so P2-1's exact trigger is withdrawn.
+- Verified P2-2. The Documents line now names both actual review files in the `Changed:` form.
+- Verified the corrected smoke path. `make smoke` passed on a healthy tree and failed when a wrapper removed the managed assembly during the real Godot session.
+- Found P2-4 in the response file: its prose says the old target reported success, but its table says that case ran without end.
+- CI run 35175182671 passed all nine checks on tip `a56a7ce`.
+- GitHub API calls for inline review threads failed. The current Gitar dashboard summary says the pass approved the correction head, with one closed finding and no open issue.
+- Updated `docs/reviews/pr-18.md`. The current verdict remains `Blocked` for head `6e0622a`.
+- The handoff held ten entries before this one, so Session 51 moves to the archive (D-18).
+
+### State of the build
+
+- `main` is `9f27f12` (PR #17). PR #18 is open on `feat/pr-1-scaffold`.
+- The effective head is `6e0622a`. The current remote tip is `a56a7ce`, a metadata commit.
+- CI run 35175182671 passed all nine checks on the remote tip.
+- The healthy smoke run passed. The missing-assembly regression failed on the absent success line, as required.
+- The inline review-thread export remains incomplete.
+
+### In flight
+
+P2-1 is withdrawn, P2-2 and P2-3 are fixed, and P2-4 remains open. The review cannot reach its hand-over point until the response text is corrected and the remaining review evidence is complete.
+
+### Traps and gotchas
+
+- The editor returns 1 on the F-60 build callback error. The original evidence read the code of `tail` through a pipe.
+- A session with no loadable boot assembly waits without end. The new frame limit ends the session, and the missing success line fails the smoke check (F-64).
+- `docs/reviews/pr-18-response.md` line 28 conflicts with the regression table at line 47.
+- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 62.
+
+### Open questions that block progress
+
+No owner question blocks the review. P2-4 and the inline comment export remain unresolved.
+
+### Next concrete action
+
+Correct the conflicting statement in the response file. Then repeat the review of PR #18 at its new effective head.
+
 ## Session 60: 2026-09-16, Claude Code
 
 Author: Claude Code

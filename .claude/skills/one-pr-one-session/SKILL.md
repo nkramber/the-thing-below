@@ -33,11 +33,11 @@ Stop with this result, and do no other work, when one of the conditions below ho
 `Blocked: start a new clean session for this PR.`
 
 - The conversation holds substantive work on another PR or another repository. Substantive work is a change, a commit, a push, a review record, or a PR comment. A file read alone is not.
-- The conversation holds a PR that the owner merged or closed.
+- The conversation holds a PR that the owner merged or closed. The transitional prompt of step 6, for the bound PR of the session, is the one exception (D-601).
 - The request asks for a second PR or the next PR.
 - The session is a fork, a subagent, a context compaction, or a summary of a session that worked on another PR.
 
-After the hand-over point, a request for the next PR gets this result too. The transitional prompt of step 6 is not work on the next PR, and this rule permits it.
+After the hand-over point, a request for the next PR gets this result too. The transitional prompt of step 6 is not work on the next PR. Write that prompt for the bound PR of the session, and for the merge message of that PR alone. A merge message for another PR gets the stop result above.
 
 A request for a second concern in the bound PR breaks G-8. Push back, and ask the owner (D-24). Never add the concern without an answer.
 
