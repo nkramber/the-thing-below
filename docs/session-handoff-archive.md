@@ -1,5 +1,46 @@
 # Session handoff archive
 
+## Session 72: 2026-09-17, Codex
+
+Author: Codex
+Session: repeat review of PR #19 at effective head `6f82d26`, on branch `docs/pr-83-skip-set-decision`. Role: reviewer. Base: `ee4305a`.
+
+### What this session did, and why
+
+- Read the response file and the prior review record (D-588, D-589).
+- Verified that Session 64 names Claude Code as the author. Codex is the eligible reviewer (T-4, D-17).
+- Re-read the original P2-1 trigger. The correction moves its exception into the merged-PR stop condition and names the bound PR.
+- Set P2-1 to fixed in `6f82d26`. The instructions now allow the prompt for the bound PR and stop on another PR's merge.
+- Ran `make verify`. The build, 8 tests, format, STE, and smoke checks passed.
+- All 9 live CI checks pass on PR tip `b862cfb`.
+- The Gitar dashboard approves `6f82d26`, but metadata commit `b862cfb` followed that review. The current PR tip has no Gitar run, so the freshness gate blocks approval.
+- Updated `docs/reviews/pr-19.md` for effective head `6f82d26` and corrected the stale handoff fact in the PR description.
+
+### State of the build
+
+- `main` is `ee4305a`. The effective head is `6f82d26`, and PR tip `b862cfb` was the branch head at the start of this review.
+- `make verify` passes. The 9 current CI checks pass on `b862cfb`.
+- Gitar approves `6f82d26`; the approval is stale for the current PR tip.
+- This round changes only the review and handoff metadata. The unrelated untracked `deck-test/` remains untouched.
+
+### In flight
+
+P2-1 is fixed. The review waits for a Gitar pass that matches the current PR tip.
+
+### Traps and gotchas
+
+- A Gitar pass after the code push becomes stale when a later metadata commit moves the PR tip.
+- The dashboard update came before metadata commit `b862cfb`, and its check run names `6f82d26`.
+- The next ids are D-603, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 73.
+
+### Open questions that block progress
+
+No owner question blocks PR #19. The stale Gitar pass blocks approval.
+
+### Next concrete action
+
+Get a fresh Gitar pass on the branch tip, then repeat the review.
+
 ## Session 71: 2026-09-17, Claude Code
 
 Author: Claude Code

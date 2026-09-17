@@ -2,6 +2,47 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 82: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the repeat review of PR #21, in the same session as Session 78 and Session 80 (D-582).
+Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. PR: #21. Role: author. Base: `04953e4`.
+
+### What this session did, and why
+
+- The repeat review of `3a75767` marks P1-1, P1-2, and P2-1 as fixed. It adds one finding, P1-3, and it keeps the verdict `Changes required`.
+- P1-3: RG 4 read the first bold verdict line and stopped. A section with the approved verdict and then `**Changes required.**` passed the gate. The claim reproduces, and it has full merit.
+- The rule now reads each bold name of the `## Verdict` section. More than one verdict name gives a fault, on one line or on two lines.
+- The correction text of the finding says that the line holds the approved verdict alone. A line with no prose after the name breaks the skeleton of the `pr-review` reference file, which each record of PR #19, PR #20, and PR #21 follows. The round applied the words of the regression check of the finding instead, and `docs/reviews/pr-21-response.md` gives the evidence.
+- Added three tests. Two of them fail on the old rule. The third proves that an earlier verdict in its own section still passes, which is the shape of a repeat review record.
+- The `pr-review` reference file names the new rule, and it says that an earlier verdict goes in a section of its own (D-579).
+
+### The state of the build
+
+- `main` is `04953e4`. The head before this round was `3a75767`, and the remote tip was `a8f91fe`.
+- `make verify` passes: the build, 122 tests, the format check, the STE check with 0 findings, and the smoke session.
+- This round changes code, tests, and one skill reference file, so the effective head moves to the commit of this round.
+- Session 71 moves to the archive. The handoff keeps the 10 newest entries (D-18, D-607).
+
+### What is in flight
+
+The Gitar pass of the new head, then the repeat review of the other provider.
+
+### Traps and gotchas
+
+- The `## Verdict` section of a record now gives one verdict name in bold. A repeat review puts each earlier verdict in `## Earlier verdicts`, as the record of this PR does.
+- The guard test `AnEarlierVerdictInAnotherSectionPasses` passes on both versions of the rule. It is a guard of the record shape, and not a regression test of P1-3.
+- The head of this PR gets no automatic Gitar pass, because the trial paused them. Each round needs a `Gitar review` comment after the push wait.
+- The next ids are D-612, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 83.
+
+### The questions that block progress
+
+None for PR #21. OQ-3 comes right after the merge of this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### The next concrete action
+
+Get a Gitar pass of the new head, then get the repeat review of the other provider.
+
 ## Session 81: 2026-09-17, Codex
 
 Author: Codex
@@ -373,44 +414,3 @@ None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 ### Next concrete action
 
 Get the repeat review of PR #19 from Codex at the effective head `7732b1b`, under D-602 and D-603.
-
-## Session 72: 2026-09-17, Codex
-
-Author: Codex
-Session: repeat review of PR #19 at effective head `6f82d26`, on branch `docs/pr-83-skip-set-decision`. Role: reviewer. Base: `ee4305a`.
-
-### What this session did, and why
-
-- Read the response file and the prior review record (D-588, D-589).
-- Verified that Session 64 names Claude Code as the author. Codex is the eligible reviewer (T-4, D-17).
-- Re-read the original P2-1 trigger. The correction moves its exception into the merged-PR stop condition and names the bound PR.
-- Set P2-1 to fixed in `6f82d26`. The instructions now allow the prompt for the bound PR and stop on another PR's merge.
-- Ran `make verify`. The build, 8 tests, format, STE, and smoke checks passed.
-- All 9 live CI checks pass on PR tip `b862cfb`.
-- The Gitar dashboard approves `6f82d26`, but metadata commit `b862cfb` followed that review. The current PR tip has no Gitar run, so the freshness gate blocks approval.
-- Updated `docs/reviews/pr-19.md` for effective head `6f82d26` and corrected the stale handoff fact in the PR description.
-
-### State of the build
-
-- `main` is `ee4305a`. The effective head is `6f82d26`, and PR tip `b862cfb` was the branch head at the start of this review.
-- `make verify` passes. The 9 current CI checks pass on `b862cfb`.
-- Gitar approves `6f82d26`; the approval is stale for the current PR tip.
-- This round changes only the review and handoff metadata. The unrelated untracked `deck-test/` remains untouched.
-
-### In flight
-
-P2-1 is fixed. The review waits for a Gitar pass that matches the current PR tip.
-
-### Traps and gotchas
-
-- A Gitar pass after the code push becomes stale when a later metadata commit moves the PR tip.
-- The dashboard update came before metadata commit `b862cfb`, and its check run names `6f82d26`.
-- The next ids are D-603, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 73.
-
-### Open questions that block progress
-
-No owner question blocks PR #19. The stale Gitar pass blocks approval.
-
-### Next concrete action
-
-Get a fresh Gitar pass on the branch tip, then repeat the review.

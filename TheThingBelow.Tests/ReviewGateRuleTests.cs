@@ -185,6 +185,55 @@ public sealed class ReviewGateRecordRuleTests
         Assert.Contains("holds no verdict line", check.Detail, StringComparison.Ordinal);
     }
 
+    // The regression tests of P1-3 of `docs/reviews/pr-21.md`. The rule read the first bold
+    // name alone, so a second verdict after the approved one passed the gate.
+    [Fact]
+    public void ASecondVerdictLineAfterTheApprovedVerdictFails()
+    {
+        string text = string.Join(
+            '\n',
+            "## Verdict",
+            string.Empty,
+            "**Ready for owner merge.** This verdict applies to head `1111111`.",
+            "**Changes required.** The record needs the new head.",
+            string.Empty);
+
+        GateCheck check = ReviewRecordRules.CheckVerdict("docs/reviews/pr-21.md", text);
+
+        Assert.Equal(GateResult.Fault, check.Result);
+        Assert.Contains("gives 2 verdicts", check.Detail, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ASecondVerdictOnTheLineOfTheApprovedVerdictFails()
+    {
+        string text = "## Verdict\n\n**Ready for owner merge.** The owner can merge. **Changes required.**\n";
+
+        GateCheck check = ReviewRecordRules.CheckVerdict("docs/reviews/pr-21.md", text);
+
+        Assert.Equal(GateResult.Fault, check.Result);
+        Assert.Contains("gives 2 verdicts", check.Detail, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AnEarlierVerdictInAnotherSectionPasses()
+    {
+        string text = string.Join(
+            '\n',
+            "## Earlier verdicts",
+            string.Empty,
+            "**Changes required.** This verdict applied to head `2222222`.",
+            string.Empty,
+            "## Verdict",
+            string.Empty,
+            "**Ready for owner merge.** This verdict applies to head `1111111`.",
+            string.Empty);
+
+        GateCheck check = ReviewRecordRules.CheckVerdict("docs/reviews/pr-21.md", text);
+
+        Assert.Equal(GateResult.Pass, check.Result);
+    }
+
     // The regression test of P1-2 of `docs/reviews/pr-21.md`. The rule read every line of the
     // record, so a head field of another section passed a stale Identity list.
     [Fact]

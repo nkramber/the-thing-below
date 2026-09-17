@@ -15,7 +15,7 @@ The `review-gate` job reads this file once PR-3 creates it (D-15). Three parts o
 |---|---|---|
 | The file name | `docs/reviews/pr-<number>.md` | The number is the GitHub PR number, not the roadmap id. |
 | The head field | `- Head: ` and the hash in backticks, in the `## Identity` list | The hash is the effective head. A short hash is permitted. The rule reads that list alone. |
-| The verdict | The verdict line of the `## Verdict` section, such as `**Ready for owner merge.**` | The line starts with one of the three names in bold. Write the name exactly, and add no word to it. |
+| The verdict | The verdict line of the `## Verdict` section, such as `**Ready for owner merge.**` | The line starts with one of the three names in bold. Write the name exactly, and add no word to it. The section gives one verdict name in bold, and no more. |
 
 The effective head is the newest commit that changes a path outside the metadata set.
 The metadata set holds four paths of this pull request (D-610):
@@ -30,6 +30,10 @@ A commit that changes the record of another pull request moves the effective hea
 The required review commit holds the review record and the handoff entry, so it is always a metadata commit.
 Without that rule the review commit invalidates the review that it publishes.
 Record the effective head, not the tip, when the review commit is the last commit.
+
+A repeat review replaces the verdict of the `## Verdict` section. Put each earlier verdict in a
+section of its own, such as `## Earlier verdicts`. Two verdict names in bold in the `## Verdict`
+section give a fault, because the gate cannot know which one is the current verdict.
 
 Use this skeleton. Keep the heading text and the order.
 
