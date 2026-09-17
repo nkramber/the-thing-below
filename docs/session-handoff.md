@@ -26,12 +26,15 @@ Repository: the-thing-below. Branch: `feat/pr-1-scaffold`. PR: PR-1. Role: autho
 - `make verify` passes on the Mac of the owner: the build, the 8 tests, `dotnet format`, the STE check with 0 findings, and the Godot smoke session.
 - The smoke session prints the renderer as `forward_plus` and the frame as 1280 by 720, and it ends with no error.
 - The CI workflow holds five jobs: `changed-paths`, `build-test-format`, `coverage`, `smoke`, and `ste-check`.
-- The first run of PR #18 passed `changed paths`, `ste-check`, `coverage report`, the three legs of the build and test job, and `smoke (ubuntu-24.04)`.
-- The first run failed `smoke (macos-26)` and `smoke (windows-2025)`. The second commit corrects both, and the next run reads them.
+- The first run of PR #18, 35169279617 on `0b319f8`, failed `smoke (macos-26)` and `smoke (windows-2025)`. Each other check passed.
+- The second run, 35169532179 on `0c402dd`, passed each of the nine checks, the two corrected legs included.
+- The Gitar review of `0c402dd` gives `Approved`, with 1 finding closed and no open issue. That review is current: the head matches, and the dashboard edit time of 01:14:25Z is later than the push time of 01:10:42Z.
 
 ### In flight
 
-The push of this branch, the gitar pass, and then the Codex review (T-4, D-17). The PR adds decision rows, so the `review-override` label does not apply (D-401).
+The Codex review of PR #18 (T-4, D-17). The PR adds decision rows, so the `review-override` label does not apply (D-401). It also changes `.github/workflows/`, which is never exempt (D-560).
+
+The effective head is `0c402dd`. The commit that holds this entry changes `docs/session-handoff.md` alone, so it is a metadata commit and it does not move the effective head.
 
 ### Traps and gotchas
 
@@ -43,7 +46,8 @@ The push of this branch, the gitar pass, and then the Codex review (T-4, D-17). 
 - Coverlet 10 takes `--coverlet`, and not `--coverage`. It writes its file to the results directory, and it takes no output path.
 - The macOS archive of Godot holds `Godot_mono.app`, and not `Godot.app` (F-62). The find pattern of the smoke job reads `*.app/Contents/MacOS/Godot`.
 - The git-bash of the Windows runner carries `sha512sum` and no `shasum` (F-63). The checksum step reads the digest itself and names both values.
-- A Gitar review of the first head approved it. The second commit made that review stale, and the session asks for a new one.
+- Gitar found the macOS fault of F-62 by reading the workflow, and CI found the same fault by running it. Gitar found no fault in the Windows checksum step, which only the Windows runner showed.
+- Gitar paused automatic reviews for the trial period, and a review still ran on each push of this PR. Read the dashboard comment, and never the pause note alone.
 - The owner ran no Deck test yet. PR-82 waits for that run.
 - The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 58.
 
@@ -53,7 +57,7 @@ None for PR-1. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
 
 ### Next concrete action
 
-Push the workflow fix, request a current Gitar review, then hand PR #18 to Codex.
+Hand PR #18 to Codex for the review of T-4. The session stays bound to PR #18 and answers each finding (D-582).
 
 ## Session 56: 2026-09-16, Claude Code
 
