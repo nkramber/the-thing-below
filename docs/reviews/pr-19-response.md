@@ -96,3 +96,34 @@ Neither note changes a finding. The dated record stays as its session wrote it.
 ## The state after the correction
 
 The correction changes `.claude/skills/one-pr-one-session/SKILL.md`, so the effective head moves. The PR needs a new Gitar pass and a repeat review of the new head. The Gitar pass of `38aa19f` gave no finding, and it does not cover the correction.
+
+## The review round of the head 6f82d26
+
+The round confirms the fix of P2-1 and gives `Blocked` for one reason: the Gitar pass names `6f82d26`, and the PR tip was `b862cfb`. The block is correct under the text of the `gitar-review` skill, and the rule itself cannot pass. The owner answered the question, and D-603 records the answer.
+
+### The gate could not pass
+
+The repository has two rules for the head of a PR:
+
+- The `pr-review` skill: the effective head is the newest commit that changes a path outside the metadata set. The metadata set is `docs/reviews/`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md`.
+- The `gitar-review` skill: a review is current when the head of command B is the head of the request.
+
+The second rule reads the branch tip. The repository requires a record of each Gitar pass in the handoff, which is in the metadata set. Thus each record of a pass made that pass stale at once, and each new pass needed a new record.
+
+The round gives the evidence itself. The review names the tip `b862cfb`, which is the record of the pass of `6f82d26`. The review then pushed `a11f6d7` and `168e602`, and the tip moved again. `git diff --stat 6f82d26..168e602` gives `docs/reviews/pr-19.md`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md`, and the tip has no Gitar check run. A pass of `b862cfb` would be stale before the review could read it.
+
+### Correction
+
+D-603 sets the rule: a Gitar pass covers the effective head, and a metadata commit does not make it stale. A commit outside the metadata set moves the effective head, and that head needs its own pass.
+
+`.claude/skills/gitar-review/SKILL.md` follows D-603. The terms give the effective head and the metadata set. The first condition of "Prove that a review is current" accepts a later metadata commit. The section says how to prove the effective head with `git diff --stat <reviewed head>..<tip>`.
+
+The `gitar-review` skill says that a rule of the repository wins over it, so D-603 stands beside the copy of that skill in each other repository.
+
+### Regression check
+
+Read the conditions for two cases. A pass of the effective head with later metadata commits is current. A pass with a later commit outside the metadata set is stale, and it needs a new request.
+
+### The state after the correction
+
+This round changes `docs/decisions.md` and `.claude/skills/gitar-review/SKILL.md`, so the effective head moves. The new head needs a Gitar pass. Under D-603, the record of that pass does not make it stale.

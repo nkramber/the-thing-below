@@ -1,5 +1,50 @@
 # Session handoff archive
 
+## Session 63: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat review of PR #18 at effective head `d8c31b8`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read the start set and the repeat-review, review-record, commit, and STE instructions.
+- Verified that Claude Code authored PR #18. Codex remains the eligible reviewer under T-4 and D-17.
+- Verified that the current effective head is `d8c31b8`; the later commits only change metadata.
+- Read the P2-4 answer with the regression table. Each says the old target runs without end, and a frame limit alone would leave a false pass.
+- Checked that the Makefile and CI set a frame limit and require the success line.
+- The latest Gitar dashboard approves `d8c31b8`. All nine CI checks pass on the current branch tip.
+- The saved GraphQL query reports zero unresolved threads. A fresh export failed to connect.
+- The owner confirms that zero inline threads remain unresolved.
+- Set P2-4 to fixed in `d8c31b8`. The verdict is `Ready for owner merge` for that head.
+- The handoff held ten entries. Session 53 moved to the archive (D-18).
+
+### State of the build
+
+- `main` is `9f27f12`. The PR branch tip before this review commit is `47a7e1639104b69d726c993c4404e4bcbbe552fd`.
+- The effective head is `d8c31b8`. The response, design row, and roadmap row now state the same two-fault behavior.
+- All nine checks pass on the branch tip: changed paths, STE check, build/test/format on three platforms, coverage, and smoke on three platforms.
+- The Gitar dashboard approves the effective head with one closed finding and no open issues.
+- No uncommitted source or project changes exist. The unrelated untracked `deck-test/` directory remains unchanged.
+
+### In flight
+
+The review record and this entry need one metadata commit and push. The verdict applies to effective head `d8c31b8`.
+
+### Traps and gotchas
+
+- A frame limit and a success-line check are both needed for the smoke contract (F-64).
+- The API did not return inline threads in this session. The response file records the last successful query and result.
+- Do not add unrelated paths to the review commit. Keep `deck-test/` untouched.
+- The next ids are D-600, OQ-183, F-65, L-16, G-27, PR-83, M-8, and Session 64.
+
+### Open questions that block progress
+
+None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Commit this review record and handoff entry, push them, then verify the remote head and status.
+
 ## Session 62: 2026-09-16, Claude Code
 
 Author: Claude Code

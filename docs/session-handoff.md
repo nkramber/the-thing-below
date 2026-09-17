@@ -2,6 +2,45 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 73: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the block of the Gitar freshness rule of PR #19, in the same session as Sessions 64, 66, 68, 69, and 71 (D-582).
+Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19. Role: author. Base: `ee4305a`.
+
+### What this session did, and why
+
+- The review round of Session 72 sets P2-1 to fixed, and it gives `Blocked` for one reason: the Gitar pass names `6f82d26`, and the tip was `b862cfb`.
+- The block is correct under the text of the `gitar-review` skill, and that rule cannot pass. The repository requires a record of each Gitar pass in the handoff, which is a metadata commit, so each pass was stale at the moment of its record.
+- The review gives the evidence itself. It pushed `a11f6d7` and `168e602` after it wrote the block, and `git diff --stat 6f82d26..168e602` gives three metadata paths alone. The tip has no Gitar check run.
+- The owner answered the question. D-603 sets the rule: a Gitar pass covers the effective head, and a metadata commit does not make it stale.
+- The `gitar-review` skill follows D-603. It gets the terms of the effective head and the metadata set, a new first condition, and the command that proves the effective head.
+
+### State of the build
+
+- `main` is `ee4305a`. The effective head before this round was `6f82d26`, and the ten checks passed on it.
+- `make verify` passes on the Mac of the owner for this round.
+- This round changes `docs/decisions.md` and a skill, so the effective head moves, and the new head needs a Gitar pass.
+
+### In flight
+
+The Gitar pass of the new head, then the repeat review that gives the verdict.
+
+### Traps and gotchas
+
+- A rule that reads the branch tip fights a rule that reads the effective head. The record of a pass then makes the pass stale, and each side of the review moves the tip.
+- D-603 does not weaken the pass. A commit outside the metadata set still needs a new pass.
+- Automatic Gitar reviews are paused on this trial. Each new head needs a `Gitar review` comment after the push wait of three minutes.
+- The next ids are D-604, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 74.
+
+### Open questions that block progress
+
+None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Get the Gitar pass of the new head, then get the repeat review of PR #19.
+
 ## Session 72: 2026-09-17, Codex
 
 Author: Codex
@@ -364,48 +403,3 @@ None for PR-83. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
 ### Next concrete action
 
 Hand PR #19 to Codex for the review, and write `docs/reviews/pr-19.md`.
-
-## Session 63: 2026-09-16, Codex
-
-Author: Codex
-Session: repeat review of PR #18 at effective head `d8c31b8`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
-
-### What this session did, and why
-
-- Read the start set and the repeat-review, review-record, commit, and STE instructions.
-- Verified that Claude Code authored PR #18. Codex remains the eligible reviewer under T-4 and D-17.
-- Verified that the current effective head is `d8c31b8`; the later commits only change metadata.
-- Read the P2-4 answer with the regression table. Each says the old target runs without end, and a frame limit alone would leave a false pass.
-- Checked that the Makefile and CI set a frame limit and require the success line.
-- The latest Gitar dashboard approves `d8c31b8`. All nine CI checks pass on the current branch tip.
-- The saved GraphQL query reports zero unresolved threads. A fresh export failed to connect.
-- The owner confirms that zero inline threads remain unresolved.
-- Set P2-4 to fixed in `d8c31b8`. The verdict is `Ready for owner merge` for that head.
-- The handoff held ten entries. Session 53 moved to the archive (D-18).
-
-### State of the build
-
-- `main` is `9f27f12`. The PR branch tip before this review commit is `47a7e1639104b69d726c993c4404e4bcbbe552fd`.
-- The effective head is `d8c31b8`. The response, design row, and roadmap row now state the same two-fault behavior.
-- All nine checks pass on the branch tip: changed paths, STE check, build/test/format on three platforms, coverage, and smoke on three platforms.
-- The Gitar dashboard approves the effective head with one closed finding and no open issues.
-- No uncommitted source or project changes exist. The unrelated untracked `deck-test/` directory remains unchanged.
-
-### In flight
-
-The review record and this entry need one metadata commit and push. The verdict applies to effective head `d8c31b8`.
-
-### Traps and gotchas
-
-- A frame limit and a success-line check are both needed for the smoke contract (F-64).
-- The API did not return inline threads in this session. The response file records the last successful query and result.
-- Do not add unrelated paths to the review commit. Keep `deck-test/` untouched.
-- The next ids are D-600, OQ-183, F-65, L-16, G-27, PR-83, M-8, and Session 64.
-
-### Open questions that block progress
-
-None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-Commit this review record and handoff entry, push them, then verify the remote head and status.
