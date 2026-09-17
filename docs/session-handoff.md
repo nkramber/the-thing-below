@@ -2,6 +2,86 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 66: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the review of PR #19, in the same session as Session 64 (D-582).
+Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19. Role: author. Base: `ee4305a`.
+
+### What this session did, and why
+
+- The review of Session 65 gives no finding on the change. Its verdict is `Blocked`, because that session had no GitHub access, no writable `.git/FETCH_HEAD`, and no build result.
+- `docs/reviews/pr-19-response.md` gives each piece of evidence that the review session could not get: the head, the state, the comment export, the thread count, the nine checks, and the result of `make verify`.
+- The review session could not push. This round commits `docs/reviews/pr-19.md` and the Session 65 entry with no change to their text, so the PR holds each record of its review (D-577).
+- The round moves the Session 55 and Session 56 entries to `docs/session-handoff-archive.md`, because the file keeps the 10 newest entries (D-18).
+
+### State of the build
+
+- `main` is `ee4305a`. The PR head on GitHub is `0bcd246`, the state is `OPEN`, and the merge state is `CLEAN`.
+- The effective head is `c065a11`. This round changes `docs/reviews/` and `docs/session-handoff.md` alone, which is the metadata set, so the effective head does not move.
+- The nine CI checks pass, and the Gitar pass approves `c065a11` with no finding. The comment export gives one comment, which is the Gitar dashboard, and zero review threads.
+- `make verify` passes on the Mac of the owner in 9 seconds with a warm build.
+
+### In flight
+
+The repeat review of PR #19 at the effective head `c065a11` (T-4, D-17). Only the reviewer can set the verdict.
+
+### Traps and gotchas
+
+- A `Blocked` verdict can name no defect. This one names missing evidence of the review session, and the author cannot clear it.
+- The review session read 30 seconds of `dotnet build` as an unknown result. A cold build takes longer than that, and a restore with no network fails.
+- A metadata commit does not move the effective head, and it needs no new Gitar request. Automatic Gitar reviews are paused on this trial, so a request costs one of a limited set.
+- The next ids are D-602, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 67.
+
+### Open questions that block progress
+
+No owner question blocks PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3. OQ-182 blocks nothing.
+
+### Next concrete action
+
+Get the repeat review of PR #19 from Codex at the effective head `c065a11`.
+
+## Session 65: 2026-09-16, Codex
+
+Author: Codex
+Session: review of PR #19 at effective head `c065a11`, on branch `docs/pr-83-skip-set-decision`. Role: reviewer. Base: `ee4305a`.
+
+### What this session did, and why
+
+- Read the handoff, the one-PR, PR-review, project-contract, review-record, commit, and STE instructions.
+- Verified the provider gate. Session 64 names Claude Code as the PR author, so Codex is eligible under T-4 and D-17.
+- Inspected all eight changed paths and checked the D-600 path set against the workflow and the equal agent files against D-20.
+- The STE check and whitespace check pass. The build did not finish within 30 seconds.
+- GitHub API access failed. The PR description, current comments, live checks, and remote head could not be verified.
+- The review record gives `Blocked` for effective head `c065a11`, because required current PR evidence is unavailable.
+
+### State of the build
+
+- `main` points to `ee4305a`. The checked-out PR branch and its tracking ref point to `0bcd246`.
+- The effective head is `c065a11`; later commits only change metadata.
+- The STE check gives zero findings, the diff check passes, and `CLAUDE.md` equals `AGENTS.md`.
+- The build result is unknown. GitHub checks and the current remote head were not available.
+- The unrelated untracked `deck-test/` directory remains untouched.
+
+### In flight
+
+The PR review is blocked on GitHub evidence and cannot reach its hand-over point.
+
+### Traps and gotchas
+
+- `git fetch` failed because `.git/FETCH_HEAD` is not writable in this environment.
+- `gh` could not connect to `api.github.com`, so the required comment export produced no file.
+- Do not treat handoff reports of a green Gitar pass and CI as independent verification.
+- The next ids are D-602, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 66.
+
+### Open questions that block progress
+
+No owner question blocks PR #19. The missing network evidence blocks a final review verdict.
+
+### Next concrete action
+
+Restore GitHub API access, export the PR description and all comments in one command, verify the live checks and remote head, then update this review record.
+
 ## Session 64: 2026-09-16, Claude Code
 
 Author: Claude Code
@@ -374,84 +454,3 @@ None for PR-1. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
 ### Next concrete action
 
 Hand PR #18 to Codex for the review of T-4. The session stays bound to PR #18 and answers each finding (D-582).
-
-## Session 56: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: the Deck test of step 7.1 of `docs/roadmaps/phase-1-foundations.md`. That step has no PR and no review.
-Repository: the-thing-below. Branch: `spike/deck-test`. PR: none. Role: author of a spike.
-
-### What this session did, and why
-
-- Built the throwaway test scene of D-160 and D-523 on the branch `spike/deck-test`, which never merges (D-597).
-- The scene draws the load of D-160 at the frame of 1280 by 720: normal maps, point lights with shadows, glow, the four ambient kinds, fog, the CRT pass, and a wipe transition.
-- The sweep runs 20 stages. Each stage holds 60 warm-up frames and 300 measured frames.
-- `scripts/FrameMeter.cs` reads the time of each frame and counts each frame over 16.667 milliseconds (D-598).
-- Ran the fetch script for the export templates, and the SHA-512 matched (D-596).
-- The owner answered eight questions. `deck-test/handover.md` holds each one, and PR-1 records them as D-592 to D-599.
-
-### State of the build
-
-- The scene, the shaders, the meter, and the report all work. A run on the Mac proved them.
-- The native Linux export `build/DeckTest.x86_64` exists. No machine ran it.
-- `main` held no code during this session.
-
-### In flight
-
-The run on the Deck, which the owner does. That run answers D-160 and gives the first effect budget of D-523.
-
-### Traps and gotchas
-
-- The Godot export needs a solution file beside `project.godot`. With none, the export writes an ELF file, exits 0, and packs no managed assembly.
-- An exit code of 0 hides an export fault. The export gives `completed with warnings` and exits 0. PR-54 must read the log.
-- macOS caps the frame rate whatever the vsync setting says. A Mac run reports 16.67 milliseconds in every stage, and the report refuses to give a budget (T-2).
-- Only the Deck run answers D-160. A Mac run tests the scene and the report, and nothing else.
-- Godot drops each light past 15 on one canvas item with no message (F-46). The sweep stops the light row at 15.
-
-### Open questions that block progress
-
-None. OQ-92 and OQ-93 closed with D-597 and D-598.
-
-### Next concrete action
-
-The owner copies `build/DeckTest.x86_64` and `run-deck-test.sh` to the Deck and runs `./run-deck-test.sh`. PR-82 then sets the renderer.
-
-## Session 55: 2026-09-16, Codex
-
-Author: Codex
-Session: repeat review of PR #16 at effective head `e3e6611`, after the owner confirmed Gitar approval.
-Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: reviewer. Base: `2bc7d56`.
-
-### What this session did, and why
-
-- Read the current handoff and the repeat-review, review-record, commit, and STE instructions.
-- Verified that the local branch and fetched remote branch both point to `e3e6611`. This commit changes the runbook, so it is the effective head.
-- Verified the provider gate. Claude Code authored the PR, and Codex reviews it (T-4, D-17).
-- Reproduced P2-2 in a scratch repository under `set -e`. The corrected command committed review and handoff records with no eligible STE file.
-- Set P2-2 to fixed in `e3e6611`. The full interim STE check, diff check, and identity check pass.
-- The owner confirmed Gitar approval of the current changes. GitHub API access failed, so the dashboard comment and check query could not be read independently.
-- Updated `docs/reviews/pr-16.md`, preserved the earlier verdicts, and set the current verdict to `Ready for owner merge` for `e3e6611`.
-
-### State of the build
-
-- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
-- PR #16 is open on `docs/pr-16-context-budget`. The review and handoff commit `86b76b6` was pushed and verified as the remote head. The effective head remains `e3e6611`.
-- The current verdict is `Ready for owner merge`, based on the fixed findings and the owner's Gitar confirmation.
-
-### In flight
-
-The review record and this entry are committed and pushed to PR #16. This entry records the verified push.
-
-### Traps and gotchas
-
-- GitHub API access failed during this session. The owner confirmed the current Gitar approval.
-- The remote fetch succeeded. The PR page and comment API did not respond.
-- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 56.
-
-### Open questions that block progress
-
-None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-Push this metadata update, fetch the remote, and verify the clean branch status and PR head.
