@@ -29,9 +29,6 @@ public static class SizeRules
     /// <summary>The folder of the skills of this project (D-21).</summary>
     public const string SkillsFolder = ".claude/skills/";
 
-    /// <summary>The first line of a session entry of the handoff (D-18).</summary>
-    private const string SessionHeading = "## Session ";
-
     /// <summary>Reads the start set of the checkout, and gives every size finding.</summary>
     /// <param name="documents">The file set of the checkout.</param>
     /// <returns>Each finding, in the order of the paths.</returns>
@@ -88,7 +85,7 @@ public static class SizeRules
         if (first < 0)
         {
             throw new InvalidOperationException(
-                $"The handoff '{path}' holds no line that starts with '{SessionHeading}' (T-2).");
+                $"The handoff '{path}' holds no line of the form '## Session <number>:' (T-2, D-18).");
         }
 
         int next = IndexOfHeading(lines, first + 1);
@@ -146,7 +143,7 @@ public static class SizeRules
     {
         for (int index = from; index < lines.Count; index++)
         {
-            if (lines[index].StartsWith(SessionHeading, StringComparison.Ordinal))
+            if (SessionNumberRules.IsSessionHeading(lines[index]))
             {
                 return index;
             }

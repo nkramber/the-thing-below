@@ -23,6 +23,15 @@ public static class SessionNumberRules
     private static readonly Regex SessionHeading = new Regex(
         @"^## Session (\d+):", RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
+    /// <summary>Reads whether a line is the heading of a session entry (D-18).</summary>
+    /// <param name="line">One line of the handoff or its archive.</param>
+    /// <returns>True when the line has the form `## Session N:`, with a number for N.</returns>
+    public static bool IsSessionHeading(string line)
+    {
+        ArgumentNullException.ThrowIfNull(line);
+        return SessionHeading.IsMatch(line);
+    }
+
     /// <summary>Reads the handoff and the archive, and gives every session number finding.</summary>
     /// <param name="documents">The file set of the checkout.</param>
     /// <returns>Each finding, in the order of the entries.</returns>

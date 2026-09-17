@@ -2,6 +2,47 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 87: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the Gitar pass of PR #22, in the same session as Session 86 (D-582).
+Repository: the-thing-below. Branch: `feat/pr-84-context-budget`. PR: #22. Role: author. Base: `9787b2d`.
+
+### What this session did, and why
+
+- The Gitar pass on `bdf9e06` gives the verdict `Approved with suggestions` and one finding.
+- The finding: `SizeRules` read a session heading as the prefix `## Session `, and `SessionNumberRules` reads it as the form `## Session N:`. The two rules of one command disagreed on where an entry starts.
+- The claim reproduces. A line of the top entry such as `## Session numbering rules` ended the measured region, so SIZE 2 undercounted the entry and could miss a real fault.
+- The finding has full merit. `SessionNumberRules.IsSessionHeading` is now the one detector, and `SizeRules` calls it. The fault message of an absent entry names the form of a heading.
+- One regression test, `ASubHeadingInsideTheTopEntryDoesNotEndIt`. It fails on the old code with 135 tests and passes on the new code with 136.
+- The first live run of the `review-gate` check found a real fault (F-37, D-500). The `docs/reviews/` line of the Documents section was not one of the three forms of D-581, and RG 7 failed. The line is now the `Changed:` form, and RG 7 passes.
+
+### The state of the build
+
+- `main` is `9787b2d`. The head before this round was `bdf9e06`, and the PR is #22.
+- The nine CI checks pass on `bdf9e06`: three build legs, three smoke legs, the changed paths job, the coverage report, and `ste-check`.
+- `review-gate` fails on RG 3 alone, because no record exists at `docs/reviews/pr-22.md` yet. RG 1, RG 2, RG 6, RG 7, and RG 8 pass.
+- `make verify` passes: the build, 136 tests, the format check, the STE check with 0 findings, and the smoke session.
+
+### What is in flight
+
+The Gitar pass on the new head, and the Codex review.
+
+### Traps and gotchas
+
+- The Gitar trial paused automatic reviews, and the note sits at the top of the dashboard comment. This round still got an automatic review, at 20:12:31Z after the push at 20:09:30Z. A later round can need a `Gitar review` comment after the push wait.
+- RG 3 fails until the review record lands. That is the gate of T-4, not a fault of this PR.
+- `CLAUDE.md` holds 152 free bytes under the 16 KB limit (D-613).
+- The next ids are D-614, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 88.
+
+### The questions that block progress
+
+None for this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### The next concrete action
+
+Get the Gitar pass on the new head, then hand PR #22 to Codex for the review.
+
 ## Session 86: 2026-09-17, Claude Code
 
 Author: Claude Code
@@ -376,40 +417,3 @@ None for PR #21. OQ-3 comes right after the merge of this PR. OQ-179 blocks PR-5
 ### The next concrete action
 
 Open PR #21, answer the Gitar pass, then hand the PR to the other provider.
-
-## Session 77: 2026-09-17, Codex
-
-Author: Codex
-Session: review PR #20 at effective head `e800f4c`. Repository: the-thing-below. Branch: `feat/pr-2-ste-checker`. Role: reviewer. Base: `9b84158`.
-
-### What this session did, and why
-
-- Verified Claude Code authored PR #20, so Codex meets the cross-provider gate (T-4, D-17).
-- Read the full diff, the PR description and comments, the PR-2 roadmap entry, and the affected decisions and questions (D-589).
-- Ran `make verify`: build, 53 tests, format, STE check, and Godot smoke all passed.
-- Verified all nine CI checks pass on PR tip `2e316e0`. The effective head remains `e800f4c` because later commits change metadata paths alone.
-- Gitar's finding on three missed contractions is fixed and resolved in `e800f4c`.
-- Wrote `docs/reviews/pr-20.md` with `Ready for owner merge` for `e800f4c`.
-
-### State of the build
-
-- `main` is `9b84158`. The effective head is `e800f4c`, and the remote tip before this review commit is `2e316e0`.
-- Local `make verify` passes. All nine CI checks pass on the remote tip.
-- The unrelated untracked `deck-test/` remains untouched.
-
-### In flight
-
-The review record and this entry are on the PR branch, and GitHub reports the current head.
-
-### Traps and gotchas
-
-- The review covers effective head `e800f4c`; later metadata commits do not change it.
-- The next ids are D-609, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 78.
-
-### Open questions that block progress
-
-None for PR #20. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-The review record and handoff are on the remote. The owner can merge PR #20.

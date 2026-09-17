@@ -76,6 +76,7 @@ Built by PR-2, and PR-84 adds the size rules. Phase file: `phase-1-foundations.m
 - SIZE 3 reads every `.md` file of `.claude/skills/`. SIZE 2 reads the top entry alone, from its heading to the next heading (D-584).
 - The count reads the lines of a file, and each line ending counts as one byte. Thus every CI leg reads the same number.
 - `TheThingBelow.Tools/SteCheck/SizeRules.cs` holds the three limits, and the `ste-writing` skill repeats them.
+- SIZE 2 and the session number check share one detector of a session heading. Thus the two rules agree on where an entry starts (D-18, L-12).
 
 > *In plain English:* every document must pass a check for plain technical English. This moves the check from a borrowed script into the language of the project, with the same rules and a few more.
 

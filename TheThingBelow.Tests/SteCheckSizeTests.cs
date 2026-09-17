@@ -70,6 +70,25 @@ public sealed class SteCheckSizeTests
     }
 
     [Fact]
+    public void ASubHeadingInsideTheTopEntryDoesNotEndIt()
+    {
+        // A session heading has the form `## Session <number>:` (D-18, L-12). A sub-heading that
+        // starts with the same words must not end the measured region, or the rule undercounts.
+        using SteCheckCheckout checkout = SteCheckCheckout.Build();
+        List<string> lines = ["# Session handoff", string.Empty];
+        lines.AddRange(BuildEntry(2, SizeRules.HandoffEntryLimitBytes));
+        lines.Add("## Session numbering rules");
+        lines.AddRange(BuildEntry(1, 40));
+        checkout.Write("docs/session-handoff.md", [.. lines]);
+
+        IReadOnlyList<Finding> findings = SizeRules.Check(DocumentSet.Read(checkout.Root));
+
+        Finding found = Assert.Single(findings);
+        Assert.Equal("SIZE 2", found.Rule);
+        Assert.Contains("the top entry holds 5147 bytes", found.Detail, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ASkillFileAboveTheLimitIsAFinding()
     {
         // Exit test 4 of PR-84. Every `.md` file of a skill folder takes the rule (D-21).
