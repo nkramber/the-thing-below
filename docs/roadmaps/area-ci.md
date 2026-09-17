@@ -117,7 +117,7 @@ Built by PR-1. Phase file: `phase-1-foundations.md`.
 Built by PR-1 and PR-2. Phase file: `phase-1-foundations.md`.
 
 - The job runs on the Linux leg alone, because the check reads text and gives the same result on every system (G-12).
-- PR-1 runs the interim Python checker, and PR-2 moves the job to the `ste-check` command of Tools (D-10, `area-tools.md` section 7.2).
+- PR-1 ran the interim Python checker, and PR-2 moved the job to the `ste-check` command of Tools (D-10, `area-tools.md` section 7.2).
 - The job reads every `.md` file outside the dated records that the `ste-writing` skill names.
 
 > *In plain English:* every document must pass the plain-English check. The check reads text alone, so one computer runs it.

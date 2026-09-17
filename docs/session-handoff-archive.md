@@ -1,5 +1,90 @@
 # Session handoff archive
 
+## Session 65: 2026-09-16, Codex
+
+Author: Codex
+Session: review of PR #19 at effective head `c065a11`, on branch `docs/pr-83-skip-set-decision`. Role: reviewer. Base: `ee4305a`.
+
+### What this session did, and why
+
+- Read the handoff, the one-PR, PR-review, project-contract, review-record, commit, and STE instructions.
+- Verified the provider gate. Session 64 names Claude Code as the PR author, so Codex is eligible under T-4 and D-17.
+- Inspected all eight changed paths and checked the D-600 path set against the workflow and the equal agent files against D-20.
+- The STE check and whitespace check pass. The build did not finish within 30 seconds.
+- GitHub API access failed. The PR description, current comments, live checks, and remote head could not be verified.
+- The review record gives `Blocked` for effective head `c065a11`, because required current PR evidence is unavailable.
+
+### State of the build
+
+- `main` points to `ee4305a`. The checked-out PR branch and its tracking ref point to `0bcd246`.
+- The effective head is `c065a11`; later commits only change metadata.
+- The STE check gives zero findings, the diff check passes, and `CLAUDE.md` equals `AGENTS.md`.
+- The build result is unknown. GitHub checks and the current remote head were not available.
+- The unrelated untracked `deck-test/` directory remains untouched.
+
+### In flight
+
+The PR review is blocked on GitHub evidence and cannot reach its hand-over point.
+
+### Traps and gotchas
+
+- `git fetch` failed because `.git/FETCH_HEAD` is not writable in this environment.
+- `gh` could not connect to `api.github.com`, so the required comment export produced no file.
+- Do not treat handoff reports of a green Gitar pass and CI as independent verification.
+- The next ids are D-602, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 66.
+
+### Open questions that block progress
+
+No owner question blocks PR #19. The missing network evidence blocks a final review verdict.
+
+### Next concrete action
+
+Restore GitHub API access, export the PR description and all comments in one command, verify the live checks and remote head, then update this review record.
+
+## Session 64: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: PR-83, the decision row of the docs-only skip set and the transitional prompt rule.
+Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19, which is PR-83 of the roadmap. Role: author. Base: `ee4305a`.
+
+### What this session did, and why
+
+- PR #18 merged as `ee4305a`. Its `changed-paths` job holds a skip set, and no decision recorded the paths. The reasoning was a comment of `.github/workflows/ci.yml` alone, and no file in `docs/` named it.
+- D-600 records the skip set: `docs/`, `.claude/`, `README.md`, `LICENSE`, and `.github/pull_request_template.md`. `CLAUDE.md` and `AGENTS.md` stay out of it, because `AgentFileTests` reads both files and fails when they differ (D-20). A skipped job reports `Success`, so a skip of the agent files would pass the PR shape that breaks D-20 most often.
+- The skip set and the override set of D-16 are not the same set. The override set holds both agent files, and `LICENSE` is in the skip set alone.
+- The comment of the `changed-paths` job and a bullet of `docs/roadmaps/area-ci.md` now cite D-600.
+- D-601 records the transitional prompt. After the owner says `Merged PR #x` for the PR of the session, the session writes one fenced block for the next clean session, and then it ends. `CLAUDE.md` and `AGENTS.md` hold the rule, and step 6 of the `one-pr-one-session` skill holds the template.
+- The owner approved the two concerns of this PR before the work started. G-8 refuses a second concern without that answer.
+
+### State of the build
+
+- `main` is `ee4305a`. The branch `docs/pr-83-skip-set-decision` sits on that base.
+- `make verify` passes on the Mac of the owner: the build, 8 tests, the format check, the STE check, and the smoke session.
+- The PR adds two decision rows and changes `.github/workflows/`, so the `review-override` label does not apply (D-401, D-560). The PR needs the Codex review.
+- The nine CI checks pass on `c065a11`, and the Gitar pass approves that head with no finding. The head of command B is `c065a11`, and the dashboard edit at `2026-09-17T03:55:13Z` is later than the push at `2026-09-17T03:54:29Z`. The PR has zero review threads.
+- The build and test legs ran on this PR and did not skip, because the PR changes the agent files. This is the rule of D-600 at work.
+- The change to `CLAUDE.md` and `AGENTS.md` keeps the two files identical, and it takes both files out of the skip set of D-600. The build and test job runs on this PR.
+
+### In flight
+
+The Codex review of PR #19 at the effective head `c065a11` (T-4, D-17). The commit of this record changes `docs/session-handoff.md` alone, which is in the metadata set, so it does not move the effective head.
+
+### Traps and gotchas
+
+- The session verified each claim of D-600 against the code: the `case` pattern of the job, the paths that `AgentFileTests` reads, and the run time of the three legs on PR #18, which was 37 to 79 seconds. The `ste-check` job holds no skip condition, so a docs PR still gets the STE check.
+- `CLAUDE.md` is 16823 bytes, and the size check of OQ-182 proposes a limit of 16 KB. The file passed that limit on `main` at `ee4305a`, before this PR. OQ-182 has no answer, and no check exists.
+- The uncommitted work of the merged branch `feat/pr-1-scaffold` is in a git stash of this machine. The patch of the owner replaced it. Drop the stash after the merge.
+- A skipped job reports `Success`. A path rule that is too wide passes a PR that ran no check.
+- The next ids are D-602, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 65.
+
+### Open questions that block progress
+
+None for PR-83. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3. OQ-182 blocks nothing. The owner has not run the Deck test, so PR-82 waits and the renderer stays provisional (D-599).
+
+### Next concrete action
+
+Hand PR #19 to Codex for the review, and write `docs/reviews/pr-19.md`.
+
 ## Session 63: 2026-09-16, Codex
 
 Author: Codex

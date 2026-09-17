@@ -201,10 +201,10 @@ How to file a question (D-19, D-24):
     - JSON text, the recommendation. The record takes one JSON object per line, like the logs, and a snapshot takes one JSON object. A person can read both in a diff, a review, and a crash email. The files are larger than a binary form.
     - A binary form with a version. The files stay small. A person needs a dump command to read one.
     - JSON text with compression in Storage. The files stay small, and a tool reads them. Every read and write needs the compression step, and a person needs the tool.
-67. **OQ-67. The rule for numbered items.** F-5 found two rules. The interim checker limits each sentence of a numbered item to 20 words. The C# checker of what-you-carry applied the limit under a Sequence or Procedure heading alone. Which rule does the checker of PR-2 carry? Raised 2026-09-14. Blocks PR-2.
+67. **OQ-67. The rule for numbered items.** F-5 found two rules. The interim checker limits each sentence of a numbered item to 20 words. The C# checker of what-you-carry applied the limit under a Sequence or Procedure heading alone. Which rule does the checker of PR-2 carry? Raised 2026-09-14. Resolved 2026-09-17: D-604, every numbered item. F-5 closes, and no document changes.
     - Every numbered item, the recommendation. The skill text and every document already follow this rule, so no document changes. A long numbered item outside a procedure must split.
     - Under a Sequence or Procedure heading alone. A numbered list elsewhere takes the limit of 25 words. The skill text changes, and the checker needs a heading rule.
-68. **OQ-68. What the reference check covers.** PR-2 carries a reference check (D-101), and no document says what it reads. What does the check fail? Raised 2026-09-14. Blocks PR-2.
+68. **OQ-68. What the reference check covers.** PR-2 carries a reference check (D-101), and no document says what it reads. What does the check fail? Raised 2026-09-14. Resolved 2026-09-17: D-605, three rules. D-606 keeps the third rule out of `docs/decisions.md`.
     - Three things, the recommendation: an id that no register holds, a path in backticks with no file, and a superseded decision cited alone. Each rule of `CLAUDE.md` on citations then has a check. A document that names a file of a later PR needs a mark for that path.
     - Ids and paths alone. The check stays small. A citation of a superseded decision stays a matter for the review.
     - Ids alone. The check is the smallest. A dead path stays a matter for the review, as in the audit of F-30.

@@ -52,18 +52,16 @@ A critic pass reads whole files. Run it in the `design-critic` agent. The agent 
 
 ## Checks in the commit command
 
-Run the STE checker on the staged `.md` files in the same command as `git diff --check` and the commit (D-585). The checker still gates each commit. A failed check prints the last 20 lines, and the commit does not run. The command works in bash and in zsh, with `set -e` too. When the staged files are dated records alone, the list is empty, and the checker does not run.
+Run the STE checker in the same command as `git diff --check` and the commit (D-585). The checker reads every live document of the checkout, and it takes no file list (D-608). A failed check prints the last 20 lines, and the commit does not run. The command works in bash and in zsh, with `set -e` too.
 
 ```bash
 git add <paths>
-files=$(git diff --cached --name-only --diff-filter=ACMR -- '*.md' \
-  | { grep -v -e '^docs/reviews/' -e '^docs/session-handoff' -e '^docs/archive/' || [ $? -eq 1 ]; })
-{ [ -z "$files" ] || out=$(printf '%s\n' "$files" | xargs python3 docs/tools/ste-check.py 2>&1) \
-  || { printf '%s\n' "$out" | tail -20; false; }; } \
+{ out=$(dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj \
+  -- ste-check --root . 2>&1) || { printf '%s\n' "$out" | tail -20; false; }; } \
   && git diff --cached --check && git commit -q -m "<subject>" && git log --oneline -1
 ```
 
-Run the full STE check command of `CLAUDE.md`, over every `.md` file, one time before the first push of a PR. After PR-2, the C# command replaces the Python command in both places.
+The checker reads the working tree, so it can name a fault in a file that this commit does not stage. Correct that file too, or put it back. Run the same command one time before the first push of a PR.
 
 ## The Gitar wait
 

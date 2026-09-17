@@ -289,14 +289,11 @@ jobs:
       - name: Check out the branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # The four exempt paths are dated records (D-10). PR-2 moves this check to C#.
-      - name: Run the interim STE checker
-        run: |
-          set -euo pipefail
-          files=$(git ls-files '*.md' | grep -v \
-            -e '^docs/reviews/' -e '^docs/session-handoff' -e '^docs/archive/' || true)
-          if [ -z "$files" ]; then
-            echo "The checkout holds no document that this check reads (T-2)." >&2
-            exit 1
-          fi
-          python3 docs/tools/ste-check.py $files
+      - name: Set up .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # The command reads every live document and holds the four dated record paths (D-10, D-608).
+      - name: Run the STE checker
+        run: dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .

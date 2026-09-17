@@ -159,23 +159,17 @@ The terms of the game, the world, the art, the audio, the effects, the UI, the s
 
 ## The checker
 
-Until PR-2, the Python script `docs/tools/ste-check.py` is the checker (D-10). Run it on the staged `.md` files in the same command as the commit (D-585). `docs/runbooks/session-context.md` gives that command. Run the full check one time before the first push of a PR:
-
-```
-python3 docs/tools/ste-check.py $(git ls-files '*.md' | grep -v -e '^docs/reviews/' -e '^docs/session-handoff' -e '^docs/archive/')
-```
-
-After PR-2, the C# tool replaces it:
+The `ste-check` command of Tools is the checker (D-10, D-101). It reads every live document of the checkout, and it takes no file list (D-608):
 
 ```
 dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .
 ```
 
-The command prints one line per finding: the file, the line, the rule id, and what the rule saw. It exits 1 on any finding. The rules and the exemptions:
+Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585). The command prints one line per finding: the file, the line, the rule id, and what the rule saw. It exits 1 on any finding. The rules and the exemptions:
 
 | Rule id | What the checker flags |
 |---|---|
-| STE 5.1 | More than 20 words in a sentence of a numbered list item |
+| STE 5.1 | More than 20 words in a sentence of a numbered list item, under any heading (D-604) |
 | STE 6.3 | More than 25 words in any other sentence |
 | STE 8.1 | A semicolon |
 | STE 4.2 | A contraction: `n't`, or a pronoun with `'s`, `'re`, `'ve`, `'ll`, `'d`, or `'m`. A possessive passes |
@@ -183,19 +177,38 @@ The command prints one line per finding: the file, the line, the rule id, and wh
 | STE 3.2/3.4 | A helper verb: should, would, could, might, may, shall, ought. Also has, have, or had before a participle |
 | STE 3.5 | An -ing form as the first word of a sentence, or after a preposition or a helper word |
 | STE 6.6 | More than six sentences in a paragraph |
+| MD 1 | An HTML comment across lines. The removal of a comment then hides prose from every rule (F-11) |
+| REF 1 | A citation of a `D-`, `OQ-`, `F-`, `G-`, `T-`, `L-`, `M-`, or `PR-` id that no register holds |
+| REF 2 | A path of this repository in backticks that no file or folder holds |
+| REF 3 | A citation of a superseded decision that names no decision which superseded it |
+| HANDOFF 1 | A session number that the handoff or its archive holds two times (L-12) |
+| HANDOFF 2 | A session entry out of order. The two files hold one list, newest first (D-18) |
+| HANDOFF 3 | More than 10 entries in `docs/session-handoff.md` (D-18, D-607) |
 
 Dated records are exempt by path: `docs/reviews/`, `docs/session-handoff.md`, `docs/session-handoff-archive.md`, and `docs/archive/`. A dated record is history, and a rewrite falsifies it.
 
 The passive and participle rules are heuristics. A past participle is an irregular form from a list, or a word that ends in "ed". "is closed" is a finding, and so is "is required". Rewrite the sentence with the actor as the subject: "the build needs the SDK". "must", "can", and "will" pass, because the standard approves them.
 
-An -ing word that is a noun or a technical name passes: nothing, during, warning, heading, finding, and a list in the script. A hyphenated word never counts as an -ing form. To add a technical name, add it to `ING_ALLOW` in the script, and to the C# list after PR-2.
+An -ing word that is a noun or a technical name passes: nothing, during, warning, heading, finding, and a list in the tool. A hyphenated word never counts as an -ing form. To add a technical name, add it to the list in `TheThingBelow.Tools/SteCheck/EnglishWords.cs`.
+
+## The reference check and the session number check
+
+The command also reads each citation of a live document (D-605) and the two handoff files (D-607).
+
+- A register defines each id. `docs/decisions.md` defines `D-`, `docs/questions.md` defines `OQ-`, and `docs/design.md` defines `F-`, `G-`, `T-`, `L-`, and `M-`. Section 8 of `docs/design.md` and the PR headings of the phase files define `PR-`.
+- A path in backticks is a path of this repository in two cases. Its first part names a top-level folder, or it is a bare file name with a file type of the repository. A path that starts with another name points outside the repository, and the rule reads none of them.
+- A path resolves from the root, from the folder of the document, or from the folder above it. It also resolves as the one file of the checkout that ends with the name.
+- A line that names a `PR-#` marks each path of that PR (G-16). A document can name a file that a later PR creates.
+- Write a name that is not a path of this repository without backticks. A branch name and a refused file name each take this rule.
+- The rule of a superseded decision reads every live document except `docs/decisions.md`. The Effect column of that register records each supersession (D-606).
+- Front matter and fenced code blocks take no reference rule.
 
 ## Markdown notes
 
 - Tables, fenced code blocks, and front matter are exempt from every rule. Keep cell text short.
 - Headings are titles. They count as one word (8.6). The checker reads no rule on a heading.
 - Text in backticks, in double quotes, or in parentheses is one word (8.5, 8.6). The grammar rules do not read inside it.
-- An HTML comment on one line is not prose, and the checker removes it. Keep each comment on one line, because a comment across lines is not supported.
-- A numbered list item is a procedural step. Rule 5.1 applies, max 20 words.
+- An HTML comment on one line is not prose, and the checker removes it. Keep each comment on one line. A comment across lines is a finding, because the removal of it hides prose from every rule (F-11).
+- A numbered list item is a procedural step, under any heading. Rule 5.1 applies, max 20 words (D-604).
 - A bullet list item is one unit. Rule 6.3 applies, max 25 words.
 - The "plain-English" paragraphs in the design doc are descriptive text. Rule 6.3 applies.

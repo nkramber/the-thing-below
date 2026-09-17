@@ -11,9 +11,6 @@ GODOT ?= /Applications/Godot_mono.app/Contents/MacOS/Godot
 # The frame limit of the smoke session. It ends a session that does not reach `Quit` (F-64).
 SMOKE_FRAME_LIMIT := 600
 
-# The documents that the STE checker reads. Four paths are dated records and stay out (D-10).
-STE_EXCLUDE := -e '^docs/reviews/' -e '^docs/session-handoff' -e '^docs/archive/'
-STE_FILES = $(shell git ls-files '*.md' | grep -v $(STE_EXCLUDE))
 
 .PHONY: verify where hooks build test lint format ste-check smoke run clean
 
@@ -36,9 +33,12 @@ format:
 lint:
 	@echo "lint: the det-lint command does not exist yet. PR-46 creates it (G-16)."
 
-## ste-check: the interim STE checker. PR-2 replaces it with the C# command (D-10).
+## ste-check: the STE checker, the reference check, and the session number check (D-10, D-605).
+#
+# The command reads every live document of the checkout. The four dated records stay out of
+# the writing rules, and the command holds their paths itself (D-10, D-608).
 ste-check:
-	python3 docs/tools/ste-check.py $(STE_FILES)
+	dotnet run --project $(TOOLS_PROJECT) -- ste-check --root .
 
 ## smoke: build the Godot solution, then run the headless session (D-117).
 #

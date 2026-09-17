@@ -25,9 +25,9 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | # | Finding | Binds |
 |---|---|---|
 | F-2 | The borrowed gate tools are C# and run nowhere here | PR-2 and PR-3: both tools as new code (D-101, D-277) |
-| F-5 | The two checkers disagree on the rule for a numbered item | PR-2: one rule, and the skill text follows it (OQ-67) |
+| F-5 | The two checkers disagree on the rule for a numbered item | PR-2: one rule, and the skill text follows it (D-604) |
 | F-10 | The run record grows with no limit over a long play | PR-6: a snapshot plus the intents after it (OQ-65) |
-| F-11 | The interim checker read an HTML comment as prose | PR-2: the new checker carries the rule |
+| F-11 | The interim checker read an HTML comment as prose | PR-2: the new checker carries the rule, and MD 1 fails a comment across lines |
 | F-17 | The 32-color palette had too few free colors | PR-34: the palette of 64 colors (D-181) |
 | F-19 | An atlas cannot match byte for byte across encoders | PR-34: a pixel test, never a byte test |
 | F-20 | The interim atlas tool kept the last of two equal palette keys | PR-34: a repeated key fails with the key |
@@ -166,13 +166,13 @@ Area files: `area-tools.md` section 7.2, `area-ci.md` section 7.5.
 - The `ste-check` command in Tools as new code (D-101, D-277).
 - The rules of the checker table in the `ste-writing` skill, and the comment rule of F-11.
 - The reference check, and the session-number check of D-18 and L-12.
-- One rule for a numbered item, from OQ-67, and a skill text that follows it (F-5).
-- The move of the `ste-check` job to the command, and the retirement of `docs/tools/ste-check.py` (D-10).
+- One rule for a numbered item, from D-604, and a skill text that follows it (F-5).
+- The move of the `ste-check` job to the command, and the retirement of the interim Python script (D-10).
 
 **Out of scope.**
 
 - det-lint (PR-46) and the review gate (PR-3).
-- No new writing rule beyond the answers of OQ-67 and OQ-68.
+- No new writing rule beyond the answers of D-604 to D-608.
 
 **Exit tests.**
 
@@ -185,11 +185,11 @@ Area files: `area-tools.md` section 7.2, `area-ci.md` section 7.5.
 
 **Review focus.**
 
-- The tool and the skill state one rule for a numbered item (F-5, OQ-67).
+- The tool and the skill state one rule for a numbered item (F-5, D-604).
 - The rule set matches the skill table, rule for rule.
 - The command lines in `CLAUDE.md` and `AGENTS.md` change together (D-20).
 
-**Questions.** OQ-67 and OQ-68.
+**Questions.** None. D-604 to D-608 answer OQ-67 and OQ-68, and they set the three scope rules of the command.
 
 > *In plain English:* every document must pass a check for plain technical English. This moves the check from a borrowed script into the language of the project, with the same rules and a few more.
 
@@ -642,8 +642,8 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-64 | The tick while a menu is open | PR-6 |
 | OQ-65 | When the run record takes a new snapshot | PR-6 and PR-43 |
 | OQ-66 | The encoding of records and snapshots | PR-6 and PR-43 |
-| OQ-67 | The rule for numbered items | PR-2 |
-| OQ-68 | What the reference check fails | PR-2 |
+| OQ-67 | The rule for numbered items | Answered by D-604 |
+| OQ-68 | What the reference check fails | Answered by D-605 |
 | OQ-69 | What counts as a change to a decision row | PR-3 |
 | OQ-181 | The paths of the metadata set | PR-3 |
 | OQ-70 | How det-lint finds the Godot assembly | PR-46 |

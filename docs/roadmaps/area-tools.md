@@ -30,8 +30,8 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 
 | # | Finding | Binds |
 |---|---|---|
-| F-5 | The two checkers apply the limit for numbered items in different places | PR-2: one rule (OQ-67) |
-| F-11 | The interim checker read an HTML comment as prose | PR-2: the comment rule |
+| F-5 | The two checkers apply the limit for numbered items in different places | PR-2: one rule (D-604) |
+| F-11 | The interim checker read an HTML comment as prose | PR-2: the rule MD 1 fails a comment across lines |
 | F-19 | Compressed PNG bytes depend on the encoder | PR-34 and PR-48: tests compare decoded pixels |
 | F-20 | A repeated palette key passed in silence | PR-34: a repeated key fails |
 | F-35 | Two hash paths of .NET break Core rules | PR-46: det-lint fails both paths in Core |
@@ -64,12 +64,12 @@ Built by PR-1 and PR-2. Phase file: `phase-1-foundations.md`.
 
 Built by PR-2. Phase file: `phase-1-foundations.md`.
 
-- The `ste-check` command is new code (D-101, D-277). It replaces `docs/tools/ste-check.py`, and the `ste-check` job moves to it (D-10).
+- The `ste-check` command is new code (D-101, D-277). PR-2 retired the Python script `docs/tools/ste-check.py`, and the `ste-check` job now runs the command (D-10).
 - It carries the rules of the checker table in the `ste-writing` skill and the comment rule of F-11.
 - It skips the dated records that the skill names.
-- F-5 needs one rule for numbered items, and OQ-67 holds it. The skill text follows the rule that the checker carries.
-- The reference check reads each id that a live document cites. OQ-68 holds what else it fails.
-- The session number check fails a number that appears twice in the handoff and its archive, and an entry out of order (D-18, L-12).
+- F-5 needed one rule for numbered items. D-604 sets it: the limit reads every numbered item, under any heading.
+- The reference check reads each id, each path of this repository, and each superseded decision that a live document cites (D-605, D-606).
+- The session number check fails a number that appears twice in the handoff and its archive, and an entry out of order (D-18, L-12). It also fails more than 10 entries in the handoff (D-607).
 
 > *In plain English:* every document must pass a check for plain technical English. This moves the check from a borrowed script into the language of the project, with the same rules and a few more.
 
@@ -266,8 +266,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 
 The register is `docs/questions.md` (D-19). These questions block Tools PRs, and each PR asks its questions when it starts (D-487):
 
-- OQ-67: the rule for numbered items (F-5). Blocks PR-2.
-- OQ-68: what the reference check fails. Blocks PR-2.
+- D-604 answers OQ-67, and it sets the rule for a numbered item. D-605 answers OQ-68, and it sets what the reference check fails.
 - OQ-69: what counts as a change to a decision row. Blocks PR-3.
 - OQ-181: the paths of the metadata set. Blocks PR-3.
 - OQ-70: how det-lint finds Godot text. Blocks PR-46.

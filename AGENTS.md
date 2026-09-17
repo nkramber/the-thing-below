@@ -15,7 +15,7 @@ The start set is this file, the top handoff entry, and the skills of the task. R
 1. `docs/session-handoff.md`: the top entry, the state, and the next action.
 2. This file: the tenets and the rules.
 3. `docs/design.md`: the design, the guardrails (section 6), and the roadmap (section 7). `docs/archive/` holds the refuted plans.
-4. `docs/decisions.md`: every owner decision, D-1 onward. Cite a D-# id when you apply one.
+4. `docs/decisions.md`: every owner decision, from the first id onward. Cite a D-# id when you apply one.
 5. `docs/questions.md`: the open questions register, OQ-1 onward. File a new question there.
 6. `docs/reviews/`: one review file per PR, plus audits and audit responses.
 7. `docs/roadmaps/`: focused roadmaps, one per phase and one per area (D-144). Start at `docs/roadmaps/readme.md`, the index of the folder.
@@ -88,7 +88,7 @@ The prompt is one fenced block that the owner pastes into the next session. Step
 
 ## Code rules
 
-- C# only, tools included (D-99, D-101). No GDScript. Two Python files are the exceptions. The interim STE checker stays until PR-2 replaces it (D-10). The out-of-date atlas script stays as a reference until PR-34 ports it (D-406).
+- C# only, tools included (D-99, D-101). No GDScript. One Python file is the exception: the out-of-date atlas script stays as a reference until PR-34 ports it (D-406).
 - `Core` has no engine dependency and no file, network, clock, or OS dependency. A test asserts its reference list (G-1, D-100).
 - Integer math only in `Core`. No `float`, `double`, `System.Random`, `DateTime`, or `Stopwatch` in `Core`. The `det-lint` tool enforces it (T-7, G-2, G-3).
 - One seeded random stream per subsystem. Every run writes a record: the seed, the content hash, the versions, and every input. A replay reproduces the state hash on every platform (G-4, G-5).
@@ -129,7 +129,7 @@ An automated reviewer, gitar, comments on every PR after a push (D-14). After ea
 
 ## Build and test commands
 
-PR-1 creates the solution, the Makefile, and every command below except the interim STE check. The solution and the project names follow D-217. Run each command from the checkout root.
+PR-1 creates the solution and the Makefile, and PR-2 creates the STE check command. The solution and the project names follow D-217. Run each command from the checkout root.
 
 - Every check, on this machine: `make verify`
 - Branch, tree, and PR state: `make where`
@@ -138,8 +138,7 @@ PR-1 creates the solution, the Makefile, and every command below except the inte
 - Test: `dotnet test --solution TheThingBelow.slnx --no-build -- --filter-not-trait "Category=Smoke"`
 - Coverage report: `dotnet test --solution TheThingBelow.slnx --no-build -- --coverlet --coverlet-output-format cobertura --results-directory artifacts/coverage`
 - Format check: `dotnet format TheThingBelow.slnx --verify-no-changes`
-- STE check, interim until PR-2: `python3 docs/tools/ste-check.py $(git ls-files '*.md' | grep -v -e '^docs/reviews/' -e '^docs/session-handoff' -e '^docs/archive/')`
-- STE check, after PR-2: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .`
+- STE check: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .`
 - Determinism and string lint, after PR-46: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- det-lint --root .`
 - Godot build check: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --editor --path TheThingBelow.Game --build-solutions --quit`
 - Smoke session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path TheThingBelow.Game -- --smoke`
@@ -147,7 +146,7 @@ PR-1 creates the solution, the Makefile, and every command below except the inte
 
 The test command runs in Microsoft.Testing.Platform mode, and every option of the test application comes after `--` (D-592). The coverage command writes a Cobertura file, and the CI job turns it into a Markdown summary (D-593).
 
-The name `Godot` is not on the command path of this machine, so each check needs the full path above. The four exempt paths of the STE check are dated records: `docs/reviews/`, `docs/session-handoff.md`, `docs/session-handoff-archive.md`, and `docs/archive/`. Every other `.md` file passes the checker. Run it on the staged files in the commit command of `docs/runbooks/session-context.md`. Run the full STE check above one time before the first push of a PR (D-585).
+The name `Godot` is not on the command path of this machine, so each check needs the full path above. The STE check reads every live document of the checkout, and it takes no file list (D-608). The four exempt paths are dated records: `docs/reviews/`, `docs/session-handoff.md`, `docs/session-handoff-archive.md`, and `docs/archive/`. Every other `.md` file passes the checker. The command also runs the reference check and the session number check (D-605, D-607). Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585).
 
 ## PR gate
 
@@ -162,7 +161,7 @@ A PR merges only when every line holds:
 - [ ] The `screen-test` job is green: each fixture screen matches the committed baseline (D-172, F-23). PR-41 creates it.
 - [ ] The bot job is green on every CI leg: the bot runs end with no crash and no softlock (D-64, D-505). PR-15 creates it.
 - [ ] The `night-gate` job is green: a success record from a night inside 48 hours (G-22). PR-49 creates it (D-496). A docs-only PR passes it (D-513).
-- [ ] The `ste-check` job is green (G-12). PR-1 creates it with the interim checker, and PR-2 moves it to C#.
+- [ ] The `ste-check` job is green: the writing rules, the reference check, and the session number check (G-12, D-605, D-607).
 - [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14). The review is current under the `gitar-review` skill.
 - [ ] The other provider reviewed it, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). A PR in the override set that changes no decision row is exempt when the `review-override` label is on (D-16, D-401, D-560).
 - [ ] The `review-gate` check is green (D-15). PR-3 creates it.
