@@ -2,6 +2,44 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 92: 2026-09-17, Codex
+
+Author: Codex
+Session: re-review PR #23, roadmap PR-46, the `det-lint` command. Repository: the-thing-below. Branch: `feat/pr-46-det-lint`. Role: reviewer. Base: `0fbecab`.
+
+### What this session did, and why
+
+- Re-reviewed P2-1 at effective head `70df5ef` against the trigger from the earlier review.
+- Verified the fix in `SceneTextRule`, the regression test, the response file, and the live command probe.
+- The regression probe now reports one DL 9 finding and exits 1. `make verify` passes with 187 tests.
+- Verified the current Gitar pass after its request, reply, and dashboard update. No finding or open thread exists.
+- Updated `docs/reviews/pr-23.md` to close P2-1 and assess effective head `70df5ef`.
+
+### The state of the build
+
+- `main` and the merge base are `0fbecab`. The current PR head is `f62113e`; its effective head is `70df5ef` (D-610).
+- `make verify` passes: build with 0 warnings, 187 tests, format, `det-lint`, `ste-check`, and smoke.
+- GitHub checks pass except `review-gate`, which fails RG 4 and RG 5 while the published review record still holds the old verdict and head.
+- The updated review record and this entry await publication. The review gate must pass on the published record.
+
+### What is in flight
+
+Publish the repeat review and verify that `review-gate` passes for effective head `70df5ef`.
+
+### Traps and gotchas
+
+- The correction changes the effective head from `f5eba68` to `70df5ef`. Later handoff commits do not change it.
+- The current Gitar summary repeats the old count of 186 tests. The local suite and the author response verify 187.
+- `deck-test/` remains untracked and untouched.
+
+### The questions that block progress
+
+None for PR #23. The finding is fixed, and the review gate waits for the published verdict.
+
+### The next concrete action
+
+Push the updated review record and handoff. Verify the new PR head and all checks, then hand the PR to the owner.
+
 ## Session 91: 2026-09-17, Claude Code
 
 Author: Claude Code
@@ -369,46 +407,3 @@ None for PR #21. OQ-3 remains for the owner after the first live check run.
 ### The next concrete action
 
 Correct P1-4, then have Codex review the new effective head.
-
-## Session 82: 2026-09-17, Claude Code
-
-Author: Claude Code
-Session: the answer to the repeat review of PR #21, in the same session as Session 78 and Session 80 (D-582).
-Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. PR: #21. Role: author. Base: `04953e4`.
-
-### What this session did, and why
-
-- The repeat review of `3a75767` marks P1-1, P1-2, and P2-1 as fixed. It adds one finding, P1-3, and it keeps the verdict `Changes required`.
-- P1-3: RG 4 read the first bold verdict line and stopped. A section with the approved verdict and then `**Changes required.**` passed the gate. The claim reproduces, and it has full merit.
-- The rule now reads each bold name of the `## Verdict` section. More than one verdict name gives a fault, on one line or on two lines.
-- The correction text of the finding says that the line holds the approved verdict alone. A line with no prose after the name breaks the skeleton of the `pr-review` reference file, which each record of PR #19, PR #20, and PR #21 follows. The round applied the words of the regression check of the finding instead, and `docs/reviews/pr-21-response.md` gives the evidence.
-- Added three tests. Two of them fail on the old rule. The third proves that an earlier verdict in its own section still passes, which is the shape of a repeat review record.
-- The `pr-review` reference file names the new rule, and it says that an earlier verdict goes in a section of its own (D-579).
-
-### The state of the build
-
-- `main` is `04953e4`. The head before this round was `3a75767`, and the remote tip was `a8f91fe`.
-- `make verify` passes: the build, 122 tests, the format check, the STE check with 0 findings, and the smoke session.
-- This round changes code, tests, and one skill reference file, so the effective head moves to `b466a64`.
-- The nine CI checks pass on `b466a64`: three build legs, three smoke legs, the changed paths job, the coverage report, and `ste-check`.
-- The Gitar pass approves `b466a64` with the verdict `Approved` and no finding. The pass needed a request again. Gitar replied `On it` at `19:07:27Z`, and its new dashboard comment `5719795670` has the edit time `19:08:51Z`. No thread is open.
-- Session 72 moves to the archive. The handoff keeps the 10 newest entries (D-18, D-607).
-
-### What is in flight
-
-The repeat review of the other provider at the effective head `b466a64`.
-
-### Traps and gotchas
-
-- The `## Verdict` section of a record now gives one verdict name in bold. A repeat review puts each earlier verdict in `## Earlier verdicts`, as the record of this PR does.
-- The guard test `AnEarlierVerdictInAnotherSectionPasses` passes on both versions of the rule. It is a guard of the record shape, and not a regression test of P1-3.
-- The head of this PR gets no automatic Gitar pass, because the trial paused them. Each round needs a `Gitar review` comment after the push wait.
-- The next ids are D-612, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 83.
-
-### The questions that block progress
-
-None for PR #21. OQ-3 comes right after the merge of this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
-
-### The next concrete action
-
-Get a Gitar pass of the new head, then get the repeat review of the other provider.
