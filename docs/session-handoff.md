@@ -2,6 +2,49 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 58: 2026-09-16, Codex
+
+Author: Codex
+Session: review of PR #18 at effective head `0c402dd`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read the top handoff entry, the one-PR skill, the PR review skill, the contract reference, the review-record reference, and the STE skill.
+- Verified the provider gate. Session 57 names Claude Code as the author, and Codex is the eligible reviewer (T-4, D-17).
+- Verified that `b32a971` changes the handoff alone, so the effective head remains `0c402dd`.
+- Inspected all 34 paths of the effective diff and checked the PR description and current CI run.
+- Found P2-1: the local smoke target can accept the Godot build callback failure that F-60 documents.
+- Found P2-2: the PR description's review Documents line does not use the form of D-581.
+- The required comment export failed twice because GitHub's API did not connect. Local `make verify` stalled in `dotnet build` and was interrupted.
+- Wrote `docs/reviews/pr-18.md` with the verdict `Blocked` for effective head `0c402dd`.
+- Moved Session 48 to the archive because this entry makes it the eleventh handoff entry (D-18).
+
+### State of the build
+
+- `main` is `9f27f12` (PR #17). PR #18 is open on `feat/pr-1-scaffold`.
+- CI run 35169864293 on tip `b32a971` passed all nine checks. Its implementation head is `0c402dd`.
+- The local build produced no output for 60 seconds. The review interrupted it, so local tests, format, STE, and smoke did not run.
+- The comment export did not complete. The existing PR comments remain unverified.
+
+### In flight
+
+PR #18 needs both findings corrected. The review also needs the full comment export before it can give a final verdict.
+
+### Traps and gotchas
+
+- The Godot editor can return 0 when its build callback fails. The CI workflow reads the log, but the Makefile does not (F-60, T-2).
+- The PR description line for `docs/reviews/` uses a placeholder path and omits the required `Changed:` form (D-577, D-581).
+- The working tree held an untracked `deck-test/` directory before the review. It remains unchanged.
+- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 59.
+
+### Open questions that block progress
+
+No owner question blocks the review. GitHub API access blocks the required comment evidence.
+
+### Next concrete action
+
+Export every comment on PR #18 when GitHub API access works. Verify the claims, then complete the review of the same head.
+
 ## Session 57: 2026-09-16, Claude Code
 
 Author: Claude Code
@@ -399,46 +442,3 @@ None for PR #14. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 ### Next concrete action
 
 The author requests a current Gitar review of the latest PR tip and answers each finding. P2-1 is fixed; the Gitar review is the remaining merge gate.
-
-
-## Session 48: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: the answer to the review of PR #14, on branch `docs/pr-14-one-pr-one-session`. Role: author, in the same conversation as Session 46 (D-582). Base: `26152c5`.
-
-### What this session did, and why
-
-- The owner asked the session to answer the review of Session 47. The skill of this PR blocked the answer, because the author session had reached its hand-over point. The owner said: "Addressing Codex/gitar review feedback does NOT qualify for a new session."
-- D-582 records that rule and revises D-576 in part. The author session now answers each gitar comment and each review, and it ends at `Ready for owner merge` or the label.
-- P2-1 has full merit. Completion line 8 rejected any line that names another PR, so it rejected PR #14 and the PR template. The gate now rejects only a document or a record of this PR that waits for another PR.
-- The same boundary reaches `CLAUDE.md`, `AGENTS.md`, the PR template, D-579, and the PR-3 scope. PR-3 gains exit test 11, which passes a PR that names the PR of an absent check.
-- `pr-review`, the glossary, and `docs/design.md` follow D-582.
-- `docs/reviews/pr-14-response.md` records both answers.
-- A separate evaluator ran the corrected skill on seven requests, the two fixtures of the review included. The deferral failed, and the PR that names PR-3 passed. Its notes found a clash that the first correction made: the reviewer could repeat a review, yet it ended at its first record. The reviewer now ends at the same verdict as the author. A correction author comes from the provider of the author (T-4).
-- The handoff held ten entries before this one, so Session 38 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. `main` is `26152c5` (PR #13).
-- PR #14 is open on branch `docs/pr-14-one-pr-one-session`. The commit that holds this entry changes paths outside the metadata set, so it is the new effective head.
-- The interim STE check passes with 0 findings, the skill validator passes, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-- Size: `CLAUDE.md` is 15,004 bytes, and the skill is 8588 bytes.
-
-### In flight
-
-PR #14 waits for a current gitar review of the new head, then the repeat Codex review of P2-1 (T-4, D-17). This author session stays bound to PR #14 and answers each finding (D-582).
-
-### Traps and gotchas
-
-- A line that names the PR of independent roadmap work is not a deferral (G-16). Only a document or a record of the current PR can defer.
-- D-579 changed its text inside this PR, before any merge. The response file says why.
-- The author session and the reviewer session each end at `Ready for owner merge` for the effective head, or at the label, not at the request for a review (D-582). Each round of a session adds a new handoff entry.
-- The next ids are D-583, OQ-182, F-59, L-16, G-27, PR-82, M-7, and Session 49.
-
-### Open questions that block progress
-
-None for PR #14. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-Get a current gitar review of the new head and answer each finding. Then a Codex session repeats the review of P2-1 from `docs/reviews/pr-14-response.md`.

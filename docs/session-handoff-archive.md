@@ -2,6 +2,48 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 48: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the review of PR #14, on branch `docs/pr-14-one-pr-one-session`. Role: author, in the same conversation as Session 46 (D-582). Base: `26152c5`.
+
+### What this session did, and why
+
+- The owner asked the session to answer the review of Session 47. The skill of this PR blocked the answer, because the author session had reached its hand-over point. The owner said: "Addressing Codex/gitar review feedback does NOT qualify for a new session."
+- D-582 records that rule and revises D-576 in part. The author session now answers each gitar comment and each review, and it ends at `Ready for owner merge` or the label.
+- P2-1 has full merit. Completion line 8 rejected any line that names another PR, so it rejected PR #14 and the PR template. The gate now rejects only a document or a record of this PR that waits for another PR.
+- The same boundary reaches `CLAUDE.md`, `AGENTS.md`, the PR template, D-579, and the PR-3 scope. PR-3 gains exit test 11, which passes a PR that names the PR of an absent check.
+- `pr-review`, the glossary, and `docs/design.md` follow D-582.
+- `docs/reviews/pr-14-response.md` records both answers.
+- A separate evaluator ran the corrected skill on seven requests, the two fixtures of the review included. The deferral failed, and the PR that names PR-3 passed. Its notes found a clash that the first correction made: the reviewer could repeat a review, yet it ended at its first record. The reviewer now ends at the same verdict as the author. A correction author comes from the provider of the author (T-4).
+- The handoff held ten entries before this one, so Session 38 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code exists. `main` is `26152c5` (PR #13).
+- PR #14 is open on branch `docs/pr-14-one-pr-one-session`. The commit that holds this entry changes paths outside the metadata set, so it is the new effective head.
+- The interim STE check passes with 0 findings, the skill validator passes, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
+- Size: `CLAUDE.md` is 15,004 bytes, and the skill is 8588 bytes.
+
+### In flight
+
+PR #14 waits for a current gitar review of the new head, then the repeat Codex review of P2-1 (T-4, D-17). This author session stays bound to PR #14 and answers each finding (D-582).
+
+### Traps and gotchas
+
+- A line that names the PR of independent roadmap work is not a deferral (G-16). Only a document or a record of the current PR can defer.
+- D-579 changed its text inside this PR, before any merge. The response file says why.
+- The author session and the reviewer session each end at `Ready for owner merge` for the effective head, or at the label, not at the request for a review (D-582). Each round of a session adds a new handoff entry.
+- The next ids are D-583, OQ-182, F-59, L-16, G-27, PR-82, M-7, and Session 49.
+
+### Open questions that block progress
+
+None for PR #14. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Get a current gitar review of the new head and answer each finding. Then a Codex session repeats the review of P2-1 from `docs/reviews/pr-14-response.md`.
+
 ## Session 47: 2026-09-16, Codex
 
 Author: Codex
