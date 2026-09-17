@@ -2,6 +2,44 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 90: 2026-09-17, Codex
+
+Author: Codex
+Session: review PR #23, roadmap PR-46, the `det-lint` command. Repository: the-thing-below. Branch: `feat/pr-46-det-lint`. Role: reviewer. Base: `0fbecab`.
+
+### What this session did, and why
+
+- Reviewed the complete change from effective head `f5eba68` against section 7.7 of the phase roadmap and the affected contracts.
+- Confirmed that Claude Code authored the change and Codex meets the opposite-provider gate (T-4, D-17).
+- Found P2-1: DL 9 misses a scene text value when the value contains an escaped quote. The probe exited 0 with no finding, against D-499 and G-7.
+- Corrected the stale PR description snapshot. It now names head `764390c` and the checks that GitHub reports.
+- Wrote `docs/reviews/pr-23.md` with verdict `Changes required` for `f5eba68`.
+
+### The state of the build
+
+- `main` is `0fbecab`. The PR head is `764390c`, and its effective head is `f5eba68` (D-610).
+- `make verify` passes locally: build, 186 tests, format, `det-lint`, `ste-check`, and smoke.
+- GitHub checks pass on `764390c` except `review-gate`, which fails RG 3 because the review record was absent before this commit.
+- The review record, handoff entry, and archived Session 80 are ready for publication. The remote head and checks need verification after the push.
+
+### What is in flight
+
+The author needs to correct P2-1 and add a regression test. The reviewer then repeats the review of PR #23.
+
+### Traps and gotchas
+
+- The scene pattern in `SceneTextRule` stops at a quote even when a backslash escapes it. A scene value with an escaped quote bypasses DL 9.
+- Gitar approved the effective head but reported no rule coverage and no functional validation. The review checked those claims against the diff and local gates.
+- `deck-test/` remains untracked and untouched.
+
+### The questions that block progress
+
+No owner question blocks progress. P2-1 needs the author's correction.
+
+### The next concrete action
+
+The author corrects P2-1 on PR #23. Codex reviews the correction against its new effective head.
+
 ## Session 89: 2026-09-17, Claude Code
 
 Author: Claude Code
@@ -369,48 +407,3 @@ None for PR #21. OQ-3 remains for the owner after the first live check run.
 ### The next concrete action
 
 Correct P1-3, then have Codex review the new effective head.
-
-## Session 80: 2026-09-17, Claude Code
-
-Author: Claude Code
-Session: the answer to the review of PR #21, in the same session as Session 78 (D-582).
-Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. PR: #21. Role: author. Base: `04953e4`.
-
-### What this session did, and why
-
-- The review of `docs/reviews/pr-21.md` gives `Changes required` for head `40ea275`, with three findings. Each one reproduces, and each one has full merit.
-- P1-1: RG 4 read the whole Verdict section, so `**Not Ready for owner merge.**` passed. The rule now reads the verdict line, which starts with the name in bold.
-- P1-2: RG 5 read every line of the record, so a head field of another section passed a record with no head field in its Identity list. The rule now reads the `## Identity` list alone.
-- P2-1: RG 8 held `a separate pr` and not `a separate pull request`. The rule now reads `pull request` as `pr`, which covers every phrase of the set at one time.
-- Added seven regression tests. Each one fails on the old code, and the round proved that with `git stash` (T-3).
-- The `pr-review` reference file and the `one-pr-one-session` skill changed with the command, because the two hold the form that the command reads (D-579).
-- `docs/reviews/pr-21-response.md` holds the disposition and the evidence of each finding.
-- Put the title back at the top of `docs/session-handoff-archive.md`. The commit `1bdaa89` moved an entry above it, and the title left the file.
-
-### The state of the build
-
-- `main` is `04953e4`. The head before this round was `40ea275`, and the remote tip was `755cd67`, which holds the review record.
-- `make verify` passes: the build, 119 tests, the format check, the STE check with 0 findings, and the smoke session.
-- This round changes code, tests, and two skill files, so the effective head moves to `3a75767`.
-- The nine CI checks pass on `3a75767`: three build legs, three smoke legs, the changed paths job, the coverage report, and `ste-check`.
-- The Gitar pass approves `3a75767` with the verdict `Approved` and no finding. The pass needed a request, because the head got no automatic pass in the wait of five minutes. Gitar replied `On it` at `18:32:04Z`, and it posted a new dashboard comment `5719382142` with the edit time `18:34:50Z`. No thread is open.
-- Session 70 moves to the archive. The handoff keeps the 10 newest entries (D-18, D-607).
-
-### What is in flight
-
-The repeat review of the other provider at the effective head `3a75767`.
-
-### Traps and gotchas
-
-- A review record must now hold the verdict name in bold on its own line, and the head field in the `## Identity` list. An older record in another form fails RG 4 or RG 5.
-- The proof that a regression test fails on the old code needs the old source of the tool alone. The tests build against both, because they use the public members of the rules.
-- The first test of P1-2 used a stale head in the Identity list, and the old rule failed that record for another reason. The test now uses an Identity list with no head field, which is the true trigger.
-- The next ids are D-612, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 81.
-
-### The questions that block progress
-
-None for PR #21. OQ-3 comes right after the merge of this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
-
-### The next concrete action
-
-Answer the Gitar pass of the new head, then get the repeat review of the other provider.

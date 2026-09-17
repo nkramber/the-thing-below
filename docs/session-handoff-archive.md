@@ -1,5 +1,50 @@
 # Session handoff archive
 
+## Session 80: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the review of PR #21, in the same session as Session 78 (D-582).
+Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. PR: #21. Role: author. Base: `04953e4`.
+
+### What this session did, and why
+
+- The review of `docs/reviews/pr-21.md` gives `Changes required` for head `40ea275`, with three findings. Each one reproduces, and each one has full merit.
+- P1-1: RG 4 read the whole Verdict section, so `**Not Ready for owner merge.**` passed. The rule now reads the verdict line, which starts with the name in bold.
+- P1-2: RG 5 read every line of the record, so a head field of another section passed a record with no head field in its Identity list. The rule now reads the `## Identity` list alone.
+- P2-1: RG 8 held `a separate pr` and not `a separate pull request`. The rule now reads `pull request` as `pr`, which covers every phrase of the set at one time.
+- Added seven regression tests. Each one fails on the old code, and the round proved that with `git stash` (T-3).
+- The `pr-review` reference file and the `one-pr-one-session` skill changed with the command, because the two hold the form that the command reads (D-579).
+- `docs/reviews/pr-21-response.md` holds the disposition and the evidence of each finding.
+- Put the title back at the top of `docs/session-handoff-archive.md`. The commit `1bdaa89` moved an entry above it, and the title left the file.
+
+### The state of the build
+
+- `main` is `04953e4`. The head before this round was `40ea275`, and the remote tip was `755cd67`, which holds the review record.
+- `make verify` passes: the build, 119 tests, the format check, the STE check with 0 findings, and the smoke session.
+- This round changes code, tests, and two skill files, so the effective head moves to `3a75767`.
+- The nine CI checks pass on `3a75767`: three build legs, three smoke legs, the changed paths job, the coverage report, and `ste-check`.
+- The Gitar pass approves `3a75767` with the verdict `Approved` and no finding. The pass needed a request, because the head got no automatic pass in the wait of five minutes. Gitar replied `On it` at `18:32:04Z`, and it posted a new dashboard comment `5719382142` with the edit time `18:34:50Z`. No thread is open.
+- Session 70 moves to the archive. The handoff keeps the 10 newest entries (D-18, D-607).
+
+### What is in flight
+
+The repeat review of the other provider at the effective head `3a75767`.
+
+### Traps and gotchas
+
+- A review record must now hold the verdict name in bold on its own line, and the head field in the `## Identity` list. An older record in another form fails RG 4 or RG 5.
+- The proof that a regression test fails on the old code needs the old source of the tool alone. The tests build against both, because they use the public members of the rules.
+- The first test of P1-2 used a stale head in the Identity list, and the old rule failed that record for another reason. The test now uses an Identity list with no head field, which is the true trigger.
+- The next ids are D-612, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 81.
+
+### The questions that block progress
+
+None for PR #21. OQ-3 comes right after the merge of this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### The next concrete action
+
+Answer the Gitar pass of the new head, then get the repeat review of the other provider.
+
 ## Session 79: 2026-09-17, Codex
 
 Author: Codex
