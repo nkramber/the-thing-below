@@ -46,10 +46,12 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-26 | No PR created the screen-test job | PR-41 creates it |
 | F-37 | Two GitHub triggers start only from `main` | PR-3 and PR-49: a proof in Tests (D-500) |
 | F-38 | Double math can differ by platform | PR-4, PR-34, PR-38, and PR-48: integer math on every leg (D-502) |
-| F-40 | The test command of `CLAUDE.md` works in VSTest mode alone | PR-1: the runner mode (OQ-75) |
-| F-41 | Four rules of GitHub Actions meet the CI plan | PR-1 and PR-49: required checks and the night (OQ-78, OQ-81, OQ-82) |
-| F-42 | The Godot export reads the project folder alone, and no command installs export templates | PR-5 and PR-54: content in the Game assembly (D-508, OQ-83) |
+| F-40 | The test command of `CLAUDE.md` works in VSTest mode alone | PR-1: the MTP mode, and the commands follow (D-592) |
+| F-41 | Four rules of GitHub Actions meet the CI plan | PR-1 and PR-49: the skip condition on each job (D-595), and the night (OQ-81, OQ-82) |
+| F-42 | The Godot export reads the project folder alone, and no command installs export templates | PR-5 and PR-54: content in the Game assembly (D-508), and the cache of D-596 |
 | F-43 | A failed night blocked the PR that fixes it | PR-49: a night on the head of a PR, and docs-only PRs pass (D-510, D-513) |
+| F-60 | The Godot editor build gives an exit code of 0 when its build callback fails | PR-1: the smoke job reads the log of the editor build (T-2) |
+| F-61 | A coverage run instruments the Core copy and adds references to it | PR-1: the reference test reads the file that the Core project built |
 
 ## 7. Roadmap
 
@@ -60,12 +62,12 @@ Each part below says how one part of CI works, which decisions set it, and which
 Built by PR-1. Phase file: `phase-1-foundations.md`.
 
 - Each PR runs on three hosted legs: Linux and Windows on x86_64, and macOS on Apple silicon (D-2, D-117, D-481). No self-hosted runner joins them.
-- OQ-77 holds the runner labels: a label with a version, or a `-latest` label.
+- Each leg uses a label with a version: `ubuntu-24.04`, `windows-2025`, and `macos-26`. A move to a newer image takes a PR (D-594).
 - `global.json` pins the .NET SDK, and `actions/setup-dotnet` installs that SDK on each leg (D-99, D-511).
 - Each workflow sets `permissions` to the least access that its jobs need. The repository default already gives read access alone (the external facts above).
 - Each job sets a time limit below the 6 hours of GitHub, so a hung Godot process fails fast with a clear status (T-2).
 - A new push to a PR stops the older runs of its workflows, so no leg spends time on a stale head.
-- OQ-78 holds how a docs PR meets the required checks, because a path filter leaves a required check "Pending" (F-41).
+- A first job reads the changed paths of the PR. Each build and test job reads that result in a condition, and it skips on a docs PR (D-595). No path filter goes on a workflow, because a check that stays "Pending" stops the merge (F-41).
 
 > *In plain English:* every change runs its checks on three kinds of computer, the same three that the game supports. Each check has a time limit, so a stuck test fails in minutes, not hours.
 
@@ -77,7 +79,7 @@ Built by PR-1, and kept by every later workflow PR. Phase file: `phase-1-foundat
 - The owner enabled the repository setting that requires the pin on 2026-09-14, so an action with no pin fails at once (D-511).
 - A new action from the `actions` organization of GitHub needs a new decision row. An action from any other author never enters (D-511).
 - Each other download runs as a shell step that checks its SHA-512 against a value in the workflow (T-2). The Godot .NET editor and the export templates come from the release `4.7.2-stable` of `godotengine/godot-builds`.
-- OQ-83 holds whether the cache action keeps the Godot files between runs.
+- The cache action of D-511 keeps the Godot files between runs. A cache miss downloads the file, and every run checks the SHA-512 (D-596).
 - A container image for the screen tests is a dependency too, and OQ-79 holds it (G-13).
 
 > *In plain English:* CI borrows a few small helpers from GitHub itself, and it fixes each one to an exact version. Nobody can swap a helper in silence, and every other download must match a known checksum, or the job stops.
@@ -87,10 +89,10 @@ Built by PR-1, and kept by every later workflow PR. Phase file: `phase-1-foundat
 Built by PR-1. Phase file: `phase-1-foundations.md`.
 
 - Each leg builds the solution, runs every test outside the Smoke category, and checks the format with `dotnet format` (D-2, D-481).
-- OQ-75 holds the test runner mode. The test command in `CLAUDE.md` works in VSTest mode alone, so an answer of MTP changes the commands (F-40).
+- The test command runs in Microsoft.Testing.Platform mode (MTP), with `xunit.v3` as the one test package (D-592). The command takes `--solution` and `--filter-not-trait`, and the agent files and the `csharp-conventions` skill hold that form (F-40).
 - PR-1 adds two tests. One proves that `CLAUDE.md` and `AGENTS.md` stay identical (D-20), and one asserts the reference list of Core (G-1).
 - The test job also runs the pixel tests of the atlas, the normal maps, and large pictures (F-19, D-502, D-516). It runs the hash test of the rendered audio too (D-432).
-- PR-1 publishes a coverage report on every PR, and no number fails the build (D-174, D-506). OQ-76 holds the package and the form of the report.
+- PR-1 publishes a coverage report on every PR, and no number fails the build (D-174, D-506). Coverlet writes a Cobertura file, and ReportGenerator writes a Markdown summary for the run page and for an artifact (D-593).
 
 > *In plain English:* every change must build, pass every test, and keep a clean code format on all three systems. A coverage report shows the reviewer which code the tests reach.
 
@@ -183,7 +185,7 @@ Built by PR-54. Phase file: `phase-2-first-playable.md`.
 - The job lands right before PR-7, so the merge of PR-7 exports the first walkable build (D-503).
 - It runs on each merge to `main`, and on each PR that changes its workflow file, the export presets, or the export code (D-449, D-512). It is not a line of the PR gate.
 - Each leg exports the build of its own system: Windows and Linux on x86_64, and the universal macOS build (D-481, D-482). From PR-79 on, the macOS leg signs and notarizes its build (D-455, D-553).
-- The job unpacks the .NET export templates into the editor data folder of the runner, because no command-line option installs them (F-42). OQ-83 holds how the job gets the file.
+- The job unpacks the .NET export templates into the editor data folder of the runner, because no command-line option installs them (F-42). The cache action of D-511 keeps the file, and every run checks its SHA-512 (D-596).
 - Each export starts with `--headless` and runs the smoke session, which an export template supports (D-512).
 - Each export carries the license files of D-467. CI keeps each export as a build artifact for 90 days, the longest time that GitHub allows in a public repository (D-449).
 - The owner downloads the Linux build artifact for each Deck play (D-92, D-458, `docs/runbooks/dev-machine.md`).
@@ -253,7 +255,7 @@ The table maps each check of the PR gate in `CLAUDE.md` to its job. PR #11 broug
 | Build, test, and format | Three | PR-1 | Yes |
 | `smoke` | Three | PR-1 | Yes |
 | `ste-check` | Linux | PR-1, moved to C# by PR-2 | Yes |
-| Coverage report | OQ-76 | PR-1 | No (D-174) |
+| Coverage report | Linux | PR-1 | No (D-174, D-593) |
 | `review-gate` | Linux | PR-3 | Yes |
 | `det-lint` | Linux | PR-46 | Yes |
 | `replay-identity` | Three | PR-4 | Yes |
@@ -321,11 +323,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 
 The register is `docs/questions.md` (D-19). These questions block CI PRs, and each PR asks its questions when it starts (D-487):
 
-- OQ-75: the test runner mode. Blocks PR-1.
-- OQ-76: the coverage package and the form of the report. Blocks PR-1.
-- OQ-77: the runner labels of the CI legs. Blocks PR-1.
-- OQ-78: the required checks on a docs PR. Blocks PR-1.
-- OQ-83: how CI gets the Godot editor and the export templates. Blocks PR-1 and PR-54.
+- OQ-75, OQ-76, OQ-77, OQ-78, and OQ-83 are resolved. D-592 to D-596 hold the answers, and PR-1 builds them.
 - OQ-70: how det-lint finds the Godot assembly. Blocks PR-46.
 - OQ-79: how the screen-test job pins Mesa. Blocks PR-41.
 - OQ-74: how the runner finds a softlock. Blocks PR-15.

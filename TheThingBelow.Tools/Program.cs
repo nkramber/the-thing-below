@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace TheThingBelow.Tools;
+
+/// <summary>The command line of the tools project. Each command gets its own PR.</summary>
+public static class Program
+{
+    /// <summary>The exit code of a run that found a fault (T-2).</summary>
+    public const int FaultExitCode = 1;
+
+    /// <summary>The commands that this project holds, and the PR that adds each one.</summary>
+    public static readonly IReadOnlyDictionary<string, string> PlannedCommands =
+        new SortedDictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["atlas"] = "PR-34",
+            ["det-lint"] = "PR-46",
+            ["night-gate"] = "PR-49",
+            ["review-gate"] = "PR-3",
+            ["ste-check"] = "PR-2",
+        };
+
+    /// <summary>Reads the command name and runs it.</summary>
+    /// <param name="args">The command name, then the arguments of that command.</param>
+    /// <returns>The exit code of the process.</returns>
+    public static int Main(string[] args) => Run(args, Console.Error);
+
+    /// <summary>
+    /// Reads the command name, writes each fault to <paramref name="errors"/>, and gives the
+    /// exit code. No command exists yet, so every run gives the fault code (G-16).
+    /// </summary>
+    /// <param name="args">The command name, then the arguments of that command.</param>
+    /// <param name="errors">The writer that takes each error line.</param>
+    /// <returns>The exit code of the run.</returns>
+    public static int Run(string[] args, TextWriter errors)
+    {
+        ArgumentNullException.ThrowIfNull(args);
+        ArgumentNullException.ThrowIfNull(errors);
+
+        if (args.Length == 0)
+        {
+            errors.WriteLine("Error: no command. This project holds no command yet.");
+            WritePlannedCommands(errors);
+            return FaultExitCode;
+        }
+
+        string command = args[0];
+        if (PlannedCommands.TryGetValue(command, out string? pullRequest))
+        {
+            errors.WriteLine(
+                $"Error: the command '{command}' does not exist yet. {pullRequest} adds it.");
+            return FaultExitCode;
+        }
+
+        errors.WriteLine($"Error: unknown command '{command}'.");
+        WritePlannedCommands(errors);
+        return FaultExitCode;
+    }
+
+    private static void WritePlannedCommands(TextWriter errors)
+    {
+        errors.WriteLine("The planned commands, with the PR that adds each one:");
+        foreach (KeyValuePair<string, string> entry in PlannedCommands)
+        {
+            errors.WriteLine($"  {entry.Key}: {entry.Value}");
+        }
+    }
+}

@@ -1,0 +1,22 @@
+<Project Sdk="Godot.NET.Sdk/4.7.2">
+
+  <!-- Game is the Godot project. It draws Core state and turns input into intents (D-99, D-100). -->
+  <PropertyGroup>
+    <!--
+      The Godot editor writes a target framework into this file when the file has none, and
+      Godot 4.7.2 writes `net8.0`. The project pins `net10.0` here, which D-99 sets, so the
+      editor leaves the value alone (F-60).
+    -->
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>TheThingBelow.Game</RootNamespace>
+    <AssemblyName>TheThingBelow.Game</AssemblyName>
+    <!-- The Godot source generators emit code that the documentation rule cannot cover. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../TheThingBelow.Core/TheThingBelow.Core.csproj" />
+  </ItemGroup>
+
+</Project>

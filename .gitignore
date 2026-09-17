@@ -10,3 +10,11 @@ Thumbs.db
 logs/
 artifacts/
 *.log
+
+# .NET build output
+bin/
+obj/
+
+# Godot editor output. The editor writes a backup of the project file when it changes it.
+.godot/
+*.csproj.old

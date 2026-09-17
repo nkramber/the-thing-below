@@ -110,8 +110,8 @@ Built by the owner and a session, before PR-1. Phase file: `phase-1-foundations.
 - The test also finds the effect budget, the most load that still holds 60 frames per second (D-523). Section 7.4 holds the budget.
 - The pick becomes a decision before PR-1, and PR-1 sets that renderer in the Game project (D-160).
 - If neither renderer holds 60 frames per second, the owner decides then (D-261).
-- The test scene is throwaway, so it never merges to `main` (D-160). OQ-92 holds where its source lives.
-- Godot can report the time of each frame to the test scene itself (the external facts above). OQ-93 holds how the owner reads the frame time.
+- The test scene is throwaway, so it never merges to `main` (D-160). The branch `spike/deck-test` holds its source, and that branch never merges (D-597).
+- The test scene measures itself, and `deck-test/scripts/FrameMeter.cs` reads the time of each frame (D-598). Each run writes a report file, which a session can read.
 - The LCD Deck has a 60 Hz screen, and the OLED Deck runs up to 90 Hz (the external facts above). The test records the model of the Deck and its refresh rate.
 - Valve asks for 30 frames per second at 800p for the Deck rating, so D-161 sets a stricter target (the external facts above).
 - The screen tests of CI use the Compatibility renderer, whatever the Deck test picks (D-172). The contact sheet on the Mac of the owner shows the real renderer.
@@ -347,8 +347,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 
 The register is `docs/questions.md` (D-19). These questions block effect PRs, and each PR or step asks its questions when it starts (D-487):
 
-- OQ-92: where the source of the Deck test scene lives. Blocks the Deck test.
-- OQ-93: how the owner reads the frame time on the Deck. Blocks the Deck test.
+- OQ-92 and OQ-93 are resolved. D-597 and D-598 hold the answers, and the branch `spike/deck-test` holds the scene.
 - OQ-94: how the budget test counts one view. Blocks PR-56.
 - OQ-95: where a torch light comes from. Blocks PR-56.
 - OQ-96: where the shape of a shadow comes from. Blocks PR-56.

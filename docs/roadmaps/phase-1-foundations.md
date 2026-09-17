@@ -39,10 +39,12 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-37 | GitHub starts `pull_request_target` only from the default branch | PR-3: the command proves itself in Tests (D-500) |
 | F-38 | A real literal with no suffix is a double, and double math differs by platform | PR-46: det-lint reads types through Roslyn (D-498) |
 | F-39 | The default string order of .NET follows the culture and the ICU version | PR-4 and PR-46: an ordinal order for every string order in Core |
-| F-40 | The test command of `CLAUDE.md` works in VSTest mode alone | PR-1: OQ-75 picks the mode, and the commands follow |
-| F-41 | Four rules of GitHub Actions meet the CI plan | PR-1: OQ-78 holds the required checks on a docs PR |
+| F-40 | The test command of `CLAUDE.md` works in VSTest mode alone | PR-1: D-592 picks the MTP mode, and the commands follow |
+| F-41 | Four rules of GitHub Actions meet the CI plan | PR-1: D-595 puts the skip condition on each job, and never on the workflow |
 | F-42 | The Godot export walks the project folder alone, and `content/` lies outside it | PR-5: the Game assembly carries the content files (D-508) |
 | F-58 | No check can see the conversation of a session | PR-3: the document rules read the diff and the description alone (D-579) |
+| F-60 | The Godot editor writes `net8.0` into a `.csproj` that holds no target framework | PR-1: the Game project pins `net10.0` in its own file |
+| F-61 | A coverage run instruments the Core copy and adds references to it | PR-1: the reference test reads the file that the Core project built |
 
 ## 7. Roadmap
 
@@ -59,7 +61,7 @@ Owner and a session, before PR-1. Area file: `area-effects.md`, sections 7.3 and
 - A throwaway scene runs on the Deck of the owner under Forward+ and under Mobile (D-160, D-161).
 - The test scene runs as a native Linux export at the frame of 1280 by 720, with the load of D-160 (D-228, D-458, D-568).
 - The test picks the renderer, and it measures the effect budget (D-160, D-523).
-- The pick becomes a decision before PR-1, and PR-1 sets that renderer in the Game project.
+- The pick becomes PR-82, after the run. PR-1 sets Forward+ as a provisional renderer (D-599).
 
 **Out of scope.**
 
@@ -75,7 +77,9 @@ Owner and a session, before PR-1. Area file: `area-effects.md`, sections 7.3 and
 
 **Review focus.** This step has no PR and no review. The session records the numbers in a decision row and in the cost model.
 
-**Questions.** OQ-92 and OQ-93.
+**State.** The test scene, the meter, and the native Linux export are ready on `spike/deck-test` (D-597, D-598). No machine ran the export. The run on the Deck is the next step, and the owner does it. A run on the Mac gives no numbers, because macOS caps the frame rate.
+
+**Questions.** OQ-92 and OQ-93 are resolved (D-597, D-598).
 
 > *In plain English:* before any code, a small test scene with every kind of effect runs on the owner's handheld. It picks the faster of two graphics modes and finds how much the machine can draw at full speed.
 
@@ -95,7 +99,7 @@ Area files: `area-ci.md` sections 7.1 to 7.6, `area-tools.md` section 7.1, `area
 - The `ste-check` job on the interim Python checker, on the Linux leg alone (D-10, G-12).
 - The coverage report on every PR, with no number that fails the build (D-174, D-506).
 - Two tests: `CLAUDE.md` equals `AGENTS.md` (D-20), and Core has the reference list of G-1.
-- The renderer that the Deck test picked, in the Game project (D-160).
+- Forward+ in the Game project, as a provisional renderer. PR-82 sets the renderer that the Deck test picked (D-599).
 - A boot Godot scene file and the `--smoke` argument, which boot the engine and quit, so the smoke job can pass (D-117, G-16).
 
 **Out of scope.**
@@ -120,11 +124,39 @@ Area files: `area-ci.md` sections 7.1 to 7.6, `area-tools.md` section 7.1, `area
 - The test command matches the runner mode of OQ-75, in the Makefile and in the agent files (F-40).
 - The pre-commit hook refuses a commit on `main` on a fresh checkout (D-25).
 
-**Questions.** OQ-75, OQ-76, OQ-77, OQ-78, and OQ-83.
+**Questions.** OQ-75, OQ-76, OQ-77, OQ-78, and OQ-83 are resolved (D-592 to D-596).
 
 > *In plain English:* this makes the empty project with its four parts and the checks that every later change must pass. It adds nothing that plays, so it changes no behavior.
 
-### 7.3 PR-2: the STE checker in C#
+### 7.3 PR-82: the renderer of the Deck test
+
+Area file: `area-effects.md`, sections 7.3 and 7.4.
+
+**Scope.**
+
+- The renderer that the Deck test picked, in `project.godot` of the Game project (D-160, D-599).
+- The reports of the Deck run, cited in the PR description and in a decision row.
+
+**Out of scope.**
+
+- Every other setting of the Game project. PR-1 holds them (D-599).
+- The effect budget file and its test, which come with PR-56 (D-523).
+
+**Exit tests.**
+
+1. The build, test, format, and smoke jobs stay green with the new renderer.
+2. The decision row names the frame time of each renderer at the full load (D-161).
+
+**Review focus.**
+
+- The diff changes the renderer line alone.
+- The numbers in the decision row match the reports of the Deck.
+
+**Questions.** None. The Deck run answers D-160.
+
+> *In plain English:* after the owner runs the test on the handheld, this changes one setting to the graphics mode that ran faster. Nothing else changes.
+
+### 7.4 PR-2: the STE checker in C#
 
 Area files: `area-tools.md` section 7.2, `area-ci.md` section 7.5.
 
@@ -160,7 +192,7 @@ Area files: `area-tools.md` section 7.2, `area-ci.md` section 7.5.
 
 > *In plain English:* every document must pass a check for plain technical English. This moves the check from a borrowed script into the language of the project, with the same rules and a few more.
 
-### 7.4 PR-3: the review gate
+### 7.5 PR-3: the review gate
 
 Area files: `area-tools.md` section 7.3, `area-ci.md` section 7.7.
 
@@ -206,7 +238,7 @@ Area files: `area-tools.md` section 7.3, `area-ci.md` section 7.7.
 
 > *In plain English:* this adds a check that turns red when a change has no approved review from the other provider. It also turns red when a change leaves its notes or documents for later. It reads each change as data and never runs it, so a change cannot approve itself.
 
-### 7.5 PR-46: det-lint
+### 7.6 PR-46: det-lint
 
 Area files: `area-tools.md` section 7.4, `area-ci.md` section 7.8.
 
@@ -247,7 +279,7 @@ Area files: `area-tools.md` section 7.4, `area-ci.md` section 7.8.
 
 > *In plain English:* two computers can disagree on decimal math and on the order of words. This tool reads the rules code as the compiler does and refuses anything that can make two machines disagree.
 
-### 7.6 PR-4: integer math, the streams, the state hash, and the identity job
+### 7.7 PR-4: integer math, the streams, the state hash, and the identity job
 
 Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.9.
 
@@ -291,7 +323,7 @@ Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.
 
 > *In plain English:* different computers can give different answers for decimal math. This adds our own whole-number math and a check that proves the same result on every machine.
 
-### 7.7 PR-5: content, the content hash, and the string table
+### 7.8 PR-5: content, the content hash, and the string table
 
 Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.md` section 7.1.
 
@@ -332,7 +364,7 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 
 > *In plain English:* every enemy, item, and map lives in a strict data file. A gap or a typo stops the load with the file and the field, instead of a silent zero.
 
-### 7.8 PR-6: the tick, the intents, the run record, and replay
+### 7.9 PR-6: the tick, the intents, the run record, and replay
 
 Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` section 7.9, `area-release.md` section 7.1.
 
@@ -373,7 +405,7 @@ Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` secti
 
 > *In plain English:* the game writes down its start state and every choice after it. That record plays any run again on any machine, so every bug becomes repeatable on demand.
 
-### 7.9 PR-43: the Storage project, the snapshots, and the saves
+### 7.10 PR-43: the Storage project, the snapshots, and the saves
 
 Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 
@@ -412,7 +444,7 @@ Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 
 > *In plain English:* a save is a full picture of the game at one moment. A crash during a save never destroys the old one, and a save from an older build still loads through a converter.
 
-### 7.10 PR-44: the crash files and the log files
+### 7.11 PR-44: the crash files and the log files
 
 Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 
@@ -450,7 +482,7 @@ Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 
 > *In plain English:* when the game stops with an error, it leaves one file that holds everything a replay needs. Logs are plain one-line notes that the tools can read.
 
-### 7.11 PR-47: the PNG code
+### 7.12 PR-47: the PNG code
 
 Area file: `area-tools.md` section 7.5.
 
@@ -485,7 +517,7 @@ Area file: `area-tools.md` section 7.5.
 
 > *In plain English:* every picture that the tools make or read is a PNG file. The project writes its own small PNG code, so a new version of a library never breaks a picture test.
 
-### 7.12 PR-34: the atlas, the palette, and the drawing files
+### 7.13 PR-34: the atlas, the palette, and the drawing files
 
 Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7.6.
 
@@ -527,7 +559,7 @@ Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7
 
 > *In plain English:* every picture in the game starts as a text file of letters, one for each pixel. This command turns the letters into the one image that the engine draws, and a test proves that they still match.
 
-### 7.13 M-1 and M-2: the first measurements
+### 7.14 M-1 and M-2: the first measurements
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds both rows.
 
@@ -552,7 +584,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 
 > *In plain English:* the first ten changes each record what they cost in machine time and in money. That gives the owner real numbers before the plan grows.
 
-### 7.14 Gate 1: the foundation gate
+### 7.15 Gate 1: the foundation gate
 
 **The gate.** Gate 1 passes when every line holds:
 
@@ -576,21 +608,22 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 
 1. Owner: enable the repository setting that requires a SHA pin for an action (D-511). Done on 2026-09-14.
 2. Owner and a session: the Deck test, which picks the renderer and measures the budget (D-160, D-523).
-3. Owner: run the Deck test on the Linux export before PR-1 (D-458).
+3. Owner: run the Deck test on the Linux export (D-458). PR-1 does not wait for it (D-599).
 4. PR-1: the scaffold, the four projects, the gate jobs, and the local gate.
-5. PR-2: the STE checker in C#.
-6. PR-3: the review gate.
-7. Owner: require the checks on `main` (OQ-3).
-8. PR-46: det-lint, before the first Core code (D-496).
-9. PR-4: integer math, the streams, the state hash, and the identity job.
-10. PR-5: content, the content hash, and the string table.
-11. PR-6: the tick, the intents, the run record, and replay.
-12. PR-43: the Storage project, the snapshots, and the saves.
-13. PR-44: the crash files and the log files.
-14. PR-47: the PNG code, right before the atlas (D-496).
-15. PR-34: the atlas, the palette, and the drawing files.
-16. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above.
-17. **← GATE 1 (foundation).** Section 7.14 holds each line.
+5. PR-82: the renderer of the Deck test, which is one line of `project.godot` (D-599).
+6. PR-2: the STE checker in C#.
+7. PR-3: the review gate.
+8. Owner: require the checks on `main` (OQ-3).
+9. PR-46: det-lint, before the first Core code (D-496).
+10. PR-4: integer math, the streams, the state hash, and the identity job.
+11. PR-5: content, the content hash, and the string table.
+12. PR-6: the tick, the intents, the run record, and replay.
+13. PR-43: the Storage project, the snapshots, and the saves.
+14. PR-44: the crash files and the log files.
+15. PR-47: the PNG code, right before the atlas (D-496).
+16. PR-34: the atlas, the palette, and the drawing files.
+17. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above.
+18. **← GATE 1 (foundation).** Section 7.15 holds each line.
 
 The next phase file is `phase-2-first-playable.md`. Between the two, the owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).
 
@@ -615,17 +648,17 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-70 | How det-lint finds the Godot assembly | PR-46 |
 | OQ-71 | Which collection uses det-lint fails in Core | PR-46 |
 | OQ-72 | The CRC-32 of the PNG code | PR-47 |
-| OQ-75 | The test runner mode | PR-1 |
-| OQ-76 | The coverage package and the form of the report | PR-1 |
-| OQ-77 | The runner labels of the CI legs | PR-1 |
-| OQ-78 | The required checks on a docs PR | PR-1 |
-| OQ-83 | How CI gets the Godot editor | PR-1 |
+| OQ-75 | The test runner mode | PR-1, resolved by D-592 |
+| OQ-76 | The coverage package and the form of the report | PR-1, resolved by D-593 |
+| OQ-77 | The runner labels of the CI legs | PR-1, resolved by D-594 |
+| OQ-78 | The required checks on a docs PR | PR-1, resolved by D-595 |
+| OQ-83 | How CI gets the Godot editor | PR-1, resolved by D-596 |
 | OQ-85 | The pages of the atlas | PR-34 |
 | OQ-86 | How the atlas places tiles | PR-34 |
 | OQ-87 | The form of a review sheet | PR-34 |
 | OQ-88 | The unit of the time of a frame | PR-34 |
-| OQ-92 | Where the source of the Deck test scene lives | The Deck test |
-| OQ-93 | How the owner reads the frame time on the Deck | The Deck test |
+| OQ-92 | Where the source of the Deck test scene lives | The Deck test, resolved by D-597 |
+| OQ-93 | How the owner reads the frame time on the Deck | The Deck test, resolved by D-598 |
 | OQ-168 | Where the game version lives in the build | PR-6 and PR-31 |
 | OQ-179 | Where the reflection switch of the JSON reader lives | PR-5 |
 

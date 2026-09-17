@@ -34,7 +34,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-37 | GitHub starts a schedule only from the default branch | PR-49: the command proves itself in Tests (D-500) |
 | F-38 | Double math differs by platform, and a literal with no suffix is a double | PR-48: integer math with an integer square root (D-502) |
 | F-41 | Four rules of GitHub Actions meet the CI plan | PR-49: OQ-81 the age of a result, and OQ-82 the time of the night |
-| F-42 | No command-line option installs the export templates | PR-54: the job unpacks them, and OQ-83 holds how |
+| F-42 | No command-line option installs the export templates | PR-54: the job unpacks them from the cache of D-596 |
 | F-44 | A full-screen grid holds over a million palette keys | PR-55: a large picture places drawn pieces (D-516) |
 | F-45 | Three Godot defaults fight the pixel art | PR-7: the Nearest filter, and a check after each such call |
 | F-46 | Godot 2D light fails in silence in three ways | PR-56: a texture check, a height on each light, and the budget test |
@@ -66,7 +66,7 @@ Area files: `area-ci.md` section 7.11, `area-release.md` section 7.2.
 - The export job of D-449, right before PR-7, so the merge of PR-7 exports the first walkable build (D-503).
 - A run on each merge to `main`, and on each PR that changes the workflow, the presets, or the export code (D-512).
 - Three exports, one on each leg: Windows and Linux on x86_64, and the universal macOS build (D-481, D-482).
-- The unpack of the .NET export templates into the editor data folder of the runner (F-42, OQ-83).
+- The unpack of the .NET export templates into the editor data folder of the runner (F-42, D-596).
 - A headless smoke session on each export (D-512).
 - The license files of D-467 in each export, and a build artifact that lasts 90 days (D-449).
 
@@ -90,7 +90,7 @@ Area files: `area-ci.md` section 7.11, `area-release.md` section 7.2.
 - The export presets name the three targets of D-481 and nothing else.
 - The owner can download the Linux artifact for a Deck play (D-458).
 
-**Questions.** OQ-83.
+**Questions.** OQ-83 is resolved (D-596).
 
 > *In plain English:* from the first walkable build on, every merge makes a game that the owner can run on the desktop or the handheld. Each build also starts once in CI.
 
@@ -1872,7 +1872,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-80 | The count of bot runs on each PR | PR-15 |
 | OQ-81 | How the night gate result stays current | PR-49 |
 | OQ-82 | The time of the night | PR-49 |
-| OQ-83 | How CI gets the Godot editor and the templates | PR-54 |
+| OQ-83 | How CI gets the Godot editor and the templates, resolved by D-596 | PR-54 |
 | OQ-84 | The seeds of the night | PR-49 |
 | OQ-86 | How the atlas places tiles, and how Game draws a map | PR-7 |
 | OQ-89 | Pixel snap in Game | PR-7 |

@@ -85,11 +85,12 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 
 ## Tests (T-3)
 
-- xUnit. One test class per type under test.
+- xUnit, with `xunit.v3` as the one test package, under Microsoft.Testing.Platform (D-592). One test class per type under test.
 - A property test is a seed loop: iterate a fixed seed range, assert the property, and name the seed in the failure message.
 - A bug fix ships with a regression test that fails on the old code. The PR description names the test.
 - A test asserts the contract, not a copy of the implementation.
 - The Smoke category starts the Godot build. CI runs it in the smoke workflow alone.
+- A test that reads a built assembly reads the file of the project that built it. A coverage run instruments the copy in the test output folder and adds references to it (F-61).
 
 ## Commands
 
@@ -97,11 +98,15 @@ The Makefile is the entry point after PR-1 (D-3). The raw commands, with the nam
 
 ```
 dotnet build TheThingBelow.slnx
-dotnet test TheThingBelow.slnx --no-build --filter "Category!=Smoke"
+dotnet test --solution TheThingBelow.slnx --no-build -- --filter-not-trait "Category=Smoke"
 dotnet format TheThingBelow.slnx --verify-no-changes
 dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .
 dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- det-lint --root .
 /Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path TheThingBelow.Game -- --smoke
 ```
 
-Pin the SDK in `global.json`. Pin the Godot version in the runbook and in CI.
+Every option of the test application comes after `--`, because `dotnet test` reads the options before it (D-592).
+
+Pin the SDK in `global.json`, which also sets the test runner (D-592). Pin the Godot version in the runbook and in CI.
+
+The Godot editor writes a target framework into a `.csproj` that has none, and Godot 4.7.2 writes `net8.0`. Each Godot project pins `net10.0` in its own file (F-60, D-99).

@@ -123,13 +123,14 @@ An automated reviewer, gitar, comments on every PR after a push (D-14). After ea
 
 ## Build and test commands
 
-The repository holds no code until PR-1 merges. PR-1 creates the solution, the Makefile, and every command below except the interim STE check. The solution and the project names follow D-217. Run each command from the checkout root.
+PR-1 creates the solution, the Makefile, and every command below except the interim STE check. The solution and the project names follow D-217. Run each command from the checkout root.
 
 - Every check, on this machine: `make verify`
 - Branch, tree, and PR state: `make where`
 - Hooks, once per checkout: `make hooks`
 - Build: `dotnet build TheThingBelow.slnx`
-- Test: `dotnet test TheThingBelow.slnx --no-build --filter "Category!=Smoke"`
+- Test: `dotnet test --solution TheThingBelow.slnx --no-build -- --filter-not-trait "Category=Smoke"`
+- Coverage report: `dotnet test --solution TheThingBelow.slnx --no-build -- --coverlet --coverlet-output-format cobertura --results-directory artifacts/coverage`
 - Format check: `dotnet format TheThingBelow.slnx --verify-no-changes`
 - STE check, interim until PR-2: `python3 docs/tools/ste-check.py $(git ls-files '*.md' | grep -v -e '^docs/reviews/' -e '^docs/session-handoff' -e '^docs/archive/')`
 - STE check, after PR-2: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .`
@@ -137,6 +138,8 @@ The repository holds no code until PR-1 merges. PR-1 creates the solution, the M
 - Godot build check: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --editor --path TheThingBelow.Game --build-solutions --quit`
 - Smoke session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path TheThingBelow.Game -- --smoke`
 - Play session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --path TheThingBelow.Game`
+
+The test command runs in Microsoft.Testing.Platform mode, and every option of the test application comes after `--` (D-592). The coverage command writes a Cobertura file, and the CI job turns it into a Markdown summary (D-593).
 
 The name `Godot` is not on the command path of this machine, so each check needs the full path above. The four exempt paths of the STE check are dated records: `docs/reviews/`, `docs/session-handoff.md`, `docs/session-handoff-archive.md`, and `docs/archive/`. Every other `.md` file passes the checker. Run it on the staged files in the commit command of `docs/runbooks/session-context.md`. Run the full STE check above one time before the first push of a PR (D-585).
 

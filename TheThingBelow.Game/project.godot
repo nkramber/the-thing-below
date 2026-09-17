@@ -1,0 +1,34 @@
+; The Godot project of The Thing Below (D-99, D-217).
+;
+; The renderer is Forward+, as a provisional setting. PR-82 sets the renderer that the
+; Deck test picked (D-160, D-599). Forward+ gives the HDR 2D that the glow of D-188 needs.
+;
+; The fit of a window larger than the frame is Game code, and PR-61 builds it (D-232, D-573).
+
+config_version=5
+
+[application]
+
+config/name="The Thing Below"
+config/description="A sprite RPG."
+run/main_scene="res://Boot.tscn"
+config/features=PackedStringArray("4.7", "C#", "Forward Plus")
+config/quit_on_go_back=false
+boot_splash/show_image=false
+
+[dotnet]
+
+project/assembly_name="TheThingBelow.Game"
+project/solution_directory=".."
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+
+[rendering]
+
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="mobile"
+viewport/hdr_2d=true
+textures/canvas_textures/default_texture_filter=0

@@ -189,7 +189,7 @@ From the roadmap interview of 2026-09-12:
 
 What we pay:
 
-- Owner time: the interviews, the approvals of every text batch (D-57), and the play sign-off of every phase (D-52). The owner also approves every art batch from its review sheets (D-107, D-514), and every music and sound batch by ear (D-433). The owner also cuts each trailer (D-476), and reads the crash emails and the notes of the trusted players (D-469, D-473). Before PR-1, the owner runs the Deck test with its effect budget (D-160, D-523).
+- Owner time: the interviews, the approvals of every text batch (D-57), and the play sign-off of every phase (D-52). The owner also approves every art batch from its review sheets (D-107, D-514), and every music and sound batch by ear (D-433). The owner also cuts each trailer (D-476), and reads the crash emails and the notes of the trusted players (D-469, D-473). The owner runs the Deck test with its effect budget, and PR-82 then sets the renderer that the test picked (D-160, D-523, D-599).
 - Tokens: two harnesses, Claude Code and Codex, on every PR (D-14, D-17). The amount per PR is unknown until M-1.
 - CI: GitHub-hosted minutes on three legs per PR, the bot runs included (D-2, D-481, D-505). Three exports run on each merge and on each PR that changes the export (D-449, D-512). A night plays fourteen thousand bot runs on three legs (D-507). The minutes are free while the repository stays public (D-4). From Phase 6 the repository is private, and minutes past the free quota cost money (D-456). Wall time per PR is unknown until M-2. The build renders the audio, which adds to that time (D-432).
 - Purchases: the Steam Direct fee, 100 USD, at Gate 2 (D-85, D-471). The Apple Developer Program costs 99 USD a year from PR-79 on (D-455, D-553). GitHub Pro comes before the switch to a private repository, so the required checks stay on `main` (D-456).
@@ -202,6 +202,7 @@ Measurements that answer the unknowns:
 - M-3: the night run wall time and the crash and softlock counts, over the first seven nights (D-64).
 - M-4: turns per encounter and party downs per dungeon by bot policy, on the first dungeon. Binds the resource numbers of D-35.
 - M-5: the owner's play time from the first hub to the end of the arc, against D-56.
+- M-7: the Deck frame time of the test scene under Forward+ and under Mobile, at the full load of D-160. It picks the renderer for PR-82 and gives the first effect budget (D-523, D-598, D-599).
 - M-6: the Deck frame time on the first playable, against 60 frames per second (D-161). The readability of the 16-pixel font and the 32-pixel sprites at 1x, with the CRT on and off (D-92, D-120, D-228).
 
 ## 5. Defect and finding register
@@ -269,6 +270,8 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-57 | The third design-critic pass read the merged plan of PR #11 in five slices and found 52 defects. Seven exit tests needed a PR that lands later, such as a shop flag in PR-65 before the flags of PR-68. A party could leave a dungeon and return for fresh enemies, fresh MP, and free health. No PR built the enemy record, the starting row, the party join, the party and status windows, or the sealed gallery. D-538 and D-544 clashed, a workflow change could merge on its own label, and "scene" named two concepts. Five area citations pointed at text that the rebuild of D-554 removed | 2026-09-16 | ✅ doc. D-555 to D-572 answer the owner questions, and PR #12 fixes the rest. OQ-179 holds the reflection switch, which needs code to check |
 | F-58 | The harness gives no session id and no record of the conversation to a check. No check can prove that a session is clean or that it worked on one PR alone. A check can read the diff, the changed paths, and the PR description | 2026-09-16 | ⚠ Binds PR-3: the document rules read the diff and the description alone (D-579). The session and the owner enforce the binding of D-576 |
 | F-59 | A token audit of 20 sessions found that each call of a harness sends the whole context again. The Claude Code sessions sent a median of 350k tokens in each call. Whole reads of the read order, one call for each STE check, and one call for each GitHub poll held most of the cost | 2026-09-16 | ✅ doc. D-583 to D-591 and `docs/runbooks/session-context.md` |
+| F-60 | The Godot editor writes a target framework into a `.csproj` that has none, and Godot 4.7.2 writes `net8.0`. The scaffold sets .NET 10 in `Directory.Build.props` (D-99), and the editor wrote `net8.0` into the Game project over it. The Godot build then failed with `NU1201`, because Core builds for `net10.0`. The editor also leaves a `.csproj.old` backup. The editor build gave an exit code of 0 on that failure | 2026-09-16 | ✅ PR-1: the Game project pins `net10.0` in its own file, `.gitignore` holds `*.csproj.old`, and the smoke job reads the log of the editor build |
+| F-61 | A coverage run instruments the copy of each assembly in the test output folder. Coverlet added `System.Threading` and `System.Threading.Thread` to the Core copy, and the reference test of G-1 failed in the coverage run and passed in the plain run. The compiler also writes no metadata entry for a project reference that no code uses, so the metadata alone cannot see an added reference | 2026-09-16 | ✅ PR-1: the reference test reads the file that the Core project built, through `MetadataReader`, and a second test reads the project file for a declared reference (G-1, G-13) |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -327,22 +330,23 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 
 1. Owner: enable the repository setting that requires a SHA pin for each action (D-511). Done on 2026-09-14.
 2. Owner and a session: the Deck test, which picks the renderer and measures the effect budget (D-160, D-523).
-3. Owner: run that test on the Linux export, before PR-1 (D-458).
-4. PR-1: the solution, the four projects, the Makefile, the hook, and the build, test, format, smoke, and STE jobs (D-118, D-217, D-506).
-5. PR-2: the `ste-check` command in C#, which replaces the Python script (D-10, D-101).
-6. PR-3: the `review-gate` command and its workflow, with the document rules (D-15, D-500, D-579).
-7. Owner: require the checks on `main` (OQ-3).
-8. PR-46: `det-lint`, before the first Core code (D-496, D-498).
-9. PR-4: integer math, the random streams, the state hash, the simulation version, and the `replay-identity` job (D-169, D-504).
-10. PR-5: the content reader, the content ids, the content hash, the string table, and the content embed (D-116, D-495, D-508).
-11. PR-6: the tick, the intents, the run record, replay, and the debug seam (D-164, D-260, D-493).
-12. PR-43: the Storage project, the snapshot versions and migrations, and the save files (D-491, D-494).
-13. PR-44: the crash files and the log files (D-170, D-179, D-491).
-14. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).
-15. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517).
-16. M-1: the harness usage of each of the first ten code PRs in the order of section 8.
-17. M-2: the CI wall time of each job of the first ten code PRs in the order of section 8.
-18. **← GATE 1 (foundation).**
+3. Owner: run that test on the Linux export (D-458). PR-1 does not wait for it (D-599).
+4. PR-1: the solution, the four projects, the Makefile, the hook, and the build, test, format, smoke, and STE jobs (D-118, D-217, D-506). It sets Forward+ as a provisional renderer (D-599).
+5. PR-82: the renderer that the Deck test picked, which is one line of `project.godot` (D-160, D-599).
+6. PR-2: the `ste-check` command in C#, which replaces the Python script (D-10, D-101).
+7. PR-3: the `review-gate` command and its workflow, with the document rules (D-15, D-500, D-579).
+8. Owner: require the checks on `main` (OQ-3).
+9. PR-46: `det-lint`, before the first Core code (D-496, D-498).
+10. PR-4: integer math, the random streams, the state hash, the simulation version, and the `replay-identity` job (D-169, D-504).
+11. PR-5: the content reader, the content ids, the content hash, the string table, and the content embed (D-116, D-495, D-508).
+12. PR-6: the tick, the intents, the run record, replay, and the debug seam (D-164, D-260, D-493).
+13. PR-43: the Storage project, the snapshot versions and migrations, and the save files (D-491, D-494).
+14. PR-44: the crash files and the log files (D-170, D-179, D-491).
+15. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).
+16. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517).
+17. M-1: the harness usage of each of the first ten code PRs in the order of section 8.
+18. M-2: the CI wall time of each job of the first ten code PRs in the order of section 8.
+19. **← GATE 1 (foundation).**
 
 > *In plain English:* this phase builds the machinery and the checks, and nothing that a player can see. At the end of it, four computers play the same run and agree on one number.
 
@@ -475,8 +479,8 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 1. Owner: create no label, install no tool. gitar and the label exist (D-66, D-67).
 2. PR #2 to PR #10 merged on 2026-09-14, and PR #11 to PR #13 on 2026-09-16 (D-554, D-555 to D-575). PR #14 sets one PR for each session (D-576 to D-582).
 3. Owner: enable the setting that requires a SHA pin for each action (D-511). Done on 2026-09-14.
-4. Owner and a session: the Deck test of D-160 on the Linux export, before PR-1 (D-458, D-523).
-5. PR-1, PR-2, PR-3.
+4. Owner and a session: the Deck test of D-160 on the Linux export (D-458, D-523). The test scene is ready on `spike/deck-test`, and PR-1 does not wait for the run (D-597, D-599).
+5. PR-1, PR-2, PR-3. PR-82 follows the Deck test run, and it can land at any point after PR-1 (D-599).
 6. Owner: require the checks on `main` (OQ-3).
 7. PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, PR-47, PR-34.
 8. M-1, M-2.

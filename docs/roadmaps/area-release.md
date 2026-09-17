@@ -28,7 +28,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-32 | The cost model listed the Steam Direct fee alone | PR-79: the Apple Developer Program at 99 USD a year (D-455) |
 | F-33 | The release block found five gaps in the plan | PR-77, PR-79, and PR-61: the credits, the private repository, and the crash address (D-456, D-467, D-473, D-559) |
 | F-34 | Steam needs five screenshots at 1920 by 1080 in 16:9 | PR-76: a screenshot comes from the 2x scale at 2560 by 1440 (D-568) |
-| F-42 | No command-line option installs the Godot export templates | PR-54: the job unpacks them, and OQ-83 holds how (D-508) |
+| F-42 | No command-line option installs the Godot export templates | PR-54: the job unpacks them from the cache of D-596 (D-508) |
 
 ## 7. Roadmap
 
