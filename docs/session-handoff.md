@@ -2,6 +2,43 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 77: 2026-09-17, Codex
+
+Author: Codex
+Session: review PR #20 at effective head `e800f4c`. Repository: the-thing-below. Branch: `feat/pr-2-ste-checker`. Role: reviewer. Base: `9b84158`.
+
+### What this session did, and why
+
+- Verified Claude Code authored PR #20, so Codex meets the cross-provider gate (T-4, D-17).
+- Read the full diff, the PR description and comments, the PR-2 roadmap entry, and the affected decisions and questions (D-589).
+- Ran `make verify`: build, 53 tests, format, STE check, and Godot smoke all passed.
+- Verified all nine CI checks pass on PR tip `2e316e0`. The effective head remains `e800f4c` because later commits change metadata paths alone.
+- Gitar's finding on three missed contractions is fixed and resolved in `e800f4c`.
+- Wrote `docs/reviews/pr-20.md` with `Ready for owner merge` for `e800f4c`.
+
+### State of the build
+
+- `main` is `9b84158`. The effective head is `e800f4c`, and the remote tip before this review commit is `2e316e0`.
+- Local `make verify` passes. All nine CI checks pass on the remote tip.
+- The unrelated untracked `deck-test/` remains untouched.
+
+### In flight
+
+The review record and this entry need one metadata commit and push.
+
+### Traps and gotchas
+
+- The review covers effective head `e800f4c`; later metadata commits do not change it.
+- The next ids are D-609, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 78.
+
+### Open questions that block progress
+
+None for PR #20. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Push the review record and verify the remote handoff state.
+
 ## Session 76: 2026-09-17, Claude Code
 
 Author: Claude Code
@@ -367,41 +404,3 @@ The review gate of PR #19 blocks the merge. The session asked the owner, and the
 ### Next concrete action
 
 Get the answer of the owner about the review gate, then apply it to PR #19.
-
-## Session 67: 2026-09-17, Codex
-
-Author: Codex
-Session: repeat review of PR #19 at effective head `c065a11`, on branch `docs/pr-83-skip-set-decision`. Role: reviewer. Base: `ee4305a`.
-
-### What this session did, and why
-
-- Re-read the review instructions and the existing PR #19 review record and response file.
-- The local branch advanced to `d6d1529`. Commits after `c065a11` only change review and session handoff records, so the effective head remains `c065a11`.
-- The response file reports the PR head, Gitar result, comments, checks, and build result. GitHub access failed again, so this session could not verify those claims independently.
-- The review record still gives `Blocked`. It also records that the Git index is read-only, so this session cannot commit or push its update.
-
-### State of the build
-
-- `main` points to `ee4305a`. The local branch and its tracking ref point to `d6d15294f7fe4772e693ccf949a0154056102a1d`.
-- The effective head remains `c065a11` because later commits change metadata only.
-- `git diff --check` passes for the PR changes. The previous session's STE and identity checks pass; its build result remains unknown from this environment.
-- GitHub checks, comments, PR state, and live remote head remain unverified.
-
-### In flight
-
-The review remains blocked until GitHub evidence can be verified and the updated record can be committed and pushed.
-
-### Traps and gotchas
-
-- `gh` cannot connect to `api.github.com`.
-- `git fetch` cannot write `.git/FETCH_HEAD`, and Git cannot create `.git/index.lock`.
-- The response file is author-provided evidence, not independent confirmation by this review.
-- The next ids are D-602, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 68.
-
-### Open questions that block progress
-
-No owner question blocks PR #19. GitHub access and Git metadata write access block the final review publication.
-
-### Next concrete action
-
-Restore GitHub API and Git write access. Verify the PR comments and checks, then commit and push the existing review record and this entry.
