@@ -20,6 +20,7 @@ Session: repeat review PR #21 at effective head `3a75767`. Repository: the-thing
 - `main` and the merge base are `04953e4`. The effective code head is `3a75767`, and the remote tip before this review publication is `0a811b1`.
 - `make verify` passes with 119 tests, clean format, 0 STE findings, and a successful smoke session.
 - All nine CI checks pass on metadata tip `0a811b1`.
+- The repeat review record and this handoff were published at `c9b17ab`.
 - The Gitar pass approves effective head `3a75767` with no finding, and no inline review comment exists.
 - The unrelated untracked `deck-test/` stays untouched.
 
