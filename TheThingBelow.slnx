@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="TheThingBelow.Core/TheThingBelow.Core.csproj" />
+  <Project Path="TheThingBelow.Game/TheThingBelow.Game.csproj" />
+  <Project Path="TheThingBelow.Tools/TheThingBelow.Tools.csproj" />
+  <Project Path="TheThingBelow.Tests/TheThingBelow.Tests.csproj" />
+</Solution>

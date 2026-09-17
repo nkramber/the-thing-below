@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Core is the simulation. It references the base libraries of .NET alone (G-1, D-100). -->
+  <PropertyGroup>
+    <RootNamespace>TheThingBelow.Core</RootNamespace>
+    <AssemblyName>TheThingBelow.Core</AssemblyName>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Tools holds the gate tools and the content tools (D-101, D-496, D-497). -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>TheThingBelow.Tools</RootNamespace>
+    <AssemblyName>TheThingBelow.Tools</AssemblyName>
+  </PropertyGroup>
+
+</Project>

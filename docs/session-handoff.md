@@ -2,6 +2,376 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 63: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat review of PR #18 at effective head `d8c31b8`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read the start set and the repeat-review, review-record, commit, and STE instructions.
+- Verified that Claude Code authored PR #18. Codex remains the eligible reviewer under T-4 and D-17.
+- Verified that the current effective head is `d8c31b8`; the later commits only change metadata.
+- Read the P2-4 answer with the regression table. Each says the old target runs without end, and a frame limit alone would leave a false pass.
+- Checked that the Makefile and CI set a frame limit and require the success line.
+- The latest Gitar dashboard approves `d8c31b8`. All nine CI checks pass on the current branch tip.
+- The saved GraphQL query reports zero unresolved threads. A fresh export failed to connect.
+- The owner confirms that zero inline threads remain unresolved.
+- Set P2-4 to fixed in `d8c31b8`. The verdict is `Ready for owner merge` for that head.
+- The handoff held ten entries. Session 53 moved to the archive (D-18).
+
+### State of the build
+
+- `main` is `9f27f12`. The PR branch tip before this review commit is `47a7e1639104b69d726c993c4404e4bcbbe552fd`.
+- The effective head is `d8c31b8`. The response, design row, and roadmap row now state the same two-fault behavior.
+- All nine checks pass on the branch tip: changed paths, STE check, build/test/format on three platforms, coverage, and smoke on three platforms.
+- The Gitar dashboard approves the effective head with one closed finding and no open issues.
+- No uncommitted source or project changes exist. The unrelated untracked `deck-test/` directory remains unchanged.
+
+### In flight
+
+The review record and this entry need one metadata commit and push. The verdict applies to effective head `d8c31b8`.
+
+### Traps and gotchas
+
+- A frame limit and a success-line check are both needed for the smoke contract (F-64).
+- The API did not return inline threads in this session. The response file records the last successful query and result.
+- Do not add unrelated paths to the review commit. Keep `deck-test/` untouched.
+- The next ids are D-600, OQ-183, F-65, L-16, G-27, PR-83, M-8, and Session 64.
+
+### Open questions that block progress
+
+None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Commit this review record and handoff entry, push them, then verify the remote head and status.
+
+## Session 62: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the repeat Codex review of PR #18, in the session that authored it (D-582).
+Repository: the-thing-below. Branch: `feat/pr-1-scaffold`. PR: #18. Role: author. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read `docs/reviews/pr-18.md` at head `6e0622a`. The repeat review withdrew P2-1, set P2-2 and P2-3 to fixed, and opened P2-4. The verdict is `Blocked`.
+- P2-4 has full merit. The response file said that the `smoke` target of `0c402dd` reported success for a broken session, and its table said that the case runs without end. Both cannot hold.
+- The table holds. With no frame limit the session waits until a kill, so the target reports no result.
+- The sentence conflated the two faults of the old target. The target has no frame limit, and it reads no log. A frame limit alone turns the first fault into the second, which is a false pass. The correction needs both parts.
+- `docs/reviews/pr-18-response.md` now names the two faults, agrees with its table, and holds a P2-4 section.
+- The same wrong sentence was in the F-64 row of `docs/design.md`, which this PR wrote. That row and the F-64 row of `phase-1-foundations.md` now name the two faults.
+- The review could not enumerate the inline threads, because its API calls failed. The response file now holds the exact query and its result, which is 0 unresolved threads.
+
+### State of the build
+
+- `main` is `9f27f12`. The effective head stays `6e0622a`, and the Gitar pass approves it.
+- This round changes `docs/reviews/pr-18-response.md`, `docs/design.md`, `docs/roadmaps/phase-1-foundations.md`, and this file.
+- `docs/design.md` and `docs/roadmaps/` are outside the metadata set, so this commit moves the effective head and needs a new Gitar review.
+- `make verify` passes on the Mac of the owner. The nine CI checks passed on `6e0622a` and on `d8c31b8`.
+- The new effective head is `d8c31b8`. The Gitar pass of that head gives `Approved`, with 1 comment, 1 with merit, 0 open issues, and 0 unresolved threads. Commit `0c402dd` answered that comment.
+- That review is current. The head matches, and the dashboard edit time of 03:04:49Z is later than the push time of 03:00:57Z and later than the reply of 03:04:30Z.
+
+### In flight
+
+The repeat Codex review of effective head `d8c31b8` (T-4, D-17). The Gitar pass of that head is complete and approves it.
+
+The commit that holds this entry changes `docs/session-handoff.md` alone, so it is a metadata commit and it does not move the effective head.
+
+### Traps and gotchas
+
+- A response file can hold a prose claim and a table that disagree. Read them together before the commit, and give one result for one command and one trigger (T-5).
+- Two faults in one command can compose. Name each one, and say which fault a partial correction leaves.
+- A wrong claim in a response file can also sit in the design register. Grep for the sentence, and not for the id.
+- The metadata set is `docs/reviews/`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md`. A round that also changes `docs/design.md` moves the effective head.
+- Gitar replaced its dashboard comment in each round of this PR. The id moved from `5706916715` to `5707572860`, and then to `5707837154`. Read the newest id in each check.
+- The next ids are D-600, OQ-183, F-65, L-16, G-27, PR-83, M-8, and Session 63.
+
+### Open questions that block progress
+
+None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Hand PR #18 back to Codex for the repeat review of `d8c31b8`. The session stays bound to PR #18 and answers each finding (D-582).
+
+## Session 61: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat review of PR #18 at effective head `6e0622a`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read the current handoff, the PR response, and the repeat-review, review-record, contract, Gitar, and commit skills.
+- Verified the provider gate. Session 60 names Claude Code as the author, and Codex remains the opposite provider (T-4, D-17).
+- Verified that `a56a7ce` changes the handoff alone, so the effective head is `6e0622a`.
+- Reproduced the F-60 build callback failure. Godot logged the error and returned 1, so P2-1's exact trigger is withdrawn.
+- Verified P2-2. The Documents line now names both actual review files in the `Changed:` form.
+- Verified the corrected smoke path. `make smoke` passed on a healthy tree and failed when a wrapper removed the managed assembly during the real Godot session.
+- Found P2-4 in the response file: its prose says the old target reported success, but its table says that case ran without end.
+- CI run 35175182671 passed all nine checks on tip `a56a7ce`.
+- GitHub API calls for inline review threads failed. The current Gitar dashboard summary says the pass approved the correction head, with one closed finding and no open issue.
+- Updated `docs/reviews/pr-18.md`. The current verdict remains `Blocked` for head `6e0622a`.
+- The handoff held ten entries before this one, so Session 51 moves to the archive (D-18).
+
+### State of the build
+
+- `main` is `9f27f12` (PR #17). PR #18 is open on `feat/pr-1-scaffold`.
+- The effective head is `6e0622a`. The current remote tip is `a56a7ce`, a metadata commit.
+- CI run 35175182671 passed all nine checks on the remote tip.
+- The healthy smoke run passed. The missing-assembly regression failed on the absent success line, as required.
+- The inline review-thread export remains incomplete.
+
+### In flight
+
+P2-1 is withdrawn, P2-2 and P2-3 are fixed, and P2-4 remains open. The review cannot reach its hand-over point until the response text is corrected and the remaining review evidence is complete.
+
+### Traps and gotchas
+
+- The editor returns 1 on the F-60 build callback error. The original evidence read the code of `tail` through a pipe.
+- A session with no loadable boot assembly waits without end. The new frame limit ends the session, and the missing success line fails the smoke check (F-64).
+- `docs/reviews/pr-18-response.md` line 28 conflicts with the regression table at line 47.
+- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 62.
+
+### Open questions that block progress
+
+No owner question blocks the review. P2-4 and the inline comment export remain unresolved.
+
+### Next concrete action
+
+Correct the conflicting statement in the response file. Then repeat the review of PR #18 at its new effective head.
+
+## Session 60: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the answer to the Codex review of PR #18, in the same session that authored it (D-582).
+Repository: the-thing-below. Branch: `feat/pr-1-scaffold`. PR: #18. Role: author. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read `docs/reviews/pr-18.md`. The verdict was `Blocked` for head `0c402dd`, with P2-1 and P2-2 open.
+- P2-1 has partial merit. Its trigger does not reproduce, and the defect that it aims at is real.
+- The editor gives an exit code of 1 when its build callback fails, and not 0. The first measurement of this PR read `$?` after a pipe to `tail`, so it read the exit code of `tail`. F-60 carried that wrong claim, and the row now marks that part refuted and keeps it.
+- The verification found the real failure. A headless session whose managed assembly does not load never reaches `Quit`, and it runs without end. With `--quit-after` it ends with an exit code of 0 and no success line. This is F-64.
+- The `smoke` target of the Makefile now writes each log to a file, fails on a nonzero build code, runs the session with `--quit-after 600`, and fails when the success line is absent.
+- The `smoke` job of CI runs the session with `--quit-after 600` too, so a broken session fails in seconds and not at the time limit of 30 minutes.
+- P2-2 has full merit. The `docs/reviews/` line of the Documents section matched none of the three forms of D-581, and it named a placeholder path. The PR description now names `docs/reviews/pr-18.md` and `docs/reviews/pr-18-response.md` in the `Changed` form.
+- `docs/reviews/pr-18-response.md` records each disposition, the evidence, and the regression checks.
+
+### State of the build
+
+- `main` is `9f27f12`. The branch holds the scaffold, the two corrections, and the review records.
+- `make verify` passes on the Mac of the owner: the build, the 8 tests, `dotnet format`, the STE check with 0 findings, and the smoke session.
+- The regression checks pass. `make smoke` gives 2 on a failed Godot build, gives 2 in about 6.5 seconds on a boot class that the scene cannot instantiate, and gives 0 on a healthy tree.
+- The Gitar review of `0c402dd` gave `Approved`, with 1 finding closed and 0 unresolved threads.
+- The Gitar pass of the correction head `6e0622a` gives `Approved`, with 1 comment, 1 with merit, and 0 open issues. Commit `0c402dd` answered that comment, and the thread is resolved.
+- That review is current. The head matches, the dashboard edit time of 02:33:02Z is later than the push time of 02:25:14Z and later than the `On it` reply of 02:29:01Z.
+- CI run on `6e0622a` passed each of the nine checks, the three smoke legs with `--quit-after` included.
+
+### In flight
+
+The repeat Codex review of PR #18 at effective head `6e0622a` (T-4, D-17). The Gitar pass of that head is complete and approves it.
+
+The commit that holds this entry changes `docs/session-handoff.md` alone, so it is a metadata commit and it does not move the effective head.
+
+### Traps and gotchas
+
+- A measurement of an exit code through a pipe reads the exit code of the last command of the pipe. Redirect to a file, or set `pipefail`, before you record an exit code as evidence.
+- A headless Godot session that cannot instantiate its boot script waits without end. Always give `--quit-after` to a session that a check runs (F-64).
+- An exit code of 0 from a smoke session proves nothing. The success line in the log is the proof (T-2).
+- A finding can name a real defect through a trigger that does not reproduce. Reproduce the trigger, then look for the defect that the finding aims at.
+- Gitar replaced its dashboard comment during this round. The id moved from `5706916715` to `5707572860`. Read the newest id in each check, and never a saved one.
+- A string comparison with `\>` inside `[ ]` fails in zsh. Use `sort`, or read the times in Python.
+- The next ids are D-600, OQ-183, F-65, L-16, G-27, PR-83, M-8, and Session 61.
+
+### Open questions that block progress
+
+None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Hand PR #18 back to Codex for the repeat review of `6e0622a`. The session stays bound to PR #18 and answers each finding (D-582).
+
+## Session 59: 2026-09-16, Codex
+
+Author: Codex
+Session: follow-up verification for the PR #18 review at effective head `0c402dd`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Verified that review commit `a9a3d07` is the remote branch tip and does not change the effective head.
+- Verified that CI run 35171555340 passed all nine checks on the pushed review commit.
+- Read the current Gitar PR comment through `gh pr view`. Its macOS finding is fixed in `0c402dd`, and the smoke job passes on macOS.
+- Tried the required export of issue comments, review bodies, and inline threads. GitHub API access failed for the thread data.
+- Updated `docs/reviews/pr-18.md` with the final CI results, the verified push, and the Gitar claim.
+- The handoff held ten entries before this one, so Session 49 moves to the archive (D-18).
+
+### State of the build
+
+- `main` is `9f27f12` (PR #17). PR #18 is open on `feat/pr-1-scaffold`.
+- The effective head is `0c402dd`. The review metadata commit `a9a3d07` is the remote tip.
+- CI run 35171555340 passed all nine checks on the remote tip.
+- The required inline thread export remains unavailable. The local `make verify` command did not complete.
+
+### In flight
+
+PR #18 has two open P2 findings. The review verdict is Blocked until the findings and required comment evidence are resolved.
+
+### Traps and gotchas
+
+- `gh pr view` returned the issue comment and review summaries, but the API calls for inline review threads failed.
+- The workspace has an untracked `deck-test/` directory. It remains unchanged.
+- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 60.
+
+### Open questions that block progress
+
+No owner question blocks the review. GitHub API access blocks the remaining thread evidence.
+
+### Next concrete action
+
+Export all inline threads when GitHub API access works, verify each claim and reply, and then update the review record.
+
+## Session 58: 2026-09-16, Codex
+
+Author: Codex
+Session: review of PR #18 at effective head `0c402dd`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read the top handoff entry, the one-PR skill, the PR review skill, the contract reference, the review-record reference, and the STE skill.
+- Verified the provider gate. Session 57 names Claude Code as the author, and Codex is the eligible reviewer (T-4, D-17).
+- Verified that `b32a971` changes the handoff alone, so the effective head remains `0c402dd`.
+- Inspected all 34 paths of the effective diff and checked the PR description and current CI run.
+- Found P2-1: the local smoke target can accept the Godot build callback failure that F-60 documents.
+- Found P2-2: the PR description's review Documents line does not use the form of D-581.
+- The required comment export failed twice because GitHub's API did not connect. Local `make verify` stalled in `dotnet build` and was interrupted.
+- Wrote `docs/reviews/pr-18.md` with the verdict `Blocked` for effective head `0c402dd`.
+- Moved Session 48 to the archive because this entry makes it the eleventh handoff entry (D-18).
+
+### State of the build
+
+- `main` is `9f27f12` (PR #17). PR #18 is open on `feat/pr-1-scaffold`.
+- CI run 35169864293 on tip `b32a971` passed all nine checks. Its implementation head is `0c402dd`.
+- The local build produced no output for 60 seconds. The review interrupted it, so local tests, format, STE, and smoke did not run.
+- The comment export did not complete. The existing PR comments remain unverified.
+
+### In flight
+
+PR #18 needs both findings corrected. The review also needs the full comment export before it can give a final verdict.
+
+### Traps and gotchas
+
+- The Godot editor can return 0 when its build callback fails. The CI workflow reads the log, but the Makefile does not (F-60, T-2).
+- The PR description line for `docs/reviews/` uses a placeholder path and omits the required `Changed:` form (D-577, D-581).
+- The working tree held an untracked `deck-test/` directory before the review. It remains unchanged.
+- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 59.
+
+### Open questions that block progress
+
+No owner question blocks the review. GitHub API access blocks the required comment evidence.
+
+### Next concrete action
+
+Export every comment on PR #18 when GitHub API access works. Verify the claims, then complete the review of the same head.
+
+## Session 57: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: PR-1, the repository scaffold, which is the first code of the repository.
+Repository: the-thing-below. Branch: `feat/pr-1-scaffold`. PR: PR-1. Role: author. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read the top handoff entry, `CLAUDE.md`, and the `one-pr-one-session`, `ste-writing`, `design-doc-style`, and `csharp-conventions` skills.
+- Read `deck-test/handover.md` and `deck-test/readme.md` on `spike/deck-test`. That step has no PR, so no document held its eight owner answers.
+- Wrote D-592 to D-599 for those answers, and resolved OQ-75, OQ-76, OQ-77, OQ-78, OQ-83, OQ-92, and OQ-93.
+- D-599 revises D-160 in part. The renderer pick comes after PR-1, and PR-1 sets Forward+ as a provisional renderer. PR-82 sets the picked renderer in one line.
+- Added the cost model rows of the Deck test to section 4 of `docs/design.md`, with M-7 for the frame time of the test scene.
+- Added the PR-82 entry to `phase-1-foundations.md`, section 7.3, and renumbered the later entries of section 7.
+- Built the scaffold: `TheThingBelow.slnx`, `global.json`, `Directory.Build.props`, the Makefile, the pre-commit hook, the four projects of D-217, and the CI workflow.
+- Wrote eight tests: the agent-file match test, three Core reference tests, and four tests of the tools command line.
+- Opened PR #18. The first CI run failed two smoke legs, and a second commit corrected the workflow (F-62, F-63).
+
+### State of the build
+
+- `main` is `9f27f12` (PR #17). The branch `feat/pr-1-scaffold` holds the scaffold.
+- `make verify` passes on the Mac of the owner: the build, the 8 tests, `dotnet format`, the STE check with 0 findings, and the Godot smoke session.
+- The smoke session prints the renderer as `forward_plus` and the frame as 1280 by 720, and it ends with no error.
+- The CI workflow holds five jobs: `changed-paths`, `build-test-format`, `coverage`, `smoke`, and `ste-check`.
+- The first run of PR #18, 35169279617 on `0b319f8`, failed `smoke (macos-26)` and `smoke (windows-2025)`. Each other check passed.
+- The second run, 35169532179 on `0c402dd`, passed each of the nine checks, the two corrected legs included.
+- The Gitar review of `0c402dd` gives `Approved`, with 1 finding closed and no open issue. That review is current: the head matches, and the dashboard edit time of 01:14:25Z is later than the push time of 01:10:42Z.
+
+### In flight
+
+The Codex review of PR #18 (T-4, D-17). The PR adds decision rows, so the `review-override` label does not apply (D-401). It also changes `.github/workflows/`, which is never exempt (D-560).
+
+The effective head is `0c402dd`. The commit that holds this entry changes `docs/session-handoff.md` alone, so it is a metadata commit and it does not move the effective head.
+
+### Traps and gotchas
+
+- The Godot editor writes `net8.0` into a `.csproj` that holds no target framework, over `Directory.Build.props` (F-60). The Game project pins `net10.0` in its own file, and `.gitignore` holds `*.csproj.old`.
+- The Godot editor build gives an exit code of 0 when its build callback fails. The smoke job reads the log for `build callback failed` (F-60, T-2).
+- A coverage run instruments the Core copy in the test output folder and adds `System.Threading` to it (F-61). The reference test reads the file that the Core project built.
+- The compiler writes no metadata entry for a project reference that no code uses. A second test reads the Core project file, so an added reference fails (F-61).
+- The generated entry point of `xunit.v3` runs the console runner unless `UseMicrosoftTestingPlatformRunner` is on. The console runner reads no Coverlet option.
+- Coverlet 10 takes `--coverlet`, and not `--coverage`. It writes its file to the results directory, and it takes no output path.
+- The macOS archive of Godot holds `Godot_mono.app`, and not `Godot.app` (F-62). The find pattern of the smoke job reads `*.app/Contents/MacOS/Godot`.
+- The git-bash of the Windows runner carries `sha512sum` and no `shasum` (F-63). The checksum step reads the digest itself and names both values.
+- Gitar found the macOS fault of F-62 by reading the workflow, and CI found the same fault by running it. Gitar found no fault in the Windows checksum step, which only the Windows runner showed.
+- Gitar paused automatic reviews for the trial period, and a review still ran on each push of this PR. Read the dashboard comment, and never the pause note alone.
+- The owner ran no Deck test yet. PR-82 waits for that run.
+- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 58.
+
+### Open questions that block progress
+
+None for PR-1. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Hand PR #18 to Codex for the review of T-4. The session stays bound to PR #18 and answers each finding (D-582).
+
+## Session 56: 2026-09-16, Claude Code
+
+Author: Claude Code
+Session: the Deck test of step 7.1 of `docs/roadmaps/phase-1-foundations.md`. That step has no PR and no review.
+Repository: the-thing-below. Branch: `spike/deck-test`. PR: none. Role: author of a spike.
+
+### What this session did, and why
+
+- Built the throwaway test scene of D-160 and D-523 on the branch `spike/deck-test`, which never merges (D-597).
+- The scene draws the load of D-160 at the frame of 1280 by 720: normal maps, point lights with shadows, glow, the four ambient kinds, fog, the CRT pass, and a wipe transition.
+- The sweep runs 20 stages. Each stage holds 60 warm-up frames and 300 measured frames.
+- `scripts/FrameMeter.cs` reads the time of each frame and counts each frame over 16.667 milliseconds (D-598).
+- Ran the fetch script for the export templates, and the SHA-512 matched (D-596).
+- The owner answered eight questions. `deck-test/handover.md` holds each one, and PR-1 records them as D-592 to D-599.
+
+### State of the build
+
+- The scene, the shaders, the meter, and the report all work. A run on the Mac proved them.
+- The native Linux export `build/DeckTest.x86_64` exists. No machine ran it.
+- `main` held no code during this session.
+
+### In flight
+
+The run on the Deck, which the owner does. That run answers D-160 and gives the first effect budget of D-523.
+
+### Traps and gotchas
+
+- The Godot export needs a solution file beside `project.godot`. With none, the export writes an ELF file, exits 0, and packs no managed assembly.
+- An exit code of 0 hides an export fault. The export gives `completed with warnings` and exits 0. PR-54 must read the log.
+- macOS caps the frame rate whatever the vsync setting says. A Mac run reports 16.67 milliseconds in every stage, and the report refuses to give a budget (T-2).
+- Only the Deck run answers D-160. A Mac run tests the scene and the report, and nothing else.
+- Godot drops each light past 15 on one canvas item with no message (F-46). The sweep stops the light row at 15.
+
+### Open questions that block progress
+
+None. OQ-92 and OQ-93 closed with D-597 and D-598.
+
+### Next concrete action
+
+The owner copies `build/DeckTest.x86_64` and `run-deck-test.sh` to the Deck and runs `./run-deck-test.sh`. PR-82 then sets the renderer.
+
 ## Session 55: 2026-09-16, Codex
 
 Author: Codex
@@ -82,353 +452,3 @@ None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81,
 ### Next concrete action
 
 The author gets a current Gitar review of the new head and answers each finding. Then the Codex reviewer repeats the review of P2-2.
-
-## Session 53: 2026-09-16, Codex
-
-Author: Codex
-Session: repeat review of PR #16 at effective head `d2479ce`.
-Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: reviewer. Base: `2bc7d56`.
-
-### What this session did, and why
-
-- Read the top handoff entry and the one-PR, repeat-review, review-record, and STE skills.
-- Verified Claude Code authored PR #16 and its correction. Codex remains eligible under T-4 and D-17.
-- Verified the base and head with GitHub PR metadata. The effective head is `d2479ce` because it changes the runbook.
-- Reproduced P2-1 against the old and corrected runbook commands in bash and zsh. The old command returned 0 and left a partial file. The corrected command returned 1 and left no file.
-- Set P2-1 to fixed in `d2479ce` and updated the existing review record.
-- Found P2-2 in the staged-file commit command. With only review and handoff records staged, `grep -v` returns 1 and stops the `&&` chain before the commit.
-- The current comment export confirms Gitar approved `d2479ce` with 0 findings and 0 threads. That pass predates the review metadata push to `60260ef`, so it is stale for the current branch head. GitHub reports no check runs.
-- The handoff held ten entries. Session 43 moved word for word to the archive (D-18).
-
-### State of the build
-
-- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
-- PR #16 is open on `docs/pr-16-context-budget`, with metadata head `60260ef` and base `2bc7d56` per `gh pr view`. The effective implementation head remains `d2479ce`.
-- The interim STE check, diff check, identity check, and P2-1 regression check pass.
-- The P2-2 reproduction fails the documented commit chain for this metadata-only commit. A local safe empty-list handling lets the review records commit without skipping any eligible STE file.
-- The review verdict is Blocked for open P2-2, the stale Gitar review, and absent check runs.
-
-### In flight
-
-PR #16 needs the author to fix P2-2 and push the correction. The author then gets a current Gitar review and required check results. The current review record says Blocked for effective head `d2479ce`.
-
-### Traps and gotchas
-
-- `git fetch` failed under the default sandbox, then succeeded with elevated access.
-- The current Gitar dashboard approval is for `d2479ce`; the later review metadata push makes it stale for the branch head.
-- GitHub reports no check runs for the branch.
-- The documented commit pipeline fails when its path filter finds no STE-eligible staged Markdown files.
-- The regression harness is `/tmp/pr16_export_regression.sh`.
-- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 54.
-
-### Open questions that block progress
-
-No owner question blocks PR #16. Fresh Gitar and CI evidence remains unavailable.
-
-### Next concrete action
-
-The author fixes P2-2 so an empty eligible-file list does not stop the commit command. Then the author pushes the correction, requests a current Gitar review, and checks why no CI jobs report. Codex repeats the review at the new effective head.
-
-## Session 52: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: the answer to the review of PR #16, in the same conversation as Session 50 (D-582).
-Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: author. Base: `2bc7d56`.
-
-### What this session did, and why
-
-- The owner asked the session to address the review feedback. The Codex review of Session 51 gave `Changes required` for head `45e960d`, with one finding, P2-1.
-- Before the review, the session requested a manual Gitar review of `45e960d`. It waited with the one wait command of D-586 two times: the first wait stopped at the placeholder comment, and the second at the review. Gitar approved with 0 findings and 0 threads.
-- P2-1 has full merit. The comment export of `docs/runbooks/session-context.md` returned 0 and left a comments file after a failed GitHub call. A fake `gh` reproduced it in bash and in zsh.
-- The export now runs in one `&&` chain into a part file, renames the file only after every call passes, and fails with a message otherwise (T-2, D-589). The regression check fails on the old runbook text and passes on the new text in both shells. The real `gh` run saved three comments.
-- `docs/reviews/pr-16-response.md` records the answer.
-- The handoff held ten entries before this one, so Session 42 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
-- PR #16 is open on branch `docs/pr-16-context-budget`. The commit that holds this entry changes the runbook, so it is the new effective head.
-- The full interim STE check gives 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-
-### In flight
-
-PR #16 waits for a current Gitar review of the new head, then the repeat Codex review of P2-1 (T-4, D-17).
-
-### Traps and gotchas
-
-- The first Gitar comment after a request can be a placeholder with the pause note and a spinner. Wait again with `since` at its time (D-586).
-- The review commit of Session 51 came from the same checkout. `git fetch` alone did not show it, because the local branch already held it.
-- The push line of `docs/reviews/pr-16.md` holds the placeholder `<review metadata sha>`. The response file asks the reviewer to correct it.
-- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 53.
-
-### Open questions that block progress
-
-None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-The author gets a current Gitar review of the new head and answers each finding. Then the Codex reviewer repeats the review of P2-1.
-
-## Session 51: 2026-09-16, Codex
-
-Author: Codex
-Session: review of PR #16 at effective head `45e960d`.
-Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: reviewer. Base: `2bc7d56`.
-
-### What this session did, and why
-
-- Read the start set, the one-PR skill, the PR review skill, the STE skill, and the review record and commit references.
-- Verified that Claude Code authored the PR from Session 50. Codex is the eligible reviewer under T-4 and D-17.
-- Recomputed the effective head as `45e960d`. It is the only commit after the base and changes substantive paths.
-- Inspected all 18 paths in the diff, the decisions D-583 to D-591, F-59, and OQ-182.
-- Found P2-1: the PR comment export can return success after an earlier GitHub retrieval fails. A shell reproduction returned 0 after a failed command and a successful command.
-- Verified the Gitar dashboard approval, its check, and the absence of review threads. Corrected the stale dashboard timestamp in the PR description.
-- The full interim STE check passes with 0 findings. `git diff --check` passes, and `AGENTS.md` and `CLAUDE.md` are identical.
-- The handoff held ten entries before this one, so Session 41 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
-- PR #16 is open on `docs/pr-16-context-budget`. Its remote head and effective head are `45e960d` before this review commit.
-- Gitar approved this head. The cross-provider review found P2-1, recorded in `docs/reviews/pr-16.md`.
-- `make verify` is unavailable because the Makefile does not exist. The direct STE and diff checks pass.
-
-### In flight
-
-PR #16 needs the author to fix P2-1 and run the regression check. The review record and this handoff entry are ready to commit and push.
-
-### Traps and gotchas
-
-- The comments export must fail if any API request fails. Otherwise a partial file can appear complete.
-- The PR description timestamp now matches the Gitar dashboard update at 21:23:53Z.
-- The review applies to effective head `45e960d`, not the metadata tip that will publish this record.
-- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 52.
-
-### Open questions that block progress
-
-None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-The author makes each failed GitHub retrieval fail the comment-export command, tests that a partial export returns nonzero, and requests a repeat Codex review after the fix.
-
-## Session 50: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: the token audit of the repository, then PR #16, the session context budget.
-Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: author. Base: `2bc7d56` (PR #15).
-
-### What this session did, and why
-
-- The owner asked for a read-only audit of token use. The audit read the usage records of 10 Claude Code sessions and 10 Codex sessions of this repository, and the size of every instruction file.
-- Each harness call sends the whole context again. The Claude Code sessions sent a median of 350k tokens in each call, and a maximum of 886k, with no context compaction. Whole reads of the read order held about 29% of the carried context. A call for each STE check cost 19% of the input tokens, and a call for each GitHub poll cost 14%. `CLAUDE.md` cost about 1.5%.
-- The owner said "Implement all fixes as recommended." D-583 to D-591 record the answers. OQ-182 asks where a size check goes. F-59 records the finding.
-- The start set replaces the whole read order at the start (D-583, D-584). The STE check runs in the commit command (D-585). One command waits for Gitar (D-586). The session tells the owner when it is ready for a context compaction (D-587).
-- `pr-review` split into a core of 17,922 bytes and five reference files (D-588, D-589). The glossary of the project areas moved word for word to `ste-writing/references/glossary.md` (D-590). D-591 covers scripts and edits.
-- `docs/runbooks/session-context.md` holds the evidence and the commands. Each command ran on this machine, in zsh.
-- The auto mode classifier of the harness refused the edits of the session skill and of `CLAUDE.md` two times. The owner then approved the edits in the conversation.
-- A separate evaluator ran the changed rules on four requests and found five defects. All five had merit, and this PR fixes them: a handoff push during the Gitar wait, the lost full STE check, unset variables in the comments command, the provider gate against D-584, and the wait after "On it".
-- The shared `gitar-review` skill did not change, because it is the same file in each repo.
-- The handoff held ten entries before this one, so Session 40 moved word for word to the top of `docs/session-handoff-archive.md` (D-18). A repeated rule line between two entries left this file.
-
-### State of the build
-
-- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
-- PR #16 is open on branch `docs/pr-16-context-budget`. The commit that holds this entry is its effective head.
-- The full interim STE check gives 0 findings, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-- The start set fell from 55,786 bytes to 28,491 bytes, about 20.7k to 10.6k tokens at 2.7 bytes for each token. `CLAUDE.md` grew from 15,001 to 16,052 bytes.
-
-### In flight
-
-PR #16 waits for a Gitar pass and for the Codex review, because it adds decision rows (T-4, D-17, D-401). For this work the owner told the session to set aside the Gitar procedure, so no Gitar request ran.
-
-### Traps and gotchas
-
-- The shell of this machine is zsh. zsh does not split `$files` into words, so the commit command pipes the file list to `xargs`.
-- The harness gives the compaction command to the owner alone. A session cannot compact itself, so D-587 tells the owner.
-- A push while Gitar reviews makes the review stale. Commit the handoff entry of a round before the push of that round.
-- The checker does not read the glossary. A session that writes about a project area loads `references/glossary.md` (D-590).
-- The audit scripts lived in the scratch folder of the session. No tool of this repository reads the usage records (D-99).
-- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 51.
-
-### Open questions that block progress
-
-None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-The author gets a current Gitar review of the PR #16 head and answers each finding. Then the Codex review of PR #16 runs.
-
-## Session 49: 2026-09-16, Codex
-
-Author: Codex
-Session: repeat cross-provider review of PR #14 at effective head 7e65c7e.
-Repository: the-thing-below. Branch: docs/pr-14-one-pr-one-session. PR: #14. Role: reviewer. Base: 26152c5.
-
-### What this session did, and why
-
-- Read the handoff first, then the one-PR, review, STE, and gitar skills. Read the prior review, its response, the complete correction diff, the affected contracts, the PR description, and all PR comments.
-- Verified the provider gate under T-4 and D-17. Session 46 identifies Claude Code as the author. Session 48 identifies Claude Code as the correction author. Codex is the eligible reviewer.
-- Recomputed the effective head. 7e65c7e changes substantive paths. The review and handoff commits change only metadata paths.
-- Reproduced P2-1 and checked its correction. The gate rejects a deferral of this PR's own documents or records, and it permits a line that names PR-3 as the owner of independent roadmap work. D-579, the PR template, and PR-3 exit tests 10 and 11 agree.
-- Checked the D-582 session-end changes and the author and reviewer instructions. They agree with the revised decision.
-- Verified the latest manual Gitar review after the correction push. Its dashboard reports approval, its check passes, and no review thread or formal PR review remains.
-- Updated docs/reviews/pr-14.md, kept the earlier Changes required verdict under Earlier verdicts, and set the current verdict to Ready for owner merge for 7e65c7e.
-- Corrected the PR description's other-provider checkbox after recording the verified verdict.
-- The handoff held ten entries before this one, so Session 39 moved word for word to the top of docs/session-handoff-archive.md (D-18).
-
-### State of the build
-
-- No code, solution, or Makefile exists. main is 26152c5 (PR #13).
-- PR #14 is open on docs/pr-14-one-pr-one-session. Its remote tip before this review is 7e65c7e, and its effective head is 7e65c7e.
-- The interim STE check passes with 0 findings, git diff --check passes, and CLAUDE.md and AGENTS.md stay identical.
-- Build and test commands did not run because the repository has no code, solution, or Makefile.
-
-### In flight
-
-The cross-provider review is ready for owner merge at effective head 7e65c7e (T-4, D-17). The PR still needs a current Gitar review of its latest metadata tip before merge. The last Gitar dashboard edit predates the review publication, and GitHub reports no check on the new tip.
-
-### Traps and gotchas
-
-- Completion line 8 now applies only to documents and records of the current PR. A line that assigns independent roadmap work to its owner PR passes under D-579 and G-16.
-- P2-1 stays in the review history as fixed. The earlier verdict remains under Earlier verdicts.
-- The next ids are D-583, OQ-182, F-59, L-16, G-27, PR-82, M-7, and Session 50.
-
-### Open questions that block progress
-
-None for PR #14. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-The author requests a current Gitar review of the latest PR tip and answers each finding. P2-1 is fixed; the Gitar review is the remaining merge gate.
-
-
-## Session 48: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: the answer to the review of PR #14, on branch `docs/pr-14-one-pr-one-session`. Role: author, in the same conversation as Session 46 (D-582). Base: `26152c5`.
-
-### What this session did, and why
-
-- The owner asked the session to answer the review of Session 47. The skill of this PR blocked the answer, because the author session had reached its hand-over point. The owner said: "Addressing Codex/gitar review feedback does NOT qualify for a new session."
-- D-582 records that rule and revises D-576 in part. The author session now answers each gitar comment and each review, and it ends at `Ready for owner merge` or the label.
-- P2-1 has full merit. Completion line 8 rejected any line that names another PR, so it rejected PR #14 and the PR template. The gate now rejects only a document or a record of this PR that waits for another PR.
-- The same boundary reaches `CLAUDE.md`, `AGENTS.md`, the PR template, D-579, and the PR-3 scope. PR-3 gains exit test 11, which passes a PR that names the PR of an absent check.
-- `pr-review`, the glossary, and `docs/design.md` follow D-582.
-- `docs/reviews/pr-14-response.md` records both answers.
-- A separate evaluator ran the corrected skill on seven requests, the two fixtures of the review included. The deferral failed, and the PR that names PR-3 passed. Its notes found a clash that the first correction made: the reviewer could repeat a review, yet it ended at its first record. The reviewer now ends at the same verdict as the author. A correction author comes from the provider of the author (T-4).
-- The handoff held ten entries before this one, so Session 38 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. `main` is `26152c5` (PR #13).
-- PR #14 is open on branch `docs/pr-14-one-pr-one-session`. The commit that holds this entry changes paths outside the metadata set, so it is the new effective head.
-- The interim STE check passes with 0 findings, the skill validator passes, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-- Size: `CLAUDE.md` is 15,004 bytes, and the skill is 8588 bytes.
-
-### In flight
-
-PR #14 waits for a current gitar review of the new head, then the repeat Codex review of P2-1 (T-4, D-17). This author session stays bound to PR #14 and answers each finding (D-582).
-
-### Traps and gotchas
-
-- A line that names the PR of independent roadmap work is not a deferral (G-16). Only a document or a record of the current PR can defer.
-- D-579 changed its text inside this PR, before any merge. The response file says why.
-- The author session and the reviewer session each end at `Ready for owner merge` for the effective head, or at the label, not at the request for a review (D-582). Each round of a session adds a new handoff entry.
-- The next ids are D-583, OQ-182, F-59, L-16, G-27, PR-82, M-7, and Session 49.
-
-### Open questions that block progress
-
-None for PR #14. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-Get a current gitar review of the new head and answer each finding. Then a Codex session repeats the review of P2-1 from `docs/reviews/pr-14-response.md`.
-
-## Session 47: 2026-09-16, Codex
-
-Author: Codex
-Session: review of PR #14 at effective head `9837c1d`, on branch `docs/pr-14-one-pr-one-session`. Role: reviewer. Base: `26152c5`.
-
-### What this session did, and why
-
-- Read the handoff first, then the review, session, STE, and gitar skills. Read the complete diff, the affected contracts, the PR description, and every PR comment.
-- Verified the provider gate under T-4 and D-17. Session 46 identifies Claude Code as the author of the substantive change.
-- Recomputed the effective head. `9837c1d` changes the substantive paths. The later commit `6bafb15` changes the handoff alone.
-- Applied the new skill to this PR and the standard PR template. Found P2-1: completion line 8 rejects any line that gives work to another PR.
-- Verified the trigger against D-579 and G-16. PR #14 assigns the machine enforcement to PR-3, and the template names each PR that creates an absent check.
-- Inspected the external GitHub claim. The official events page lists the `edited` type for `pull_request_target`.
-- Verified the current gitar pass. The dashboard edit follows the second request, the check succeeded, and no review thread exists.
-- Wrote `docs/reviews/pr-14.md` with the verdict `Changes required` for effective head `9837c1d`.
-- The handoff held ten entries before this one, so Session 37 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. `main` is `26152c5` (PR #13).
-- PR #14 is open on branch `docs/pr-14-one-pr-one-session`. Its effective head is `9837c1d`.
-- The interim STE check passes with 0 findings. Both diff checks are clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-- D-1 through D-581 and OQ-1 through OQ-181 are gap-free.
-
-### In flight
-
-PR #14 needs the P2-1 correction. The review record applies to effective head `9837c1d` (T-4, D-17).
-
-### Traps and gotchas
-
-- D-577 forbids a later PR from carrying a document of the current PR. It does not forbid a roadmap from assigning independent work to its owner PR.
-- D-579 assigns the machine enforcement to PR-3. G-16 requires each absent check to name its creator PR.
-- The correction must keep the negative deferral case and add the valid future-owner case. A word search for `later PR` cannot decide the meaning alone.
-- The next ids are D-582, OQ-182, F-59, L-16, G-27, PR-82, M-7, and Session 48.
-
-### Open questions that block progress
-
-None for P2-1. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-The author limits completion line 8 to the documents and records of the current PR. The response adds both regression fixtures, and a new clean Codex session repeats the review.
-
-## Session 46: 2026-09-16, Claude Code
-
-Author: Claude Code
-Session: PR #14, the rule of one PR in one session, on branch `docs/pr-14-one-pr-one-session`. Role: author. Base: `26152c5`.
-
-### What this session did, and why
-
-- The owner asked for one clean session for each PR, and for each PR as the complete unit of its work, to keep the context of each session small. The same instruction went to three other repositories of the owner. Each of those repositories gets its own session and its own PR.
-- The harness of this session had no tool to start a top-level session in another project. So this session wrote this repository alone, and it gave the owner the prompts for the other three.
-- The new skill `.claude/skills/one-pr-one-session/SKILL.md` holds the session binding, the start gate, the documents gate, the merge facts, the completion gate, and an enforcement table.
-- `CLAUDE.md` and `AGENTS.md` require the skill before any PR work. The D-18 line "A documentation PR can follow the merge" is gone. The PR gate line on documents points at the skill.
-- The owner answered three questions: the document rules go into PR-3 (D-579), a docs PR with its own concern stays allowed (D-580), and the Documents lines use three STE forms (D-581). D-576 to D-578 record the owner instruction. D-18 and D-15 carry `Revised in part` notes.
-- `docs/design.md` gains the session pass line, F-58, and G-26. The PR-3 line of Phase 1 and the sequence position change.
-- The PR-3 entry of `phase-1-foundations.md` gains scope lines, exit tests 8 to 11, and review focus lines. `area-tools.md` and `area-ci.md` follow, and `area-tools.md` gains a dated fact on the `edited` type of `pull_request_target`.
-- `pr-review` loads the new skill, checks the Documents section, and ends the session after the end gate. The glossary gains "clean session", "Documents section", and "hand-over point". The PR template gains the rows and a no-deferral line.
-- A forward test with a separate evaluator ran the skill on ten realistic requests. Each of the ten gave the result that the rule needs. Its notes added a refusal result for a PR that records an earlier PR, the gates of a reviewer, a meaning of substantive work, a rule for a second concern, and the form of each line. It also found a gap in the metadata set of `pr-review`, which OQ-181 holds.
-- The handoff held ten entries before this one, so Session 36 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code exists. `main` is `26152c5` (PR #13).
-- PR #14 is open on branch `docs/pr-14-one-pr-one-session`. Its effective head is `9837c1d`. The later commit that records the gitar pass changes this file alone, so it is a metadata commit.
-- The gitar pass on `9837c1d` approved with no comment: 0 comments, 0 with merit, and no thread. The dashboard edit came after the push, and its summary names this change.
-- The interim STE check passes with 0 findings, the skill validator passes, `git diff --check` is clean, and `CLAUDE.md` and `AGENTS.md` stay identical.
-- Size: `CLAUDE.md` grows from 14,735 to 14,976 bytes. The skill is 7,550 bytes, and a session loads it for PR work alone.
-
-### In flight
-
-PR #14 waits for the Codex review at effective head `9837c1d`. It changes rows of `docs/decisions.md`, so it takes the review and not the label (D-401). A manual gitar review of the metadata commit confirms that the pass is current. This session ends at that hand-over point (D-576).
-
-### Traps and gotchas
-
-- No check can see the conversation of a session (F-58). The binding and the clean start stay agent-enforced and owner-enforced. PR-3 enforces the document rules from its merge on (D-579).
-- The handoff says "open" for a PR that the owner merges later. Git holds the merge. Do not open a PR to correct it (D-578).
-- A PR-3 session must keep the rows of the skill table and the rows of the command in step. Exit tests 8 to 11 of PR-3 name them.
-- The next ids are D-582, OQ-182, F-59, L-16, G-27, PR-82, M-7, and Session 47.
-
-### Open questions that block progress
-
-None for PR #14. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-A new clean Codex session reviews PR #14 at its effective head under the `pr-review` skill (T-4, D-17). Then the owner merges.

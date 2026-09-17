@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Tests runs under Microsoft.Testing.Platform (MTP), and `xunit.v3` is the one test
+    package (D-592). Coverlet writes the Cobertura file that ReportGenerator reads (D-593).
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>TheThingBelow.Tests</RootNamespace>
+    <AssemblyName>TheThingBelow.Tests</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+    <!--
+      The generated entry point of `xunit.v3` runs the console runner unless this property
+      is on. The console runner reads no extension, so the coverage option of Coverlet fails there
+      (D-592, D-593).
+    -->
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" Version="4.0.1" />
+    <PackageReference Include="coverlet.MTP" Version="10.0.1" />
+  </ItemGroup>
+
+  <!--
+    The reference test of G-1 reads the file that the Core project built, and never the copy
+    in this output folder. Coverlet instruments the copy and adds references to it (F-61).
+  -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>CoreAssemblyPath</_Parameter1>
+      <_Parameter2>$(MSBuildThisFileDirectory)../TheThingBelow.Core/bin/$(Configuration)/$(TargetFramework)/TheThingBelow.Core.dll</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../TheThingBelow.Core/TheThingBelow.Core.csproj" />
+    <ProjectReference Include="../TheThingBelow.Tools/TheThingBelow.Tools.csproj" />
+  </ItemGroup>
+
+</Project>

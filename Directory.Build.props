@@ -1,0 +1,18 @@
+<Project>
+
+  <!-- Every project of the solution takes these settings (D-217, CLAUDE.md code rules). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>9999</WarningLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Assertions stay on in every configuration (T-2). -->
+    <DefineConstants>$(DefineConstants);CONTRACTS_FULL</DefineConstants>
+  </PropertyGroup>
+
+</Project>
