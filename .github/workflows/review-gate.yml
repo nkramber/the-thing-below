@@ -1,0 +1,104 @@
+# The review gate of every pull request (D-15, D-579). PR-3 creates it.
+#
+# The trigger is `pull_request_target`, so the workflow file and the command come from `main`.
+# The job reads the files of the head as data, and it never builds them and never runs them.
+# GitHub starts this trigger from the default branch alone, so the check first runs on the PR
+# after PR-3 (F-37, D-500).
+#
+# Each action pins a full commit SHA (D-511).
+name: review-gate
+
+on:
+  pull_request_target:
+    # A label and a description both change the result, so both types run the job (D-67, D-579).
+    types: [opened, reopened, synchronize, edited, labeled, unlabeled]
+
+# The job reads the repository. The job itself is the check run, so the token needs no more (D-15).
+permissions:
+  contents: read
+
+concurrency:
+  group: review-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+
+jobs:
+  review-gate:
+    name: review-gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      # With `pull_request_target`, this action checks out the base branch, which is `main`.
+      - name: Check out the base branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Install the .NET SDK of global.json
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Read the head of the PR as data
+        env:
+          NUMBER: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "+refs/pull/$NUMBER/head:refs/remotes/pr/head"
+          merge_base=$(git merge-base "$BASE_SHA" refs/remotes/pr/head)
+          echo "MERGE_BASE=$merge_base" >> "$GITHUB_ENV"
+
+          # The files of the head go outside the checkout. No build of this job reads them,
+          # and no step of this job runs one of them (D-15).
+          rm -rf "$RUNNER_TEMP/head-files"
+          mkdir -p "$RUNNER_TEMP/head-files"
+          git archive refs/remotes/pr/head | tar -x -C "$RUNNER_TEMP/head-files"
+
+      # Each value of the PR goes through the environment, and never into the text of the
+      # script. A description cannot become a command that way.
+      - name: Write the facts of the PR
+        env:
+          NUMBER: ${{ github.event.pull_request.number }}
+          BODY: ${{ github.event.pull_request.body }}
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          set -euo pipefail
+          files=$(git diff --name-only "$MERGE_BASE" refs/remotes/pr/head \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          commits=$(git log --reverse --format=%H "$MERGE_BASE..refs/remotes/pr/head" \
+            | while read -r sha; do
+                git show --name-only --format= "$sha" \
+                  | jq -R -s -c --arg sha "$sha" \
+                      '{sha: $sha, files: (split("\n") | map(select(length > 0)))}'
+              done | jq -s -c '.')
+          decisions=$(git diff "$MERGE_BASE" refs/remotes/pr/head -- docs/decisions.md)
+
+          jq -n \
+            --argjson number "$NUMBER" \
+            --arg body "${BODY:-}" \
+            --argjson labels "$LABELS" \
+            --argjson files "$files" \
+            --argjson commits "$commits" \
+            --arg decisionsDiff "$decisions" \
+            '{number: $number, body: $body, labels: $labels, files: $files,
+              commits: $commits, decisionsDiff: $decisionsDiff}' \
+            > "$RUNNER_TEMP/pull-request.json"
+
+      # The command gives one line for each rule, and the exit code of a fault (T-2). The step
+      # holds the exit code until the report reaches the log and the summary, because a fault
+      # is the case that the reader must read.
+      - name: Run the review gate
+        run: |
+          set -uo pipefail
+          status=0
+          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj --verbosity quiet \
+            -- review-gate \
+            --pull-request "$RUNNER_TEMP/pull-request.json" \
+            --head-files "$RUNNER_TEMP/head-files" > "$RUNNER_TEMP/review-gate.log" 2>&1 || status=$?
+          cat "$RUNNER_TEMP/review-gate.log"
+          cat "$RUNNER_TEMP/review-gate.log" >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"

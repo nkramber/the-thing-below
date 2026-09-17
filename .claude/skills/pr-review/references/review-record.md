@@ -18,8 +18,15 @@ The `review-gate` job reads this file once PR-3 creates it (D-15). Three parts o
 | The verdict | One of the three verdict names, in the `## Verdict` section | Write the name exactly. Do not reword it. |
 
 The effective head is the newest commit that changes a path outside the metadata set.
-The metadata set is `docs/reviews/`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md`.
+The metadata set holds four paths of this pull request (D-610):
+
+- `docs/reviews/pr-<number>.md`
+- `docs/reviews/pr-<number>-response.md`
+- `docs/session-handoff.md`
+- `docs/session-handoff-archive.md`
+
 A commit that changes only those paths is a metadata commit, and it does not change the effective head.
+A commit that changes the record of another pull request moves the effective head.
 The required review commit holds the review record and the handoff entry, so it is always a metadata commit.
 Without that rule the review commit invalidates the review that it publishes.
 Record the effective head, not the tip, when the review commit is the last commit.

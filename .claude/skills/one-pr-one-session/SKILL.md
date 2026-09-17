@@ -86,7 +86,7 @@ The `docs/session-handoff.md` line is always `Changed`. Before the review, the a
 
 Correct the PR when a line or a record holds one of these:
 
-- A deferral of a document or a record of this PR: "later", "after the merge", "follow-up PR", "TBD", or a plan for a docs PR.
+- A deferral of a document or a record of this PR, such as "later PR", "after the merge", "TBD", or "a docs PR". The `review-gate` command reads the full set of phrases, and `DocumentRules.DeferralPhrases` holds it (D-579).
 - A general claim, such as "no documentation impact", with no path or category.
 - A handoff line in a form other than `Changed`.
 - A handoff entry that describes work that the PR does not hold.
@@ -109,7 +109,7 @@ No PR exists only to record the merge, the handoff, the review record, or the do
 
 `Refused: no PR records the merge or the documents of an earlier PR (D-578).`
 
-A commit that changes only the metadata set of the `pr-review` skill never moves the effective head.
+A commit that changes only the metadata set never moves the effective head. That set holds the two review files of this PR and the two handoff files (D-610).
 
 ## 5. Completion gate
 

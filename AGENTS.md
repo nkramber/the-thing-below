@@ -124,12 +124,12 @@ An automated reviewer, gitar, comments on every PR after a push (D-14). After ea
 - The reviewing provider reads the existing PR comments into its review and never addresses gitar. The `pr-review` skill holds the procedure of the reviewer.
 - Every PR answers the pass, a documentation PR included (D-66). The `review-override` label exempts a documentation PR from the Codex review alone, and only when the PR changes no row of `docs/decisions.md` (D-401).
 - The override set holds `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/`, and `.github/pull_request_template.md` (D-16, D-71, D-239). A change to `.github/workflows/` takes the review, because each gate lives in a workflow file (D-560). A change to any other path, such as `content/`, takes the review (D-185).
-- On a documentation PR that changes no decision row, the session applies the `review-override` label itself, only after the pass approves the head (D-67, D-401). A later push needs a new approval before the label applies again. A PR that adds or revises a decision goes to the other provider instead.
+- On a documentation PR that changes no decision row, the session applies the `review-override` label itself, only after the pass approves the head (D-67, D-401). A change to a decision row is a change to a line of a decision table (D-609). A later push needs a new approval before the label applies again. A PR that adds or revises a decision goes to the other provider instead.
 - Before you open a documentation PR, ask the owner every open question that the PR can settle (D-68). Ask in batches, and record the answers in the PR.
 
 ## Build and test commands
 
-PR-1 creates the solution and the Makefile, and PR-2 creates the STE check command. The solution and the project names follow D-217. Run each command from the checkout root.
+PR-1 creates the solution and the Makefile, PR-2 creates the STE check command, and PR-3 creates the review gate command. The solution and the project names follow D-217. Run each command from the checkout root.
 
 - Every check, on this machine: `make verify`
 - Branch, tree, and PR state: `make where`
@@ -140,6 +140,7 @@ PR-1 creates the solution and the Makefile, and PR-2 creates the STE check comma
 - Format check: `dotnet format TheThingBelow.slnx --verify-no-changes`
 - STE check: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .`
 - Determinism and string lint, after PR-46: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- det-lint --root .`
+- Review gate: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- review-gate --pull-request <file> --head-files <folder>`
 - Godot build check: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --editor --path TheThingBelow.Game --build-solutions --quit`
 - Smoke session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path TheThingBelow.Game -- --smoke`
 - Play session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --path TheThingBelow.Game`
@@ -164,7 +165,7 @@ A PR merges only when every line holds:
 - [ ] The `ste-check` job is green: the writing rules, the reference check, and the session number check (G-12, D-605, D-607).
 - [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14). The review is current under the `gitar-review` skill.
 - [ ] The other provider reviewed it, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). A PR in the override set that changes no decision row is exempt when the `review-override` label is on (D-16, D-401, D-560).
-- [ ] The `review-gate` check is green (D-15). PR-3 creates it.
+- [ ] The `review-gate` check is green (D-15). Its first live run is the PR after PR-3 (F-37, D-500).
 - [ ] `docs/decisions.md` has every new decision.
 - [ ] `docs/questions.md` has every new question.
 - [ ] `docs/design.md` matches intent.

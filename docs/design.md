@@ -483,7 +483,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 2. PR #2 to PR #10 merged on 2026-09-14, and PR #11 to PR #13 on 2026-09-16 (D-554, D-555 to D-575). PR #14 sets one PR for each session (D-576 to D-582).
 3. Owner: enable the setting that requires a SHA pin for each action (D-511). Done on 2026-09-14.
 4. Owner and a session: the Deck test of D-160 on the Linux export (D-458, D-523). The test scene is ready on `spike/deck-test`, and PR-1 does not wait for the run (D-597, D-599).
-5. PR-1, PR-2, PR-3. PR-82 follows the Deck test run, and it can land at any point after PR-1 (D-599).
+5. PR-1, PR-2, PR-3, PR-84. PR-82 follows the Deck test run, and it can land at any point after PR-1 (D-599).
 6. Owner: require the checks on `main` (OQ-3).
 7. PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, PR-47, PR-34.
 8. M-1, M-2.
