@@ -120,6 +120,7 @@ Built by PR-1 and PR-2, and PR-84 adds the size rules. Phase file: `phase-1-foun
 - PR-1 ran the interim Python checker, and PR-2 moved the job to the `ste-check` command of Tools (D-10, `area-tools.md` section 7.2).
 - The job reads every `.md` file outside the dated records that the `ste-writing` skill names.
 - PR-84 adds the size rules of the context budget to the command, and the job then fails a file above its limit (D-611).
+- The size rules count the lines of a file, so the Linux leg and a local run read the same number.
 
 > *In plain English:* every document must pass the plain-English check. The check reads text alone, so one computer runs it.
 

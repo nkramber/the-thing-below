@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using TheThingBelow.Tools.SteCheck;
 
 namespace TheThingBelow.Tests;
 
@@ -85,6 +86,22 @@ public sealed class SteCheckCheckout : IDisposable
             string.Empty,
             "The archive holds no entry yet.");
 
+        // The size rules of D-611 read the start set: the two instructions files and the skills.
+        string[] instructions =
+        [
+            "# The fixture instructions",
+            string.Empty,
+            "This file stands for the instructions of a session. It stays small.",
+        ];
+        checkout.Write("CLAUDE.md", instructions);
+        checkout.Write("AGENTS.md", instructions);
+
+        checkout.Write(
+            ".claude/skills/ste-writing/SKILL.md",
+            "# The fixture skill",
+            string.Empty,
+            "This file stands for a skill of the task. It stays small.");
+
         return checkout;
     }
 
@@ -104,6 +121,28 @@ public sealed class SteCheckCheckout : IDisposable
         }
 
         File.WriteAllLines(full, lines);
+    }
+
+    /// <summary>Writes a document of an exact byte count, as the size rules count it.</summary>
+    /// <param name="relativePath">The path under the root, with forward slashes.</param>
+    /// <param name="bytes">The count that <see cref="SizeRules.ByteCount"/> must give. One byte at least.</param>
+    public void WriteOfSize(string relativePath, int bytes)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(relativePath);
+        ArgumentOutOfRangeException.ThrowIfLessThan(bytes, 1);
+
+        // Each line takes its own bytes and one byte for the line ending.
+        const int LineBytes = 64;
+        List<string> lines = [];
+        int remaining = bytes;
+        while (remaining > LineBytes)
+        {
+            lines.Add(new string('x', LineBytes - 1));
+            remaining -= LineBytes;
+        }
+
+        lines.Add(new string('x', remaining - 1));
+        Write(relativePath, [.. lines]);
     }
 
     /// <summary>Adds lines to the end of a document of the fixture checkout.</summary>

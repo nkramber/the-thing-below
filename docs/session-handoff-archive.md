@@ -1,5 +1,127 @@
 # Session handoff archive
 
+## Session 78: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: PR-3, the review gate. Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. PR: #21. Role: author. Base: `04953e4`.
+
+### What this session did, and why
+
+- Asked the owner OQ-69, OQ-181, and OQ-182 before any change (D-19). The answers are D-609, D-610, and D-611.
+- Wrote the `review-gate` command in Tools, with eight rules from RG 1 to RG 8 (D-15, D-579).
+- RG 1 and RG 2 read the override label. RG 3 to RG 5 read the review record. RG 6 to RG 8 read the documents.
+- The command takes one JSON file with the facts of the PR, and one folder with the files of the head.
+- Added `.github/workflows/review-gate.yml` on `pull_request_target`. The job runs from `main`, and it never builds the head.
+- Added 60 tests. They hold each exit test of the roadmap entry, and the report of each fixture is in the PR description (D-500).
+- D-610 made the metadata set the four paths of the PR. The `pr-review` reference, the `gitar-review` skill, and the `one-pr-one-session` skill hold the new set.
+- D-611 made PR-84, the context budget check in the `ste-check` command, right after PR-3. The roadmaps and the sequence hold it.
+
+### The state of the build
+
+- `main` is `04953e4`. This branch holds the commit of this entry.
+- `make verify` passes: the build, 113 tests, the format check, the STE check with 0 findings, and the smoke session.
+- The nine CI checks pass on the head `40ea275`: three build legs, three smoke legs, the changed paths job, the coverage report, and `ste-check`.
+- The Gitar pass approves `40ea275` with the verdict `Approved` and no finding. The dashboard comment `5718999630` has the edit time `18:03:21Z`, which is after the push. No thread is open.
+- The `review-gate` check is absent from the head, because GitHub starts its trigger from `main` alone (F-37, D-500).
+- The unrelated untracked `deck-test/` stays untouched.
+
+### What is in flight
+
+The review of the other provider at the effective head `40ea275`.
+
+### Traps and gotchas
+
+- GitHub starts `pull_request_target` from the default branch alone, so the live check cannot run on this PR (F-37). The first live run is the next PR (D-500).
+- The command reads the description of the PR. An edit of the description changes the result, so the workflow also runs on the `edited` type.
+- The deferral rule reads the Documents lines alone, and it reads a set of phrases. `DocumentRules.DeferralPhrases` holds each one.
+- The next ids are D-612, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 79.
+
+### The questions that block progress
+
+None for PR #21. OQ-3 comes right after the merge of this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### The next concrete action
+
+Open PR #21, answer the Gitar pass, then hand the PR to the other provider.
+
+## Session 77: 2026-09-17, Codex
+
+Author: Codex
+Session: review PR #20 at effective head `e800f4c`. Repository: the-thing-below. Branch: `feat/pr-2-ste-checker`. Role: reviewer. Base: `9b84158`.
+
+### What this session did, and why
+
+- Verified Claude Code authored PR #20, so Codex meets the cross-provider gate (T-4, D-17).
+- Read the full diff, the PR description and comments, the PR-2 roadmap entry, and the affected decisions and questions (D-589).
+- Ran `make verify`: build, 53 tests, format, STE check, and Godot smoke all passed.
+- Verified all nine CI checks pass on PR tip `2e316e0`. The effective head remains `e800f4c` because later commits change metadata paths alone.
+- Gitar's finding on three missed contractions is fixed and resolved in `e800f4c`.
+- Wrote `docs/reviews/pr-20.md` with `Ready for owner merge` for `e800f4c`.
+
+### State of the build
+
+- `main` is `9b84158`. The effective head is `e800f4c`, and the remote tip before this review commit is `2e316e0`.
+- Local `make verify` passes. All nine CI checks pass on the remote tip.
+- The unrelated untracked `deck-test/` remains untouched.
+
+### In flight
+
+The review record and this entry are on the PR branch, and GitHub reports the current head.
+
+### Traps and gotchas
+
+- The review covers effective head `e800f4c`; later metadata commits do not change it.
+- The next ids are D-609, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 78.
+
+### Open questions that block progress
+
+None for PR #20. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+The review record and handoff are on the remote. The owner can merge PR #20.
+
+## Session 76: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the Gitar pass of PR #20, in the same session as Session 75 (D-582).
+Repository: the-thing-below. Branch: `feat/pr-2-ste-checker`. PR: #20. Role: author. Base: `9b84158`.
+
+### What this session did, and why
+
+- The Gitar pass on head `a155ebc` gives `Approved with suggestions` with one finding.
+- The finding says that the contraction rule misses `he's`, `she's`, and `who's`. The claim holds. A run of the pattern on each form gives no match, and the table of the skill promises a pronoun with `'s`.
+- Fixed the pattern. The possessive of each of these pronouns has no apostrophe, so each form is always a contraction: its, his, hers, and whose.
+- Added seven tests: four forms that fail the rule, and three possessives that pass it. Three of the four fail on the old pattern.
+- Hoisted two patterns that a method built on each call. The result does not change, and the tool no longer compiles a pattern in a loop (T-1).
+
+### State of the build
+
+- `main` is `9b84158`. The head before this round was `a155ebc`, and the ten checks passed on it.
+- `make verify` passes on this round: the build, 53 tests, the format check, the STE check with 0 findings, and the smoke session.
+- This round changes code and a test, so the effective head moved to `e800f4c`.
+- Session 66 moves to the archive. The handoff keeps the 10 newest entries (D-18, D-607).
+- The nine CI checks pass on `e800f4c`: three build legs, three smoke legs, the changed paths job, the coverage report, and `ste-check`.
+- The Gitar pass approves `e800f4c` with the verdict `Approved`, and it names the fix. The dashboard comment `5718363510` has the edit time `17:11:42Z`, which is after the push time `17:10:29Z`. The one thread is resolved, and no thread is open.
+
+### In flight
+
+The Codex review of PR #20 at the effective head `e800f4c`.
+
+### Traps and gotchas
+
+- Automatic Gitar reviews are paused on this trial, and the pass on `a155ebc` still ran. Read the Gitar check on the head before a `Gitar review` comment.
+- The reply to the thread names the commit that fixes the finding.
+- The next ids are D-609, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 77.
+
+### Open questions that block progress
+
+None for PR #20. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Get the Gitar pass on the new head, then hand PR #20 to Codex for the review.
+
 ## Session 75: 2026-09-17, Claude Code
 
 Author: Claude Code

@@ -184,6 +184,9 @@ Run it in the commit command of `docs/runbooks/session-context.md`, and one time
 | HANDOFF 1 | A session number that the handoff or its archive holds two times (L-12) |
 | HANDOFF 2 | A session entry out of order. The two files hold one list, newest first (D-18) |
 | HANDOFF 3 | More than 10 entries in `docs/session-handoff.md` (D-18, D-607) |
+| SIZE 1 | More than 16 KB in `CLAUDE.md` or `AGENTS.md` (D-583, D-611) |
+| SIZE 2 | More than 5 KB in the top entry of `docs/session-handoff.md` (D-583, D-611) |
+| SIZE 3 | More than 36 KB in one `.md` file of `.claude/skills/` (D-583, D-611) |
 
 Dated records are exempt by path: `docs/reviews/`, `docs/session-handoff.md`, `docs/session-handoff-archive.md`, and `docs/archive/`. A dated record is history, and a rewrite falsifies it.
 
@@ -202,6 +205,21 @@ The command also reads each citation of a live document (D-605) and the two hand
 - Write a name that is not a path of this repository without backticks. A branch name and a refused file name each take this rule.
 - The rule of a superseded decision reads every live document except `docs/decisions.md`. The Effect column of that register records each supersession (D-606).
 - Front matter and fenced code blocks take no reference rule.
+
+## The size rules of the context budget
+
+A session reads the start set in full, so each file of that set has a byte limit (D-583, D-611). The checker gives one finding for each file above its limit, and the finding names the size and the limit.
+
+| File | Limit |
+|---|---|
+| `CLAUDE.md` and `AGENTS.md` | 16 KB |
+| The top entry of `docs/session-handoff.md` | 5 KB |
+| Each `.md` file of `.claude/skills/` | 36 KB |
+
+- One kilobyte is 1024 bytes. `TheThingBelow.Tools/SteCheck/SizeRules.cs` holds the three numbers, and this skill repeats them.
+- The count reads the lines of the file, and each line ending counts as one byte. Thus every CI leg reads the same number.
+- The handoff rule reads the top entry alone, from its `## Session` heading to the heading of the next entry. An older entry takes no limit, because a session reads the top entry alone (D-584).
+- Move text to a skill or a runbook when a file comes near its limit. A targeted read costs less context than a full read of the start set.
 
 ## Markdown notes
 
