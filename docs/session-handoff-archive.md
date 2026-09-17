@@ -37,13 +37,13 @@ The review record and this entry need one metadata commit and push. The verdict 
 - Do not add unrelated paths to the review commit. Keep `deck-test/` untouched.
 - The next ids are D-600, OQ-183, F-65, L-16, G-27, PR-83, M-8, and Session 64.
 
-### Open questions that block progress
+### Open questions and accepted risks
 
-None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+None for PR #18.
 
 ### Next concrete action
 
-Commit this review record and handoff entry, push them, then verify the remote head and status.
+Wait for the owner merge of PR #18.
 
 ## Session 62: 2026-09-16, Claude Code
 

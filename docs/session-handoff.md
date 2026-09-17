@@ -2,6 +2,47 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 74: 2026-09-17, Codex
+
+Author: Codex
+Session: repeat review of PR #19 at effective head `7732b1b`, on branch `docs/pr-83-skip-set-decision`. Role: reviewer. Base: `ee4305a`.
+
+### What this session did, and why
+
+- Read the response file and the prior review record (D-588, D-589).
+- Verified that Session 64 names Claude Code as the author. Codex is eligible under T-4 and D-17.
+- Verified the earlier P2-1 correction against its original trigger. It stays fixed in `6f82d26`.
+- Reviewed D-603 and the Gitar skill change. A Gitar pass on the effective head remains current across metadata commits.
+- Ran `make verify`. The build, 8 tests, format, STE, and Godot smoke checks passed.
+- Verified all 9 current CI checks pass on PR tip `784ebbf`.
+- Verified the Gitar pass approves effective head `7732b1b`, its request and dashboard times satisfy the freshness rule, and there are zero review threads.
+- Set the verdict to `Ready for owner merge` for effective head `7732b1b`.
+- Moved Session 63 to the archive (D-18).
+
+### State of the build
+
+- `main` is `ee4305a`. The effective head is `7732b1b`, and the metadata tip is `784ebbf`.
+- `make verify` passes. The nine live CI checks pass on the tip. The Gitar pass covers the effective head under D-603.
+- The unrelated untracked `deck-test/` remains untouched.
+
+### In flight
+
+The review record and this entry need one metadata commit and push. The verdict applies to effective head `7732b1b`.
+
+### Traps and gotchas
+
+- Metadata-only commits do not stale the Gitar pass under D-603. A commit outside the metadata set moves the effective head.
+- The PR tip may move after the review record is pushed. Recheck the effective head and the published record.
+- The next ids are D-604, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 75.
+
+### Open questions that block progress
+
+None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Wait for the owner merge of PR #19.
+
 ## Session 73: 2026-09-17, Claude Code
 
 Author: Claude Code
