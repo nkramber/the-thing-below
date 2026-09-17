@@ -20,11 +20,12 @@ Session: re-review PR #23, roadmap PR-46, the `det-lint` command. Repository: th
 - `main` and the merge base are `0fbecab`. The current PR head is `f62113e`; its effective head is `70df5ef` (D-610).
 - `make verify` passes: build with 0 warnings, 187 tests, format, `det-lint`, `ste-check`, and smoke.
 - GitHub checks pass except `review-gate`, which fails RG 4 and RG 5 while the published review record still holds the old verdict and head.
-- The updated review record and this entry await publication. The review gate must pass on the published record.
+- The updated review record and this entry were published as `2e4cc38`. All 11 checks pass on that head, including `review-gate`.
+- This follow-up metadata commit records the publication and check verification. The effective head remains `70df5ef` (D-610).
 
 ### What is in flight
 
-Publish the repeat review and verify that `review-gate` passes for effective head `70df5ef`.
+The repeat review is published and `review-gate` passes. The owner can merge PR #23.
 
 ### Traps and gotchas
 
@@ -38,7 +39,7 @@ None for PR #23. The finding is fixed, and the review gate waits for the publish
 
 ### The next concrete action
 
-Push the updated review record and handoff. Verify the new PR head and all checks, then hand the PR to the owner.
+The owner can merge PR #23. The review applies to effective head `70df5ef`.
 
 ## Session 91: 2026-09-17, Claude Code
 
