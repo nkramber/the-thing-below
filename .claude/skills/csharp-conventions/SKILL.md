@@ -29,7 +29,7 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 - No `float`, `double`, or `decimal`. Percentages, multipliers, and rates use fixed-point integers. Content writes each fraction in basis points, where 10000 means 100% (D-169). Name the scale in the type or the constant, for example `BasisPoints`.
 - No `System.Random`, `DateTime`, `Stopwatch`, or `Environment.TickCount`. The seed and the tick are the only sources of randomness and time (G-3).
 - One random stream per subsystem, split from the run seed. A subsystem never borrows another stream.
-- Iterate in a fixed order. Use `List<T>` and `SortedDictionary<TKey, TValue>`, and never `Dictionary<TKey, TValue>` or `HashSet<T>`, where the order reaches the state (G-4).
+- Iterate in a fixed order. Use `List<T>` and `SortedDictionary<TKey, TValue>` where the order reaches the state (G-4). Never use `Dictionary<TKey, TValue>` or `HashSet<T>` there. det-lint fails a walk of either type in Core, and a lookup by key stays legal (D-615).
 - Every `Core` behavior change bumps the simulation version constant (G-17).
 - Check every arithmetic operation that a content value can drive with `checked`. An overflow is an error with context, never a wrap.
 - No reflection, no `dynamic`, no LINQ in a hot loop, no conditional compilation in `Core`.

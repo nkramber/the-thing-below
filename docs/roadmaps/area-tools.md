@@ -105,12 +105,33 @@ Built by PR-46. Phase file: `phase-1-foundations.md`.
 - The `det-lint` command is new code (D-101, D-277). It lands before PR-4, so the first Core code meets it (D-496).
 - It reads C# through the Roslyn compiler library, and it checks the type of each expression, not the words (D-498, F-38).
 - In Core, it fails a float type, the clock, OS random, reflection, and the two hash paths of F-35 (G-2, G-3, F-36).
-- In Core, it fails a string order that does not use an ordinal comparison (G-4, F-39). OQ-71 holds which uses of `Dictionary` and `HashSet` it fails.
-- In Game, it fails a Godot text property outside the text helper, and a text value in a scene file (D-499, G-7). OQ-70 holds how it finds each text property.
+- In Core, it fails a string order that does not use an ordinal comparison (G-4, F-39). It fails a walk of a `Dictionary` or a `HashSet`, and it passes a lookup by key (D-615).
+- In Game, it fails a Godot text property outside the text helper, and a text value in a scene file (D-499, G-7). It fails each member of a Godot type whose name holds the word `Text` or the word `Title`. A committed list holds the other members that draw text, such as `DrawString` (D-614).
 - It reads the code of the atlas, the normal maps, the PNG reader and writer, and the synthesizer (D-502). There it applies the Core rules for float types, the clock, and OS random.
 - D-502 binds each tool whose output a test compares on every leg, so a later tool of that kind joins the list.
 - PR-46 proves each rule on a fixture that breaks it, such as a fixture with `double` (G-16).
+- Each tool of D-502 keeps its code in its own folder of Tools. The command holds the folder and the PR of each one: `Atlas` (PR-34), `Audio` (PR-38), `NormalMaps` (PR-48), and `Png` (PR-47). The command names each absent folder with its PR, and it fails nothing (G-16).
+- A compilation error is rule DL 0. The command gives no rule result for a file set that it cannot compile. A rule on an error type is silent and wrong (T-2).
 - `area-ci.md` holds the `det-lint` job.
+
+The rules, with the id that each finding carries:
+
+| Rule | What it fails | Where |
+|---|---|---|
+| DL 0 | A compilation error, so no rule reads that file set | Every project |
+| DL 1 | A float type: `float`, `double`, `decimal`, or `Half` | Core, D-502 tools |
+| DL 2 | A clock: a date type, a time type, `Stopwatch`, or the tick count | Core, D-502 tools |
+| DL 3 | An OS random: `Random` or a new identifier | Core, D-502 tools |
+| DL 4 | Reflection: the reflection namespace, `Activator`, a member of `Type`, or `dynamic` | Core |
+| DL 5 | A hash path of F-35: `GetHashCode`, `HashCode`, or a hash class of .NET | Core |
+| DL 6 | A string order or a string comparison with no ordinal comparison | Core |
+| DL 7 | A walk of a `Dictionary` or a `HashSet` | Core |
+| DL 8 | A Godot text member outside the one text helper | Game |
+| DL 9 | A text value in a Godot scene file | Game |
+
+- DL 4 passes `typeof(X)` alone, because an attribute of the content reader takes it (F-36). It fails each member of `Type` that reflects.
+- DL 6 also fails a comparison that follows a culture, such as `CompareTo` or `StartsWith` with no comparison value (F-39).
+- DL 7 reads one expression at a time. A walk inside a method that takes the collection stays a matter for the review (D-615).
 
 > *In plain English:* two computers can disagree on decimal math and on the order of words. This tool reads the rules code as the compiler does and refuses anything that can make two machines disagree. It also refuses on-screen text that skips the string table.
 
@@ -279,8 +300,8 @@ The register is `docs/questions.md` (D-19). These questions block Tools PRs, and
 - D-609 answers OQ-69, and a change to a decision row is a change to a line of a decision table.
 - D-610 answers OQ-181, and the metadata set holds four paths of the PR.
 - D-611 answers OQ-182, and the size rules of the context budget go in PR-84.
-- OQ-70: how det-lint finds Godot text. Blocks PR-46.
-- OQ-71: which uses of `Dictionary` and `HashSet` det-lint fails in Core. Blocks PR-46.
+- D-614 answers OQ-70, and the text rule reads the Godot assembly of the Game build output.
+- D-615 answers OQ-71, and det-lint fails a walk of either type in Core.
 - OQ-72: the CRC-32 of the PNG code. Blocks PR-47.
 - OQ-74: how the runner finds a softlock. Blocks PR-15.
 - OQ-3: the required checks on `main`. Waits for PR-3.

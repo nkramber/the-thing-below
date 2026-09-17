@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace TheThingBelow.Core;
 
 /// <summary>
@@ -8,6 +6,9 @@ namespace TheThingBelow.Core;
 /// </summary>
 public static class CoreAssembly
 {
-    /// <summary>The assembly that holds the simulation.</summary>
-    public static Assembly Self => typeof(CoreAssembly).Assembly;
+    /// <summary>
+    /// The name of the assembly that holds the simulation. The member gives the name and
+    /// never the `Assembly` object, because Core runs with no reflection (D-614, F-36).
+    /// </summary>
+    public const string Name = "TheThingBelow.Core";
 }

@@ -307,11 +307,11 @@ Area files: `area-tools.md` section 7.4, `area-ci.md` section 7.8.
 **Review focus.**
 
 - The lint reads types, not words, so a literal with no suffix fails too (F-38).
-- The answer of OQ-70 lets the lint find the Godot assembly on each leg.
-- The answer of OQ-71 names the uses of `Dictionary` and `HashSet` that fail.
+- The lint finds the Godot assembly in the build output of the Game project (D-614, F-65).
+- The lint fails a walk of a `Dictionary` or a `HashSet` in Core, and it passes a lookup by key (D-615).
 - The package `Microsoft.CodeAnalysis.CSharp` has its decision row, and Core keeps no reference (D-498, G-13).
 
-**Questions.** OQ-70 and OQ-71.
+**Questions.** None. D-614 answers OQ-70, and D-615 answers OQ-71.
 
 > *In plain English:* two computers can disagree on decimal math and on the order of words. This tool reads the rules code as the compiler does and refuses anything that can make two machines disagree.
 
@@ -683,8 +683,8 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-69 | What counts as a change to a decision row | PR-3, answered by D-609 |
 | OQ-181 | The paths of the metadata set | PR-3, answered by D-610 |
 | OQ-182 | Where the context budget check goes | PR-84, answered by D-611 |
-| OQ-70 | How det-lint finds the Godot assembly | PR-46 |
-| OQ-71 | Which collection uses det-lint fails in Core | PR-46 |
+| OQ-70 | How det-lint finds the Godot assembly | PR-46, answered by D-614 |
+| OQ-71 | Which collection uses det-lint fails in Core | PR-46, answered by D-615 |
 | OQ-72 | The CRC-32 of the PNG code | PR-47 |
 | OQ-75 | The test runner mode | PR-1, resolved by D-592 |
 | OQ-76 | The coverage package and the form of the report | PR-1, resolved by D-593 |

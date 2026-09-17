@@ -29,9 +29,12 @@ test:
 format:
 	dotnet format $(SOLUTION) --verify-no-changes
 
-## lint: the determinism and string lint. PR-46 creates the command (D-496, G-16).
+## lint: the determinism and string lint (D-496, G-2, G-3, G-7).
+#
+# The command reads the Godot assembly from the build output of the Game project, so the
+# `build` target runs before it (D-614, F-65).
 lint:
-	@echo "lint: the det-lint command does not exist yet. PR-46 creates it (G-16)."
+	dotnet run --project $(TOOLS_PROJECT) -- det-lint --root .
 
 ## ste-check: the STE checker, the reference check, and the session number check (D-10, D-605).
 #
