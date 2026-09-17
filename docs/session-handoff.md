@@ -21,6 +21,7 @@ Session: review PR #21 at effective head `40ea275`. Repository: the-thing-below.
 - All nine CI checks pass on PR tip `d5d9332`. The live review-gate check is absent on PR-3 by design (F-37, D-500).
 - The Gitar pass is current on `40ea275`, and it reports approval with no finding.
 - The remote PR tip before this review publication was `d5d9332`. The untracked `deck-test/` stays untouched.
+- The review record and this handoff are published at `1bdaa89`. The record gives the findings for the author to correct.
 
 ### What is in flight
 
