@@ -2,6 +2,49 @@
 
 Sessions older than the 10 in `docs/session-handoff.md`, newest first (D-18). Move an entry here word for word.
 
+## Session 51: 2026-09-16, Codex
+
+Author: Codex
+Session: review of PR #16 at effective head `45e960d`.
+Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: reviewer. Base: `2bc7d56`.
+
+### What this session did, and why
+
+- Read the start set, the one-PR skill, the PR review skill, the STE skill, and the review record and commit references.
+- Verified that Claude Code authored the PR from Session 50. Codex is the eligible reviewer under T-4 and D-17.
+- Recomputed the effective head as `45e960d`. It is the only commit after the base and changes substantive paths.
+- Inspected all 18 paths in the diff, the decisions D-583 to D-591, F-59, and OQ-182.
+- Found P2-1: the PR comment export can return success after an earlier GitHub retrieval fails. A shell reproduction returned 0 after a failed command and a successful command.
+- Verified the Gitar dashboard approval, its check, and the absence of review threads. Corrected the stale dashboard timestamp in the PR description.
+- The full interim STE check passes with 0 findings. `git diff --check` passes, and `AGENTS.md` and `CLAUDE.md` are identical.
+- The handoff held ten entries before this one, so Session 41 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
+
+### State of the build
+
+- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
+- PR #16 is open on `docs/pr-16-context-budget`. Its remote head and effective head are `45e960d` before this review commit.
+- Gitar approved this head. The cross-provider review found P2-1, recorded in `docs/reviews/pr-16.md`.
+- `make verify` is unavailable because the Makefile does not exist. The direct STE and diff checks pass.
+
+### In flight
+
+PR #16 needs the author to fix P2-1 and run the regression check. The review record and this handoff entry are ready to commit and push.
+
+### Traps and gotchas
+
+- The comments export must fail if any API request fails. Otherwise a partial file can appear complete.
+- The PR description timestamp now matches the Gitar dashboard update at 21:23:53Z.
+- The review applies to effective head `45e960d`, not the metadata tip that will publish this record.
+- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 52.
+
+### Open questions that block progress
+
+None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+The author makes each failed GitHub retrieval fail the comment-export command, tests that a partial export returns nonzero, and requests a repeat Codex review after the fix.
+
 ## Session 50: 2026-09-16, Claude Code
 
 Author: Claude Code

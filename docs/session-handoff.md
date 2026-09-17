@@ -2,6 +2,52 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 61: 2026-09-16, Codex
+
+Author: Codex
+Session: repeat review of PR #18 at effective head `6e0622a`, on branch `feat/pr-1-scaffold`. Role: reviewer. Base: `9f27f12`.
+
+### What this session did, and why
+
+- Read the current handoff, the PR response, and the repeat-review, review-record, contract, Gitar, and commit skills.
+- Verified the provider gate. Session 60 names Claude Code as the author, and Codex remains the opposite provider (T-4, D-17).
+- Verified that `a56a7ce` changes the handoff alone, so the effective head is `6e0622a`.
+- Reproduced the F-60 build callback failure. Godot logged the error and returned 1, so P2-1's exact trigger is withdrawn.
+- Verified P2-2. The Documents line now names both actual review files in the `Changed:` form.
+- Verified the corrected smoke path. `make smoke` passed on a healthy tree and failed when a wrapper removed the managed assembly during the real Godot session.
+- Found P2-4 in the response file: its prose says the old target reported success, but its table says that case ran without end.
+- CI run 35175182671 passed all nine checks on tip `a56a7ce`.
+- GitHub API calls for inline review threads failed. The current Gitar dashboard summary says the pass approved the correction head, with one closed finding and no open issue.
+- Updated `docs/reviews/pr-18.md`. The current verdict remains `Blocked` for head `6e0622a`.
+- The handoff held ten entries before this one, so Session 51 moves to the archive (D-18).
+
+### State of the build
+
+- `main` is `9f27f12` (PR #17). PR #18 is open on `feat/pr-1-scaffold`.
+- The effective head is `6e0622a`. The current remote tip is `a56a7ce`, a metadata commit.
+- CI run 35175182671 passed all nine checks on the remote tip.
+- The healthy smoke run passed. The missing-assembly regression failed on the absent success line, as required.
+- The inline review-thread export remains incomplete.
+
+### In flight
+
+P2-1 is withdrawn, P2-2 and P2-3 are fixed, and P2-4 remains open. The review cannot reach its hand-over point until the response text is corrected and the remaining review evidence is complete.
+
+### Traps and gotchas
+
+- The editor returns 1 on the F-60 build callback error. The original evidence read the code of `tail` through a pipe.
+- A session with no loadable boot assembly waits without end. The new frame limit ends the session, and the missing success line fails the smoke check (F-64).
+- `docs/reviews/pr-18-response.md` line 28 conflicts with the regression table at line 47.
+- The next ids are D-600, OQ-183, F-64, L-16, G-27, PR-83, M-8, and Session 62.
+
+### Open questions that block progress
+
+No owner question blocks the review. P2-4 and the inline comment export remain unresolved.
+
+### Next concrete action
+
+Correct the conflicting statement in the response file. Then repeat the review of PR #18 at its new effective head.
+
 ## Session 60: 2026-09-16, Claude Code
 
 Author: Claude Code
@@ -399,46 +445,3 @@ None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81,
 ### Next concrete action
 
 The author gets a current Gitar review of the new head and answers each finding. Then the Codex reviewer repeats the review of P2-1.
-
-## Session 51: 2026-09-16, Codex
-
-Author: Codex
-Session: review of PR #16 at effective head `45e960d`.
-Repository: the-thing-below. Branch: `docs/pr-16-context-budget`. PR: #16. Role: reviewer. Base: `2bc7d56`.
-
-### What this session did, and why
-
-- Read the start set, the one-PR skill, the PR review skill, the STE skill, and the review record and commit references.
-- Verified that Claude Code authored the PR from Session 50. Codex is the eligible reviewer under T-4 and D-17.
-- Recomputed the effective head as `45e960d`. It is the only commit after the base and changes substantive paths.
-- Inspected all 18 paths in the diff, the decisions D-583 to D-591, F-59, and OQ-182.
-- Found P2-1: the PR comment export can return success after an earlier GitHub retrieval fails. A shell reproduction returned 0 after a failed command and a successful command.
-- Verified the Gitar dashboard approval, its check, and the absence of review threads. Corrected the stale dashboard timestamp in the PR description.
-- The full interim STE check passes with 0 findings. `git diff --check` passes, and `AGENTS.md` and `CLAUDE.md` are identical.
-- The handoff held ten entries before this one, so Session 41 moved word for word to the top of `docs/session-handoff-archive.md` (D-18).
-
-### State of the build
-
-- No code, solution, or Makefile exists. `main` is `2bc7d56` (PR #15).
-- PR #16 is open on `docs/pr-16-context-budget`. Its remote head and effective head are `45e960d` before this review commit.
-- Gitar approved this head. The cross-provider review found P2-1, recorded in `docs/reviews/pr-16.md`.
-- `make verify` is unavailable because the Makefile does not exist. The direct STE and diff checks pass.
-
-### In flight
-
-PR #16 needs the author to fix P2-1 and run the regression check. The review record and this handoff entry are ready to commit and push.
-
-### Traps and gotchas
-
-- The comments export must fail if any API request fails. Otherwise a partial file can appear complete.
-- The PR description timestamp now matches the Gitar dashboard update at 21:23:53Z.
-- The review applies to effective head `45e960d`, not the metadata tip that will publish this record.
-- The next ids are D-592, OQ-183, F-60, L-16, G-27, PR-82, M-7, and Session 52.
-
-### Open questions that block progress
-
-None for PR #16. OQ-182 blocks nothing. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-The author makes each failed GitHub retrieval fail the comment-export command, tests that a partial export returns nonzero, and requests a repeat Codex review after the fix.
