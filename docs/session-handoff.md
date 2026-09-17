@@ -2,6 +2,44 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 79: 2026-09-17, Codex
+
+Author: Codex
+Session: review PR #21 at effective head `40ea275`. Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. Role: reviewer. Base: `04953e4`.
+
+### What this session did, and why
+
+- Reviewed PR #21, the review gate, from its merge base to effective head `40ea275`.
+- Added three findings to `docs/reviews/pr-21.md`: a negated approval can pass RG 4, an out-of-section head can pass RG 5, and RG 8 misses spelled-out deferrals.
+- Verified the author provider from Session 78 and the opposite-provider rule of T-4 and D-17.
+- Checked all 28 changed paths, the workflow trust boundary, the command rules, the test fixtures, and the Documents section.
+
+### The state of the build
+
+- `main` is `04953e4`, and the implementation head is `40ea275`.
+- `make verify` passes locally with 113 tests, clean format, 0 STE findings, and a successful smoke session.
+- All nine CI checks pass on PR tip `d5d9332`. The live review-gate check is absent on PR-3 by design (F-37, D-500).
+- The Gitar pass is current on `40ea275`, and it reports approval with no finding.
+- The remote PR tip before this review publication was `d5d9332`. The untracked `deck-test/` stays untouched.
+
+### What is in flight
+
+The PR waits for the author to correct the findings and for a repeat review.
+
+### Traps and gotchas
+
+- A review record and handoff commit do not move the effective head (D-610).
+- `make verify` cannot run the live review-gate workflow on this PR. The first live run is on the next PR (D-500).
+- The absent checks are det-lint (PR-46), replay identity (PR-4), screen test (PR-41), bot (PR-15), and night gate (PR-49).
+
+### The questions that block progress
+
+None for the findings. OQ-3 remains for the owner after the first live check run.
+
+### The next concrete action
+
+The author corrects the findings, then Codex reviews the new effective head.
+
 ## Session 78: 2026-09-17, Claude Code
 
 Author: Claude Code
@@ -370,43 +408,3 @@ No owner question blocks PR #19. P2-1 and the stale Gitar review block the merge
 ### Next concrete action
 
 Correct P2-1, push the correction, complete the Gitar pass, then repeat the Codex review (D-582).
-
-## Session 69: 2026-09-17, Claude Code
-
-Author: Claude Code
-Session: the owner answer for the review gate of PR #19, in the same session as Sessions 64, 66, and 68 (D-582).
-Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19. Role: author. Base: `ee4305a`.
-
-### What this session did, and why
-
-- Two review rounds of PR #19 gave no finding and no verdict, because the review session has no GitHub access and a read-only `.git` directory.
-- The session asked the owner and gave four options. The owner chose the verdict from the local evidence, and asked for the rule in the `pr-review` skill.
-- D-602 records the rule. A review session with no network can give `Ready for owner merge` when the local branch holds the effective head, the review reads the whole diff, and each local check runs. The record marks the evidence of the author and lists each item that the session cannot verify.
-- The `pr-review` skill gets the section "A review with no network", and the Verification and Verdicts sections point to it.
-- The change moves the effective head, because it changes `docs/decisions.md` and `.claude/skills/`. The PR needs a new Gitar pass and a new review round.
-
-### State of the build
-
-- `main` is `ee4305a`. The new effective head is the head of this round.
-- The ten checks pass on `38aa19f`, the Gitar check included. The Gitar pass approves that head with no finding, and the PR has zero review threads.
-- The freshness check passes for the new head: the reply "Running the review now" came at `12:29:51Z`, and the new dashboard comment `5714387972` has the edit time `12:31:10Z`.
-- `make verify` passes on the Mac of the owner.
-
-### In flight
-
-The review round of PR #19 at the effective head `38aa19f`, which gives the verdict under D-602.
-
-### Traps and gotchas
-
-- A decision that comes from a review can move the effective head. This round does, so the earlier Gitar pass and the earlier review rounds do not cover it.
-- Automatic Gitar reviews are paused on this trial, so the new head needs a `Gitar review` comment after the push wait.
-- D-602 gives no permission to skip a local check. A session that cannot run a check names it in the record.
-- The next ids are D-603, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 70.
-
-### Open questions that block progress
-
-None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
-
-### Next concrete action
-
-Get the review round of PR #19 from Codex at the effective head `38aa19f`, under D-602.

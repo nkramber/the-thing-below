@@ -1,3 +1,42 @@
+## Session 69: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the owner answer for the review gate of PR #19, in the same session as Sessions 64, 66, and 68 (D-582).
+Repository: the-thing-below. Branch: `docs/pr-83-skip-set-decision`. PR: #19. Role: author. Base: `ee4305a`.
+
+### What this session did, and why
+
+- Two review rounds of PR #19 gave no finding and no verdict, because the review session has no GitHub access and a read-only `.git` directory.
+- The session asked the owner and gave four options. The owner chose the verdict from the local evidence, and asked for the rule in the `pr-review` skill.
+- D-602 records the rule. A review session with no network can give `Ready for owner merge` when the local branch holds the effective head, the review reads the whole diff, and each local check runs. The record marks the evidence of the author and lists each item that the session cannot verify.
+- The `pr-review` skill gets the section "A review with no network", and the Verification and Verdicts sections point to it.
+- The change moves the effective head, because it changes `docs/decisions.md` and `.claude/skills/`. The PR needs a new Gitar pass and a new review round.
+
+### State of the build
+
+- `main` is `ee4305a`. The new effective head is the head of this round.
+- The ten checks pass on `38aa19f`, the Gitar check included. The Gitar pass approves that head with no finding, and the PR has zero review threads.
+- The freshness check passes for the new head: the reply "Running the review now" came at `12:29:51Z`, and the new dashboard comment `5714387972` has the edit time `12:31:10Z`.
+- `make verify` passes on the Mac of the owner.
+
+### In flight
+
+The review round of PR #19 at the effective head `38aa19f`, which gives the verdict under D-602.
+
+### Traps and gotchas
+
+- A decision that comes from a review can move the effective head. This round does, so the earlier Gitar pass and the earlier review rounds do not cover it.
+- Automatic Gitar reviews are paused on this trial, so the new head needs a `Gitar review` comment after the push wait.
+- D-602 gives no permission to skip a local check. A session that cannot run a check names it in the record.
+- The next ids are D-603, OQ-183, F-65, L-16, G-27, PR-84, M-8, and Session 70.
+
+### Open questions that block progress
+
+None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
+
+### Next concrete action
+
+Get the review round of PR #19 from Codex at the effective head `38aa19f`, under D-602.
 # Session handoff archive
 
 ## Session 68: 2026-09-17, Claude Code
