@@ -2,7 +2,7 @@
 
 Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the screens and the input of the game work, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-16 in ASD-STE100.
 
-The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-effects.md` holds the light, the effects, and the CRT pass inside the frame. The file `area-art.md` holds the drawings of the window frames, the icons, and the glyphs. The file `area-core.md` holds the intents and the run record, and `area-ci.md` holds the screen-test job. The `game-text-style` skill holds the voice and the length limits of every player string.
+The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-effects.md` holds the light, the effects, and the style of each effect inside the frame. The file `area-art.md` holds the drawings of the window frames, the icons, and the glyphs. The file `area-core.md` holds the intents and the run record, and `area-ci.md` holds the screen-test job. The `game-text-style` skill holds the voice and the length limits of every player string.
 
 External facts, each with the date of its check. The Godot facts come from `godotengine/godot` at the tag `4.7.2-stable` and from `godotengine/godot-docs` on the branch `stable`, the source of `https://docs.godotengine.org/en/stable/`:
 
@@ -74,9 +74,9 @@ Built by PR-61. Phase file: `phase-2-first-playable.md`.
 - D-573 sets the method. Game scales up past the screen by a whole number with the Nearest filter, then scales down with a linear filter.
 - A 16:9 screen at 2560 by 1440 or 3840 by 2160 takes an exact whole-number scale, 2x or 3x (D-568).
 - Godot has no mode that does both steps, so Game builds them (F-48).
-- The CRT pass of PR-37 runs on the frame at 1x, before the fit (D-240, `area-effects.md` section 7.12).
 - The stretch settings of the project keep the world at 1x, against the `canvas_items` default of a new project (F-45).
-- The screen tests capture both fit modes at 1080 and 1440 screen rows (D-232, D-240, `area-ci.md` section 7.12).
+- The screen tests capture both fit modes at 1080 and 1440 screen rows (D-232, `area-ci.md` section 7.12).
+- The frame draws at 1x until the probe of D-621 sets the scale of the world and of the UI (OQ-183, F-67).
 - Controls snap to whole pixels by default, and the two snap settings of the renderer stay off (the external facts above). The docs advise against both at once. OQ-89 holds the snap of the map sprites.
 
 > *In plain English:* the picture grows to fill the screen. On a common 1080p monitor the scale is not a whole number. So the game scales up past the screen and then shrinks the picture, which keeps the pixels crisp.
@@ -118,7 +118,7 @@ Built by PR-61. Phase file: `phase-2-first-playable.md`.
 - Game builds the Godot `Theme` from that file at load, and no `.tres` theme exists (D-527, G-6).
 - The project setting for a theme names a file path, so it stays empty (the external facts above).
 - A window frame draws as nine parts from its drawing in the atlas, which holds the corners at their size (D-220, `area-art.md` section 7.4).
-- The UI takes no scene light and no glow, and the CRT still covers it (D-210).
+- The UI takes no scene light and no glow (D-210). No pass covers it, because the CRT left the plan (D-618).
 - A color of the UI is a palette key, so the screen keeps one palette (D-89, D-181).
 
 > *In plain English:* one small file says how menus look: which colors, which text sizes, and which drawn border. The game reads that file and builds its own look from it.
@@ -196,7 +196,7 @@ Built by PR-63. Phase file: `phase-2-first-playable.md`.
 
 - PR-63 lands right before PR-57, the first PR that needs a setting (D-526).
 - The screen holds four groups: display, audio, controls, and battle (D-226).
-- Display holds the window mode, the scale of D-232, and the CRT toggle (D-120, D-226, D-232).
+- Display holds the window mode and the scale of D-232 (D-226, D-232, D-618).
 - Audio holds the master, music, effects, and ambience volumes, the mute in the background, and the mono toggle (D-435).
 - Controls hold the remap, the stick dead zone, and the vibration setting (D-214, D-226, D-434).
 - Battle holds the message speed and the remembered cursor (D-226).
@@ -212,7 +212,7 @@ Built by PR-63. Phase file: `phase-2-first-playable.md`.
 Built by PR-63. Phase file: `phase-2-first-playable.md`.
 
 - Four accessibility settings come with the screen (D-214). They are the flash and shake reduction, the text speed and skip, the shape icons, and the button remap.
-- The reduction covers the shake and the flash of D-186, the color split of D-195, and the CRT flicker of D-105 (D-214). OQ-100 holds what it does.
+- The reduction covers the shake and the flash of D-186, and the color split of D-195 (D-214, D-618). OQ-100 holds what it does.
 - Shape icons give each element and status a shape as well as a color, in 18 drawings of 16 by 16 (D-74, D-75, D-214).
 - The screen tests capture each effect with the reduction on and off (D-172, `area-effects.md` section 7.13).
 
@@ -223,11 +223,11 @@ Built by PR-63. Phase file: `phase-2-first-playable.md`.
 Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 
 - `--headless` draws nothing, so the smoke session never tests a screen (F-23).
-- The screen-test job captures each screen at 1x, and both fit modes at 1080 and 1440 screen rows (D-172, D-232, D-240).
+- The screen-test job captures each screen at 1x, and both fit modes at 1080 and 1440 screen rows (D-172, D-232).
 - A test proves that each panel holds its longest string from the string table (D-241).
 - A test reads the stretch settings and the font settings from the project and the code (F-45, F-49).
 - det-lint fails a Godot text property outside the text helper, and a text value in a scene file (D-499).
-- The owner reads the screens on the Deck at Gate 2, with the CRT on (D-92, F-18).
+- The owner reads the screens on the Deck at Gate 2 (D-92, D-623).
 
 > *In plain English:* the computers that check each change take fixed pictures of every screen, in both shapes, and compare them pixel by pixel.
 
@@ -251,7 +251,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 
 | Part | Area file | PR |
 |---|---|---|
-| The CRT pass, the light, and the effects inside the frame | `area-effects.md` | PR-37, PR-56 to PR-60 |
+| The light and the effects inside the frame, with the style of each one | `area-effects.md` | PR-56 to PR-60 |
 | The drawings of the window frames, the icons, and the glyphs | `area-art.md` | PR-17 and the art PRs |
 | The intents, the run record, and the tick of a menu | `area-core.md` | PR-6 |
 | The screen-test job and its baselines | `area-ci.md` | PR-41 |
@@ -288,9 +288,8 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 9. PR-68: the story scene runner, before PR-12 (D-541, D-556).
 10. PR-12, PR-13, PR-14, and PR-16: one screen for each system.
 11. PR-36: the dialogue box. PR-35: the region map screen.
-12. PR-37: the CRT toggle joins the display group.
-13. PR-17: the first playable, read on the Deck (M-6).
-14. **← GATE 2 (first playable).**
+12. PR-17: the first playable, read on the Deck (M-6).
+13. **← GATE 2 (first playable).**
 15. PR-33: the title screen, the version line, and the credits.
 16. PR-78 and PR-39: the controller type of Steam, then the Deck checklist (D-565).
 

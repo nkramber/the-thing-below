@@ -26,10 +26,10 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 |---|---|---|
 | F-7 | A three-character party fights short-handed after a down | PR-16 and M-4: the reserve and the swap of D-58 |
 | F-8 | An empty MP pool left a caster with no action | PR-9 and PR-12: the basic attack of D-359 |
-| F-18 | The CRT is on by default on the Deck before any measurement | M-6 and Gate 2: the Deck play reads the text with it on |
+| F-67 | A 32-pixel sprite at 1x covers 4.0 mm on the Deck | PR-7 and M-6: the scale of the frame comes from the probe of D-621 (OQ-183) |
 | F-23 | A headless session draws nothing, so no CI job can capture a screen | PR-41: the Linux job under Xvfb with a pinned Mesa (D-172) |
 | F-24 | A 32-pixel tile holds four times the pixels of the earlier plan | M-6: the Deck at the frame of 1280 by 720 (D-568) |
-| F-26 | Four gates rested on a run that draws nothing | PR-41, PR-7, PR-8, and PR-37: the captures of D-172 |
+| F-26 | Four gates rested on a run that draws nothing | PR-41, PR-7, and PR-8: the captures of D-172. PR-37 is retired (D-618) |
 | F-31 | Every rendered audio file in git would pass 500 MB | PR-38: the build renders the audio, and git holds the hashes (D-432) |
 | F-37 | GitHub starts a schedule only from the default branch | PR-49: the command proves itself in Tests (D-500) |
 | F-38 | Double math differs by platform, and a literal with no suffix is a double | PR-48: integer math with an integer square root (D-502) |
@@ -224,14 +224,14 @@ Area files: `area-ci.md` section 7.12, `area-effects.md` section 7.13, `area-ui-
 **Scope.**
 
 - The Linux job of D-172, which runs Godot under Xvfb with the OpenGL driver and a pinned Mesa (F-23, OQ-79).
-- The capture of each fixture scene at 1x, and both fit modes at 1080 and 1440 screen rows (D-232, D-240, D-568).
+- The capture of each fixture scene at 1x, and both fit modes at 1080 and 1440 screen rows (D-232, D-568).
 - The frame compare in Tools, which compares decoded pixels with a committed CI baseline (F-19).
-- The fixed sources of change at capture: the particle seeds, the CRT flicker phase, and the time of day.
+- The fixed sources of change at capture: the particle seeds and the time of day.
 - The desktop command that makes a contact sheet with the real renderer (D-172).
 
 **Out of scope.**
 
-- The effect captures, which each effect PR adds (PR-56 to PR-60, PR-37).
+- The effect captures, which each effect PR adds (PR-56 to PR-60).
 - No change to the game, beyond the fixture scenes that the job captures.
 
 **Exit tests.**
@@ -247,7 +247,7 @@ Area files: `area-ci.md` section 7.12, `area-effects.md` section 7.13, `area-ui-
 
 - The Mesa pin, from the answer of OQ-79, and its decision row (G-13).
 - The Compatibility renderer of CI differs from the Deck, and the PR says where (D-172).
-- The baseline holds both fit modes at both screen row counts (D-232, D-240, D-568).
+- The baseline holds both fit modes at both screen row counts (D-232, D-568).
 - The capture at 1080 rows proves the rule of D-573. Every pixel keeps the same size, with a slight softness at pixel edges.
 
 **Questions.** OQ-79.
@@ -560,7 +560,7 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 **Scope.**
 
 - The settings screen with four groups: display, audio, controls, and battle (D-226).
-- Display: the window mode, the scale of D-232, and the CRT toggle (D-120, D-232).
+- Display: the window mode and the scale of D-232 (D-232, D-618).
 - Audio: the master, music, effects, and ambience volumes, the mute in the background, and the mono toggle (D-435).
 - Controls: the remap, the stick dead zone, and the vibration setting (D-214, D-434).
 - Battle: the message speed and the remembered cursor (D-226).
@@ -572,7 +572,7 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 
 **Out of scope.**
 
-- The effects that the reduction turns down, which PR-57 to PR-60 and PR-37 add.
+- The effects that the reduction turns down, which PR-57 to PR-60 add.
 - The audio that the volumes control (PR-69, PR-70).
 - The title screen and its settings entry (PR-33).
 
@@ -683,7 +683,7 @@ Area file: `area-effects.md` section 7.10.
 
 **Out of scope.**
 
-- The CRT (PR-37) and the transitions (PR-60).
+- The transitions (PR-60).
 - The glow of later regions, which their content adds.
 
 **Exit tests.**
@@ -718,7 +718,7 @@ Area file: `area-effects.md` section 7.11.
 **Out of scope.**
 
 - The transitions of later regions (D-194).
-- The CRT, which runs over every frame (PR-37).
+- Every effect of the frame, with the style of G-27 (PR-56 to PR-60).
 
 **Exit tests.**
 
@@ -1321,40 +1321,9 @@ Area file: `area-exploration.md` section 7.13.
 
 > *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
 
-### 7.34 PR-37: the CRT shader and the toggle
+### 7.34 PR-37: retired
 
-Area file: `area-effects.md` section 7.12.
-
-**Scope.**
-
-- The full CRT as a Godot screen shader: curvature, bleed, flicker, and faint scanlines (D-105, D-240).
-- The pass on the frame at 1x, before the fit, so the lines match the Deck on every screen (D-240, D-568).
-- The default of on, with the toggle in the display group of the settings of PR-63 (D-120, D-526).
-- The reduced form of the flicker under the flash and shake reduction (D-214).
-- The CRT over the UI and the transitions (D-210).
-
-**Out of scope.**
-
-- The Deck readability measurement (M-6, F-18).
-- The other effects, which PR-56 to PR-60 hold.
-
-**Exit tests.**
-
-1. A screen test captures the toggle on and off, and the two frames differ.
-2. The capture fixes the flicker phase, and two runs give the same frames (D-172).
-3. The reduced flicker has its own capture (D-214).
-4. The pass runs before the fit, and a test proves it at 1080 and 1440 screen rows (D-240).
-5. The setting saves and loads through the settings file of PR-63.
-
-**Review focus.**
-
-- The CRT covers the UI, and no menu escapes it (D-210).
-- The Compatibility renderer of CI can differ from the Deck, and the PR says where (D-172).
-- The owner reads the text on the Deck with the CRT on at Gate 2 (F-18).
-
-**Questions.** OQ-100.
-
-> *In plain English:* the whole picture looks like an old monitor, and one setting turns the look off. The look runs before the picture scales, so it matches the handheld on a bigger screen.
+PR-37 held the CRT shader and its toggle, which have no purpose after D-618. No later item takes the id (G-10). This entry exists so that a reader of the sequence finds the gap and its reason.
 
 ### 7.35 PR-38: the audio synthesizer and the first sounds
 
@@ -1688,7 +1657,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 - M-3 records the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
 - M-4 records the turns of each encounter and the party downs of each dungeon, by bot policy.
 - M-6 records the frame time of the first playable on the Deck, against 60 frames each second (D-161).
-- M-6 also records the readability of the font and the sprites at 1x, with the CRT on and off (D-92, D-120, F-18).
+- M-6 also records the readability of the font and the sprites, at the scale that OQ-183 sets (D-92, D-621).
 - After M-4 reports, the owner sets the M-4 band that Gate 2 checks (D-571).
 
 **Out of scope.**
@@ -1699,7 +1668,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 1. M-3 copies the numbers of seven nights into the cost model, before GitHub deletes the records (D-509).
 2. M-4 states the turns of an encounter and the downs of a dungeon, which bind the resource numbers of D-35.
-3. M-6 states the frame time on the Deck, with the CRT on.
+3. M-6 states the frame time on the Deck, with every effect on (D-617).
 4. M-6 states the readability at 1x, and the text stays at 9 pixels or taller (D-459).
 
 **Review focus.** Each measurement reaches the cost model with its date and its method (G-14).
@@ -1715,9 +1684,9 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 1. The owner plays from the village until Dagvar joins, on the desktop and on the Deck (D-362).
 2. The owner signs off on feel (D-52, D-92).
 3. The M-4 numbers land inside the band that the owner set after M-4 (D-571).
-4. M-6 records 60 frames each second on the Deck, with the CRT on (D-161, F-18).
-5. M-6 reads the text and the sprites at 1x on the Deck with the CRT on (F-18).
-6. A miss of that reading reopens D-120.
+4. M-6 records 60 frames each second on the Deck (D-161, D-617).
+5. M-6 reads the text and the sprites on the Deck, at the scale that OQ-183 sets (D-621).
+6. A miss of that reading reopens OQ-183.
 7. Every job of the PR gate is green on every leg (D-481).
 8. The `screen-test`, bot, and `night-gate` jobs are green (D-172, D-505, G-22).
 9. The budget test passes for every place of the first playable (D-523).
@@ -1845,7 +1814,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 8. PR-36: the dialogue box.
 9. PR-15, PR-49: the bots, the night job, and the night gate.
 10. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-11. PR-16, PR-64, PR-35, PR-37: the dungeon, the region map, and the CRT.
+11. PR-16, PR-64, PR-35: the dungeon and the region map.
 12. PR-38, PR-69, PR-70, PR-71: the audio tool, the player, the rules, and the sound room.
 13. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
 14. PR-72: the music and the sounds of the first playable.
@@ -1883,7 +1852,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-97 | The colors of light | PR-56 |
 | OQ-98 | GPU particles or CPU particles | PR-57 |
 | OQ-99 | What a screen shake moves | PR-57 |
-| OQ-100 | The reduced form of a flash and a shake | PR-57, PR-63, and PR-37 |
+| OQ-100 | The reduced form of a flash and a shake | PR-57 and PR-63 |
 | OQ-101 | How fog keeps an enemy visible | PR-58 |
 | OQ-102 | How glow stays off sprites | PR-59 |
 | OQ-103 | Where shader code lives | PR-10 and PR-60 |

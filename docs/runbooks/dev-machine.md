@@ -34,7 +34,19 @@ Facts checked on 2026-09-12:
 3. Copy the build to the Deck. Run it from a shell until the Steam build exists (D-85, D-92, D-458).
 4. Find the save folder on the Deck at `~/.local/share/the-thing-below` (D-465).
 5. Record the readability and the frame time under M-6 in `docs/design.md` (D-161).
-6. Before PR-1, run the Deck test of D-160, and record the model, the refresh rate, and the effect budget (D-523). OQ-92 and OQ-93 hold where the test scene lives and how to read the frame time.
+6. The Deck test of D-160 ran on 2026-09-17, on an OLED Deck at 89.9 Hz (D-616, D-617).
+7. To run it again, fetch the branch spike/deck-test, and read `deck-test/readme.md` on it (D-597).
+8. Copy `DeckTest.x86_64` and `run-deck-test.sh` to one folder on the Deck, and run the script in desktop mode.
+9. The script runs both renderers and puts each report in a `reports` folder beside it (D-598).
+10. A report with the warning of a capped frame rate gives no budget, and the run needs a repeat (T-2).
+11. Run the screen scale probe before PR-7 and PR-34, on all three screens (D-621, M-8).
+
+## Where a test runs
+
+1. The Mac of the owner is the venue of each visual test (D-623).
+2. A test runs on the Deck only when the answer needs the Deck.
+3. Three answers need the Deck: the scale on the screen, the readability at 1x, and the frame time (D-621, M-6, M-7).
+4. The owner reads each new effect on the Mac, as its PR lands (D-622).
 
 ## Owner actions on GitHub
 

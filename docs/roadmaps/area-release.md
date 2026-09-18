@@ -79,7 +79,7 @@ Built by PR-31. Phase file: `phase-5-first-release.md`.
 
 Built by PR-33. Phase file: `phase-5-first-release.md`.
 
-- The first screen plays the main theme, and the settings hold the CRT toggle, the bindings, the audio group, and the vibration setting (D-427, D-434, D-435).
+- The first screen plays the main theme, and the settings hold the bindings, the audio group, and the vibration setting (D-427, D-434, D-435, D-618).
 - The settings screen itself comes with PR-63, and `area-ui-input.md` holds it (D-526).
 - A clean exit saves (D-258).
 - The boot splash shows a short studio mark before the title (D-468). OQ-90 holds where that mark shows, and OQ-57 holds the studio name.

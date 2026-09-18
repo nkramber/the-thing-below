@@ -122,7 +122,7 @@ Effects terms from the roadmaps PR of 2026-09-15:
 | light setup | the ambient light and the lights of one map at one time of day (D-442) | lighting, light rig, light map |
 | effect file | the JSON file of one effect: its emitters, its palette colors, and its timings in ticks (D-182, D-266) | effect resource, particle file |
 | effect budget | the committed limits of lights with shadows, live particles, and full-screen passes that hold 60 frames per second on the Deck (D-523) | frame budget, perf budget |
-| full-screen pass | an effect that redraws the whole frame, such as fog, glow, a transition, or the CRT (D-523) | post-process, when the text means these |
+| full-screen pass | an effect that redraws the whole frame, such as fog, glow, or a transition (D-523) | post-process, when the text means these |
 | wait intent | the intent that Game sends when an effect that the world waits for ends (D-522) | continue intent, done signal |
 | transition | one of the full-screen effects of D-195 that start a battle (D-191, D-196) | wipe, which names a party wipe (D-36), and screen change |
 | hit-stop | the brief freeze of the battle picture on a heavy blow (D-186) | freeze frame, hitlag |

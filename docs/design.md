@@ -121,7 +121,7 @@ The Thing Below, a tentative name (D-215), is a dark fantasy role-playing game i
 
 Combat is hard because enemies think and resources run out (D-35), and a fallen character stays down until a hub (D-36). Decisions close routes, lose allies outside the cast, and change hubs (D-40, D-301).
 
-The game runs on Godot 4 with C# (D-99). The simulation lives in an engine-free Core library that replays any run from a seed and an input record (D-100, T-7). Sprites, tiles, and portraits are text grids in content that a tool renders into an atlas (D-107). A full CRT shader sits over the frame with a toggle (D-105, D-120). Particles, 2D light, and shaders enter the plan from the start (D-139).
+The game runs on Godot 4 with C# (D-99). The simulation lives in an engine-free Core library that replays any run from a seed and an input record (D-100, T-7). Sprites, tiles, and portraits are text grids in content that a tool renders into an atlas (D-107). Particles, 2D light, and shaders enter the plan from the start (D-139).
 
 The goal is a Steam release, and the Steam Deck is the readability and performance floor (D-85, D-92). The game supports Windows and Linux on x86_64, macOS on Apple silicon, and the Steam Deck, and nothing else (D-481).
 
@@ -173,7 +173,7 @@ From the roadmap interview of 2026-09-12:
 | Save, record, crash, and log files | Storage | record bytes, snapshot bytes, crash context, log entries | save files, record files, crash files, log files | High. A torn write loses a save (D-178, D-494) |
 | Map scene, battle scene, hub scene, scene runner | Game | Core state, content from the Game assembly, the atlas and its index, large pictures, edge files, string table | screen, intents | Medium. Cosmetic by design (D-106, D-111, D-114, D-501). Player text reaches the screen through the text helper (D-499). The content bytes come from the Game assembly (D-508). Art draws with the Nearest filter, and an art file names the content ids that it draws (D-519, F-45) |
 | Dialogue box and portraits | Game | Core story scene state, string table | screen, wait intents, choice intents | Medium (D-109). Game draws each story scene step and sends a wait intent when it ends (D-540) |
-| CRT shader and the frame | Game | settings | screen | Medium. The Deck floor, the one 16:9 frame, and the fit at 1920 by 1080 (D-105, D-228, D-568) |
+| The frame and the fit | Game | settings | screen | Medium. The Deck floor, the one 16:9 frame, and the fit at 1920 by 1080 (D-228, D-568). The game draws no CRT pass (D-618). OQ-183 holds the scale of the frame on a screen |
 | Light, particles, glow, and transitions | Game | effect files, light setups, normal maps, the effect budget, Core state | screen, wait intents | Medium. The effect budget of the Deck test holds them inside 60 frames per second, and no rule waits for an effect (D-139, D-160, D-182, D-183, D-522, D-523) |
 | Crash file and replay viewer | Game | run record, crash file | screen, and a crash file through Storage | High. The crash report, and a viewer in development builds alone (D-170, D-175, D-494) |
 | Audio player | Game | rendered audio from the Game assembly, Core state, audio files, settings | sound | Low. Music by place and time of day, ambience, stings, and the mix (D-413, D-424, D-429, D-435). An audio file names the content ids that it serves, and each stream comes from bytes with a checked return (D-547, D-548, F-56) |
@@ -189,10 +189,10 @@ From the roadmap interview of 2026-09-12:
 
 What we pay:
 
-- Owner time: the interviews, the approvals of every text batch (D-57), and the play sign-off of every phase (D-52). The owner also approves every art batch from its review sheets (D-107, D-514), and every music and sound batch by ear (D-433). The owner also cuts each trailer (D-476), and reads the crash emails and the notes of the trusted players (D-469, D-473). The owner runs the Deck test with its effect budget, and PR-82 then sets the renderer that the test picked (D-160, D-523, D-599).
+- Owner time: the interviews, the approvals of every text batch (D-57), and the play sign-off of every phase (D-52). The owner also approves every art batch from its review sheets (D-107, D-514), and every music and sound batch by ear (D-433). The owner also cuts each trailer (D-476), and reads the crash emails and the notes of the trusted players (D-469, D-473). The owner ran the Deck test with its effect budget on 2026-09-17, and PR-82 sets the Mobile renderer (D-616, D-617). The owner also runs the screen scale probe on three screens (D-621). The owner reads each new effect on the Mac, and a test runs on the Deck only when the answer needs the Deck (D-622, D-623).
 - Tokens: two harnesses, Claude Code and Codex, on every PR (D-14, D-17). The amount per PR is unknown until M-1.
 - CI: GitHub-hosted minutes on three legs per PR, the bot runs included (D-2, D-481, D-505). Three exports run on each merge and on each PR that changes the export (D-449, D-512). A night plays fourteen thousand bot runs on three legs (D-507). The minutes are free while the repository stays public (D-4). From Phase 6 the repository is private, and minutes past the free quota cost money (D-456). Wall time per PR is unknown until M-2. The build renders the audio, which adds to that time (D-432).
-- Purchases: the Steam Direct fee, 100 USD, at Gate 2 (D-85, D-471). The Apple Developer Program costs 99 USD a year from PR-79 on (D-455, D-553). GitHub Pro comes before the switch to a private repository, so the required checks stay on `main` (D-456).
+- Purchases: the Steam Direct fee, 100 USD, at Gate 2 (D-85, D-471). One month of the Starter plan of Sprite Fusion, 9 USD, for the art test before PR-34 (D-620). The Apple Developer Program costs 99 USD a year from PR-79 on (D-455, D-553). GitHub Pro comes before the switch to a private repository, so the required checks stay on `main` (D-456).
 - No purchase: no code signing certificate for Windows (D-463), no asset license, and no font fee, because every font is OFL (D-104, D-122). Godot is free.
 
 Measurements that answer the unknowns:
@@ -202,8 +202,9 @@ Measurements that answer the unknowns:
 - M-3: the night run wall time and the crash and softlock counts, over the first seven nights (D-64).
 - M-4: turns per encounter and party downs per dungeon by bot policy, on the first dungeon. Binds the resource numbers of D-35.
 - M-5: the owner's play time from the first hub to the end of the arc, against D-56.
-- M-7: the Deck frame time of the test scene under Forward+ and under Mobile, at the full load of D-160. It picks the renderer for PR-82 and gives the first effect budget (D-523, D-598, D-599).
-- M-6: the Deck frame time on the first playable, against 60 frames per second (D-161). The readability of the 16-pixel font and the 32-pixel sprites at 1x, with the CRT on and off (D-92, D-120, D-228).
+- M-7: the Deck frame time of the test scene under Forward+ and under Mobile, at the full load of D-160. Done on 2026-09-17 on an OLED Deck, at the frame of 1280 by 720. Mobile gave 2.78 ms at the 95th percentile of the full load, and Forward+ gave 3.33 ms. Each of the 20 stages held the target under both renderers, and the worst stage gave 4.55 ms under Mobile. It picked the Mobile renderer for PR-82 and gave the first effect budget (D-616, D-617, D-624).
+- M-6: the Deck frame time on the first playable, against 60 frames per second (D-161). The readability of the 16-pixel font and the 32-pixel sprites at the scale that OQ-183 sets (D-92, D-228, D-621).
+- M-8: the screen scale probe of D-621, on the Deck, on a 27-inch 4K screen, and on a 32-inch 1440p screen. It records the apparent size of a sprite and of the body font on each screen, at 1x and at 2x. The owner then picks the scale of the world and the scale of the UI (OQ-183).
 
 ## 5. Defect and finding register
 
@@ -224,19 +225,19 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-11 | The interim checker read an HTML comment as prose. A fixture comment with a semicolon, a modal, a passive, and 30 words raised four findings. The automated pass of PR #1 found it | 2026-09-12 | ✅ PR-2. The command removes a one-line comment, and the rule MD 1 fails a comment across lines |
 | F-12 | The session wrote in `CLAUDE.md`, the PR template, the skill, and OQ-1 that gitar was absent, on no evidence. The pass ran on PR #1 within a minute | 2026-09-12 | ✅ doc. D-66. Every claim about a tool needs a check |
 | F-13 | The first interview fixed the language before the medium. Two pivots in one day, D-78 and D-98, reopened 30 decisions | 2026-09-12 | ✅ doc. D-99. L-14 |
-| F-14 | D-88 chose curvature and bleed, and the SDL2 2D renderer of D-83 ran no shader | 2026-09-12 | ✅ doc. D-91, then D-99 moved the shader to Godot. OQ-19 |
+| F-14 | D-88 chose curvature and bleed, and the SDL2 2D renderer of D-83 ran no shader | 2026-09-12 | ✅ doc. D-91, then D-99 moved the shader to Godot. OQ-19. D-618 on 2026-09-17 removed the CRT from the plan |
 | F-15 | A 16 by 16 sprite did not divide the 10 by 20 text cell of D-82 | 2026-09-12 | ✅ doc. D-103 sets a 16-pixel tile and a 640 by 360 frame. D-228 later sets a 32-pixel tile and a 1280 by 800 frame |
 | F-16 | D-7 chose RON, and C# has no RON reader | 2026-09-12 | ✅ doc. D-116, JSON with a schema |
 | F-17 | The 32-color palette (D-89) had 13 free colors for eight elements and ten statuses | 2026-09-12 | ✅ doc. D-121 grows it to 48, and D-181 to 64. Binds PR-34 |
-| F-18 | The full CRT (D-105) is on by default on the Deck (D-120) before any Deck measurement | 2026-09-12 | ⚠ Binds M-6 and Gate 2: the Deck play measures readability with it on |
+| F-18 | The full CRT (D-105) is on by default on the Deck (D-120) before any Deck measurement | 2026-09-12 | ✅ doc. D-618 on 2026-09-17 removed the CRT, so M-6 and Gate 2 read the text with no pass over it |
 | F-19 | D-119 and PR-34 promised an atlas match byte for byte. The compressed bytes depend on the zlib build and the encoder, so the C# tool of PR-34 cannot reproduce them. The automated pass of PR #1 found it | 2026-09-12 | ✅ doc. The match test compares decoded pixels. The interim tool gained `--check`. Binds PR-34 |
 | F-20 | The interim atlas tool kept the last of two palette entries with one key, in silence, against T-2. The automated pass of PR #1 found it | 2026-09-12 | ✅ doc. The tool fails on a repeated key. Binds PR-34 to the same rule |
 | F-21 | The plan gives each region one story arc (D-56), and the glossary defined an arc as "the story of one region". No text said how an arc relates to the main story of D-28, or what the first release ends on. An interview option read the gap as a faction that falls inside region one, and the owner refuted it | 2026-09-12 | ✅ doc. D-131: every plotline converges at the end of the game. The glossary now defines an arc as one part of the main story. D-133 resolves OQ-26: region one is a free prologue on Steam. The Phase 4 summary and Phase 5 now name the prologue. Binds the arc block of OQ-18 |
 | F-22 | The interview options used Final Fantasy Tactics as a template, not a feel. Three recorded answers sit close to its plot devices: unpaid veterans turned bandit (D-127), a hidden power behind the politics (D-128), and church leaders who know the faith is a lie (D-137). The waystones (D-134) risk a fourth: stones that carry the evil | 2026-09-12 | ⚠ D-136 and D-140: keep the shapes, and ban the devices. The list lives in `docs/world/`. Binds every later option of OQ-18 |
-| F-23 | The gates of PR-10 and PR-37 need a rendered screen: a screen test of a fixture battle, and two screenshots of the CRT toggle. The smoke job runs Godot with `--headless` on hosted runners (D-117). Godot proposal 5790 says that `--headless` "disables all rendering code", and the Godot docs name no way to capture an image in that mode. what-you-carry met the same wall: its contact sheet needs a window and runs on a desktop alone (its D-306) | 2026-09-12 | ⚠ D-172: a Linux CI job renders under Xvfb with a pinned Mesa, and desktop contact sheets show the real renderer at milestones. Binds the technical and graphics roadmaps, PR-10, and PR-37. Sources: the Godot 4.7 command line page and proposal 5790, read 2026-09-12 |
+| F-23 | The gates of PR-10 and PR-37 need a rendered screen: a screen test of a fixture battle, and two screenshots of the CRT toggle. The smoke job runs Godot with `--headless` on hosted runners (D-117). Godot proposal 5790 says that `--headless` "disables all rendering code", and the Godot docs name no way to capture an image in that mode. what-you-carry met the same wall: its contact sheet needs a window and runs on a desktop alone (its D-306) | 2026-09-12 | ⚠ D-172: a Linux CI job renders under Xvfb with a pinned Mesa, and desktop contact sheets show the real renderer at milestones. Binds the technical and graphics roadmaps, PR-10, and PR-37. Sources: the Godot 4.7 command line page and proposal 5790, read 2026-09-12. D-618 on 2026-09-17 removes the two screenshots of the CRT toggle, and the screen test of the fixture battle stands |
 | F-24 | D-228 doubles the tile size after the art, effect, and light decisions of this interview. Every grid holds four times the pixels: a 32 by 32 frame is 1,024 characters of text, and a party member has about twelve frames plus normal-map overrides (D-184, D-199, D-200). The Deck lights and fills four times the pixels of a 640 by 400 frame | 2026-09-12 | ⚠ Binds the graphics roadmap, the Deck test of D-160 at the frame of 1280 by 720 (D-568), and M-6. The PNG import of D-107 matters more for hand edits |
 | F-25 | The design critic of 2026-09-13 found four holes in play and saves. Gate 2 could not reach the two hidden jobs (C-1), a save point gave endless rest (C-2), a quit autosave could trap a run (C-3), and a Core patch would refuse old saves (C-4) | 2026-09-13 | ✅ doc. D-256, D-257, and D-258 close the first three, and D-268 later supersedes D-256. D-259 closes the fourth: a load reads the snapshot |
-| F-26 | The critic found gates that cannot pass. No PR created the screen-test job of D-172, the PR-37 gate relied on a headless run that draws nothing, the PR-7 and PR-8 gates met small maps and routes per phase, and the Deck test of D-160 had no sequence step and no failure branch | 2026-09-13 | ✅ doc. PR-41 creates the job with fixed capture and fit tests at 1080 and 1440 rows. The gates of PR-7, PR-8, and PR-37 changed, and section 8 gains the Deck test. D-261: the owner sets a fallback only if the test misses 60 |
+| F-26 | The critic found gates that cannot pass. No PR created the screen-test job of D-172, the PR-37 gate relied on a headless run that draws nothing, the PR-7 and PR-8 gates met small maps and routes per phase, and the Deck test of D-160 had no sequence step and no failure branch | 2026-09-13 | ✅ doc. PR-41 creates the job with fixed capture and fit tests at 1080 and 1440 rows. The gates of PR-7, PR-8, and PR-37 changed, and section 8 gains the Deck test. D-261: the owner sets a fallback only if the test misses 60. The Deck test of 2026-09-17 held the target, so D-261 never fired (D-616). PR-37 is retired (D-618) |
 | F-27 | The critic found gaps in the records. 24 earlier rows lacked their revision notes, several lines named superseded values, and D-193 disagreed with D-202 on ambient effects. Four choices had no owner: the first turn from behind, the place of systems, audio, and release in the order, effect timings in frames, and D-171 against the rule of no conditional compilation in Core | 2026-09-13 | ✅ doc for the notes and the stale text. D-260, D-262, D-265, and D-266 settle the four choices |
 | F-28 | The second critic pass of 2026-09-13 read the plan after the job system change and found 14 defects. A player choice could remove a cast member (C-1), the PR-12 gate needed the tasks of PR-19 (C-2), PR-42 came before its places (C-3), two notes overstated the aptitude count (C-4), and the law split between a license and a stamp (C-5). Stale text and notes stayed (C-6), and session readings had no owner (C-7). No PR drew the lead or wrote the tasks (C-8), a reserve swap gave fresh MP (C-9), and the watcher could stamp rites (C-10). OQ-41 gave the wrong cost of the death (C-11), three cases had no rule (C-12), words clashed (C-13), and the distance rule covers FFT alone (C-14) | 2026-09-13 | ✅ doc for C-2, C-4, C-6, C-8, C-11, and C-13. The session rejected one claim of C-6: D-282 refines D-268 and D-274 and does not revise them. D-301 to D-304 settle C-1, C-3, C-5, and the reading of D-274 in C-7. D-305 and D-306 settle the other two readings of C-7, D-307 settles C-14, and D-308 settles C-10. D-309 and D-351 settle OQ-48 and OQ-49 of C-12. D-356 settles C-9: a swap at a save point can bring fresh MP, and the balance must hold with it. D-363 and D-375 settle OQ-50 and OQ-51, the rest of C-12 |
 | F-29 | PR-23 to PR-26 held four ids for dungeons two to four, which are three dungeons. The count came unchanged from v1, and no text said what the fourth id held | 2026-09-13 | ✅ doc. The second visit to the hanging cells (D-327) makes four dungeon builds after the first, and each id names one in the order of play (D-313) |
@@ -277,6 +278,9 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-64 | A headless Godot session whose managed assembly does not load never reaches `Quit`, and it runs without end. The session writes `Cannot instantiate C# script` and then waits. With `--quit-after` the same session ends with an exit code of 0 and no success line, so the exit code hides the fault. The `smoke` target of the Makefile held two faults that compose: the session had no frame limit, so this trigger made the target run without end, and the target read no log, so a session that ends with an exit code of 0 passes it. A frame limit alone turns the first fault into the second, which is a false pass | 2026-09-16 | ✅ PR-1: the smoke session of the Makefile and of CI runs with `--quit-after 600`, and each one fails when the success line is absent. Both parts are needed. A broken session now fails in about 6 seconds, and not at the time limit of the job (T-2) |
 | F-65 | Godot.NET.Sdk writes the build output of a Godot project to `TheThingBelow.Game/.godot/mono/temp/bin/<configuration>/`, and the `bin` folder of the project stays empty. That output folder holds `GodotSharp.dll` from the NuGet restore, so a build of the solution gives the Godot assembly on each CI leg with no Godot editor. Read from the `OutputPath` property of the project on 2026-09-17 | 2026-09-17 | ✅ PR-46: `DetLintCommand.GameOutputFolder` reads that folder, and the text rule of det-lint sees each Godot type through it (D-614). The `det-lint` job and `make verify` build before the lint |
 
+| F-66 | The Deck sweep of 2026-09-17 found no limit. Each of the 20 stages held 60 frames per second under both renderers, and the heaviest stage, 15 lights with 8192 particles and a transition, gave 4.55 ms at the 95th percentile under Mobile, against 5.00 ms under Forward+. The sweep stopped at 15 lights because of F-46, and it stopped at 8192 particles by its own table. So the effect budget of D-523 holds the largest load that the test measured, and not the ceiling of the machine | 2026-09-17 | ⚠ Binds PR-56 to PR-60 and D-617: each budget row is a floor, and a row rises only with a new measurement before it and after it (G-14) |
+| F-67 | A 32-pixel sprite at 1x covers 4.0 mm on an OLED Deck, about 30 arcminutes at 45 cm. A 16-pixel sprite of a Game Boy Advance covers 4.09 mm, about 50 arcminutes at 28 cm, so the Deck at 1x shows about 60 percent of that apparent size. The body font of D-228 gives about a 10-arcminute glyph, near the 9-pixel floor of D-459. D-228 never set this scale: the option that it refused holds 40 tiles across the frame and the same size on screen | 2026-09-17 | ⚠ Binds PR-7 and PR-34: the probe of D-621 measures the scale on three screens, and OQ-183 holds the answer. M-8 records it |
+
 ## 6. Guardrails (the safety contract for every PR)
 
 ### 6.1 Tenets
@@ -311,7 +315,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 16. **G-16.** A PR that creates a check passes that check. A PR names any check that does not exist yet, with the PR that creates it (L-11). A check on `pull_request_target` or `schedule` cannot run on the PR that creates it (F-37). That PR proves its command in Tests, and the live check first runs after the merge (D-500).
 17. **G-17.** Every `core` behavior change bumps the simulation version constant, and the review confirms it.
 18. **G-18.** No empty `catch` and no silent default. Every error carries its context (T-2).
-19. **G-19.** Every screen designs to one 16:9 frame of 1280 by 720 with 32-pixel tiles (D-568). The Steam Deck at 1x with the CRT on is the floor, with black bars above and below (D-92, D-120, D-228). Every other screen shape shows black bars too. A desktop at 1920 by 1080 must look good, and the fit of D-232 holds that rule (D-568).
+19. **G-19.** Every screen designs to one 16:9 frame of 1280 by 720 with 32-pixel tiles (D-568). The Steam Deck is the readability floor, with black bars above and below (D-92, D-228). The frame draws at 1x until the probe of D-621 sets the scale (OQ-183). Every other screen shape shows black bars too. A desktop at 1920 by 1080 must look good, and the fit of D-232 holds that rule (D-568).
 20. **G-20.** Every player string follows the `game-text-style` skill, and the owner approves each text batch in its PR (D-57, D-63).
 21. **G-21.** Every enemy profile validates at load, and a profile that can never act fails the load (D-65, T-2).
 22. **G-22.** The night gate is green before merge, once PR-49 creates it (D-496). It needs a success record from a night inside 48 hours (D-64). A night on the head commit of a PR passes that PR, and a docs-only PR passes the gate (D-510, D-513).
@@ -319,6 +323,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 24. **G-24.** Every sprite, tile, and portrait is a text grid in content. The atlas tool renders the PNG, and a test proves the committed atlas matches (D-107). A normal map comes from the grid, and its atlas gets the same test (D-184). A drawing file is JSON with its rows as strings, and a large picture places drawn pieces (D-515, D-516).
 25. **G-25.** Every content batch the owner approves, sprites and text alike, appears in its PR description in full (D-57, D-107). A tool renders each art batch as review sheets, and the session attaches them with `gh` (D-514).
 26. **G-26.** One session works on one PR, and the PR holds its tests, its documents, its review records, and its handoff. No later PR carries them, and no PR only records a merge (D-576 to D-578).
+27. **G-27.** Every effect draws with the palette of 64 colors and hard edges, and no smooth gradient. The rule covers each particle, the fog, the glow, and each transition (D-181, D-622). The owner reads each new effect as its PR lands (D-623).
 
 ## 7. Roadmap
 
@@ -326,31 +331,34 @@ Five phases. Gate 1 is a foundation gate with no play. Gates 2 to 5 are builds t
 
 This section is the high-level roadmap (D-554). Each phase below gives its gate, its items in order, and one line for each item. The phase file of that phase gives each PR its scope, its exit tests, its review focus, and its questions (D-144, D-487). An area file says how one area works and which PR builds each part. The index of both sets is `docs/roadmaps/readme.md`.
 
-An item that kept its purpose through the pivots kept its number. PR-22 and PR-32 are retired, and no later item takes either id (G-10). The new ids of D-486 run from PR-43 to PR-79, and PR-80 is the next free id.
+An item that kept its purpose through the pivots kept its number. PR-22 and PR-32 are retired, and no later item takes either id (G-10). The new ids of D-486 run from PR-43 to PR-79. PR-80 to PR-85 are in use, and a new item takes the next number after them.
 
 ### Phase 1: Foundations (gate: every CI leg green with an identical state hash, the smoke session green, docs and PR gate live, no play)
 
 Phase file: `docs/roadmaps/phase-1-foundations.md`.
 
 1. Owner: enable the repository setting that requires a SHA pin for each action (D-511). Done on 2026-09-14.
-2. Owner and a session: the Deck test, which picks the renderer and measures the effect budget (D-160, D-523).
-3. Owner: run that test on the Linux export (D-458). PR-1 does not wait for it (D-599).
+2. Owner and a session: the Deck test, which picks the renderer and measures the effect budget (D-160, D-523). Done on 2026-09-17.
+3. Owner: run that test on the Linux export (D-458). Done on 2026-09-17: the run gave M-7, the Mobile renderer, and the first effect budget (D-616, D-617).
 4. PR-1: the solution, the four projects, the Makefile, the hook, and the build, test, format, smoke, and STE jobs (D-118, D-217, D-506). It sets Forward+ as a provisional renderer (D-599).
-5. PR-82: the renderer that the Deck test picked, which is one line of `project.godot` (D-160, D-599).
+5. PR-82: the Mobile renderer that the Deck test picked, which is one line of `project.godot` (D-599, D-616).
 6. PR-2: the `ste-check` command in C#, which replaces the Python script (D-10, D-101).
 7. PR-3: the `review-gate` command and its workflow, with the document rules (D-15, D-500, D-579).
-8. Owner: require the checks on `main` (OQ-3).
-9. PR-46: `det-lint`, before the first Core code (D-496, D-498).
-10. PR-4: integer math, the random streams, the state hash, the simulation version, and the `replay-identity` job (D-169, D-504).
-11. PR-5: the content reader, the content ids, the content hash, the string table, and the content embed (D-116, D-495, D-508).
-12. PR-6: the tick, the intents, the run record, replay, and the debug seam (D-164, D-260, D-493).
-13. PR-43: the Storage project, the snapshot versions and migrations, and the save files (D-491, D-494).
-14. PR-44: the crash files and the log files (D-170, D-179, D-491).
-15. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).
-16. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517).
-17. M-1: the harness usage of each of the first ten code PRs in the order of section 8.
-18. M-2: the CI wall time of each job of the first ten code PRs in the order of section 8.
-19. **← GATE 1 (foundation).**
+8. PR-85: the result of the Deck test, the removal of the CRT, and two tests before PR-34 (D-616).
+9. Owner and a session: the screen scale probe on three screens, right after PR-85 (D-621, D-625).
+10. Owner: require the checks on `main` (OQ-3).
+11. PR-46: `det-lint`, before the first Core code (D-496, D-498).
+12. PR-4: integer math, the random streams, the state hash, the simulation version, and the `replay-identity` job (D-169, D-504).
+13. PR-5: the content reader, the content ids, the content hash, the string table, and the content embed (D-116, D-495, D-508).
+14. PR-6: the tick, the intents, the run record, replay, and the debug seam (D-164, D-260, D-493).
+15. PR-43: the Storage project, the snapshot versions and migrations, and the save files (D-491, D-494).
+16. PR-44: the crash files and the log files (D-170, D-179, D-491).
+17. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).
+18. Owner and a session: the Sprite Fusion test of the art, before PR-34 (D-620).
+19. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517).
+20. M-1: the harness usage of each of the first ten code PRs in the order of section 8.
+21. M-2: the CI wall time of each job of the first ten code PRs in the order of section 8.
+22. **← GATE 1 (foundation).**
 
 > *In plain English:* this phase builds the machinery and the checks, and nothing that a player can see. At the end of it, four computers play the same run and agree on one number.
 
@@ -393,25 +401,26 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 33. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
 34. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
 35. PR-35: the region map of nodes and routes (D-113).
-36. PR-37: the CRT shader and its toggle (D-105, D-120).
-37. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command (D-432, D-438).
-38. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
-39. PR-70: every rule of what plays when (D-413, D-546).
-40. PR-71: the sound room in a development build (D-439, D-546).
-41. PR-51: the PNG import for a hand edit (D-107, D-497).
-42. PR-52: the map preview as a PNG (D-165, D-497).
-43. PR-53: the tile-edge tool and the edge files (D-204, D-501).
-44. PR-72: the music, the themes, and the sounds of the first playable (D-549).
-45. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
-46. M-3: the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
-47. M-4: the turns of each encounter and the party downs of each dungeon, by policy.
-48. M-6: the frame time and the readability on the Deck (D-161, F-18).
-49. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
-50. **← GATE 2 (first playable).**
-51. PR-74: the capture, which replays a record into frames and audio (D-476, D-551).
-52. PR-75: the store text and the checklist of the owner steps (D-452, D-550).
-53. PR-76: the store art and the five screenshots (D-475, D-550).
-54. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
+36. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command (D-432, D-438).
+37. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
+38. PR-70: every rule of what plays when (D-413, D-546).
+39. PR-71: the sound room in a development build (D-439, D-546).
+40. PR-51: the PNG import for a hand edit (D-107, D-497).
+41. PR-52: the map preview as a PNG (D-165, D-497).
+42. PR-53: the tile-edge tool and the edge files (D-204, D-501).
+43. PR-72: the music, the themes, and the sounds of the first playable (D-549).
+44. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
+45. M-3: the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
+46. M-4: the turns of each encounter and the party downs of each dungeon, by policy.
+47. M-6: the frame time and the readability on the Deck, at the scale of OQ-183 (D-161, D-621).
+48. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
+49. **← GATE 2 (first playable).**
+50. PR-74: the capture, which replays a record into frames and audio (D-476, D-551).
+51. PR-75: the store text and the checklist of the owner steps (D-452, D-550).
+52. PR-76: the store art and the five screenshots (D-475, D-550).
+53. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
+
+PR-37 is retired. The CRT pass of the first plan has no purpose after D-618, and no later item takes the id (G-10).
 
 > *In plain English:* this phase turns the machinery into a game. It ends when the owner walks a village, fights in a mine, and says whether it feels right. Then the game gets a public page on Steam.
 
@@ -483,48 +492,49 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 1. Owner: create no label, install no tool. gitar and the label exist (D-66, D-67).
 2. PR #2 to PR #10 merged on 2026-09-14, and PR #11 to PR #13 on 2026-09-16 (D-554, D-555 to D-575). PR #14 sets one PR for each session (D-576 to D-582).
 3. Owner: enable the setting that requires a SHA pin for each action (D-511). Done on 2026-09-14.
-4. Owner and a session: the Deck test of D-160 on the Linux export (D-458, D-523). The test scene is ready on `spike/deck-test`, and PR-1 does not wait for the run (D-597, D-599).
-5. PR-1, PR-2, PR-3, PR-84. PR-82 follows the Deck test run, and it can land at any point after PR-1 (D-599).
-6. Owner: require the checks on `main` (OQ-3).
-7. PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, PR-47, PR-34.
-8. M-1, M-2.
-9. **← GATE 1 (foundation).** The identity job, `dotnet test`, the smoke job, `det-lint`, and `ste-check` are green on every CI leg.
-10. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
-11. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8.
-12. PR-9, PR-80, PR-66, PR-55, PR-10.
-13. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60.
-14. PR-11, PR-67, PR-62.
-15. PR-68, PR-50.
-16. PR-12, PR-13, PR-14, PR-65.
-17. PR-36.
-18. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
-19. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-20. PR-16, PR-64, PR-35, PR-37.
-21. PR-38, PR-69, PR-70, PR-71.
-22. PR-51, PR-52, PR-53, PR-72.
-23. PR-17.
-24. M-3, M-4, M-6.
-25. Owner: set the M-4 band from the M-4 numbers (D-571).
-26. **← GATE 2 (first playable).** The owner plays the village, one hub, and one dungeon on both machines and signs off on feel (D-362).
-27. PR-74, PR-75, PR-76.
-28. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
-29. PR-18, PR-19, PR-20, PR-21.
-30. **← GATE 3 (story systems).** The owner plays a branch and a hub that changes with an earlier choice.
-31. PR-23, PR-24, PR-81, PR-27, PR-25, PR-26.
-32. PR-42, PR-73.
-33. PR-28, PR-29, PR-77.
-34. PR-30.
-35. M-5.
-36. **← GATE 4 (region one).** The owner plays region one end to end on both machines. Then trusted players play the build artifacts (D-469).
-37. PR-31, PR-33.
-38. Owner: join the Apple Developer Program (D-455).
-39. PR-78, PR-39.
-40. PR-79.
-41. Owner and a session: the shot list and the cut of the first trailer (D-476).
-42. PR-40.
-43. Owner: request the Deck compatibility review from Valve (D-565).
-44. **← GATE 5 (first release).** A fresh machine runs the tagged build, and the Deck runs the Steam demo.
-45. Valve answers the review, and Phase 6 stays parked.
+4. Owner and a session: the Deck test of D-160 on the Linux export (D-458, D-523). Done on 2026-09-17, from the test scene of the branch spike/deck-test (D-597, D-616).
+5. PR-1, PR-2, PR-3, PR-84, PR-85. PR-82 follows the Deck test run, and it can land at any point after PR-1 (D-599, D-616).
+6. Owner and a session: the screen scale probe, in the session right after the merge of PR-85 (D-621, D-625).
+7. Owner: require the checks on `main` (OQ-3).
+8. PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, PR-47, PR-34. The Sprite Fusion test comes before PR-34 (D-620).
+9. M-1, M-2.
+10. **← GATE 1 (foundation).** The identity job, `dotnet test`, the smoke job, `det-lint`, and `ste-check` are green on every CI leg.
+11. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
+12. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8.
+13. PR-9, PR-80, PR-66, PR-55, PR-10.
+14. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60.
+15. PR-11, PR-67, PR-62.
+16. PR-68, PR-50.
+17. PR-12, PR-13, PR-14, PR-65.
+18. PR-36.
+19. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
+20. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+21. PR-16, PR-64, PR-35.
+22. PR-38, PR-69, PR-70, PR-71.
+23. PR-51, PR-52, PR-53, PR-72.
+24. PR-17.
+25. M-3, M-4, M-6.
+26. Owner: set the M-4 band from the M-4 numbers (D-571).
+27. **← GATE 2 (first playable).** The owner plays the village, one hub, and one dungeon on both machines and signs off on feel (D-362).
+28. PR-74, PR-75, PR-76.
+29. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
+30. PR-18, PR-19, PR-20, PR-21.
+31. **← GATE 3 (story systems).** The owner plays a branch and a hub that changes with an earlier choice.
+32. PR-23, PR-24, PR-81, PR-27, PR-25, PR-26.
+33. PR-42, PR-73.
+34. PR-28, PR-29, PR-77.
+35. PR-30.
+36. M-5.
+37. **← GATE 4 (region one).** The owner plays region one end to end on both machines. Then trusted players play the build artifacts (D-469).
+38. PR-31, PR-33.
+39. Owner: join the Apple Developer Program (D-455).
+40. PR-78, PR-39.
+41. PR-79.
+42. Owner and a session: the shot list and the cut of the first trailer (D-476).
+43. PR-40.
+44. Owner: request the Deck compatibility review from Valve (D-565).
+45. **← GATE 5 (first release).** A fresh machine runs the tagged build, and the Deck runs the Steam demo.
+46. Valve answers the review, and Phase 6 stays parked.
 
 ## 9. Open questions
 
