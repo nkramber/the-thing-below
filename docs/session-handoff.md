@@ -12,12 +12,12 @@ Session: review of PR #24 at effective head `7426dc9`. Repository: the-thing-bel
 - Reviewed the full 17-path documentation diff and the current Gitar pass.
 - Found that D-618 retired the CRT, but the effects roadmap still named PR-37 and described the old-monitor pass.
 - Found remaining CRT references in D-172, D-214, and `area-effects.md`.
-- Found a separate failure in the PR description: its Documents lines do not use the required forms of D-581.
+- Found a separate failure in the PR description: its Documents lines did not use the required forms of D-581. The reviewer corrected the lines and recorded each edit.
 - The review record gives the verdict and evidence for this head.
 
 ### The state of the build
 
-- `main` and the merge base are `2874b70`. Effective head: `7426dc9`. Remote tip before this review commit: `eb7567a`.
+- `main` and the merge base are `2874b70`. Effective head: `7426dc9`. Remote metadata tip: `cda2502`.
 - `ste-check` passes with 0 findings. `make verify` stopped at a build with no diagnostic output, so its result is inconclusive.
 - CI skips build, test, format, coverage, lint, and smoke for this documentation-only PR under D-600.
 - The current Gitar pass approves `7426dc9`, with one closed finding and no open finding. No inline thread is open.
@@ -25,7 +25,7 @@ Session: review of PR #24 at effective head `7426dc9`. Repository: the-thing-bel
 
 ### What is in flight
 
-The review record and this handoff need a commit and push. The review requires changes to the PR description before the owner can merge.
+The review record and this handoff are published. The author needs to correct the remaining CRT contracts before the owner can merge.
 
 ### Traps and gotchas
 
@@ -40,7 +40,7 @@ None for PR #24. OQ-183 blocks PR-7 and PR-34.
 
 ### The next concrete action
 
-Publish the review record and handoff, correct verified stale PR description facts, and verify the remote head.
+The author corrects P2-1, then requests a repeat review of the new effective head.
 
 ## Session 95: 2026-09-18, Claude Code
 
