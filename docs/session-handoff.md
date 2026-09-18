@@ -24,7 +24,12 @@ Session: the time of the screen scale probe, in the same session as Session 93 (
 
 ### What is in flight
 
-The new Gitar pass, and then the review of Codex. Gitar paused automatic reviews, so the round needs a `Gitar review` comment after the push wait of three minutes.
+The review of Codex. The Gitar pass approved the head `7426dc9`, with 1 closed finding and no open one.
+
+- The push of `7426dc9` was at 03:19:22Z, and the request at 03:22:49Z.
+- Gitar replied at 03:23:09Z, and it wrote the dashboard comment `5724679546` at 03:25:01Z.
+- Each of the three times is later than the one before it, so the pass covers the effective head (D-603).
+- The summary of the pass names D-616 to D-624 and not D-625. A summary can repeat the words of an older pass, and the three times prove this pass current.
 
 ### Traps and gotchas
 
@@ -40,7 +45,7 @@ None for PR #24. OQ-183 blocks PR-7 and PR-34, and the probe answers it right af
 
 ### The next concrete action
 
-Push, wait three minutes, comment `Gitar review`, and then hand PR #24 to Codex for the review of T-4.
+Hand PR #24 to Codex for the review of T-4. This PR adds decision rows, so the label of D-401 does not apply.
 
 ## Session 94: 2026-09-18, Claude Code
 
