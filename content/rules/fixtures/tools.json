@@ -1,0 +1,15 @@
+{
+ "comment": "A fixture rule file of PR-5 (D-649). No rule of the game reads it. The first real rule record replaces it, and no later entry takes an id below (D-166).",
+ "fixtures": [
+  {
+   "id": "fixture.lamp",
+   "label": "label.lamp",
+   "weight": 10000
+  },
+  {
+   "id": "fixture.rope",
+   "label": "label.rope",
+   "weight": 2500
+  }
+ ]
+}

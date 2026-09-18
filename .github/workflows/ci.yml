@@ -208,6 +208,14 @@ jobs:
           dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj \
             --configuration Release --no-build -- replay-identity --root .
 
+      # Each leg loads every content file and compares the content hash of the rule files
+      # with the committed file. The `eol=lf` rule of `.gitattributes` keeps one set of
+      # bytes on the Windows leg (G-5, D-495, D-648).
+      - name: Compare the content hash with the committed file
+        run: |
+          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj \
+            --configuration Release --no-build -- content-hash --root .
+
   smoke:
     name: smoke (${{ matrix.leg }})
     needs: changed-paths

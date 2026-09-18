@@ -58,6 +58,7 @@ public sealed class DetLintCoreRuleTests
     [InlineData("System.Guid.NewGuid().GetHashCode()", "DL 3")]
     [InlineData("typeof(Fixture).GetProperties().Length", "DL 4")]
     [InlineData("System.Activator.CreateInstance<int>()", "DL 4")]
+    [InlineData("System.Text.Json.JsonSerializer.Serialize(1).Length", "DL 4")]
     [InlineData("\"a\".GetHashCode()", "DL 5")]
     [InlineData("System.Security.Cryptography.SHA256.HashData([]).Length", "DL 5")]
     public void AForbiddenPathInCoreFails(string expression, string rule)
@@ -76,6 +77,28 @@ public sealed class DetLintCoreRuleTests
 
         Assert.Contains(rule, DetLintFixture.RuleIds(findings));
         Assert.All(findings, finding => Assert.Equal(6, finding.Line));
+    }
+
+    [Fact]
+    public void AHandReaderOnUtf8JsonReaderInCorePasses()
+    {
+        // The content reader of D-647 is legal, and `JsonSerializer` above is not. The two
+        // types live in one namespace, so the rule names the type and never the namespace.
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckCore(
+            """
+            using System.Text.Json;
+            namespace TheThingBelow.Core;
+            public static class Fixture
+            {
+                public static bool Read(System.ReadOnlySpan<byte> bytes)
+                {
+                    var reader = new Utf8JsonReader(bytes);
+                    return reader.Read();
+                }
+            }
+            """);
+
+        Assert.Empty(findings);
     }
 
     [Fact]

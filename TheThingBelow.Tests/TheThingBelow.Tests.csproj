@@ -35,6 +35,19 @@
     </AssemblyAttribute>
   </ItemGroup>
 
+  <!--
+    The embedded-content test reads the resources of the Game assembly (D-508). This project
+    takes no reference to Game, because the Game assemblies would then join the assembly list
+    of the test host, and the det-lint fixture reads that list as the framework set (D-614).
+    The test loads the file that the Game project built instead.
+  -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>GameAssemblyPath</_Parameter1>
+      <_Parameter2>$(MSBuildThisFileDirectory)../TheThingBelow.Game/.godot/mono/temp/bin/$(Configuration)/TheThingBelow.Game.dll</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="../TheThingBelow.Core/TheThingBelow.Core.csproj" />
     <ProjectReference Include="../TheThingBelow.Tools/TheThingBelow.Tools.csproj" />

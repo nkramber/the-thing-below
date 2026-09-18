@@ -7,13 +7,14 @@ namespace TheThingBelow.Core;
 public static class SimulationVersion
 {
     /// <summary>
-    /// The current version. PR-4 sets the first value, because it holds the first Core
-    /// rules: the fixed-point math, the streams, and the state hash (G-17).
+    /// The current version. PR-4 set the first value, because it held the first Core rules:
+    /// the fixed-point math, the streams, and the state hash. PR-5 raised it to 2, because
+    /// the content reader, the content ids, and the content hash are Core rules too (G-17).
     /// </summary>
     /// <remarks>
     /// A run record and a snapshot carry this number. A load that reads another number
     /// reports the two numbers and refuses the file (D-259). A change of this number also
     /// changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 1;
+    public const int Current = 2;
 }

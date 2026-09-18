@@ -19,4 +19,19 @@
     <ProjectReference Include="../TheThingBelow.Core/TheThingBelow.Core.csproj" />
   </ItemGroup>
 
+  <!--
+    The Godot export walks the project folder alone, and `content/` lies outside it (F-42).
+    Thus the assembly carries every content file as a resource, and Game reads the bytes from
+    its own assembly in the editor and in every export (D-508).
+
+    `%(RecursiveDir)` holds the separator of the build machine, and Windows gives `\`. The
+    replacement below makes one set of resource names on every platform, so the embedded set
+    and the folder match on each CI leg (T-7).
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="../content/**/*.json">
+      <LogicalName>content/$([MSBuild]::ValueOrDefault('%(RecursiveDir)', '').Replace('\', '/'))%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

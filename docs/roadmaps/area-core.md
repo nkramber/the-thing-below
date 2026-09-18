@@ -117,11 +117,14 @@ Built by PR-5. Phase file: `phase-1-foundations.md`.
 - `Directory.Build.props` sets `JsonSerializerIsReflectionEnabledByDefault` to `false` for every project, and a test reads the switch back (D-647). The det-lint of PR-46 bans reflection in Core (D-496).
 - A number in content is an integer. A number with a fraction or an exponent fails the load, with the file and the field (D-169, G-2).
 - Every content entry has a permanent id that no later entry takes (D-166). An id is a lowercase kind, a dot, and a lowercase name (D-646).
-- The content hash covers the rule files alone (D-495). PR-5 draws the line in the layout of `content/`, and a test proves that no other file reaches the hash.
+- The content hash covers the rule files alone (D-495). One folder, `content/rules/`, holds every rule file, and a test proves that no other file reaches the hash (D-648).
+- The `content-hash` command of Tools loads every content file and compares the hash with a committed file. The `--write` option writes that file again (D-648).
+- Core holds one fixture rule record until the first real rule record replaces it (D-649). Its files give the hash, the id rules, and the string-id rule real data to read.
 - PR-5 also writes the SHA-256 that makes the content hash, in Core code beside its one caller (D-644, D-645). Its test holds the published vectors of the reference implementation.
 - The content hash reads the same bytes on every CI leg. The `eol=lf` rule of `.gitattributes` keeps each checkout on LF line ends, where Git for Windows otherwise defaults to CRLF (the external facts above).
 - Game embeds the files of `content/` in its assembly, and a test proves that the embedded set matches the folder (D-508). PR-5 adds the embed, the folder reader in Tools, and the test, and `area-ci.md` holds the details.
 - The string table maps ids to text, and Core events name string ids alone (G-7, D-167). Game reads the text for an id. A test proves that each string id that content names exists in the table (T-2).
+- A string id takes the same form as a content id (D-646). The table refuses a repeated id, and it reads each id in ordinal order (F-39).
 - Core also holds the record of each content file that no rule reads, such as the palette and the atlas index (D-517). The content hash still reads the rule files alone (D-495).
 - An art file names the content ids that it draws, and a rule file never names art (D-519). `area-art.md` holds the art files.
 

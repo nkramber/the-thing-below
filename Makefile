@@ -12,10 +12,10 @@ GODOT ?= /Applications/Godot_mono.app/Contents/MacOS/Godot
 SMOKE_FRAME_LIMIT := 600
 
 
-.PHONY: verify where hooks build test lint format ste-check identity smoke run clean
+.PHONY: verify where hooks build test lint format ste-check identity content smoke run clean
 
 ## verify: every check that this machine can run.
-verify: build test format lint ste-check identity smoke
+verify: build test format lint ste-check identity content smoke
 
 ## build: build every project of the solution.
 build:
@@ -49,6 +49,14 @@ ste-check:
 # output of the Tools project, so the `build` target runs before it.
 identity:
 	dotnet run --project $(TOOLS_PROJECT) --no-build -- replay-identity --root .
+
+## content: load every content file and compare the content hash (G-5, D-495, D-648).
+#
+# The command reads the build output of the Tools project, so the `build` target runs before
+# it. A change of a rule file needs `content-hash --root . --write` and a review of the new
+# value.
+content:
+	dotnet run --project $(TOOLS_PROJECT) --no-build -- content-hash --root .
 
 ## smoke: build the Godot solution, then run the headless session (D-117).
 #

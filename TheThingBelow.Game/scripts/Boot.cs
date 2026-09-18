@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Godot;
+using TheThingBelow.Core.Content;
 
 namespace TheThingBelow.Game;
 
@@ -37,8 +39,22 @@ public partial class Boot : Node
         GD.Print("smoke: the engine started.");
         GD.Print($"smoke: the renderer is {GetRendererName()}.");
         GD.Print($"smoke: the frame is {GetFrameSize()}.");
+        GD.Print($"smoke: the content is {DescribeContent()}.");
         GD.Print("smoke: the session ends with no error.");
         GetTree().Quit(SuccessExitCode);
+    }
+
+    /// <summary>
+    /// Loads every content file from the resources of this assembly, and gives the count and
+    /// the content hash. The session thus proves the embed of D-508 inside the engine, where
+    /// the match test of Tests reads the assembly file alone (F-42).
+    /// </summary>
+    /// <returns>The number of files and the content hash, as one line.</returns>
+    private static string DescribeContent()
+    {
+        IReadOnlyList<ContentFile> files = EmbeddedContent.Read();
+        ContentSet set = ContentSet.Load(files);
+        return $"{files.Count} files with the hash {set.Hash}";
     }
 
     /// <summary>Reads the renderer of this session from the project settings (D-599).</summary>

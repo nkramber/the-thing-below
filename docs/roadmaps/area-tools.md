@@ -53,6 +53,8 @@ Built by PR-1 and PR-2. Phase file: `phase-1-foundations.md`.
 - One program holds every command, and the first argument names the command, as the commands in `CLAUDE.md` show.
 - Tools references Core and Storage. It reads Core state, and it writes records through Storage (D-494).
 - Tools holds the one reader of the `content/` folder for the tools and Tests, and PR-5 adds it (D-508). Game reads content from its own assembly.
+- PR-5 adds the `content-hash` command. It loads every content file, and it compares the hash of the rule files with a committed file (G-5, D-648).
+- A run of that command with `--write` writes the committed file again, as the `replay-identity` command does. The review then reads the new value (G-17).
 - Each package in Tools needs a decision (G-13). D-498 is the first, for det-lint.
 - A gate tool prints one line per finding with the file, the line, the rule id, and what it saw. It exits 1 on any finding (the `ste-writing` skill).
 - A tool that cannot finish names the file and the reason, and it exits with a code other than 0 (T-2).

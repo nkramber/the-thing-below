@@ -42,6 +42,8 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-40 | The test command of `CLAUDE.md` works in VSTest mode alone | PR-1: D-592 picks the MTP mode, and the commands follow |
 | F-41 | Four rules of GitHub Actions meet the CI plan | PR-1: D-595 puts the skip condition on each job, and never on the workflow |
 | F-42 | The Godot export walks the project folder alone, and `content/` lies outside it | PR-5: the Game assembly carries the content files (D-508) |
+| F-78 | The reflection switch of `Directory.Build.props` reaches every program of the solution | PR-5: the fixture of the review gate writes its file with `Utf8JsonWriter` (D-647) |
+| F-79 | A project reference from Tests to Game breaks the reference set of the det-lint fixtures | PR-5: the embedded-content test loads the built Game assembly (F-61) |
 | F-58 | No check can see the conversation of a session | PR-3: the document rules read the diff and the description alone (D-579) |
 | F-60 | The Godot editor writes `net8.0` into a `.csproj` that holds no target framework | PR-1: the Game project pins `net10.0` in its own file. The exit-code part of this finding is refuted |
 | F-61 | A coverage run instruments the Core copy and adds references to it | PR-1: the reference test reads the file that the Core project built |
@@ -487,7 +489,9 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 - A hand reader on `Utf8JsonReader` in Core, and no `JsonSerializer` call (D-647, F-36).
 - The switch `JsonSerializerIsReflectionEnabledByDefault` in `Directory.Build.props`, and a test that reads it back (D-647).
 - The permanent content id, as a kind, a dot, and a name (D-166, D-646).
-- The content hash over the rule files alone, and the layout of `content/` that draws the line (D-495).
+- The content hash over the rule files alone, and the folder `content/rules/` that draws the line (D-495, D-648).
+- The `content-hash` command of Tools, which compares the hash with a committed file and writes it again (D-648).
+- One fixture rule record in Core, with its files, so each content rule reads the real tree (D-649).
 - The SHA-256 of D-644, in Core code beside the content hash that calls it (D-645). Its test holds the published vectors of the reference implementation.
 - The string table, from an id to text, with a test for each id that content names (D-167, G-7).
 - The embed of `content/` in the Game assembly, the folder reader in Tools, and the match test (D-508).
@@ -503,12 +507,14 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 1. A content file with an absent field fails the load with the file and the field.
 2. A file with an unknown field fails the load.
 3. A number with a fraction or an exponent fails the load (G-2).
-4. A repeated content id fails a test with the id.
+4. A repeated content id fails a test with the id, in one file and across two files.
 5. An id that does not take the form of D-646 fails a test with the id and the file.
-5. The content hash is the same on the three legs and on the Mac.
-6. The embedded resources match the files of `content/` by name and by bytes.
-7. A read of a resource that the assembly lacks fails with the resource name.
-8. A string id that content names and the table lacks fails a test.
+6. The content hash is the same on the three legs and on the Mac.
+7. A file outside `content/rules/` never moves the content hash.
+8. The embedded resources match the files of `content/` by name and by bytes.
+9. A read of a resource that the assembly lacks fails with the resource name.
+10. A string id that content names and the table lacks fails a test.
+11. The reflection switch reads back as off in the test host (D-647, F-36).
 
 **Review focus.**
 
@@ -516,6 +522,8 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 - The hash covers the rule files alone, and a test proves that no other file reaches it (D-495).
 - The line-end rule holds on the Windows leg (the external facts of `area-core.md`).
 - The Godot export needs no filter for content, because the assembly carries it (F-42).
+- The switch of D-647 reaches each program, and no program of the solution calls `JsonSerializer` with reflection (F-78).
+- The Tests project takes no reference to Game, because that reference breaks the reference set of det-lint (F-79).
 
 **Questions.** None. D-646 answers OQ-63, and D-647 answers OQ-179. D-644 answered OQ-62, and D-645 puts the SHA-256 of the content hash in this PR.
 
