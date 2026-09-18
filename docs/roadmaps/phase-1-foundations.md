@@ -317,7 +317,7 @@ Area files: `area-effects.md` sections 7.3, 7.4, and 7.12, and `area-art.md` sec
 
 ### 7.8 The screen scale probe
 
-Done on 2026-09-18. Owner and a session, in the session right after the merge of PR-85 (D-625). Area files: `area-ui-input.md` section 7.2, and `area-art.md` section 7.1. PR-86 records each answer (D-626 to D-638).
+Done on 2026-09-18. Owner and a session, in the session right after the merge of PR-85 (D-625). Area files: `area-ui-input.md` section 7.2, and `area-art.md` section 7.1. PR-86 records each answer (D-626 to D-640).
 
 **Scope.**
 
@@ -803,18 +803,18 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 9. PR-85: the result of the Deck test, the removal of the CRT, and the two tests before PR-34 (D-616).
 10. Owner and a session: the screen scale probe on three screens, right after PR-85 (D-621, D-625).
 11. PR-86: the answers of the probe, and the close of OQ-183 (D-626 to D-640).
-11. Owner: require the checks on `main` (OQ-3).
-12. PR-46: det-lint, before the first Core code (D-496).
-13. PR-4: integer math, the streams, the state hash, and the identity job.
-14. PR-5: content, the content hash, and the string table.
-15. PR-6: the tick, the intents, the run record, and replay.
-16. PR-43: the Storage project, the snapshots, and the saves.
-17. PR-44: the crash files and the log files.
-18. PR-47: the PNG code, right before the atlas (D-496).
-19. Owner and a session: the Sprite Fusion test of the art (D-620).
-20. PR-34: the atlas, the palette, and the drawing files.
-21. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above.
-22. **← GATE 1 (foundation).** Section 7.19 holds each line.
+12. Owner: require the checks on `main` (OQ-3).
+13. PR-46: det-lint, before the first Core code (D-496).
+14. PR-4: integer math, the streams, the state hash, and the identity job.
+15. PR-5: content, the content hash, and the string table.
+16. PR-6: the tick, the intents, the run record, and replay.
+17. PR-43: the Storage project, the snapshots, and the saves.
+18. PR-44: the crash files and the log files.
+19. PR-47: the PNG code, right before the atlas (D-496).
+20. Owner and a session: the Sprite Fusion test of the art (D-620).
+21. PR-34: the atlas, the palette, and the drawing files.
+22. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above.
+23. **← GATE 1 (foundation).** Section 7.20 holds each line.
 
 The next phase file is `phase-2-first-playable.md`. Between the two, the owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).
 

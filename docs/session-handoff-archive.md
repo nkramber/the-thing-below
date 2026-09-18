@@ -1,5 +1,88 @@
 # Session handoff archive
 
+## Session 91: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the review of PR #23, in the same session as Session 89 (D-582). Repository: the-thing-below. Branch: `feat/pr-46-det-lint`. PR: #23. Role: author. Base: `0fbecab`.
+
+### What this session did, and why
+
+- The review of `f5eba68` gives the verdict `Changes required` with one finding, P2-1.
+- The finding: DL 9 read the value of a scene property as `[^"]*`, which stops at the first quote. Godot writes a quote inside a string value as `\"`, so a line such as `text = "Say \"hello\""` matched no part of the pattern, and the rule read no property.
+- The claim reproduces. The probe gave `0 finding(s)` and an exit code of 0 on the old code.
+- The finding has full merit. A player string with a quote in a scene file is a supported case of D-499 and G-7.
+- The correction: the value part of the pattern is now `(?:[^"\\]|\\.)*`, which reads an escaped character as one unit. One line of `TheThingBelow.Tools/DetLint/SceneTextRule.cs` changes.
+- One regression test, `ATextValueWithAnEscapedQuoteFails`. It fails on the old code with 186 tests and passes on the new code with 187.
+- The probe of the reviewer now gives one DL 9 finding, and the command exits 1.
+- `docs/reviews/pr-23-response.md` holds the disposition and the evidence.
+
+### The state of the build
+
+- `main` is `0fbecab`. The head before this round is `44f99a8`, and the PR is #23.
+- `make verify` passes: the build with 0 warnings, 187 tests, the format check, `det-lint` with 0 findings, `ste-check` with 0 findings, and the smoke session.
+- On `70df5ef`, every CI check passes except `review-gate`: three build legs, three smoke legs, the changed paths job, the coverage report, `ste-check`, `det-lint`, and the Gitar check. RG 4 fails, because the record still gives the verdict `Changes required`.
+
+### What is in flight
+
+The repeat review of Codex at the effective head `70df5ef`. The Gitar pass of that head gives the verdict `Approved` with no finding and no open thread.
+
+### Traps and gotchas
+
+- The correction moves the effective head, so the review of `f5eba68` no longer covers the head. The repeat review reads the new head (D-603).
+- RG 4 stays red until the record of the repeat review gives `Ready for owner merge`.
+- A scene file has no comment syntax, so the pattern of DL 9 reads a whole line and needs no comment rule.
+- `deck-test/` stays untracked, as it was before this session.
+- Gitar deleted the dashboard comment of the first pass and posted a new one with the id 5721871935. The summary of the new pass repeats the words of the first one, and its three times prove that the pass is current.
+- The push wait and each poll of Gitar run in the background, and never in the foreground.
+- The next ids are D-616, OQ-183, F-66, L-16, G-27, PR-85, M-8, and Session 92.
+
+### The questions that block progress
+
+None for this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### The next concrete action
+
+The repeat review of Codex at the effective head `70df5ef`. The record at `docs/reviews/pr-23.md` sets P2-1 to closed and gives a verdict for that head, and RG 4 passes with it.
+
+## Session 90: 2026-09-17, Codex
+
+Author: Codex
+Session: review PR #23, roadmap PR-46, the `det-lint` command. Repository: the-thing-below. Branch: `feat/pr-46-det-lint`. Role: reviewer. Base: `0fbecab`.
+
+### What this session did, and why
+
+- Reviewed the complete change from effective head `f5eba68` against section 7.7 of the phase roadmap and the affected contracts.
+- Confirmed that Claude Code authored the change and Codex meets the opposite-provider gate (T-4, D-17).
+- Found P2-1: DL 9 misses a scene text value when the value contains an escaped quote. The probe exited 0 with no finding, against D-499 and G-7.
+- Corrected the stale PR description snapshot. It now names head `764390c` and the checks that GitHub reports.
+- Wrote `docs/reviews/pr-23.md` with verdict `Changes required` for `f5eba68`.
+
+### The state of the build
+
+- `main` is `0fbecab`. The PR head is `764390c`, and its effective head is `f5eba68` (D-610).
+- `make verify` passes locally: build, 186 tests, format, `det-lint`, `ste-check`, and smoke.
+- GitHub checks pass on `764390c` except `review-gate`, which fails RG 3 because the review record was absent before this commit.
+- The review record, handoff entry, and archived Session 80 were published as `b63cfb0`. GitHub confirms that head. All checks pass except `review-gate`, which fails RG 4 because the verdict is `Changes required`.
+- This follow-up metadata commit records the publication verification. The effective head stays `f5eba68` (D-610).
+
+### What is in flight
+
+The author needs to correct P2-1 and add a regression test. The reviewer then repeats the review of PR #23.
+
+### Traps and gotchas
+
+- The scene pattern in `SceneTextRule` stops at a quote even when a backslash escapes it. A scene value with an escaped quote bypasses DL 9.
+- Gitar approved the effective head but reported no rule coverage and no functional validation. The review checked those claims against the diff and local gates.
+- `deck-test/` remains untracked and untouched.
+
+### The questions that block progress
+
+No owner question blocks progress. P2-1 needs the author's correction.
+
+### The next concrete action
+
+The author corrects P2-1 on PR #23. Codex reviews the correction against its new effective head.
+
 ## Session 89: 2026-09-17, Claude Code
 
 Author: Claude Code

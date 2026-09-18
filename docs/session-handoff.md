@@ -2,6 +2,88 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 101: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: the answer to the review of PR #25, in the same session as Session 99 (D-582). Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: author. Base: `b3ec2b4`.
+
+### What this session did, and why
+
+- The review of `83c17f7` gives `Changes required` with one finding, P2-1.
+- P2-1 has full merit. The PR-86 entry added a line to the Phase 1 sequence and left each later number as it was, so two steps held the number 11.
+- A sweep of every ordered list found the same defect in the Phase 1 list of `docs/design.md`, which the review did not name. Two steps held the number 10 there.
+- The same sweep found two stale references of the insert: the gate line named section 7.19, and section 7.8 named the round as D-626 to D-638.
+- `docs/reviews/pr-25-response.md` holds each disposition, the regression check, and the evidence.
+- This session published the review record and the Session 100 entry, because the review session had a read-only `.git` directory (D-602).
+
+### The state of the build
+
+- `main` and the merge base are `b3ec2b4`. The head before this round was `9c13790`.
+- `make verify` passed: the build with 0 warnings, 187 tests, the format check, `det-lint`, `ste-check`, and the smoke session.
+- The review records `make verify` as a failure at build after 5:00. That result did not reproduce here, and Session 98 recorded the same stop on a repeat review.
+- The ordered-list sweep now prints no duplicate item number in any list.
+
+### What is in flight
+
+The Gitar pass on the new head, and the repeat review of Codex. This round changes two roadmap paths, so it moves the effective head (D-610).
+
+### Traps and gotchas
+
+- A renumber of one ordered list can break a sibling list and a self-reference. The PR-86 insert broke three places, and the review named one. A sweep of every ordered list catches the class, and `ste-check` reads no item number.
+- Gate 1 moved from section 7.19 to section 7.20 when the PR-86 entry took 7.9. A citation of a section number of a phase file needs a check after any insert.
+- The review could not export the PR comments, so it did not read the two inline replies to the Gitar findings. Both threads are resolved.
+- `deck-test/` and `screen-scale-probe/` stay untracked, and the two probe exports stay out of git.
+- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 102.
+
+### The questions that block progress
+
+None. OQ-183 closed with D-633 and D-639.
+
+### The next concrete action
+
+Push the round, answer the Gitar pass on the new head, and ask Codex for the repeat review.
+
+## Session 100: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #25, roadmap PR-86, the screen scale answers. Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: reviewer. Base: `b3ec2b4`.
+
+### What this session did, and why
+
+- Confirmed that Claude Code authored the PR, so Codex meets the other-provider gate (T-4, D-17).
+- Reviewed the 15-path documentation diff, the PR description, the screen scale decisions, and the PR-86 roadmap entry.
+- Found P2-1: the Phase 1 sequence numbers the owner step and PR-46 as item 11.
+- Wrote `docs/reviews/pr-25.md` with verdict `Changes required` for effective head `83c17f7`.
+
+### The state of the build
+
+- `main` and the merge base are `b3ec2b4`. The PR tip is `9c13790`; its effective head is `83c17f7` (D-610).
+- GitHub reports `changed paths` and `ste-check` as passing. The build, tests, format, coverage, det-lint, and smoke checks skip for this docs-only PR (D-600).
+- `review-gate` fails because the review record is not yet on the branch.
+- `make verify` failed at build after 5:00 with 0 warnings, 0 errors, and no diagnostics. The author reports a successful run in Session 99.
+- `ste-check` passes with 0 findings after the review record and handoff edits.
+- The Gitar dashboard approves `83c17f7` with two closed findings and none open. Its inline replies were not available in this session.
+
+### What is in flight
+
+The author needs to correct P2-1. Git metadata is read-only in this environment, so the review record and this entry need publication from a writable session.
+
+### Traps and gotchas
+
+- The metadata tip `9c13790` changes only the handoff. The effective head remains `83c17f7` (D-610).
+- `git fetch` could not write `.git/FETCH_HEAD`. The GitHub API also failed during the required complete comment export.
+- `deck-test/` and `screen-scale-probe/` remain untracked and outside the PR.
+- Session 90 moved to the archive to keep ten entries in this file (D-18).
+- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 101.
+
+### The questions that block progress
+
+None. The open item is P2-1, which requires a correction to the sequence.
+
+### The next concrete action
+
+Correct the Phase 1 sequence, publish the review record and this entry, then ask Codex to review the corrected effective head.
+
 ## Session 99: 2026-09-18, Claude Code
 
 Author: Claude Code
@@ -349,86 +431,3 @@ None for PR #23. The finding is fixed, and the review gate waits for the publish
 ### The next concrete action
 
 The owner can merge PR #23. The review applies to effective head `70df5ef`.
-
-## Session 91: 2026-09-17, Claude Code
-
-Author: Claude Code
-Session: the answer to the review of PR #23, in the same session as Session 89 (D-582). Repository: the-thing-below. Branch: `feat/pr-46-det-lint`. PR: #23. Role: author. Base: `0fbecab`.
-
-### What this session did, and why
-
-- The review of `f5eba68` gives the verdict `Changes required` with one finding, P2-1.
-- The finding: DL 9 read the value of a scene property as `[^"]*`, which stops at the first quote. Godot writes a quote inside a string value as `\"`, so a line such as `text = "Say \"hello\""` matched no part of the pattern, and the rule read no property.
-- The claim reproduces. The probe gave `0 finding(s)` and an exit code of 0 on the old code.
-- The finding has full merit. A player string with a quote in a scene file is a supported case of D-499 and G-7.
-- The correction: the value part of the pattern is now `(?:[^"\\]|\\.)*`, which reads an escaped character as one unit. One line of `TheThingBelow.Tools/DetLint/SceneTextRule.cs` changes.
-- One regression test, `ATextValueWithAnEscapedQuoteFails`. It fails on the old code with 186 tests and passes on the new code with 187.
-- The probe of the reviewer now gives one DL 9 finding, and the command exits 1.
-- `docs/reviews/pr-23-response.md` holds the disposition and the evidence.
-
-### The state of the build
-
-- `main` is `0fbecab`. The head before this round is `44f99a8`, and the PR is #23.
-- `make verify` passes: the build with 0 warnings, 187 tests, the format check, `det-lint` with 0 findings, `ste-check` with 0 findings, and the smoke session.
-- On `70df5ef`, every CI check passes except `review-gate`: three build legs, three smoke legs, the changed paths job, the coverage report, `ste-check`, `det-lint`, and the Gitar check. RG 4 fails, because the record still gives the verdict `Changes required`.
-
-### What is in flight
-
-The repeat review of Codex at the effective head `70df5ef`. The Gitar pass of that head gives the verdict `Approved` with no finding and no open thread.
-
-### Traps and gotchas
-
-- The correction moves the effective head, so the review of `f5eba68` no longer covers the head. The repeat review reads the new head (D-603).
-- RG 4 stays red until the record of the repeat review gives `Ready for owner merge`.
-- A scene file has no comment syntax, so the pattern of DL 9 reads a whole line and needs no comment rule.
-- `deck-test/` stays untracked, as it was before this session.
-- Gitar deleted the dashboard comment of the first pass and posted a new one with the id 5721871935. The summary of the new pass repeats the words of the first one, and its three times prove that the pass is current.
-- The push wait and each poll of Gitar run in the background, and never in the foreground.
-- The next ids are D-616, OQ-183, F-66, L-16, G-27, PR-85, M-8, and Session 92.
-
-### The questions that block progress
-
-None for this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
-
-### The next concrete action
-
-The repeat review of Codex at the effective head `70df5ef`. The record at `docs/reviews/pr-23.md` sets P2-1 to closed and gives a verdict for that head, and RG 4 passes with it.
-
-## Session 90: 2026-09-17, Codex
-
-Author: Codex
-Session: review PR #23, roadmap PR-46, the `det-lint` command. Repository: the-thing-below. Branch: `feat/pr-46-det-lint`. Role: reviewer. Base: `0fbecab`.
-
-### What this session did, and why
-
-- Reviewed the complete change from effective head `f5eba68` against section 7.7 of the phase roadmap and the affected contracts.
-- Confirmed that Claude Code authored the change and Codex meets the opposite-provider gate (T-4, D-17).
-- Found P2-1: DL 9 misses a scene text value when the value contains an escaped quote. The probe exited 0 with no finding, against D-499 and G-7.
-- Corrected the stale PR description snapshot. It now names head `764390c` and the checks that GitHub reports.
-- Wrote `docs/reviews/pr-23.md` with verdict `Changes required` for `f5eba68`.
-
-### The state of the build
-
-- `main` is `0fbecab`. The PR head is `764390c`, and its effective head is `f5eba68` (D-610).
-- `make verify` passes locally: build, 186 tests, format, `det-lint`, `ste-check`, and smoke.
-- GitHub checks pass on `764390c` except `review-gate`, which fails RG 3 because the review record was absent before this commit.
-- The review record, handoff entry, and archived Session 80 were published as `b63cfb0`. GitHub confirms that head. All checks pass except `review-gate`, which fails RG 4 because the verdict is `Changes required`.
-- This follow-up metadata commit records the publication verification. The effective head stays `f5eba68` (D-610).
-
-### What is in flight
-
-The author needs to correct P2-1 and add a regression test. The reviewer then repeats the review of PR #23.
-
-### Traps and gotchas
-
-- The scene pattern in `SceneTextRule` stops at a quote even when a backslash escapes it. A scene value with an escaped quote bypasses DL 9.
-- Gitar approved the effective head but reported no rule coverage and no functional validation. The review checked those claims against the diff and local gates.
-- `deck-test/` remains untracked and untouched.
-
-### The questions that block progress
-
-No owner question blocks progress. P2-1 needs the author's correction.
-
-### The next concrete action
-
-The author corrects P2-1 on PR #23. Codex reviews the correction against its new effective head.

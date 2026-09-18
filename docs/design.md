@@ -367,19 +367,19 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 8. PR-85: the result of the Deck test, the removal of the CRT, and two tests before PR-34 (D-616).
 9. Owner and a session: the screen scale probe on three screens, right after PR-85 (D-621, D-625).
 10. PR-86: the answers of the probe, and the close of OQ-183 (D-626 to D-640).
-10. Owner: require the checks on `main` (OQ-3).
-11. PR-46: `det-lint`, before the first Core code (D-496, D-498).
-12. PR-4: integer math, the random streams, the state hash, the simulation version, and the `replay-identity` job (D-169, D-504).
-13. PR-5: the content reader, the content ids, the content hash, the string table, and the content embed (D-116, D-495, D-508).
-14. PR-6: the tick, the intents, the run record, replay, and the debug seam (D-164, D-260, D-493).
-15. PR-43: the Storage project, the snapshot versions and migrations, and the save files (D-491, D-494).
-16. PR-44: the crash files and the log files (D-170, D-179, D-491).
-17. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).
-18. Owner and a session: the Sprite Fusion test of the art, before PR-34 (D-620).
-19. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517).
-20. M-1: the harness usage of each of the first ten code PRs in the order of section 8.
-21. M-2: the CI wall time of each job of the first ten code PRs in the order of section 8.
-22. **← GATE 1 (foundation).**
+11. Owner: require the checks on `main` (OQ-3).
+12. PR-46: `det-lint`, before the first Core code (D-496, D-498).
+13. PR-4: integer math, the random streams, the state hash, the simulation version, and the `replay-identity` job (D-169, D-504).
+14. PR-5: the content reader, the content ids, the content hash, the string table, and the content embed (D-116, D-495, D-508).
+15. PR-6: the tick, the intents, the run record, replay, and the debug seam (D-164, D-260, D-493).
+16. PR-43: the Storage project, the snapshot versions and migrations, and the save files (D-491, D-494).
+17. PR-44: the crash files and the log files (D-170, D-179, D-491).
+18. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).
+19. Owner and a session: the Sprite Fusion test of the art, before PR-34 (D-620).
+20. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517).
+21. M-1: the harness usage of each of the first ten code PRs in the order of section 8.
+22. M-2: the CI wall time of each job of the first ten code PRs in the order of section 8.
+23. **← GATE 1 (foundation).**
 
 > *In plain English:* this phase builds the machinery and the checks, and nothing that a player can see. At the end of it, four computers play the same run and agree on one number.
 
