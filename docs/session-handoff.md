@@ -2,6 +2,46 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 108: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-5, content, the content hash, and the string table. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. Role: author. Base: `efd6a53`.
+
+### What this session did, and why
+
+- Asked the owner OQ-63 and OQ-179 first, and wrote no code before the answers (D-19, D-24).
+- D-646 sets the content id as a kind, a dot, and a name. D-647 sets a hand reader and the reflection switch.
+- Two more questions came from the work. D-648 draws the hash line at `content/rules/`, and D-649 ships one fixture rule record.
+- Wrote the strict reader on `Utf8JsonReader`, the SHA-256 of D-644, the content hash, the string table, and the embed.
+- Added the `content-hash` command of Tools, the committed hash file, and a step of the `replay-identity` job.
+
+### The state of the build
+
+- `main` is `efd6a53`, and the PR tip is `55eb083`. No PR exists on GitHub yet.
+- `make verify` passes: the build with 0 warnings, 401 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
+- The smoke session reads 4 content files from the Game assembly and gives the same hash as the folder.
+- `SimulationVersion.Current` is 2, and the `state-hash` run of the identity file moved with it (G-17).
+
+### What is in flight
+
+The push, the Gitar pass, and the review of Codex. This PR changes code, so the `review-override` label does not apply (D-401).
+
+### Traps and gotchas
+
+- The reflection switch reaches every program of the solution, and it broke 27 review-gate tests (F-78). The fixture now writes its file with `Utf8JsonWriter`.
+- A project reference from Tests to Game breaks the det-lint fixtures (F-79). The embedded-content test loads the built Game assembly instead.
+- `CLAUDE.md` and `AGENTS.md` sit at 16375 bytes, against a limit of 16384. A new line needs a trim first.
+- A change of a rule file needs `content-hash --root . --write` and a review of the new value.
+- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 109.
+
+### The questions that block progress
+
+None. D-646 to D-649 answer each question of section 7.12.
+
+### The next concrete action
+
+Push the branch, open the PR, and answer the Gitar pass.
+
 ## Session 107: 2026-09-18, Codex
 
 Author: Codex
@@ -404,42 +444,3 @@ None. OQ-183 closed with D-633 and D-639, which unblocks PR-7, PR-34, and PR-61.
 ### The next concrete action
 
 Push the branch, open the PR, answer the Gitar pass, and hand the PR to Codex for the review.
-
-## Session 98: 2026-09-18, Codex
-
-Author: Codex
-Session: repeat review of PR #24 at effective head `5f5129a`. Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. Role: reviewer. Base: `2874b70`.
-
-### What this session did, and why
-
-- Rechecked P2-1 against its original trigger and regression check.
-- Verified the author revised D-139, D-161, D-172, D-214, D-520, and D-526.
-- Verified the effects roadmap no longer schedules PR-37 or describes the CRT pass.
-- Set P2-1 and P2-2 to fixed in the review record. The verdict is ready for owner merge.
-
-### The state of the build
-
-- `main` and the merge base are `2874b70`. Effective head: `5f5129a`. The review record was published at `6826312`.
-- The author reports `make verify` passed with 187 tests. The local repeat-review build produced no output for 7:41 and was stopped.
-- The changed-path and `ste-check` jobs pass. Docs-only build, test, format, coverage, lint, and smoke jobs skip under D-600.
-- The current Gitar pass approves `5f5129a`, with one closed finding and no open finding. The live inline-comment query returned zero.
-- `deck-test/` remains untracked and untouched.
-
-### What is in flight
-
-The review record and this handoff are published. CI and `review-gate` pass on `6826312`.
-
-### Traps and gotchas
-
-- The metadata commit does not move the effective head (D-610).
-- D-618 retires the CRT pass and PR-37. D-619 keeps two transition names only.
-- A later metadata commit must retain the current verdict and head for `review-gate` (D-610).
-- The next ids are D-626, OQ-184, F-68, L-16, G-28, M-9, and Session 99.
-
-### The questions that block progress
-
-None for PR #24. OQ-183 blocks PR-7 and PR-34.
-
-### The next concrete action
-
-The owner can merge PR #24 after reading the current review verdict.

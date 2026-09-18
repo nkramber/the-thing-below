@@ -1,5 +1,44 @@
 # Session handoff archive
 
+## Session 98: 2026-09-18, Codex
+
+Author: Codex
+Session: repeat review of PR #24 at effective head `5f5129a`. Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. Role: reviewer. Base: `2874b70`.
+
+### What this session did, and why
+
+- Rechecked P2-1 against its original trigger and regression check.
+- Verified the author revised D-139, D-161, D-172, D-214, D-520, and D-526.
+- Verified the effects roadmap no longer schedules PR-37 or describes the CRT pass.
+- Set P2-1 and P2-2 to fixed in the review record. The verdict is ready for owner merge.
+
+### The state of the build
+
+- `main` and the merge base are `2874b70`. Effective head: `5f5129a`. The review record was published at `6826312`.
+- The author reports `make verify` passed with 187 tests. The local repeat-review build produced no output for 7:41 and was stopped.
+- The changed-path and `ste-check` jobs pass. Docs-only build, test, format, coverage, lint, and smoke jobs skip under D-600.
+- The current Gitar pass approves `5f5129a`, with one closed finding and no open finding. The live inline-comment query returned zero.
+- `deck-test/` remains untracked and untouched.
+
+### What is in flight
+
+The review record and this handoff are published. CI and `review-gate` pass on `6826312`.
+
+### Traps and gotchas
+
+- The metadata commit does not move the effective head (D-610).
+- D-618 retires the CRT pass and PR-37. D-619 keeps two transition names only.
+- A later metadata commit must retain the current verdict and head for `review-gate` (D-610).
+- The next ids are D-626, OQ-184, F-68, L-16, G-28, M-9, and Session 99.
+
+### The questions that block progress
+
+None for PR #24. OQ-183 blocks PR-7 and PR-34.
+
+### The next concrete action
+
+The owner can merge PR #24 after reading the current review verdict.
+
 ## Session 96: 2026-09-18, Codex
 
 Author: Codex
