@@ -19,14 +19,22 @@ Session: the answers of the screen scale probe. Repository: the-thing-below. Bra
 
 ### The state of the build
 
-- `main` is `b3ec2b4`. The PR head is `5ccbaa2`, and the handoff commit follows it.
+- `main` is `b3ec2b4`. PR #25 is open, and the effective head is `83c17f7`.
 - The spike branch `spike/screen-scale-probe` is at `f314243`, and it never merges (D-597, D-621).
 - `make verify` passed: the build with 0 warnings, 187 tests, the format check, `det-lint`, `ste-check`, and the smoke session.
-- `ste-check` gives 0 findings, so each new id resolves.
+- The `ste-check`, `changed paths`, and `Gitar` checks pass. The docs-only jobs skip under D-600.
+- `review-gate` gives one fault, RG 3, because the head holds no record at `docs/reviews/pr-25.md`. The Codex review clears it.
 
 ### What is in flight
 
-The push, the Gitar pass, and the Codex review. This PR changes decision rows, so the `review-override` label does not apply (D-401, D-609).
+The Codex review. This PR changes decision rows, so the `review-override` label does not apply (D-401, D-609).
+
+The Gitar pass approves the effective head `83c17f7`, with 2 closed findings and none open.
+
+- The push of `83c17f7` was at 06:46:44Z, and the Gitar check on it started at 06:47:16Z.
+- Gitar replaced the dashboard comment, and the new id `5726292453` has the edit time 06:47:54Z.
+- Each time is later than the one before it, so the pass covers the effective head (D-603).
+- Both review threads are resolved, and Gitar resolved each one itself.
 
 ### Traps and gotchas
 
