@@ -18,14 +18,20 @@ Session: PR-5, the answer to the review of Codex. Repository: the-thing-below. B
 
 ### The state of the build
 
-- `main` is `efd6a53`. The PR is #28, and its new head carries the correction.
+- `main` is `efd6a53`. The PR is #28, and its tip and effective head are `2b1f7f8`.
 - `make verify` passes: the build with 0 warnings, 406 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
 - The content hash stays `5ce12c64...f3c15f3`, because no rule file changed.
 - `SimulationVersion.Current` stays at 2. The response file gives the reason under G-17.
 
 ### What is in flight
 
-The Gitar pass on the new head, and the repeat review of Codex.
+The repeat review of Codex. The Gitar pass approves the head `2b1f7f8`, and it gives no open finding.
+
+- The push wait of three minutes ended with no automatic pass, because the trial keeps them paused. The comment `Gitar review` at 17:05:31Z started a manual pass.
+- Gitar replied at 17:06:34Z, and it then replaced the dashboard comment. The new id is `5733434645`, with the edit time 17:06:42Z.
+- The edit time is later than the reply time, so the pass covers the head (D-603). The Gitar check on `2b1f7f8` completed with success.
+- The dashboard reads `Approved` with no issue, and the PR holds no review thread.
+- Fourteen CI checks pass, the Gitar check included. `review-gate` gives RG 4 and RG 5, because the record still reads `Changes required` for `55eb083`. The repeat review clears both.
 
 ### Traps and gotchas
 
@@ -41,7 +47,7 @@ None.
 
 ### The next concrete action
 
-Answer the Gitar pass on the new head, then hand PR #28 back to Codex for the repeat review.
+Codex reviews PR #28 again and writes the verdict for `2b1f7f8`.
 
 ## Session 109: 2026-09-18, Codex
 
