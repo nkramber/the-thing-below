@@ -17,8 +17,15 @@ public sealed class ProbeOptions
     /// <summary>The distance from the eye to the screen in centimeters.</summary>
     public double? DistanceCm { get; private set; }
 
-    /// <summary>True keeps the window at 1280 by 720, for a check on a machine of the author.</summary>
-    public bool Windowed { get; private set; }
+    /// <summary>
+    /// The size of the window, for a check on a machine of the author. With none, the probe goes
+    /// to full screen. The flag --windowed alone gives 1280 by 720, and --windowed=1920x1080
+    /// gives a window that stands for a screen of that size.
+    /// </summary>
+    public Vector2I? WindowedSize { get; private set; }
+
+    /// <summary>The fit mode that the run starts with.</summary>
+    public FitMode StartFit { get; private set; } = FitMode.Fill;
 
     /// <summary>A path for one PNG of the frame. The probe saves it with a report, and then stops.</summary>
     public string? ShotPath { get; private set; }
@@ -60,7 +67,12 @@ public sealed class ProbeOptions
                     options.ShotPath = RequireText(name, value);
                     break;
                 case "--windowed":
-                    options.Windowed = true;
+                    options.WindowedSize = value.Length == 0
+                        ? new Vector2I(ScreenFacts.FrameWidth, ScreenFacts.FrameHeight)
+                        : RequireSize(name, value);
+                    break;
+                case "--fit":
+                    options.StartFit = RequireFit(name, value);
                     break;
                 default:
                     unknown.Add(arg);
@@ -100,6 +112,32 @@ public sealed class ProbeOptions
         }
 
         return number;
+    }
+
+    private static FitMode RequireFit(string name, string value)
+    {
+        string text = RequireText(name, value);
+        return text switch
+        {
+            "whole" => FitMode.Whole,
+            "fill" => FitMode.Fill,
+            _ => throw new ArgumentException($"the flag {name} needs whole or fill, and it got \"{text}\""),
+        };
+    }
+
+    private static Vector2I RequireSize(string name, string value)
+    {
+        string[] parts = value.Split('x', 2);
+        if (parts.Length != 2
+            || !int.TryParse(parts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out int width)
+            || !int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int height)
+            || width <= 0
+            || height <= 0)
+        {
+            throw new ArgumentException($"the flag {name} needs a size such as {name}=1920x1080, and it got \"{value}\"");
+        }
+
+        return new Vector2I(width, height);
     }
 
     private static int RequireState(string name, string value)

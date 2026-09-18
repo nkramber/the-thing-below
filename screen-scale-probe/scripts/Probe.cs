@@ -6,24 +6,36 @@ using Godot;
 namespace ScreenScaleProbe;
 
 /// <summary>
-/// The screen scale probe of D-621. It draws one mock frame of 1280 by 720 at four scale states,
-/// it measures the apparent size of a sprite and of a line of body text, and it writes a report.
+/// The screen scale probe of D-621. It draws one mock frame of 1280 by 720 at four scale states
+/// and in two fit modes, it measures the apparent size of a sprite and of a line of body text,
+/// and it writes a report.
 /// </summary>
+/// <remarks>
+/// The frame goes into a viewport of 1280 by 720, at one viewport pixel for each frame pixel. A
+/// second viewport holds that picture at a whole-number scale, with the Nearest filter. The two
+/// viewports are the two steps of D-573, and the presenter draws the second one to the screen.
+/// </remarks>
 public sealed partial class Probe : Node2D
 {
     private const string Root = "res://";
     private const int ChromePadding = 6;
 
     /// <summary>The width of the chrome panel in characters of the body font.</summary>
-    private const int ChromeColumns = 58;
+    private const int ChromeColumns = 62;
+
+    /// <summary>The count of squares across the native pixel check of the chrome panel.</summary>
+    private const int CheckSquares = 16;
 
     private ProbeOptions _options = null!;
-    private MockFrame _frame = null!;
     private FontFile _body = null!;
-    private ImageTexture _pixelCheck = null!;
     private ScreenFacts _facts = null!;
+    private SubViewport _frameView = null!;
+    private SubViewport _stepView = null!;
+    private TextureRect _stepRect = null!;
+    private FrameDrawer _drawer = null!;
     private Vector2I _lastWindow;
     private int _state;
+    private FitMode _fit;
     private bool _chrome = true;
     private string? _worldPick;
     private string? _uiPick;
@@ -37,10 +49,11 @@ public sealed partial class Probe : Node2D
         try
         {
             _options = ProbeOptions.Parse(OS.GetCmdlineUserArgs());
-            _frame = MockFrame.Bake(Root);
+            MockFrame frame = MockFrame.Bake(Root);
             _body = LoadBody($"{Root}fonts/TerminusTTF.ttf");
-            _pixelCheck = MakePixelCheck();
             _state = _options.StartState - 1;
+            _fit = _options.StartFit;
+            BuildViewports(frame);
             ApplyWindowMode();
             Refresh();
         }
@@ -49,7 +62,8 @@ public sealed partial class Probe : Node2D
             _stopped = true;
             GD.PushError(error.Message);
             GD.PrintErr($"the probe stopped: {error.Message}");
-            GD.PrintErr("flags: --screen=name --diagonal=inches --distance=cm [--windowed] [--state=1..4]");
+            GD.PrintErr("flags: --screen=name --diagonal=inches --distance=cm"
+                + " [--windowed[=WxH]] [--state=1..4] [--fit=whole|fill]");
             GetTree().Quit(1);
             return;
         }
@@ -107,6 +121,7 @@ public sealed partial class Probe : Node2D
         Key.Left => ProbeCommand.StateBefore,
         Key.W => ProbeCommand.WorldPick,
         Key.U => ProbeCommand.UiPick,
+        Key.F => ProbeCommand.NextFitMode,
         Key.H => ProbeCommand.HidePanel,
         Key.R => ProbeCommand.Report,
         Key.Escape or Key.Q => ProbeCommand.ReportAndQuit,
@@ -119,6 +134,7 @@ public sealed partial class Probe : Node2D
         JoyButton.B => ProbeCommand.StateBefore,
         JoyButton.X => ProbeCommand.WorldPick,
         JoyButton.Y => ProbeCommand.UiPick,
+        JoyButton.RightShoulder => ProbeCommand.NextFitMode,
         JoyButton.Back => ProbeCommand.HidePanel,
         JoyButton.Start => ProbeCommand.ReportAndQuit,
         _ => ProbeCommand.None,
@@ -134,13 +150,18 @@ public sealed partial class Probe : Node2D
             case ProbeCommand.StateBefore:
                 Step(-1);
                 break;
+            case ProbeCommand.NextFitMode:
+                _fit = _fit == FitMode.Whole ? FitMode.Fill : FitMode.Whole;
+                _message = $"the fit mode is {FitName(_fit)}";
+                Present();
+                break;
             case ProbeCommand.WorldPick:
-                _worldPick = Current().Name;
+                _worldPick = PickName();
                 _message = $"the world pick is {_worldPick}";
                 QueueRedraw();
                 break;
             case ProbeCommand.UiPick:
-                _uiPick = Current().Name;
+                _uiPick = PickName();
                 _message = $"the UI pick is {_uiPick}";
                 QueueRedraw();
                 break;
@@ -169,16 +190,45 @@ public sealed partial class Probe : Node2D
             return;
         }
 
-        ScaleState state = Current();
-        Rect2I frame = _facts.FrameRect();
         DrawRect(new Rect2(Vector2.Zero, _facts.WindowPixels), Colors.Black);
-        DrawWorld(frame, state);
-        Rect2I partyRow = DrawPartyRow(frame, state);
-        DrawDialogue(frame, state);
+        Rect2 frame = _facts.FrameRect(_fit);
+        Texture2D picture = _fit == FitMode.Whole ? _frameView.GetTexture() : _stepView.GetTexture();
+        DrawTextureRect(picture, frame, false);
         if (_chrome)
         {
-            DrawChrome(partyRow, state);
+            DrawChrome(frame);
         }
+    }
+
+    private void BuildViewports(MockFrame frame)
+    {
+        _frameView = new SubViewport
+        {
+            Size = new Vector2I(ScreenFacts.FrameWidth, ScreenFacts.FrameHeight),
+            RenderTargetUpdateMode = SubViewport.UpdateMode.Always,
+            Disable3D = true,
+        };
+        _drawer = new FrameDrawer();
+        _frameView.AddChild(_drawer);
+        AddChild(_frameView);
+        _drawer.Configure(frame, _body);
+
+        // The second viewport is the first step of D-573: a whole-number scale with Nearest.
+        _stepView = new SubViewport
+        {
+            Size = new Vector2I(ScreenFacts.FrameWidth, ScreenFacts.FrameHeight),
+            RenderTargetUpdateMode = SubViewport.UpdateMode.Always,
+            Disable3D = true,
+        };
+        _stepRect = new TextureRect
+        {
+            Texture = _frameView.GetTexture(),
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.Scale,
+            TextureFilter = TextureFilterEnum.Nearest,
+        };
+        _stepView.AddChild(_stepRect);
+        AddChild(_stepView);
     }
 
     private static FontFile LoadBody(string path)
@@ -197,37 +247,27 @@ public sealed partial class Probe : Node2D
         return font;
     }
 
-    private static ImageTexture MakePixelCheck()
-    {
-        const int size = 32;
-        Image image = Image.CreateEmpty(size, size, false, Image.Format.Rgba8);
-        for (int y = 0; y < size; y++)
-        {
-            for (int x = 0; x < size; x++)
-            {
-                image.SetPixel(x, y, (x + y) % 2 == 0 ? Colors.White : Colors.Black);
-            }
-        }
-
-        return ImageTexture.CreateFromImage(image);
-    }
-
     private ScaleState Current() => ScaleState.All[_state];
+
+    private static string FitName(FitMode mode) => mode == FitMode.Whole ? "whole" : "fill";
+
+    private string PickName() => $"{Current().Name}, fit mode {FitName(_fit)}";
 
     private void Step(int direction)
     {
         int count = ScaleState.All.Length;
         _state = ((_state + direction) % count + count) % count;
         _message = string.Empty;
+        _drawer.Show(Current());
         QueueRedraw();
     }
 
     private void ApplyWindowMode()
     {
-        if (_options.Windowed)
+        if (_options.WindowedSize is Vector2I size)
         {
             DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
-            DisplayServer.WindowSetSize(new Vector2I(ScreenFacts.FrameWidth, ScreenFacts.FrameHeight));
+            DisplayServer.WindowSetSize(size);
             return;
         }
 
@@ -238,84 +278,49 @@ public sealed partial class Probe : Node2D
     {
         _lastWindow = DisplayServer.WindowGetSize();
         _facts = ScreenFacts.Measure(_options);
+        _drawer.Show(Current());
+        Present();
+    }
+
+    /// <summary>Sizes the step viewport for this screen, and sets the filter of the last step.</summary>
+    private void Present()
+    {
+        var size = new Vector2I(
+            ScreenFacts.FrameWidth * _facts.NearestSteps,
+            ScreenFacts.FrameHeight * _facts.NearestSteps);
+        _stepView.Size = size;
+        _stepRect.Size = size;
+
+        // The last step of D-573 is a linear scale down. A whole-number fit needs no scale at all,
+        // and the Nearest filter then keeps every pixel edge hard.
+        TextureFilter = _fit == FitMode.Fill && !_facts.FitIsWhole
+            ? TextureFilterEnum.Linear
+            : TextureFilterEnum.Nearest;
         QueueRedraw();
     }
 
-    private void DrawWorld(Rect2I frame, ScaleState state)
+    private void DrawChrome(Rect2 frame)
     {
-        Rect2I region = _frame.VisibleRegion(state);
-        DrawTextureRectRegion(_frame.World, frame, region);
-    }
-
-    private Rect2I DrawPartyRow(Rect2I frame, ScaleState state)
-    {
-        int unit = _facts.Fit * state.Ui;
-        int fontSize = ScreenFacts.FontPixels * unit;
-        float width = _body.GetStringSize(ProbeText.PartyRow, HorizontalAlignment.Left, -1, fontSize).X;
-        var box = new Rect2I(
-            frame.Position + new Vector2I(8 * unit, 8 * unit),
-            new Vector2I((int)width + (8 * unit), ScreenFacts.FontPixels * unit + (6 * unit)));
-        DrawPanel(box, unit);
-        DrawLine(box.Position + new Vector2I(4 * unit, 3 * unit), ProbeText.PartyRow, fontSize, Colors.White);
-        return box;
-    }
-
-    private void DrawDialogue(Rect2I frame, ScaleState state)
-    {
-        int unit = _facts.Fit * state.Ui;
-        int fontSize = ScreenFacts.FontPixels * unit;
-        int line = ScreenFacts.FontPixels * unit;
-        int gap = 4 * unit;
-        int rows = ProbeText.Dialogue.Length + 1;
-        int height = (rows * line) + ((rows - 1) * gap) + (12 * unit);
-        var box = new Rect2I(
-            new Vector2I(frame.Position.X + (8 * unit), frame.End.Y - (8 * unit) - height),
-            new Vector2I(frame.Size.X - (16 * unit), height));
-        DrawPanel(box, unit);
-
-        var pen = box.Position + new Vector2I(6 * unit, 6 * unit);
-        DrawLine(pen, ProbeText.Speaker, fontSize, new Color("e6c85a"));
-        pen.Y += line + gap;
-        foreach (string text in ProbeText.Dialogue)
-        {
-            DrawLine(pen, text, fontSize, Colors.White);
-            pen.Y += line + gap;
-        }
-    }
-
-    private void DrawPanel(Rect2I box, int unit)
-    {
-        DrawRect(box, new Color("1a1823"));
-        DrawRect(box, new Color("d6d0d8"), false, unit);
-    }
-
-    private void DrawLine(Vector2I topLeft, string text, int fontSize, Color color)
-    {
-        float baseline = _body.GetAscent(fontSize);
-        DrawString(_body, new Vector2(topLeft.X, topLeft.Y + baseline), text,
-            HorizontalAlignment.Left, -1, fontSize, color);
-    }
-
-    private void DrawChrome(Rect2I partyRow, ScaleState state)
-    {
-        int unit = _facts.Fit;
+        int unit = _facts.WholeFit;
         int fontSize = ScreenFacts.FontPixels * unit;
         int line = (ScreenFacts.FontPixels + 4) * unit;
-        List<string> rows = Wrap(ChromeRows(state), ChromeColumns);
+        List<string> rows = Wrap(ChromeRows(), ChromeColumns);
         int pad = ChromePadding * unit;
         int rulerHeight = _facts.MmPerPixel is null ? 0 : 26 * unit;
-        int checkHeight = Math.Max(_pixelCheck.GetHeight(), ScreenFacts.FontPixels * unit) + (6 * unit);
+        int checkHeight = (CheckSquares * unit) + (6 * unit);
+        int band = (int)(FrameDrawer.PartyRowBand(Current()) * _facts.Scale(_fit));
         var box = new Rect2I(
-            new Vector2I(partyRow.Position.X, partyRow.End.Y + (8 * unit)),
+            new Vector2I((int)frame.Position.X + (8 * unit), (int)frame.Position.Y + band + (8 * unit)),
             new Vector2I((ChromeColumns * fontSize / 2) + (pad * 2),
                 (rows.Count * line) + (pad * 2) + rulerHeight + checkHeight));
-        DrawPanel(box, unit);
+        DrawRect(box, new Color("1a1823"));
+        DrawRect(box, new Color("d6d0d8"), false, unit);
 
         var pen = box.Position + new Vector2I(pad, pad);
         foreach (string row in rows)
         {
             Color color = row.StartsWith("note", StringComparison.Ordinal) ? new Color("e8734f") : Colors.White;
-            DrawLine(pen, row, fontSize, color);
+            DrawText(pen, row, fontSize, color);
             pen.Y += line;
         }
 
@@ -325,8 +330,8 @@ public sealed partial class Probe : Node2D
             pen.Y += rulerHeight;
         }
 
-        DrawTextureRect(_pixelCheck, new Rect2(pen.X, pen.Y, _pixelCheck.GetWidth(), _pixelCheck.GetHeight()), false);
-        DrawLine(new Vector2I(pen.X + _pixelCheck.GetWidth() + (6 * unit), pen.Y),
+        DrawPixelCheck(pen, unit);
+        DrawText(new Vector2I(pen.X + (CheckSquares * unit) + (6 * unit), pen.Y),
             "one device pixel each", fontSize, Colors.White);
     }
 
@@ -355,20 +360,26 @@ public sealed partial class Probe : Node2D
         return wrapped;
     }
 
-    private List<string> ChromeRows(ScaleState state)
+    private List<string> ChromeRows()
     {
-        double? spriteMm = _facts.SpriteMm(state);
-        double? glyphMm = _facts.GlyphMm(state);
+        ScaleState state = Current();
+        double? spriteMm = _facts.SpriteMm(state, _fit);
+        double? glyphMm = _facts.GlyphMm(state, _fit);
         var rows = new List<string>
         {
             $"STATE {_state + 1} of {ScaleState.All.Length}: {state.Name}",
-            $"screen {_facts.ScreenPixels.X}x{_facts.ScreenPixels.Y}  window {_facts.WindowPixels.X}x{_facts.WindowPixels.Y}  fit {_facts.Fit}x",
-            $"tiles {Format(ScreenFacts.TilesAcross(state), "0.##")} x {Format(ScreenFacts.TilesDown(state), "0.##")}  device px per art px: world {_facts.Fit * state.World}, UI {_facts.Fit * state.Ui}",
+            $"FIT MODE {FitName(_fit)}: the frame draws at {Format(_facts.Scale(_fit), "0.###")}x"
+                + $"  (whole {_facts.WholeFit}x, D-573 {Format(_facts.FitFactor, "0.###")}x)",
+            $"screen {_facts.ScreenPixels.X}x{_facts.ScreenPixels.Y}"
+                + $"  window {_facts.WindowPixels.X}x{_facts.WindowPixels.Y}",
+            $"tiles {Format(ScreenFacts.TilesAcross(state), "0.##")} x {Format(ScreenFacts.TilesDown(state), "0.##")}"
+                + $"  device px per art px: world {Format(_facts.Scale(_fit) * state.World, "0.##")},"
+                + $" UI {Format(_facts.Scale(_fit) * state.Ui, "0.##")}",
             $"sprite of 32 px: {Millimeters(spriteMm)}, {Arcminutes(spriteMm)}",
             $"body line of 16 px: {Millimeters(glyphMm)}, {Arcminutes(glyphMm)}",
-            $"the dialogue box holds {DialogueColumns(state)} characters in one line",
+            $"the dialogue box holds {ScreenFacts.DialogueColumns(state)} characters in one line",
             $"picks: world {_worldPick ?? "none"}, UI {_uiPick ?? "none"}",
-            "A or space: next | X or W: world | Y or U: UI",
+            "A or space: next | X or W: world | Y or U: UI | R1 or F: fit mode",
             "View or H: hide | R: report | Menu or Esc: report and quit",
         };
 
@@ -385,12 +396,26 @@ public sealed partial class Probe : Node2D
         return rows;
     }
 
-    /// <summary>The count of characters that one line of the dialogue box holds at a UI scale.</summary>
-    private int DialogueColumns(ScaleState state)
+    private void DrawText(Vector2I topLeft, string text, int fontSize, Color color)
     {
-        int unit = _facts.Fit * state.Ui;
-        int advance = ScreenFacts.FontPixels * unit / 2;
-        return (_facts.FrameRect().Size.X - (28 * unit)) / advance;
+        float baseline = _body.GetAscent(fontSize);
+        DrawString(_body, new Vector2(topLeft.X, topLeft.Y + baseline), text,
+            HorizontalAlignment.Left, -1, fontSize, color);
+    }
+
+    /// <summary>Draws a checkerboard of one device pixel for each square, with no texture.</summary>
+    private void DrawPixelCheck(Vector2I topLeft, int unit)
+    {
+        for (int y = 0; y < CheckSquares * unit; y++)
+        {
+            for (int x = 0; x < CheckSquares * unit; x++)
+            {
+                if ((x + y) % 2 == 0)
+                {
+                    DrawRect(new Rect2I(topLeft.X + x, topLeft.Y + y, 1, 1), Colors.White);
+                }
+            }
+        }
     }
 
     private void DrawRuler(Vector2I topLeft, double millimetersForOnePixel, int unit, int fontSize)
@@ -407,7 +432,7 @@ public sealed partial class Probe : Node2D
             DrawRect(new Rect2I(x, barY - height, unit, height), Colors.White);
         }
 
-        DrawLine(new Vector2I(topLeft.X, barY + (2 * unit)), $"{millimeters} mm on the glass", fontSize, Colors.White);
+        DrawText(new Vector2I(topLeft.X, barY + (2 * unit)), $"{millimeters} mm on the glass", fontSize, Colors.White);
     }
 
     /// <summary>The longest ruler of 100, 50, or 20 millimeters that fits the chrome panel.</summary>

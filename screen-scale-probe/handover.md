@@ -64,6 +64,31 @@ Each screen takes the world at 2x. The Deck takes the UI at 2x, and each desktop
 the UI at 1x. The apparent size of a sprite goes from 61 to 171 arcminutes across the three
 screens. One tile count for every screen gives that spread, and D-37 asks for it.
 
+## The 1080p run of 2026-09-18
+
+The first analysis of the nine answers found a conflict. Answer 2 gives the UI a floor of 2
+device pixels for each art pixel. Answer 3 gives the UI 1x above a fit of 1x. A 1920 by 1080
+screen takes a fit of 1.5x, so answer 3 gives 1.5 device pixels there, under the floor of
+answer 2. D-568 makes that screen a screen which must look good.
+
+The owner asked for a measurement of the 1080p screen. The probe of the first build gave no
+such measurement. It computed the fit with integer division, so it drew a 1080p screen at 1x
+with wide bars. The fit of D-573 never reached the glass.
+
+This session added the two fit modes above, and it proved them in a window of 1920 by 1080 on
+the Mac. Mode fill takes the frame through the two steps of D-573. The owner then runs the new
+Windows build on the 1080p screen, and the pick of that run closes the last part of OQ-183.
+
+| Fit mode | Fit | A body line at UI 1x | A body line at UI 2x |
+|---|---|---|---|
+| whole | 1x | 2.20 mm, 10.8' | 4.39 mm, 21.6' |
+| fill | 1.5x | 3.29 mm, 16.2' | 6.59 mm, 32.3' |
+
+The table holds the numbers of the check run, on a 23.8-inch 4K screen. A real 23.8-inch 1080p
+screen has a device pixel two times as wide, so it doubles each millimeter and each arcminute.
+There a body line at UI 1x gives 6.59 mm and 32.3 arcminutes, inside the band of the three
+picks. A body line at UI 2x gives 13.17 mm and 64.7 arcminutes, far above that band.
+
 ## The state of the probe
 
 - The project builds with no warning, and the two exports carry the managed assembly.
@@ -75,6 +100,9 @@ screens. One tile count for every screen gives that spread, and D-37 asks for it
 - A run of an exported build proved the flags, the packed files, and the report of an export.
 - `export_presets.cfg` also holds a macOS preset, which serves as a fallback for the Mac.
 - The owner ran the probe on all three screens on 2026-09-18, and the picks are above.
+- The two fit modes came later on 2026-09-18, and both exports carry them.
+- `build/windows/run-probe-1080p.bat` runs the probe on a 1920 by 1080 screen.
+- The two exports and the Mac run all carry the same code.
 
 ## What the probe already shows
 

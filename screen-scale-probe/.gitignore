@@ -5,3 +5,4 @@ reports/
 build/*
 !build/run-probe-deck.sh
 !build/run-probe-windows.bat
+!build/run-probe-1080p.bat

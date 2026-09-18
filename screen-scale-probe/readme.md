@@ -29,6 +29,22 @@ OQ-183 asks two questions.
 | 3 | 2x | 1x | 20 by 11.25 |
 | 4 | 1x | 2x | 40 by 22.5 |
 
+## The two fit modes
+
+A second key changes the fit mode. The mode sets how the frame goes on the screen.
+
+| Mode | What it draws |
+|---|---|
+| whole | The largest whole-number fit, centered, with black bars around it (D-568) |
+| fill | The fit of D-573: a whole-number scale up with Nearest, then a scale down with linear |
+
+On a screen whose fit is a whole number, the two modes draw the same picture. The Deck, a 1440p
+screen, and a 4K screen each take a whole-number fit. A 1920 by 1080 screen takes a fit of 1.5x.
+There mode whole holds the frame at 1x with wide bars, and mode fill fills the screen.
+
+The probe starts in mode fill. The panel names the mode, the whole-number fit, and the fit of
+D-573, and the report holds a state table for each mode.
+
 ## The keys
 
 | Key | Button of the pad | What it does |
@@ -37,6 +53,7 @@ OQ-183 asks two questions.
 | The left arrow | B | The state before |
 | W | X | Marks the current world scale as the pick of the owner |
 | U | Y | Marks the current UI scale as the pick of the owner |
+| F | R1 | The next fit mode, whole or fill |
 | H | View | Hides the panel of the probe, or shows it again |
 | R | none | Writes the report now |
 | Escape, or Q | Menu | Writes the report and stops |
@@ -49,6 +66,10 @@ of the probe names the two forms of each command.
 The probe needs three flags. They are the name of the screen, the diagonal of the screen in
 inches, and the distance from the eye to the screen in centimeters. A run script holds these
 numbers for each machine. With no diagonal, the report gives no size in millimeters (T-2).
+
+Two more flags help a check on the machine of the author. The flag `--fit=whole` or `--fit=fill`
+sets the mode of the first frame. The flag `--windowed=1920x1080` makes a window of that size,
+which proves the code of a fractional fit on a screen of another size.
 
 ### The Steam Deck
 
@@ -64,6 +85,14 @@ numbers for each machine. With no diagonal, the report gives no size in millimet
 1. Copy `build/windows/ScreenScaleProbe.exe` and `build/run-probe-windows.bat` to one folder.
 2. Read the two numbers at the top of the batch file, and correct them for the screen.
 3. Run the batch file. The first argument sets the distance, and the default is 70 cm.
+
+### The Windows machine with a 1920 by 1080 screen
+
+1. Copy `build/windows/ScreenScaleProbe.exe` and `build/run-probe-1080p.bat` to one folder.
+2. Correct the diagonal in the batch file, or give it as the second argument.
+3. Run the batch file. The probe starts in mode fill, at a fit of 1.5x.
+4. Press F or the right shoulder button, and compare mode fill with mode whole.
+5. Mark the UI pick in the mode that the game will draw, which is mode fill.
 
 ### The Mac with the 27-inch 4K screen
 
@@ -95,8 +124,16 @@ another (T-2).
   reports that the frame does not fill the screen, and exit test 4 fails for that run.
 - The frame fits a 16:9 screen at a whole number: 3x at 3840 by 2160, and 2x at 2560 by 1440.
   The Deck gets 1x with a bar of 40 pixels above and below (D-568).
+- A 1920 by 1080 screen takes a fit of 1.5x, which is not a whole number. Mode fill draws it.
 - The probe needs the owner at three machines. It cannot finish without that.
 - The spike keeps its own props file, so it takes no rule of the solution of the game.
 - An export drops each file that Godot does not import. Each preset holds an include filter for
   the `.grid` files and for `probe.map`. Without it, an exported build stops at the first
   absent file, and a run of the editor does not show the fault.
+
+These two traps come with the fit modes:
+
+- The ruler bar and the pixel check draw on the panel, in device pixels, outside the frame
+  viewport. Thus the fit of the frame never changes their size on the glass.
+- A windowed run reads the diagonal of the whole screen, and not of the window. Thus the
+  millimeters of such a run belong to that screen, and they stand for no other screen.

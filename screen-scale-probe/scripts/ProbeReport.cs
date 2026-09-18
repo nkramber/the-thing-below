@@ -61,27 +61,28 @@ public static class ProbeReport
         text.AppendLine($"| Screen scale of the system | {Number(facts.OsScale)} |");
         text.AppendLine($"| Diagonal | {Inches(options.DiagonalInches)} |");
         text.AppendLine($"| Distance | {Centimeters(options.DistanceCm)} |");
-        text.AppendLine($"| Fit of the frame | {facts.Fit}x |");
+        text.AppendLine($"| Fit of the frame, whole number (D-568) | {facts.WholeFit}x |");
+        text.AppendLine($"| Fit of the frame, D-573 | {Number(facts.FitFactor)}x |");
+        text.AppendLine($"| Whole-number step of D-573 | {facts.NearestSteps}x |");
         text.AppendLine($"| Millimeters for each device pixel | {Millimeters(facts.MmPerPixel, 4)} |");
         text.AppendLine();
-        text.AppendLine("## The four states");
-        text.AppendLine();
-        text.AppendLine("| State | Tiles across | Device pixels for one art pixel of the world | Sprite of 32 pixels | Apparent sprite | Line of body text | Apparent line |");
-        text.AppendLine("|---|---|---|---|---|---|---|");
-        foreach (ScaleState state in ScaleState.All)
+
+        if (facts.FitIsWhole)
         {
-            double? spriteMm = facts.SpriteMm(state);
-            double? glyphMm = facts.GlyphMm(state);
-            text.Append($"| {state.Name} ");
-            text.Append($"| {ScreenFacts.TilesAcross(state).ToString("0.##", CultureInfo.InvariantCulture)} ");
-            text.Append($"| {facts.Fit * state.World} ");
-            text.Append($"| {Millimeters(spriteMm, 2)} ");
-            text.Append($"| {Arcminutes(spriteMm, options.DistanceCm)} ");
-            text.Append($"| {Millimeters(glyphMm, 2)} ");
-            text.AppendLine($"| {Arcminutes(glyphMm, options.DistanceCm)} |");
+            text.AppendLine("The fit of this screen is a whole number, so the two fit modes draw the same picture.");
+            text.AppendLine();
+            AppendStates(text, options, facts, FitMode.Whole, "The four states");
+        }
+        else
+        {
+            text.AppendLine("The fit of this screen is fractional, so the two fit modes draw two pictures. "
+                + "Mode whole holds the frame at the whole number below the fit, with wide black bars. "
+                + "Mode fill takes the two steps of D-573.");
+            text.AppendLine();
+            AppendStates(text, options, facts, FitMode.Whole, "The four states in mode whole");
+            AppendStates(text, options, facts, FitMode.Fill, "The four states in mode fill");
         }
 
-        text.AppendLine();
         text.AppendLine("## The pick of the owner");
         text.AppendLine();
         text.AppendLine($"- The scale of the world: {worldPick ?? "no pick in this run"}");
@@ -104,7 +105,34 @@ public static class ProbeReport
         return text.ToString();
     }
 
-    private static string Number(float value) => value.ToString("0.##", CultureInfo.InvariantCulture);
+    private static void AppendStates(
+        StringBuilder text, ProbeOptions options, ScreenFacts facts, FitMode mode, string heading)
+    {
+        text.AppendLine($"## {heading}");
+        text.AppendLine();
+        text.AppendLine("| State | Tiles across | Device pixels for one art pixel of the world "
+            + "| Device pixels for one art pixel of the UI | Sprite of 32 pixels | Apparent sprite "
+            + "| Line of body text | Apparent line | Characters in a dialogue line |");
+        text.AppendLine("|---|---|---|---|---|---|---|---|---|");
+        foreach (ScaleState state in ScaleState.All)
+        {
+            double? spriteMm = facts.SpriteMm(state, mode);
+            double? glyphMm = facts.GlyphMm(state, mode);
+            text.Append($"| {state.Name} ");
+            text.Append($"| {ScreenFacts.TilesAcross(state).ToString("0.##", CultureInfo.InvariantCulture)} ");
+            text.Append($"| {Number(facts.Scale(mode) * state.World)} ");
+            text.Append($"| {Number(facts.Scale(mode) * state.Ui)} ");
+            text.Append($"| {Millimeters(spriteMm, 2)} ");
+            text.Append($"| {Arcminutes(spriteMm, options.DistanceCm)} ");
+            text.Append($"| {Millimeters(glyphMm, 2)} ");
+            text.Append($"| {Arcminutes(glyphMm, options.DistanceCm)} ");
+            text.AppendLine($"| {ScreenFacts.DialogueColumns(state)} |");
+        }
+
+        text.AppendLine();
+    }
+
+    private static string Number(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 
     private static string Inches(double? value) =>
         value is double number ? $"{number.ToString("0.##", CultureInfo.InvariantCulture)} inches" : "absent";

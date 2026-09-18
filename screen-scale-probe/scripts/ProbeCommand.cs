@@ -18,6 +18,9 @@ public enum ProbeCommand
     /// <summary>Marks the UI scale of the current state as the pick of the owner.</summary>
     UiPick,
 
+    /// <summary>Changes the fit mode between whole and fill.</summary>
+    NextFitMode,
+
     /// <summary>Hides the panel of the probe, or shows it again.</summary>
     HidePanel,
 
