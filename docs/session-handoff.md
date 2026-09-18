@@ -17,7 +17,7 @@ Session: review of PR #24 at effective head `7426dc9`. Repository: the-thing-bel
 
 ### The state of the build
 
-- `main` and the merge base are `2874b70`. Effective head: `7426dc9`. Remote metadata tip: `3cfd975`.
+- `main` and the merge base are `2874b70`. Effective head: `7426dc9`. Remote metadata tip at verification: `a20b9c4`.
 - `ste-check` passes with 0 findings. `make verify` stopped at a build with no diagnostic output, so its result is inconclusive.
 - CI skips build, test, format, coverage, lint, and smoke for this documentation-only PR under D-600.
 - The current Gitar pass approves `7426dc9`, with one closed finding and no open finding. No inline thread is open.
