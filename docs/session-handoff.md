@@ -2,6 +2,46 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 96: 2026-09-18, Codex
+
+Author: Codex
+Session: review of PR #24 at effective head `7426dc9`. Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. Role: reviewer. Base: `2874b70`.
+
+### What this session did, and why
+
+- Reviewed the full 17-path documentation diff and the current Gitar pass.
+- Found that D-618 retired the CRT, but the effects roadmap still named PR-37 and described the old-monitor pass.
+- Found remaining CRT references in D-172, D-214, and `area-effects.md`.
+- Found a separate failure in the PR description: its Documents lines do not use the required forms of D-581.
+- The review record gives the verdict and evidence for this head.
+
+### The state of the build
+
+- `main` and the merge base are `2874b70`. Effective head: `7426dc9`. Remote tip before this review commit: `eb7567a`.
+- `ste-check` passes with 0 findings. `make verify` stopped at a build with no diagnostic output, so its result is inconclusive.
+- CI skips build, test, format, coverage, lint, and smoke for this documentation-only PR under D-600.
+- The current Gitar pass approves `7426dc9`, with one closed finding and no open finding. No inline thread is open.
+- `deck-test/` remains untracked and untouched.
+
+### What is in flight
+
+The review record and this handoff need a commit and push. The review requires changes to the PR description before the owner can merge.
+
+### Traps and gotchas
+
+- The review commit changes only metadata paths, so the effective head remains `7426dc9` (D-610).
+- The Gitar summary repeats older decision ids, but the push, request, reply, and dashboard times prove the pass covers this head (D-603).
+- D-618 supersedes the CRT parts of D-88, D-105, D-120, and D-240; D-619 retains two transition names only.
+- The next ids are D-626, OQ-184, F-68, L-16, G-28, M-9, and Session 97.
+
+### The questions that block progress
+
+None for PR #24. OQ-183 blocks PR-7 and PR-34.
+
+### The next concrete action
+
+Publish the review record and handoff, correct verified stale PR description facts, and verify the remote head.
+
 ## Session 95: 2026-09-18, Claude Code
 
 Author: Claude Code
@@ -379,46 +419,3 @@ None for this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
 ### The next concrete action
 
 Codex reviews PR #22 at the effective head `1f07b6b`, and writes `docs/reviews/pr-22.md`.
-
-## Session 86: 2026-09-17, Claude Code
-
-Author: Claude Code
-Session: PR-84, the context budget check in the `ste-check` command.
-Repository: the-thing-below. Branch: `feat/pr-84-context-budget`. PR: #22. Role: author. Base: `9787b2d`.
-
-### What this session did, and why
-
-- Added `TheThingBelow.Tools/SteCheck/SizeRules.cs`, the size rules of the context budget (D-583, D-611). It holds the three limits in one place, and the `ste-check` command runs it after the session number check.
-- SIZE 1 reads `CLAUDE.md` and `AGENTS.md` at 16 KB. D-20 keeps the two files identical, and D-583 names each one in the start set.
-- SIZE 2 reads the top handoff entry at 5 KB, from its heading to the heading of the next entry. An older entry takes no limit (D-584).
-- SIZE 3 reads every `.md` file of `.claude/skills/` at 36 KB.
-- The count reads the lines of a file, and each line ending counts as one byte. Thus every CI leg reads the same number, whatever the line ending of the checkout.
-- `CLAUDE.md` held 17015 bytes, 631 above the limit. The session trimmed 783 bytes from each instructions file: stale sentences that name PR-1, PR-2, and PR-3 as the creator of a check that exists now, and prose that the `ste-writing` and `gitar-review` skills already hold. No rule left the file.
-- The owner answered the headroom question. D-613 keeps the file at 16232 bytes, refuses a move of the command list to a runbook, and asks each later PR to find its own bytes.
-- Added 12 tests. They cover the five exit tests of section 7.6 of `docs/roadmaps/phase-1-foundations.md`.
-
-### The state of the build
-
-- `main` is `9787b2d`, which merged PR #21. The branch is `feat/pr-84-context-budget`, and the PR is #22. The first head is `5a8bae7`.
-- `make verify` passes: the build, 135 tests, the format check, the STE check with 0 findings, and the smoke session.
-- `CLAUDE.md` and `AGENTS.md` hold 16232 bytes each. The largest skill file is `.claude/skills/pr-review/SKILL.md` at 19216 bytes.
-
-### What is in flight
-
-The Gitar pass on `5a8bae7`, the CI checks, and the Codex review.
-
-### Traps and gotchas
-
-- This PR is the first live run of the `review-gate` check (F-37, D-500). PR-3 could not run it. A failure of that check needs a read of the workflow, not a change to the command.
-- `CLAUDE.md` holds 152 free bytes. A later PR that adds a rule first removes the bytes that it needs (D-613).
-- The size rules need `CLAUDE.md`, `AGENTS.md`, the handoff, and one skill file. `SteCheckCheckout.Build` writes each one, so a new fixture checkout gets them.
-- This PR adds a decision row, so the `review-override` label does not apply (D-401, D-609). It goes to Codex.
-- The next ids are D-614, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 87.
-
-### The questions that block progress
-
-None for this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
-
-### The next concrete action
-
-Commit the work, push, then get the Gitar pass on the head.
