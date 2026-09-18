@@ -23,10 +23,19 @@ Session: the first round of PR-82. Repository: the-thing-below. Branch: `feat/pr
 - The smoke session prints `smoke: the renderer is mobile`, which is exit test 2 of section 7.3 of the phase file.
 - The two new tests fail on the setting of PR-1, which is the regression check of T-3.
 - The Godot editor build ran on the new setting, and it wrote no change into the project file.
+- PR #26 holds this work, and its head is `2419ce4`.
+- The 12 CI checks pass on `2419ce4`: the three build legs, the three smoke legs, `changed paths`, `ste-check`, `det-lint`, the coverage report, and the Gitar check.
+- `review-gate` gives one fault, RG 3: the head holds no review record at `docs/reviews/pr-26.md`. The review of Codex clears it.
 
 ### What is in flight
 
-The push of this branch, the PR, and the Gitar pass.
+The review of Codex. The Gitar pass approves the head `2419ce4`, and it gives no finding.
+
+- The push of `2419ce4` was at 07:47:30Z, and the dashboard comment `5726936964` has the edit time 07:49:12Z.
+- The edit time is later than the push time, so the pass covers the head (D-603).
+- The Gitar check passed in 1 minute and 9 seconds, and the summary names this diff.
+- The thread list of the pull request is empty, so no comment waits for an answer.
+- The dashboard carries the pause note of the Gitar trial beside the approval.
 
 ### Traps and gotchas
 
@@ -34,6 +43,7 @@ The push of this branch, the PR, and the Gitar pass.
 - HDR 2D works under Mobile, so the glow of D-188 stays live (D-188, D-616).
 - The screen tests of CI keep the Compatibility renderer, whatever this PR sets (D-172).
 - This PR changes code, so the label of D-401 does not apply, and Codex reviews it.
+- The first `review-gate` run gave RG 7 too, because the `docs/reviews/` line of the PR took no form of D-581. A correction of the PR description cleared it.
 - The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 104.
 
 ### The questions that block progress
@@ -42,7 +52,7 @@ None. The Deck test answered D-160, and D-616 holds the pick.
 
 ### The next concrete action
 
-Push the branch, open the PR, and answer the Gitar pass.
+Hand PR #26 to Codex for the review of T-4. This PR changes code, so the label of D-401 does not apply.
 
 ## Session 102: 2026-09-18, Codex
 
