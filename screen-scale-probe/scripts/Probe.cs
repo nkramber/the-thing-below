@@ -82,42 +82,80 @@ public sealed partial class Probe : Node2D
     /// <inheritdoc/>
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (_stopped || @event is not InputEventKey key || !key.Pressed || key.Echo)
+        if (_stopped)
         {
             return;
         }
 
-        switch (key.Keycode)
+        // The Deck in desktop mode has no keyboard, so the buttons of the pad do the same work.
+        switch (@event)
         {
-            case Key.Space:
-            case Key.Right:
+            case InputEventKey key when key.Pressed && !key.Echo:
+                ReadCommand(KeyCommand(key.Keycode));
+                break;
+            case InputEventJoypadButton button when button.Pressed:
+                ReadCommand(ButtonCommand(button.ButtonIndex));
+                break;
+            default:
+                break;
+        }
+    }
+
+    private static ProbeCommand KeyCommand(Key code) => code switch
+    {
+        Key.Space or Key.Right => ProbeCommand.NextState,
+        Key.Left => ProbeCommand.StateBefore,
+        Key.W => ProbeCommand.WorldPick,
+        Key.U => ProbeCommand.UiPick,
+        Key.H => ProbeCommand.HidePanel,
+        Key.R => ProbeCommand.Report,
+        Key.Escape or Key.Q => ProbeCommand.ReportAndQuit,
+        _ => ProbeCommand.None,
+    };
+
+    private static ProbeCommand ButtonCommand(JoyButton button) => button switch
+    {
+        JoyButton.A => ProbeCommand.NextState,
+        JoyButton.B => ProbeCommand.StateBefore,
+        JoyButton.X => ProbeCommand.WorldPick,
+        JoyButton.Y => ProbeCommand.UiPick,
+        JoyButton.Back => ProbeCommand.HidePanel,
+        JoyButton.Start => ProbeCommand.ReportAndQuit,
+        _ => ProbeCommand.None,
+    };
+
+    private void ReadCommand(ProbeCommand command)
+    {
+        switch (command)
+        {
+            case ProbeCommand.NextState:
                 Step(1);
                 break;
-            case Key.Left:
+            case ProbeCommand.StateBefore:
                 Step(-1);
                 break;
-            case Key.W:
+            case ProbeCommand.WorldPick:
                 _worldPick = Current().Name;
                 _message = $"the world pick is {_worldPick}";
                 QueueRedraw();
                 break;
-            case Key.U:
+            case ProbeCommand.UiPick:
                 _uiPick = Current().Name;
                 _message = $"the UI pick is {_uiPick}";
                 QueueRedraw();
                 break;
-            case Key.H:
+            case ProbeCommand.HidePanel:
                 _chrome = !_chrome;
                 QueueRedraw();
                 break;
-            case Key.R:
+            case ProbeCommand.Report:
                 WriteReport();
                 break;
-            case Key.Escape:
-            case Key.Q:
+            case ProbeCommand.ReportAndQuit:
                 WriteReport();
                 GetTree().Quit();
                 break;
+            case ProbeCommand.None:
             default:
                 break;
         }
@@ -330,7 +368,8 @@ public sealed partial class Probe : Node2D
             $"body line of 16 px: {Millimeters(glyphMm)}, {Arcminutes(glyphMm)}",
             $"the dialogue box holds {DialogueColumns(state)} characters in one line",
             $"picks: world {_worldPick ?? "none"}, UI {_uiPick ?? "none"}",
-            "space next | W world | U UI | H hide | R report | Esc quit",
+            "A or space: next | X or W: world | Y or U: UI",
+            "View or H: hide | R: report | Menu or Esc: report and quit",
         };
 
         if (_message.Length > 0)

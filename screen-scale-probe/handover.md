@@ -72,6 +72,8 @@ Each finding needs a row in section 5 of `docs/design.md`, from the next free F-
 17. The export of the game meets the same rule, because `content/` holds text grids (D-107, D-116).
 18. The macOS export needs the universal binary format, and the ETC2 ASTC import setting.
 19. A run of the editor did not show finding 13, and a run of the export showed it at once.
+20. The Deck in desktop mode has no keyboard, and the probe needs six commands.
+21. Thus each command takes a button of the pad as well: A, B, X, Y, View, and Menu.
 
 ## The handoff entry of this session
 

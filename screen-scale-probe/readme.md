@@ -31,15 +31,18 @@ OQ-183 asks two questions.
 
 ## The keys
 
-| Key | What it does |
-|---|---|
-| Space, or the right arrow | The next state |
-| The left arrow | The state before |
-| W | Marks the current world scale as the pick of the owner |
-| U | Marks the current UI scale as the pick of the owner |
-| H | Hides the panel of the probe, or shows it again |
-| R | Writes the report now |
-| Escape, or Q | Writes the report and stops |
+| Key | Button of the pad | What it does |
+|---|---|---|
+| Space, or the right arrow | A | The next state |
+| The left arrow | B | The state before |
+| W | X | Marks the current world scale as the pick of the owner |
+| U | Y | Marks the current UI scale as the pick of the owner |
+| H | View | Hides the panel of the probe, or shows it again |
+| R | none | Writes the report now |
+| Escape, or Q | Menu | Writes the report and stops |
+
+The Deck in desktop mode has no keyboard, so each command takes a button of the pad. The panel
+of the probe names the two forms of each command.
 
 ## How to run it
 
@@ -51,8 +54,10 @@ numbers for each machine. With no diagonal, the report gives no size in millimet
 
 1. Copy `build/ScreenScaleProbe.x86_64` and `build/run-probe-deck.sh` to one folder on the Deck.
 2. Start the Deck in desktop mode, and open a terminal in that folder.
-3. Run `./run-probe-deck.sh`. The first argument sets the distance, and the default is 45 cm.
-4. The script reads the model of the Deck, and it sets the diagonal from that model.
+3. Run `chmod +x run-probe-deck.sh`, because a copy through a USB stick loses the mode.
+4. Run `./run-probe-deck.sh`. The first argument sets the distance, and the default is 45 cm.
+5. The script reads the model of the Deck, and it sets the diagonal from that model.
+6. Read the frame with the buttons of the pad, and press Menu at the end.
 
 ### The Windows machine with the 32-inch 1440p screen
 
