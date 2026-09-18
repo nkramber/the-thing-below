@@ -65,6 +65,7 @@ numbers for each machine. With no diagonal, the report gives no size in millimet
 1. Run `./run-probe-mac.sh` from this folder. It starts the installed editor at full screen.
 2. The first argument sets the distance, and the default is 70 cm.
 3. The editor and an export draw the same pixels, so this run gives the same measurement.
+4. `export_presets.cfg` also holds a macOS preset, for a machine with no editor.
 
 ## How to read the frame
 
@@ -91,3 +92,6 @@ another (T-2).
   The Deck gets 1x with a bar of 40 pixels above and below (D-568).
 - The probe needs the owner at three machines. It cannot finish without that.
 - The spike keeps its own props file, so it takes no rule of the solution of the game.
+- An export drops each file that Godot does not import. Each preset holds an include filter for
+  the `.grid` files and for `probe.map`. Without it, an exported build stops at the first
+  absent file, and a run of the editor does not show the fault.

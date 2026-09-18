@@ -387,20 +387,38 @@ public sealed partial class Probe : Node2D
 
     private void WriteReport()
     {
-        try
+        string folder = _options.ReportDir ?? $"{OS.GetExecutablePath().GetBaseDir()}/reports";
+        if (TryWriteReport(folder))
         {
-            string folder = _options.ReportDir ?? $"{OS.GetExecutablePath().GetBaseDir()}/reports";
-            string path = ProbeReport.Write(folder, _options, _facts, _worldPick, _uiPick);
-            _message = $"the report is at {path}";
-            GD.Print(_message);
+            return;
         }
-        catch (Exception error)
+
+        // A folder beside the build can refuse a write, such as a folder on a read-only mount.
+        // The fallback keeps the numbers of the run, and the message names the path (T-2).
+        if (!TryWriteReport("user://"))
         {
-            _message = $"the report failed: {error.Message}";
-            GD.PrintErr(_message);
+            GD.PrintErr("the probe wrote no report. Read the numbers from the panel of the frame.");
         }
 
         QueueRedraw();
+    }
+
+    private bool TryWriteReport(string folder)
+    {
+        try
+        {
+            string path = ProbeReport.Write(folder, _options, _facts, _worldPick, _uiPick);
+            _message = $"the report is at {ProjectSettings.GlobalizePath(path)}";
+            GD.Print(_message);
+            QueueRedraw();
+            return true;
+        }
+        catch (Exception error)
+        {
+            _message = $"the report failed at {folder}: {error.Message}";
+            GD.PrintErr(_message);
+            return false;
+        }
     }
 
     private async void SaveShot(string path)
