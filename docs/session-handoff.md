@@ -17,14 +17,22 @@ Session: PR-5, content, the content hash, and the string table. Repository: the-
 
 ### The state of the build
 
-- `main` is `efd6a53`, and the PR tip is `55eb083`. No PR exists on GitHub yet.
+- `main` is `efd6a53`. The PR is #28, and its tip and effective head are `de496df`.
+- Fourteen CI checks pass: the three build legs, the three smoke legs, the three `replay-identity` legs, `changed paths`, `ste-check`, `det-lint`, the coverage report, and the Gitar check.
+- The three `replay-identity` legs also compare the content hash, so the three legs and the Mac give one value.
+- `review-gate` gives one fault, RG 3: the head holds no review record at `docs/reviews/pr-28.md`. The review of Codex clears it.
 - `make verify` passes: the build with 0 warnings, 401 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
 - The smoke session reads 4 content files from the Game assembly and gives the same hash as the folder.
 - `SimulationVersion.Current` is 2, and the `state-hash` run of the identity file moved with it (G-17).
 
 ### What is in flight
 
-The push, the Gitar pass, and the review of Codex. This PR changes code, so the `review-override` label does not apply (D-401).
+The review of Codex. The Gitar pass approves the head `de496df`, and it gives no open finding.
+
+- Automatic reviews stay paused on the Gitar trial, and an automatic pass still ran. The Gitar check started at 16:20:23Z and completed with success.
+- The dashboard comment `5732921703` has the edit time 16:23:31Z, later than the push, so the pass covers the head (D-603).
+- The dashboard reads `Approved`, with no open finding, and the PR holds no review thread.
+- This PR changes code, so the `review-override` label does not apply (D-401).
 
 ### Traps and gotchas
 
@@ -40,7 +48,7 @@ None. D-646 to D-649 answer each question of section 7.12.
 
 ### The next concrete action
 
-Push the branch, open the PR, and answer the Gitar pass.
+Codex reviews PR #28 and writes `docs/reviews/pr-28.md`.
 
 ## Session 107: 2026-09-18, Codex
 
