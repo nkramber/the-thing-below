@@ -2,6 +2,175 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 111: 2026-09-18, Codex
+
+Author: Codex
+Session: repeat review of PR #28, PR-5, content, the content hash, and the string table. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. Role: reviewer. Base: `efd6a53`.
+
+### What this session did, and why
+
+- Re-reviewed the correction to P2-1 at effective head `2b1f7f8`.
+- Confirmed the fixture record owns the `fixture` id kind and the content reader rejects ids of another kind with file and field context (D-646).
+- Re-ran the invalid-id trigger; it exits 1. Confirmed the adjacent valid `label` id case passes.
+- `make verify` passed with 406 tests, 0 build warnings, and 0 errors.
+- Updated `docs/reviews/pr-28.md`; the current verdict is `Ready for owner merge`, and the earlier verdict remains in the history.
+
+### The state of the build
+
+- The merge base is `efd6a53`. The effective head is `2b1f7f8`; the published metadata head is `0f820a5`.
+- Thirteen GitHub checks pass. `review-gate` reports RG 4 and RG 5 because the published review record still has the earlier verdict. The published review clears those conditions.
+- Gitar's current dashboard comment `5733434645` approves the corrected head with no open finding.
+
+### What is in flight
+
+The review record and this handoff entry are published at `0f820a5`. Checks were in progress at the first check snapshot; this follow-up records the publication verification. Refresh the checks and confirm the review gate passes.
+
+### Traps and gotchas
+
+- The effective implementation head remains `2b1f7f8`; the later commit `2e866f6` changes review and handoff metadata (D-610).
+- The old-head regression failures are author-reported in `docs/reviews/pr-28-response.md`; this session independently confirmed the fixed trigger and adjacent valid case.
+- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 112.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Refresh GitHub checks after this metadata update, confirm the review gate passes, then hand the PR to the owner for merge.
+
+## Session 110: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-5, the answer to the review of Codex. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. PR: #28. Role: author. Base: `efd6a53`.
+
+### What this session did, and why
+
+- The review gave one finding, P2-1, and the session read it as a claim.
+- A run of `content-hash --write` over a copy of `content/` with the id `enemy.cave_rat` in a fixture file exited 0, so the finding reproduces and has full merit.
+- D-646 names three tests for this PR, and the PR wrote the form test and the repeated-id test alone. The kind test was absent.
+- Each rule record now owns the kind of its entry ids. `RuleFixture.IdKind` is `fixture`, and `ContentReader.ReadContentId(kind)` refuses another kind.
+- The `label` field keeps the kind-free read, because a string id names where the player reads the text (G-7).
+- Five new tests cover the rule. The three cases of `AnEntryIdOfAnotherKindFails` fail on the old head `55eb083` (T-3).
+
+### The state of the build
+
+- `main` is `efd6a53`. The PR is #28, and its tip and effective head are `2b1f7f8`.
+- `make verify` passes: the build with 0 warnings, 406 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
+- The content hash stays `5ce12c64...f3c15f3`, because no rule file changed.
+- `SimulationVersion.Current` stays at 2. The response file gives the reason under G-17.
+
+### What is in flight
+
+The repeat review of Codex. The Gitar pass approves the head `2b1f7f8`, and it gives no open finding.
+
+- The push wait of three minutes ended with no automatic pass, because the trial keeps them paused. The comment `Gitar review` at 17:05:31Z started a manual pass.
+- Gitar replied at 17:06:34Z, and it then replaced the dashboard comment. The new id is `5733434645`, with the edit time 17:06:42Z.
+- The edit time is later than the reply time, so the pass covers the head (D-603). The Gitar check on `2b1f7f8` completed with success.
+- The dashboard reads `Approved` with no issue, and the PR holds no review thread.
+- Fourteen CI checks pass, the Gitar check included. `review-gate` gives RG 4 and RG 5, because the record still reads `Changes required` for `55eb083`. The repeat review clears both.
+
+### Traps and gotchas
+
+- The kind of an entry id comes from the record, not from the path. The folder name is plural, so a path gives no kind.
+- A test holds the `label` field open to another kind, so a later change cannot make the two fields one case by accident.
+- A run of the new tests against the old head needs the constant written out as a literal, because `RuleFixture.IdKind` does not exist there.
+- `CLAUDE.md` and `AGENTS.md` sit at 16375 bytes, against a limit of 16384. A new line needs a trim first.
+- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 111.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Codex reviews PR #28 again and writes the verdict for `2b1f7f8`.
+
+## Session 109: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #28, PR-5, content, the content hash, and the string table. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. Role: reviewer. Base: `efd6a53`.
+
+### What this session did, and why
+
+- Reviewed all 52 changed paths from the merge base to implementation head `55eb083`.
+- Found that Core accepts an id whose kind does not agree with the rule file (D-646).
+- Verified the trigger in a disposable checkout: `enemy.cave_rat` in `rules/fixtures/tools.json` passed the content-hash command.
+- Wrote `docs/reviews/pr-28.md` with verdict `Changes required` for `55eb083`.
+
+### The state of the build
+
+- `main` and the merge base are `efd6a53`. PR #28 has metadata tip `ad0bdd3` and effective head `55eb083` (D-610).
+- `make verify` passes: 401 tests, format, `det-lint`, `ste-check`, replay identity, content hash, and Godot smoke.
+- Thirteen remote checks pass on tip `ad0bdd3`. `review-gate` reports only RG 4 because the verdict is `Changes required`.
+- Gitar approves the effective head, with no open finding. Its dashboard update is later than the implementation push.
+
+### What is in flight
+
+The review record and this handoff entry are published at `ad0bdd3`. The author must correct P2-1 before merge. Codex then repeats the review on the corrected head.
+
+### Traps and gotchas
+
+- Session 108 named `de496df` as the effective head. The only changes after implementation commit `55eb083` are handoff metadata, so D-610 leaves `55eb083` as the effective head.
+- The disposable kind-mismatch probe changed no repository file.
+- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 110.
+
+### The questions that block progress
+
+None. OQ-63, OQ-179, OQ-184, and OQ-185 close with D-646 to D-649.
+
+### The next concrete action
+
+The author corrects P2-1, then asks Codex to repeat the review.
+
+## Session 108: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-5, content, the content hash, and the string table. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. Role: author. Base: `efd6a53`.
+
+### What this session did, and why
+
+- Asked the owner OQ-63 and OQ-179 first, and wrote no code before the answers (D-19, D-24).
+- D-646 sets the content id as a kind, a dot, and a name. D-647 sets a hand reader and the reflection switch.
+- Two more questions came from the work. D-648 draws the hash line at `content/rules/`, and D-649 ships one fixture rule record.
+- Wrote the strict reader on `Utf8JsonReader`, the SHA-256 of D-644, the content hash, the string table, and the embed.
+- Added the `content-hash` command of Tools, the committed hash file, and a step of the `replay-identity` job.
+
+### The state of the build
+
+- `main` is `efd6a53`. The PR is #28, and its tip and effective head are `de496df`.
+- Fourteen CI checks pass: the three build legs, the three smoke legs, the three `replay-identity` legs, `changed paths`, `ste-check`, `det-lint`, the coverage report, and the Gitar check.
+- The three `replay-identity` legs also compare the content hash, so the three legs and the Mac give one value.
+- `review-gate` gives one fault, RG 3: the head holds no review record at `docs/reviews/pr-28.md`. The review of Codex clears it.
+- `make verify` passes: the build with 0 warnings, 401 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
+- The smoke session reads 4 content files from the Game assembly and gives the same hash as the folder.
+- `SimulationVersion.Current` is 2, and the `state-hash` run of the identity file moved with it (G-17).
+
+### What is in flight
+
+The review of Codex. The Gitar pass approves the head `de496df`, and it gives no open finding.
+
+- Automatic reviews stay paused on the Gitar trial, and an automatic pass still ran. The Gitar check started at 16:20:23Z and completed with success.
+- The dashboard comment `5732921703` has the edit time 16:23:31Z, later than the push, so the pass covers the head (D-603).
+- The dashboard reads `Approved`, with no open finding, and the PR holds no review thread.
+- This PR changes code, so the `review-override` label does not apply (D-401).
+
+### Traps and gotchas
+
+- The reflection switch reaches every program of the solution, and it broke 27 review-gate tests (F-78). The fixture now writes its file with `Utf8JsonWriter`.
+- A project reference from Tests to Game breaks the det-lint fixtures (F-79). The embedded-content test loads the built Game assembly instead.
+- `CLAUDE.md` and `AGENTS.md` sit at 16375 bytes, against a limit of 16384. A new line needs a trim first.
+- A change of a rule file needs `content-hash --root . --write` and a review of the new value.
+- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 109.
+
+### The questions that block progress
+
+None. D-646 to D-649 answer each question of section 7.12.
+
+### The next concrete action
+
+Codex reviews PR #28 and writes `docs/reviews/pr-28.md`.
+
 ## Session 107: 2026-09-18, Codex
 
 Author: Codex
@@ -261,185 +430,3 @@ None. OQ-183 closed with D-633 and D-639.
 ### The next concrete action
 
 The review applies to effective head `ac34b5f`; the owner can merge PR #25.
-
-## Session 101: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: the answer to the review of PR #25, in the same session as Session 99 (D-582). Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: author. Base: `b3ec2b4`.
-
-### What this session did, and why
-
-- The review of `83c17f7` gives `Changes required` with one finding, P2-1.
-- P2-1 has full merit. The PR-86 entry added a line to the Phase 1 sequence and left each later number as it was, so two steps held the number 11.
-- A sweep of every ordered list found the same defect in the Phase 1 list of `docs/design.md`, which the review did not name. Two steps held the number 10 there.
-- The same sweep found two stale references of the insert: the gate line named section 7.19, and section 7.8 named the round as D-626 to D-638.
-- `docs/reviews/pr-25-response.md` holds each disposition, the regression check, and the evidence.
-- This session published the review record and the Session 100 entry, because the review session had a read-only `.git` directory (D-602).
-
-### The state of the build
-
-- `main` and the merge base are `b3ec2b4`. The head before this round was `9c13790`.
-- `make verify` passed: the build with 0 warnings, 187 tests, the format check, `det-lint`, `ste-check`, and the smoke session.
-- The review records `make verify` as a failure at build after 5:00. That result did not reproduce here, and Session 98 recorded the same stop on a repeat review.
-- The ordered-list sweep now prints no duplicate item number in any list.
-
-### What is in flight
-
-The repeat review of Codex at the effective head `ac34b5f`. This round changed two roadmap paths, so it moved the effective head (D-610).
-
-The Gitar pass approves that head, with 2 closed findings and none open.
-
-- No automatic review started on the new head, because the trial of Gitar paused them. The Gitar check was absent, and the dashboard kept the edit time of the head before it.
-- The push was at 07:16:37Z, the request at 07:20:10Z, and the reply `On it` at 07:20:33Z.
-- Gitar replaced the dashboard comment, and the new id `5726614038` has the edit time 07:20:54Z.
-- Each time is later than the one before it, so the pass covers the effective head (D-603).
-- The summary of the pass repeats the words of the pass before it, which a pass with no new finding can do. The three times prove that it is current, so this round asked for no second review.
-- `review-gate` gives two faults, RG 4 and RG 5. The record holds the verdict `Changes required` for the head before this round. The repeat review clears both.
-
-### Traps and gotchas
-
-- A renumber of one ordered list can break a sibling list and a self-reference. The PR-86 insert broke three places, and the review named one. A sweep of every ordered list catches the class, and `ste-check` reads no item number.
-- Gate 1 moved from section 7.19 to section 7.20 when the PR-86 entry took 7.9. A citation of a section number of a phase file needs a check after any insert.
-- The review could not export the PR comments, so it did not read the two inline replies to the Gitar findings. Both threads are resolved.
-- `deck-test/` and `screen-scale-probe/` stay untracked, and the two probe exports stay out of git.
-- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 102.
-
-### The questions that block progress
-
-None. OQ-183 closed with D-633 and D-639.
-
-### The next concrete action
-
-Push the round, answer the Gitar pass on the new head, and ask Codex for the repeat review.
-
-## Session 100: 2026-09-18, Codex
-
-Author: Codex
-Session: review PR #25, roadmap PR-86, the screen scale answers. Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: reviewer. Base: `b3ec2b4`.
-
-### What this session did, and why
-
-- Confirmed that Claude Code authored the PR, so Codex meets the other-provider gate (T-4, D-17).
-- Reviewed the 15-path documentation diff, the PR description, the screen scale decisions, and the PR-86 roadmap entry.
-- Found P2-1: the Phase 1 sequence numbers the owner step and PR-46 as item 11.
-- Wrote `docs/reviews/pr-25.md` with verdict `Changes required` for effective head `83c17f7`.
-
-### The state of the build
-
-- `main` and the merge base are `b3ec2b4`. The PR tip is `9c13790`; its effective head is `83c17f7` (D-610).
-- GitHub reports `changed paths` and `ste-check` as passing. The build, tests, format, coverage, det-lint, and smoke checks skip for this docs-only PR (D-600).
-- `review-gate` fails because the review record is not yet on the branch.
-- `make verify` failed at build after 5:00 with 0 warnings, 0 errors, and no diagnostics. The author reports a successful run in Session 99.
-- `ste-check` passes with 0 findings after the review record and handoff edits.
-- The Gitar dashboard approves `83c17f7` with two closed findings and none open. Its inline replies were not available in this session.
-
-### What is in flight
-
-The author needs to correct P2-1. Git metadata is read-only in this environment, so the review record and this entry need publication from a writable session.
-
-### Traps and gotchas
-
-- The metadata tip `9c13790` changes only the handoff. The effective head remains `83c17f7` (D-610).
-- `git fetch` could not write `.git/FETCH_HEAD`. The GitHub API also failed during the required complete comment export.
-- `deck-test/` and `screen-scale-probe/` remain untracked and outside the PR.
-- Session 90 moved to the archive to keep ten entries in this file (D-18).
-- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 101.
-
-### The questions that block progress
-
-None. The open item is P2-1, which requires a correction to the sequence.
-
-### The next concrete action
-
-Correct the Phase 1 sequence, publish the review record and this entry, then ask Codex to review the corrected effective head.
-
-## Session 99: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: the answers of the screen scale probe. Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: author. Base: `b3ec2b4`.
-
-### What this session did, and why
-
-- Read `screen-scale-probe/handover.md` on the spike branch, which holds the owner answers of the probe.
-- Found that answer 2 and answer 3 of OQ-183 disagree on a 1920 by 1080 screen, which D-568 makes a screen that must look good.
-- Found that the probe computed the fit with integer division, so it could never draw the 1.5x fit of that screen.
-- Patched the spike with two fit modes, and proved both in a window of 1920 by 1080 on the Mac (D-638).
-- The owner then ran the new Windows build on a 27-inch 1080p screen and picked the UI at 2x.
-- Wrote D-626 to D-640, F-68 to F-77, G-28, the M-8 table of four screens, and the close of OQ-183.
-- Applied the answers to nine live documents, four skills, and the PR-86 roadmap entry.
-
-### The state of the build
-
-- `main` is `b3ec2b4`. PR #25 is open, and the effective head is `83c17f7`.
-- The spike branch `spike/screen-scale-probe` is at `f314243`, and it never merges (D-597, D-621).
-- `make verify` passed: the build with 0 warnings, 187 tests, the format check, `det-lint`, `ste-check`, and the smoke session.
-- The `ste-check`, `changed paths`, and `Gitar` checks pass. The docs-only jobs skip under D-600.
-- `review-gate` gives one fault, RG 3, because the head holds no record at `docs/reviews/pr-25.md`. The Codex review clears it.
-
-### What is in flight
-
-The Codex review. This PR changes decision rows, so the `review-override` label does not apply (D-401, D-609).
-
-The Gitar pass approves the effective head `83c17f7`, with 2 closed findings and none open.
-
-- The push of `83c17f7` was at 06:46:44Z, and the Gitar check on it started at 06:47:16Z.
-- Gitar replaced the dashboard comment, and the new id `5726292453` has the edit time 06:47:54Z.
-- Each time is later than the one before it, so the pass covers the effective head (D-603).
-- Both review threads are resolved, and Gitar resolved each one itself.
-
-### Traps and gotchas
-
-- Two claims of the spike handover did not survive the check, and the record now holds the refutation. D-508 refutes the claim that the export of the game needs an include filter, because Game embeds content and each font in its own assembly. The 1080p run moved the UI boundary from a fit of 1x to a fit of 2x.
-- A 27-inch 1080p screen and a 27-inch 4K screen give one line of body text the same apparent size, and the owner picked two different UI values. The count of device pixels sets the value, not the apparent size (F-77). A later session must not read the arcminute numbers of M-8 as the rule.
-- The PR-86 entry moved 11 sections of `docs/roadmaps/phase-1-foundations.md` by one. No document outside this PR cites a section number of that file above 7.8.
-- The option list of OQ-183 still names the frame at 40 by 22.5 tiles. That list records the options of 2026-09-17, and D-633 closed the question.
-- The row of D-599 keeps the bare name `project.godot`, because a decision row is a record of one day (D-637).
-- `deck-test/` and `screen-scale-probe/` stay untracked on this branch. The two probe exports are above 150 MB and stay out of git.
-- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 100.
-
-### The questions that block progress
-
-None. OQ-183 closed with D-633 and D-639, which unblocks PR-7, PR-34, and PR-61.
-
-### The next concrete action
-
-Push the branch, open the PR, answer the Gitar pass, and hand the PR to Codex for the review.
-
-## Session 98: 2026-09-18, Codex
-
-Author: Codex
-Session: repeat review of PR #24 at effective head `5f5129a`. Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. Role: reviewer. Base: `2874b70`.
-
-### What this session did, and why
-
-- Rechecked P2-1 against its original trigger and regression check.
-- Verified the author revised D-139, D-161, D-172, D-214, D-520, and D-526.
-- Verified the effects roadmap no longer schedules PR-37 or describes the CRT pass.
-- Set P2-1 and P2-2 to fixed in the review record. The verdict is ready for owner merge.
-
-### The state of the build
-
-- `main` and the merge base are `2874b70`. Effective head: `5f5129a`. The review record was published at `6826312`.
-- The author reports `make verify` passed with 187 tests. The local repeat-review build produced no output for 7:41 and was stopped.
-- The changed-path and `ste-check` jobs pass. Docs-only build, test, format, coverage, lint, and smoke jobs skip under D-600.
-- The current Gitar pass approves `5f5129a`, with one closed finding and no open finding. The live inline-comment query returned zero.
-- `deck-test/` remains untracked and untouched.
-
-### What is in flight
-
-The review record and this handoff are published. CI and `review-gate` pass on `6826312`.
-
-### Traps and gotchas
-
-- The metadata commit does not move the effective head (D-610).
-- D-618 retires the CRT pass and PR-37. D-619 keeps two transition names only.
-- A later metadata commit must retain the current verdict and head for `review-gate` (D-610).
-- The next ids are D-626, OQ-184, F-68, L-16, G-28, M-9, and Session 99.
-
-### The questions that block progress
-
-None for PR #24. OQ-183 blocks PR-7 and PR-34.
-
-### The next concrete action
-
-The owner can merge PR #24 after reading the current review verdict.

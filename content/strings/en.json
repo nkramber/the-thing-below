@@ -1,0 +1,17 @@
+{
+ "comment": "The English string table (D-167, G-7). Every string the player reads lives here, and no C# file holds one. The entries below are the labels of the fixture rules of PR-5 (D-649).",
+ "strings": [
+  {
+   "id": "label.lamp",
+   "text": "Tin lamp"
+  },
+  {
+   "id": "label.nail",
+   "text": "Bent nail"
+  },
+  {
+   "id": "label.rope",
+   "text": "Wet rope"
+  }
+ ]
+}

@@ -180,6 +180,8 @@ Built by PR-5. Phase files: `phase-1-foundations.md` and `phase-2-first-playable
 - Tools holds the one reader of the `content/` folder, and the tools and Tests use it (D-508, `area-tools.md` section 7.1).
 - A test proves that the embedded resources match the files of `content/` by name and by bytes, on every leg (D-508). A resource name that differs by system fails the test.
 - A read of a resource that the assembly lacks fails with the resource name, because the .NET call returns null for it (T-2).
+- The `replay-identity` job also runs the `content-hash` command on each leg, so the three legs compare one content hash (G-5, D-648).
+- Tests takes no project reference to Game. Such a reference breaks the reference set of the det-lint fixtures, so the embedded-content test loads the built assembly (F-79).
 - The Godot export needs no filter and no copy for content, because it already publishes the Game assembly (F-42).
 - The atlas loads from bytes as an image and a texture, not as an imported texture (D-508). The file `area-art.md` holds the atlas.
 - The build renders each track and each sound effect into the same assembly, and Game makes each stream from those bytes (D-547). The file `area-audio.md` holds the render.

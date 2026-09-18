@@ -1,0 +1,10 @@
+{
+ "comment": "A second fixture rule file of PR-5 (D-649). Two files prove that the repeated-id rule reads the whole rule set, and not one file.",
+ "fixtures": [
+  {
+   "id": "fixture.nail",
+   "label": "label.nail",
+   "weight": 7500
+  }
+ ]
+}

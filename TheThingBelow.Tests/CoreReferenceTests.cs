@@ -27,6 +27,9 @@ public sealed class CoreReferenceTests
             "System.Collections",
             "System.Memory",
             "System.Runtime",
+            // The strict content reader runs on `Utf8JsonReader`, which D-177 picked. It is
+            // a scanner over bytes in memory, and it reads no file and no OS service (G-1).
+            "System.Text.Json",
         };
 
     [Fact]

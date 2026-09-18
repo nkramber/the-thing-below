@@ -1,0 +1,12 @@
+# The content hash of this checkout (G-5, D-495, D-648). Every CI leg computes the
+# hash from the files of `content/rules/` and compares it with the line below. A
+# mismatch fails the build job on that leg.
+#
+# A PR that changes a rule file changes this line too, and the review reads the new
+# value. A file outside `content/rules/` never moves it.
+#
+# Write this file again with:
+#   dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj --
+#     content-hash --root . --write
+
+5ce12c645b6f5150e71d3775ada1c32fdbfca9372f8dac8008a5e1220f3c15f3

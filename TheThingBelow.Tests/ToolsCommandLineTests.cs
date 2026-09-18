@@ -28,6 +28,7 @@ public sealed class ToolsCommandLineTests
         Assert.Contains("review-gate: ready", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("det-lint: ready", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("replay-identity: ready", errors.ToString(), StringComparison.Ordinal);
+        Assert.Contains("content-hash: ready", errors.ToString(), StringComparison.Ordinal);
     }
 
     [Fact]

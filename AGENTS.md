@@ -4,13 +4,13 @@
 
 ## First action
 
-Read the top entry of `docs/session-handoff.md` now, before any other file. It tells you the state of the build, what is in flight, and the next concrete action. Read an older entry only when the top entry points to it, or when a gate needs the entries of the PR (D-584). Then read the rest of this file.
+Read the top entry of `docs/session-handoff.md` now, before any other file. It gives the state of the build, what is in flight, and the next concrete action. Read an older entry only when the top entry points to it, or when a gate needs the entries of the PR (D-584). Then read the rest of this file.
 
 Before any PR work, review work included, load `.claude/skills/one-pr-one-session/SKILL.md`. One session works on one PR, and the PR holds all of its work (D-576, D-577).
 
 ## Read order
 
-The start set is this file, the top handoff entry, and the skills of the task. Read the start set in full. The list below is the index of every document. Read each other document with targeted reads by id or heading, and cite each id that the work touches. `docs/runbooks/session-context.md` gives the commands (D-583).
+The start set is this file, the top handoff entry, and the skills of the task. Read the start set in full. The list below indexes every document. Read each other document with targeted reads by id or heading, and cite each id that the work touches. `docs/runbooks/session-context.md` gives the commands (D-583).
 
 1. `docs/session-handoff.md`: the top entry, the state, and the next action.
 2. This file: the tenets and the rules.
@@ -52,7 +52,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 - Record each answer in `docs/decisions.md` with the next D-# id and the date. Never renumber.
 - Mark a change to an earlier decision in its `Effect` column. Use `Superseded by D-N` when the whole answer changes. Use `Revised in part by D-N` when one part changes, and name the part that changed and the parts that stand.
 - A citation of a superseded decision must name the superseding decision. A decision revised in part stays citable.
-- Save a script of more than 10 lines to a file, and run the file again. Edit a section, not a whole file (D-591).
+- Save a script of more than 10 lines to a file, and run that file. Edit a section, not a whole file (D-591).
 - One session is one harness invocation, bound to one PR (D-576). A session never starts a second PR. No PR exists only to record an earlier PR (D-578).
 
 ## Session handoff
@@ -124,7 +124,7 @@ An automated reviewer, gitar, comments on every PR after a push (D-14). After ea
 - The reviewing provider reads the existing PR comments into its review and never addresses gitar. The `pr-review` skill holds the procedure of the reviewer.
 - Every PR answers the pass, a documentation PR included (D-66). The `review-override` label exempts a documentation PR from the Codex review alone, and only when the PR changes no row of `docs/decisions.md` (D-401).
 - The override set holds `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/`, and `.github/pull_request_template.md` (D-16, D-71, D-239). Every other path takes the review, `.github/workflows/` and `content/` included (D-185, D-560).
-- On a documentation PR that changes no decision row, the session applies the `review-override` label itself, only after the pass approves the head (D-67, D-401). A change to a decision row is a change to a line of a decision table (D-609). A later push needs a new approval before the label applies again. A PR that adds or revises a decision goes to the other provider instead.
+- On a documentation PR that changes no decision row, the session applies the `review-override` label itself, only after the pass approves the head (D-67, D-401). A change to a decision row is a change to a line of a decision table (D-609). A later push needs a new approval before the label applies. A PR that adds or revises a decision goes to the other provider instead.
 - Before you open a documentation PR, ask the owner every open question that the PR can settle (D-68). Ask in batches, and record the answers in the PR.
 
 ## Build and test commands
@@ -142,13 +142,14 @@ The solution and the project names follow D-217. Run each command from the check
 - Determinism and string lint: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- det-lint --root .`
 - Review gate: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- review-gate --pull-request <file> --head-files <folder>`
 - Identity check: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- replay-identity --root .`
+- Content hash: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- content-hash --root .`
 - Godot build check: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --editor --path TheThingBelow.Game --build-solutions --quit`
 - Smoke session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path TheThingBelow.Game -- --smoke`
 - Play session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --path TheThingBelow.Game`
 
-The test command runs in Microsoft.Testing.Platform mode, and every option of the test application comes after `--` (D-592). The coverage command writes a Cobertura file, and the CI job turns it into a Markdown summary (D-593).
+Every option of the test application comes after `--` (D-592). The coverage command writes a Cobertura file, and the CI job makes a Markdown summary (D-593). The content-hash command takes `--write` after an intended change of a rule file (D-648).
 
-The name `Godot` is not on the command path of this machine, so each check needs the full path above. The STE check reads every live document, and it takes no file list (D-608). It also runs the reference check, the session number check, and the size rules of the context budget (D-605, D-607, D-611). The `ste-writing` skill holds each rule and each exempt path. Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585).
+The name `Godot` is not on the command path of this machine, so each check needs the full path above. The STE check reads every live document and takes no file list (D-608). It also runs the reference check, the session number check, and the size rules (D-605, D-607, D-611). The `ste-writing` skill holds each rule and each exempt path. Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585).
 
 ## PR gate
 
@@ -159,7 +160,7 @@ A PR merges only when every line holds:
 - [ ] The build, test, and format job is green on every CI leg (D-2, D-117, D-481).
 - [ ] The `smoke` job is green on every CI leg: the headless Godot session (D-117, D-481).
 - [ ] The `det-lint` job is green: no float, clock, or OS random in `core`, and no inline player string (G-2, G-3, G-7).
-- [ ] The `replay-identity` job is green: the same state hash on every CI leg for the fixed run set (G-5, D-481, D-504).
+- [ ] The `replay-identity` job is green: the same state hash and content hash on every CI leg (G-5, D-481, D-504, D-648).
 - [ ] The `screen-test` job is green: each fixture screen matches the committed baseline (D-172, F-23). PR-41 creates it.
 - [ ] The bot job is green on every CI leg: the bot runs end with no crash and no softlock (D-64, D-505). PR-15 creates it.
 - [ ] The `night-gate` job is green: a success record from a night inside 48 hours (G-22). PR-49 creates it (D-496). A docs-only PR passes it (D-513).
