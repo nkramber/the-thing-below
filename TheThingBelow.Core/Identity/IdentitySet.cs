@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Hashing;
+using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Identity;
@@ -10,8 +11,8 @@ namespace TheThingBelow.Core.Identity;
 /// CI leg computes each hash and compares it with the identity file in Tests (G-5, D-504).
 /// </summary>
 /// <remarks>
-/// PR-4 fills the set with the vectors of the fixed-point math, the streams, and the state
-/// hash. PR-6 adds replays of run records, and each later Core PR adds a run. A run that
+/// PR-4 filled the set with the vectors of the fixed-point math, the streams, and the state
+/// hash. PR-6 added the replay of a run record, and each later Core PR adds a run. A run that
 /// changes its hash also bumps <see cref="SimulationVersion"/>, and the review of that PR
 /// reads each changed hash (G-17, D-504).
 /// </remarks>
@@ -29,6 +30,18 @@ public static class IdentitySet
     /// <summary>The name of the run that reads the state hash (D-644).</summary>
     public const string StateHashRun = "state-hash";
 
+    /// <summary>The name of the run that reads the tick, the record, and the replay (D-650 to D-652).</summary>
+    public const string ReplayRun = "replay";
+
+    /// <summary>
+    /// The content hash that the record of the replay run names. The run reads no content
+    /// file, because Core reads no file, so the value is a fixed text of this set (G-1).
+    /// </summary>
+    private const string ReplayContentHash = "identity-set-content-hash";
+
+    /// <summary>The count of ticks that the replay run steps.</summary>
+    private const int ReplayTickCount = 600;
+
     /// <summary>The seed of every run of this set. It never changes.</summary>
     private const ulong RunSeed = 20260918;
 
@@ -38,6 +51,7 @@ public static class IdentitySet
     [
         BasisPointsRun,
         RandomDrawsRun,
+        ReplayRun,
         StateHashRun,
         StreamSplitRun,
     ];
@@ -54,6 +68,7 @@ public static class IdentitySet
         {
             BasisPointsRun => ComputeBasisPoints(),
             RandomDrawsRun => ComputeRandomDraws(),
+            ReplayRun => ComputeReplay(),
             StateHashRun => ComputeStateHash(),
             StreamSplitRun => ComputeStreamSplit(),
             _ => throw new ArgumentOutOfRangeException(
@@ -146,6 +161,63 @@ public static class IdentitySet
         hasher.AddUInt64(stream.Generator.State);
         hasher.AddUInt64(stream.Generator.Increment);
         return hasher.Finish();
+    }
+
+    /// <summary>
+    /// Runs a fixed script of intents, writes the record, reads the text of it again, and
+    /// replays it. The hash holds the state of the run, the state of the replay, and the
+    /// text of the record, so the run reads the tick, the record, and the replay together
+    /// (G-5, D-650, D-651, D-652).
+    /// </summary>
+    private static ulong ComputeReplay()
+    {
+        RunHeader header = RunHeader.ForThisBuild(ReplayContentHash, RunSeed);
+        Simulation simulation = Simulation.Start(RunSeed, DebugIntentHandlers.None);
+        RunRecorder recorder = new(header, simulation.Snapshot());
+
+        for (int step = 0; step < ReplayTickCount; step += 1)
+        {
+            IReadOnlyList<Intent> intents = IntentsOfReplayTick(simulation.Tick + 1);
+            simulation.Step(intents);
+            recorder.Step(simulation.Tick, intents);
+
+            // A save at the middle of the run makes the compaction part of the run too, so a
+            // change to the snapshot rule moves this hash (F-10, D-651).
+            if (simulation.Tick == ReplayTickCount / 2)
+            {
+                recorder.Save(simulation.Snapshot());
+            }
+        }
+
+        string text = RunRecordText.Write(recorder.Build());
+        RunState replayed = RunReplay.Play(
+            RunRecordText.Read(text), ReplayContentHash, DebugIntentHandlers.None);
+
+        StateHasher hasher = new();
+        hasher.AddUInt64(simulation.StateHash());
+        hasher.AddUInt64(replayed.StateHash());
+        hasher.AddText(text);
+        return hasher.Finish();
+    }
+
+    /// <summary>
+    /// The script of the replay run. The menu opens and closes four times, so the run reads
+    /// a world that runs and a world that a menu pauses (D-162, D-650).
+    /// </summary>
+    private static IReadOnlyList<Intent> IntentsOfReplayTick(long tick)
+    {
+        long inCycle = tick % 150;
+        if (inCycle == 37)
+        {
+            return [Intent.OfPlayer(IntentIds.OpenMenu)];
+        }
+
+        if (inCycle == 96)
+        {
+            return [Intent.OfPlayer(IntentIds.CloseMenu)];
+        }
+
+        return [];
     }
 
     private static ulong ComputeStateHash()
