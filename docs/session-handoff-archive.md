@@ -1,5 +1,57 @@
 # Session handoff archive
 
+## Session 99: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: the answers of the screen scale probe. Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: author. Base: `b3ec2b4`.
+
+### What this session did, and why
+
+- Read `screen-scale-probe/handover.md` on the spike branch, which holds the owner answers of the probe.
+- Found that answer 2 and answer 3 of OQ-183 disagree on a 1920 by 1080 screen, which D-568 makes a screen that must look good.
+- Found that the probe computed the fit with integer division, so it could never draw the 1.5x fit of that screen.
+- Patched the spike with two fit modes, and proved both in a window of 1920 by 1080 on the Mac (D-638).
+- The owner then ran the new Windows build on a 27-inch 1080p screen and picked the UI at 2x.
+- Wrote D-626 to D-640, F-68 to F-77, G-28, the M-8 table of four screens, and the close of OQ-183.
+- Applied the answers to nine live documents, four skills, and the PR-86 roadmap entry.
+
+### The state of the build
+
+- `main` is `b3ec2b4`. PR #25 is open, and the effective head is `83c17f7`.
+- The spike branch `spike/screen-scale-probe` is at `f314243`, and it never merges (D-597, D-621).
+- `make verify` passed: the build with 0 warnings, 187 tests, the format check, `det-lint`, `ste-check`, and the smoke session.
+- The `ste-check`, `changed paths`, and `Gitar` checks pass. The docs-only jobs skip under D-600.
+- `review-gate` gives one fault, RG 3, because the head holds no record at `docs/reviews/pr-25.md`. The Codex review clears it.
+
+### What is in flight
+
+The Codex review. This PR changes decision rows, so the `review-override` label does not apply (D-401, D-609).
+
+The Gitar pass approves the effective head `83c17f7`, with 2 closed findings and none open.
+
+- The push of `83c17f7` was at 06:46:44Z, and the Gitar check on it started at 06:47:16Z.
+- Gitar replaced the dashboard comment, and the new id `5726292453` has the edit time 06:47:54Z.
+- Each time is later than the one before it, so the pass covers the effective head (D-603).
+- Both review threads are resolved, and Gitar resolved each one itself.
+
+### Traps and gotchas
+
+- Two claims of the spike handover did not survive the check, and the record now holds the refutation. D-508 refutes the claim that the export of the game needs an include filter, because Game embeds content and each font in its own assembly. The 1080p run moved the UI boundary from a fit of 1x to a fit of 2x.
+- A 27-inch 1080p screen and a 27-inch 4K screen give one line of body text the same apparent size, and the owner picked two different UI values. The count of device pixels sets the value, not the apparent size (F-77). A later session must not read the arcminute numbers of M-8 as the rule.
+- The PR-86 entry moved 11 sections of `docs/roadmaps/phase-1-foundations.md` by one. No document outside this PR cites a section number of that file above 7.8.
+- The option list of OQ-183 still names the frame at 40 by 22.5 tiles. That list records the options of 2026-09-17, and D-633 closed the question.
+- The row of D-599 keeps the bare name `project.godot`, because a decision row is a record of one day (D-637).
+- `deck-test/` and `screen-scale-probe/` stay untracked on this branch. The two probe exports are above 150 MB and stay out of git.
+- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 100.
+
+### The questions that block progress
+
+None. OQ-183 closed with D-633 and D-639, which unblocks PR-7, PR-34, and PR-61.
+
+### The next concrete action
+
+Push the branch, open the PR, answer the Gitar pass, and hand the PR to Codex for the review.
+
 ## Session 98: 2026-09-18, Codex
 
 Author: Codex
