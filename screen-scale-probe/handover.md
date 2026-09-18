@@ -21,6 +21,49 @@ Each answer needs a decision row, from the next free D- id.
 | The pick of the owner | One key marks the pick, and the report file holds it | The three reports then hold the answer to OQ-183 |
 | The build on the Mac | A run from the installed editor, with a script | The editor and an export draw the same pixels |
 
+## The runs of the owner, 2026-09-18
+
+The owner ran the probe on the three screens, and marked these picks:
+
+| Screen | The state | The world | The UI |
+|---|---|---|---|
+| OLED Deck, at 1x fit | State 2 | 2x | 2x |
+| 27-inch 4K screen, at 3x fit | State 3 | 2x | 1x |
+| 32-inch 1440p screen, at 2x fit | State 3 | 2x | 1x |
+
+## The answers to OQ-183
+
+Each answer below needs a decision row. The owner gave them on 2026-09-18.
+
+1. The world draws at 2x on every screen, so the frame holds 20 by 11.25 tiles.
+2. The UI never draws below 2 device pixels for each art pixel.
+3. Thus the UI scale is 2x at a frame fit of 1x, and 1x above that fit.
+4. One rule covers every screen shape, and no table of screens is necessary.
+5. A display setting gives the player two UI values, 1x and 2x, and no other value.
+6. The rule of item 2 sets the default value of that setting on each screen.
+7. Each UI layout must hold at both values, on every screen shape.
+8. The dialogue limit of the `game-text-style` skill drops from 80 characters to 76.
+9. M-8 records the computed numbers, and not a measurement of each run.
+
+The three picks sit in one band of apparent size, from 30 to 43 arcminutes for a line of body
+text. The states that the owner refused sit far outside it. The Deck at 1x gives 15 arcminutes,
+and a desktop screen at 2x gives 73 to 86 arcminutes.
+
+## M-8: the apparent size on each screen
+
+The numbers come from the geometry of each screen. The distance is 45 cm for the Deck and 70 cm
+for each desktop screen, which the owner accepted as the assumption of M-8 (exit test 3).
+
+| Screen | Fit | Millimeters for one device pixel | A sprite at world 1x | A sprite at world 2x | A body line at UI 1x | A body line at UI 2x |
+|---|---|---|---|---|---|---|
+| OLED Deck, 1280 by 800, 7.4 inches | 1x | 0.1245 | 3.98 mm, 30.4' | 7.97 mm, 60.9' | 1.99 mm, 15.2' | 3.98 mm, 30.4' |
+| 27-inch 4K screen, 3840 by 2160 | 3x | 0.1557 | 14.94 mm, 73.4' | 29.89 mm, 146.8' | 7.47 mm, 36.7' | 14.94 mm, 73.4' |
+| 32-inch 1440p screen, 2560 by 1440 | 2x | 0.2724 | 17.43 mm, 85.6' | 34.87 mm, 171.2' | 8.72 mm, 42.8' | 17.43 mm, 85.6' |
+
+Each screen takes the world at 2x. The Deck takes the UI at 2x, and each desktop screen takes
+the UI at 1x. The apparent size of a sprite goes from 61 to 171 arcminutes across the three
+screens. One tile count for every screen gives that spread, and D-37 asks for it.
+
 ## The state of the probe
 
 - The project builds with no warning, and the two exports carry the managed assembly.
@@ -31,7 +74,7 @@ Each answer needs a decision row, from the next free D- id.
 - A run on the Mac at full screen proved the frame, the four states, the ruler, and the report.
 - A run of an exported build proved the flags, the packed files, and the report of an export.
 - `export_presets.cfg` also holds a macOS preset, which serves as a fallback for the Mac.
-- No machine ran the Deck build or the Windows build. The owner does those two runs.
+- The owner ran the probe on all three screens on 2026-09-18, and the picks are above.
 
 ## What the probe already shows
 
@@ -81,12 +124,12 @@ This branch never merges, so `docs/session-handoff.md` on `main` holds no entry 
 session. The next PR copies the entry below to the top of that file, as Session 99. It takes
 the next free session number, if another session lands first.
 
-- What the session did: built the screen scale probe of D-621 on `spike/screen-scale-probe`.
-- The state of the build: the two exports and the Mac script are ready. `main` is `b3ec2b4`.
-- What is in flight: the three runs of the owner, which answer OQ-183 and fill M-8.
+- What the session did: built the probe of D-621, and the owner ran it on three screens.
+- The state of the build: the probe is complete. `main` is `b3ec2b4`, and the spike head holds it.
+- What is in flight: nothing. The step is complete, and OQ-183 has its answer.
 - Traps: the findings above, and the trap list of `readme.md`.
-- The questions that block progress: OQ-183, which the runs answer. It blocks PR-7 and PR-34.
-- The next concrete action: the owner runs the probe on the Deck, on the Mac, and on Windows.
+- The questions that block progress: none. OQ-183 closes with the nine answers above.
+- The next concrete action: the next PR records the answers, and then PR-7 and PR-34 start.
 
 ## What the next PR records
 
@@ -98,3 +141,12 @@ the next free session number, if another session lands first.
 6. The entry of this session in `docs/session-handoff.md`.
 7. The exact citation of findings 9 to 12, because `main` still holds the bare name.
 8. Finding 13 in the export work of PR-40 and PR-54, which own the presets of the game.
+9. The nine answers to OQ-183 as decision rows, and the close of OQ-183.
+10. The revision of D-568: the frame holds 20 by 11.25 tiles, and no longer 40 by 22.5.
+11. The 32-pixel tile, the 16-pixel font, and the frame of 1280 by 720 stand under that revision.
+12. The M-8 table above in section 5 of `docs/design.md`, with its assumed distances.
+13. The limit of 76 characters in the `game-text-style` skill, for a dialogue line.
+14. A check of each other limit of that skill that names 80 characters, such as a lore entry.
+15. The UI scale setting in `docs/roadmaps/area-ui-input.md`, beside the fit of PR-61.
+16. Two UI values in the screen tests of PR-41, for each screen shape.
+17. The map size of PR-7 and the art batch of PR-34, which now read 20 by 11.25 tiles.
