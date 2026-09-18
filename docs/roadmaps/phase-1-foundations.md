@@ -137,7 +137,7 @@ Area file: `area-effects.md`, sections 7.3 and 7.4.
 
 **Scope.**
 
-- The Mobile renderer in `project.godot` of the Game project (D-160, D-599, D-616).
+- The Mobile renderer in `TheThingBelow.Game/project.godot` (D-160, D-599, D-616).
 - The reports of the Deck run, which the PR description of PR-85 holds (D-624).
 
 **Out of scope.**

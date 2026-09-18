@@ -1,0 +1,30 @@
+; Throwaway project of the screen scale probe (D-621, D-625). This project never merges to main.
+; The probe draws its own scale, so the stretch mode stays disabled and the viewport equals the
+; window in device pixels.
+
+config_version=5
+
+[application]
+
+config/name="ScreenScaleProbe"
+run/main_scene="res://Main.tscn"
+config/features=PackedStringArray("4.7", "C#", "Mobile")
+config/quit_on_go_back=false
+boot_splash/show_image=false
+
+[dotnet]
+
+project/assembly_name="ScreenScaleProbe"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="disabled"
+window/dpi/allow_hidpi=true
+window/vsync/vsync_mode=1
+
+[rendering]
+
+renderer/rendering_method="mobile"
+textures/canvas_textures/default_texture_filter=0

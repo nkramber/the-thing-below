@@ -1,0 +1,7 @@
+.godot/
+bin/
+obj/
+reports/
+build/*
+!build/run-probe-deck.sh
+!build/run-probe-windows.bat

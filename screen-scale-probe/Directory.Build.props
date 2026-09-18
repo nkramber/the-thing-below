@@ -1,0 +1,6 @@
+<Project>
+
+  <!-- This file stops the walk to the props file of the repository root. The spike keeps its own
+       settings, and it takes no rule of the solution of the game (D-621). -->
+
+</Project>
