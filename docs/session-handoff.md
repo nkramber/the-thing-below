@@ -2,6 +2,95 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 104: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #26, PR-82, the Mobile renderer. Repository: the-thing-below. Branch: `feat/pr-82-mobile-renderer`. Role: reviewer. Base: `e54810a`.
+
+### What this session did, and why
+
+- Reviewed the renderer setting and its regression tests against D-616 and the exit tests of section 7.3.
+- Wrote `docs/reviews/pr-26.md` with verdict `Ready for owner merge` for effective head `6b7bde6`.
+- Confirmed the provider gate, the current Gitar approval, and that no comment thread needs an answer.
+
+### The state of the build
+
+- `main` and the merge base are `e54810a`. The PR tip is `9de398a`; its effective head is `6b7bde6` (D-610).
+- Local build, 189 tests, format, `det-lint`, `ste-check`, Godot editor build, and smoke session pass.
+- All required CI jobs pass on `9de398a`. `review-gate` fails because the review record is not yet on the branch.
+- Gitar approves `6b7bde6`. Its dashboard comment was edited after the implementation push, and no review threads exist.
+
+### What is in flight
+
+The review record and handoff entry need a commit and push. Then verify `review-gate` on the metadata tip.
+
+### Traps and gotchas
+
+- The pull request branch name says PR-82, while GitHub numbers it PR #26. Use the GitHub number in review records (D-17).
+- Commits `2419ce4` and `9de398a` change only handoff metadata, so the effective head remains `6b7bde6` (D-610).
+- Gitar functional validation is not enabled.
+- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 105.
+
+### The questions that block progress
+
+None. D-616 selects Mobile, and section 7.3 names the renderer work.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Check that `review-gate` passes.
+
+## Session 103: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: the first round of PR-82. Repository: the-thing-below. Branch: `feat/pr-82-mobile-renderer`. PR: the one PR of PR-82, which GitHub numbers at the push. Role: author. Base: `e54810a`.
+
+### What this session did, and why
+
+- D-616 picked the Mobile renderer from the Deck test, and PR-82 writes it into the Game project.
+- `TheThingBelow.Game/project.godot` now sets `renderer/rendering_method="mobile"`.
+- The feature tag list now names `Mobile` in place of `Forward Plus`, because the Godot editor reads that list.
+- The header comment names the Deck test and its result, in place of the provisional text of D-599.
+- `GameProjectRendererTests` reads the committed project file and locks both lines.
+- The test guards the setting, because the Godot editor writes this file and can write the default of Godot into it again.
+
+### The state of the build
+
+- `main` is `e54810a`, and this branch starts from it.
+- `make verify` passes: the build with 0 warnings, 189 tests, the format check, `det-lint`, `ste-check`, and the smoke session.
+- The smoke session prints `smoke: the renderer is mobile`, which is exit test 2 of section 7.3 of the phase file.
+- The two new tests fail on the setting of PR-1, which is the regression check of T-3.
+- The Godot editor build ran on the new setting, and it wrote no change into the project file.
+- PR #26 holds this work, and its head is `2419ce4`.
+- The 12 CI checks pass on `2419ce4`: the three build legs, the three smoke legs, `changed paths`, `ste-check`, `det-lint`, the coverage report, and the Gitar check.
+- `review-gate` gives one fault, RG 3: the head holds no review record at `docs/reviews/pr-26.md`. The review of Codex clears it.
+
+### What is in flight
+
+The review of Codex. The Gitar pass approves the head `2419ce4`, and it gives no finding.
+
+- The push of `2419ce4` was at 07:47:30Z, and the dashboard comment `5726936964` has the edit time 07:49:12Z.
+- The edit time is later than the push time, so the pass covers the head (D-603).
+- The Gitar check passed in 1 minute and 9 seconds, and the summary names this diff.
+- The thread list of the pull request is empty, so no comment waits for an answer.
+- The dashboard carries the pause note of the Gitar trial beside the approval.
+
+### Traps and gotchas
+
+- The setting `renderer/rendering_method.mobile` stays as it is. It serves Android and iOS, which D-481 excludes.
+- HDR 2D works under Mobile, so the glow of D-188 stays live (D-188, D-616).
+- The screen tests of CI keep the Compatibility renderer, whatever this PR sets (D-172).
+- This PR changes code, so the label of D-401 does not apply, and Codex reviews it.
+- The first `review-gate` run gave RG 7 too, because the `docs/reviews/` line of the PR took no form of D-581. A correction of the PR description cleared it.
+- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 104.
+
+### The questions that block progress
+
+None. The Deck test answered D-160, and D-616 holds the pick.
+
+### The next concrete action
+
+Hand PR #26 to Codex for the review of T-4. This PR changes code, so the label of D-401 does not apply.
+
 ## Session 102: 2026-09-18, Codex
 
 Author: Codex
@@ -309,136 +398,3 @@ None for PR #24. OQ-183 blocks PR-7 and PR-34.
 ### The next concrete action
 
 The author corrects P2-1, then requests a repeat review of the new effective head.
-
-## Session 95: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: the time of the screen scale probe, in the same session as Session 93 (D-582). Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. PR: #24. Role: author. Base: `2874b70`.
-
-### What this session did, and why
-
-- The owner set the time of the screen scale probe: the next clean session after the merge of PR #24.
-- D-625 records it, and the transitional prompt of the merge names the probe (D-601).
-- The probe moved up the order of Phase 1 in `docs/design.md` and in `docs/roadmaps/phase-1-foundations.md`.
-- The Sprite Fusion test keeps its place before PR-34, because it waits for the plan of the owner.
-- The probe entry gained three facts: one build for each machine, the font of D-263 from its OFL release, and the trap of a picture viewer on the 4K screen of the Mac.
-- The frame fits both desktop screens at a whole number, 3x at 3840 by 2160 and 2x at 2560 by 1440.
-
-### The state of the build
-
-- `main` is `2874b70`, and the head of this round changes documents alone.
-- The `ste-check` command passes with 0 findings.
-- The Gitar pass of `741e8db` approved that head, and this round moves the effective head, so the PR needs a new pass.
-
-### What is in flight
-
-The review of Codex. The Gitar pass approved the head `7426dc9`, with 1 closed finding and no open one.
-
-- The push of `7426dc9` was at 03:19:22Z, and the request at 03:22:49Z.
-- Gitar replied at 03:23:09Z, and it wrote the dashboard comment `5724679546` at 03:25:01Z.
-- Each of the three times is later than the one before it, so the pass covers the effective head (D-603).
-- The summary of the pass names D-616 to D-624 and not D-625. A summary can repeat the words of an older pass, and the three times prove this pass current.
-
-### Traps and gotchas
-
-- The probe needs the owner and three machines, so it cannot run in a session of its own without the owner.
-- macOS maps a picture pixel to a point on a 4K screen, so the probe draws at the native size and never in a viewer.
-- The order lists of the two files hold the same steps, and a change to one needs the same change in the other.
-- `deck-test/` stays untracked, as it was before this session.
-- The next ids are D-626, OQ-184, F-68, L-16, G-28, M-9, and Session 96.
-
-### The questions that block progress
-
-None for PR #24. OQ-183 blocks PR-7 and PR-34, and the probe answers it right after the merge.
-
-### The next concrete action
-
-Hand PR #24 to Codex for the review of T-4. This PR adds decision rows, so the label of D-401 does not apply.
-
-## Session 94: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: the answer to the Gitar pass of PR #24, in the same session as Session 93 (D-582). Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. PR: #24. Role: author. Base: `2874b70`.
-
-### What this session did, and why
-
-- The Gitar pass of `589b45b` gave one finding, and the finding has full merit.
-- Three places named 5.00 ms as the worst stage under Mobile. That number is the Forward+ value.
-- The report of the run gives 4.55 ms at the 95th percentile for the worst stage under Mobile.
-- Corrected M-7 and F-66 in `docs/design.md`, and the Effect column of D-617.
-- D-617 also derived 30 percent of the frame budget from the wrong number, and 4.55 ms gives 27 percent.
-- Each corrected line now names both renderers, so a later reader cannot mix the two again.
-
-### The state of the build
-
-- `main` is `2874b70`, and the PR head before this round was `589b45b`.
-- The `ste-check` command passes with 0 findings, and `make verify` passed on `5b6c14e`.
-- On `589b45b` the CI legs pass, and `review-gate` fails RG 3, because no review record exists yet.
-
-### What is in flight
-
-The review of Codex. The repeat Gitar pass approved the head `741e8db`, with 1 closed finding and no open one.
-
-- The push of `741e8db` was at 03:07:43Z, and the request at 03:11:05Z.
-- Gitar replied `On it` at 03:11:41Z, and it wrote the dashboard comment `5724580560` at 03:11:49Z.
-- Each of the three times is later than the one before it, so the pass covers the effective head (D-603).
-
-### Traps and gotchas
-
-- The two reports differ by stage, and the Mobile column is the one that binds the plan (D-616).
-- Gitar replaced its dashboard comment during the first pass, so the old comment id gave HTTP 404.
-- The flag `--attach` of `gh` refuses a text file, so each report lives in the text of the PR (D-624).
-- `deck-test/` stays untracked, as it was before this session.
-- The next ids are D-625, OQ-184, F-68, L-16, G-28, M-9, and Session 95.
-
-### The questions that block progress
-
-None for PR #24. OQ-183 blocks PR-7 and PR-34, and the probe of D-621 answers it.
-
-### The next concrete action
-
-Hand PR #24 to Codex for the review of T-4. This PR adds decision rows, so the label of D-401 does not apply.
-
-## Session 93: 2026-09-17, Claude Code
-
-Author: Claude Code
-Session: PR-85, the result of the Deck test and the look. Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. PR: #24, which is PR-85 of the roadmap. Role: author. Base: `2874b70`.
-
-### What this session did, and why
-
-- The owner ran the Deck test of D-160 on an OLED Deck and gave the reports to this session.
-- Recorded the result and eight more owner answers as D-616 to D-624.
-- D-616: the game uses the Mobile renderer, which won each of the 20 stages. PR-82 writes it.
-- D-617: the first effect budget, 15 lights, 8192 particles, and 3 full-screen passes. F-66 marks each row as a floor.
-- D-618: the CRT leaves the plan. PR-37 is retired, and 13 documents lost the pass, the toggle, and its captures.
-- D-620 and D-621: two tests before PR-34, the Sprite Fusion art test and the screen scale probe.
-- D-622 and G-27: every effect draws with the palette and hard edges, which answers the question of the owner about the fog.
-- D-623: the Mac is the venue of each visual test, and the Deck takes the answers that need the Deck.
-- F-67 and OQ-183: a 32-pixel sprite covers 4.0 mm on the Deck, and the scale of the frame is now an open question.
-
-### The state of the build
-
-- `main` is `2874b70`, and PR #23 merged before this session.
-- The `ste-check` command passes on every live document, with 0 findings.
-- The branch holds one commit, and it changes documents alone.
-
-### What is in flight
-
-The push, the Gitar pass, and the review of Codex. This PR revises decision rows, so the label of D-401 does not apply.
-
-### Traps and gotchas
-
-- Each citation of D-88, D-105, D-120, or D-240 must name D-618, or REF 3 fails.
-- PR-37 keeps a retired entry in `phase-2-first-playable.md`, which keeps the id in the register (G-10).
-- Section 7 of `phase-1-foundations.md` gained three entries, so each later section number moved.
-- The flag `--attach` of `gh` refuses a text file, so the reports go in the description and in a comment (D-624).
-- `deck-test/` stays untracked, as it was before this session.
-- The next ids are D-625, OQ-184, F-68, L-16, G-28, M-9, and Session 94.
-
-### The questions that block progress
-
-OQ-183 blocks PR-7 and PR-34. The probe of D-621 answers it, and that probe needs the owner and three screens.
-
-### The next concrete action
-
-Answer the Gitar pass on PR #24, then hand the PR to Codex for the review of T-4.
