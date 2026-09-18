@@ -2,6 +2,46 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 102: 2026-09-18, Codex
+
+Author: Codex
+Session: repeat review PR #25 at effective head `ac34b5f`. Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: reviewer. Base: `b3ec2b4`.
+
+### What this session did, and why
+
+- Rechecked P2-1 against its original trigger and the ordered-list sweep.
+- Confirmed both Phase 1 lists now run from 1 to 23 with no duplicate item number.
+- Confirmed the stale section 7.19 reference now names 7.20, and the round ends at D-640.
+- Read both Gitar claims, both author replies, and Gitar's confirmation. Both threads are resolved.
+- Updated `docs/reviews/pr-25.md` to close P2-1 for effective head `ac34b5f`.
+
+### The state of the build
+
+- `main` and the merge base are `b3ec2b4`. The PR tip is `118551e`; its effective head is `ac34b5f` (D-610).
+- `make verify` passes at the local tip: build with 0 warnings, 187 tests, format, `det-lint`, `ste-check`, and smoke.
+- GitHub reports `changed paths` and `ste-check` as passing. Docs-only build, test, format, coverage, lint, and smoke jobs skip (D-600).
+- Gitar approves `ac34b5f`, with 2 closed findings and none open. Its current dashboard follows the `On it` reply.
+- `review-gate` fails RG 4 and RG 5 until this review record and handoff publish the new head and verdict.
+
+### What is in flight
+
+Publish the updated review record and this handoff entry, then verify the checks and remote head.
+
+### Traps and gotchas
+
+- The new effective head changes two roadmap paths. The later Gitar and handoff commits change only metadata (D-610).
+- The ordered-list sweep checks a class of defects that `ste-check` does not read.
+- `deck-test/` and `screen-scale-probe/` remain untracked and outside the PR.
+- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 103.
+
+### The questions that block progress
+
+None. OQ-183 closed with D-633 and D-639.
+
+### The next concrete action
+
+Run the session end gate, publish the review and handoff, then verify `review-gate`.
+
 ## Session 101: 2026-09-18, Claude Code
 
 Author: Claude Code
@@ -401,42 +441,3 @@ OQ-183 blocks PR-7 and PR-34. The probe of D-621 answers it, and that probe need
 ### The next concrete action
 
 Answer the Gitar pass on PR #24, then hand the PR to Codex for the review of T-4.
-
-## Session 92: 2026-09-17, Codex
-
-Author: Codex
-Session: re-review PR #23, roadmap PR-46, the `det-lint` command. Repository: the-thing-below. Branch: `feat/pr-46-det-lint`. Role: reviewer. Base: `0fbecab`.
-
-### What this session did, and why
-
-- Re-reviewed P2-1 at effective head `70df5ef` against the trigger from the earlier review.
-- Verified the fix in `SceneTextRule`, the regression test, the response file, and the live command probe.
-- The regression probe now reports one DL 9 finding and exits 1. `make verify` passes with 187 tests.
-- Verified the current Gitar pass after its request, reply, and dashboard update. No finding or open thread exists.
-- Updated `docs/reviews/pr-23.md` to close P2-1 and assess effective head `70df5ef`.
-
-### The state of the build
-
-- `main` and the merge base are `0fbecab`. The current PR head is `f62113e`; its effective head is `70df5ef` (D-610).
-- `make verify` passes: build with 0 warnings, 187 tests, format, `det-lint`, `ste-check`, and smoke.
-- GitHub checks pass except `review-gate`, which fails RG 4 and RG 5 while the published review record still holds the old verdict and head.
-- The updated review record and this entry were published as `2e4cc38`. All 11 checks pass on that head, including `review-gate`.
-- This follow-up metadata commit records the publication and check verification. The effective head remains `70df5ef` (D-610).
-
-### What is in flight
-
-The repeat review is published and `review-gate` passes. The owner can merge PR #23.
-
-### Traps and gotchas
-
-- The correction changes the effective head from `f5eba68` to `70df5ef`. Later handoff commits do not change it.
-- The current Gitar summary repeats the old count of 186 tests. The local suite and the author response verify 187.
-- `deck-test/` remains untracked and untouched.
-
-### The questions that block progress
-
-None for PR #23. The finding is fixed, and the review gate waits for the published verdict.
-
-### The next concrete action
-
-The owner can merge PR #23. The review applies to effective head `70df5ef`.

@@ -1,5 +1,44 @@
 # Session handoff archive
 
+## Session 92: 2026-09-17, Codex
+
+Author: Codex
+Session: re-review PR #23, roadmap PR-46, the `det-lint` command. Repository: the-thing-below. Branch: `feat/pr-46-det-lint`. Role: reviewer. Base: `0fbecab`.
+
+### What this session did, and why
+
+- Re-reviewed P2-1 at effective head `70df5ef` against the trigger from the earlier review.
+- Verified the fix in `SceneTextRule`, the regression test, the response file, and the live command probe.
+- The regression probe now reports one DL 9 finding and exits 1. `make verify` passes with 187 tests.
+- Verified the current Gitar pass after its request, reply, and dashboard update. No finding or open thread exists.
+- Updated `docs/reviews/pr-23.md` to close P2-1 and assess effective head `70df5ef`.
+
+### The state of the build
+
+- `main` and the merge base are `0fbecab`. The current PR head is `f62113e`; its effective head is `70df5ef` (D-610).
+- `make verify` passes: build with 0 warnings, 187 tests, format, `det-lint`, `ste-check`, and smoke.
+- GitHub checks pass except `review-gate`, which fails RG 4 and RG 5 while the published review record still holds the old verdict and head.
+- The updated review record and this entry were published as `2e4cc38`. All 11 checks pass on that head, including `review-gate`.
+- This follow-up metadata commit records the publication and check verification. The effective head remains `70df5ef` (D-610).
+
+### What is in flight
+
+The repeat review is published and `review-gate` passes. The owner can merge PR #23.
+
+### Traps and gotchas
+
+- The correction changes the effective head from `f5eba68` to `70df5ef`. Later handoff commits do not change it.
+- The current Gitar summary repeats the old count of 186 tests. The local suite and the author response verify 187.
+- `deck-test/` remains untracked and untouched.
+
+### The questions that block progress
+
+None for PR #23. The finding is fixed, and the review gate waits for the published verdict.
+
+### The next concrete action
+
+The owner can merge PR #23. The review applies to effective head `70df5ef`.
+
 ## Session 91: 2026-09-17, Claude Code
 
 Author: Claude Code
