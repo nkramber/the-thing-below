@@ -88,6 +88,8 @@ Area files: `area-ci.md` section 7.11, `area-release.md` section 7.2.
 
 - The template file matches its SHA-512, and the job never takes it from an unpinned source (D-511).
 - The export presets name the three targets of D-481 and nothing else.
+- Each export needs no include filter, because Game embeds `content/` and each font in its assembly (D-508, F-73).
+- The macOS preset takes the universal binary format and the ETC2 ASTC import setting (F-74).
 - The owner can download the Linux artifact for a Deck play (D-458).
 
 **Questions.** OQ-83 is resolved (D-596).
@@ -101,7 +103,9 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 **Scope.**
 
 - The one 16:9 frame of 1280 by 720, with black bars for every other shape, the Deck included (D-228, D-568).
-- The world in a `SubViewport` at 1x, and both steps of the fit that Godot cannot make (D-230, D-232, D-573, F-48).
+- The world in a `SubViewport` of 640 by 360, scaled by 2 into the frame, so the frame holds 20 by 11.25 tiles (D-633, D-634).
+- Both steps of the fit that Godot cannot make (D-230, D-232, D-573, F-48).
+- The UI scale setting with its two values, and its default on each screen (D-639).
 - The two fonts from the bytes of the Game assembly, with the antialiasing, the hinting, and the subpixel settings of a pixel font (D-263, D-264, D-508, F-49).
 - The text helper that puts a string table entry on screen, which det-lint guards (D-499, G-7).
 - The UI style file, and the Godot `Theme` that Game builds from it at load (D-527, G-6).
@@ -130,10 +134,13 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 9. A crash shows its message through the text helper, and det-lint passes (D-499, D-559).
 10. The review sheets of the window frames and the glyph sets reach the PR description (D-514).
 11. The owner approves that art batch (G-25).
+12. A test locks the world viewport at 640 by 360, and the frame at 20 by 11.25 tiles (D-633, D-634).
+13. A test proves that each panel holds its text at both UI values (D-639, G-28).
+14. A test reads the default UI value of each of the four screens of M-8 (D-639).
 
 **Review focus.**
 
-- The two steps of the fit of D-573, and the 1x frame under them (F-48).
+- The two steps of the fit of D-573, and the world viewport of 640 by 360 under them (D-634, F-48).
 - Font oversampling stays off, and each font setting has a test (F-49).
 - The `Theme` comes from the style file, and no theme resource file exists (D-527, G-6).
 - Every screen shows the same part of the map, so no screen shape gains knowledge (D-566, D-568).
@@ -153,7 +160,7 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 - The time of day of the map, which a story flag can change (D-442).
 - Tile-locked movement and sight, in Core (D-100, D-106). No fog of war covers a map (D-566).
 - The record of each tile that the party walked, in Core and in the snapshot, which the map screen of PR-62 reads (D-567).
-- The map scene in Game, with the tiles from the atlas and the Nearest filter (F-45).
+- The map scene in Game, with the tiles from the atlas and the Nearest filter (F-45). The view holds 20 by 11.25 tiles (D-633).
 - The camera on the lead, with the limits of a large map and the centering of a small map (D-106, F-52).
 - The map HUD: the health mark and the status mark at the edge (D-212, D-390).
 - The first content: one fixture dungeon.

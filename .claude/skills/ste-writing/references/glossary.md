@@ -132,6 +132,9 @@ UI and input terms from the roadmaps PR of 2026-09-16:
 | Term | Use for | Do not use |
 |---|---|---|
 | view | the part of the map that the frame of 1280 by 720 shows (D-568) | resolution, screen |
+| world scale | the multiplier that the world draws at, fixed at 2x on every screen (D-633) | zoom, magnification |
+| UI scale | the multiplier that the UI draws at, 1x or 2x, which a display setting gives the player (D-639) | text size, font size |
+| fit mode | one of the two ways that the probe of D-621 puts the frame on a screen, whole or fill (D-638) | scale mode |
 | fit | the scale of the frame to the screen of the player (D-232) | scaling, and stretch, which names the Godot setting |
 | UI style file | the content file of the font sizes, the colors, and the frame drawings, which Game turns into a Godot `Theme` (D-527) | theme file, skin |
 | button prompt | the glyph of the button that a line of text names (D-222) | icon, when the text means a button |

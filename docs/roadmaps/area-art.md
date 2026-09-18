@@ -58,7 +58,7 @@ Built by PR-34, and kept by every art batch. Phase files: `phase-1-foundations.m
 - No art file decides an outcome of play, so the content hash never reads one (D-495).
 - Before PR-34, a spike compares the art of a session with the art of the Sprite Fusion generator (D-620). The owner picks the source.
 - A picture from an outside tool enters the pipeline as a text grid alone, through the PNG import of PR-51 (D-620). The palette of 64 colors binds it (D-181).
-- The size of a sprite on a screen comes from the probe of D-621, and OQ-183 holds the answer (F-67).
+- A sprite draws at 2x on every screen, so a 32-pixel sprite covers 64 frame pixels (D-633, F-67).
 
 > *In plain English:* every picture in the game is a text file that a session writes and the owner approves. The images that the game draws always come from those files, so nobody edits an image that a tool made.
 
@@ -152,8 +152,8 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - Game reads the atlas and the index from its own assembly (D-508). It makes an image with `Image.LoadPngFromBuffer` and a texture with `ImageTexture.CreateFromImage`.
 - An error code from the load, or a null texture, stops the game with the resource name and the reason (T-2). Godot only logs these failures (F-45).
 - Game finds each frame through the index and the content ids of D-519. A content id with no drawing fails with the id (T-2).
-- Every texture draws with the Nearest filter. The project setting starts as Linear, so PR-7 sets it, and a test reads it in `project.godot` (F-45).
-- Game draws art at 1x on the frame of 1280 by 720, so art pixels match text pixels (D-228, D-230, D-568).
+- Every texture draws with the Nearest filter. The project setting starts as Linear, so PR-7 sets it, and a test reads it in `TheThingBelow.Game/project.godot` (F-45).
+- Game draws the art of the world at 2x on the frame of 1280 by 720 (D-228, D-230, D-568). The frame then holds 20 by 11.25 tiles (D-633).
 - `area-ui-input.md` holds the frame, the fit, and the stretch mode, which the editor of 4.7 sets to `canvas_items` in a new project (F-45).
 - Core positions stay on whole tiles, and each step slides between tiles on screen (D-203). OQ-89 holds how each sprite stays on a whole pixel during a slide.
 - No Godot resource file holds art, such as a `SpriteFrames` file or a `TileSet` file (G-6). Game builds each Godot object from the atlas at load.

@@ -201,6 +201,7 @@ The command also reads each citation of a live document (D-605) and the two hand
 - A register defines each id. `docs/decisions.md` defines `D-`, `docs/questions.md` defines `OQ-`, and `docs/design.md` defines `F-`, `G-`, `T-`, `L-`, and `M-`. Section 8 of `docs/design.md` and the PR headings of the phase files define `PR-`.
 - A path in backticks is a path of this repository in two cases. Its first part names a top-level folder, or it is a bare file name with a file type of the repository. A path that starts with another name points outside the repository, and the rule reads none of them.
 - A path resolves from the root, from the folder of the document, or from the folder above it. It also resolves as the one file of the checkout that ends with the name.
+- Write the exact path from the root when a bare file name matches more than one file. A second project of the same engine makes a name such as `TheThingBelow.Game/project.godot` match two files (D-637, F-72).
 - A line that names a `PR-#` marks each path of that PR (G-16). A document can name a file that a later PR creates.
 - Write a name that is not a path of this repository without backticks. A branch name and a refused file name each take this rule.
 - The rule of a superseded decision reads every live document except `docs/decisions.md`. The Effect column of that register records each supersession (D-606).
