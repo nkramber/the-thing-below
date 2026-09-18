@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using TheThingBelow.Tools.DetLint;
+using TheThingBelow.Tools.Identity;
 using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.SteCheck;
 
@@ -63,6 +64,11 @@ public static class Program
             return DetLintCommand.Run(args[1..], output, errors);
         }
 
+        if (command == ReplayIdentityCommand.Name)
+        {
+            return ReplayIdentityCommand.Run(args[1..], output, errors);
+        }
+
         if (PlannedCommands.TryGetValue(command, out string? pullRequest))
         {
             errors.WriteLine(
@@ -81,6 +87,7 @@ public static class Program
         errors.WriteLine($"  {SteCheckCommand.Name}: ready");
         errors.WriteLine($"  {ReviewGateCommand.Name}: ready");
         errors.WriteLine($"  {DetLintCommand.Name}: ready");
+        errors.WriteLine($"  {ReplayIdentityCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {

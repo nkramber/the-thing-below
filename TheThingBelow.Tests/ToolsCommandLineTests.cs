@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using TheThingBelow.Tools;
+using TheThingBelow.Tools.Identity;
 using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.SteCheck;
 using Xunit;
@@ -26,6 +27,7 @@ public sealed class ToolsCommandLineTests
         Assert.Contains("ste-check: ready", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("review-gate: ready", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("det-lint: ready", errors.ToString(), StringComparison.Ordinal);
+        Assert.Contains("replay-identity: ready", errors.ToString(), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -66,6 +68,7 @@ public sealed class ToolsCommandLineTests
     {
         Assert.DoesNotContain(SteCheckCommand.Name, Program.PlannedCommands.Keys);
         Assert.DoesNotContain(ReviewGateCommand.Name, Program.PlannedCommands.Keys);
+        Assert.DoesNotContain(ReplayIdentityCommand.Name, Program.PlannedCommands.Keys);
     }
 
     [Fact]
