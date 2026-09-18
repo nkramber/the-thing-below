@@ -25,7 +25,7 @@ Facts checked on 2026-09-12:
 
 1. Clone the repository: `git clone git@github.com:nkramber/the-thing-below.git`.
 2. After PR-1 merges, run `make hooks` once. The pre-commit hook then refuses a commit on `main` (D-8).
-3. Run `make verify` before every PR. It runs the build, the tests, the format check, the STE check, and the smoke session.
+3. Run `make verify` before every PR. It runs the build, the tests, the format check, det-lint, the STE check, the identity check, and the smoke session.
 
 ## The Steam Deck
 
