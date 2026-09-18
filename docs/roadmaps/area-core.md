@@ -113,9 +113,10 @@ Built by PR-4. Phase file: `phase-1-foundations.md`.
 Built by PR-5. Phase file: `phase-1-foundations.md`.
 
 - Each content type is a C# record, and a strict reader refuses an absent field, an unknown field, and a wrong type (D-116, D-177, G-6).
-- The reader runs with no runtime reflection, through generated metadata or a hand reader (F-36). The det-lint of PR-46 bans reflection in Core (D-496).
+- Core reads each file with a hand reader on `Utf8JsonReader`, and Core calls `JsonSerializer` nowhere (D-647, F-36).
+- `Directory.Build.props` sets `JsonSerializerIsReflectionEnabledByDefault` to `false` for every project, and a test reads the switch back (D-647). The det-lint of PR-46 bans reflection in Core (D-496).
 - A number in content is an integer. A number with a fraction or an exponent fails the load, with the file and the field (D-169, G-2).
-- Every content entry has a permanent id that no later entry takes (D-166). OQ-63 holds the form of an id and the test that proves the rule.
+- Every content entry has a permanent id that no later entry takes (D-166). An id is a lowercase kind, a dot, and a lowercase name (D-646).
 - The content hash covers the rule files alone (D-495). PR-5 draws the line in the layout of `content/`, and a test proves that no other file reaches the hash.
 - PR-5 also writes the SHA-256 that makes the content hash, in Core code beside its one caller (D-644, D-645). Its test holds the published vectors of the reference implementation.
 - The content hash reads the same bytes on every CI leg. The `eol=lf` rule of `.gitattributes` keeps each checkout on LF line ends, where Git for Windows otherwise defaults to CRLF (the external facts above).
@@ -265,7 +266,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 The register is `docs/questions.md` (D-19). These questions block Core PRs, and each PR asks its questions when it starts (D-487):
 
 - OQ-60, OQ-61, and OQ-62 closed on 2026-09-18 with D-641 to D-645.
-- OQ-63: the form of a content id. Blocks PR-5.
+- OQ-63 is resolved (D-646). OQ-179 is resolved (D-647).
 - OQ-64: the tick while a menu is open. Blocks PR-6.
 - OQ-65: when the run record takes a new snapshot. Blocks PR-6 and PR-43.
 - OQ-66: the encoding of records and snapshots. Blocks PR-6 and PR-43.

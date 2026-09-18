@@ -35,7 +35,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-25 | A quit autosave can trap a run (C-3), and a Core patch refuses old saves (C-4) | PR-43: the resume file of D-258 and the load of D-259 |
 | F-27 | The debug console of D-171 meets the rule of no conditional compilation in Core | PR-6: the seam of D-260 and D-492 |
 | F-35 | Two hash paths of .NET break G-1 and T-7 | PR-4: xxHash64 in Core. PR-5: the SHA-256 of the content hash (D-644, D-645) |
-| F-36 | The JSON support of .NET uses reflection by default | PR-5: a reader with no runtime reflection |
+| F-36 | The JSON support of .NET uses reflection by default | PR-5: a hand reader, and the switch in `Directory.Build.props` (D-647) |
 | F-37 | GitHub starts `pull_request_target` only from the default branch | PR-3: the command proves itself in Tests (D-500) |
 | F-38 | A real literal with no suffix is a double, and double math differs by platform | PR-46: det-lint reads types through Roslyn (D-498) |
 | F-39 | The default string order of .NET follows the culture and the ICU version | PR-4 and PR-46: an ordinal order for every string order in Core |
@@ -484,8 +484,9 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 **Scope.**
 
 - One C# record for each content type, with a strict reader (D-116, D-177, G-6).
-- A reader with no runtime reflection, with the reflection switch in the place that OQ-179 sets (F-36).
-- The permanent content id, in the form of OQ-63 (D-166).
+- A hand reader on `Utf8JsonReader` in Core, and no `JsonSerializer` call (D-647, F-36).
+- The switch `JsonSerializerIsReflectionEnabledByDefault` in `Directory.Build.props`, and a test that reads it back (D-647).
+- The permanent content id, as a kind, a dot, and a name (D-166, D-646).
 - The content hash over the rule files alone, and the layout of `content/` that draws the line (D-495).
 - The SHA-256 of D-644, in Core code beside the content hash that calls it (D-645). Its test holds the published vectors of the reference implementation.
 - The string table, from an id to text, with a test for each id that content names (D-167, G-7).
@@ -503,6 +504,7 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 2. A file with an unknown field fails the load.
 3. A number with a fraction or an exponent fails the load (G-2).
 4. A repeated content id fails a test with the id.
+5. An id that does not take the form of D-646 fails a test with the id and the file.
 5. The content hash is the same on the three legs and on the Mac.
 6. The embedded resources match the files of `content/` by name and by bytes.
 7. A read of a resource that the assembly lacks fails with the resource name.
@@ -510,12 +512,12 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 
 **Review focus.**
 
-- No reflection path survives, in the reader or in a fallback (F-36).
+- No reflection path survives, in the reader or in a fallback (D-647, F-36).
 - The hash covers the rule files alone, and a test proves that no other file reaches it (D-495).
 - The line-end rule holds on the Windows leg (the external facts of `area-core.md`).
 - The Godot export needs no filter for content, because the assembly carries it (F-42).
 
-**Questions.** OQ-63 and OQ-179. D-644 answered OQ-62, and D-645 puts the SHA-256 of the content hash in this PR.
+**Questions.** None. D-646 answers OQ-63, and D-647 answers OQ-179. D-644 answered OQ-62, and D-645 puts the SHA-256 of the content hash in this PR.
 
 > *In plain English:* every enemy, item, and map lives in a strict data file. A gap or a typo stops the load with the file and the field, instead of a silent zero.
 
@@ -829,7 +831,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-60 | The rounding rule of fixed-point math | Answered by D-641 |
 | OQ-61 | The random generator and the stream split | Answered by D-642 and D-643 |
 | OQ-62 | The hash function of Core | Answered by D-644 and D-645 |
-| OQ-63 | The form of a content id | PR-5 |
+| OQ-63 | The form of a content id | Answered by D-646 |
 | OQ-64 | The tick while a menu is open | PR-6 |
 | OQ-65 | When the run record takes a new snapshot | PR-6 and PR-43 |
 | OQ-66 | The encoding of records and snapshots | PR-6 and PR-43 |
@@ -854,6 +856,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-93 | How the owner reads the frame time on the Deck | The Deck test, resolved by D-598 |
 | OQ-168 | Where the game version lives in the build | PR-6 and PR-31 |
 | OQ-183 | The scale of the frame on a screen | PR-7 and PR-34, and the probe of D-621 answers it |
-| OQ-179 | Where the reflection switch of the JSON reader lives | PR-5 |
+| OQ-179 | Where the reflection switch of the JSON reader lives | Answered by D-647 |
 
 No open question blocks this file.
