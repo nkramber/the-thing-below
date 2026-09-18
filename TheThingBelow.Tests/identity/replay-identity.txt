@@ -1,0 +1,15 @@
+# The replay-identity set (G-5, D-504). Each CI leg computes every hash below and
+# compares it with this file. A mismatch fails the `replay-identity` job.
+#
+# Each run line holds the name of the run, one space, and the expected state hash.
+# A PR that moves a hash also raises the simulation version, and the review reads
+# each changed line (G-17).
+#
+# Write this file again with:
+#   dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj --
+#     replay-identity --root . --write
+
+basis-points 0xD0BC4F3990C13820
+random-draws 0x835F6D70A3B14C86
+state-hash 0xCEF2909E8D283211
+stream-split 0xAAAEFEAF015D7A5D

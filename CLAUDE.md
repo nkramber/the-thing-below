@@ -141,6 +141,7 @@ The solution and the project names follow D-217. Run each command from the check
 - STE check: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .`
 - Determinism and string lint: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- det-lint --root .`
 - Review gate: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- review-gate --pull-request <file> --head-files <folder>`
+- Identity check: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- replay-identity --root .`
 - Godot build check: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --editor --path TheThingBelow.Game --build-solutions --quit`
 - Smoke session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path TheThingBelow.Game -- --smoke`
 - Play session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --path TheThingBelow.Game`
@@ -158,7 +159,7 @@ A PR merges only when every line holds:
 - [ ] The build, test, and format job is green on every CI leg (D-2, D-117, D-481).
 - [ ] The `smoke` job is green on every CI leg: the headless Godot session (D-117, D-481).
 - [ ] The `det-lint` job is green: no float, clock, or OS random in `core`, and no inline player string (G-2, G-3, G-7).
-- [ ] The `replay-identity` job is green: the same state hash on every CI leg for the fixed seed set (G-5, D-481, D-504). PR-4 creates it.
+- [ ] The `replay-identity` job is green: the same state hash on every CI leg for the fixed run set (G-5, D-481, D-504).
 - [ ] The `screen-test` job is green: each fixture screen matches the committed baseline (D-172, F-23). PR-41 creates it.
 - [ ] The bot job is green on every CI leg: the bot runs end with no crash and no softlock (D-64, D-505). PR-15 creates it.
 - [ ] The `night-gate` job is green: a success record from a night inside 48 hours (G-22). PR-49 creates it (D-496). A docs-only PR passes it (D-513).

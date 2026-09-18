@@ -128,8 +128,8 @@ Built by PR-1 and PR-2, and PR-84 adds the size rules. Phase file: `phase-1-foun
 
 Built by PR-1. Phase file: `phase-1-foundations.md`.
 
-- The Makefile holds `verify`, `where`, `hooks`, `test`, `lint`, `ste-check`, and `run` (D-3).
-- `make verify` runs the build, the tests, the format check, the STE check, and the smoke session on the Mac. It adds the identity check from PR-4 and det-lint from PR-46 (D-504).
+- The Makefile holds `verify`, `where`, `hooks`, `test`, `lint`, `ste-check`, `identity`, and `run` (D-3).
+- `make verify` runs the build, the tests, the format check, det-lint, the STE check, the identity check, and the smoke session on the Mac (D-496, D-504).
 - `make where` shows the branch, the tree, and the state of the PR, as `CLAUDE.md` asks before each commit and push.
 - `make hooks` installs the pre-commit hook. The hook refuses a commit on `main` and a document that fails the STE check (D-8, D-25).
 
@@ -166,7 +166,8 @@ Built by PR-4. Phase files: `phase-1-foundations.md` and every later phase file.
 - A mismatch names the leg, the run, the expected hash, and the actual hash (T-2).
 - A PR that changes a hash in the file also bumps the simulation version, and the review reads each changed hash (G-17, D-504).
 - `make verify` runs the same check on the Mac, a fourth machine with the same expected hashes.
-- PR-4 fills the set with the vectors of its streams, math, and state hash. PR-6 adds replays of run records, and each later Core PR adds a run (`area-core.md` section 7.14).
+- PR-4 filled the set with four runs: the fixed-point math, the stream split, the bounded draws, and the state hash. PR-6 adds replays of run records, and each later Core PR adds a run (`area-core.md` section 7.14).
+- The file is `TheThingBelow.Tests/identity/replay-identity.txt`. Each run line holds the name of the run, one space, and the hash as 16 hexadecimal digits.
 
 > *In plain English:* the game plays a fixed set of runs on all three systems and checks each result against a list of expected numbers. A change to the rules must change the list on purpose, and the reviewer sees each number that moved.
 

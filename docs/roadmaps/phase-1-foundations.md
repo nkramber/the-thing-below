@@ -34,7 +34,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-24 | A 32-pixel tile holds four times the pixels of the earlier plan | The Deck test: the load runs at the frame of 1280 by 720 (D-568) |
 | F-25 | A quit autosave can trap a run (C-3), and a Core patch refuses old saves (C-4) | PR-43: the resume file of D-258 and the load of D-259 |
 | F-27 | The debug console of D-171 meets the rule of no conditional compilation in Core | PR-6: the seam of D-260 and D-492 |
-| F-35 | Two hash paths of .NET break G-1 and T-7 | PR-4 and PR-5: a hash function that Core holds (OQ-61, OQ-62) |
+| F-35 | Two hash paths of .NET break G-1 and T-7 | PR-4: xxHash64 in Core. PR-5: the SHA-256 of the content hash (D-644, D-645) |
 | F-36 | The JSON support of .NET uses reflection by default | PR-5: a reader with no runtime reflection |
 | F-37 | GitHub starts `pull_request_target` only from the default branch | PR-3: the command proves itself in Tests (D-500) |
 | F-38 | A real literal with no suffix is a double, and double math differs by platform | PR-46: det-lint reads types through Roslyn (D-498) |
@@ -440,9 +440,9 @@ Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.
 **Scope.**
 
 - The fixed-point types, each with its scale in its name (D-169, G-2).
-- The rounding rule of OQ-60, in one place that every system calls.
-- One seeded random stream for each subsystem, split from the run seed (G-4).
-- The hash function of OQ-62, which Core holds, and the state hash over the whole state in a fixed order.
+- The round toward zero of D-641, in the one multiply and the one divide that every system calls.
+- One seeded random stream for each subsystem, split from the run seed by the stream number alone (G-4, D-642, D-643).
+- The xxHash64 of D-644, which Core holds, and the state hash over the whole state in a fixed order. The SHA-256 of D-644 comes with the content hash in PR-5 (D-645).
 - The ordinal comparer for every string order in Core (F-39).
 - The exception types that carry context, and the assertion helper that stays on in a release export (T-2, G-18).
 - The simulation version constant (G-17).
@@ -470,10 +470,10 @@ Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.
 - The simulation version starts at its first value, and G-17 binds each later Core PR.
 - No call reaches `GetHashCode` or a .NET hash class from Core (F-35).
 - Each string order in Core is ordinal, and det-lint proves it (F-39).
-- The rounding rule of OQ-60 has one implementation, not one for each system (T-1).
+- The round toward zero of D-641 has one implementation, not one for each system (T-1).
 - A release export cannot run here, because PR-54 creates the export job (D-503, G-16). PR-54 adds the export check.
 
-**Questions.** OQ-60, OQ-61, and OQ-62.
+**Questions.** OQ-60, OQ-61, and OQ-62, which D-641 to D-645 answered on 2026-09-18.
 
 > *In plain English:* different computers can give different answers for decimal math. This adds our own whole-number math and a check that proves the same result on every machine.
 
@@ -487,6 +487,7 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 - A reader with no runtime reflection, with the reflection switch in the place that OQ-179 sets (F-36).
 - The permanent content id, in the form of OQ-63 (D-166).
 - The content hash over the rule files alone, and the layout of `content/` that draws the line (D-495).
+- The SHA-256 of D-644, in Core code beside the content hash that calls it (D-645). Its test holds the published vectors of the reference implementation.
 - The string table, from an id to text, with a test for each id that content names (D-167, G-7).
 - The embed of `content/` in the Game assembly, the folder reader in Tools, and the match test (D-508).
 - The `eol=lf` rule in `.gitattributes`, so each checkout holds the same bytes.
@@ -514,7 +515,7 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 - The line-end rule holds on the Windows leg (the external facts of `area-core.md`).
 - The Godot export needs no filter for content, because the assembly carries it (F-42).
 
-**Questions.** OQ-62, OQ-63, and OQ-179.
+**Questions.** OQ-63 and OQ-179. D-644 answered OQ-62, and D-645 puts the SHA-256 of the content hash in this PR.
 
 > *In plain English:* every enemy, item, and map lives in a strict data file. A gap or a typo stops the load with the file and the field, instead of a silent zero.
 
@@ -825,9 +826,9 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | Question | Subject | Blocks |
 |---|---|---|
 | OQ-3 | The required checks on `main` | Waits for PR-3 |
-| OQ-60 | The rounding rule of fixed-point math | PR-4 |
-| OQ-61 | The random generator and the stream split | PR-4 |
-| OQ-62 | The hash function of Core | PR-4 and PR-5 |
+| OQ-60 | The rounding rule of fixed-point math | Answered by D-641 |
+| OQ-61 | The random generator and the stream split | Answered by D-642 and D-643 |
+| OQ-62 | The hash function of Core | Answered by D-644 and D-645 |
 | OQ-63 | The form of a content id | PR-5 |
 | OQ-64 | The tick while a menu is open | PR-6 |
 | OQ-65 | When the run record takes a new snapshot | PR-6 and PR-43 |

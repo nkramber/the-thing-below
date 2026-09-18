@@ -12,10 +12,10 @@ GODOT ?= /Applications/Godot_mono.app/Contents/MacOS/Godot
 SMOKE_FRAME_LIMIT := 600
 
 
-.PHONY: verify where hooks build test lint format ste-check smoke run clean
+.PHONY: verify where hooks build test lint format ste-check identity smoke run clean
 
 ## verify: every check that this machine can run.
-verify: build test format lint ste-check smoke
+verify: build test format lint ste-check identity smoke
 
 ## build: build every project of the solution.
 build:
@@ -42,6 +42,13 @@ lint:
 # the writing rules, and the command holds their paths itself (D-10, D-608).
 ste-check:
 	dotnet run --project $(TOOLS_PROJECT) -- ste-check --root .
+
+## identity: compare each state hash with the identity file (G-5, D-504).
+#
+# This machine is the fourth leg beside the three CI legs. The command reads the build
+# output of the Tools project, so the `build` target runs before it.
+identity:
+	dotnet run --project $(TOOLS_PROJECT) --no-build -- replay-identity --root .
 
 ## smoke: build the Godot solution, then run the headless session (D-117).
 #
