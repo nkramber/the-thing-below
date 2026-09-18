@@ -158,7 +158,6 @@ Built by PR-36, on the base of PR-61. Phase file: `phase-2-first-playable.md`.
 
 - The box sits at the bottom, with the portrait, a name plate, and the choices (D-109, D-114, D-223).
 - One line of the box holds 156 characters at the UI scale of 1x, and 76 at 2x, so the limit is 76 (D-635, F-69).
-- One line of the box holds 156 characters at the UI scale of 1x, and 76 at 2x, so the limit is 76 (D-635, F-69).
 - The text types out at the chosen speed, in silence (D-223). OQ-112 holds the speeds and the way the box lays out its text.
 - The text speed and the skip are accessibility settings of PR-63 (D-214).
 - A choice in the box becomes an intent, and Core holds its result (D-493, PR-36).

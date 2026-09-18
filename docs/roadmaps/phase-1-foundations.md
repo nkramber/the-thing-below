@@ -359,11 +359,11 @@ Area files: `area-ui-input.md` sections 7.1, 7.2, 7.8, and 7.13, and `area-art.m
 **Scope.**
 
 - The decision rows of the round, D-626 to D-640, and the close of OQ-183.
-- The result of the probe in the cost model, as M-8, with the table of the three screens (D-636).
+- The result of the probe in the cost model, as M-8, with the table of the four screens (D-636).
 - The world at 2x in every live document, so the frame holds 20 by 11.25 tiles (D-633).
 - The world viewport of 640 by 360, and the UI scale setting with its two values (D-634).
 - The text limits of the `game-text-style` skill at the UI scale of 2x (D-635).
-- The new rows F-68 to F-76, G-28, and PR-86.
+- The new rows F-68 to F-77, G-28, and PR-86.
 
 **Out of scope.**
 
@@ -374,7 +374,7 @@ Area files: `area-ui-input.md` sections 7.1, 7.2, 7.8, and 7.13, and `area-art.m
 **Exit tests.**
 
 1. The `ste-check` command passes on every live document.
-2. Each new id resolves: F-68 to F-76, G-28, and PR-86.
+2. Each new id resolves: F-68 to F-77, G-28, and PR-86.
 3. No live document gives the frame 40 by 22.5 tiles, and none says that the world draws at 1x.
 4. `docs/questions.md` records OQ-183 as resolved, with each decision row that answers it.
 5. The `review-gate` check passes, and the Documents section has a line for each row.
