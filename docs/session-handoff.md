@@ -5,7 +5,7 @@ Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of
 ## Session 93: 2026-09-17, Claude Code
 
 Author: Claude Code
-Session: PR-85, the result of the Deck test and the look. Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. PR: PR-85, which GitHub numbers at the open. Role: author. Base: `2874b70`.
+Session: PR-85, the result of the Deck test and the look. Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. PR: #24, which is PR-85 of the roadmap. Role: author. Base: `2874b70`.
 
 ### What this session did, and why
 
@@ -34,7 +34,7 @@ The push, the Gitar pass, and the review of Codex. This PR revises decision rows
 - Each citation of D-88, D-105, D-120, or D-240 must name D-618, or REF 3 fails.
 - PR-37 keeps a retired entry in `phase-2-first-playable.md`, which keeps the id in the register (G-10).
 - Section 7 of `phase-1-foundations.md` gained three entries, so each later section number moved.
-- The four Deck reports live in the PR description alone (D-624). The repository commits no report file.
+- The flag `--attach` of `gh` refuses a text file, so the reports go in the description and in a comment (D-624).
 - `deck-test/` stays untracked, as it was before this session.
 - The next ids are D-625, OQ-184, F-68, L-16, G-28, M-9, and Session 94.
 
@@ -44,7 +44,7 @@ OQ-183 blocks PR-7 and PR-34. The probe of D-621 answers it, and that probe need
 
 ### The next concrete action
 
-Push the branch, open the PR with the four reports attached, and answer the Gitar pass.
+Answer the Gitar pass on PR #24, then hand the PR to Codex for the review of T-4.
 
 ## Session 92: 2026-09-17, Codex
 

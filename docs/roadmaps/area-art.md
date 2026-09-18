@@ -7,6 +7,7 @@ The design doc holds the system map (section 3), the cost model (section 4), and
 External facts, each with the date of its check:
 
 - `gh` 2.99.0 of 2026-09-01 adds the flag `--attach`, which "uploads local images and videos and adds them to issue, pull request, or comment bodies". Source: `gh api repos/cli/cli/releases/tags/v2.99.0`, run 2026-09-14.
+- The flag `--attach` refuses a text file. It names the supported types as png, jpg, jpeg, gif, webp, svg, mp4, mov, and webm. A text file goes in the body of the description or of a comment. Source: `gh pr create --attach`, run 2026-09-17.
 - The help of `gh pr create` says: "You can attach up to 50 files per command." The commands `gh pr edit` and `gh pr comment` take the flag too. The Mac of the owner has `gh` 2.100.0. Sources: `gh pr create --help`, `gh pr comment --help`, and `gh --version`, run 2026-09-14.
 - "You need push access to the repository to attach files." Source: `https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli`, read 2026-09-14.
 - "For public repositories, uploaded files can be accessed without authentication. In the case of private and internal repositories, only people with access to the repository can view the uploaded files." The largest upload is "10MB for images and gifs". Source: `https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files`, read 2026-09-14.
