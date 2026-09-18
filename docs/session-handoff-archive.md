@@ -1,5 +1,40 @@
 # Session handoff archive
 
+## Session 88: 2026-09-17, Codex
+
+Author: Codex
+Session: review PR #22 at effective head `1f07b6b`. Repository: the-thing-below. Branch: `feat/pr-84-context-budget`. Role: reviewer. Base: `9787b2d`.
+
+### What this session did, and why
+
+- Reviewed PR #22, the context budget checks in `ste-check`, against the five exit tests of section 7.6 of `docs/roadmaps/phase-1-foundations.md`.
+- Verified the Gitar heading-boundary finding and its regression test. The shared detector fixes the trigger.
+- Updated the PR test count to 136 after local verification.
+- Wrote `docs/reviews/pr-22.md` with the verdict for effective head `1f07b6b`.
+
+### The state of the build
+
+- `main` is `9787b2d`. The PR branch is `feat/pr-84-context-budget`, with effective head `1f07b6b` and metadata tip `b55f8e6` before this review commit.
+- Local build, 136 tests, format check, and `ste-check` pass. CI build, test, format, smoke, changed paths, coverage, and `ste-check` pass on `1f07b6b`.
+- The initial `review-gate` run failed RG 3 because the review record was not on the head. After the metadata push, all ten checks pass, including `review-gate`.
+
+### What is in flight
+
+The review record and this entry are pushed as `d7f6fb3`. GitHub reports this commit as the head, the tree has no staged or tracked changes, and all ten checks pass, including `review-gate`.
+
+### Traps and gotchas
+
+- `deck-test/` was untracked before review work and remains untouched.
+- A commit that changes only this PR's review record and handoff files does not move the effective head (D-610).
+- The PR description now records the verified test count of 136.
+
+### The questions that block progress
+
+None for this PR. Future checks remain named with their creating PR in the PR gate (G-16).
+
+### The next concrete action
+
+The review is published at `d7f6fb3`, and all checks pass. The owner can merge PR #22.
 ## Session 87: 2026-09-17, Claude Code
 
 Author: Claude Code

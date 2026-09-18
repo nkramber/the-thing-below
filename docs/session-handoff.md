@@ -2,6 +2,45 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 98: 2026-09-18, Codex
+
+Author: Codex
+Session: repeat review of PR #24 at effective head `5f5129a`. Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. Role: reviewer. Base: `2874b70`.
+
+### What this session did, and why
+
+- Rechecked P2-1 against its original trigger and regression check.
+- Verified the author revised D-139, D-161, D-172, D-214, D-520, and D-526.
+- Verified the effects roadmap no longer schedules PR-37 or describes the CRT pass.
+- Set P2-1 and P2-2 to fixed in the review record. The verdict is ready for owner merge.
+
+### The state of the build
+
+- `main` and the merge base are `2874b70`. Effective head: `5f5129a`. Remote metadata tip: `1328661`.
+- The author reports `make verify` passed with 187 tests. The local repeat-review build produced no output for 7:41 and was stopped.
+- The changed-path and `ste-check` jobs pass. Docs-only build, test, format, coverage, lint, and smoke jobs skip under D-600.
+- The current Gitar pass approves `5f5129a`, with one closed finding and no open finding. The live inline-comment query returned zero.
+- `deck-test/` remains untracked and untouched.
+
+### What is in flight
+
+The review record and this handoff need one metadata commit and push. Then verify the new `review-gate` result.
+
+### Traps and gotchas
+
+- The metadata commit does not move the effective head (D-610).
+- D-618 retires the CRT pass and PR-37. D-619 keeps two transition names only.
+- The owner must read the `review-gate` result after this record is published.
+- The next ids are D-626, OQ-184, F-68, L-16, G-28, M-9, and Session 99.
+
+### The questions that block progress
+
+None for PR #24. OQ-183 blocks PR-7 and PR-34.
+
+### The next concrete action
+
+Publish the review record and handoff, then confirm that `review-gate` passes for the effective head.
+
 ## Session 97: 2026-09-18, Claude Code
 
 Author: Claude Code
@@ -385,39 +424,3 @@ None for this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
 ### The next concrete action
 
 The Codex review of PR #23 at the effective head `f5eba68`. The review record goes to `docs/reviews/pr-23.md`, and RG 3 passes with it.
-
-## Session 88: 2026-09-17, Codex
-
-Author: Codex
-Session: review PR #22 at effective head `1f07b6b`. Repository: the-thing-below. Branch: `feat/pr-84-context-budget`. Role: reviewer. Base: `9787b2d`.
-
-### What this session did, and why
-
-- Reviewed PR #22, the context budget checks in `ste-check`, against the five exit tests of section 7.6 of `docs/roadmaps/phase-1-foundations.md`.
-- Verified the Gitar heading-boundary finding and its regression test. The shared detector fixes the trigger.
-- Updated the PR test count to 136 after local verification.
-- Wrote `docs/reviews/pr-22.md` with the verdict for effective head `1f07b6b`.
-
-### The state of the build
-
-- `main` is `9787b2d`. The PR branch is `feat/pr-84-context-budget`, with effective head `1f07b6b` and metadata tip `b55f8e6` before this review commit.
-- Local build, 136 tests, format check, and `ste-check` pass. CI build, test, format, smoke, changed paths, coverage, and `ste-check` pass on `1f07b6b`.
-- The initial `review-gate` run failed RG 3 because the review record was not on the head. After the metadata push, all ten checks pass, including `review-gate`.
-
-### What is in flight
-
-The review record and this entry are pushed as `d7f6fb3`. GitHub reports this commit as the head, the tree has no staged or tracked changes, and all ten checks pass, including `review-gate`.
-
-### Traps and gotchas
-
-- `deck-test/` was untracked before review work and remains untouched.
-- A commit that changes only this PR's review record and handoff files does not move the effective head (D-610).
-- The PR description now records the verified test count of 136.
-
-### The questions that block progress
-
-None for this PR. Future checks remain named with their creating PR in the PR gate (G-16).
-
-### The next concrete action
-
-The review is published at `d7f6fb3`, and all checks pass. The owner can merge PR #22.
