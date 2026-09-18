@@ -16,14 +16,14 @@ Session: review PR #28, PR-5, content, the content hash, and the string table. R
 
 ### The state of the build
 
-- `main` and the merge base are `efd6a53`. PR #28 has metadata tip `4ac644c` and effective head `55eb083` (D-610).
+- `main` and the merge base are `efd6a53`. PR #28 has metadata tip `ad0bdd3` and effective head `55eb083` (D-610).
 - `make verify` passes: 401 tests, format, `det-lint`, `ste-check`, replay identity, content hash, and Godot smoke.
-- Thirteen remote checks pass on tip `4ac644c`. `review-gate` fails RG 3 because the review record is not yet on the branch.
+- Thirteen remote checks pass on tip `ad0bdd3`. `review-gate` reports only RG 4 because the verdict is `Changes required`.
 - Gitar approves the effective head, with no open finding. Its dashboard update is later than the implementation push.
 
 ### What is in flight
 
-The review record and this handoff entry need a commit and push. The author must correct P2-1 before merge. Codex then repeats the review on the corrected head.
+The review record and this handoff entry are published at `ad0bdd3`. The author must correct P2-1 before merge. Codex then repeats the review on the corrected head.
 
 ### Traps and gotchas
 
@@ -37,7 +37,7 @@ None. OQ-63, OQ-179, OQ-184, and OQ-185 close with D-646 to D-649.
 
 ### The next concrete action
 
-Publish the review record. The author corrects P2-1, then asks Codex to repeat the review.
+The author corrects P2-1, then asks Codex to repeat the review.
 
 ## Session 108: 2026-09-18, Claude Code
 
