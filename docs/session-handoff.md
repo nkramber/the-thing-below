@@ -22,7 +22,7 @@ Session: review PR #27, PR-4, integer math, streams, state hash, and identity jo
 
 ### What is in flight
 
-The review record and this handoff entry need a commit and push. Then verify `review-gate` on the metadata tip.
+The review record and this handoff entry are pushed as `7969d87`. The required `review-gate` result on the published record is pending.
 
 ### Traps and gotchas
 
@@ -443,4 +443,3 @@ None for PR #24. OQ-183 blocks PR-7 and PR-34.
 ### The next concrete action
 
 The owner can merge PR #24 after reading the current review verdict.
-
