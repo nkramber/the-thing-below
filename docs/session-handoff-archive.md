@@ -1,5 +1,45 @@
 # Session handoff archive
 
+## Session 96: 2026-09-18, Codex
+
+Author: Codex
+Session: review of PR #24 at effective head `7426dc9`. Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. Role: reviewer. Base: `2874b70`.
+
+### What this session did, and why
+
+- Reviewed the full 17-path documentation diff and the current Gitar pass.
+- Found that D-618 retired the CRT, but the effects roadmap still named PR-37 and described the old-monitor pass.
+- Found remaining CRT references in D-172, D-214, and `area-effects.md`.
+- Found a separate failure in the PR description: its Documents lines did not use the required forms of D-581. The reviewer corrected the lines and recorded each edit.
+- The review record gives the verdict and evidence for this head.
+
+### The state of the build
+
+- `main` and the merge base are `2874b70`. Effective head: `7426dc9`. Remote metadata tip at verification: `a20b9c4`.
+- `ste-check` passes with 0 findings. `make verify` stopped at a build with no diagnostic output, so its result is inconclusive.
+- CI skips build, test, format, coverage, lint, and smoke for this documentation-only PR under D-600.
+- The current Gitar pass approves `7426dc9`, with one closed finding and no open finding. No inline thread is open.
+- `deck-test/` remains untracked and untouched.
+
+### What is in flight
+
+The review record and this handoff are published. The author needs to correct the remaining CRT contracts before the owner can merge.
+
+### Traps and gotchas
+
+- The review commit changes only metadata paths, so the effective head remains `7426dc9` (D-610).
+- The Gitar summary repeats older decision ids, but the push, request, reply, and dashboard times prove the pass covers this head (D-603).
+- D-618 supersedes the CRT parts of D-88, D-105, D-120, and D-240; D-619 retains two transition names only.
+- The next ids are D-626, OQ-184, F-68, L-16, G-28, M-9, and Session 97.
+
+### The questions that block progress
+
+None for PR #24. OQ-183 blocks PR-7 and PR-34.
+
+### The next concrete action
+
+The author corrects P2-1, then requests a repeat review of the new effective head.
+
 ## Session 93: 2026-09-17, Claude Code
 
 Author: Claude Code
