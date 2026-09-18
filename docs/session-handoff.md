@@ -18,11 +18,12 @@ Session: review PR #29, PR-6, the tick, the intents, the run record, and replay.
 
 - `main` and the merge base are `1960cf3`. The effective head is `ee1e6ea`, and the remote tip is `3a4b728`.
 - `make verify` passes with 475 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and smoke pass.
-- GitHub checks pass except `review-gate`. Its run reports RG 3 alone because the review record did not exist yet. Gitar approves the code with no finding.
+- The review record is published at `49c4462`. All GitHub checks pass except `review-gate` RG 4, because the verdict is `Changes required`.
+- The Gitar check passes on `49c4462`. Its dashboard approves the code with no finding, and the PR has no review thread (D-603).
 
 ### What is in flight
 
-The review record and this handoff entry pass the local writing and diff checks. The metadata commit and push remain. P2-1 remains open, so the PR is not ready for owner merge.
+The review record and this handoff entry were published at `49c4462`. P2-1 remains open, so the PR is not ready for owner merge.
 
 ### Traps and gotchas
 
