@@ -2,6 +2,50 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 99: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: the answers of the screen scale probe. Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: author. Base: `b3ec2b4`.
+
+### What this session did, and why
+
+- Read `screen-scale-probe/handover.md` on the spike branch, which holds the owner answers of the probe.
+- Found that answer 2 and answer 3 of OQ-183 disagree on a 1920 by 1080 screen, which D-568 makes a screen that must look good.
+- Found that the probe computed the fit with integer division, so it could never draw the 1.5x fit of that screen.
+- Patched the spike with two fit modes, and proved both in a window of 1920 by 1080 on the Mac (D-638).
+- The owner then ran the new Windows build on a 27-inch 1080p screen and picked the UI at 2x.
+- Wrote D-626 to D-640, F-68 to F-77, G-28, the M-8 table of four screens, and the close of OQ-183.
+- Applied the answers to nine live documents, four skills, and the PR-86 roadmap entry.
+
+### The state of the build
+
+- `main` is `b3ec2b4`. The PR head is `5ccbaa2`, and the handoff commit follows it.
+- The spike branch `spike/screen-scale-probe` is at `f314243`, and it never merges (D-597, D-621).
+- `make verify` passed: the build with 0 warnings, 187 tests, the format check, `det-lint`, `ste-check`, and the smoke session.
+- `ste-check` gives 0 findings, so each new id resolves.
+
+### What is in flight
+
+The push, the Gitar pass, and the Codex review. This PR changes decision rows, so the `review-override` label does not apply (D-401, D-609).
+
+### Traps and gotchas
+
+- Two claims of the spike handover did not survive the check, and the record now holds the refutation. D-508 refutes the claim that the export of the game needs an include filter, because Game embeds content and each font in its own assembly. The 1080p run moved the UI boundary from a fit of 1x to a fit of 2x.
+- A 27-inch 1080p screen and a 27-inch 4K screen give one line of body text the same apparent size, and the owner picked two different UI values. The count of device pixels sets the value, not the apparent size (F-77). A later session must not read the arcminute numbers of M-8 as the rule.
+- The PR-86 entry moved 11 sections of `docs/roadmaps/phase-1-foundations.md` by one. No document outside this PR cites a section number of that file above 7.8.
+- The option list of OQ-183 still names the frame at 40 by 22.5 tiles. That list records the options of 2026-09-17, and D-633 closed the question.
+- The row of D-599 keeps the bare name `project.godot`, because a decision row is a record of one day (D-637).
+- `deck-test/` and `screen-scale-probe/` stay untracked on this branch. The two probe exports are above 150 MB and stay out of git.
+- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 100.
+
+### The questions that block progress
+
+None. OQ-183 closed with D-633 and D-639, which unblocks PR-7, PR-34, and PR-61.
+
+### The next concrete action
+
+Push the branch, open the PR, answer the Gitar pass, and hand the PR to Codex for the review.
+
 ## Session 98: 2026-09-18, Codex
 
 Author: Codex
@@ -380,47 +424,3 @@ No owner question blocks progress. P2-1 needs the author's correction.
 ### The next concrete action
 
 The author corrects P2-1 on PR #23. Codex reviews the correction against its new effective head.
-
-## Session 89: 2026-09-17, Claude Code
-
-Author: Claude Code
-Session: PR-46, the `det-lint` command and its job. Repository: the-thing-below. Branch: `feat/pr-46-det-lint`. PR: #23. Role: author. Base: `0fbecab`.
-
-### What this session did, and why
-
-- Asked the owner OQ-70 and OQ-71, which blocked PR-46. The owner took the recommended option of each one, and D-614 and D-615 record the answers.
-- Wrote the `det-lint` command in Tools on the Roslyn compiler library, version 5.9.0 of `Microsoft.CodeAnalysis.CSharp` (D-498). The command reads the type of each expression, so a real literal with no suffix fails too (F-38).
-- Ten rules: DL 0 for a compilation error, DL 1 to DL 7 for Core, and DL 8 and DL 9 for Game. Section 7.4 of `docs/roadmaps/area-tools.md` holds the table.
-- Added the `det-lint` job to the Linux leg of CI and the `lint` target of `make verify`.
-- The first live run found a real fault: `CoreAssembly.Self` gave a `System.Reflection.Assembly` from Core. No code read it, because the reference test of G-1 reads the built file (F-61). The member now gives the name of the assembly, and that test reads the name.
-- F-65 joins the finding register: Godot.NET.Sdk writes the build output of a Godot project to `.godot/mono/temp/bin/<configuration>/`, and that folder holds `GodotSharp.dll` from the NuGet restore.
-
-### The state of the build
-
-- `main` is `0fbecab`. The head of PR #23 is `f5eba68` before this entry.
-- `make verify` passes: the build with 0 warnings, 186 tests, the format check, `det-lint` with 0 findings, `ste-check` with 0 findings, and the smoke session.
-- Every CI check passes on `88215f8`: three build legs, three smoke legs, the changed paths job, the coverage report, `ste-check`, and the new `det-lint` job. The `det-lint` job takes 26 seconds.
-- `review-gate` fails on RG 3 alone, because no record exists at `docs/reviews/pr-23.md` yet. RG 1, RG 2, RG 6, RG 7, and RG 8 pass.
-
-### What is in flight
-
-The Codex review of the effective head `f5eba68`. The Gitar pass gives the verdict `Approved` with no finding and no open thread. This PR changes code and `.github/workflows/`, so no label exempts it (D-560).
-
-### Traps and gotchas
-
-- The lint needs a build first. `ReferenceSet` reads the Godot assembly from the Game build output, and the error of an absent folder names the build command (T-2).
-- The `bin` folder of the Game project stays empty. F-65 names the real output folder.
-- DL 4 passes `typeof(X)` alone, because the content reader of PR-5 needs it in an attribute (F-36). It fails each member of `Type` that reflects.
-- `GodotTextRule.TextHelperType` holds the name of the text helper of PR-61. That PR confirms the name or changes the constant (G-16).
-- `deck-test/` stays untracked, as it was before this session.
-- The commit `88215f8` changes the two handoff files alone, so the effective head stays `f5eba68` (D-610).
-- Gitar paused automatic reviews for the trial, and the pass of this PR ran on the first push.
-- The next ids are D-616, OQ-183, F-66, L-16, G-27, PR-85, M-8, and Session 90.
-
-### The questions that block progress
-
-None for this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
-
-### The next concrete action
-
-The Codex review of PR #23 at the effective head `f5eba68`. The review record goes to `docs/reviews/pr-23.md`, and RG 3 passes with it.
