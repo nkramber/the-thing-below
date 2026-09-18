@@ -26,7 +26,12 @@ Session: PR-6, the answer to the review of Codex. Repository: the-thing-below. B
 
 ### What is in flight
 
-The Gitar pass on the new head, and then the repeat review of Codex.
+The repeat review of Codex. The Gitar pass approves the head `db432de`, and it gives no finding.
+
+- The automatic pass started 3 seconds after the push, and the Gitar check on `db432de` completed with success.
+- Gitar replaced the dashboard comment, and the new id is `5737525695` with the edit time 23:45:27Z. That time is later than the push at 23:44:16Z, so the pass covers the head (D-603).
+- The dashboard reads `Approved` with no issue, and the PR holds no review thread.
+- Fourteen CI checks pass. `review-gate` gives RG 4 and RG 5, because the record still reads `Changes required` for `ee1e6ea`. The repeat review clears both.
 
 ### Traps and gotchas
 
@@ -41,7 +46,7 @@ None.
 
 ### The next concrete action
 
-Push the correction, answer the Gitar pass, and hand PR #29 back to Codex for the repeat review.
+Hand PR #29 back to Codex for the repeat review of the head `db432de`.
 
 ## Session 113: 2026-09-18, Codex
 
