@@ -89,7 +89,7 @@ The table lists what a frame draws, from the bottom to the top.
 | Transition | The full-screen effect that starts a battle | No | D-191, D-195 |
 | Fit | The scale to the screen, with black bars | No | D-232, D-568 |
 
-- Game draws the world, the UI, and the transition into the frame at 1x, 1280 by 720 (D-230, D-568). The game draws no CRT pass (D-618). The fit to the screen comes last (D-232). OQ-183 holds the scale of the frame on a screen.
+- Game draws the world, the UI, and the transition into the frame at 1x, 1280 by 720 (D-230, D-568). The game draws no CRT pass (D-618). The fit to the screen comes last (D-232). The world draws at 2x, from a `SubViewport` of 640 by 360 (D-633, D-634).
 - Godot computes 2D light at the pixel size of the viewport, and the Nearest filter does not change that (the external facts above). So the frame at 1x gives light and shadows the pixel size of the art.
 - PR-61 draws the world in a `SubViewport` at 1x, and `area-ui-input.md` holds the stretch mode and the fit (F-45, F-48). Otherwise light falls on screen pixels, not on art pixels.
 - The UI sits on a canvas layer above the world, and a light reaches only the canvas layers in its range. So the UI never takes scene light (D-210).

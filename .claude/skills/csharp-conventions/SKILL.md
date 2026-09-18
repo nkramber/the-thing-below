@@ -72,7 +72,7 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 - Game makes each audio stream from the rendered bytes of its own assembly, and it checks every return (D-547, F-56).
 - Game draws art from the atlas bytes with the Nearest filter, and no Godot resource file holds art (D-508, F-45).
 - Some Godot calls report a failure in the log alone, such as `ImageTexture.CreateFromImage` and the WAV load of F-56. Each one gets a check right after it (T-2, F-45, F-56).
-- The Godot editor writes files: `project.godot`, `.csproj` target frameworks, and `.import` files. The PR review reads each one it touches.
+- The Godot editor writes files: `TheThingBelow.Game/project.godot`, `.csproj` target frameworks, and `.import` files. The PR review reads each one it touches.
 
 ## Style
 

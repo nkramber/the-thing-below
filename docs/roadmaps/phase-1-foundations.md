@@ -137,7 +137,7 @@ Area file: `area-effects.md`, sections 7.3 and 7.4.
 
 **Scope.**
 
-- The Mobile renderer in `project.godot` of the Game project (D-160, D-599, D-616).
+- The Mobile renderer in `TheThingBelow.Game/project.godot` of the Game project (D-160, D-599, D-616).
 - The reports of the Deck run, which the PR description of PR-85 holds (D-624).
 
 **Out of scope.**
@@ -292,7 +292,7 @@ Area files: `area-effects.md` sections 7.3, 7.4, and 7.12, and `area-art.md` sec
 
 **Out of scope.**
 
-- The one line of `project.godot`, which PR-82 holds (D-616).
+- The one line of `TheThingBelow.Game/project.godot`, which PR-82 holds (D-616).
 - The two tests themselves, which the owner runs with a session of their own (D-620, D-621).
 - The budget file and its test, which PR-56 holds (D-617).
 - Every code, content, and art change.
@@ -317,7 +317,7 @@ Area files: `area-effects.md` sections 7.3, 7.4, and 7.12, and `area-art.md` sec
 
 ### 7.8 The screen scale probe
 
-Owner and a session, in the session right after the merge of PR-85 (D-625). Area files: `area-ui-input.md` section 7.2, and `area-art.md` section 7.1.
+Done on 2026-09-18. Owner and a session, in the session right after the merge of PR-85 (D-625). Area files: `area-ui-input.md` section 7.2, and `area-art.md` section 7.1. PR-86 records each answer (D-626 to D-638).
 
 **Scope.**
 
@@ -335,10 +335,11 @@ Owner and a session, in the session right after the merge of PR-85 (D-625). Area
 
 **Exit tests.**
 
-1. The owner reads the same mock frame on all three screens, at both scales.
+1. The owner reads the same mock frame on all three screens, at both scales. Done 2026-09-18.
 2. A decision row records the scale of the world and the scale of the UI, and it resolves OQ-183.
-3. M-8 holds the numbers of each screen.
-4. The mock frame fills each screen at the native pixel size of that screen.
+3. M-8 holds the numbers of each screen. Done 2026-09-18 (D-636).
+4. The mock frame fills each screen at the native pixel size of that screen. Done 2026-09-18.
+5. A run on a 1920 by 1080 screen gives the UI value at a fractional fit (D-638, F-76).
 
 **Review focus.**
 
@@ -349,9 +350,49 @@ Owner and a session, in the session right after the merge of PR-85 (D-625). Area
 
 **Questions.** OQ-183.
 
-> *In plain English:* a 32-pixel figure is about 4 mm tall on the Deck, which is small. This shows the owner the same picture at two sizes on three screens, before any art or map takes the size as fixed.
+> *In plain English:* a 32-pixel figure is about 4 mm tall on the Deck, which is small. This showed the owner the same picture at two sizes on three screens, before any art or map took the size as fixed. The owner chose the larger size for the world on every screen.
 
-### 7.9 PR-46: det-lint
+### 7.9 PR-86: the answers of the screen scale probe
+
+Area files: `area-ui-input.md` sections 7.1, 7.2, 7.8, and 7.13, and `area-art.md` section 7.1.
+
+**Scope.**
+
+- The decision rows of the round, D-626 to D-640, and the close of OQ-183.
+- The result of the probe in the cost model, as M-8, with the table of the three screens (D-636).
+- The world at 2x in every live document, so the frame holds 20 by 11.25 tiles (D-633).
+- The world viewport of 640 by 360, and the UI scale setting with its two values (D-634).
+- The text limits of the `game-text-style` skill at the UI scale of 2x (D-635).
+- The new rows F-68 to F-76, G-28, and PR-86.
+
+**Out of scope.**
+
+- Every code, content, and art change of the game. The probe is a spike that never merges (D-597, D-621).
+- The UI base of PR-61, which builds the viewport, the setting, and the two layouts.
+- The map size of PR-7 and the art batch of PR-34, which read the new tile count.
+
+**Exit tests.**
+
+1. The `ste-check` command passes on every live document.
+2. Each new id resolves: F-68 to F-76, G-28, and PR-86.
+3. No live document gives the frame 40 by 22.5 tiles, and none says that the world draws at 1x.
+4. `docs/questions.md` records OQ-183 as resolved, with each decision row that answers it.
+5. The `review-gate` check passes, and the Documents section has a line for each row.
+
+**Review focus.**
+
+- The numbers of M-8 match the geometry of each screen, and the picks match the runs of the owner.
+- Each revised decision names the decision that revised it, and each citation reads the new row (D-606).
+- A document that gives a tile count, a viewport size, or a text limit reads the new answer.
+- The claim of the spike about the export of the game, which D-508 refutes (F-73).
+
+**Questions.** None. D-626 to D-640 hold each answer of this round, and OQ-183 closes.
+
+> *In plain English:* the owner read the same picture on four screens and chose how big the game
+> draws. This writes that choice into every document, so the maps, the art, and the menus that
+> come next take the right size from the start.
+
+### 7.10 PR-46: det-lint
 
 Area files: `area-tools.md` section 7.4, `area-ci.md` section 7.8.
 
@@ -392,7 +433,7 @@ Area files: `area-tools.md` section 7.4, `area-ci.md` section 7.8.
 
 > *In plain English:* two computers can disagree on decimal math and on the order of words. This tool reads the rules code as the compiler does and refuses anything that can make two machines disagree.
 
-### 7.10 PR-4: integer math, the streams, the state hash, and the identity job
+### 7.11 PR-4: integer math, the streams, the state hash, and the identity job
 
 Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.9.
 
@@ -436,7 +477,7 @@ Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.
 
 > *In plain English:* different computers can give different answers for decimal math. This adds our own whole-number math and a check that proves the same result on every machine.
 
-### 7.11 PR-5: content, the content hash, and the string table
+### 7.12 PR-5: content, the content hash, and the string table
 
 Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.md` section 7.1.
 
@@ -477,7 +518,7 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 
 > *In plain English:* every enemy, item, and map lives in a strict data file. A gap or a typo stops the load with the file and the field, instead of a silent zero.
 
-### 7.12 PR-6: the tick, the intents, the run record, and replay
+### 7.13 PR-6: the tick, the intents, the run record, and replay
 
 Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` section 7.9, `area-release.md` section 7.1.
 
@@ -518,7 +559,7 @@ Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` secti
 
 > *In plain English:* the game writes down its start state and every choice after it. That record plays any run again on any machine, so every bug becomes repeatable on demand.
 
-### 7.13 PR-43: the Storage project, the snapshots, and the saves
+### 7.14 PR-43: the Storage project, the snapshots, and the saves
 
 Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 
@@ -557,7 +598,7 @@ Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 
 > *In plain English:* a save is a full picture of the game at one moment. A crash during a save never destroys the old one, and a save from an older build still loads through a converter.
 
-### 7.14 PR-44: the crash files and the log files
+### 7.15 PR-44: the crash files and the log files
 
 Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 
@@ -595,7 +636,7 @@ Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 
 > *In plain English:* when the game stops with an error, it leaves one file that holds everything a replay needs. Logs are plain one-line notes that the tools can read.
 
-### 7.15 PR-47: the PNG code
+### 7.16 PR-47: the PNG code
 
 Area file: `area-tools.md` section 7.5.
 
@@ -630,7 +671,7 @@ Area file: `area-tools.md` section 7.5.
 
 > *In plain English:* every picture that the tools make or read is a PNG file. The project writes its own small PNG code, so a new version of a library never breaks a picture test.
 
-### 7.16 The Sprite Fusion test
+### 7.17 The Sprite Fusion test
 
 Owner and a session, before PR-34. Area file: `area-art.md` section 7.1.
 
@@ -661,7 +702,7 @@ Owner and a session, before PR-34. Area file: `area-art.md` section 7.1.
 
 > *In plain English:* the owner wants to compare pictures that a session draws with pictures that an outside tool makes. This test draws the same things both ways and lets the owner choose.
 
-### 7.17 PR-34: the atlas, the palette, and the drawing files
+### 7.18 PR-34: the atlas, the palette, and the drawing files
 
 Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7.6.
 
@@ -696,6 +737,7 @@ Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7
 
 - The palette holds 64 colors, and each element and status has one (F-17, D-181).
 - The test compares pixels, never bytes (F-19).
+- A grid keeps its size in art pixels. The world draws it at 2x, so a 32-pixel sprite covers 64 frame pixels (D-633).
 - The answer of OQ-85 sets the pages, and OQ-86 sets how the atlas places a tile.
 - The swatch sheet and the review sheets reach the PR description, and the owner approves the batch (G-25).
 
@@ -703,7 +745,7 @@ Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7
 
 > *In plain English:* every picture in the game starts as a text file of letters, one for each pixel. This command turns the letters into the one image that the engine draws, and a test proves that they still match.
 
-### 7.18 M-1 and M-2: the first measurements
+### 7.19 M-1 and M-2: the first measurements
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds both rows.
 
@@ -728,7 +770,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 
 > *In plain English:* the first ten changes each record what they cost in machine time and in money. That gives the owner real numbers before the plan grows.
 
-### 7.19 Gate 1: the foundation gate
+### 7.20 Gate 1: the foundation gate
 
 **The gate.** Gate 1 passes when every line holds:
 
@@ -754,12 +796,13 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 2. Owner and a session: the Deck test, which picks the renderer and measures the budget (D-160, D-523). Done on 2026-09-17.
 3. Owner: run the Deck test on the Linux export (D-458). Done on 2026-09-17 (D-616, D-617).
 4. PR-1: the scaffold, the four projects, the gate jobs, and the local gate.
-5. PR-82: the Mobile renderer of the Deck test, which is one line of `project.godot` (D-599, D-616).
+5. PR-82: the Mobile renderer of the Deck test, which is one line of `TheThingBelow.Game/project.godot` (D-599, D-616).
 6. PR-2: the STE checker in C#.
 7. PR-3: the review gate.
 8. PR-84: the context budget check, right after PR-3 (D-611).
 9. PR-85: the result of the Deck test, the removal of the CRT, and the two tests before PR-34 (D-616).
 10. Owner and a session: the screen scale probe on three screens, right after PR-85 (D-621, D-625).
+11. PR-86: the answers of the probe, and the close of OQ-183 (D-626 to D-640).
 11. Owner: require the checks on `main` (OQ-3).
 12. PR-46: det-lint, before the first Core code (D-496).
 13. PR-4: integer math, the streams, the state hash, and the identity job.

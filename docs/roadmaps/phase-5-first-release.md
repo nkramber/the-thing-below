@@ -192,7 +192,7 @@ Area files: `area-release.md` section 7.10, `area-ui-input.md` section 7.10.
 2. The default bindings play the whole game on the Deck (D-459).
 3. Under Steam, the game shows the Deck glyph set for the Deck controller, through the call of PR-78 (D-222, D-565).
 4. A suspend and a resume leave the run in the same state (D-85).
-5. The frame draws at 1x on the Deck, and a screen test locks it (D-228).
+5. The frame fits the Deck at 1x, and a screen test locks it (D-228, D-568).
 6. The game holds no text entry, so the keyboard rule does not apply (D-459).
 
 **Review focus.**

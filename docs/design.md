@@ -204,7 +204,16 @@ Measurements that answer the unknowns:
 - M-5: the owner's play time from the first hub to the end of the arc, against D-56.
 - M-7: the Deck frame time of the test scene under Forward+ and under Mobile, at the full load of D-160. Done on 2026-09-17 on an OLED Deck, at the frame of 1280 by 720. Mobile gave 2.78 ms at the 95th percentile of the full load, and Forward+ gave 3.33 ms. Each of the 20 stages held the target under both renderers, and the worst stage gave 4.55 ms under Mobile. It picked the Mobile renderer for PR-82 and gave the first effect budget (D-616, D-617, D-624).
 - M-6: the Deck frame time on the first playable, against 60 frames per second (D-161). The readability of the 16-pixel font and the 32-pixel sprites at the scale that OQ-183 sets (D-92, D-228, D-621).
-- M-8: the screen scale probe of D-621, on the Deck, on a 27-inch 4K screen, and on a 32-inch 1440p screen. It records the apparent size of a sprite and of the body font on each screen, at 1x and at 2x. The owner then picks the scale of the world and the scale of the UI (OQ-183).
+- M-8: the screen scale probe of D-621, on four screens. Done on 2026-09-18. The owner picked the world at 2x on every screen, so the frame holds 20 by 11.25 tiles (D-633). The Deck and the 27-inch 1080p screen take the UI at 2x. The 32-inch 1440p screen and the 27-inch 4K screen take the UI at 1x (D-639). The numbers come from the geometry of each screen, at 45 cm for the Deck and 70 cm for each desktop screen (D-636). The owner then ran a 27-inch 1080p screen, which takes a fit of 1.5x, and picked the UI at 2x there (D-638, D-639). That screen and the 27-inch 4K screen give the same apparent size at the same UI value, and the owner picked two different values. Thus the count of device pixels for each art pixel sets the UI value, and not the apparent size (F-77).
+
+| Screen | Fit | Millimeters for one device pixel | A sprite at world 1x | A sprite at world 2x | A body line at UI 1x | A body line at UI 2x |
+|---|---|---|---|---|---|---|
+| OLED Deck, 1280 by 800, 7.4 inches | 1x | 0.1245 | 3.98 mm, 30.4' | 7.97 mm, 60.9' | 1.99 mm, 15.2' | 3.98 mm, 30.4' |
+| 27-inch 1080p screen, 1920 by 1080 | 1.5x | 0.3113 | 14.94 mm, 73.4' | 29.89 mm, 146.8' | 7.47 mm, 36.7' | 14.94 mm, 73.4' |
+| 27-inch 4K screen, 3840 by 2160 | 3x | 0.1557 | 14.94 mm, 73.4' | 29.89 mm, 146.8' | 7.47 mm, 36.7' | 14.94 mm, 73.4' |
+| 32-inch 1440p screen, 2560 by 1440 | 2x | 0.2724 | 17.43 mm, 85.6' | 34.87 mm, 171.2' | 8.72 mm, 42.8' | 17.43 mm, 85.6' |
+
+The apparent size of a sprite goes from 61 to 171 arcminutes across the four screens. One tile count for every screen gives that spread, and D-37 asks for it. Each number reads the line box of the body font, which is 16 pixels, and not the cap height of a glyph (F-71).
 
 ## 5. Defect and finding register
 
@@ -279,7 +288,17 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-65 | Godot.NET.Sdk writes the build output of a Godot project to `TheThingBelow.Game/.godot/mono/temp/bin/<configuration>/`, and the `bin` folder of the project stays empty. That output folder holds `GodotSharp.dll` from the NuGet restore, so a build of the solution gives the Godot assembly on each CI leg with no Godot editor. Read from the `OutputPath` property of the project on 2026-09-17 | 2026-09-17 | ✅ PR-46: `DetLintCommand.GameOutputFolder` reads that folder, and the text rule of det-lint sees each Godot type through it (D-614). The `det-lint` job and `make verify` build before the lint |
 
 | F-66 | The Deck sweep of 2026-09-17 found no limit. Each of the 20 stages held 60 frames per second under both renderers, and the heaviest stage, 15 lights with 8192 particles and a transition, gave 4.55 ms at the 95th percentile under Mobile, against 5.00 ms under Forward+. The sweep stopped at 15 lights because of F-46, and it stopped at 8192 particles by its own table. So the effect budget of D-523 holds the largest load that the test measured, and not the ceiling of the machine | 2026-09-17 | ⚠ Binds PR-56 to PR-60 and D-617: each budget row is a floor, and a row rises only with a new measurement before it and after it (G-14) |
-| F-67 | A 32-pixel sprite at 1x covers 4.0 mm on an OLED Deck, about 30 arcminutes at 45 cm. A 16-pixel sprite of a Game Boy Advance covers 4.09 mm, about 50 arcminutes at 28 cm, so the Deck at 1x shows about 60 percent of that apparent size. The body font of D-228 gives about a 10-arcminute glyph, near the 9-pixel floor of D-459. D-228 never set this scale: the option that it refused holds 40 tiles across the frame and the same size on screen | 2026-09-17 | ⚠ Binds PR-7 and PR-34: the probe of D-621 measures the scale on three screens, and OQ-183 holds the answer. M-8 records it |
+| F-67 | A 32-pixel sprite at 1x covers 4.0 mm on an OLED Deck, about 30 arcminutes at 45 cm. A 16-pixel sprite of a Game Boy Advance covers 4.09 mm, about 50 arcminutes at 28 cm, so the Deck at 1x shows about 60 percent of that apparent size. The body font of D-228 gives about a 10-arcminute glyph, near the 9-pixel floor of D-459. D-228 never set this scale: the option that it refused holds 40 tiles across the frame and the same size on screen | 2026-09-17 | ✅ doc. D-633 answers the world half: the world draws at 2x, and the frame holds 20 by 11.25 tiles. M-8 records each number. The UI half reads D-635 and the row of PR-61 |
+| F-68 | On macOS the full screen gives the true pixel count, and a window does not. The Mac reported a screen of 3840 by 2160 at full screen, and the system reported a screen scale of 2 there. A windowed run reported 1280 by 720 alone, so exit test 4 of section 7.8 fails for such a run. A picture of the frame in a viewer proves nothing, because the system maps a picture pixel to a point and not to a device pixel | 2026-09-18 | ✅ doc. The probe of D-621 draws at full screen, and each report names the two pixel counts. ⚠ Binds PR-41: a screen capture on macOS reads the window, so the job pins the pixel count (D-172) |
+| F-69 | The dialogue box of the mock frame holds 156 characters in one line at the UI scale of 1x, and 76 at 2x. The count does not depend on the fit of the frame, because the fit cancels. Thus the limit of 80 characters in the `game-text-style` skill held at the UI scale of 1x alone | 2026-09-18 | ✅ doc. D-635 drops the dialogue limit and the lore entry limit to 76 characters |
+| F-70 | The export templates of the Deck test cover each platform of D-481, so the Windows export of the probe cost no download. One install of the templates serves every export of the same Godot version | 2026-09-18 | ✅ doc. D-629 added the 32-inch screen at no cost. 🔧 PR-54 caches the templates for CI (D-596, F-42) |
+| F-71 | The probe measures the line box of the body font, which is 16 pixels, and not the cap height of a glyph. Thus it gives a larger apparent size than the glyph number of F-67. The two numbers measure two things, and neither one is wrong | 2026-09-18 | ✅ doc. M-8 names the line box in each row. A rule about a text floor reads the glyph, so D-459 keeps the glyph number |
+| F-72 | The REF 2 rule of `ste-check` resolves a bare file name in backticks as the one file of the checkout that ends with that name. The spike added a second `TheThingBelow.Game/project.godot`, so that name matched two files, and the rule gave a finding on text that was correct the day before. The pre-commit hook then refused the commit | 2026-09-18 | ✅ doc. D-637: two files now cite `TheThingBelow.Game/project.godot`, and a second project of the same engine takes the exact form. The `ste-writing` skill holds the rule |
+| F-73 | A Godot export drops each file that the engine does not import. The `.grid` files and the map file of the probe left the first two exports, and each exported build stopped at the first absent file. A run of the editor did not show the fault, and a run of the export showed it at once. The palette came through, because Godot imports JSON | 2026-09-18 | ✅ doc for the spike: each preset now holds an include filter. The export of the game does not meet this rule, because Game embeds `content/` and each font in its own assembly, and D-508 states that content needs no export filter. The handover of the spike claimed the opposite, and D-508 refutes that claim |
+| F-74 | The macOS export of Godot needs the universal binary format and the ETC2 ASTC import setting. An export with another pair of settings fails | 2026-09-18 | ✅ doc for the spike (D-632). 🔧 PR-54: the macOS export of the game takes the same two settings (D-481, D-482) |
+| F-75 | The Steam Deck in desktop mode has no keyboard, and the probe needed six commands. Each command took a button of the pad as well: A, B, X, Y, View, and Menu | 2026-09-18 | ✅ doc (D-631). ⚠ Binds PR-39: the Deck checklist reads every screen with the pad alone (D-565) |
+| F-76 | The probe of the first build computed the fit of the frame with integer division, so a 1920 by 1080 screen drew at 1x with wide bars. It never drew the fit of 1.5x that D-573 gives. Answer 2 and answer 3 of OQ-183 disagree on that screen: the floor of 2 device pixels for each art pixel asks for the UI at 2x, and the words of answer 3 give the UI at 1x and 1.5 device pixels | 2026-09-18 | ✅ doc. D-638: the probe gained two fit modes, and the owner runs a 1920 by 1080 screen. ✅ doc. D-639 sets the boundary at a fit of 2x, from the run of a 27-inch 1080p screen |
+| F-77 | The 27-inch 1080p screen and the 27-inch 4K screen give one line of body text the same apparent size at the same UI value. Both are 27-inch 16:9 screens at 70 cm, and the frame fills the same glass, so one art pixel covers 0.4670 mm on each. The owner picked the UI at 2x on the first and at 1x on the second. Thus the apparent size does not set the UI value, and the count of device pixels for each art pixel sets it: the 1080p screen gives 1.5 device pixels at the UI scale of 1x, and the 4K screen gives 3 | 2026-09-18 | ✅ doc. D-639 and G-28 take the floor of 2 device pixels as the rule. It also refutes the band of apparent size that the first three runs suggested: the fourth pick sits at 73.4 arcminutes, outside that band |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -315,7 +334,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 16. **G-16.** A PR that creates a check passes that check. A PR names any check that does not exist yet, with the PR that creates it (L-11). A check on `pull_request_target` or `schedule` cannot run on the PR that creates it (F-37). That PR proves its command in Tests, and the live check first runs after the merge (D-500).
 17. **G-17.** Every `core` behavior change bumps the simulation version constant, and the review confirms it.
 18. **G-18.** No empty `catch` and no silent default. Every error carries its context (T-2).
-19. **G-19.** Every screen designs to one 16:9 frame of 1280 by 720 with 32-pixel tiles (D-568). The Steam Deck is the readability floor, with black bars above and below (D-92, D-228). The frame draws at 1x until the probe of D-621 sets the scale (OQ-183). Every other screen shape shows black bars too. A desktop at 1920 by 1080 must look good, and the fit of D-232 holds that rule (D-568).
+19. **G-19.** Every screen designs to one 16:9 frame of 1280 by 720 with 32-pixel tiles (D-568). The Steam Deck is the readability floor, with black bars above and below (D-92, D-228). The world draws at 2x, so the frame holds 20 by 11.25 tiles (D-633). Every other screen shape shows black bars too. A desktop at 1920 by 1080 must look good, and the fit of D-232 holds that rule (D-568).
 20. **G-20.** Every player string follows the `game-text-style` skill, and the owner approves each text batch in its PR (D-57, D-63).
 21. **G-21.** Every enemy profile validates at load, and a profile that can never act fails the load (D-65, T-2).
 22. **G-22.** The night gate is green before merge, once PR-49 creates it (D-496). It needs a success record from a night inside 48 hours (D-64). A night on the head commit of a PR passes that PR, and a docs-only PR passes the gate (D-510, D-513).
@@ -324,6 +343,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 25. **G-25.** Every content batch the owner approves, sprites and text alike, appears in its PR description in full (D-57, D-107). A tool renders each art batch as review sheets, and the session attaches them with `gh` (D-514).
 26. **G-26.** One session works on one PR, and the PR holds its tests, its documents, its review records, and its handoff. No later PR carries them, and no PR only records a merge (D-576 to D-578).
 27. **G-27.** Every effect draws with the palette of 64 colors and hard edges, and no smooth gradient. The rule covers each particle, the fog, the glow, and each transition (D-181, D-622). The owner reads each new effect as its PR lands (D-623).
+28. **G-28.** The UI never draws below 2 device pixels for each art pixel (D-639). A display setting gives the player two UI values, 1x and 2x. The default is the smallest value that meets the floor. A frame fit below 2x takes 2x, and a fit of 2x or above takes 1x. Each UI layout holds at both values, on every screen shape (D-640). A screen test captures each screen at both values (D-172).
 
 ## 7. Roadmap
 
@@ -331,7 +351,7 @@ Five phases. Gate 1 is a foundation gate with no play. Gates 2 to 5 are builds t
 
 This section is the high-level roadmap (D-554). Each phase below gives its gate, its items in order, and one line for each item. The phase file of that phase gives each PR its scope, its exit tests, its review focus, and its questions (D-144, D-487). An area file says how one area works and which PR builds each part. The index of both sets is `docs/roadmaps/readme.md`.
 
-An item that kept its purpose through the pivots kept its number. PR-22 and PR-32 are retired, and no later item takes either id (G-10). The new ids of D-486 run from PR-43 to PR-79. PR-80 to PR-85 are in use, and a new item takes the next number after them.
+An item that kept its purpose through the pivots kept its number. PR-22 and PR-32 are retired, and no later item takes either id (G-10). The new ids of D-486 run from PR-43 to PR-79. PR-80 to PR-86 are in use, and a new item takes the next number after them.
 
 ### Phase 1: Foundations (gate: every CI leg green with an identical state hash, the smoke session green, docs and PR gate live, no play)
 
@@ -341,11 +361,12 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 2. Owner and a session: the Deck test, which picks the renderer and measures the effect budget (D-160, D-523). Done on 2026-09-17.
 3. Owner: run that test on the Linux export (D-458). Done on 2026-09-17: the run gave M-7, the Mobile renderer, and the first effect budget (D-616, D-617).
 4. PR-1: the solution, the four projects, the Makefile, the hook, and the build, test, format, smoke, and STE jobs (D-118, D-217, D-506). It sets Forward+ as a provisional renderer (D-599).
-5. PR-82: the Mobile renderer that the Deck test picked, which is one line of `project.godot` (D-599, D-616).
+5. PR-82: the Mobile renderer that the Deck test picked, which is one line of `TheThingBelow.Game/project.godot` (D-599, D-616).
 6. PR-2: the `ste-check` command in C#, which replaces the Python script (D-10, D-101).
 7. PR-3: the `review-gate` command and its workflow, with the document rules (D-15, D-500, D-579).
 8. PR-85: the result of the Deck test, the removal of the CRT, and two tests before PR-34 (D-616).
 9. Owner and a session: the screen scale probe on three screens, right after PR-85 (D-621, D-625).
+10. PR-86: the answers of the probe, and the close of OQ-183 (D-626 to D-640).
 10. Owner: require the checks on `main` (OQ-3).
 11. PR-46: `det-lint`, before the first Core code (D-496, D-498).
 12. PR-4: integer math, the random streams, the state hash, the simulation version, and the `replay-identity` job (D-169, D-504).
@@ -493,8 +514,8 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 2. PR #2 to PR #10 merged on 2026-09-14, and PR #11 to PR #13 on 2026-09-16 (D-554, D-555 to D-575). PR #14 sets one PR for each session (D-576 to D-582).
 3. Owner: enable the setting that requires a SHA pin for each action (D-511). Done on 2026-09-14.
 4. Owner and a session: the Deck test of D-160 on the Linux export (D-458, D-523). Done on 2026-09-17, from the test scene of the branch spike/deck-test (D-597, D-616).
-5. PR-1, PR-2, PR-3, PR-84, PR-85. PR-82 follows the Deck test run, and it can land at any point after PR-1 (D-599, D-616).
-6. Owner and a session: the screen scale probe, in the session right after the merge of PR-85 (D-621, D-625).
+5. PR-1, PR-2, PR-3, PR-84, PR-85, PR-86. PR-82 follows the Deck test run, and it can land at any point after PR-1 (D-599, D-616).
+6. Owner and a session: the screen scale probe, in the session right after the merge of PR-85 (D-621, D-625). PR-86 records the answers.
 7. Owner: require the checks on `main` (OQ-3).
 8. PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, PR-47, PR-34. The Sprite Fusion test comes before PR-34 (D-620).
 9. M-1, M-2.
