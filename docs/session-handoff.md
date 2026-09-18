@@ -2,6 +2,42 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 113: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #29, PR-6, the tick, the intents, the run record, and replay. Repository: the-thing-below. Branch: `feat/pr-6-tick-and-run-record`. Role: reviewer. Base: `1960cf3`.
+
+### What this session did, and why
+
+- Reviewed the complete diff from the merge base to effective head `ee1e6ea`.
+- Found P2-1: snapshot validation accepts an even random-stream increment, and replay then throws without record-line context (T-2, G-18, D-259).
+- Ran a disposable probe. The record reader accepted an even increment, and replay threw a bare `ArgumentException`.
+- Wrote `docs/reviews/pr-29.md` with verdict `Changes required` for `ee1e6ea`.
+
+### The state of the build
+
+- `main` and the merge base are `1960cf3`. The effective head is `ee1e6ea`, and the remote tip is `3a4b728`.
+- `make verify` passes with 475 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and smoke pass.
+- GitHub checks pass except `review-gate`. Its run reports RG 3 alone because the review record did not exist yet. Gitar approves the code with no finding.
+
+### What is in flight
+
+The review record and this handoff entry pass the local writing and diff checks. The metadata commit and push remain. P2-1 remains open, so the PR is not ready for owner merge.
+
+### Traps and gotchas
+
+- The tip commit `3a4b728` changes only review and handoff metadata. The effective head remains `ee1e6ea` (D-610).
+- `RunSnapshot.Check` verifies stream order, but not that a PCG32 increment is odd. `Pcg32.FromSnapshot` rejects the value later, without the record line.
+- The record text and the snapshot line are valid JSON. The defect is the missing semantic check after JSON parsing (D-652).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The author validates odd stream increments with snapshot context and adds a regression test. Codex then reviews the correction.
+
 ## Session 112: 2026-09-18, Claude Code
 
 Author: Claude Code
@@ -389,55 +425,3 @@ None. D-616 selects Mobile, and section 7.3 names the renderer work.
 ### The next concrete action
 
 Commit and push the review record and this handoff entry. Check that `review-gate` passes.
-
-## Session 103: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: the first round of PR-82. Repository: the-thing-below. Branch: `feat/pr-82-mobile-renderer`. PR: the one PR of PR-82, which GitHub numbers at the push. Role: author. Base: `e54810a`.
-
-### What this session did, and why
-
-- D-616 picked the Mobile renderer from the Deck test, and PR-82 writes it into the Game project.
-- `TheThingBelow.Game/project.godot` now sets `renderer/rendering_method="mobile"`.
-- The feature tag list now names `Mobile` in place of `Forward Plus`, because the Godot editor reads that list.
-- The header comment names the Deck test and its result, in place of the provisional text of D-599.
-- `GameProjectRendererTests` reads the committed project file and locks both lines.
-- The test guards the setting, because the Godot editor writes this file and can write the default of Godot into it again.
-
-### The state of the build
-
-- `main` is `e54810a`, and this branch starts from it.
-- `make verify` passes: the build with 0 warnings, 189 tests, the format check, `det-lint`, `ste-check`, and the smoke session.
-- The smoke session prints `smoke: the renderer is mobile`, which is exit test 2 of section 7.3 of the phase file.
-- The two new tests fail on the setting of PR-1, which is the regression check of T-3.
-- The Godot editor build ran on the new setting, and it wrote no change into the project file.
-- PR #26 holds this work, and its head is `2419ce4`.
-- The 12 CI checks pass on `2419ce4`: the three build legs, the three smoke legs, `changed paths`, `ste-check`, `det-lint`, the coverage report, and the Gitar check.
-- `review-gate` gives one fault, RG 3: the head holds no review record at `docs/reviews/pr-26.md`. The review of Codex clears it.
-
-### What is in flight
-
-The review of Codex. The Gitar pass approves the head `2419ce4`, and it gives no finding.
-
-- The push of `2419ce4` was at 07:47:30Z, and the dashboard comment `5726936964` has the edit time 07:49:12Z.
-- The edit time is later than the push time, so the pass covers the head (D-603).
-- The Gitar check passed in 1 minute and 9 seconds, and the summary names this diff.
-- The thread list of the pull request is empty, so no comment waits for an answer.
-- The dashboard carries the pause note of the Gitar trial beside the approval.
-
-### Traps and gotchas
-
-- The setting `renderer/rendering_method.mobile` stays as it is. It serves Android and iOS, which D-481 excludes.
-- HDR 2D works under Mobile, so the glow of D-188 stays live (D-188, D-616).
-- The screen tests of CI keep the Compatibility renderer, whatever this PR sets (D-172).
-- This PR changes code, so the label of D-401 does not apply, and Codex reviews it.
-- The first `review-gate` run gave RG 7 too, because the `docs/reviews/` line of the PR took no form of D-581. A correction of the PR description cleared it.
-- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 104.
-
-### The questions that block progress
-
-None. The Deck test answered D-160, and D-616 holds the pick.
-
-### The next concrete action
-
-Hand PR #26 to Codex for the review of T-4. This PR changes code, so the label of D-401 does not apply.
