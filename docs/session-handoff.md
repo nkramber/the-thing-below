@@ -2,6 +2,48 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 103: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: the first round of PR-82. Repository: the-thing-below. Branch: `feat/pr-82-mobile-renderer`. PR: the one PR of PR-82, which GitHub numbers at the push. Role: author. Base: `e54810a`.
+
+### What this session did, and why
+
+- D-616 picked the Mobile renderer from the Deck test, and PR-82 writes it into the Game project.
+- `TheThingBelow.Game/project.godot` now sets `renderer/rendering_method="mobile"`.
+- The feature tag list now names `Mobile` in place of `Forward Plus`, because the Godot editor reads that list.
+- The header comment names the Deck test and its result, in place of the provisional text of D-599.
+- `GameProjectRendererTests` reads the committed project file and locks both lines.
+- The test guards the setting, because the Godot editor writes this file and can write the default of Godot into it again.
+
+### The state of the build
+
+- `main` is `e54810a`, and this branch starts from it.
+- `make verify` passes: the build with 0 warnings, 189 tests, the format check, `det-lint`, `ste-check`, and the smoke session.
+- The smoke session prints `smoke: the renderer is mobile`, which is exit test 2 of section 7.3 of the phase file.
+- The two new tests fail on the setting of PR-1, which is the regression check of T-3.
+- The Godot editor build ran on the new setting, and it wrote no change into the project file.
+
+### What is in flight
+
+The push of this branch, the PR, and the Gitar pass.
+
+### Traps and gotchas
+
+- The setting `renderer/rendering_method.mobile` stays as it is. It serves Android and iOS, which D-481 excludes.
+- HDR 2D works under Mobile, so the glow of D-188 stays live (D-188, D-616).
+- The screen tests of CI keep the Compatibility renderer, whatever this PR sets (D-172).
+- This PR changes code, so the label of D-401 does not apply, and Codex reviews it.
+- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 104.
+
+### The questions that block progress
+
+None. The Deck test answered D-160, and D-616 holds the pick.
+
+### The next concrete action
+
+Push the branch, open the PR, and answer the Gitar pass.
+
 ## Session 102: 2026-09-18, Codex
 
 Author: Codex
@@ -398,47 +440,3 @@ None for PR #24. OQ-183 blocks PR-7 and PR-34, and the probe of D-621 answers it
 ### The next concrete action
 
 Hand PR #24 to Codex for the review of T-4. This PR adds decision rows, so the label of D-401 does not apply.
-
-## Session 93: 2026-09-17, Claude Code
-
-Author: Claude Code
-Session: PR-85, the result of the Deck test and the look. Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. PR: #24, which is PR-85 of the roadmap. Role: author. Base: `2874b70`.
-
-### What this session did, and why
-
-- The owner ran the Deck test of D-160 on an OLED Deck and gave the reports to this session.
-- Recorded the result and eight more owner answers as D-616 to D-624.
-- D-616: the game uses the Mobile renderer, which won each of the 20 stages. PR-82 writes it.
-- D-617: the first effect budget, 15 lights, 8192 particles, and 3 full-screen passes. F-66 marks each row as a floor.
-- D-618: the CRT leaves the plan. PR-37 is retired, and 13 documents lost the pass, the toggle, and its captures.
-- D-620 and D-621: two tests before PR-34, the Sprite Fusion art test and the screen scale probe.
-- D-622 and G-27: every effect draws with the palette and hard edges, which answers the question of the owner about the fog.
-- D-623: the Mac is the venue of each visual test, and the Deck takes the answers that need the Deck.
-- F-67 and OQ-183: a 32-pixel sprite covers 4.0 mm on the Deck, and the scale of the frame is now an open question.
-
-### The state of the build
-
-- `main` is `2874b70`, and PR #23 merged before this session.
-- The `ste-check` command passes on every live document, with 0 findings.
-- The branch holds one commit, and it changes documents alone.
-
-### What is in flight
-
-The push, the Gitar pass, and the review of Codex. This PR revises decision rows, so the label of D-401 does not apply.
-
-### Traps and gotchas
-
-- Each citation of D-88, D-105, D-120, or D-240 must name D-618, or REF 3 fails.
-- PR-37 keeps a retired entry in `phase-2-first-playable.md`, which keeps the id in the register (G-10).
-- Section 7 of `phase-1-foundations.md` gained three entries, so each later section number moved.
-- The flag `--attach` of `gh` refuses a text file, so the reports go in the description and in a comment (D-624).
-- `deck-test/` stays untracked, as it was before this session.
-- The next ids are D-625, OQ-184, F-68, L-16, G-28, M-9, and Session 94.
-
-### The questions that block progress
-
-OQ-183 blocks PR-7 and PR-34. The probe of D-621 answers it, and that probe needs the owner and three screens.
-
-### The next concrete action
-
-Answer the Gitar pass on PR #24, then hand the PR to Codex for the review of T-4.
