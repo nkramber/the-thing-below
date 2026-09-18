@@ -17,13 +17,13 @@ Session: repeat review of PR #28, PR-5, content, the content hash, and the strin
 
 ### The state of the build
 
-- The merge base is `efd6a53`. The effective head is `2b1f7f8`; the metadata tip is `2e866f6`.
+- The merge base is `efd6a53`. The effective head is `2b1f7f8`; the published metadata head is `0f820a5`.
 - Thirteen GitHub checks pass. `review-gate` reports RG 4 and RG 5 because the published review record still has the earlier verdict. The published review clears those conditions.
 - Gitar's current dashboard comment `5733434645` approves the corrected head with no open finding.
 
 ### What is in flight
 
-The review record and this handoff entry are ready to publish. After publication, verify the review gate on the current metadata tip.
+The review record and this handoff entry are published at `0f820a5`. Checks were in progress at the first check snapshot; this follow-up records the publication verification. Refresh the checks and confirm the review gate passes.
 
 ### Traps and gotchas
 
@@ -37,7 +37,7 @@ None.
 
 ### The next concrete action
 
-Publish the review record and handoff, then verify that the review gate passes for the published record and handoff the PR to the owner for merge.
+Refresh GitHub checks after this metadata update, confirm the review gate passes, then hand the PR to the owner for merge.
 
 ## Session 110: 2026-09-18, Claude Code
 
