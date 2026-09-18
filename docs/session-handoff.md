@@ -2,6 +2,43 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 111: 2026-09-18, Codex
+
+Author: Codex
+Session: repeat review of PR #28, PR-5, content, the content hash, and the string table. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. Role: reviewer. Base: `efd6a53`.
+
+### What this session did, and why
+
+- Re-reviewed the correction to P2-1 at effective head `2b1f7f8`.
+- Confirmed the fixture record owns the `fixture` id kind and the content reader rejects ids of another kind with file and field context (D-646).
+- Re-ran the invalid-id trigger; it exits 1. Confirmed the adjacent valid `label` id case passes.
+- `make verify` passed with 406 tests, 0 build warnings, and 0 errors.
+- Updated `docs/reviews/pr-28.md`; the current verdict is `Ready for owner merge`, and the earlier verdict remains in the history.
+
+### The state of the build
+
+- The merge base is `efd6a53`. The effective head is `2b1f7f8`; the metadata tip is `2e866f6`.
+- Thirteen GitHub checks pass. `review-gate` reports RG 4 and RG 5 because the published review record still has the earlier verdict. The published review clears those conditions.
+- Gitar's current dashboard comment `5733434645` approves the corrected head with no open finding.
+
+### What is in flight
+
+The review record and this handoff entry are ready to publish. After publication, verify the review gate on the current metadata tip.
+
+### Traps and gotchas
+
+- The effective implementation head remains `2b1f7f8`; the later commit `2e866f6` changes review and handoff metadata (D-610).
+- The old-head regression failures are author-reported in `docs/reviews/pr-28-response.md`; this session independently confirmed the fixed trigger and adjacent valid case.
+- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 112.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Publish the review record and handoff, then verify that the review gate passes for the published record and handoff the PR to the owner for merge.
+
 ## Session 110: 2026-09-18, Claude Code
 
 Author: Claude Code
@@ -393,53 +430,3 @@ None. OQ-183 closed with D-633 and D-639.
 ### The next concrete action
 
 The review applies to effective head `ac34b5f`; the owner can merge PR #25.
-
-## Session 101: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: the answer to the review of PR #25, in the same session as Session 99 (D-582). Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: author. Base: `b3ec2b4`.
-
-### What this session did, and why
-
-- The review of `83c17f7` gives `Changes required` with one finding, P2-1.
-- P2-1 has full merit. The PR-86 entry added a line to the Phase 1 sequence and left each later number as it was, so two steps held the number 11.
-- A sweep of every ordered list found the same defect in the Phase 1 list of `docs/design.md`, which the review did not name. Two steps held the number 10 there.
-- The same sweep found two stale references of the insert: the gate line named section 7.19, and section 7.8 named the round as D-626 to D-638.
-- `docs/reviews/pr-25-response.md` holds each disposition, the regression check, and the evidence.
-- This session published the review record and the Session 100 entry, because the review session had a read-only `.git` directory (D-602).
-
-### The state of the build
-
-- `main` and the merge base are `b3ec2b4`. The head before this round was `9c13790`.
-- `make verify` passed: the build with 0 warnings, 187 tests, the format check, `det-lint`, `ste-check`, and the smoke session.
-- The review records `make verify` as a failure at build after 5:00. That result did not reproduce here, and Session 98 recorded the same stop on a repeat review.
-- The ordered-list sweep now prints no duplicate item number in any list.
-
-### What is in flight
-
-The repeat review of Codex at the effective head `ac34b5f`. This round changed two roadmap paths, so it moved the effective head (D-610).
-
-The Gitar pass approves that head, with 2 closed findings and none open.
-
-- No automatic review started on the new head, because the trial of Gitar paused them. The Gitar check was absent, and the dashboard kept the edit time of the head before it.
-- The push was at 07:16:37Z, the request at 07:20:10Z, and the reply `On it` at 07:20:33Z.
-- Gitar replaced the dashboard comment, and the new id `5726614038` has the edit time 07:20:54Z.
-- Each time is later than the one before it, so the pass covers the effective head (D-603).
-- The summary of the pass repeats the words of the pass before it, which a pass with no new finding can do. The three times prove that it is current, so this round asked for no second review.
-- `review-gate` gives two faults, RG 4 and RG 5. The record holds the verdict `Changes required` for the head before this round. The repeat review clears both.
-
-### Traps and gotchas
-
-- A renumber of one ordered list can break a sibling list and a self-reference. The PR-86 insert broke three places, and the review named one. A sweep of every ordered list catches the class, and `ste-check` reads no item number.
-- Gate 1 moved from section 7.19 to section 7.20 when the PR-86 entry took 7.9. A citation of a section number of a phase file needs a check after any insert.
-- The review could not export the PR comments, so it did not read the two inline replies to the Gitar findings. Both threads are resolved.
-- `deck-test/` and `screen-scale-probe/` stay untracked, and the two probe exports stay out of git.
-- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 102.
-
-### The questions that block progress
-
-None. OQ-183 closed with D-633 and D-639.
-
-### The next concrete action
-
-Push the round, answer the Gitar pass on the new head, and ask Codex for the repeat review.

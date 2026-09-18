@@ -1,5 +1,55 @@
 # Session handoff archive
 
+## Session 101: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: the answer to the review of PR #25, in the same session as Session 99 (D-582). Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: author. Base: `b3ec2b4`.
+
+### What this session did, and why
+
+- The review of `83c17f7` gives `Changes required` with one finding, P2-1.
+- P2-1 has full merit. The PR-86 entry added a line to the Phase 1 sequence and left each later number as it was, so two steps held the number 11.
+- A sweep of every ordered list found the same defect in the Phase 1 list of `docs/design.md`, which the review did not name. Two steps held the number 10 there.
+- The same sweep found two stale references of the insert: the gate line named section 7.19, and section 7.8 named the round as D-626 to D-638.
+- `docs/reviews/pr-25-response.md` holds each disposition, the regression check, and the evidence.
+- This session published the review record and the Session 100 entry, because the review session had a read-only `.git` directory (D-602).
+
+### The state of the build
+
+- `main` and the merge base are `b3ec2b4`. The head before this round was `9c13790`.
+- `make verify` passed: the build with 0 warnings, 187 tests, the format check, `det-lint`, `ste-check`, and the smoke session.
+- The review records `make verify` as a failure at build after 5:00. That result did not reproduce here, and Session 98 recorded the same stop on a repeat review.
+- The ordered-list sweep now prints no duplicate item number in any list.
+
+### What is in flight
+
+The repeat review of Codex at the effective head `ac34b5f`. This round changed two roadmap paths, so it moved the effective head (D-610).
+
+The Gitar pass approves that head, with 2 closed findings and none open.
+
+- No automatic review started on the new head, because the trial of Gitar paused them. The Gitar check was absent, and the dashboard kept the edit time of the head before it.
+- The push was at 07:16:37Z, the request at 07:20:10Z, and the reply `On it` at 07:20:33Z.
+- Gitar replaced the dashboard comment, and the new id `5726614038` has the edit time 07:20:54Z.
+- Each time is later than the one before it, so the pass covers the effective head (D-603).
+- The summary of the pass repeats the words of the pass before it, which a pass with no new finding can do. The three times prove that it is current, so this round asked for no second review.
+- `review-gate` gives two faults, RG 4 and RG 5. The record holds the verdict `Changes required` for the head before this round. The repeat review clears both.
+
+### Traps and gotchas
+
+- A renumber of one ordered list can break a sibling list and a self-reference. The PR-86 insert broke three places, and the review named one. A sweep of every ordered list catches the class, and `ste-check` reads no item number.
+- Gate 1 moved from section 7.19 to section 7.20 when the PR-86 entry took 7.9. A citation of a section number of a phase file needs a check after any insert.
+- The review could not export the PR comments, so it did not read the two inline replies to the Gitar findings. Both threads are resolved.
+- `deck-test/` and `screen-scale-probe/` stay untracked, and the two probe exports stay out of git.
+- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 102.
+
+### The questions that block progress
+
+None. OQ-183 closed with D-633 and D-639.
+
+### The next concrete action
+
+Push the round, answer the Gitar pass on the new head, and ask Codex for the repeat review.
+
 ## Session 100: 2026-09-18, Codex
 
 Author: Codex
