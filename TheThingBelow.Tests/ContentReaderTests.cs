@@ -196,6 +196,49 @@ public sealed class ContentReaderTests
         Assert.Contains("D-646", error.Message);
     }
 
+    [Theory]
+    [InlineData("enemy.cave_rat")]
+    [InlineData("item.rusted_key")]
+    [InlineData("label.lamp")]
+    public void AnEntryIdOfAnotherKindFails(string id)
+    {
+        // The kind of an entry id agrees with the file that holds the entry (D-646). The
+        // record owns the kind, so a fixture file holds `fixture.` ids alone.
+        ContentException error = ReadAndFail(
+            $$"""
+            {
+             "comment": "a note",
+             "fixtures": [
+              { "id": "{{id}}", "label": "label.lamp", "weight": 1 }
+             ]
+            }
+            """);
+
+        Assert.Equal(File, error.File);
+        Assert.Equal("fixtures[0].id", error.Field);
+        Assert.Contains(id, error.Message);
+        Assert.Contains(RuleFixture.IdKind, error.Message);
+        Assert.Contains("D-646", error.Message);
+    }
+
+    [Fact]
+    public void AStringIdTakesAKindOfItsOwn()
+    {
+        // The `label` field points at the string table, so its kind names where the player
+        // reads the text and never the kind of this record (G-7, D-646).
+        RuleFixture fixture = ReadFixture(
+            """
+            {
+             "comment": "a note",
+             "fixtures": [
+              { "id": "fixture.lamp", "label": "ui.lamp_name", "weight": 1 }
+             ]
+            }
+            """);
+
+        Assert.Equal("ui", fixture.Entries[0].Label.Kind);
+    }
+
     [Fact]
     public void ACommentInTheFileFails()
     {

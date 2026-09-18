@@ -117,6 +117,7 @@ Built by PR-5. Phase file: `phase-1-foundations.md`.
 - `Directory.Build.props` sets `JsonSerializerIsReflectionEnabledByDefault` to `false` for every project, and a test reads the switch back (D-647). The det-lint of PR-46 bans reflection in Core (D-496).
 - A number in content is an integer. A number with a fraction or an exponent fails the load, with the file and the field (D-169, G-2).
 - Every content entry has a permanent id that no later entry takes (D-166). An id is a lowercase kind, a dot, and a lowercase name (D-646).
+- Each rule record owns the kind of its entry ids, and the reader refuses an entry of another kind (D-646). A field that points at another record keeps the kind of that record.
 - The content hash covers the rule files alone (D-495). One folder, `content/rules/`, holds every rule file, and a test proves that no other file reaches the hash (D-648).
 - The `content-hash` command of Tools loads every content file and compares the hash with a committed file. The `--write` option writes that file again (D-648).
 - Core holds one fixture rule record until the first real rule record replaces it (D-649). Its files give the hash, the id rules, and the string-id rule real data to read.

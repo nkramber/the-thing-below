@@ -23,6 +23,12 @@ public sealed record RuleFixtureEntry(ContentId Id, ContentId Label, int Weight)
 /// </remarks>
 public sealed class RuleFixture
 {
+    /// <summary>
+    /// The kind of the id of every entry of this record (D-646). The record owns the kind,
+    /// so a fixture file cannot hold an entry of another kind, such as `enemy.cave_rat`.
+    /// </summary>
+    public const string IdKind = "fixture";
+
     private RuleFixture(string comment, IReadOnlyList<RuleFixtureEntry> entries)
     {
         this.Comment = comment;
@@ -98,9 +104,11 @@ public sealed class RuleFixture
             switch (field)
             {
                 case "id":
-                    id = reader.ReadContentId();
+                    id = reader.ReadContentId(IdKind);
                     break;
                 case "label":
+                    // A string id names where the player reads the text, so it takes the kind
+                    // of that place and never the kind of this record (G-7, D-646).
                     label = reader.ReadContentId();
                     break;
                 case "weight":

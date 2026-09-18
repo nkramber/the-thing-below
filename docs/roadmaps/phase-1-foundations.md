@@ -509,12 +509,13 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 3. A number with a fraction or an exponent fails the load (G-2).
 4. A repeated content id fails a test with the id, in one file and across two files.
 5. An id that does not take the form of D-646 fails a test with the id and the file.
-6. The content hash is the same on the three legs and on the Mac.
-7. A file outside `content/rules/` never moves the content hash.
-8. The embedded resources match the files of `content/` by name and by bytes.
-9. A read of a resource that the assembly lacks fails with the resource name.
-10. A string id that content names and the table lacks fails a test.
-11. The reflection switch reads back as off in the test host (D-647, F-36).
+6. An entry id of another kind than its record fails a test with the id and both kinds (D-646).
+7. The content hash is the same on the three legs and on the Mac.
+8. A file outside `content/rules/` never moves the content hash.
+9. The embedded resources match the files of `content/` by name and by bytes.
+10. A read of a resource that the assembly lacks fails with the resource name.
+11. A string id that content names and the table lacks fails a test.
+12. The reflection switch reads back as off in the test host (D-647, F-36).
 
 **Review focus.**
 

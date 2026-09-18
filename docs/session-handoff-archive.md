@@ -1,5 +1,46 @@
 # Session handoff archive
 
+## Session 100: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #25, roadmap PR-86, the screen scale answers. Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: reviewer. Base: `b3ec2b4`.
+
+### What this session did, and why
+
+- Confirmed that Claude Code authored the PR, so Codex meets the other-provider gate (T-4, D-17).
+- Reviewed the 15-path documentation diff, the PR description, the screen scale decisions, and the PR-86 roadmap entry.
+- Found P2-1: the Phase 1 sequence numbers the owner step and PR-46 as item 11.
+- Wrote `docs/reviews/pr-25.md` with verdict `Changes required` for effective head `83c17f7`.
+
+### The state of the build
+
+- `main` and the merge base are `b3ec2b4`. The PR tip is `9c13790`; its effective head is `83c17f7` (D-610).
+- GitHub reports `changed paths` and `ste-check` as passing. The build, tests, format, coverage, det-lint, and smoke checks skip for this docs-only PR (D-600).
+- `review-gate` fails because the review record is not yet on the branch.
+- `make verify` failed at build after 5:00 with 0 warnings, 0 errors, and no diagnostics. The author reports a successful run in Session 99.
+- `ste-check` passes with 0 findings after the review record and handoff edits.
+- The Gitar dashboard approves `83c17f7` with two closed findings and none open. Its inline replies were not available in this session.
+
+### What is in flight
+
+The author needs to correct P2-1. Git metadata is read-only in this environment, so the review record and this entry need publication from a writable session.
+
+### Traps and gotchas
+
+- The metadata tip `9c13790` changes only the handoff. The effective head remains `83c17f7` (D-610).
+- `git fetch` could not write `.git/FETCH_HEAD`. The GitHub API also failed during the required complete comment export.
+- `deck-test/` and `screen-scale-probe/` remain untracked and outside the PR.
+- Session 90 moved to the archive to keep ten entries in this file (D-18).
+- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 101.
+
+### The questions that block progress
+
+None. The open item is P2-1, which requires a correction to the sequence.
+
+### The next concrete action
+
+Correct the Phase 1 sequence, publish the review record and this entry, then ask Codex to review the corrected effective head.
+
 ## Session 99: 2026-09-18, Claude Code
 
 Author: Claude Code

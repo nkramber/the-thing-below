@@ -2,6 +2,47 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 110: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-5, the answer to the review of Codex. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. PR: #28. Role: author. Base: `efd6a53`.
+
+### What this session did, and why
+
+- The review gave one finding, P2-1, and the session read it as a claim.
+- A run of `content-hash --write` over a copy of `content/` with the id `enemy.cave_rat` in a fixture file exited 0, so the finding reproduces and has full merit.
+- D-646 names three tests for this PR, and the PR wrote the form test and the repeated-id test alone. The kind test was absent.
+- Each rule record now owns the kind of its entry ids. `RuleFixture.IdKind` is `fixture`, and `ContentReader.ReadContentId(kind)` refuses another kind.
+- The `label` field keeps the kind-free read, because a string id names where the player reads the text (G-7).
+- Five new tests cover the rule. The three cases of `AnEntryIdOfAnotherKindFails` fail on the old head `55eb083` (T-3).
+
+### The state of the build
+
+- `main` is `efd6a53`. The PR is #28, and its new head carries the correction.
+- `make verify` passes: the build with 0 warnings, 406 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
+- The content hash stays `5ce12c64...f3c15f3`, because no rule file changed.
+- `SimulationVersion.Current` stays at 2. The response file gives the reason under G-17.
+
+### What is in flight
+
+The Gitar pass on the new head, and the repeat review of Codex.
+
+### Traps and gotchas
+
+- The kind of an entry id comes from the record, not from the path. The folder name is plural, so a path gives no kind.
+- A test holds the `label` field open to another kind, so a later change cannot make the two fields one case by accident.
+- A run of the new tests against the old head needs the constant written out as a literal, because `RuleFixture.IdKind` does not exist there.
+- `CLAUDE.md` and `AGENTS.md` sit at 16375 bytes, against a limit of 16384. A new line needs a trim first.
+- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 111.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer the Gitar pass on the new head, then hand PR #28 back to Codex for the repeat review.
+
 ## Session 109: 2026-09-18, Codex
 
 Author: Codex
@@ -396,44 +437,3 @@ None. OQ-183 closed with D-633 and D-639.
 ### The next concrete action
 
 Push the round, answer the Gitar pass on the new head, and ask Codex for the repeat review.
-
-## Session 100: 2026-09-18, Codex
-
-Author: Codex
-Session: review PR #25, roadmap PR-86, the screen scale answers. Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: reviewer. Base: `b3ec2b4`.
-
-### What this session did, and why
-
-- Confirmed that Claude Code authored the PR, so Codex meets the other-provider gate (T-4, D-17).
-- Reviewed the 15-path documentation diff, the PR description, the screen scale decisions, and the PR-86 roadmap entry.
-- Found P2-1: the Phase 1 sequence numbers the owner step and PR-46 as item 11.
-- Wrote `docs/reviews/pr-25.md` with verdict `Changes required` for effective head `83c17f7`.
-
-### The state of the build
-
-- `main` and the merge base are `b3ec2b4`. The PR tip is `9c13790`; its effective head is `83c17f7` (D-610).
-- GitHub reports `changed paths` and `ste-check` as passing. The build, tests, format, coverage, det-lint, and smoke checks skip for this docs-only PR (D-600).
-- `review-gate` fails because the review record is not yet on the branch.
-- `make verify` failed at build after 5:00 with 0 warnings, 0 errors, and no diagnostics. The author reports a successful run in Session 99.
-- `ste-check` passes with 0 findings after the review record and handoff edits.
-- The Gitar dashboard approves `83c17f7` with two closed findings and none open. Its inline replies were not available in this session.
-
-### What is in flight
-
-The author needs to correct P2-1. Git metadata is read-only in this environment, so the review record and this entry need publication from a writable session.
-
-### Traps and gotchas
-
-- The metadata tip `9c13790` changes only the handoff. The effective head remains `83c17f7` (D-610).
-- `git fetch` could not write `.git/FETCH_HEAD`. The GitHub API also failed during the required complete comment export.
-- `deck-test/` and `screen-scale-probe/` remain untracked and outside the PR.
-- Session 90 moved to the archive to keep ten entries in this file (D-18).
-- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 101.
-
-### The questions that block progress
-
-None. The open item is P2-1, which requires a correction to the sequence.
-
-### The next concrete action
-
-Correct the Phase 1 sequence, publish the review record and this entry, then ask Codex to review the corrected effective head.

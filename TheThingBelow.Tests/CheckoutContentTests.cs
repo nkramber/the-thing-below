@@ -56,6 +56,17 @@ public sealed class CheckoutContentTests
     }
 
     [Fact]
+    public void EveryRuleEntryOfTheCheckoutCarriesTheKindOfItsRecord()
+    {
+        ContentSet set = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
+
+        foreach (RuleFixtureEntry entry in set.RuleEntries)
+        {
+            Assert.Equal(RuleFixture.IdKind, entry.Id.Kind);
+        }
+    }
+
+    [Fact]
     public void EveryContentFileHoldsNoCarriageReturn()
     {
         // The content hash reads the bytes of each file, and Git for Windows checks out CRLF

@@ -204,6 +204,37 @@ public ref struct ContentReader
     /// <exception cref="ContentException">The value is not text, or is not a legal id.</exception>
     public ContentId ReadContentId() => ContentId.Parse(this.ReadString(), this.file, this.CurrentField());
 
+    /// <summary>Reads the permanent id of an entry, and refuses an id of another kind (D-646).</summary>
+    /// <param name="kind">The kind that the record of this file owns, such as `enemy`.</param>
+    /// <returns>The id of the field.</returns>
+    /// <exception cref="ContentException">
+    /// The value is not text, is not a legal id, or carries another kind.
+    /// </exception>
+    /// <remarks>
+    /// The kind of an entry id agrees with the file that holds the entry (D-646). The record
+    /// owns the kind, and not the path, because one record reads every file of its kind.
+    /// <para>
+    /// A field that points at an entry of another record takes <see cref="ReadContentId()"/>
+    /// instead, because the kind of such a field names the other record. A string id takes it
+    /// too, because the kind of a string id names where the player reads the text (G-7).
+    /// </para>
+    /// </remarks>
+    public ContentId ReadContentId(string kind)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(kind);
+
+        ContentId id = this.ReadContentId();
+        if (string.CompareOrdinal(id.Kind, kind) != 0)
+        {
+            throw ContentException.ForField(
+                this.file,
+                this.CurrentField(),
+                $"the id '{id.Value}' carries the kind '{id.Kind}', and this file holds entries of the kind '{kind}' (D-646)");
+        }
+
+        return id;
+    }
+
     /// <summary>Reads the end of the file, and fails on any token after the content.</summary>
     /// <exception cref="ContentException">The file holds a token after the content.</exception>
     public void ReadFileEnd()
