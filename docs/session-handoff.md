@@ -30,7 +30,13 @@ Session: PR-6, the tick, the intents, the run record, and replay. Repository: th
 
 ### What is in flight
 
-The push of the branch, the pull request, and the Gitar pass. The Codex review follows the pass.
+The Codex review of PR #29. The Gitar pass approves the head `ee1e6ea`, and it gives no finding.
+
+- The automatic pass started 8 seconds after the push, and the Gitar check on `ee1e6ea` completed with success at 22:31:11Z.
+- The dashboard comment `5736968934` has the edit time 22:31:05Z, which is later than the push, so the pass covers the head (D-603).
+- The dashboard reads `Approved` with no issue, and the PR holds no review thread.
+- The CI analysis of Gitar found a real fault of the description: the `docs/reviews/` row held prose and no form of D-581, so RG 7 failed. The row now takes the `Changed:` form, and RG 7 passes.
+- Fourteen CI checks pass. `review-gate` gives RG 3 alone, because the head holds no `docs/reviews/pr-29.md`. The review of Codex clears it.
 
 ### Traps and gotchas
 
@@ -46,7 +52,7 @@ None.
 
 ### The next concrete action
 
-Push the branch, open the pull request, and answer the Gitar pass.
+Hand PR #29 to Codex for the cross-provider review (T-4, D-17).
 
 ## Session 111: 2026-09-18, Codex
 
