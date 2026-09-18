@@ -2,6 +2,43 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 107: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #27, PR-4, integer math, streams, state hash, and identity job. Repository: the-thing-below. Branch: `feat/pr-4-core-math-and-identity`. Role: reviewer. Base: `772468a`.
+
+### What this session did, and why
+
+- Reviewed the full 38-path diff from `772468a` to effective head `a963e4f` against section 7.11 and D-641 to D-645.
+- Verified the malformed identity file correction from the trigger through the command and regression tests.
+- Wrote `docs/reviews/pr-27.md` with verdict `Ready for owner merge` for `a963e4f`.
+
+### The state of the build
+
+- `main` and the merge base are `772468a`. The PR tip is `0cc4ddc`; its effective head is `a963e4f` (D-610).
+- `make verify` passes: 290 tests, format, `det-lint`, `ste-check`, replay identity, and the Godot smoke session.
+- Thirteen CI checks pass on tip `0cc4ddc`. `review-gate` reports only RG 3 because this review record is not yet on the branch.
+- Gitar approves the current effective head. Its one finding is fixed, and its thread is resolved.
+
+### What is in flight
+
+The review record and this handoff entry need a commit and push. Then verify `review-gate` on the metadata tip.
+
+### Traps and gotchas
+
+- The code correction is `a963e4f`. The later commits change only handoff and review metadata, so they do not move the effective head.
+- OQ-60, OQ-61, and OQ-62 close with D-641 to D-645.
+- This PR changes code, so the `review-override` label does not apply (D-401).
+- The next ids are D-646, OQ-184, F-78, L-16, G-29, M-9, and Session 108.
+
+### The questions that block progress
+
+None for PR #27. D-641 to D-645 answer the questions of section 7.11.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Check that `review-gate` passes.
+
 ## Session 106: 2026-09-18, Claude Code
 
 Author: Claude Code
@@ -406,49 +443,4 @@ None for PR #24. OQ-183 blocks PR-7 and PR-34.
 ### The next concrete action
 
 The owner can merge PR #24 after reading the current review verdict.
-
-## Session 97: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: the answer to the review of PR #24, in the same session as Session 93 (D-582). Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. PR: #24. Role: author. Base: `2874b70`.
-
-### What this session did, and why
-
-- The review of `7426dc9` gives `Changes required` with two findings. P2-2 was fixed in the PR description by the reviewer.
-- P2-1 has full merit: D-618 retired the CRT, and four places still held a live contract for it.
-- The trigger reproduces in D-172, in D-214, and in two lines of section 7.2 of `docs/roadmaps/area-effects.md`.
-- A sweep of `docs/decisions.md` for the same cause found four more rows: D-139, D-161, D-520, and D-526.
-- The first sweep of this PR read every live document except that register, which is why those rows stayed.
-- Six rows now carry the effect of D-618, and the frame section names no retired PR and no old-monitor pass.
-- `docs/reviews/pr-24-response.md` holds each disposition, the regression check, and the evidence.
-
-### The state of the build
-
-- `main` is `2874b70`, and the head before this round was `3c728cc`.
-- `make verify` passed: the build with 0 warnings, 187 tests, the format check, `det-lint`, `ste-check`, and the smoke session.
-- The review records `make verify` as inconclusive with `Build FAILED`. That result did not reproduce here.
-
-### What is in flight
-
-The repeat review of Codex at the effective head `5f5129a`. The Gitar pass approved that head, with 1 closed finding and no open one.
-
-- The push was at 03:46:08Z, and the request at 03:49:29Z.
-- Gitar replied `On it` at 03:49:54Z, and it wrote the dashboard comment `5724880333` at 03:50:16Z.
-- Each of the three times is later than the one before it, so the pass covers the effective head (D-603).
-
-### Traps and gotchas
-
-- A sweep for stale text must read `docs/decisions.md` too. The REF 3 rule of the checker skips that file (D-606), so a stale row there passes every check.
-- PR-37 keeps its retired entry in `phase-2-first-playable.md`, because the register of the `PR-` prefix reads that heading.
-- The option list of OQ-37 still names PR-37. That list is the record of the options of 2026-09-12, and D-172 closed the question.
-- `deck-test/` stays untracked, as it was before this session.
-- The next ids are D-626, OQ-184, F-68, L-16, G-28, M-9, and Session 98.
-
-### The questions that block progress
-
-None for PR #24. OQ-183 blocks PR-7 and PR-34, and the probe of D-621 answers it after the merge.
-
-### The next concrete action
-
-Ask Codex for the repeat review of the effective head `5f5129a`. The record of that review sets the verdict for `review-gate`.
 
