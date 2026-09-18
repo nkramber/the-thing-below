@@ -25,7 +25,16 @@ Session: the answer to the review of PR #25, in the same session as Session 99 (
 
 ### What is in flight
 
-The Gitar pass on the new head, and the repeat review of Codex. This round changes two roadmap paths, so it moves the effective head (D-610).
+The repeat review of Codex at the effective head `ac34b5f`. This round changed two roadmap paths, so it moved the effective head (D-610).
+
+The Gitar pass approves that head, with 2 closed findings and none open.
+
+- No automatic review started on the new head, because the trial of Gitar paused them. The Gitar check was absent, and the dashboard kept the edit time of the head before it.
+- The push was at 07:16:37Z, the request at 07:20:10Z, and the reply `On it` at 07:20:33Z.
+- Gitar replaced the dashboard comment, and the new id `5726614038` has the edit time 07:20:54Z.
+- Each time is later than the one before it, so the pass covers the effective head (D-603).
+- The summary of the pass repeats the words of the pass before it, which a pass with no new finding can do. The three times prove that it is current, so this round asked for no second review.
+- `review-gate` gives two faults, RG 4 and RG 5. The record holds the verdict `Changes required` for the head before this round. The repeat review clears both.
 
 ### Traps and gotchas
 
