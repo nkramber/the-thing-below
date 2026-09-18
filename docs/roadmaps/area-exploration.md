@@ -62,7 +62,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - Core holds the tile map, the movement, and the sight, and it keeps every position on a whole tile (D-100, D-106).
 - A step takes a fixed count of ticks, and Game slides the sprite across them (D-164, D-203).
 - The map runs in real time, and the patrols walk on the tick whether or not the player moves (D-162).
-- A menu pauses the world (D-162). OQ-64 holds what the tick does while a menu is open.
+- A menu pauses the world (D-162). The tick rises while a menu is open, and the world systems skip their work (D-650).
 - The lead walks the map in every case, in the party or in the reserve (D-292, D-306).
 - OQ-117 holds whether a step can go diagonally.
 - A door, a lock, a chest, or a save point answers the step into it. The intent names the thing by its id (D-493).
@@ -303,6 +303,6 @@ The register is `docs/questions.md` (D-19). These questions block exploration PR
 - OQ-123: how the player finds a secret. Blocks PR-21.
 - OQ-86: how the atlas places tiles, and how Game draws a map. Blocks PR-34 and PR-7.
 - OQ-89: pixel snap in Game. Blocks PR-7.
-- OQ-64: the tick while a menu is open. Blocks PR-6.
+- OQ-64: the tick while a menu is open. Resolved 2026-09-18 by D-650.
 
 No open question blocks this file.

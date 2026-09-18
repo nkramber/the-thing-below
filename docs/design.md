@@ -230,7 +230,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-7 | D-36 leaves a fallen character down until a hub, and a three-character party (D-31) then fights with two. No decision balances the short-handed party | 2026-09-12 | ⚠ D-58 gives a reserve and a swap at save points. Binds PR-16 and M-4 |
 | F-8 | D-42 empties a caster's MP across a dungeon, and no decision gives a job a no-MP action | 2026-09-12 | ⚠ Binds PR-9 and PR-12. D-359 gives every character a basic attack with no MP cost |
 | F-9 | D-48 sets the floor at 120 by 40, and a default macOS Terminal window is 80 by 24 | 2026-09-12 | ✅ doc. D-80 superseded D-48, D-103 superseded D-80, D-228 superseded D-103, and D-98 ended the terminal, so PR-7 has no size message |
-| F-10 | D-62 puts the run record in the save, and a record grows without bound over 20 to 40 hours (D-30) | 2026-09-12 | ⚠ Binds PR-6: the record format needs a compaction rule, a snapshot plus the inputs since it |
+| F-10 | D-62 puts the run record in the save, and a record grows without bound over 20 to 40 hours (D-30) | 2026-09-12 | ✅ PR-6 wrote the compaction rule: the record takes a new snapshot at each save, and it drops every intent before it (D-651) |
 | F-11 | The interim checker read an HTML comment as prose. A fixture comment with a semicolon, a modal, a passive, and 30 words raised four findings. The automated pass of PR #1 found it | 2026-09-12 | ✅ PR-2. The command removes a one-line comment, and the rule MD 1 fails a comment across lines |
 | F-12 | The session wrote in `CLAUDE.md`, the PR template, the skill, and OQ-1 that gitar was absent, on no evidence. The pass ran on PR #1 within a minute | 2026-09-12 | ✅ doc. D-66. Every claim about a tool needs a check |
 | F-13 | The first interview fixed the language before the medium. Two pivots in one day, D-78 and D-98, reopened 30 decisions | 2026-09-12 | ✅ doc. D-99. L-14 |
@@ -373,7 +373,7 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 12. PR-46: `det-lint`, before the first Core code (D-496, D-498).
 13. PR-4: integer math, the random streams, the state hash, the simulation version, and the `replay-identity` job (D-169, D-504).
 14. PR-5: the content reader, the content ids, the content hash, the string table, and the content embed (D-116, D-495, D-508).
-15. PR-6: the tick, the intents, the run record, replay, and the debug seam (D-164, D-260, D-493).
+15. PR-6: the tick, the intents, the run record, replay, and the debug seam (D-164, D-260, D-493, D-650 to D-653).
 16. PR-43: the Storage project, the snapshot versions and migrations, and the save files (D-491, D-494).
 17. PR-44: the crash files and the log files (D-170, D-179, D-491).
 18. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).

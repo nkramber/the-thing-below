@@ -1,5 +1,46 @@
 # Session handoff archive
 
+## Session 102: 2026-09-18, Codex
+
+Author: Codex
+Session: repeat review PR #25 at effective head `ac34b5f`. Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: reviewer. Base: `b3ec2b4`.
+
+### What this session did, and why
+
+- Rechecked P2-1 against its original trigger and the ordered-list sweep.
+- Confirmed both Phase 1 lists now run from 1 to 23 with no duplicate item number.
+- Confirmed the stale section 7.19 reference now names 7.20, and the round ends at D-640.
+- Read both Gitar claims, both author replies, and Gitar's confirmation. Both threads are resolved.
+- Updated `docs/reviews/pr-25.md` to close P2-1 for effective head `ac34b5f`.
+
+### The state of the build
+
+- `main` and the merge base are `b3ec2b4`. The PR tip is `118551e`; its effective head is `ac34b5f` (D-610).
+- `make verify` passes at the local tip: build with 0 warnings, 187 tests, format, `det-lint`, `ste-check`, and smoke.
+- GitHub reports `changed paths` and `ste-check` as passing. Docs-only build, test, format, coverage, lint, and smoke jobs skip (D-600).
+- Gitar approves `ac34b5f`, with 2 closed findings and none open. Its current dashboard follows the `On it` reply.
+- The review record and handoff were published as `301b507`. `review-gate`, `changed paths`, and `ste-check` pass on that head.
+- Docs-only build, test, format, coverage, det-lint, and smoke jobs skip under D-600. The `review-gate` check is green.
+
+### What is in flight
+
+The verdict and handoff are published. The owner can merge PR #25.
+
+### Traps and gotchas
+
+- The new effective head changes two roadmap paths. The later Gitar and handoff commits change only metadata (D-610).
+- The ordered-list sweep checks a class of defects that `ste-check` does not read.
+- `deck-test/` and `screen-scale-probe/` remain untracked and outside the PR.
+- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 103.
+
+### The questions that block progress
+
+None. OQ-183 closed with D-633 and D-639.
+
+### The next concrete action
+
+The review applies to effective head `ac34b5f`; the owner can merge PR #25.
+
 ## Session 101: 2026-09-18, Claude Code
 
 Author: Claude Code

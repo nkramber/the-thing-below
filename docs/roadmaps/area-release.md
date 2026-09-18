@@ -43,7 +43,7 @@ Built by PR-6, PR-44, and PR-33. Phase files: `phase-1-foundations.md` and `phas
 - The game version is a label for people. The simulation version, the snapshot format versions, and the content hash carry compatibility (G-17, D-166, D-448).
 - PR-6 writes the game version into the run record header, and PR-44 into the crash file (D-447, D-448, D-491).
 - A small line with the version sits in a corner of the title screen (D-454). It is a string table entry with the version as a value (G-7).
-- OQ-168 holds where the version lives in the build.
+- One constant in Core holds the version, and the export preset and the workflow read it (D-653).
 
 > *In plain English:* every build carries a number that a person can read. A crash report and a save both name it, so a bug report says which build broke.
 
@@ -342,7 +342,7 @@ The register is `docs/questions.md` (D-19). These questions block release PRs, a
 - OQ-58: the C# binding for Steamworks. Blocks PR-78.
 - OQ-59: the AI disclosure of the Steam content survey. Blocks PR-75.
 - OQ-90: where the studio mark shows. Blocks PR-33.
-- OQ-168: where the game version lives in the build. Blocks PR-6 and PR-31.
+- OQ-168: where the game version lives in the build. Resolved 2026-09-18 by D-653.
 - OQ-169: where the release notes live. Blocks PR-31.
 - OQ-170: what the title menu holds. Blocks PR-33.
 - OQ-171: what the capture command takes. Blocks PR-74.

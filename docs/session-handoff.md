@@ -2,6 +2,52 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 112: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-6, the tick, the intents, the run record, and replay. Repository: the-thing-below. Branch: `feat/pr-6-tick-and-run-record`. Role: author. Base: `1960cf3`.
+
+### What this session did, and why
+
+- Asked the owner the four blocking questions of PR-6 in one batch, and recorded each answer (D-19, D-24).
+- D-650: the tick rises while a menu is open, and the world systems skip their work. The tick is the one time line, so no record needs a second order value.
+- D-651: the record takes a new snapshot at each save, and it drops every intent before it (F-10).
+- D-652: records and snapshots are JSON text, with one object on each line, as the logs are (D-179).
+- D-653: one constant in Core holds the game version, and `GameVersion.Tag` gives the release tag.
+- Core gained `TheThingBelow.Core/Runs/`: the intent, the state, the world rules, the simulation, the snapshot, the recorder, the replay, and the text of a record.
+- The debug seam takes the handlers of the host, and Core names no debug assembly (D-260, D-492).
+- `ContentReader` gained the reads of a 64-bit number, of true and false, and of a hexadecimal 64-bit value. One strict reader now reads the content files and the record.
+- Game gained `FixedStepLoop` and `GameRun`, and `Boot` steps the run on each frame (D-164).
+- The identity set gained the `replay` run, which plays a script, writes the text, reads it again, and replays it.
+
+### The state of the build
+
+- `main` is `1960cf3`. The branch head is `3a70273` before the documents of this entry.
+- `make verify` passes: the build with 0 warnings, 475 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
+- `SimulationVersion.Current` is 3, because the tick and the world of one tick are the first rules that change a state (G-17).
+- The identity file gained `replay 0x2350D21C3F5A9E84`, and `state-hash` moved to `0xCC5817D745E5344C`, because that run hashes the simulation version.
+- The content hash stays `5ce12c64...f3c15f3`, because no rule file changed.
+
+### What is in flight
+
+The push of the branch, the pull request, and the Gitar pass. The Codex review follows the pass.
+
+### Traps and gotchas
+
+- A spread of an `IReadOnlyList` in Core calls `System.Linq`, which G-1 refuses. `RunRecorder.Step` copies the list itself.
+- The last line of a record holds the end tick. A run takes many ticks after its last intent, so a replay that stopped at the last intent line would give another state.
+- `RunSnapshot` is a record with a list, so `==` compares that list by reference. A test compares the state hash or the text.
+- The world of Phase 1 is one patrol on a fixed beat. PR-7 replaces it with the tile map.
+- The next ids are D-654, OQ-186, F-80, L-16, G-29, M-9, and Session 113.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the branch, open the pull request, and answer the Gitar pass.
+
 ## Session 111: 2026-09-18, Codex
 
 Author: Codex
@@ -389,44 +435,3 @@ None. The Deck test answered D-160, and D-616 holds the pick.
 ### The next concrete action
 
 Hand PR #26 to Codex for the review of T-4. This PR changes code, so the label of D-401 does not apply.
-
-## Session 102: 2026-09-18, Codex
-
-Author: Codex
-Session: repeat review PR #25 at effective head `ac34b5f`. Repository: the-thing-below. Branch: `docs/pr-86-screen-scale-answers`. Role: reviewer. Base: `b3ec2b4`.
-
-### What this session did, and why
-
-- Rechecked P2-1 against its original trigger and the ordered-list sweep.
-- Confirmed both Phase 1 lists now run from 1 to 23 with no duplicate item number.
-- Confirmed the stale section 7.19 reference now names 7.20, and the round ends at D-640.
-- Read both Gitar claims, both author replies, and Gitar's confirmation. Both threads are resolved.
-- Updated `docs/reviews/pr-25.md` to close P2-1 for effective head `ac34b5f`.
-
-### The state of the build
-
-- `main` and the merge base are `b3ec2b4`. The PR tip is `118551e`; its effective head is `ac34b5f` (D-610).
-- `make verify` passes at the local tip: build with 0 warnings, 187 tests, format, `det-lint`, `ste-check`, and smoke.
-- GitHub reports `changed paths` and `ste-check` as passing. Docs-only build, test, format, coverage, lint, and smoke jobs skip (D-600).
-- Gitar approves `ac34b5f`, with 2 closed findings and none open. Its current dashboard follows the `On it` reply.
-- The review record and handoff were published as `301b507`. `review-gate`, `changed paths`, and `ste-check` pass on that head.
-- Docs-only build, test, format, coverage, det-lint, and smoke jobs skip under D-600. The `review-gate` check is green.
-
-### What is in flight
-
-The verdict and handoff are published. The owner can merge PR #25.
-
-### Traps and gotchas
-
-- The new effective head changes two roadmap paths. The later Gitar and handoff commits change only metadata (D-610).
-- The ordered-list sweep checks a class of defects that `ste-check` does not read.
-- `deck-test/` and `screen-scale-probe/` remain untracked and outside the PR.
-- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 103.
-
-### The questions that block progress
-
-None. OQ-183 closed with D-633 and D-639.
-
-### The next concrete action
-
-The review applies to effective head `ac34b5f`; the owner can merge PR #25.

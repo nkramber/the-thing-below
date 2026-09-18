@@ -64,11 +64,11 @@ Area file: `area-release.md` section 7.3.
 
 **Review focus.**
 
-- The answer of OQ-168 says where the game version lives in the build (D-454).
+- One constant in Core holds the game version, and the export preset and the workflow read it (D-454, D-653).
 - The answer of OQ-169 says where the release notes live.
 - The notes name no agent, harness, or model (T-6).
 
-**Questions.** OQ-168 and OQ-169.
+**Questions.** OQ-169. D-653 resolved OQ-168.
 
 > *In plain English:* one git tag turns into a download page with three builds and a short list of what changed. Later, Steam takes that job over.
 
@@ -380,7 +380,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-57 | The studio name | PR-33 |
 | OQ-58 | The C# binding for Steamworks | PR-78 |
 | OQ-90 | Where the studio mark shows | PR-33 |
-| OQ-168 | Where the game version lives in the build | PR-31 |
+| OQ-168 | Where the game version lives in the build. Resolved by D-653 | PR-31 |
 | OQ-169 | Where the release notes live | PR-31 |
 | OQ-170 | What the title menu holds | PR-33 |
 | OQ-175 | The shot list of the first trailer | The trailer |
