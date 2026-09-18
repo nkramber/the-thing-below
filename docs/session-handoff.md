@@ -25,7 +25,11 @@ Session: the answer to the review of PR #24, in the same session as Session 93 (
 
 ### What is in flight
 
-The repeat review of Codex, after a new Gitar pass of the new head.
+The repeat review of Codex at the effective head `5f5129a`. The Gitar pass approved that head, with 1 closed finding and no open one.
+
+- The push was at 03:46:08Z, and the request at 03:49:29Z.
+- Gitar replied `On it` at 03:49:54Z, and it wrote the dashboard comment `5724880333` at 03:50:16Z.
+- Each of the three times is later than the one before it, so the pass covers the effective head (D-603).
 
 ### Traps and gotchas
 
@@ -41,7 +45,7 @@ None for PR #24. OQ-183 blocks PR-7 and PR-34, and the probe of D-621 answers it
 
 ### The next concrete action
 
-Wait three minutes, comment `Gitar review`, and then ask Codex for the repeat review of the new head.
+Ask Codex for the repeat review of the effective head `5f5129a`. The record of that review sets the verdict for `review-gate`.
 
 ## Session 96: 2026-09-18, Codex
 
