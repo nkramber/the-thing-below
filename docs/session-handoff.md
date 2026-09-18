@@ -24,7 +24,11 @@ Session: the answer to the Gitar pass of PR #24, in the same session as Session 
 
 ### What is in flight
 
-The repeat Gitar pass, and then the review of Codex. Gitar paused automatic reviews for this period, so the round needs a `Gitar review` comment after the push wait.
+The review of Codex. The repeat Gitar pass approved the head `741e8db`, with 1 closed finding and no open one.
+
+- The push of `741e8db` was at 03:07:43Z, and the request at 03:11:05Z.
+- Gitar replied `On it` at 03:11:41Z, and it wrote the dashboard comment `5724580560` at 03:11:49Z.
+- Each of the three times is later than the one before it, so the pass covers the effective head (D-603).
 
 ### Traps and gotchas
 
@@ -40,7 +44,7 @@ None for PR #24. OQ-183 blocks PR-7 and PR-34, and the probe of D-621 answers it
 
 ### The next concrete action
 
-Push, wait three minutes, and comment `Gitar review`. Then hand PR #24 to Codex for the review of T-4.
+Hand PR #24 to Codex for the review of T-4. This PR adds decision rows, so the label of D-401 does not apply.
 
 ## Session 93: 2026-09-17, Claude Code
 
