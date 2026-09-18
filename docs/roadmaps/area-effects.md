@@ -73,7 +73,7 @@ Built by PR-6 and every effect PR. Phase files: `phase-1-foundations.md` and `ph
 
 ### 7.2 The order of a frame
 
-Built by PR-7, PR-10, PR-56, PR-59, PR-60, and PR-37, inside the frame of `area-ui-input.md`. Phase file: `phase-2-first-playable.md`.
+Built by PR-7, PR-10, PR-56, PR-59, and PR-60, inside the frame of `area-ui-input.md`. Phase file: `phase-2-first-playable.md`.
 
 The table lists what a frame draws, from the bottom to the top.
 
@@ -97,7 +97,7 @@ The table lists what a frame draws, from the bottom to the top.
 - OQ-101 holds whether fog draws below or above the figures (D-187).
 - `area-ui-input.md` builds the frame and the fit. This file holds what draws inside the frame.
 
-> *In plain English:* each frame stacks the same way: the world, then its light, then the menus, then the old-monitor look over all of it. Menus never catch the torchlight, and the whole stack scales to the screen at the end.
+> *In plain English:* each frame stacks the same way: the world, then its light, then the menus, then a transition over all of it. Menus never catch the torchlight, and the whole stack scales to the screen at the end.
 
 ### 7.3 The Deck test
 
