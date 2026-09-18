@@ -22,7 +22,7 @@ Session: review PR #27, PR-4, integer math, streams, state hash, and identity jo
 
 ### What is in flight
 
-The review record and this handoff entry are pushed as `7969d87`. The required `review-gate` result on the published record is pending.
+The review record and this handoff entry are published. `review-gate` passes on `e1bfc72`.
 
 ### Traps and gotchas
 
@@ -37,7 +37,7 @@ None for PR #27. D-641 to D-645 answer the questions of section 7.11.
 
 ### The next concrete action
 
-Commit and push the review record and this handoff entry. Check that `review-gate` passes.
+The owner can merge PR #27.
 
 ## Session 106: 2026-09-18, Claude Code
 
