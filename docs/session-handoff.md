@@ -2,6 +2,46 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 95: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: the time of the screen scale probe, in the same session as Session 93 (D-582). Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. PR: #24. Role: author. Base: `2874b70`.
+
+### What this session did, and why
+
+- The owner set the time of the screen scale probe: the next clean session after the merge of PR #24.
+- D-625 records it, and the transitional prompt of the merge names the probe (D-601).
+- The probe moved up the order of Phase 1 in `docs/design.md` and in `docs/roadmaps/phase-1-foundations.md`.
+- The Sprite Fusion test keeps its place before PR-34, because it waits for the plan of the owner.
+- The probe entry gained three facts: one build for each machine, the font of D-263 from its OFL release, and the trap of a picture viewer on the 4K screen of the Mac.
+- The frame fits both desktop screens at a whole number, 3x at 3840 by 2160 and 2x at 2560 by 1440.
+
+### The state of the build
+
+- `main` is `2874b70`, and the head of this round changes documents alone.
+- The `ste-check` command passes with 0 findings.
+- The Gitar pass of `741e8db` approved that head, and this round moves the effective head, so the PR needs a new pass.
+
+### What is in flight
+
+The new Gitar pass, and then the review of Codex. Gitar paused automatic reviews, so the round needs a `Gitar review` comment after the push wait of three minutes.
+
+### Traps and gotchas
+
+- The probe needs the owner and three machines, so it cannot run in a session of its own without the owner.
+- macOS maps a picture pixel to a point on a 4K screen, so the probe draws at the native size and never in a viewer.
+- The order lists of the two files hold the same steps, and a change to one needs the same change in the other.
+- `deck-test/` stays untracked, as it was before this session.
+- The next ids are D-626, OQ-184, F-68, L-16, G-28, M-9, and Session 96.
+
+### The questions that block progress
+
+None for PR #24. OQ-183 blocks PR-7 and PR-34, and the probe answers it right after the merge.
+
+### The next concrete action
+
+Push, wait three minutes, comment `Gitar review`, and then hand PR #24 to Codex for the review of T-4.
+
 ## Session 94: 2026-09-18, Claude Code
 
 Author: Claude Code
@@ -377,41 +417,3 @@ None for this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
 ### The next concrete action
 
 Commit the work, push, then get the Gitar pass on the head.
-
-## Session 85: 2026-09-17, Codex
-
-Author: Codex
-Session: repeat review of PR #21 at effective head `89d125e`. Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. Role: reviewer. Base: `04953e4`.
-
-### What this session did, and why
-
-- Read the author response and verified the P1-4 correction against its trigger.
-- Verified that D-612 requires one bold span in the Verdict section, and that the new rule enforces it.
-- Set P1-1, P1-2, P1-3, P1-4, and P2-1 to fixed in `89d125e`.
-- Ran the 14 focused review-gate tests and `make verify`. All checks passed, including 123 tests and Godot smoke.
-- Verified all nine CI checks pass on metadata tip `1d3398b`. The Gitar pass approves effective head `89d125e`; its report says no rules were evaluated and functional validation was not enabled.
-- Updated the review record with `Ready for owner merge` for effective head `89d125e`.
-
-### The state of the build
-
-- `main` and the merge base are `04953e4`. The effective head is `89d125e`, and the remote tip is metadata commit `1d3398b`.
-- `make verify` passes: build, 123 tests, format, STE with 0 findings, and Godot smoke.
-- All nine CI checks pass on `1d3398b`. The unrelated untracked `deck-test/` remains untouched.
-
-### What is in flight
-
-The review record and this entry need a commit and push to the PR branch.
-
-### Traps and gotchas
-
-- D-612 closes the scope of RG 4. A review that requires a check of Verdict prose needs a new owner answer.
-- PR-3 has no live `review-gate` check. D-500 accepts the command tests as evidence, and the first live run is on the next PR.
-- The next ids are D-613, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 86.
-
-### The questions that block progress
-
-None for PR #21. OQ-3 applies after the first live check run. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
-
-### The next concrete action
-
-Commit this review and handoff, push, then verify the published head.

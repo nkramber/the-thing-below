@@ -315,7 +315,43 @@ Area files: `area-effects.md` sections 7.3, 7.4, and 7.12, and `area-art.md` sec
 
 > *In plain English:* the owner ran the speed test on the Steam Deck and answered a batch of questions. This writes each answer into the documents, and it takes the old-monitor look out of the plan.
 
-### 7.8 PR-46: det-lint
+### 7.8 The screen scale probe
+
+Owner and a session, in the session right after the merge of PR-85 (D-625). Area files: `area-ui-input.md` section 7.2, and `area-art.md` section 7.1.
+
+**Scope.**
+
+- One mock frame of 1280 by 720, from the approved sample grids and the body font (D-402, D-621).
+- The frame at 1x and at 2x, on the Deck, on a 27-inch 4K screen, and on a 32-inch 1440p screen.
+- The owner picks the scale of the world and the scale of the UI, and OQ-183 takes the answer.
+- M-8 records the apparent size of a sprite and of the body font on each screen.
+- The probe runs as a build on each machine (D-458). The Deck takes the Linux export, and the Mac and the Windows machine each take a build.
+- The body text takes the font of D-263, and the spike gets that font from its OFL release.
+
+**Out of scope.**
+
+- The probe never merges to `main`, and it changes no setting of the Game project (D-597).
+- The art batch of PR-34, and the map and battle layouts that follow the answer.
+
+**Exit tests.**
+
+1. The owner reads the same mock frame on all three screens, at both scales.
+2. A decision row records the scale of the world and the scale of the UI, and it resolves OQ-183.
+3. M-8 holds the numbers of each screen.
+4. The mock frame fills each screen at the native pixel size of that screen.
+
+**Review focus.**
+
+- The probe draws the same content at each scale, so the owner compares the scale alone.
+- D-37 gives each screen the view of the Deck, so one answer binds every screen.
+- A picture in a viewer proves nothing on the 4K screen of the Mac. That system maps a picture pixel to a point, and not to a device pixel.
+- The frame fits both desktop screens at a whole number. It takes 3x at 3840 by 2160, and 2x at 2560 by 1440.
+
+**Questions.** OQ-183.
+
+> *In plain English:* a 32-pixel figure is about 4 mm tall on the Deck, which is small. This shows the owner the same picture at two sizes on three screens, before any art or map takes the size as fixed.
+
+### 7.9 PR-46: det-lint
 
 Area files: `area-tools.md` section 7.4, `area-ci.md` section 7.8.
 
@@ -356,7 +392,7 @@ Area files: `area-tools.md` section 7.4, `area-ci.md` section 7.8.
 
 > *In plain English:* two computers can disagree on decimal math and on the order of words. This tool reads the rules code as the compiler does and refuses anything that can make two machines disagree.
 
-### 7.9 PR-4: integer math, the streams, the state hash, and the identity job
+### 7.10 PR-4: integer math, the streams, the state hash, and the identity job
 
 Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.9.
 
@@ -400,7 +436,7 @@ Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.
 
 > *In plain English:* different computers can give different answers for decimal math. This adds our own whole-number math and a check that proves the same result on every machine.
 
-### 7.10 PR-5: content, the content hash, and the string table
+### 7.11 PR-5: content, the content hash, and the string table
 
 Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.md` section 7.1.
 
@@ -441,7 +477,7 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 
 > *In plain English:* every enemy, item, and map lives in a strict data file. A gap or a typo stops the load with the file and the field, instead of a silent zero.
 
-### 7.11 PR-6: the tick, the intents, the run record, and replay
+### 7.12 PR-6: the tick, the intents, the run record, and replay
 
 Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` section 7.9, `area-release.md` section 7.1.
 
@@ -482,7 +518,7 @@ Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` secti
 
 > *In plain English:* the game writes down its start state and every choice after it. That record plays any run again on any machine, so every bug becomes repeatable on demand.
 
-### 7.12 PR-43: the Storage project, the snapshots, and the saves
+### 7.13 PR-43: the Storage project, the snapshots, and the saves
 
 Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 
@@ -521,7 +557,7 @@ Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 
 > *In plain English:* a save is a full picture of the game at one moment. A crash during a save never destroys the old one, and a save from an older build still loads through a converter.
 
-### 7.13 PR-44: the crash files and the log files
+### 7.14 PR-44: the crash files and the log files
 
 Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 
@@ -559,7 +595,7 @@ Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 
 > *In plain English:* when the game stops with an error, it leaves one file that holds everything a replay needs. Logs are plain one-line notes that the tools can read.
 
-### 7.14 PR-47: the PNG code
+### 7.15 PR-47: the PNG code
 
 Area file: `area-tools.md` section 7.5.
 
@@ -593,37 +629,6 @@ Area file: `area-tools.md` section 7.5.
 **Questions.** OQ-72.
 
 > *In plain English:* every picture that the tools make or read is a PNG file. The project writes its own small PNG code, so a new version of a library never breaks a picture test.
-
-### 7.15 The screen scale probe
-
-Owner and a session, before PR-7 and PR-34. Area files: `area-ui-input.md` section 7.2, and `area-art.md` section 7.1.
-
-**Scope.**
-
-- One mock frame of 1280 by 720, from the approved sample grids and the body font (D-402, D-621).
-- The frame at 1x and at 2x, on the Deck, on a 27-inch 4K screen, and on a 32-inch 1440p screen.
-- The owner picks the scale of the world and the scale of the UI, and OQ-183 takes the answer.
-- M-8 records the apparent size of a sprite and of the body font on each screen.
-
-**Out of scope.**
-
-- The probe never merges to `main`, and it changes no setting of the Game project (D-597).
-- The art batch of PR-34, and the map and battle layouts that follow the answer.
-
-**Exit tests.**
-
-1. The owner reads the same mock frame on all three screens, at both scales.
-2. A decision row records the scale of the world and the scale of the UI, and it resolves OQ-183.
-3. M-8 holds the numbers of each screen.
-
-**Review focus.**
-
-- The probe draws the same content at each scale, so the owner compares the scale alone.
-- D-37 gives each screen the view of the Deck, so one answer binds every screen.
-
-**Questions.** OQ-183.
-
-> *In plain English:* a 32-pixel figure is about 4 mm tall on the Deck, which is small. This shows the owner the same picture at two sizes on three screens, before any art or map takes the size as fixed.
 
 ### 7.16 The Sprite Fusion test
 
@@ -754,15 +759,15 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 7. PR-3: the review gate.
 8. PR-84: the context budget check, right after PR-3 (D-611).
 9. PR-85: the result of the Deck test, the removal of the CRT, and the two tests before PR-34 (D-616).
-10. Owner: require the checks on `main` (OQ-3).
-11. PR-46: det-lint, before the first Core code (D-496).
-12. PR-4: integer math, the streams, the state hash, and the identity job.
-13. PR-5: content, the content hash, and the string table.
-14. PR-6: the tick, the intents, the run record, and replay.
-15. PR-43: the Storage project, the snapshots, and the saves.
-16. PR-44: the crash files and the log files.
-17. PR-47: the PNG code, right before the atlas (D-496).
-18. Owner and a session: the screen scale probe on three screens (D-621, OQ-183).
+10. Owner and a session: the screen scale probe on three screens, right after PR-85 (D-621, D-625).
+11. Owner: require the checks on `main` (OQ-3).
+12. PR-46: det-lint, before the first Core code (D-496).
+13. PR-4: integer math, the streams, the state hash, and the identity job.
+14. PR-5: content, the content hash, and the string table.
+15. PR-6: the tick, the intents, the run record, and replay.
+16. PR-43: the Storage project, the snapshots, and the saves.
+17. PR-44: the crash files and the log files.
+18. PR-47: the PNG code, right before the atlas (D-496).
 19. Owner and a session: the Sprite Fusion test of the art (D-620).
 20. PR-34: the atlas, the palette, and the drawing files.
 21. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above.

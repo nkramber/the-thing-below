@@ -345,15 +345,15 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 6. PR-2: the `ste-check` command in C#, which replaces the Python script (D-10, D-101).
 7. PR-3: the `review-gate` command and its workflow, with the document rules (D-15, D-500, D-579).
 8. PR-85: the result of the Deck test, the removal of the CRT, and two tests before PR-34 (D-616).
-9. Owner: require the checks on `main` (OQ-3).
-10. PR-46: `det-lint`, before the first Core code (D-496, D-498).
-11. PR-4: integer math, the random streams, the state hash, the simulation version, and the `replay-identity` job (D-169, D-504).
-12. PR-5: the content reader, the content ids, the content hash, the string table, and the content embed (D-116, D-495, D-508).
-13. PR-6: the tick, the intents, the run record, replay, and the debug seam (D-164, D-260, D-493).
-14. PR-43: the Storage project, the snapshot versions and migrations, and the save files (D-491, D-494).
-15. PR-44: the crash files and the log files (D-170, D-179, D-491).
-16. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).
-17. Owner and a session: the screen scale probe on three screens, before PR-7 and PR-34 (D-621, M-8).
+9. Owner and a session: the screen scale probe on three screens, right after PR-85 (D-621, D-625).
+10. Owner: require the checks on `main` (OQ-3).
+11. PR-46: `det-lint`, before the first Core code (D-496, D-498).
+12. PR-4: integer math, the random streams, the state hash, the simulation version, and the `replay-identity` job (D-169, D-504).
+13. PR-5: the content reader, the content ids, the content hash, the string table, and the content embed (D-116, D-495, D-508).
+14. PR-6: the tick, the intents, the run record, replay, and the debug seam (D-164, D-260, D-493).
+15. PR-43: the Storage project, the snapshot versions and migrations, and the save files (D-491, D-494).
+16. PR-44: the crash files and the log files (D-170, D-179, D-491).
+17. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).
 18. Owner and a session: the Sprite Fusion test of the art, before PR-34 (D-620).
 19. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517).
 20. M-1: the harness usage of each of the first ten code PRs in the order of section 8.
@@ -494,46 +494,47 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 3. Owner: enable the setting that requires a SHA pin for each action (D-511). Done on 2026-09-14.
 4. Owner and a session: the Deck test of D-160 on the Linux export (D-458, D-523). Done on 2026-09-17, from the test scene of the branch spike/deck-test (D-597, D-616).
 5. PR-1, PR-2, PR-3, PR-84, PR-85. PR-82 follows the Deck test run, and it can land at any point after PR-1 (D-599, D-616).
-6. Owner: require the checks on `main` (OQ-3).
-7. PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, PR-47, PR-34. The screen scale probe and the Sprite Fusion test come before PR-34 (D-620, D-621).
-8. M-1, M-2.
-9. **← GATE 1 (foundation).** The identity job, `dotnet test`, the smoke job, `det-lint`, and `ste-check` are green on every CI leg.
-10. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
-11. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8.
-12. PR-9, PR-80, PR-66, PR-55, PR-10.
-13. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60.
-14. PR-11, PR-67, PR-62.
-15. PR-68, PR-50.
-16. PR-12, PR-13, PR-14, PR-65.
-17. PR-36.
-18. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
-19. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-20. PR-16, PR-64, PR-35.
-21. PR-38, PR-69, PR-70, PR-71.
-22. PR-51, PR-52, PR-53, PR-72.
-23. PR-17.
-24. M-3, M-4, M-6.
-25. Owner: set the M-4 band from the M-4 numbers (D-571).
-26. **← GATE 2 (first playable).** The owner plays the village, one hub, and one dungeon on both machines and signs off on feel (D-362).
-27. PR-74, PR-75, PR-76.
-28. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
-29. PR-18, PR-19, PR-20, PR-21.
-30. **← GATE 3 (story systems).** The owner plays a branch and a hub that changes with an earlier choice.
-31. PR-23, PR-24, PR-81, PR-27, PR-25, PR-26.
-32. PR-42, PR-73.
-33. PR-28, PR-29, PR-77.
-34. PR-30.
-35. M-5.
-36. **← GATE 4 (region one).** The owner plays region one end to end on both machines. Then trusted players play the build artifacts (D-469).
-37. PR-31, PR-33.
-38. Owner: join the Apple Developer Program (D-455).
-39. PR-78, PR-39.
-40. PR-79.
-41. Owner and a session: the shot list and the cut of the first trailer (D-476).
-42. PR-40.
-43. Owner: request the Deck compatibility review from Valve (D-565).
-44. **← GATE 5 (first release).** A fresh machine runs the tagged build, and the Deck runs the Steam demo.
-45. Valve answers the review, and Phase 6 stays parked.
+6. Owner and a session: the screen scale probe, in the session right after the merge of PR-85 (D-621, D-625).
+7. Owner: require the checks on `main` (OQ-3).
+8. PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, PR-47, PR-34. The Sprite Fusion test comes before PR-34 (D-620).
+9. M-1, M-2.
+10. **← GATE 1 (foundation).** The identity job, `dotnet test`, the smoke job, `det-lint`, and `ste-check` are green on every CI leg.
+11. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
+12. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8.
+13. PR-9, PR-80, PR-66, PR-55, PR-10.
+14. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60.
+15. PR-11, PR-67, PR-62.
+16. PR-68, PR-50.
+17. PR-12, PR-13, PR-14, PR-65.
+18. PR-36.
+19. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
+20. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+21. PR-16, PR-64, PR-35.
+22. PR-38, PR-69, PR-70, PR-71.
+23. PR-51, PR-52, PR-53, PR-72.
+24. PR-17.
+25. M-3, M-4, M-6.
+26. Owner: set the M-4 band from the M-4 numbers (D-571).
+27. **← GATE 2 (first playable).** The owner plays the village, one hub, and one dungeon on both machines and signs off on feel (D-362).
+28. PR-74, PR-75, PR-76.
+29. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
+30. PR-18, PR-19, PR-20, PR-21.
+31. **← GATE 3 (story systems).** The owner plays a branch and a hub that changes with an earlier choice.
+32. PR-23, PR-24, PR-81, PR-27, PR-25, PR-26.
+33. PR-42, PR-73.
+34. PR-28, PR-29, PR-77.
+35. PR-30.
+36. M-5.
+37. **← GATE 4 (region one).** The owner plays region one end to end on both machines. Then trusted players play the build artifacts (D-469).
+38. PR-31, PR-33.
+39. Owner: join the Apple Developer Program (D-455).
+40. PR-78, PR-39.
+41. PR-79.
+42. Owner and a session: the shot list and the cut of the first trailer (D-476).
+43. PR-40.
+44. Owner: request the Deck compatibility review from Valve (D-565).
+45. **← GATE 5 (first release).** A fresh machine runs the tagged build, and the Deck runs the Steam demo.
+46. Valve answers the review, and Phase 6 stays parked.
 
 ## 9. Open questions
 

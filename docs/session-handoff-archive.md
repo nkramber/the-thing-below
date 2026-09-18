@@ -1,5 +1,43 @@
 # Session handoff archive
 
+## Session 85: 2026-09-17, Codex
+
+Author: Codex
+Session: repeat review of PR #21 at effective head `89d125e`. Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. Role: reviewer. Base: `04953e4`.
+
+### What this session did, and why
+
+- Read the author response and verified the P1-4 correction against its trigger.
+- Verified that D-612 requires one bold span in the Verdict section, and that the new rule enforces it.
+- Set P1-1, P1-2, P1-3, P1-4, and P2-1 to fixed in `89d125e`.
+- Ran the 14 focused review-gate tests and `make verify`. All checks passed, including 123 tests and Godot smoke.
+- Verified all nine CI checks pass on metadata tip `1d3398b`. The Gitar pass approves effective head `89d125e`; its report says no rules were evaluated and functional validation was not enabled.
+- Updated the review record with `Ready for owner merge` for effective head `89d125e`.
+
+### The state of the build
+
+- `main` and the merge base are `04953e4`. The effective head is `89d125e`, and the remote tip is metadata commit `1d3398b`.
+- `make verify` passes: build, 123 tests, format, STE with 0 findings, and Godot smoke.
+- All nine CI checks pass on `1d3398b`. The unrelated untracked `deck-test/` remains untouched.
+
+### What is in flight
+
+The review record and this entry need a commit and push to the PR branch.
+
+### Traps and gotchas
+
+- D-612 closes the scope of RG 4. A review that requires a check of Verdict prose needs a new owner answer.
+- PR-3 has no live `review-gate` check. D-500 accepts the command tests as evidence, and the first live run is on the next PR.
+- The next ids are D-613, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 86.
+
+### The questions that block progress
+
+None for PR #21. OQ-3 applies after the first live check run. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### The next concrete action
+
+Commit this review and handoff, push, then verify the published head.
+
 ## Session 84: 2026-09-17, Claude Code
 
 Author: Claude Code
