@@ -1,5 +1,48 @@
 # Session handoff archive
 
+## Session 84: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: the answer to the third review round of PR #21, in the same session as Session 78, Session 80, and Session 82 (D-582).
+Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. PR: #21. Role: author. Base: `04953e4`.
+
+### What this session did, and why
+
+- The review of `b466a64` marks P1-1, P1-2, P1-3, and P2-1 as fixed. It adds P1-4, and it keeps the verdict `Changes required`.
+- P1-4: the rule counted the bold spans that match a verdict name, so `**Not Ready for owner merge.**` beside the approved name passed. The claim reproduces, and it has full merit.
+- The `## Verdict` section now holds one bold span, and that span is the verdict name. A second bold span gives a fault, whatever its text.
+- This was the third round of findings on RG 4, so the session asked the owner to settle the scope of the rule (D-19). The answer is D-612, and it is the rule above. A check of the prose of the section stays out of scope.
+- A count of the bold spans of the `## Verdict` section of each of the 16 records of `docs/reviews/` gives one span, so the new rule needs no change to any record.
+- Added one test for the new trigger. It fails on each older version of the rule.
+
+### The state of the build
+
+- `main` is `04953e4`. The head before this round was `b466a64`, and the remote tip was `1126bc2`.
+- `make verify` passes: the build, 123 tests, the format check, the STE check with 0 findings, and the smoke session.
+- This round changes code, a test, a decision row, and one skill reference file, so the effective head moves to `89d125e`.
+- The nine CI checks pass on `89d125e`: three build legs, three smoke legs, the changed paths job, the coverage report, and `ste-check`.
+- The Gitar pass approves `89d125e` with the verdict `Approved` and no finding. The pass needed a request again. Gitar replied `On it` at `19:33:14Z`, and its new dashboard comment `5720109237` has the edit time `19:35:01Z`. No thread is open.
+- Session 74 moves to the archive. The handoff keeps the 10 newest entries (D-18, D-607).
+
+### What is in flight
+
+The repeat review of the other provider at the effective head `89d125e`.
+
+### Traps and gotchas
+
+- D-612 closes the scope of RG 4. A finding that asks the rule to read the prose of the section needs a new owner answer first.
+- The `## Verdict` section of a record takes no bold word in its prose. The reference file says so.
+- The head of this PR gets no automatic Gitar pass, because the trial paused them. Each round needs a `Gitar review` comment after the push wait of three minutes.
+- The next ids are D-613, OQ-183, F-65, L-16, G-27, PR-85, M-8, and Session 85.
+
+### The questions that block progress
+
+None for PR #21. OQ-3 comes right after the merge of this PR. OQ-179 blocks PR-5, and OQ-180 blocks PR-81.
+
+### The next concrete action
+
+Get a Gitar pass of the new head, then get the repeat review of the other provider.
+
 ## Session 83: 2026-09-17, Codex
 
 Author: Codex
