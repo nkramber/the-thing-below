@@ -65,9 +65,12 @@ public static class ReplayIdentityCommand
         {
             return write ? WriteFile(root, output) : Compare(root, output, errors);
         }
-        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+        catch (Exception fault) when (
+            fault is IOException or UnauthorizedAccessException or InvalidDataException)
         {
-            // The command never hides a file fault. The message names the file (T-2).
+            // The command never hides a file fault. The message names the file and the line
+            // (T-2). `InvalidDataException` does not derive from `IOException`, so a
+            // malformed identity file needs its own name in this list.
             errors.WriteLine($"Error: {fault.Message}");
             return Program.FaultExitCode;
         }

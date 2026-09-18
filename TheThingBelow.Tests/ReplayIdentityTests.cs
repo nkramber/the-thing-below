@@ -161,6 +161,40 @@ public sealed class ReplayIdentityTests
         Assert.Contains(IdentityFile.Path, error.Message, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData("basis-points")]
+    [InlineData("basis-points 12345")]
+    [InlineData("basis-points 0xZZZZZZZZZZZZZZZZ")]
+    public void AMalformedIdentityFileGivesTheFaultCodeAndNotACrash(string line)
+    {
+        // A regression test. The command caught `IOException` alone, and the
+        // `InvalidDataException` of a malformed line escaped as an unhandled exception
+        // with a stack trace, in place of the one-line fault report (T-2).
+        using TemporaryCheckout checkout = TemporaryCheckout.FromRepository();
+        File.WriteAllText(Path.Combine(checkout.Root, IdentityFile.Path), line + "\n");
+
+        StringWriter errors = new();
+        int code = ReplayIdentityCommand.Run(
+            [ReplayIdentityCommand.RootOption, checkout.Root], new StringWriter(), errors);
+
+        Assert.Equal(Program.FaultExitCode, code);
+        Assert.Contains(IdentityFile.Path, errors.ToString(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AMissingIdentityFileGivesTheFaultCodeAndNotACrash()
+    {
+        using TemporaryCheckout checkout = TemporaryCheckout.FromRepository();
+        File.Delete(Path.Combine(checkout.Root, IdentityFile.Path));
+
+        StringWriter errors = new();
+        int code = ReplayIdentityCommand.Run(
+            [ReplayIdentityCommand.RootOption, checkout.Root], new StringWriter(), errors);
+
+        Assert.Equal(Program.FaultExitCode, code);
+        Assert.Contains(IdentityFile.Path, errors.ToString(), StringComparison.Ordinal);
+    }
+
     [Fact]
     public void AnUnknownRunNameIsAnError()
     {
