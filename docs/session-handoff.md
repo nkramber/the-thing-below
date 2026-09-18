@@ -18,16 +18,22 @@ Session: the second round of PR-4, the answer to the Gitar pass. Repository: the
 
 ### The state of the build
 
-- `main` is `772468a`. The PR tip is the commit of this entry, and the reviewed head was `1bb9125`.
+- `main` is `772468a`. The head of PR #27 is `3f8b803`, and the round before it was `1bb9125`.
 - `make verify` passes: the build with 0 warnings, 290 tests, the format check, `det-lint`, `ste-check`, the identity check, and the smoke session.
-- On `1bb9125`, 14 CI checks pass: the three build legs, the three smoke legs, the three `replay-identity` legs, `changed paths`, `ste-check`, `det-lint`, the coverage report, and the Gitar check.
+- On `3f8b803`, 14 CI checks pass: the three build legs, the three smoke legs, the three `replay-identity` legs, `changed paths`, `ste-check`, `det-lint`, the coverage report, and the Gitar check.
 - The three `replay-identity` legs give the same four hashes as this machine, which is exit test 5 of section 7.11.
 - `review-gate` gives one fault, RG 3: the head holds no review record at `docs/reviews/pr-27.md`. The review of Codex clears it.
 - The first `review-gate` run also gave RG 7, because the `docs/reviews/` row took no form of D-581. A correction of the PR description cleared it.
 
 ### What is in flight
 
-The push of this round, then a new Gitar pass on the new head, then the review of Codex.
+The review of Codex. The Gitar pass approves the head `3f8b803`, and it gives no open finding.
+
+- Automatic reviews stay paused on the Gitar trial, so the push wait of three minutes ended with no pass. The comment `Gitar review` at 14:36:38Z started a manual pass.
+- Gitar replied `On it` at 14:37:02Z, and it then replaced the dashboard comment. The new id is `5731578321`, with the edit time 14:37:25Z.
+- The edit time is later than the reply time, so the pass covers the head (D-603).
+- The Gitar check on `3f8b803` completed with success in 44 seconds.
+- The dashboard reads `Approved`, with 1 closed finding and none open. The one review thread is resolved.
 
 ### Traps and gotchas
 
@@ -44,7 +50,7 @@ None. D-641 to D-645 answered every question of this PR.
 
 ### The next concrete action
 
-Wait for the Gitar pass on the new head. Then hand PR #27 to Codex for the review of T-4.
+Hand PR #27 to Codex for the review of T-4. This PR changes code, so the label of D-401 does not apply.
 
 ## Session 105: 2026-09-18, Claude Code
 
