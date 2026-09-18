@@ -265,13 +265,18 @@ public static class RunRecordText
             }
         }
 
-        return new RunSnapshot(
+        RunSnapshot snapshot = new(
             reader.RequireValue(tick, depth, "tick"),
             reader.RequireValue(menu, depth, "menu"),
             reader.RequireValue(world, depth, "world"),
             reader.RequireInt(beats, depth, "beats"),
             reader.RequireInt(choice, depth, "choice"),
             reader.Require(streams, depth, "streams"));
+
+        // The check runs inside the read of this line, so `ReadLine` names line 2 on every
+        // fault of the snapshot. A check after the read names the whole record alone (T-2).
+        snapshot.Check(RecordName);
+        return snapshot;
     }
 
     private static List<StreamPosition> ReadStreams(ref ContentReader reader)

@@ -2,6 +2,47 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 114: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-6, the answer to the review of Codex. Repository: the-thing-below. Branch: `feat/pr-6-tick-and-run-record`. PR: #29. Role: author. Base: `1960cf3`.
+
+### What this session did, and why
+
+- The review gave one finding, P2-1, and the session read it as a claim.
+- The session wrote the regression tests first and ran them against the reviewed head `ee1e6ea`. Three tests failed, so the finding reproduces and has full merit.
+- The reader made a snapshot on line 2 and checked it later, inside the constructor of `RunRecord`. `Read` then gave `RunRecordException.ForRecord`, which names no line.
+- Thus every fault of a snapshot lost its line, and the parity of an increment had no check. An even increment reached `Pcg32.FromSnapshot`, which threw a bare error.
+- `RunSnapshot.Check` now refuses an even increment, and the message names the stream and the value (T-2, G-18).
+- `RunRecordText.ReadSnapshot` now calls `Check` inside the read of line 2, so every fault of a snapshot names that line.
+- `docs/reviews/pr-29-response.md` holds the disposition, the evidence, and the reason that the simulation version stands.
+
+### The state of the build
+
+- `main` is `1960cf3`. The PR is #29, and the reviewed head was `ee1e6ea`.
+- `make verify` passes: the build with 0 warnings, 477 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
+- `SimulationVersion.Current` stays at 3. The correction adds a refusal alone, and it changes no rule that makes a state (G-17).
+- The identity file matches for all 5 runs, the content hash stays `5ce12c64...f3c15f3`, and the smoke state hash stays `0x82def31590ae6c3b`.
+
+### What is in flight
+
+The Gitar pass on the new head, and then the repeat review of Codex.
+
+### Traps and gotchas
+
+- A check of a value after its line read loses the line. Each line read of `RunRecordText` must hold every check of its own line.
+- `Pcg32.FromSnapshot` refuses an even increment, and `RunSnapshot.Check` now holds the same rule. A change to one needs the other.
+- The three regression tests fail on `ee1e6ea` for three different reasons. The response file names each reason.
+- The next ids are D-654, OQ-186, F-80, L-16, G-29, M-9, and Session 115.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the correction, answer the Gitar pass, and hand PR #29 back to Codex for the repeat review.
+
 ## Session 113: 2026-09-18, Codex
 
 Author: Codex
@@ -389,40 +430,3 @@ None. D-641 to D-645 answered every question of this PR.
 ### The next concrete action
 
 Push the branch, open the PR, and answer the Gitar pass. Then hand the PR to Codex for the review of T-4.
-
-## Session 104: 2026-09-18, Codex
-
-Author: Codex
-Session: review PR #26, PR-82, the Mobile renderer. Repository: the-thing-below. Branch: `feat/pr-82-mobile-renderer`. Role: reviewer. Base: `e54810a`.
-
-### What this session did, and why
-
-- Reviewed the renderer setting and its regression tests against D-616 and the exit tests of section 7.3.
-- Wrote `docs/reviews/pr-26.md` with verdict `Ready for owner merge` for effective head `6b7bde6`.
-- Confirmed the provider gate, the current Gitar approval, and that no comment thread needs an answer.
-
-### The state of the build
-
-- `main` and the merge base are `e54810a`. The PR tip is `9de398a`; its effective head is `6b7bde6` (D-610).
-- Local build, 189 tests, format, `det-lint`, `ste-check`, Godot editor build, and smoke session pass.
-- All required CI jobs pass on `9de398a`. `review-gate` fails because the review record is not yet on the branch.
-- Gitar approves `6b7bde6`. Its dashboard comment was edited after the implementation push, and no review threads exist.
-
-### What is in flight
-
-The review record and handoff entry need a commit and push. Then verify `review-gate` on the metadata tip.
-
-### Traps and gotchas
-
-- The pull request branch name says PR-82, while GitHub numbers it PR #26. Use the GitHub number in review records (D-17).
-- Commits `2419ce4` and `9de398a` change only handoff metadata, so the effective head remains `6b7bde6` (D-610).
-- Gitar functional validation is not enabled.
-- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 105.
-
-### The questions that block progress
-
-None. D-616 selects Mobile, and section 7.3 names the renderer work.
-
-### The next concrete action
-
-Commit and push the review record and this handoff entry. Check that `review-gate` passes.

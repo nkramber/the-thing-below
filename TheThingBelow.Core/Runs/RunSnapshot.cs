@@ -40,7 +40,9 @@ public sealed record RunSnapshot(
 {
     /// <summary>Fails when the snapshot cannot describe a state of a run (T-2).</summary>
     /// <param name="source">What the snapshot came from, such as `the record`, for the error.</param>
-    /// <exception cref="ArgumentException">A value is outside its range, or a stream is absent.</exception>
+    /// <exception cref="ArgumentException">
+    /// A value is outside its range, a stream is absent, or an increment is even.
+    /// </exception>
     /// <remarks>
     /// A read of a file or of a record makes a snapshot from values that this build did not
     /// write, so the check runs on every path that makes one from the outside (T-2).
@@ -74,6 +76,14 @@ public sealed record RunSnapshot(
                 position.Stream != RandomStreams.All[index],
                 source,
                 $"the stream at position {index} is '{position.Stream}', and a run holds '{RandomStreams.All[index]}' there");
+
+            // Every PCG32 increment is odd, and `Pcg32.FromSnapshot` refuses an even one.
+            // The check runs here, so the reader of a record names the line of the fault and
+            // no stream of another sequence reaches a replay (T-2, G-18, T-7).
+            Refuse(
+                (position.Increment & 1UL) == 0,
+                source,
+                $"the increment of the stream '{position.Stream}' is {position.Increment}, which is even, and every increment is odd");
         }
     }
 

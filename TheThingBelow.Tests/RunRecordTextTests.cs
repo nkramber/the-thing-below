@@ -181,7 +181,7 @@ public sealed class RunRecordTextTests
     }
 
     [Fact]
-    public void ASnapshotWithTooFewStreamsIsAnErrorOfTheRecord()
+    public void ASnapshotWithTooFewStreamsIsAnErrorOfTheSnapshotLine()
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
         lines[1] = "{\"tick\":0,\"menu\":false,\"world\":0,\"beats\":0,\"choice\":0,\"streams\":[]}";
@@ -189,7 +189,48 @@ public sealed class RunRecordTextTests
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
 
+        Assert.Equal(2, error.Line);
         Assert.Contains("streams", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AStreamIncrementThatIsEvenIsAnErrorOfTheSnapshotLine()
+    {
+        // A regression test for P2-1 of `docs/reviews/pr-29.md`. Every PCG32 increment is
+        // odd. The reader accepted an even one, and the fault then came out of
+        // `Pcg32.FromSnapshot` as a bare error with no line of the record (T-2, G-18).
+        string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
+        lines[1] = ReplaceFirstIncrement(lines[1], "0x0000000000000000");
+
+        RunRecordException error = Assert.Throws<RunRecordException>(
+            () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
+
+        Assert.Equal(2, error.Line);
+        Assert.Contains("increment", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AnEvenStreamIncrementNeverReachesAReplay()
+    {
+        // The same fault must stop at the read, so no replay starts on a stream that gives
+        // another sequence than the run (T-7, G-5).
+        string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
+        lines[1] = ReplaceFirstIncrement(lines[1], "0x00000000000000f0");
+        string text = string.Join('\n', lines) + "\n";
+
+        Assert.Throws<RunRecordException>(
+            () => RunReplay.Play(RunRecordText.Read(text), ContentHash, DebugIntentHandlers.None));
+    }
+
+    /// <summary>Puts another increment in the first stream of a snapshot line.</summary>
+    /// <param name="line">The snapshot line of a record.</param>
+    /// <param name="increment">The hexadecimal text of the new increment.</param>
+    /// <returns>The line, with the first increment changed.</returns>
+    private static string ReplaceFirstIncrement(string line, string increment)
+    {
+        const string field = "\"increment\":\"";
+        int start = line.IndexOf(field, StringComparison.Ordinal) + field.Length;
+        return string.Concat(line.AsSpan(0, start), increment, line.AsSpan(start + increment.Length));
     }
 
     [Fact]

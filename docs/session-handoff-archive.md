@@ -1,5 +1,42 @@
 # Session handoff archive
 
+## Session 104: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #26, PR-82, the Mobile renderer. Repository: the-thing-below. Branch: `feat/pr-82-mobile-renderer`. Role: reviewer. Base: `e54810a`.
+
+### What this session did, and why
+
+- Reviewed the renderer setting and its regression tests against D-616 and the exit tests of section 7.3.
+- Wrote `docs/reviews/pr-26.md` with verdict `Ready for owner merge` for effective head `6b7bde6`.
+- Confirmed the provider gate, the current Gitar approval, and that no comment thread needs an answer.
+
+### The state of the build
+
+- `main` and the merge base are `e54810a`. The PR tip is `9de398a`; its effective head is `6b7bde6` (D-610).
+- Local build, 189 tests, format, `det-lint`, `ste-check`, Godot editor build, and smoke session pass.
+- All required CI jobs pass on `9de398a`. `review-gate` fails because the review record is not yet on the branch.
+- Gitar approves `6b7bde6`. Its dashboard comment was edited after the implementation push, and no review threads exist.
+
+### What is in flight
+
+The review record and handoff entry need a commit and push. Then verify `review-gate` on the metadata tip.
+
+### Traps and gotchas
+
+- The pull request branch name says PR-82, while GitHub numbers it PR #26. Use the GitHub number in review records (D-17).
+- Commits `2419ce4` and `9de398a` change only handoff metadata, so the effective head remains `6b7bde6` (D-610).
+- Gitar functional validation is not enabled.
+- The next ids are D-641, OQ-184, F-78, L-16, G-29, M-9, and Session 105.
+
+### The questions that block progress
+
+None. D-616 selects Mobile, and section 7.3 names the renderer work.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Check that `review-gate` passes.
+
 ## Session 103: 2026-09-18, Claude Code
 
 Author: Claude Code
