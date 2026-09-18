@@ -62,7 +62,7 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 
 - A screen is a C# class that builds its nodes in code, or a minimal Godot scene file that holds layout alone. Game data never lives in a Godot scene file.
 - The Game loop calls `Core` at a fixed rate. Game draws each step as a slide between tiles, and `Core` positions stay on whole tiles (D-106, D-203).
-- The camera, the CRT shader, the audio, and the input map live in `Game` and never reach `Core`.
+- The camera, each shader, the audio, and the input map live in `Game` and never reach `Core`.
 - No rule waits for an effect. Game counts the ticks of an effect on its fixed-step clock, and it sends a wait intent at the end where the world waits (D-266, D-522).
 - `Core` runs each story scene and holds its step index. Game draws each step, and it sends the same wait intent when the step ends (D-540).
 - Each effect file is JSON with integer values, and a test fails a map or a battle that passes the effect budget (D-517, D-523).

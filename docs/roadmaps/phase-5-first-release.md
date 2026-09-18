@@ -24,7 +24,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 
 | # | Finding | Binds |
 |---|---|---|
-| F-18 | The CRT is on by default on the Deck | PR-39: the Deck pass reads the text with it on |
+| F-67 | A 32-pixel sprite at 1x covers 4.0 mm on the Deck | PR-39: the Deck pass reads the text at the scale that OQ-183 sets |
 | F-32 | Steam needs a notarized macOS app, and notarization needs a paid program | PR-79: the signature in CI, and the owner step before it (D-455) |
 | F-33 | The release block found five gaps, credits and the crash address included | PR-31 and PR-33: the credits screen and the version line (D-467, D-473) |
 | F-34 | Steam needs five screenshots at 1920 by 1080 in 16:9 | PR-40: the store page that Gate 2 built already meets it (D-568) |
@@ -105,7 +105,7 @@ Area files: `area-release.md` sections 7.4 and 7.5, `area-ui-input.md` section 7
 - The answer of OQ-57 gives the studio name for the mark and the credits (D-450).
 - The answer of OQ-90 says where the studio mark shows (D-468).
 - The credits name no agent, harness, or model (T-6).
-- The title screen reads on the Deck at 1x, with the CRT on (D-92, F-18).
+- The title screen reads on the Deck, at the scale that OQ-183 sets (D-92, F-67).
 
 **Questions.** OQ-57, OQ-90, and OQ-170.
 

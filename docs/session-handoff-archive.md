@@ -1,5 +1,43 @@
 # Session handoff archive
 
+## Session 83: 2026-09-17, Codex
+
+Author: Codex
+Session: repeat review of PR #21 at effective head `b466a64`. Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. Role: reviewer. Base: `04953e4`.
+
+### What this session did, and why
+
+- Re-read the response file and verified the correction of P1-3 against its trigger.
+- Set P1-3 to fixed in `b466a64`. The two regression tests for a second recognized verdict fault, and the earlier-verdict guard passes.
+- Found P1-4: RG 4 passes an approved verdict followed by a bold negation. A probe against the current code returns `Pass`.
+- Verified author-provider evidence in Sessions 78, 80, and 82. Codex is the eligible reviewer (T-4, D-17).
+- The review record keeps one current verdict and the earlier verdict history.
+
+### The state of the build
+
+- `main` and the merge base are `04953e4`. The prior effective head was `3a75767`, and the new effective head is `b466a64`.
+- The PR tip before this review was `c313e61`, a metadata commit. All nine CI checks pass on that tip.
+- `make verify` passes at `b466a64`: build, 122 tests, format, 0 STE findings, and Godot smoke.
+- Gitar approved `b466a64` at `19:08:59Z` with no finding. Its report says no rules were evaluated and functional validation was not enabled. No inline review comment exists.
+- The unrelated untracked `deck-test/` remains untouched.
+
+### What is in flight
+
+P1-4 remains open. The PR needs a correction and another Codex review.
+
+### Traps and gotchas
+
+- RG 4 counts recognized verdict names and ignores other bold spans. A negated verdict can follow an approved verdict without a fault.
+- PR-3 has no live `review-gate` check because GitHub starts the workflow from `main` alone (F-37, D-500).
+
+### The questions that block progress
+
+None for PR #21. OQ-3 remains for the owner after the first live check run.
+
+### The next concrete action
+
+Correct P1-4, then have Codex review the new effective head.
+
 ## Session 82: 2026-09-17, Claude Code
 
 Author: Claude Code

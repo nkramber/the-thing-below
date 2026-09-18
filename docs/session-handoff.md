@@ -2,6 +2,50 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 93: 2026-09-17, Claude Code
+
+Author: Claude Code
+Session: PR-85, the result of the Deck test and the look. Repository: the-thing-below. Branch: `docs/pr-85-deck-test-and-style`. PR: PR-85, which GitHub numbers at the open. Role: author. Base: `2874b70`.
+
+### What this session did, and why
+
+- The owner ran the Deck test of D-160 on an OLED Deck and gave the reports to this session.
+- Recorded the result and eight more owner answers as D-616 to D-624.
+- D-616: the game uses the Mobile renderer, which won each of the 20 stages. PR-82 writes it.
+- D-617: the first effect budget, 15 lights, 8192 particles, and 3 full-screen passes. F-66 marks each row as a floor.
+- D-618: the CRT leaves the plan. PR-37 is retired, and 13 documents lost the pass, the toggle, and its captures.
+- D-620 and D-621: two tests before PR-34, the Sprite Fusion art test and the screen scale probe.
+- D-622 and G-27: every effect draws with the palette and hard edges, which answers the question of the owner about the fog.
+- D-623: the Mac is the venue of each visual test, and the Deck takes the answers that need the Deck.
+- F-67 and OQ-183: a 32-pixel sprite covers 4.0 mm on the Deck, and the scale of the frame is now an open question.
+
+### The state of the build
+
+- `main` is `2874b70`, and PR #23 merged before this session.
+- The `ste-check` command passes on every live document, with 0 findings.
+- The branch holds one commit, and it changes documents alone.
+
+### What is in flight
+
+The push, the Gitar pass, and the review of Codex. This PR revises decision rows, so the label of D-401 does not apply.
+
+### Traps and gotchas
+
+- Each citation of D-88, D-105, D-120, or D-240 must name D-618, or REF 3 fails.
+- PR-37 keeps a retired entry in `phase-2-first-playable.md`, which keeps the id in the register (G-10).
+- Section 7 of `phase-1-foundations.md` gained three entries, so each later section number moved.
+- The four Deck reports live in the PR description alone (D-624). The repository commits no report file.
+- `deck-test/` stays untracked, as it was before this session.
+- The next ids are D-625, OQ-184, F-68, L-16, G-28, M-9, and Session 94.
+
+### The questions that block progress
+
+OQ-183 blocks PR-7 and PR-34. The probe of D-621 answers it, and that probe needs the owner and three screens.
+
+### The next concrete action
+
+Push the branch, open the PR with the four reports attached, and answer the Gitar pass.
+
 ## Session 92: 2026-09-17, Codex
 
 Author: Codex
@@ -370,41 +414,3 @@ None for PR #21. OQ-3 comes right after the merge of this PR. OQ-179 blocks PR-5
 ### The next concrete action
 
 Get a Gitar pass of the new head, then get the repeat review of the other provider.
-
-## Session 83: 2026-09-17, Codex
-
-Author: Codex
-Session: repeat review of PR #21 at effective head `b466a64`. Repository: the-thing-below. Branch: `feat/pr-3-review-gate`. Role: reviewer. Base: `04953e4`.
-
-### What this session did, and why
-
-- Re-read the response file and verified the correction of P1-3 against its trigger.
-- Set P1-3 to fixed in `b466a64`. The two regression tests for a second recognized verdict fault, and the earlier-verdict guard passes.
-- Found P1-4: RG 4 passes an approved verdict followed by a bold negation. A probe against the current code returns `Pass`.
-- Verified author-provider evidence in Sessions 78, 80, and 82. Codex is the eligible reviewer (T-4, D-17).
-- The review record keeps one current verdict and the earlier verdict history.
-
-### The state of the build
-
-- `main` and the merge base are `04953e4`. The prior effective head was `3a75767`, and the new effective head is `b466a64`.
-- The PR tip before this review was `c313e61`, a metadata commit. All nine CI checks pass on that tip.
-- `make verify` passes at `b466a64`: build, 122 tests, format, 0 STE findings, and Godot smoke.
-- Gitar approved `b466a64` at `19:08:59Z` with no finding. Its report says no rules were evaluated and functional validation was not enabled. No inline review comment exists.
-- The unrelated untracked `deck-test/` remains untouched.
-
-### What is in flight
-
-P1-4 remains open. The PR needs a correction and another Codex review.
-
-### Traps and gotchas
-
-- RG 4 counts recognized verdict names and ignores other bold spans. A negated verdict can follow an approved verdict without a fault.
-- PR-3 has no live `review-gate` check because GitHub starts the workflow from `main` alone (F-37, D-500).
-
-### The questions that block progress
-
-None for PR #21. OQ-3 remains for the owner after the first live check run.
-
-### The next concrete action
-
-Correct P1-4, then have Codex review the new effective head.

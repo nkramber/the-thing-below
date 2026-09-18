@@ -28,9 +28,9 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 ## 1. Thesis
 
-Effects give the game its weight: light and shadow on snow, blood on a hit, and the CRT over each frame (D-105, D-139, D-186). Every effect is presentation. Game draws it from Core state and effect files, and no rule reads an effect, so a new effect never breaks a replay (D-495, D-522). Effect files are JSON content with integer values, like every other content file (D-182, D-517). The Steam Deck sets the limit: 60 frames per second with every effect on, and an effect budget holds each place inside it (D-161, D-523).
+Effects give the game its weight: light and shadow on snow, blood on a hit, and fog in a dead gallery (D-139, D-186, D-187). Every effect draws with the palette of 64 colors and hard edges, so it reads as part of the art (G-27, D-622). Every effect is presentation. Game draws it from Core state and effect files, and no rule reads an effect, so a new effect never breaks a replay (D-495, D-522). Effect files are JSON content with integer values, like every other content file (D-182, D-517). The Steam Deck sets the limit: 60 frames per second with every effect on, and an effect budget holds each place inside it (D-161, D-523).
 
-The order of the area follows the first user of each part. The Deck test comes before PR-1, because it picks the renderer and measures the effect budget (D-160, D-523). Every other effect PR lands before the first playable, right after the first scene that it needs (D-520). Light meets both the map scene and the battle scene, so the normal maps and the light follow PR-10. The battle effects, the ambient effects, glow, and the transitions then build on the light. The CRT shader keeps its place, and each effect PR comes after the screen-test job of PR-41 (D-172).
+The order of the area follows the first user of each part. The Deck test ran on 2026-09-17, and it picked the renderer and measured the first effect budget (D-616, D-617). Every other effect PR lands before the first playable, right after the first scene that it needs (D-520). Light meets both the map scene and the battle scene, so the normal maps and the light follow PR-10. The battle effects, the ambient effects, glow, and the transitions then build on the light. Each effect PR comes after the screen-test job of PR-41 (D-172).
 
 ## 5. Findings that bind this area
 
@@ -38,11 +38,12 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 
 | # | Finding | Binds |
 |---|---|---|
-| F-18 | The full CRT is on by default on the Deck before any Deck measurement | PR-37 and M-6: the Deck play reads the text with the CRT on |
+| F-66 | The Deck sweep found no limit, so each budget row is a floor | PR-56 to PR-60: a row rises only with a new measurement (D-617, G-14) |
+| F-67 | A 32-pixel sprite at 1x covers 4.0 mm on the Deck, about 60 percent of the apparent size of a Game Boy Advance sprite | The probe of D-621 and every effect PR: the scale of the frame comes from OQ-183 |
 | F-19 | Compressed PNG bytes depend on the encoder | PR-48 and PR-41: tests compare decoded pixels |
 | F-23 | `--headless` draws nothing | PR-41 and each effect PR: every effect meets its screen test under Xvfb (D-172) |
 | F-24 | A 32-pixel frame holds four times the pixels, and the Deck lights and fills four times the pixels of a 640 by 400 frame | The Deck test, PR-48, and PR-56: the effect budget at the frame of 1280 by 720 (D-523, D-568) |
-| F-26 | The gate of PR-37 relied on a headless run, and the Deck test had no failure branch | PR-37: a capture of the toggle. The Deck test: the owner decides a miss (D-261) |
+| F-26 | The Deck test had no failure branch | The Deck test of 2026-09-17 held the target, so D-261 never fired (D-616) |
 | F-38 | Double math can differ by platform | PR-48: integer math for normal maps (D-502) |
 | F-45 | Three Godot defaults meet the pixel art | PR-56: the normal-map atlas takes the Nearest filter too |
 | F-46 | Godot 2D light fails in silence in three ways | PR-56 and D-523: a check on each light texture, a limit of 15 lights on one canvas item, and a height on each light |
@@ -86,14 +87,13 @@ The table lists what a frame draws, from the bottom to the top.
 | Glow | A soft glow on light sources alone | No | D-188 |
 | UI | Menus, the HUD, text, portraits, and damage numbers | No | D-210, D-213 |
 | Transition | The full-screen effect that starts a battle | No | D-191, D-195 |
-| CRT | Curvature, bleed, flicker, and scanlines over the whole frame | No | D-105, D-240 |
 | Fit | The scale to the screen, with black bars | No | D-232, D-568 |
 
-- Game draws the world, the UI, the transition, and the CRT into the frame at 1x, 1280 by 720 (D-230, D-568). The fit to the screen comes last (D-232, D-240).
+- Game draws the world, the UI, and the transition into the frame at 1x, 1280 by 720 (D-230, D-568). The game draws no CRT pass (D-618). The fit to the screen comes last (D-232). OQ-183 holds the scale of the frame on a screen.
 - Godot computes 2D light at the pixel size of the viewport, and the Nearest filter does not change that (the external facts above). So the frame at 1x gives light and shadows the pixel size of the art.
 - PR-61 draws the world in a `SubViewport` at 1x, and `area-ui-input.md` holds the stretch mode and the fit (F-45, F-48). Otherwise light falls on screen pixels, not on art pixels.
 - The UI sits on a canvas layer above the world, and a light reaches only the canvas layers in its range. So the UI never takes scene light (D-210).
-- A transition is full-screen, so it covers the UI too, and the CRT covers the transition (D-195, D-210).
+- A transition is full-screen, so it covers the UI too (D-195, D-210).
 - OQ-101 holds whether fog draws below or above the figures (D-187).
 - `area-ui-input.md` builds the frame and the fit. This file holds what draws inside the frame.
 
@@ -105,10 +105,10 @@ Built by the owner and a session, before PR-1. Phase file: `phase-1-foundations.
 
 - A throwaway scene runs on the Deck of the owner under Forward+ and under Mobile. The renderer that holds 60 frames per second with more room wins (D-160, D-161).
 - The test scene runs at the frame of 1280 by 720 with the load of D-160 (D-228, D-568). That load holds particles, point lights with normal maps and shadows, glow, and the four ambient kinds.
-- The load also holds a transition, a backdrop, and the CRT with its scanlines (D-160).
+- The load also holds a transition and a backdrop (D-160). It held the CRT too, which D-618 later removed.
 - The test scene runs as the native Linux export (D-458).
 - The test also finds the effect budget, the most load that still holds 60 frames per second (D-523). Section 7.4 holds the budget.
-- The pick becomes a decision before PR-1, and PR-1 sets that renderer in the Game project (D-160).
+- The test picked the Mobile renderer on 2026-09-17, and PR-82 sets it in the Game project (D-616).
 - If neither renderer holds 60 frames per second, the owner decides then (D-261).
 - The test scene is throwaway, so it never merges to `main` (D-160). The branch `spike/deck-test` holds its source, and that branch never merges (D-597).
 - The test scene measures itself, and `deck-test/scripts/FrameMeter.cs` reads the time of each frame (D-598). Each run writes a report file, which a session can read.
@@ -129,7 +129,9 @@ Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-59, and PR-60.
 - Godot drops each light past 15 on one canvas item with no message (F-46). A map layer draws a group of 256 tiles as one canvas item.
 - So the budget test also fails more than 15 lights on one canvas item, whatever the Deck test measures (T-2).
 - PR-56 adds the budget file and its test with the rows for light. PR-57 adds particles, and PR-58, PR-59, and PR-60 add their full-screen passes.
-- The CRT runs on every frame by default, so the Deck test measures the budget with the CRT on (D-120, D-161).
+- The first rows of the budget come from the run of 2026-09-17: 15 lights with shadows, 8192 live particles, and 3 full-screen passes (D-617).
+- Each row is a floor, and not the ceiling of the Deck, because no stage of the sweep missed the target (F-66).
+- The sweep measured those 3 passes with the CRT on, and D-618 later removed that pass, so the shipped stack carries one pass less.
 - M-6 measures the first playable on the Deck against the budget (D-161). A miss changes the budget or the content in a PR with a measurement (G-14).
 
 > *In plain English:* the Deck test finds how much the Deck can draw at full speed, and that number goes into a file. A test then refuses any place that asks for more, before the engine can drop a light in silence.
@@ -247,19 +249,19 @@ Built by PR-60. Phase file: `phase-2-first-playable.md`.
 
 > *In plain English:* each fight starts with a screen effect, such as shattered glass or a whiteout of snow. The kind of fight picks the effect, so a boss always looks different from a common fight.
 
-### 7.12 The CRT shader
+### 7.12 The style of an effect
 
-Built by PR-37. Phase file: `phase-2-first-playable.md`.
+Built by every effect PR, and kept by the screen tests. Phase file: `phase-2-first-playable.md`.
 
-- The full CRT has curvature, bleed, flicker, and faint scanlines, on by default, with a toggle (D-105, D-120, D-240).
-- The pass runs on the frame at 1x before the fit, so the lines keep the look of the Deck on every screen (D-240, D-568).
-- The CRT covers the UI and the transitions (D-210, section 7.2).
-- The flicker has a reduced form under the flash and shake reduction (D-214).
-- The screen tests capture the toggle on and off with a fixed flicker phase (D-172, PR-41).
-- M-6 reads the text on the Deck with the CRT on (F-18). The rating Verified needs text of 9 pixels or taller (D-459).
-- PR-63 puts the toggle in the display group of the settings (D-526, `area-ui-input.md`).
+- Every effect draws with the palette of 64 colors and hard edges, and no smooth gradient (G-27, D-181, D-622).
+- The rule covers each particle, the fog, the glow, and each transition (D-187, D-188, D-195).
+- A full-screen pass draws at the pixel size of the frame, so an effect pixel matches an art pixel (D-230, F-67).
+- The owner reads each new effect on the Mac as its PR lands, and not on the Deck (D-622, D-623).
+- The screen tests of PR-41 capture each effect, so a change of style fails the job (D-172).
+- The glow of D-188 blooms by design, and OQ-102 holds how it stays off sprites and tiles (F-47).
+- The fog of the Deck test drew a smooth gradient with colors outside the palette, and no shipped effect draws that way (D-622).
 
-> *In plain English:* the whole picture looks like an old monitor, with soft curves and faint lines, and one setting turns the look off. The look runs before the picture scales, so it matches the Deck on a bigger screen.
+> *In plain English:* every effect uses the same colors as the art and keeps hard pixel edges. Smoke, fog, and light look drawn, and never like a modern filter over a drawing.
 
 ### 7.13 Effects in the tests
 
@@ -279,7 +281,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 
 | PR | Effects | Decisions |
 |---|---|---|
-| The Deck test | The test scene, the renderer pick, and the effect budget | D-160, D-523 |
+| The Deck test | The test scene, the renderer pick, and the effect budget. Done 2026-09-17 | D-160, D-523, D-616, D-617 |
 | PR-10 | The attack pose, the hit flash, the damage numbers, and the drift of the backdrop | D-96, D-205, D-213 |
 | PR-48 | The normal maps and their review sheets | D-184, D-521 |
 | PR-56 | Light setups, point lights, shadows, and the budget test | D-183, D-442, D-523 |
@@ -287,7 +289,6 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | PR-58 | The four ambient kinds | D-187, D-202 |
 | PR-59 | Glow | D-188 |
 | PR-60 | The ten transitions and the table of kinds | D-195, D-196 |
-| PR-37 | The CRT and its toggle | D-105, D-120, D-240 |
 | PR-17 | The light setups, the ambient effects, and the effect files of the first places | D-362, D-520 |
 | PR-21 | The light of the puzzles of light and dark | D-41 |
 | PR-23 to PR-27 and PR-81 | The light setups and the effects of each later place, the sealed gallery included | D-313, D-575 |
@@ -300,7 +301,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | Part | Area file | PR |
 |---|---|---|
 | The command that builds normal maps | `area-tools.md` | PR-48 |
-| The frame, the fit, the CRT toggle, and the reduction setting | `area-ui-input.md` | PR-7 and the PRs that `area-ui-input.md` names |
+| The frame, the fit, and the reduction setting | `area-ui-input.md` | PR-7 and the PRs that `area-ui-input.md` names |
 | The screen-test job | `area-ci.md` | PR-41 |
 | The battle scene and the pace of a turn | `area-battle.md` | PR-10 |
 | The map scene, the slide of a step, and the puzzles of light and dark | `area-exploration.md` | PR-7 and PR-21 |
@@ -338,10 +339,9 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 11. PR-58: the ambient effects.
 12. PR-59: glow.
 13. PR-60: the transitions.
-14. PR-37: the CRT, in its place in section 8 (D-520).
-15. PR-17: the first places with their light and effects.
-16. M-6: the Deck against the effect budget.
-17. **← GATE 2 (first playable).** The owner plays every effect on the Deck (D-161).
+14. PR-17: the first places with their light and effects.
+15. M-6: the Deck against the effect budget.
+16. **← GATE 2 (first playable).** The owner plays every effect on the Deck (D-161).
 
 ## 9. Open questions
 
@@ -354,12 +354,13 @@ The register is `docs/questions.md` (D-19). These questions block effect PRs, an
 - OQ-97: the colors of light. Blocks PR-56.
 - OQ-98: GPU particles or CPU particles. Blocks PR-57.
 - OQ-99: what a screen shake moves. Blocks PR-57.
-- OQ-100: the reduced form of a flash and a shake. Blocks PR-57 and PR-37.
+- OQ-100: the reduced form of a flash and a shake. Blocks PR-57.
 - OQ-101: how fog keeps an enemy visible. Blocks PR-58.
 - OQ-102: how glow stays off sprites. Blocks PR-59.
 - OQ-103: where shader code lives. Blocks PR-10.
 - OQ-79: how the screen-test job pins Mesa. Blocks PR-41.
 - OQ-86: how the atlas places tiles, and how Game draws a map. Blocks PR-34 and PR-7.
 - OQ-89: pixel snap in Game. Blocks PR-7.
+- OQ-183: the scale of the frame on a screen. Blocks PR-7 and PR-34, and the probe of D-621 answers it.
 
 No open question blocks this file.

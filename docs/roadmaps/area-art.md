@@ -2,7 +2,7 @@
 
 Status: **active focused area roadmap, which PR #11 merged on 2026-09-16.** This file says how the art of the game works, and it names the PR that builds each part (D-144, D-485). The phase files give each PR its scope, its exit tests, and its review focus. This file cites each decision by its id and never restates it. It supersedes no earlier file. Written 2026-09-14 in ASD-STE100.
 
-The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-tools.md` holds the commands that render art, and `area-ci.md` holds the jobs that test it. The file `area-effects.md` holds light, normal maps, particles, and the CRT shader. The file `area-ui-input.md` holds the frame, the fit to a screen, the fonts, and the menus.
+The design doc holds the system map (section 3), the cost model (section 4), and the guardrails (section 6). The file `area-tools.md` holds the commands that render art, and `area-ci.md` holds the jobs that test it. The file `area-effects.md` holds light, normal maps, particles, and the style of each effect. The file `area-ui-input.md` holds the frame, the fit to a screen, the fonts, and the menus.
 
 External facts, each with the date of its check:
 
@@ -55,6 +55,9 @@ Built by PR-34, and kept by every art batch. Phase files: `phase-1-foundations.m
 - The art keeps the style of D-201 and D-237: a dark outline for each material, three or four tones, and no dithering. The five sample grids set the look (D-402).
 - Art lives in `content/`, outside the override set, so each art batch takes the review of the other provider (D-71, D-185).
 - No art file decides an outcome of play, so the content hash never reads one (D-495).
+- Before PR-34, a spike compares the art of a session with the art of the Sprite Fusion generator (D-620). The owner picks the source.
+- A picture from an outside tool enters the pipeline as a text grid alone, through the PNG import of PR-51 (D-620). The palette of 64 colors binds it (D-181).
+- The size of a sprite on a screen comes from the probe of D-621, and OQ-183 holds the answer (F-67).
 
 > *In plain English:* every picture in the game is a text file that a session writes and the owner approves. The images that the game draws always come from those files, so nobody edits an image that a tool made.
 
@@ -199,7 +202,7 @@ The phase files give each batch its scope. This table names the art that the dec
 |---|---|---|
 | The `atlas` command, the PNG code, and the PNG import | `area-tools.md` | PR-34, PR-47, and PR-51 |
 | The map preview and the tile-edge tool | `area-tools.md` and `area-exploration.md` | PR-52 and PR-53 |
-| Normal maps, light, particles, glow, transitions, and the CRT shader | `area-effects.md` | PR-48, PR-56 to PR-60, and PR-37 |
+| Normal maps, light, particles, glow, and transitions | `area-effects.md` | PR-48, and PR-56 to PR-60 |
 | The frame, the fit, the fonts, the window frames, the icons, and the glyphs | `area-ui-input.md` | PR-7, PR-10, and the PRs that `area-ui-input.md` names |
 | The pixel tests in the test job, and the screen tests | `area-ci.md` | PR-34, PR-55, and PR-41 |
 | The store images on the store page | `area-release.md` | PR-76 |
