@@ -21,11 +21,12 @@ Session: repeat review PR #25 at effective head `ac34b5f`. Repository: the-thing
 - `make verify` passes at the local tip: build with 0 warnings, 187 tests, format, `det-lint`, `ste-check`, and smoke.
 - GitHub reports `changed paths` and `ste-check` as passing. Docs-only build, test, format, coverage, lint, and smoke jobs skip (D-600).
 - Gitar approves `ac34b5f`, with 2 closed findings and none open. Its current dashboard follows the `On it` reply.
-- `review-gate` fails RG 4 and RG 5 until this review record and handoff publish the new head and verdict.
+- The review record and handoff were published as `301b507`. `review-gate`, `changed paths`, and `ste-check` pass on that head.
+- Docs-only build, test, format, coverage, det-lint, and smoke jobs skip under D-600. The `review-gate` check is green.
 
 ### What is in flight
 
-Publish the updated review record and this handoff entry, then verify the checks and remote head.
+The verdict and handoff are published. The owner can merge PR #25.
 
 ### Traps and gotchas
 
@@ -40,7 +41,7 @@ None. OQ-183 closed with D-633 and D-639.
 
 ### The next concrete action
 
-Run the session end gate, publish the review and handoff, then verify `review-gate`.
+The review applies to effective head `ac34b5f`; the owner can merge PR #25.
 
 ## Session 101: 2026-09-18, Claude Code
 
