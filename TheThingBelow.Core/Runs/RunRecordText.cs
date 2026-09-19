@@ -1,11 +1,9 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using TheThingBelow.Core.Content;
-using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Runs;
 
@@ -40,7 +38,7 @@ public static class RunRecordText
 
         StringBuilder text = new();
         text.Append(WriteHeader(record.Header)).Append('\n');
-        text.Append(WriteSnapshot(record.Snapshot)).Append('\n');
+        text.Append(RunSnapshotText.Write(record.Snapshot)).Append('\n');
         foreach (TickIntents entry in record.Ticks)
         {
             text.Append(WriteTick(entry)).Append('\n');
@@ -70,7 +68,7 @@ public static class RunRecordText
         }
 
         RunHeader header = ReadLine(lines[0], 1, ReadHeader);
-        RunSnapshot snapshot = ReadLine(lines[1], 2, ReadSnapshot);
+        RunSnapshot snapshot = ReadLine(lines[1], 2, RunSnapshotText.Read);
 
         List<TickIntents> ticks = [];
         for (int index = 2; index < lines.Count - 1; index += 1)
@@ -151,7 +149,7 @@ public static class RunRecordText
             writer.WriteNumber("format", header.FormatVersion);
             writer.WriteNumber("simulation", header.SimulationVersion);
             writer.WriteString("content", header.ContentHash);
-            writer.WriteString("seed", Hex(header.Seed));
+            writer.WriteString("seed", HexText.Of(header.Seed));
             writer.WriteString("game", header.GameVersion);
             writer.WriteEndObject();
         }
@@ -198,128 +196,6 @@ public static class RunRecordText
             reader.Require(content, depth, "content"),
             reader.RequireValue(seed, depth, "seed"),
             reader.Require(game, depth, "game"));
-    }
-
-    private static string WriteSnapshot(RunSnapshot snapshot)
-    {
-        ArrayBufferWriter<byte> bytes = new();
-        using (Utf8JsonWriter writer = NewWriter(bytes))
-        {
-            writer.WriteStartObject();
-            writer.WriteNumber("tick", snapshot.Tick);
-            writer.WriteBoolean("menu", snapshot.MenuOpen);
-            writer.WriteNumber("world", snapshot.WorldTick);
-            writer.WriteNumber("beats", snapshot.PatrolBeats);
-            writer.WriteNumber("choice", snapshot.PatrolChoice);
-            writer.WriteStartArray("streams");
-            foreach (StreamPosition position in snapshot.Streams)
-            {
-                writer.WriteStartObject();
-                writer.WriteNumber("stream", (int)position.Stream);
-                writer.WriteString("state", Hex(position.State));
-                writer.WriteString("increment", Hex(position.Increment));
-                writer.WriteEndObject();
-            }
-
-            writer.WriteEndArray();
-            writer.WriteEndObject();
-        }
-
-        return AsText(bytes);
-    }
-
-    private static RunSnapshot ReadSnapshot(ref ContentReader reader)
-    {
-        long? tick = null;
-        bool? menu = null;
-        long? world = null;
-        int? beats = null;
-        int? choice = null;
-        List<StreamPosition>? streams = null;
-
-        int depth = reader.ReadObjectStart();
-        while (reader.ReadNextField(depth, out string field))
-        {
-            switch (field)
-            {
-                case "tick":
-                    tick = reader.ReadLong();
-                    break;
-                case "menu":
-                    menu = reader.ReadBoolean();
-                    break;
-                case "world":
-                    world = reader.ReadLong();
-                    break;
-                case "beats":
-                    beats = reader.ReadInt();
-                    break;
-                case "choice":
-                    choice = reader.ReadInt();
-                    break;
-                case "streams":
-                    streams = ReadStreams(ref reader);
-                    break;
-                default:
-                    throw reader.UnknownField(field);
-            }
-        }
-
-        RunSnapshot snapshot = new(
-            reader.RequireValue(tick, depth, "tick"),
-            reader.RequireValue(menu, depth, "menu"),
-            reader.RequireValue(world, depth, "world"),
-            reader.RequireInt(beats, depth, "beats"),
-            reader.RequireInt(choice, depth, "choice"),
-            reader.Require(streams, depth, "streams"));
-
-        // The check runs inside the read of this line, so `ReadLine` names line 2 on every
-        // fault of the snapshot. A check after the read names the whole record alone (T-2).
-        snapshot.Check(RecordName);
-        return snapshot;
-    }
-
-    private static List<StreamPosition> ReadStreams(ref ContentReader reader)
-    {
-        List<StreamPosition> streams = [];
-        int depth = reader.ReadArrayStart();
-        while (reader.ReadNextElement(depth, streams.Count))
-        {
-            streams.Add(ReadStream(ref reader));
-        }
-
-        return streams;
-    }
-
-    private static StreamPosition ReadStream(ref ContentReader reader)
-    {
-        int? number = null;
-        ulong? state = null;
-        ulong? increment = null;
-
-        int depth = reader.ReadObjectStart();
-        while (reader.ReadNextField(depth, out string field))
-        {
-            switch (field)
-            {
-                case "stream":
-                    number = reader.ReadInt();
-                    break;
-                case "state":
-                    state = reader.ReadHexUInt64();
-                    break;
-                case "increment":
-                    increment = reader.ReadHexUInt64();
-                    break;
-                default:
-                    throw reader.UnknownField(field);
-            }
-        }
-
-        return new StreamPosition(
-            (StreamId)reader.RequireInt(number, depth, "stream"),
-            reader.RequireValue(state, depth, "state"),
-            reader.RequireValue(increment, depth, "increment"));
     }
 
     private static string WriteTick(TickIntents entry)
@@ -454,10 +330,4 @@ public static class RunRecordText
 
     private static string AsText(ArrayBufferWriter<byte> bytes) =>
         Encoding.UTF8.GetString(bytes.WrittenSpan);
-
-    /// <summary>
-    /// Writes a 64-bit value as `0x` and 16 lowercase hexadecimal digits. One value thus
-    /// takes one spelling on every machine, and a diff compares by character (T-7).
-    /// </summary>
-    private static string Hex(ulong value) => "0x" + value.ToString("x16", CultureInfo.InvariantCulture);
 }

@@ -48,8 +48,20 @@
     </AssemblyAttribute>
   </ItemGroup>
 
+  <!--
+    The reference test of Storage reads the file that the Storage project built, for the same
+    reason as the Core test above (F-61, D-494).
+  -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>StorageAssemblyPath</_Parameter1>
+      <_Parameter2>$(MSBuildThisFileDirectory)../TheThingBelow.Storage/bin/$(Configuration)/$(TargetFramework)/TheThingBelow.Storage.dll</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="../TheThingBelow.Core/TheThingBelow.Core.csproj" />
+    <ProjectReference Include="../TheThingBelow.Storage/TheThingBelow.Storage.csproj" />
     <ProjectReference Include="../TheThingBelow.Tools/TheThingBelow.Tools.csproj" />
   </ItemGroup>
 
