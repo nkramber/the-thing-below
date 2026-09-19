@@ -1,5 +1,48 @@
 # Session handoff
 
+## Session 130: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: the refutation of F-84 and D-673. Repository: the-thing-below. Branch: `docs/pr-88-refute-f-84`. Role: author. Base: `122f3ef`.
+
+### What this session did, and why
+
+- F-84 said that PR #33 merged with no review record, and that RG 3 reports nothing when the file is absent. Both claims are false.
+- `docs/reviews/pr-33.md` arrived in the squash commit 3204545 of PR #33 itself, and `git log --follow` gives that one commit.
+- The record names Claude Code as the author and Codex as the reviewer, with the verdict for head `d1b2305`.
+- `TheThingBelow.Tools/ReviewGate/ReviewRecordRules.cs` faults on an absent file, and it has one commit, 9787b2d of PR #21.
+- The gate of PR #33 faulted at head `d1b2305`, then passed at head `320a9bd` after the record landed. It showed both halves of the behavior on the PR that F-84 accuses.
+- RG 3 also faulted on PR #35 and passed after that record landed.
+- D-680 supersedes D-673, and F-84 now reads `✅ doc` with the evidence and the date.
+- D-681 records the branch protection of `main` as an owner action beside this PR. OQ-3 stays open until the protection is live.
+- The PR takes no `PR-#` id and no roadmap entry, because it is a document-only correction (D-680).
+- The stale out-of-scope bullet of section 7.20 of `docs/roadmaps/phase-1-foundations.md` is gone.
+
+### The state of the build
+
+- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
+- Replay identity, content hash, and the bounded smoke session pass.
+- No code change. This PR changes text alone.
+
+### What is in flight
+
+The branch needs its first push and the automated pass of gitar. The PR revises a decision row, so the `review-override` label of D-401 does not apply and the Codex review follows (T-4).
+
+### Traps and gotchas
+
+- The archive and the older handoff entries still read F-84 and D-673 as live. They are dated records, and a rewrite falsifies them (D-10).
+- The branch name holds `pr-88`, and no register defines that id. A branch name takes no reference rule (D-605).
+- `main` takes any push until the owner enables the protection of D-681.
+- Session 119 is absent from both handoff files. The check reads order and duplicates, not a gap.
+
+### The questions that block progress
+
+None. OQ-3 stays open as an owner action, and it blocks line 4 of Gate 1, not this PR.
+
+### The next concrete action
+
+Push the branch, open the PR, and answer the automated pass of gitar.
+
 ## Session 129: 2026-09-19, Codex
 
 Author: Codex
@@ -369,47 +412,3 @@ None.
 ### The next concrete action
 
 The review-gate check reads `docs/reviews/pr-32.md` for effective head `e45dcc9`. The owner can merge after the remaining PR checks pass.
-
-## Session 120: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: PR-47, the PNG reader and the PNG writer. Repository: the-thing-below. Branch: `feat/pr-47-png-code`. Role: author. Base: `a607280`.
-
-### What this session did, and why
-
-- The session asked the owner three questions before any change, and D-663 to D-665 answer them.
-- D-663 keeps the CRC-32 in Tools, so the PR adds no package (OQ-72, G-13).
-- D-664 puts the five row filters in the reader and the filter None in the writer, because an image editor writes filtered rows (OQ-195).
-- D-665 puts two files of an outside encoder in git, and each failure case is bytes of the test (OQ-196).
-- `TheThingBelow.Tools/Png` holds `Crc32`, `PngColorKind`, `PngException`, `PngImage`, `PngRowFilter`, `PngReader`, and `PngWriter`.
-- The reader refuses a critical chunk that it cannot read, and it skips an ancillary chunk such as `sRGB` or `iTXt`.
-- Each failure names the file and the reason: the bit depth, the color type, the interlace method, the chunk name of a wrong CRC-32, and a short file (T-2).
-- F-82 records a latent fault that this PR exposed. The Tools scan of det-lint asked `ReferenceSet.WithOutputOf` for the build output of Tools, which added no reference, because the process of the command already holds each of those assemblies. The scan now takes `ReferenceSet.Framework()`, as the Core scan does.
-
-### The state of the build
-
-- `main` is `a607280`, and the branch starts there.
-- `make verify` passes with 706 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, the Godot build, and the bounded smoke session pass.
-- det-lint now reads `TheThingBelow.Tools/Png` with the rules of D-502, and it names Atlas, Audio, and NormalMaps as absent (G-16).
-- `SimulationVersion.Current` stays 3. The PR changes no code of Core (G-17).
-
-### What is in flight
-
-The review of Codex. The Gitar pass approved the head `e45dcc9` with no code finding, and its CI block raised two claims. RG 7 had full merit: three rows of the Documents section gave no path, and the description now gives each one a path. RG 3 waits for the review record, which the review of Codex writes on this branch.
-
-### Traps and gotchas
-
-- The two committed files come from Apple ImageIO, which chose the row filters Sub and Paeth, and added the `sRGB`, `eXIf`, and `iTXt` chunks. A new file needs the method of the `PngReaderTests` remarks.
-- The `PngImage` constructor copies the pixel bytes, and it reads the count of bytes in long math, because two sizes at the limit pass the range of an int.
-- The writer holds no text and no date, so two runs give the same file. The compressed bytes still follow the version of `ZLibStream`, so no test compares PNG bytes (F-19).
-- A PR that adds the first file of `TheThingBelow.Tools/Atlas`, `Audio`, or `NormalMaps` reads the same det-lint path that F-82 fixed.
-- The RG 7 rule needs a `/` or a `.md` in the reason of each `No change needed because` line, which `DocumentRules.HoldsPath` reads. PR-44 hit the same rule.
-- The next ids are D-666, OQ-197, F-83, L-16, G-29, M-9, and Session 121.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Hand PR #32 to Codex for the cross-provider review (T-4, D-17).

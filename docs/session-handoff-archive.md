@@ -1,5 +1,49 @@
 # Session handoff archive
 
+## Session 120: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-47, the PNG reader and the PNG writer. Repository: the-thing-below. Branch: `feat/pr-47-png-code`. Role: author. Base: `a607280`.
+
+### What this session did, and why
+
+- The session asked the owner three questions before any change, and D-663 to D-665 answer them.
+- D-663 keeps the CRC-32 in Tools, so the PR adds no package (OQ-72, G-13).
+- D-664 puts the five row filters in the reader and the filter None in the writer, because an image editor writes filtered rows (OQ-195).
+- D-665 puts two files of an outside encoder in git, and each failure case is bytes of the test (OQ-196).
+- `TheThingBelow.Tools/Png` holds `Crc32`, `PngColorKind`, `PngException`, `PngImage`, `PngRowFilter`, `PngReader`, and `PngWriter`.
+- The reader refuses a critical chunk that it cannot read, and it skips an ancillary chunk such as `sRGB` or `iTXt`.
+- Each failure names the file and the reason: the bit depth, the color type, the interlace method, the chunk name of a wrong CRC-32, and a short file (T-2).
+- F-82 records a latent fault that this PR exposed. The Tools scan of det-lint asked `ReferenceSet.WithOutputOf` for the build output of Tools, which added no reference, because the process of the command already holds each of those assemblies. The scan now takes `ReferenceSet.Framework()`, as the Core scan does.
+
+### The state of the build
+
+- `main` is `a607280`, and the branch starts there.
+- `make verify` passes with 706 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, the Godot build, and the bounded smoke session pass.
+- det-lint now reads `TheThingBelow.Tools/Png` with the rules of D-502, and it names Atlas, Audio, and NormalMaps as absent (G-16).
+- `SimulationVersion.Current` stays 3. The PR changes no code of Core (G-17).
+
+### What is in flight
+
+The review of Codex. The Gitar pass approved the head `e45dcc9` with no code finding, and its CI block raised two claims. RG 7 had full merit: three rows of the Documents section gave no path, and the description now gives each one a path. RG 3 waits for the review record, which the review of Codex writes on this branch.
+
+### Traps and gotchas
+
+- The two committed files come from Apple ImageIO, which chose the row filters Sub and Paeth, and added the `sRGB`, `eXIf`, and `iTXt` chunks. A new file needs the method of the `PngReaderTests` remarks.
+- The `PngImage` constructor copies the pixel bytes, and it reads the count of bytes in long math, because two sizes at the limit pass the range of an int.
+- The writer holds no text and no date, so two runs give the same file. The compressed bytes still follow the version of `ZLibStream`, so no test compares PNG bytes (F-19).
+- A PR that adds the first file of `TheThingBelow.Tools/Atlas`, `Audio`, or `NormalMaps` reads the same det-lint path that F-82 fixed.
+- The RG 7 rule needs a `/` or a `.md` in the reason of each `No change needed because` line, which `DocumentRules.HoldsPath` reads. PR-44 hit the same rule.
+- The next ids are D-666, OQ-197, F-83, L-16, G-29, M-9, and Session 121.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Hand PR #32 to Codex for the cross-provider review (T-4, D-17).
+
 ## Session 118: 2026-09-18, Claude Code
 
 Author: Claude Code
