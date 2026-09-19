@@ -578,11 +578,13 @@ Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 **Scope.**
 
 - The sixth project, `TheThingBelow.Storage`, which holds the file code (D-494).
-- The save folder of D-62 and D-465, with one slot save, one autosave, and a one-use resume file (D-258).
+- The save folder of D-62 and D-465, with one slot save, one autosave, and a one-use resume file (D-258, D-656).
 - The snapshot bytes from Core, with the tick and the position of every stream (D-166).
-- The snapshot format version, one migration step to each next version, and a fixture save of each older format.
+- The two lines of a save: the header with the checksum, and the snapshot (D-655).
+- The snapshot format version, the reader of each version, and a stored fixture save of each one (D-166, D-654).
 - The safe write: a temporary file with a checksum, then one replace (D-178).
 - A load that reads the snapshot alone, so a new simulation version never refuses a save (D-259).
+- The check in Game that the user folder of Godot and the save folder of Storage agree (D-657, F-33).
 
 **Out of scope.**
 
@@ -606,7 +608,7 @@ Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 - The folder name is right on each of the three systems (D-465, F-33).
 - The migration test reads a real stored save, not a save that the test just wrote.
 
-**Questions.** D-651 resolved OQ-65, and D-652 resolved OQ-66.
+**Questions.** D-651 resolved OQ-65, and D-652 resolved OQ-66. D-654 to D-657 resolved OQ-186 to OQ-189. They set the reader of each format version and the two lines of a save. They also set the names of the three files and the check of the folder in Game.
 
 > *In plain English:* a save is a full picture of the game at one moment. A crash during a save never destroys the old one, and a save from an older build still loads through a converter.
 

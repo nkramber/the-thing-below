@@ -181,9 +181,11 @@ Built by PR-43. Phase file: `phase-1-foundations.md`.
 
 - Core makes the snapshot bytes and loads a state from them, and Storage writes and reads the files (D-494). Game picks the moment of each save (D-224).
 - A snapshot holds content ids and state, and never a copy of content (D-166). It holds the tick and the position of every stream (section 7.4).
-- The save folder, the slot save, the autosave, and the resume file follow D-62, D-258, and D-465.
+- The save folder, the slot save, the autosave, and the resume file follow D-62, D-258, D-465, and D-656.
+- A save file takes two lines of JSON: the header with the checksum, and the snapshot (D-655). The checksum is the SHA-256 digest of the bytes of line 2.
 - A save writes a temporary file with a checksum, then replaces the old save in one step (D-178). A test in Tests cuts a write in half against Storage (D-494).
-- A load reads the snapshot alone (D-259). Each snapshot format version has one migration step to the next, and a test loads a stored save of each older format (D-166).
+- A load reads the snapshot alone (D-259). Each format version has its reader, and a test loads a stored save of each version (D-166, D-654).
+- Godot and Storage must give one user folder, and Game compares the two at the start of every session (D-657, F-33).
 - From PR-43 on, every Core PR that changes the snapshot bumps its format version and adds a migration and a fixture save (D-166).
 - The full game imports the last snapshot of the prologue in Phase 6 (D-163). Each snapshot format of the prologue stays ready for that import.
 

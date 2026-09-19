@@ -576,3 +576,19 @@ How to file a question (D-19, D-24):
     - The same files, with the record in the Tests project. Core holds no throwaway type. It breaks D-517 in the first PR that applies it.
     - The first real enemy record or item record. No fixture needs removal later. The fields belong to PR-8 and PR-13, so this PR must guess them, and a wrong guess ships with a permanent id.
     - No rule file yet. The PR ships no content that a later PR removes. The hash test then compares a hash of nothing, and two exit tests never read the real tree.
+186. **OQ-186. The migration of a save format with one format version.** D-166 gives each snapshot format a version and a migration step. A test loads a stored save of each older format. PR-43 writes format version 1, and no older format exists. What does PR-43 ship? Raised 2026-09-18. Blocked PR-43. Resolved 2026-09-18: D-654. PR-43 ships the reader of each version and a stored fixture save of format 1. A test fails a raise with no fixture.
+    - The reader table and a stored fixture of format 1, the recommendation. The first real step lands with the first change of the snapshot, which D-166 binds. The table holds one entry until then.
+    - A second format now, from a change of the snapshot shape. The step path runs for real today. The change has no purpose but the test, and it ships in the first save format of the game.
+    - No migration code until the first change of the snapshot. PR-43 stays small. It drops a scope line of section 7.14, and D-166 then has no code.
+187. **OQ-187. The lines of a save file.** D-178 gives a save a checksum, and D-652 gives a snapshot one JSON object. Where does the checksum sit? Raised 2026-09-18. Blocked PR-43. Resolved 2026-09-18: D-655. The header takes line 1 with the checksum, and the snapshot takes line 2.
+    - A header line and then the snapshot line, the recommendation. The digest covers the bytes of one line, the snapshot keeps one object, and a run record keeps the same shape.
+    - One object with a checksum field. The file holds one object. The reader and the writer must agree on the bytes that the digest leaves out.
+    - A second file beside the save, such as a digest file. Each file stays plain JSON. Two files need two renames, and D-178 gives one.
+188. **OQ-188. The names of the save files.** D-62, D-258, and D-465 give three saves in the user folder of the game. What are the names, and where do they sit? Raised 2026-09-18. Blocked PR-43. Resolved 2026-09-18: D-656. The three files sit in the saves folder, as slot.json, autosave.json, and resume.json.
+    - A saves folder with three JSON files, the recommendation. The crash files and the log files of PR-44 take their own folders beside it, so the user folder stays readable.
+    - Three files at the root of the user folder. The path holds one level fewer. The crash files and the log files of PR-44 then mix with the saves.
+    - A saves folder with a file type of `.save`. The name says what the file is. A player cannot see that the file is JSON, and no editor opens it by its name.
+189. **OQ-189. The check of the save folder of the two rules.** D-465 names the folder on the three systems, and Godot resolves the user folder itself. Does Game compare the two? Raised 2026-09-18. Blocked PR-43. Resolved 2026-09-18: D-657. Game compares the two folders at the start of every session. The smoke job runs the check on each system.
+    - A check at the start of every session, the recommendation. The smoke job runs on the three systems, so F-33 gets a guard on each one. Game takes its reference to Storage now.
+    - A test of the three folders alone. Game takes no reference to Storage until PR-16. Nothing proves that the two rules agree on a real machine.
+    - No environment in Storage, and a path from Godot. One rule gives the path. Tools then needs its own path for a save, and the test of the three folders has nothing to read.
