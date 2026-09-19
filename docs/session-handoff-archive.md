@@ -1,5 +1,90 @@
 # Session handoff archive
 
+## Session 109: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #28, PR-5, content, the content hash, and the string table. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. Role: reviewer. Base: `efd6a53`.
+
+### What this session did, and why
+
+- Reviewed all 52 changed paths from the merge base to implementation head `55eb083`.
+- Found that Core accepts an id whose kind does not agree with the rule file (D-646).
+- Verified the trigger in a disposable checkout: `enemy.cave_rat` in `rules/fixtures/tools.json` passed the content-hash command.
+- Wrote `docs/reviews/pr-28.md` with verdict `Changes required` for `55eb083`.
+
+### The state of the build
+
+- `main` and the merge base are `efd6a53`. PR #28 has metadata tip `ad0bdd3` and effective head `55eb083` (D-610).
+- `make verify` passes: 401 tests, format, `det-lint`, `ste-check`, replay identity, content hash, and Godot smoke.
+- Thirteen remote checks pass on tip `ad0bdd3`. `review-gate` reports only RG 4 because the verdict is `Changes required`.
+- Gitar approves the effective head, with no open finding. Its dashboard update is later than the implementation push.
+
+### What is in flight
+
+The review record and this handoff entry are published at `ad0bdd3`. The author must correct P2-1 before merge. Codex then repeats the review on the corrected head.
+
+### Traps and gotchas
+
+- Session 108 named `de496df` as the effective head. The only changes after implementation commit `55eb083` are handoff metadata, so D-610 leaves `55eb083` as the effective head.
+- The disposable kind-mismatch probe changed no repository file.
+- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 110.
+
+### The questions that block progress
+
+None. OQ-63, OQ-179, OQ-184, and OQ-185 close with D-646 to D-649.
+
+### The next concrete action
+
+The author corrects P2-1, then asks Codex to repeat the review.
+
+## Session 108: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-5, content, the content hash, and the string table. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. Role: author. Base: `efd6a53`.
+
+### What this session did, and why
+
+- Asked the owner OQ-63 and OQ-179 first, and wrote no code before the answers (D-19, D-24).
+- D-646 sets the content id as a kind, a dot, and a name. D-647 sets a hand reader and the reflection switch.
+- Two more questions came from the work. D-648 draws the hash line at `content/rules/`, and D-649 ships one fixture rule record.
+- Wrote the strict reader on `Utf8JsonReader`, the SHA-256 of D-644, the content hash, the string table, and the embed.
+- Added the `content-hash` command of Tools, the committed hash file, and a step of the `replay-identity` job.
+
+### The state of the build
+
+- `main` is `efd6a53`. The PR is #28, and its tip and effective head are `de496df`.
+- Fourteen CI checks pass: the three build legs, the three smoke legs, the three `replay-identity` legs, `changed paths`, `ste-check`, `det-lint`, the coverage report, and the Gitar check.
+- The three `replay-identity` legs also compare the content hash, so the three legs and the Mac give one value.
+- `review-gate` gives one fault, RG 3: the head holds no review record at `docs/reviews/pr-28.md`. The review of Codex clears it.
+- `make verify` passes: the build with 0 warnings, 401 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
+- The smoke session reads 4 content files from the Game assembly and gives the same hash as the folder.
+- `SimulationVersion.Current` is 2, and the `state-hash` run of the identity file moved with it (G-17).
+
+### What is in flight
+
+The review of Codex. The Gitar pass approves the head `de496df`, and it gives no open finding.
+
+- Automatic reviews stay paused on the Gitar trial, and an automatic pass still ran. The Gitar check started at 16:20:23Z and completed with success.
+- The dashboard comment `5732921703` has the edit time 16:23:31Z, later than the push, so the pass covers the head (D-603).
+- The dashboard reads `Approved`, with no open finding, and the PR holds no review thread.
+- This PR changes code, so the `review-override` label does not apply (D-401).
+
+### Traps and gotchas
+
+- The reflection switch reaches every program of the solution, and it broke 27 review-gate tests (F-78). The fixture now writes its file with `Utf8JsonWriter`.
+- A project reference from Tests to Game breaks the det-lint fixtures (F-79). The embedded-content test loads the built Game assembly instead.
+- `CLAUDE.md` and `AGENTS.md` sit at 16375 bytes, against a limit of 16384. A new line needs a trim first.
+- A change of a rule file needs `content-hash --root . --write` and a review of the new value.
+- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 109.
+
+### The questions that block progress
+
+None. D-646 to D-649 answer each question of section 7.12.
+
+### The next concrete action
+
+Codex reviews PR #28 and writes `docs/reviews/pr-28.md`.
+
 ## Session 107: 2026-09-18, Codex
 
 Author: Codex

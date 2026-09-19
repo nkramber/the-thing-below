@@ -302,6 +302,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-78 | The property `JsonSerializerIsReflectionEnabledByDefault` in `Directory.Build.props` reaches every program of the solution. The run of PR-5 proved it: 27 tests of the review gate then failed with `Reflection-based serialization has been disabled for this application`, because the fixture wrote its file with `JsonSerializer`. The claim of the PR #12 critic, that the property on a class library reaches no program, holds for Core alone | 2026-09-18 | ✅ D-647 puts the property in `Directory.Build.props`, and PR-5 writes the fixture file with `Utf8JsonWriter`. A test reads the switch back in the test host |
 | F-79 | A project reference from Tests to Game breaks the det-lint fixtures. `ReferenceSet.WithOutputOf` reads the assembly list of the running process as the framework set, and it then holds `GodotSharp.dll` and the two project assemblies. Each Game fixture thus compiles against no project assembly, and the run stops with `holds no assembly beside the framework`. Five tests failed this way in PR-5 | 2026-09-18 | ✅ PR-5 takes no such reference. The embedded-content test loads the file that the Game project built, as `CoreReferenceTests` does (F-61) |
 | F-80 | `dotnet format` on Windows writes the line ending of the machine when it rewrites a line, and `.gitattributes` pins every file to one line feed. A comment between the arrow of an expression body and its expression makes the tool rewrite that line, so the format check fails on the Windows leg and passes on the Mac. Three lines of `TheThingBelow.Tests/SaveFolderTests.cs` failed this way in PR-43, and the same run passed every other check on Windows | 2026-09-18 | ✅ PR-43 gives that test a body with braces, and the comment sits inside the body. The `csharp-conventions` skill holds the rule |
+| F-81 | Section 7.15 of `docs/roadmaps/phase-1-foundations.md` pointed PR-44 at section 7.10 of `area-release.md`, which holds the Deck verification pass of PR-39. The crash file work of PR-44 sits in section 7.1 of that file, the game version. PR-44 read the wrong section first | 2026-09-18 | ✅ PR-44 names section 7.1. The reference check of `ste-check` reads a path and not a section number, so a reader of each pointer is the one guard (D-605) |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -376,7 +377,7 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 14. PR-5: the content reader, the content ids, the content hash, the string table, and the content embed (D-116, D-495, D-508).
 15. PR-6: the tick, the intents, the run record, replay, and the debug seam (D-164, D-260, D-493, D-650 to D-653).
 16. PR-43: the Storage project, the snapshot versions and migrations, and the save files (D-491, D-494).
-17. PR-44: the crash files and the log files (D-170, D-179, D-491).
+17. PR-44: the crash files and the log files (D-170, D-179, D-491, D-658 to D-662).
 18. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).
 19. Owner and a session: the Sprite Fusion test of the art, before PR-34 (D-620).
 20. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517).

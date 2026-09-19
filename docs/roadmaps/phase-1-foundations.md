@@ -614,21 +614,25 @@ Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 
 ### 7.15 PR-44: the crash files and the log files
 
-Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
+Area files: `area-core.md` section 7.12, `area-release.md` section 7.1.
 
 **Scope.**
 
-- The crash file beside the save, written through Storage on a crash or a failed assertion (D-170, T-2).
-- The content of the crash file: the error with its context, the versions, and the run record (D-448).
+- The crash file in the crashes folder of the user folder, written through Storage on a crash or a failed assertion (D-170, D-658, T-2).
+- The content of the crash file: line 1 holds the error with its context, the versions, and the time. The lines of the run record follow line 1 (D-448, D-661).
+- The folders of the person in the text of an error, which the writer hides (D-170).
 - A log line on a crash, and an exit. PR-61 adds the message on screen through the text helper (D-559).
-- The log entries that a step of Core returns, with the tick and the subsystem (D-179).
-- One JSON object for each log line, written by Storage, with the wall-clock time from Game (D-179).
+- The log entries that a step of Core returns, with the tick and the subsystem (D-179). A menu change takes the info level, and a beat of the patrol the debug level (D-660).
+- One JSON object for each log line, with the wall-clock time from Game (D-179). Storage writes each line to the log file of the session, in the logs folder (D-658).
+- The level filter of a log file, and the session argument that adds the debug lines (D-660).
+- The newest 10 files of each of the two folders, and the removal of the older files (D-659).
 
 **Out of scope.**
 
 - The message on screen and the studio address of D-473, which PR-61 adds with the text helper (D-559).
 - The title screen and its version line (PR-33).
 - The night records and the bot reports (PR-15, PR-49).
+- A command of Tools that reads a crash file. Tools takes its reference to Storage in the PR of the headless runner (PR-15, D-494).
 
 **Exit tests.**
 
@@ -639,14 +643,19 @@ Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 5. Each log line parses as one JSON object.
 6. Core adds no time value and no file path to a log entry (G-1, G-3).
 7. A crash writes its file and a log line, and it draws no Godot text property, so det-lint passes (D-499, D-559).
+8. A crash with no run writes a file that holds no record, and the reader gives no record (D-661, T-2).
+9. Each folder keeps the newest 10 files, and two files of one second take two names (D-658, D-659).
+10. An entry below the level of the file takes no line, and the debug level holds every entry (D-660).
 
 **Review focus.**
 
 - No empty catch, and no error that hides the first error (T-2, G-18).
 - PR-44 shows no message, so no Godot text property appears before the text helper of PR-61 exists (D-499, D-559).
 - The crash path runs with no content loaded, because a load failure can start it.
+- The simulation version stays 3, because no log entry reaches the state hash (D-662, G-17).
+- Storage reads the clock nowhere. The host passes each time, so a test of a name and of a line needs no clock seam (G-3, T-3).
 
-**Questions.** None. OQ-57 blocks the address, which PR-61 adds (D-559).
+**Questions.** None. OQ-57 blocks the address, which PR-61 adds (D-559). D-658 to D-662 resolved OQ-190 to OQ-194. They set the two folders, the names, and the count of files. They also set the levels, what a step logs, the lines of a crash file, and the simulation version of this PR.
 
 > *In plain English:* when the game stops with an error, it leaves one file that holds everything a replay needs. Logs are plain one-line notes that the tools can read.
 

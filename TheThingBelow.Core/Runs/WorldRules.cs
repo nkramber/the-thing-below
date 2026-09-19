@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using TheThingBelow.Core.Logging;
 
 namespace TheThingBelow.Core.Runs;
 
@@ -21,16 +23,32 @@ public static class WorldRules
 
     /// <summary>Runs the world for one tick.</summary>
     /// <param name="state">The state of the run, which the system changes.</param>
-    /// <exception cref="ArgumentNullException">The state is null (T-2).</exception>
+    /// <param name="log">The log entries of this tick, which this system adds to (D-179).</param>
+    /// <exception cref="ArgumentNullException">The state or the list is null (T-2).</exception>
     /// <exception cref="SimulationException">A count passes its range (T-2).</exception>
-    public static void Step(RunState state)
+    /// <remarks>
+    /// A beat takes the debug level, because the patrol walks two times a second and a log
+    /// file of the info level holds the changes that a report follows (D-179).
+    /// </remarks>
+    public static void Step(RunState state, List<LogEntry> log)
     {
         ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(log);
 
         state.CountWorldTick();
         if (state.WorldTick % TicksPerPatrolBeat == 0)
         {
             state.WalkPatrol(state.Context("world/patrol"));
+            log.Add(new LogEntry(
+                LogLevel.Debug,
+                "the patrol walked one beat",
+                state.Tick,
+                LogSubsystems.World,
+                [
+                    LogField.OfNumber("beats", state.PatrolBeats),
+                    LogField.OfNumber("choice", state.PatrolChoice),
+                    LogField.OfNumber("world-tick", state.WorldTick),
+                ]));
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TheThingBelow.Core.Logging;
 
 namespace TheThingBelow.Core.Runs;
 
@@ -15,6 +16,11 @@ namespace TheThingBelow.Core.Runs;
 /// A debug intent goes to the handlers that the host passed at the start. A host with no
 /// handler for that action refuses the intent, and the report names the intent and the tick
 /// (D-171, D-260, D-492, T-2).
+/// </para>
+/// <para>
+/// A step returns the log entries of that step, and Core keeps none of them. Core adds no
+/// wall-clock time and no file path to an entry, and Game writes each entry to the log file
+/// with the time of the host (D-179, G-1, G-3).
 /// </para>
 /// </remarks>
 public sealed class Simulation
@@ -65,14 +71,17 @@ public sealed class Simulation
 
     /// <summary>Runs one tick of the rules.</summary>
     /// <param name="intents">The intents of this tick, in the order that the host made them.</param>
+    /// <returns>The log entries of this tick, which can hold none (D-179).</returns>
     /// <exception cref="ArgumentNullException">The list or one intent is null (T-2).</exception>
     /// <exception cref="SimulationException">
     /// An intent names no rule of this build, a debug intent has no handler, or a rule
     /// refuses the intent. Every message carries the seed, the tick, and the intent (T-2).
     /// </exception>
-    public void Step(IReadOnlyList<Intent> intents)
+    public IReadOnlyList<LogEntry> Step(IReadOnlyList<Intent> intents)
     {
         ArgumentNullException.ThrowIfNull(intents);
+
+        List<LogEntry> log = [];
 
         // The tick rises first, so every error of this step names the tick that the record
         // holds for these intents (D-650, T-2).
@@ -81,13 +90,15 @@ public sealed class Simulation
         foreach (Intent intent in intents)
         {
             ArgumentNullException.ThrowIfNull(intent);
-            this.Apply(intent);
+            this.Apply(intent, log);
         }
 
         if (!this.State.MenuOpen)
         {
-            WorldRules.Step(this.State);
+            WorldRules.Step(this.State, log);
         }
+
+        return log;
     }
 
     /// <summary>Stores the whole state of the run (F-10, D-651).</summary>
@@ -98,7 +109,7 @@ public sealed class Simulation
     /// <returns>The hash of the state.</returns>
     public ulong StateHash() => this.State.StateHash();
 
-    private void Apply(Intent intent)
+    private void Apply(Intent intent, List<LogEntry> log)
     {
         RunContext context = this.State.Context($"intent/{intent.Describe()}");
 
@@ -118,12 +129,14 @@ public sealed class Simulation
         if (string.CompareOrdinal(intent.Action.Value, IntentIds.OpenMenu.Value) == 0)
         {
             this.State.SetMenuOpen(true, context);
+            log.Add(MenuEntry("the menu opened", this.State.Tick, intent));
             return;
         }
 
         if (string.CompareOrdinal(intent.Action.Value, IntentIds.CloseMenu.Value) == 0)
         {
             this.State.SetMenuOpen(false, context);
+            log.Add(MenuEntry("the menu closed", this.State.Tick, intent));
             return;
         }
 
@@ -131,4 +144,16 @@ public sealed class Simulation
             $"the intent '{intent.Action.Value}' names no rule of this build",
             context);
     }
+
+    /// <summary>
+    /// Makes the entry of a menu change. A menu pauses the world, so a report reads the pauses
+    /// of a run from these entries alone (D-162, D-179).
+    /// </summary>
+    private static LogEntry MenuEntry(string message, long tick, Intent intent) =>
+        new(
+            LogLevel.Info,
+            message,
+            tick,
+            LogSubsystems.Run,
+            [new LogField("action", intent.Action.Value)]);
 }
