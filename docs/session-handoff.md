@@ -22,7 +22,11 @@ Session: PR-88, the stable check names of the CI matrix jobs. Repository: the-th
 
 ### What is in flight
 
-The push of this branch, the PR, the automated pass, and the Codex review. This PR changes `.github/workflows/`, so it is never exempt from the review (D-185, D-560).
+The Codex review of PR #37. This PR changes `.github/workflows/`, so it is never exempt (D-185, D-560).
+
+- The automated pass of head `9927be7` approved the code review and opened no thread. Its CI block named one fault of RG 7, and the answer is the comment of the PR.
+- The fix is proven on the head. The check runs hold `build, test, and format`, `replay-identity`, and `smoke` as literal names, each `success`, beside the three leg names.
+- `RG 3` faults, because the head holds no record at `docs/reviews/pr-37.md`. It passes when the review record lands.
 
 ### Traps and gotchas
 
@@ -36,7 +40,7 @@ None. D-682 to D-685 hold the four answers of this PR.
 
 ### The next concrete action
 
-Push the branch, open the PR, and answer the automated pass. Then hand the PR to Codex for the review.
+Codex reviews PR #37 and writes `docs/reviews/pr-37.md`. Then the owner adds the three names to the required checks of `main` after the merge (D-685).
 
 ## Session 131: 2026-09-19, Codex
 
