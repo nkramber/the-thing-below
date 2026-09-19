@@ -1,5 +1,48 @@
 # Session handoff archive
 
+## Session 105: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: the first round of PR-4. Repository: the-thing-below. Branch: `feat/pr-4-core-math-and-identity`. PR: the one PR of PR-4, which GitHub numbers at the push. Role: author. Base: `772468a`.
+
+### What this session did, and why
+
+- The session asked OQ-60, OQ-61, and OQ-62 before any code, and D-641 to D-645 hold the answers.
+- Core gains its first rules: `BasisPoints`, `Pcg32`, `RandomStreams`, `XxHash64`, `StateHasher`, and `IdentitySet`.
+- `RunContext`, `SimulationException`, and `CoreAssert` carry the context of every error (T-2, G-18).
+- `SimulationVersion.Current` starts at 1, and each later Core change raises it (G-17).
+- The `replay-identity` command of Tools compares each state hash with the committed identity file, and `--write` writes that file again.
+- The `replay-identity` job runs on the three CI legs, and `make verify` gains the same check.
+- Tools now references Core, because the command computes the hashes.
+
+### The state of the build
+
+- `main` is `772468a`, and this branch starts from it.
+- `make verify` passes: the build with 0 warnings, 286 tests, the format check, `det-lint`, `ste-check`, the identity check, and the smoke session.
+- The Release build gives the same four hashes, and it proves that the assertion helper still throws (exit test 8).
+- The identity file is `TheThingBelow.Tests/identity/replay-identity.txt`, with four runs.
+- Two commits hold the work: the code, then the documents.
+
+### What is in flight
+
+The push, the Gitar pass, and the review of Codex. This PR changes code, so the label of D-401 does not apply.
+
+### Traps and gotchas
+
+- The vectors of PCG32 and xxHash64 are the published values of each reference implementation. A second implementation from the specification gave the same values on 2026-09-18.
+- D-645 puts the SHA-256 of D-644 in PR-5, beside the content hash that calls it. PR-4 ships xxHash64 alone.
+- A change of a hash in the identity file also needs a higher `SimulationVersion.Current` (G-17, D-504).
+- `make verify` runs `build` before `identity`, because the command reads the build output of Tools.
+- The next ids are D-646, OQ-184, F-78, L-16, G-29, M-9, and Session 106.
+
+### The questions that block progress
+
+None. D-641 to D-645 answered every question of this PR.
+
+### The next concrete action
+
+Push the branch, open the PR, and answer the Gitar pass. Then hand the PR to Codex for the review of T-4.
+
 ## Session 104: 2026-09-18, Codex
 
 Author: Codex
