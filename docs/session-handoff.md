@@ -2,6 +2,43 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 119: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #31, PR-44, the crash files and the log files. Repository: the-thing-below. Branch: `feat/pr-44-crash-and-log-files`. Role: reviewer. Base: `cb93ecd`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-31 diff from merge base `cb93ecd` to effective head `f4a7a01`.
+- Confirmed that Claude Code authored the PR and Codex reviewed it.
+- Traced crash text, log text, file retention, personal-path hiding, callback recovery, replay records, and the Core boundary.
+- Found no actionable finding. Wrote `docs/reviews/pr-31.md` with the verdict `Ready for owner merge`.
+- Corrected the PR description row for `docs/reviews/` to the D-581 form after the Gitar RG-7 comment.
+
+### The state of the build
+
+- The metadata tip is `f4a7a01`, and the effective implementation head is `f4a7a01`.
+- `make verify` passes with 625 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
+- GitHub reports the implementation checks and Gitar pass green. The review-gate check failed before the review record existed and must pass after publication.
+
+### What is in flight
+
+The review record and this handoff entry need a metadata commit and push. A fresh `review-gate` run must then verify the published record.
+
+### Traps and gotchas
+
+- The effective head excludes only the review and handoff metadata commit after `f4a7a01`.
+- PR-61 adds the on-screen crash message. PR-15 adds the Tools crash-file reader.
+- The PR description had an invalid `docs/reviews/` Documents row. The review corrected it.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run `make where`, run the review gate, commit the review record and handoff, push, fetch, and verify the remote head and green review gate.
+
 ## Session 118: 2026-09-18, Claude Code
 
 Author: Claude Code
@@ -385,40 +422,3 @@ None.
 ### The next concrete action
 
 Codex reviews PR #28 again and writes the verdict for `2b1f7f8`.
-
-## Session 109: 2026-09-18, Codex
-
-Author: Codex
-Session: review PR #28, PR-5, content, the content hash, and the string table. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. Role: reviewer. Base: `efd6a53`.
-
-### What this session did, and why
-
-- Reviewed all 52 changed paths from the merge base to implementation head `55eb083`.
-- Found that Core accepts an id whose kind does not agree with the rule file (D-646).
-- Verified the trigger in a disposable checkout: `enemy.cave_rat` in `rules/fixtures/tools.json` passed the content-hash command.
-- Wrote `docs/reviews/pr-28.md` with verdict `Changes required` for `55eb083`.
-
-### The state of the build
-
-- `main` and the merge base are `efd6a53`. PR #28 has metadata tip `ad0bdd3` and effective head `55eb083` (D-610).
-- `make verify` passes: 401 tests, format, `det-lint`, `ste-check`, replay identity, content hash, and Godot smoke.
-- Thirteen remote checks pass on tip `ad0bdd3`. `review-gate` reports only RG 4 because the verdict is `Changes required`.
-- Gitar approves the effective head, with no open finding. Its dashboard update is later than the implementation push.
-
-### What is in flight
-
-The review record and this handoff entry are published at `ad0bdd3`. The author must correct P2-1 before merge. Codex then repeats the review on the corrected head.
-
-### Traps and gotchas
-
-- Session 108 named `de496df` as the effective head. The only changes after implementation commit `55eb083` are handoff metadata, so D-610 leaves `55eb083` as the effective head.
-- The disposable kind-mismatch probe changed no repository file.
-- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 110.
-
-### The questions that block progress
-
-None. OQ-63, OQ-179, OQ-184, and OQ-185 close with D-646 to D-649.
-
-### The next concrete action
-
-The author corrects P2-1, then asks Codex to repeat the review.

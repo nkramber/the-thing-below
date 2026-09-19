@@ -1,5 +1,42 @@
 # Session handoff archive
 
+## Session 109: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #28, PR-5, content, the content hash, and the string table. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. Role: reviewer. Base: `efd6a53`.
+
+### What this session did, and why
+
+- Reviewed all 52 changed paths from the merge base to implementation head `55eb083`.
+- Found that Core accepts an id whose kind does not agree with the rule file (D-646).
+- Verified the trigger in a disposable checkout: `enemy.cave_rat` in `rules/fixtures/tools.json` passed the content-hash command.
+- Wrote `docs/reviews/pr-28.md` with verdict `Changes required` for `55eb083`.
+
+### The state of the build
+
+- `main` and the merge base are `efd6a53`. PR #28 has metadata tip `ad0bdd3` and effective head `55eb083` (D-610).
+- `make verify` passes: 401 tests, format, `det-lint`, `ste-check`, replay identity, content hash, and Godot smoke.
+- Thirteen remote checks pass on tip `ad0bdd3`. `review-gate` reports only RG 4 because the verdict is `Changes required`.
+- Gitar approves the effective head, with no open finding. Its dashboard update is later than the implementation push.
+
+### What is in flight
+
+The review record and this handoff entry are published at `ad0bdd3`. The author must correct P2-1 before merge. Codex then repeats the review on the corrected head.
+
+### Traps and gotchas
+
+- Session 108 named `de496df` as the effective head. The only changes after implementation commit `55eb083` are handoff metadata, so D-610 leaves `55eb083` as the effective head.
+- The disposable kind-mismatch probe changed no repository file.
+- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 110.
+
+### The questions that block progress
+
+None. OQ-63, OQ-179, OQ-184, and OQ-185 close with D-646 to D-649.
+
+### The next concrete action
+
+The author corrects P2-1, then asks Codex to repeat the review.
+
 ## Session 108: 2026-09-18, Claude Code
 
 Author: Claude Code
