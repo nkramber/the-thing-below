@@ -1,5 +1,42 @@
 # Session handoff archive
 
+## Session 113: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #29, PR-6, the tick, the intents, the run record, and replay. Repository: the-thing-below. Branch: `feat/pr-6-tick-and-run-record`. Role: reviewer. Base: `1960cf3`.
+
+### What this session did, and why
+
+- Reviewed the complete diff from the merge base to effective head `ee1e6ea`.
+- Found P2-1: snapshot validation accepts an even random-stream increment, and replay then throws without record-line context (T-2, G-18, D-259).
+- Ran a disposable probe. The record reader accepted an even increment, and replay threw a bare `ArgumentException`.
+- Wrote `docs/reviews/pr-29.md` with verdict `Changes required` for `ee1e6ea`.
+
+### The state of the build
+
+- `main` and the merge base are `1960cf3`. The effective head is `ee1e6ea`, and the remote tip is `3a4b728`.
+- `make verify` passes with 475 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and smoke pass.
+- The review record is published at `49c4462`. All GitHub checks pass except `review-gate` RG 4, because the verdict is `Changes required`.
+- The Gitar check passes on `49c4462`. Its dashboard approves the code with no finding, and the PR has no review thread (D-603).
+
+### What is in flight
+
+The review record and this handoff entry were published at `49c4462`. P2-1 remains open, so the PR is not ready for owner merge.
+
+### Traps and gotchas
+
+- The tip commit `3a4b728` changes only review and handoff metadata. The effective head remains `ee1e6ea` (D-610).
+- `RunSnapshot.Check` verifies stream order, but not that a PCG32 increment is odd. `Pcg32.FromSnapshot` rejects the value later, without the record line.
+- The record text and the snapshot line are valid JSON. The defect is the missing semantic check after JSON parsing (D-652).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The author validates odd stream increments with snapshot context and adds a regression test. Codex then reviews the correction.
+
 ## Session 112: 2026-09-18, Claude Code
 
 Author: Claude Code
