@@ -24,7 +24,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 ## 1. Thesis
 
-Every picture of the game starts as text that a session writes and the owner approves (D-107, G-24). A drawing file holds palette keys, and a large picture places drawing files as pieces (D-515, D-516). A tool renders every drawing file into the atlas. Game draws from the atlas at whole pixels, so an art pixel matches a text pixel (D-228, D-230, D-508). The owner judges each batch from review sheets in its PR (D-514). Art never decides an outcome of play, so art stays out of the rule files and the content hash (D-495, D-519).
+The Sprite Fusion generator draws every picture of the game, and each picture becomes a text grid before Game reads it (D-686, G-24). A drawing file holds palette keys, and a large picture places drawing files as pieces (D-515, D-516). A tool renders every drawing file into the atlas. Game draws from the atlas at whole pixels, so an art pixel matches a text pixel (D-228, D-230, D-508). The owner judges each batch from review sheets in its PR (D-514). Art never decides an outcome of play, so art stays out of the rule files and the content hash (D-495, D-519).
 
 The order of the area follows the first user of each part. The PNG code and the atlas close Phase 1, because every screen draws from the atlas (PR-47, PR-34). The first screen loads the atlas in Game (PR-7). Large pictures land right before the first backdrop (D-518). The tools for hand edits and previews come before the first place of the game (D-497). The content PRs draw the art of each place, from PR-17 on.
 
@@ -41,6 +41,10 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-42 | The Godot export reads the project folder alone | PR-7: the atlas loads from the bytes of the Game assembly (D-508) |
 | F-44 | One grid of a full-screen picture holds about 1.1 million palette keys | PR-55: large pictures of pieces (D-516, D-518) |
 | F-45 | Three Godot defaults meet the pixel art | PR-7: the Nearest filter, and a check after each Godot call that logs a failure alone |
+| F-86 | The generator draws a character and a portrait better than a session | D-686: the tool draws every picture |
+| F-87 | The generator does not hold the size of the call, and it returned up to 42 pixels | PR-51: a new frame of 32 or 64 pixels (D-689) |
+| F-88 | The generator draws a tile as a framed block, so a floor of its tiles shows a grid | D-686: a session repairs each tile by hand |
+| F-89 | A picture of the generator uses 206 to 1275 colors, and almost none of them is a palette color | PR-51: the generator mode maps each pixel to the nearest color (D-688) |
 
 ## 7. Roadmap
 
@@ -50,17 +54,18 @@ Each part below says how one part of the art works, which decisions set it, and 
 
 Built by PR-34, and kept by every art batch. Phase files: `phase-1-foundations.md` and every later phase file.
 
-- Sessions draw every sprite, tile, portrait, and piece as a drawing file, and the owner approves each batch (D-57, D-107, G-24).
+- The Sprite Fusion generator draws every picture of the game: each character, each enemy, each portrait, and each tile (D-686). The owner approves each batch (D-107, G-24).
+- A session repairs each tile of the generator by hand, until the tile repeats with no grid (D-686, F-88).
 - The drawing files are the source. The atlas, the normal maps, and the review sheets come from them, and nobody edits those by hand (D-107, D-184).
-- The owner can edit a drawing file, or edit a PNG that the PNG import of PR-51 reads back (D-107, `area-tools.md` section 7.11).
+- The owner can edit a drawing file, or edit a PNG that the hand-edit mode of PR-51 reads back (D-107, D-688, `area-tools.md` section 7.11).
 - The art keeps the style of D-201 and D-237: a dark outline for each material, three or four tones, and no dithering. The five sample grids set the look (D-402).
 - Art lives in `content/`, outside the override set, so each art batch takes the review of the other provider (D-71, D-185).
 - No art file decides an outcome of play, so the content hash never reads one (D-495).
-- After M-2, a spike compares the art of a session with the art of the Sprite Fusion generator (D-620, D-675). The owner picks the source.
-- A picture from an outside tool enters the pipeline as a text grid alone, through the PNG import of PR-51 (D-620). The palette of 64 colors binds it (D-181).
+- The Sprite Fusion test ran on 2026-09-19, and the owner picked the generator as the source (D-620, D-675, D-686). The four findings are F-86 to F-89.
+- A picture of the generator enters the pipeline as a text grid alone, through the PNG import of PR-51 (D-620). The import gives it a frame of 32 or 64 pixels, and it maps each pixel to the palette of 64 colors (D-181, D-688, D-689).
 - A sprite draws at 2x on every screen, so a 32-pixel sprite covers 64 frame pixels (D-633, F-67).
 
-> *In plain English:* every picture in the game is a text file that a session writes and the owner approves. The images that the game draws always come from those files, so nobody edits an image that a tool made.
+> *In plain English:* an outside tool makes the pictures now, and the owner approves each batch. Every picture still becomes a text file first, and the images that the game draws always come from those files.
 
 ### 7.2 The palette
 

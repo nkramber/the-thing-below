@@ -1,4 +1,95 @@
 # Session handoff archive
+## Session 125: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #34, M-1 and M-2 cost model numbers. Repository: the-thing-below. Branch: `docs/m1-m2-cost-model`. Role: reviewer. Base: `3204545`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-34 diff from merge base `3204545` to effective head `2434847`.
+- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Checked the cost tables, arithmetic, document order, decision rows, runbook procedure, Documents section, and the answered gitar finding.
+- Wrote `docs/reviews/pr-34.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- The effective head is `2434847`. The metadata tip is `2789416`.
+- `make verify` passes locally with 782 tests, 0 warnings, and 0 findings from det-lint and STE check. Replay identity, content hash, and the bounded smoke session pass.
+- The M-2 table arithmetic supports its rounded means and its two-to-three-times Windows summary.
+
+### What is in flight
+
+The review record and this handoff entry are published. The review-gate check is pending its updated result.
+
+### Traps and gotchas
+
+- The effective head is `2434847`, not the metadata tip `1d9fe5b`.
+- The first gitar comment found the old Windows ratio statement. The current head records the corrected range and mean.
+
+### The questions that block progress
+
+None for this PR. OQ-3 remains an owner question for Gate 1.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Then fetch and verify the remote head.
+
+## Session 124: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: M-1 and M-2, the cost model numbers of the first ten code PRs. Repository: the-thing-below. Branch: `docs/m1-m2-cost-model`. Role: author. Base: `3204545`.
+
+### What this session did, and why
+
+- The session asked the owner six questions before any change. D-671 to D-676 answer them.
+- D-672 sets the M-1 number: the total context tokens of a PR, per harness.
+- Section 4 of `docs/design.md` now holds the M-1 table and the M-2 table of the ten PRs, with a mean row.
+- M-1: the mean code PR takes 68.4 million context tokens. PR-1 is the worst at 127.1 million.
+- M-2: the mean green `ci` run spends 505 seconds across its jobs, and the clock of the run is 133 seconds.
+- Windows takes two to three times the seconds of Linux, and 2.4 times at the mean.
+- D-671 records the approval of the owner for the 16 colors of D-185, which came after the merge of PR #33.
+- D-673 and F-84 record that PR #33 merged with no review record, against T-4 and D-17.
+- D-674 puts the fix of F-83 in the session right after this one, and before Gate 1.
+- D-675 keeps the Sprite Fusion test and moves it after M-2. D-676 adds it to Gate 1 as line 10.
+- The Measures section of `docs/runbooks/session-context.md` now says how to read both numbers again.
+
+### The state of the build
+
+- `main` is `3204545`, and the branch starts there. The effective head is `2434847`.
+- `make ste-check` gives 0 findings, and the `ste-check` job passes.
+- The code jobs skip, because the changed-paths job reads this PR as a docs-only PR (D-513).
+- `review-gate` names RG 3 alone: the review record of Codex. RG 1, RG 2, and RG 6 to RG 8 pass.
+- The PR changes documents alone. No code, content, or test file changes.
+- The PR adds decision rows, so the label of D-401 does not apply. The PR needs the Codex review (T-4).
+
+### What is in flight
+
+The review of Codex. The pass of gitar approved the effective head `2434847` with no open finding, and it resolved its one thread itself.
+
+That finding had full merit. The first head said that Windows takes about twice the seconds of Linux on every PR, and the M-2 table refutes it. The ratios run 2.04 to 3.00, and PR-3 is 3.00. Both sentences now give the range and the mean.
+
+The pass also read the `review-gate` failure of the first head, which named RG 7. The line of the row `docs/reviews/` had no form of D-581. The PR description now names `docs/reviews/pr-34.md`, and RG 7 passes.
+
+### Traps and gotchas
+
+- The M-1 number counts a cache read, so it reads far larger than the money cost. D-672 gives the reason.
+- M-1 attributes each record by its branch. Work on `main` counts for no PR.
+- PR-4 holds a second branch, feat/pr-4-core-math-streams, which opened no PR. Its tokens are in the PR-4 row.
+- The M-2 table reads the newest green `ci` run of each PR. Each PR started the workflow 3 to 16 times.
+- The owner reversed the first answer on the Sprite Fusion test inside the session. The test stays (D-675).
+- The owner chose the tenth Gate 1 line against the recommendation of the session. D-676 records both sides.
+- No tool of this repository reads a harness record (D-99), so the scripts of this session stay outside the checkout.
+- 7.17 of the phase file keeps its number, because D-13 refuses a renumber. Its position line names D-675.
+- The next ids are D-677, OQ-197, F-85, L-16, G-29, M-9, and Session 125.
+
+### The questions that block progress
+
+None. OQ-3 still blocks Gate 1, and it belongs to the owner.
+
+### The next concrete action
+
+Push the branch, open the PR, and answer the pass of gitar. Then hand the PR to Codex for the review.
+
 ## Session 123: 2026-09-19, Codex
 
 Author: Codex
