@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 123: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #33, PR-34, the atlas, the palette, and the drawing files. Repository: the-thing-below. Branch: `feat/pr-34-atlas-and-palette`. Role: reviewer. Base: `9863da3`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-33 diff from merge base `9863da3` to effective head `d1b2305`.
+- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Traced the drawing and atlas readers, deterministic layout, pixel comparison, content-set checks, error paths, palette validation, committed content, and Documents section.
+- Found no actionable finding. Wrote `docs/reviews/pr-33.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- The implementation head is `d1b2305`. The metadata tip is `abad4da`.
+- `make verify` passes locally with 782 non-smoke tests and 0 build warnings. The atlas check, format, det-lint, STE check, replay identity, content hash, Godot build, and bounded smoke session pass.
+- The focused empty-option probes return contextual errors with exit code 1.
+
+### What is in flight
+
+The review record and this handoff entry are ready to publish. The final Windows and macOS CI results were still in progress when the review ran.
+
+### Traps and gotchas
+
+- The effective head is `d1b2305`, not the metadata tip `09ec5a8`.
+- The review record must keep the effective head because the review commit changes only metadata paths.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. The owner can merge after the remaining PR checks pass.
 
 ## Session 122: 2026-09-19, Claude Code
 

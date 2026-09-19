@@ -1,5 +1,41 @@
 # Session handoff
 
+## Session 133: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #37, the stable check names of the CI matrix jobs. Repository: the-thing-below. Branch: `fix/pr-88-ci-matrix-check-names`. Role: reviewer. Base: `51a040f`.
+
+### What this session did, and why
+
+- Recomputed PR #37 at effective head `9927be7`. The later commit `8a041e3` changes only metadata.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Inspected the complete nine-path diff. The three gate jobs preserve the D-595 condition on their matrix jobs, fail on an unexpected skip or a fault of `changed-paths`, and report the stable names of D-682 and D-683.
+- Ran the focused workflow tests and the full local verification. No finding remains.
+- Wrote `docs/reviews/pr-37.md` with the verdict `Ready for owner merge` for effective head `9927be7`.
+
+### The state of the build
+
+- `make verify` passes at tip `8a041e3` with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
+- The revision-matched CI checks pass for all matrix legs and all stable gate jobs. `review-gate` waits for this review record.
+- The remote branch head is `8a041e3`.
+
+### What is in flight
+
+The review record and this handoff entry need a commit and push. After the remote gate reads the record, the PR is ready for owner merge.
+
+### Traps and gotchas
+
+- The verdict targets effective head `9927be7`, not metadata tip `8a041e3`.
+- The owner adds the three stable names to branch protection after the PR merges, as D-685 states.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff entry. Then fetch and verify that the remote head and review-gate result match.
+
 ## Session 132: 2026-09-19, Claude Code
 
 Author: Claude Code
@@ -372,38 +408,3 @@ None. OQ-3 still blocks Gate 1, and it belongs to the owner.
 ### The next concrete action
 
 Push the branch, open the PR, and answer the pass of gitar. Then hand the PR to Codex for the review.
-
-## Session 123: 2026-09-19, Codex
-
-Author: Codex
-Session: review PR #33, PR-34, the atlas, the palette, and the drawing files. Repository: the-thing-below. Branch: `feat/pr-34-atlas-and-palette`. Role: reviewer. Base: `9863da3`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-33 diff from merge base `9863da3` to effective head `d1b2305`.
-- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Traced the drawing and atlas readers, deterministic layout, pixel comparison, content-set checks, error paths, palette validation, committed content, and Documents section.
-- Found no actionable finding. Wrote `docs/reviews/pr-33.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- The implementation head is `d1b2305`. The metadata tip is `abad4da`.
-- `make verify` passes locally with 782 non-smoke tests and 0 build warnings. The atlas check, format, det-lint, STE check, replay identity, content hash, Godot build, and bounded smoke session pass.
-- The focused empty-option probes return contextual errors with exit code 1.
-
-### What is in flight
-
-The review record and this handoff entry are ready to publish. The final Windows and macOS CI results were still in progress when the review ran.
-
-### Traps and gotchas
-
-- The effective head is `d1b2305`, not the metadata tip `09ec5a8`.
-- The review record must keep the effective head because the review commit changes only metadata paths.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and this handoff entry. The owner can merge after the remaining PR checks pass.
