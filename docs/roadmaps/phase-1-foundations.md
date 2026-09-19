@@ -807,7 +807,7 @@ Area file: `area-tools.md` section 7.1. D-674 puts this PR after the M-1 and M-2
 **Scope.**
 
 - The parse of an empty option value in every Tools command, and not in `content-hash` alone (D-678, F-83).
-- The six option values: `ste-check --root`, `det-lint --root`, `det-lint --configuration`, `replay-identity --root`, `content-hash --root`, `review-gate --pull-request`, and `review-gate --head-files`.
+- The seven option values: `ste-check --root`, `det-lint --root`, `det-lint --configuration`, `replay-identity --root`, `content-hash --root`, `review-gate --pull-request`, and `review-gate --head-files`.
 - The one helper `OptionValue.ReportEmpty`, which every command reads its option values through (D-679).
 - The move of the `atlas` command from its own copy of the check to that helper (D-679).
 - A regression test for each command and each option value, which fails on the old code (T-3).
@@ -820,9 +820,10 @@ Area file: `area-tools.md` section 7.1. D-674 puts this PR after the M-1 and M-2
 
 **Exit tests.**
 
-1. Each of the six option values gives the fault exit code and names the option.
+1. Each of the seven option values gives the fault exit code and names the option.
 2. No command ends with a stack trace on an empty option value.
-3. The regression test fails on the code before this PR.
+3. The regression theory holds nine rows: the seven above and the two values of the `atlas` command.
+4. The seven rows fail on the code before this PR. The two `atlas` rows pass, because PR-34 fixed that command.
 
 **Review focus.** The review confirms that no command reads an option value outside the helper. It also reads the message of each fault for the context that T-2 asks for.
 

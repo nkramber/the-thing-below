@@ -1,5 +1,45 @@
 # Session handoff
 
+## Session 128: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: PR-87, the answer to the Codex review of PR #35. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: author. Base: `f896dc3`.
+
+### What this session did, and why
+
+- P2-1 of `docs/reviews/pr-35.md` has full merit. The records said six option values and listed seven.
+- A probe of the base commit `f896dc3` in a worktree measured each of the nine rows again.
+- That probe refuted a second count that the review did not name. The records said four commands, and the number is five.
+- Five of the seven values end with a stack trace. The other two give a message that names no empty option.
+- `det-lint --root` named an absent folder, and `review-gate --head-files` named an access fault of the path.
+- F-83, D-678, the roadmap entry, the area file, and the PR description now hold the two corrected counts.
+- The exit tests of section 7.20 now state the nine rows of the theory, and which seven fail on the old code.
+
+### The state of the build
+
+- The effective head before this round is `4e9338d`, and the Codex verdict names it.
+- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
+- No code changes in this round. The round corrects text alone.
+
+### What is in flight
+
+The repeat review of Codex for the new head. The pass of gitar for the new head.
+
+### Traps and gotchas
+
+- A `git stash push` of a committed change saves nothing, and a probe then measures the new code and reads as the old. Use a worktree at the base commit.
+- `review-gate --head-files ""` alone gives the message for the two absent options, and not a stack trace. The stack trace needs both options, with one empty.
+- `det-lint --root ""` never ended with a stack trace. A folder check further down named the absent folder.
+- Six call sites hold the check, and seven option values pass through them. D-679 counts the call sites.
+
+### The questions that block progress
+
+None for this PR. OQ-3 remains an owner question for Gate 1.
+
+### The next concrete action
+
+Push the correction, answer the pass of gitar, and ask Codex for the repeat review.
+
 ## Session 127: 2026-09-19, Codex
 
 Author: Codex
@@ -45,7 +85,7 @@ Session: PR-87, the empty option value of the Tools commands. Repository: the-th
 ### What this session did, and why
 
 - The session asked the owner three questions before any change. D-677 to D-679 answer them.
-- A probe of every command found the fault in four commands and six option values, and F-83 recorded one.
+- A probe of every command found the fault in five commands and seven option values, and F-83 recorded one.
 - D-678 sets the scope: every Tools command, and not `content-hash` alone.
 - `OptionValue.ReportEmpty` is the one place of the check, and every command reads its option values through it (D-679).
 - The `atlas` command moves from its own copy of the check to that helper.
@@ -57,7 +97,7 @@ Session: PR-87, the empty option value of the Tools commands. Repository: the-th
 - `main` is `f896dc3`, and the branch starts there.
 - `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
 - The suite grew by 12 tests: 9 rows of the command theory and 3 for the helper.
-- Every one of the six option values gives the fault exit code and names the option.
+- Every one of the seven option values gives the fault exit code and names the option.
 
 ### What is in flight
 
@@ -374,48 +414,3 @@ None.
 ### The next concrete action
 
 Run `gh pr checks 31` and verify the remote head and green review gate.
-
-## Session 118: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: PR-44, the crash files and the log files. Repository: the-thing-below. Branch: `feat/pr-44-crash-and-log-files`. Role: author. Base: `cb93ecd`.
-
-### What this session did, and why
-
-- The session asked the owner six questions before any change. It confirmed that OQ-57 blocks PR-61 alone, because D-559 moved the crash message and the address of D-473 to that PR.
-- D-658 to D-662 answer the five new questions: the folders and the names, the count of files, the levels and what a step logs, the lines of a crash file, and the simulation version.
-- A step of Core returns its log entries (D-179). A menu change takes the info level, and a beat of the patrol the debug level (D-660).
-- Core holds `LogEntry`, `LogLine`, and `LogLineText`, and it adds no time and no path. Core holds `CrashReport` and `CrashText` too.
-- Storage holds `LogStore`, `CrashStore`, the time text, the folder rules, and the rule that hides the folders of the person (D-170).
-- One crash file holds the crash line and then the lines of the record, so the player sends one file and the report keeps its replay (D-661).
-- Game catches the error of each callback, writes the crash file, writes one log line, and exits with the code 1 (D-559, T-2).
-- The smoke session writes the log file, opens and closes the menu, and writes and reads one crash file. Each CI leg thus reads the whole path (D-117).
-- F-81 records a wrong pointer: section 7.15 of the phase file sent this PR to section 7.10 of `area-release.md`, and the right section is 7.1.
-
-### The state of the build
-
-- `main` is `cb93ecd`, and the branch starts there.
-- `make verify` passes with 625 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and the bounded smoke session pass.
-- The smoke session of this machine wrote 3 log lines and one crash file with a record that ends at tick 120.
-- `SimulationVersion.Current` stays 3, which D-662 sets. The identity file and the fixture save of format 1 need no change (G-17).
-
-### What is in flight
-
-The review of Codex. The Gitar pass approved the head `e45dcc9` with no code finding, and its CI block raised two claims. RG 7 had full merit: three rows of the Documents section gave no path, and the description now gives each one a path. RG 3 waits for the review record, which the review of Codex writes on this branch.
-
-### Traps and gotchas
-
-- `fault.GetType().Name` is a member of `System.Reflection` for `det-lint` rule DL 4. Thus Core takes the name of the type of an error as an argument, and Storage reads it (F-36, D-647).
-- The JSON writer escapes `<` and `>`, so the placeholder of a hidden folder is `(user-folder)` and a person reads the path in the file.
-- Storage reads the clock nowhere. Each caller passes a UTC time, and a time of another kind is an error (T-3).
-- A crash file with a stack holds line feeds inside one JSON string, and the physical line stays one line.
-- Tools takes no reference to Storage yet, because no command reads a crash file. PR-15 adds it with the headless runner (D-494).
-- The next ids are D-663, OQ-195, F-82, L-16, G-29, M-9, and Session 119.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Run `make where`, commit the work, push one time, and answer the Gitar pass with the `gitar-review` skill.

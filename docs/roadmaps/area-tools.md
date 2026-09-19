@@ -41,7 +41,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-39 | The default string order of .NET follows the culture and the ICU version of the machine | PR-4 and PR-46: an ordinal order for strings in Core |
 | F-58 | No check can see the conversation of a session | PR-3: the document rules read the diff and the description alone (D-579) |
 | F-82 | The Tools scan of det-lint asked for a reference set that its own process already holds | PR-47: the scan takes the framework list (D-614) |
-| F-83 | Four commands ended with a stack trace on an empty option value | PR-34 and PR-87: every command reads its option values through one helper (D-678, D-679) |
+| F-83 | Five commands read an empty option value with no check at the parse, and five values ended with a stack trace | PR-34 and PR-87: every command reads its option values through one helper (D-678, D-679) |
 
 ## 7. Roadmap
 
