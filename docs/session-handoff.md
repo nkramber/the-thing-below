@@ -1,5 +1,41 @@
 # Session handoff
 
+## Session 129: 2026-09-19, Codex
+
+Author: Codex
+Session: repeat review PR #35, the empty option value of every Tools command. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: reviewer. Base: `f896dc3`.
+
+### What this session did, and why
+
+- Reopened the review at effective head `8eacf73`.
+- Verified P2-1. The records now state seven option values, five affected commands, and nine regression rows.
+- Checked the base trigger, the correction, and the adjacent whitespace boundary.
+- Preserved the earlier verdict in `docs/reviews/pr-35.md` and set the current verdict to `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
+- Replay identity, content hash, and the bounded smoke session pass.
+- All nine empty-option probes return exit code 1, name the option, and produce no stack trace.
+- `det-lint --root " "` returns a contextual missing-root error without a stack trace.
+
+### What is in flight
+
+The repeat-review record needs a metadata commit and push. The current review-gate run fails because the old record still names `4e9338d` and `Changes required`.
+
+### Traps and gotchas
+
+- The Gitar dashboard summary still says six option values, but its current timestamp covers `8eacf73`. The repository records and the PR description hold the corrected count of seven.
+- The effective head is `8eacf73`. Metadata commits after it do not change the review target.
+
+### The questions that block progress
+
+None for this PR. OQ-3 remains an owner question for Gate 1.
+
+### The next concrete action
+
+Commit and push the repeat-review record and this handoff entry. Then verify the remote head and the review-gate result.
+
 ## Session 128: 2026-09-19, Claude Code
 
 Author: Claude Code
@@ -377,40 +413,3 @@ None.
 ### The next concrete action
 
 Hand PR #32 to Codex for the cross-provider review (T-4, D-17).
-
-## Session 119: 2026-09-18, Codex
-
-Author: Codex
-Session: review PR #31, PR-44, the crash files and the log files. Repository: the-thing-below. Branch: `feat/pr-44-crash-and-log-files`. Role: reviewer. Base: `cb93ecd`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-31 diff from merge base `cb93ecd` to effective head `f4a7a01`.
-- Confirmed that Claude Code authored the PR and Codex reviewed it.
-- Traced crash text, log text, file retention, personal-path hiding, callback recovery, replay records, and the Core boundary.
-- Found no actionable finding. Wrote `docs/reviews/pr-31.md` with the verdict `Ready for owner merge`.
-- Corrected the PR description row for `docs/reviews/` to the D-581 form after the Gitar RG-7 comment.
-
-### The state of the build
-
-- The metadata tip is `1398035`, and the effective implementation head is `f4a7a01`.
-- `make verify` passes with 625 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
-- GitHub reports the implementation checks and Gitar pass green. The review-gate check failed before the review record existed and must pass after publication.
-
-### What is in flight
-
-The published review record and handoff need a fresh `review-gate` run after the metadata push.
-
-### Traps and gotchas
-
-- The effective head excludes only the review and handoff metadata commit after `f4a7a01`.
-- PR-61 adds the on-screen crash message. PR-15 adds the Tools crash-file reader.
-- The PR description had an invalid `docs/reviews/` Documents row. The review corrected it.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Run `gh pr checks 31` and verify the remote head and green review gate.
