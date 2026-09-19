@@ -16,7 +16,7 @@ Session: review PR #33, PR-34, the atlas, the palette, and the drawing files. Re
 
 ### The state of the build
 
-- The implementation head is `d1b2305`. The metadata tip is `a09da35`.
+- The implementation head is `d1b2305`. The metadata tip is `abad4da`.
 - `make verify` passes locally with 782 non-smoke tests and 0 build warnings. The atlas check, format, det-lint, STE check, replay identity, content hash, Godot build, and bounded smoke session pass.
 - The focused empty-option probes return contextual errors with exit code 1.
 
