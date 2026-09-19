@@ -1,5 +1,46 @@
 # Session handoff
 
+## Session 134: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: the Sprite Fusion test, item 24 of section 8 of the phase file. Repository: the-thing-below. Branch: `spike/sprite-fusion`. Role: spike author. Base: `db518fa`.
+
+### What this session did, and why
+
+- Ran the test of D-620 and D-675. The owner picked the subjects: the approved map sprite of Marrek as the anchor, and three subjects with no art before the test.
+- Drew four drawing files under `spike/session/content/sprites/`, and rendered them with the atlas command at `--root spike/session`. No file of `content/` changed.
+- Read the pages of the supplier for the API, the cost, and the terms. The owner gave the API key, and the session made eight calls: one cold call and one style call for each subject.
+- The style call sent the approved cast sprites as style references. The anchor call never sent the sprite of Marrek.
+- Built the comparison sheet, the repeat sheet of the tile, and a contact sheet for each of the eight calls.
+- The owner picked the generator for every picture, and the owner kept the Starter plan.
+
+### The state of the build
+
+- `make ste-check` passes at tip `e3c50b4` and after the commit of this entry.
+- The branch holds two commits over `db518fa`, and it never merges (D-620).
+- The remote head of `main` is `db518fa`.
+
+### What is in flight
+
+The documents PR of the pick. The file `spike/pick.md` holds each draft row and each change of a document.
+
+### Traps and gotchas
+
+- The branch never merges. Nothing of the test reaches `main` except through the documents PR.
+- `spike/generated/` holds 84 pictures from the tool. No picture enters `content/` before the import of PR-51 gives it a frame and the palette.
+- The tool holds no size: a call for 32 pixels returned up to 42 pixels.
+- The tool draws a tile as a framed block, so a floor of its tiles shows a grid. The owner read this before the pick.
+- The API key is at `~/.config/sprite-fusion/api-key`. No file of the repository holds it.
+- The session used a scratch builder outside the repository for the portrait grid. No Python file entered the repository (D-99).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+A new clean session opens the documents PR that carries the two decision rows, the four findings, the changes of the documents, and this entry.
+
 ## Session 133: 2026-09-19, Codex
 
 Author: Codex
@@ -352,59 +393,3 @@ None for this PR. OQ-3 remains an owner question for Gate 1.
 ### The next concrete action
 
 Commit and push the review record and this handoff entry. Then fetch and verify the remote head.
-
-## Session 124: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: M-1 and M-2, the cost model numbers of the first ten code PRs. Repository: the-thing-below. Branch: `docs/m1-m2-cost-model`. Role: author. Base: `3204545`.
-
-### What this session did, and why
-
-- The session asked the owner six questions before any change. D-671 to D-676 answer them.
-- D-672 sets the M-1 number: the total context tokens of a PR, per harness.
-- Section 4 of `docs/design.md` now holds the M-1 table and the M-2 table of the ten PRs, with a mean row.
-- M-1: the mean code PR takes 68.4 million context tokens. PR-1 is the worst at 127.1 million.
-- M-2: the mean green `ci` run spends 505 seconds across its jobs, and the clock of the run is 133 seconds.
-- Windows takes two to three times the seconds of Linux, and 2.4 times at the mean.
-- D-671 records the approval of the owner for the 16 colors of D-185, which came after the merge of PR #33.
-- D-673 and F-84 record that PR #33 merged with no review record, against T-4 and D-17.
-- D-674 puts the fix of F-83 in the session right after this one, and before Gate 1.
-- D-675 keeps the Sprite Fusion test and moves it after M-2. D-676 adds it to Gate 1 as line 10.
-- The Measures section of `docs/runbooks/session-context.md` now says how to read both numbers again.
-
-### The state of the build
-
-- `main` is `3204545`, and the branch starts there. The effective head is `2434847`.
-- `make ste-check` gives 0 findings, and the `ste-check` job passes.
-- The code jobs skip, because the changed-paths job reads this PR as a docs-only PR (D-513).
-- `review-gate` names RG 3 alone: the review record of Codex. RG 1, RG 2, and RG 6 to RG 8 pass.
-- The PR changes documents alone. No code, content, or test file changes.
-- The PR adds decision rows, so the label of D-401 does not apply. The PR needs the Codex review (T-4).
-
-### What is in flight
-
-The review of Codex. The pass of gitar approved the effective head `2434847` with no open finding, and it resolved its one thread itself.
-
-That finding had full merit. The first head said that Windows takes about twice the seconds of Linux on every PR, and the M-2 table refutes it. The ratios run 2.04 to 3.00, and PR-3 is 3.00. Both sentences now give the range and the mean.
-
-The pass also read the `review-gate` failure of the first head, which named RG 7. The line of the row `docs/reviews/` had no form of D-581. The PR description now names `docs/reviews/pr-34.md`, and RG 7 passes.
-
-### Traps and gotchas
-
-- The M-1 number counts a cache read, so it reads far larger than the money cost. D-672 gives the reason.
-- M-1 attributes each record by its branch. Work on `main` counts for no PR.
-- PR-4 holds a second branch, feat/pr-4-core-math-streams, which opened no PR. Its tokens are in the PR-4 row.
-- The M-2 table reads the newest green `ci` run of each PR. Each PR started the workflow 3 to 16 times.
-- The owner reversed the first answer on the Sprite Fusion test inside the session. The test stays (D-675).
-- The owner chose the tenth Gate 1 line against the recommendation of the session. D-676 records both sides.
-- No tool of this repository reads a harness record (D-99), so the scripts of this session stay outside the checkout.
-- 7.17 of the phase file keeps its number, because D-13 refuses a renumber. Its position line names D-675.
-- The next ids are D-677, OQ-197, F-85, L-16, G-29, M-9, and Session 125.
-
-### The questions that block progress
-
-None. OQ-3 still blocks Gate 1, and it belongs to the owner.
-
-### The next concrete action
-
-Push the branch, open the PR, and answer the pass of gitar. Then hand the PR to Codex for the review.
