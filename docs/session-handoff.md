@@ -26,7 +26,11 @@ Session: the refutation of F-84 and D-673. Repository: the-thing-below. Branch: 
 
 ### What is in flight
 
-The branch needs its first push and the automated pass of gitar. The PR revises a decision row, so the `review-override` label of D-401 does not apply and the Codex review follows (T-4).
+The PR waits for the review of the other provider. It revises a decision row, so the `review-override` label of D-401 does not apply (T-4).
+
+The automated pass approved head `f513ff3` at 2026-09-19T15:23:04Z, with no finding and no open thread. Its CI analysis found one fault of the description, and the fault had full merit. The `docs/reviews/` row of the Documents section held no form of D-581, and it now takes the `Changed:` form. Run `35459166100` gives `RG 7 pass`. The description holds that row, so the fix needed no commit and the head stands.
+
+The `review-gate` check faults on RG 3 alone: the head holds no review record at `docs/reviews/pr-36.md`. That fault stands until the review record lands, and no change of the author clears it. RG 1, RG 2, RG 6, RG 7, and RG 8 pass.
 
 ### Traps and gotchas
 
@@ -41,7 +45,7 @@ None. OQ-3 stays open as an owner action, and it blocks line 4 of Gate 1, not th
 
 ### The next concrete action
 
-Push the branch, open the PR, and answer the automated pass of gitar.
+Hand the PR to the other provider for the review of T-4. The reviewer writes `docs/reviews/pr-36.md` for head `f513ff3`, which turns RG 3 green.
 
 ## Session 129: 2026-09-19, Codex
 
