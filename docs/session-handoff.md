@@ -21,6 +21,8 @@ Session: the documents PR of the Sprite Fusion pick. Repository: the-thing-below
 
 - `make ste-check` passes at the commit of this entry. The PR changes documents alone.
 - The remote head of `main` is `db518fa`, and this branch starts there.
+- The automated pass approved the head `83e561c` at 22:57 UTC, with one finding closed and no open thread. The CI summary of that pass still names the old RG 7 fault, and the log of the job gives `RG 7 pass`.
+- The `review-gate` check holds one fault: RG 3, which asks for `docs/reviews/pr-38.md`. The Codex review record clears it.
 
 ### What is in flight
 
