@@ -17,13 +17,13 @@ Session: review PR #31, PR-44, the crash files and the log files. Repository: th
 
 ### The state of the build
 
-- The metadata tip is `f4a7a01`, and the effective implementation head is `f4a7a01`.
+- The metadata tip is `1398035`, and the effective implementation head is `f4a7a01`.
 - `make verify` passes with 625 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
 - GitHub reports the implementation checks and Gitar pass green. The review-gate check failed before the review record existed and must pass after publication.
 
 ### What is in flight
 
-The review record and this handoff entry need a metadata commit and push. A fresh `review-gate` run must then verify the published record.
+The published review record and handoff need a fresh `review-gate` run after the metadata push.
 
 ### Traps and gotchas
 
@@ -37,7 +37,7 @@ None.
 
 ### The next concrete action
 
-Run `make where`, run the review gate, commit the review record and handoff, push, fetch, and verify the remote head and green review gate.
+Run `gh pr checks 31` and verify the remote head and green review gate.
 
 ## Session 118: 2026-09-18, Claude Code
 
