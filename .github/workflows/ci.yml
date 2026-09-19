@@ -2,6 +2,9 @@
 # (D-2, D-117, D-481, D-504).
 #
 # The three legs use a label with a version, and a move to a newer image takes a PR (D-594).
+# Each matrix job reports a name that holds its leg, and a skipped matrix job reports the
+# literal name template. Thus a gate job of each family reports the stable name that
+# branch protection requires (F-85, D-682, D-683).
 # Each action pins a full commit SHA, and every other download checks its SHA-512 (D-511).
 name: ci
 
@@ -104,6 +107,45 @@ jobs:
 
       - name: Check the format
         run: dotnet format TheThingBelow.slnx --verify-no-changes
+
+  build-test-format-gate:
+    # Branch protection matches a required check by its name. A matrix job that a condition
+    # skips never expands its matrix, so it reports one check run with the literal name
+    # template and not the three leg names (F-85). This job always runs, so its name is the
+    # same on a code PR and on a docs-only PR. Branch protection requires this name, and the
+    # job fails when any leg of the family fails (D-682, D-683).
+    name: build, test, and format
+    needs: [changed-paths, build-test-format]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read the result of the three legs
+        env:
+          FAMILY: "build, test, and format"
+          PATHS_RESULT: ${{ needs.changed-paths.result }}
+          LEGS_RESULT: ${{ needs.build-test-format.result }}
+          DOCUMENTS_ALONE: ${{ needs.changed-paths.outputs.documents-alone }}
+        run: |
+          set -euo pipefail
+
+          # A fault in `changed-paths` skips the legs too. A skip that no condition asked
+          # for never passes this gate (T-2).
+          if [ "$PATHS_RESULT" != "success" ]; then
+            echo "The changed paths job ended with '$PATHS_RESULT' (T-2)." >&2
+            exit 1
+          fi
+
+          # D-595 skips the legs on a PR that changes documents alone.
+          if [ "$LEGS_RESULT" = "success" ] ||
+             { [ "$LEGS_RESULT" = "skipped" ] && [ "$DOCUMENTS_ALONE" = "true" ]; }; then
+            echo "The $FAMILY legs ended with '$LEGS_RESULT', and this gate passes."
+            exit 0
+          fi
+
+          echo "The $FAMILY legs ended with '$LEGS_RESULT' (T-2)." >&2
+          echo "Read the check run of each leg for the failure." >&2
+          exit 1
 
   coverage:
     name: coverage report
@@ -215,6 +257,42 @@ jobs:
         run: |
           dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj \
             --configuration Release --no-build -- content-hash --root .
+
+  replay-identity-gate:
+    # This gate reports the stable name of the three legs of this family, as the
+    # `build, test, and format` gate job above does (F-85, D-682, D-683).
+    name: replay-identity
+    needs: [changed-paths, replay-identity]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read the result of the three legs
+        env:
+          FAMILY: "replay-identity"
+          PATHS_RESULT: ${{ needs.changed-paths.result }}
+          LEGS_RESULT: ${{ needs.replay-identity.result }}
+          DOCUMENTS_ALONE: ${{ needs.changed-paths.outputs.documents-alone }}
+        run: |
+          set -euo pipefail
+
+          # A fault in `changed-paths` skips the legs too. A skip that no condition asked
+          # for never passes this gate (T-2).
+          if [ "$PATHS_RESULT" != "success" ]; then
+            echo "The changed paths job ended with '$PATHS_RESULT' (T-2)." >&2
+            exit 1
+          fi
+
+          # D-595 skips the legs on a PR that changes documents alone.
+          if [ "$LEGS_RESULT" = "success" ] ||
+             { [ "$LEGS_RESULT" = "skipped" ] && [ "$DOCUMENTS_ALONE" = "true" ]; }; then
+            echo "The $FAMILY legs ended with '$LEGS_RESULT', and this gate passes."
+            exit 0
+          fi
+
+          echo "The $FAMILY legs ended with '$LEGS_RESULT' (T-2)." >&2
+          echo "Read the check run of each leg for the failure." >&2
+          exit 1
 
   smoke:
     name: smoke (${{ matrix.leg }})
@@ -348,6 +426,42 @@ jobs:
             echo "The smoke session wrote an error line (T-2)." >&2
             exit 1
           fi
+
+  smoke-gate:
+    # This gate reports the stable name of the three legs of this family, as the
+    # `build, test, and format` gate job above does (F-85, D-682, D-683).
+    name: smoke
+    needs: [changed-paths, smoke]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read the result of the three legs
+        env:
+          FAMILY: "smoke"
+          PATHS_RESULT: ${{ needs.changed-paths.result }}
+          LEGS_RESULT: ${{ needs.smoke.result }}
+          DOCUMENTS_ALONE: ${{ needs.changed-paths.outputs.documents-alone }}
+        run: |
+          set -euo pipefail
+
+          # A fault in `changed-paths` skips the legs too. A skip that no condition asked
+          # for never passes this gate (T-2).
+          if [ "$PATHS_RESULT" != "success" ]; then
+            echo "The changed paths job ended with '$PATHS_RESULT' (T-2)." >&2
+            exit 1
+          fi
+
+          # D-595 skips the legs on a PR that changes documents alone.
+          if [ "$LEGS_RESULT" = "success" ] ||
+             { [ "$LEGS_RESULT" = "skipped" ] && [ "$DOCUMENTS_ALONE" = "true" ]; }; then
+            echo "The $FAMILY legs ended with '$LEGS_RESULT', and this gate passes."
+            exit 0
+          fi
+
+          echo "The $FAMILY legs ended with '$LEGS_RESULT' (T-2)." >&2
+          echo "Read the check run of each leg for the failure." >&2
+          exit 1
 
   ste-check:
     name: ste-check

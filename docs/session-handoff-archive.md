@@ -1,5 +1,55 @@
 # Session handoff archive
 
+## Session 122: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: PR-34, the atlas, the palette, and the drawing files. Repository: the-thing-below. Branch: `feat/pr-34-atlas-and-palette`. Role: author. Base: `9863da3`.
+
+### What this session did, and why
+
+- The session asked the owner five questions before any change. D-666 to D-670 answer them.
+- D-666 gives each kind of drawing its own page, 2048 pixels at most on a side, so one art change rewrites one page.
+- D-667 puts a tile on a strict grid of 32 by 32 cells, which a `TileSetAtlasSource` reads with no translation.
+- D-668 keeps the form of the sample sheet: each drawing at 1x and 6x, on a night ground and on a snow ground.
+- D-669 sets the time of a frame in ticks, 60 to a second. D-670 gives a cast member the kind `cast`.
+- Core gained `AtlasPages`, `Drawing`, and `AtlasIndex`, with the strict reader of each file (D-515, D-517).
+- `ContentSet` now reads every drawing file and the index, and it refuses a key that the palette lacks and an index that does not match the drawings.
+- `TheThingBelow.Tools/Atlas` holds `AtlasLayout`, `AtlasCanvas`, `AtlasIndexText`, `SheetFont`, `SwatchSheet`, `ReviewSheet`, and `AtlasCommand`.
+- The palette holds the 64 colors of D-181, with the 16 colors of D-185 at index 48 to 63.
+- The five approved cast grids of `docs/samples/` are drawing files under `content/sprites/drawings/cast/`.
+- The PR retires the interim atlas script, which D-406 kept as a reference.
+
+### The state of the build
+
+- `main` is `9863da3`, and the branch starts there. The effective head is `d1b2305`.
+- Every CI check passes but `review-gate`, which names RG 3 alone: the review record of Codex. The pixel test of the atlas passes on Windows, Linux, and macOS (D-481, G-24).
+- `make verify` passes with 780 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, the Godot build, and the bounded smoke session pass.
+- det-lint reads `TheThingBelow.Tools/Atlas` with the rules of D-502, and it names Audio and NormalMaps as absent (G-16).
+- `SimulationVersion.Current` stays 3. No rule file reads the palette or the atlas, so the content hash does not move (D-495, G-17).
+
+### What is in flight
+
+The review of Codex. The pass of gitar approved the effective head `d1b2305` with no open finding, and it resolved its one thread itself. That finding had full merit. `atlas --root ""` and `atlas --sheets ""` ended with a stack trace, against T-2. The command now reads an empty option value at the parse, as `det-lint` does. The pass proposed a catch of `ArgumentException`, which would hide a fault of the code, so the fix reads the value instead. F-83 records the same shape in the `content-hash` command, which needs a PR of its own (G-8). The CI block of the pass names RG 3, which waits for the review record of Codex.
+
+The two sheets are in the PR description (D-514, D-668, G-25).
+
+### Traps and gotchas
+
+- `CLAUDE.md` and `AGENTS.md` reached the 16 KB limit of D-611. The command list now names the Makefile targets, which are the same commands.
+- The Game project embeds `content/**/*.png` now, so the atlas page travels in the assembly (D-508).
+- A page of few drawings is only as large as the drawings need. A tile page keeps the full grid width, so a new tile moves no other tile (D-667).
+- The atlas command reads the drawing files itself, not through `ContentSet`, because a content set needs the index that the command writes.
+- 7.17 of the phase file puts the Sprite Fusion test before PR-34 (D-620). It did not run. The pipeline takes a text grid from any source, so the pick changes no code of this PR.
+- The next ids are D-671, OQ-197, F-83, L-16, G-29, M-9, and Session 123.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the branch, open the PR, attach the two sheets, and answer the pass of gitar.
+
 ## Session 121: 2026-09-19, Codex
 
 Author: Codex
