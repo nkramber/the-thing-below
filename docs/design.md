@@ -190,15 +190,15 @@ From the roadmap interview of 2026-09-12:
 What we pay:
 
 - Owner time: the interviews, the approvals of every text batch (D-57), and the play sign-off of every phase (D-52). The owner also approves every art batch from its review sheets (D-107, D-514), and every music and sound batch by ear (D-433). The owner also cuts each trailer (D-476), and reads the crash emails and the notes of the trusted players (D-469, D-473). The owner ran the Deck test with its effect budget on 2026-09-17, and PR-82 sets the Mobile renderer (D-616, D-617). The owner also runs the screen scale probe on three screens (D-621). The owner reads each new effect on the Mac, and a test runs on the Deck only when the answer needs the Deck (D-622, D-623).
-- Tokens: two harnesses, Claude Code and Codex, on every PR (D-14, D-17). The amount per PR is unknown until M-1.
-- CI: GitHub-hosted minutes on three legs per PR, the bot runs included (D-2, D-481, D-505). Three exports run on each merge and on each PR that changes the export (D-449, D-512). A night plays fourteen thousand bot runs on three legs (D-507). The minutes are free while the repository stays public (D-4). From Phase 6 the repository is private, and minutes past the free quota cost money (D-456). Wall time per PR is unknown until M-2. The build renders the audio, which adds to that time (D-432).
+- Tokens: two harnesses, Claude Code and Codex, on every PR (D-14, D-17). M-1 gives 68.4 million context tokens for the mean code PR (D-672).
+- CI: GitHub-hosted minutes on three legs per PR, the bot runs included (D-2, D-481, D-505). Three exports run on each merge and on each PR that changes the export (D-449, D-512). A night plays fourteen thousand bot runs on three legs (D-507). The minutes are free while the repository stays public (D-4). From Phase 6 the repository is private, and minutes past the free quota cost money (D-456). M-2 gives 505 job seconds for the mean code PR. The build renders the audio, which adds to that time (D-432).
 - Purchases: the Steam Direct fee, 100 USD, at Gate 2 (D-85, D-471). One month of the Starter plan of Sprite Fusion, 9 USD, for the art test before PR-34 (D-620). The Apple Developer Program costs 99 USD a year from PR-79 on (D-455, D-553). GitHub Pro comes before the switch to a private repository, so the required checks stay on `main` (D-456).
 - No purchase: no code signing certificate for Windows (D-463), no asset license, and no font fee, because every font is OFL (D-104, D-122). Godot is free.
 
 Measurements that answer the unknowns:
 
-- M-1: tokens per PR from the harness usage reports, over the first ten code PRs in the order of section 8.
-- M-2: CI wall time per PR, per platform, over the first ten code PRs in the order of section 8.
+- M-1: tokens per PR from the harness usage reports, over the first ten code PRs in the order of section 8. Done on 2026-09-19. The number is the total context tokens of a PR (D-672). It sums the input, the cache write, the cache read, and the output of every session. The mean is 68.4 million tokens, and PR-1 is the worst at 127.1 million.
+- M-2: CI wall time per PR, per platform, over the first ten code PRs in the order of section 8. Done on 2026-09-19. The number reads the last green `ci` run of each PR. The mean run spends 505 seconds across its jobs, and PR-5 is the worst at 614. The clock of the mean run is 133 seconds.
 - M-3: the night run wall time and the crash and softlock counts, over the first seven nights (D-64).
 - M-4: turns per encounter and party downs per dungeon by bot policy, on the first dungeon. Binds the resource numbers of D-35.
 - M-5: the owner's play time from the first hub to the end of the arc, against D-56.
@@ -214,6 +214,42 @@ Measurements that answer the unknowns:
 | 32-inch 1440p screen, 2560 by 1440 | 2x | 0.2724 | 17.43 mm, 85.6' | 34.87 mm, 171.2' | 8.72 mm, 42.8' | 17.43 mm, 85.6' |
 
 The apparent size of a sprite goes from 61 to 171 arcminutes across the four screens. One tile count for every screen gives that spread, and D-37 asks for it. Each number reads the line box of the body font, which is 16 pixels, and not the cap height of a glyph (F-71).
+
+The M-1 numbers, in millions of context tokens, from the local record of each harness:
+
+| PR | Claude Code | Codex | Both |
+|---|---|---|---|
+| PR-1 | 112.8 | 14.3 | 127.1 |
+| PR-2 | 40.0 | 4.8 | 44.9 |
+| PR-3 | 81.5 | 17.7 | 99.2 |
+| PR-46 | 36.4 | 11.7 | 48.1 |
+| PR-4 | 46.7 | 6.5 | 53.2 |
+| PR-5 | 92.8 | 11.1 | 103.9 |
+| PR-6 | 60.5 | 10.7 | 71.2 |
+| PR-43 | 46.5 | 2.8 | 49.4 |
+| PR-44 | 44.2 | 3.7 | 47.8 |
+| PR-47 | 36.6 | 3.0 | 39.6 |
+| Mean | 59.8 | 8.6 | 68.4 |
+
+Claude Code wrote each of the ten PRs, and Codex reviewed each one, which explains the split (T-4). A cache read is most of each number, because every turn of a session sends the context again. The count reads the branch of each record, so work on `main` counts for no PR. PR-4 also holds the branch feat/pr-4-core-math-streams, which opened no PR. The Measures section of `docs/runbooks/session-context.md` says that an audit reads the record of each harness. No tool of this repository reads them (D-99).
+
+The M-2 numbers, in seconds, from the last green `ci` run of each PR:
+
+| PR | Linux | Windows | Mac | Shared | Every job | Run clock |
+|---|---|---|---|---|---|---|
+| PR-1 | 69 | 168 | 87 | 36 | 360 | 102 |
+| PR-2 | 69 | 143 | 98 | 60 | 370 | 131 |
+| PR-3 | 68 | 204 | 78 | 58 | 408 | 132 |
+| PR-46 | 70 | 162 | 90 | 88 | 410 | 107 |
+| PR-4 | 105 | 250 | 121 | 92 | 568 | 172 |
+| PR-5 | 106 | 276 | 142 | 90 | 614 | 220 |
+| PR-6 | 94 | 217 | 113 | 97 | 521 | 104 |
+| PR-43 | 105 | 245 | 136 | 98 | 584 | 123 |
+| PR-44 | 111 | 248 | 152 | 99 | 610 | 118 |
+| PR-47 | 114 | 233 | 146 | 108 | 601 | 123 |
+| Mean | 91 | 215 | 116 | 83 | 505 | 133 |
+
+The run clock is shorter than the sum of the jobs, because the legs run at the same time. A shared job takes no leg and runs one time, such as `ste-check`, `det-lint`, and the coverage report. Windows takes two to three times the seconds of Linux, and 2.4 times at the mean. Each PR started the workflow 3 to 16 times, and the table reads the last green run alone.
 
 ## 5. Defect and finding register
 
@@ -305,6 +341,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-81 | Section 7.15 of `docs/roadmaps/phase-1-foundations.md` pointed PR-44 at section 7.10 of `area-release.md`, which holds the Deck verification pass of PR-39. The crash file work of PR-44 sits in section 7.1 of that file, the game version. PR-44 read the wrong section first | 2026-09-18 | ✅ PR-44 names section 7.1. The reference check of `ste-check` reads a path and not a section number, so a reader of each pointer is the one guard (D-605) |
 | F-82 | The Tools scan of `det-lint` asked `ReferenceSet.WithOutputOf` for the build output of Tools. The command is the Tools program, so the framework list of its own process already holds each of those assemblies, and the method added none and failed with "holds no assembly beside the framework". No PR reached the scan before, because each folder of D-502 was absent | 2026-09-18 | ✅ PR-47: the Tools scan takes `ReferenceSet.Framework()`, as the Core scan does, and a test writes a float in a folder of D-502 and one outside it |
 | F-83 | The `content-hash` command ends with a stack trace on an empty option value. `content-hash --root ""` reaches `ArgumentException.ThrowIfNullOrEmpty`, and the catch filter of the command reads that type nowhere. `det-lint` reports the same input as a clean error. The automated pass of PR #33 found the shape in the `atlas` command | 2026-09-19 | 🔧 PR-34 reads an empty option value at the parse of the `atlas` command, and it reports it with the fault exit code. The same fix for `content-hash` is a concern of its own, and it needs a PR of its own (G-8) |
+| F-84 | PR #33 merged with no review record at `docs/reviews/pr-33.md`, so it took no cross-provider review. The `review-gate` check passed, because RG 3 reads the verdict of a review file that exists and reports nothing when the file is absent. T-4 and D-17 ask for the record on every PR outside the override set | 2026-09-19 | 🔧 A PR of its own makes `review-gate` fail when the review file of the PR is absent (D-673, G-8) |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -381,10 +418,10 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 16. PR-43: the Storage project, the snapshot versions and migrations, and the save files (D-491, D-494).
 17. PR-44: the crash files and the log files (D-170, D-179, D-491, D-658 to D-662).
 18. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).
-19. Owner and a session: the Sprite Fusion test of the art, before PR-34 (D-620).
-20. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517, D-666).
-21. M-1: the harness usage of each of the first ten code PRs in the order of section 8.
-22. M-2: the CI wall time of each job of the first ten code PRs in the order of section 8.
+19. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517, D-666).
+20. M-1: the harness usage of each of the first ten code PRs. Done on 2026-09-19 (D-672).
+21. M-2: the CI wall time of each job of the first ten code PRs. Done on 2026-09-19.
+22. Owner and a session: the Sprite Fusion test of the art, after M-2 (D-620, D-675).
 23. **← GATE 1 (foundation).**
 
 > *In plain English:* this phase builds the machinery and the checks, and nothing that a player can see. At the end of it, four computers play the same run and agree on one number.
@@ -523,45 +560,46 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 5. PR-1, PR-2, PR-3, PR-84, PR-85, PR-86. PR-82 follows the Deck test run, and it can land at any point after PR-1 (D-599, D-616).
 6. Owner and a session: the screen scale probe, in the session right after the merge of PR-85 (D-621, D-625). PR-86 records the answers.
 7. Owner: require the checks on `main` (OQ-3).
-8. PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, PR-47, PR-34. The Sprite Fusion test comes before PR-34 (D-620).
-9. M-1, M-2.
-10. **← GATE 1 (foundation).** The identity job, `dotnet test`, the smoke job, `det-lint`, and `ste-check` are green on every CI leg.
-11. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
-12. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8.
-13. PR-9, PR-80, PR-66, PR-55, PR-10.
-14. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60.
-15. PR-11, PR-67, PR-62.
-16. PR-68, PR-50.
-17. PR-12, PR-13, PR-14, PR-65.
-18. PR-36.
-19. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
-20. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-21. PR-16, PR-64, PR-35.
-22. PR-38, PR-69, PR-70, PR-71.
-23. PR-51, PR-52, PR-53, PR-72.
-24. PR-17.
-25. M-3, M-4, M-6.
-26. Owner: set the M-4 band from the M-4 numbers (D-571).
-27. **← GATE 2 (first playable).** The owner plays the village, one hub, and one dungeon on both machines and signs off on feel (D-362).
-28. PR-74, PR-75, PR-76.
-29. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
-30. PR-18, PR-19, PR-20, PR-21.
-31. **← GATE 3 (story systems).** The owner plays a branch and a hub that changes with an earlier choice.
-32. PR-23, PR-24, PR-81, PR-27, PR-25, PR-26.
-33. PR-42, PR-73.
-34. PR-28, PR-29, PR-77.
-35. PR-30.
-36. M-5.
-37. **← GATE 4 (region one).** The owner plays region one end to end on both machines. Then trusted players play the build artifacts (D-469).
-38. PR-31, PR-33.
-39. Owner: join the Apple Developer Program (D-455).
-40. PR-78, PR-39.
-41. PR-79.
-42. Owner and a session: the shot list and the cut of the first trailer (D-476).
-43. PR-40.
-44. Owner: request the Deck compatibility review from Valve (D-565).
-45. **← GATE 5 (first release).** A fresh machine runs the tagged build, and the Deck runs the Steam demo.
-46. Valve answers the review, and Phase 6 stays parked.
+8. PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, PR-47, PR-34.
+9. M-1, M-2. Done on 2026-09-19, and section 4 holds each number (D-672).
+10. Owner and a session: the Sprite Fusion test of the art, on the branch spike/sprite-fusion (D-620, D-675).
+11. **← GATE 1 (foundation).** The identity job, `dotnet test`, the smoke job, `det-lint`, and `ste-check` are green on every CI leg.
+12. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
+13. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8.
+14. PR-9, PR-80, PR-66, PR-55, PR-10.
+15. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60.
+16. PR-11, PR-67, PR-62.
+17. PR-68, PR-50.
+18. PR-12, PR-13, PR-14, PR-65.
+19. PR-36.
+20. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
+21. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+22. PR-16, PR-64, PR-35.
+23. PR-38, PR-69, PR-70, PR-71.
+24. PR-51, PR-52, PR-53, PR-72.
+25. PR-17.
+26. M-3, M-4, M-6.
+27. Owner: set the M-4 band from the M-4 numbers (D-571).
+28. **← GATE 2 (first playable).** The owner plays the village, one hub, and one dungeon on both machines and signs off on feel (D-362).
+29. PR-74, PR-75, PR-76.
+30. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
+31. PR-18, PR-19, PR-20, PR-21.
+32. **← GATE 3 (story systems).** The owner plays a branch and a hub that changes with an earlier choice.
+33. PR-23, PR-24, PR-81, PR-27, PR-25, PR-26.
+34. PR-42, PR-73.
+35. PR-28, PR-29, PR-77.
+36. PR-30.
+37. M-5.
+38. **← GATE 4 (region one).** The owner plays region one end to end on both machines. Then trusted players play the build artifacts (D-469).
+39. PR-31, PR-33.
+40. Owner: join the Apple Developer Program (D-455).
+41. PR-78, PR-39.
+42. PR-79.
+43. Owner and a session: the shot list and the cut of the first trailer (D-476).
+44. PR-40.
+45. Owner: request the Deck compatibility review from Valve (D-565).
+46. **← GATE 5 (first release).** A fresh machine runs the tagged build, and the Deck runs the Steam demo.
+47. Valve answers the review, and Phase 6 stays parked.
 
 ## 9. Open questions
 

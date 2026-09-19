@@ -703,7 +703,7 @@ Area file: `area-tools.md` section 7.5.
 
 ### 7.17 The Sprite Fusion test
 
-Owner and a session, before PR-34. Area file: `area-art.md` section 7.1.
+Owner and a session, after M-2 and before Gate 1 (D-675). Area file: `area-art.md` section 7.1.
 
 **Scope.**
 
@@ -777,7 +777,7 @@ Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7
 
 ### 7.19 M-1 and M-2: the first measurements
 
-Area file: none. The cost model in section 4 of `docs/design.md` holds both rows.
+Area file: none. The cost model in section 4 of `docs/design.md` holds both rows. Done on 2026-09-19. D-672 sets the number that M-1 reports.
 
 **Scope.**
 
@@ -813,8 +813,9 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 7. `make verify` passes on the Mac.
 8. The atlas pixel test passes on the three legs (F-19).
 9. The cost model holds the M-1 and M-2 numbers of the first ten code PRs.
+10. The Sprite Fusion test ran, and a decision row names the source of the art (D-620, D-676).
 
-**What the gate does not ask.** No play, no screen, and no sign-off on feel. Gates 2 to 5 hold those (D-52).
+**What the gate does not ask.** No play, no screen, and no sign-off on feel. Gates 2 to 5 hold those (D-52). Line 10 asks for a pick and a decision row, and not a sign-off on feel (D-676).
 
 > *In plain English:* at this point the game does nothing that a player can see. Every check that guards the project is live, and four machines agree on the result of the same run.
 
@@ -841,9 +842,9 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 17. PR-43: the Storage project, the snapshots, and the saves.
 18. PR-44: the crash files and the log files.
 19. PR-47: the PNG code, right before the atlas (D-496).
-20. Owner and a session: the Sprite Fusion test of the art (D-620).
-21. PR-34: the atlas, the palette, and the drawing files.
-22. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above.
+20. PR-34: the atlas, the palette, and the drawing files.
+21. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above. Done on 2026-09-19.
+22. Owner and a session: the Sprite Fusion test of the art (D-620, D-675).
 23. **← GATE 1 (foundation).** Section 7.20 holds each line.
 
 The next phase file is `phase-2-first-playable.md`. Between the two, the owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).

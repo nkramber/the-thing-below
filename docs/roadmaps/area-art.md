@@ -56,7 +56,7 @@ Built by PR-34, and kept by every art batch. Phase files: `phase-1-foundations.m
 - The art keeps the style of D-201 and D-237: a dark outline for each material, three or four tones, and no dithering. The five sample grids set the look (D-402).
 - Art lives in `content/`, outside the override set, so each art batch takes the review of the other provider (D-71, D-185).
 - No art file decides an outcome of play, so the content hash never reads one (D-495).
-- Before PR-34, a spike compares the art of a session with the art of the Sprite Fusion generator (D-620). The owner picks the source.
+- After M-2, a spike compares the art of a session with the art of the Sprite Fusion generator (D-620, D-675). The owner picks the source.
 - A picture from an outside tool enters the pipeline as a text grid alone, through the PNG import of PR-51 (D-620). The palette of 64 colors binds it (D-181).
 - A sprite draws at 2x on every screen, so a 32-pixel sprite covers 64 frame pixels (D-633, F-67).
 
