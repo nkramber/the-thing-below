@@ -249,7 +249,7 @@ The M-2 numbers, in seconds, from the last green `ci` run of each PR:
 | PR-47 | 114 | 233 | 146 | 108 | 601 | 123 |
 | Mean | 91 | 215 | 116 | 83 | 505 | 133 |
 
-The run clock is shorter than the sum of the jobs, because the legs run at the same time. A shared job takes no leg and runs one time, such as `ste-check`, `det-lint`, and the coverage report. Windows takes about twice the seconds of Linux on every PR. Each PR started the workflow 3 to 16 times, and the table reads the last green run alone.
+The run clock is shorter than the sum of the jobs, because the legs run at the same time. A shared job takes no leg and runs one time, such as `ste-check`, `det-lint`, and the coverage report. Windows takes two to three times the seconds of Linux, and 2.4 times at the mean. Each PR started the workflow 3 to 16 times, and the table reads the last green run alone.
 
 ## 5. Defect and finding register
 

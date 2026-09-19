@@ -14,7 +14,7 @@ Session: M-1 and M-2, the cost model numbers of the first ten code PRs. Reposito
 - Section 4 of `docs/design.md` now holds the M-1 table and the M-2 table of the ten PRs, with a mean row.
 - M-1: the mean code PR takes 68.4 million context tokens. PR-1 is the worst at 127.1 million.
 - M-2: the mean green `ci` run spends 505 seconds across its jobs, and the clock of the run is 133 seconds.
-- Windows takes about twice the seconds of Linux on every one of the ten PRs.
+- Windows takes two to three times the seconds of Linux, and 2.4 times at the mean.
 - D-671 records the approval of the owner for the 16 colors of D-185, which came after the merge of PR #33.
 - D-673 and F-84 record that PR #33 merged with no review record, against T-4 and D-17.
 - D-674 puts the fix of F-83 in the session right after this one, and before Gate 1.
