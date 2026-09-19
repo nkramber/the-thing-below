@@ -23,13 +23,20 @@ Session: M-1 and M-2, the cost model numbers of the first ten code PRs. Reposito
 
 ### The state of the build
 
-- `main` is `3204545`, and the branch starts there. `make ste-check` gives 0 findings.
+- `main` is `3204545`, and the branch starts there. The effective head is `2434847`.
+- `make ste-check` gives 0 findings, and the `ste-check` job passes.
+- The code jobs skip, because the changed-paths job reads this PR as a docs-only PR (D-513).
+- `review-gate` names RG 3 alone: the review record of Codex. RG 1, RG 2, and RG 6 to RG 8 pass.
 - The PR changes documents alone. No code, content, or test file changes.
 - The PR adds decision rows, so the label of D-401 does not apply. The PR needs the Codex review (T-4).
 
 ### What is in flight
 
-The push, the pass of gitar, and the Codex review.
+The review of Codex. The pass of gitar approved the effective head `2434847` with no open finding, and it resolved its one thread itself.
+
+That finding had full merit. The first head said that Windows takes about twice the seconds of Linux on every PR, and the M-2 table refutes it. The ratios run 2.04 to 3.00, and PR-3 is 3.00. Both sentences now give the range and the mean.
+
+The pass also read the `review-gate` failure of the first head, which named RG 7. The line of the row `docs/reviews/` had no form of D-581. The PR description now names `docs/reviews/pr-34.md`, and RG 7 passes.
 
 ### Traps and gotchas
 
