@@ -1,4 +1,37 @@
 # Session handoff archive
+
+## Session 128: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: PR-87, the answer to the Codex review of PR #35. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: author. Base: `f896dc3`.
+
+### What this session did, and why
+
+- P2-1 of `docs/reviews/pr-35.md` has full merit. The records said six option values and listed seven.
+- A probe of the base commit `f896dc3` measured each of the nine rows again.
+- F-83, D-678, the roadmap entry, the area file, and the PR description now hold the corrected counts.
+
+### The state of the build
+
+- The effective head before this round is `4e9338d`, and the Codex verdict names it.
+- `make verify` passes with 794 tests, 0 warnings, and no det-lint or STE findings.
+
+### What is in flight
+
+The repeat review for the new head and the automated pass for the new head.
+
+### Traps and gotchas
+
+- A base-commit probe needs a worktree. A stash of a committed change saves nothing.
+- Six call sites hold the check, and seven option values pass through them. D-679 counts the call sites.
+
+### The questions that block progress
+
+None for this PR. OQ-3 remains an owner question for Gate 1.
+
+### The next concrete action
+
+Push the correction, answer the pass of gitar, and ask Codex for the repeat review.
 ## Session 127: 2026-09-19, Codex
 
 Author: Codex

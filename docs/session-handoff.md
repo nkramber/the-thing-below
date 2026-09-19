@@ -1,5 +1,43 @@
 # Session handoff
 
+## Session 138: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #39, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: reviewer. Base: `fb17f87`.
+
+### What this session did, and why
+
+- Recomputed PR #39 at effective head `671d712`. The later commit `620f690` changes only the handoff metadata.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Inspected the complete 18-path diff, the workflow, export presets, project setting, tests, licenses, decisions, questions, roadmaps, and handoff records.
+- Ran `make verify`. It passed with 832 tests and clean build, format, det-lint, STE, replay identity, content hash, and smoke checks.
+- Found P1-1: the exported smoke process is followed by `|| true`, so a nonzero process status is discarded.
+- Wrote `docs/reviews/pr-39.md` with the verdict `Changes required` for effective head `671d712`.
+
+### The state of the build
+
+- The remote PR head is `620f690`, and the effective implementation head is `671d712`.
+- The automated pass is current at `671d712` and approved after its cancellation finding was fixed.
+- The review-gate check waits for this review record.
+
+### What is in flight
+
+The author must preserve the exported process status and rerun the export checks. The review record and this entry need a commit and push for the current review round.
+
+### Traps and gotchas
+
+- The review verdict targets `671d712`, not the metadata tip `620f690`.
+- The repository test command is `make verify`. A direct `dotnet test` filter discovered zero tests and is failed evidence.
+- The existing CI smoke job uses `pipefail` and preserves the process status. The export workflow must keep that property while also checking the success line.
+
+### The questions that block progress
+
+None. OQ-198 and OQ-199 remain open but do not block this review.
+
+### The next concrete action
+
+Correct P1-1, push the author correction, and rerun the review at the new effective head.
+
 ## Session 137: 2026-09-19, Claude Code
 
 Author: Claude Code
@@ -364,43 +402,3 @@ None for this PR. OQ-3 remains an owner question for Gate 1.
 ### The next concrete action
 
 Commit and push the repeat-review record and this handoff entry. Then verify the remote head and the review-gate result.
-
-## Session 128: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: PR-87, the answer to the Codex review of PR #35. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: author. Base: `f896dc3`.
-
-### What this session did, and why
-
-- P2-1 of `docs/reviews/pr-35.md` has full merit. The records said six option values and listed seven.
-- A probe of the base commit `f896dc3` in a worktree measured each of the nine rows again.
-- That probe refuted a second count that the review did not name. The records said four commands, and the number is five.
-- Five of the seven values end with a stack trace. The other two give a message that names no empty option.
-- `det-lint --root` named an absent folder, and `review-gate --head-files` named an access fault of the path.
-- F-83, D-678, the roadmap entry, the area file, and the PR description now hold the two corrected counts.
-- The exit tests of section 7.20 now state the nine rows of the theory, and which seven fail on the old code.
-
-### The state of the build
-
-- The effective head before this round is `4e9338d`, and the Codex verdict names it.
-- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
-- No code changes in this round. The round corrects text alone.
-
-### What is in flight
-
-The repeat review of Codex for the new head. The pass of gitar for the new head.
-
-### Traps and gotchas
-
-- A `git stash push` of a committed change saves nothing, and a probe then measures the new code and reads as the old. Use a worktree at the base commit.
-- `review-gate --head-files ""` alone gives the message for the two absent options, and not a stack trace. The stack trace needs both options, with one empty.
-- `det-lint --root ""` never ended with a stack trace. A folder check further down named the absent folder.
-- Six call sites hold the check, and seven option values pass through them. D-679 counts the call sites.
-
-### The questions that block progress
-
-None for this PR. OQ-3 remains an owner question for Gate 1.
-
-### The next concrete action
-
-Push the correction, answer the pass of gitar, and ask Codex for the repeat review.
