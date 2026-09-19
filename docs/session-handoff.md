@@ -2,6 +2,91 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 117: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #30, PR-43, the Storage project, the snapshots, and the saves. Repository: the-thing-below. Branch: `feat/pr-43-storage-and-saves`. Role: reviewer. Base: `3a7340f`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-30 diff from merge base `3a7340f` to effective head `d1d2a47`.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Traced the save format, checksum, format dispatch, safe write, resume removal, platform folder rules, Core boundary, and Godot boot check.
+- Found no actionable finding. Wrote `docs/reviews/pr-30.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- The metadata tip is `e3ff30b`, and the effective implementation head is `d1d2a47`.
+- `make verify` passes with 536 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
+- GitHub reports the implementation checks and Gitar pass green. The current `review-gate` run fails because the review record named the wrong effective head. The new record targets `d1d2a47`.
+
+### What is in flight
+
+The review record and this handoff entry need a metadata commit and push. A fresh `review-gate` run must then verify the published record.
+
+### Traps and gotchas
+
+- The effective head excludes only the review and handoff metadata commit after `d1d2a47`.
+- PR-16 adds the Game save-load integration. PR-44 adds crash and log files.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run `make where`, commit the review record and handoff entry, push, fetch, and verify the review gate and remote head.
+
+## Session 116: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-43, the Storage project, the snapshots, and the saves. Repository: the-thing-below. Branch: `feat/pr-43-storage-and-saves`. Role: author. Base: `3a7340f`.
+
+### What this session did, and why
+
+- The session asked the owner four questions before any change, and D-654 to D-657 answered them.
+- `TheThingBelow.Storage` is the sixth project of the solution (D-494). Core declares no reference, and a new test proves it.
+- Core holds the text of a save: two lines of JSON, the header with the checksum, and the snapshot (D-655).
+- `RunSnapshotText` holds the one writer and the one reader of a snapshot line, and `RunRecordText` calls it (T-1).
+- Storage holds the folder rule of the three systems, the three save files, and the one safe write of D-178.
+- The stored save `TheThingBelow.Tests/saves/format-1.json` names simulation version 1, and this build loads it (D-259).
+- Game sets the custom user folder of Godot, and Boot compares that folder with the rule of Storage (D-657, F-33).
+- The first push failed the format check on the Windows leg alone, and F-80 records the reason.
+
+### The state of the build
+
+- `main` is `3a7340f`, and the branch starts there.
+- `make verify` passes with 536 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and the smoke session pass.
+- The head is `d1d2a47`, and it passes every CI leg. The `review-gate` check gives RG 3 alone, because the head holds no review record.
+- The first head `d776f5e` failed the format step of Windows alone, which F-80 explains.
+- The smoke session printed the save folder of this machine, so the check of D-657 ran against the real Godot folder.
+- `SimulationVersion.Current` stays 3. The PR adds a text form and file code, and it changes no rule that makes a state (G-17).
+
+### What is in flight
+
+The review of Codex. The Gitar pass approves the head `d1d2a47` and gives no finding.
+
+- The Gitar check on that head completed with success 2 seconds after the push.
+- Gitar replaced the dashboard comment, and the new id is `5738261979` with the edit time 01:29:38Z. That time is later than the push at 01:28:48Z, so the pass covers the head (D-603).
+- The dashboard reads `Approved` with no issue, and the PR holds no review thread.
+
+### Traps and gotchas
+
+- Tools takes no reference to Storage yet, because no command of Tools reads or writes a save. PR-44 adds it with the crash files (D-494).
+- The three save names have no backticks in the documents. The reference rule reads a bare name with a file type as a path of the repository.
+- `SaveText.Write` refuses a header of another format version, so a test of an old format must change the text itself.
+- The fixture test fails a raise of the format version with no stored save. A PR that changes the snapshot commits a fixture (D-166, D-654).
+- A comment between the arrow of an expression body and its expression fails `dotnet format` on Windows alone (F-80). The Mac gives no finding.
+- The next ids are D-658, OQ-190, F-81, L-16, G-29, M-9, and Session 117.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Open the pull request with its Documents section, then answer the Gitar pass.
+
 ## Session 115: 2026-09-18, Codex
 
 Author: Codex
@@ -340,90 +425,3 @@ None. D-646 to D-649 answer each question of section 7.12.
 ### The next concrete action
 
 Codex reviews PR #28 and writes `docs/reviews/pr-28.md`.
-
-## Session 107: 2026-09-18, Codex
-
-Author: Codex
-Session: review PR #27, PR-4, integer math, streams, state hash, and identity job. Repository: the-thing-below. Branch: `feat/pr-4-core-math-and-identity`. Role: reviewer. Base: `772468a`.
-
-### What this session did, and why
-
-- Reviewed the full 38-path diff from `772468a` to effective head `a963e4f` against section 7.11 and D-641 to D-645.
-- Verified the malformed identity file correction from the trigger through the command and regression tests.
-- Wrote `docs/reviews/pr-27.md` with verdict `Ready for owner merge` for `a963e4f`.
-
-### The state of the build
-
-- `main` and the merge base are `772468a`. The PR tip is `0cc4ddc`; its effective head is `a963e4f` (D-610).
-- `make verify` passes: 290 tests, format, `det-lint`, `ste-check`, replay identity, and the Godot smoke session.
-- Thirteen CI checks pass on tip `0cc4ddc`. `review-gate` reports only RG 3 because this review record is not yet on the branch.
-- Gitar approves the current effective head. Its one finding is fixed, and its thread is resolved.
-
-### What is in flight
-
-The review record and this handoff entry are published. `review-gate` passes on `e1bfc72`.
-
-### Traps and gotchas
-
-- The code correction is `a963e4f`. The later commits change only handoff and review metadata, so they do not move the effective head.
-- OQ-60, OQ-61, and OQ-62 close with D-641 to D-645.
-- This PR changes code, so the `review-override` label does not apply (D-401).
-- The next ids are D-646, OQ-184, F-78, L-16, G-29, M-9, and Session 108.
-
-### The questions that block progress
-
-None for PR #27. D-641 to D-645 answer the questions of section 7.11.
-
-### The next concrete action
-
-The owner can merge PR #27.
-
-## Session 106: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: the second round of PR-4, the answer to the Gitar pass. Repository: the-thing-below. Branch: `feat/pr-4-core-math-and-identity`. PR: #27. Role: author. Base: `772468a`.
-
-### What this session did, and why
-
-- The Gitar pass approved the head `1bb9125` with one finding, and the session read it as a claim.
-- A run of the command against a malformed identity file reproduced the fault, so the finding has full merit.
-- `IdentityFile.Read` throws `InvalidDataException`, which does not derive from `IOException`. The catch filter named `IOException` alone.
-- A malformed line thus escaped as an unhandled exception with a stack trace, in place of the one-line fault report that the comment promised (T-2).
-- The catch filter now names `InvalidDataException` too.
-- Four new tests run the malformed lines and the absent file through the command path. The three malformed cases fail on the old filter (T-3).
-
-### The state of the build
-
-- `main` is `772468a`. The head of PR #27 is `3f8b803`, and the round before it was `1bb9125`.
-- `make verify` passes: the build with 0 warnings, 290 tests, the format check, `det-lint`, `ste-check`, the identity check, and the smoke session.
-- On `3f8b803`, 14 CI checks pass: the three build legs, the three smoke legs, the three `replay-identity` legs, `changed paths`, `ste-check`, `det-lint`, the coverage report, and the Gitar check.
-- The three `replay-identity` legs give the same four hashes as this machine, which is exit test 5 of section 7.11.
-- `review-gate` gives one fault, RG 3: the head holds no review record at `docs/reviews/pr-27.md`. The review of Codex clears it.
-- The first `review-gate` run also gave RG 7, because the `docs/reviews/` row took no form of D-581. A correction of the PR description cleared it.
-
-### What is in flight
-
-The review of Codex. The Gitar pass approves the head `3f8b803`, and it gives no open finding.
-
-- Automatic reviews stay paused on the Gitar trial, so the push wait of three minutes ended with no pass. The comment `Gitar review` at 14:36:38Z started a manual pass.
-- Gitar replied `On it` at 14:37:02Z, and it then replaced the dashboard comment. The new id is `5731578321`, with the edit time 14:37:25Z.
-- The edit time is later than the reply time, so the pass covers the head (D-603).
-- The Gitar check on `3f8b803` completed with success in 44 seconds.
-- The dashboard reads `Approved`, with 1 closed finding and none open. The one review thread is resolved.
-
-### Traps and gotchas
-
-- `InvalidDataException` derives from `SystemException`, and `FileNotFoundException` derives from `IOException`. A catch filter of file faults must name the first one itself.
-- The vectors of PCG32 and xxHash64 are the published values of each reference implementation. A second implementation from the specification gave the same values on 2026-09-18.
-- D-645 puts the SHA-256 of D-644 in PR-5, beside the content hash that calls it.
-- A change of a hash in the identity file also needs a higher `SimulationVersion.Current` (G-17, D-504).
-- This PR changes code, so the label of D-401 does not apply.
-- The next ids are D-646, OQ-184, F-78, L-16, G-29, M-9, and Session 107.
-
-### The questions that block progress
-
-None. D-641 to D-645 answered every question of this PR.
-
-### The next concrete action
-
-Hand PR #27 to Codex for the review of T-4. This PR changes code, so the label of D-401 does not apply.

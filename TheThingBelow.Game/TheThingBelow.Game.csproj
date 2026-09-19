@@ -15,8 +15,13 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
+  <!--
+    Game reads Core state and writes the files of the person through Storage (D-494). Boot
+    compares the save folder of Storage with the user folder of Godot (D-465, F-33).
+  -->
   <ItemGroup>
     <ProjectReference Include="../TheThingBelow.Core/TheThingBelow.Core.csproj" />
+    <ProjectReference Include="../TheThingBelow.Storage/TheThingBelow.Storage.csproj" />
   </ItemGroup>
 
   <!--

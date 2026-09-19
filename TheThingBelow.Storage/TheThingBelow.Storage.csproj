@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Storage holds the file code of the game: the saves now, and the crash files and the log
+    files of PR-44 (D-494). Game and Tools reference it, and Core never does (G-1, D-100).
+  -->
+  <PropertyGroup>
+    <RootNamespace>TheThingBelow.Storage</RootNamespace>
+    <AssemblyName>TheThingBelow.Storage</AssemblyName>
+  </PropertyGroup>
+
+  <!--
+    The torn-write test of D-178 stops a write between the temporary file and the rename. The
+    seam is internal, so no caller of the game can reach half of a write (T-1, T-3).
+  -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="TheThingBelow.Tests" />
+  </ItemGroup>
+
+  <!--
+    Storage makes the text of a save through Core, and it writes the bytes to a file. Core
+    references no project, and every other project can reference it (G-1, D-100, D-494).
+  -->
+  <ItemGroup>
+    <ProjectReference Include="../TheThingBelow.Core/TheThingBelow.Core.csproj" />
+  </ItemGroup>
+
+</Project>

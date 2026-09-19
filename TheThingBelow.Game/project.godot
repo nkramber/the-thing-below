@@ -5,6 +5,11 @@
 ; needs.
 ;
 ; The fit of a window larger than the frame is Game code, and PR-61 builds it (D-232, D-573).
+;
+; The custom user folder holds every save, every crash file, and every log file. Its name
+; is the name of the repository, so a change of the title never moves a save (D-465).
+; `SaveFolder.Name` of Storage holds the same name, a test of Tests compares the two, and
+; Boot compares the two resolved folders at the start of every session (F-33, T-2).
 
 config_version=5
 
@@ -12,6 +17,8 @@ config_version=5
 
 config/name="The Thing Below"
 config/description="A sprite RPG."
+config/use_custom_user_dir=true
+config/custom_user_dir_name="the-thing-below"
 run/main_scene="res://Boot.tscn"
 config/features=PackedStringArray("4.7", "C#", "Mobile")
 config/quit_on_go_back=false

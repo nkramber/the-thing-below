@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Storage;
 
 namespace TheThingBelow.Game;
 
@@ -19,8 +20,8 @@ public partial class Boot : Node
     private const int SuccessExitCode = 0;
 
     /// <summary>
-    /// The seed of the run of this build. The title screen of PR-33 and the resume file of
-    /// PR-43 pick the seed of a real run, and this constant stands until then (D-258, G-3).
+    /// The seed of the run of this build. The title screen of PR-33 and the load of a save
+    /// in PR-16 pick the seed of a real run, and this constant stands until then (D-258, G-3).
     /// </summary>
     private const ulong FixtureSeed = 20260918;
 
@@ -35,6 +36,8 @@ public partial class Boot : Node
     /// <summary>Reads the arguments and picks the session.</summary>
     public override void _Ready()
     {
+        CheckSaveFolder();
+
         string[] userArguments = OS.GetCmdlineUserArgs();
         if (Array.IndexOf(userArguments, SmokeArgument) >= 0)
         {
@@ -66,11 +69,50 @@ public partial class Boot : Node
         GD.Print("smoke: the engine started.");
         GD.Print($"smoke: the renderer is {GetRendererName()}.");
         GD.Print($"smoke: the frame is {GetFrameSize()}.");
+        GD.Print($"smoke: the save folder is {SaveFolder.OfThisSystem()}.");
         GD.Print($"smoke: the content is {DescribeContent()}.");
         GD.Print($"smoke: the run is {DescribeRun()}.");
         GD.Print("smoke: the session ends with no error.");
         GetTree().Quit(SuccessExitCode);
     }
+
+    /// <summary>
+    /// Fails when the user folder of Godot and the save folder of Storage differ (D-465, F-33).
+    /// </summary>
+    /// <remarks>
+    /// Godot resolves `user://` from the custom user folder of the project, and Storage reads
+    /// the environment of the system. Two rules give one folder, and a session that finds two
+    /// folders would write a save that no later session reads. The smoke session runs this
+    /// check on Windows, on Linux, and on macOS (D-117, D-481, T-2).
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">The two folders differ (T-2).</exception>
+    private static void CheckSaveFolder()
+    {
+        string engineFolder = NormalizeFolder(ProjectSettings.GlobalizePath("user://"));
+        string storageFolder = NormalizeFolder(SaveFolder.OfThisSystem());
+
+        // Windows reads a path without case, and the two rules read two sources of the same
+        // folder there. macOS and Linux compare by character.
+        StringComparison comparison = OperatingSystem.IsWindows()
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+
+        if (!string.Equals(engineFolder, storageFolder, comparison))
+        {
+            throw new InvalidOperationException(
+                $"Godot writes to '{engineFolder}', and the folder rule of Storage gives " +
+                $"'{storageFolder}'. The custom user folder of the project and " +
+                $"'{nameof(SaveFolder)}.{nameof(SaveFolder.Name)}' must name one folder (D-465, F-33, T-2).");
+        }
+    }
+
+    /// <summary>
+    /// Makes one spelling of a folder. Godot writes a slash on every system, also on Windows,
+    /// and the path of `user://` can end with one.
+    /// </summary>
+    /// <param name="path">The path of a folder.</param>
+    /// <returns>The path with slashes, and with no separator at the end.</returns>
+    private static string NormalizeFolder(string path) => path.Replace('\\', '/').TrimEnd('/');
 
     /// <summary>
     /// Loads every content file from the resources of this assembly, and gives the count and
