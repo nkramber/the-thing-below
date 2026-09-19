@@ -19,13 +19,15 @@ Session: PR-54, the export job. Repository: the-thing-below. Branch: `feat/pr-54
 ### The state of the build
 
 - `make verify` passes on this machine with 832 tests, and `ste-check` gives 0 findings.
-- The remote head of `main` is `fb17f87`, and this branch starts there.
-- The PR is #39. The automated pass approved `ebc8c76` at 23:37 UTC with one finding, and the fix commit `671d712` answers it.
-- The macOS export ran end to end on this Mac: export, licenses, smoke session, pack, unpack, signature, and a second run of the game.
+- The remote head of `main` is `fb17f87`, and this branch starts there. The PR is #39, and its head is `af1d908`.
+- The automated pass approved `af1d908` at 23:40 UTC, with its one finding closed and no open thread.
+- Every CI check passes, the three export legs included. `review-gate` holds one fault: RG 3, which asks for `docs/reviews/pr-39.md`. RG 7 and RG 8 pass.
+- The three artifacts are live: 62 MB for Linux, 69 MB for Windows, and 123 MB for macOS. Each one expires on 2026-12-18.
+- The five exit tests of section 7.1 all ran in CI: the export, the smoke session on the export, the three license files, the trigger of this PR, and the artifacts.
 
 ### What is in flight
 
-The push of the fix commit, and a new pass on the new head. The PR changes code, so it takes the Codex review and no label of D-401.
+The Codex review alone. The PR changes code and `.github/workflows/`, so no label of D-401 applies.
 
 ### Traps and gotchas
 
@@ -42,7 +44,7 @@ None. OQ-198 blocks PR-31, and OQ-199 blocks the move of D-456 in Phase 6.
 
 ### The next concrete action
 
-Push the fix commit, wait for the new pass, and hand the PR to Codex for the review.
+The Codex review of PR #39 at head `af1d908`, and the record `docs/reviews/pr-39.md` on this branch.
 
 ## Session 136: 2026-09-19, Codex
 
