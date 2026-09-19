@@ -14,6 +14,8 @@ Session: the documents PR of the Sprite Fusion pick. Repository: the-thing-below
 - Updated section 7.1 of `docs/roadmaps/area-art.md`, section 7.11 of `docs/roadmaps/area-tools.md`, sections 7.17 and 7.22 of the phase-1 file, and section 7.39 of the phase-2 file.
 - Marked the test done in the three sequence lists, and marked line 10 of Gate 1 met by D-686.
 - Carried the entry of Session 134 from the spike branch, and moved the entries of Session 124 and Session 125 to the archive.
+- Answered the automated pass. It read the three credit figures of D-687 as a contradiction on a 450-credit plan. The owner said that a bonus of 45 credits arrived, so the row now records 495 credits at the start.
+- Fixed the `docs/reviews/` row of the PR description. It held no form of D-581, and RG 7 faulted on it.
 
 ### The state of the build
 
@@ -22,13 +24,14 @@ Session: the documents PR of the Sprite Fusion pick. Repository: the-thing-below
 
 ### What is in flight
 
-The PR waits for the automated pass, and then for the Codex review. The PR adds decision rows, so the label of D-401 does not apply.
+The PR waits for the Codex review. The PR adds decision rows, so the label of D-401 does not apply. RG 3 faults until the record `docs/reviews/pr-38.md` lands, which is the normal state before a review.
 
 ### Traps and gotchas
 
 - The draft of D-686 in `spike/pick.md` said that the pick revises D-57 in part. D-57 covers the story text and not a picture, so D-686 drops that claim. D-107 takes the revision alone.
 - The pick draft named two decision rows. The conflict of section 7.39 needed an owner answer, so the PR carries four.
 - No picture of `spike/generated/` reaches `content/`. The import of PR-51 gives each one a frame and the palette (G-24).
+- The spend of 165 credits is 11 calls at 15 credits, and the test made eight calls. The dashboard of the supplier gives the figure, and the row says so.
 - This PR takes no `PR-#` id and no roadmap entry, as the documents PR of D-680 did.
 
 ### The questions that block progress
