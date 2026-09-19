@@ -1,5 +1,51 @@
 # Session handoff archive
 
+## Session 114: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-6, the answer to the review of Codex. Repository: the-thing-below. Branch: `feat/pr-6-tick-and-run-record`. PR: #29. Role: author. Base: `1960cf3`.
+
+### What this session did, and why
+
+- The review gave one finding, P2-1, and the session read it as a claim.
+- The session wrote the regression tests first and ran them against the reviewed head `ee1e6ea`. Three tests failed, so the finding reproduces and has full merit.
+- The reader made a snapshot on line 2 and checked it later, inside the constructor of `RunRecord`. `Read` then gave `RunRecordException.ForRecord`, which names no line.
+- Thus every fault of a snapshot lost its line, and the parity of an increment had no check. An even increment reached `Pcg32.FromSnapshot`, which threw a bare error.
+- `RunSnapshot.Check` now refuses an even increment, and the message names the stream and the value (T-2, G-18).
+- `RunRecordText.ReadSnapshot` now calls `Check` inside the read of line 2, so every fault of a snapshot names that line.
+- `docs/reviews/pr-29-response.md` holds the disposition, the evidence, and the reason that the simulation version stands.
+
+### The state of the build
+
+- `main` is `1960cf3`. The PR is #29, and the reviewed head was `ee1e6ea`.
+- `make verify` passes: the build with 0 warnings, 477 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
+- `SimulationVersion.Current` stays at 3. The correction adds a refusal alone, and it changes no rule that makes a state (G-17).
+- The identity file matches for all 5 runs, the content hash stays `5ce12c64...f3c15f3`, and the smoke state hash stays `0x82def31590ae6c3b`.
+
+### What is in flight
+
+The repeat review of Codex. The Gitar pass approves the head `db432de`, and it gives no finding.
+
+- The automatic pass started 3 seconds after the push, and the Gitar check on `db432de` completed with success.
+- Gitar replaced the dashboard comment, and the new id is `5737525695` with the edit time 23:45:27Z. That time is later than the push at 23:44:16Z, so the pass covers the head (D-603).
+- The dashboard reads `Approved` with no issue, and the PR holds no review thread.
+- Fourteen CI checks pass. `review-gate` gives RG 4 and RG 5, because the record still reads `Changes required` for `ee1e6ea`. The repeat review clears both.
+
+### Traps and gotchas
+
+- A check of a value after its line read loses the line. Each line read of `RunRecordText` must hold every check of its own line.
+- `Pcg32.FromSnapshot` refuses an even increment, and `RunSnapshot.Check` now holds the same rule. A change to one needs the other.
+- The three regression tests fail on `ee1e6ea` for three different reasons. The response file names each reason.
+- The next ids are D-654, OQ-186, F-80, L-16, G-29, M-9, and Session 115.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Hand PR #29 back to Codex for the repeat review of the head `db432de`.
+
 ## Session 113: 2026-09-18, Codex
 
 Author: Codex
