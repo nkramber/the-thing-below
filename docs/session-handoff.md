@@ -2,6 +2,41 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 125: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #34, M-1 and M-2 cost model numbers. Repository: the-thing-below. Branch: `docs/m1-m2-cost-model`. Role: reviewer. Base: `3204545`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-34 diff from merge base `3204545` to effective head `2434847`.
+- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Checked the cost tables, arithmetic, document order, decision rows, runbook procedure, Documents section, and the answered gitar finding.
+- Wrote `docs/reviews/pr-34.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- The effective head is `2434847`. The metadata tip is `2789416`.
+- `make verify` passes locally with 782 tests, 0 warnings, and 0 findings from det-lint and STE check. Replay identity, content hash, and the bounded smoke session pass.
+- The M-2 table arithmetic supports its rounded means and its two-to-three-times Windows summary.
+
+### What is in flight
+
+The review record and this handoff entry are published. The review-gate check is pending its updated result.
+
+### Traps and gotchas
+
+- The effective head is `2434847`, not the metadata tip `1d9fe5b`.
+- The first gitar comment found the old Windows ratio statement. The current head records the corrected range and mean.
+
+### The questions that block progress
+
+None for this PR. OQ-3 remains an owner question for Gate 1.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Then fetch and verify the remote head.
+
 ## Session 124: 2026-09-19, Claude Code
 
 Author: Claude Code
@@ -389,38 +424,3 @@ None.
 ### The next concrete action
 
 Open the pull request with its Documents section, then answer the Gitar pass.
-
-## Session 115: 2026-09-18, Codex
-
-Author: Codex
-Session: repeat review PR #29, PR-6, the tick, the intents, the run record, and replay. Repository: the-thing-below. Branch: `feat/pr-6-tick-and-run-record`. Role: reviewer. Base: `1960cf3`.
-
-### What this session did, and why
-
-- Re-reviewed P2-1 against its original trigger and the correction at effective head `db432de`.
-- Confirmed that even increments fail during line 2 parsing, and that a too-few-stream snapshot also names line 2.
-- Confirmed the three regression tests fail on `ee1e6ea` and pass on `db432de`.
-- Updated `docs/reviews/pr-29.md` with the fixed finding and verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `main` and the merge base are `1960cf3`. The effective head is `db432de`, and the metadata tip is `7f19d2d`.
-- `make verify` passes with 477 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and smoke pass.
-- Gitar approves the corrected head with no finding and no open review thread.
-
-### What is in flight
-
-The review record and this handoff entry need a metadata commit and push. The corrected implementation is ready for owner merge after publication.
-
-### Traps and gotchas
-
-- The effective head is `db432de`; later commits change only review and handoff metadata (D-610).
-- `RunSnapshot.Check` now rejects even increments, and `RunRecordText.ReadSnapshot` checks inside line 2 parsing so all snapshot faults retain line context.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the repeat review record and handoff, then verify the green review gate.

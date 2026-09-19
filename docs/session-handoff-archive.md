@@ -1,5 +1,40 @@
 # Session handoff archive
 
+## Session 115: 2026-09-18, Codex
+
+Author: Codex
+Session: repeat review PR #29, PR-6, the tick, the intents, the run record, and replay. Repository: the-thing-below. Branch: `feat/pr-6-tick-and-run-record`. Role: reviewer. Base: `1960cf3`.
+
+### What this session did, and why
+
+- Re-reviewed P2-1 against its original trigger and the correction at effective head `db432de`.
+- Confirmed that even increments fail during line 2 parsing, and that a too-few-stream snapshot also names line 2.
+- Confirmed the three regression tests fail on `ee1e6ea` and pass on `db432de`.
+- Updated `docs/reviews/pr-29.md` with the fixed finding and verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `main` and the merge base are `1960cf3`. The effective head is `db432de`, and the metadata tip is `7f19d2d`.
+- `make verify` passes with 477 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and smoke pass.
+- Gitar approves the corrected head with no finding and no open review thread.
+
+### What is in flight
+
+The review record and this handoff entry need a metadata commit and push. The corrected implementation is ready for owner merge after publication.
+
+### Traps and gotchas
+
+- The effective head is `db432de`; later commits change only review and handoff metadata (D-610).
+- `RunSnapshot.Check` now rejects even increments, and `RunRecordText.ReadSnapshot` checks inside line 2 parsing so all snapshot faults retain line context.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the repeat review record and handoff, then verify the green review gate.
+
 ## Session 114: 2026-09-18, Claude Code
 
 Author: Claude Code
