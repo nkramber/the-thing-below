@@ -1,5 +1,41 @@
 # Session handoff archive
 
+## Session 121: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #32, PR-47, the PNG reader and the PNG writer. Repository: the-thing-below. Branch: `feat/pr-47-png-code`. Role: reviewer. Base: `a607280`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-32 diff from merge base `a607280` to effective head `e45dcc9`.
+- Confirmed that Claude Code authored the implementation and Codex reviewed it.
+- Traced PNG chunk parsing, CRC-32 checks, size limits, zlib output length, row filters, image ownership, writer output, file errors, and the det-lint reference fix.
+- Found no actionable finding. Wrote `docs/reviews/pr-32.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- The implementation head is `e45dcc9`. The metadata tip is `5d14a83`.
+- `make verify` passes with 706 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
+- GitHub reports the implementation checks green. The review-gate check passes after the review record push.
+
+### What is in flight
+
+The remote review-gate passes for metadata tip `caec10d`. Gitar remains pending on the metadata tip, and its current approved dashboard covers effective head `e45dcc9`.
+
+### Traps and gotchas
+
+- PR #32 is roadmap PR-47. The review record uses GitHub PR number 32.
+- The review commit changes only the metadata set, so it does not move the effective head.
+- The review-gate check was red before the review record existed. It passes after the metadata push.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The review-gate check reads `docs/reviews/pr-32.md` for effective head `e45dcc9`. The owner can merge after the remaining PR checks pass.
+
 ## Session 120: 2026-09-18, Claude Code
 
 Author: Claude Code
