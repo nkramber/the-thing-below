@@ -667,7 +667,9 @@ Area file: `area-tools.md` section 7.5.
 
 - A PNG reader and a PNG writer in Tools for 8-bit RGB and RGBA images (D-176).
 - The compression through the `ZLibStream` class of .NET.
-- The CRC-32 of each chunk, from the answer of OQ-72.
+- A CRC-32 of its own in Tools for each chunk, and no package (D-663).
+- The five row filters in the reader, and the filter None in the writer (D-664).
+- Two committed files of an outside encoder, and bytes in the test for each failure (D-665).
 - A clear failure on a PNG of another kind, with the file and the reason (T-2).
 
 **Out of scope.**
@@ -683,14 +685,19 @@ Area file: `area-tools.md` section 7.5.
 4. A truncated file fails with the file and the reason.
 5. A file with a wrong CRC-32 fails with the chunk name.
 6. Each test compares decoded pixels and never PNG bytes (F-19).
+7. Each of the five row filters gives the pixels of the image again (D-664).
+8. Each committed file of the outside encoder gives its pixel table (D-665).
+9. The CRC-32 matches each published check value (D-663).
 
 **Review focus.**
 
-- The answer of OQ-72 settles the package or the hand code, and a package needs its decision row (G-13).
+- D-663 keeps the CRC-32 in Tools, and the PR adds no package (G-13).
 - The code uses integer math alone, and det-lint proves it (D-502).
 - Each failure carries the file and the reason (T-2).
+- The reader refuses a critical chunk that it cannot read, and it skips an ancillary chunk.
+- F-82: the Tools scan of det-lint takes the framework list of its own process.
 
-**Questions.** OQ-72.
+**Questions.** OQ-72, OQ-195, and OQ-196, which D-663 to D-665 answer.
 
 > *In plain English:* every picture that the tools make or read is a PNG file. The project writes its own small PNG code, so a new version of a library never breaks a picture test.
 
@@ -862,7 +869,9 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-182 | Where the context budget check goes | PR-84, answered by D-611 |
 | OQ-70 | How det-lint finds the Godot assembly | PR-46, answered by D-614 |
 | OQ-71 | Which collection uses det-lint fails in Core | PR-46, answered by D-615 |
-| OQ-72 | The CRC-32 of the PNG code | PR-47 |
+| OQ-72 | The CRC-32 of the PNG code | PR-47, answered by D-663 |
+| OQ-195 | The row filters of the PNG code | PR-47, answered by D-664 |
+| OQ-196 | The PNG fixture files of PR-47 | PR-47, answered by D-665 |
 | OQ-75 | The test runner mode | PR-1, resolved by D-592 |
 | OQ-76 | The coverage package and the form of the report | PR-1, resolved by D-593 |
 | OQ-77 | The runner labels of the CI legs | PR-1, resolved by D-594 |

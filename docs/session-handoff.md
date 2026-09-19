@@ -2,6 +2,86 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 121: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #32, PR-47, the PNG reader and the PNG writer. Repository: the-thing-below. Branch: `feat/pr-47-png-code`. Role: reviewer. Base: `a607280`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-32 diff from merge base `a607280` to effective head `e45dcc9`.
+- Confirmed that Claude Code authored the implementation and Codex reviewed it.
+- Traced PNG chunk parsing, CRC-32 checks, size limits, zlib output length, row filters, image ownership, writer output, file errors, and the det-lint reference fix.
+- Found no actionable finding. Wrote `docs/reviews/pr-32.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- The implementation head is `e45dcc9`. The metadata tip is `5d14a83`.
+- `make verify` passes with 706 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
+- GitHub reports the implementation checks green. The review-gate check passes after the review record push.
+
+### What is in flight
+
+The remote review-gate passes for metadata tip `caec10d`. Gitar remains pending on the metadata tip, and its current approved dashboard covers effective head `e45dcc9`.
+
+### Traps and gotchas
+
+- PR #32 is roadmap PR-47. The review record uses GitHub PR number 32.
+- The review commit changes only the metadata set, so it does not move the effective head.
+- The review-gate check was red before the review record existed. It passes after the metadata push.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The review-gate check reads `docs/reviews/pr-32.md` for effective head `e45dcc9`. The owner can merge after the remaining PR checks pass.
+
+## Session 120: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-47, the PNG reader and the PNG writer. Repository: the-thing-below. Branch: `feat/pr-47-png-code`. Role: author. Base: `a607280`.
+
+### What this session did, and why
+
+- The session asked the owner three questions before any change, and D-663 to D-665 answer them.
+- D-663 keeps the CRC-32 in Tools, so the PR adds no package (OQ-72, G-13).
+- D-664 puts the five row filters in the reader and the filter None in the writer, because an image editor writes filtered rows (OQ-195).
+- D-665 puts two files of an outside encoder in git, and each failure case is bytes of the test (OQ-196).
+- `TheThingBelow.Tools/Png` holds `Crc32`, `PngColorKind`, `PngException`, `PngImage`, `PngRowFilter`, `PngReader`, and `PngWriter`.
+- The reader refuses a critical chunk that it cannot read, and it skips an ancillary chunk such as `sRGB` or `iTXt`.
+- Each failure names the file and the reason: the bit depth, the color type, the interlace method, the chunk name of a wrong CRC-32, and a short file (T-2).
+- F-82 records a latent fault that this PR exposed. The Tools scan of det-lint asked `ReferenceSet.WithOutputOf` for the build output of Tools, which added no reference, because the process of the command already holds each of those assemblies. The scan now takes `ReferenceSet.Framework()`, as the Core scan does.
+
+### The state of the build
+
+- `main` is `a607280`, and the branch starts there.
+- `make verify` passes with 706 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, the Godot build, and the bounded smoke session pass.
+- det-lint now reads `TheThingBelow.Tools/Png` with the rules of D-502, and it names Atlas, Audio, and NormalMaps as absent (G-16).
+- `SimulationVersion.Current` stays 3. The PR changes no code of Core (G-17).
+
+### What is in flight
+
+The review of Codex. The Gitar pass approved the head `e45dcc9` with no code finding, and its CI block raised two claims. RG 7 had full merit: three rows of the Documents section gave no path, and the description now gives each one a path. RG 3 waits for the review record, which the review of Codex writes on this branch.
+
+### Traps and gotchas
+
+- The two committed files come from Apple ImageIO, which chose the row filters Sub and Paeth, and added the `sRGB`, `eXIf`, and `iTXt` chunks. A new file needs the method of the `PngReaderTests` remarks.
+- The `PngImage` constructor copies the pixel bytes, and it reads the count of bytes in long math, because two sizes at the limit pass the range of an int.
+- The writer holds no text and no date, so two runs give the same file. The compressed bytes still follow the version of `ZLibStream`, so no test compares PNG bytes (F-19).
+- A PR that adds the first file of `TheThingBelow.Tools/Atlas`, `Audio`, or `NormalMaps` reads the same det-lint path that F-82 fixed.
+- The RG 7 rule needs a `/` or a `.md` in the reason of each `No change needed because` line, which `DocumentRules.HoldsPath` reads. PR-44 hit the same rule.
+- The next ids are D-666, OQ-197, F-83, L-16, G-29, M-9, and Session 121.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Hand PR #32 to Codex for the cross-provider review (T-4, D-17).
+
 ## Session 119: 2026-09-18, Codex
 
 Author: Codex
@@ -65,7 +145,7 @@ Session: PR-44, the crash files and the log files. Repository: the-thing-below. 
 
 ### What is in flight
 
-The first push of the branch, the Gitar pass, and the review of Codex.
+The review of Codex. The Gitar pass approved the head `e45dcc9` with no code finding, and its CI block raised two claims. RG 7 had full merit: three rows of the Documents section gave no path, and the description now gives each one a path. RG 3 waits for the review record, which the review of Codex writes on this branch.
 
 ### Traps and gotchas
 
@@ -338,87 +418,3 @@ None.
 ### The next concrete action
 
 Hand PR #29 to Codex for the cross-provider review (T-4, D-17).
-
-## Session 111: 2026-09-18, Codex
-
-Author: Codex
-Session: repeat review of PR #28, PR-5, content, the content hash, and the string table. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. Role: reviewer. Base: `efd6a53`.
-
-### What this session did, and why
-
-- Re-reviewed the correction to P2-1 at effective head `2b1f7f8`.
-- Confirmed the fixture record owns the `fixture` id kind and the content reader rejects ids of another kind with file and field context (D-646).
-- Re-ran the invalid-id trigger; it exits 1. Confirmed the adjacent valid `label` id case passes.
-- `make verify` passed with 406 tests, 0 build warnings, and 0 errors.
-- Updated `docs/reviews/pr-28.md`; the current verdict is `Ready for owner merge`, and the earlier verdict remains in the history.
-
-### The state of the build
-
-- The merge base is `efd6a53`. The effective head is `2b1f7f8`; the published metadata head is `0f820a5`.
-- Thirteen GitHub checks pass. `review-gate` reports RG 4 and RG 5 because the published review record still has the earlier verdict. The published review clears those conditions.
-- Gitar's current dashboard comment `5733434645` approves the corrected head with no open finding.
-
-### What is in flight
-
-The review record and this handoff entry are published at `0f820a5`. Checks were in progress at the first check snapshot; this follow-up records the publication verification. Refresh the checks and confirm the review gate passes.
-
-### Traps and gotchas
-
-- The effective implementation head remains `2b1f7f8`; the later commit `2e866f6` changes review and handoff metadata (D-610).
-- The old-head regression failures are author-reported in `docs/reviews/pr-28-response.md`; this session independently confirmed the fixed trigger and adjacent valid case.
-- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 112.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Refresh GitHub checks after this metadata update, confirm the review gate passes, then hand the PR to the owner for merge.
-
-## Session 110: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: PR-5, the answer to the review of Codex. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. PR: #28. Role: author. Base: `efd6a53`.
-
-### What this session did, and why
-
-- The review gave one finding, P2-1, and the session read it as a claim.
-- A run of `content-hash --write` over a copy of `content/` with the id `enemy.cave_rat` in a fixture file exited 0, so the finding reproduces and has full merit.
-- D-646 names three tests for this PR, and the PR wrote the form test and the repeated-id test alone. The kind test was absent.
-- Each rule record now owns the kind of its entry ids. `RuleFixture.IdKind` is `fixture`, and `ContentReader.ReadContentId(kind)` refuses another kind.
-- The `label` field keeps the kind-free read, because a string id names where the player reads the text (G-7).
-- Five new tests cover the rule. The three cases of `AnEntryIdOfAnotherKindFails` fail on the old head `55eb083` (T-3).
-
-### The state of the build
-
-- `main` is `efd6a53`. The PR is #28, and its tip and effective head are `2b1f7f8`.
-- `make verify` passes: the build with 0 warnings, 406 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
-- The content hash stays `5ce12c64...f3c15f3`, because no rule file changed.
-- `SimulationVersion.Current` stays at 2. The response file gives the reason under G-17.
-
-### What is in flight
-
-The repeat review of Codex. The Gitar pass approves the head `2b1f7f8`, and it gives no open finding.
-
-- The push wait of three minutes ended with no automatic pass, because the trial keeps them paused. The comment `Gitar review` at 17:05:31Z started a manual pass.
-- Gitar replied at 17:06:34Z, and it then replaced the dashboard comment. The new id is `5733434645`, with the edit time 17:06:42Z.
-- The edit time is later than the reply time, so the pass covers the head (D-603). The Gitar check on `2b1f7f8` completed with success.
-- The dashboard reads `Approved` with no issue, and the PR holds no review thread.
-- Fourteen CI checks pass, the Gitar check included. `review-gate` gives RG 4 and RG 5, because the record still reads `Changes required` for `55eb083`. The repeat review clears both.
-
-### Traps and gotchas
-
-- The kind of an entry id comes from the record, not from the path. The folder name is plural, so a path gives no kind.
-- A test holds the `label` field open to another kind, so a later change cannot make the two fields one case by accident.
-- A run of the new tests against the old head needs the constant written out as a literal, because `RuleFixture.IdKind` does not exist there.
-- `CLAUDE.md` and `AGENTS.md` sit at 16375 bytes, against a limit of 16384. A new line needs a trim first.
-- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 111.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Codex reviews PR #28 again and writes the verdict for `2b1f7f8`.

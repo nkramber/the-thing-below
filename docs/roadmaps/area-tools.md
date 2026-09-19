@@ -40,6 +40,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-38 | A double hides in C# with no keyword, and double results can differ by platform | PR-46 and PR-48: a lint that reads types, and integer math (D-498, D-502) |
 | F-39 | The default string order of .NET follows the culture and the ICU version of the machine | PR-4 and PR-46: an ordinal order for strings in Core |
 | F-58 | No check can see the conversation of a session | PR-3: the document rules read the diff and the description alone (D-579) |
+| F-82 | The Tools scan of det-lint asked for a reference set that its own process already holds | PR-47: the scan takes the framework list (D-614) |
 
 ## 7. Roadmap
 
@@ -143,7 +144,9 @@ Built by PR-47. Phase file: `phase-1-foundations.md`.
 
 - A small PNG reader and writer in Tools handles 8-bit RGB and RGBA images, with tests on fixture files (D-176). It lands right before PR-34 (D-496).
 - It compresses and decompresses the image data through the `ZLibStream` class of .NET (the external facts above).
-- Each PNG chunk ends with a CRC-32, and the `Crc32` class of .NET comes in a separate package. OQ-72 holds the choice.
+- Each PNG chunk ends with a CRC-32, and Tools holds a short CRC-32 of its own for it (D-663).
+- The reader restores each of the five row filters, and the writer writes the filter None (D-664).
+- Two files of an outside encoder prove the reader, and the test builds the bytes of each failure (D-665).
 - A PNG of another kind, such as an indexed PNG, fails with the file and the reason (D-176, T-2).
 - A test compares decoded pixels and never PNG bytes, because the compressed bytes depend on the encoder (F-19).
 - The atlas, the normal maps, the PNG import, the map preview, and the frame compare of the screen tests use it (D-176).
@@ -304,7 +307,7 @@ The register is `docs/questions.md` (D-19). These questions block Tools PRs, and
 - D-611 answers OQ-182, and the size rules of the context budget go in PR-84.
 - D-614 answers OQ-70, and the text rule reads the Godot assembly of the Game build output.
 - D-615 answers OQ-71, and det-lint fails a walk of either type in Core.
-- OQ-72: the CRC-32 of the PNG code. Blocks PR-47.
+- D-663 answers OQ-72, and Tools holds a CRC-32 of its own. D-664 and D-665 answer OQ-195 and OQ-196.
 - OQ-74: how the runner finds a softlock. Blocks PR-15.
 - OQ-3: the required checks on `main`. Waits for PR-3.
 
