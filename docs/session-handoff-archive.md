@@ -1,5 +1,42 @@
 # Session handoff archive
 
+## Session 111: 2026-09-18, Codex
+
+Author: Codex
+Session: repeat review of PR #28, PR-5, content, the content hash, and the string table. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. Role: reviewer. Base: `efd6a53`.
+
+### What this session did, and why
+
+- Re-reviewed the correction to P2-1 at effective head `2b1f7f8`.
+- Confirmed the fixture record owns the `fixture` id kind and the content reader rejects ids of another kind with file and field context (D-646).
+- Re-ran the invalid-id trigger; it exits 1. Confirmed the adjacent valid `label` id case passes.
+- `make verify` passed with 406 tests, 0 build warnings, and 0 errors.
+- Updated `docs/reviews/pr-28.md`; the current verdict is `Ready for owner merge`, and the earlier verdict remains in the history.
+
+### The state of the build
+
+- The merge base is `efd6a53`. The effective head is `2b1f7f8`; the published metadata head is `0f820a5`.
+- Thirteen GitHub checks pass. `review-gate` reports RG 4 and RG 5 because the published review record still has the earlier verdict. The published review clears those conditions.
+- Gitar's current dashboard comment `5733434645` approves the corrected head with no open finding.
+
+### What is in flight
+
+The review record and this handoff entry are published at `0f820a5`. Checks were in progress at the first check snapshot; this follow-up records the publication verification. Refresh the checks and confirm the review gate passes.
+
+### Traps and gotchas
+
+- The effective implementation head remains `2b1f7f8`; the later commit `2e866f6` changes review and handoff metadata (D-610).
+- The old-head regression failures are author-reported in `docs/reviews/pr-28-response.md`; this session independently confirmed the fixed trigger and adjacent valid case.
+- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 112.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Refresh GitHub checks after this metadata update, confirm the review gate passes, then hand the PR to the owner for merge.
+
 ## Session 110: 2026-09-18, Claude Code
 
 Author: Claude Code
