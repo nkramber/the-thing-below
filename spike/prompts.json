@@ -1,0 +1,30 @@
+{
+ "comment": "The prompt of each subject of the Sprite Fusion test (D-620, D-675). The cold mode sends the prompt alone. The style mode sends the same prompt with the approved cast sprites as style references. The anchor subject never takes its own sprite as a reference.",
+ "style_words": "Limited dark palette. A hard dark outline on each material, three or four tones for each material, no dithering, and no anti-aliasing. Transparent background.",
+ "subjects": [
+  {
+   "key": "marrek-map-front",
+   "size": 32,
+   "prompt": "Top-down role-playing game map sprite of a young commoner man of 19 years, front view, faced to the viewer. He wears a brown leather hood, a tan work coat, a red scarf, and grey trousers. He holds a miner pick at his side. A grim winter mining region.",
+   "refs": ["bergit", "dagvar", "ottild", "elio"]
+  },
+  {
+   "key": "mine-floor-tile",
+   "size": 32,
+   "prompt": "Seamless top-down floor tile of a deep mine. Cut grey stone blocks in staggered courses, with dark seams and a small number of lit chipped edges. Cold and underground. No character and no item on the tile.",
+   "refs": ["marrek", "bergit", "dagvar", "ottild", "elio"]
+  },
+  {
+   "key": "winter-beast-map-front",
+   "size": 32,
+   "prompt": "Top-down role-playing game map sprite of a starving winter wolf beast, front view, faced to the viewer. Hunched shoulders, a narrow head, long thin legs, bared white teeth, red eyes, and matted grey fur. Grim dark fantasy.",
+   "refs": ["marrek", "bergit", "dagvar", "ottild", "elio"]
+  },
+  {
+   "key": "marrek-portrait",
+   "size": 64,
+   "prompt": "Dialogue portrait of a young commoner man of 19 years, head and shoulders, front view, faced to the viewer. A brown leather hood over brown hair, a red scarf, and a tan work coat. Tired, plain, and grim. A grim winter mining region.",
+   "refs": ["bergit", "dagvar", "ottild", "elio"]
+  }
+ ]
+}
