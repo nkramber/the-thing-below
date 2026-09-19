@@ -103,7 +103,7 @@ Built by PR-4. Phase file: `phase-1-foundations.md`.
 - A Core error throws an exception type that carries its context (T-2, G-18). Inside a run, the context is the seed, the tick, and the entity ids. Outside a run, it is the file and the field.
 - Assertions use the project helper, and they stay on in a release export (T-2). A release export drops every `Debug.Assert` (the external facts of `docs/design.md`).
 - PR-4 creates the helper and the first exception types, because it holds the first Core code.
-- Core writes no log line and no crash file. PR-44 adds the log entries that a step returns, and Storage writes them (D-179, D-491, D-494).
+- Core writes no log line and no crash file. PR-44 adds the log entries that a step returns, and Storage writes them (D-179, D-491, D-494). Core holds the text of a log line and of a crash line, and it makes no time and no path (G-1, G-3).
 - Before PR-44, an error in Core throws with its context and stops the run, and the test or the host shows it.
 
 > *In plain English:* when a rule breaks, the game stops and says exactly where: which run, which step, and which thing. It never guesses a value and continues.
@@ -195,9 +195,13 @@ Built by PR-43. Phase file: `phase-1-foundations.md`.
 
 Built by PR-44. Phase file: `phase-1-foundations.md`.
 
-- On a crash or a failed assertion, Game writes a crash file beside the save through Storage (T-2). Then it writes a log line and exits. PR-61 adds the message on screen through the text helper, with the address of D-473 (D-559).
-- The crash file holds the error with its context, the versions, and the run record, and no personal data (D-170).
+- On a crash or a failed assertion, Game writes a crash file to the crashes folder of the user folder through Storage (T-2, D-658). Then it writes a log line and exits with the crash code. PR-61 adds the message on screen through the text helper, with the address of D-473 (D-559).
+- The crash file holds the error with its context, the versions, and the run record, and no personal data (D-170). Line 1 is the crash object, and the lines of the record follow it (D-661). A crash before a run holds no record, and line 1 carries the versions itself (D-661, T-2).
+- A file error carries its path. Thus the writer hides every folder of the person in the text of an error and of a stack (D-170, T-2).
 - A step of Core returns its log entries with the tick and the subsystem, and Storage writes each entry as one JSON line (D-179). Game adds the wall-clock time, and Core never does (D-179).
+- The log holds four levels. A menu change takes the info level, and a beat of the patrol the debug level. A log file holds the info level and above, and a session argument adds the debug lines (D-660).
+- One log file belongs to one session, in the logs folder. Each of the two folders keeps the newest 10 files (D-658, D-659).
+- The name of a crash file and of a log file carries the stamp of the wall-clock time in UTC. Storage reads no clock, and the host passes each time (D-658, G-3).
 
 > *In plain English:* when the game crashes, it leaves a file for the player to email, with everything that a replay of the run needs. Logs are simple one-line notes that the tools can read.
 

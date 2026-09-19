@@ -2,6 +2,51 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 118: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-44, the crash files and the log files. Repository: the-thing-below. Branch: `feat/pr-44-crash-and-log-files`. Role: author. Base: `cb93ecd`.
+
+### What this session did, and why
+
+- The session asked the owner six questions before any change. It confirmed that OQ-57 blocks PR-61 alone, because D-559 moved the crash message and the address of D-473 to that PR.
+- D-658 to D-662 answer the five new questions: the folders and the names, the count of files, the levels and what a step logs, the lines of a crash file, and the simulation version.
+- A step of Core returns its log entries (D-179). A menu change takes the info level, and a beat of the patrol the debug level (D-660).
+- Core holds `LogEntry`, `LogLine`, and `LogLineText`, and it adds no time and no path. Core holds `CrashReport` and `CrashText` too.
+- Storage holds `LogStore`, `CrashStore`, the time text, the folder rules, and the rule that hides the folders of the person (D-170).
+- One crash file holds the crash line and then the lines of the record, so the player sends one file and the report keeps its replay (D-661).
+- Game catches the error of each callback, writes the crash file, writes one log line, and exits with the code 1 (D-559, T-2).
+- The smoke session writes the log file, opens and closes the menu, and writes and reads one crash file. Each CI leg thus reads the whole path (D-117).
+- F-81 records a wrong pointer: section 7.15 of the phase file sent this PR to section 7.10 of `area-release.md`, and the right section is 7.1.
+
+### The state of the build
+
+- `main` is `cb93ecd`, and the branch starts there.
+- `make verify` passes with 625 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and the bounded smoke session pass.
+- The smoke session of this machine wrote 3 log lines and one crash file with a record that ends at tick 120.
+- `SimulationVersion.Current` stays 3, which D-662 sets. The identity file and the fixture save of format 1 need no change (G-17).
+
+### What is in flight
+
+The first push of the branch, the Gitar pass, and the review of Codex.
+
+### Traps and gotchas
+
+- `fault.GetType().Name` is a member of `System.Reflection` for `det-lint` rule DL 4. Thus Core takes the name of the type of an error as an argument, and Storage reads it (F-36, D-647).
+- The JSON writer escapes `<` and `>`, so the placeholder of a hidden folder is `(user-folder)` and a person reads the path in the file.
+- Storage reads the clock nowhere. Each caller passes a UTC time, and a time of another kind is an error (T-3).
+- A crash file with a stack holds line feeds inside one JSON string, and the physical line stays one line.
+- Tools takes no reference to Storage yet, because no command reads a crash file. PR-15 adds it with the headless runner (D-494).
+- The next ids are D-663, OQ-195, F-82, L-16, G-29, M-9, and Session 119.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run `make where`, commit the work, push one time, and answer the Gitar pass with the `gitar-review` skill.
+
 ## Session 117: 2026-09-18, Codex
 
 Author: Codex
@@ -377,51 +422,3 @@ None. OQ-63, OQ-179, OQ-184, and OQ-185 close with D-646 to D-649.
 ### The next concrete action
 
 The author corrects P2-1, then asks Codex to repeat the review.
-
-## Session 108: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: PR-5, content, the content hash, and the string table. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. Role: author. Base: `efd6a53`.
-
-### What this session did, and why
-
-- Asked the owner OQ-63 and OQ-179 first, and wrote no code before the answers (D-19, D-24).
-- D-646 sets the content id as a kind, a dot, and a name. D-647 sets a hand reader and the reflection switch.
-- Two more questions came from the work. D-648 draws the hash line at `content/rules/`, and D-649 ships one fixture rule record.
-- Wrote the strict reader on `Utf8JsonReader`, the SHA-256 of D-644, the content hash, the string table, and the embed.
-- Added the `content-hash` command of Tools, the committed hash file, and a step of the `replay-identity` job.
-
-### The state of the build
-
-- `main` is `efd6a53`. The PR is #28, and its tip and effective head are `de496df`.
-- Fourteen CI checks pass: the three build legs, the three smoke legs, the three `replay-identity` legs, `changed paths`, `ste-check`, `det-lint`, the coverage report, and the Gitar check.
-- The three `replay-identity` legs also compare the content hash, so the three legs and the Mac give one value.
-- `review-gate` gives one fault, RG 3: the head holds no review record at `docs/reviews/pr-28.md`. The review of Codex clears it.
-- `make verify` passes: the build with 0 warnings, 401 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
-- The smoke session reads 4 content files from the Game assembly and gives the same hash as the folder.
-- `SimulationVersion.Current` is 2, and the `state-hash` run of the identity file moved with it (G-17).
-
-### What is in flight
-
-The review of Codex. The Gitar pass approves the head `de496df`, and it gives no open finding.
-
-- Automatic reviews stay paused on the Gitar trial, and an automatic pass still ran. The Gitar check started at 16:20:23Z and completed with success.
-- The dashboard comment `5732921703` has the edit time 16:23:31Z, later than the push, so the pass covers the head (D-603).
-- The dashboard reads `Approved`, with no open finding, and the PR holds no review thread.
-- This PR changes code, so the `review-override` label does not apply (D-401).
-
-### Traps and gotchas
-
-- The reflection switch reaches every program of the solution, and it broke 27 review-gate tests (F-78). The fixture now writes its file with `Utf8JsonWriter`.
-- A project reference from Tests to Game breaks the det-lint fixtures (F-79). The embedded-content test loads the built Game assembly instead.
-- `CLAUDE.md` and `AGENTS.md` sit at 16375 bytes, against a limit of 16384. A new line needs a trim first.
-- A change of a rule file needs `content-hash --root . --write` and a review of the new value.
-- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 109.
-
-### The questions that block progress
-
-None. D-646 to D-649 answer each question of section 7.12.
-
-### The next concrete action
-
-Codex reviews PR #28 and writes `docs/reviews/pr-28.md`.

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Runs;
 
 namespace TheThingBelow.Game;
@@ -15,9 +16,14 @@ namespace TheThingBelow.Game;
 /// the intent and the tick (D-260, D-492). PR-45 creates the debug assembly, and a
 /// development build then passes its handlers to <see cref="Simulation.Start"/>.
 /// <para>
-/// PR-61 makes an intent from each input event and gives it to <see cref="Queue"/>, and
-/// PR-44 writes the record of this run to the crash file. No intent comes from a Godot
-/// timer, a physics step, or a poll of the input singleton (G-23, F-50).
+/// PR-61 makes an intent from each input event and gives it to <see cref="Queue"/>. No
+/// intent comes from a Godot timer, a physics step, or a poll of the input singleton (G-23,
+/// F-50).
+/// </para>
+/// <para>
+/// <see cref="Advance"/> gives the log entries of the ticks that it ran, and <see cref="Boot"/>
+/// writes each one to the log file of the session with the time of the host (D-179). A crash
+/// takes <see cref="Record"/> into the crash file (D-170).
 /// </para>
 /// </remarks>
 public sealed class GameRun
@@ -65,19 +71,20 @@ public sealed class GameRun
 
     /// <summary>Runs the ticks that the time of one frame gives (D-164).</summary>
     /// <param name="seconds">The time of the frame, in seconds.</param>
-    /// <returns>The count of ticks that the frame ran.</returns>
+    /// <returns>The log entries of every tick of this frame, in the order of the ticks (D-179).</returns>
     /// <exception cref="ArgumentOutOfRangeException">The time is below zero (T-2).</exception>
     /// <remarks>
     /// The queued intents go to the first tick of the frame, because they came before it.
     /// Each later tick of the same frame takes no intent.
     /// </remarks>
-    public int Advance(double seconds)
+    public IReadOnlyList<LogEntry> Advance(double seconds)
     {
         int ticks = this.loop.Advance(seconds);
+        List<LogEntry> log = [];
         for (int step = 0; step < ticks; step += 1)
         {
             Intent[] intents = step == 0 ? [.. this.queued] : [];
-            this.simulation.Step(intents);
+            log.AddRange(this.simulation.Step(intents));
             this.recorder.Step(this.simulation.Tick, intents);
         }
 
@@ -86,12 +93,12 @@ public sealed class GameRun
             this.queued.Clear();
         }
 
-        return ticks;
+        return log;
     }
 
-    /// <summary>Gives the record of the run as it stands now (G-5, D-652).</summary>
-    /// <returns>The text of the record, which PR-44 writes to the crash file.</returns>
-    public string RecordText() => RunRecordText.Write(this.recorder.Build());
+    /// <summary>Gives the record of the run as it stands now (G-5, D-651).</summary>
+    /// <returns>The record, which the crash file of D-170 carries.</returns>
+    public RunRecord Record() => this.recorder.Build();
 
     /// <summary>Gives the state hash of the run, which a replay compares (G-5).</summary>
     /// <returns>The hash.</returns>
