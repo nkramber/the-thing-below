@@ -1,0 +1,48 @@
+{
+ "id": "drawing.mine_floor_tile",
+ "page": "tiles",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "tile.mine_floor", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+    "GGGGGGGGGGGGkGGGGGGGGGGGGGGGGGGG",
+    "GllllhhhhhhHkGhhhhhhhhhhhhhhhhhH",
+    "GllllhhhhhhHkGhhhhhhhhhhhhhhhhhH",
+    "GhhhhhhhhhhHkGhhhhhhhhhhhhhhhhhH",
+    "GhhhhhhhhhhHkGllllhhhhhhhhhhhhhH",
+    "GhhhhhhhhhhHkGllllhhhhhhhhhhhhhH",
+    "GhhhhhhhhhhHkGhhhhhhhhhhhhhhhhhH",
+    "GhhhhhhhhhhHkGhhhhhhhhhhhhhhhhhH",
+    "GhhhhhhhhhhHkGhhhhhhhhhhhHHHHHHH",
+    "HHHHHHHHHHHHkHHHHHHHHHHHHHHHHHHH",
+    "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+    "GGGGGGGkGGGGGGGGGGGGGGkGGGGGGGGG",
+    "GlllhhHkGlllllhhhhhhhHkGhhhhhhhH",
+    "GlllhhHkGlllllhhhhhhhHkGhhhhhhhH",
+    "GhhhhhHkGhhhhhhhhhhhhHkGhhhhhhhH",
+    "GhhhhhHkGhhhhhhhhhhhhHkGllllhhhH",
+    "GhhhhhHkGhhhhhhhhhhhhHkGllllhhhH",
+    "GhhhhhHkGhhhhhhhhhhhhHkGhhhhhhhH",
+    "GhhhhhHkGhhhhhhHHHHHHHkGhhhhhhhH",
+    "HHHHHHHkHHHHHHHHHHHHHHkHHHHHHHHH",
+    "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+    "GGGGGGGGGGGGGGGGGkGGGGGGGGGGGGGG",
+    "GllllllhhhhhhhhhHkGhhhhhhhhhhhhH",
+    "GllllllhhhhhhhhhHkGhhhhhhhhhhhhH",
+    "GhhhhhhhhhhhhhhhHkGhhhhhhhhhhhhH",
+    "GhhhhhhhhhhhhhhhHkGlllllhhhhhhhH",
+    "GhhhhhhhhhhhhhhhHkGlllllhhhhhhhH",
+    "GhhhhhhhhhhhhhhhHkGhhhhhhhhhhhhH",
+    "GhhhhhhhhhhhhhhhHkGhhhhhhhhhhhhH",
+    "GhhhhhhhhhHHHHHHHkGhhhhhhhhhhhhH",
+    "HHHHHHHHHHHHHHHHHkHHHHHHHHHHHHHH"
+   ]
+  }
+ ]
+}
