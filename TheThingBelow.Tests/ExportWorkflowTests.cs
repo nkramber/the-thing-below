@@ -117,6 +117,20 @@ public sealed class ExportWorkflowTests
     }
 
     [Fact]
+    public void ACancelAppliesToAPullRequestAlone()
+    {
+        string text = File.ReadAllText(RepositoryRoot.PathTo(ExportWorkflowPath));
+
+        // Every push to `main` shares one concurrency group, because `github.ref` is the same
+        // for each merge. A cancel there drops the build artifact of the earlier merge, and
+        // D-449 asks for the export of every merge.
+        Assert.Contains(
+            "cancel-in-progress: ${{ github.event_name == 'pull_request' }}",
+            text,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void TheArtifactLastsTheNinetyDaysOfD449()
     {
         string text = File.ReadAllText(RepositoryRoot.PathTo(ExportWorkflowPath));

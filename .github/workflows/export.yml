@@ -28,9 +28,12 @@ on:
 permissions:
   contents: read
 
+# Every push to `main` shares one group, because `github.ref` is the same for each merge.
+# A cancel there drops the build artifact of the earlier merge, and D-449 asks for the export
+# of every merge. Thus a cancel applies to a pull request alone, and two merges run in order.
 concurrency:
   group: export-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   DOTNET_NOLOGO: "true"
