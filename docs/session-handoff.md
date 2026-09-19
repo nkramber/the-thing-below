@@ -1,5 +1,40 @@
 # Session handoff
 
+## Session 127: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #35, the empty option value of every Tools command. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: reviewer. Base: `f896dc3`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-35 diff from merge base `f896dc3` to effective head `4e9338d`.
+- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Verified the shared empty-option parser, all command call sites, regression tests, decision rows, roadmap entries, and handoff records.
+- Found P2-1. The records say six option values, but they list seven.
+
+### The state of the build
+
+- The PR tip is `c6e755b`, and the effective implementation head is `4e9338d`.
+- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check. Replay identity, content hash, and the bounded smoke session pass.
+- All nine empty-option probes return exit code 1, name the option, and produce no stack trace.
+
+### What is in flight
+
+The review record `docs/reviews/pr-35.md` records `Changes required` for P2-1. The review record and this handoff entry are not yet published to the PR branch.
+
+### Traps and gotchas
+
+- The implementation covers seven non-atlas option values and two atlas option values. The text says six in multiple places.
+- The effective head is `4e9338d`, not the metadata tip `c6e755b`.
+
+### The questions that block progress
+
+None for this PR. OQ-3 remains an owner question for Gate 1.
+
+### The next concrete action
+
+The author corrects the repeated scope count. Then the review reruns the document and review-gate checks before it publishes a final verdict.
+
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
 ## Session 126: 2026-09-19, Claude Code
@@ -384,38 +419,3 @@ None.
 ### The next concrete action
 
 Run `make where`, commit the work, push one time, and answer the Gitar pass with the `gitar-review` skill.
-
-## Session 117: 2026-09-18, Codex
-
-Author: Codex
-Session: review PR #30, PR-43, the Storage project, the snapshots, and the saves. Repository: the-thing-below. Branch: `feat/pr-43-storage-and-saves`. Role: reviewer. Base: `3a7340f`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-30 diff from merge base `3a7340f` to effective head `d1d2a47`.
-- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Traced the save format, checksum, format dispatch, safe write, resume removal, platform folder rules, Core boundary, and Godot boot check.
-- Found no actionable finding. Wrote `docs/reviews/pr-30.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- The metadata tip is `e3ff30b`, and the effective implementation head is `d1d2a47`.
-- `make verify` passes with 536 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
-- GitHub reports the implementation checks and Gitar pass green. The current `review-gate` run fails because the review record named the wrong effective head. The new record targets `d1d2a47`.
-
-### What is in flight
-
-The review record and this handoff entry need a metadata commit and push. A fresh `review-gate` run must then verify the published record.
-
-### Traps and gotchas
-
-- The effective head excludes only the review and handoff metadata commit after `d1d2a47`.
-- PR-16 adds the Game save-load integration. PR-44 adds crash and log files.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Run `make where`, commit the review record and handoff entry, push, fetch, and verify the review gate and remote head.

@@ -5018,3 +5018,37 @@ OQ-18, the world-building interview, blocks the rename (D-102) and Phase 4. OQ-3
 ### Next concrete action
 
 The session waits for the pass on this head and applies the label. The owner merges PR #1. The next session runs the world-building interview (OQ-18) as a docs PR under D-68, then the rename PR (D-102). Then a session starts PR-1 from `main` per the Phase 1 roadmap, and writes `docs/roadmaps/phase-1-foundations.md` first with the exit tests of PR-1 to PR-6 and PR-34 and the three font candidates (D-122), under the `design-doc-style` skill.
+# Session 117: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #30, PR-43, the Storage project, the snapshots, and the saves. Repository: the-thing-below. Branch: `feat/pr-43-storage-and-saves`. Role: reviewer. Base: `3a7340f`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-30 diff from merge base `3a7340f` to effective head `d1d2a47`.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Traced the save format, checksum, format dispatch, safe write, resume removal, platform folder rules, Core boundary, and Godot boot check.
+- Found no actionable finding. Wrote `docs/reviews/pr-30.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- The metadata tip is `e3ff30b`, and the effective implementation head is `d1d2a47`.
+- `make verify` passes with 536 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
+- GitHub reports the implementation checks and Gitar pass green. The current `review-gate` run fails because the review record named the wrong effective head. The new record targets `d1d2a47`.
+
+### What is in flight
+
+The review record and this handoff entry need a metadata commit and push. A fresh `review-gate` run must then verify the published record.
+
+### Traps and gotchas
+
+- The effective head excludes only the review and handoff metadata commit after `d1d2a47`.
+- PR-16 adds the Game save-load integration. PR-44 adds crash and log files.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run `make where`, commit the review record and handoff entry, push, fetch, and verify the review gate and remote head.
