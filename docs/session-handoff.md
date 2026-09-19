@@ -13,17 +13,19 @@ Session: PR-54, the export job. Repository: the-thing-below. Branch: `feat/pr-54
 - Ran every export on the Mac of the owner. The macOS export found two faults, and F-74 and F-90 record them.
 - Added 25 tests in four files: the presets, the project settings, the workflow triggers, the digests, and the license set.
 - The owner answered four questions, and D-690 to D-693 hold them. OQ-198 and OQ-199 are new.
+- Answered the automated pass. It found one bug: each push to `main` shares one concurrency group, so a merge cancelled the export of the merge before it. The cancel now applies to a pull request alone, and a test reads the value.
+- Corrected the `docs/reviews/` row of the PR description. It held no form of D-581, and RG 7 faulted on it, as PR #38 did.
 
 ### The state of the build
 
-- `make verify` passes on this machine with 831 tests, and `ste-check` gives 0 findings.
+- `make verify` passes on this machine with 832 tests, and `ste-check` gives 0 findings.
 - The remote head of `main` is `fb17f87`, and this branch starts there.
-- The branch has no commit yet, and no PR exists yet.
+- The PR is #39. The automated pass approved `ebc8c76` at 23:37 UTC with one finding, and the fix commit `671d712` answers it.
 - The macOS export ran end to end on this Mac: export, licenses, smoke session, pack, unpack, signature, and a second run of the game.
 
 ### What is in flight
 
-The first commit, the push, the PR, and the automated pass. The PR changes code, so it takes the Codex review and no label of D-401.
+The push of the fix commit, and a new pass on the new head. The PR changes code, so it takes the Codex review and no label of D-401.
 
 ### Traps and gotchas
 
@@ -40,7 +42,7 @@ None. OQ-198 blocks PR-31, and OQ-199 blocks the move of D-456 in Phase 6.
 
 ### The next concrete action
 
-Commit, push, open the PR with its Documents section, and answer the automated pass.
+Push the fix commit, wait for the new pass, and hand the PR to Codex for the review.
 
 ## Session 136: 2026-09-19, Codex
 
