@@ -22,13 +22,18 @@ Session: PR-43, the Storage project, the snapshots, and the saves. Repository: t
 
 - `main` is `3a7340f`, and the branch starts there.
 - `make verify` passes with 536 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and the smoke session pass.
-- The head `d776f5e` passed every CI leg except the format step of Windows, which F-80 explains. The Gitar pass approved that head with no finding.
+- The head is `d1d2a47`, and it passes every CI leg. The `review-gate` check gives RG 3 alone, because the head holds no review record.
+- The first head `d776f5e` failed the format step of Windows alone, which F-80 explains.
 - The smoke session printed the save folder of this machine, so the check of D-657 ran against the real Godot folder.
 - `SimulationVersion.Current` stays 3. The PR adds a text form and file code, and it changes no rule that makes a state (G-17).
 
 ### What is in flight
 
-The first push, the Gitar pass, and the review of Codex.
+The review of Codex. The Gitar pass approves the head `d1d2a47` and gives no finding.
+
+- The Gitar check on that head completed with success 2 seconds after the push.
+- Gitar replaced the dashboard comment, and the new id is `5738261979` with the edit time 01:29:38Z. That time is later than the push at 01:28:48Z, so the pass covers the head (D-603).
+- The dashboard reads `Approved` with no issue, and the PR holds no review thread.
 
 ### Traps and gotchas
 
