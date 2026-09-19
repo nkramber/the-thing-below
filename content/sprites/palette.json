@@ -1,5 +1,5 @@
 {
- "comment": "The palette of D-89 and D-121. Index 0 to 31 are the test palette of D-94. A grid names a color by its key. The dot is transparent.",
+ "comment": "The palette of 64 colors (D-181, D-238). Index 0 to 47 keep their keys and their indices from D-89 and D-121. Index 48 to 63 are the colors of D-185: the snow, the ice, and the stone of the passes, the fire and the torchlight, and the glow of the waystones and of the thing below. A drawing file names a color by its key, and the dot is transparent. Light on screen can reach a color that this file does not hold.",
  "colors": [
   {
    "index": 0,
@@ -288,6 +288,102 @@
    "key": "~",
    "hex": "05040a",
    "name": "void"
+  },
+  {
+   "index": 48,
+   "key": "e",
+   "hex": "e8f2f7",
+   "name": "snow"
+  },
+  {
+   "index": 49,
+   "key": "E",
+   "hex": "bcd2e0",
+   "name": "snow shade"
+  },
+  {
+   "index": 50,
+   "key": "f",
+   "hex": "8fb6c9",
+   "name": "glacier"
+  },
+  {
+   "index": 51,
+   "key": "F",
+   "hex": "5c86a0",
+   "name": "glacier deep"
+  },
+  {
+   "index": 52,
+   "key": "h",
+   "hex": "6f7a80",
+   "name": "granite"
+  },
+  {
+   "index": 53,
+   "key": "H",
+   "hex": "424b52",
+   "name": "granite dark"
+  },
+  {
+   "index": 54,
+   "key": "a",
+   "hex": "fff6d5",
+   "name": "flame white"
+  },
+  {
+   "index": 55,
+   "key": "A",
+   "hex": "ffd863",
+   "name": "flame yellow"
+  },
+  {
+   "index": 56,
+   "key": "j",
+   "hex": "fb9b21",
+   "name": "flame orange"
+  },
+  {
+   "index": 57,
+   "key": "J",
+   "hex": "d85a14",
+   "name": "flame deep"
+  },
+  {
+   "index": 58,
+   "key": "q",
+   "hex": "7d2a0b",
+   "name": "coal"
+  },
+  {
+   "index": 59,
+   "key": "Q",
+   "hex": "5a4f4a",
+   "name": "smoke"
+  },
+  {
+   "index": 60,
+   "key": "u",
+   "hex": "7fe3d4",
+   "name": "waystone glow"
+  },
+  {
+   "index": 61,
+   "key": "U",
+   "hex": "2aa79a",
+   "name": "waystone deep"
+  },
+  {
+   "index": 62,
+   "key": "z",
+   "hex": "b06bff",
+   "name": "below glow"
+  },
+  {
+   "index": 63,
+   "key": "Z",
+   "hex": "3b0d5c",
+   "name": "below deep"
   }
  ]
 }

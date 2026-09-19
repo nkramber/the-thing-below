@@ -319,6 +319,28 @@ public ref struct ContentReader
         return ContentException.ForField(this.file, this.CurrentField(), "an unknown field");
     }
 
+    /// <summary>Makes an error about the value that the reader last read (T-2).</summary>
+    /// <param name="message">What the record refuses, such as `the size 0 is outside 1 to 2048`.</param>
+    /// <returns>The error, ready to throw.</returns>
+    /// <remarks>
+    /// The reader holds the path of that value, so a record refuses a value with no field
+    /// name of its own. A rule that reads more than one field takes <see cref="RefuseField"/>.
+    /// </remarks>
+    public readonly ContentException Refuse(string message) =>
+        ContentException.ForField(this.file, this.CurrentField(), message);
+
+    /// <summary>Makes an error about one field of an object that the reader finished (T-2).</summary>
+    /// <param name="depth">The value that <see cref="ReadObjectStart"/> gave.</param>
+    /// <param name="field">The field that failed, such as `frames[0].ticks`.</param>
+    /// <param name="message">What the record refuses.</param>
+    /// <returns>The error, ready to throw.</returns>
+    /// <remarks>
+    /// A rule over more than one field runs after the object ends, and the path of the
+    /// reader then points at the object. The call names the field inside it.
+    /// </remarks>
+    public readonly ContentException RefuseField(int depth, string field, string message) =>
+        ContentException.ForField(this.file, this.FieldPath(depth, field), message);
+
     /// <summary>Gives a value that a field must hold, and fails when the file has none.</summary>
     /// <typeparam name="T">The type of the value, such as `string` or `ContentId`.</typeparam>
     /// <param name="value">The value that the read set, or null when the file has no field.</param>
@@ -354,13 +376,15 @@ public ref struct ContentReader
         where T : struct =>
         value ?? throw this.AbsentField(depth, field);
 
-    private readonly ContentException AbsentField(int depth, string field)
+    private readonly ContentException AbsentField(int depth, string field) =>
+        ContentException.ForField(this.file, this.FieldPath(depth, field), "the field is absent");
+
+    private readonly string FieldPath(int depth, string field)
     {
         ArgumentException.ThrowIfNullOrEmpty(field);
 
         string owner = string.Concat(this.path.GetRange(0, depth)).TrimStart('.');
-        string whole = owner.Length == 0 ? field : $"{owner}.{field}";
-        return ContentException.ForField(this.file, whole, "the field is absent");
+        return owner.Length == 0 ? field : $"{owner}.{field}";
     }
 
     private void MoveNext()

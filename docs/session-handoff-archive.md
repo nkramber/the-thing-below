@@ -1,5 +1,94 @@
 # Session handoff archive
 
+## Session 113: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #29, PR-6, the tick, the intents, the run record, and replay. Repository: the-thing-below. Branch: `feat/pr-6-tick-and-run-record`. Role: reviewer. Base: `1960cf3`.
+
+### What this session did, and why
+
+- Reviewed the complete diff from the merge base to effective head `ee1e6ea`.
+- Found P2-1: snapshot validation accepts an even random-stream increment, and replay then throws without record-line context (T-2, G-18, D-259).
+- Ran a disposable probe. The record reader accepted an even increment, and replay threw a bare `ArgumentException`.
+- Wrote `docs/reviews/pr-29.md` with verdict `Changes required` for `ee1e6ea`.
+
+### The state of the build
+
+- `main` and the merge base are `1960cf3`. The effective head is `ee1e6ea`, and the remote tip is `3a4b728`.
+- `make verify` passes with 475 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and smoke pass.
+- The review record is published at `49c4462`. All GitHub checks pass except `review-gate` RG 4, because the verdict is `Changes required`.
+- The Gitar check passes on `49c4462`. Its dashboard approves the code with no finding, and the PR has no review thread (D-603).
+
+### What is in flight
+
+The review record and this handoff entry were published at `49c4462`. P2-1 remains open, so the PR is not ready for owner merge.
+
+### Traps and gotchas
+
+- The tip commit `3a4b728` changes only review and handoff metadata. The effective head remains `ee1e6ea` (D-610).
+- `RunSnapshot.Check` verifies stream order, but not that a PCG32 increment is odd. `Pcg32.FromSnapshot` rejects the value later, without the record line.
+- The record text and the snapshot line are valid JSON. The defect is the missing semantic check after JSON parsing (D-652).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The author validates odd stream increments with snapshot context and adds a regression test. Codex then reviews the correction.
+
+## Session 112: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-6, the tick, the intents, the run record, and replay. Repository: the-thing-below. Branch: `feat/pr-6-tick-and-run-record`. Role: author. Base: `1960cf3`.
+
+### What this session did, and why
+
+- Asked the owner the four blocking questions of PR-6 in one batch, and recorded each answer (D-19, D-24).
+- D-650: the tick rises while a menu is open, and the world systems skip their work. The tick is the one time line, so no record needs a second order value.
+- D-651: the record takes a new snapshot at each save, and it drops every intent before it (F-10).
+- D-652: records and snapshots are JSON text, with one object on each line, as the logs are (D-179).
+- D-653: one constant in Core holds the game version, and `GameVersion.Tag` gives the release tag.
+- Core gained `TheThingBelow.Core/Runs/`: the intent, the state, the world rules, the simulation, the snapshot, the recorder, the replay, and the text of a record.
+- The debug seam takes the handlers of the host, and Core names no debug assembly (D-260, D-492).
+- `ContentReader` gained the reads of a 64-bit number, of true and false, and of a hexadecimal 64-bit value. One strict reader now reads the content files and the record.
+- Game gained `FixedStepLoop` and `GameRun`, and `Boot` steps the run on each frame (D-164).
+- The identity set gained the `replay` run, which plays a script, writes the text, reads it again, and replays it.
+
+### The state of the build
+
+- `main` is `1960cf3`. The branch head is `3a70273` before the documents of this entry.
+- `make verify` passes: the build with 0 warnings, 475 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
+- `SimulationVersion.Current` is 3, because the tick and the world of one tick are the first rules that change a state (G-17).
+- The identity file gained `replay 0x2350D21C3F5A9E84`, and `state-hash` moved to `0xCC5817D745E5344C`, because that run hashes the simulation version.
+- The content hash stays `5ce12c64...f3c15f3`, because no rule file changed.
+
+### What is in flight
+
+The Codex review of PR #29. The Gitar pass approves the head `ee1e6ea`, and it gives no finding.
+
+- The automatic pass started 8 seconds after the push, and the Gitar check on `ee1e6ea` completed with success at 22:31:11Z.
+- The dashboard comment `5736968934` has the edit time 22:31:05Z, which is later than the push, so the pass covers the head (D-603).
+- The dashboard reads `Approved` with no issue, and the PR holds no review thread.
+- The CI analysis of Gitar found a real fault of the description: the `docs/reviews/` row held prose and no form of D-581, so RG 7 failed. The row now takes the `Changed:` form, and RG 7 passes.
+- Fourteen CI checks pass. `review-gate` gives RG 3 alone, because the head holds no `docs/reviews/pr-29.md`. The review of Codex clears it.
+
+### Traps and gotchas
+
+- A spread of an `IReadOnlyList` in Core calls `System.Linq`, which G-1 refuses. `RunRecorder.Step` copies the list itself.
+- The last line of a record holds the end tick. A run takes many ticks after its last intent, so a replay that stopped at the last intent line would give another state.
+- `RunSnapshot` is a record with a list, so `==` compares that list by reference. A test compares the state hash or the text.
+- The world of Phase 1 is one patrol on a fixed beat. PR-7 replaces it with the tile map.
+- The next ids are D-654, OQ-186, F-80, L-16, G-29, M-9, and Session 113.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Hand PR #29 to Codex for the cross-provider review (T-4, D-17).
+
 ## Session 111: 2026-09-18, Codex
 
 Author: Codex

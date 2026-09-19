@@ -74,7 +74,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 Built by PR-7. Phase file: `phase-2-first-playable.md`.
 
 - Game draws the tiles of the map from the atlas, with the edge tiles of the edge file (D-501, `area-art.md` section 7.7).
-- OQ-86 holds whether Game draws a map through a `TileMapLayer` of Godot or draws each tile itself.
+- Game draws a map through a `TileMapLayer` of Godot, and it builds the `TileSetAtlasSource` from the tile page at load (D-667).
 - With a `TileMapLayer`, PR-7 sets the tile size and the region size to 32, because both Godot defaults are 16 (F-51).
 - PR-7 also turns off the collisions and the navigation of each layer, because no rule reads them (F-51, G-1, G-23).
 - Godot sorts each canvas item by one Y value, and a tile takes the center of its cell (the external facts above).
@@ -301,7 +301,6 @@ The register is `docs/questions.md` (D-19). These questions block exploration PR
 - OQ-121: the prices, the buy-back, and the stock of a shop. Blocks PR-65.
 - OQ-122: the format of the region map, and the cost of a route. Blocks PR-35.
 - OQ-123: how the player finds a secret. Blocks PR-21.
-- OQ-86: how the atlas places tiles, and how Game draws a map. Blocks PR-34 and PR-7.
 - OQ-89: pixel snap in Game. Blocks PR-7.
 - OQ-64: the tick while a menu is open. Resolved 2026-09-18 by D-650.
 

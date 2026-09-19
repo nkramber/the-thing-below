@@ -9,7 +9,7 @@ Facts checked on 2026-09-12:
 - Godot 4.7.2 .NET is present at `/Applications/Godot_mono.app`, because what-you-carry uses it. The name `Godot` is not on the command path.
 - `gh` has a login as the owner, and `git` has the `origin` remote for `nkramber/the-thing-below`, checked 2026-09-14 (D-410).
 - The checkout is at `/Volumes/SSD-1TB/the-thing-below`, on the external SSD, checked 2026-09-14 (D-400).
-- Python 3.9.6 is present. The atlas script of `docs/tools/make-atlas.py` needs it until PR-34 (D-406).
+- Python 3.9.6 is present. No tool of this project needs it now, because PR-34 retired the interim atlas script (D-99, D-406).
 - `gh` 2.100.0 is present, checked 2026-09-14. The `--attach` flag came in `gh` 2.99.0, and the review sheets of an art batch need it (D-514).
 - The repository on GitHub is public until Phase 6 (D-4, D-54, D-456).
 

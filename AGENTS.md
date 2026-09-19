@@ -134,22 +134,18 @@ The solution and the project names follow D-217. Run each command from the check
 - Every check, on this machine: `make verify`
 - Branch, tree, and PR state: `make where`
 - Hooks, once per checkout: `make hooks`
-- Build: `dotnet build TheThingBelow.slnx`
-- Test: `dotnet test --solution TheThingBelow.slnx --no-build -- --filter-not-trait "Category=Smoke"`
+- Build: `make build`. Test: `make test`. Format check: `make format`.
+- STE check: `make ste-check`. Determinism and string lint: `make lint`.
+- Identity check: `make identity`. Content hash: `make content`.
+- Godot build and the smoke session: `make smoke`.
 - Coverage report: `dotnet test --solution TheThingBelow.slnx --no-build -- --coverlet --coverlet-output-format cobertura --results-directory artifacts/coverage`
-- Format check: `dotnet format TheThingBelow.slnx --verify-no-changes`
-- STE check: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .`
-- Determinism and string lint: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- det-lint --root .`
-- Review gate: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- review-gate --pull-request <file> --head-files <folder>`
-- Identity check: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- replay-identity --root .`
-- Content hash: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- content-hash --root .`
-- Godot build check: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --editor --path TheThingBelow.Game --build-solutions --quit`
-- Smoke session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path TheThingBelow.Game -- --smoke`
+- A Tools command with its options: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- atlas --root . --check`
+- Review gate: the same form, with `review-gate --pull-request <file> --head-files <folder>`
 - Play session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --path TheThingBelow.Game`
 
-Every option of the test application comes after `--` (D-592). The coverage command writes a Cobertura file, and the CI job makes a Markdown summary (D-593). The content-hash command takes `--write` after an intended change of a rule file (D-648).
+Every option of the test application comes after `--` (D-592). The coverage command writes a Cobertura file, and the CI job makes a Markdown summary (D-593). The content-hash command takes `--write` after an intended change of a rule file (D-648). The atlas command writes each page and the atlas index, and `--check` compares the committed atlas (D-666). The `--sheets <folder>` option writes the review sheets, and no sheet enters git (D-514).
 
-The name `Godot` is not on the command path of this machine, so each check needs the full path above. The STE check reads every live document and takes no file list (D-608). It also runs the reference check, the session number check, and the size rules (D-605, D-607, D-611). The `ste-writing` skill holds each rule and each exempt path. Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585).
+The name `Godot` is not on the command path of this machine. The play session needs the full path above, and the `smoke` target holds the same path. The STE check reads every live document and takes no file list (D-608). It also runs the reference check, the session number check, and the size rules (D-605, D-607, D-611). The `ste-writing` skill holds each rule and each exempt path. Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585).
 
 ## PR gate
 

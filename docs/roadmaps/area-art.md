@@ -67,11 +67,26 @@ Built by PR-34, and kept by every art batch. Phase files: `phase-1-foundations.m
 Built by PR-34. Phase file: `phase-1-foundations.md`.
 
 - One palette file of 64 colors, `content/sprites/palette.json`, holds every color that a drawing file names (D-89, D-181, D-238).
-- The first 48 colors keep their indices and their keys (D-121, D-181). PR-34 adds the 16 colors of D-185 and proposes their keys with the swatch sheet.
+- The first 48 colors keep their indices and their keys (D-121, D-181). PR-34 added the 16 colors of D-185, and the swatch sheet of D-668 shows each key.
 - A key is one character, and the dot is transparent. JSON writes a quote mark or a backslash as two characters, so no key is one of them (D-515).
-- A repeated key or a repeated index fails with the key and the index (F-20, T-2).
+- A repeated key or a repeated index fails with the key and the index (F-20, T-2). The reader of the palette holds the rule (D-517).
 - Light on screen can reach any color, and a drawing file names palette keys alone (D-181).
 - Effect files name palette colors too, so Game reads the palette (D-182). Core holds the record of the palette file (D-517).
+
+The palette holds a color of its own for each of the eight elements and the ten statuses, which F-17 asked for (D-74, D-75). PR-66 draws the icons, and it confirms or changes each pick:
+
+| Element | Color | Key | Status | Color | Key |
+|---|---|---|---|---|---|
+| fire | ember | `X` | poison | sulfur | `%` |
+| ice | ice | `C` | blind | slate | `D` |
+| lightning | gold | `y` | silence | storm | `8` |
+| earth | tan | `t` | sleep | lavender | `9` |
+| wind | aqua | `7` | slow | plum | `!` |
+| water | sky | `c` | haste | copper | `2` |
+| holy | candle | `#` | stun | brass | `O` |
+| dark | hex | `P` | bleed | blood | `R` |
+| | | | regen | leaf | `v` |
+| | | | shell | frost | `&` |
 
 > *In plain English:* the game has one box of 64 paints, and every drawing uses only those paints. Lights on screen can mix new shades, but the drawings never leave the box.
 
@@ -84,9 +99,9 @@ Built by PR-34. Phase file: `phase-1-foundations.md`.
 - A read error names the file, the frame, the row, and the column (T-2).
 - A drawing file names the content ids that it draws, with a kind where one thing has more than one drawing (D-519). A rule file never names art.
 - A test proves that each thing that Game draws has its drawing (D-519).
-- OQ-88 holds the unit of the time of a frame.
-- PR-34 converts the five sample grids of `docs/samples/` into drawing files, and the sample keeps its `.grid` files (D-402, D-515).
-- PR-34 retires `docs/tools/make-atlas.py`, which reads the old format (D-406).
+- A frame holds its time in ticks, 60 to a second (D-669). A drawing of one frame holds 0 ticks.
+- PR-34 converted the five sample grids of `docs/samples/` into drawing files, and the sample keeps its `.grid` files (D-402, D-515). A cast member takes the kind `cast` (D-670).
+- PR-34 retired the interim atlas script, which reads the old format (D-406).
 
 > *In plain English:* each drawing is a small data file that still reads like a picture made of letters. The file says what it draws, so a new drawing never touches the rules of the game.
 
@@ -140,7 +155,7 @@ Built by PR-34. Phase file: `phase-1-foundations.md`.
 - The repository commits the atlas and the index. A test proves that both match the drawing files, by decoded pixels (D-107, F-19, G-24).
 - A stale atlas fails that test until the command runs again.
 - The atlas and the index sit in `content/`, so the Game assembly carries them (D-508).
-- OQ-85 holds whether the atlas splits into pages, and OQ-86 holds how the atlas places tiles.
+- The atlas takes one page for each kind, and a page holds 2048 by 2048 pixels at most (D-666). A tile page is a strict grid of 32 by 32 cells (D-667).
 - No page passes the largest texture that Godot names, 16384 by 16384 pixels (the external facts above).
 
 > *In plain English:* a tool packs every drawing into one image that the engine loads, and it writes a list of where each drawing sits. A test proves that the image still matches the text drawings.
@@ -164,7 +179,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-34, and used by every art PR. Phase files: every phase file.
 
-- A Tools command renders the review sheets of an art batch as PNG files, and no sheet enters git (D-514). OQ-87 holds the form of a sheet.
+- A Tools command renders the review sheets of an art batch as PNG files, and no sheet enters git (D-514). A sheet shows each drawing at 1x and at 6x, on a night ground and on a snow ground, with its id under it (D-668).
 - The session uploads the sheets into the PR description with `gh pr edit --attach` (D-514, G-25).
 - The description names each drawing on each sheet, and the commit that the sheets show.
 - A changed batch gets new sheets in the description.
@@ -244,10 +259,6 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 
 The register is `docs/questions.md` (D-19). These questions block art PRs, and each PR asks its questions when it starts (D-487):
 
-- OQ-85: the pages of the atlas. Blocks PR-34.
-- OQ-86: how the atlas places tiles, and how Game draws a map. Blocks PR-34 and PR-7.
-- OQ-87: the form of a review sheet. Blocks PR-34.
-- OQ-88: the unit of the time of a frame. Blocks PR-34.
 - OQ-89: pixel snap in Game. Blocks PR-7.
 - OQ-91: the operations of a large picture on a piece. Blocks PR-55.
 - OQ-90: where the studio mark shows. Blocks PR-33.

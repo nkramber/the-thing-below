@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using TheThingBelow.Tools.Atlas;
 using TheThingBelow.Tools.Content;
 using TheThingBelow.Tools.DetLint;
 using TheThingBelow.Tools.Identity;
@@ -19,7 +20,6 @@ public static class Program
     public static readonly IReadOnlyDictionary<string, string> PlannedCommands =
         new SortedDictionary<string, string>(StringComparer.Ordinal)
         {
-            ["atlas"] = "PR-34",
             ["night-gate"] = "PR-49",
         };
 
@@ -75,6 +75,11 @@ public static class Program
             return ContentHashCommand.Run(args[1..], output, errors);
         }
 
+        if (command == AtlasCommand.Name)
+        {
+            return AtlasCommand.Run(args[1..], output, errors);
+        }
+
         if (PlannedCommands.TryGetValue(command, out string? pullRequest))
         {
             errors.WriteLine(
@@ -95,6 +100,7 @@ public static class Program
         errors.WriteLine($"  {DetLintCommand.Name}: ready");
         errors.WriteLine($"  {ReplayIdentityCommand.Name}: ready");
         errors.WriteLine($"  {ContentHashCommand.Name}: ready");
+        errors.WriteLine($"  {AtlasCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {
