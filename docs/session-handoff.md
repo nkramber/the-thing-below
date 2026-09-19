@@ -16,11 +16,13 @@ Session: PR-43, the Storage project, the snapshots, and the saves. Repository: t
 - Storage holds the folder rule of the three systems, the three save files, and the one safe write of D-178.
 - The stored save `TheThingBelow.Tests/saves/format-1.json` names simulation version 1, and this build loads it (D-259).
 - Game sets the custom user folder of Godot, and Boot compares that folder with the rule of Storage (D-657, F-33).
+- The first push failed the format check on the Windows leg alone, and F-80 records the reason.
 
 ### The state of the build
 
 - `main` is `3a7340f`, and the branch starts there.
 - `make verify` passes with 536 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and the smoke session pass.
+- The head `d776f5e` passed every CI leg except the format step of Windows, which F-80 explains. The Gitar pass approved that head with no finding.
 - The smoke session printed the save folder of this machine, so the check of D-657 ran against the real Godot folder.
 - `SimulationVersion.Current` stays 3. The PR adds a text form and file code, and it changes no rule that makes a state (G-17).
 
@@ -34,7 +36,8 @@ The first push, the Gitar pass, and the review of Codex.
 - The three save names have no backticks in the documents. The reference rule reads a bare name with a file type as a path of the repository.
 - `SaveText.Write` refuses a header of another format version, so a test of an old format must change the text itself.
 - The fixture test fails a raise of the format version with no stored save. A PR that changes the snapshot commits a fixture (D-166, D-654).
-- The next ids are D-658, OQ-190, F-80, L-16, G-29, M-9, and Session 117.
+- A comment between the arrow of an expression body and its expression fails `dotnet format` on Windows alone (F-80). The Mac gives no finding.
+- The next ids are D-658, OQ-190, F-81, L-16, G-29, M-9, and Session 117.
 
 ### The questions that block progress
 

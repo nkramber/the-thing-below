@@ -41,12 +41,18 @@ public sealed class SaveFolderTests
             SaveFolder.Of(SaveSystem.Linux, null, "/home/player", "/data/games"));
 
     [Fact]
-    public void TheLinuxFolderDropsARelativeDataVariable() =>
+    public void TheLinuxFolderDropsARelativeDataVariable()
+    {
         // The XDG base directory specification says that a relative value is invalid, and
         // Godot reads the variable by the same rule (D-465, F-33).
+        //
+        // The comment sits in the body and never between the arrow and the expression. A
+        // comment there makes `dotnet format` rewrite the line, and the rewrite takes the
+        // line ending of the machine. The check then fails on the Windows leg alone (F-80).
         Assert.Equal(
             "/home/player/.local/share/the-thing-below",
             SaveFolder.Of(SaveSystem.Linux, null, "/home/player", "games/data"));
+    }
 
     [Theory]
     [InlineData("/home/player/")]
