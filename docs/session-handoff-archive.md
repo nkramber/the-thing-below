@@ -1,4 +1,36 @@
 # Session handoff archive
+## Session 126: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: PR-87, the empty option value of the Tools commands. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: author. Base: `f896dc3`.
+
+### What this session did, and why
+
+- Fixed empty option values across the Tools commands and recorded D-677 to D-679 and F-83.
+- Added the PR-87 roadmap entry and moved Gate 1 to section 7.21.
+
+### The state of the build
+
+- `make verify` passed with 794 tests, 0 warnings, and no det-lint or STE findings.
+- The automated pass approved head `4e9338d`, and the PR waited for the Codex review.
+
+### What is in flight
+
+The Codex review of PR #35.
+
+### Traps and gotchas
+
+- Seven option values required the shared empty-value check.
+- No Core behavior changed, so the simulation version stood.
+
+### The questions that block progress
+
+None for this PR. OQ-3 remained an owner question for Gate 1.
+
+### The next concrete action
+
+The Codex reviewer writes `docs/reviews/pr-35.md` for the effective head.
+
 ## Session 125: 2026-09-19, Codex
 
 Author: Codex

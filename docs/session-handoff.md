@@ -1,5 +1,43 @@
 # Session handoff
 
+## Session 136: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #38, the Sprite Fusion test pick. Repository: the-thing-below. Branch: `docs/pr-89-sprite-fusion-pick`. Role: reviewer. Base: `db518fa`.
+
+### What this session did, and why
+
+- Recomputed PR #38 at effective head `83e561c`. The later commit `cae4e90` changes only metadata.
+- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Inspected the complete eight-path diff, the four new decision rows, the four findings, the roadmap changes, and the handoff rotation.
+- Verified the corrected credit arithmetic: 495 credits started, 165 credits were spent, and 330 credits remain.
+- Wrote `docs/reviews/pr-38.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and bounded smoke checks.
+- The effective head is `83e561c`. The metadata tip is `cae4e90`.
+- The automated pass approved `83e561c` with no open thread. Its two findings were answered, and RG 7 passes.
+- `review-gate` waits for this review record.
+
+### What is in flight
+
+The review record and this handoff entry need a commit and push. After the remote gate reads the record, the PR is ready for owner merge.
+
+### Traps and gotchas
+
+- The verdict targets effective head `83e561c`, not metadata tip `cae4e90`.
+- D-687 includes a 45-credit bonus. The arithmetic is 495 minus 165 equals 330.
+- PR-51 owns the PNG import implementation and its tests. This PR records its requirements only.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Then fetch and verify the remote head and review-gate result.
+
 ## Session 135: 2026-09-19, Claude Code
 
 Author: Claude Code
@@ -357,48 +395,3 @@ None for this PR. OQ-3 remains an owner question for Gate 1.
 The author corrects the repeated scope count. Then the review reruns the document and review-gate checks before it publishes a final verdict.
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
-
-## Session 126: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: PR-87, the empty option value of the Tools commands. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: author. Base: `f896dc3`.
-
-### What this session did, and why
-
-- The session asked the owner three questions before any change. D-677 to D-679 answer them.
-- A probe of every command found the fault in five commands and seven option values, and F-83 recorded one.
-- D-678 sets the scope: every Tools command, and not `content-hash` alone.
-- `OptionValue.ReportEmpty` is the one place of the check, and every command reads its option values through it (D-679).
-- The `atlas` command moves from its own copy of the check to that helper.
-- Section 7.20 of `docs/roadmaps/phase-1-foundations.md` holds PR-87, and Gate 1 moves to 7.21.
-- F-83 now records the full set and reads as fixed.
-
-### The state of the build
-
-- `main` is `f896dc3`, and the branch starts there.
-- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
-- The suite grew by 12 tests: 9 rows of the command theory and 3 for the helper.
-- Every one of the seven option values gives the fault exit code and names the option.
-
-### What is in flight
-
-The review of Codex. The pass of gitar approved the head `4e9338d` with no finding and no open thread.
-
-`review-gate` names RG 3 alone: the review record of Codex at `docs/reviews/pr-35.md`. RG 1, RG 2, and RG 6 to RG 8 pass. Every other check passes on every CI leg.
-
-The first head failed RG 7 with two faults of the PR description. The row `docs/reviews/` had no form of D-581, and it named the roadmap id and not the GitHub number. The row `.claude/skills/` named no path after the reason. The description now holds both forms, and RG 7 passes. No commit changed, so the pass of gitar stands.
-
-### Traps and gotchas
-
-- Seven of the nine theory rows fail on the old code. The two `atlas` rows pass, because PR-34 fixed that command.
-- `det-lint --root ""` gave a clean error before this PR, from a folder check further down. The message changes to the parse message.
-- The insert of one item renumbered the sequence list of section 7 of `docs/design.md`. The diff is large, and the order does not change.
-- No Core behavior changes, so the simulation version stands (G-17).
-
-### The questions that block progress
-
-None for this PR. OQ-3 remains an owner question for Gate 1.
-
-### The next concrete action
-
-The Codex review of PR #35. The reviewer writes `docs/reviews/pr-35.md` with the verdict for the effective head, and RG 3 then passes.
