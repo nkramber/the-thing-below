@@ -18,17 +18,17 @@ Session: review PR #32, PR-47, the PNG reader and the PNG writer. Repository: th
 
 - The implementation head is `e45dcc9`. The metadata tip is `5d14a83`.
 - `make verify` passes with 706 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
-- GitHub reports the implementation checks green. The review-gate check is pending after the review record push.
+- GitHub reports the implementation checks green. The review-gate check passes after the review record push.
 
 ### What is in flight
 
-The remote review-gate, changed-paths, STE, and Gitar checks are pending for metadata tip `5d14a83`. The review record targets effective head `e45dcc9`.
+The remote review-gate passes for metadata tip `caec10d`. Gitar remains pending on the metadata tip, and its current approved dashboard covers effective head `e45dcc9`.
 
 ### Traps and gotchas
 
 - PR #32 is roadmap PR-47. The review record uses GitHub PR number 32.
 - The review commit changes only the metadata set, so it does not move the effective head.
-- The review-gate check was red before the review record existed. It must pass after the metadata push.
+- The review-gate check was red before the review record existed. It passes after the metadata push.
 
 ### The questions that block progress
 
@@ -36,7 +36,7 @@ None.
 
 ### The next concrete action
 
-Verify the remote checks and confirm that `review-gate` reads `docs/reviews/pr-32.md` for effective head `e45dcc9`.
+The review-gate check reads `docs/reviews/pr-32.md` for effective head `e45dcc9`. The owner can merge after the remaining PR checks pass.
 
 ## Session 120: 2026-09-18, Claude Code
 
