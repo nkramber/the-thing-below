@@ -23,6 +23,10 @@ External facts, each with the date of its check:
 - The Godot editor keeps export templates in its data folder: `~/.local/share/godot/` on Linux, `~/Library/Application Support/Godot/` on macOS, and `%APPDATA%\Godot\` on Windows. The editor installs templates "from a TPZ file (essentially a ZIP archive)", and the command line page names no option that installs them. Sources: `https://docs.godotengine.org/en/stable/tutorials/io/data_paths.html`, `https://docs.godotengine.org/en/stable/tutorials/export/exporting_projects.html`, and the command line page above, read 2026-09-14.
 - The release `4.7.2-stable` of `godotengine/godot-builds` holds `Godot_v4.7.2-stable_mono_export_templates.tpz` at 1,202,598,411 bytes. Its file `SHA512-SUMS.txt` lists a SHA-512 for each .NET file. Source: `gh api repos/godotengine/godot-builds/releases/tags/4.7.2-stable` and the sums file, run 2026-09-14.
 - The path `res://` "will always point at the project root". At the tag `4.7.2-stable`, the export code walks the resource folder alone, and the .NET export runs `dotnet publish` on the project. No Godot page that the session read names a way to export a file from outside the project folder. Sources: `https://docs.godotengine.org/en/stable/tutorials/scripting/filesystem.html`, and `editor/export/editor_export_platform.cpp` and `modules/mono/editor/GodotTools/GodotTools/Export/ExportPlugin.cs` in `godotengine/godot`, read 2026-09-14.
+- The options `--headless`, `--quit`, and `--quit-after` carry the release-template mark of the command line page. The options `--import` and `--export-release` carry the editor mark, and `--import` implies `--editor` and `--quit`. Source: `https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html`, read 2026-09-19.
+- The file SHA512-SUMS.txt of the release `4.7.2-stable` gives `bb5c41d7` as the first bytes of the SHA-512 of the .NET export template file. The three editor digests of `.github/workflows/ci.yml` match the same file. The template file is a ZIP with one `templates` folder. The file version.txt of that folder holds `4.7.2.stable.mono`, which names the template folder. Source: the release page of `godotengine/godot-builds` and the file above, read 2026-09-19.
+- An artifact upload does not keep the file permissions: "All directories will have `755` and all files will have `644`". Source: `https://github.com/actions/upload-artifact`, read 2026-09-19.
+- "GitHub Actions usage is free for self-hosted runners and for public repositories that use standard GitHub-hosted runners." A private repository of a GitHub Free account holds 500 MB of artifact storage, and a GitHub Pro account holds 1 GB. Source: `https://docs.github.com/en/billing/concepts/product-billing/github-actions`, read 2026-09-19.
 - An `EmbeddedResource` item "Represents resources to be embedded in the generated assembly". `Assembly.GetManifestResourceStream` returns "`null` if no resources were specified during compilation or if the resource is not visible to the caller". The Godot .NET SDK imports `Microsoft.NET.Sdk`. Sources: `https://learn.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-items`, `https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assembly.getmanifestresourcestream`, and `modules/mono/editor/Godot.NET.Sdk/Godot.NET.Sdk/Sdk/Sdk.props` at `4.7.2-stable`, read 2026-09-14.
 - The Godot method `Image.load_png_from_buffer` "Loads an image from the binary contents of a PNG file". The runtime loading page warns: "Do not use this runtime loading approach to load resources that are part of the project, as it's less efficient and doesn't allow benefiting from Godot's resource handling functionality (such as translation remaps)." Sources: `https://docs.godotengine.org/en/stable/classes/class_image.html` and `https://docs.godotengine.org/en/stable/tutorials/io/runtime_file_loading_and_saving.html`, read 2026-09-14.
 
@@ -56,6 +60,10 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-63 | The git-bash of the Windows image carries no `shasum` | PR-1: the checksum step reads the digest with `sha512sum` or `shasum` |
 | F-64 | A headless session whose managed assembly does not load runs without end | PR-1: the smoke session runs with `--quit-after`, and the job reads the success line |
 | F-85 | A skipped matrix job reports the literal name template, and not the name of each leg | PR-88: a gate job of each family reports one stable name (D-682, D-683) |
+| F-73 | A Godot export drops each file that the engine does not import | PR-54: no preset holds an include filter, because Game embeds content (D-508) |
+| F-74 | The macOS export needs the universal binary format and the ETC2 ASTC import setting | PR-54: the preset option and the project setting, with a test on each (D-482) |
+| F-90 | The built-in signer of Godot writes a macOS signature that the kernel refuses | PR-54: the preset calls the `codesign` command of the Xcode tools (D-553) |
+| F-91 | One merge exports 259 MB of build artifacts, and GitHub charges no storage in a public repository | PR-54 keeps the 90 days of D-449. OQ-199 asks about Phase 6 (D-456) |
 
 ## 7. Roadmap
 
@@ -191,14 +199,21 @@ Built by PR-5. Phase files: `phase-1-foundations.md` and `phase-2-first-playable
 
 ### 7.11 The export job
 
-Built by PR-54. Phase file: `phase-2-first-playable.md`.
+Built by PR-54. Phase file: `phase-2-first-playable.md`. The file `.github/workflows/export.yml` holds it.
 
 - The job lands right before PR-7, so the merge of PR-7 exports the first walkable build (D-503).
-- It runs on each merge to `main`, and on each PR that changes its workflow file, the export presets, or the export code (D-449, D-512). It is not a line of the PR gate.
+- It runs on each merge to `main`, and on each pull request that changes one of the four paths of D-692. It is not a line of the PR gate (D-449, D-512).
 - Each leg exports the build of its own system: Windows and Linux on x86_64, and the universal macOS build (D-481, D-482). From PR-79 on, the macOS leg signs and notarizes its build (D-455, D-553).
 - The job unpacks the .NET export templates into the editor data folder of the runner, because no command-line option installs them (F-42). The cache action of D-511 keeps the file, and every run checks its SHA-512 (D-596).
-- Each export starts with `--headless` and runs the smoke session, which an export template supports (D-512).
-- Each export carries the license files of D-467. CI keeps each export as a build artifact for 90 days, the longest time that GitHub allows in a public repository (D-449).
+- The cache key of the editor is the key of the smoke job, so one download serves both workflows. A test compares the three digests of the two files (D-596).
+- The job imports the project first, because a clean checkout holds no `.godot` folder and the export reads the imported files.
+- No preset holds an include filter. The Game assembly carries every content file and each font, so the export needs no filter and no copy (D-508, F-42, F-73).
+- The macOS preset takes the universal binary format, and `TheThingBelow.Game/project.godot` turns the ETC2 ASTC import setting on. An export with one of the two off stops with a configuration error (F-74).
+- The macOS preset signs with the `codesign` command of the Xcode tools. The built-in signer of Godot writes a signature that the kernel refuses (F-90).
+- Each export starts with `--headless` and runs the smoke session, which a release export template supports (D-512). The step reads the success line of the log, as the smoke job does (F-64).
+- The job copies `licenses/` beside each build, so every export carries the three notices of D-467 and D-691.
+- An artifact upload gives every file the mode 644. The game then loses its execute bit, and the macOS bundle loses its signature. The job thus packs one archive for each leg, and the upload carries that one file.
+- CI keeps each archive for 90 days, the longest time that GitHub allows (D-449). One merge makes 259 MB, and F-91 and OQ-199 hold the cost in Phase 6.
 - The owner downloads the Linux build artifact for each Deck play (D-92, D-458, `docs/runbooks/dev-machine.md`).
 - PR-45 follows PR-7, so the first screen and the export job exist before it (D-492, D-503).
 
@@ -368,5 +383,7 @@ The register is `docs/questions.md` (D-19). These questions block CI PRs, and ea
 - OQ-84: the seeds of the night. Blocks PR-49.
 - OQ-3: the required checks on `main`. Closed 2026-09-19, and the protection is live (D-681).
 - OQ-197: the unstable check names of the matrix jobs. Resolved by D-682 and D-683, and PR-88 builds them.
+- OQ-198: the third-party notices of the engine in an export. Blocks PR-31.
+- OQ-199: the artifact retention of a private repository. Blocks the move of D-456 in Phase 6.
 
 No open question blocks this file.

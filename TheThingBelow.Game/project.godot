@@ -40,3 +40,5 @@ renderer/rendering_method="mobile"
 renderer/rendering_method.mobile="mobile"
 viewport/hdr_2d=true
 textures/canvas_textures/default_texture_filter=0
+; The macOS export of the universal binary fails when this setting is off (F-74).
+textures/vram_compression/import_etc2_astc=true

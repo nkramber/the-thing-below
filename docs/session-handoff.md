@@ -1,5 +1,47 @@
 # Session handoff
 
+## Session 137: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: PR-54, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: author. Base: `fb17f87`.
+
+### What this session did, and why
+
+- Added `.github/workflows/export.yml`: three legs, the editor and the template downloads with a SHA-512 check, the import, the export, the license copy, the smoke session, one packed archive, and a 90-day artifact (D-449, D-512, D-596).
+- Added `TheThingBelow.Game/export_presets.cfg` with the three targets of D-481 and D-482, and no include filter (D-508, F-73).
+- Added `licenses/` with the three notices of D-467, each one a copy of its upstream text.
+- Ran every export on the Mac of the owner. The macOS export found two faults, and F-74 and F-90 record them.
+- Added 25 tests in four files: the presets, the project settings, the workflow triggers, the digests, and the license set.
+- The owner answered four questions, and D-690 to D-693 hold them. OQ-198 and OQ-199 are new.
+
+### The state of the build
+
+- `make verify` passes on this machine with 831 tests, and `ste-check` gives 0 findings.
+- The remote head of `main` is `fb17f87`, and this branch starts there.
+- The branch has no commit yet, and no PR exists yet.
+- The macOS export ran end to end on this Mac: export, licenses, smoke session, pack, unpack, signature, and a second run of the game.
+
+### What is in flight
+
+The first commit, the push, the PR, and the automated pass. The PR changes code, so it takes the Codex review and no label of D-401.
+
+### Traps and gotchas
+
+- F-74 is a project setting, and not a preset option. The macOS export fails with the ETC2 ASTC import setting off in `TheThingBelow.Game/project.godot`.
+- F-90: the built-in signer of Godot writes a macOS signature that the kernel refuses. The game dies with signal 9 and no output, and `codesign --verify` calls that signature valid.
+- The executable in the macOS bundle takes the application name, "The Thing Below", and not the name of the export file. The job finds it.
+- An artifact upload drops the execute bit, so the job packs one archive for each leg.
+- The carry-over note of the last prompt is wrong: `main` holds `docs/reviews/pr-38.md`, and PR #38 took its Codex review.
+- The OQ-59 correction goes to its own documents PR (D-690). This PR keeps one concern.
+
+### The questions that block progress
+
+None. OQ-198 blocks PR-31, and OQ-199 blocks the move of D-456 in Phase 6.
+
+### The next concrete action
+
+Commit, push, open the PR with its Documents section, and answer the automated pass.
+
 ## Session 136: 2026-09-19, Codex
 
 Author: Codex
@@ -358,40 +400,3 @@ None for this PR. OQ-3 remains an owner question for Gate 1.
 ### The next concrete action
 
 Push the correction, answer the pass of gitar, and ask Codex for the repeat review.
-
-## Session 127: 2026-09-19, Codex
-
-Author: Codex
-Session: review PR #35, the empty option value of every Tools command. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: reviewer. Base: `f896dc3`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-35 diff from merge base `f896dc3` to effective head `4e9338d`.
-- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Verified the shared empty-option parser, all command call sites, regression tests, decision rows, roadmap entries, and handoff records.
-- Found P2-1. The records say six option values, but they list seven.
-
-### The state of the build
-
-- The PR tip is `c6e755b`, and the effective implementation head is `4e9338d`.
-- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check. Replay identity, content hash, and the bounded smoke session pass.
-- All nine empty-option probes return exit code 1, name the option, and produce no stack trace.
-
-### What is in flight
-
-The review record `docs/reviews/pr-35.md` records `Changes required` for P2-1. The review record and this handoff entry are not yet published to the PR branch.
-
-### Traps and gotchas
-
-- The implementation covers seven non-atlas option values and two atlas option values. The text says six in multiple places.
-- The effective head is `4e9338d`, not the metadata tip `c6e755b`.
-
-### The questions that block progress
-
-None for this PR. OQ-3 remains an owner question for Gate 1.
-
-### The next concrete action
-
-The author corrects the repeated scope count. Then the review reruns the document and review-gate checks before it publishes a final verdict.
-
-Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).

@@ -1,0 +1,307 @@
+# The export of the three targets of D-481: Windows and Linux on x86_64, and the universal
+# macOS build (D-482). Each CI leg exports the build of its own system, runs the headless
+# smoke session on that build, and uploads it as a build artifact (D-449, D-503, D-512).
+#
+# This workflow is not a line of the PR gate (D-449, D-512). It runs on each merge to `main`,
+# and on each pull request that changes one of the four export paths of D-692. A pull request
+# that changes no such path starts no run, and it needs none.
+#
+# The steps that get the Godot editor repeat the steps of the smoke job of `ci.yml`. Two jobs
+# never share a step list, and D-511 allows no action outside the `actions` organization, so
+# no composite action holds them. The two copies use one cache key, so one download serves
+# both workflows.
+#
+# Each action pins a full commit SHA, and every other download checks its SHA-512 (D-511, D-596).
+name: export
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - .github/workflows/export.yml
+      - TheThingBelow.Game/export_presets.cfg
+      - TheThingBelow.Game/project.godot
+      - licenses/**
+
+# The jobs read the checkout alone (T-2).
+permissions:
+  contents: read
+
+concurrency:
+  group: export-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  GODOT_VERSION: "4.7.2-stable"
+  # The .NET export templates of the same release. The editor installs them from a TPZ file,
+  # and no command-line option installs them, so the job unpacks the file itself (F-42, D-596).
+  TEMPLATES_ARCHIVE: "Godot_v4.7.2-stable_mono_export_templates.tpz"
+  TEMPLATES_SHA512: "bb5c41d72370ed743660361f6228006f808ab04ca33abdc545d740b044f3fe057f32ae8cb7873a1bc86ddcd82ae683b9f6dfdfe4179852f2c0f1acde2ff6bd5a"
+  # The longest time that GitHub keeps an artifact of a public repository (D-449).
+  ARTIFACT_DAYS: "90"
+
+jobs:
+  export:
+    name: export (${{ matrix.leg }})
+    runs-on: ${{ matrix.leg }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - leg: ubuntu-24.04
+            archive: Godot_v4.7.2-stable_mono_linux_x86_64.zip
+            sha512: 1855960b27ee3ef5e66e5e228cced69d55637b24334a7411162687dcd077d8f9f645348cdb8eae984bec8135d49ed855a1e3a16476786b8bce60774fd8402d13
+            preset: Linux
+            export-file: the-thing-below.x86_64
+            package: the-thing-below-linux-x86_64
+          - leg: windows-2025
+            archive: Godot_v4.7.2-stable_mono_win64.zip
+            sha512: 79229fd112b0c9cbeab82363a4ef7be18ea70f1caf86bf912789335b136fbe7e01db0053a33461438c5da1c680c17bbb10040bd09bedc51221cd4423d0367757
+            preset: Windows
+            export-file: the-thing-below.exe
+            package: the-thing-below-windows-x86_64
+          - leg: macos-26
+            archive: Godot_v4.7.2-stable_mono_macos.universal.zip
+            sha512: 0862c53d7158c7a67f745e2e46f90b68cf5343cbe8b95d6d4333c469e42ca104af9c121d1746a50e5d221a99d09d82ef7016495f8e0d09255842884ed0502795
+            preset: macOS
+            export-file: the-thing-below.app
+            package: the-thing-below-macos-universal
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install the .NET SDK of global.json
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # The cache key is the key of the smoke job of `ci.yml`, so one download serves both
+      # workflows. Every run checks the SHA-512 of the file, a cache hit included (D-511, D-596).
+      - name: Read the Godot editor from the cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: godot-download
+          key: godot-${{ env.GODOT_VERSION }}-${{ matrix.archive }}
+
+      - name: Read the export templates from the cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: templates-download
+          key: godot-templates-${{ env.GODOT_VERSION }}
+
+      - name: Get the Godot editor and the export templates, and check each SHA-512
+        env:
+          ARCHIVE: ${{ matrix.archive }}
+          ARCHIVE_SHA512: ${{ matrix.sha512 }}
+        run: |
+          set -euo pipefail
+          mkdir -p godot-download templates-download
+
+          release="https://github.com/godotengine/godot-builds/releases/download/$GODOT_VERSION"
+
+          # The Linux and Windows images carry `sha512sum`, and the macOS image carries
+          # `shasum`. The step reads the digest itself, so the error names both values (T-2, F-63).
+          digest_of() {
+            if command -v sha512sum > /dev/null 2>&1; then
+              sha512sum "$1" | cut -d ' ' -f 1
+            elif command -v shasum > /dev/null 2>&1; then
+              shasum --algorithm 512 "$1" | cut -d ' ' -f 1
+            else
+              echo "This image carries no sha512sum and no shasum command (T-2)." >&2
+              exit 1
+            fi
+          }
+
+          get_and_check() {
+            file="$1"
+            expected="$2"
+            if [ ! -f "$file" ]; then
+              echo "The cache holds no $(basename "$file"). The run downloads it."
+              curl --location --fail --silent --show-error \
+                --output "$file" "$release/$(basename "$file")"
+            fi
+
+            actual=$(digest_of "$file")
+            if [ "$actual" != "$expected" ]; then
+              echo "The SHA-512 of $(basename "$file") does not match this workflow (T-2)." >&2
+              echo "  expected: $expected" >&2
+              echo "  actual:   $actual" >&2
+              exit 1
+            fi
+            echo "The SHA-512 of $(basename "$file") matches."
+          }
+
+          get_and_check "godot-download/$ARCHIVE" "$ARCHIVE_SHA512"
+          get_and_check "templates-download/$TEMPLATES_ARCHIVE" "$TEMPLATES_SHA512"
+
+      - name: Unpack the Godot editor
+        env:
+          ARCHIVE: ${{ matrix.archive }}
+        run: |
+          set -euo pipefail
+          rm -rf godot-editor
+          mkdir -p godot-editor
+          unzip -q "godot-download/$ARCHIVE" -d godot-editor
+
+          # The archive of each leg holds one executable. The run fails when it holds none
+          # or more than one, so no later step runs against the wrong file (T-2, F-62).
+          matches=$(find godot-editor -type f \
+            \( -name 'Godot_v*_mono_linux.x86_64' \
+            -o -name 'Godot_v*_mono_win64.exe' \
+            -o -path '*.app/Contents/MacOS/Godot' \))
+          count=$(printf '%s\n' "$matches" | grep -c . || true)
+          if [ "$count" != "1" ]; then
+            echo "The archive $ARCHIVE holds $count Godot executables, and not one (T-2)." >&2
+            printf '%s\n' "$matches" >&2
+            exit 1
+          fi
+
+          godot=$(printf '%s\n' "$matches")
+          chmod +x "$godot"
+          echo "GODOT=$PWD/$godot" >> "$GITHUB_ENV"
+
+      # The editor reads its export templates from its data folder alone, and no command-line
+      # option installs them (F-42). The TPZ file is a ZIP whose `templates` folder carries the
+      # version name in `version.txt`, and the folder takes that name (D-596).
+      - name: Unpack the export templates into the editor data folder
+        run: |
+          set -euo pipefail
+          rm -rf templates-unpacked
+          unzip -q "templates-download/$TEMPLATES_ARCHIVE" -d templates-unpacked
+
+          version_file="templates-unpacked/templates/version.txt"
+          if [ ! -f "$version_file" ]; then
+            echo "The file '$version_file' is absent, so the template folder has no name (T-2)." >&2
+            exit 1
+          fi
+          version=$(tr -d '\r\n' < "$version_file")
+
+          case "$RUNNER_OS" in
+            Linux) data="$HOME/.local/share/godot" ;;
+            macOS) data="$HOME/Library/Application Support/Godot" ;;
+            Windows) data=$(cygpath --unix "$APPDATA")/Godot ;;
+            *) echo "This job knows no data folder for the system '$RUNNER_OS' (T-2)." >&2; exit 1 ;;
+          esac
+
+          target="$data/export_templates/$version"
+          rm -rf "$target"
+          mkdir -p "$data/export_templates"
+          mv templates-unpacked/templates "$target"
+          echo "The templates of '$version' are in '$target', and it holds $(ls "$target" | wc -l) files."
+
+      # A clean checkout holds no `.godot` folder, and the export reads the imported files.
+      # The option `--import` works in an editor build alone, and it implies `--quit`.
+      - name: Import the project
+        run: |
+          set -euo pipefail
+          "$GODOT" --headless --path TheThingBelow.Game --import > import.log 2>&1
+          if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR)" import.log; then
+            echo "The import wrote an error line. Read import.log (T-2)." >&2
+            exit 1
+          fi
+
+      # The export runs `dotnet publish` on the Game project itself, so the assembly and its
+      # embedded content reach the build with no include filter (D-508, F-42, F-73).
+      - name: Export the build of this leg
+        env:
+          PRESET: ${{ matrix.preset }}
+          EXPORT_FILE: ${{ matrix.export-file }}
+        run: |
+          set -euo pipefail
+          rm -rf export
+          mkdir -p export
+          "$GODOT" --headless --path TheThingBelow.Game \
+            --export-release "$PRESET" "$PWD/export/$EXPORT_FILE" > export.log 2>&1
+
+          # The editor prints the export errors and gives a nonzero code, and this grep names
+          # the fault in the log too (T-2).
+          if grep -E "^ERROR" export.log; then
+            echo "The export of the preset '$PRESET' wrote an error line. Read export.log (T-2)." >&2
+            exit 1
+          fi
+          if [ ! -e "export/$EXPORT_FILE" ]; then
+            echo "The export wrote no file 'export/$EXPORT_FILE' (T-2)." >&2
+            exit 1
+          fi
+          ls -la export
+
+      # Every export carries the notices of Godot, the Terminus fonts, and the .NET runtime
+      # (D-467, D-691). The Godot export packs the project folder alone, so the job copies
+      # the folder beside the build (F-42, D-508).
+      - name: Copy the license files into the export
+        run: |
+          set -euo pipefail
+          cp -R licenses export/licenses
+          ls export/licenses
+
+      # Each export starts with `--headless` and runs the smoke session, which a release
+      # export template supports (D-512). The session gives an exit code of 0 with no success
+      # line when its managed assembly does not load, so this step reads the log (T-2, F-64).
+      - name: Run the headless smoke session on the export
+        env:
+          EXPORT_FILE: ${{ matrix.export-file }}
+        run: |
+          set -euo pipefail
+
+          case "$RUNNER_OS" in
+            Linux|Windows)
+              game="$PWD/export/$EXPORT_FILE"
+              chmod +x "$game"
+              ;;
+            macOS)
+              # The executable in the bundle takes the application name of `project.godot`,
+              # and not the name of the export file. The bundle holds one (T-2).
+              matches=$(find "$PWD/export/$EXPORT_FILE/Contents/MacOS" -type f)
+              count=$(printf '%s\n' "$matches" | grep -c . || true)
+              if [ "$count" != "1" ]; then
+                echo "The bundle holds $count executables, and not one (T-2)." >&2
+                printf '%s\n' "$matches" >&2
+                exit 1
+              fi
+              game=$(printf '%s\n' "$matches")
+              ;;
+            *) echo "This job knows no game path for the system '$RUNNER_OS' (T-2)." >&2; exit 1 ;;
+          esac
+
+          "$game" --headless --quit-after 600 -- --smoke > export-smoke.log 2>&1 || true
+          cat export-smoke.log
+
+          if ! grep -q "smoke: the session ends with no error." export-smoke.log; then
+            echo "The smoke session of the export wrote no success line (T-2)." >&2
+            exit 1
+          fi
+          if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR)" export-smoke.log; then
+            echo "The smoke session of the export wrote an error line (T-2)." >&2
+            exit 1
+          fi
+
+      # An artifact upload gives every file the mode 644, so the game would lose its execute
+      # bit and the macOS bundle would lose its signature (the external facts of `area-ci.md`).
+      # The job thus packs one archive, and the upload carries that one file.
+      - name: Pack the export into one archive
+        env:
+          PACKAGE: ${{ matrix.package }}
+        run: |
+          set -euo pipefail
+          case "$RUNNER_OS" in
+            Linux) (cd export && zip --quiet --recurse-paths "../$PACKAGE.zip" .) ;;
+            macOS) (cd export && ditto -c -k --sequesterRsrc . "../$PACKAGE.zip") ;;
+            Windows) 7z a -tzip -bso0 "$PACKAGE.zip" ./export/* ;;
+            *) echo "This job knows no pack command for the system '$RUNNER_OS' (T-2)." >&2; exit 1 ;;
+          esac
+          ls -la "$PACKAGE.zip"
+
+      - name: Upload the build artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ matrix.package }}
+          path: ${{ matrix.package }}.zip
+          retention-days: ${{ env.ARTIFACT_DAYS }}
+          if-no-files-found: error
