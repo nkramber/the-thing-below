@@ -26,7 +26,11 @@ Session: PR-87, the empty option value of the Tools commands. Repository: the-th
 
 ### What is in flight
 
-The first push of the PR, and the pass of gitar after it.
+The review of Codex. The pass of gitar approved the head `4e9338d` with no finding and no open thread.
+
+`review-gate` names RG 3 alone: the review record of Codex at `docs/reviews/pr-35.md`. RG 1, RG 2, and RG 6 to RG 8 pass. Every other check passes on every CI leg.
+
+The first head failed RG 7 with two faults of the PR description. The row `docs/reviews/` had no form of D-581, and it named the roadmap id and not the GitHub number. The row `.claude/skills/` named no path after the reason. The description now holds both forms, and RG 7 passes. No commit changed, so the pass of gitar stands.
 
 ### Traps and gotchas
 
@@ -41,7 +45,7 @@ None for this PR. OQ-3 remains an owner question for Gate 1.
 
 ### The next concrete action
 
-Push the branch, open the PR with the Documents section, and answer the pass of gitar.
+The Codex review of PR #35. The reviewer writes `docs/reviews/pr-35.md` with the verdict for the effective head, and RG 3 then passes.
 
 ## Session 125: 2026-09-19, Codex
 
