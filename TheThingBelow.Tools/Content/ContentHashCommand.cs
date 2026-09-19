@@ -74,7 +74,13 @@ public static class ContentHashCommand
                 return Program.FaultExitCode;
             }
 
-            root = args[index + 1];
+            string value = args[index + 1];
+            if (OptionValue.ReportEmpty(RootOption, value, errors))
+            {
+                return Program.FaultExitCode;
+            }
+
+            root = value;
             index += 1;
         }
 

@@ -2,6 +2,47 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 126: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: PR-87, the empty option value of the Tools commands. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: author. Base: `f896dc3`.
+
+### What this session did, and why
+
+- The session asked the owner three questions before any change. D-677 to D-679 answer them.
+- A probe of every command found the fault in four commands and six option values, and F-83 recorded one.
+- D-678 sets the scope: every Tools command, and not `content-hash` alone.
+- `OptionValue.ReportEmpty` is the one place of the check, and every command reads its option values through it (D-679).
+- The `atlas` command moves from its own copy of the check to that helper.
+- Section 7.20 of `docs/roadmaps/phase-1-foundations.md` holds PR-87, and Gate 1 moves to 7.21.
+- F-83 now records the full set and reads as fixed.
+
+### The state of the build
+
+- `main` is `f896dc3`, and the branch starts there.
+- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
+- The suite grew by 12 tests: 9 rows of the command theory and 3 for the helper.
+- Every one of the six option values gives the fault exit code and names the option.
+
+### What is in flight
+
+The first push of the PR, and the pass of gitar after it.
+
+### Traps and gotchas
+
+- Seven of the nine theory rows fail on the old code. The two `atlas` rows pass, because PR-34 fixed that command.
+- `det-lint --root ""` gave a clean error before this PR, from a folder check further down. The message changes to the parse message.
+- The insert of one item renumbered the sequence list of section 7 of `docs/design.md`. The diff is large, and the order does not change.
+- No Core behavior changes, so the simulation version stands (G-17).
+
+### The questions that block progress
+
+None for this PR. OQ-3 remains an owner question for Gate 1.
+
+### The next concrete action
+
+Push the branch, open the PR with the Documents section, and answer the pass of gitar.
+
 ## Session 125: 2026-09-19, Codex
 
 Author: Codex
@@ -374,53 +415,3 @@ None.
 ### The next concrete action
 
 Run `make where`, commit the review record and handoff entry, push, fetch, and verify the review gate and remote head.
-
-## Session 116: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: PR-43, the Storage project, the snapshots, and the saves. Repository: the-thing-below. Branch: `feat/pr-43-storage-and-saves`. Role: author. Base: `3a7340f`.
-
-### What this session did, and why
-
-- The session asked the owner four questions before any change, and D-654 to D-657 answered them.
-- `TheThingBelow.Storage` is the sixth project of the solution (D-494). Core declares no reference, and a new test proves it.
-- Core holds the text of a save: two lines of JSON, the header with the checksum, and the snapshot (D-655).
-- `RunSnapshotText` holds the one writer and the one reader of a snapshot line, and `RunRecordText` calls it (T-1).
-- Storage holds the folder rule of the three systems, the three save files, and the one safe write of D-178.
-- The stored save `TheThingBelow.Tests/saves/format-1.json` names simulation version 1, and this build loads it (D-259).
-- Game sets the custom user folder of Godot, and Boot compares that folder with the rule of Storage (D-657, F-33).
-- The first push failed the format check on the Windows leg alone, and F-80 records the reason.
-
-### The state of the build
-
-- `main` is `3a7340f`, and the branch starts there.
-- `make verify` passes with 536 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and the smoke session pass.
-- The head is `d1d2a47`, and it passes every CI leg. The `review-gate` check gives RG 3 alone, because the head holds no review record.
-- The first head `d776f5e` failed the format step of Windows alone, which F-80 explains.
-- The smoke session printed the save folder of this machine, so the check of D-657 ran against the real Godot folder.
-- `SimulationVersion.Current` stays 3. The PR adds a text form and file code, and it changes no rule that makes a state (G-17).
-
-### What is in flight
-
-The review of Codex. The Gitar pass approves the head `d1d2a47` and gives no finding.
-
-- The Gitar check on that head completed with success 2 seconds after the push.
-- Gitar replaced the dashboard comment, and the new id is `5738261979` with the edit time 01:29:38Z. That time is later than the push at 01:28:48Z, so the pass covers the head (D-603).
-- The dashboard reads `Approved` with no issue, and the PR holds no review thread.
-
-### Traps and gotchas
-
-- Tools takes no reference to Storage yet, because no command of Tools reads or writes a save. PR-44 adds it with the crash files (D-494).
-- The three save names have no backticks in the documents. The reference rule reads a bare name with a file type as a path of the repository.
-- `SaveText.Write` refuses a header of another format version, so a test of an old format must change the text itself.
-- The fixture test fails a raise of the format version with no stored save. A PR that changes the snapshot commits a fixture (D-166, D-654).
-- A comment between the arrow of an expression body and its expression fails `dotnet format` on Windows alone (F-80). The Mac gives no finding.
-- The next ids are D-658, OQ-190, F-81, L-16, G-29, M-9, and Session 117.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Open the pull request with its Documents section, then answer the Gitar pass.

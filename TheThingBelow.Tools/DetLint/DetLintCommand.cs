@@ -72,13 +72,19 @@ public static class DetLintCommand
                 return Program.FaultExitCode;
             }
 
+            string value = args[index + 1];
+            if (OptionValue.ReportEmpty(option, value, errors))
+            {
+                return Program.FaultExitCode;
+            }
+
             if (option == RootOption)
             {
-                root = args[index + 1];
+                root = value;
             }
             else
             {
-                configuration = args[index + 1];
+                configuration = value;
             }
         }
 
