@@ -1,5 +1,100 @@
 # Session handoff archive
 
+## Session 118: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-44, the crash files and the log files. Repository: the-thing-below. Branch: `feat/pr-44-crash-and-log-files`. Role: author. Base: `cb93ecd`.
+
+### What this session did, and why
+
+- The session asked the owner six questions before any change. It confirmed that OQ-57 blocks PR-61 alone, because D-559 moved the crash message and the address of D-473 to that PR.
+- D-658 to D-662 answer the five new questions: the folders and the names, the count of files, the levels and what a step logs, the lines of a crash file, and the simulation version.
+- A step of Core returns its log entries (D-179). A menu change takes the info level, and a beat of the patrol the debug level (D-660).
+- Core holds `LogEntry`, `LogLine`, and `LogLineText`, and it adds no time and no path. Core holds `CrashReport` and `CrashText` too.
+- Storage holds `LogStore`, `CrashStore`, the time text, the folder rules, and the rule that hides the folders of the person (D-170).
+- One crash file holds the crash line and then the lines of the record, so the player sends one file and the report keeps its replay (D-661).
+- Game catches the error of each callback, writes the crash file, writes one log line, and exits with the code 1 (D-559, T-2).
+- The smoke session writes the log file, opens and closes the menu, and writes and reads one crash file. Each CI leg thus reads the whole path (D-117).
+- F-81 records a wrong pointer: section 7.15 of the phase file sent this PR to section 7.10 of `area-release.md`, and the right section is 7.1.
+
+### The state of the build
+
+- `main` is `cb93ecd`, and the branch starts there.
+- `make verify` passes with 625 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and the bounded smoke session pass.
+- The smoke session of this machine wrote 3 log lines and one crash file with a record that ends at tick 120.
+- `SimulationVersion.Current` stays 3, which D-662 sets. The identity file and the fixture save of format 1 need no change (G-17).
+
+### What is in flight
+
+The review of Codex. The Gitar pass approved the head `e45dcc9` with no code finding, and its CI block raised two claims. RG 7 had full merit: three rows of the Documents section gave no path, and the description now gives each one a path. RG 3 waits for the review record, which the review of Codex writes on this branch.
+
+### Traps and gotchas
+
+- `fault.GetType().Name` is a member of `System.Reflection` for `det-lint` rule DL 4. Thus Core takes the name of the type of an error as an argument, and Storage reads it (F-36, D-647).
+- The JSON writer escapes `<` and `>`, so the placeholder of a hidden folder is `(user-folder)` and a person reads the path in the file.
+- Storage reads the clock nowhere. Each caller passes a UTC time, and a time of another kind is an error (T-3).
+- A crash file with a stack holds line feeds inside one JSON string, and the physical line stays one line.
+- Tools takes no reference to Storage yet, because no command reads a crash file. PR-15 adds it with the headless runner (D-494).
+- The next ids are D-663, OQ-195, F-82, L-16, G-29, M-9, and Session 119.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run `make where`, commit the work, push one time, and answer the Gitar pass with the `gitar-review` skill.
+
+## Session 116: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-43, the Storage project, the snapshots, and the saves. Repository: the-thing-below. Branch: `feat/pr-43-storage-and-saves`. Role: author. Base: `3a7340f`.
+
+### What this session did, and why
+
+- The session asked the owner four questions before any change, and D-654 to D-657 answered them.
+- `TheThingBelow.Storage` is the sixth project of the solution (D-494). Core declares no reference, and a new test proves it.
+- Core holds the text of a save: two lines of JSON, the header with the checksum, and the snapshot (D-655).
+- `RunSnapshotText` holds the one writer and the one reader of a snapshot line, and `RunRecordText` calls it (T-1).
+- Storage holds the folder rule of the three systems, the three save files, and the one safe write of D-178.
+- The stored save `TheThingBelow.Tests/saves/format-1.json` names simulation version 1, and this build loads it (D-259).
+- Game sets the custom user folder of Godot, and Boot compares that folder with the rule of Storage (D-657, F-33).
+- The first push failed the format check on the Windows leg alone, and F-80 records the reason.
+
+### The state of the build
+
+- `main` is `3a7340f`, and the branch starts there.
+- `make verify` passes with 536 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, and the smoke session pass.
+- The head is `d1d2a47`, and it passes every CI leg. The `review-gate` check gives RG 3 alone, because the head holds no review record.
+- The first head `d776f5e` failed the format step of Windows alone, which F-80 explains.
+- The smoke session printed the save folder of this machine, so the check of D-657 ran against the real Godot folder.
+- `SimulationVersion.Current` stays 3. The PR adds a text form and file code, and it changes no rule that makes a state (G-17).
+
+### What is in flight
+
+The review of Codex. The Gitar pass approves the head `d1d2a47` and gives no finding.
+
+- The Gitar check on that head completed with success 2 seconds after the push.
+- Gitar replaced the dashboard comment, and the new id is `5738261979` with the edit time 01:29:38Z. That time is later than the push at 01:28:48Z, so the pass covers the head (D-603).
+- The dashboard reads `Approved` with no issue, and the PR holds no review thread.
+
+### Traps and gotchas
+
+- Tools takes no reference to Storage yet, because no command of Tools reads or writes a save. PR-44 adds it with the crash files (D-494).
+- The three save names have no backticks in the documents. The reference rule reads a bare name with a file type as a path of the repository.
+- `SaveText.Write` refuses a header of another format version, so a test of an old format must change the text itself.
+- The fixture test fails a raise of the format version with no stored save. A PR that changes the snapshot commits a fixture (D-166, D-654).
+- A comment between the arrow of an expression body and its expression fails `dotnet format` on Windows alone (F-80). The Mac gives no finding.
+- The next ids are D-658, OQ-190, F-81, L-16, G-29, M-9, and Session 117.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Open the pull request with its Documents section, then answer the Gitar pass.
+
 ## Session 115: 2026-09-18, Codex
 
 Author: Codex
@@ -4968,3 +5063,37 @@ OQ-18, the world-building interview, blocks the rename (D-102) and Phase 4. OQ-3
 ### Next concrete action
 
 The session waits for the pass on this head and applies the label. The owner merges PR #1. The next session runs the world-building interview (OQ-18) as a docs PR under D-68, then the rename PR (D-102). Then a session starts PR-1 from `main` per the Phase 1 roadmap, and writes `docs/roadmaps/phase-1-foundations.md` first with the exit tests of PR-1 to PR-6 and PR-34 and the three font candidates (D-122), under the `design-doc-style` skill.
+# Session 117: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #30, PR-43, the Storage project, the snapshots, and the saves. Repository: the-thing-below. Branch: `feat/pr-43-storage-and-saves`. Role: reviewer. Base: `3a7340f`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-30 diff from merge base `3a7340f` to effective head `d1d2a47`.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Traced the save format, checksum, format dispatch, safe write, resume removal, platform folder rules, Core boundary, and Godot boot check.
+- Found no actionable finding. Wrote `docs/reviews/pr-30.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- The metadata tip is `e3ff30b`, and the effective implementation head is `d1d2a47`.
+- `make verify` passes with 536 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
+- GitHub reports the implementation checks and Gitar pass green. The current `review-gate` run fails because the review record named the wrong effective head. The new record targets `d1d2a47`.
+
+### What is in flight
+
+The review record and this handoff entry need a metadata commit and push. A fresh `review-gate` run must then verify the published record.
+
+### Traps and gotchas
+
+- The effective head excludes only the review and handoff metadata commit after `d1d2a47`.
+- PR-16 adds the Game save-load integration. PR-44 adds crash and log files.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run `make where`, commit the review record and handoff entry, push, fetch, and verify the review gate and remote head.

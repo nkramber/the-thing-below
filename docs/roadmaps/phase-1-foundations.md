@@ -800,7 +800,38 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 
 > *In plain English:* the first ten changes each record what they cost in machine time and in money. That gives the owner real numbers before the plan grows.
 
-### 7.20 Gate 1: the foundation gate
+### 7.20 PR-87: the empty option value of the Tools commands
+
+Area file: `area-tools.md` section 7.1. D-674 puts this PR after the M-1 and M-2 PR and before Gate 1. D-677 sets the id, and D-678 sets the scope.
+
+**Scope.**
+
+- The parse of an empty option value in every Tools command, and not in `content-hash` alone (D-678, F-83).
+- The seven option values: `ste-check --root`, `det-lint --root`, `det-lint --configuration`, `replay-identity --root`, `content-hash --root`, `review-gate --pull-request`, and `review-gate --head-files`.
+- The one helper `OptionValue.ReportEmpty`, which every command reads its option values through (D-679).
+- The move of the `atlas` command from its own copy of the check to that helper (D-679).
+- A regression test for each command and each option value, which fails on the old code (T-3).
+
+**Out of scope.**
+
+- Every other fault of a command line. An unknown option and an absent value each read a message already.
+- The absent review record of PR #33, which F-84 holds and a PR of its own fixes (D-673, G-8).
+- No behavior of Core changes, so the simulation version stands (G-17).
+
+**Exit tests.**
+
+1. Each of the seven option values gives the fault exit code and names the option.
+2. No command ends with a stack trace on an empty option value.
+3. The regression theory holds nine rows: the seven above and the two values of the `atlas` command.
+4. The seven rows fail on the code before this PR. The two `atlas` rows pass, because PR-34 fixed that command.
+
+**Review focus.** The review confirms that no command reads an option value outside the helper. It also reads the message of each fault for the context that T-2 asks for.
+
+**Questions.** None. D-677 and D-678 answer the two that this PR asked.
+
+> *In plain English:* a tool that gets an empty setting for a folder used to crash with a wall of code. Now it says which setting is empty and stops.
+
+### 7.21 Gate 1: the foundation gate
 
 **The gate.** Gate 1 passes when every line holds:
 
@@ -844,8 +875,9 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 19. PR-47: the PNG code, right before the atlas (D-496).
 20. PR-34: the atlas, the palette, and the drawing files.
 21. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above. Done on 2026-09-19.
-22. Owner and a session: the Sprite Fusion test of the art (D-620, D-675).
-23. **← GATE 1 (foundation).** Section 7.20 holds each line.
+22. PR-87: the empty option value of the Tools commands, before Gate 1 (D-674, D-677).
+23. Owner and a session: the Sprite Fusion test of the art (D-620, D-675).
+24. **← GATE 1 (foundation).** Section 7.21 holds each line.
 
 The next phase file is `phase-2-first-playable.md`. Between the two, the owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).
 

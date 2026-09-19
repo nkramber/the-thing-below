@@ -71,13 +71,9 @@ public static class AtlasCommand
                 return Program.FaultExitCode;
             }
 
-            // An empty value is a fault of the command line, and it reads here. A path check
-            // further down would throw `ArgumentException`, which no message of this command
-            // catches, and the process would end with a stack trace (T-2).
             string value = args[index + 1];
-            if (value.Length == 0)
+            if (OptionValue.ReportEmpty(option, value, errors))
             {
-                errors.WriteLine($"Error: the value of the option {option} is empty.");
                 return Program.FaultExitCode;
             }
 

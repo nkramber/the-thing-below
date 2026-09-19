@@ -340,7 +340,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-80 | `dotnet format` on Windows writes the line ending of the machine when it rewrites a line, and `.gitattributes` pins every file to one line feed. A comment between the arrow of an expression body and its expression makes the tool rewrite that line, so the format check fails on the Windows leg and passes on the Mac. Three lines of `TheThingBelow.Tests/SaveFolderTests.cs` failed this way in PR-43, and the same run passed every other check on Windows | 2026-09-18 | ✅ PR-43 gives that test a body with braces, and the comment sits inside the body. The `csharp-conventions` skill holds the rule |
 | F-81 | Section 7.15 of `docs/roadmaps/phase-1-foundations.md` pointed PR-44 at section 7.10 of `area-release.md`, which holds the Deck verification pass of PR-39. The crash file work of PR-44 sits in section 7.1 of that file, the game version. PR-44 read the wrong section first | 2026-09-18 | ✅ PR-44 names section 7.1. The reference check of `ste-check` reads a path and not a section number, so a reader of each pointer is the one guard (D-605) |
 | F-82 | The Tools scan of `det-lint` asked `ReferenceSet.WithOutputOf` for the build output of Tools. The command is the Tools program, so the framework list of its own process already holds each of those assemblies, and the method added none and failed with "holds no assembly beside the framework". No PR reached the scan before, because each folder of D-502 was absent | 2026-09-18 | ✅ PR-47: the Tools scan takes `ReferenceSet.Framework()`, as the Core scan does, and a test writes a float in a folder of D-502 and one outside it |
-| F-83 | The `content-hash` command ends with a stack trace on an empty option value. `content-hash --root ""` reaches `ArgumentException.ThrowIfNullOrEmpty`, and the catch filter of the command reads that type nowhere. `det-lint` reports the same input as a clean error. The automated pass of PR #33 found the shape in the `atlas` command | 2026-09-19 | 🔧 PR-34 reads an empty option value at the parse of the `atlas` command, and it reports it with the fault exit code. The same fix for `content-hash` is a concern of its own, and it needs a PR of its own (G-8) |
+| F-83 | Five Tools commands read an empty option value with no check at the parse. The value reaches `ArgumentException.ThrowIfNullOrEmpty`, and the catch filter of the command reads that type nowhere. A probe of every command found seven option values with no parse check. Five of the seven end with a stack trace and the exit code of a crash: `ste-check --root`, `det-lint --configuration`, `replay-identity --root`, `content-hash --root`, and `review-gate --pull-request`. The other two give a message that names no empty option: `det-lint --root` names an absent folder, and `review-gate --head-files` names an access fault of the path. The automated pass of PR #33 found the shape in the `atlas` command | 2026-09-19 | ✅ PR-34 reads an empty option value at the parse of the `atlas` command. PR-87 gives every other command the same parse, through the one helper of D-679 (D-678). The first record of this row named the `content-hash` command alone. It also gave two counts that a later probe refuted, and the review of PR #35 found the first of them |
 | F-84 | PR #33 merged with no review record at `docs/reviews/pr-33.md`, so it took no cross-provider review. The `review-gate` check passed, because RG 3 reads the verdict of a review file that exists and reports nothing when the file is absent. T-4 and D-17 ask for the record on every PR outside the override set | 2026-09-19 | 🔧 A PR of its own makes `review-gate` fail when the review file of the PR is absent (D-673, G-8) |
 
 ## 6. Guardrails (the safety contract for every PR)
@@ -421,8 +421,9 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 19. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517, D-666).
 20. M-1: the harness usage of each of the first ten code PRs. Done on 2026-09-19 (D-672).
 21. M-2: the CI wall time of each job of the first ten code PRs. Done on 2026-09-19.
-22. Owner and a session: the Sprite Fusion test of the art, after M-2 (D-620, D-675).
-23. **← GATE 1 (foundation).**
+22. PR-87: the empty option value of every Tools command, before Gate 1 (D-674, D-677, D-678).
+23. Owner and a session: the Sprite Fusion test of the art, after M-2 (D-620, D-675).
+24. **← GATE 1 (foundation).**
 
 > *In plain English:* this phase builds the machinery and the checks, and nothing that a player can see. At the end of it, four computers play the same run and agree on one number.
 
@@ -562,44 +563,45 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 7. Owner: require the checks on `main` (OQ-3).
 8. PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, PR-47, PR-34.
 9. M-1, M-2. Done on 2026-09-19, and section 4 holds each number (D-672).
-10. Owner and a session: the Sprite Fusion test of the art, on the branch spike/sprite-fusion (D-620, D-675).
-11. **← GATE 1 (foundation).** The identity job, `dotnet test`, the smoke job, `det-lint`, and `ste-check` are green on every CI leg.
-12. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
-13. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8.
-14. PR-9, PR-80, PR-66, PR-55, PR-10.
-15. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60.
-16. PR-11, PR-67, PR-62.
-17. PR-68, PR-50.
-18. PR-12, PR-13, PR-14, PR-65.
-19. PR-36.
-20. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
-21. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-22. PR-16, PR-64, PR-35.
-23. PR-38, PR-69, PR-70, PR-71.
-24. PR-51, PR-52, PR-53, PR-72.
-25. PR-17.
-26. M-3, M-4, M-6.
-27. Owner: set the M-4 band from the M-4 numbers (D-571).
-28. **← GATE 2 (first playable).** The owner plays the village, one hub, and one dungeon on both machines and signs off on feel (D-362).
-29. PR-74, PR-75, PR-76.
-30. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
-31. PR-18, PR-19, PR-20, PR-21.
-32. **← GATE 3 (story systems).** The owner plays a branch and a hub that changes with an earlier choice.
-33. PR-23, PR-24, PR-81, PR-27, PR-25, PR-26.
-34. PR-42, PR-73.
-35. PR-28, PR-29, PR-77.
-36. PR-30.
-37. M-5.
-38. **← GATE 4 (region one).** The owner plays region one end to end on both machines. Then trusted players play the build artifacts (D-469).
-39. PR-31, PR-33.
-40. Owner: join the Apple Developer Program (D-455).
-41. PR-78, PR-39.
-42. PR-79.
-43. Owner and a session: the shot list and the cut of the first trailer (D-476).
-44. PR-40.
-45. Owner: request the Deck compatibility review from Valve (D-565).
-46. **← GATE 5 (first release).** A fresh machine runs the tagged build, and the Deck runs the Steam demo.
-47. Valve answers the review, and Phase 6 stays parked.
+10. PR-87: the empty option value of every Tools command (D-677, D-678).
+11. Owner and a session: the Sprite Fusion test of the art, on the branch spike/sprite-fusion (D-620, D-675).
+12. **← GATE 1 (foundation).** The identity job, `dotnet test`, the smoke job, `det-lint`, and `ste-check` are green on every CI leg.
+13. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
+14. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8.
+15. PR-9, PR-80, PR-66, PR-55, PR-10.
+16. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60.
+17. PR-11, PR-67, PR-62.
+18. PR-68, PR-50.
+19. PR-12, PR-13, PR-14, PR-65.
+20. PR-36.
+21. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
+22. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+23. PR-16, PR-64, PR-35.
+24. PR-38, PR-69, PR-70, PR-71.
+25. PR-51, PR-52, PR-53, PR-72.
+26. PR-17.
+27. M-3, M-4, M-6.
+28. Owner: set the M-4 band from the M-4 numbers (D-571).
+29. **← GATE 2 (first playable).** The owner plays the village, one hub, and one dungeon on both machines and signs off on feel (D-362).
+30. PR-74, PR-75, PR-76.
+31. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
+32. PR-18, PR-19, PR-20, PR-21.
+33. **← GATE 3 (story systems).** The owner plays a branch and a hub that changes with an earlier choice.
+34. PR-23, PR-24, PR-81, PR-27, PR-25, PR-26.
+35. PR-42, PR-73.
+36. PR-28, PR-29, PR-77.
+37. PR-30.
+38. M-5.
+39. **← GATE 4 (region one).** The owner plays region one end to end on both machines. Then trusted players play the build artifacts (D-469).
+40. PR-31, PR-33.
+41. Owner: join the Apple Developer Program (D-455).
+42. PR-78, PR-39.
+43. PR-79.
+44. Owner and a session: the shot list and the cut of the first trailer (D-476).
+45. PR-40.
+46. Owner: request the Deck compatibility review from Valve (D-565).
+47. **← GATE 5 (first release).** A fresh machine runs the tagged build, and the Deck runs the Steam demo.
+48. Valve answers the review, and Phase 6 stays parked.
 
 ## 9. Open questions
 

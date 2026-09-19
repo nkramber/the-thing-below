@@ -41,6 +41,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-39 | The default string order of .NET follows the culture and the ICU version of the machine | PR-4 and PR-46: an ordinal order for strings in Core |
 | F-58 | No check can see the conversation of a session | PR-3: the document rules read the diff and the description alone (D-579) |
 | F-82 | The Tools scan of det-lint asked for a reference set that its own process already holds | PR-47: the scan takes the framework list (D-614) |
+| F-83 | Five commands read an empty option value with no check at the parse, and five values ended with a stack trace | PR-34 and PR-87: every command reads its option values through one helper (D-678, D-679) |
 
 ## 7. Roadmap
 
@@ -59,6 +60,8 @@ Built by PR-1 and PR-2. Phase file: `phase-1-foundations.md`.
 - Each package in Tools needs a decision (G-13). D-498 is the first, for det-lint.
 - A gate tool prints one line per finding with the file, the line, the rule id, and what it saw. It exits 1 on any finding (the `ste-writing` skill).
 - A tool that cannot finish names the file and the reason, and it exits with a code other than 0 (T-2).
+- Every command reads its option values through the one helper `OptionValue.ReportEmpty`, and PR-87 adds it (D-679).
+- An empty option value reads at the parse, and never as a stack trace. A path check further down throws a type that no command catches (F-83).
 - Tests holds the tests of each command, with a fixture that passes and a fixture that fails each rule (T-3).
 
 > *In plain English:* Tools is one program with many commands, and none of them is the game. Each command checks, plays, or draws something, and each failure says exactly what went wrong.
@@ -288,14 +291,15 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 6. PR-4, PR-5, PR-6, PR-43, and PR-44: the Core PRs of `area-core.md`.
 7. PR-47: the PNG code, right before the atlas (D-496).
 8. PR-34: the atlas.
-9. **← GATE 1 (foundation).** The gate tools and the atlas test pass on every CI leg.
-10. PR-55: the render of large pictures, right before PR-10 (D-518).
-11. PR-48: the normal maps, right after PR-10 and right before PR-56, the first PR that draws light (D-520, D-521).
-12. PR-50: the screenplay tool, right after PR-68 (D-545).
-13. PR-15: the headless runner and the bots.
-14. PR-49: the night gate. Its live check first runs after the first night (D-500).
-15. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
-16. **← GATE 2 (first playable).**
+9. PR-87: the empty option value of every command, before Gate 1 (D-674, D-678).
+10. **← GATE 1 (foundation).** The gate tools and the atlas test pass on every CI leg.
+11. PR-55: the render of large pictures, right before PR-10 (D-518).
+12. PR-48: the normal maps, right after PR-10 and right before PR-56, the first PR that draws light (D-520, D-521).
+13. PR-50: the screenplay tool, right after PR-68 (D-545).
+14. PR-15: the headless runner and the bots.
+15. PR-49: the night gate. Its live check first runs after the first night (D-500).
+16. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
+17. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 

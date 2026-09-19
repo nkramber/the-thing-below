@@ -51,13 +51,19 @@ public static class ReviewGateCommand
                 return Program.FaultExitCode;
             }
 
+            string value = args[index + 1];
+            if (OptionValue.ReportEmpty(option, value, errors))
+            {
+                return Program.FaultExitCode;
+            }
+
             if (option == PullRequestOption)
             {
-                factsPath = args[index + 1];
+                factsPath = value;
             }
             else
             {
-                headFilesRoot = args[index + 1];
+                headFilesRoot = value;
             }
         }
 
