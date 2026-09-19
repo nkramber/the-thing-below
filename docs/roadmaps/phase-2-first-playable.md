@@ -185,10 +185,10 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 
 - Game moves the camera from the tick, never from the smoothing of Godot (D-203, F-52).
 - Each call that reports a failure in the log alone gets a check right after it (F-45, T-2).
-- The answer of OQ-86 settles whether Game draws through a tile map layer or draws each tile.
+- Game draws through a tile map layer, and it builds the `TileSetAtlasSource` from the tile page at load (D-667).
 - The sort value of a sprite larger than one tile (D-206, OQ-115).
 
-**Questions.** OQ-86, OQ-89, OQ-114, OQ-117, and OQ-118. D-566 resolved OQ-116.
+**Questions.** OQ-89, OQ-114, OQ-117, and OQ-118. D-566 resolved OQ-116, and D-667 resolved OQ-86.
 
 > *In plain English:* this is the first thing that the owner can open and move in. The dungeon is a grid of tiles, the party walks it one tile at a time, and the view follows.
 
@@ -515,7 +515,7 @@ Area files: `area-tools.md` section 7.7, `area-effects.md` section 7.5, `area-ar
 - The sheet names each drawing on it, so the owner can name a fix (D-514).
 - From this PR on, each art PR commits the normal-map atlas with its test.
 
-**Questions.** None. OQ-87 set the form of a review sheet in PR-34.
+**Questions.** None. D-668 set the form of a review sheet in PR-34.
 
 > *In plain English:* a normal map tells the light which way each pixel faces. A tool builds it from the drawing, and the owner checks a sheet of each sprite lit from eight sides.
 
@@ -1850,7 +1850,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-82 | The time of the night | PR-49 |
 | OQ-83 | How CI gets the Godot editor and the templates, resolved by D-596 | PR-54 |
 | OQ-84 | The seeds of the night | PR-49 |
-| OQ-86 | How the atlas places tiles, and how Game draws a map | PR-7 |
+| OQ-86 | How the atlas places tiles, and how Game draws a map | PR-7, answered by D-667 |
 | OQ-89 | Pixel snap in Game | PR-7 |
 | OQ-91 | The operations of a large picture on a piece | PR-55 |
 | OQ-94 | How the budget test counts one view | PR-56 |

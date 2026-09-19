@@ -7,8 +7,9 @@ namespace TheThingBelow.Tests;
 
 /// <summary>
 /// The load of a content set runs the rules that span files: every file has a record
-/// (D-517), no two rule entries take one id (D-166), and every string id that a rule names
-/// is in the table (G-7).
+/// (D-517), no two rule entries take one id (D-166), every string id that a rule names is
+/// in the table (G-7), every palette key of a drawing is in the palette (F-20), and the
+/// atlas index matches the drawing files (D-666).
 /// </summary>
 public sealed class ContentSetTests
 {
@@ -17,6 +18,17 @@ public sealed class ContentSetTests
         {
          "comment": "a test palette",
          "colors": [ { "index": 0, "key": "k", "hex": "0b0a0f", "name": "ink" } ]
+        }
+        """;
+
+    private const string AtlasBody =
+        """
+        {
+         "comment": "a test index",
+         "pages": [
+         ],
+         "drawings": [
+         ]
         }
         """;
 
@@ -95,6 +107,7 @@ public sealed class ContentSetTests
         [
             File(Palette.Path, PaletteBody),
             File(StringTable.Path, StringsBody),
+            File(AtlasIndex.Path, AtlasBody),
             File("music/first.json", "{}"),
         ];
 
@@ -118,7 +131,7 @@ public sealed class ContentSetTests
     [Fact]
     public void AnAbsentStringTableFails()
     {
-        IReadOnlyList<ContentFile> files = [File(Palette.Path, PaletteBody)];
+        IReadOnlyList<ContentFile> files = [File(Palette.Path, PaletteBody), File(AtlasIndex.Path, AtlasBody)];
 
         ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(files));
 
@@ -167,6 +180,7 @@ public sealed class ContentSetTests
         [
             File(Palette.Path, PaletteBody),
             File(StringTable.Path, StringsBody),
+            File(AtlasIndex.Path, AtlasBody),
         ];
 
         files.AddRange(rules);

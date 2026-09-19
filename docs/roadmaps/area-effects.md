@@ -166,7 +166,7 @@ Built by PR-56. Phase file: `phase-2-first-playable.md`.
 - Each light sets a height, because at the default height of 0 a flat pixel of a normal-mapped sprite takes no light (F-46).
 - OQ-97 holds whether a light names its color as a palette key or as a free value (D-181, D-182).
 - Walls cast hard shadows (D-183). OQ-96 holds where the shape of each shadow comes from.
-- A `TileSet` can give each atlas tile its occluder polygons, and OQ-86 holds whether Game draws maps through a `TileSet` (the external facts above).
+- A `TileSet` can give each atlas tile its occluder polygons, and Game builds one from the tile page at load (D-667).
 - Game gives each sprite, tile, and piece its normal map through a `CanvasTexture` with the color atlas and the normal-map atlas. Both atlases draw with the Nearest filter (F-45).
 - A `CanvasTexture` gives no specular light by default, and no decision asks for specular light (D-183).
 - A shader on a lit sprite, tile, or piece never uses `NORMAL_MAP`. Godot corrects the normal of a flipped draw before the shader code, and `NORMAL_MAP` replaces that normal (the external facts above).
@@ -359,7 +359,6 @@ The register is `docs/questions.md` (D-19). These questions block effect PRs, an
 - OQ-102: how glow stays off sprites. Blocks PR-59.
 - OQ-103: where shader code lives. Blocks PR-10.
 - OQ-79: how the screen-test job pins Mesa. Blocks PR-41.
-- OQ-86: how the atlas places tiles, and how Game draws a map. Blocks PR-34 and PR-7.
 - OQ-89: pixel snap in Game. Blocks PR-7.
 - OQ-183: the scale of the frame on a screen. Blocks PR-7 and PR-34, and the probe of D-621 answers it.
 

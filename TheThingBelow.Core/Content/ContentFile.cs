@@ -24,6 +24,9 @@ public static class ContentPaths
     /// </summary>
     public const string RuleFolder = "rules/";
 
+    /// <summary>The start of the path of every page of the atlas (D-666).</summary>
+    public const string AtlasPagePrefix = "sprites/atlas-";
+
     /// <summary>Tells whether a content path lies inside the rule folder.</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
     /// <returns>True when the content hash covers the file.</returns>
@@ -32,5 +35,20 @@ public static class ContentPaths
         ArgumentNullException.ThrowIfNull(path);
 
         return path.StartsWith(RuleFolder, StringComparison.Ordinal);
+    }
+
+    /// <summary>Tells whether a content path is a page of the atlas (D-666).</summary>
+    /// <param name="path">The path under `content/`, with `/` separators.</param>
+    /// <returns>True when the path is a PNG of the atlas.</returns>
+    /// <remarks>
+    /// A page is an image, so no record of Core reads it. The atlas index records the size
+    /// of each page and the place of each frame on it (D-517).
+    /// </remarks>
+    public static bool IsAtlasPage(string path)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+
+        return path.StartsWith(AtlasPagePrefix, StringComparison.Ordinal) &&
+            path.EndsWith(".png", StringComparison.Ordinal);
     }
 }

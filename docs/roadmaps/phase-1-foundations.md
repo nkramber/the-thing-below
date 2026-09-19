@@ -740,12 +740,12 @@ Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7
 
 - The `atlas` command that renders the drawing files into the atlas in `content/sprites/` (D-107, D-119, D-406, D-515).
 - The grid schema of D-108 and D-109, with the sizes of D-228, D-234, and D-236.
-- The frame list of a sprite, with the frame time of OQ-88.
+- The frame list of a sprite, with the frame time in ticks (D-669).
 - The five cast grids, which come from the approved sample in `docs/samples/` (D-233, D-402, D-405).
 - The palette of 64 colors, with the swatch sheet for the approval of the owner (D-181, D-185, D-238, F-17).
 - The atlas index, and the record of it in Core that no rule reads (D-517).
 - The review sheets of the batch, which `gh` attaches to the PR description (D-514, G-25).
-- The pixel test of F-19, and the retirement of `docs/tools/make-atlas.py`.
+- The pixel test of F-19, and the retirement of the interim atlas script of D-406.
 
 **Out of scope.**
 
@@ -768,10 +768,10 @@ Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7
 - The palette holds 64 colors, and each element and status has one (F-17, D-181).
 - The test compares pixels, never bytes (F-19).
 - A grid keeps its size in art pixels. The world draws it at 2x, so a 32-pixel sprite covers 64 frame pixels (D-633).
-- The answer of OQ-85 sets the pages, and OQ-86 sets how the atlas places a tile.
+- D-666 sets the pages, and D-667 sets how the atlas places a tile.
 - The swatch sheet and the review sheets reach the PR description, and the owner approves the batch (G-25).
 
-**Questions.** OQ-85, OQ-86, OQ-87, and OQ-88.
+**Questions.** None. D-666 to D-669 answer OQ-85 to OQ-88, and D-670 sets the content id kind of a cast member.
 
 > *In plain English:* every picture in the game starts as a text file of letters, one for each pixel. This command turns the letters into the one image that the engine draws, and a test proves that they still match.
 
@@ -877,10 +877,10 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-77 | The runner labels of the CI legs | PR-1, resolved by D-594 |
 | OQ-78 | The required checks on a docs PR | PR-1, resolved by D-595 |
 | OQ-83 | How CI gets the Godot editor | PR-1, resolved by D-596 |
-| OQ-85 | The pages of the atlas | PR-34 |
-| OQ-86 | How the atlas places tiles | PR-34 |
-| OQ-87 | The form of a review sheet | PR-34 |
-| OQ-88 | The unit of the time of a frame | PR-34 |
+| OQ-85 | The pages of the atlas | PR-34, answered by D-666 |
+| OQ-86 | How the atlas places tiles | PR-34, answered by D-667 |
+| OQ-87 | The form of a review sheet | PR-34, answered by D-668 |
+| OQ-88 | The unit of the time of a frame | PR-34, answered by D-669 |
 | OQ-92 | Where the source of the Deck test scene lives | The Deck test, resolved by D-597 |
 | OQ-93 | How the owner reads the frame time on the Deck | The Deck test, resolved by D-598 |
 | OQ-168 | Where the game version lives in the build. Resolved by D-653 | PR-6 and PR-31 |

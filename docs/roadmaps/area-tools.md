@@ -157,13 +157,13 @@ Built by PR-47. Phase file: `phase-1-foundations.md`.
 
 Built by PR-34. Phase file: `phase-1-foundations.md`.
 
-- The `atlas` command renders the drawing files into the atlas in `content/sprites/`, and it replaces `docs/tools/make-atlas.py` (D-107, D-119, D-406, D-515).
-- Beside the atlas, the command writes the atlas index, the place of each frame in the atlas. Core holds its record (D-517).
+- The `atlas` command renders the drawing files into the atlas in `content/sprites/`, and it replaces the interim script of D-406 (D-107, D-119, D-515).
+- Beside the atlas, the command writes the atlas index, the place of each frame in the atlas. Core holds its record (D-517). The `--check` option compares the committed atlas and writes no file.
 - `area-art.md` holds the drawing files, the frames, the sizes, and the palette. This file holds the command.
 - The command uses integer math alone, and each color is a palette lookup (D-502).
 - A grid with an unknown key fails with the file, the line, and the column. A palette with a repeated key fails with the key (F-20, T-2).
 - A test decodes the committed atlas and compares its pixels with the drawing files on every CI leg (F-19, G-24). The same test reads the atlas index.
-- The command also renders the swatch sheet and the review sheets of a batch, and the session attaches them to the PR description (D-185, D-514).
+- The command also renders the swatch sheet and the review sheets of a batch, and the session attaches them to the PR description (D-185, D-514, D-668). The `--sheets` option names the folder, which lies outside git.
 
 > *In plain English:* every picture in the game starts as a text grid of letters. This command turns the grids into the one image that the engine draws, and a test proves that the image still matches the letters.
 
