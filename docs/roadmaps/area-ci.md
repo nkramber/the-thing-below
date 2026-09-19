@@ -55,6 +55,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-62 | The macOS archive of Godot holds `Godot_mono.app`, and not `Godot.app` | PR-1: the smoke job reads `*.app/Contents/MacOS/Godot` |
 | F-63 | The git-bash of the Windows image carries no `shasum` | PR-1: the checksum step reads the digest with `sha512sum` or `shasum` |
 | F-64 | A headless session whose managed assembly does not load runs without end | PR-1: the smoke session runs with `--quit-after`, and the job reads the success line |
+| F-85 | A skipped matrix job reports the literal name template, and not the name of each leg | PR-88: a gate job of each family reports one stable name (D-682, D-683) |
 
 ## 7. Roadmap
 
@@ -275,6 +276,8 @@ The table maps each check of the PR gate in `CLAUDE.md` to its job. PR #11 broug
 | Export | Three | PR-54 | No. It runs on a PR that changes the export (D-512) |
 
 - After PR-3 merges, the owner requires the checks that exist then (OQ-3). The owner adds each later check after its first run, because GitHub lists a check as a choice only after it runs once.
+- The protection went live on `main` on 2026-09-19 with five checks: `changed paths`, `ste-check`, `review-gate`, `det-lint`, and `coverage report` (D-681). The three leg families join it after PR-88, because each one reports a stable name then (D-682, D-685).
+- A required check matches by name, so no required check reads the name of a matrix job. Section 7.19 holds the gate job of each family.
 - Each check that does not exist yet has a line in the PR gate that names its PR (G-16).
 
 > *In plain English:* each line of the merge checklist has one job behind it, and each job names the change that creates it. The owner makes each check a hard rule after its first run.
@@ -308,6 +311,25 @@ Each later PR that adds or changes a workflow keeps this list. The phase files m
 
 > *In plain English:* every new check follows the same seven steps. It uses trusted helpers alone, asks for the least access, stops on time, and says exactly what failed.
 
+### 7.19 The stable check names of the matrix jobs
+
+Built by PR-88. Phase file: `phase-1-foundations.md` section 7.21.
+
+A required status check matches by name. A job that a condition skips reports Success. It never expands its matrix, so it gives one check run with the literal name template (F-85). Thus the three matrix families report one name set on a code PR and another on a docs-only PR. A gate job of each family always runs and reports the one name that branch protection requires (D-682, D-683).
+
+| Family | The name of each leg | The name of the gate job |
+|---|---|---|
+| `build-test-format` | `build, test, and format (<leg>)` | `build, test, and format` |
+| `replay-identity` | `replay-identity (<leg>)` | `replay-identity` |
+| `smoke` | `smoke (<leg>)` | `smoke` |
+
+- Each gate job reads `always()`, so the check reports on a run that a fault or a cancel stopped (T-2).
+- Each gate job needs `changed-paths` and its matrix job. It passes on `success`, and on `skipped` when the PR changes documents alone (D-595).
+- A skip that no condition asked for fails the gate, because a fault in `changed-paths` skips the legs too.
+- The condition of D-595 stays on each matrix job, so a docs-only PR starts no runner for a leg.
+
+> *In plain English:* the merge rules match a check by its name, and the names of the three-machine jobs changed with the kind of change. One small job for each family reports one name that never changes.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The CI work keeps this order inside it:
@@ -317,18 +339,20 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 3. PR-2: the STE job moves to the C# checker.
 4. PR-3: the review gate. Its live check first runs on the next PR (D-500).
 5. PR-84: the size rules of the context budget in the `ste-check` job (D-611).
-6. Owner: require the checks on `main` (OQ-3).
+6. Owner: require the checks on `main` (OQ-3). Done on 2026-09-19 with five checks (D-681).
 7. PR-46: the det-lint job, before the first Core code (D-496).
 8. PR-4: the replay-identity job and the identity file (D-504).
 9. PR-5: the content embed in Game, the folder reader in Tools, and the match test (D-508).
-10. **← GATE 1 (foundation).** The jobs above are green on every CI leg.
-11. PR-54: the export job, right before PR-7 (D-503).
-12. PR-7: the first merge that exports a walkable build.
-13. PR-41: the screen-test job, after PR-45 (D-492).
-14. PR-15: the bot runs on every leg (D-505).
-15. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
-16. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-17. **← GATE 2 (first playable).**
+10. PR-88: the gate job of each matrix family, and the stable check names (D-682, D-684).
+11. Owner: add the three legs to the required checks of `main`, after PR-88 merges (D-685).
+12. **← GATE 1 (foundation).** The jobs above are green on every CI leg.
+13. PR-54: the export job, right before PR-7 (D-503).
+14. PR-7: the first merge that exports a walkable build.
+15. PR-41: the screen-test job, after PR-45 (D-492).
+16. PR-15: the bot runs on every leg (D-505).
+17. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
+18. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+19. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 
@@ -342,6 +366,7 @@ The register is `docs/questions.md` (D-19). These questions block CI PRs, and ea
 - OQ-81: how the night gate result stays current until the merge. Blocks PR-49.
 - OQ-82: the time of the night. Blocks PR-49.
 - OQ-84: the seeds of the night. Blocks PR-49.
-- OQ-3: the required checks on `main`. Waits for PR-3.
+- OQ-3: the required checks on `main`. Closed 2026-09-19, and the protection is live (D-681).
+- OQ-197: the unstable check names of the matrix jobs. Resolved by D-682 and D-683, and PR-88 builds them.
 
 No open question blocks this file.

@@ -48,6 +48,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-60 | The Godot editor writes `net8.0` into a `.csproj` that holds no target framework | PR-1: the Game project pins `net10.0` in its own file. The exit-code part of this finding is refuted |
 | F-61 | A coverage run instruments the Core copy and adds references to it | PR-1: the reference test reads the file that the Core project built |
 | F-64 | A headless session whose managed assembly does not load runs without end. A frame limit alone makes it end with an exit code of 0 and no success line | PR-1: the smoke session runs with `--quit-after`, and each caller reads the success line. Both parts are needed |
+| F-85 | A skipped matrix job reports the literal name template, so no name of a matrix job is a stable required check | PR-88: a gate job of each family reports one stable name (D-682, D-683) |
 
 ## 7. Roadmap
 
@@ -830,7 +831,40 @@ Area file: `area-tools.md` section 7.1. D-674 puts this PR after the M-1 and M-2
 
 > *In plain English:* a tool that gets an empty setting for a folder used to crash with a wall of code. Now it says which setting is empty and stops.
 
-### 7.21 Gate 1: the foundation gate
+### 7.21 PR-88: the stable check names of the CI matrix jobs
+
+Area file: `area-ci.md` section 7.19. D-684 sets the id and the place of this PR, before the Sprite Fusion test and Gate 1. D-682 sets the fix, and D-683 sets the shape of the gate.
+
+**Scope.**
+
+- A gate job for each matrix family of `.github/workflows/ci.yml`: `build-test-format`, `replay-identity`, and `smoke` (D-683).
+- The name of each gate job: `build, test, and format`, `replay-identity`, and `smoke`.
+- The condition `always()` on each gate job, so the check reports on a run that a fault stopped (T-2).
+- The read of `needs.changed-paths.result` in each gate job. A skip that no condition asked for fails the gate.
+- A test that reads the committed workflow files and holds the rule of one stable name for each required check.
+- The close of OQ-3 with the live protection, and the required-check set that the owner adds after the merge (D-685).
+
+**Out of scope.**
+
+- The job-level condition of D-595 on each matrix job. It stays, so no runner starts for a leg on a docs-only PR.
+- The `det-lint`, `coverage report`, `ste-check`, and `changed paths` jobs. Each one is a single job with a stable name already.
+- No behavior of Core changes, so the simulation version stands (G-17).
+
+**Exit tests.**
+
+1. Each required check name of `ci.yml` is the literal name of one job.
+2. Each gate job reads `always()`, and it needs `changed-paths` and its matrix job.
+3. A job whose name holds a workflow expression has one gate job that reads it.
+4. The name of the review gate job holds no workflow expression.
+5. The four tests above fail on the workflow file before this PR.
+
+**Review focus.** The review confirms that each gate job fails on a leg that failed, on a cancel, and on a fault of `changed-paths`. It also confirms that a docs-only PR still starts no runner for a leg.
+
+**Questions.** None. D-682 to D-685 answer the four that this PR asked, and OQ-197 holds the defect.
+
+> *In plain English:* the merge rules match a check by its name, and the names of the three-machine jobs changed with the kind of change. One small job per family now reports one name that never changes, so the owner can make those checks a hard rule.
+
+### 7.22 Gate 1: the foundation gate
 
 **The gate.** Gate 1 passes when every line holds:
 
@@ -844,6 +878,7 @@ Area file: `area-tools.md` section 7.1. D-674 puts this PR after the M-1 and M-2
 8. The atlas pixel test passes on the three legs (F-19).
 9. The cost model holds the M-1 and M-2 numbers of the first ten code PRs.
 10. The Sprite Fusion test ran, and a decision row names the source of the art (D-620, D-676).
+11. Branch protection on `main` requires these checks: `changed paths`, `build, test, and format`, `smoke`, `replay-identity`, `det-lint`, `coverage report`, `ste-check`, and `review-gate` (D-685).
 
 **What the gate does not ask.** No play, no screen, and no sign-off on feel. Gates 2 to 5 hold those (D-52). Line 10 asks for a pick and a decision row, and not a sign-off on feel (D-676).
 
@@ -875,8 +910,10 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 20. PR-34: the atlas, the palette, and the drawing files.
 21. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above. Done on 2026-09-19.
 22. PR-87: the empty option value of the Tools commands, before Gate 1 (D-674, D-677).
-23. Owner and a session: the Sprite Fusion test of the art (D-620, D-675).
-24. **← GATE 1 (foundation).** Section 7.21 holds each line.
+23. PR-88: the stable check names of the CI matrix jobs, before Gate 1 (D-682, D-684).
+24. Owner and a session: the Sprite Fusion test of the art (D-620, D-675).
+25. Owner: add the three legs to the required checks of `main`, after PR-88 merges (D-685).
+26. **← GATE 1 (foundation).** Section 7.22 holds each line.
 
 The next phase file is `phase-2-first-playable.md`. Between the two, the owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).
 
@@ -886,7 +923,8 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 
 | Question | Subject | Blocks |
 |---|---|---|
-| OQ-3 | The required checks on `main` | The owner action of D-681 |
+| OQ-3 | The required checks on `main` | Closed 2026-09-19 by the live protection (D-681) |
+| OQ-197 | The unstable check names of the matrix jobs | PR-88, answered by D-682 and D-683 |
 | OQ-60 | The rounding rule of fixed-point math | Answered by D-641 |
 | OQ-61 | The random generator and the stream split | Answered by D-642 and D-643 |
 | OQ-62 | The hash function of Core | Answered by D-644 and D-645 |

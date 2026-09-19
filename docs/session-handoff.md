@@ -1,5 +1,83 @@
 # Session handoff
 
+## Session 133: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #37, the stable check names of the CI matrix jobs. Repository: the-thing-below. Branch: `fix/pr-88-ci-matrix-check-names`. Role: reviewer. Base: `51a040f`.
+
+### What this session did, and why
+
+- Recomputed PR #37 at effective head `9927be7`. The later commit `8a041e3` changes only metadata.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Inspected the complete nine-path diff. The three gate jobs preserve the D-595 condition on their matrix jobs, fail on an unexpected skip or a fault of `changed-paths`, and report the stable names of D-682 and D-683.
+- Ran the focused workflow tests and the full local verification. No finding remains.
+- Wrote `docs/reviews/pr-37.md` with the verdict `Ready for owner merge` for effective head `9927be7`.
+
+### The state of the build
+
+- `make verify` passes at tip `8a041e3` with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
+- The revision-matched CI checks pass for all matrix legs and all stable gate jobs. `review-gate` waits for this review record.
+- The remote branch head is `8a041e3`.
+
+### What is in flight
+
+The review record and this handoff entry need a commit and push. After the remote gate reads the record, the PR is ready for owner merge.
+
+### Traps and gotchas
+
+- The verdict targets effective head `9927be7`, not metadata tip `8a041e3`.
+- The owner adds the three stable names to branch protection after the PR merges, as D-685 states.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff entry. Then fetch and verify that the remote head and review-gate result match.
+
+## Session 132: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: PR-88, the stable check names of the CI matrix jobs. Repository: the-thing-below. Branch: `fix/pr-88-ci-matrix-check-names`. Role: author. Base: `51a040f`.
+
+### What this session did, and why
+
+- Branch protection is live on `main`, and a required check matches by name. The three matrix jobs report two different name sets, so no name of a matrix job can be a required check (F-85, OQ-197).
+- The session read the check runs of the head of PR #35 and the head of PR #36. The code PR gives three leg names for each family. The docs-only PR gives one check run with the literal name template.
+- Each matrix job keeps its condition of D-595. A gate job of each family always runs and reports one stable name (D-682, D-683).
+- Each gate job reads the result of `changed-paths` too, so a skip that no condition asked for fails the gate (T-2).
+- `TheThingBelow.Tests/CiWorkflowGateTests.cs` holds the rule. Seven of its twelve rows fail on the workflow file before this PR.
+- OQ-3 is closed, because the protection is live. The read of the protection endpoint gives the five checks of D-681.
+- Gate 1 gains a line for the required-check set, and it moves to section 7.22 of the phase file (D-684, D-685).
+
+### The state of the build
+
+- `make verify` passes with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
+- The remote head of `main` is `51a040f`.
+
+### What is in flight
+
+The Codex review of PR #37. This PR changes `.github/workflows/`, so it is never exempt (D-185, D-560).
+
+- The automated pass of head `9927be7` approved the code review and opened no thread. Its CI block named one fault of RG 7, and the answer is the comment of the PR.
+- The fix is proven on the head. The check runs hold `build, test, and format`, `replay-identity`, and `smoke` as literal names, each `success`, beside the three leg names.
+- `RG 3` faults, because the head holds no record at `docs/reviews/pr-37.md`. It passes when the review record lands.
+
+### Traps and gotchas
+
+- The owner adds `build, test, and format`, `smoke`, and `replay-identity` to the required checks of `main` after this PR merges. Each name first reports on this PR.
+- `Gitar` stays unrequired. Its trial ends about 2026-09-23.
+- The gate job reads `always()`. A gate that a condition skips would report Success and hide a red leg.
+
+### The questions that block progress
+
+None. D-682 to D-685 hold the four answers of this PR.
+
+### The next concrete action
+
+Codex reviews PR #37 and writes `docs/reviews/pr-37.md`. Then the owner adds the three names to the required checks of `main` after the merge (D-685).
+
 ## Session 131: 2026-09-19, Codex
 
 Author: Codex
@@ -330,88 +408,3 @@ None. OQ-3 still blocks Gate 1, and it belongs to the owner.
 ### The next concrete action
 
 Push the branch, open the PR, and answer the pass of gitar. Then hand the PR to Codex for the review.
-
-## Session 123: 2026-09-19, Codex
-
-Author: Codex
-Session: review PR #33, PR-34, the atlas, the palette, and the drawing files. Repository: the-thing-below. Branch: `feat/pr-34-atlas-and-palette`. Role: reviewer. Base: `9863da3`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-33 diff from merge base `9863da3` to effective head `d1b2305`.
-- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Traced the drawing and atlas readers, deterministic layout, pixel comparison, content-set checks, error paths, palette validation, committed content, and Documents section.
-- Found no actionable finding. Wrote `docs/reviews/pr-33.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- The implementation head is `d1b2305`. The metadata tip is `abad4da`.
-- `make verify` passes locally with 782 non-smoke tests and 0 build warnings. The atlas check, format, det-lint, STE check, replay identity, content hash, Godot build, and bounded smoke session pass.
-- The focused empty-option probes return contextual errors with exit code 1.
-
-### What is in flight
-
-The review record and this handoff entry are ready to publish. The final Windows and macOS CI results were still in progress when the review ran.
-
-### Traps and gotchas
-
-- The effective head is `d1b2305`, not the metadata tip `09ec5a8`.
-- The review record must keep the effective head because the review commit changes only metadata paths.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and this handoff entry. The owner can merge after the remaining PR checks pass.
-
-## Session 122: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: PR-34, the atlas, the palette, and the drawing files. Repository: the-thing-below. Branch: `feat/pr-34-atlas-and-palette`. Role: author. Base: `9863da3`.
-
-### What this session did, and why
-
-- The session asked the owner five questions before any change. D-666 to D-670 answer them.
-- D-666 gives each kind of drawing its own page, 2048 pixels at most on a side, so one art change rewrites one page.
-- D-667 puts a tile on a strict grid of 32 by 32 cells, which a `TileSetAtlasSource` reads with no translation.
-- D-668 keeps the form of the sample sheet: each drawing at 1x and 6x, on a night ground and on a snow ground.
-- D-669 sets the time of a frame in ticks, 60 to a second. D-670 gives a cast member the kind `cast`.
-- Core gained `AtlasPages`, `Drawing`, and `AtlasIndex`, with the strict reader of each file (D-515, D-517).
-- `ContentSet` now reads every drawing file and the index, and it refuses a key that the palette lacks and an index that does not match the drawings.
-- `TheThingBelow.Tools/Atlas` holds `AtlasLayout`, `AtlasCanvas`, `AtlasIndexText`, `SheetFont`, `SwatchSheet`, `ReviewSheet`, and `AtlasCommand`.
-- The palette holds the 64 colors of D-181, with the 16 colors of D-185 at index 48 to 63.
-- The five approved cast grids of `docs/samples/` are drawing files under `content/sprites/drawings/cast/`.
-- The PR retires the interim atlas script, which D-406 kept as a reference.
-
-### The state of the build
-
-- `main` is `9863da3`, and the branch starts there. The effective head is `d1b2305`.
-- Every CI check passes but `review-gate`, which names RG 3 alone: the review record of Codex. The pixel test of the atlas passes on Windows, Linux, and macOS (D-481, G-24).
-- `make verify` passes with 780 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, the Godot build, and the bounded smoke session pass.
-- det-lint reads `TheThingBelow.Tools/Atlas` with the rules of D-502, and it names Audio and NormalMaps as absent (G-16).
-- `SimulationVersion.Current` stays 3. No rule file reads the palette or the atlas, so the content hash does not move (D-495, G-17).
-
-### What is in flight
-
-The review of Codex. The pass of gitar approved the effective head `d1b2305` with no open finding, and it resolved its one thread itself. That finding had full merit. `atlas --root ""` and `atlas --sheets ""` ended with a stack trace, against T-2. The command now reads an empty option value at the parse, as `det-lint` does. The pass proposed a catch of `ArgumentException`, which would hide a fault of the code, so the fix reads the value instead. F-83 records the same shape in the `content-hash` command, which needs a PR of its own (G-8). The CI block of the pass names RG 3, which waits for the review record of Codex.
-
-The two sheets are in the PR description (D-514, D-668, G-25).
-
-### Traps and gotchas
-
-- `CLAUDE.md` and `AGENTS.md` reached the 16 KB limit of D-611. The command list now names the Makefile targets, which are the same commands.
-- The Game project embeds `content/**/*.png` now, so the atlas page travels in the assembly (D-508).
-- A page of few drawings is only as large as the drawings need. A tile page keeps the full grid width, so a new tile moves no other tile (D-667).
-- The atlas command reads the drawing files itself, not through `ContentSet`, because a content set needs the index that the command writes.
-- 7.17 of the phase file puts the Sprite Fusion test before PR-34 (D-620). It did not run. The pipeline takes a text grid from any source, so the pick changes no code of this PR.
-- The next ids are D-671, OQ-197, F-83, L-16, G-29, M-9, and Session 123.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push the branch, open the PR, attach the two sheets, and answer the pass of gitar.
