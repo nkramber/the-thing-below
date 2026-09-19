@@ -30,7 +30,9 @@ Session: PR-34, the atlas, the palette, and the drawing files. Repository: the-t
 
 ### What is in flight
 
-The push, the pass of gitar, and the review of Codex. The swatch sheet and the review sheet go into the PR description with `gh pr edit --attach` (D-514, G-25).
+The review of Codex. The pass of gitar approved the head `fb8178d` with one finding, and the finding had full merit. `atlas --root ""` and `atlas --sheets ""` ended with a stack trace, against T-2. The command now reads an empty option value at the parse, as `det-lint` does. The pass proposed a catch of `ArgumentException`, which would hide a fault of the code, so the fix reads the value instead. F-83 records the same shape in the `content-hash` command, which needs a PR of its own (G-8). The CI block of the pass names RG 3, which waits for the review record of Codex.
+
+The two sheets are in the PR description (D-514, D-668, G-25).
 
 ### Traps and gotchas
 

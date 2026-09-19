@@ -152,6 +152,24 @@ public sealed class AtlasCommandTests : IDisposable
         Assert.Contains("--pages", errors.ToString());
     }
 
+    /// <summary>An empty option value reads at the parse, and never as a stack trace (T-2).</summary>
+    [Theory]
+    [InlineData(AtlasCommand.RootOption)]
+    [InlineData(AtlasCommand.SheetsOption)]
+    public void AnEmptyOptionValueFails(string option)
+    {
+        this.Write("one");
+        var errors = new StringWriter();
+
+        int code = AtlasCommand.Run(
+            [AtlasCommand.RootOption, this.root, option, string.Empty],
+            new StringWriter(),
+            errors);
+
+        Assert.Equal(Program.FaultExitCode, code);
+        Assert.Contains($"the value of the option {option} is empty", errors.ToString());
+    }
+
     [Fact]
     public void AnAbsentContentFolderFails()
     {
