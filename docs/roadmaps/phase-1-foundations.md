@@ -815,7 +815,6 @@ Area file: `area-tools.md` section 7.1. D-674 puts this PR after the M-1 and M-2
 **Out of scope.**
 
 - Every other fault of a command line. An unknown option and an absent value each read a message already.
-- The absent review record of PR #33, which F-84 holds and a PR of its own fixes (D-673, G-8).
 - No behavior of Core changes, so the simulation version stands (G-17).
 
 **Exit tests.**
@@ -887,7 +886,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 
 | Question | Subject | Blocks |
 |---|---|---|
-| OQ-3 | The required checks on `main` | Waits for PR-3 |
+| OQ-3 | The required checks on `main` | The owner action of D-681 |
 | OQ-60 | The rounding rule of fixed-point math | Answered by D-641 |
 | OQ-61 | The random generator and the stream split | Answered by D-642 and D-643 |
 | OQ-62 | The hash function of Core | Answered by D-644 and D-645 |
