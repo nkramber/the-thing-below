@@ -2,6 +2,53 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 122: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: PR-34, the atlas, the palette, and the drawing files. Repository: the-thing-below. Branch: `feat/pr-34-atlas-and-palette`. Role: author. Base: `9863da3`.
+
+### What this session did, and why
+
+- The session asked the owner five questions before any change. D-666 to D-670 answer them.
+- D-666 gives each kind of drawing its own page, 2048 pixels at most on a side, so one art change rewrites one page.
+- D-667 puts a tile on a strict grid of 32 by 32 cells, which a `TileSetAtlasSource` reads with no translation.
+- D-668 keeps the form of the sample sheet: each drawing at 1x and 6x, on a night ground and on a snow ground.
+- D-669 sets the time of a frame in ticks, 60 to a second. D-670 gives a cast member the kind `cast`.
+- Core gained `AtlasPages`, `Drawing`, and `AtlasIndex`, with the strict reader of each file (D-515, D-517).
+- `ContentSet` now reads every drawing file and the index, and it refuses a key that the palette lacks and an index that does not match the drawings.
+- `TheThingBelow.Tools/Atlas` holds `AtlasLayout`, `AtlasCanvas`, `AtlasIndexText`, `SheetFont`, `SwatchSheet`, `ReviewSheet`, and `AtlasCommand`.
+- The palette holds the 64 colors of D-181, with the 16 colors of D-185 at index 48 to 63.
+- The five approved cast grids of `docs/samples/` are drawing files under `content/sprites/drawings/cast/`.
+- The PR retires the interim atlas script, which D-406 kept as a reference.
+
+### The state of the build
+
+- `main` is `9863da3`, and the branch starts there.
+- `make verify` passes with 780 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, the Godot build, and the bounded smoke session pass.
+- det-lint reads `TheThingBelow.Tools/Atlas` with the rules of D-502, and it names Audio and NormalMaps as absent (G-16).
+- `SimulationVersion.Current` stays 3. No rule file reads the palette or the atlas, so the content hash does not move (D-495, G-17).
+
+### What is in flight
+
+The push, the pass of gitar, and the review of Codex. The swatch sheet and the review sheet go into the PR description with `gh pr edit --attach` (D-514, G-25).
+
+### Traps and gotchas
+
+- `CLAUDE.md` and `AGENTS.md` reached the 16 KB limit of D-611. The command list now names the Makefile targets, which are the same commands.
+- The Game project embeds `content/**/*.png` now, so the atlas page travels in the assembly (D-508).
+- A page of few drawings is only as large as the drawings need. A tile page keeps the full grid width, so a new tile moves no other tile (D-667).
+- The atlas command reads the drawing files itself, not through `ContentSet`, because a content set needs the index that the command writes.
+- 7.17 of the phase file puts the Sprite Fusion test before PR-34 (D-620). It did not run. The pipeline takes a text grid from any source, so the pick changes no code of this PR.
+- The next ids are D-671, OQ-197, F-83, L-16, G-29, M-9, and Session 123.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the branch, open the PR, attach the two sheets, and answer the pass of gitar.
+
 ## Session 121: 2026-09-19, Codex
 
 Author: Codex
@@ -367,54 +414,3 @@ None.
 
 The author validates odd stream increments with snapshot context and adds a regression test. Codex then reviews the correction.
 
-## Session 112: 2026-09-18, Claude Code
-
-Author: Claude Code
-Session: PR-6, the tick, the intents, the run record, and replay. Repository: the-thing-below. Branch: `feat/pr-6-tick-and-run-record`. Role: author. Base: `1960cf3`.
-
-### What this session did, and why
-
-- Asked the owner the four blocking questions of PR-6 in one batch, and recorded each answer (D-19, D-24).
-- D-650: the tick rises while a menu is open, and the world systems skip their work. The tick is the one time line, so no record needs a second order value.
-- D-651: the record takes a new snapshot at each save, and it drops every intent before it (F-10).
-- D-652: records and snapshots are JSON text, with one object on each line, as the logs are (D-179).
-- D-653: one constant in Core holds the game version, and `GameVersion.Tag` gives the release tag.
-- Core gained `TheThingBelow.Core/Runs/`: the intent, the state, the world rules, the simulation, the snapshot, the recorder, the replay, and the text of a record.
-- The debug seam takes the handlers of the host, and Core names no debug assembly (D-260, D-492).
-- `ContentReader` gained the reads of a 64-bit number, of true and false, and of a hexadecimal 64-bit value. One strict reader now reads the content files and the record.
-- Game gained `FixedStepLoop` and `GameRun`, and `Boot` steps the run on each frame (D-164).
-- The identity set gained the `replay` run, which plays a script, writes the text, reads it again, and replays it.
-
-### The state of the build
-
-- `main` is `1960cf3`. The branch head is `3a70273` before the documents of this entry.
-- `make verify` passes: the build with 0 warnings, 475 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
-- `SimulationVersion.Current` is 3, because the tick and the world of one tick are the first rules that change a state (G-17).
-- The identity file gained `replay 0x2350D21C3F5A9E84`, and `state-hash` moved to `0xCC5817D745E5344C`, because that run hashes the simulation version.
-- The content hash stays `5ce12c64...f3c15f3`, because no rule file changed.
-
-### What is in flight
-
-The Codex review of PR #29. The Gitar pass approves the head `ee1e6ea`, and it gives no finding.
-
-- The automatic pass started 8 seconds after the push, and the Gitar check on `ee1e6ea` completed with success at 22:31:11Z.
-- The dashboard comment `5736968934` has the edit time 22:31:05Z, which is later than the push, so the pass covers the head (D-603).
-- The dashboard reads `Approved` with no issue, and the PR holds no review thread.
-- The CI analysis of Gitar found a real fault of the description: the `docs/reviews/` row held prose and no form of D-581, so RG 7 failed. The row now takes the `Changed:` form, and RG 7 passes.
-- Fourteen CI checks pass. `review-gate` gives RG 3 alone, because the head holds no `docs/reviews/pr-29.md`. The review of Codex clears it.
-
-### Traps and gotchas
-
-- A spread of an `IReadOnlyList` in Core calls `System.Linq`, which G-1 refuses. `RunRecorder.Step` copies the list itself.
-- The last line of a record holds the end tick. A run takes many ticks after its last intent, so a replay that stopped at the last intent line would give another state.
-- `RunSnapshot` is a record with a list, so `==` compares that list by reference. A test compares the state hash or the text.
-- The world of Phase 1 is one patrol on a fixed beat. PR-7 replaces it with the tile map.
-- The next ids are D-654, OQ-186, F-80, L-16, G-29, M-9, and Session 113.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Hand PR #29 to Codex for the cross-provider review (T-4, D-17).
