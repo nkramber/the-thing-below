@@ -27,7 +27,7 @@ Session: PR-47, the PNG reader and the PNG writer. Repository: the-thing-below. 
 
 ### What is in flight
 
-The first push of the branch, the Gitar pass, and the review of Codex.
+The review of Codex. The Gitar pass approved the head `e45dcc9` with no code finding, and its CI block raised two claims. RG 7 had full merit: three rows of the Documents section gave no path, and the description now gives each one a path. RG 3 waits for the review record, which the review of Codex writes on this branch.
 
 ### Traps and gotchas
 
@@ -35,6 +35,7 @@ The first push of the branch, the Gitar pass, and the review of Codex.
 - The `PngImage` constructor copies the pixel bytes, and it reads the count of bytes in long math, because two sizes at the limit pass the range of an int.
 - The writer holds no text and no date, so two runs give the same file. The compressed bytes still follow the version of `ZLibStream`, so no test compares PNG bytes (F-19).
 - A PR that adds the first file of `TheThingBelow.Tools/Atlas`, `Audio`, or `NormalMaps` reads the same det-lint path that F-82 fixed.
+- The RG 7 rule needs a `/` or a `.md` in the reason of each `No change needed because` line, which `DocumentRules.HoldsPath` reads. PR-44 hit the same rule.
 - The next ids are D-666, OQ-197, F-83, L-16, G-29, M-9, and Session 121.
 
 ### The questions that block progress
@@ -43,7 +44,7 @@ None.
 
 ### The next concrete action
 
-Push the branch, open the PR, and answer the Gitar pass.
+Hand PR #32 to Codex for the cross-provider review (T-4, D-17).
 
 ## Session 119: 2026-09-18, Codex
 
@@ -108,7 +109,7 @@ Session: PR-44, the crash files and the log files. Repository: the-thing-below. 
 
 ### What is in flight
 
-The first push of the branch, the Gitar pass, and the review of Codex.
+The review of Codex. The Gitar pass approved the head `e45dcc9` with no code finding, and its CI block raised two claims. RG 7 had full merit: three rows of the Documents section gave no path, and the description now gives each one a path. RG 3 waits for the review record, which the review of Codex writes on this branch.
 
 ### Traps and gotchas
 
