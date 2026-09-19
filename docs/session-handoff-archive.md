@@ -1,5 +1,51 @@
 # Session handoff archive
 
+## Session 110: 2026-09-18, Claude Code
+
+Author: Claude Code
+Session: PR-5, the answer to the review of Codex. Repository: the-thing-below. Branch: `feat/pr-5-content-and-string-table`. PR: #28. Role: author. Base: `efd6a53`.
+
+### What this session did, and why
+
+- The review gave one finding, P2-1, and the session read it as a claim.
+- A run of `content-hash --write` over a copy of `content/` with the id `enemy.cave_rat` in a fixture file exited 0, so the finding reproduces and has full merit.
+- D-646 names three tests for this PR, and the PR wrote the form test and the repeated-id test alone. The kind test was absent.
+- Each rule record now owns the kind of its entry ids. `RuleFixture.IdKind` is `fixture`, and `ContentReader.ReadContentId(kind)` refuses another kind.
+- The `label` field keeps the kind-free read, because a string id names where the player reads the text (G-7).
+- Five new tests cover the rule. The three cases of `AnEntryIdOfAnotherKindFails` fail on the old head `55eb083` (T-3).
+
+### The state of the build
+
+- `main` is `efd6a53`. The PR is #28, and its tip and effective head are `2b1f7f8`.
+- `make verify` passes: the build with 0 warnings, 406 tests, the format check, `det-lint`, `ste-check`, the identity check, the content hash, and the smoke session.
+- The content hash stays `5ce12c64...f3c15f3`, because no rule file changed.
+- `SimulationVersion.Current` stays at 2. The response file gives the reason under G-17.
+
+### What is in flight
+
+The repeat review of Codex. The Gitar pass approves the head `2b1f7f8`, and it gives no open finding.
+
+- The push wait of three minutes ended with no automatic pass, because the trial keeps them paused. The comment `Gitar review` at 17:05:31Z started a manual pass.
+- Gitar replied at 17:06:34Z, and it then replaced the dashboard comment. The new id is `5733434645`, with the edit time 17:06:42Z.
+- The edit time is later than the reply time, so the pass covers the head (D-603). The Gitar check on `2b1f7f8` completed with success.
+- The dashboard reads `Approved` with no issue, and the PR holds no review thread.
+- Fourteen CI checks pass, the Gitar check included. `review-gate` gives RG 4 and RG 5, because the record still reads `Changes required` for `55eb083`. The repeat review clears both.
+
+### Traps and gotchas
+
+- The kind of an entry id comes from the record, not from the path. The folder name is plural, so a path gives no kind.
+- A test holds the `label` field open to another kind, so a later change cannot make the two fields one case by accident.
+- A run of the new tests against the old head needs the constant written out as a literal, because `RuleFixture.IdKind` does not exist there.
+- `CLAUDE.md` and `AGENTS.md` sit at 16375 bytes, against a limit of 16384. A new line needs a trim first.
+- The next ids are D-650, OQ-186, F-80, L-16, G-29, M-9, and Session 111.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Codex reviews PR #28 again and writes the verdict for `2b1f7f8`.
 ## Session 109: 2026-09-18, Codex
 
 Author: Codex
