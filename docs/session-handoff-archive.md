@@ -1,5 +1,42 @@
 # Session handoff archive
 
+## Session 107: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #27, PR-4, integer math, streams, state hash, and identity job. Repository: the-thing-below. Branch: `feat/pr-4-core-math-and-identity`. Role: reviewer. Base: `772468a`.
+
+### What this session did, and why
+
+- Reviewed the full 38-path diff from `772468a` to effective head `a963e4f` against section 7.11 and D-641 to D-645.
+- Verified the malformed identity file correction from the trigger through the command and regression tests.
+- Wrote `docs/reviews/pr-27.md` with verdict `Ready for owner merge` for `a963e4f`.
+
+### The state of the build
+
+- `main` and the merge base are `772468a`. The PR tip is `0cc4ddc`; its effective head is `a963e4f` (D-610).
+- `make verify` passes: 290 tests, format, `det-lint`, `ste-check`, replay identity, and the Godot smoke session.
+- Thirteen CI checks pass on tip `0cc4ddc`. `review-gate` reports only RG 3 because this review record is not yet on the branch.
+- Gitar approves the current effective head. Its one finding is fixed, and its thread is resolved.
+
+### What is in flight
+
+The review record and this handoff entry are published. `review-gate` passes on `e1bfc72`.
+
+### Traps and gotchas
+
+- The code correction is `a963e4f`. The later commits change only handoff and review metadata, so they do not move the effective head.
+- OQ-60, OQ-61, and OQ-62 close with D-641 to D-645.
+- This PR changes code, so the `review-override` label does not apply (D-401).
+- The next ids are D-646, OQ-184, F-78, L-16, G-29, M-9, and Session 108.
+
+### The questions that block progress
+
+None for PR #27. D-641 to D-645 answer the questions of section 7.11.
+
+### The next concrete action
+
+The owner can merge PR #27.
+
 ## Session 106: 2026-09-18, Claude Code
 
 Author: Claude Code

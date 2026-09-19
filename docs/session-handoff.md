@@ -2,6 +2,41 @@
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
 
+## Session 117: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #30, PR-43, the Storage project, the snapshots, and the saves. Repository: the-thing-below. Branch: `feat/pr-43-storage-and-saves`. Role: reviewer. Base: `3a7340f`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-30 diff from merge base `3a7340f` to effective head `d596c1c`.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Traced the save format, checksum, format dispatch, safe write, resume removal, platform folder rules, Core boundary, and Godot boot check.
+- Found no actionable finding. Wrote `docs/reviews/pr-30.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- The metadata tip is `e3ff30b`, and the effective implementation head is `d596c1c`.
+- `make verify` passes with 536 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
+- GitHub reports the implementation checks and Gitar pass green. The current `review-gate` run fails because the review record was absent. The new record targets `d596c1c`.
+
+### What is in flight
+
+The review record and this handoff entry need a metadata commit and push. A fresh `review-gate` run must then verify the published record.
+
+### Traps and gotchas
+
+- The effective head excludes only the review and handoff metadata commits after `d596c1c`.
+- PR-16 adds the Game save-load integration. PR-44 adds crash and log files.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run `make where`, commit the review record and handoff entry, push, fetch, and verify the review gate and remote head.
+
 ## Session 116: 2026-09-18, Claude Code
 
 Author: Claude Code
@@ -390,40 +425,3 @@ None. D-646 to D-649 answer each question of section 7.12.
 ### The next concrete action
 
 Codex reviews PR #28 and writes `docs/reviews/pr-28.md`.
-
-## Session 107: 2026-09-18, Codex
-
-Author: Codex
-Session: review PR #27, PR-4, integer math, streams, state hash, and identity job. Repository: the-thing-below. Branch: `feat/pr-4-core-math-and-identity`. Role: reviewer. Base: `772468a`.
-
-### What this session did, and why
-
-- Reviewed the full 38-path diff from `772468a` to effective head `a963e4f` against section 7.11 and D-641 to D-645.
-- Verified the malformed identity file correction from the trigger through the command and regression tests.
-- Wrote `docs/reviews/pr-27.md` with verdict `Ready for owner merge` for `a963e4f`.
-
-### The state of the build
-
-- `main` and the merge base are `772468a`. The PR tip is `0cc4ddc`; its effective head is `a963e4f` (D-610).
-- `make verify` passes: 290 tests, format, `det-lint`, `ste-check`, replay identity, and the Godot smoke session.
-- Thirteen CI checks pass on tip `0cc4ddc`. `review-gate` reports only RG 3 because this review record is not yet on the branch.
-- Gitar approves the current effective head. Its one finding is fixed, and its thread is resolved.
-
-### What is in flight
-
-The review record and this handoff entry are published. `review-gate` passes on `e1bfc72`.
-
-### Traps and gotchas
-
-- The code correction is `a963e4f`. The later commits change only handoff and review metadata, so they do not move the effective head.
-- OQ-60, OQ-61, and OQ-62 close with D-641 to D-645.
-- This PR changes code, so the `review-override` label does not apply (D-401).
-- The next ids are D-646, OQ-184, F-78, L-16, G-29, M-9, and Session 108.
-
-### The questions that block progress
-
-None for PR #27. D-641 to D-645 answer the questions of section 7.11.
-
-### The next concrete action
-
-The owner can merge PR #27.
