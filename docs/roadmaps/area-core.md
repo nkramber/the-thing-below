@@ -28,7 +28,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 
 | # | Finding | Binds |
 |---|---|---|
-| F-10 | The run record grows with no limit over a long play | PR-6: a snapshot plus the intents after it (OQ-65) |
+| F-10 | The run record grows with no limit over a long play | PR-6: a snapshot at each save, plus the intents after it (D-651) |
 | F-25 | A quit autosave can trap a run (C-3), and a Core patch refuses old saves (C-4) | PR-43: the resume file of D-258 and the load of D-259 |
 | F-27 | The debug console of D-171 meets the rule of no conditional compilation in Core | PR-6 and PR-45: the seam and the assembly of D-260 and D-492 |
 | F-35 | Two hash paths of .NET break G-1 and T-7 | PR-4: xxHash64 in Core. PR-5: the SHA-256 of the content hash (D-644, D-645) |
@@ -139,7 +139,7 @@ Built by PR-6. Phase file: `phase-1-foundations.md`.
 - Game makes an intent from each key, button, and mouse action, and Core reads intents alone (D-493, G-23). The input map, remapping, and the device kind stay in Game (D-214, D-222).
 - An intent names what the player chose in content ids and state ids, and never a screen position or a key (D-493).
 - Game makes each intent from an input event, never from a poll of `Input` (F-50). A poll sees input that a menu already took. `area-ui-input.md` holds the input.
-- A menu pauses the world (D-162). A menu action is an intent too, and OQ-64 holds what the tick does while a menu is open.
+- A menu pauses the world (D-162). A menu action is an intent too, and the tick rises while a menu is open (D-650).
 - The mouse works on menus alone, and a mouse action on a menu makes the same intent as a key or a button (D-219, D-493).
 - Game makes no intent from a Godot timer, physics, or navigation (G-23).
 - No rule waits for an effect. Where the world waits for one, Game counts the ticks of the effect on its fixed-step clock (D-266). At the end, Game sends a wait intent (D-522). `area-effects.md` holds the effects.
@@ -152,7 +152,7 @@ Built by PR-6. Phase file: `phase-1-foundations.md`.
 
 - The record header holds the format version, the simulation version, the content hash, the seed, the initial state, and the game version (G-5, D-448).
 - The record holds the intents of each tick, and a debug intent carries a mark (D-171, D-492, D-493).
-- The record keeps a snapshot and the intents after it, so its size stays bounded (F-10). OQ-65 holds the moment of each new snapshot, and OQ-66 holds the encoding.
+- The record keeps a snapshot and the intents after it, so its size stays bounded (F-10). The record takes a new snapshot at each save (D-651), and it is JSON text (D-652).
 - A replay of a record on the same simulation version and content hash reproduces the state hash (G-5). A mismatch stops with a report that names both values (T-2).
 - Replay and the bots run in Tools and Tests with no Godot (D-100, D-493). The replay viewer of development builds plays a record in Game (D-175).
 - The replay-identity job runs a fixed set of records on every CI leg and compares each hash with the committed identity file (G-5, D-481, D-504). The file `area-ci.md` holds the job, and each later Core PR adds a fixture run and its expected hash.
@@ -271,9 +271,9 @@ The register is `docs/questions.md` (D-19). These questions block Core PRs, and 
 
 - OQ-60, OQ-61, and OQ-62 closed on 2026-09-18 with D-641 to D-645.
 - OQ-63 is resolved (D-646). OQ-179 is resolved (D-647).
-- OQ-64: the tick while a menu is open. Blocks PR-6.
-- OQ-65: when the run record takes a new snapshot. Blocks PR-6 and PR-43.
-- OQ-66: the encoding of records and snapshots. Blocks PR-6 and PR-43.
+- OQ-64: the tick while a menu is open. Resolved 2026-09-18 by D-650.
+- OQ-65: when the run record takes a new snapshot. Resolved 2026-09-18 by D-651.
+- OQ-66: the encoding of records and snapshots. Resolved 2026-09-18 by D-652.
 - OQ-57: the studio name. Blocks the crash address, which PR-61 adds (D-473, D-559).
 
 No open question blocks this file.

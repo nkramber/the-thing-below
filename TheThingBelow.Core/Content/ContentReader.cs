@@ -6,9 +6,10 @@ using System.Text.Json;
 namespace TheThingBelow.Core.Content;
 
 /// <summary>
-/// The one strict reader of content JSON (D-116, D-177). It refuses an absent field, an
-/// unknown field, a wrong type, and a number that is not a whole number, and every error
-/// names the file and the field (G-6, T-2).
+/// The one strict reader of the JSON of this project (D-116, D-177). It refuses an absent
+/// field, an unknown field, a wrong type, and a number that is not a whole number, and every
+/// error names the file and the field (G-6, T-2). The content files and the run record of
+/// D-652 both read through it.
 /// </summary>
 /// <remarks>
 /// The reader calls `JsonSerializer` nowhere, so no reflection path exists in Core (D-647,
@@ -33,6 +34,9 @@ namespace TheThingBelow.Core.Content;
 /// </remarks>
 public ref struct ContentReader
 {
+    /// <summary>The length of the hexadecimal form of <see cref="ReadHexUInt64"/>: `0x` and 16 digits.</summary>
+    private const int HexTextLength = 18;
+
     private readonly string file;
     private readonly List<string> path;
     private Utf8JsonReader reader;
@@ -156,23 +160,7 @@ public ref struct ContentReader
     /// </remarks>
     public int ReadInt()
     {
-        this.MoveNext();
-        if (this.reader.TokenType != JsonTokenType.Number)
-        {
-            throw this.WrongType("a whole number");
-        }
-
-        foreach (byte character in this.reader.ValueSpan)
-        {
-            bool whole = character is (>= (byte)'0' and <= (byte)'9') or (byte)'-';
-            if (!whole)
-            {
-                throw ContentException.ForField(
-                    this.file,
-                    this.CurrentField(),
-                    $"the number '{this.NumberAsText()}' holds a fraction or an exponent, and Core reads whole numbers alone (G-2, D-169)");
-            }
-        }
+        this.ReadWholeNumberToken();
 
         if (!this.reader.TryGetInt32(out int value))
         {
@@ -180,6 +168,80 @@ public ref struct ContentReader
                 this.file,
                 this.CurrentField(),
                 $"the number '{this.NumberAsText()}' does not fit in a 32-bit whole number");
+        }
+
+        return value;
+    }
+
+    /// <summary>Reads a 64-bit whole number, such as the tick of a run record (D-652).</summary>
+    /// <returns>The value of the field.</returns>
+    /// <exception cref="ContentException">
+    /// The value is not a number, holds a fraction or an exponent, or does not fit in a `long`.
+    /// </exception>
+    public long ReadLong()
+    {
+        this.ReadWholeNumberToken();
+
+        if (!this.reader.TryGetInt64(out long value))
+        {
+            throw ContentException.ForField(
+                this.file,
+                this.CurrentField(),
+                $"the number '{this.NumberAsText()}' does not fit in a 64-bit whole number");
+        }
+
+        return value;
+    }
+
+    /// <summary>Reads true or false.</summary>
+    /// <returns>The value of the field.</returns>
+    /// <exception cref="ContentException">The value is not true and is not false.</exception>
+    public bool ReadBoolean()
+    {
+        this.MoveNext();
+        return this.reader.TokenType switch
+        {
+            JsonTokenType.True => true,
+            JsonTokenType.False => false,
+            _ => throw this.WrongType("true or false"),
+        };
+    }
+
+    /// <summary>Reads a 64-bit value that the file writes as a hexadecimal text.</summary>
+    /// <returns>The value of the field.</returns>
+    /// <exception cref="ContentException">The value takes another form.</exception>
+    /// <remarks>
+    /// A seed and the position of a random stream both fill the 64 bits, and a JSON number
+    /// of that size loses its top bits in a reader that holds numbers as a fraction. The
+    /// form is `0x` and 16 lowercase hexadecimal digits, so one value takes one spelling and
+    /// a diff of two records compares by character (D-652, T-7).
+    /// </remarks>
+    public ulong ReadHexUInt64()
+    {
+        string text = this.ReadString();
+        if (text.Length != HexTextLength || !text.StartsWith("0x", StringComparison.Ordinal))
+        {
+            throw ContentException.ForField(
+                this.file,
+                this.CurrentField(),
+                $"the value '{text}' is not `0x` and 16 hexadecimal digits");
+        }
+
+        ulong value = 0;
+        for (int index = 2; index < text.Length; index += 1)
+        {
+            char digit = text[index];
+            int part = digit switch
+            {
+                >= '0' and <= '9' => digit - '0',
+                >= 'a' and <= 'f' => digit - 'a' + 10,
+                _ => throw ContentException.ForField(
+                    this.file,
+                    this.CurrentField(),
+                    $"the value '{text}' holds '{digit}', which is not a lowercase hexadecimal digit"),
+            };
+
+            value = (value << 4) | (uint)part;
         }
 
         return value;
@@ -275,6 +337,21 @@ public ref struct ContentReader
     /// <returns>The value.</returns>
     /// <exception cref="ContentException">The file holds no such field.</exception>
     public readonly int RequireInt(int? value, int depth, string field) =>
+        this.RequireValue(value, depth, field);
+
+    /// <summary>Gives a value type that a field must hold, and fails when the file has none.</summary>
+    /// <typeparam name="T">The type of the value, such as `long`, `bool`, or `ulong`.</typeparam>
+    /// <param name="value">The value that the read set, or null when the file has no field.</param>
+    /// <param name="depth">The value that <see cref="ReadObjectStart"/> gave.</param>
+    /// <param name="field">The name of the field, for the error (T-2).</param>
+    /// <returns>The value.</returns>
+    /// <exception cref="ContentException">The file holds no such field.</exception>
+    /// <remarks>
+    /// <see cref="Require{T}"/> takes a reference type, and this method takes a value type.
+    /// A value type needs its own method, because `null` of a value type is a `Nullable`.
+    /// </remarks>
+    public readonly T RequireValue<T>(T? value, int depth, string field)
+        where T : struct =>
         value ?? throw this.AbsentField(depth, field);
 
     private readonly ContentException AbsentField(int depth, string field)
@@ -312,6 +389,31 @@ public ref struct ContentReader
                 this.CurrentField(),
                 "the file is not well-formed JSON, and the reader refuses a comment and a trailing comma",
                 error);
+        }
+    }
+
+    /// <summary>
+    /// Moves to the next token, and fails when it is not a number that holds every digit of
+    /// a whole number. Core computes with integers alone (G-2, D-169).
+    /// </summary>
+    private void ReadWholeNumberToken()
+    {
+        this.MoveNext();
+        if (this.reader.TokenType != JsonTokenType.Number)
+        {
+            throw this.WrongType("a whole number");
+        }
+
+        foreach (byte character in this.reader.ValueSpan)
+        {
+            bool whole = character is (>= (byte)'0' and <= (byte)'9') or (byte)'-';
+            if (!whole)
+            {
+                throw ContentException.ForField(
+                    this.file,
+                    this.CurrentField(),
+                    $"the number '{this.NumberAsText()}' holds a fraction or an exponent, and Core reads whole numbers alone (G-2, D-169)");
+            }
         }
     }
 

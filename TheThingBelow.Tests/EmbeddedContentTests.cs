@@ -142,8 +142,7 @@ public sealed class EmbeddedContentTests
     /// <returns>The value that the method gave.</returns>
     private static object Invoke(string method, params object[] arguments)
     {
-        Type reader = GameAssembly().GetType(ReaderTypeName)
-            ?? throw new InvalidOperationException($"The Game assembly holds no type '{ReaderTypeName}' (T-2).");
+        Type reader = GameAssemblyFile.Type(ReaderTypeName);
 
         MethodInfo call = reader.GetMethod(method, arguments.Select(value => value.GetType()).ToArray())
             ?? throw new InvalidOperationException($"The type '{ReaderTypeName}' holds no method '{method}' (T-2).");
@@ -152,27 +151,7 @@ public sealed class EmbeddedContentTests
             ?? throw new InvalidOperationException($"The method '{method}' gave nothing (T-2).");
     }
 
-    /// <summary>Loads the Game assembly that the build wrote.</summary>
+    /// <summary>Loads the Game assembly that the build wrote (D-614).</summary>
     /// <returns>The assembly, with its content resources.</returns>
-    private static Assembly GameAssembly()
-    {
-        AssemblyMetadataAttribute? entry = typeof(EmbeddedContentTests).Assembly
-            .GetCustomAttributes<AssemblyMetadataAttribute>()
-            .FirstOrDefault(attribute => attribute.Key == "GameAssemblyPath");
-
-        if (entry?.Value is null)
-        {
-            throw new InvalidOperationException(
-                "The build wrote no 'GameAssemblyPath' into the test assembly (T-2).");
-        }
-
-        string path = Path.GetFullPath(entry.Value);
-        if (!File.Exists(path))
-        {
-            throw new InvalidOperationException(
-                $"The Game assembly '{path}' does not exist. Build the solution first (T-2).");
-        }
-
-        return Assembly.LoadFrom(path);
-    }
+    private static Assembly GameAssembly() => GameAssemblyFile.Load();
 }

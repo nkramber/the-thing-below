@@ -830,7 +830,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 - The party window, which sets the starting row of each character, and the snapshot that keeps the row (D-377, D-558).
 - The status window, which reads the state of PR-9, PR-12, and PR-67 (D-569).
 - The window stack, where back closes one window and the map stays visible behind (D-211).
-- The pause of the world while a menu is open (D-162, OQ-64).
+- The pause of the world while a menu is open (D-162, D-650).
 - The mouse on menus alone, which makes the same intent as a key or a button (D-219, D-493, OQ-110).
 - The dungeon map screen, which draws each tile that the party walked (D-567, OQ-111).
 - The notice that slides in at the top edge, and the notice log in the menu (D-221, OQ-113).
@@ -846,7 +846,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 2. A screen test captures the stack and the dungeon map screen.
 3. A menu action makes an intent, and the record holds no cursor move (D-493).
 4. The mouse, the keyboard, and the gamepad each move the same cursor (D-219).
-5. A test proves that the world does not tick while a menu is open (D-162, OQ-64).
+5. A test proves that the world does not run while a menu is open, and that the tick rises (D-162, D-650).
 6. The dungeon map screen shows each walked tile, with the doors, the save points, and the exits on it (D-567).
 7. The party window sets the row of a character, and a fight starts with that row (D-377, D-558).
 8. The row survives a save and a load, through a snapshot format bump and its migration (D-166, D-558).
@@ -858,7 +858,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 - The answer of OQ-113 sets which notices the log keeps, and how many.
 - Each later system PR adds one window to this stack (D-525).
 
-**Questions.** OQ-64, OQ-110, OQ-111, and OQ-113.
+**Questions.** OQ-110, OQ-111, and OQ-113. D-650 resolved OQ-64.
 
 > *In plain English:* menus are windows that stack on each other, and the world stops while one is open. A second screen draws each tile of the dungeon that the party walked.
 
@@ -1842,7 +1842,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 |---|---|---|
 | OQ-57 | The studio name | PR-61 and PR-75 |
 | OQ-59 | The AI disclosure of the content survey | PR-75 |
-| OQ-64 | The tick while a menu is open | PR-62 |
+| OQ-64 | The tick while a menu is open. Resolved by D-650 | PR-62 |
 | OQ-74 | How the runner finds a softlock | PR-15 |
 | OQ-79 | How the screen-test job pins Mesa | PR-41 |
 | OQ-80 | The count of bot runs on each PR | PR-15 |

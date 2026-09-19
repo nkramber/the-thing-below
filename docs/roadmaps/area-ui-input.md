@@ -130,7 +130,7 @@ Built by PR-62. Phase file: `phase-2-first-playable.md`.
 
 - A main list opens one window for each task: party, lessons, gear, items, status, and save (D-211).
 - Each window stacks over the last, back closes it, and the map stays visible behind (D-211).
-- A menu pauses the world (D-162). OQ-64 holds what the tick does while a menu is open.
+- A menu pauses the world (D-162). The tick rises while a menu is open, and the world systems skip their work (D-650).
 - A menu action is an intent, and the record holds no cursor move (D-493).
 - The mouse works on menus alone, and a mouse action on a menu makes the same intent as a key (D-219, D-493). OQ-110 holds the rules of the cursor.
 - The dungeon map screen draws each tile that the party walked, with the doors, the save points, and the exits on those tiles (D-567). OQ-111 holds its scale.
@@ -311,7 +311,7 @@ The register is `docs/questions.md` (D-19). These questions block UI PRs, and ea
 - OQ-112: the text speeds, and the type-out of the dialogue box. Blocks PR-36.
 - OQ-113: the notice log, and how many notices it keeps. Blocks PR-62.
 - OQ-89: pixel snap in Game. Blocks PR-7.
-- OQ-64: the tick while a menu is open. Blocks PR-6.
+- OQ-64: the tick while a menu is open. Resolved 2026-09-18 by D-650.
 - OQ-90: where the studio mark shows. Blocks PR-33.
 
 No open question blocks this file.

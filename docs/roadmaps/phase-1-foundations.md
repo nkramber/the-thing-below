@@ -26,7 +26,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 |---|---|---|
 | F-2 | The borrowed gate tools are C# and run nowhere here | PR-2 and PR-3: both tools as new code (D-101, D-277) |
 | F-5 | The two checkers disagree on the rule for a numbered item | PR-2: one rule, and the skill text follows it (D-604) |
-| F-10 | The run record grows with no limit over a long play | PR-6: a snapshot plus the intents after it (OQ-65) |
+| F-10 | The run record grows with no limit over a long play | PR-6: a snapshot at each save, plus the intents after it (D-651) |
 | F-11 | The interim checker read an HTML comment as prose | PR-2: the new checker carries the rule, and MD 1 fails a comment across lines |
 | F-17 | The 32-color palette had too few free colors | PR-34: the palette of 64 colors (D-181) |
 | F-19 | An atlas cannot match byte for byte across encoders | PR-34: a pixel test, never a byte test |
@@ -539,8 +539,8 @@ Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` secti
 - The fixed-rate loop that calls Core 60 times a second, with a tick count in Core (D-164, G-3).
 - The intent, which names a choice in content ids and state ids (D-84, D-493).
 - The run record header: the format version, the simulation version, the content hash, the seed, the initial state, and the game version (G-5, D-448).
-- The recorder, the replay, and the compaction rule of a snapshot plus the intents after it (F-10, OQ-65).
-- The encoding of OQ-66.
+- The recorder, the replay, and the compaction rule of a snapshot at each save, plus the intents after it (F-10, D-651).
+- The encoding of D-652: JSON text, with one object on each line.
 - The Core seam that takes extra intent handlers from the host, and the mark of a debug intent (D-171, D-260, D-492).
 - A replay run in the identity set (D-504).
 
@@ -562,12 +562,12 @@ Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` secti
 
 **Review focus.**
 
-- The header holds each field of D-448, and OQ-168 settles where the game version comes from.
+- The header holds each field of D-448, and one constant in Core holds the game version (D-653).
 - Core names no debug assembly, and a release host passes no handler (D-492).
-- The snapshot moment of OQ-65 keeps the record bounded and the replay exact.
+- The snapshot at each save keeps the record bounded and the replay exact (D-651).
 - Game makes each intent from an input event, never from a poll (F-50).
 
-**Questions.** OQ-64, OQ-65, OQ-66, and OQ-168.
+**Questions.** D-650 resolved OQ-64, D-651 resolved OQ-65, D-652 resolved OQ-66, and D-653 resolved OQ-168.
 
 > *In plain English:* the game writes down its start state and every choice after it. That record plays any run again on any machine, so every bug becomes repeatable on demand.
 
@@ -606,7 +606,7 @@ Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 - The folder name is right on each of the three systems (D-465, F-33).
 - The migration test reads a real stored save, not a save that the test just wrote.
 
-**Questions.** OQ-65 and OQ-66.
+**Questions.** D-651 resolved OQ-65, and D-652 resolved OQ-66.
 
 > *In plain English:* a save is a full picture of the game at one moment. A crash during a save never destroys the old one, and a save from an older build still loads through a converter.
 
@@ -841,9 +841,9 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-61 | The random generator and the stream split | Answered by D-642 and D-643 |
 | OQ-62 | The hash function of Core | Answered by D-644 and D-645 |
 | OQ-63 | The form of a content id | Answered by D-646 |
-| OQ-64 | The tick while a menu is open | PR-6 |
-| OQ-65 | When the run record takes a new snapshot | PR-6 and PR-43 |
-| OQ-66 | The encoding of records and snapshots | PR-6 and PR-43 |
+| OQ-64 | The tick while a menu is open. Resolved by D-650 | PR-6 |
+| OQ-65 | When the run record takes a new snapshot. Resolved by D-651 | PR-6 and PR-43 |
+| OQ-66 | The encoding of records and snapshots. Resolved by D-652 | PR-6 and PR-43 |
 | OQ-67 | The rule for numbered items | Answered by D-604 |
 | OQ-68 | What the reference check fails | Answered by D-605 |
 | OQ-69 | What counts as a change to a decision row | PR-3, answered by D-609 |
@@ -863,7 +863,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-88 | The unit of the time of a frame | PR-34 |
 | OQ-92 | Where the source of the Deck test scene lives | The Deck test, resolved by D-597 |
 | OQ-93 | How the owner reads the frame time on the Deck | The Deck test, resolved by D-598 |
-| OQ-168 | Where the game version lives in the build | PR-6 and PR-31 |
+| OQ-168 | Where the game version lives in the build. Resolved by D-653 | PR-6 and PR-31 |
 | OQ-183 | The scale of the frame on a screen | PR-7 and PR-34, and the probe of D-621 answers it |
 | OQ-179 | Where the reflection switch of the JSON reader lives | Answered by D-647 |
 
