@@ -9,16 +9,16 @@ Session: review PR #30, PR-43, the Storage project, the snapshots, and the saves
 
 ### What this session did, and why
 
-- Reviewed the complete PR-30 diff from merge base `3a7340f` to effective head `d596c1c`.
+- Reviewed the complete PR-30 diff from merge base `3a7340f` to effective head `d1d2a47`.
 - Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
 - Traced the save format, checksum, format dispatch, safe write, resume removal, platform folder rules, Core boundary, and Godot boot check.
 - Found no actionable finding. Wrote `docs/reviews/pr-30.md` with the verdict `Ready for owner merge`.
 
 ### The state of the build
 
-- The metadata tip is `e3ff30b`, and the effective implementation head is `d596c1c`.
+- The metadata tip is `e3ff30b`, and the effective implementation head is `d1d2a47`.
 - `make verify` passes with 536 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
-- GitHub reports the implementation checks and Gitar pass green. The current `review-gate` run fails because the review record was absent. The new record targets `d596c1c`.
+- GitHub reports the implementation checks and Gitar pass green. The current `review-gate` run fails because the review record named the wrong effective head. The new record targets `d1d2a47`.
 
 ### What is in flight
 
@@ -26,7 +26,7 @@ The review record and this handoff entry need a metadata commit and push. A fres
 
 ### Traps and gotchas
 
-- The effective head excludes only the review and handoff metadata commits after `d596c1c`.
+- The effective head excludes only the review and handoff metadata commit after `d1d2a47`.
 - PR-16 adds the Game save-load integration. PR-44 adds crash and log files.
 
 ### The questions that block progress
