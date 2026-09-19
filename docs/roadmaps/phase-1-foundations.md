@@ -704,7 +704,7 @@ Area file: `area-tools.md` section 7.5.
 
 ### 7.17 The Sprite Fusion test
 
-Owner and a session, after M-2 and before Gate 1 (D-675). Area file: `area-art.md` section 7.1.
+Owner and a session, after M-2 and before Gate 1 (D-675). Done on 2026-09-19. Area file: `area-art.md` section 7.1.
 
 **Scope.**
 
@@ -720,9 +720,11 @@ Owner and a session, after M-2 and before Gate 1 (D-675). Area file: `area-art.m
 
 **Exit tests.**
 
-1. The sheet holds both sets of the same subjects, at the same size.
-2. The owner picks the source, and a decision row records the pick.
-3. A pick of Sprite Fusion also records the cost, the license, and the path through PR-51.
+1. The sheet holds both sets of the same subjects, at the same size. Met on 2026-09-19.
+2. The owner picks the source, and a decision row records the pick. Met by D-686.
+3. A pick of Sprite Fusion also records the cost, the license, and the path through PR-51. Met by D-687, D-688, and D-689.
+
+**Result.** The owner picked the Sprite Fusion generator for every picture, and the Starter plan stays (D-686, D-687). The four findings of the test are F-86 to F-89. A session repairs each tile by hand, because the generator draws a tile as a framed block (F-88).
 
 **Review focus.**
 
@@ -877,7 +879,7 @@ Area file: `area-ci.md` section 7.19. D-684 sets the id and the place of this PR
 7. `make verify` passes on the Mac.
 8. The atlas pixel test passes on the three legs (F-19).
 9. The cost model holds the M-1 and M-2 numbers of the first ten code PRs.
-10. The Sprite Fusion test ran, and a decision row names the source of the art (D-620, D-676).
+10. The Sprite Fusion test ran, and a decision row names the source of the art (D-620, D-676). Met by D-686 on 2026-09-19.
 11. Branch protection on `main` requires these checks: `changed paths`, `build, test, and format`, `smoke`, `replay-identity`, `det-lint`, `coverage report`, `ste-check`, and `review-gate` (D-685).
 
 **What the gate does not ask.** No play, no screen, and no sign-off on feel. Gates 2 to 5 hold those (D-52). Line 10 asks for a pick and a decision row, and not a sign-off on feel (D-676).
@@ -911,7 +913,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 21. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above. Done on 2026-09-19.
 22. PR-87: the empty option value of the Tools commands, before Gate 1 (D-674, D-677).
 23. PR-88: the stable check names of the CI matrix jobs, before Gate 1 (D-682, D-684).
-24. Owner and a session: the Sprite Fusion test of the art (D-620, D-675).
+24. Owner and a session: the Sprite Fusion test of the art. Done on 2026-09-19 (D-620, D-675, D-686).
 25. Owner: add the three legs to the required checks of `main`, after PR-88 merges (D-685).
 26. **← GATE 1 (foundation).** Section 7.22 holds each line.
 

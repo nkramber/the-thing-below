@@ -1,5 +1,128 @@
 # Session handoff
 
+## Session 136: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #38, the Sprite Fusion test pick. Repository: the-thing-below. Branch: `docs/pr-89-sprite-fusion-pick`. Role: reviewer. Base: `db518fa`.
+
+### What this session did, and why
+
+- Recomputed PR #38 at effective head `83e561c`. The later commit `cae4e90` changes only metadata.
+- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Inspected the complete eight-path diff, the four new decision rows, the four findings, the roadmap changes, and the handoff rotation.
+- Verified the corrected credit arithmetic: 495 credits started, 165 credits were spent, and 330 credits remain.
+- Wrote `docs/reviews/pr-38.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and bounded smoke checks.
+- The effective head is `83e561c`. The metadata tip is `cae4e90`.
+- The automated pass approved `83e561c` with no open thread. Its two findings were answered, and RG 7 passes.
+- `review-gate` waits for this review record.
+
+### What is in flight
+
+The review record and this handoff entry need a commit and push. After the remote gate reads the record, the PR is ready for owner merge.
+
+### Traps and gotchas
+
+- The verdict targets effective head `83e561c`, not metadata tip `cae4e90`.
+- D-687 includes a 45-credit bonus. The arithmetic is 495 minus 165 equals 330.
+- PR-51 owns the PNG import implementation and its tests. This PR records its requirements only.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Then fetch and verify the remote head and review-gate result.
+
+## Session 135: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: the documents PR of the Sprite Fusion pick. Repository: the-thing-below. Branch: `docs/pr-89-sprite-fusion-pick`. Role: author. Base: `db518fa`.
+
+### What this session did, and why
+
+- Carried the pick of the Sprite Fusion test from `spike/pick.md` on the spike branch to `main`. That branch never merges (D-620).
+- Added D-686 and D-687: the generator draws every picture, and the Starter plan stays at 9 USD each month.
+- The carry found a conflict. The pick gives PR-51 a map to the nearest palette color, and section 7.39 refused a near color (T-2). The owner answered, and D-688 and D-689 record the two answers.
+- Added F-86 to F-89 to the register of `docs/design.md`, and short rows to the findings tables of the two area files.
+- Updated section 7.1 of `docs/roadmaps/area-art.md`, section 7.11 of `docs/roadmaps/area-tools.md`, sections 7.17 and 7.22 of the phase-1 file, and section 7.39 of the phase-2 file.
+- Marked the test done in the three sequence lists, and marked line 10 of Gate 1 met by D-686.
+- Carried the entry of Session 134 from the spike branch, and moved the entries of Session 124 and Session 125 to the archive.
+- Answered the automated pass. It read the three credit figures of D-687 as a contradiction on a 450-credit plan. The owner said that a bonus of 45 credits arrived, so the row now records 495 credits at the start.
+- Fixed the `docs/reviews/` row of the PR description. It held no form of D-581, and RG 7 faulted on it.
+
+### The state of the build
+
+- `make ste-check` passes at the commit of this entry. The PR changes documents alone.
+- The remote head of `main` is `db518fa`, and this branch starts there.
+- The automated pass approved the head `83e561c` at 22:57 UTC, with one finding closed and no open thread. The CI summary of that pass still names the old RG 7 fault, and the log of the job gives `RG 7 pass`.
+- The `review-gate` check holds one fault: RG 3, which asks for `docs/reviews/pr-38.md`. The Codex review record clears it.
+
+### What is in flight
+
+The PR waits for the Codex review. The PR adds decision rows, so the label of D-401 does not apply. RG 3 faults until the record `docs/reviews/pr-38.md` lands, which is the normal state before a review.
+
+### Traps and gotchas
+
+- The draft of D-686 in `spike/pick.md` said that the pick revises D-57 in part. D-57 covers the story text and not a picture, so D-686 drops that claim. D-107 takes the revision alone.
+- The pick draft named two decision rows. The conflict of section 7.39 needed an owner answer, so the PR carries four.
+- No picture of `spike/generated/` reaches `content/`. The import of PR-51 gives each one a frame and the palette (G-24).
+- The spend of 165 credits is 11 calls at 15 credits, and the test made eight calls. The dashboard of the supplier gives the figure, and the row says so.
+- This PR takes no `PR-#` id and no roadmap entry, as the documents PR of D-680 did.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the branch, open the PR, and answer the pass of gitar. Then hand the PR to Codex for the review.
+
+## Session 134: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: the Sprite Fusion test, item 24 of section 8 of the phase file. Repository: the-thing-below. Branch: `spike/sprite-fusion`. Role: spike author. Base: `db518fa`.
+
+### What this session did, and why
+
+- Ran the test of D-620 and D-675. The owner picked the subjects: the approved map sprite of Marrek as the anchor, and three subjects with no art before the test.
+- Drew four drawing files under `spike/session/content/sprites/`, and rendered them with the atlas command at `--root spike/session`. No file of `content/` changed.
+- Read the pages of the supplier for the API, the cost, and the terms. The owner gave the API key, and the session made eight calls: one cold call and one style call for each subject.
+- The style call sent the approved cast sprites as style references. The anchor call never sent the sprite of Marrek.
+- Built the comparison sheet, the repeat sheet of the tile, and a contact sheet for each of the eight calls.
+- The owner picked the generator for every picture, and the owner kept the Starter plan.
+
+### The state of the build
+
+- `make ste-check` passes at tip `e3c50b4` and after the commit of this entry.
+- The branch holds two commits over `db518fa`, and it never merges (D-620).
+- The remote head of `main` is `db518fa`.
+
+### What is in flight
+
+The documents PR of the pick. The file `spike/pick.md` holds each draft row and each change of a document.
+
+### Traps and gotchas
+
+- The branch never merges. Nothing of the test reaches `main` except through the documents PR.
+- `spike/generated/` holds 84 pictures from the tool. No picture enters `content/` before the import of PR-51 gives it a frame and the palette.
+- The tool holds no size: a call for 32 pixels returned up to 42 pixels.
+- The tool draws a tile as a framed block, so a floor of its tiles shows a grid. The owner read this before the pick.
+- The API key is at `~/.config/sprite-fusion/api-key`. No file of the repository holds it.
+- The session used a scratch builder outside the repository for the portrait grid. No Python file entered the repository (D-99).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+A new clean session opens the documents PR that carries the two decision rows, the four findings, the changes of the documents, and this entry.
+
 ## Session 133: 2026-09-19, Codex
 
 Author: Codex
@@ -272,139 +395,3 @@ None for this PR. OQ-3 remains an owner question for Gate 1.
 The author corrects the repeated scope count. Then the review reruns the document and review-gate checks before it publishes a final verdict.
 
 Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).
-
-## Session 126: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: PR-87, the empty option value of the Tools commands. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: author. Base: `f896dc3`.
-
-### What this session did, and why
-
-- The session asked the owner three questions before any change. D-677 to D-679 answer them.
-- A probe of every command found the fault in five commands and seven option values, and F-83 recorded one.
-- D-678 sets the scope: every Tools command, and not `content-hash` alone.
-- `OptionValue.ReportEmpty` is the one place of the check, and every command reads its option values through it (D-679).
-- The `atlas` command moves from its own copy of the check to that helper.
-- Section 7.20 of `docs/roadmaps/phase-1-foundations.md` holds PR-87, and Gate 1 moves to 7.21.
-- F-83 now records the full set and reads as fixed.
-
-### The state of the build
-
-- `main` is `f896dc3`, and the branch starts there.
-- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
-- The suite grew by 12 tests: 9 rows of the command theory and 3 for the helper.
-- Every one of the seven option values gives the fault exit code and names the option.
-
-### What is in flight
-
-The review of Codex. The pass of gitar approved the head `4e9338d` with no finding and no open thread.
-
-`review-gate` names RG 3 alone: the review record of Codex at `docs/reviews/pr-35.md`. RG 1, RG 2, and RG 6 to RG 8 pass. Every other check passes on every CI leg.
-
-The first head failed RG 7 with two faults of the PR description. The row `docs/reviews/` had no form of D-581, and it named the roadmap id and not the GitHub number. The row `.claude/skills/` named no path after the reason. The description now holds both forms, and RG 7 passes. No commit changed, so the pass of gitar stands.
-
-### Traps and gotchas
-
-- Seven of the nine theory rows fail on the old code. The two `atlas` rows pass, because PR-34 fixed that command.
-- `det-lint --root ""` gave a clean error before this PR, from a folder check further down. The message changes to the parse message.
-- The insert of one item renumbered the sequence list of section 7 of `docs/design.md`. The diff is large, and the order does not change.
-- No Core behavior changes, so the simulation version stands (G-17).
-
-### The questions that block progress
-
-None for this PR. OQ-3 remains an owner question for Gate 1.
-
-### The next concrete action
-
-The Codex review of PR #35. The reviewer writes `docs/reviews/pr-35.md` with the verdict for the effective head, and RG 3 then passes.
-
-## Session 125: 2026-09-19, Codex
-
-Author: Codex
-Session: review PR #34, M-1 and M-2 cost model numbers. Repository: the-thing-below. Branch: `docs/m1-m2-cost-model`. Role: reviewer. Base: `3204545`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-34 diff from merge base `3204545` to effective head `2434847`.
-- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Checked the cost tables, arithmetic, document order, decision rows, runbook procedure, Documents section, and the answered gitar finding.
-- Wrote `docs/reviews/pr-34.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- The effective head is `2434847`. The metadata tip is `2789416`.
-- `make verify` passes locally with 782 tests, 0 warnings, and 0 findings from det-lint and STE check. Replay identity, content hash, and the bounded smoke session pass.
-- The M-2 table arithmetic supports its rounded means and its two-to-three-times Windows summary.
-
-### What is in flight
-
-The review record and this handoff entry are published. The review-gate check is pending its updated result.
-
-### Traps and gotchas
-
-- The effective head is `2434847`, not the metadata tip `1d9fe5b`.
-- The first gitar comment found the old Windows ratio statement. The current head records the corrected range and mean.
-
-### The questions that block progress
-
-None for this PR. OQ-3 remains an owner question for Gate 1.
-
-### The next concrete action
-
-Commit and push the review record and this handoff entry. Then fetch and verify the remote head.
-
-## Session 124: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: M-1 and M-2, the cost model numbers of the first ten code PRs. Repository: the-thing-below. Branch: `docs/m1-m2-cost-model`. Role: author. Base: `3204545`.
-
-### What this session did, and why
-
-- The session asked the owner six questions before any change. D-671 to D-676 answer them.
-- D-672 sets the M-1 number: the total context tokens of a PR, per harness.
-- Section 4 of `docs/design.md` now holds the M-1 table and the M-2 table of the ten PRs, with a mean row.
-- M-1: the mean code PR takes 68.4 million context tokens. PR-1 is the worst at 127.1 million.
-- M-2: the mean green `ci` run spends 505 seconds across its jobs, and the clock of the run is 133 seconds.
-- Windows takes two to three times the seconds of Linux, and 2.4 times at the mean.
-- D-671 records the approval of the owner for the 16 colors of D-185, which came after the merge of PR #33.
-- D-673 and F-84 record that PR #33 merged with no review record, against T-4 and D-17.
-- D-674 puts the fix of F-83 in the session right after this one, and before Gate 1.
-- D-675 keeps the Sprite Fusion test and moves it after M-2. D-676 adds it to Gate 1 as line 10.
-- The Measures section of `docs/runbooks/session-context.md` now says how to read both numbers again.
-
-### The state of the build
-
-- `main` is `3204545`, and the branch starts there. The effective head is `2434847`.
-- `make ste-check` gives 0 findings, and the `ste-check` job passes.
-- The code jobs skip, because the changed-paths job reads this PR as a docs-only PR (D-513).
-- `review-gate` names RG 3 alone: the review record of Codex. RG 1, RG 2, and RG 6 to RG 8 pass.
-- The PR changes documents alone. No code, content, or test file changes.
-- The PR adds decision rows, so the label of D-401 does not apply. The PR needs the Codex review (T-4).
-
-### What is in flight
-
-The review of Codex. The pass of gitar approved the effective head `2434847` with no open finding, and it resolved its one thread itself.
-
-That finding had full merit. The first head said that Windows takes about twice the seconds of Linux on every PR, and the M-2 table refutes it. The ratios run 2.04 to 3.00, and PR-3 is 3.00. Both sentences now give the range and the mean.
-
-The pass also read the `review-gate` failure of the first head, which named RG 7. The line of the row `docs/reviews/` had no form of D-581. The PR description now names `docs/reviews/pr-34.md`, and RG 7 passes.
-
-### Traps and gotchas
-
-- The M-1 number counts a cache read, so it reads far larger than the money cost. D-672 gives the reason.
-- M-1 attributes each record by its branch. Work on `main` counts for no PR.
-- PR-4 holds a second branch, feat/pr-4-core-math-streams, which opened no PR. Its tokens are in the PR-4 row.
-- The M-2 table reads the newest green `ci` run of each PR. Each PR started the workflow 3 to 16 times.
-- The owner reversed the first answer on the Sprite Fusion test inside the session. The test stays (D-675).
-- The owner chose the tenth Gate 1 line against the recommendation of the session. D-676 records both sides.
-- No tool of this repository reads a harness record (D-99), so the scripts of this session stay outside the checkout.
-- 7.17 of the phase file keeps its number, because D-13 refuses a renumber. Its position line names D-675.
-- The next ids are D-677, OQ-197, F-85, L-16, G-29, M-9, and Session 125.
-
-### The questions that block progress
-
-None. OQ-3 still blocks Gate 1, and it belongs to the owner.
-
-### The next concrete action
-
-Push the branch, open the PR, and answer the pass of gitar. Then hand the PR to Codex for the review.

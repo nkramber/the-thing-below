@@ -1488,30 +1488,41 @@ Area file: `area-tools.md` section 7.11.
 
 **Scope.**
 
-- The `import` command, which reads a PNG that the owner edited by hand (D-107, D-515).
+- The `import` command with two modes: the hand-edit mode and the generator mode (D-688).
+- The hand-edit mode, which reads a PNG that the owner edited by hand (D-107, D-515).
 - The write of the frame of its drawing file again, from the pixels of that PNG.
-- A failure on a pixel with a color outside the palette, with the file, the pixel, and the color (T-2).
+- A failure of the hand-edit mode on a pixel with a color outside the palette, with the file, the pixel, and the color (T-2).
+- The generator mode, which reads a picture of the Sprite Fusion generator (D-686, F-86).
+- The removal of the blank border of that picture, and a new frame of 32 or 64 pixels (D-689, F-87).
+- The map of each pixel to the nearest color of the palette of 64, with the count of the mapped pixels (D-181, D-688, F-89).
+- A failure of the generator mode when the content does not fit the frame of 64 pixels, with the file and the size (D-689, T-2).
 
 **Out of scope.**
 
 - The atlas build (PR-34) and the normal maps (PR-48).
-- No near color, and no new palette entry. The command never picks one (T-2).
+- No near color, and no new palette entry in the hand-edit mode. That mode never picks one (D-688, T-2).
+- No scale of a picture in either mode. The generator mode crops the blank border and sets the frame (D-689).
 
 **Exit tests.**
 
 1. A round trip of a fixture frame through a PNG gives the same grid.
-2. A pixel outside the palette fails with the file, the pixel, and the color.
+2. A pixel outside the palette fails in the hand-edit mode, with the file, the pixel, and the color.
 3. An indexed PNG fails, because the PNG code refuses one (D-176).
 4. The rebuilt atlas matches the pixels of the new grid (F-19).
+5. A fixture of 42 pixels with content of 30 pixels gives a frame of 32 pixels.
+6. A fixture with content of 70 pixels fails with the file and the size.
+7. The generator mode maps a pixel outside the palette to the nearest color, and it reports the count.
 
 **Review focus.**
 
-- The command never guesses a color, which keeps the palette closed (D-181, T-2).
+- The hand-edit mode never guesses a color, which keeps the palette closed (D-181, D-688, T-2).
+- The generator mode reports the count of the pixels that it mapped, so no map is silent (T-2).
 - A hand edit exports as RGB or RGBA, and the runbook says so.
+- Neither mode scales a picture, because a scale of pixel art makes new colors and soft edges (D-689).
 
-**Questions.** None.
+**Questions.** None. D-688 and D-689 set the two modes.
 
-> *In plain English:* the owner can fix a sprite in a paint program. This tool writes the edited image as a text grid again, and it refuses any color that the palette lacks.
+> *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
 
 ### 7.40 PR-52: the map preview
 
