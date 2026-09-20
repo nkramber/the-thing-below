@@ -214,6 +214,12 @@ public partial class Boot : Node
             this.screen.OnDeviceChanged();
         }
 
+        GameRun? run = this.run;
+        if (run is null)
+        {
+            return;
+        }
+
         foreach (string action in InputActions.Names)
         {
             if (!signal.IsActionPressed(action))
@@ -221,13 +227,15 @@ public partial class Boot : Node
                 continue;
             }
 
-            // No rule of this build reads the step intents and the choice intents, so the
-            // session logs each one until PR-7 adds the map rules that read them (D-561).
-            Intent made = Intent.OfPlayer(InputActions.IntentOf(action, false));
+            // The run holds the menu state, so the menu action opens the menu and closes
+            // it (D-162, D-650). No rule of this build reads the step intents and the
+            // choice intents, so the session logs each one until PR-7 adds the map rules
+            // that read them (D-561).
+            Intent made = run.IntentOf(action);
             this.WriteLog([new LogEntry(
                 LogLevel.Debug,
                 "the player made an intent",
-                this.run?.Tick ?? 0,
+                run.Tick,
                 LogSubsystems.Game,
                 [new LogField("action", action), new LogField("intent", made.Action.Value)])]);
             return;

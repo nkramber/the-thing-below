@@ -1,5 +1,42 @@
 # Session handoff
 
+## Session 144: 2026-09-20, Claude Code
+
+Author: Claude Code
+Session: PR-61, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: author. Base: `938ab7b`.
+
+### What this session did, and why
+
+- Answered the review of `docs/reviews/pr-41.md`, which gave `Changes required` for head `c8ea1ca`. `docs/reviews/pr-41-response.md` holds each disposition with its evidence.
+- P1-1 has full merit on the defect. `Boot.ReadInput` passed a constant menu state, so the menu action made `intent.open_menu` on every press. `GameRun.MenuOpen` and `GameRun.IntentOf` now read the one source of that state, which is `RunState`, and `Boot` calls the run. A copy in the host would drift from the run after a replay or a load.
+- The consequence of P1-1 needed one correction of fact: this head queues no intent, so no player could reach a menu. The defect was real and it would have become the stated consequence at the first PR that queues the intent.
+- P1-2 has no merit. The finding read the GitHub number 41 as the roadmap id PR-41. This PR is roadmap PR-61, section 7.2 of the phase-2 file. The screen-test job is roadmap PR-41, section 7.5 of the same file, and OQ-79 blocks it.
+- Four regression tests landed. One of them, `InputIntentTests.NoCallSiteOfTheInputMapPassesAConstantMenuState`, fails on the old code.
+
+### The state of the build
+
+- `make verify` passes on the Mac: 1050 tests, the format check, det-lint and STE with 0 findings, the replay identity on simulation version 4, the content hash, the atlas check, and the smoke session.
+- The gitar pass of head `6c5571a` approved the code review with no finding, and its CI note has its answer on the PR.
+- The simulation version stays at 4. `GameRun.MenuOpen` reads a value that `RunState` already held, and no rule of Core changed (G-17).
+
+### What is in flight
+
+The PR waits for the repeat review of Codex at the new effective head. The `review-gate` check reads the verdict of the record, which still says `Changes required`.
+
+### Traps and gotchas
+
+- Two numbering systems meet on this PR. The GitHub number is 41, and the roadmap id is PR-61. The review record file takes the GitHub number, and every roadmap line takes the roadmap id.
+- The response file refutes P1-2 and never deletes it. The reviewer sets a refuted finding to `withdrawn` and keeps the evidence.
+- `GameRun` now references the `Ui` namespace of Game for the input map. Core still holds no reference to either.
+
+### The questions that block progress
+
+None. OQ-79 blocks roadmap PR-41, which is a later PR, and it blocks no line of this one.
+
+### The next concrete action
+
+Start the repeat review of PR #41 at the new effective head.
+
 ## Session 143: 2026-09-20, Codex
 
 Author: Codex
@@ -365,44 +402,3 @@ None.
 ### The next concrete action
 
 Push the branch, open the PR, and answer the pass of gitar. Then hand the PR to Codex for the review.
-
-## Session 134: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: the Sprite Fusion test, item 24 of section 8 of the phase file. Repository: the-thing-below. Branch: `spike/sprite-fusion`. Role: spike author. Base: `db518fa`.
-
-### What this session did, and why
-
-- Ran the test of D-620 and D-675. The owner picked the subjects: the approved map sprite of Marrek as the anchor, and three subjects with no art before the test.
-- Drew four drawing files under `spike/session/content/sprites/`, and rendered them with the atlas command at `--root spike/session`. No file of `content/` changed.
-- Read the pages of the supplier for the API, the cost, and the terms. The owner gave the API key, and the session made eight calls: one cold call and one style call for each subject.
-- The style call sent the approved cast sprites as style references. The anchor call never sent the sprite of Marrek.
-- Built the comparison sheet, the repeat sheet of the tile, and a contact sheet for each of the eight calls.
-- The owner picked the generator for every picture, and the owner kept the Starter plan.
-
-### The state of the build
-
-- `make ste-check` passes at tip `e3c50b4` and after the commit of this entry.
-- The branch holds two commits over `db518fa`, and it never merges (D-620).
-- The remote head of `main` is `db518fa`.
-
-### What is in flight
-
-The documents PR of the pick. The file `spike/pick.md` holds each draft row and each change of a document.
-
-### Traps and gotchas
-
-- The branch never merges. Nothing of the test reaches `main` except through the documents PR.
-- `spike/generated/` holds 84 pictures from the tool. No picture enters `content/` before the import of PR-51 gives it a frame and the palette.
-- The tool holds no size: a call for 32 pixels returned up to 42 pixels.
-- The tool draws a tile as a framed block, so a floor of its tiles shows a grid. The owner read this before the pick.
-- The API key is at `~/.config/sprite-fusion/api-key`. No file of the repository holds it.
-- The session used a scratch builder outside the repository for the portrait grid. No Python file entered the repository (D-99).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-A new clean session opens the documents PR that carries the two decision rows, the four findings, the changes of the documents, and this entry.

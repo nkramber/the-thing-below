@@ -1,5 +1,46 @@
 # Session handoff archive
 
+## Session 134: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: the Sprite Fusion test, item 24 of section 8 of the phase file. Repository: the-thing-below. Branch: `spike/sprite-fusion`. Role: spike author. Base: `db518fa`.
+
+### What this session did, and why
+
+- Ran the test of D-620 and D-675. The owner picked the subjects: the approved map sprite of Marrek as the anchor, and three subjects with no art before the test.
+- Drew four drawing files under `spike/session/content/sprites/`, and rendered them with the atlas command at `--root spike/session`. No file of `content/` changed.
+- Read the pages of the supplier for the API, the cost, and the terms. The owner gave the API key, and the session made eight calls: one cold call and one style call for each subject.
+- The style call sent the approved cast sprites as style references. The anchor call never sent the sprite of Marrek.
+- Built the comparison sheet, the repeat sheet of the tile, and a contact sheet for each of the eight calls.
+- The owner picked the generator for every picture, and the owner kept the Starter plan.
+
+### The state of the build
+
+- `make ste-check` passes at tip `e3c50b4` and after the commit of this entry.
+- The branch holds two commits over `db518fa`, and it never merges (D-620).
+- The remote head of `main` is `db518fa`.
+
+### What is in flight
+
+The documents PR of the pick. The file `spike/pick.md` holds each draft row and each change of a document.
+
+### Traps and gotchas
+
+- The branch never merges. Nothing of the test reaches `main` except through the documents PR.
+- `spike/generated/` holds 84 pictures from the tool. No picture enters `content/` before the import of PR-51 gives it a frame and the palette.
+- The tool holds no size: a call for 32 pixels returned up to 42 pixels.
+- The tool draws a tile as a framed block, so a floor of its tiles shows a grid. The owner read this before the pick.
+- The API key is at `~/.config/sprite-fusion/api-key`. No file of the repository holds it.
+- The session used a scratch builder outside the repository for the portrait grid. No Python file entered the repository (D-99).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+A new clean session opens the documents PR that carries the two decision rows, the four findings, the changes of the documents, and this entry.
+
 ## Session 133: 2026-09-19, Codex
 
 Author: Codex

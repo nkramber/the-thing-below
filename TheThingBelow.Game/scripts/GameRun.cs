@@ -4,6 +4,7 @@ using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Game.Ui;
 
 namespace TheThingBelow.Game;
 
@@ -45,6 +46,14 @@ public sealed class GameRun
     /// <summary>The count of ticks that the record holds a line for (F-10).</summary>
     public int RecordedLines => this.recorder.LineCount;
 
+    /// <summary>True while a menu is open, which pauses the world (D-162, D-650).</summary>
+    /// <remarks>
+    /// The state of the run is the one source of this answer. A copy in the host would drift
+    /// from it after a replay or a load, and the menu action would then send the wrong intent
+    /// (T-2).
+    /// </remarks>
+    public bool MenuOpen => this.simulation.State.MenuOpen;
+
     /// <summary>Starts a run over a content set.</summary>
     /// <param name="content">The content of this build, which gives the content hash (D-648).</param>
     /// <param name="seed">The seed of the run (G-3, G-4).</param>
@@ -58,6 +67,20 @@ public sealed class GameRun
         Simulation simulation = Simulation.Start(seed, DebugIntentHandlers.None);
         return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()));
     }
+
+    /// <summary>
+    /// Gives the intent that one action of the input map makes now (D-493, D-561). The menu
+    /// action makes two intents, because one button opens the menu and closes it (D-162).
+    /// </summary>
+    /// <param name="action">The name of the action, such as `menu`.</param>
+    /// <returns>The intent of the player.</returns>
+    /// <exception cref="ArgumentException">The name is not an action of the input map (T-2).</exception>
+    /// <remarks>
+    /// The method reads the menu state of the run, so the host never holds a copy of it. A
+    /// host that passed a constant would send `intent.open_menu` for every press, and the
+    /// player could not leave the menu with its own button (T-2).
+    /// </remarks>
+    public Intent IntentOf(string action) => Intent.OfPlayer(InputActions.IntentOf(action, this.MenuOpen));
 
     /// <summary>Adds an intent that the next tick applies (D-493).</summary>
     /// <param name="intent">The intent, which Game made from one input event (F-50).</param>

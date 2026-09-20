@@ -102,6 +102,26 @@ public sealed class InputIntentTests
     }
 
     [Fact]
+    public void NoCallSiteOfTheInputMapPassesAConstantMenuState()
+    {
+        // The regression test of P1-1 of `docs/reviews/pr-41.md`. A caller that passed a
+        // constant sent `intent.open_menu` for every press of the menu action, so the player
+        // could not leave the menu with its own button (D-162, D-650, T-2). The run reads its
+        // own menu state, and `GameRunTests` proves the two intents through a real run.
+        foreach (string file in GameSourceFiles())
+        {
+            string text = File.ReadAllText(file);
+            foreach (string constant in new[] { "IntentOf(action, false)", "IntentOf(action, true)" })
+            {
+                Assert.False(
+                    text.Contains(constant, StringComparison.Ordinal),
+                    $"The file '{file}' calls '{constant}'. The menu state comes from the run, "
+                    + "and never from a constant at the call site (D-162, D-650).");
+            }
+        }
+    }
+
+    [Fact]
     public void TheGameSourceFolderHoldsFiles()
     {
         // A scan of an empty list passes every rule, so the scan proves that it read files.
