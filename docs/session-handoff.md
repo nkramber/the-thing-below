@@ -13,6 +13,7 @@ Session: PR-61, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui
 - Core gained `FontStrikes`, `UiStyle`, and `DeviceNames`. The content set now refuses a build with no strike for a body size, a style that names an absent drawing, or a glyph set with a hole.
 - Game gained the `Ui` namespace: the frame of 1280 by 720, both steps of the fit of D-573, the world viewport of 640 by 360 at 2x, the fonts, the theme, the one text helper of D-499, the input map, the intents, the glyph sets, and the crash message.
 - The smoke session builds the UI base at both body sizes and reads each font setting back, so every CI leg proves D-710 inside the engine.
+- The owner approved the art batch of 13 drawings on 2026-09-20 (D-714, G-25). The review sheets are in the description of PR #41 (D-514).
 
 ### The state of the build
 
@@ -23,7 +24,7 @@ Session: PR-61, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui
 
 ### What is in flight
 
-The PR waits for the owner to approve the art batch (G-25), and then for the review of Codex. No label applies, because the PR adds decision rows and code (D-401, D-560).
+The PR waits for the review of Codex. No label applies, because the PR adds decision rows and code (D-401, D-560).
 
 ### Traps and gotchas
 
@@ -39,7 +40,7 @@ None. OQ-57 stays open, and the placeholder of D-712 unblocks this PR.
 
 ### The next concrete action
 
-Get the owner approval of the art batch, then hand the PR to Codex for the review.
+Hand PR #41 to Codex for the review.
 
 ## Session 141: 2026-09-20, Codex
 
