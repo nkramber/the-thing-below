@@ -392,4 +392,3 @@ None.
 ### The next concrete action
 
 Commit and push the review record and this handoff entry. Then fetch and verify the remote head and review-gate result.
-
