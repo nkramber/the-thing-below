@@ -121,12 +121,16 @@ public partial class Boot : Node
     /// <remarks>
     /// The held set comes from the press events and the release events, and never from a
     /// poll of the input singleton (F-50). A menu pauses the world and takes every input of
-    /// the player, so no step intent goes out while a menu is open (D-162, T-2).
+    /// the player, so no step intent goes out for a tick that a menu pauses (D-162, T-2).
     /// </remarks>
     private void QueueHeldStep()
     {
         GameRun? open = this.run;
-        if (open is null || open.MenuOpen)
+
+        // The queue can already hold the intent that opens the menu, because the host reads
+        // input before it runs the ticks of a frame. A step intent for that tick would meet
+        // the refusal of the rules (D-162, T-2).
+        if (open is null || open.MenuOpenNextTick)
         {
             return;
         }
