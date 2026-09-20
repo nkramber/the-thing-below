@@ -28,14 +28,18 @@ D- id.
 | The title size | Twice the body, and no setting | The player changes it through the body alone |
 | The body size | A setting of 24, 32, and 48 | Revises D-639 in part: three body sizes, not two UI values |
 | The default body | 32 at a frame fit of 1x, and 24 above that fit | One rule, and no table of screens |
-| The text limits | Each limit above 49 characters falls to 49 | A body of 48 holds 49 characters in a dialogue line |
+| The text limits | No limit changes. The box reveals the next part on the advance intent | A body of 48 holds 49 characters, so long text takes more pages |
 
 D-639 loses its floor of 2 device pixels for each art pixel. A body of 24 and a body of 32 draw
 a stem of one frame pixel, and the owner picked both. G-28 needs the same revision.
 
-D-635 falls from 76 characters to 49. The `game-text-style` skill holds the dialogue limit, the
-lore limit, and the item description limit. The battle message of 40 and the menu label of 16
-stay, because each one is below 49.
+D-635 stands at 76 characters. The box keeps 3 lines at each body size, and it reveals the next
+part of the text on the advance intent. Thus a body of 48 takes more pages, and no line of the
+game gets shorter.
+
+A panel that cannot page still holds its text at each body size. The party row of the probe
+shows 3 of the 5 members at a body of 48. D-241 needs a revision in part: a paging panel holds
+one page, and every other panel holds its longest string.
 
 Two pairings of the picks were not on the screen of the first round. The probe paired a body of
 24 with a title of 32, and a body of 32 with a title of 48. The second run of 2026-09-19 draws

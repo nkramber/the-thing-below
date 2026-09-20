@@ -395,8 +395,10 @@ public sealed partial class Probe : Node2D
         int needed = ProbeText.WrappedDialogue(ScreenFacts.DialogueColumns(state)).Count;
         if (needed > ProbeText.DialogueLines)
         {
-            rows.Add($"note the sample dialogue needs {needed} lines at this body size, and the"
-                + $" box holds {ProbeText.DialogueLines}. The text of the game would be cut (D-635)");
+            int pages = ((needed - 1) / ProbeText.DialogueLines) + 1;
+            rows.Add($"note the sample dialogue needs {needed} lines at this body size, and the box"
+                + $" holds {ProbeText.DialogueLines}. The box reveals it in {pages} pages, and no"
+                + " line of the game gets shorter (D-635)");
         }
 
         if (!state.BodyMeetsFloor)

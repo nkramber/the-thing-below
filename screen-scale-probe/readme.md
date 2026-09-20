@@ -53,8 +53,9 @@ The text budget falls as the body grows. The panel gives both counts for each co
 | 32 | 76 | 80 |
 | 48 | 49 | 53 |
 
-The box keeps the three lines of the `game-text-style` skill at every size. The panel gives a
-note when the sample needs more lines than three (D-635).
+The box keeps the three lines of the `game-text-style` skill at every size. A body that needs
+more lines takes more pages, and no limit of the skill changes. The panel gives the page count
+(D-635).
 
 ## The two fit modes
 
