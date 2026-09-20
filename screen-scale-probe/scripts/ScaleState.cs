@@ -47,8 +47,11 @@ public sealed class ScaleState
     /// <summary>Frame pixels for each art pixel of the world.</summary>
     public double WorldScale => WorldHalves / 2.0;
 
+    /// <summary>The width of a panel border. It follows the glyph, so both share one pixel grid.</summary>
+    public int BorderPixels => BodyUnit;
+
     /// <summary>
-    /// The unit of every panel border and margin, in frame pixels. It keeps the chrome in
+    /// The unit of every margin and every gap, in frame pixels. It keeps the chrome in
     /// proportion to the text, and it holds the layout of the earlier runs at a body of 32.
     /// </summary>
     public int LayoutUnit => BodyPixels / 16;
@@ -71,11 +74,12 @@ public sealed class ScaleState
     {
         int[] worlds = [2, 3, 4];
 
-        // Body 24, 32, and 48. The title takes one step up the same ladder, at the same scale.
-        // The body of 24 draws the 24 strike at 1x, so it carries four times the glyph detail of
-        // the 12 strike doubled. It is the one body that does not meet the floor of D-639.
+        // Body 24, 32, and 48, and the title one step up the ladder. A body of 24 and a body of
+        // 32 draw their own strike at 1x, for the finest glyph. 32 is the largest strike, so a
+        // title above it must double a smaller one. Thus the row of the body of 32 is the one
+        // row with a 1x body under a 2x title.
         (int Body, int BodyUnit, int TitleNative, int TitleUnit)[] texts =
-            [(24, 1, 32, 1), (16, 2, 24, 2), (24, 2, 32, 2)];
+            [(24, 1, 32, 1), (32, 1, 24, 2), (24, 2, 32, 2)];
 
         var all = new List<ScaleState>(worlds.Length * texts.Length);
         foreach (int world in worlds)

@@ -74,7 +74,7 @@ public sealed partial class FrameDrawer : Node2D
         var box = new Rect2I(
             frame.Position + new Vector2I(8 * unit, top),
             new Vector2I((int)width + (8 * unit), _state.BodyPixels + (6 * unit)));
-        DrawPanel(box, unit);
+        DrawPanel(box);
         DrawText(box.Position + new Vector2I(4 * unit, 3 * unit), text,
             _body, _state.BodyNative, _state.BodyUnit, Colors.White);
     }
@@ -93,7 +93,7 @@ public sealed partial class FrameDrawer : Node2D
         var box = new Rect2I(
             new Vector2I(frame.Position.X + (8 * unit), frame.End.Y - (8 * unit) - height),
             new Vector2I(frame.Size.X - (16 * unit), height));
-        DrawPanel(box, unit);
+        DrawPanel(box);
 
         var pen = box.Position + new Vector2I(6 * unit, 6 * unit);
         DrawText(pen, ProbeText.Speaker, _body, _state.BodyNative, _state.BodyUnit, new Color("e6c85a"));
@@ -105,10 +105,10 @@ public sealed partial class FrameDrawer : Node2D
         }
     }
 
-    private void DrawPanel(Rect2I box, int unit)
+    private void DrawPanel(Rect2I box)
     {
         DrawRect(box, new Color("1a1823"));
-        DrawRect(box, new Color("d6d0d8"), false, unit);
+        DrawRect(box, new Color("d6d0d8"), false, _state.BorderPixels);
     }
 
     /// <summary>The width of a line in frame pixels, at the strike and the scale of the state.</summary>

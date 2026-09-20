@@ -30,23 +30,26 @@ the size of the bitmap, under the scale, and never at the product of the two.
 | State | The world | Tiles in the frame | Body text | Title text |
 |---|---|---|---|---|
 | 1 | 1x | 40 by 22.5 | 24 (24x1) | 32 (32x1) |
-| 2 | 1x | 40 by 22.5 | 32 (16x2) | 48 (24x2) |
+| 2 | 1x | 40 by 22.5 | 32 (32x1) | 48 (24x2) |
 | 3 | 1x | 40 by 22.5 | 48 (24x2) | 64 (32x2) |
 | 4 | 1.5x | 26.67 by 15 | 24 (24x1) | 32 (32x1) |
-| 5 | 1.5x | 26.67 by 15 | 32 (16x2) | 48 (24x2) |
+| 5 | 1.5x | 26.67 by 15 | 32 (32x1) | 48 (24x2) |
 | 6 | 1.5x | 26.67 by 15 | 48 (24x2) | 64 (32x2) |
 | 7 | 2x | 20 by 11.25 | 24 (24x1) | 32 (32x1) |
-| 8 | 2x | 20 by 11.25 | 32 (16x2) | 48 (24x2) |
+| 8 | 2x | 20 by 11.25 | 32 (32x1) | 48 (24x2) |
 | 9 | 2x | 20 by 11.25 | 48 (24x2) | 64 (32x2) |
 
-A body of 32 and a body of 48 double a strike. A glyph pixel takes 2 frame pixels there. Thus
-the floor of D-639 holds on the Deck, where the fit is 1x.
+A body of 24 and a body of 32 draw their own strike at 1x. A stem is one frame pixel there,
+and one device pixel on the Deck. Those two bodies miss the floor of D-639, and the panel gives
+a note. Each carries four times the glyph detail of a doubled smaller strike.
 
-A body of 24 draws the 24 strike at 1x. A stem is one frame pixel there, and one device pixel
-on the Deck. That body misses the floor of D-639, and the panel gives a note. It carries a
-finer glyph than a doubled strike of the same height.
+A body of 48 doubles the 24 strike, because 32 is the largest strike of Terminus. A glyph pixel
+takes 2 frame pixels there, and the floor of D-639 holds.
 
-The border of a panel follows the body: 1 frame pixel at a body of 24, 2 at 32, and 3 at 48.
+32 is the largest strike. Thus a title above 32 frame pixels must double a smaller strike. The
+row of the body of 32 is the one row with a 1x body under a 2x title.
+
+The border of a panel follows the glyph: 1 frame pixel at a body of 24 and 32, and 2 at 48.
 
 The world at 1.5x is the one combination that is not pixel-exact. An art pixel covers 1 or 2
 frame pixels there, and the edges are uneven. The panel of the probe gives that note.
