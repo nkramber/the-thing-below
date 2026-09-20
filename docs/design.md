@@ -66,6 +66,8 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-20 audit pass: a principal-level audit read the whole repository, and F-93 records its findings. One PR holds every fix (D-696). The license of the repository is the GNU General Public License version 3 (D-695).
 
+2026-09-20 map pass: a step goes in four directions, and a diagonal walk takes two steps (D-716). The time of day sets the range of the party, and the party sees every direction (D-719). A patrol sees the quarter that it faces, plus the tiles that touch it (D-718). No map gives a patrol a longer range than the party (D-720). Game computes the place of the view and rounds each position, so no Godot snap setting and no Godot camera limit is on (D-715, D-717). PR-64 takes the whole map HUD (D-721), and the map takes the place of the demo panel of PR-61 (D-722).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -448,7 +450,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 1. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
 2. PR-54: the export job, right before PR-7 (D-449, D-503).
 3. PR-61: the 16:9 frame, the fit, the fonts, the text helper, the input, and the crash message (D-524, D-559, D-561, D-568).
-4. PR-7: the map file, tile-locked movement, sight, the walked-tile record, the camera, and the map scene (D-106, D-528, D-566, D-567).
+4. PR-7: the map file, tile-locked movement, sight, the walked-tile record, the camera, and the map scene (D-106, D-528, D-566, D-567, D-715 to D-722).
 5. PR-45: the debug assembly and the console, right after PR-7 (D-492).
 6. PR-41: the screen-test job under Xvfb, with its committed baseline (D-172).
 7. PR-8: the enemies and the patrols on the map (D-37).

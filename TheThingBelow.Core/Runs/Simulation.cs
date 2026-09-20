@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Logging;
+using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Core.Runs;
 
@@ -12,6 +13,11 @@ namespace TheThingBelow.Core.Runs;
 /// A step applies the intents of its tick in the order of the list, and then it runs the
 /// world (D-168). The tick rises on every step, a step with a menu open included, so the
 /// tick is the one time line of a run and no intent needs a second order value (D-650).
+/// <para>
+/// The four step intents move the party one tile, and the world step of the same tick starts
+/// that step (D-493, D-716). The confirm intent and the cancel intent reach no rule of this
+/// build, and PR-16 gives them the door, the chest, and the save point of a map (D-493).
+/// </para>
 /// <para>
 /// A debug intent goes to the handlers that the host passed at the start. A host with no
 /// handler for that action refuses the intent, and the report names the intent and the tick
@@ -39,34 +45,45 @@ public sealed class Simulation
     /// <summary>The count of ticks since the start of the run (D-164).</summary>
     public long Tick => this.State.Tick;
 
-    /// <summary>Starts a run at tick zero.</summary>
+    /// <summary>Starts a run at tick zero, on one map.</summary>
     /// <param name="seed">The seed of the run (G-3, G-4).</param>
+    /// <param name="map">The map that the run opens, with the party on its spawn point (D-528).</param>
     /// <param name="debugHandlers">
     /// The extra intent handlers of the host. A release build passes
     /// <see cref="DebugIntentHandlers.None"/> (D-260, D-492).
     /// </param>
     /// <returns>The run.</returns>
-    /// <exception cref="ArgumentNullException">The handler set is null (T-2).</exception>
-    public static Simulation Start(ulong seed, DebugIntentHandlers debugHandlers)
+    /// <exception cref="ArgumentNullException">The map or the handler set is null (T-2).</exception>
+    public static Simulation Start(ulong seed, GameMap map, DebugIntentHandlers debugHandlers)
     {
+        ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
-        return new Simulation(RunState.Start(seed), debugHandlers);
+        return new Simulation(RunState.Start(seed, map), debugHandlers);
     }
 
     /// <summary>Starts a run again from a snapshot (D-651).</summary>
     /// <param name="seed">The seed of the run, which the record header holds (G-5).</param>
     /// <param name="snapshot">The snapshot that the record or the save holds.</param>
+    /// <param name="map">
+    /// The map of the snapshot, which the caller read from its content by
+    /// <see cref="RunSnapshot.MapIdOrFirst"/> (D-166).
+    /// </param>
     /// <param name="debugHandlers">The extra intent handlers of the host (D-260).</param>
     /// <returns>The run, at the tick of the snapshot.</returns>
-    /// <exception cref="ArgumentNullException">The snapshot or the handler set is null (T-2).</exception>
-    /// <exception cref="ArgumentException">The snapshot is not a state of a run (T-2).</exception>
-    public static Simulation Resume(ulong seed, RunSnapshot snapshot, DebugIntentHandlers debugHandlers)
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the map is another map (T-2).</exception>
+    public static Simulation Resume(
+        ulong seed,
+        RunSnapshot snapshot,
+        GameMap map,
+        DebugIntentHandlers debugHandlers)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
+        ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
-        return new Simulation(RunState.Resume(seed, snapshot), debugHandlers);
+        return new Simulation(RunState.Resume(seed, snapshot, map), debugHandlers);
     }
 
     /// <summary>Runs one tick of the rules.</summary>
@@ -140,9 +157,52 @@ public sealed class Simulation
             return;
         }
 
+        if (TryStepOf(intent, out StepDirection direction))
+        {
+            // The rule reads the intent here, and the world step of this tick starts the
+            // step. Thus the order of the record and the order of the rules stay the same
+            // (D-493, T-7).
+            this.State.WantStep(direction, context);
+            return;
+        }
+
         throw new SimulationException(
             $"the intent '{intent.Action.Value}' names no rule of this build",
             context);
+    }
+
+    /// <summary>
+    /// Gives the direction of a move intent (D-493, D-716). A step goes in four directions
+    /// alone, so four ids cover every step of the party.
+    /// </summary>
+    private static bool TryStepOf(Intent intent, out StepDirection direction)
+    {
+        if (string.CompareOrdinal(intent.Action.Value, IntentIds.MoveNorth.Value) == 0)
+        {
+            direction = StepDirection.North;
+            return true;
+        }
+
+        if (string.CompareOrdinal(intent.Action.Value, IntentIds.MoveSouth.Value) == 0)
+        {
+            direction = StepDirection.South;
+            return true;
+        }
+
+        if (string.CompareOrdinal(intent.Action.Value, IntentIds.MoveEast.Value) == 0)
+        {
+            direction = StepDirection.East;
+            return true;
+        }
+
+        if (string.CompareOrdinal(intent.Action.Value, IntentIds.MoveWest.Value) == 0)
+        {
+            direction = StepDirection.West;
+            return true;
+        }
+
+        direction = StepDirection.North;
+        return false;
     }
 
     /// <summary>

@@ -44,6 +44,8 @@ public static class InputActions
     /// <summary>The action that opens the menu, and that closes it (D-162).</summary>
     public const string Menu = "menu";
 
+    private static readonly string[] AllStepNames = [StepNorth, StepSouth, StepEast, StepWest];
+
     private static readonly string[] AllNames =
     [
         StepNorth,
@@ -57,6 +59,32 @@ public static class InputActions
 
     /// <summary>Every action of the input map, in a fixed order.</summary>
     public static IReadOnlyList<string> Names => AllNames;
+
+    /// <summary>The four actions that move the party, in a fixed order (D-716).</summary>
+    /// <remarks>
+    /// The party walks while a direction is held, so <see cref="HeldSteps"/> reads the press
+    /// and the release of each one (F-50).
+    /// </remarks>
+    public static IReadOnlyList<string> StepNames => AllStepNames;
+
+    /// <summary>Tells whether one action moves the party (D-716).</summary>
+    /// <param name="action">The name of the action, such as `step_north`.</param>
+    /// <returns>True when the action is one of the four steps.</returns>
+    /// <exception cref="ArgumentException">The name is empty (T-2).</exception>
+    public static bool IsStep(string action)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(action);
+
+        foreach (string name in AllStepNames)
+        {
+            if (string.CompareOrdinal(name, action) == 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>Gives the intent that one action makes.</summary>
     /// <param name="action">The name of the action, such as `confirm`.</param>

@@ -1,10 +1,47 @@
 {
  "comment": "The place of every frame in the atlas (D-666). The atlas command of Tools writes this file and each page beside it, and no session edits either one by hand (D-107). A page holds one kind of drawing, and a tile page is a strict grid of 32 by 32 cells (D-667). Run the command again after a change to a drawing file.",
  "pages": [
+  { "kind": "tiles", "number": 1, "width": 2048, "height": 32 },
   { "kind": "map_sprites", "number": 1, "width": 160, "height": 32 },
   { "kind": "ui", "number": 1, "width": 216, "height": 24 }
  ],
  "drawings": [
+  {
+   "id": "drawing.tile_doorway",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.doorway", "use": "map" }
+   ],
+   "frames": [
+    { "x": 0, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.tile_floor",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.floor", "use": "map" }
+   ],
+   "frames": [
+    { "x": 32, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.tile_wall",
+   "page": "tiles",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "tile.wall", "use": "map" }
+   ],
+   "frames": [
+    { "x": 64, "y": 0, "ticks": 0 }
+   ]
+  },
   {
    "id": "drawing.bergit_map_front",
    "page": "map_sprites",

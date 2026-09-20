@@ -165,16 +165,18 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 - The map file of D-528, which holds the terrain rows and every thing that a rule reads (D-39, D-41).
 - Those things are the doors, the locks, the chests, the traps, the save points, the spawn points, and the markers (D-386).
 - The time of day of the map, which a story flag can change (D-442).
-- Tile-locked movement and sight, in Core (D-100, D-106). No fog of war covers a map (D-566).
+- Tile-locked movement in four directions, and the sight of the party and of a patrol, in Core (D-100, D-106, D-716, D-718, D-719).
 - The record of each tile that the party walked, in Core and in the snapshot, which the map screen of PR-62 reads (D-567).
 - The map scene in Game, with the tiles from the atlas and the Nearest filter (F-45). The view holds 20 by 11.25 tiles (D-633).
-- The camera on the lead, with the limits of a large map and the centering of a small map (D-106, F-52).
-- The map HUD: the health mark and the status mark at the edge (D-212, D-390).
-- The first content: one fixture dungeon.
+- The camera on the lead, with the limits of a large map and the centering of a small map (D-106, D-717, F-52).
+- The map in the place of the demo panel of PR-61, with the row of button prompts (D-722).
+- The first content: one fixture dungeon, and the drawing of each tile kind.
 
 **Out of scope.**
 
 - The enemies on the map (PR-8) and the dungeon parts (PR-16, PR-64).
+- The map HUD, which PR-64 builds with the health mark and the status mark (D-212, D-390, D-721).
+- The rules of a door, a lock, a chest, a trap, and a save point (PR-16, PR-64).
 - The light (PR-56) and the edge tiles (PR-53).
 - The story scene triggers, which PR-68 reads from the same file (D-528).
 
@@ -190,12 +192,12 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 
 **Review focus.**
 
-- Game moves the camera from the tick, never from the smoothing of Godot (D-203, F-52).
+- Game moves the camera from the tick, never from the smoothing of Godot (D-203, D-717, F-52).
 - Each call that reports a failure in the log alone gets a check right after it (F-45, T-2).
 - Game draws through a tile map layer, and it builds the `TileSetAtlasSource` from the tile page at load (D-667).
 - The sort value of a sprite larger than one tile (D-206, OQ-115).
 
-**Questions.** OQ-89, OQ-114, OQ-117, and OQ-118. D-566 resolved OQ-116, and D-667 resolved OQ-86.
+**Questions.** None. D-715 resolved OQ-89, D-716 resolved OQ-117, D-717 resolved OQ-118, and D-718 to D-720 resolved OQ-114. D-566 resolved OQ-116, and D-667 resolved OQ-86.
 
 > *In plain English:* this is the first thing that the owner can open and move in. The dungeon is a grid of tiles, the party walks it one tile at a time, and the view follows.
 
@@ -1272,7 +1274,7 @@ Area file: `area-exploration.md` section 7.9.
 - The poison that ticks on the map and can down a character (D-392).
 - The silence that stops a rite from the menu, and the blind that does nothing outside battle (D-393).
 - The wipe when poison downs every character who fights, even with a healthy reserve (D-397).
-- The status mark in the map HUD (D-390).
+- The map HUD: the health mark and the status mark at the edge (D-212, D-390, D-721).
 
 **Out of scope.**
 

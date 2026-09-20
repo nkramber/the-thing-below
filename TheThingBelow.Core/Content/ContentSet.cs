@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Core.Content;
 
@@ -25,6 +26,7 @@ namespace TheThingBelow.Core.Content;
 public sealed class ContentSet
 {
     private readonly SortedDictionary<string, RuleFixtureEntry> ruleEntries;
+    private readonly SortedDictionary<string, GameMap> maps;
     private readonly SortedDictionary<string, Drawing> drawings;
     private readonly SortedDictionary<string, FontStrikes> fonts;
 
@@ -35,6 +37,7 @@ public sealed class ContentSet
         UiStyle style,
         DeviceNames devices,
         SortedDictionary<string, RuleFixtureEntry> ruleEntries,
+        SortedDictionary<string, GameMap> maps,
         SortedDictionary<string, Drawing> drawings,
         SortedDictionary<string, FontStrikes> fonts,
         string hash)
@@ -45,6 +48,7 @@ public sealed class ContentSet
         this.Style = style;
         this.Devices = devices;
         this.ruleEntries = ruleEntries;
+        this.maps = maps;
         this.drawings = drawings;
         this.fonts = fonts;
         this.Hash = hash;
@@ -70,6 +74,9 @@ public sealed class ContentSet
 
     /// <summary>Every rule entry, in ordinal order of its id (F-39).</summary>
     public IEnumerable<RuleFixtureEntry> RuleEntries => this.ruleEntries.Values;
+
+    /// <summary>Every map of the game, in the order of its id (D-528, G-4).</summary>
+    public IEnumerable<GameMap> Maps => this.maps.Values;
 
     /// <summary>Every drawing, in ordinal order of its id (F-39).</summary>
     public IEnumerable<Drawing> Drawings => this.drawings.Values;
@@ -98,6 +105,7 @@ public sealed class ContentSet
         DeviceNames? devices = null;
         var fonts = new SortedDictionary<string, FontStrikes>(StringComparer.Ordinal);
         var ruleEntries = new SortedDictionary<string, RuleFixtureEntry>(StringComparer.Ordinal);
+        var maps = new SortedDictionary<string, GameMap>(StringComparer.Ordinal);
         var sources = new SortedDictionary<string, string>(StringComparer.Ordinal);
         var drawings = new SortedDictionary<string, Drawing>(StringComparer.Ordinal);
         var pageFiles = new SortedSet<string>(StringComparer.Ordinal);
@@ -146,6 +154,12 @@ public sealed class ContentSet
                 // A page is an image, and the atlas index holds its record (D-517, D-666).
                 pageFiles.Add(file.Path);
             }
+            else if (GameMap.IsMapFile(file.Path))
+            {
+                // A map lies under the rule folder, so this branch comes before the fixture
+                // branch below (D-495, D-528).
+                AddMapFile(file, maps, sources);
+            }
             else if (ContentPaths.IsRuleFile(file.Path))
             {
                 AddRuleFile(file, ruleEntries, sources);
@@ -165,6 +179,7 @@ public sealed class ContentSet
             style ?? throw AbsentFile(UiStyle.Path),
             devices ?? throw AbsentFile(DeviceNames.Path),
             ruleEntries,
+            maps,
             drawings,
             fonts,
             ContentHash.Compute(files));
@@ -195,6 +210,30 @@ public sealed class ContentSet
         }
 
         return entry;
+    }
+
+    /// <summary>Gives one map by its id (D-528).</summary>
+    /// <param name="id">The content id of the map, such as `map.fixture_dungeon`.</param>
+    /// <returns>The map.</returns>
+    /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
+    /// <exception cref="ContentException">The set holds no map with that id (T-2).</exception>
+    /// <remarks>
+    /// A snapshot holds the id of the map and never its content, so a load reads the map of
+    /// this build through this method (D-166, D-651).
+    /// </remarks>
+    public GameMap Map(ContentId id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        if (!this.maps.TryGetValue(id.Value, out GameMap? map))
+        {
+            throw ContentException.ForField(
+                GameMap.Folder,
+                id.Value,
+                "the content set holds no map with this id");
+        }
+
+        return map;
     }
 
     private static IEnumerable<ContentFile> Ordered(IReadOnlyList<ContentFile> files)
@@ -245,6 +284,38 @@ public sealed class ContentSet
 
         drawings.Add(drawing.Id.Value, drawing);
         sources.Add(drawing.Id.Value, file.Path);
+    }
+
+    /// <summary>
+    /// Reads one map file, and records the id of the map and the id of each of its things.
+    /// An id is permanent, so no two entries of the content take one (D-166, D-528).
+    /// </summary>
+    private static void AddMapFile(
+        ContentFile file,
+        SortedDictionary<string, GameMap> maps,
+        SortedDictionary<string, string> sources)
+    {
+        GameMap map = GameMap.Read(file.Bytes, file.Path);
+        RefuseTakenId(file.Path, map.Id, sources);
+        maps.Add(map.Id.Value, map);
+        sources.Add(map.Id.Value, file.Path);
+
+        foreach (MapThing thing in map.Things)
+        {
+            RefuseTakenId(file.Path, thing.Id, sources);
+            sources.Add(thing.Id.Value, file.Path);
+        }
+    }
+
+    private static void RefuseTakenId(string path, ContentId id, SortedDictionary<string, string> sources)
+    {
+        if (sources.TryGetValue(id.Value, out string? first))
+        {
+            throw ContentException.ForField(
+                path,
+                id.Value,
+                $"the content id '{id.Value}' is already the id of an entry of '{first}', and an id is permanent (D-166)");
+        }
     }
 
     private static void AddRuleFile(
@@ -520,6 +591,17 @@ public sealed class ContentSet
 
     private void RefuseAbsentString(SortedDictionary<string, string> sources)
     {
+        foreach (GameMap map in this.maps.Values)
+        {
+            if (!this.Strings.Contains(map.Label))
+            {
+                throw ContentException.ForField(
+                    map.File,
+                    $"{map.Id.Value}.label",
+                    $"the string table holds no id '{map.Label.Value}' (G-7)");
+            }
+        }
+
         foreach (RuleFixtureEntry entry in this.ruleEntries.Values)
         {
             if (!this.Strings.Contains(entry.Label))

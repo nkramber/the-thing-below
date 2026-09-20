@@ -30,6 +30,42 @@ public sealed class GameRunTests
         new(() => ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find())));
 
     [Fact]
+    public void AQueuedOpenMenuPausesTheWorldForTheNextTick()
+    {
+        // A regression test of the crash that a press of the menu button with a direction
+        // held would give. The host reads input before it runs the ticks of a frame, so the
+        // queue holds the open-menu intent while the menu state of the run is still closed.
+        // A host that read that state alone would queue a step for the same tick, and the
+        // rules refuse a step while a menu is open (D-162, T-2).
+        Run run = Run.Start();
+
+        run.Queue(Intent.OfPlayer(IntentIds.OpenMenu));
+
+        Assert.False(run.MenuOpen);
+        Assert.True(run.MenuOpenNextTick);
+    }
+
+    [Fact]
+    public void AQueuedCloseMenuRunsTheWorldAgainOnTheNextTick()
+    {
+        Run run = Run.Start();
+        run.Queue(Intent.OfPlayer(IntentIds.OpenMenu));
+        run.Advance(OneTick);
+        run.Queue(Intent.OfPlayer(IntentIds.CloseMenu));
+
+        Assert.True(run.MenuOpen);
+        Assert.False(run.MenuOpenNextTick);
+    }
+
+    [Fact]
+    public void AnEmptyQueueLeavesTheMenuStateOfTheRun()
+    {
+        Run run = Run.Start();
+
+        Assert.Equal(run.MenuOpen, run.MenuOpenNextTick);
+    }
+
+    [Fact]
     public void AFrameOfOneTickRecordsThatTick()
     {
         Run run = Run.Start();
@@ -59,7 +95,7 @@ public sealed class GameRunTests
         Assert.Equal(IntentIds.CloseMenu, line.Intents[0].Action);
 
         SimulationException replay = Assert.Throws<SimulationException>(
-            () => RunReplay.Play(record, record.Header.ContentHash, DebugIntentHandlers.None));
+            () => RunReplay.Play(record, record.Header.ContentHash, TestMaps.FixtureDungeon, DebugIntentHandlers.None));
         Assert.Equal(1, replay.Context.Tick);
     }
 
@@ -141,6 +177,7 @@ public sealed class GameRunTests
         private readonly MethodInfo intentOf;
         private readonly PropertyInfo tick;
         private readonly PropertyInfo menuOpen;
+        private readonly PropertyInfo menuOpenNextTick;
 
         private Run(Type type, object instance)
         {
@@ -157,10 +194,15 @@ public sealed class GameRunTests
                 ?? throw new InvalidOperationException("The run holds no 'Tick' value (T-2).");
             this.menuOpen = type.GetProperty("MenuOpen")
                 ?? throw new InvalidOperationException("The run holds no 'MenuOpen' value (T-2).");
+            this.menuOpenNextTick = type.GetProperty("MenuOpenNextTick")
+                ?? throw new InvalidOperationException("The run holds no 'MenuOpenNextTick' value (T-2).");
         }
 
         public long Tick => (long)(this.tick.GetValue(this.instance)
             ?? throw new InvalidOperationException("The tick has no value (T-2)."));
+
+        public bool MenuOpenNextTick => (bool)(this.menuOpenNextTick.GetValue(this.instance)
+            ?? throw new InvalidOperationException("The menu state of the next tick has no value (T-2)."));
 
         public bool MenuOpen => (bool)(this.menuOpen.GetValue(this.instance)
             ?? throw new InvalidOperationException("The menu state has no value (T-2)."));

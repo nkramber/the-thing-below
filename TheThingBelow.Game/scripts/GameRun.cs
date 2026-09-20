@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Game.Ui;
 
@@ -54,17 +55,57 @@ public sealed class GameRun
     /// </remarks>
     public bool MenuOpen => this.simulation.State.MenuOpen;
 
+    /// <summary>
+    /// True when a menu is open for the next tick, with the queued intents of this frame
+    /// applied (D-162, D-650).
+    /// </summary>
+    /// <remarks>
+    /// The host reads input before it runs the ticks of a frame, so the queue can already
+    /// hold the intent that opens the menu while <see cref="MenuOpen"/> is still false. A
+    /// host that read that member alone would send a step intent for the same tick, and the
+    /// rules refuse a step while a menu is open (T-2).
+    /// </remarks>
+    public bool MenuOpenNextTick
+    {
+        get
+        {
+            bool open = this.MenuOpen;
+            foreach (Intent queued in this.queued)
+            {
+                if (string.CompareOrdinal(queued.Action.Value, IntentIds.OpenMenu.Value) == 0)
+                {
+                    open = true;
+                }
+                else if (string.CompareOrdinal(queued.Action.Value, IntentIds.CloseMenu.Value) == 0)
+                {
+                    open = false;
+                }
+            }
+
+            return open;
+        }
+    }
+
+    /// <summary>The party on its map, which the map scene draws (D-106, D-203).</summary>
+    /// <remarks>
+    /// Game reads the tile of the lead and the ticks of the step that runs, and it slides
+    /// the sprite between two tiles across those ticks. Core keeps the lead on a whole tile
+    /// (D-203).
+    /// </remarks>
+    public MapState Party => this.simulation.State.Party;
+
     /// <summary>Starts a run over a content set.</summary>
     /// <param name="content">The content of this build, which gives the content hash (D-648).</param>
     /// <param name="seed">The seed of the run (G-3, G-4).</param>
-    /// <returns>The run, at tick zero.</returns>
+    /// <returns>The run, at tick zero, on the first map (D-528).</returns>
     /// <exception cref="ArgumentNullException">The content set is null (T-2).</exception>
+    /// <exception cref="ContentException">This build holds no first map (T-2).</exception>
     public static GameRun Start(ContentSet content, ulong seed)
     {
         ArgumentNullException.ThrowIfNull(content);
 
         RunHeader header = RunHeader.ForThisBuild(content.Hash, seed);
-        Simulation simulation = Simulation.Start(seed, DebugIntentHandlers.None);
+        Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), DebugIntentHandlers.None);
         return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()));
     }
 

@@ -20,6 +20,12 @@ public static class UiMetrics
     /// <summary>The count that divides a body size to give the advance of one glyph.</summary>
     public const int AdvanceDivisor = 2;
 
+    /// <summary>
+    /// The count of frame pixels between a panel and the edge of the frame (D-241, D-708).
+    /// The row of button prompts on the map takes the same margin (D-722).
+    /// </summary>
+    public const int EdgePixels = 16;
+
     /// <summary>Gives the advance of one glyph, in frame pixels.</summary>
     /// <param name="bodySize">The body size, in frame pixels (D-707).</param>
     /// <returns>Half the body size.</returns>

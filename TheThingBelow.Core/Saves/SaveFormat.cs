@@ -13,5 +13,10 @@ public static class SaveFormat
     public const int Oldest = 1;
 
     /// <summary>The format version that this build writes.</summary>
-    public const int Current = 1;
+    /// <remarks>
+    /// PR-7 raised this number to 2. The snapshot dropped the patrol of the first world and
+    /// gained the party on a tile map: the id of the map, the tile of the lead, the facing,
+    /// the step that runs, and every walked tile (D-106, D-528, D-567).
+    /// </remarks>
+    public const int Current = 2;
 }

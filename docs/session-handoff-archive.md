@@ -1,5 +1,94 @@
 # Session handoff archive
 
+## Session 137: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: PR-54, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: author. Base: `fb17f87`.
+
+### What this session did, and why
+
+- Added `.github/workflows/export.yml`: three legs, the editor and the template downloads with a SHA-512 check, the import, the export, the license copy, the smoke session, one packed archive, and a 90-day artifact (D-449, D-512, D-596).
+- Added `TheThingBelow.Game/export_presets.cfg` with the three targets of D-481 and D-482, and no include filter (D-508, F-73).
+- Added `licenses/` with the three notices of D-467, each one a copy of its upstream text.
+- Ran every export on the Mac of the owner. The macOS export found two faults, and F-74 and F-90 record them.
+- Added 25 tests in four files: the presets, the project settings, the workflow triggers, the digests, and the license set.
+- The owner answered four questions, and D-690 to D-693 hold them. OQ-198 and OQ-199 are new.
+- Answered the automated pass. It found one bug: each push to `main` shares one concurrency group, so a merge cancelled the export of the merge before it. The cancel now applies to a pull request alone, and a test reads the value.
+- Corrected the `docs/reviews/` row of the PR description. It held no form of D-581, and RG 7 faulted on it, as PR #38 did.
+- Answered the cross-provider review of `671d712`. Its one finding, P1-1, has full merit: the export step ran the game with `|| true` and dropped the exit code. The step now keeps the code and reads it after the log checks.
+- The `smoke` target of the `Makefile` held the same fault, and the owner put the repair in this PR. D-694 records that exception to G-8, and F-92 records the fault.
+- Added `TheThingBelow.Tests/SmokeExitCodeTests.cs`, which holds the rule for the three callers of the session. `docs/reviews/pr-39-response.md` holds each disposition.
+
+### The state of the build
+
+- `make verify` passes on this machine with 837 tests, and `ste-check` gives 0 findings.
+- The remote head of `main` is `fb17f87`, and this branch starts there. The PR is #39.
+- The review record `docs/reviews/pr-39.md` gives `Changes required` for `671d712`. This round answers its one finding.
+- Every CI check passed at `620f690`, the three export legs included. `review-gate` held RG 3 alone, which the review record cleared.
+- The three artifacts are live: 62 MB for Linux, 69 MB for Windows, and 123 MB for macOS. Each one expires on 2026-12-18.
+- The five exit tests of section 7.1 all ran in CI: the export, the smoke session on the export, the three license files, the trigger of this PR, and the artifacts.
+
+### What is in flight
+
+The push of this round, a new automated pass, and the repeat review of the new head. The PR changes code and `.github/workflows/`, so no label of D-401 applies.
+
+### Traps and gotchas
+
+- F-74 is a project setting, and not a preset option. The macOS export fails with the ETC2 ASTC import setting off in `TheThingBelow.Game/project.godot`.
+- F-90: the built-in signer of Godot writes a macOS signature that the kernel refuses. The game dies with signal 9 and no output, and `codesign --verify` calls that signature valid.
+- The executable in the macOS bundle takes the application name, "The Thing Below", and not the name of the export file. The job finds it.
+- An artifact upload drops the execute bit, so the job packs one archive for each leg.
+- The carry-over note of the last prompt is wrong: `main` holds `docs/reviews/pr-38.md`, and PR #38 took its Codex review.
+- The OQ-59 correction goes to its own documents PR (D-690).
+- D-694 puts a second concern in this PR, the `Makefile` fix. It is an owner exception to G-8, and no later PR takes such a fix without one.
+- A push to this PR runs the three exports again, because GitHub reads a path filter of a pull request against the whole diff of the pull request.
+
+### The questions that block progress
+
+None. OQ-198 blocks PR-31, and OQ-199 blocks the move of D-456 in Phase 6.
+
+### The next concrete action
+
+Push this round, answer the new automated pass, and ask for the repeat review of the new head.
+
+## Session 136: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #38, the Sprite Fusion test pick. Repository: the-thing-below. Branch: `docs/pr-89-sprite-fusion-pick`. Role: reviewer. Base: `db518fa`.
+
+### What this session did, and why
+
+- Recomputed PR #38 at effective head `83e561c`. The later commit `cae4e90` changes only metadata.
+- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Inspected the complete eight-path diff, the four new decision rows, the four findings, the roadmap changes, and the handoff rotation.
+- Verified the corrected credit arithmetic: 495 credits started, 165 credits were spent, and 330 credits remain.
+- Wrote `docs/reviews/pr-38.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and bounded smoke checks.
+- The effective head is `83e561c`. The metadata tip is `cae4e90`.
+- The automated pass approved `83e561c` with no open thread. Its two findings were answered, and RG 7 passes.
+- `review-gate` waits for this review record.
+
+### What is in flight
+
+The review record and this handoff entry need a commit and push. After the remote gate reads the record, the PR is ready for owner merge.
+
+### Traps and gotchas
+
+- The verdict targets effective head `83e561c`, not metadata tip `cae4e90`.
+- D-687 includes a 45-credit bonus. The arithmetic is 495 minus 165 equals 330.
+- PR-51 owns the PNG import implementation and its tests. This PR records its requirements only.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Then fetch and verify the remote head and review-gate result.
+
 ## Session 135: 2026-09-19, Claude Code
 
 Author: Claude Code

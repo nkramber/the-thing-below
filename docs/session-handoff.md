@@ -1,5 +1,82 @@
 # Session handoff
 
+## Session 147: 2026-09-20, Codex
+
+Author: Codex
+Session: review PR #42, the tile map. Repository: the-thing-below. Branch: `feat/pr-7-tile-map`. Role: reviewer. Base: `2a8115b`.
+
+### What this session did, and why
+
+- Reviewed PR #42 at effective head `2ead9c8`.
+- Verified the opposite-provider gate, the complete 83-path diff, the PR comments, the PR-7 roadmap scope and exit tests, the changed contracts, and the save and replay migration.
+- Verified the menu-opening crash correction and its regression tests.
+- Added `docs/reviews/pr-42.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes at `2ead9c8` with 1182 tests, format, det-lint, STE, replay identity, content hash, atlas, and smoke.
+- CI passes on Ubuntu, Windows, and macOS for build, test, format, replay identity, smoke, coverage, det-lint, STE, and changed paths. Gitar approves the current head.
+- The review-gate check has the expected RG 3 fault until this review record is pushed.
+
+### What is in flight
+
+- This review record and this handoff entry need one metadata commit and push.
+
+### Traps and gotchas
+
+- The effective code head is `2ead9c8`. The tip `e4b311f` is metadata-only.
+- The map HUD belongs to PR-64. The screen-test job belongs to PR-41.
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Then verify the remote head and review-gate result.
+
+## Session 146: 2026-09-20, Claude Code
+
+Author: Claude Code
+Session: PR-7, the tile map. Repository: the-thing-below. Branch: `feat/pr-7-tile-map`. Role: author. Base: `2a8115b`.
+
+### What this session did, and why
+
+- Asked the four open questions of PR-7 first, and the owner answered each one (D-715 to D-720). The sight question took a second pass, because D-208 already said that the facing carries the sight of a patrol.
+- Core gained the map rule file, the four-direction step, the two sight rules, and the record of every walked tile (D-528, D-716, D-718, D-719, D-567).
+- The party on a tile map replaced the patrol of the first world. The snapshot took save format 2, and the simulation version rose to 5 (D-166, G-17).
+- Game gained the map scene, the tile set from the tile page, the place of the view, and the held step (D-667, D-717, D-716).
+- Two scope answers landed: PR-64 takes the whole map HUD, and the map takes the place of the demo panel of PR-61 (D-721, D-722).
+
+### The state of the build
+
+- `make verify` passes on the Mac: 1179 tests, the format check, det-lint and STE with 0 findings, the replay identity on simulation version 5, the content hash, the atlas check, and the smoke session.
+- The remote head of `main` is `2a8115b`. The branch holds three commits and needs its push.
+
+### What is in flight
+
+The PR is #42, and it waits for the review of Codex at the effective head `2ead9c8`.
+
+The gitar pass of `2ead9c8` approved the code review, and it closed its one finding. That finding is the crash below, and `2ead9c8` fixes it. The pass of the earlier head `28b06c6` raised it, and the answer sits on the thread of `TheThingBelow.Game/scripts/Boot.cs`.
+
+Every CI check passes on every leg. The `review-gate` check gives one fault, RG 3, because the head holds no `docs/reviews/pr-42.md`. That fault clears with the review record. RG 1, RG 2, RG 6, RG 7, and RG 8 pass.
+
+### Traps and gotchas
+
+- A press of the menu button with a direction held crashed the run, and `2ead9c8` fixes it. The host reads input before it runs the ticks of a frame, so the queue held the open-menu intent while the menu state of the run was still closed. `GameRun.MenuOpenNextTick` now gives the state with the queued intents applied.
+- The prompt of this session said that `docs/reviews/pr-41.md` still held `Changes required`. It does not. Session 145 wrote `Ready for owner merge` before the merge, so no correction was necessary.
+- The save fixture of format 2 holds a step in progress, so a resume reads the step ticks too.
+- `RunScripts.Make` now walks the party, so a change to it moves the save fixture of format 2 and no other stored file.
+- Tests takes no reference to Game, so the camera tests and the held-step tests read the built assembly by reflection (D-614).
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Start the review of PR #42 at the effective head `2ead9c8`.
+
 ## Session 145: 2026-09-20, Codex
 
 Author: Codex
@@ -303,92 +380,3 @@ None. OQ-198 and OQ-199 remain open but do not block this review.
 ### The next concrete action
 
 Correct P1-1, push the author correction, and rerun the review at the new effective head.
-
-## Session 137: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: PR-54, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: author. Base: `fb17f87`.
-
-### What this session did, and why
-
-- Added `.github/workflows/export.yml`: three legs, the editor and the template downloads with a SHA-512 check, the import, the export, the license copy, the smoke session, one packed archive, and a 90-day artifact (D-449, D-512, D-596).
-- Added `TheThingBelow.Game/export_presets.cfg` with the three targets of D-481 and D-482, and no include filter (D-508, F-73).
-- Added `licenses/` with the three notices of D-467, each one a copy of its upstream text.
-- Ran every export on the Mac of the owner. The macOS export found two faults, and F-74 and F-90 record them.
-- Added 25 tests in four files: the presets, the project settings, the workflow triggers, the digests, and the license set.
-- The owner answered four questions, and D-690 to D-693 hold them. OQ-198 and OQ-199 are new.
-- Answered the automated pass. It found one bug: each push to `main` shares one concurrency group, so a merge cancelled the export of the merge before it. The cancel now applies to a pull request alone, and a test reads the value.
-- Corrected the `docs/reviews/` row of the PR description. It held no form of D-581, and RG 7 faulted on it, as PR #38 did.
-- Answered the cross-provider review of `671d712`. Its one finding, P1-1, has full merit: the export step ran the game with `|| true` and dropped the exit code. The step now keeps the code and reads it after the log checks.
-- The `smoke` target of the `Makefile` held the same fault, and the owner put the repair in this PR. D-694 records that exception to G-8, and F-92 records the fault.
-- Added `TheThingBelow.Tests/SmokeExitCodeTests.cs`, which holds the rule for the three callers of the session. `docs/reviews/pr-39-response.md` holds each disposition.
-
-### The state of the build
-
-- `make verify` passes on this machine with 837 tests, and `ste-check` gives 0 findings.
-- The remote head of `main` is `fb17f87`, and this branch starts there. The PR is #39.
-- The review record `docs/reviews/pr-39.md` gives `Changes required` for `671d712`. This round answers its one finding.
-- Every CI check passed at `620f690`, the three export legs included. `review-gate` held RG 3 alone, which the review record cleared.
-- The three artifacts are live: 62 MB for Linux, 69 MB for Windows, and 123 MB for macOS. Each one expires on 2026-12-18.
-- The five exit tests of section 7.1 all ran in CI: the export, the smoke session on the export, the three license files, the trigger of this PR, and the artifacts.
-
-### What is in flight
-
-The push of this round, a new automated pass, and the repeat review of the new head. The PR changes code and `.github/workflows/`, so no label of D-401 applies.
-
-### Traps and gotchas
-
-- F-74 is a project setting, and not a preset option. The macOS export fails with the ETC2 ASTC import setting off in `TheThingBelow.Game/project.godot`.
-- F-90: the built-in signer of Godot writes a macOS signature that the kernel refuses. The game dies with signal 9 and no output, and `codesign --verify` calls that signature valid.
-- The executable in the macOS bundle takes the application name, "The Thing Below", and not the name of the export file. The job finds it.
-- An artifact upload drops the execute bit, so the job packs one archive for each leg.
-- The carry-over note of the last prompt is wrong: `main` holds `docs/reviews/pr-38.md`, and PR #38 took its Codex review.
-- The OQ-59 correction goes to its own documents PR (D-690).
-- D-694 puts a second concern in this PR, the `Makefile` fix. It is an owner exception to G-8, and no later PR takes such a fix without one.
-- A push to this PR runs the three exports again, because GitHub reads a path filter of a pull request against the whole diff of the pull request.
-
-### The questions that block progress
-
-None. OQ-198 blocks PR-31, and OQ-199 blocks the move of D-456 in Phase 6.
-
-### The next concrete action
-
-Push this round, answer the new automated pass, and ask for the repeat review of the new head.
-
-## Session 136: 2026-09-19, Codex
-
-Author: Codex
-Session: review PR #38, the Sprite Fusion test pick. Repository: the-thing-below. Branch: `docs/pr-89-sprite-fusion-pick`. Role: reviewer. Base: `db518fa`.
-
-### What this session did, and why
-
-- Recomputed PR #38 at effective head `83e561c`. The later commit `cae4e90` changes only metadata.
-- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Inspected the complete eight-path diff, the four new decision rows, the four findings, the roadmap changes, and the handoff rotation.
-- Verified the corrected credit arithmetic: 495 credits started, 165 credits were spent, and 330 credits remain.
-- Wrote `docs/reviews/pr-38.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and bounded smoke checks.
-- The effective head is `83e561c`. The metadata tip is `cae4e90`.
-- The automated pass approved `83e561c` with no open thread. Its two findings were answered, and RG 7 passes.
-- `review-gate` waits for this review record.
-
-### What is in flight
-
-The review record and this handoff entry need a commit and push. After the remote gate reads the record, the PR is ready for owner merge.
-
-### Traps and gotchas
-
-- The verdict targets effective head `83e561c`, not metadata tip `cae4e90`.
-- D-687 includes a 45-credit bonus. The arithmetic is 495 minus 165 equals 330.
-- PR-51 owns the PNG import implementation and its tests. This PR records its requirements only.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and this handoff entry. Then fetch and verify the remote head and review-gate result.

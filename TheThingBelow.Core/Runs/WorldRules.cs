@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Logging;
+using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Core.Runs;
 
@@ -9,26 +10,21 @@ namespace TheThingBelow.Core.Runs;
 /// this system only while no menu is open (D-162, D-650).
 /// </summary>
 /// <remarks>
-/// The world of Phase 1 is one patrol that walks on a fixed beat, whether or not the player
-/// moves (D-162). PR-7 replaces it with the tile map, the movement of the party, and the
-/// sight of the map.
+/// The world of this build is the party on a tile map. The party walks one tile at a time,
+/// and a step takes a fixed count of ticks (D-106, D-164, D-203). The map runs in real time,
+/// so PR-8 walks each patrol here on the same tick, whether or not the player moves (D-162).
 /// </remarks>
 public static class WorldRules
 {
-    /// <summary>The count of world ticks between two beats of a patrol, which is half a second (D-164).</summary>
-    public const int TicksPerPatrolBeat = 30;
-
-    /// <summary>The count of directions that a patrol can take on one beat.</summary>
-    public const int PatrolChoiceCount = 4;
-
     /// <summary>Runs the world for one tick.</summary>
     /// <param name="state">The state of the run, which the system changes.</param>
     /// <param name="log">The log entries of this tick, which this system adds to (D-179).</param>
     /// <exception cref="ArgumentNullException">The state or the list is null (T-2).</exception>
-    /// <exception cref="SimulationException">A count passes its range (T-2).</exception>
+    /// <exception cref="OverflowException">A count passes its range (T-2).</exception>
     /// <remarks>
-    /// A beat takes the debug level, because the patrol walks two times a second and a log
-    /// file of the info level holds the changes that a report follows (D-179).
+    /// A step of the party takes the debug level, because the party walks four tiles a
+    /// second and a log file of the info level holds the changes that a report follows
+    /// (D-179).
     /// </remarks>
     public static void Step(RunState state, List<LogEntry> log)
     {
@@ -36,19 +32,40 @@ public static class WorldRules
         ArgumentNullException.ThrowIfNull(log);
 
         state.CountWorldTick();
-        if (state.WorldTick % TicksPerPatrolBeat == 0)
+
+        MapState party = state.Party;
+        bool arrived = party.Advance(out TilePoint walked, out StepDirection? started);
+
+        if (arrived)
         {
-            state.WalkPatrol(state.Context("world/patrol"));
+            log.Add(Entry(state, "the party reached a tile", walked, party));
+        }
+
+        if (started is StepDirection direction)
+        {
             log.Add(new LogEntry(
                 LogLevel.Debug,
-                "the patrol walked one beat",
+                $"the party started a step to the {StepDirections.NameOf(direction)}",
                 state.Tick,
                 LogSubsystems.World,
                 [
-                    LogField.OfNumber("beats", state.PatrolBeats),
-                    LogField.OfNumber("choice", state.PatrolChoice),
-                    LogField.OfNumber("world-tick", state.WorldTick),
+                    LogField.OfNumber("x", party.LeadAt.X),
+                    LogField.OfNumber("y", party.LeadAt.Y),
+                    new LogField("direction", StepDirections.NameOf(direction)),
                 ]));
         }
     }
+
+    private static LogEntry Entry(RunState state, string message, TilePoint at, MapState party) =>
+        new(
+            LogLevel.Debug,
+            message,
+            state.Tick,
+            LogSubsystems.World,
+            [
+                LogField.OfNumber("x", at.X),
+                LogField.OfNumber("y", at.Y),
+                LogField.OfNumber("walked", party.Walked.Count),
+                LogField.OfNumber("world-tick", state.WorldTick),
+            ]);
 }

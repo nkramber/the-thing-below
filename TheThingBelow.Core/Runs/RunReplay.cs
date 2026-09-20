@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Core.Runs;
 
@@ -19,6 +20,10 @@ public static class RunReplay
     /// <summary>Plays a record from its snapshot to its end tick.</summary>
     /// <param name="record">The record of the run (G-5).</param>
     /// <param name="contentHash">The content hash that this host loaded (D-648).</param>
+    /// <param name="map">
+    /// The map of the snapshot of the record, which the host read from its content by
+    /// <see cref="RunSnapshot.MapIdOrFirst"/> (D-166).
+    /// </param>
     /// <param name="debugHandlers">
     /// The extra intent handlers of this host. A release host passes
     /// <see cref="DebugIntentHandlers.None"/>, and it then refuses a record with a debug
@@ -31,15 +36,16 @@ public static class RunReplay
     /// A rule refused an intent of the record, and the message names the intent and the tick
     /// (T-2).
     /// </exception>
-    public static RunState Play(RunRecord record, string contentHash, DebugIntentHandlers debugHandlers)
+    public static RunState Play(RunRecord record, string contentHash, GameMap map, DebugIntentHandlers debugHandlers)
     {
         ArgumentNullException.ThrowIfNull(record);
         ArgumentException.ThrowIfNullOrEmpty(contentHash);
+        ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
         record.Header.CheckAgainstThisBuild(contentHash);
 
-        Simulation simulation = Simulation.Resume(record.Header.Seed, record.Snapshot, debugHandlers);
+        Simulation simulation = Simulation.Resume(record.Header.Seed, record.Snapshot, map, debugHandlers);
         int next = 0;
 
         while (simulation.Tick < record.EndTick)

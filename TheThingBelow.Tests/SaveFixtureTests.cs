@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using TheThingBelow.Core;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Saves;
 using TheThingBelow.Core.Streams;
@@ -21,7 +22,8 @@ namespace TheThingBelow.Tests;
 /// <para>
 /// The stored save of format 1 names simulation version 1 and the game version 0.1.0. This
 /// build runs another simulation version, and the load reads the snapshot alone, so the save
-/// still loads (D-259).
+/// still loads (D-259). Format 1 predates the tile map, so its migration puts the party on
+/// the spawn point of the first map (D-654).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
@@ -63,8 +65,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(120, save.Snapshot.Tick);
         Assert.False(save.Snapshot.MenuOpen);
         Assert.Equal(55, save.Snapshot.WorldTick);
-        Assert.Equal(1, save.Snapshot.PatrolBeats);
-        Assert.Equal(1, save.Snapshot.PatrolChoice);
+        Assert.Null(save.Snapshot.Map);
         Assert.Equal(
             new List<StreamPosition>
             {
@@ -86,16 +87,49 @@ public sealed class SaveFixtureTests
         Assert.NotEqual(SimulationVersion.Current, save.Header.SimulationVersion);
         Assert.Equal(1, save.Header.SimulationVersion);
 
-        Simulation run = Simulation.Resume(save.Header.Seed, save.Snapshot, DebugIntentHandlers.None);
+        Simulation run = Simulation.Resume(
+            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, DebugIntentHandlers.None);
 
         Assert.Equal(120, run.Tick);
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatOnePutsThePartyOnTheSpawnOfTheFirstMap()
+    {
+        // The migration of D-166: format 1 predates the tile map, so the party enters the
+        // first map at its spawn point with that tile walked and no other (D-654).
+        SaveDocument save = ReadFormat(1);
+
+        Simulation run = Simulation.Resume(
+            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, DebugIntentHandlers.None);
+
+        Assert.Equal(TestMaps.FixtureDungeon.Spawn, run.State.Party.LeadAt);
+        Assert.Equal(1, run.State.Party.Walked.Count);
+        Assert.Equal(MapIds.FirstMap.Value, run.State.Party.Map.Id.Value);
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatTwoHoldsThePartyOnItsMap()
+    {
+        SaveDocument save = ReadFormat(2);
+
+        Assert.Equal(2, save.Header.FormatVersion);
+        Assert.NotNull(save.Snapshot.Map);
+        Assert.Equal(TestMaps.Room.Id.Value, save.Snapshot.Map.Map.Value);
+
+        Simulation run = Simulation.Resume(
+            save.Header.Seed, save.Snapshot, TestMaps.Room, DebugIntentHandlers.None);
+
+        Assert.Equal(SaveRuns.FixtureTicks, run.Tick);
+        Assert.Equal(save.Snapshot.Map.Walked, run.State.Party.Walked.Rows());
     }
 
     [Fact]
     public void TheStoredSaveOfFormatOneRunsAgainFromItsTick()
     {
         SaveDocument save = ReadFormat(1);
-        Simulation run = Simulation.Resume(save.Header.Seed, save.Snapshot, DebugIntentHandlers.None);
+        Simulation run = Simulation.Resume(
+            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, DebugIntentHandlers.None);
 
         run.Step([]);
 

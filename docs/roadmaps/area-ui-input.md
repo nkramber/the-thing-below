@@ -78,7 +78,7 @@ Built by PR-61. Phase file: `phase-2-first-playable.md`.
 - The screen tests capture both fit modes at 1080 and 1440 screen rows (D-232, `area-ci.md` section 7.12).
 - The probe of D-621 set the scale on 2026-09-18. The world draws at 2x on every screen (D-633).
 - The fit sets the default body size. A frame fit of 1x takes a body of 32, and every fit above 1x takes a body of 24 (D-707).
-- Controls snap to whole pixels by default, and the two snap settings of the renderer stay off (the external facts above). The docs advise against both at once. OQ-89 holds the snap of the map sprites.
+- Controls snap to whole pixels by default, and the two snap settings of the renderer stay off (the external facts above). The docs advise against both at once. Game rounds each map position itself (D-715).
 
 > *In plain English:* the picture grows to fill the screen. On a common 1080p monitor the scale is not a whole number. So the game scales up past the screen and then shrinks the picture, which keeps the pixels crisp.
 
@@ -312,7 +312,7 @@ The register is `docs/questions.md` (D-19). These questions block UI PRs, and ea
 - OQ-111: the scale of the dungeon map screen. Blocks PR-62.
 - OQ-112: the text speeds, and the type-out of the dialogue box. Blocks PR-36.
 - OQ-113: the notice log, and how many notices it keeps. Blocks PR-62.
-- OQ-89: pixel snap in Game. Blocks PR-7.
+- OQ-89: pixel snap in Game. Resolved 2026-09-20 by D-715.
 - OQ-64: the tick while a menu is open. Resolved 2026-09-18 by D-650.
 - OQ-90: where the studio mark shows. Blocks PR-33.
 

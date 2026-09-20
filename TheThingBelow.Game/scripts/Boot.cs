@@ -6,6 +6,7 @@ using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Crashes;
 using TheThingBelow.Core.Logging;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Game.Ui;
 using TheThingBelow.Storage;
@@ -70,7 +71,9 @@ public partial class Boot : Node
     private ContentSet? content;
     private UiBase? ui;
     private FrameRoot? frame;
-    private BaseScreen? screen;
+    private PromptBar? prompts;
+    private MapScreen? map;
+    private readonly HeldSteps held = new();
     private bool crashed;
 
     /// <summary>Opens the log file, reads the arguments, and picks the session.</summary>
@@ -101,11 +104,41 @@ public partial class Boot : Node
 
         try
         {
+            this.QueueHeldStep();
             this.WriteLog(this.run.Advance(delta));
+            this.map?.ShowParty(this.run.Party);
         }
         catch (Exception fault)
         {
             this.ReportCrash(fault);
+        }
+    }
+
+    /// <summary>
+    /// Makes the step intent of the direction that the player holds now (D-493, D-716). The
+    /// party walks while a key or a button is down, so one intent goes to each tick.
+    /// </summary>
+    /// <remarks>
+    /// The held set comes from the press events and the release events, and never from a
+    /// poll of the input singleton (F-50). A menu pauses the world and takes every input of
+    /// the player, so no step intent goes out for a tick that a menu pauses (D-162, T-2).
+    /// </remarks>
+    private void QueueHeldStep()
+    {
+        GameRun? open = this.run;
+
+        // The queue can already hold the intent that opens the menu, because the host reads
+        // input before it runs the ticks of a frame. A step intent for that tick would meet
+        // the refusal of the rules (D-162, T-2).
+        if (open is null || open.MenuOpenNextTick)
+        {
+            return;
+        }
+
+        string? action = this.held.Newest;
+        if (action is not null)
+        {
+            open.Queue(open.IntentOf(action));
         }
     }
 
@@ -140,13 +173,18 @@ public partial class Boot : Node
     }
 
     /// <summary>
-    /// Builds the frame, the UI base, and the one screen of PR-61 (D-524, D-561, D-568).
-    /// PR-7 puts the map in the place of that screen.
+    /// Builds the frame, the UI base, the map, and the row of button prompts (D-524, D-561,
+    /// D-568, D-722).
     /// </summary>
     /// <param name="loaded">The content set of this build.</param>
     /// <remarks>
+    /// The map draws in the world viewport at 1x, and the frame shows that viewport at 2x
+    /// (D-633, D-634). The prompts draw on the frame layer, so the text of a prompt matches
+    /// the art pixel of the frame (D-230).
+    /// <para>
     /// The body size comes from the fit of the frame on this screen, and no setting exists
     /// yet. PR-63 adds the display setting that changes it (D-707).
+    /// </para>
     /// </remarks>
     private void BuildScreen(ContentSet loaded)
     {
@@ -161,10 +199,22 @@ public partial class Boot : Node
         UiBase built_ui = UiBase.Load(loaded, body);
         this.ui = built_ui;
 
-        var panel = new BaseScreen();
-        built.Layer.AddChild(panel);
-        panel.Build(built_ui);
-        this.screen = panel;
+        GameRun open = this.run ?? throw new InvalidOperationException(
+            $"The screen built before the run started (T-2).");
+
+        var drawn = new MapScreen();
+        built.World.AddChild(drawn);
+        drawn.Build(built_ui.Atlas, open.Party.Map);
+        drawn.ShowParty(open.Party);
+        this.map = drawn;
+
+        var row = new PromptBar
+        {
+            Position = new Vector2(UiMetrics.EdgePixels, ScreenFit.FrameHeight - UiMetrics.EdgePixels - body),
+        };
+        built.Layer.AddChild(row);
+        row.Build(built_ui);
+        this.prompts = row;
     }
 
     /// <summary>
@@ -209,10 +259,14 @@ public partial class Boot : Node
     /// <param name="signal">The event of this frame.</param>
     private void ReadInput(InputEvent signal)
     {
-        if (this.ui is not null && this.ui.Device.Read(signal) && this.screen is not null)
+        if (this.ui is not null && this.ui.Device.Read(signal) && this.prompts is not null)
         {
-            this.screen.OnDeviceChanged();
+            this.prompts.DrawPrompts();
         }
+
+        // The party walks while a direction is down, so the map needs the press and the
+        // release of each step action, and never a poll (D-716, F-50).
+        this.held.Read(signal);
 
         GameRun? run = this.run;
         if (run is null)
@@ -222,22 +276,33 @@ public partial class Boot : Node
 
         foreach (string action in InputActions.Names)
         {
-            if (!signal.IsActionPressed(action))
+            // A step action moves the party while the player holds it, so `QueueHeldStep`
+            // makes its intent on each tick and this loop skips it (D-716, F-50).
+            if (InputActions.IsStep(action) || !signal.IsActionPressed(action))
             {
                 continue;
             }
 
-            // The run holds the menu state, so the menu action opens the menu and closes
-            // it (D-162, D-650). No rule of this build reads the step intents and the
-            // choice intents, so the session logs each one until PR-7 adds the map rules
-            // that read them (D-561).
+            // The run holds the menu state, so the menu action opens the menu and closes it
+            // (D-162, D-650).
             Intent made = run.IntentOf(action);
-            this.WriteLog([new LogEntry(
-                LogLevel.Debug,
-                "the player made an intent",
-                run.Tick,
-                LogSubsystems.Game,
-                [new LogField("action", action), new LogField("intent", made.Action.Value)])]);
+            if (string.CompareOrdinal(action, InputActions.Menu) == 0)
+            {
+                run.Queue(made);
+            }
+            else
+            {
+                // No rule of this build reads the choice intents. PR-16 gives them the
+                // door, the chest, and the save point of a map, and the session logs each
+                // one until then (D-493, G-16).
+                this.WriteLog([new LogEntry(
+                    LogLevel.Debug,
+                    "the player made an intent that no rule of this build reads",
+                    run.Tick,
+                    LogSubsystems.Game,
+                    [new LogField("action", action), new LogField("intent", made.Action.Value)])]);
+            }
+
             return;
         }
     }
@@ -400,6 +465,7 @@ public partial class Boot : Node
         GD.Print($"smoke: the log is {this.DescribeLog()}.");
         GD.Print($"smoke: the crash file is {DescribeCrashFile(session)}.");
         GD.Print($"smoke: the UI base is {DescribeUiBase(content)}.");
+        GD.Print($"smoke: the map is {DescribeMap(content, session)}.");
         GD.Print("smoke: the session ends with no error.");
         GetTree().Quit(SuccessExitCode);
     }
@@ -554,6 +620,28 @@ public partial class Boot : Node
         }
 
         return $"{string.Join(", ", built)}, and the six font settings of D-710 read back";
+    }
+
+    /// <summary>
+    /// Builds the tiles of the map and reads the place of the view back (D-667, D-717). A
+    /// headless session draws nothing, so this check reads the nodes and never the pixels
+    /// (F-23). PR-41 builds the screen test that reads the pixels.
+    /// </summary>
+    /// <param name="loaded">The content set of this build.</param>
+    /// <param name="session">The run of the smoke session, which stands on the first map.</param>
+    /// <returns>The size of the map, the count of tiles, and the place of the view.</returns>
+    private static string DescribeMap(ContentSet loaded, GameRun session)
+    {
+        GameMap map = session.Party.Map;
+        var drawn = new MapScreen();
+        drawn.Build(GameAtlas.Load(loaded.Atlas), map);
+        drawn.ShowParty(session.Party);
+
+        CameraPlace view = MapCamera.Of(session.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight);
+        string ground = drawn.DescribeGround();
+        drawn.QueueFree();
+        return $"'{map.Id.Value}' at {map.Width} by {map.Height} tiles, "
+            + $"the lead at {session.Party.LeadAt}, the view at ({view.X}, {view.Y}), and {ground}";
     }
 
     /// <summary>

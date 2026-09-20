@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Maps;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -414,6 +416,79 @@ public sealed class ContentSetTests
             {
              "comment": "a note",
              "fixtures": [ { "id": "{{id}}", "label": "{{label}}", "weight": 1 } ]
+            }
+            """);
+
+    [Fact]
+    public void AMapFileJoinsTheSetUnderItsId()
+    {
+        ContentSet set = ContentSet.Load(Files(MapFile("rules/maps/one.json", "map.one", "label.lamp")));
+
+        GameMap map = set.Map(ContentId.Parse("map.one", "test", "id"));
+
+        Assert.Equal("rules/maps/one.json", map.File);
+        Assert.Equal("label.lamp", map.Label.Value);
+        Assert.Single(set.Maps);
+    }
+
+    [Fact]
+    public void AMapIdThatTheSetLacksIsAnError()
+    {
+        ContentSet set = ContentSet.Load(Files());
+
+        ContentException error = Assert.Throws<ContentException>(
+            () => set.Map(ContentId.Parse("map.deep", "test", "id")));
+
+        Assert.Contains("map.deep", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AMapLabelThatTheStringTableLacksIsAnError()
+    {
+        // G-7: every string the player reads lives in the string table.
+        ContentException error = Assert.Throws<ContentException>(
+            () => ContentSet.Load(Files(MapFile("rules/maps/one.json", "map.one", "label.absent"))));
+
+        Assert.Contains("label.absent", error.Message, StringComparison.Ordinal);
+        Assert.Contains("rules/maps/one.json", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AThingOfAMapTakesAnIdThatNoOtherEntryHolds()
+    {
+        // D-166: an id is permanent, so no two entries of the content take one.
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(Files(
+            MapFile("rules/maps/one.json", "map.one", "label.lamp"),
+            MapFile("rules/maps/two.json", "map.two", "label.lamp"))));
+
+        Assert.Contains("spawn_point.one_start", error.Message, StringComparison.Ordinal);
+        Assert.Contains("permanent", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AMapAndARuleEntryNeverShareAnId()
+    {
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(Files(
+            MapFile("rules/maps/one.json", "map.one", "label.lamp"),
+            Rule("rules/a.json", "map.one", "label.lamp"))));
+
+        Assert.Contains("map.one", error.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>The text of one small map file, for a test of the content set (D-528).</summary>
+    private static ContentFile MapFile(string path, string id, string label) =>
+        File(
+            path,
+            $$"""
+            {
+             "comment": "a note",
+             "id": "{{id}}",
+             "label": "{{label}}",
+             "time": "day",
+             "terrain": [ "###", "#.#", "###" ],
+             "things": [
+              { "id": "spawn_point.one_start", "kind": "spawn_point", "x": 1, "y": 1 }
+             ]
             }
             """);
 

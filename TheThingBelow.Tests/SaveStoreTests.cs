@@ -64,7 +64,7 @@ public sealed class SaveStoreTests : IDisposable
 
         Assert.Equal(
             run.StateHash(),
-            Simulation.Resume(read.Header.Seed, read.Snapshot, DebugIntentHandlers.None).StateHash());
+            Simulation.Resume(read.Header.Seed, read.Snapshot, TestMaps.Room, DebugIntentHandlers.None).StateHash());
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public sealed class SaveStoreTests : IDisposable
         this.store.Write(SaveKind.Autosave, SaveRuns.SaveAfter(20));
         string path = this.store.PathOf(SaveKind.Autosave);
         string[] lines = File.ReadAllText(path).TrimEnd('\n').Split('\n');
-        File.WriteAllText(path, lines[0] + "\n" + lines[1].Replace("\"beats\"", "\"beats\" ", StringComparison.Ordinal) + "\n");
+        File.WriteAllText(path, lines[0] + "\n" + lines[1].Replace("\"world\"", "\"world\" ", StringComparison.Ordinal) + "\n");
 
         SaveException error = Assert.Throws<SaveException>(() => this.store.Read(SaveKind.Autosave));
 
