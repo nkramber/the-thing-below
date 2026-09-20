@@ -37,7 +37,7 @@ Short sentences. Physical detail. No purple prose. Dry understatement. The world
 | Dialogue line | 3 lines at 76 characters |
 | Lore entry | 12 lines at 76 characters |
 
-The frame is 1280 by 720 with a 16-pixel font (D-228, D-568). The player sets the UI scale to 1x or to 2x, and each layout must hold at both values (D-639). The dialogue box holds 156 characters at 1x and 76 at 2x, so the limit takes the smaller count (D-635, F-69). A panel holds less than the frame. The limit is the panel, not the frame.
+The frame is 1280 by 720 (D-568). The player sets the body size to 24 or to 32 frame pixels, and each layout must hold at both values (D-707). The dialogue box holds 104 characters at a body of 24, and 76 at a body of 32. The limit takes the smaller count (D-635, F-69). A panel holds less than the frame. The limit is the panel, not the frame.
 
 ## Examples
 

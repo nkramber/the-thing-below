@@ -172,7 +172,7 @@ Built by PR-39. Phase file: `phase-5-first-release.md`.
   - Playable default bindings.
   - No text under 9 pixels high at 1280 by 800.
   - An on-screen keyboard wherever the player types.
-- The 16-pixel font and the target of 60 frames per second clear the text and frame rules (D-263, G-19). The game has no text entry (D-459).
+- The body of 32 frame pixels and the target of 60 frames per second clear the text and frame rules (D-707, G-19). The game has no text entry (D-459).
 - The glyph rule is the main work, and PR-78 gives it the controller type (D-460).
 - The pass also checks suspend and resume, and the 1x frame (D-85, D-92, D-228).
 - Valve tests the native Linux build first, and it tests the Windows build under Proton only when the Linux build fails (D-458).

@@ -197,7 +197,7 @@ Area files: `area-release.md` section 7.10, `area-ui-input.md` section 7.10.
 
 **Review focus.**
 
-- The 16-pixel font and the 60-frame target clear the text and frame rules (D-263, G-19).
+- The body of 32 frame pixels and the 60-frame target clear the text and frame rules (D-707, G-19).
 - Valve tests the native Linux build first (D-458).
 - PR-78 lands first, so this PR proves the Deck glyphs under Steam (D-460, D-565).
 - This PR proves each check. Valve grants the rating later, after the owner requests the review (D-565).
