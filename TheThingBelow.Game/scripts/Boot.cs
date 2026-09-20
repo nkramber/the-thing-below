@@ -7,6 +7,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Crashes;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Game.Ui;
 using TheThingBelow.Storage;
 
 namespace TheThingBelow.Game;
@@ -20,8 +21,10 @@ namespace TheThingBelow.Game;
 /// callback itself. A crash writes the crash file through Storage, writes one log line, and
 /// quits with <see cref="CrashExitCode"/> (D-170, D-559, T-2).
 /// <para>
-/// From PR-44 to PR-61 a crash shows no message on screen. PR-61 adds the message and the
-/// address of D-473 through the one text helper of D-499 (D-559).
+/// A crash shows <see cref="CrashScreen"/> with the name of the crash file and the address
+/// of D-473, through the one text helper of D-499 (D-559, D-712). The session then quits on
+/// the next input event. A session with no display quits at once, so the smoke job of CI
+/// still ends with the crash code (D-117, T-2).
 /// </para>
 /// </remarks>
 public partial class Boot : Node
@@ -59,8 +62,16 @@ public partial class Boot : Node
     /// <summary>The folder inside the crash folder that the smoke session writes its check into (D-659).</summary>
     private const string SmokeFolderName = "smoke";
 
+    /// <summary>The name that Godot gives the display server of a session with no window.</summary>
+    private const string HeadlessDisplay = "headless";
+
     private LogStore? log;
     private GameRun? run;
+    private ContentSet? content;
+    private UiBase? ui;
+    private FrameRoot? frame;
+    private BaseScreen? screen;
+    private bool crashed;
 
     /// <summary>Opens the log file, reads the arguments, and picks the session.</summary>
     public override void _Ready()
@@ -122,8 +133,105 @@ public partial class Boot : Node
             return;
         }
 
-        this.run = GameRun.Start(LoadContent(), FixtureSeed);
-        GD.Print("The Thing Below: the scaffold booted. No screen exists yet (PR-61).");
+        ContentSet loaded = LoadContent();
+        this.content = loaded;
+        this.run = GameRun.Start(loaded, FixtureSeed);
+        this.BuildScreen(loaded);
+    }
+
+    /// <summary>
+    /// Builds the frame, the UI base, and the one screen of PR-61 (D-524, D-561, D-568).
+    /// PR-7 puts the map in the place of that screen.
+    /// </summary>
+    /// <param name="loaded">The content set of this build.</param>
+    /// <remarks>
+    /// The body size comes from the fit of the frame on this screen, and no setting exists
+    /// yet. PR-63 adds the display setting that changes it (D-707).
+    /// </remarks>
+    private void BuildScreen(ContentSet loaded)
+    {
+        GameInputMap.Build();
+
+        var built = new FrameRoot();
+        this.AddChild(built);
+        this.frame = built;
+
+        UiStyle style = loaded.Style;
+        int body = BodySize.DefaultFor(built.Fit.Height, style.SmallBody, style.LargeBody);
+        UiBase built_ui = UiBase.Load(loaded, body);
+        this.ui = built_ui;
+
+        var panel = new BaseScreen();
+        built.Layer.AddChild(panel);
+        panel.Build(built_ui);
+        this.screen = panel;
+    }
+
+    /// <summary>
+    /// Reads one input event. The event sets the device of the prompts, and it makes at most
+    /// one intent (D-222, D-493, F-50).
+    /// </summary>
+    /// <param name="signal">The event that no node of the frame took.</param>
+    /// <remarks>
+    /// Game makes each intent from an event and never from a poll of the input singleton,
+    /// because a poll ignores what a menu already took and would make a second intent for
+    /// one press (F-50).
+    /// </remarks>
+    public override void _UnhandledInput(InputEvent signal)
+    {
+        if (signal is null)
+        {
+            return;
+        }
+
+        if (this.crashed)
+        {
+            // The message of the crash stands until the player presses a button (D-559).
+            if (signal.IsPressed())
+            {
+                GetTree().Quit(CrashExitCode);
+            }
+
+            return;
+        }
+
+        try
+        {
+            this.ReadInput(signal);
+        }
+        catch (Exception fault)
+        {
+            this.ReportCrash(fault);
+        }
+    }
+
+    /// <summary>Sets the glyph set of the prompts, and makes the intent of one action.</summary>
+    /// <param name="signal">The event of this frame.</param>
+    private void ReadInput(InputEvent signal)
+    {
+        if (this.ui is not null && this.ui.Device.Read(signal) && this.screen is not null)
+        {
+            this.screen.OnDeviceChanged();
+        }
+
+        foreach (string action in InputActions.Names)
+        {
+            if (!signal.IsActionPressed(action))
+            {
+                continue;
+            }
+
+            // No rule of this build reads the step intents and the choice intents, so the
+            // session logs each one until PR-7 adds the map rules that read them (D-561).
+            Intent made = Intent.OfPlayer(InputActions.IntentOf(action, false));
+            this.WriteLog([new LogEntry(
+                LogLevel.Debug,
+                "the player made an intent",
+                this.run?.Tick ?? 0,
+                LogSubsystems.Game,
+                [new LogField("action", action), new LogField("intent", made.Action.Value)])]);
+            return;
+        }
     }
 
     /// <summary>Gives the lowest level that the log file of this session holds (D-660).</summary>
@@ -198,7 +306,52 @@ public partial class Boot : Node
             }
         }
 
+        if (this.ShowCrashMessage(path))
+        {
+            this.crashed = true;
+            return;
+        }
+
         GetTree().Quit(CrashExitCode);
+    }
+
+    /// <summary>
+    /// Shows the message of a crash on the frame, through the one text helper (D-170, D-559,
+    /// D-712). The player then reads the name of the crash file and the address that takes
+    /// it, and the session quits on the next press.
+    /// </summary>
+    /// <param name="path">The path of the crash file, or null when the write failed.</param>
+    /// <returns>True when the message is on screen, and false when the session must quit now.</returns>
+    /// <remarks>
+    /// A session with no display, such as the smoke job of CI, shows nothing and quits with
+    /// the crash code (D-117). A crash before the UI base loaded does the same, because the
+    /// message needs the string table and the theme (T-2).
+    /// </remarks>
+    private bool ShowCrashMessage(string? path)
+    {
+        if (path is null
+            || this.ui is null
+            || this.frame is null
+            || this.content is null
+            || string.CompareOrdinal(DisplayServer.GetName(), HeadlessDisplay) == 0)
+        {
+            return false;
+        }
+
+        try
+        {
+            var message = new CrashScreen();
+            this.frame.Layer.AddChild(message);
+            message.Build(this.ui, this.content.Strings, Path.GetFileName(path));
+            return true;
+        }
+        catch (Exception second)
+        {
+            // The crash file is written, and the message alone failed. The session says so
+            // and quits, and no second error hides the first one (T-2, G-18).
+            GD.PrintErr($"the game could not show the message of the crash file '{path}': {second}");
+            return false;
+        }
     }
 
     /// <summary>

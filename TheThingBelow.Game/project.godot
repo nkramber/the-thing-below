@@ -33,6 +33,10 @@ project/solution_directory=".."
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+; The fit is Game code, so the engine scales nothing. The root viewport is the window, and
+; `FrameRoot` builds both steps of D-573 itself (F-45, F-48).
+window/stretch/mode="disabled"
+window/stretch/aspect="ignore"
 
 [rendering]
 
