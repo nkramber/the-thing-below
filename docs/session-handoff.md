@@ -15,11 +15,11 @@ Session: review PR #40, the audit fixes. Repository: the-thing-below. Branch: `f
 ### The state of the build
 
 - The local build, tests, format, det-lint, STE, replay identity, content hash, atlas, and smoke checks pass.
-- The PR head is `828e5b0`. The review record waits for the metadata commit and push.
+- The PR head is `eb1c906`. The review record and handoff entry are on the remote branch.
 
 ### What is in flight
 
-The review record and this handoff entry need one metadata commit and push. The review-gate check should pass after the push.
+The review-gate check is pending after the metadata push. The other required checks are also pending on the new head.
 
 ### Traps and gotchas
 
@@ -33,7 +33,7 @@ None.
 
 ### The next concrete action
 
-Run the STE check and diff check, commit the review record and this entry, push, fetch, and verify the remote head and review-gate result.
+Wait for the revision-matched checks, then verify the review-gate result.
 
 ## Session 140: 2026-09-20, Claude Code
 
