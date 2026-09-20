@@ -77,6 +77,7 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 ## Style
 
 - `dotnet format` clean. Warnings as errors. Suppress a warning only with a comment that names the reason, next to the pragma.
+- Never put a comment between the arrow of an expression body and its expression. `dotnet format` then rewrites that line with the line ending of the machine, and the check fails on the Windows leg alone (F-80). Give the member a body with braces, and put the comment inside it.
 - Explicit over implicit. No interface for a single implementation (T-1). Two concrete cases before an abstraction.
 - Helpers go one level deep. A reader understands a method from the method and the signatures of its helpers.
 - Name a method for what it does. Name a type for what it is. Avoid a `Manager`, a `Handler`, or a `Util`.

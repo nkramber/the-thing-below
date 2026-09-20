@@ -64,33 +64,41 @@ Area files: `area-ci.md` section 7.11, `area-release.md` section 7.2.
 **Scope.**
 
 - The export job of D-449, right before PR-7, so the merge of PR-7 exports the first walkable build (D-503).
-- A run on each merge to `main`, and on each PR that changes the workflow, the presets, or the export code (D-512).
+- A run on each merge to `main`, and on each pull request that changes one of the four paths of D-692 (D-512).
 - Three exports, one on each leg: Windows and Linux on x86_64, and the universal macOS build (D-481, D-482).
 - The unpack of the .NET export templates into the editor data folder of the runner (F-42, D-596).
 - A headless smoke session on each export (D-512).
-- The license files of D-467 in each export, and a build artifact that lasts 90 days (D-449).
+- The three notices of D-467 in `licenses/`, which the job copies into each export (D-691, D-693).
+- One packed archive for each leg, and a build artifact that lasts 90 days (D-449).
 
 **Out of scope.**
 
-- The macOS signature and the notarization (PR-79, D-553).
+- The macOS signature and the notarization (PR-79, D-553). The preset signs ad hoc alone.
 - The release workflow and the GitHub Release (PR-31).
+- The third-party notices of the engine (OQ-198), and the retention of Phase 6 (OQ-199).
 - This job is not a line of the PR gate (D-449).
 
 **Exit tests.**
 
 1. Each leg exports its build from a clean checkout.
-2. Each export starts with `--headless` and ends the smoke session with no log error.
-3. Each export holds the license files of D-467.
-4. A PR that changes an export preset runs the job.
+2. Each export starts with `--headless`. Its smoke session ends with no log error and with the exit code 0 (F-92).
+3. Each export holds the three license files of D-467.
+4. A pull request that changes an export preset runs the job.
 5. Each build artifact appears on the workflow run.
+6. A test reads each preset, the project setting of F-74, and the trigger paths of D-692.
 
 **Review focus.**
 
 - The template file matches its SHA-512, and the job never takes it from an unpinned source (D-511).
 - The export presets name the three targets of D-481 and nothing else.
+- Each export needs no include filter, because Game embeds `content/` and each font in its assembly (D-508, F-73).
+- The macOS preset takes the universal binary format, and the project turns the ETC2 ASTC import setting on (F-74).
+- The macOS preset signs with the command of the Xcode tools, and not with the built-in signer (F-90).
+- The smoke step of the export keeps the exit code of the build, and no caller of the session drops it (F-92, D-694).
+- The job packs one archive for each leg, because an artifact upload drops the execute bit.
 - The owner can download the Linux artifact for a Deck play (D-458).
 
-**Questions.** OQ-83 is resolved (D-596).
+**Questions.** OQ-83 is resolved (D-596). OQ-198 and OQ-199 block no part of this PR.
 
 > *In plain English:* from the first walkable build on, every merge makes a game that the owner can run on the desktop or the handheld. Each build also starts once in CI.
 
@@ -101,7 +109,9 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 **Scope.**
 
 - The one 16:9 frame of 1280 by 720, with black bars for every other shape, the Deck included (D-228, D-568).
-- The world in a `SubViewport` at 1x, and both steps of the fit that Godot cannot make (D-230, D-232, D-573, F-48).
+- The world in a `SubViewport` of 640 by 360, scaled by 2 into the frame, so the frame holds 20 by 11.25 tiles (D-633, D-634).
+- Both steps of the fit that Godot cannot make (D-230, D-232, D-573, F-48).
+- The UI scale setting with its two values, and its default on each screen (D-639).
 - The two fonts from the bytes of the Game assembly, with the antialiasing, the hinting, and the subpixel settings of a pixel font (D-263, D-264, D-508, F-49).
 - The text helper that puts a string table entry on screen, which det-lint guards (D-499, G-7).
 - The UI style file, and the Godot `Theme` that Game builds from it at load (D-527, G-6).
@@ -130,10 +140,13 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 9. A crash shows its message through the text helper, and det-lint passes (D-499, D-559).
 10. The review sheets of the window frames and the glyph sets reach the PR description (D-514).
 11. The owner approves that art batch (G-25).
+12. A test locks the world viewport at 640 by 360, and the frame at 20 by 11.25 tiles (D-633, D-634).
+13. A test proves that each panel holds its text at both UI values (D-639, G-28).
+14. A test reads the default UI value of each of the four screens of M-8 (D-639).
 
 **Review focus.**
 
-- The two steps of the fit of D-573, and the 1x frame under them (F-48).
+- The two steps of the fit of D-573, and the world viewport of 640 by 360 under them (D-634, F-48).
 - Font oversampling stays off, and each font setting has a test (F-49).
 - The `Theme` comes from the style file, and no theme resource file exists (D-527, G-6).
 - Every screen shows the same part of the map, so no screen shape gains knowledge (D-566, D-568).
@@ -153,7 +166,7 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 - The time of day of the map, which a story flag can change (D-442).
 - Tile-locked movement and sight, in Core (D-100, D-106). No fog of war covers a map (D-566).
 - The record of each tile that the party walked, in Core and in the snapshot, which the map screen of PR-62 reads (D-567).
-- The map scene in Game, with the tiles from the atlas and the Nearest filter (F-45).
+- The map scene in Game, with the tiles from the atlas and the Nearest filter (F-45). The view holds 20 by 11.25 tiles (D-633).
 - The camera on the lead, with the limits of a large map and the centering of a small map (D-106, F-52).
 - The map HUD: the health mark and the status mark at the edge (D-212, D-390).
 - The first content: one fixture dungeon.
@@ -178,10 +191,10 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 
 - Game moves the camera from the tick, never from the smoothing of Godot (D-203, F-52).
 - Each call that reports a failure in the log alone gets a check right after it (F-45, T-2).
-- The answer of OQ-86 settles whether Game draws through a tile map layer or draws each tile.
+- Game draws through a tile map layer, and it builds the `TileSetAtlasSource` from the tile page at load (D-667).
 - The sort value of a sprite larger than one tile (D-206, OQ-115).
 
-**Questions.** OQ-86, OQ-89, OQ-114, OQ-117, and OQ-118. D-566 resolved OQ-116.
+**Questions.** OQ-89, OQ-114, OQ-117, and OQ-118. D-566 resolved OQ-116, and D-667 resolved OQ-86.
 
 > *In plain English:* this is the first thing that the owner can open and move in. The dungeon is a grid of tiles, the party walks it one tile at a time, and the view follows.
 
@@ -508,7 +521,7 @@ Area files: `area-tools.md` section 7.7, `area-effects.md` section 7.5, `area-ar
 - The sheet names each drawing on it, so the owner can name a fix (D-514).
 - From this PR on, each art PR commits the normal-map atlas with its test.
 
-**Questions.** None. OQ-87 set the form of a review sheet in PR-34.
+**Questions.** None. D-668 set the form of a review sheet in PR-34.
 
 > *In plain English:* a normal map tells the light which way each pixel faces. A tool builds it from the drawing, and the owner checks a sheet of each sprite lit from eight sides.
 
@@ -823,7 +836,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 - The party window, which sets the starting row of each character, and the snapshot that keeps the row (D-377, D-558).
 - The status window, which reads the state of PR-9, PR-12, and PR-67 (D-569).
 - The window stack, where back closes one window and the map stays visible behind (D-211).
-- The pause of the world while a menu is open (D-162, OQ-64).
+- The pause of the world while a menu is open (D-162, D-650).
 - The mouse on menus alone, which makes the same intent as a key or a button (D-219, D-493, OQ-110).
 - The dungeon map screen, which draws each tile that the party walked (D-567, OQ-111).
 - The notice that slides in at the top edge, and the notice log in the menu (D-221, OQ-113).
@@ -839,7 +852,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 2. A screen test captures the stack and the dungeon map screen.
 3. A menu action makes an intent, and the record holds no cursor move (D-493).
 4. The mouse, the keyboard, and the gamepad each move the same cursor (D-219).
-5. A test proves that the world does not tick while a menu is open (D-162, OQ-64).
+5. A test proves that the world does not run while a menu is open, and that the tick rises (D-162, D-650).
 6. The dungeon map screen shows each walked tile, with the doors, the save points, and the exits on it (D-567).
 7. The party window sets the row of a character, and a fight starts with that row (D-377, D-558).
 8. The row survives a save and a load, through a snapshot format bump and its migration (D-166, D-558).
@@ -851,7 +864,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 - The answer of OQ-113 sets which notices the log keeps, and how many.
 - Each later system PR adds one window to this stack (D-525).
 
-**Questions.** OQ-64, OQ-110, OQ-111, and OQ-113.
+**Questions.** OQ-110, OQ-111, and OQ-113. D-650 resolved OQ-64.
 
 > *In plain English:* menus are windows that stack on each other, and the world stops while one is open. A second screen draws each tile of the dungeon that the party walked.
 
@@ -1481,30 +1494,41 @@ Area file: `area-tools.md` section 7.11.
 
 **Scope.**
 
-- The `import` command, which reads a PNG that the owner edited by hand (D-107, D-515).
+- The `import` command with two modes: the hand-edit mode and the generator mode (D-688).
+- The hand-edit mode, which reads a PNG that the owner edited by hand (D-107, D-515).
 - The write of the frame of its drawing file again, from the pixels of that PNG.
-- A failure on a pixel with a color outside the palette, with the file, the pixel, and the color (T-2).
+- A failure of the hand-edit mode on a pixel with a color outside the palette, with the file, the pixel, and the color (T-2).
+- The generator mode, which reads a picture of the Sprite Fusion generator (D-686, F-86).
+- The removal of the blank border of that picture, and a new frame of 32 or 64 pixels (D-689, F-87).
+- The map of each pixel to the nearest color of the palette of 64, with the count of the mapped pixels (D-181, D-688, F-89).
+- A failure of the generator mode when the content does not fit the frame of 64 pixels, with the file and the size (D-689, T-2).
 
 **Out of scope.**
 
 - The atlas build (PR-34) and the normal maps (PR-48).
-- No near color, and no new palette entry. The command never picks one (T-2).
+- No near color, and no new palette entry in the hand-edit mode. That mode never picks one (D-688, T-2).
+- No scale of a picture in either mode. The generator mode crops the blank border and sets the frame (D-689).
 
 **Exit tests.**
 
 1. A round trip of a fixture frame through a PNG gives the same grid.
-2. A pixel outside the palette fails with the file, the pixel, and the color.
+2. A pixel outside the palette fails in the hand-edit mode, with the file, the pixel, and the color.
 3. An indexed PNG fails, because the PNG code refuses one (D-176).
 4. The rebuilt atlas matches the pixels of the new grid (F-19).
+5. A fixture of 42 pixels with content of 30 pixels gives a frame of 32 pixels.
+6. A fixture with content of 70 pixels fails with the file and the size.
+7. The generator mode maps a pixel outside the palette to the nearest color, and it reports the count.
 
 **Review focus.**
 
-- The command never guesses a color, which keeps the palette closed (D-181, T-2).
+- The hand-edit mode never guesses a color, which keeps the palette closed (D-181, D-688, T-2).
+- The generator mode reports the count of the pixels that it mapped, so no map is silent (T-2).
 - A hand edit exports as RGB or RGBA, and the runbook says so.
+- Neither mode scales a picture, because a scale of pixel art makes new colors and soft edges (D-689).
 
-**Questions.** None.
+**Questions.** None. D-688 and D-689 set the two modes.
 
-> *In plain English:* the owner can fix a sprite in a paint program. This tool writes the edited image as a text grid again, and it refuses any color that the palette lacks.
+> *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
 
 ### 7.40 PR-52: the map preview
 
@@ -1835,7 +1859,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 |---|---|---|
 | OQ-57 | The studio name | PR-61 and PR-75 |
 | OQ-59 | The AI disclosure of the content survey | PR-75 |
-| OQ-64 | The tick while a menu is open | PR-62 |
+| OQ-64 | The tick while a menu is open. Resolved by D-650 | PR-62 |
 | OQ-74 | How the runner finds a softlock | PR-15 |
 | OQ-79 | How the screen-test job pins Mesa | PR-41 |
 | OQ-80 | The count of bot runs on each PR | PR-15 |
@@ -1843,7 +1867,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-82 | The time of the night | PR-49 |
 | OQ-83 | How CI gets the Godot editor and the templates, resolved by D-596 | PR-54 |
 | OQ-84 | The seeds of the night | PR-49 |
-| OQ-86 | How the atlas places tiles, and how Game draws a map | PR-7 |
+| OQ-86 | How the atlas places tiles, and how Game draws a map | PR-7, answered by D-667 |
 | OQ-89 | Pixel snap in Game | PR-7 |
 | OQ-91 | The operations of a large picture on a piece | PR-55 |
 | OQ-94 | How the budget test counts one view | PR-56 |

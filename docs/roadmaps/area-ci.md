@@ -23,6 +23,10 @@ External facts, each with the date of its check:
 - The Godot editor keeps export templates in its data folder: `~/.local/share/godot/` on Linux, `~/Library/Application Support/Godot/` on macOS, and `%APPDATA%\Godot\` on Windows. The editor installs templates "from a TPZ file (essentially a ZIP archive)", and the command line page names no option that installs them. Sources: `https://docs.godotengine.org/en/stable/tutorials/io/data_paths.html`, `https://docs.godotengine.org/en/stable/tutorials/export/exporting_projects.html`, and the command line page above, read 2026-09-14.
 - The release `4.7.2-stable` of `godotengine/godot-builds` holds `Godot_v4.7.2-stable_mono_export_templates.tpz` at 1,202,598,411 bytes. Its file `SHA512-SUMS.txt` lists a SHA-512 for each .NET file. Source: `gh api repos/godotengine/godot-builds/releases/tags/4.7.2-stable` and the sums file, run 2026-09-14.
 - The path `res://` "will always point at the project root". At the tag `4.7.2-stable`, the export code walks the resource folder alone, and the .NET export runs `dotnet publish` on the project. No Godot page that the session read names a way to export a file from outside the project folder. Sources: `https://docs.godotengine.org/en/stable/tutorials/scripting/filesystem.html`, and `editor/export/editor_export_platform.cpp` and `modules/mono/editor/GodotTools/GodotTools/Export/ExportPlugin.cs` in `godotengine/godot`, read 2026-09-14.
+- The options `--headless`, `--quit`, and `--quit-after` carry the release-template mark of the command line page. The options `--import` and `--export-release` carry the editor mark, and `--import` implies `--editor` and `--quit`. Source: `https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html`, read 2026-09-19.
+- The file SHA512-SUMS.txt of the release `4.7.2-stable` gives `bb5c41d7` as the first bytes of the SHA-512 of the .NET export template file. The three editor digests of `.github/workflows/ci.yml` match the same file. The template file is a ZIP with one `templates` folder. The file version.txt of that folder holds `4.7.2.stable.mono`, which names the template folder. Source: the release page of `godotengine/godot-builds` and the file above, read 2026-09-19.
+- An artifact upload does not keep the file permissions: "All directories will have `755` and all files will have `644`". Source: `https://github.com/actions/upload-artifact`, read 2026-09-19.
+- "GitHub Actions usage is free for self-hosted runners and for public repositories that use standard GitHub-hosted runners." A private repository of a GitHub Free account holds 500 MB of artifact storage, and a GitHub Pro account holds 1 GB. Source: `https://docs.github.com/en/billing/concepts/product-billing/github-actions`, read 2026-09-19.
 - An `EmbeddedResource` item "Represents resources to be embedded in the generated assembly". `Assembly.GetManifestResourceStream` returns "`null` if no resources were specified during compilation or if the resource is not visible to the caller". The Godot .NET SDK imports `Microsoft.NET.Sdk`. Sources: `https://learn.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-items`, `https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assembly.getmanifestresourcestream`, and `modules/mono/editor/Godot.NET.Sdk/Godot.NET.Sdk/Sdk/Sdk.props` at `4.7.2-stable`, read 2026-09-14.
 - The Godot method `Image.load_png_from_buffer` "Loads an image from the binary contents of a PNG file". The runtime loading page warns: "Do not use this runtime loading approach to load resources that are part of the project, as it's less efficient and doesn't allow benefiting from Godot's resource handling functionality (such as translation remaps)." Sources: `https://docs.godotengine.org/en/stable/classes/class_image.html` and `https://docs.godotengine.org/en/stable/tutorials/io/runtime_file_loading_and_saving.html`, read 2026-09-14.
 
@@ -55,6 +59,12 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-62 | The macOS archive of Godot holds `Godot_mono.app`, and not `Godot.app` | PR-1: the smoke job reads `*.app/Contents/MacOS/Godot` |
 | F-63 | The git-bash of the Windows image carries no `shasum` | PR-1: the checksum step reads the digest with `sha512sum` or `shasum` |
 | F-64 | A headless session whose managed assembly does not load runs without end | PR-1: the smoke session runs with `--quit-after`, and the job reads the success line |
+| F-85 | A skipped matrix job reports the literal name template, and not the name of each leg | PR-88: a gate job of each family reports one stable name (D-682, D-683) |
+| F-73 | A Godot export drops each file that the engine does not import | PR-54: no preset holds an include filter, because Game embeds content (D-508) |
+| F-74 | The macOS export needs the universal binary format and the ETC2 ASTC import setting | PR-54: the preset option and the project setting, with a test on each (D-482) |
+| F-90 | The built-in signer of Godot writes a macOS signature that the kernel refuses | PR-54: the preset calls the `codesign` command of the Xcode tools (D-553) |
+| F-91 | One merge exports 259 MB of build artifacts, and GitHub charges no storage in a public repository | PR-54 keeps the 90 days of D-449. OQ-199 asks about Phase 6 (D-456) |
+| F-92 | A `|| true` after the smoke command drops the exit code of the session, and the caller then reads the log alone | PR-54: the export step and the `smoke` target keep the code, and a test reads the three callers (D-694) |
 
 ## 7. Roadmap
 
@@ -128,8 +138,8 @@ Built by PR-1 and PR-2, and PR-84 adds the size rules. Phase file: `phase-1-foun
 
 Built by PR-1. Phase file: `phase-1-foundations.md`.
 
-- The Makefile holds `verify`, `where`, `hooks`, `test`, `lint`, `ste-check`, and `run` (D-3).
-- `make verify` runs the build, the tests, the format check, the STE check, and the smoke session on the Mac. It adds the identity check from PR-4 and det-lint from PR-46 (D-504).
+- The Makefile holds `verify`, `where`, `hooks`, `test`, `lint`, `ste-check`, `identity`, and `run` (D-3).
+- `make verify` runs the build, the tests, the format check, det-lint, the STE check, the identity check, and the smoke session on the Mac (D-496, D-504).
 - `make where` shows the branch, the tree, and the state of the PR, as `CLAUDE.md` asks before each commit and push.
 - `make hooks` installs the pre-commit hook. The hook refuses a commit on `main` and a document that fails the STE check (D-8, D-25).
 
@@ -166,7 +176,8 @@ Built by PR-4. Phase files: `phase-1-foundations.md` and every later phase file.
 - A mismatch names the leg, the run, the expected hash, and the actual hash (T-2).
 - A PR that changes a hash in the file also bumps the simulation version, and the review reads each changed hash (G-17, D-504).
 - `make verify` runs the same check on the Mac, a fourth machine with the same expected hashes.
-- PR-4 fills the set with the vectors of its streams, math, and state hash. PR-6 adds replays of run records, and each later Core PR adds a run (`area-core.md` section 7.14).
+- PR-4 filled the set with four runs: the fixed-point math, the stream split, the bounded draws, and the state hash. PR-6 adds replays of run records, and each later Core PR adds a run (`area-core.md` section 7.14).
+- The file is `TheThingBelow.Tests/identity/replay-identity.txt`. Each run line holds the name of the run, one space, and the hash as 16 hexadecimal digits.
 
 > *In plain English:* the game plays a fixed set of runs on all three systems and checks each result against a list of expected numbers. A change to the rules must change the list on purpose, and the reviewer sees each number that moved.
 
@@ -179,6 +190,8 @@ Built by PR-5. Phase files: `phase-1-foundations.md` and `phase-2-first-playable
 - Tools holds the one reader of the `content/` folder, and the tools and Tests use it (D-508, `area-tools.md` section 7.1).
 - A test proves that the embedded resources match the files of `content/` by name and by bytes, on every leg (D-508). A resource name that differs by system fails the test.
 - A read of a resource that the assembly lacks fails with the resource name, because the .NET call returns null for it (T-2).
+- The `replay-identity` job also runs the `content-hash` command on each leg, so the three legs compare one content hash (G-5, D-648).
+- Tests takes no project reference to Game. Such a reference breaks the reference set of the det-lint fixtures, so the embedded-content test loads the built assembly (F-79).
 - The Godot export needs no filter and no copy for content, because it already publishes the Game assembly (F-42).
 - The atlas loads from bytes as an image and a texture, not as an imported texture (D-508). The file `area-art.md` holds the atlas.
 - The build renders each track and each sound effect into the same assembly, and Game makes each stream from those bytes (D-547). The file `area-audio.md` holds the render.
@@ -187,14 +200,22 @@ Built by PR-5. Phase files: `phase-1-foundations.md` and `phase-2-first-playable
 
 ### 7.11 The export job
 
-Built by PR-54. Phase file: `phase-2-first-playable.md`.
+Built by PR-54. Phase file: `phase-2-first-playable.md`. The file `.github/workflows/export.yml` holds it.
 
 - The job lands right before PR-7, so the merge of PR-7 exports the first walkable build (D-503).
-- It runs on each merge to `main`, and on each PR that changes its workflow file, the export presets, or the export code (D-449, D-512). It is not a line of the PR gate.
+- It runs on each merge to `main`, and on each pull request that changes one of the four paths of D-692. It is not a line of the PR gate (D-449, D-512).
 - Each leg exports the build of its own system: Windows and Linux on x86_64, and the universal macOS build (D-481, D-482). From PR-79 on, the macOS leg signs and notarizes its build (D-455, D-553).
 - The job unpacks the .NET export templates into the editor data folder of the runner, because no command-line option installs them (F-42). The cache action of D-511 keeps the file, and every run checks its SHA-512 (D-596).
-- Each export starts with `--headless` and runs the smoke session, which an export template supports (D-512).
-- Each export carries the license files of D-467. CI keeps each export as a build artifact for 90 days, the longest time that GitHub allows in a public repository (D-449).
+- The cache key of the editor is the key of the smoke job, so one download serves both workflows. A test compares the three digests of the two files (D-596).
+- The job imports the project first, because a clean checkout holds no `.godot` folder and the export reads the imported files.
+- No preset holds an include filter. The Game assembly carries every content file and each font, so the export needs no filter and no copy (D-508, F-42, F-73).
+- The macOS preset takes the universal binary format, and `TheThingBelow.Game/project.godot` turns the ETC2 ASTC import setting on. An export with one of the two off stops with a configuration error (F-74).
+- The macOS preset signs with the `codesign` command of the Xcode tools. The built-in signer of Godot writes a signature that the kernel refuses (F-90).
+- Each export starts with `--headless` and runs the smoke session, which a release export template supports (D-512). The step reads the success line of the log, as the smoke job does (F-64).
+- The step also keeps the exit code of the build, and it reads that code after the log checks. The step needs both parts. A caller that drops the code passes a build that wrote the success line and then failed (F-92, D-694).
+- The job copies `licenses/` beside each build, so every export carries the three notices of D-467 and D-691.
+- An artifact upload gives every file the mode 644. The game then loses its execute bit, and the macOS bundle loses its signature. The job thus packs one archive for each leg, and the upload carries that one file.
+- CI keeps each archive for 90 days, the longest time that GitHub allows (D-449). One merge makes 259 MB, and F-91 and OQ-199 hold the cost in Phase 6.
 - The owner downloads the Linux build artifact for each Deck play (D-92, D-458, `docs/runbooks/dev-machine.md`).
 - PR-45 follows PR-7, so the first screen and the export job exist before it (D-492, D-503).
 
@@ -272,6 +293,8 @@ The table maps each check of the PR gate in `CLAUDE.md` to its job. PR #11 broug
 | Export | Three | PR-54 | No. It runs on a PR that changes the export (D-512) |
 
 - After PR-3 merges, the owner requires the checks that exist then (OQ-3). The owner adds each later check after its first run, because GitHub lists a check as a choice only after it runs once.
+- The protection went live on `main` on 2026-09-19 with five checks: `changed paths`, `ste-check`, `review-gate`, `det-lint`, and `coverage report` (D-681). The three leg families join it after PR-88, because each one reports a stable name then (D-682, D-685).
+- A required check matches by name, so no required check reads the name of a matrix job. Section 7.19 holds the gate job of each family.
 - Each check that does not exist yet has a line in the PR gate that names its PR (G-16).
 
 > *In plain English:* each line of the merge checklist has one job behind it, and each job names the change that creates it. The owner makes each check a hard rule after its first run.
@@ -305,6 +328,25 @@ Each later PR that adds or changes a workflow keeps this list. The phase files m
 
 > *In plain English:* every new check follows the same seven steps. It uses trusted helpers alone, asks for the least access, stops on time, and says exactly what failed.
 
+### 7.19 The stable check names of the matrix jobs
+
+Built by PR-88. Phase file: `phase-1-foundations.md` section 7.21.
+
+A required status check matches by name. A job that a condition skips reports Success. It never expands its matrix, so it gives one check run with the literal name template (F-85). Thus the three matrix families report one name set on a code PR and another on a docs-only PR. A gate job of each family always runs and reports the one name that branch protection requires (D-682, D-683).
+
+| Family | The name of each leg | The name of the gate job |
+|---|---|---|
+| `build-test-format` | `build, test, and format (<leg>)` | `build, test, and format` |
+| `replay-identity` | `replay-identity (<leg>)` | `replay-identity` |
+| `smoke` | `smoke (<leg>)` | `smoke` |
+
+- Each gate job reads `always()`, so the check reports on a run that a fault or a cancel stopped (T-2).
+- Each gate job needs `changed-paths` and its matrix job. It passes on `success`, and on `skipped` when the PR changes documents alone (D-595).
+- A skip that no condition asked for fails the gate, because a fault in `changed-paths` skips the legs too.
+- The condition of D-595 stays on each matrix job, so a docs-only PR starts no runner for a leg.
+
+> *In plain English:* the merge rules match a check by its name, and the names of the three-machine jobs changed with the kind of change. One small job for each family reports one name that never changes.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The CI work keeps this order inside it:
@@ -314,18 +356,20 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 3. PR-2: the STE job moves to the C# checker.
 4. PR-3: the review gate. Its live check first runs on the next PR (D-500).
 5. PR-84: the size rules of the context budget in the `ste-check` job (D-611).
-6. Owner: require the checks on `main` (OQ-3).
+6. Owner: require the checks on `main` (OQ-3). Done on 2026-09-19 with five checks (D-681).
 7. PR-46: the det-lint job, before the first Core code (D-496).
 8. PR-4: the replay-identity job and the identity file (D-504).
 9. PR-5: the content embed in Game, the folder reader in Tools, and the match test (D-508).
-10. **← GATE 1 (foundation).** The jobs above are green on every CI leg.
-11. PR-54: the export job, right before PR-7 (D-503).
-12. PR-7: the first merge that exports a walkable build.
-13. PR-41: the screen-test job, after PR-45 (D-492).
-14. PR-15: the bot runs on every leg (D-505).
-15. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
-16. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-17. **← GATE 2 (first playable).**
+10. PR-88: the gate job of each matrix family, and the stable check names (D-682, D-684).
+11. Owner: add the three legs to the required checks of `main`, after PR-88 merges (D-685).
+12. **← GATE 1 (foundation).** The jobs above are green on every CI leg.
+13. PR-54: the export job, right before PR-7 (D-503).
+14. PR-7: the first merge that exports a walkable build.
+15. PR-41: the screen-test job, after PR-45 (D-492).
+16. PR-15: the bot runs on every leg (D-505).
+17. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
+18. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+19. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 
@@ -339,6 +383,9 @@ The register is `docs/questions.md` (D-19). These questions block CI PRs, and ea
 - OQ-81: how the night gate result stays current until the merge. Blocks PR-49.
 - OQ-82: the time of the night. Blocks PR-49.
 - OQ-84: the seeds of the night. Blocks PR-49.
-- OQ-3: the required checks on `main`. Waits for PR-3.
+- OQ-3: the required checks on `main`. Closed 2026-09-19, and the protection is live (D-681).
+- OQ-197: the unstable check names of the matrix jobs. Resolved by D-682 and D-683, and PR-88 builds them.
+- OQ-198: the third-party notices of the engine in an export. Blocks PR-31.
+- OQ-199: the artifact retention of a private repository. Blocks the move of D-456 in Phase 6.
 
 No open question blocks this file.

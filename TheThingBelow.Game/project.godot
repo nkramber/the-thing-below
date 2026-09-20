@@ -1,9 +1,15 @@
 ; The Godot project of The Thing Below (D-99, D-217).
 ;
-; The renderer is Forward+, as a provisional setting. PR-82 sets the renderer that the
-; Deck test picked (D-160, D-599). Forward+ gives the HDR 2D that the glow of D-188 needs.
+; The renderer is Mobile, which the Deck test picked (D-160, D-616). It gave a lower frame
+; time than Forward+ in each of the 20 stages, and it gives the HDR 2D that the glow of D-188
+; needs.
 ;
 ; The fit of a window larger than the frame is Game code, and PR-61 builds it (D-232, D-573).
+;
+; The custom user folder holds every save, every crash file, and every log file. Its name
+; is the name of the repository, so a change of the title never moves a save (D-465).
+; `SaveFolder.Name` of Storage holds the same name, a test of Tests compares the two, and
+; Boot compares the two resolved folders at the start of every session (F-33, T-2).
 
 config_version=5
 
@@ -11,8 +17,10 @@ config_version=5
 
 config/name="The Thing Below"
 config/description="A sprite RPG."
+config/use_custom_user_dir=true
+config/custom_user_dir_name="the-thing-below"
 run/main_scene="res://Boot.tscn"
-config/features=PackedStringArray("4.7", "C#", "Forward Plus")
+config/features=PackedStringArray("4.7", "C#", "Mobile")
 config/quit_on_go_back=false
 boot_splash/show_image=false
 
@@ -28,7 +36,9 @@ window/size/viewport_height=720
 
 [rendering]
 
-renderer/rendering_method="forward_plus"
+renderer/rendering_method="mobile"
 renderer/rendering_method.mobile="mobile"
 viewport/hdr_2d=true
 textures/canvas_textures/default_texture_filter=0
+; The macOS export of the universal binary fails when this setting is off (F-74).
+textures/vram_compression/import_etc2_astc=true

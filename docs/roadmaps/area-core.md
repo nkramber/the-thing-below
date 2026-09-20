@@ -28,10 +28,10 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 
 | # | Finding | Binds |
 |---|---|---|
-| F-10 | The run record grows with no limit over a long play | PR-6: a snapshot plus the intents after it (OQ-65) |
+| F-10 | The run record grows with no limit over a long play | PR-6: a snapshot at each save, plus the intents after it (D-651) |
 | F-25 | A quit autosave can trap a run (C-3), and a Core patch refuses old saves (C-4) | PR-43: the resume file of D-258 and the load of D-259 |
 | F-27 | The debug console of D-171 meets the rule of no conditional compilation in Core | PR-6 and PR-45: the seam and the assembly of D-260 and D-492 |
-| F-35 | Two hash paths of .NET break G-1 and T-7 | PR-4 and PR-5: a hash function that Core holds (OQ-61, OQ-62) |
+| F-35 | Two hash paths of .NET break G-1 and T-7 | PR-4: xxHash64 in Core. PR-5: the SHA-256 of the content hash (D-644, D-645) |
 | F-36 | The JSON support of .NET uses reflection by default | PR-5: a reader with no runtime reflection |
 | F-39 | The default string order of .NET follows the culture and the ICU version of the machine | PR-4: an ordinal comparer for every string order in Core |
 
@@ -66,7 +66,7 @@ Built by PR-4 and every later Core PR. Phase files: every phase file.
 Built by PR-4. Phase file: `phase-1-foundations.md`.
 
 - Core holds no float type (G-2). Content writes a fraction in basis points, and a fixed-point type in Core names its scale (D-169).
-- A product or a quotient rounds by one rule in every system. OQ-60 holds the rule, and PR-4 asks it before code.
+- A product or a quotient rounds toward zero in every system (D-641). `BasisPoints` holds the one multiply and the one divide, and no system writes its own.
 - Core uses `checked` arithmetic wherever a content value can drive a result, and an overflow throws with its context (T-2). By default, C# integer math wraps in silence (the external facts above).
 - A zero divisor fails with the seed, the tick, and the ids (T-2).
 - PR-4 proves the type with fixed test vectors, and the replay-identity job compares the results on every CI leg (G-5).
@@ -78,7 +78,7 @@ Built by PR-4. Phase file: `phase-1-foundations.md`.
 Built by PR-4. Phase file: `phase-1-foundations.md`.
 
 - Each subsystem draws from its own stream, split from the run seed (G-4). A subsystem never draws from the stream of another.
-- The split never uses `GetHashCode`, because a string hash can change between two runs (F-35). OQ-61 holds the split rule and the generator.
+- The split never uses `GetHashCode`, because a string hash can change between two runs (F-35). The generator is PCG32, and each stream takes its seed from the run seed and its stream number alone (D-642, D-643).
 - Game effects, the bot policies, and the screen tests take their random numbers from sources outside Core. A draw for a particle never moves a rule stream (G-4, G-23).
 - The host picks the seed of a new run: Game for play, and Tools for the bots (G-3, D-64).
 - The snapshot holds the position of every stream, so a load continues the same sequence (D-259, PR-43).
@@ -91,7 +91,7 @@ Built by PR-4. Phase file: `phase-1-foundations.md`.
 
 - Every loop that reaches the state walks a fixed order. `List<T>` and `SortedDictionary<TKey, TValue>` keep that order, and `Dictionary<TKey, TValue>` and `HashSet<T>` never reach the state (G-4).
 - A `SortedDictionary` with string keys takes `StringComparer.Ordinal`. The default comparer follows the culture and the ICU version of the machine (F-39). The det-lint of PR-46 fails every other string order in Core.
-- The state hash reads the whole state in that fixed order, with the hash function of OQ-62 (F-35). PR-4 creates it, and each later Core PR adds its state to it.
+- The state hash reads the whole state in that fixed order, with xxHash64 (D-644, F-35). PR-4 created it, and each later Core PR adds its state to it.
 - The simulation version is a constant in Core. PR-4 creates it, and each Core behavior change bumps it (G-17).
 
 > *In plain English:* the game computes one number from its whole state, the state hash. Two machines that play the same run must get the same number, and CI checks that on every change.
@@ -103,7 +103,7 @@ Built by PR-4. Phase file: `phase-1-foundations.md`.
 - A Core error throws an exception type that carries its context (T-2, G-18). Inside a run, the context is the seed, the tick, and the entity ids. Outside a run, it is the file and the field.
 - Assertions use the project helper, and they stay on in a release export (T-2). A release export drops every `Debug.Assert` (the external facts of `docs/design.md`).
 - PR-4 creates the helper and the first exception types, because it holds the first Core code.
-- Core writes no log line and no crash file. PR-44 adds the log entries that a step returns, and Storage writes them (D-179, D-491, D-494).
+- Core writes no log line and no crash file. PR-44 adds the log entries that a step returns, and Storage writes them (D-179, D-491, D-494). Core holds the text of a log line and of a crash line, and it makes no time and no path (G-1, G-3).
 - Before PR-44, an error in Core throws with its context and stops the run, and the test or the host shows it.
 
 > *In plain English:* when a rule breaks, the game stops and says exactly where: which run, which step, and which thing. It never guesses a value and continues.
@@ -113,13 +113,19 @@ Built by PR-4. Phase file: `phase-1-foundations.md`.
 Built by PR-5. Phase file: `phase-1-foundations.md`.
 
 - Each content type is a C# record, and a strict reader refuses an absent field, an unknown field, and a wrong type (D-116, D-177, G-6).
-- The reader runs with no runtime reflection, through generated metadata or a hand reader (F-36). The det-lint of PR-46 bans reflection in Core (D-496).
+- Core reads each file with a hand reader on `Utf8JsonReader`, and Core calls `JsonSerializer` nowhere (D-647, F-36).
+- `Directory.Build.props` sets `JsonSerializerIsReflectionEnabledByDefault` to `false` for every project, and a test reads the switch back (D-647). The det-lint of PR-46 bans reflection in Core (D-496).
 - A number in content is an integer. A number with a fraction or an exponent fails the load, with the file and the field (D-169, G-2).
-- Every content entry has a permanent id that no later entry takes (D-166). OQ-63 holds the form of an id and the test that proves the rule.
-- The content hash covers the rule files alone (D-495). PR-5 draws the line in the layout of `content/`, and a test proves that no other file reaches the hash.
+- Every content entry has a permanent id that no later entry takes (D-166). An id is a lowercase kind, a dot, and a lowercase name (D-646).
+- Each rule record owns the kind of its entry ids, and the reader refuses an entry of another kind (D-646). A field that points at another record keeps the kind of that record.
+- The content hash covers the rule files alone (D-495). One folder, `content/rules/`, holds every rule file, and a test proves that no other file reaches the hash (D-648).
+- The `content-hash` command of Tools loads every content file and compares the hash with a committed file. The `--write` option writes that file again (D-648).
+- Core holds one fixture rule record until the first real rule record replaces it (D-649). Its files give the hash, the id rules, and the string-id rule real data to read.
+- PR-5 also writes the SHA-256 that makes the content hash, in Core code beside its one caller (D-644, D-645). Its test holds the published vectors of the reference implementation.
 - The content hash reads the same bytes on every CI leg. The `eol=lf` rule of `.gitattributes` keeps each checkout on LF line ends, where Git for Windows otherwise defaults to CRLF (the external facts above).
 - Game embeds the files of `content/` in its assembly, and a test proves that the embedded set matches the folder (D-508). PR-5 adds the embed, the folder reader in Tools, and the test, and `area-ci.md` holds the details.
 - The string table maps ids to text, and Core events name string ids alone (G-7, D-167). Game reads the text for an id. A test proves that each string id that content names exists in the table (T-2).
+- A string id takes the same form as a content id (D-646). The table refuses a repeated id, and it reads each id in ordinal order (F-39).
 - Core also holds the record of each content file that no rule reads, such as the palette and the atlas index (D-517). The content hash still reads the rule files alone (D-495).
 - An art file names the content ids that it draws, and a rule file never names art (D-519). `area-art.md` holds the art files.
 
@@ -133,7 +139,7 @@ Built by PR-6. Phase file: `phase-1-foundations.md`.
 - Game makes an intent from each key, button, and mouse action, and Core reads intents alone (D-493, G-23). The input map, remapping, and the device kind stay in Game (D-214, D-222).
 - An intent names what the player chose in content ids and state ids, and never a screen position or a key (D-493).
 - Game makes each intent from an input event, never from a poll of `Input` (F-50). A poll sees input that a menu already took. `area-ui-input.md` holds the input.
-- A menu pauses the world (D-162). A menu action is an intent too, and OQ-64 holds what the tick does while a menu is open.
+- A menu pauses the world (D-162). A menu action is an intent too, and the tick rises while a menu is open (D-650).
 - The mouse works on menus alone, and a mouse action on a menu makes the same intent as a key or a button (D-219, D-493).
 - Game makes no intent from a Godot timer, physics, or navigation (G-23).
 - No rule waits for an effect. Where the world waits for one, Game counts the ticks of the effect on its fixed-step clock (D-266). At the end, Game sends a wait intent (D-522). `area-effects.md` holds the effects.
@@ -146,7 +152,7 @@ Built by PR-6. Phase file: `phase-1-foundations.md`.
 
 - The record header holds the format version, the simulation version, the content hash, the seed, the initial state, and the game version (G-5, D-448).
 - The record holds the intents of each tick, and a debug intent carries a mark (D-171, D-492, D-493).
-- The record keeps a snapshot and the intents after it, so its size stays bounded (F-10). OQ-65 holds the moment of each new snapshot, and OQ-66 holds the encoding.
+- The record keeps a snapshot and the intents after it, so its size stays bounded (F-10). The record takes a new snapshot at each save (D-651), and it is JSON text (D-652).
 - A replay of a record on the same simulation version and content hash reproduces the state hash (G-5). A mismatch stops with a report that names both values (T-2).
 - Replay and the bots run in Tools and Tests with no Godot (D-100, D-493). The replay viewer of development builds plays a record in Game (D-175).
 - The replay-identity job runs a fixed set of records on every CI leg and compares each hash with the committed identity file (G-5, D-481, D-504). The file `area-ci.md` holds the job, and each later Core PR adds a fixture run and its expected hash.
@@ -175,9 +181,11 @@ Built by PR-43. Phase file: `phase-1-foundations.md`.
 
 - Core makes the snapshot bytes and loads a state from them, and Storage writes and reads the files (D-494). Game picks the moment of each save (D-224).
 - A snapshot holds content ids and state, and never a copy of content (D-166). It holds the tick and the position of every stream (section 7.4).
-- The save folder, the slot save, the autosave, and the resume file follow D-62, D-258, and D-465.
+- The save folder, the slot save, the autosave, and the resume file follow D-62, D-258, D-465, and D-656.
+- A save file takes two lines of JSON: the header with the checksum, and the snapshot (D-655). The checksum is the SHA-256 digest of the bytes of line 2.
 - A save writes a temporary file with a checksum, then replaces the old save in one step (D-178). A test in Tests cuts a write in half against Storage (D-494).
-- A load reads the snapshot alone (D-259). Each snapshot format version has one migration step to the next, and a test loads a stored save of each older format (D-166).
+- A load reads the snapshot alone (D-259). Each format version has its reader, and a test loads a stored save of each version (D-166, D-654).
+- Godot and Storage must give one user folder, and Game compares the two at the start of every session (D-657, F-33).
 - From PR-43 on, every Core PR that changes the snapshot bumps its format version and adds a migration and a fixture save (D-166).
 - The full game imports the last snapshot of the prologue in Phase 6 (D-163). Each snapshot format of the prologue stays ready for that import.
 
@@ -187,9 +195,13 @@ Built by PR-43. Phase file: `phase-1-foundations.md`.
 
 Built by PR-44. Phase file: `phase-1-foundations.md`.
 
-- On a crash or a failed assertion, Game writes a crash file beside the save through Storage (T-2). Then it writes a log line and exits. PR-61 adds the message on screen through the text helper, with the address of D-473 (D-559).
-- The crash file holds the error with its context, the versions, and the run record, and no personal data (D-170).
+- On a crash or a failed assertion, Game writes a crash file to the crashes folder of the user folder through Storage (T-2, D-658). Then it writes a log line and exits with the crash code. PR-61 adds the message on screen through the text helper, with the address of D-473 (D-559).
+- The crash file holds the error with its context, the versions, and the run record, and no personal data (D-170). Line 1 is the crash object, and the lines of the record follow it (D-661). A crash before a run holds no record, and line 1 carries the versions itself (D-661, T-2).
+- A file error carries its path. Thus the writer hides every folder of the person in the text of an error and of a stack (D-170, T-2).
 - A step of Core returns its log entries with the tick and the subsystem, and Storage writes each entry as one JSON line (D-179). Game adds the wall-clock time, and Core never does (D-179).
+- The log holds four levels. A menu change takes the info level, and a beat of the patrol the debug level. A log file holds the info level and above, and a session argument adds the debug lines (D-660).
+- One log file belongs to one session, in the logs folder. Each of the two folders keeps the newest 10 files (D-658, D-659).
+- The name of a crash file and of a log file carries the stamp of the wall-clock time in UTC. Storage reads no clock, and the host passes each time (D-658, G-3).
 
 > *In plain English:* when the game crashes, it leaves a file for the player to email, with everything that a replay of the run needs. Logs are simple one-line notes that the tools can read.
 
@@ -263,13 +275,11 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 
 The register is `docs/questions.md` (D-19). These questions block Core PRs, and each PR asks its questions when it starts (D-487):
 
-- OQ-60: the rounding rule of fixed-point math. Blocks PR-4.
-- OQ-61: the random generator and the stream split. Blocks PR-4.
-- OQ-62: the hash function of Core. Blocks PR-4 and PR-5.
-- OQ-63: the form of a content id. Blocks PR-5.
-- OQ-64: the tick while a menu is open. Blocks PR-6.
-- OQ-65: when the run record takes a new snapshot. Blocks PR-6 and PR-43.
-- OQ-66: the encoding of records and snapshots. Blocks PR-6 and PR-43.
+- OQ-60, OQ-61, and OQ-62 closed on 2026-09-18 with D-641 to D-645.
+- OQ-63 is resolved (D-646). OQ-179 is resolved (D-647).
+- OQ-64: the tick while a menu is open. Resolved 2026-09-18 by D-650.
+- OQ-65: when the run record takes a new snapshot. Resolved 2026-09-18 by D-651.
+- OQ-66: the encoding of records and snapshots. Resolved 2026-09-18 by D-652.
 - OQ-57: the studio name. Blocks the crash address, which PR-61 adds (D-473, D-559).
 
 No open question blocks this file.

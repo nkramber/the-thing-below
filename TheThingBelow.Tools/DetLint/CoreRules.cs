@@ -44,10 +44,15 @@ public static class CoreRules
         memberNames: []);
 
     /// <summary>DL 4: no reflection. `typeof` alone stays legal, for an attribute (F-36).</summary>
+    /// <remarks>
+    /// `JsonSerializer` is the one reflection path that the content reader could take, and
+    /// D-647 refuses it. Core reads content with a hand reader on `Utf8JsonReader`, which is
+    /// a scanner with no metadata and no type map.
+    /// </remarks>
     public static readonly BannedSymbolRule Reflection = new(
         "DL 4",
-        "Core runs with no reflection, so the content reader uses generated metadata (F-36).",
-        types: ["System.Activator", SymbolNames.DynamicType],
+        "Core runs with no reflection. The content reader is a hand reader on `Utf8JsonReader`, and it calls `JsonSerializer` nowhere (F-36, D-647).",
+        types: ["System.Activator", "System.Text.Json.JsonSerializer", SymbolNames.DynamicType],
         namespaces: ["System.Reflection"],
         members:
         [

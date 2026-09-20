@@ -27,6 +27,9 @@ public sealed class CoreReferenceTests
             "System.Collections",
             "System.Memory",
             "System.Runtime",
+            // The strict content reader runs on `Utf8JsonReader`, which D-177 picked. It is
+            // a scanner over bytes in memory, and it reads no file and no OS service (G-1).
+            "System.Text.Json",
         };
 
     [Fact]
@@ -53,10 +56,22 @@ public sealed class CoreReferenceTests
     }
 
     [Fact]
+    public void CoreReferencesNoOtherProjectOfTheSolution()
+    {
+        // Core never references Storage, Game, or Tools, so no file, network, or OS code
+        // reaches the simulation (G-1, D-100, D-494).
+        IReadOnlyList<string> references = ReadReferenceNames();
+
+        Assert.DoesNotContain(
+            references,
+            name => name.StartsWith("TheThingBelow.", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void TheCoreProjectFileDeclaresNoReference()
     {
         // The compiler writes no metadata entry for a reference that no code uses, so the
-        // two tests above cannot see an unused reference. This test reads the project file.
+        // tests above cannot see an unused reference. This test reads the project file.
         XDocument project = XDocument.Load(
             RepositoryRoot.PathTo("TheThingBelow.Core/TheThingBelow.Core.csproj"));
 

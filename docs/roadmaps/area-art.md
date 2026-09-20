@@ -24,7 +24,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 ## 1. Thesis
 
-Every picture of the game starts as text that a session writes and the owner approves (D-107, G-24). A drawing file holds palette keys, and a large picture places drawing files as pieces (D-515, D-516). A tool renders every drawing file into the atlas. Game draws from the atlas at whole pixels, so an art pixel matches a text pixel (D-228, D-230, D-508). The owner judges each batch from review sheets in its PR (D-514). Art never decides an outcome of play, so art stays out of the rule files and the content hash (D-495, D-519).
+The Sprite Fusion generator draws every picture of the game, and each picture becomes a text grid before Game reads it (D-686, G-24). A drawing file holds palette keys, and a large picture places drawing files as pieces (D-515, D-516). A tool renders every drawing file into the atlas. Game draws from the atlas at whole pixels, so an art pixel matches a text pixel (D-228, D-230, D-508). The owner judges each batch from review sheets in its PR (D-514). Art never decides an outcome of play, so art stays out of the rule files and the content hash (D-495, D-519).
 
 The order of the area follows the first user of each part. The PNG code and the atlas close Phase 1, because every screen draws from the atlas (PR-47, PR-34). The first screen loads the atlas in Game (PR-7). Large pictures land right before the first backdrop (D-518). The tools for hand edits and previews come before the first place of the game (D-497). The content PRs draw the art of each place, from PR-17 on.
 
@@ -41,6 +41,10 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-42 | The Godot export reads the project folder alone | PR-7: the atlas loads from the bytes of the Game assembly (D-508) |
 | F-44 | One grid of a full-screen picture holds about 1.1 million palette keys | PR-55: large pictures of pieces (D-516, D-518) |
 | F-45 | Three Godot defaults meet the pixel art | PR-7: the Nearest filter, and a check after each Godot call that logs a failure alone |
+| F-86 | The generator draws a character and a portrait better than a session | D-686: the tool draws every picture |
+| F-87 | The generator does not hold the size of the call, and it returned up to 42 pixels | PR-51: a new frame of 32 or 64 pixels (D-689) |
+| F-88 | The generator draws a tile as a framed block, so a floor of its tiles shows a grid | D-686: a session repairs each tile by hand |
+| F-89 | A picture of the generator uses 206 to 1275 colors, and almost none of them is a palette color | PR-51: the generator mode maps each pixel to the nearest color (D-688) |
 
 ## 7. Roadmap
 
@@ -50,28 +54,44 @@ Each part below says how one part of the art works, which decisions set it, and 
 
 Built by PR-34, and kept by every art batch. Phase files: `phase-1-foundations.md` and every later phase file.
 
-- Sessions draw every sprite, tile, portrait, and piece as a drawing file, and the owner approves each batch (D-57, D-107, G-24).
+- The Sprite Fusion generator draws every picture of the game: each character, each enemy, each portrait, and each tile (D-686). The owner approves each batch (D-107, G-24).
+- A session repairs each tile of the generator by hand, until the tile repeats with no grid (D-686, F-88).
 - The drawing files are the source. The atlas, the normal maps, and the review sheets come from them, and nobody edits those by hand (D-107, D-184).
-- The owner can edit a drawing file, or edit a PNG that the PNG import of PR-51 reads back (D-107, `area-tools.md` section 7.11).
+- The owner can edit a drawing file, or edit a PNG that the hand-edit mode of PR-51 reads back (D-107, D-688, `area-tools.md` section 7.11).
 - The art keeps the style of D-201 and D-237: a dark outline for each material, three or four tones, and no dithering. The five sample grids set the look (D-402).
 - Art lives in `content/`, outside the override set, so each art batch takes the review of the other provider (D-71, D-185).
 - No art file decides an outcome of play, so the content hash never reads one (D-495).
-- Before PR-34, a spike compares the art of a session with the art of the Sprite Fusion generator (D-620). The owner picks the source.
-- A picture from an outside tool enters the pipeline as a text grid alone, through the PNG import of PR-51 (D-620). The palette of 64 colors binds it (D-181).
-- The size of a sprite on a screen comes from the probe of D-621, and OQ-183 holds the answer (F-67).
+- The Sprite Fusion test ran on 2026-09-19, and the owner picked the generator as the source (D-620, D-675, D-686). The four findings are F-86 to F-89.
+- A picture of the generator enters the pipeline as a text grid alone, through the PNG import of PR-51 (D-620). The import gives it a frame of 32 or 64 pixels, and it maps each pixel to the palette of 64 colors (D-181, D-688, D-689).
+- A sprite draws at 2x on every screen, so a 32-pixel sprite covers 64 frame pixels (D-633, F-67).
 
-> *In plain English:* every picture in the game is a text file that a session writes and the owner approves. The images that the game draws always come from those files, so nobody edits an image that a tool made.
+> *In plain English:* an outside tool makes the pictures now, and the owner approves each batch. Every picture still becomes a text file first, and the images that the game draws always come from those files.
 
 ### 7.2 The palette
 
 Built by PR-34. Phase file: `phase-1-foundations.md`.
 
 - One palette file of 64 colors, `content/sprites/palette.json`, holds every color that a drawing file names (D-89, D-181, D-238).
-- The first 48 colors keep their indices and their keys (D-121, D-181). PR-34 adds the 16 colors of D-185 and proposes their keys with the swatch sheet.
+- The first 48 colors keep their indices and their keys (D-121, D-181). PR-34 added the 16 colors of D-185, and the swatch sheet of D-668 shows each key.
 - A key is one character, and the dot is transparent. JSON writes a quote mark or a backslash as two characters, so no key is one of them (D-515).
-- A repeated key or a repeated index fails with the key and the index (F-20, T-2).
+- A repeated key or a repeated index fails with the key and the index (F-20, T-2). The reader of the palette holds the rule (D-517).
 - Light on screen can reach any color, and a drawing file names palette keys alone (D-181).
 - Effect files name palette colors too, so Game reads the palette (D-182). Core holds the record of the palette file (D-517).
+
+The palette holds a color of its own for each of the eight elements and the ten statuses, which F-17 asked for (D-74, D-75). PR-66 draws the icons, and it confirms or changes each pick:
+
+| Element | Color | Key | Status | Color | Key |
+|---|---|---|---|---|---|
+| fire | ember | `X` | poison | sulfur | `%` |
+| ice | ice | `C` | blind | slate | `D` |
+| lightning | gold | `y` | silence | storm | `8` |
+| earth | tan | `t` | sleep | lavender | `9` |
+| wind | aqua | `7` | slow | plum | `!` |
+| water | sky | `c` | haste | copper | `2` |
+| holy | candle | `#` | stun | brass | `O` |
+| dark | hex | `P` | bleed | blood | `R` |
+| | | | regen | leaf | `v` |
+| | | | shell | frost | `&` |
 
 > *In plain English:* the game has one box of 64 paints, and every drawing uses only those paints. Lights on screen can mix new shades, but the drawings never leave the box.
 
@@ -84,9 +104,9 @@ Built by PR-34. Phase file: `phase-1-foundations.md`.
 - A read error names the file, the frame, the row, and the column (T-2).
 - A drawing file names the content ids that it draws, with a kind where one thing has more than one drawing (D-519). A rule file never names art.
 - A test proves that each thing that Game draws has its drawing (D-519).
-- OQ-88 holds the unit of the time of a frame.
-- PR-34 converts the five sample grids of `docs/samples/` into drawing files, and the sample keeps its `.grid` files (D-402, D-515).
-- PR-34 retires `docs/tools/make-atlas.py`, which reads the old format (D-406).
+- A frame holds its time in ticks, 60 to a second (D-669). A drawing of one frame holds 0 ticks.
+- PR-34 converted the five sample grids of `docs/samples/` into drawing files, and the sample keeps its `.grid` files (D-402, D-515). A cast member takes the kind `cast` (D-670).
+- PR-34 retired the interim atlas script, which reads the old format (D-406).
 
 > *In plain English:* each drawing is a small data file that still reads like a picture made of letters. The file says what it draws, so a new drawing never touches the rules of the game.
 
@@ -140,7 +160,7 @@ Built by PR-34. Phase file: `phase-1-foundations.md`.
 - The repository commits the atlas and the index. A test proves that both match the drawing files, by decoded pixels (D-107, F-19, G-24).
 - A stale atlas fails that test until the command runs again.
 - The atlas and the index sit in `content/`, so the Game assembly carries them (D-508).
-- OQ-85 holds whether the atlas splits into pages, and OQ-86 holds how the atlas places tiles.
+- The atlas takes one page for each kind, and a page holds 2048 by 2048 pixels at most (D-666). A tile page is a strict grid of 32 by 32 cells (D-667).
 - No page passes the largest texture that Godot names, 16384 by 16384 pixels (the external facts above).
 
 > *In plain English:* a tool packs every drawing into one image that the engine loads, and it writes a list of where each drawing sits. A test proves that the image still matches the text drawings.
@@ -152,8 +172,8 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - Game reads the atlas and the index from its own assembly (D-508). It makes an image with `Image.LoadPngFromBuffer` and a texture with `ImageTexture.CreateFromImage`.
 - An error code from the load, or a null texture, stops the game with the resource name and the reason (T-2). Godot only logs these failures (F-45).
 - Game finds each frame through the index and the content ids of D-519. A content id with no drawing fails with the id (T-2).
-- Every texture draws with the Nearest filter. The project setting starts as Linear, so PR-7 sets it, and a test reads it in `project.godot` (F-45).
-- Game draws art at 1x on the frame of 1280 by 720, so art pixels match text pixels (D-228, D-230, D-568).
+- Every texture draws with the Nearest filter. The project setting starts as Linear, so PR-7 sets it, and a test reads it in `TheThingBelow.Game/project.godot` (F-45).
+- Game draws the art of the world at 2x on the frame of 1280 by 720 (D-228, D-230, D-568). The frame then holds 20 by 11.25 tiles (D-633).
 - `area-ui-input.md` holds the frame, the fit, and the stretch mode, which the editor of 4.7 sets to `canvas_items` in a new project (F-45).
 - Core positions stay on whole tiles, and each step slides between tiles on screen (D-203). OQ-89 holds how each sprite stays on a whole pixel during a slide.
 - No Godot resource file holds art, such as a `SpriteFrames` file or a `TileSet` file (G-6). Game builds each Godot object from the atlas at load.
@@ -164,7 +184,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-34, and used by every art PR. Phase files: every phase file.
 
-- A Tools command renders the review sheets of an art batch as PNG files, and no sheet enters git (D-514). OQ-87 holds the form of a sheet.
+- A Tools command renders the review sheets of an art batch as PNG files, and no sheet enters git (D-514). A sheet shows each drawing at 1x and at 6x, on a night ground and on a snow ground, with its id under it (D-668).
 - The session uploads the sheets into the PR description with `gh pr edit --attach` (D-514, G-25).
 - The description names each drawing on each sheet, and the commit that the sheets show.
 - A changed batch gets new sheets in the description.
@@ -244,10 +264,6 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 
 The register is `docs/questions.md` (D-19). These questions block art PRs, and each PR asks its questions when it starts (D-487):
 
-- OQ-85: the pages of the atlas. Blocks PR-34.
-- OQ-86: how the atlas places tiles, and how Game draws a map. Blocks PR-34 and PR-7.
-- OQ-87: the form of a review sheet. Blocks PR-34.
-- OQ-88: the unit of the time of a frame. Blocks PR-34.
 - OQ-89: pixel snap in Game. Blocks PR-7.
 - OQ-91: the operations of a large picture on a piece. Blocks PR-55.
 - OQ-90: where the studio mark shows. Blocks PR-33.

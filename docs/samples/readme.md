@@ -18,4 +18,4 @@ Each sample has its own dated folder:
 
 The grids follow the test style (D-201, D-237). Each material has an outline in a dark shade of itself, light comes from the left, and no pixel uses a dither. They use the 48 colors of the current palette. Elio carries a plain brass stripe, because the foreign church has no symbol yet.
 
-The sample shows the front view alone. The two other map views, the walk frames, and the battle poses come later (D-199, D-200). The interim atlas tool reads 16 by 16 grids alone, and none remains, so it renders nothing until PR-34 ports it (D-405, D-406). PR-34 starts from this sample (D-402).
+The sample shows the front view alone. The two other map views, the walk frames, and the battle poses come later (D-199, D-200). PR-34 started from this sample (D-402). It converted the five grids into drawing files under `content/sprites/drawings/cast/`, and it retired the interim atlas tool (D-406, D-515).

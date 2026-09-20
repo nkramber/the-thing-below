@@ -89,7 +89,7 @@ The table lists what a frame draws, from the bottom to the top.
 | Transition | The full-screen effect that starts a battle | No | D-191, D-195 |
 | Fit | The scale to the screen, with black bars | No | D-232, D-568 |
 
-- Game draws the world, the UI, and the transition into the frame at 1x, 1280 by 720 (D-230, D-568). The game draws no CRT pass (D-618). The fit to the screen comes last (D-232). OQ-183 holds the scale of the frame on a screen.
+- Game draws the world, the UI, and the transition into the frame at 1x, 1280 by 720 (D-230, D-568). The game draws no CRT pass (D-618). The fit to the screen comes last (D-232). The world draws at 2x, from a `SubViewport` of 640 by 360 (D-633, D-634).
 - Godot computes 2D light at the pixel size of the viewport, and the Nearest filter does not change that (the external facts above). So the frame at 1x gives light and shadows the pixel size of the art.
 - PR-61 draws the world in a `SubViewport` at 1x, and `area-ui-input.md` holds the stretch mode and the fit (F-45, F-48). Otherwise light falls on screen pixels, not on art pixels.
 - The UI sits on a canvas layer above the world, and a light reaches only the canvas layers in its range. So the UI never takes scene light (D-210).
@@ -166,7 +166,7 @@ Built by PR-56. Phase file: `phase-2-first-playable.md`.
 - Each light sets a height, because at the default height of 0 a flat pixel of a normal-mapped sprite takes no light (F-46).
 - OQ-97 holds whether a light names its color as a palette key or as a free value (D-181, D-182).
 - Walls cast hard shadows (D-183). OQ-96 holds where the shape of each shadow comes from.
-- A `TileSet` can give each atlas tile its occluder polygons, and OQ-86 holds whether Game draws maps through a `TileSet` (the external facts above).
+- A `TileSet` can give each atlas tile its occluder polygons, and Game builds one from the tile page at load (D-667).
 - Game gives each sprite, tile, and piece its normal map through a `CanvasTexture` with the color atlas and the normal-map atlas. Both atlases draw with the Nearest filter (F-45).
 - A `CanvasTexture` gives no specular light by default, and no decision asks for specular light (D-183).
 - A shader on a lit sprite, tile, or piece never uses `NORMAL_MAP`. Godot corrects the normal of a flipped draw before the shader code, and `NORMAL_MAP` replaces that normal (the external facts above).
@@ -359,7 +359,6 @@ The register is `docs/questions.md` (D-19). These questions block effect PRs, an
 - OQ-102: how glow stays off sprites. Blocks PR-59.
 - OQ-103: where shader code lives. Blocks PR-10.
 - OQ-79: how the screen-test job pins Mesa. Blocks PR-41.
-- OQ-86: how the atlas places tiles, and how Game draws a map. Blocks PR-34 and PR-7.
 - OQ-89: pixel snap in Game. Blocks PR-7.
 - OQ-183: the scale of the frame on a screen. Blocks PR-7 and PR-34, and the probe of D-621 answers it.
 

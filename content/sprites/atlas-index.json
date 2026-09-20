@@ -1,0 +1,68 @@
+{
+ "comment": "The place of every frame in the atlas (D-666). The atlas command of Tools writes this file and each page beside it, and no session edits either one by hand (D-107). A page holds one kind of drawing, and a tile page is a strict grid of 32 by 32 cells (D-667). Run the command again after a change to a drawing file.",
+ "pages": [
+  { "kind": "map_sprites", "number": 1, "width": 160, "height": 32 }
+ ],
+ "drawings": [
+  {
+   "id": "drawing.bergit_map_front",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "cast.bergit", "use": "map_front" }
+   ],
+   "frames": [
+    { "x": 0, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.dagvar_map_front",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "cast.dagvar", "use": "map_front" }
+   ],
+   "frames": [
+    { "x": 32, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.elio_map_front",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "cast.elio", "use": "map_front" }
+   ],
+   "frames": [
+    { "x": 64, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.marrek_map_front",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "cast.marrek", "use": "map_front" }
+   ],
+   "frames": [
+    { "x": 96, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ottild_map_front",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "cast.ottild", "use": "map_front" }
+   ],
+   "frames": [
+    { "x": 128, "y": 0, "ticks": 0 }
+   ]
+  }
+ ]
+}

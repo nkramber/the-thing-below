@@ -13,6 +13,14 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Assertions stay on in every configuration (T-2). -->
     <DefineConstants>$(DefineConstants);CONTRACTS_FULL</DefineConstants>
+    <!--
+      The JSON support of .NET uses reflection by default (F-36). Core reads content with a
+      hand reader and calls `JsonSerializer` nowhere, so no reflection path exists there
+      (D-647). This property writes the switch into the `runtimeconfig.json` of each program
+      of the solution, which guards Game and Tools too. A class library writes no
+      `runtimeconfig.json`, so the property on Core alone reaches no program.
+    -->
+    <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
   </PropertyGroup>
 
 </Project>

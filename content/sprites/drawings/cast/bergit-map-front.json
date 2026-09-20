@@ -1,0 +1,48 @@
+{
+ "id": "drawing.bergit_map_front",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "cast.bergit", "use": "map_front" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    ".............dddddd.............",
+    "...........ddlGGGGgdd...........",
+    "..........dllGGGGGGggd..........",
+    ".........dlllGGGGGGgggd.........",
+    ".........dlllGGGGGGgggd.........",
+    "..........b1tttttttt1b..........",
+    "..........b2SsssssstXb..........",
+    "..........btsksssskstb..........",
+    "..........bSsksssskstb..........",
+    "..........bSssssssss@...........",
+    "..........bSsssttsss@...........",
+    "..........bbSssssss@............",
+    "..........b.dggggggd............",
+    "........dd2dIIIIIIIIddd.........",
+    ".......dGg2GCCccccIIlGd.dddd....",
+    ".......dGg2ICCccccIIIGgdBBBBdd..",
+    ".......dGg2CCCccccIIIGGB3ttBBd..",
+    ".......dGg2CCCcCCcIIIgB3ttttBBd.",
+    ".......dGg2CCCcCCcIIIG33tggtBBd.",
+    ".......dGg2CCCccccIIIG33tLltBBd.",
+    ".......dGbbbbbbObbbbbd33ttttBBd.",
+    ".......@tgIIIIIIIIIId.d33ttBBd..",
+    ".......@@GCCCccccIIId.dd3ttBdd..",
+    ".........dCCCcciiIIId...dddd....",
+    "..........dgggd..dgggd..........",
+    "..........dlGgd..dlGgd..........",
+    "..........dlGgd..dlGgd..........",
+    "..........dlGgd..dlGgd..........",
+    "..........kbbbk..kbbbk..........",
+    ".........ktBBbk..ktBBbk.........",
+    ".........kkkkkk..kkkkkk........."
+   ]
+  }
+ ]
+}

@@ -40,6 +40,10 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-38 | A double hides in C# with no keyword, and double results can differ by platform | PR-46 and PR-48: a lint that reads types, and integer math (D-498, D-502) |
 | F-39 | The default string order of .NET follows the culture and the ICU version of the machine | PR-4 and PR-46: an ordinal order for strings in Core |
 | F-58 | No check can see the conversation of a session | PR-3: the document rules read the diff and the description alone (D-579) |
+| F-82 | The Tools scan of det-lint asked for a reference set that its own process already holds | PR-47: the scan takes the framework list (D-614) |
+| F-83 | Five commands read an empty option value with no check at the parse, and five values ended with a stack trace | PR-34 and PR-87: every command reads its option values through one helper (D-678, D-679) |
+| F-87 | The Sprite Fusion generator does not hold the size of the call, and it returned up to 42 pixels | PR-51: the generator mode crops the border and sets a frame of 32 or 64 pixels (D-689) |
+| F-89 | A picture of that generator uses 206 to 1275 colors, and almost none of them is a palette color | PR-51: the generator mode maps each pixel to the nearest color (D-688) |
 
 ## 7. Roadmap
 
@@ -53,9 +57,13 @@ Built by PR-1 and PR-2. Phase file: `phase-1-foundations.md`.
 - One program holds every command, and the first argument names the command, as the commands in `CLAUDE.md` show.
 - Tools references Core and Storage. It reads Core state, and it writes records through Storage (D-494).
 - Tools holds the one reader of the `content/` folder for the tools and Tests, and PR-5 adds it (D-508). Game reads content from its own assembly.
+- PR-5 adds the `content-hash` command. It loads every content file, and it compares the hash of the rule files with a committed file (G-5, D-648).
+- A run of that command with `--write` writes the committed file again, as the `replay-identity` command does. The review then reads the new value (G-17).
 - Each package in Tools needs a decision (G-13). D-498 is the first, for det-lint.
 - A gate tool prints one line per finding with the file, the line, the rule id, and what it saw. It exits 1 on any finding (the `ste-writing` skill).
 - A tool that cannot finish names the file and the reason, and it exits with a code other than 0 (T-2).
+- Every command reads its option values through the one helper `OptionValue.ReportEmpty`, and PR-87 adds it (D-679).
+- An empty option value reads at the parse, and never as a stack trace. A path check further down throws a type that no command catches (F-83).
 - Tests holds the tests of each command, with a fixture that passes and a fixture that fails each rule (T-3).
 
 > *In plain English:* Tools is one program with many commands, and none of them is the game. Each command checks, plays, or draws something, and each failure says exactly what went wrong.
@@ -141,7 +149,9 @@ Built by PR-47. Phase file: `phase-1-foundations.md`.
 
 - A small PNG reader and writer in Tools handles 8-bit RGB and RGBA images, with tests on fixture files (D-176). It lands right before PR-34 (D-496).
 - It compresses and decompresses the image data through the `ZLibStream` class of .NET (the external facts above).
-- Each PNG chunk ends with a CRC-32, and the `Crc32` class of .NET comes in a separate package. OQ-72 holds the choice.
+- Each PNG chunk ends with a CRC-32, and Tools holds a short CRC-32 of its own for it (D-663).
+- The reader restores each of the five row filters, and the writer writes the filter None (D-664).
+- Two files of an outside encoder prove the reader, and the test builds the bytes of each failure (D-665).
 - A PNG of another kind, such as an indexed PNG, fails with the file and the reason (D-176, T-2).
 - A test compares decoded pixels and never PNG bytes, because the compressed bytes depend on the encoder (F-19).
 - The atlas, the normal maps, the PNG import, the map preview, and the frame compare of the screen tests use it (D-176).
@@ -152,13 +162,13 @@ Built by PR-47. Phase file: `phase-1-foundations.md`.
 
 Built by PR-34. Phase file: `phase-1-foundations.md`.
 
-- The `atlas` command renders the drawing files into the atlas in `content/sprites/`, and it replaces `docs/tools/make-atlas.py` (D-107, D-119, D-406, D-515).
-- Beside the atlas, the command writes the atlas index, the place of each frame in the atlas. Core holds its record (D-517).
+- The `atlas` command renders the drawing files into the atlas in `content/sprites/`, and it replaces the interim script of D-406 (D-107, D-119, D-515).
+- Beside the atlas, the command writes the atlas index, the place of each frame in the atlas. Core holds its record (D-517). The `--check` option compares the committed atlas and writes no file.
 - `area-art.md` holds the drawing files, the frames, the sizes, and the palette. This file holds the command.
 - The command uses integer math alone, and each color is a palette lookup (D-502).
 - A grid with an unknown key fails with the file, the line, and the column. A palette with a repeated key fails with the key (F-20, T-2).
 - A test decodes the committed atlas and compares its pixels with the drawing files on every CI leg (F-19, G-24). The same test reads the atlas index.
-- The command also renders the swatch sheet and the review sheets of a batch, and the session attaches them to the PR description (D-185, D-514).
+- The command also renders the swatch sheet and the review sheets of a batch, and the session attaches them to the PR description (D-185, D-514, D-668). The `--sheets` option names the folder, which lies outside git.
 
 > *In plain English:* every picture in the game starts as a text grid of letters. This command turns the grids into the one image that the engine draws, and a test proves that the image still matches the letters.
 
@@ -214,11 +224,15 @@ Built by PR-50. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-51. Phase file: `phase-2-first-playable.md`.
 
-- The command reads a PNG that the owner edited by hand and writes the frame of its drawing file again from its pixels (D-107, D-515). It lands before PR-17 (D-497).
-- A pixel with a color outside the palette fails with the file, the pixel, and the color. The command never picks a near color (T-2).
+- The command holds two modes: the hand-edit mode and the generator mode (D-688). It lands before PR-17 (D-497).
+- The hand-edit mode reads a PNG that the owner edited by hand, and it writes the frame of its drawing file again (D-107, D-515).
+- A pixel with a color outside the palette fails in that mode, with the file, the pixel, and the color. It never picks a near color (T-2).
+- The generator mode reads a picture of the Sprite Fusion generator (D-686). It crops the blank border, then it sets a frame of 32 or 64 pixels (D-689).
+- That mode maps each pixel to the nearest color of the palette of 64, and it reports the count of the mapped pixels (D-181, D-688).
+- The generator mode fails when the content does not fit the frame of 64 pixels, with the file and the size (D-689, T-2).
 - The PNG code refuses an indexed PNG, so a hand edit exports as RGB or RGBA (D-176).
 
-> *In plain English:* the owner can fix a sprite in a paint program. This tool writes the edited image as a text grid again, and it refuses any color that the palette lacks.
+> *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
 
 ### 7.12 The map preview
 
@@ -283,14 +297,15 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 6. PR-4, PR-5, PR-6, PR-43, and PR-44: the Core PRs of `area-core.md`.
 7. PR-47: the PNG code, right before the atlas (D-496).
 8. PR-34: the atlas.
-9. **← GATE 1 (foundation).** The gate tools and the atlas test pass on every CI leg.
-10. PR-55: the render of large pictures, right before PR-10 (D-518).
-11. PR-48: the normal maps, right after PR-10 and right before PR-56, the first PR that draws light (D-520, D-521).
-12. PR-50: the screenplay tool, right after PR-68 (D-545).
-13. PR-15: the headless runner and the bots.
-14. PR-49: the night gate. Its live check first runs after the first night (D-500).
-15. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
-16. **← GATE 2 (first playable).**
+9. PR-87: the empty option value of every command, before Gate 1 (D-674, D-678).
+10. **← GATE 1 (foundation).** The gate tools and the atlas test pass on every CI leg.
+11. PR-55: the render of large pictures, right before PR-10 (D-518).
+12. PR-48: the normal maps, right after PR-10 and right before PR-56, the first PR that draws light (D-520, D-521).
+13. PR-50: the screenplay tool, right after PR-68 (D-545).
+14. PR-15: the headless runner and the bots.
+15. PR-49: the night gate. Its live check first runs after the first night (D-500).
+16. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
+17. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 
@@ -302,7 +317,7 @@ The register is `docs/questions.md` (D-19). These questions block Tools PRs, and
 - D-611 answers OQ-182, and the size rules of the context budget go in PR-84.
 - D-614 answers OQ-70, and the text rule reads the Godot assembly of the Game build output.
 - D-615 answers OQ-71, and det-lint fails a walk of either type in Core.
-- OQ-72: the CRC-32 of the PNG code. Blocks PR-47.
+- D-663 answers OQ-72, and Tools holds a CRC-32 of its own. D-664 and D-665 answer OQ-195 and OQ-196.
 - OQ-74: how the runner finds a softlock. Blocks PR-15.
 - OQ-3: the required checks on `main`. Waits for PR-3.
 

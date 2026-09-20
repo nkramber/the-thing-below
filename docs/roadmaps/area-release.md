@@ -43,7 +43,7 @@ Built by PR-6, PR-44, and PR-33. Phase files: `phase-1-foundations.md` and `phas
 - The game version is a label for people. The simulation version, the snapshot format versions, and the content hash carry compatibility (G-17, D-166, D-448).
 - PR-6 writes the game version into the run record header, and PR-44 into the crash file (D-447, D-448, D-491).
 - A small line with the version sits in a corner of the title screen (D-454). It is a string table entry with the version as a value (G-7).
-- OQ-168 holds where the version lives in the build.
+- One constant in Core holds the version, and the export preset and the workflow read it (D-653).
 
 > *In plain English:* every build carries a number that a person can read. A crash report and a save both name it, so a bug report says which build broke.
 
@@ -55,7 +55,8 @@ Built by PR-54. Phase file: `phase-2-first-playable.md`.
 - Each CI leg exports the build of its own system: Windows and Linux on x86_64, and the universal macOS build (D-481, D-482).
 - The game supports and tests Apple silicon alone, and an Intel Mac gets no support and no test (D-482).
 - The owner downloads the Linux build artifact for each Deck play (D-92, D-458).
-- Every export carries the license files of Godot, the Terminus fonts, and the .NET runtime (D-467).
+- Every export carries the license files of Godot, the Terminus fonts, and the .NET runtime (D-467). The folder `licenses/` holds them, and the job copies it beside each build (D-691, D-693).
+- The job packs one archive for each leg, because an artifact upload gives every file the mode 644 and drops the execute bit.
 - The file `area-ci.md` holds the job, the export templates of F-42, and the smoke session on each export.
 
 > *In plain English:* from the first walkable build, every merge makes a game that runs on a desktop and on the Deck. The owner never has to build one by hand.
@@ -254,7 +255,8 @@ Built by PR-31, PR-54, PR-74, PR-78, PR-79, and PR-40. Phase files: `phase-2-fir
 - Each export starts with `--headless` and runs the smoke session, on every CI leg (D-512).
 - The export job runs on each merge and on each PR that changes the export, so a break shows before that merge (D-512).
 - PR-31 proves the release workflow on a test tag before the first real tag (G-16, L-11).
-- A test proves that each export carries the license files of D-467 (T-3).
+- A test reads the three files of `licenses/`, and a test reads the step of the job that copies the folder (D-467, T-3).
+- A test reads each export preset, the project setting of F-74, and the codesign option of F-90 (T-3).
 - PR-74 proves that two captures of one run record give the same frames (T-7, D-476).
 - PR-78 adds a test that the game starts and reads input with no Steam client (D-460, T-3).
 - PR-79 proves the signature and the notarization on the CI macOS leg, and a failure fails the job (T-2).
@@ -342,7 +344,7 @@ The register is `docs/questions.md` (D-19). These questions block release PRs, a
 - OQ-58: the C# binding for Steamworks. Blocks PR-78.
 - OQ-59: the AI disclosure of the Steam content survey. Blocks PR-75.
 - OQ-90: where the studio mark shows. Blocks PR-33.
-- OQ-168: where the game version lives in the build. Blocks PR-6 and PR-31.
+- OQ-168: where the game version lives in the build. Resolved 2026-09-18 by D-653.
 - OQ-169: where the release notes live. Blocks PR-31.
 - OQ-170: what the title menu holds. Blocks PR-33.
 - OQ-171: what the capture command takes. Blocks PR-74.
@@ -353,5 +355,7 @@ The register is `docs/questions.md` (D-19). These questions block release PRs, a
 - OQ-176: how the game reads the controller type. Blocks PR-78.
 - OQ-177: where the signing identity and the notarization secrets live. Blocks PR-79.
 - OQ-178: what the demo build changes from the full build. Blocks PR-40.
+- OQ-198: the third-party notices of the engine in an export. Blocks PR-31.
+- OQ-199: the artifact retention of a private repository. Blocks the move of D-456 in Phase 6.
 
 No open question blocks this file.

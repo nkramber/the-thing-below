@@ -16,4 +16,13 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
   </ItemGroup>
 
+  <!--
+    The `replay-identity` command computes the state hash of every run of the identity set,
+    so it calls Core. Core references no project, and every other project can reference it
+    (G-1, D-100, D-504).
+  -->
+  <ItemGroup>
+    <ProjectReference Include="../TheThingBelow.Core/TheThingBelow.Core.csproj" />
+  </ItemGroup>
+
 </Project>

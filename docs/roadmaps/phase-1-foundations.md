@@ -26,7 +26,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 |---|---|---|
 | F-2 | The borrowed gate tools are C# and run nowhere here | PR-2 and PR-3: both tools as new code (D-101, D-277) |
 | F-5 | The two checkers disagree on the rule for a numbered item | PR-2: one rule, and the skill text follows it (D-604) |
-| F-10 | The run record grows with no limit over a long play | PR-6: a snapshot plus the intents after it (OQ-65) |
+| F-10 | The run record grows with no limit over a long play | PR-6: a snapshot at each save, plus the intents after it (D-651) |
 | F-11 | The interim checker read an HTML comment as prose | PR-2: the new checker carries the rule, and MD 1 fails a comment across lines |
 | F-17 | The 32-color palette had too few free colors | PR-34: the palette of 64 colors (D-181) |
 | F-19 | An atlas cannot match byte for byte across encoders | PR-34: a pixel test, never a byte test |
@@ -34,18 +34,21 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-24 | A 32-pixel tile holds four times the pixels of the earlier plan | The Deck test: the load runs at the frame of 1280 by 720 (D-568) |
 | F-25 | A quit autosave can trap a run (C-3), and a Core patch refuses old saves (C-4) | PR-43: the resume file of D-258 and the load of D-259 |
 | F-27 | The debug console of D-171 meets the rule of no conditional compilation in Core | PR-6: the seam of D-260 and D-492 |
-| F-35 | Two hash paths of .NET break G-1 and T-7 | PR-4 and PR-5: a hash function that Core holds (OQ-61, OQ-62) |
-| F-36 | The JSON support of .NET uses reflection by default | PR-5: a reader with no runtime reflection |
+| F-35 | Two hash paths of .NET break G-1 and T-7 | PR-4: xxHash64 in Core. PR-5: the SHA-256 of the content hash (D-644, D-645) |
+| F-36 | The JSON support of .NET uses reflection by default | PR-5: a hand reader, and the switch in `Directory.Build.props` (D-647) |
 | F-37 | GitHub starts `pull_request_target` only from the default branch | PR-3: the command proves itself in Tests (D-500) |
 | F-38 | A real literal with no suffix is a double, and double math differs by platform | PR-46: det-lint reads types through Roslyn (D-498) |
 | F-39 | The default string order of .NET follows the culture and the ICU version | PR-4 and PR-46: an ordinal order for every string order in Core |
 | F-40 | The test command of `CLAUDE.md` works in VSTest mode alone | PR-1: D-592 picks the MTP mode, and the commands follow |
 | F-41 | Four rules of GitHub Actions meet the CI plan | PR-1: D-595 puts the skip condition on each job, and never on the workflow |
 | F-42 | The Godot export walks the project folder alone, and `content/` lies outside it | PR-5: the Game assembly carries the content files (D-508) |
+| F-78 | The reflection switch of `Directory.Build.props` reaches every program of the solution | PR-5: the fixture of the review gate writes its file with `Utf8JsonWriter` (D-647) |
+| F-79 | A project reference from Tests to Game breaks the reference set of the det-lint fixtures | PR-5: the embedded-content test loads the built Game assembly (F-61) |
 | F-58 | No check can see the conversation of a session | PR-3: the document rules read the diff and the description alone (D-579) |
 | F-60 | The Godot editor writes `net8.0` into a `.csproj` that holds no target framework | PR-1: the Game project pins `net10.0` in its own file. The exit-code part of this finding is refuted |
 | F-61 | A coverage run instruments the Core copy and adds references to it | PR-1: the reference test reads the file that the Core project built |
 | F-64 | A headless session whose managed assembly does not load runs without end. A frame limit alone makes it end with an exit code of 0 and no success line | PR-1: the smoke session runs with `--quit-after`, and each caller reads the success line. Both parts are needed |
+| F-85 | A skipped matrix job reports the literal name template, so no name of a matrix job is a stable required check | PR-88: a gate job of each family reports one stable name (D-682, D-683) |
 
 ## 7. Roadmap
 
@@ -137,7 +140,7 @@ Area file: `area-effects.md`, sections 7.3 and 7.4.
 
 **Scope.**
 
-- The Mobile renderer in `TheThingBelow.Game/project.godot` (D-160, D-599, D-616).
+- The Mobile renderer in `TheThingBelow.Game/project.godot` of the Game project (D-160, D-599, D-616).
 - The reports of the Deck run, which the PR description of PR-85 holds (D-624).
 
 **Out of scope.**
@@ -292,7 +295,7 @@ Area files: `area-effects.md` sections 7.3, 7.4, and 7.12, and `area-art.md` sec
 
 **Out of scope.**
 
-- The one line of `project.godot`, which PR-82 holds (D-616).
+- The one line of `TheThingBelow.Game/project.godot`, which PR-82 holds (D-616).
 - The two tests themselves, which the owner runs with a session of their own (D-620, D-621).
 - The budget file and its test, which PR-56 holds (D-617).
 - Every code, content, and art change.
@@ -317,7 +320,7 @@ Area files: `area-effects.md` sections 7.3, 7.4, and 7.12, and `area-art.md` sec
 
 ### 7.8 The screen scale probe
 
-Owner and a session, in the session right after the merge of PR-85 (D-625). Area files: `area-ui-input.md` section 7.2, and `area-art.md` section 7.1.
+Done on 2026-09-18. Owner and a session, in the session right after the merge of PR-85 (D-625). Area files: `area-ui-input.md` section 7.2, and `area-art.md` section 7.1. PR-86 records each answer (D-626 to D-640).
 
 **Scope.**
 
@@ -335,10 +338,11 @@ Owner and a session, in the session right after the merge of PR-85 (D-625). Area
 
 **Exit tests.**
 
-1. The owner reads the same mock frame on all three screens, at both scales.
+1. The owner reads the same mock frame on all three screens, at both scales. Done 2026-09-18.
 2. A decision row records the scale of the world and the scale of the UI, and it resolves OQ-183.
-3. M-8 holds the numbers of each screen.
-4. The mock frame fills each screen at the native pixel size of that screen.
+3. M-8 holds the numbers of each screen. Done 2026-09-18 (D-636).
+4. The mock frame fills each screen at the native pixel size of that screen. Done 2026-09-18.
+5. A run on a 1920 by 1080 screen gives the UI value at a fractional fit (D-638, F-76).
 
 **Review focus.**
 
@@ -349,9 +353,49 @@ Owner and a session, in the session right after the merge of PR-85 (D-625). Area
 
 **Questions.** OQ-183.
 
-> *In plain English:* a 32-pixel figure is about 4 mm tall on the Deck, which is small. This shows the owner the same picture at two sizes on three screens, before any art or map takes the size as fixed.
+> *In plain English:* a 32-pixel figure is about 4 mm tall on the Deck, which is small. This showed the owner the same picture at two sizes on three screens, before any art or map took the size as fixed. The owner chose the larger size for the world on every screen.
 
-### 7.9 PR-46: det-lint
+### 7.9 PR-86: the answers of the screen scale probe
+
+Area files: `area-ui-input.md` sections 7.1, 7.2, 7.8, and 7.13, and `area-art.md` section 7.1.
+
+**Scope.**
+
+- The decision rows of the round, D-626 to D-640, and the close of OQ-183.
+- The result of the probe in the cost model, as M-8, with the table of the four screens (D-636).
+- The world at 2x in every live document, so the frame holds 20 by 11.25 tiles (D-633).
+- The world viewport of 640 by 360, and the UI scale setting with its two values (D-634).
+- The text limits of the `game-text-style` skill at the UI scale of 2x (D-635).
+- The new rows F-68 to F-77, G-28, and PR-86.
+
+**Out of scope.**
+
+- Every code, content, and art change of the game. The probe is a spike that never merges (D-597, D-621).
+- The UI base of PR-61, which builds the viewport, the setting, and the two layouts.
+- The map size of PR-7 and the art batch of PR-34, which read the new tile count.
+
+**Exit tests.**
+
+1. The `ste-check` command passes on every live document.
+2. Each new id resolves: F-68 to F-77, G-28, and PR-86.
+3. No live document gives the frame 40 by 22.5 tiles, and none says that the world draws at 1x.
+4. `docs/questions.md` records OQ-183 as resolved, with each decision row that answers it.
+5. The `review-gate` check passes, and the Documents section has a line for each row.
+
+**Review focus.**
+
+- The numbers of M-8 match the geometry of each screen, and the picks match the runs of the owner.
+- Each revised decision names the decision that revised it, and each citation reads the new row (D-606).
+- A document that gives a tile count, a viewport size, or a text limit reads the new answer.
+- The claim of the spike about the export of the game, which D-508 refutes (F-73).
+
+**Questions.** None. D-626 to D-640 hold each answer of this round, and OQ-183 closes.
+
+> *In plain English:* the owner read the same picture on four screens and chose how big the game
+> draws. This writes that choice into every document, so the maps, the art, and the menus that
+> come next take the right size from the start.
+
+### 7.10 PR-46: det-lint
 
 Area files: `area-tools.md` section 7.4, `area-ci.md` section 7.8.
 
@@ -392,16 +436,16 @@ Area files: `area-tools.md` section 7.4, `area-ci.md` section 7.8.
 
 > *In plain English:* two computers can disagree on decimal math and on the order of words. This tool reads the rules code as the compiler does and refuses anything that can make two machines disagree.
 
-### 7.10 PR-4: integer math, the streams, the state hash, and the identity job
+### 7.11 PR-4: integer math, the streams, the state hash, and the identity job
 
 Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.9.
 
 **Scope.**
 
 - The fixed-point types, each with its scale in its name (D-169, G-2).
-- The rounding rule of OQ-60, in one place that every system calls.
-- One seeded random stream for each subsystem, split from the run seed (G-4).
-- The hash function of OQ-62, which Core holds, and the state hash over the whole state in a fixed order.
+- The round toward zero of D-641, in the one multiply and the one divide that every system calls.
+- One seeded random stream for each subsystem, split from the run seed by the stream number alone (G-4, D-642, D-643).
+- The xxHash64 of D-644, which Core holds, and the state hash over the whole state in a fixed order. The SHA-256 of D-644 comes with the content hash in PR-5 (D-645).
 - The ordinal comparer for every string order in Core (F-39).
 - The exception types that carry context, and the assertion helper that stays on in a release export (T-2, G-18).
 - The simulation version constant (G-17).
@@ -429,23 +473,27 @@ Area files: `area-core.md` sections 7.1 to 7.6 and 7.10, `area-ci.md` section 7.
 - The simulation version starts at its first value, and G-17 binds each later Core PR.
 - No call reaches `GetHashCode` or a .NET hash class from Core (F-35).
 - Each string order in Core is ordinal, and det-lint proves it (F-39).
-- The rounding rule of OQ-60 has one implementation, not one for each system (T-1).
+- The round toward zero of D-641 has one implementation, not one for each system (T-1).
 - A release export cannot run here, because PR-54 creates the export job (D-503, G-16). PR-54 adds the export check.
 
-**Questions.** OQ-60, OQ-61, and OQ-62.
+**Questions.** OQ-60, OQ-61, and OQ-62, which D-641 to D-645 answered on 2026-09-18.
 
 > *In plain English:* different computers can give different answers for decimal math. This adds our own whole-number math and a check that proves the same result on every machine.
 
-### 7.11 PR-5: content, the content hash, and the string table
+### 7.12 PR-5: content, the content hash, and the string table
 
 Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.md` section 7.1.
 
 **Scope.**
 
 - One C# record for each content type, with a strict reader (D-116, D-177, G-6).
-- A reader with no runtime reflection, with the reflection switch in the place that OQ-179 sets (F-36).
-- The permanent content id, in the form of OQ-63 (D-166).
-- The content hash over the rule files alone, and the layout of `content/` that draws the line (D-495).
+- A hand reader on `Utf8JsonReader` in Core, and no `JsonSerializer` call (D-647, F-36).
+- The switch `JsonSerializerIsReflectionEnabledByDefault` in `Directory.Build.props`, and a test that reads it back (D-647).
+- The permanent content id, as a kind, a dot, and a name (D-166, D-646).
+- The content hash over the rule files alone, and the folder `content/rules/` that draws the line (D-495, D-648).
+- The `content-hash` command of Tools, which compares the hash with a committed file and writes it again (D-648).
+- One fixture rule record in Core, with its files, so each content rule reads the real tree (D-649).
+- The SHA-256 of D-644, in Core code beside the content hash that calls it (D-645). Its test holds the published vectors of the reference implementation.
 - The string table, from an id to text, with a test for each id that content names (D-167, G-7).
 - The embed of `content/` in the Game assembly, the folder reader in Tools, and the match test (D-508).
 - The `eol=lf` rule in `.gitattributes`, so each checkout holds the same bytes.
@@ -460,24 +508,30 @@ Area files: `area-core.md` section 7.7, `area-ci.md` section 7.10, `area-tools.m
 1. A content file with an absent field fails the load with the file and the field.
 2. A file with an unknown field fails the load.
 3. A number with a fraction or an exponent fails the load (G-2).
-4. A repeated content id fails a test with the id.
-5. The content hash is the same on the three legs and on the Mac.
-6. The embedded resources match the files of `content/` by name and by bytes.
-7. A read of a resource that the assembly lacks fails with the resource name.
-8. A string id that content names and the table lacks fails a test.
+4. A repeated content id fails a test with the id, in one file and across two files.
+5. An id that does not take the form of D-646 fails a test with the id and the file.
+6. An entry id of another kind than its record fails a test with the id and both kinds (D-646).
+7. The content hash is the same on the three legs and on the Mac.
+8. A file outside `content/rules/` never moves the content hash.
+9. The embedded resources match the files of `content/` by name and by bytes.
+10. A read of a resource that the assembly lacks fails with the resource name.
+11. A string id that content names and the table lacks fails a test.
+12. The reflection switch reads back as off in the test host (D-647, F-36).
 
 **Review focus.**
 
-- No reflection path survives, in the reader or in a fallback (F-36).
+- No reflection path survives, in the reader or in a fallback (D-647, F-36).
 - The hash covers the rule files alone, and a test proves that no other file reaches it (D-495).
 - The line-end rule holds on the Windows leg (the external facts of `area-core.md`).
 - The Godot export needs no filter for content, because the assembly carries it (F-42).
+- The switch of D-647 reaches each program, and no program of the solution calls `JsonSerializer` with reflection (F-78).
+- The Tests project takes no reference to Game, because that reference breaks the reference set of det-lint (F-79).
 
-**Questions.** OQ-62, OQ-63, and OQ-179.
+**Questions.** None. D-646 answers OQ-63, and D-647 answers OQ-179. D-644 answered OQ-62, and D-645 puts the SHA-256 of the content hash in this PR.
 
 > *In plain English:* every enemy, item, and map lives in a strict data file. A gap or a typo stops the load with the file and the field, instead of a silent zero.
 
-### 7.12 PR-6: the tick, the intents, the run record, and replay
+### 7.13 PR-6: the tick, the intents, the run record, and replay
 
 Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` section 7.9, `area-release.md` section 7.1.
 
@@ -486,8 +540,8 @@ Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` secti
 - The fixed-rate loop that calls Core 60 times a second, with a tick count in Core (D-164, G-3).
 - The intent, which names a choice in content ids and state ids (D-84, D-493).
 - The run record header: the format version, the simulation version, the content hash, the seed, the initial state, and the game version (G-5, D-448).
-- The recorder, the replay, and the compaction rule of a snapshot plus the intents after it (F-10, OQ-65).
-- The encoding of OQ-66.
+- The recorder, the replay, and the compaction rule of a snapshot at each save, plus the intents after it (F-10, D-651).
+- The encoding of D-652: JSON text, with one object on each line.
 - The Core seam that takes extra intent handlers from the host, and the mark of a debug intent (D-171, D-260, D-492).
 - A replay run in the identity set (D-504).
 
@@ -509,27 +563,29 @@ Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` secti
 
 **Review focus.**
 
-- The header holds each field of D-448, and OQ-168 settles where the game version comes from.
+- The header holds each field of D-448, and one constant in Core holds the game version (D-653).
 - Core names no debug assembly, and a release host passes no handler (D-492).
-- The snapshot moment of OQ-65 keeps the record bounded and the replay exact.
+- The snapshot at each save keeps the record bounded and the replay exact (D-651).
 - Game makes each intent from an input event, never from a poll (F-50).
 
-**Questions.** OQ-64, OQ-65, OQ-66, and OQ-168.
+**Questions.** D-650 resolved OQ-64, D-651 resolved OQ-65, D-652 resolved OQ-66, and D-653 resolved OQ-168.
 
 > *In plain English:* the game writes down its start state and every choice after it. That record plays any run again on any machine, so every bug becomes repeatable on demand.
 
-### 7.13 PR-43: the Storage project, the snapshots, and the saves
+### 7.14 PR-43: the Storage project, the snapshots, and the saves
 
 Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 
 **Scope.**
 
 - The sixth project, `TheThingBelow.Storage`, which holds the file code (D-494).
-- The save folder of D-62 and D-465, with one slot save, one autosave, and a one-use resume file (D-258).
+- The save folder of D-62 and D-465, with one slot save, one autosave, and a one-use resume file (D-258, D-656).
 - The snapshot bytes from Core, with the tick and the position of every stream (D-166).
-- The snapshot format version, one migration step to each next version, and a fixture save of each older format.
+- The two lines of a save: the header with the checksum, and the snapshot (D-655).
+- The snapshot format version, the reader of each version, and a stored fixture save of each one (D-166, D-654).
 - The safe write: a temporary file with a checksum, then one replace (D-178).
 - A load that reads the snapshot alone, so a new simulation version never refuses a save (D-259).
+- The check in Game that the user folder of Godot and the save folder of Storage agree (D-657, F-33).
 
 **Out of scope.**
 
@@ -553,27 +609,31 @@ Area files: `area-core.md` section 7.11, `area-exploration.md` section 7.4.
 - The folder name is right on each of the three systems (D-465, F-33).
 - The migration test reads a real stored save, not a save that the test just wrote.
 
-**Questions.** OQ-65 and OQ-66.
+**Questions.** D-651 resolved OQ-65, and D-652 resolved OQ-66. D-654 to D-657 resolved OQ-186 to OQ-189. They set the reader of each format version and the two lines of a save. They also set the names of the three files and the check of the folder in Game.
 
 > *In plain English:* a save is a full picture of the game at one moment. A crash during a save never destroys the old one, and a save from an older build still loads through a converter.
 
-### 7.14 PR-44: the crash files and the log files
+### 7.15 PR-44: the crash files and the log files
 
-Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
+Area files: `area-core.md` section 7.12, `area-release.md` section 7.1.
 
 **Scope.**
 
-- The crash file beside the save, written through Storage on a crash or a failed assertion (D-170, T-2).
-- The content of the crash file: the error with its context, the versions, and the run record (D-448).
+- The crash file in the crashes folder of the user folder, written through Storage on a crash or a failed assertion (D-170, D-658, T-2).
+- The content of the crash file: line 1 holds the error with its context, the versions, and the time. The lines of the run record follow line 1 (D-448, D-661).
+- The folders of the person in the text of an error, which the writer hides (D-170).
 - A log line on a crash, and an exit. PR-61 adds the message on screen through the text helper (D-559).
-- The log entries that a step of Core returns, with the tick and the subsystem (D-179).
-- One JSON object for each log line, written by Storage, with the wall-clock time from Game (D-179).
+- The log entries that a step of Core returns, with the tick and the subsystem (D-179). A menu change takes the info level, and a beat of the patrol the debug level (D-660).
+- One JSON object for each log line, with the wall-clock time from Game (D-179). Storage writes each line to the log file of the session, in the logs folder (D-658).
+- The level filter of a log file, and the session argument that adds the debug lines (D-660).
+- The newest 10 files of each of the two folders, and the removal of the older files (D-659).
 
 **Out of scope.**
 
 - The message on screen and the studio address of D-473, which PR-61 adds with the text helper (D-559).
 - The title screen and its version line (PR-33).
 - The night records and the bot reports (PR-15, PR-49).
+- A command of Tools that reads a crash file. Tools takes its reference to Storage in the PR of the headless runner (PR-15, D-494).
 
 **Exit tests.**
 
@@ -584,18 +644,23 @@ Area files: `area-core.md` section 7.12, `area-release.md` section 7.10.
 5. Each log line parses as one JSON object.
 6. Core adds no time value and no file path to a log entry (G-1, G-3).
 7. A crash writes its file and a log line, and it draws no Godot text property, so det-lint passes (D-499, D-559).
+8. A crash with no run writes a file that holds no record, and the reader gives no record (D-661, T-2).
+9. Each folder keeps the newest 10 files, and two files of one second take two names (D-658, D-659).
+10. An entry below the level of the file takes no line, and the debug level holds every entry (D-660).
 
 **Review focus.**
 
 - No empty catch, and no error that hides the first error (T-2, G-18).
 - PR-44 shows no message, so no Godot text property appears before the text helper of PR-61 exists (D-499, D-559).
 - The crash path runs with no content loaded, because a load failure can start it.
+- The simulation version stays 3, because no log entry reaches the state hash (D-662, G-17).
+- Storage reads the clock nowhere. The host passes each time, so a test of a name and of a line needs no clock seam (G-3, T-3).
 
-**Questions.** None. OQ-57 blocks the address, which PR-61 adds (D-559).
+**Questions.** None. OQ-57 blocks the address, which PR-61 adds (D-559). D-658 to D-662 resolved OQ-190 to OQ-194. They set the two folders, the names, and the count of files. They also set the levels, what a step logs, the lines of a crash file, and the simulation version of this PR.
 
 > *In plain English:* when the game stops with an error, it leaves one file that holds everything a replay needs. Logs are plain one-line notes that the tools can read.
 
-### 7.15 PR-47: the PNG code
+### 7.16 PR-47: the PNG code
 
 Area file: `area-tools.md` section 7.5.
 
@@ -603,7 +668,9 @@ Area file: `area-tools.md` section 7.5.
 
 - A PNG reader and a PNG writer in Tools for 8-bit RGB and RGBA images (D-176).
 - The compression through the `ZLibStream` class of .NET.
-- The CRC-32 of each chunk, from the answer of OQ-72.
+- A CRC-32 of its own in Tools for each chunk, and no package (D-663).
+- The five row filters in the reader, and the filter None in the writer (D-664).
+- Two committed files of an outside encoder, and bytes in the test for each failure (D-665).
 - A clear failure on a PNG of another kind, with the file and the reason (T-2).
 
 **Out of scope.**
@@ -619,20 +686,25 @@ Area file: `area-tools.md` section 7.5.
 4. A truncated file fails with the file and the reason.
 5. A file with a wrong CRC-32 fails with the chunk name.
 6. Each test compares decoded pixels and never PNG bytes (F-19).
+7. Each of the five row filters gives the pixels of the image again (D-664).
+8. Each committed file of the outside encoder gives its pixel table (D-665).
+9. The CRC-32 matches each published check value (D-663).
 
 **Review focus.**
 
-- The answer of OQ-72 settles the package or the hand code, and a package needs its decision row (G-13).
+- D-663 keeps the CRC-32 in Tools, and the PR adds no package (G-13).
 - The code uses integer math alone, and det-lint proves it (D-502).
 - Each failure carries the file and the reason (T-2).
+- The reader refuses a critical chunk that it cannot read, and it skips an ancillary chunk.
+- F-82: the Tools scan of det-lint takes the framework list of its own process.
 
-**Questions.** OQ-72.
+**Questions.** OQ-72, OQ-195, and OQ-196, which D-663 to D-665 answer.
 
 > *In plain English:* every picture that the tools make or read is a PNG file. The project writes its own small PNG code, so a new version of a library never breaks a picture test.
 
-### 7.16 The Sprite Fusion test
+### 7.17 The Sprite Fusion test
 
-Owner and a session, before PR-34. Area file: `area-art.md` section 7.1.
+Owner and a session, after M-2 and before Gate 1 (D-675). Done on 2026-09-19. Area file: `area-art.md` section 7.1.
 
 **Scope.**
 
@@ -648,9 +720,11 @@ Owner and a session, before PR-34. Area file: `area-art.md` section 7.1.
 
 **Exit tests.**
 
-1. The sheet holds both sets of the same subjects, at the same size.
-2. The owner picks the source, and a decision row records the pick.
-3. A pick of Sprite Fusion also records the cost, the license, and the path through PR-51.
+1. The sheet holds both sets of the same subjects, at the same size. Met on 2026-09-19.
+2. The owner picks the source, and a decision row records the pick. Met by D-686.
+3. A pick of Sprite Fusion also records the cost, the license, and the path through PR-51. Met by D-687, D-688, and D-689.
+
+**Result.** The owner picked the Sprite Fusion generator for every picture, and the Starter plan stays (D-686, D-687). The four findings of the test are F-86 to F-89. A session repairs each tile by hand, because the generator draws a tile as a framed block (F-88).
 
 **Review focus.**
 
@@ -661,7 +735,7 @@ Owner and a session, before PR-34. Area file: `area-art.md` section 7.1.
 
 > *In plain English:* the owner wants to compare pictures that a session draws with pictures that an outside tool makes. This test draws the same things both ways and lets the owner choose.
 
-### 7.17 PR-34: the atlas, the palette, and the drawing files
+### 7.18 PR-34: the atlas, the palette, and the drawing files
 
 Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7.6.
 
@@ -669,12 +743,12 @@ Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7
 
 - The `atlas` command that renders the drawing files into the atlas in `content/sprites/` (D-107, D-119, D-406, D-515).
 - The grid schema of D-108 and D-109, with the sizes of D-228, D-234, and D-236.
-- The frame list of a sprite, with the frame time of OQ-88.
+- The frame list of a sprite, with the frame time in ticks (D-669).
 - The five cast grids, which come from the approved sample in `docs/samples/` (D-233, D-402, D-405).
 - The palette of 64 colors, with the swatch sheet for the approval of the owner (D-181, D-185, D-238, F-17).
 - The atlas index, and the record of it in Core that no rule reads (D-517).
 - The review sheets of the batch, which `gh` attaches to the PR description (D-514, G-25).
-- The pixel test of F-19, and the retirement of `docs/tools/make-atlas.py`.
+- The pixel test of F-19, and the retirement of the interim atlas script of D-406.
 
 **Out of scope.**
 
@@ -696,16 +770,17 @@ Area files: `area-art.md` sections 7.1 to 7.4 and 7.6, `area-tools.md` section 7
 
 - The palette holds 64 colors, and each element and status has one (F-17, D-181).
 - The test compares pixels, never bytes (F-19).
-- The answer of OQ-85 sets the pages, and OQ-86 sets how the atlas places a tile.
+- A grid keeps its size in art pixels. The world draws it at 2x, so a 32-pixel sprite covers 64 frame pixels (D-633).
+- D-666 sets the pages, and D-667 sets how the atlas places a tile.
 - The swatch sheet and the review sheets reach the PR description, and the owner approves the batch (G-25).
 
-**Questions.** OQ-85, OQ-86, OQ-87, and OQ-88.
+**Questions.** None. D-666 to D-669 answer OQ-85 to OQ-88, and D-670 sets the content id kind of a cast member.
 
 > *In plain English:* every picture in the game starts as a text file of letters, one for each pixel. This command turns the letters into the one image that the engine draws, and a test proves that they still match.
 
-### 7.18 M-1 and M-2: the first measurements
+### 7.19 M-1 and M-2: the first measurements
 
-Area file: none. The cost model in section 4 of `docs/design.md` holds both rows.
+Area file: none. The cost model in section 4 of `docs/design.md` holds both rows. Done on 2026-09-19. D-672 sets the number that M-1 reports.
 
 **Scope.**
 
@@ -728,7 +803,70 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 
 > *In plain English:* the first ten changes each record what they cost in machine time and in money. That gives the owner real numbers before the plan grows.
 
-### 7.19 Gate 1: the foundation gate
+### 7.20 PR-87: the empty option value of the Tools commands
+
+Area file: `area-tools.md` section 7.1. D-674 puts this PR after the M-1 and M-2 PR and before Gate 1. D-677 sets the id, and D-678 sets the scope.
+
+**Scope.**
+
+- The parse of an empty option value in every Tools command, and not in `content-hash` alone (D-678, F-83).
+- The seven option values: `ste-check --root`, `det-lint --root`, `det-lint --configuration`, `replay-identity --root`, `content-hash --root`, `review-gate --pull-request`, and `review-gate --head-files`.
+- The one helper `OptionValue.ReportEmpty`, which every command reads its option values through (D-679).
+- The move of the `atlas` command from its own copy of the check to that helper (D-679).
+- A regression test for each command and each option value, which fails on the old code (T-3).
+
+**Out of scope.**
+
+- Every other fault of a command line. An unknown option and an absent value each read a message already.
+- No behavior of Core changes, so the simulation version stands (G-17).
+
+**Exit tests.**
+
+1. Each of the seven option values gives the fault exit code and names the option.
+2. No command ends with a stack trace on an empty option value.
+3. The regression theory holds nine rows: the seven above and the two values of the `atlas` command.
+4. The seven rows fail on the code before this PR. The two `atlas` rows pass, because PR-34 fixed that command.
+
+**Review focus.** The review confirms that no command reads an option value outside the helper. It also reads the message of each fault for the context that T-2 asks for.
+
+**Questions.** None. D-677 and D-678 answer the two that this PR asked.
+
+> *In plain English:* a tool that gets an empty setting for a folder used to crash with a wall of code. Now it says which setting is empty and stops.
+
+### 7.21 PR-88: the stable check names of the CI matrix jobs
+
+Area file: `area-ci.md` section 7.19. D-684 sets the id and the place of this PR, before the Sprite Fusion test and Gate 1. D-682 sets the fix, and D-683 sets the shape of the gate.
+
+**Scope.**
+
+- A gate job for each matrix family of `.github/workflows/ci.yml`: `build-test-format`, `replay-identity`, and `smoke` (D-683).
+- The name of each gate job: `build, test, and format`, `replay-identity`, and `smoke`.
+- The condition `always()` on each gate job, so the check reports on a run that a fault stopped (T-2).
+- The read of `needs.changed-paths.result` in each gate job. A skip that no condition asked for fails the gate.
+- A test that reads the committed workflow files and holds the rule of one stable name for each required check.
+- The close of OQ-3 with the live protection, and the required-check set that the owner adds after the merge (D-685).
+
+**Out of scope.**
+
+- The job-level condition of D-595 on each matrix job. It stays, so no runner starts for a leg on a docs-only PR.
+- The `det-lint`, `coverage report`, `ste-check`, and `changed paths` jobs. Each one is a single job with a stable name already.
+- No behavior of Core changes, so the simulation version stands (G-17).
+
+**Exit tests.**
+
+1. Each required check name of `ci.yml` is the literal name of one job.
+2. Each gate job reads `always()`, and it needs `changed-paths` and its matrix job.
+3. A job whose name holds a workflow expression has one gate job that reads it.
+4. The name of the review gate job holds no workflow expression.
+5. The four tests above fail on the workflow file before this PR.
+
+**Review focus.** The review confirms that each gate job fails on a leg that failed, on a cancel, and on a fault of `changed-paths`. It also confirms that a docs-only PR still starts no runner for a leg.
+
+**Questions.** None. D-682 to D-685 answer the four that this PR asked, and OQ-197 holds the defect.
+
+> *In plain English:* the merge rules match a check by its name, and the names of the three-machine jobs changed with the kind of change. One small job per family now reports one name that never changes, so the owner can make those checks a hard rule.
+
+### 7.22 Gate 1: the foundation gate
 
 **The gate.** Gate 1 passes when every line holds:
 
@@ -741,8 +879,10 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds both rows
 7. `make verify` passes on the Mac.
 8. The atlas pixel test passes on the three legs (F-19).
 9. The cost model holds the M-1 and M-2 numbers of the first ten code PRs.
+10. The Sprite Fusion test ran, and a decision row names the source of the art (D-620, D-676). Met by D-686 on 2026-09-19.
+11. Branch protection on `main` requires these checks: `changed paths`, `build, test, and format`, `smoke`, `replay-identity`, `det-lint`, `coverage report`, `ste-check`, and `review-gate` (D-685).
 
-**What the gate does not ask.** No play, no screen, and no sign-off on feel. Gates 2 to 5 hold those (D-52).
+**What the gate does not ask.** No play, no screen, and no sign-off on feel. Gates 2 to 5 hold those (D-52). Line 10 asks for a pick and a decision row, and not a sign-off on feel (D-676).
 
 > *In plain English:* at this point the game does nothing that a player can see. Every check that guards the project is live, and four machines agree on the result of the same run.
 
@@ -754,24 +894,28 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 2. Owner and a session: the Deck test, which picks the renderer and measures the budget (D-160, D-523). Done on 2026-09-17.
 3. Owner: run the Deck test on the Linux export (D-458). Done on 2026-09-17 (D-616, D-617).
 4. PR-1: the scaffold, the four projects, the gate jobs, and the local gate.
-5. PR-82: the Mobile renderer of the Deck test, which is one line of `project.godot` (D-599, D-616).
+5. PR-82: the Mobile renderer of the Deck test, which is one line of `TheThingBelow.Game/project.godot` (D-599, D-616).
 6. PR-2: the STE checker in C#.
 7. PR-3: the review gate.
 8. PR-84: the context budget check, right after PR-3 (D-611).
 9. PR-85: the result of the Deck test, the removal of the CRT, and the two tests before PR-34 (D-616).
 10. Owner and a session: the screen scale probe on three screens, right after PR-85 (D-621, D-625).
-11. Owner: require the checks on `main` (OQ-3).
-12. PR-46: det-lint, before the first Core code (D-496).
-13. PR-4: integer math, the streams, the state hash, and the identity job.
-14. PR-5: content, the content hash, and the string table.
-15. PR-6: the tick, the intents, the run record, and replay.
-16. PR-43: the Storage project, the snapshots, and the saves.
-17. PR-44: the crash files and the log files.
-18. PR-47: the PNG code, right before the atlas (D-496).
-19. Owner and a session: the Sprite Fusion test of the art (D-620).
+11. PR-86: the answers of the probe, and the close of OQ-183 (D-626 to D-640).
+12. Owner: require the checks on `main` (OQ-3).
+13. PR-46: det-lint, before the first Core code (D-496).
+14. PR-4: integer math, the streams, the state hash, and the identity job.
+15. PR-5: content, the content hash, and the string table.
+16. PR-6: the tick, the intents, the run record, and replay.
+17. PR-43: the Storage project, the snapshots, and the saves.
+18. PR-44: the crash files and the log files.
+19. PR-47: the PNG code, right before the atlas (D-496).
 20. PR-34: the atlas, the palette, and the drawing files.
-21. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above.
-22. **← GATE 1 (foundation).** Section 7.19 holds each line.
+21. M-1 and M-2: the numbers of the first ten code PRs, from PR-1 to PR-47 in the order above. Done on 2026-09-19.
+22. PR-87: the empty option value of the Tools commands, before Gate 1 (D-674, D-677).
+23. PR-88: the stable check names of the CI matrix jobs, before Gate 1 (D-682, D-684).
+24. Owner and a session: the Sprite Fusion test of the art. Done on 2026-09-19 (D-620, D-675, D-686).
+25. Owner: add the three legs to the required checks of `main`, after PR-88 merges (D-685).
+26. **← GATE 1 (foundation).** Section 7.22 holds each line.
 
 The next phase file is `phase-2-first-playable.md`. Between the two, the owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).
 
@@ -781,14 +925,15 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 
 | Question | Subject | Blocks |
 |---|---|---|
-| OQ-3 | The required checks on `main` | Waits for PR-3 |
-| OQ-60 | The rounding rule of fixed-point math | PR-4 |
-| OQ-61 | The random generator and the stream split | PR-4 |
-| OQ-62 | The hash function of Core | PR-4 and PR-5 |
-| OQ-63 | The form of a content id | PR-5 |
-| OQ-64 | The tick while a menu is open | PR-6 |
-| OQ-65 | When the run record takes a new snapshot | PR-6 and PR-43 |
-| OQ-66 | The encoding of records and snapshots | PR-6 and PR-43 |
+| OQ-3 | The required checks on `main` | Closed 2026-09-19 by the live protection (D-681) |
+| OQ-197 | The unstable check names of the matrix jobs | PR-88, answered by D-682 and D-683 |
+| OQ-60 | The rounding rule of fixed-point math | Answered by D-641 |
+| OQ-61 | The random generator and the stream split | Answered by D-642 and D-643 |
+| OQ-62 | The hash function of Core | Answered by D-644 and D-645 |
+| OQ-63 | The form of a content id | Answered by D-646 |
+| OQ-64 | The tick while a menu is open. Resolved by D-650 | PR-6 |
+| OQ-65 | When the run record takes a new snapshot. Resolved by D-651 | PR-6 and PR-43 |
+| OQ-66 | The encoding of records and snapshots. Resolved by D-652 | PR-6 and PR-43 |
 | OQ-67 | The rule for numbered items | Answered by D-604 |
 | OQ-68 | What the reference check fails | Answered by D-605 |
 | OQ-69 | What counts as a change to a decision row | PR-3, answered by D-609 |
@@ -796,20 +941,22 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-182 | Where the context budget check goes | PR-84, answered by D-611 |
 | OQ-70 | How det-lint finds the Godot assembly | PR-46, answered by D-614 |
 | OQ-71 | Which collection uses det-lint fails in Core | PR-46, answered by D-615 |
-| OQ-72 | The CRC-32 of the PNG code | PR-47 |
+| OQ-72 | The CRC-32 of the PNG code | PR-47, answered by D-663 |
+| OQ-195 | The row filters of the PNG code | PR-47, answered by D-664 |
+| OQ-196 | The PNG fixture files of PR-47 | PR-47, answered by D-665 |
 | OQ-75 | The test runner mode | PR-1, resolved by D-592 |
 | OQ-76 | The coverage package and the form of the report | PR-1, resolved by D-593 |
 | OQ-77 | The runner labels of the CI legs | PR-1, resolved by D-594 |
 | OQ-78 | The required checks on a docs PR | PR-1, resolved by D-595 |
 | OQ-83 | How CI gets the Godot editor | PR-1, resolved by D-596 |
-| OQ-85 | The pages of the atlas | PR-34 |
-| OQ-86 | How the atlas places tiles | PR-34 |
-| OQ-87 | The form of a review sheet | PR-34 |
-| OQ-88 | The unit of the time of a frame | PR-34 |
+| OQ-85 | The pages of the atlas | PR-34, answered by D-666 |
+| OQ-86 | How the atlas places tiles | PR-34, answered by D-667 |
+| OQ-87 | The form of a review sheet | PR-34, answered by D-668 |
+| OQ-88 | The unit of the time of a frame | PR-34, answered by D-669 |
 | OQ-92 | Where the source of the Deck test scene lives | The Deck test, resolved by D-597 |
 | OQ-93 | How the owner reads the frame time on the Deck | The Deck test, resolved by D-598 |
-| OQ-168 | Where the game version lives in the build | PR-6 and PR-31 |
+| OQ-168 | Where the game version lives in the build. Resolved by D-653 | PR-6 and PR-31 |
 | OQ-183 | The scale of the frame on a screen | PR-7 and PR-34, and the probe of D-621 answers it |
-| OQ-179 | Where the reflection switch of the JSON reader lives | PR-5 |
+| OQ-179 | Where the reflection switch of the JSON reader lives | Answered by D-647 |
 
 No open question blocks this file.

@@ -12,10 +12,10 @@ GODOT ?= /Applications/Godot_mono.app/Contents/MacOS/Godot
 SMOKE_FRAME_LIMIT := 600
 
 
-.PHONY: verify where hooks build test lint format ste-check smoke run clean
+.PHONY: verify where hooks build test lint format ste-check identity content smoke run clean
 
 ## verify: every check that this machine can run.
-verify: build test format lint ste-check smoke
+verify: build test format lint ste-check identity content smoke
 
 ## build: build every project of the solution.
 build:
@@ -43,6 +43,21 @@ lint:
 ste-check:
 	dotnet run --project $(TOOLS_PROJECT) -- ste-check --root .
 
+## identity: compare each state hash with the identity file (G-5, D-504).
+#
+# This machine is the fourth leg beside the three CI legs. The command reads the build
+# output of the Tools project, so the `build` target runs before it.
+identity:
+	dotnet run --project $(TOOLS_PROJECT) --no-build -- replay-identity --root .
+
+## content: load every content file and compare the content hash (G-5, D-495, D-648).
+#
+# The command reads the build output of the Tools project, so the `build` target runs before
+# it. A change of a rule file needs `content-hash --root . --write` and a review of the new
+# value.
+content:
+	dotnet run --project $(TOOLS_PROJECT) --no-build -- content-hash --root .
+
 ## smoke: build the Godot solution, then run the headless session (D-117).
 #
 # Each command writes its log to a file, and never through a pipe. A pipe gives the exit
@@ -50,7 +65,12 @@ ste-check:
 #
 # The session runs with `--quit-after`, because a session whose managed assembly does not
 # load never reaches `Quit` and runs without end (F-64). The session then gives an exit
-# code of 0 with no success line, so this target reads the log and not the code (T-2).
+# code of 0 with no success line, so this target reads the log too (T-2).
+#
+# The target reads the exit code and the log, and a fault in either one fails the target. A
+# target that drops the exit code passes a session that wrote the success line and then
+# failed. The log checks must run first, so the target keeps the code and reads it after
+# them (D-694, T-2).
 smoke:
 	@set -eu; \
 	mkdir -p artifacts; \
@@ -60,14 +80,19 @@ smoke:
 	  || { echo "smoke: the Godot build failed. Read artifacts/godot-build.log (T-2)." >&2; \
 	       tail -5 artifacts/godot-build.log >&2; exit 1; }; \
 	echo "smoke: the headless session"; \
+	status=0; \
 	"$(GODOT)" --headless --path $(GAME_DIR) --quit-after $(SMOKE_FRAME_LIMIT) -- --smoke \
-	    > artifacts/smoke.log 2>&1 || true; \
+	    > artifacts/smoke.log 2>&1 || status=$$?; \
 	if ! grep -q "smoke: the session ends with no error." artifacts/smoke.log; then \
 	    echo "smoke: the session wrote no success line. Read artifacts/smoke.log (T-2)." >&2; \
 	    tail -5 artifacts/smoke.log >&2; exit 1; \
 	fi; \
 	if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR)" artifacts/smoke.log; then \
 	    echo "smoke: the session wrote an error line (T-2)." >&2; exit 1; \
+	fi; \
+	if [ "$$status" != "0" ]; then \
+	    echo "smoke: the session ended with the exit code $$status (T-2)." >&2; \
+	    tail -5 artifacts/smoke.log >&2; exit 1; \
 	fi; \
 	cat artifacts/smoke.log
 

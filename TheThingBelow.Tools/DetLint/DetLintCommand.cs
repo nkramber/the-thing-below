@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.CodeAnalysis;
 
 namespace TheThingBelow.Tools.DetLint;
 
@@ -73,13 +72,19 @@ public static class DetLintCommand
                 return Program.FaultExitCode;
             }
 
+            string value = args[index + 1];
+            if (OptionValue.ReportEmpty(option, value, errors))
+            {
+                return Program.FaultExitCode;
+            }
+
             if (option == RootOption)
             {
-                root = args[index + 1];
+                root = value;
             }
             else
             {
-                configuration = args[index + 1];
+                configuration = value;
             }
         }
 
@@ -127,7 +132,7 @@ public static class DetLintCommand
             ProjectFiles.ReadCode(root, GameProject),
             ReferenceSet.WithOutputOf(GameOutputFolder(root, configuration), $"{GameProject}"),
             [new GodotTextRule()]));
-        findings.AddRange(CheckComparedOutputTools(root, configuration, output));
+        findings.AddRange(CheckComparedOutputTools(root, output));
         findings.AddRange(CheckScenes(root));
 
         foreach (LintFinding finding in findings)
@@ -143,8 +148,7 @@ public static class DetLintCommand
     /// Reads each tool of D-502 with the Core rules for the float types, the clock, and the OS
     /// random. The command names the PR of each folder that no PR wrote yet (G-16).
     /// </summary>
-    private static IReadOnlyList<LintFinding> CheckComparedOutputTools(
-        string root, string configuration, TextWriter output)
+    private static IReadOnlyList<LintFinding> CheckComparedOutputTools(string root, TextWriter output)
     {
         List<string> live = [];
         foreach (KeyValuePair<string, string> tool in ComparedOutputTools)
@@ -164,13 +168,14 @@ public static class DetLintCommand
             return [];
         }
 
-        IReadOnlyList<MetadataReference> references = ReferenceSet.WithOutputOf(
-            ToolsOutputFolder(root, configuration),
-            ToolsProject);
+        // This command is the Tools program, so the framework list of this process already
+        // holds every assembly that Tools references, Core and the compiler library included.
+        // A build output folder of Tools gives no reference beside that list, and the count of
+        // added references was 0 (F-82, D-614).
         IReadOnlyList<LintFinding> findings = SourceScan.Check(
             "det-lint.tools",
             ProjectFiles.ReadCode(root, ToolsProject),
-            references,
+            ReferenceSet.Framework(),
             CoreRules.ComparedOutputTools());
 
         List<LintFinding> inside = [];
@@ -199,24 +204,5 @@ public static class DetLintCommand
         }
 
         return findings;
-    }
-
-    private static string ToolsOutputFolder(string root, string configuration)
-    {
-        string folder = Path.Combine(root, ToolsProject, "bin", configuration);
-        if (!Directory.Exists(folder))
-        {
-            throw new InvalidOperationException(
-                $"The build output folder '{folder}' is absent. Run `dotnet build TheThingBelow.slnx` before det-lint.");
-        }
-
-        string[] frameworks = Directory.GetDirectories(folder);
-        if (frameworks.Length != 1)
-        {
-            throw new InvalidOperationException(
-                $"The folder '{folder}' holds {frameworks.Length} target framework folders, and not one (T-2).");
-        }
-
-        return frameworks[0];
     }
 }

@@ -121,3 +121,35 @@ The audit of 2026-09-16 set these values. An audit reads the usage records of th
 | STE checker calls | 155 calls in 10 sessions | One call for each commit |
 | GitHub poll calls for each Gitar round | 107 calls in 10 sessions | 3 or less |
 | Files that a session reads in full at the start | about 20.7k tokens | about 11k tokens |
+
+### The M-1 numbers
+
+M-1 reads the local record of each harness. No tool of this repository reads them (D-99), so an audit
+writes a script of its own, runs it, and keeps it outside the checkout.
+
+Claude Code writes one file for each session in `~/.claude/projects/<the checkout path>/`:
+
+- Each line is one JSON record, and a record of the type `assistant` holds `message.usage`.
+- That object holds `input_tokens`, `cache_creation_input_tokens`, `cache_read_input_tokens`, and `output_tokens`.
+- A record holds `gitBranch`, and the branch of the last record before an assistant record gives the PR.
+- One file can hold more than one branch, so read the branch for each record and not for each file.
+
+Codex writes one file for each session under `~/.codex/sessions/` and `~/.codex/archived_sessions/`:
+
+- A record of the type `token_count` holds `info.total_token_usage`, and the last one gives the session total.
+- The field `cached_input_tokens` sits inside `input_tokens`, so `total_tokens` matches the M-1 number of D-672.
+- The first prompt of the session gives the PR. It holds the binding block, or a line such as `Review PR #30`.
+- Read `cwd` from the first record, and skip a session of another checkout.
+
+### The M-2 numbers
+
+M-2 reads GitHub. The `gh` command gives both parts:
+
+```
+gh run list --branch <branch> --workflow ci.yml --limit 40 --json databaseId,conclusion,createdAt,updatedAt
+gh api repos/:owner/:repo/actions/runs/<id>/jobs --jq '[.jobs[] | {name, conclusion, started_at, completed_at}]'
+```
+
+- The table of section 4 reads the newest green `ci` run of each PR, and not the sum of every run.
+- The wall time of a job is `completed_at` less `started_at`. The clock of the run is `updatedAt` less `createdAt`.
+- The runner name in the job name gives the leg. A job with no runner name is a shared job.

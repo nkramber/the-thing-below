@@ -78,6 +78,43 @@ public sealed class DetLintCommandTests
         }
     }
 
+    /// <summary>
+    /// A folder of D-502 that exists takes the Core rules for the float types, the clock, and
+    /// the OS random, and the code of Tools outside such a folder takes no rule (F-82).
+    /// </summary>
+    [Fact]
+    public void AFloatInAToolOfComparedOutputIsAFindingAndAFloatOutsideItIsNot()
+    {
+        using DetLintCheckout checkout = DetLintCheckout.Build();
+        checkout.Write(
+            "TheThingBelow.Tools/Png/Scale.cs",
+            """
+            namespace TheThingBelow.Tools.Png;
+            public static class Scale
+            {
+                public static double Half(int value) => value / 2.0;
+            }
+            """);
+        checkout.Write(
+            "TheThingBelow.Tools/SteCheck/Report.cs",
+            """
+            namespace TheThingBelow.Tools.SteCheck;
+            public static class Report
+            {
+                public static double Share(int part, int whole) => (double)part / whole;
+            }
+            """);
+        using StringWriter output = new StringWriter();
+        using StringWriter errors = new StringWriter();
+
+        int exitCode = DetLintCommand.Run(Arguments(checkout), output, errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains("TheThingBelow.Tools/Png/Scale.cs:4: rule DL 1:", output.ToString(), StringComparison.Ordinal);
+        Assert.DoesNotContain("TheThingBelow.Tools/SteCheck/Report.cs", output.ToString(), StringComparison.Ordinal);
+        Assert.Equal(string.Empty, errors.ToString());
+    }
+
     [Fact]
     public void AnAbsentGameBuildNamesTheBuildCommand()
     {

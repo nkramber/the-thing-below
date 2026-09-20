@@ -25,11 +25,12 @@ public sealed class ReviewGateFixture : IDisposable
     /// <summary>A commit of code before the effective head, which a stale record names.</summary>
     public const string OlderSha = "c3d4e5f60718293a4b5c6d7e8f90123456789ab2";
 
-    private static readonly JsonSerializerOptions WriteOptions = new JsonSerializerOptions
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
-    };
+    /// <summary>
+    /// The writer options of the facts file. `JsonSerializer` needs runtime reflection, and
+    /// `Directory.Build.props` turns that off for every program of the solution (D-647,
+    /// F-36). Thus the fixture writes each field itself, as the workflow does.
+    /// </summary>
+    private static readonly JsonWriterOptions WriteOptions = new JsonWriterOptions { Indented = true };
 
     private ReviewGateFixture(string root)
     {
@@ -137,8 +138,45 @@ public sealed class ReviewGateFixture : IDisposable
 
     /// <summary>Writes the JSON file of facts that the command reads.</summary>
     /// <param name="facts">The facts of the pull request.</param>
-    public void WriteFacts(PullRequestFacts facts) =>
-        File.WriteAllText(FactsPath, JsonSerializer.Serialize(facts, WriteOptions));
+    public void WriteFacts(PullRequestFacts facts)
+    {
+        ArgumentNullException.ThrowIfNull(facts);
+
+        using MemoryStream bytes = new();
+        using (Utf8JsonWriter writer = new(bytes, WriteOptions))
+        {
+            writer.WriteStartObject();
+            writer.WriteNumber("number", facts.Number);
+            writer.WriteString("body", facts.Body);
+            WriteStrings(writer, "labels", facts.Labels);
+            WriteStrings(writer, "files", facts.Files);
+            writer.WriteStartArray("commits");
+            foreach (CommitFacts commit in facts.Commits)
+            {
+                writer.WriteStartObject();
+                writer.WriteString("sha", commit.Sha);
+                WriteStrings(writer, "files", commit.Files);
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndArray();
+            writer.WriteString("decisionsDiff", facts.DecisionsDiff);
+            writer.WriteEndObject();
+        }
+
+        File.WriteAllBytes(FactsPath, bytes.ToArray());
+    }
+
+    private static void WriteStrings(Utf8JsonWriter writer, string field, IReadOnlyList<string> values)
+    {
+        writer.WriteStartArray(field);
+        foreach (string value in values)
+        {
+            writer.WriteStringValue(value);
+        }
+
+        writer.WriteEndArray();
+    }
 
     /// <summary>Writes the review record into the files of the head.</summary>
     /// <param name="text">The text of the record.</param>

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using TheThingBelow.Tools;
+using TheThingBelow.Tools.Identity;
 using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.SteCheck;
 using Xunit;
@@ -13,6 +14,35 @@ namespace TheThingBelow.Tests;
 /// </summary>
 public sealed class ToolsCommandLineTests
 {
+    /// <summary>
+    /// Every command reads an empty option value at its parse, and never as a stack trace
+    /// (T-2, F-83). The old code reached a path check that threw `ArgumentException`, which
+    /// no catch filter names, so the process ended with a crash and no fault code.
+    /// </summary>
+    [Theory]
+    [InlineData("ste-check", "--root")]
+    [InlineData("det-lint", "--root")]
+    [InlineData("det-lint", "--configuration")]
+    [InlineData("replay-identity", "--root")]
+    [InlineData("content-hash", "--root")]
+    [InlineData("atlas", "--root")]
+    [InlineData("atlas", "--sheets")]
+    [InlineData("review-gate", "--pull-request")]
+    [InlineData("review-gate", "--head-files")]
+    public void AnEmptyOptionValueGivesTheFaultCodeAndNamesTheOption(string command, string option)
+    {
+        using StringWriter output = new StringWriter();
+        using StringWriter errors = new StringWriter();
+
+        int exitCode = Program.Run([command, option, string.Empty], output, errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains(
+            $"the value of the option {option} is empty",
+            errors.ToString(),
+            StringComparison.Ordinal);
+    }
+
     [Fact]
     public void ARunWithNoCommandGivesTheFaultCodeAndNamesEveryCommand()
     {
@@ -26,6 +56,8 @@ public sealed class ToolsCommandLineTests
         Assert.Contains("ste-check: ready", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("review-gate: ready", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("det-lint: ready", errors.ToString(), StringComparison.Ordinal);
+        Assert.Contains("replay-identity: ready", errors.ToString(), StringComparison.Ordinal);
+        Assert.Contains("content-hash: ready", errors.ToString(), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -66,6 +98,7 @@ public sealed class ToolsCommandLineTests
     {
         Assert.DoesNotContain(SteCheckCommand.Name, Program.PlannedCommands.Keys);
         Assert.DoesNotContain(ReviewGateCommand.Name, Program.PlannedCommands.Keys);
+        Assert.DoesNotContain(ReplayIdentityCommand.Name, Program.PlannedCommands.Keys);
     }
 
     [Fact]
