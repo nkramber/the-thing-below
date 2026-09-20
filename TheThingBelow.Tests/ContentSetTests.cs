@@ -21,13 +21,17 @@ public sealed class ContentSetTests
         }
         """;
 
-    private const string AtlasBody =
-        """
+    /// <summary>
+    /// The index of a set with no drawing of its own. It still holds the UI page and the two
+    /// UI drawings, because every set needs the UI base (D-527, D-711).
+    /// </summary>
+    private static readonly string AtlasBody =
+        $$"""
         {
          "comment": "a test index",
-         "pages": [
-         ],
+         "pages": [ {{UiContentFixtures.AtlasPageRecord}} ],
          "drawings": [
+        {{UiContentFixtures.AtlasEntries}}
          ]
         }
         """;
@@ -167,7 +171,9 @@ public sealed class ContentSetTests
 
         Drawing drawing = set.DrawingOf(Id(DrawingId));
         Assert.Equal(DrawingPath, drawing.File);
-        Assert.Single(set.Drawings);
+
+        // The drawing of the test, and the window frame and the glyph of the UI base.
+        Assert.Equal(3, System.Linq.Enumerable.Count(set.Drawings));
     }
 
     [Fact]
@@ -330,6 +336,7 @@ public sealed class ContentSetTests
             File(AtlasIndex.Path, index ?? IndexBody()),
         ];
 
+        files.AddRange(UiContentFixtures.Files());
         drawing ??= DrawingBody();
         if (drawing.Length > 0)
         {
@@ -380,14 +387,21 @@ public sealed class ContentSetTests
             }
             """;
 
+        // Every set needs the UI base, so each index of a test names the UI page and its
+        // two drawings beside the drawing of the test (D-527, D-711).
         return $$"""
             {
              "comment": "a test index",
-             "pages": [ {{pages}} ],
-             "drawings": [ {{entries}} ]
+             "pages": [ {{pages}}, {{UiContentFixtures.AtlasPageRecord}} ],
+             "drawings": [ {{Beside(entries)}}
+            {{UiContentFixtures.AtlasEntries}}
+             ]
             }
             """;
     }
+
+    /// <summary>Puts a comma after the entries of a test, and gives nothing for an empty list.</summary>
+    private static string Beside(string entries) => entries.Length > 0 ? entries + "," : string.Empty;
 
     private static ContentId Id(string value) => ContentId.Parse(value, "rules/a.json", "id");
 
@@ -412,6 +426,7 @@ public sealed class ContentSetTests
             File(AtlasIndex.Path, AtlasBody),
         ];
 
+        files.AddRange(UiContentFixtures.Files());
         files.AddRange(rules);
         return files;
     }

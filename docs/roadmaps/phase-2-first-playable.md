@@ -111,13 +111,14 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 - The one 16:9 frame of 1280 by 720, with black bars for every other shape, the Deck included (D-228, D-568).
 - The world in a `SubViewport` of 640 by 360, scaled by 2 into the frame, so the frame holds 20 by 11.25 tiles (D-633, D-634).
 - Both steps of the fit that Godot cannot make (D-230, D-232, D-573, F-48).
-- The UI scale setting with its two values, and its default on each screen (D-639).
-- The two fonts from the bytes of the Game assembly, with the antialiasing, the hinting, and the subpixel settings of a pixel font (D-263, D-264, D-508, F-49).
+- The body size setting with its two values, and its default on each screen (D-707).
+- The two fonts in a fonts folder under `content/`, read from the bytes of the Game assembly (D-508, D-713).
+- The six font settings of a pixel font, and one bitmap strike pinned for each size (D-710, F-49).
 - The text helper that puts a string table entry on screen, which det-lint guards (D-499, G-7).
 - The UI style file, and the Godot `Theme` that Game builds from it at load (D-527, G-6).
 - The input map, and an intent from each input event, never from a poll (D-84, D-493, F-50).
-- The glyph sets for the keyboard, Xbox, PlayStation, and the Deck, and the rule for the last device (D-222, D-561, OQ-107).
-- The message of a crash on screen, through the text helper, with the studio address of D-473 (D-170, D-559).
+- The glyph sets for the keyboard, Xbox, PlayStation, and the Deck, and the name table that picks one (D-222, D-561, D-711).
+- The message of a crash on screen, through the text helper, with a placeholder address in the reserved `.invalid` domain (D-170, D-559, D-712).
 - The review sheets of the window frames and the four glyph sets (D-514, G-25).
 
 **Out of scope.**
@@ -131,7 +132,7 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 
 1. A test locks the size of the frame and of both fit modes on three screens (D-232, D-568, F-48).
 2. Those screens are 1280 by 800, 1920 by 1080, and 2560 by 1440.
-3. A test reads back the stretch settings, the filter, and the three font settings (F-45, F-49).
+3. A test reads back the stretch settings and the filter, and the smoke session reads back each font setting (F-45, F-49, D-710).
 4. A test proves that the fixture panel holds the longest string of the string table (D-241).
 5. det-lint fails a Godot text property outside the text helper.
 6. A test proves that no intent comes from a poll of the input singleton (F-50).
@@ -141,8 +142,8 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 10. The review sheets of the window frames and the glyph sets reach the PR description (D-514).
 11. The owner approves that art batch (G-25).
 12. A test locks the world viewport at 640 by 360, and the frame at 20 by 11.25 tiles (D-633, D-634).
-13. A test proves that each panel holds its text at both UI values (D-639, G-28).
-14. A test reads the default UI value of each of the four screens of M-8 (D-639).
+13. A test proves that each panel holds its text at both body values (D-707, G-28).
+14. A test reads the default body value of each of the four screens of M-8 (D-707).
 
 **Review focus.**
 
@@ -151,7 +152,7 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 - The `Theme` comes from the style file, and no theme resource file exists (D-527, G-6).
 - Every screen shows the same part of the map, so no screen shape gains knowledge (D-566, D-568).
 
-**Questions.** OQ-57, OQ-104, and OQ-107. D-573 resolved OQ-105.
+**Questions.** D-573 resolved OQ-105, D-710 resolved OQ-104, and D-711 resolved OQ-107. OQ-57 stays open, and D-712 gives the crash message a placeholder address.
 
 > *In plain English:* this builds the picture frame of the game. It sets one fixed size that the handheld shows exactly, the two fonts, and the look of every menu. It also turns keys and buttons into choices that the rules understand.
 

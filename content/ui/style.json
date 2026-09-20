@@ -1,0 +1,20 @@
+{
+ "comment": "The look of every menu, panel, and label (D-527). Game builds the Godot Theme from this file at load, and no theme resource file exists (G-6). Each color names a palette key of content/sprites/palette.json, so the screen keeps one palette (D-89, D-181). The player picks the body size, and the title is title_scale times the body (D-707).",
+ "small_body": 24,
+ "large_body": 32,
+ "title_scale": 2,
+ "border_pixels": 1,
+ "colors": [
+  { "role": "panel_fill", "key": "K" },
+  { "role": "panel_shadow", "key": "k" },
+  { "role": "panel_border", "key": "G" },
+  { "role": "text", "key": "w" },
+  { "role": "text_dim", "key": "l" },
+  { "role": "text_chosen", "key": "y" },
+  { "role": "text_warning", "key": "x" },
+  { "role": "cursor", "key": "y" }
+ ],
+ "frames": [
+  { "role": "window", "drawing": "drawing.ui_window_frame" }
+ ]
+}

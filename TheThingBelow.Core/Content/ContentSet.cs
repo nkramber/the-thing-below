@@ -16,25 +16,37 @@ namespace TheThingBelow.Core.Content;
 /// content hash covers the rule files alone (D-495, D-648). Every palette key of a drawing
 /// is in the palette, and the atlas index matches the drawing files (D-666, F-20).
 /// </para>
+/// <para>
+/// The load also checks the UI base. Both fonts carry a bitmap of each body size, the style
+/// file names a drawing and a palette key that exist, and each glyph set holds the drawing of
+/// each button (D-527, D-707, D-710, D-711).
+/// </para>
 /// </remarks>
 public sealed class ContentSet
 {
     private readonly SortedDictionary<string, RuleFixtureEntry> ruleEntries;
     private readonly SortedDictionary<string, Drawing> drawings;
+    private readonly SortedDictionary<string, FontStrikes> fonts;
 
     private ContentSet(
         Palette palette,
         StringTable strings,
         AtlasIndex atlas,
+        UiStyle style,
+        DeviceNames devices,
         SortedDictionary<string, RuleFixtureEntry> ruleEntries,
         SortedDictionary<string, Drawing> drawings,
+        SortedDictionary<string, FontStrikes> fonts,
         string hash)
     {
         this.Palette = palette;
         this.Strings = strings;
         this.Atlas = atlas;
+        this.Style = style;
+        this.Devices = devices;
         this.ruleEntries = ruleEntries;
         this.drawings = drawings;
+        this.fonts = fonts;
         this.Hash = hash;
     }
 
@@ -47,6 +59,12 @@ public sealed class ContentSet
     /// <summary>The place of every frame in the atlas (D-666).</summary>
     public AtlasIndex Atlas { get; }
 
+    /// <summary>The look of every menu, panel, and label (D-527).</summary>
+    public UiStyle Style { get; }
+
+    /// <summary>The table that picks a glyph set from the name of a gamepad (D-711).</summary>
+    public DeviceNames Devices { get; }
+
     /// <summary>The hash of the rule files, as 64 lowercase hexadecimal characters (G-5).</summary>
     public string Hash { get; }
 
@@ -55,6 +73,12 @@ public sealed class ContentSet
 
     /// <summary>Every drawing, in ordinal order of its id (F-39).</summary>
     public IEnumerable<Drawing> Drawings => this.drawings.Values;
+
+    /// <summary>The bitmap sizes of the body font (D-263, D-710).</summary>
+    public FontStrikes BodyFont => this.FontOf(FontStrikes.BodyPath);
+
+    /// <summary>The bitmap sizes of the title font (D-264, D-710).</summary>
+    public FontStrikes TitleFont => this.FontOf(FontStrikes.TitlePath);
 
     /// <summary>Reads and checks every content file of one build.</summary>
     /// <param name="files">Every file of `content/`, in any order.</param>
@@ -70,6 +94,9 @@ public sealed class ContentSet
         Palette? palette = null;
         StringTable? strings = null;
         AtlasIndex? atlas = null;
+        UiStyle? style = null;
+        DeviceNames? devices = null;
+        var fonts = new SortedDictionary<string, FontStrikes>(StringComparer.Ordinal);
         var ruleEntries = new SortedDictionary<string, RuleFixtureEntry>(StringComparer.Ordinal);
         var sources = new SortedDictionary<string, string>(StringComparer.Ordinal);
         var drawings = new SortedDictionary<string, Drawing>(StringComparer.Ordinal);
@@ -96,6 +123,20 @@ public sealed class ContentSet
             {
                 atlas = AtlasIndex.Read(file.Bytes, file.Path);
             }
+            else if (string.CompareOrdinal(file.Path, UiStyle.Path) == 0)
+            {
+                style = UiStyle.Read(file.Bytes, file.Path);
+            }
+            else if (string.CompareOrdinal(file.Path, DeviceNames.Path) == 0)
+            {
+                devices = DeviceNames.Read(file.Bytes, file.Path);
+            }
+            else if (ContentPaths.IsFontFile(file.Path))
+            {
+                // A font carries its glyph bitmaps, so no JSON record holds it. The reader
+                // gives the sizes that the file draws without the traced outline (D-710).
+                fonts.Add(file.Path, FontStrikes.Read(file.Bytes, file.Path));
+            }
             else if (Drawing.IsDrawingFile(file.Path))
             {
                 AddDrawing(file, drawings, sources);
@@ -121,13 +162,19 @@ public sealed class ContentSet
             palette ?? throw AbsentFile(Palette.Path),
             strings ?? throw AbsentFile(StringTable.Path),
             atlas ?? throw AbsentFile(AtlasIndex.Path),
+            style ?? throw AbsentFile(UiStyle.Path),
+            devices ?? throw AbsentFile(DeviceNames.Path),
             ruleEntries,
             drawings,
+            fonts,
             ContentHash.Compute(files));
 
         set.RefuseAbsentString(sources);
         set.RefuseAbsentColor();
         set.RefuseStaleAtlas(pageFiles);
+        set.RefuseAbsentFont();
+        set.RefuseAbsentStyleDrawing();
+        set.RefuseAbsentGlyph();
         return set;
     }
 
@@ -221,8 +268,99 @@ public sealed class ContentSet
         }
     }
 
+    /// <summary>Gives the bitmap sizes of one font file.</summary>
+    /// <param name="path">The path of the font, under `content/`.</param>
+    /// <returns>The sizes of that file.</returns>
+    /// <exception cref="ContentException">The set holds no such font (T-2).</exception>
+    public FontStrikes FontOf(string path)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(path);
+
+        if (!this.fonts.TryGetValue(path, out FontStrikes? strikes))
+        {
+            throw AbsentFile(path);
+        }
+
+        return strikes;
+    }
+
     private static ContentException AbsentFile(string path) =>
         ContentException.ForFile(path, "the content set holds no such file");
+
+    /// <summary>
+    /// Refuses a build with no body font or no title font. Every screen draws through those
+    /// two files, so a build without one draws nothing (D-263, D-264, T-2).
+    /// </summary>
+    private void RefuseAbsentFont()
+    {
+        if (!this.fonts.ContainsKey(FontStrikes.BodyPath))
+        {
+            throw AbsentFile(FontStrikes.BodyPath);
+        }
+
+        if (!this.fonts.ContainsKey(FontStrikes.TitlePath))
+        {
+            throw AbsentFile(FontStrikes.TitlePath);
+        }
+
+        // The title is twice the body, and the largest bitmap of the file must reach the
+        // larger body size. A title above the largest bitmap doubles a smaller one (D-707).
+        this.BodyFont.RequireSize(this.Style.SmallBody);
+        this.BodyFont.RequireSize(this.Style.LargeBody);
+        this.TitleFont.RequireSize(this.Style.SmallBody);
+        this.TitleFont.RequireSize(this.Style.LargeBody);
+    }
+
+    /// <summary>
+    /// Refuses a style file that names a window frame which no drawing file holds (D-527,
+    /// T-2).
+    /// </summary>
+    private void RefuseAbsentStyleDrawing()
+    {
+        foreach (UiFrame frame in this.Style.Frames)
+        {
+            if (!this.drawings.ContainsKey(frame.Drawing.Value))
+            {
+                throw ContentException.ForField(
+                    UiStyle.Path,
+                    frame.Role,
+                    $"the style names the drawing '{frame.Drawing.Value}', and no drawing file holds it (D-527)");
+            }
+        }
+
+        foreach (UiColor color in this.Style.Colors)
+        {
+            if (!this.Palette.TryColorOf(color.KeyCharacter, out _))
+            {
+                throw ContentException.ForField(
+                    UiStyle.Path,
+                    color.Role,
+                    $"the style names the palette key '{color.Key}', and the palette has no such color (D-181)");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Refuses a build that lacks the glyph of one button in one glyph set. A prompt draws
+    /// the glyph of the last device, so every set holds every button (D-222, D-711, T-2).
+    /// </summary>
+    private void RefuseAbsentGlyph()
+    {
+        foreach (string set in this.Devices.Sets)
+        {
+            foreach (string prompt in this.Devices.Prompts)
+            {
+                string id = DeviceNames.GlyphDrawingId(set, prompt);
+                if (!this.drawings.ContainsKey(id))
+                {
+                    throw ContentException.ForField(
+                        DeviceNames.Path,
+                        set,
+                        $"the glyph set holds no drawing '{id}' for the button '{prompt}' (D-222)");
+                }
+            }
+        }
+    }
 
     /// <summary>
     /// Refuses a drawing that names a key which the palette lacks. The message names the

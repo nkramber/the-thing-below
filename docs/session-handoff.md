@@ -1,5 +1,154 @@
 # Session handoff
 
+## Session 145: 2026-09-20, Codex
+
+Author: Codex
+Session: repeat review PR #41, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: reviewer. Base: `938ab7b`.
+
+### What this session did, and why
+
+- Reopened PR #41 at effective head `d6f5e00` after the author answered the prior review.
+- Verified P1-1 against its original trigger and the real-run regression tests. The correction reads the menu state from `RunState` through `GameRun`.
+- Withdrew P1-2. The prior review confused GitHub PR #41 with roadmap PR-41. This change is roadmap PR-61. The screen-test job belongs to later roadmap PR-41, section 7.5.
+- Updated `docs/reviews/pr-41.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1050 tests and all local gates.
+- The remote metadata tip is `74f3c97`. The effective code head is `d6f5e00`.
+
+### What is in flight
+
+- The repeat review record and this handoff entry need one metadata commit and push.
+
+### Traps and gotchas
+
+- Keep the earlier `Changes required` verdict under `## Earlier verdicts`.
+- The review file uses GitHub PR number 41. The roadmap scope uses PR-61.
+
+### The questions that block progress
+
+None. OQ-79 blocks later roadmap PR-41 only.
+
+### The next concrete action
+
+Commit and push the repeat review record and this handoff entry. Then verify the remote head and review-gate result.
+
+## Session 144: 2026-09-20, Claude Code
+
+Author: Claude Code
+Session: PR-61, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: author. Base: `938ab7b`.
+
+### What this session did, and why
+
+- Answered the review of `docs/reviews/pr-41.md`, which gave `Changes required` for head `c8ea1ca`. `docs/reviews/pr-41-response.md` holds each disposition with its evidence.
+- P1-1 has full merit on the defect. `Boot.ReadInput` passed a constant menu state, so the menu action made `intent.open_menu` on every press. `GameRun.MenuOpen` and `GameRun.IntentOf` now read the one source of that state, which is `RunState`, and `Boot` calls the run. A copy in the host would drift from the run after a replay or a load.
+- The consequence of P1-1 needed one correction of fact: this head queues no intent, so no player could reach a menu. The defect was real and it would have become the stated consequence at the first PR that queues the intent.
+- P1-2 has no merit. The finding read the GitHub number 41 as the roadmap id PR-41. This PR is roadmap PR-61, section 7.2 of the phase-2 file. The screen-test job is roadmap PR-41, section 7.5 of the same file, and OQ-79 blocks it.
+- Four regression tests landed. One of them, `InputIntentTests.NoCallSiteOfTheInputMapPassesAConstantMenuState`, fails on the old code.
+
+### The state of the build
+
+- `make verify` passes on the Mac: 1050 tests, the format check, det-lint and STE with 0 findings, the replay identity on simulation version 4, the content hash, the atlas check, and the smoke session.
+- The gitar pass of head `d6f5e00` approved the code review with no finding, and it opened no thread. The earlier pass of `6c5571a` did the same, and its CI note has its answer on the PR.
+- The simulation version stays at 4. `GameRun.MenuOpen` reads a value that `RunState` already held, and no rule of Core changed (G-17).
+
+### What is in flight
+
+The PR waits for the repeat review of Codex at the new effective head `d6f5e00`. The `review-gate` check gives RG 4 and RG 5 faults, because the record still holds the verdict `Changes required` for head `c8ea1ca`. Both clear with the repeat review. RG 3, RG 7, and RG 8 pass. The CI legs run on the new head.
+
+### Traps and gotchas
+
+- Two numbering systems meet on this PR. The GitHub number is 41, and the roadmap id is PR-61. The review record file takes the GitHub number, and every roadmap line takes the roadmap id.
+- The response file refutes P1-2 and never deletes it. The reviewer sets a refuted finding to `withdrawn` and keeps the evidence.
+- `GameRun` now references the `Ui` namespace of Game for the input map. Core still holds no reference to either.
+
+### The questions that block progress
+
+None. OQ-79 blocks roadmap PR-41, which is a later PR, and it blocks no line of this one.
+
+### The next concrete action
+
+Start the repeat review of PR #41 at the new effective head.
+
+## Session 143: 2026-09-20, Codex
+
+Author: Codex
+Session: review PR #41, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: reviewer. Base: `938ab7b`.
+
+### What this session did, and why
+
+- Reviewed PR #41 at effective head `c8ea1ca` after the author completed the UI base and the Gitar pass.
+- Verified the opposite-provider gate, the complete 81-path diff, the PR comments, the affected contracts, and the roadmap exit tests.
+- Found two blocking defects: `Boot.ReadInput` always passes `menuOpen: false`, and the PR does not add the screen-test workflow assigned to PR-41.
+- Added `docs/reviews/pr-41.md` with the verdict `Changes required`.
+
+### The state of the build
+
+- `make verify` passes on the Mac with 1046 tests and all local gates.
+- Revision-matched build, test, format, det-lint, replay identity, smoke, export, coverage, STE, and Gitar checks pass.
+- `review-gate` is expected to fail until the review record is pushed. No `screen-test` check exists on the PR.
+
+### What is in flight
+
+- The review waits for the author to correct P1-1 and P1-2, push the corrections, and request a re-review.
+
+### Traps and gotchas
+
+- The effective head is `c8ea1ca`. The two later commits change only the metadata set.
+- The PR title says PR-61, but the GitHub PR number is 41. The review record uses `pr-41.md`.
+- The roadmap says OQ-79 blocks the screen-test job. The PR does not answer it or create the job.
+
+### The questions that block progress
+
+- OQ-79 remains open. It blocks the missing screen-test job.
+
+### The next concrete action
+
+Author fixes P1-1 and P1-2, then starts a re-review of PR #41 at the new effective head.
+
+## Session 142: 2026-09-20, Claude Code
+
+Author: Claude Code
+Session: PR-61, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: author. Base: `938ab7b`.
+
+### What this session did, and why
+
+- Asked the three open questions of the PR and got each owner answer (D-19). D-707 to D-713 record them, with the probe answers of 2026-09-19.
+- D-707 revises D-639 and G-28 in part: the floor of 2 device pixels goes, and the setting gives two body sizes, 24 and 32 frame pixels. D-708 revises D-241 in part. D-263, D-264, and D-228 gain a note on the font size.
+- Added the two fonts under `content/fonts/`, the UI style file, the device table, and 13 UI drawings.
+- Core gained `FontStrikes`, `UiStyle`, and `DeviceNames`. The content set now refuses a build with no strike for a body size, a style that names an absent drawing, or a glyph set with a hole.
+- Game gained the `Ui` namespace: the frame of 1280 by 720, both steps of the fit of D-573, the world viewport of 640 by 360 at 2x, the fonts, the theme, the one text helper of D-499, the input map, the intents, the glyph sets, and the crash message.
+- The smoke session builds the UI base at both body sizes and reads each font setting back, so every CI leg proves D-710 inside the engine.
+- The owner approved the art batch of 13 drawings on 2026-09-20 (D-714, G-25). The review sheets are in the description of PR #41 (D-514).
+
+### The state of the build
+
+- `make verify` passes on the Mac: 1046 tests, the format check, det-lint and STE with 0 findings, the replay identity on simulation version 4, the content hash, the atlas check, and the smoke session.
+- PR #41 is open. Every CI check passes but `review-gate`, which faults on RG 3 until the review record exists. That is the normal state of a PR before its review.
+- The gitar pass of head `c8ea1ca` approved the code review with no finding. Its CI note found a real fault in the `docs/reviews/` row of the Documents section, and the description now holds the `No change needed because` form. A local gate run gives RG 7 pass and RG 8 pass.
+- The content hash did not move: the fonts and the UI files sit outside `content/rules/` (D-495, D-648).
+
+### What is in flight
+
+The PR waits for the review of Codex. No label applies, because the PR adds decision rows and code (D-401, D-560).
+
+### Traps and gotchas
+
+- A font size with no bitmap strike draws the traced outline in silence (F-49). `FontStrikes.RequireSize` and the pinned `FixedSize` of `GameFonts` each refuse it.
+- The simulation version stays at 4. PR-61 adds intent ids that no rule of Core reads, and it changes no state.
+- `content/ui/devices.json` names the buttons. A new button needs its drawing in all four sets, and its label in the string table.
+- The crash address is a placeholder in the reserved `.invalid` domain. OQ-57 stays open, and it blocks PR-33 and PR-75 (D-712).
+- The session deleted `HANDOFF-PR-61.md`, the untracked note of 2026-09-19. Its answers are in D-707 to D-713.
+
+### The questions that block progress
+
+None. OQ-57 stays open, and the placeholder of D-712 unblocks this PR.
+
+### The next concrete action
+
+Hand PR #41 to Codex for the review.
+
 ## Session 141: 2026-09-20, Codex
 
 Author: Codex
@@ -243,166 +392,3 @@ None.
 ### The next concrete action
 
 Commit and push the review record and this handoff entry. Then fetch and verify the remote head and review-gate result.
-
-## Session 135: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: the documents PR of the Sprite Fusion pick. Repository: the-thing-below. Branch: `docs/pr-89-sprite-fusion-pick`. Role: author. Base: `db518fa`.
-
-### What this session did, and why
-
-- Carried the pick of the Sprite Fusion test from `spike/pick.md` on the spike branch to `main`. That branch never merges (D-620).
-- Added D-686 and D-687: the generator draws every picture, and the Starter plan stays at 9 USD each month.
-- The carry found a conflict. The pick gives PR-51 a map to the nearest palette color, and section 7.39 refused a near color (T-2). The owner answered, and D-688 and D-689 record the two answers.
-- Added F-86 to F-89 to the register of `docs/design.md`, and short rows to the findings tables of the two area files.
-- Updated section 7.1 of `docs/roadmaps/area-art.md`, section 7.11 of `docs/roadmaps/area-tools.md`, sections 7.17 and 7.22 of the phase-1 file, and section 7.39 of the phase-2 file.
-- Marked the test done in the three sequence lists, and marked line 10 of Gate 1 met by D-686.
-- Carried the entry of Session 134 from the spike branch, and moved the entries of Session 124 and Session 125 to the archive.
-- Answered the automated pass. It read the three credit figures of D-687 as a contradiction on a 450-credit plan. The owner said that a bonus of 45 credits arrived, so the row now records 495 credits at the start.
-- Fixed the `docs/reviews/` row of the PR description. It held no form of D-581, and RG 7 faulted on it.
-
-### The state of the build
-
-- `make ste-check` passes at the commit of this entry. The PR changes documents alone.
-- The remote head of `main` is `db518fa`, and this branch starts there.
-- The automated pass approved the head `83e561c` at 22:57 UTC, with one finding closed and no open thread. The CI summary of that pass still names the old RG 7 fault, and the log of the job gives `RG 7 pass`.
-- The `review-gate` check holds one fault: RG 3, which asks for `docs/reviews/pr-38.md`. The Codex review record clears it.
-
-### What is in flight
-
-The PR waits for the Codex review. The PR adds decision rows, so the label of D-401 does not apply. RG 3 faults until the record `docs/reviews/pr-38.md` lands, which is the normal state before a review.
-
-### Traps and gotchas
-
-- The draft of D-686 in `spike/pick.md` said that the pick revises D-57 in part. D-57 covers the story text and not a picture, so D-686 drops that claim. D-107 takes the revision alone.
-- The pick draft named two decision rows. The conflict of section 7.39 needed an owner answer, so the PR carries four.
-- No picture of `spike/generated/` reaches `content/`. The import of PR-51 gives each one a frame and the palette (G-24).
-- The spend of 165 credits is 11 calls at 15 credits, and the test made eight calls. The dashboard of the supplier gives the figure, and the row says so.
-- This PR takes no `PR-#` id and no roadmap entry, as the documents PR of D-680 did.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push the branch, open the PR, and answer the pass of gitar. Then hand the PR to Codex for the review.
-
-## Session 134: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: the Sprite Fusion test, item 24 of section 8 of the phase file. Repository: the-thing-below. Branch: `spike/sprite-fusion`. Role: spike author. Base: `db518fa`.
-
-### What this session did, and why
-
-- Ran the test of D-620 and D-675. The owner picked the subjects: the approved map sprite of Marrek as the anchor, and three subjects with no art before the test.
-- Drew four drawing files under `spike/session/content/sprites/`, and rendered them with the atlas command at `--root spike/session`. No file of `content/` changed.
-- Read the pages of the supplier for the API, the cost, and the terms. The owner gave the API key, and the session made eight calls: one cold call and one style call for each subject.
-- The style call sent the approved cast sprites as style references. The anchor call never sent the sprite of Marrek.
-- Built the comparison sheet, the repeat sheet of the tile, and a contact sheet for each of the eight calls.
-- The owner picked the generator for every picture, and the owner kept the Starter plan.
-
-### The state of the build
-
-- `make ste-check` passes at tip `e3c50b4` and after the commit of this entry.
-- The branch holds two commits over `db518fa`, and it never merges (D-620).
-- The remote head of `main` is `db518fa`.
-
-### What is in flight
-
-The documents PR of the pick. The file `spike/pick.md` holds each draft row and each change of a document.
-
-### Traps and gotchas
-
-- The branch never merges. Nothing of the test reaches `main` except through the documents PR.
-- `spike/generated/` holds 84 pictures from the tool. No picture enters `content/` before the import of PR-51 gives it a frame and the palette.
-- The tool holds no size: a call for 32 pixels returned up to 42 pixels.
-- The tool draws a tile as a framed block, so a floor of its tiles shows a grid. The owner read this before the pick.
-- The API key is at `~/.config/sprite-fusion/api-key`. No file of the repository holds it.
-- The session used a scratch builder outside the repository for the portrait grid. No Python file entered the repository (D-99).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-A new clean session opens the documents PR that carries the two decision rows, the four findings, the changes of the documents, and this entry.
-
-## Session 133: 2026-09-19, Codex
-
-Author: Codex
-Session: review PR #37, the stable check names of the CI matrix jobs. Repository: the-thing-below. Branch: `fix/pr-88-ci-matrix-check-names`. Role: reviewer. Base: `51a040f`.
-
-### What this session did, and why
-
-- Recomputed PR #37 at effective head `9927be7`. The later commit `8a041e3` changes only metadata.
-- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Inspected the complete nine-path diff. The three gate jobs preserve the D-595 condition on their matrix jobs, fail on an unexpected skip or a fault of `changed-paths`, and report the stable names of D-682 and D-683.
-- Ran the focused workflow tests and the full local verification. No finding remains.
-- Wrote `docs/reviews/pr-37.md` with the verdict `Ready for owner merge` for effective head `9927be7`.
-
-### The state of the build
-
-- `make verify` passes at tip `8a041e3` with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
-- The revision-matched CI checks pass for all matrix legs and all stable gate jobs. `review-gate` waits for this review record.
-- The remote branch head is `8a041e3`.
-
-### What is in flight
-
-The review record and this handoff entry need a commit and push. After the remote gate reads the record, the PR is ready for owner merge.
-
-### Traps and gotchas
-
-- The verdict targets effective head `9927be7`, not metadata tip `8a041e3`.
-- The owner adds the three stable names to branch protection after the PR merges, as D-685 states.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and handoff entry. Then fetch and verify that the remote head and review-gate result match.
-
-## Session 132: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: PR-88, the stable check names of the CI matrix jobs. Repository: the-thing-below. Branch: `fix/pr-88-ci-matrix-check-names`. Role: author. Base: `51a040f`.
-
-### What this session did, and why
-
-- Branch protection is live on `main`, and a required check matches by name. The three matrix jobs report two different name sets, so no name of a matrix job can be a required check (F-85, OQ-197).
-- The session read the check runs of the head of PR #35 and the head of PR #36. The code PR gives three leg names for each family. The docs-only PR gives one check run with the literal name template.
-- Each matrix job keeps its condition of D-595. A gate job of each family always runs and reports one stable name (D-682, D-683).
-- Each gate job reads the result of `changed-paths` too, so a skip that no condition asked for fails the gate (T-2).
-- `TheThingBelow.Tests/CiWorkflowGateTests.cs` holds the rule. Seven of its twelve rows fail on the workflow file before this PR.
-- OQ-3 is closed, because the protection is live. The read of the protection endpoint gives the five checks of D-681.
-- Gate 1 gains a line for the required-check set, and it moves to section 7.22 of the phase file (D-684, D-685).
-
-### The state of the build
-
-- `make verify` passes with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
-- The remote head of `main` is `51a040f`.
-
-### What is in flight
-
-The Codex review of PR #37. This PR changes `.github/workflows/`, so it is never exempt (D-185, D-560).
-
-- The automated pass of head `9927be7` approved the code review and opened no thread. Its CI block named one fault of RG 7, and the answer is the comment of the PR.
-- The fix is proven on the head. The check runs hold `build, test, and format`, `replay-identity`, and `smoke` as literal names, each `success`, beside the three leg names.
-- `RG 3` faults, because the head holds no record at `docs/reviews/pr-37.md`. It passes when the review record lands.
-
-### Traps and gotchas
-
-- The owner adds `build, test, and format`, `smoke`, and `replay-identity` to the required checks of `main` after this PR merges. Each name first reports on this PR.
-- `Gitar` stays unrequired. Its trial ends about 2026-09-23.
-- The gate job reads `always()`. A gate that a condition skips would report Success and hide a red leg.
-
-### The questions that block progress
-
-None. D-682 to D-685 hold the four answers of this PR.
-
-### The next concrete action
-
-Codex reviews PR #37 and writes `docs/reviews/pr-37.md`. Then the owner adds the three names to the required checks of `main` after the merge (D-685).

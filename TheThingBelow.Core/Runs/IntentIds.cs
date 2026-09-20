@@ -8,7 +8,13 @@ namespace TheThingBelow.Core.Runs;
 /// </summary>
 /// <remarks>
 /// The kind of each id is `intent`. An id is permanent, so no later entry takes one (D-166).
-/// The ids below open and close the menu, which pauses the world (D-162, D-650).
+/// The first two ids open and close the menu, which pauses the world (D-162, D-650).
+/// <para>
+/// PR-61 added the choice ids and the four step ids. The input map of Game makes each one
+/// from an input event, and no rule of this build reads them (D-561, F-50). A record that
+/// carries one of them meets the refusal of `Simulation`, which names the intent and the
+/// tick, until PR-7 adds the map rules that read them (T-2).
+/// </para>
 /// </remarks>
 public static class IntentIds
 {
@@ -23,4 +29,22 @@ public static class IntentIds
 
     /// <summary>The player closed the menu, and the world runs again from this tick (D-162).</summary>
     public static readonly ContentId CloseMenu = ContentId.Parse("intent.close_menu", Source, nameof(CloseMenu));
+
+    /// <summary>The player chose the thing under the cursor (D-84, D-493).</summary>
+    public static readonly ContentId Confirm = ContentId.Parse("intent.confirm", Source, nameof(Confirm));
+
+    /// <summary>The player went back one step (D-84, D-493).</summary>
+    public static readonly ContentId Cancel = ContentId.Parse("intent.cancel", Source, nameof(Cancel));
+
+    /// <summary>The player went one step to the north (D-84, D-493).</summary>
+    public static readonly ContentId MoveNorth = ContentId.Parse("intent.move_north", Source, nameof(MoveNorth));
+
+    /// <summary>The player went one step to the south (D-84, D-493).</summary>
+    public static readonly ContentId MoveSouth = ContentId.Parse("intent.move_south", Source, nameof(MoveSouth));
+
+    /// <summary>The player went one step to the east (D-84, D-493).</summary>
+    public static readonly ContentId MoveEast = ContentId.Parse("intent.move_east", Source, nameof(MoveEast));
+
+    /// <summary>The player went one step to the west (D-84, D-493).</summary>
+    public static readonly ContentId MoveWest = ContentId.Parse("intent.move_west", Source, nameof(MoveWest));
 }

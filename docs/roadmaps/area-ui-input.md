@@ -77,7 +77,7 @@ Built by PR-61. Phase file: `phase-2-first-playable.md`.
 - The stretch settings of the project keep the world at 1x, against the `canvas_items` default of a new project (F-45).
 - The screen tests capture both fit modes at 1080 and 1440 screen rows (D-232, `area-ci.md` section 7.12).
 - The probe of D-621 set the scale on 2026-09-18. The world draws at 2x on every screen (D-633).
-- The fit sets the default UI value. The Deck and a 1080p screen take 2x, and a 1440p or 4K screen takes 1x (D-639).
+- The fit sets the default body size. A frame fit of 1x takes a body of 32, and every fit above 1x takes a body of 24 (D-707).
 - Controls snap to whole pixels by default, and the two snap settings of the renderer stay off (the external facts above). The docs advise against both at once. OQ-89 holds the snap of the map sprites.
 
 > *In plain English:* the picture grows to fill the screen. On a common 1080p monitor the scale is not a whole number. So the game scales up past the screen and then shrinks the picture, which keeps the pixels crisp.
@@ -86,11 +86,13 @@ Built by PR-61. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-61. Phase file: `phase-2-first-playable.md`.
 
-- The body font is Terminus TTF at 16 pixels, and the title font is Terminus TTF Bold at 32 pixels (D-263, D-264).
+- The body font is Terminus TTF, and the title font is Terminus TTF Bold (D-263, D-264).
+- The body draws at 24 or 32 frame pixels, and the title at twice the body: 48 or 64 (D-707).
+- Each body size draws its own bitmap strike, and each title size doubles a smaller strike (D-710, F-49).
 - Game reads each font from the bytes of its own assembly into `FontFile.data`, because Godot has no byte-array load method (D-508, F-49).
-- Each font sets the antialiasing, the hinting, and the subpixel positioning for pixel art, against the Godot defaults (F-49). OQ-104 holds the settings.
+- Each font sets the antialiasing, the hinting, and the subpixel positioning for pixel art, against the Godot defaults (D-710, F-49).
 - Font oversampling stays off, so a scaled frame never re-draws a glyph at another size (F-49).
-- A glyph pixel is one frame pixel at the UI scale of 1x, and 2 by 2 frame pixels at 2x (D-230, D-639).
+- Each body size draws its own bitmap strike, so a glyph pixel is always one frame pixel (D-230, D-707).
 - The credits and the export carry the OFL notice of each font (D-263, D-467).
 - English is the only language of the prologue, and each layout leaves room for a longer word (D-167).
 - No text falls below 9 pixels on the Deck, which the rating Verified needs (D-459).
@@ -158,7 +160,7 @@ Built by PR-36, on the base of PR-61. Phase file: `phase-2-first-playable.md`.
 
 - The box sits at the bottom, with the portrait, a name plate, and the choices (D-109, D-114, D-223).
 - One line of the box holds 156 characters at the UI scale of 1x, and 76 at 2x, so the limit is 76 (D-635, F-69).
-- The text types out at the chosen speed, in silence (D-223). OQ-112 holds the speeds and the way the box lays out its text.
+- The text types out at the chosen speed, in silence, and the box holds its layout as it types (D-223, D-709). OQ-112 holds the speeds.
 - The text speed and the skip are accessibility settings of PR-63 (D-214).
 - A choice in the box becomes an intent, and Core holds its result (D-493, PR-36).
 - `area-story.md` holds the story scene format and the runner that drive the box. Core runs each step, and Game draws it (D-540).
@@ -198,8 +200,8 @@ Built by PR-63. Phase file: `phase-2-first-playable.md`.
 
 - PR-63 lands right before PR-57, the first PR that needs a setting (D-526).
 - The screen holds four groups: display, audio, controls, and battle (D-226).
-- Display holds the window mode, the scale of D-232, and the UI scale of D-639 (D-226, D-232, D-618).
-- The UI scale takes two values, 1x and 2x (D-639, G-28). A frame fit below 2x takes 2x by default, and a fit of 2x or above takes 1x.
+- Display holds the window mode, the scale of D-232, and the body size of D-707 (D-226, D-232, D-618).
+- The body size takes two values, 24 and 32 frame pixels (D-707, G-28). A frame fit of 1x takes 32 by default, and a fit above 1x takes 24.
 - Audio holds the master, music, effects, and ambience volumes, the mute in the background, and the mono toggle (D-435).
 - Controls hold the remap, the stick dead zone, and the vibration setting (D-214, D-226, D-434).
 - Battle holds the message speed and the remembered cursor (D-226).
@@ -226,7 +228,7 @@ Built by PR-63. Phase file: `phase-2-first-playable.md`.
 Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 
 - `--headless` draws nothing, so the smoke session never tests a screen (F-23).
-- The screen-test job captures each screen at both UI values, and both fit modes at 1080 and 1440 screen rows (D-172, D-232, D-639).
+- The screen-test job captures each screen at both body sizes, and both fit modes at 1080 and 1440 screen rows (D-172, D-232, D-707).
 - A test proves that each panel holds its longest string from the string table (D-241).
 - A test reads the stretch settings and the font settings from the project and the code (F-45, F-49).
 - det-lint fails a Godot text property outside the text helper, and a text value in a scene file (D-499).
@@ -273,7 +275,7 @@ Each later PR that adds or changes a screen keeps this list. The phase files mak
 5. Keep the UI out of scene light and glow (D-210).
 6. Add the screen-test capture of each new screen (D-172).
 7. Keep every text at 9 pixels or taller on the Deck (D-459).
-8. Hold the layout at both UI values, and prove each one in a test (D-639).
+8. Hold the layout at both body sizes, and prove each one in a test (D-707).
 
 > *In plain English:* every new screen follows the same eight steps. It reads its words from one list, fits both screen shapes, and proves itself in a fixed picture.
 
