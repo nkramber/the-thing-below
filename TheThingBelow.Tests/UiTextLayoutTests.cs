@@ -19,7 +19,6 @@ namespace TheThingBelow.Tests;
 public sealed class UiTextLayoutTests
 {
     private const string MetricsTypeName = "TheThingBelow.Game.Ui.UiMetrics";
-    private const string ScreenTypeName = "TheThingBelow.Game.Ui.BaseScreen";
     private const string FitTypeName = "TheThingBelow.Game.Ui.ScreenFit";
 
     /// <summary>The smallest height in pixels that the rating Verified allows (D-459).</summary>
@@ -38,8 +37,9 @@ public sealed class UiTextLayoutTests
     public void ThePanelHoldsTheLongestStringOfTheTableAtBothBodySizes()
     {
         // Exit tests 4 and 13. Every panel holds its longest string at each body size
-        // (D-241, D-708). The panel of PR-61 sits inside the frame with a margin on each
-        // side, and the window frame takes a border inside that.
+        // (D-241, D-708). A panel sits inside the frame with a margin on each side, and the
+        // window frame takes a border inside that. PR-62 builds the menu windows that this
+        // rule binds, and D-722 removed the demo panel of PR-61.
         ContentSet content = Content();
         int inside = FrameWidth() - (Edge() * 2) - (Border() * 2);
 
@@ -110,7 +110,7 @@ public sealed class UiTextLayoutTests
         (int)GameAssemblyFile.Type(FitTypeName).GetField("FrameWidth")!.GetValue(null)!;
 
     private static int Edge() =>
-        (int)GameAssemblyFile.Type(ScreenTypeName).GetField("EdgePixels")!.GetValue(null)!;
+        (int)GameAssemblyFile.Type(MetricsTypeName).GetField("EdgePixels")!.GetValue(null)!;
 
     private static int Border() =>
         (int)GameAssemblyFile.Type("TheThingBelow.Game.Ui.UiTheme").GetField("FrameEdge")!.GetValue(null)!;

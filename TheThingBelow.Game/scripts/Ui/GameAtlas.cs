@@ -45,6 +45,9 @@ public sealed class GameAtlas
         return new GameAtlas(index, pages);
     }
 
+    /// <summary>The index of the atlas, which holds the place of every frame (D-666).</summary>
+    public AtlasIndex Index => this.index;
+
     /// <summary>Gives the texture of one page.</summary>
     /// <param name="name">The name of the page, such as `ui`.</param>
     /// <returns>The texture of the whole page.</returns>
