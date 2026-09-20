@@ -1,5 +1,42 @@
 # Session handoff archive
 
+## Session 138: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #39, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: reviewer. Base: `fb17f87`.
+
+### What this session did, and why
+
+- Recomputed PR #39 at effective head `671d712`. The later commit `620f690` changes only the handoff metadata.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Inspected the complete 18-path diff, the workflow, export presets, project setting, tests, licenses, decisions, questions, roadmaps, and handoff records.
+- Ran `make verify`. It passed with 832 tests and clean build, format, det-lint, STE, replay identity, content hash, and smoke checks.
+- Found P1-1: the exported smoke process is followed by `|| true`, so a nonzero process status is discarded.
+- Wrote `docs/reviews/pr-39.md` with the verdict `Changes required` for effective head `671d712`.
+
+### The state of the build
+
+- The remote PR head is `620f690`, and the effective implementation head is `671d712`.
+- The automated pass is current at `671d712` and approved after its cancellation finding was fixed.
+- The review-gate check waits for this review record.
+
+### What is in flight
+
+The author must preserve the exported process status and rerun the export checks. The review record and this entry need a commit and push for the current review round.
+
+### Traps and gotchas
+
+- The review verdict targets `671d712`, not the metadata tip `620f690`.
+- The repository test command is `make verify`. A direct `dotnet test` filter discovered zero tests and is failed evidence.
+- The existing CI smoke job uses `pipefail` and preserves the process status. The export workflow must keep that property while also checking the success line.
+
+### The questions that block progress
+
+None. OQ-198 and OQ-199 remain open but do not block this review.
+
+### The next concrete action
+
+Correct P1-1, push the author correction, and rerun the review at the new effective head.
 ## Session 137: 2026-09-19, Claude Code
 
 Author: Claude Code

@@ -19,8 +19,8 @@ public static class ReferenceRules
     public static readonly IReadOnlyList<string> RepositoryRoots =
     [
         ".claude", ".githooks", ".github", "content", "docs", "licenses",
-        "TheThingBelow.Core", "TheThingBelow.Game", "TheThingBelow.Storage",
-        "TheThingBelow.Tests", "TheThingBelow.Tools",
+        "TheThingBelow.Core", "TheThingBelow.Debug", "TheThingBelow.Game",
+        "TheThingBelow.Storage", "TheThingBelow.Tests", "TheThingBelow.Tools",
     ];
 
     /// <summary>The file types that make a bare name a path of this repository.</summary>

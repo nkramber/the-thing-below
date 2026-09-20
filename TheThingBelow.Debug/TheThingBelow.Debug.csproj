@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The debug assembly of D-260 and D-492. It holds the console of D-171 and the extra intent
+    handlers of the seam of PR-6. A development build references it, and the `ExportRelease`
+    configuration of the Game project does not, so a release export holds no debug code
+    (D-723).
+  -->
+  <PropertyGroup>
+    <RootNamespace>TheThingBelow.Debug</RootNamespace>
+    <AssemblyName>TheThingBelow.Debug</AssemblyName>
+    <!--
+      Godot unloads and loads the assemblies of a project again on each build of the editor
+      session. A library that a Godot project references takes this property, which keeps its
+      load context collectible (the Godot docs, "Understanding the Godot .NET build process").
+    -->
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+
+  <!--
+    The handlers change the state of a run, so the assembly reads Core. It never references
+    Game, because Game loads this assembly by name and Core names it nowhere (D-492, D-723).
+  -->
+  <ItemGroup>
+    <ProjectReference Include="../TheThingBelow.Core/TheThingBelow.Core.csproj" />
+  </ItemGroup>
+
+  <!--
+    The console draws with the engine types of GodotSharp, which the Godot .NET SDK of the
+    Game project restores at the same version. This project is no Godot project, so it takes
+    the package itself and gets no source generator with it. Thus no type of this assembly
+    takes a call from the engine through a virtual member, and the console builds engine nodes
+    and connects to their signals instead (D-723, G-13).
+  -->
+  <ItemGroup>
+    <PackageReference Include="GodotSharp" Version="4.7.2" />
+  </ItemGroup>
+
+</Project>

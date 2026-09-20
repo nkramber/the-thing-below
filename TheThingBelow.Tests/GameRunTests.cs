@@ -214,9 +214,14 @@ public sealed class GameRunTests
         public static Run Start()
         {
             Type type = GameAssemblyFile.Type(RunTypeName);
-            MethodInfo start = type.GetMethod("Start", [typeof(ContentSet), typeof(ulong)])
+            MethodInfo start = type.GetMethod(
+                "Start",
+                [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers)])
                 ?? throw new InvalidOperationException("The run holds no 'Start' method (T-2).");
-            object instance = start.Invoke(null, [Content.Value, Seed])
+
+            // A test run passes no debug handler, as a release build does. The tests of the
+            // console pass the handlers of the debug assembly (D-260, D-492).
+            object instance = start.Invoke(null, [Content.Value, Seed, DebugIntentHandlers.None])
                 ?? throw new InvalidOperationException("The 'Start' method gave no run (T-2).");
             return new Run(type, instance);
         }

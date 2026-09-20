@@ -5,9 +5,9 @@ using TheThingBelow.Tools.DetLint;
 namespace TheThingBelow.Tests;
 
 /// <summary>
-/// A small checkout in a temporary folder, with a Core project, a Game project, and a Game
-/// build output folder that holds the Godot assembly. A test writes the files that it reads,
-/// and the folder goes away at the end of the test.
+/// A small checkout in a temporary folder, with a Core project, a Game project, the commands
+/// folder of the debug assembly, and a Game build output folder that holds the Godot assembly.
+/// A test writes the files that it reads, and the folder goes away at the end of the test.
 /// </summary>
 public sealed class DetLintCheckout : IDisposable
 {
@@ -20,7 +20,7 @@ public sealed class DetLintCheckout : IDisposable
     public string Root { get; }
 
     /// <summary>
-    /// Builds a checkout with both project folders. The Game output folder holds a copy of
+    /// Builds a checkout with each project folder. The Game output folder holds a copy of
     /// `GodotSharp.dll`, which the text rule needs (D-614).
     /// </summary>
     /// <returns>The fixture checkout. The caller disposes it.</returns>
@@ -30,6 +30,7 @@ public sealed class DetLintCheckout : IDisposable
         DetLintCheckout checkout = new DetLintCheckout(root);
         Directory.CreateDirectory(Path.Combine(root, DetLintCommand.CoreProject));
         Directory.CreateDirectory(Path.Combine(root, DetLintCommand.GameProject));
+        Directory.CreateDirectory(Path.Combine(root, DetLintCommand.DebugCommandsFolder));
 
         string output = DetLintCommand.GameOutputFolder(root, Configuration);
         Directory.CreateDirectory(output);

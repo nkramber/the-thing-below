@@ -30,7 +30,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 |---|---|---|
 | F-10 | The run record grows with no limit over a long play | PR-6: a snapshot at each save, plus the intents after it (D-651) |
 | F-25 | A quit autosave can trap a run (C-3), and a Core patch refuses old saves (C-4) | PR-43: the resume file of D-258 and the load of D-259 |
-| F-27 | The debug console of D-171 meets the rule of no conditional compilation in Core | PR-6 and PR-45: the seam and the assembly of D-260 and D-492 |
+| F-27 | The debug console of D-171 meets the rule of no conditional compilation in Core | PR-6 and PR-45: the seam and the assembly of D-260 and D-492. PR-45 closed it with the seam of D-723, which holds no conditional compilation in Game either |
 | F-35 | Two hash paths of .NET break G-1 and T-7 | PR-4: xxHash64 in Core. PR-5: the SHA-256 of the content hash (D-644, D-645) |
 | F-36 | The JSON support of .NET uses reflection by default | PR-5: a reader with no runtime reflection |
 | F-39 | The default string order of .NET follows the culture and the ICU version of the machine | PR-4: an ordinal comparer for every string order in Core |
@@ -213,7 +213,9 @@ Built by PR-6 and PR-45. Phase files: `phase-1-foundations.md` and `phase-2-firs
 - Core takes a list of extra intent handlers from the host at the start of a run (D-260). Core never names the debug assembly (D-492).
 - A development build passes the debug handlers, and a release build passes none (D-260). A debug intent in a record carries a mark (D-171).
 - A host with no debug handlers refuses a record with a debug intent. The report names the intent and the tick (T-2).
-- PR-45 creates the debug assembly, the console, and the test that a release export never loads the assembly (D-492).
+- PR-45 creates the debug assembly, the console, and the test that a release export never loads the assembly (D-492, D-726).
+- Game references that assembly outside the `ExportRelease` configuration, and it loads the assembly by name (D-723). Game names no type of it, so no conditional compilation enters Game.
+- The console holds four commands, and one of them changes the run (D-724). A command that changes the run sends an intent of the kind `debug` (D-727).
 - Two later features live behind the same seam: the capture of PR-74, and the sound room of PR-71 (D-439, D-546, D-551).
 
 > *In plain English:* cheats exist only in development builds, as a separate part that the shipped game never contains. A run that used a cheat still replays, and the record says so.

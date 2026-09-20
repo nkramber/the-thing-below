@@ -152,6 +152,73 @@ public sealed class DetLintCommandTests
         Assert.Equal(string.Empty, errors.ToString());
     }
 
+    /// <summary>
+    /// A handler of a debug command changes the state of a run inside a tick, so the commands
+    /// folder of the debug assembly takes the float, clock, and OS random rules (D-724, T-7).
+    /// </summary>
+    [Fact]
+    public void AFloatOrAClockInTheDebugCommandsIsAFinding()
+    {
+        using DetLintCheckout checkout = DetLintCheckout.Build();
+        checkout.Write(
+            $"{DetLintCommand.DebugCommandsFolder}/Cheat.cs",
+            """
+            using System;
+            namespace TheThingBelow.Debug.Commands;
+            public static class Cheat
+            {
+                public static double Share(int part, int whole) => (double)part / whole;
+                public static DateTime Now() => DateTime.UtcNow;
+            }
+            """);
+        using StringWriter output = new StringWriter();
+        using StringWriter errors = new StringWriter();
+
+        int exitCode = DetLintCommand.Run(Arguments(checkout), output, errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains(
+            $"{DetLintCommand.DebugCommandsFolder}/Cheat.cs:5: rule DL 1:",
+            output.ToString(),
+            StringComparison.Ordinal);
+        Assert.Contains(
+            $"{DetLintCommand.DebugCommandsFolder}/Cheat.cs:6: rule DL 2:",
+            output.ToString(),
+            StringComparison.Ordinal);
+        Assert.Equal(string.Empty, errors.ToString());
+    }
+
+    /// <summary>
+    /// The scan of the debug commands compiles against a set with no Godot assembly, so a
+    /// Godot type in that folder fails the compile. Thus the commands stay engine-free, and a
+    /// test of Tests runs every one of them with no engine (D-614, D-723).
+    /// </summary>
+    [Fact]
+    public void AGodotTypeInTheDebugCommandsFailsTheScan()
+    {
+        using DetLintCheckout checkout = DetLintCheckout.Build();
+        checkout.Write(
+            $"{DetLintCommand.DebugCommandsFolder}/Screen.cs",
+            """
+            using Godot;
+            namespace TheThingBelow.Debug.Commands;
+            public static class Screen
+            {
+                public static void Draw(Label label) => label.Text = "reveal";
+            }
+            """);
+        using StringWriter output = new StringWriter();
+        using StringWriter errors = new StringWriter();
+
+        int exitCode = DetLintCommand.Run(Arguments(checkout), output, errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains(
+            $"{DetLintCommand.DebugCommandsFolder}/Screen.cs:1: rule DL 0:",
+            output.ToString(),
+            StringComparison.Ordinal);
+    }
+
     [Fact]
     public void AnAbsentGameBuildNamesTheBuildCommand()
     {
