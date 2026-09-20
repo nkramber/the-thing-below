@@ -1,5 +1,45 @@
 # Session handoff
 
+## Session 142: 2026-09-20, Claude Code
+
+Author: Claude Code
+Session: PR-61, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: author. Base: `938ab7b`.
+
+### What this session did, and why
+
+- Asked the three open questions of the PR and got each owner answer (D-19). D-707 to D-713 record them, with the probe answers of 2026-09-19.
+- D-707 revises D-639 and G-28 in part: the floor of 2 device pixels goes, and the setting gives two body sizes, 24 and 32 frame pixels. D-708 revises D-241 in part. D-263, D-264, and D-228 gain a note on the font size.
+- Added the two fonts under `content/fonts/`, the UI style file, the device table, and 13 UI drawings.
+- Core gained `FontStrikes`, `UiStyle`, and `DeviceNames`. The content set now refuses a build with no strike for a body size, a style that names an absent drawing, or a glyph set with a hole.
+- Game gained the `Ui` namespace: the frame of 1280 by 720, both steps of the fit of D-573, the world viewport of 640 by 360 at 2x, the fonts, the theme, the one text helper of D-499, the input map, the intents, the glyph sets, and the crash message.
+- The smoke session builds the UI base at both body sizes and reads each font setting back, so every CI leg proves D-710 inside the engine.
+
+### The state of the build
+
+- `make verify` is the next command. The build, the 1046 tests, det-lint, the STE check, the content hash, and the smoke session each pass on the Mac.
+- The remote head is the commit of this entry, on `origin/feat/pr-61-ui-base`.
+- The content hash did not move: the fonts and the UI files sit outside `content/rules/` (D-495, D-648).
+
+### What is in flight
+
+The PR waits for the owner to approve the art batch (G-25), and then for gitar and the review of Codex. No label applies, because the PR adds decision rows and code (D-401, D-560).
+
+### Traps and gotchas
+
+- A font size with no bitmap strike draws the traced outline in silence (F-49). `FontStrikes.RequireSize` and the pinned `FixedSize` of `GameFonts` each refuse it.
+- The simulation version stays at 4. PR-61 adds intent ids that no rule of Core reads, and it changes no state.
+- `content/ui/devices.json` names the buttons. A new button needs its drawing in all four sets, and its label in the string table.
+- The crash address is a placeholder in the reserved `.invalid` domain. OQ-57 stays open, and it blocks PR-33 and PR-75 (D-712).
+- The session deleted `HANDOFF-PR-61.md`, the untracked note of 2026-09-19. Its answers are in D-707 to D-713.
+
+### The questions that block progress
+
+None. OQ-57 stays open, and the placeholder of D-712 unblocks this PR.
+
+### The next concrete action
+
+Get the owner approval of the art batch, then answer the gitar pass.
+
 ## Session 141: 2026-09-20, Codex
 
 Author: Codex
@@ -364,45 +404,3 @@ None.
 ### The next concrete action
 
 Commit and push the review record and handoff entry. Then fetch and verify that the remote head and review-gate result match.
-
-## Session 132: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: PR-88, the stable check names of the CI matrix jobs. Repository: the-thing-below. Branch: `fix/pr-88-ci-matrix-check-names`. Role: author. Base: `51a040f`.
-
-### What this session did, and why
-
-- Branch protection is live on `main`, and a required check matches by name. The three matrix jobs report two different name sets, so no name of a matrix job can be a required check (F-85, OQ-197).
-- The session read the check runs of the head of PR #35 and the head of PR #36. The code PR gives three leg names for each family. The docs-only PR gives one check run with the literal name template.
-- Each matrix job keeps its condition of D-595. A gate job of each family always runs and reports one stable name (D-682, D-683).
-- Each gate job reads the result of `changed-paths` too, so a skip that no condition asked for fails the gate (T-2).
-- `TheThingBelow.Tests/CiWorkflowGateTests.cs` holds the rule. Seven of its twelve rows fail on the workflow file before this PR.
-- OQ-3 is closed, because the protection is live. The read of the protection endpoint gives the five checks of D-681.
-- Gate 1 gains a line for the required-check set, and it moves to section 7.22 of the phase file (D-684, D-685).
-
-### The state of the build
-
-- `make verify` passes with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
-- The remote head of `main` is `51a040f`.
-
-### What is in flight
-
-The Codex review of PR #37. This PR changes `.github/workflows/`, so it is never exempt (D-185, D-560).
-
-- The automated pass of head `9927be7` approved the code review and opened no thread. Its CI block named one fault of RG 7, and the answer is the comment of the PR.
-- The fix is proven on the head. The check runs hold `build, test, and format`, `replay-identity`, and `smoke` as literal names, each `success`, beside the three leg names.
-- `RG 3` faults, because the head holds no record at `docs/reviews/pr-37.md`. It passes when the review record lands.
-
-### Traps and gotchas
-
-- The owner adds `build, test, and format`, `smoke`, and `replay-identity` to the required checks of `main` after this PR merges. Each name first reports on this PR.
-- `Gitar` stays unrequired. Its trial ends about 2026-09-23.
-- The gate job reads `always()`. A gate that a condition skips would report Success and hide a red leg.
-
-### The questions that block progress
-
-None. D-682 to D-685 hold the four answers of this PR.
-
-### The next concrete action
-
-Codex reviews PR #37 and writes `docs/reviews/pr-37.md`. Then the owner adds the three names to the required checks of `main` after the merge (D-685).

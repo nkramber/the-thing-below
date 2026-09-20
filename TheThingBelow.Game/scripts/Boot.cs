@@ -391,6 +391,7 @@ public partial class Boot : Node
         GD.Print($"smoke: the run is {this.DescribeRun(session)}.");
         GD.Print($"smoke: the log is {this.DescribeLog()}.");
         GD.Print($"smoke: the crash file is {DescribeCrashFile(session)}.");
+        GD.Print($"smoke: the UI base is {DescribeUiBase(content)}.");
         GD.Print("smoke: the session ends with no error.");
         GetTree().Quit(SuccessExitCode);
     }
@@ -516,6 +517,82 @@ public partial class Boot : Node
 
         return $"{Path.GetFileName(path)} with a record that ends at tick {report.Record.EndTick}, "
             + $"and the count of files in the folder is {crashes.Names().Count}";
+    }
+
+    /// <summary>
+    /// Builds the UI base at each body size and reads every font setting back, so each CI
+    /// leg proves the settings of D-710 inside the engine (D-117, F-49).
+    /// </summary>
+    /// <param name="loaded">The content set of this build.</param>
+    /// <returns>The body sizes, the title sizes, and the strike of each font, as one line.</returns>
+    /// <exception cref="InvalidOperationException">A font setting is not the one of D-710 (T-2).</exception>
+    /// <remarks>
+    /// `--headless` draws nothing, so the session reads the settings and never a pixel. The
+    /// screen-test job of PR-41 captures each screen (F-23, G-16).
+    /// </remarks>
+    private static string DescribeUiBase(ContentSet loaded)
+    {
+        UiStyle style = loaded.Style;
+        var built = new List<string>();
+
+        foreach (int body in new[] { style.SmallBody, style.LargeBody })
+        {
+            UiBase ui = UiBase.Load(loaded, body);
+            int title = style.TitleSizeOf(body);
+
+            CheckFontSettings(ui.Theme.Theme.DefaultFont, $"the body of {body}");
+            CheckFontSettings(ui.Theme.Theme.GetFont("font", UiTheme.TitleVariation), $"the title of {title}");
+            built.Add($"body {body} with title {title}");
+        }
+
+        return $"{string.Join(", ", built)}, and the six font settings of D-710 read back";
+    }
+
+    /// <summary>
+    /// Reads every setting of one font back, and fails when one of them is not the setting
+    /// of a pixel font (D-710, F-49, T-2).
+    /// </summary>
+    /// <param name="font">The font that the theme holds.</param>
+    /// <param name="what">The place of the font, for the message of a failure.</param>
+    /// <exception cref="InvalidOperationException">The font is absent, or a setting is wrong (T-2).</exception>
+    private static void CheckFontSettings(Font? font, string what)
+    {
+        if (font is not FontFile file)
+        {
+            throw new InvalidOperationException(
+                $"The theme holds no font file for {what}, and it holds '{font?.GetType().Name ?? "nothing"}' (T-2).");
+        }
+
+        Refuse(what, "antialiasing", file.Antialiasing, TextServer.FontAntialiasing.None);
+        Refuse(what, "hinting", file.Hinting, TextServer.Hinting.None);
+        Refuse(what, "subpixel positioning", file.SubpixelPositioning, TextServer.SubpixelPositioning.Disabled);
+        Refuse(what, "the distance field", file.MultichannelSignedDistanceField, false);
+        Refuse(what, "the mipmaps", file.GenerateMipmaps, false);
+        Refuse(what, "the system fallback", file.AllowSystemFallback, false);
+
+        if (file.FixedSize <= 0 || file.FixedSizeScaleMode != TextServer.FixedSizeScaleMode.IntegerOnly)
+        {
+            throw new InvalidOperationException(
+                $"The font of {what} pins the size {file.FixedSize} with the scale mode "
+                + $"{file.FixedSizeScaleMode}. A pixel font pins one bitmap strike and scales it by a "
+                + "whole number, or a glyph draws from the traced outline (T-2, D-710, F-49).");
+        }
+    }
+
+    /// <summary>Fails when one setting of a font is not the value that D-710 gives.</summary>
+    /// <typeparam name="T">The type of the setting.</typeparam>
+    /// <param name="what">The place of the font, for the message.</param>
+    /// <param name="name">The name of the setting.</param>
+    /// <param name="read">The value that the font holds.</param>
+    /// <param name="wanted">The value of D-710.</param>
+    /// <exception cref="InvalidOperationException">The two values differ (T-2).</exception>
+    private static void Refuse<T>(string what, string name, T read, T wanted)
+    {
+        if (!EqualityComparer<T>.Default.Equals(read, wanted))
+        {
+            throw new InvalidOperationException(
+                $"The font of {what} holds {name} as '{read}', and D-710 gives '{wanted}' (T-2, F-49).");
+        }
     }
 
     /// <summary>Reads the renderer of this session from the project settings (D-599).</summary>

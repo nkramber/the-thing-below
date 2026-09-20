@@ -1,5 +1,47 @@
 # Session handoff archive
 
+## Session 132: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: PR-88, the stable check names of the CI matrix jobs. Repository: the-thing-below. Branch: `fix/pr-88-ci-matrix-check-names`. Role: author. Base: `51a040f`.
+
+### What this session did, and why
+
+- Branch protection is live on `main`, and a required check matches by name. The three matrix jobs report two different name sets, so no name of a matrix job can be a required check (F-85, OQ-197).
+- The session read the check runs of the head of PR #35 and the head of PR #36. The code PR gives three leg names for each family. The docs-only PR gives one check run with the literal name template.
+- Each matrix job keeps its condition of D-595. A gate job of each family always runs and reports one stable name (D-682, D-683).
+- Each gate job reads the result of `changed-paths` too, so a skip that no condition asked for fails the gate (T-2).
+- `TheThingBelow.Tests/CiWorkflowGateTests.cs` holds the rule. Seven of its twelve rows fail on the workflow file before this PR.
+- OQ-3 is closed, because the protection is live. The read of the protection endpoint gives the five checks of D-681.
+- Gate 1 gains a line for the required-check set, and it moves to section 7.22 of the phase file (D-684, D-685).
+
+### The state of the build
+
+- `make verify` passes with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
+- The remote head of `main` is `51a040f`.
+
+### What is in flight
+
+The Codex review of PR #37. This PR changes `.github/workflows/`, so it is never exempt (D-185, D-560).
+
+- The automated pass of head `9927be7` approved the code review and opened no thread. Its CI block named one fault of RG 7, and the answer is the comment of the PR.
+- The fix is proven on the head. The check runs hold `build, test, and format`, `replay-identity`, and `smoke` as literal names, each `success`, beside the three leg names.
+- `RG 3` faults, because the head holds no record at `docs/reviews/pr-37.md`. It passes when the review record lands.
+
+### Traps and gotchas
+
+- The owner adds `build, test, and format`, `smoke`, and `replay-identity` to the required checks of `main` after this PR merges. Each name first reports on this PR.
+- `Gitar` stays unrequired. Its trial ends about 2026-09-23.
+- The gate job reads `always()`. A gate that a condition skips would report Success and hide a red leg.
+
+### The questions that block progress
+
+None. D-682 to D-685 hold the four answers of this PR.
+
+### The next concrete action
+
+Codex reviews PR #37 and writes `docs/reviews/pr-37.md`. Then the owner adds the three names to the required checks of `main` after the merge (D-685).
+
 ## Session 131: 2026-09-19, Codex
 
 Author: Codex
