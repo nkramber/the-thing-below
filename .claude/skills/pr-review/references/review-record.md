@@ -159,7 +159,7 @@ The `review-gate` check applies eight rules, RG 1 to RG 8 (D-15, D-579). RG 1 an
 2. RG 4: the verdict is `Ready for owner merge`.
 3. RG 5: the head in the Identity list is the effective head.
 
-The check also passes a PR in the override set that has the `review-override` label and changes no decision row (D-16, D-401). A PR that changes `.github/workflows/` never passes on the label, because each gate lives in a workflow file (D-560).
+The check also passes a PR in the override set that has the `review-override` label and changes no decision row (D-16, D-401). A PR that changes `.github/workflows/` never passes on the label, because each gate lives in a workflow file (D-560). A PR that changes `.claude/settings.json` never passes on it too, because that file can hold a hook that runs a command (D-700).
 
 The check has three states. Read the color before you start:
 

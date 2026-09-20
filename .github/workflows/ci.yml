@@ -484,6 +484,6 @@ jobs:
         with:
           global-json-file: global.json
 
-      # The command reads every live document and holds the four dated record paths (D-10, D-608).
+      # The command reads every live document that git tracks and holds the four dated record paths (D-10, D-608, D-702).
       - name: Run the STE checker
         run: dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .

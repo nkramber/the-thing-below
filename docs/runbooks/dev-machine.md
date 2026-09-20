@@ -26,7 +26,7 @@ Facts checked on 2026-09-12:
 1. Clone the repository: `git clone git@github.com:nkramber/the-thing-below.git`.
 2. Run `make hooks` once in a fresh checkout. The pre-commit hook then refuses a commit on `main` (D-8).
 3. Run `make verify` before every PR. It runs each check of the Makefile, from the build to the smoke session.
-4. The STE check reads every `.md` file of the working tree, an untracked note included. Move a scratch note out of the checkout before a commit.
+4. The STE check reads the `.md` files that git tracks, and no other file (D-702). An untracked scratch note fails no check and no commit.
 5. A `.DS_Store` file under `content/` fails the content tests, because no record reads it. Remove the file.
 
 ## The Steam Deck

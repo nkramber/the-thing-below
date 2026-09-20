@@ -3,8 +3,9 @@
 # smoke session on that build, and uploads it as a build artifact (D-449, D-503, D-512).
 #
 # This workflow is not a line of the PR gate (D-449, D-512). It runs on each merge to `main`,
-# and on each pull request that changes one of the four export paths of D-692. A pull request
-# that changes no such path starts no run, and it needs none.
+# and on each pull request that changes one of the five export paths: the four of D-692, and
+# the Game project file, which carries `content/` into each export (D-699, D-508). A pull
+# request that changes no such path starts no run, and it needs none.
 #
 # The steps that get the Godot editor repeat the steps of the smoke job of `ci.yml`. Two jobs
 # never share a step list, and D-511 allows no action outside the `actions` organization, so
@@ -23,6 +24,7 @@ on:
       - TheThingBelow.Game/export_presets.cfg
       - TheThingBelow.Game/project.godot
       - licenses/**
+      - TheThingBelow.Game/TheThingBelow.Game.csproj
 
 # The jobs read the checkout alone (T-2).
 permissions:

@@ -52,7 +52,7 @@ A critic pass reads whole files. Run it in the `design-critic` agent. The agent 
 
 ## Checks in the commit command
 
-Run the STE checker in the same command as `git diff --check` and the commit (D-585). The checker reads every live document of the checkout, and it takes no file list (D-608). A failed check prints the last 20 lines, and the commit does not run. The command works in bash and in zsh, with `set -e` too.
+Run the STE checker in the same command as `git diff --check` and the commit (D-585). The checker reads every live document that git tracks, and it takes no file list (D-608, D-702). A failed check prints the last 20 lines, and the commit does not run. The command works in bash and in zsh, with `set -e` too.
 
 ```bash
 git add <paths>
@@ -61,7 +61,7 @@ git add <paths>
   && git diff --cached --check && git commit -q -m "<subject>" && git log --oneline -1
 ```
 
-The checker reads the working tree, so it can name a fault in a file that this commit does not stage. Correct that file too, or put it back. Run the same command one time before the first push of a PR.
+The checker reads each tracked file from the working tree, so it can name a fault that this commit does not stage. Correct that file too, or put it back. An untracked file takes no rule (D-702). Run the same command one time before the first push of a PR.
 
 ## The Gitar wait
 

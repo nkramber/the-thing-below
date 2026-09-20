@@ -1,8 +1,8 @@
 #!/bin/sh
 # The pre-commit hook of the repository. `make hooks` sets the hook path (D-8, D-25).
 #
-# It refuses a commit on `main`, and it runs the STE checker over the checkout
-# (D-10, D-585, D-608). A finding stops the commit.
+# It refuses a commit on `main`, and it runs the STE checker over the tracked files of
+# the checkout (D-10, D-585, D-608, D-702). A finding stops the commit.
 
 set -e
 
@@ -19,8 +19,8 @@ if [ "$branch" = "main" ]; then
     exit 1
 fi
 
-# The command reads every live document of the checkout, and it takes no file list
-# (D-608). It holds the four dated record paths itself (D-10).
+# The command reads every live document that git tracks, a staged new file included, and
+# it takes no file list (D-608, D-702). It holds the four dated record paths itself (D-10).
 if ! dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .; then
     echo "pre-commit: the STE checker found a fault. Correct it, then commit again (G-12)." >&2
     exit 1

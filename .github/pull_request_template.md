@@ -18,7 +18,7 @@ Each line holds before the owner merges (`CLAUDE.md`, PR gate).
 - [ ] The `night-gate` job is green (G-22). PR-49 creates it.
 - [ ] The `ste-check` job is green: the writing, reference, session number, size, and Documents row rules (G-12, D-605, D-607, D-611, D-696).
 - [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14, D-66). The review is current under the `gitar-review` skill.
-- [ ] The other provider reviewed it, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). A PR in the override set that changes no decision row is exempt when the `review-override` label is on (D-16, D-401, D-560). A change to `.github/workflows/` is never exempt.
+- [ ] The other provider reviewed it, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). A PR in the override set that changes no decision row is exempt when the `review-override` label is on (D-16, D-401, D-560). A change to `.github/workflows/` or to `.claude/settings.json` is never exempt (D-700).
 - [ ] The `review-gate` check is green (D-15, D-500, F-37).
 - [ ] `docs/decisions.md` has every new decision.
 - [ ] `docs/questions.md` has every new question.

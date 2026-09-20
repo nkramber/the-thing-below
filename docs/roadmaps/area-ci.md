@@ -204,7 +204,7 @@ Built by PR-5. Phase files: `phase-1-foundations.md` and `phase-2-first-playable
 Built by PR-54. Phase file: `phase-2-first-playable.md`. The file `.github/workflows/export.yml` holds it.
 
 - The job lands right before PR-7, so the merge of PR-7 exports the first walkable build (D-503).
-- It runs on each merge to `main`, and on each pull request that changes one of the four paths of D-692. It is not a line of the PR gate (D-449, D-512).
+- It runs on each merge to `main`, and on each pull request that changes one of the five export paths (D-692, D-699). It is not a line of the PR gate (D-449, D-512).
 - Each leg exports the build of its own system: Windows and Linux on x86_64, and the universal macOS build (D-481, D-482). From PR-79 on, the macOS leg signs and notarizes its build (D-455, D-553).
 - The job unpacks the .NET export templates into the editor data folder of the runner, because no command-line option installs them (F-42). The cache action of D-511 keeps the file, and every run checks its SHA-512 (D-596).
 - The cache key of the editor is the key of the smoke job, so one download serves both workflows. A test compares the three digests of the two files (D-596).

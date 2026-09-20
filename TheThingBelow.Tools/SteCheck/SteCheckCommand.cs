@@ -5,8 +5,8 @@ using System.IO;
 namespace TheThingBelow.Tools.SteCheck;
 
 /// <summary>
-/// The `ste-check` command. It reads every live document of the checkout and gives one line
-/// for each finding: the file, the line, the rule id, and what the rule saw (D-10, D-101).
+/// The `ste-check` command. It reads every live document that git tracks and gives one line
+/// for each finding: the file, the line, the rule id, and what the rule saw (D-10, D-101, D-702).
 /// </summary>
 public static class SteCheckCommand
 {

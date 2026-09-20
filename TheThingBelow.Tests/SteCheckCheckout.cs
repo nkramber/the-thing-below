@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.SteCheck;
@@ -181,12 +182,67 @@ public sealed class SteCheckCheckout : IDisposable
         Write(relativePath, [.. all]);
     }
 
+    /// <summary>
+    /// Gives the fixture its git data, and puts every file that it holds now into the index.
+    /// A file that a test writes after this call is untracked (D-702).
+    /// </summary>
+    public void TrackEveryFile()
+    {
+        // The force option keeps an ignore rule of the machine out of the fixture.
+        RunGit("init", "--quiet");
+        RunGit("add", "--all", "--force");
+    }
+
+    /// <summary>Puts one file of the fixture checkout into the index.</summary>
+    /// <param name="relativePath">The path under the root, with forward slashes.</param>
+    public void Track(string relativePath)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(relativePath);
+        RunGit("add", "--force", "--", relativePath);
+    }
+
     /// <summary>Removes the fixture checkout from the temporary folder.</summary>
     public void Dispose()
     {
-        if (Directory.Exists(Root))
+        if (!Directory.Exists(Root))
         {
-            Directory.Delete(Root, recursive: true);
+            return;
+        }
+
+        // Git writes each object file as read-only, and Windows refuses the delete of such a file.
+        string gitFolder = Path.Combine(Root, ".git");
+        if (Directory.Exists(gitFolder))
+        {
+            foreach (string file in Directory.EnumerateFiles(gitFolder, "*", SearchOption.AllDirectories))
+            {
+                File.SetAttributes(file, FileAttributes.Normal);
+            }
+        }
+
+        Directory.Delete(Root, recursive: true);
+    }
+
+    private void RunGit(params string[] arguments)
+    {
+        ProcessStartInfo start = new ProcessStartInfo("git")
+        {
+            WorkingDirectory = Root,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+        };
+        foreach (string argument in arguments)
+        {
+            start.ArgumentList.Add(argument);
+        }
+
+        using Process process = Process.Start(start)
+            ?? throw new InvalidOperationException($"`git {string.Join(' ', arguments)}` gave no process in '{Root}'.");
+        string errorText = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+        if (process.ExitCode != 0)
+        {
+            throw new InvalidOperationException(
+                $"`git {string.Join(' ', arguments)}` gave the exit code {process.ExitCode} in '{Root}'. {errorText.Trim()}");
         }
     }
 }

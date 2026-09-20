@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace TheThingBelow.Tools.ReviewGate;
 
 /// <summary>
-/// The rules of the `review-override` label (D-16, D-71, D-239, D-401, D-560, D-609). The label
+/// The rules of the `review-override` label (D-16, D-71, D-239, D-401, D-560, D-609, D-700). The label
 /// exempts a documentation pull request from the review of the other provider, and from nothing
 /// else. Two conditions hold together: every changed path is in the eligible set, and the pull
 /// request changes no row of a decision table.
@@ -17,7 +17,10 @@ public static class OverrideRules
     /// <summary>The path of the decision register, which D-401 and D-609 read.</summary>
     public const string DecisionsPath = "docs/decisions.md";
 
-    /// <summary>The folders of the eligible set. Each path under one of them is eligible.</summary>
+    /// <summary>
+    /// The folders of the eligible set. Each path under one of them is eligible, except
+    /// <see cref="HarnessSettingsPath"/>.
+    /// </summary>
     public static readonly IReadOnlyList<string> EligibleFolders = ["docs/", ".claude/"];
 
     /// <summary>The single files of the eligible set.</summary>
@@ -31,6 +34,12 @@ public static class OverrideRules
 
     /// <summary>The path of every gate, which D-560 keeps out of the eligible set.</summary>
     public const string WorkflowFolder = ".github/workflows/";
+
+    /// <summary>
+    /// The settings file of the harness, which D-700 keeps out of the eligible set. It can hold
+    /// a hook that runs a command in each session, so it takes the guard of a workflow file.
+    /// </summary>
+    public const string HarnessSettingsPath = ".claude/settings.json";
 
     /// <summary>Reads the label set of the pull request.</summary>
     /// <param name="facts">The facts of the pull request.</param>
@@ -77,13 +86,10 @@ public static class OverrideRules
                 $"the PR carries the `{LabelName}` label, and every changed path is in the eligible set (D-71, D-239).");
         }
 
-        string reason = outside[0].StartsWith(WorkflowFolder, StringComparison.Ordinal)
-            ? "Each gate lives in a workflow file, so a workflow change takes the review (D-560)"
-            : "A path outside the eligible set takes the review of the other provider (D-16, D-71)";
         return new GateCheck(
             "RG 1",
             GateResult.Fault,
-            $"the PR carries the `{LabelName}` label, and it changes {Describe(outside)}. {reason}.");
+            $"the PR carries the `{LabelName}` label, and it changes {Describe(outside)}. {ReasonFor(outside[0])}.");
     }
 
     /// <summary>RG 2: a labeled pull request changes no row of a decision table (D-401, D-609).</summary>
@@ -178,6 +184,12 @@ public static class OverrideRules
 
     private static bool IsEligible(string file)
     {
+        // This one file of `.claude/` takes the review, so the refusal comes before the folder match (D-700).
+        if (string.Equals(file, HarnessSettingsPath, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
         foreach (string folder in EligibleFolders)
         {
             if (file.StartsWith(folder, StringComparison.Ordinal))
@@ -195,6 +207,21 @@ public static class OverrideRules
         }
 
         return false;
+    }
+
+    private static string ReasonFor(string path)
+    {
+        if (path.StartsWith(WorkflowFolder, StringComparison.Ordinal))
+        {
+            return "Each gate lives in a workflow file, so a workflow change takes the review (D-560)";
+        }
+
+        if (string.Equals(path, HarnessSettingsPath, StringComparison.Ordinal))
+        {
+            return "The settings file of the harness can hold a hook that runs a command, so it takes the review (D-700)";
+        }
+
+        return "A path outside the eligible set takes the review of the other provider (D-16, D-71)";
     }
 
     private static string Describe(IReadOnlyList<string> paths)

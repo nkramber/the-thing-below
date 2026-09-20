@@ -95,7 +95,7 @@ Built by PR-3. Phase file: `phase-1-foundations.md`.
 - The `review-gate` command is new code, and its workflow runs on `pull_request_target` (D-15, D-101, D-277).
 - The workflow runs the command from `main` and reads the files of the PR head as data. It never runs code from the head (D-15).
 - The command applies the three rules of the `pr-review` skill. The record exists, the verdict is `Ready for owner merge`, and the head field names the effective head.
-- The command passes a PR in the override set with the `review-override` label that changes no decision row (D-16, D-71, D-239, D-401). A change to a row is a change to a line of a decision table (D-609).
+- The command passes a PR in the override set with the `review-override` label that changes no decision row (D-16, D-71, D-239, D-401). A change to a row is a change to a line of a decision table (D-609). The command refuses the label on a PR that changes `.claude/settings.json` (D-700).
 - A PR that changes `.github/workflows/` fails on the label, because each gate lives in a workflow file (D-560).
 - The command applies the document rules of D-579. The handoff changes, and the Documents section has a line for each required row (D-581). No line defers a document or a record of the PR (D-577). A line that names the PR of independent roadmap work passes (G-16).
 - The workflow also runs when a label or the PR description changes, because both change the result (D-67, D-579). The type `edited` needs its own line in the workflow.

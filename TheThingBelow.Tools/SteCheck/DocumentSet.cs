@@ -5,8 +5,8 @@ using System.IO;
 namespace TheThingBelow.Tools.SteCheck;
 
 /// <summary>
-/// The files of the checkout that the command reads. It holds every document, the live
-/// documents, and the paths that the reference check resolves.
+/// The files of the checkout that the command reads: the files that git tracks (D-702). It
+/// holds every document, the live documents, and the paths that the reference check resolves.
 /// </summary>
 public sealed class DocumentSet
 {
@@ -52,10 +52,14 @@ public sealed class DocumentSet
     /// <summary>Every `.md` file that is not a dated record, in a fixed order.</summary>
     public IReadOnlyList<string> LiveDocuments => liveDocuments;
 
-    /// <summary>Reads the tree of the checkout.</summary>
+    /// <summary>
+    /// Reads the files of the checkout. A root with git data gives the files that git tracks,
+    /// and a root with none, such as a test fixture, gives its folder tree (D-702).
+    /// </summary>
     /// <param name="root">The path of the root of the checkout.</param>
     /// <returns>The file set of that checkout.</returns>
     /// <exception cref="DirectoryNotFoundException">The root does not exist.</exception>
+    /// <exception cref="InvalidOperationException">The root holds git data, and the `git` run failed.</exception>
     public static DocumentSet Read(string root)
     {
         ArgumentException.ThrowIfNullOrEmpty(root);
@@ -66,7 +70,15 @@ public sealed class DocumentSet
         }
 
         DocumentSet set = new DocumentSet(fullRoot);
-        set.ReadFolder(fullRoot, string.Empty);
+        if (TrackedFiles.HoldsGitData(fullRoot))
+        {
+            set.ReadTrackedFiles(TrackedFiles.List(fullRoot));
+        }
+        else
+        {
+            set.ReadFolder(fullRoot, string.Empty);
+        }
+
         set.allPaths.Sort(StringComparer.Ordinal);
         set.documents.Sort(StringComparer.Ordinal);
         set.liveDocuments.Sort(StringComparer.Ordinal);
@@ -136,20 +148,34 @@ public sealed class DocumentSet
         return lines;
     }
 
+    private void ReadTrackedFiles(IReadOnlyList<string> trackedFiles)
+    {
+        // The index is the file set, so the list of skipped folders has no part here: git
+        // tracks no build output, and a tracked file under such a name is a file of the repository.
+        foreach (string file in trackedFiles)
+        {
+            // The index holds a file that the working tree removed until the commit, and it
+            // holds the path of a submodule. Neither one is a file that a rule can read.
+            if (!File.Exists(Path.Combine(Root, file.Replace('/', Path.DirectorySeparatorChar))))
+            {
+                continue;
+            }
+
+            // Git lists files alone, and a document can cite a folder (REF 2).
+            for (int slash = file.IndexOf('/'); slash >= 0; slash = file.IndexOf('/', slash + 1))
+            {
+                Add(file[..slash]);
+            }
+
+            AddFile(file);
+        }
+    }
+
     private void ReadFolder(string fullPath, string relativePath)
     {
         foreach (string fullFile in Directory.EnumerateFiles(fullPath))
         {
-            string file = Join(relativePath, Path.GetFileName(fullFile));
-            Add(file);
-            if (file.EndsWith(".md", StringComparison.Ordinal))
-            {
-                documents.Add(file);
-                if (!IsDatedRecord(file))
-                {
-                    liveDocuments.Add(file);
-                }
-            }
+            AddFile(Join(relativePath, Path.GetFileName(fullFile)));
         }
 
         foreach (string fullFolder in Directory.EnumerateDirectories(fullPath))
@@ -166,10 +192,30 @@ public sealed class DocumentSet
         }
     }
 
-    private void Add(string path)
+    private void AddFile(string file)
     {
+        // An index with a merge conflict lists one file for each stage. One entry serves.
+        if (!Add(file) || !file.EndsWith(".md", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        documents.Add(file);
+        if (!IsDatedRecord(file))
+        {
+            liveDocuments.Add(file);
+        }
+    }
+
+    private bool Add(string path)
+    {
+        if (!pathSet.Add(path))
+        {
+            return false;
+        }
+
         allPaths.Add(path);
-        pathSet.Add(path);
+        return true;
     }
 
     private static string Join(string folder, string name) =>

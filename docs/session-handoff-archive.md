@@ -1,5 +1,52 @@
 # Session handoff archive
 
+## Session 130: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: the refutation of F-84 and D-673. Repository: the-thing-below. Branch: `docs/pr-88-refute-f-84`. Role: author. Base: `122f3ef`.
+
+### What this session did, and why
+
+- F-84 said that PR #33 merged with no review record, and that RG 3 reports nothing when the file is absent. Both claims are false.
+- `docs/reviews/pr-33.md` arrived in the squash commit 3204545 of PR #33 itself, and `git log --follow` gives that one commit.
+- The record names Claude Code as the author and Codex as the reviewer, with the verdict for head `d1b2305`.
+- `TheThingBelow.Tools/ReviewGate/ReviewRecordRules.cs` faults on an absent file, and it has one commit, 9787b2d of PR #21.
+- The gate of PR #33 faulted at head `d1b2305`, then passed at head `320a9bd` after the record landed. It showed both halves of the behavior on the PR that F-84 accuses.
+- RG 3 also faulted on PR #35 and passed after that record landed.
+- D-680 supersedes D-673, and F-84 now reads `✅ doc` with the evidence and the date.
+- D-681 records the branch protection of `main` as an owner action beside this PR. OQ-3 stays open until the protection is live.
+- The PR takes no `PR-#` id and no roadmap entry, because it is a document-only correction (D-680).
+- The stale out-of-scope bullet of section 7.20 of `docs/roadmaps/phase-1-foundations.md` is gone.
+
+### The state of the build
+
+- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
+- Replay identity, content hash, and the bounded smoke session pass.
+- No code change. This PR changes text alone.
+
+### What is in flight
+
+The PR waits for the review of the other provider. It revises a decision row, so the `review-override` label of D-401 does not apply (T-4).
+
+The automated pass approved head `f513ff3` at 2026-09-19T15:23:04Z, with no finding and no open thread. Its CI analysis found one fault of the description, and the fault had full merit. The `docs/reviews/` row of the Documents section held no form of D-581, and it now takes the `Changed:` form. Run `35459166100` gives `RG 7 pass`. The description holds that row, so the fix needed no commit and the head stands.
+
+The `review-gate` check faults on RG 3 alone: the head holds no review record at `docs/reviews/pr-36.md`. That fault stands until the review record lands, and no change of the author clears it. RG 1, RG 2, RG 6, RG 7, and RG 8 pass.
+
+### Traps and gotchas
+
+- The archive and the older handoff entries still read F-84 and D-673 as live. They are dated records, and a rewrite falsifies them (D-10).
+- The branch name holds `pr-88`, and no register defines that id. A branch name takes no reference rule (D-605).
+- `main` takes any push until the owner enables the protection of D-681.
+- Session 119 is absent from both handoff files. The check reads order and duplicates, not a gap.
+
+### The questions that block progress
+
+None. OQ-3 stays open as an owner action, and it blocks line 4 of Gate 1, not this PR.
+
+### The next concrete action
+
+Hand the PR to the other provider for the review of T-4. The reviewer writes `docs/reviews/pr-36.md` for head `f513ff3`, which turns RG 3 green.
+
 ## Session 129: 2026-09-19, Codex
 
 Author: Codex

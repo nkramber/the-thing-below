@@ -123,7 +123,7 @@ An automated reviewer, gitar, comments on every PR after a push (D-14). After ea
 - A reply names no provider, harness, or model as the source of work (T-6).
 - The reviewing provider reads the existing PR comments into its review and never addresses gitar. The `pr-review` skill holds the procedure of the reviewer.
 - Every PR answers the pass, a documentation PR included (D-66). The `review-override` label exempts a documentation PR from the Codex review alone, and only when the PR changes no row of `docs/decisions.md` (D-401).
-- The override set holds `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/`, and `.github/pull_request_template.md` (D-16, D-71, D-239). Every other path takes the review, `.github/workflows/` and `content/` included (D-185, D-560).
+- The override set holds `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/` without `.claude/settings.json`, and `.github/pull_request_template.md` (D-16, D-71, D-239, D-700). Every other path takes the review, `.github/workflows/` and `content/` included (D-185, D-560).
 - On a documentation PR that changes no decision row, the session applies the `review-override` label itself, only after the pass approves the head (D-67, D-401). A change to a decision row is a change to a line of a decision table (D-609). A later push needs a new approval before the label applies. A PR that adds or revises a decision goes to the other provider instead.
 - Before you open a documentation PR, ask the owner every open question that the PR can settle (D-68). Ask in batches, and record the answers in the PR.
 
@@ -145,7 +145,7 @@ The solution and the project names follow D-217. Run each command from the check
 
 Every option of the test application comes after `--` (D-592). The coverage command writes a Cobertura file, and the CI job makes a Markdown summary (D-593). The content-hash command takes `--write` after an intended change of a rule file (D-648). The atlas command writes each page and the atlas index, and `--check` compares the committed atlas (D-666). The `--sheets <folder>` option writes the review sheets, and no sheet enters git (D-514).
 
-The name `Godot` is not on the command path of this machine. The play session needs the full path above, and the `smoke` target holds the same path. The STE check reads every live document and takes no file list (D-608). It also runs the reference check, the session number check, the size rules, and the Documents rows check (D-605, D-607, D-611, D-696). The `ste-writing` skill holds each rule and each exempt path. Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585).
+The name `Godot` is not on the command path of this machine. The play session needs the full path above, and the `smoke` target holds the same path. The STE check reads every live document that git tracks and takes no file list (D-608, D-702). It also runs the reference check, the session number check, the size rules, and the Documents rows check (D-605, D-607, D-611, D-696). The `ste-writing` skill holds each rule and each exempt path. Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585).
 
 ## PR gate
 

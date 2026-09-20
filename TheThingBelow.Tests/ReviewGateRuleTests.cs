@@ -59,7 +59,7 @@ public sealed class ReviewGateHeadTests
     }
 }
 
-/// <summary>The rules of the `review-override` label (D-16, D-71, D-239, D-401, D-560, D-609).</summary>
+/// <summary>The rules of the `review-override` label (D-16, D-71, D-239, D-401, D-560, D-609, D-700).</summary>
 public sealed class ReviewGateOverrideRuleTests
 {
     [Fact]
@@ -74,6 +74,9 @@ public sealed class ReviewGateOverrideRuleTests
     [Theory]
     [InlineData("docs/design.md")]
     [InlineData(".claude/skills/pr-review/SKILL.md")]
+    [InlineData(".claude/agents/design-critic.md")]
+    [InlineData(".claude/settings.json.md")]
+    [InlineData("docs/.claude/settings.json")]
     [InlineData("CLAUDE.md")]
     [InlineData("AGENTS.md")]
     [InlineData("README.md")]
@@ -90,11 +93,41 @@ public sealed class ReviewGateOverrideRuleTests
     [InlineData("Makefile")]
     [InlineData("content/items.json")]
     [InlineData("LICENSE")]
+    [InlineData(".claude/settings.json")]
     public void EachPathOutsideTheEligibleSetFails(string path)
     {
         PullRequestFacts facts = ReviewGateFixture.LabeledFacts() with { Files = [path] };
 
         Assert.Equal(GateResult.Fault, OverrideRules.CheckPaths(facts).Result);
+    }
+
+    [Fact]
+    public void TheHarnessSettingsFileTakesTheReviewAndTheFaultNamesD700()
+    {
+        // The regression test of D-700: the old code took the file as a path of `.claude/`.
+        // The file can hold a hook that runs a command in each session. It stands second
+        // here, so an eligible path before it hides nothing.
+        PullRequestFacts facts = ReviewGateFixture.LabeledFacts() with
+        {
+            Files = [".claude/skills/pr-review/SKILL.md", OverrideRules.HarnessSettingsPath],
+        };
+
+        GateCheck check = OverrideRules.CheckPaths(facts);
+
+        Assert.Equal(GateResult.Fault, check.Result);
+        Assert.Contains("`.claude/settings.json`", check.Detail, StringComparison.Ordinal);
+        Assert.Contains("D-700", check.Detail, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AWorkflowPathKeepsItsOwnReason()
+    {
+        PullRequestFacts facts = ReviewGateFixture.LabeledFacts() with { Files = [".github/workflows/ci.yml"] };
+
+        GateCheck check = OverrideRules.CheckPaths(facts);
+
+        Assert.Contains("D-560", check.Detail, StringComparison.Ordinal);
+        Assert.DoesNotContain("D-700", check.Detail, StringComparison.Ordinal);
     }
 
     [Fact]

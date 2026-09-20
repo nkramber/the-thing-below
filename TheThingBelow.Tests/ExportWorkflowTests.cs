@@ -8,7 +8,7 @@ namespace TheThingBelow.Tests;
 
 /// <summary>
 /// The export workflow of PR-54. It runs on each merge to `main`, and on each pull request
-/// that changes one of the four export paths (D-449, D-512, D-692).
+/// that changes one of the five export paths (D-449, D-512, D-692, D-699).
 /// </summary>
 /// <remarks>
 /// The job is not a line of the PR gate, so a fault in its trigger or in its matrix shows on
@@ -28,17 +28,21 @@ public sealed class ExportWorkflowTests
     /// <summary>The end of the command line that starts the smoke session of a build.</summary>
     private const string SmokeCommandMark = "-- --smoke";
 
-    /// <summary>The paths that start the job on a pull request, in the order of D-692.</summary>
+    /// <summary>
+    /// The paths that start the job on a pull request: the four of D-692 in its order, then
+    /// the Game project file, which carries `content/` into each export (D-699, D-508).
+    /// </summary>
     private static readonly string[] TriggerPaths =
     [
         ".github/workflows/export.yml",
         "TheThingBelow.Game/export_presets.cfg",
         "TheThingBelow.Game/project.godot",
         "licenses/**",
+        "TheThingBelow.Game/TheThingBelow.Game.csproj",
     ];
 
     [Fact]
-    public void ThePullRequestTriggerHoldsTheFourExportPathsOfD692()
+    public void ThePullRequestTriggerHoldsTheFiveExportPathsOfD692AndD699()
     {
         string[] lines = File.ReadAllLines(RepositoryRoot.PathTo(ExportWorkflowPath));
         int start = Array.IndexOf(lines, "    paths:");
@@ -64,7 +68,7 @@ public sealed class ExportWorkflowTests
             Assert.True(
                 File.Exists(onDisk) || Directory.Exists(onDisk),
                 $"The trigger path '{path}' names '{onDisk}', and the checkout holds no such " +
-                $"file and no such folder (D-692, T-2).");
+                $"file and no such folder (D-692, D-699, T-2).");
         }
     }
 

@@ -39,8 +39,8 @@ lint:
 
 ## ste-check: the STE checker, the reference check, and the session number check (D-10, D-605).
 #
-# The command reads every live document of the checkout. The four dated records stay out of
-# the writing rules, and the command holds their paths itself (D-10, D-608). The run builds
+# The command reads every live document that git tracks (D-702). The four dated records stay out
+# of the writing rules, and the command holds their paths itself (D-10, D-608). The run builds
 # the Tools project itself, as the pre-commit hook does, so the target runs alone too.
 ste-check:
 	dotnet run --project $(TOOLS_PROJECT) -- ste-check --root .

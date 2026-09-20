@@ -147,7 +147,7 @@ Process terms:
 
 | Term | Use for | Do not use |
 |---|---|---|
-| docs-only PR | a PR whose paths are all in the override set: `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/`, and the PR template (D-16, D-513) | documentation PR, when the text means this set |
+| docs-only PR | a PR whose paths are all in the override set: `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/` without `.claude/settings.json`, and the PR template (D-16, D-513, D-700) | documentation PR, when the text means this set |
 | skip set | the paths that skip the build and test jobs of CI: `docs/`, `.claude/`, `README.md`, `LICENSE`, and the PR template (D-600) | docs-only set, which names the override set |
 | Documents section | the part of the PR description with one line for each required document (D-577, D-581) | documentation-impact matrix, doc checklist |
 | hand-over point | the end of the work of a session on its PR: the verdict `Ready for owner merge` for the effective head, or the label (D-576, D-582) | handoff, which names the entry in `docs/session-handoff.md` |
@@ -160,7 +160,7 @@ The terms of the game, the world, the art, the audio, the effects, the UI, the s
 
 ## The checker
 
-The `ste-check` command of Tools is the checker (D-10, D-101). It reads every live document of the checkout, and it takes no file list (D-608):
+The `ste-check` command of Tools is the checker (D-10, D-101). It reads every live document that git tracks, and an untracked note takes no rule (D-702). A root with no git data, such as a test fixture, gives its folder tree. The command takes no file list (D-608):
 
 ```
 dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .
