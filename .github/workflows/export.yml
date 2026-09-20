@@ -246,7 +246,9 @@ jobs:
 
       # Each export starts with `--headless` and runs the smoke session, which a release
       # export template supports (D-512). The session gives an exit code of 0 with no success
-      # line when its managed assembly does not load, so this step reads the log (T-2, F-64).
+      # line when its managed assembly does not load, so this step reads the log too (T-2, F-64).
+      # The step reads the exit code and the log, and a fault in either one fails the leg. A
+      # step that drops the exit code takes a build that wrote the success line and then failed.
       - name: Run the headless smoke session on the export
         env:
           EXPORT_FILE: ${{ matrix.export-file }}
@@ -273,7 +275,10 @@ jobs:
             *) echo "This job knows no game path for the system '$RUNNER_OS' (T-2)." >&2; exit 1 ;;
           esac
 
-          "$game" --headless --quit-after 600 -- --smoke > export-smoke.log 2>&1 || true
+          # `set -e` ends the step on a nonzero code, and the log checks below must run
+          # first. Thus the step keeps the code and reads it after those checks (T-2).
+          status=0
+          "$game" --headless --quit-after 600 -- --smoke > export-smoke.log 2>&1 || status=$?
           cat export-smoke.log
 
           if ! grep -q "smoke: the session ends with no error." export-smoke.log; then
@@ -282,6 +287,10 @@ jobs:
           fi
           if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR)" export-smoke.log; then
             echo "The smoke session of the export wrote an error line (T-2)." >&2
+            exit 1
+          fi
+          if [ "$status" != "0" ]; then
+            echo "The smoke session of the export ended with the exit code $status (T-2)." >&2
             exit 1
           fi
 

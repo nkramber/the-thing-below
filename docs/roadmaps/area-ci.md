@@ -64,6 +64,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-74 | The macOS export needs the universal binary format and the ETC2 ASTC import setting | PR-54: the preset option and the project setting, with a test on each (D-482) |
 | F-90 | The built-in signer of Godot writes a macOS signature that the kernel refuses | PR-54: the preset calls the `codesign` command of the Xcode tools (D-553) |
 | F-91 | One merge exports 259 MB of build artifacts, and GitHub charges no storage in a public repository | PR-54 keeps the 90 days of D-449. OQ-199 asks about Phase 6 (D-456) |
+| F-92 | A `|| true` after the smoke command drops the exit code of the session, and the caller then reads the log alone | PR-54: the export step and the `smoke` target keep the code, and a test reads the three callers (D-694) |
 
 ## 7. Roadmap
 
@@ -211,6 +212,7 @@ Built by PR-54. Phase file: `phase-2-first-playable.md`. The file `.github/workf
 - The macOS preset takes the universal binary format, and `TheThingBelow.Game/project.godot` turns the ETC2 ASTC import setting on. An export with one of the two off stops with a configuration error (F-74).
 - The macOS preset signs with the `codesign` command of the Xcode tools. The built-in signer of Godot writes a signature that the kernel refuses (F-90).
 - Each export starts with `--headless` and runs the smoke session, which a release export template supports (D-512). The step reads the success line of the log, as the smoke job does (F-64).
+- The step also keeps the exit code of the build, and it reads that code after the log checks. The step needs both parts. A caller that drops the code passes a build that wrote the success line and then failed (F-92, D-694).
 - The job copies `licenses/` beside each build, so every export carries the three notices of D-467 and D-691.
 - An artifact upload gives every file the mode 644. The game then loses its execute bit, and the macOS bundle loses its signature. The job thus packs one archive for each leg, and the upload carries that one file.
 - CI keeps each archive for 90 days, the longest time that GitHub allows (D-449). One merge makes 259 MB, and F-91 and OQ-199 hold the cost in Phase 6.

@@ -65,7 +65,12 @@ content:
 #
 # The session runs with `--quit-after`, because a session whose managed assembly does not
 # load never reaches `Quit` and runs without end (F-64). The session then gives an exit
-# code of 0 with no success line, so this target reads the log and not the code (T-2).
+# code of 0 with no success line, so this target reads the log too (T-2).
+#
+# The target reads the exit code and the log, and a fault in either one fails the target. A
+# target that drops the exit code passes a session that wrote the success line and then
+# failed. The log checks must run first, so the target keeps the code and reads it after
+# them (D-694, T-2).
 smoke:
 	@set -eu; \
 	mkdir -p artifacts; \
@@ -75,14 +80,19 @@ smoke:
 	  || { echo "smoke: the Godot build failed. Read artifacts/godot-build.log (T-2)." >&2; \
 	       tail -5 artifacts/godot-build.log >&2; exit 1; }; \
 	echo "smoke: the headless session"; \
+	status=0; \
 	"$(GODOT)" --headless --path $(GAME_DIR) --quit-after $(SMOKE_FRAME_LIMIT) -- --smoke \
-	    > artifacts/smoke.log 2>&1 || true; \
+	    > artifacts/smoke.log 2>&1 || status=$$?; \
 	if ! grep -q "smoke: the session ends with no error." artifacts/smoke.log; then \
 	    echo "smoke: the session wrote no success line. Read artifacts/smoke.log (T-2)." >&2; \
 	    tail -5 artifacts/smoke.log >&2; exit 1; \
 	fi; \
 	if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR)" artifacts/smoke.log; then \
 	    echo "smoke: the session wrote an error line (T-2)." >&2; exit 1; \
+	fi; \
+	if [ "$$status" != "0" ]; then \
+	    echo "smoke: the session ended with the exit code $$status (T-2)." >&2; \
+	    tail -5 artifacts/smoke.log >&2; exit 1; \
 	fi; \
 	cat artifacts/smoke.log
 

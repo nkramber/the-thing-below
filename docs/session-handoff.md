@@ -53,19 +53,22 @@ Session: PR-54, the export job. Repository: the-thing-below. Branch: `feat/pr-54
 - The owner answered four questions, and D-690 to D-693 hold them. OQ-198 and OQ-199 are new.
 - Answered the automated pass. It found one bug: each push to `main` shares one concurrency group, so a merge cancelled the export of the merge before it. The cancel now applies to a pull request alone, and a test reads the value.
 - Corrected the `docs/reviews/` row of the PR description. It held no form of D-581, and RG 7 faulted on it, as PR #38 did.
+- Answered the cross-provider review of `671d712`. Its one finding, P1-1, has full merit: the export step ran the game with `|| true` and dropped the exit code. The step now keeps the code and reads it after the log checks.
+- The `smoke` target of the `Makefile` held the same fault, and the owner put the repair in this PR. D-694 records that exception to G-8, and F-92 records the fault.
+- Added `TheThingBelow.Tests/SmokeExitCodeTests.cs`, which holds the rule for the three callers of the session. `docs/reviews/pr-39-response.md` holds each disposition.
 
 ### The state of the build
 
-- `make verify` passes on this machine with 832 tests, and `ste-check` gives 0 findings.
-- The remote head of `main` is `fb17f87`, and this branch starts there. The PR is #39, and its head is `af1d908`.
-- The automated pass approved `af1d908` at 23:40 UTC, with its one finding closed and no open thread.
-- Every CI check passes, the three export legs included. `review-gate` holds one fault: RG 3, which asks for `docs/reviews/pr-39.md`. RG 7 and RG 8 pass.
+- `make verify` passes on this machine with 837 tests, and `ste-check` gives 0 findings.
+- The remote head of `main` is `fb17f87`, and this branch starts there. The PR is #39.
+- The review record `docs/reviews/pr-39.md` gives `Changes required` for `671d712`. This round answers its one finding.
+- Every CI check passed at `620f690`, the three export legs included. `review-gate` held RG 3 alone, which the review record cleared.
 - The three artifacts are live: 62 MB for Linux, 69 MB for Windows, and 123 MB for macOS. Each one expires on 2026-12-18.
 - The five exit tests of section 7.1 all ran in CI: the export, the smoke session on the export, the three license files, the trigger of this PR, and the artifacts.
 
 ### What is in flight
 
-The Codex review alone. The PR changes code and `.github/workflows/`, so no label of D-401 applies.
+The push of this round, a new automated pass, and the repeat review of the new head. The PR changes code and `.github/workflows/`, so no label of D-401 applies.
 
 ### Traps and gotchas
 
@@ -74,7 +77,9 @@ The Codex review alone. The PR changes code and `.github/workflows/`, so no labe
 - The executable in the macOS bundle takes the application name, "The Thing Below", and not the name of the export file. The job finds it.
 - An artifact upload drops the execute bit, so the job packs one archive for each leg.
 - The carry-over note of the last prompt is wrong: `main` holds `docs/reviews/pr-38.md`, and PR #38 took its Codex review.
-- The OQ-59 correction goes to its own documents PR (D-690). This PR keeps one concern.
+- The OQ-59 correction goes to its own documents PR (D-690).
+- D-694 puts a second concern in this PR, the `Makefile` fix. It is an owner exception to G-8, and no later PR takes such a fix without one.
+- A push to this PR runs the three exports again, because GitHub reads a path filter of a pull request against the whole diff of the pull request.
 
 ### The questions that block progress
 
@@ -82,7 +87,7 @@ None. OQ-198 blocks PR-31, and OQ-199 blocks the move of D-456 in Phase 6.
 
 ### The next concrete action
 
-The Codex review of PR #39 at head `af1d908`, and the record `docs/reviews/pr-39.md` on this branch.
+Push this round, answer the new automated pass, and ask for the repeat review of the new head.
 
 ## Session 136: 2026-09-19, Codex
 
