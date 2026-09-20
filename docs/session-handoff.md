@@ -16,12 +16,12 @@ Session: PR-61, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui
 ### The state of the build
 
 - `make verify` passes on the Mac: 1050 tests, the format check, det-lint and STE with 0 findings, the replay identity on simulation version 4, the content hash, the atlas check, and the smoke session.
-- The gitar pass of head `6c5571a` approved the code review with no finding, and its CI note has its answer on the PR.
+- The gitar pass of head `d6f5e00` approved the code review with no finding, and it opened no thread. The earlier pass of `6c5571a` did the same, and its CI note has its answer on the PR.
 - The simulation version stays at 4. `GameRun.MenuOpen` reads a value that `RunState` already held, and no rule of Core changed (G-17).
 
 ### What is in flight
 
-The PR waits for the repeat review of Codex at the new effective head. The `review-gate` check reads the verdict of the record, which still says `Changes required`.
+The PR waits for the repeat review of Codex at the new effective head `d6f5e00`. The `review-gate` check gives RG 4 and RG 5 faults, because the record still holds the verdict `Changes required` for head `c8ea1ca`. Both clear with the repeat review. RG 3, RG 7, and RG 8 pass. The CI legs run on the new head.
 
 ### Traps and gotchas
 
