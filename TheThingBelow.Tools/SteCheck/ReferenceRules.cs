@@ -13,12 +13,14 @@ public static class ReferenceRules
 {
     /// <summary>
     /// The top-level folders of this repository. A path in backticks that starts with another
-    /// name points outside the repository, and the path rule reads none of them.
+    /// name points outside the repository, and the path rule reads none of them. A test reads
+    /// the solution file and fails when a project folder is absent from this list.
     /// </summary>
     public static readonly IReadOnlyList<string> RepositoryRoots =
     [
-        ".claude", ".github", "content", "docs",
-        "TheThingBelow.Core", "TheThingBelow.Game", "TheThingBelow.Tests", "TheThingBelow.Tools",
+        ".claude", ".githooks", ".github", "content", "docs", "licenses",
+        "TheThingBelow.Core", "TheThingBelow.Game", "TheThingBelow.Storage",
+        "TheThingBelow.Tests", "TheThingBelow.Tools",
     ];
 
     /// <summary>The file types that make a bare name a path of this repository.</summary>

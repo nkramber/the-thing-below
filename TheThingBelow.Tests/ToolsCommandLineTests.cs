@@ -43,6 +43,25 @@ public sealed class ToolsCommandLineTests
             StringComparison.Ordinal);
     }
 
+    /// <summary>A repeated option would take the last value in silence, so each command refuses one (T-2).</summary>
+    [Theory]
+    [InlineData("ste-check", "--root")]
+    [InlineData("det-lint", "--root")]
+    [InlineData("replay-identity", "--root")]
+    [InlineData("content-hash", "--root")]
+    [InlineData("atlas", "--root")]
+    [InlineData("review-gate", "--pull-request")]
+    public void ARepeatedOptionGivesTheFaultCodeAndNamesTheOption(string command, string option)
+    {
+        using StringWriter output = new StringWriter();
+        using StringWriter errors = new StringWriter();
+
+        int exitCode = Program.Run([command, option, ".", option, "."], output, errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains($"the option {option} is on the command line two times", errors.ToString(), StringComparison.Ordinal);
+    }
+
     [Fact]
     public void ARunWithNoCommandGivesTheFaultCodeAndNamesEveryCommand()
     {
@@ -122,7 +141,7 @@ public sealed class ToolsCommandLineTests
         int exitCode = Program.Run(["ste-check", "--root"], output, errors);
 
         Assert.Equal(Program.FaultExitCode, exitCode);
-        Assert.Contains("needs a path after it", errors.ToString(), StringComparison.Ordinal);
+        Assert.Contains("needs a value after it", errors.ToString(), StringComparison.Ordinal);
     }
 
     [Fact]

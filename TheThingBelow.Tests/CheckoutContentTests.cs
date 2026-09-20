@@ -108,18 +108,5 @@ public sealed class CheckoutContentTests
         Assert.Contains("eol=lf", attributes);
     }
 
-    private static string ReadExpectedHash()
-    {
-        string path = RepositoryRoot.PathTo(HashFilePath);
-        foreach (string line in File.ReadAllLines(path))
-        {
-            string text = line.Trim();
-            if (text.Length > 0 && !text.StartsWith('#'))
-            {
-                return text;
-            }
-        }
-
-        throw new InvalidDataException($"The file '{path}' holds no hash line (T-2).");
-    }
+    private static string ReadExpectedHash() => ContentHashCommand.ReadCommitted(RepositoryRoot.Find());
 }

@@ -64,6 +64,8 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-16 session pass: PR #14 binds each session to one PR and makes the PR the complete unit of its work (D-576, D-577). No PR exists only to record the merge or the documents of an earlier PR, and git holds the merge commit (D-578, D-580). The `one-pr-one-session` skill holds the gates, and PR-3 adds the document rules to the review gate (D-579). The author session answers each review of its PR (D-582). F-58 records that no check can see the conversation of a session.
 
+2026-09-20 audit pass: a principal-level audit read the whole repository, and F-93 records its findings. One PR holds every fix (D-696). The license of the repository is the GNU General Public License version 3 (D-695).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -289,7 +291,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-30 | Before the rename, an audit of every document found stale text in the design, the registers, the world files, the skills, the agent files, and the runbooks. Section 8 still put PR #2 next and a font pick before PR-7. Three rules read the override set as "no code". The design-doc skill swapped two sections, and nine resolved questions lacked the later decisions that changed them | 2026-09-14 | ✅ doc. D-411. One docs PR fixes each item before the rename PR |
 | F-31 | D-115 commits every rendered WAV file. With about 25 tracks for region one, at about 21 MB for a two-minute 16-bit stereo WAV at 44.1 kHz, that is over 500 MB, and each change to a track adds a full copy to the history | 2026-09-14 | ✅ doc. D-432: the build renders the audio, and the repository commits a hash of each render. D-443 and D-444 bring the count to about 20 tracks. Binds PR-38 |
 | F-32 | The cost model listed the Steam Direct fee alone. Steam requires notarized macOS apps since 2019-10-14, and notarization needs the Apple Developer Program at 99 USD a year | 2026-09-14 | ✅ doc. D-455: the cost model gains the fee, and PR-79 signs and notarizes the macOS build (D-553) |
-| F-33 | The release block found five gaps. D-54 made the repository public before D-133 made the later regions paid (L-6). D-170 named no place for a crash file, and the plan had no credits for the notices that the Godot license and the OFL need. D-62 named a config directory, and the Godot user folder on Linux is a data folder. D-464 added two arm64 builds that no CI leg tested (T-3) | 2026-09-14 | ✅ doc. D-456, D-473, D-467, D-465, and D-474. D-481 later removed the arm64 builds |
+| F-33 | The release block found five gaps. D-54, which D-695 later superseded, made the repository public before D-133 made the later regions paid (L-6). D-170 named no place for a crash file, and the plan had no credits for the notices that the Godot license and the OFL need. D-62 named a config directory, and the Godot user folder on Linux is a data folder. D-464 added two arm64 builds that no CI leg tested (T-3) | 2026-09-14 | ✅ doc. D-456, D-473, D-467, D-465, and D-474. D-481 later removed the arm64 builds |
 | F-34 | Steam needs at least five screenshots at 1920 by 1080 or larger in 16:9, and the frame was 1280 by 800 in 16:10 (D-228). D-229 let no screen see more of the map than the Deck, so a 16:9 screenshot needed bars or a crop | 2026-09-14 | ✅ doc. D-480: the game supports a 16:9 view, and a screenshot at 1920 by 1080 comes straight from play D-568 on 2026-09-16 makes the frame 16:9, so a screenshot comes from the 2x scale at 2560 by 1440. |
 | F-35 | Two hash paths of .NET break Core rules. The hash classes "defer to the OS libraries", against G-1. The hash code of a string "is not guaranteed to be stable", and two runs of one program can differ, against T-7. Sources: `https://learn.microsoft.com/en-us/dotnet/standard/security/cross-platform-cryptography` and `https://learn.microsoft.com/en-us/dotnet/api/system.string.gethashcode`, read 2026-09-14 | 2026-09-14 | ⚠ D-644 answers it: Core holds xxHash64 for the state hash and the stream split, and a SHA-256 for the content hash. PR-4 wrote the first one, and PR-5 writes the second (D-645). The det-lint of PR-46 refuses both .NET paths in Core (D-496) |
 | F-36 | D-177 puts the content reader on the JSON support of .NET, and the det-lint of PR-46 bans reflection in Core (D-496). "System.Text.Json uses reflection by default". Source: `https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/source-generation`, read 2026-09-14 | 2026-09-14 | ⚠ Binds PR-5. D-647 answers it on 2026-09-18: Core reads with a hand reader on `Utf8JsonReader`, and Core calls `JsonSerializer` nowhere. `Directory.Build.props` sets `JsonSerializerIsReflectionEnabledByDefault` to `false`, because a class library writes no `runtimeconfig.json` (PR #12 critic pass). A test of PR-5 reads the switch back in the test host. |
@@ -350,6 +352,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-90 | The built-in signer of Godot writes a macOS ad-hoc signature that the kernel refuses. The exported game dies with signal 9 and writes no line, and `--version` fails the same way. The command `codesign --verify --deep --strict` calls that signature valid, so no check of the export finds the fault. A new signature from the `codesign` command of the Xcode tools makes the same build run | 2026-09-19 | ✅ PR-54: the macOS preset takes the value 3 of the codesign option, which calls the Xcode command, and a test reads that value. PR-79 puts the real identity and the notarization on the same leg (D-553) |
 | F-91 | One merge exports 259 MB of build artifacts: 63 MB for Linux, 72 MB for Windows, and 124 MB for the universal macOS build. GitHub charges no artifact storage in a public repository, and D-456 makes the repository private in Phase 6. The 1 GB of a GitHub Pro account then holds about four merges at the 90 days of D-449 | 2026-09-19 | 🔧 PR-54 keeps the 90 days while the repository is public. OQ-199 asks what the retention becomes in Phase 6 |
 | F-92 | A caller of the smoke session that ends the command with `|| true` drops the exit code of the session. The `smoke` target of the Makefile and the first export step of PR-54 each read the log alone, so a session that writes the success line and then fails passed both. A probe with a stub that writes the line and ends with the code 3 gave an exit of 0 from the old text of each one. The smoke job of CI does not hold the fault, because its pipeline runs under `pipefail` | 2026-09-19 | ✅ PR-54: each caller keeps the exit code and reads it after the log checks, and both parts are needed (F-64). `TheThingBelow.Tests/SmokeExitCodeTests.cs` holds the rule for the three callers (D-694). The review of PR #39 found the fault in the export step |
+| F-93 | A principal-level audit of the whole repository found four gaps of the gates and a set of defects. The commit `6910017` changed `LICENSE` on `main` with no PR, and PR #15 and PR #17 merged with no review record and no label, because the protection of `main` does not bind an administrator. The Tools scan of det-lint dropped each compile error outside a folder of D-502, so a scan that read nothing passed. Game recorded each tick after its step, so the record of a crash ended one tick before the crash. Every JSON reader of Core took a repeated field in silence. `docs/reviews/audit-2026-09-20.md` holds each finding and its fix | 2026-09-20 | ✅ the audit fixes PR (D-695, D-696). Each fix of a defect has a regression test, and the simulation version is 4. D-706: the owner enabled the protection of the administrators on 2026-09-20. D-697 to D-705 answer OQ-201 to OQ-209 |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -415,23 +418,26 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 5. PR-82: the Mobile renderer that the Deck test picked, which is one line of `TheThingBelow.Game/project.godot` (D-599, D-616).
 6. PR-2: the `ste-check` command in C#, which replaces the Python script (D-10, D-101).
 7. PR-3: the `review-gate` command and its workflow, with the document rules (D-15, D-500, D-579).
-8. PR-85: the result of the Deck test, the removal of the CRT, and two tests before PR-34 (D-616).
-9. Owner and a session: the screen scale probe on three screens, right after PR-85 (D-621, D-625).
-10. PR-86: the answers of the probe, and the close of OQ-183 (D-626 to D-640).
-11. Owner: require the checks on `main` (OQ-3).
-12. PR-46: `det-lint`, before the first Core code (D-496, D-498).
-13. PR-4: integer math, the random streams, the state hash, the simulation version, and the `replay-identity` job (D-169, D-504).
-14. PR-5: the content reader, the content ids, the content hash, the string table, and the content embed (D-116, D-495, D-508).
-15. PR-6: the tick, the intents, the run record, replay, and the debug seam (D-164, D-260, D-493, D-650 to D-653).
-16. PR-43: the Storage project, the snapshot versions and migrations, and the save files (D-491, D-494).
-17. PR-44: the crash files and the log files (D-170, D-179, D-491, D-658 to D-662).
-18. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).
-19. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517, D-666).
-20. M-1: the harness usage of each of the first ten code PRs. Done on 2026-09-19 (D-672).
-21. M-2: the CI wall time of each job of the first ten code PRs. Done on 2026-09-19.
-22. PR-87: the empty option value of every Tools command, before Gate 1 (D-674, D-677, D-678).
-23. Owner and a session: the Sprite Fusion test of the art, after M-2. Done on 2026-09-19 (D-620, D-675, D-686).
-24. **← GATE 1 (foundation).**
+8. PR-84: the context budget check, right after PR-3 (D-611).
+9. PR-85: the result of the Deck test, the removal of the CRT, and two tests before PR-34 (D-616).
+10. Owner and a session: the screen scale probe on three screens, right after PR-85 (D-621, D-625).
+11. PR-86: the answers of the probe, and the close of OQ-183 (D-626 to D-640).
+12. Owner: require the checks on `main` (OQ-3). Done on 2026-09-19 (D-681).
+13. PR-46: `det-lint`, before the first Core code (D-496, D-498).
+14. PR-4: integer math, the random streams, the state hash, the simulation version, and the `replay-identity` job (D-169, D-504).
+15. PR-5: the content reader, the content ids, the content hash, the string table, and the content embed (D-116, D-495, D-508).
+16. PR-6: the tick, the intents, the run record, replay, and the debug seam (D-164, D-260, D-493, D-650 to D-653).
+17. PR-43: the Storage project, the snapshot versions and migrations, and the save files (D-491, D-494).
+18. PR-44: the crash files and the log files (D-170, D-179, D-491, D-658 to D-662).
+19. PR-47: the PNG reader and writer, right before the atlas (D-176, D-496).
+20. PR-34: the `atlas` command, the drawing files, the palette of 64 colors, and the atlas index (D-107, D-181, D-517, D-666).
+21. M-1: the harness usage of each of the first ten code PRs. Done on 2026-09-19 (D-672).
+22. M-2: the CI wall time of each job of the first ten code PRs. Done on 2026-09-19.
+23. PR-87: the empty option value of every Tools command, before Gate 1 (D-674, D-677, D-678).
+24. PR-88: the stable check names of the CI matrix jobs, before Gate 1 (D-682, D-684).
+25. Owner and a session: the Sprite Fusion test of the art, after M-2. Done on 2026-09-19 (D-620, D-675, D-686).
+26. Owner: add the three legs to the required checks of `main`, after PR-88 merges (D-685). Done on 2026-09-19 (D-697).
+27. **← GATE 1 (foundation).**
 
 > *In plain English:* this phase builds the machinery and the checks, and nothing that a player can see. At the end of it, four computers play the same run and agree on one number.
 
@@ -568,7 +574,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 4. Owner and a session: the Deck test of D-160 on the Linux export (D-458, D-523). Done on 2026-09-17, from the test scene of the branch spike/deck-test (D-597, D-616).
 5. PR-1, PR-2, PR-3, PR-84, PR-85, PR-86. PR-82 follows the Deck test run, and it can land at any point after PR-1 (D-599, D-616).
 6. Owner and a session: the screen scale probe, in the session right after the merge of PR-85 (D-621, D-625). PR-86 records the answers.
-7. Owner: require the checks on `main` (OQ-3).
+7. Owner: require the checks on `main` (OQ-3). Done on 2026-09-19 (D-681).
 8. PR-46, PR-4, PR-5, PR-6, PR-43, PR-44, PR-47, PR-34.
 9. M-1, M-2. Done on 2026-09-19, and section 4 holds each number (D-672).
 10. PR-87: the empty option value of every Tools command (D-677, D-678). PR-88: the stable check names of the CI matrix jobs (D-682, D-684).

@@ -160,6 +160,235 @@ public sealed class ContentSetTests
         Assert.Contains("no rule entry", error.Message);
     }
 
+    [Fact]
+    public void AWellFormedSetWithADrawingLoads()
+    {
+        ContentSet set = ContentSet.Load(Art());
+
+        Drawing drawing = set.DrawingOf(Id(DrawingId));
+        Assert.Equal(DrawingPath, drawing.File);
+        Assert.Single(set.Drawings);
+    }
+
+    [Fact]
+    public void AKeyThatThePaletteLacksFailsWithTheFrameTheRowAndTheColumn()
+    {
+        // F-20. The message names the pixel, so a session finds it in the file.
+        ContentException error = Assert.Throws<ContentException>(
+            () => ContentSet.Load(Art(drawing: DrawingBody(rows: "\"k.\", \".z\""))));
+
+        Assert.Equal(DrawingPath, error.File);
+        Assert.Equal("frames[0].rows[1]", error.Field);
+        Assert.Contains("column 1", error.Message);
+        Assert.Contains("'z'", error.Message);
+    }
+
+    [Fact]
+    public void AnIndexPageWithNoFileFails()
+    {
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(Art(page: false)));
+
+        Assert.Equal(AtlasIndex.Path, error.File);
+        Assert.Equal("map_sprites", error.Field);
+        Assert.Contains(PagePath, error.Message);
+    }
+
+    [Fact]
+    public void APageFileThatNoIndexNamesFails()
+    {
+        // The atlas command owns every page file, so a leftover page never ships (D-666).
+        ContentException error = Assert.Throws<ContentException>(
+            () => ContentSet.Load(Art(extra: File("sprites/atlas-tiles.png", "png"))));
+
+        Assert.Equal("sprites/atlas-tiles.png", error.File);
+        Assert.Contains("D-666", error.Message);
+    }
+
+    [Fact]
+    public void AnIndexEntryWithNoDrawingFileFails()
+    {
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(Art(drawing: string.Empty)));
+
+        Assert.Equal(AtlasIndex.Path, error.File);
+        Assert.Equal(DrawingId, error.Field);
+        Assert.Contains("atlas command", error.Message);
+    }
+
+    [Fact]
+    public void ADrawingWithNoIndexEntryFails()
+    {
+        ContentException error = Assert.Throws<ContentException>(
+            () => ContentSet.Load(Art(index: IndexBody(entries: string.Empty))));
+
+        Assert.Equal(AtlasIndex.Path, error.File);
+        Assert.Equal(DrawingId, error.Field);
+    }
+
+    [Theory]
+    [InlineData("width", "3", "3 by 2 pixels")]
+    [InlineData("ticks", "5", "5 ticks in the index")]
+    [InlineData("use", "portrait", "other things that the drawing draws")]
+    public void AnIndexEntryThatDiffersFromTheDrawingFails(string part, string value, string reason)
+    {
+        // G-24. A stale index fails at load, and the message names the difference.
+        string index = part switch
+        {
+            "width" => IndexBody(width: value),
+            "ticks" => IndexBody(ticks: value),
+            _ => IndexBody(use: value),
+        };
+
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(Art(index: index)));
+
+        Assert.Equal(DrawingPath, error.File);
+        Assert.Equal(DrawingId, error.Field);
+        Assert.Contains(reason, error.Message);
+        Assert.Contains("G-24", error.Message);
+    }
+
+    [Fact]
+    public void AnIndexEntryWithAnotherFrameCountFails()
+    {
+        string index = IndexBody(frames: """{ "x": 0, "y": 0, "ticks": 0 }, { "x": 2, "y": 0, "ticks": 0 }""");
+
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(Art(index: index)));
+
+        Assert.Equal(DrawingId, error.Field);
+        Assert.Contains("2 frames", error.Message);
+    }
+
+    [Fact]
+    public void AnIndexEntryOnAPageOfAnotherKindFails()
+    {
+        string index = IndexBody(
+            pages: """{ "kind": "tiles", "number": 1, "width": 32, "height": 32 }""",
+            page: "tiles");
+
+        ContentException error = Assert.Throws<ContentException>(
+            () => ContentSet.Load(Art(index: index, page: false, extra: File("sprites/atlas-tiles.png", "png"))));
+
+        Assert.Equal(DrawingId, error.Field);
+        Assert.Contains("the page 'tiles'", error.Message);
+    }
+
+    [Fact]
+    public void ARepeatedDrawingIdAcrossTwoFilesFails()
+    {
+        // The set reads its files in ordinal order of the path, so the second file of the id
+        // is the one whose path sorts later (F-39).
+        ContentFile second = File("sprites/drawings/cast/other-map-front.json", DrawingBody());
+
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(Art(extra: second)));
+
+        Assert.Equal(DrawingPath, error.File);
+        Assert.Equal(DrawingId, error.Field);
+        Assert.Contains(second.Path, error.Message);
+    }
+
+    [Fact]
+    public void ADrawingIdThatTheSetLacksFails()
+    {
+        ContentSet set = ContentSet.Load(Art());
+
+        ContentException error = Assert.Throws<ContentException>(() => set.DrawingOf(Id("drawing.absent")));
+
+        Assert.Equal("drawing.absent", error.Field);
+        Assert.Contains("no drawing", error.Message);
+    }
+
+    [Fact]
+    public void APathInTheSetTwoTimesFails()
+    {
+        // A second file of one path would replace the first in silence (T-2).
+        List<ContentFile> files = [.. Files(), File(Palette.Path, PaletteBody)];
+
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(files));
+
+        Assert.Equal(Palette.Path, error.File);
+        Assert.Contains("two times", error.Message);
+    }
+
+    private const string DrawingId = "drawing.test_map_front";
+    private const string DrawingPath = "sprites/drawings/cast/test-map-front.json";
+    private const string PagePath = "sprites/atlas-map_sprites.png";
+
+    /// <summary>A set with one drawing, its page, and an index that matches them.</summary>
+    /// <param name="index">The text of the index, or null for one that matches the drawing.</param>
+    /// <param name="drawing">The text of the drawing file, null for the default, and empty for no file.</param>
+    /// <param name="page">True to hold the page file of the index.</param>
+    /// <param name="extra">Other files of the set.</param>
+    private static IReadOnlyList<ContentFile> Art(
+        string? index = null,
+        string? drawing = null,
+        bool page = true,
+        params ContentFile[] extra)
+    {
+        List<ContentFile> files =
+        [
+            File(Palette.Path, PaletteBody),
+            File(StringTable.Path, StringsBody),
+            File(AtlasIndex.Path, index ?? IndexBody()),
+        ];
+
+        drawing ??= DrawingBody();
+        if (drawing.Length > 0)
+        {
+            files.Add(File(DrawingPath, drawing));
+        }
+
+        if (page)
+        {
+            // Core reads no pixel of a page, so the bytes are free (D-517).
+            files.Add(File(PagePath, "png"));
+        }
+
+        files.AddRange(extra);
+        return files;
+    }
+
+    private static string DrawingBody(string rows = "\"k.\", \".k\"") =>
+        $$"""
+        {
+         "id": "{{DrawingId}}",
+         "page": "map_sprites",
+         "width": 2,
+         "height": 2,
+         "draws": [ { "content": "cast.test", "use": "map_front" } ],
+         "frames": [ { "ticks": 0, "rows": [ {{rows}} ] } ]
+        }
+        """;
+
+    private static string IndexBody(
+        string? pages = null,
+        string? entries = null,
+        string page = "map_sprites",
+        string width = "2",
+        string ticks = "0",
+        string use = "map_front",
+        string? frames = null)
+    {
+        pages ??= """{ "kind": "map_sprites", "number": 1, "width": 32, "height": 32 }""";
+        frames ??= $$"""{ "x": 0, "y": 0, "ticks": {{ticks}} }""";
+        entries ??= $$"""
+            {
+             "id": "{{DrawingId}}",
+             "page": "{{page}}",
+             "width": {{width}},
+             "height": 2,
+             "draws": [ { "content": "cast.test", "use": "{{use}}" } ],
+             "frames": [ {{frames}} ]
+            }
+            """;
+
+        return $$"""
+            {
+             "comment": "a test index",
+             "pages": [ {{pages}} ],
+             "drawings": [ {{entries}} ]
+            }
+            """;
+    }
+
     private static ContentId Id(string value) => ContentId.Parse(value, "rules/a.json", "id");
 
     private static ContentFile File(string path, string body) => new(path, Encoding.UTF8.GetBytes(body));

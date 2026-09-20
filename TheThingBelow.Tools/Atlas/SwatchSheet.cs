@@ -21,8 +21,9 @@ public static class SwatchSheet
     public const int Columns = 8;
 
     private const int SwatchSize = 64;
-    private const int CellWidth = 112;
+    private const int LeastCellWidth = 112;
     private const int CellHeight = SwatchSize + 22;
+    private const int LabelPad = 8;
     private const int Margin = 12;
     private const int TitleHeight = 16;
 
@@ -41,10 +42,11 @@ public static class SwatchSheet
         string title = Title(palette);
         int rows = (palette.Colors.Count + Columns - 1) / Columns;
         int columns = Math.Min(Columns, palette.Colors.Count);
+        int cellWidth = CellWidthOf(palette);
 
         // The sheet is never narrower than its title, so a short palette still holds the
         // line that names the sheet (T-2).
-        int width = (Margin * 2) + Math.Max(columns * CellWidth, SheetFont.WidthOf(title));
+        int width = (Margin * 2) + Math.Max(columns * cellWidth, SheetFont.WidthOf(title));
         int height = (Margin * 2) + TitleHeight + (rows * CellHeight);
 
         var canvas = new AtlasCanvas(width, height);
@@ -53,13 +55,36 @@ public static class SwatchSheet
 
         for (int index = 0; index < palette.Colors.Count; index += 1)
         {
-            int x = Margin + ((index % Columns) * CellWidth);
+            int x = Margin + ((index % Columns) * cellWidth);
             int y = Margin + TitleHeight + ((index / Columns) * CellHeight);
             DrawSwatch(canvas, palette.Colors[index], x, y, text, edge);
         }
 
         return canvas.ToImage();
     }
+
+    /// <summary>
+    /// Gives the width of one cell: the least width, or the width of the longest label of the
+    /// palette. A label wider than its cell would reach the next cell, and the last column
+    /// would leave the canvas (T-2).
+    /// </summary>
+    /// <param name="palette">The palette to show.</param>
+    /// <returns>The width of one cell in pixels.</returns>
+    public static int CellWidthOf(Palette palette)
+    {
+        ArgumentNullException.ThrowIfNull(palette);
+
+        int width = LeastCellWidth;
+        foreach (PaletteColor color in palette.Colors)
+        {
+            width = Math.Max(width, SheetFont.WidthOf(Label(color)) + LabelPad);
+            width = Math.Max(width, SheetFont.WidthOf(color.Hex) + LabelPad);
+        }
+
+        return width;
+    }
+
+    private static string Label(PaletteColor color) => $"{color.Index} {color.Name}";
 
     // The label holds no parenthesis, because the sheet font carries none.
     private static string Title(Palette palette) =>
@@ -83,7 +108,7 @@ public static class SwatchSheet
         int keyY = y + ((SwatchSize - SheetFont.GlyphHeight) / 2);
         SheetFont.Draw(canvas, color.Key, keyX, keyY, onSwatch);
 
-        SheetFont.Draw(canvas, $"{color.Index} {color.Name}", x, y + SwatchSize + 4, text);
+        SheetFont.Draw(canvas, Label(color), x, y + SwatchSize + 4, text);
         SheetFont.Draw(canvas, color.Hex, x, y + SwatchSize + 12, text);
     }
 

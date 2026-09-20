@@ -54,6 +54,34 @@ public sealed class CrashStoreTests : IDisposable
     }
 
     [Fact]
+    public void AWriteRemovesTheTemporaryFileOfATornWrite()
+    {
+        // A torn safe write leaves its temporary file, and the name pattern of the folder
+        // never matches one, so the next write removes it (D-178).
+        Directory.CreateDirectory(this.store.Folder);
+        string torn = Path.Combine(this.store.Folder, "crash-20260918-014200.json" + SafeWrite.TemporarySuffix);
+        File.WriteAllText(torn, "{");
+
+        this.store.Write(CoreFault(), null, Moment);
+
+        Assert.False(File.Exists(torn));
+    }
+
+    [Fact]
+    public void AWriteWithAClockBehindTheOlderFilesKeepsItsOwnFile()
+    {
+        for (int minute = 1; minute <= CrashStore.KeepCount; minute += 1)
+        {
+            this.store.Write(CoreFault(), null, Moment.AddMinutes(minute));
+        }
+
+        string path = this.store.Write(CoreFault(), null, Moment);
+
+        Assert.True(File.Exists(path));
+        Assert.Equal(CrashStore.KeepCount + 1, this.store.Names().Count);
+    }
+
+    [Fact]
     public void AWriteMakesTheFolderAndTheNameOfTheTime()
     {
         Assert.False(Directory.Exists(this.store.Folder));

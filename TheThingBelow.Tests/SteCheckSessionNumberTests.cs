@@ -42,6 +42,26 @@ public sealed class SteCheckSessionNumberTests
         Assert.Contains("session 2 appears again", found.Detail);
     }
 
+    /// <summary>A heading of another level hides an entry from every other rule (D-18).</summary>
+    [Fact]
+    public void AnEntryUnderAHeadingOfAnotherLevelIsAFinding()
+    {
+        using SteCheckCheckout checkout = SteCheckCheckout.Build();
+        checkout.Append(
+            "docs/session-handoff-archive.md",
+            string.Empty,
+            "# Session 3: 2026-09-14, Codex",
+            string.Empty,
+            "The third session, under a heading of the wrong level.");
+
+        IReadOnlyList<Finding> findings = SessionNumberRules.Check(DocumentSet.Read(checkout.Root));
+
+        Finding found = Assert.Single(findings);
+        Assert.Equal("HANDOFF 4", found.Rule);
+        Assert.Equal("docs/session-handoff-archive.md", found.File);
+        Assert.Contains("session 3", found.Detail);
+    }
+
     [Fact]
     public void AnEntryOutOfOrderIsAFinding()
     {

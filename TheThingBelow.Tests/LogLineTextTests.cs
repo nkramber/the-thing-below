@@ -57,6 +57,23 @@ public sealed class LogLineTextTests
         Assert.Throws<ArgumentOutOfRangeException>(() => LogLineText.NameOf((LogLevel)9));
     }
 
+    [Theory]
+    [InlineData("\"tick\":7", "\"tick\":-1", "tick")]
+    [InlineData("\"beats\":\"3\"", "\"beats\":\"\"", "value")]
+    [InlineData("\"beats\":\"3\"", "\"beats\":\"3\",\"beats\":\"4\"", "two times")]
+    public void ALineWithAValueThatNoEntryHoldsFailsAsALineError(string from, string to, string reason)
+    {
+        // The entry constructor refuses the value with an error that names a parameter and
+        // no line. The reader turns it into the error of a line (T-2).
+        string text = LogLineText.Write(Line(LogLevel.Info, "the patrol walked one beat"));
+        string broken = text.Replace(from, to, StringComparison.Ordinal);
+        Assert.NotEqual(text, broken);
+
+        ContentException error = Assert.Throws<ContentException>(() => LogLineText.Read(broken));
+
+        Assert.Contains(reason, error.Message, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void AReadOfAWriteGivesTheSameLine()
     {

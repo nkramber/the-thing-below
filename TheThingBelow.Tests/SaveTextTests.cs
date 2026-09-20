@@ -172,6 +172,18 @@ public sealed class SaveTextTests
     }
 
     [Fact]
+    public void AReadRefusesAFieldOfTheHeaderTwoTimes()
+    {
+        string text = SaveText.Write(SaveRuns.SaveAfter(20));
+        string broken = text.Replace("{\"format\":", "{\"format\":1,\"format\":", StringComparison.Ordinal);
+        Assert.NotEqual(text, broken);
+
+        SaveException error = Assert.Throws<SaveException>(() => SaveText.Read(broken, FilePath));
+
+        Assert.Contains("two times", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AReadRefusesACarriageReturn()
     {
         string text = SaveText.Write(SaveRuns.SaveAfter(20)).Replace("\n", "\r\n", StringComparison.Ordinal);
@@ -231,7 +243,7 @@ public sealed class SaveTextTests
 
         SaveException error = Assert.Throws<SaveException>(() => SaveText.Read(text, FilePath));
 
-        Assert.Contains("which is even", error.Message, StringComparison.Ordinal);
+        Assert.Contains("takes the increment", error.Message, StringComparison.Ordinal);
         Assert.Contains(FilePath, error.Message, StringComparison.Ordinal);
     }
 }

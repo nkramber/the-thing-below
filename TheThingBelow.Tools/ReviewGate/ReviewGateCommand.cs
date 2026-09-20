@@ -33,40 +33,14 @@ public static class ReviewGateCommand
         ArgumentNullException.ThrowIfNull(output);
         ArgumentNullException.ThrowIfNull(errors);
 
-        string? factsPath = null;
-        string? headFilesRoot = null;
-        for (int index = 0; index < args.Count; index += 2)
+        OptionParser? options = OptionParser.Read(Name, args, [PullRequestOption, HeadFilesOption], [], errors);
+        if (options is null)
         {
-            string option = args[index];
-            if (option != PullRequestOption && option != HeadFilesOption)
-            {
-                errors.WriteLine(
-                    $"Error: the option '{option}' is unknown. {Name} takes {PullRequestOption} <file> and {HeadFilesOption} <folder>.");
-                return Program.FaultExitCode;
-            }
-
-            if (index + 1 >= args.Count)
-            {
-                errors.WriteLine($"Error: the option {option} needs a path after it.");
-                return Program.FaultExitCode;
-            }
-
-            string value = args[index + 1];
-            if (OptionValue.ReportEmpty(option, value, errors))
-            {
-                return Program.FaultExitCode;
-            }
-
-            if (option == PullRequestOption)
-            {
-                factsPath = value;
-            }
-            else
-            {
-                headFilesRoot = value;
-            }
+            return Program.FaultExitCode;
         }
 
+        string? factsPath = options.Value(PullRequestOption);
+        string? headFilesRoot = options.Value(HeadFilesOption);
         if (factsPath is null || headFilesRoot is null)
         {
             errors.WriteLine(

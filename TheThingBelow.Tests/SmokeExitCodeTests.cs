@@ -45,6 +45,21 @@ public sealed class SmokeExitCodeTests
         Assert.DoesNotContain("|| true", commands[0], StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// The two workflow steps pipe the session into `tee`, and `pipefail` alone carries the
+    /// exit code of the session through the pipe (D-694). The test pins the line, so a step
+    /// without it never passes a session that wrote the success line and then failed.
+    /// </summary>
+    [Theory]
+    [InlineData(".github/workflows/ci.yml", "Run the headless smoke session")]
+    [InlineData(".github/workflows/export.yml", "Run the headless smoke session on the export")]
+    public void EachWorkflowSmokeStepRunsUnderPipefail(string path, string step)
+    {
+        string[] block = WorkflowText.RunBlockOf(path, step);
+
+        Assert.Equal("set -euo pipefail", WorkflowText.FirstCommandOf(block));
+    }
+
     [Fact]
     public void TheMakefileSmokeTargetFailsOnANonzeroExitCode()
     {

@@ -43,6 +43,21 @@ public sealed class DetLintSceneTextTests
         Assert.Equal(2, finding.Line);
     }
 
+    /// <summary>Godot writes the text of a menu item under a slash, and the rule reads the last part.</summary>
+    [Theory]
+    [InlineData("item_0/text = \"Attack\"")]
+    [InlineData("popup/item_0/text = \"Attack\"")]
+    public void ATextValueOfAnItemFails(string line)
+    {
+        IReadOnlyList<LintFinding> findings = SceneTextRule.Check(
+            "TheThingBelow.Game/Fixture.tscn",
+            ["[node name=\"Menu\" type=\"PopupMenu\"]", line]);
+
+        LintFinding finding = Assert.Single(findings);
+        Assert.Equal("DL 9", finding.Rule);
+        Assert.Equal(2, finding.Line);
+    }
+
     [Fact]
     public void ALayoutValueInASceneFilePasses()
     {

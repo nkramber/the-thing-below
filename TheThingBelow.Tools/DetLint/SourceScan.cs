@@ -20,6 +20,13 @@ public static class SourceScan
     /// <summary>The id of the rule that reports a compilation error (T-2).</summary>
     public const string CompileRule = "DL 0";
 
+    /// <summary>
+    /// The symbols that `Directory.Build.props` defines for every project. The scan parses
+    /// with the same symbols, so a block behind `#if` takes the rules too. A test reads the
+    /// props file and fails when the two lists differ (T-2).
+    /// </summary>
+    public static readonly IReadOnlyList<string> PreprocessorSymbols = ["CONTRACTS_FULL"];
+
     /// <summary>Compiles the sources and gives each finding of each rule.</summary>
     /// <param name="assemblyName">The name of the compilation, for the compiler.</param>
     /// <param name="sources">The source files of the scan.</param>
@@ -45,7 +52,7 @@ public static class SourceScan
         {
             trees.Add(CSharpSyntaxTree.ParseText(
                 source.Text,
-                new CSharpParseOptions(LanguageVersion.Latest),
+                new CSharpParseOptions(LanguageVersion.Latest, preprocessorSymbols: PreprocessorSymbols),
                 source.Path));
         }
 

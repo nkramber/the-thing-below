@@ -38,7 +38,7 @@ awk '/^## 6\./{p=1} /^## 7\./{p=0} p' docs/design.md
 
 # The roadmap file of a PR, then its block
 grep -rn -E '^#+ .*PR-5:' docs/roadmaps/ | head -5
-awk '/^### 7\.7 PR-5:/{p=1;print;next} /^#{2,3} /{p=0} p' docs/roadmaps/phase-1-foundations.md
+awk '/^### 7\.12 PR-5:/{p=1;print;next} /^#{2,3} /{p=0} p' docs/roadmaps/phase-1-foundations.md
 
 # A topic, with a limit on the output
 grep -n -i -E 'handoff|session' docs/decisions.md | cut -c1-200 | head -20

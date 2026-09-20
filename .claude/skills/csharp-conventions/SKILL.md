@@ -5,17 +5,17 @@ description: The C# rules of this repo. The engine-free Core, integer math, erro
 
 # C# conventions skill
 
-Load this skill before you write or review C# in this repo (D-21, D-99). It applies the tenets to C# and Godot. The scaffold PR, PR-1, creates the solution, and this skill needs a revision pass after it merges.
+Load this skill before you write or review C# in this repo (D-21, D-99). It applies the tenets to C# and Godot. PR-1 created the solution on 2026-09-16, and the audit of 2026-09-20 revised this skill (D-696).
 
 ## Project boundaries
 
 - `Core` is the simulation. It has no reference to Godot, the file system, the network, the clock, or the OS (G-1, D-100). It takes a seed, content bytes, and intents, and it returns state, bytes, and events (D-168, D-493).
 - `Game` is the Godot project. It reads `Core` state, draws it, plays audio, and turns input into intents. Godot physics, timers, and navigation never feed the simulation.
-- `Tools` holds the gate tools: the STE checker, the review gate, det-lint, and the night gate. It also holds the headless runner and the PNG code (D-496). Its content tools are the atlas, the normal maps, the PNG import, and the audio synthesizer. The map preview, the tile-edge tool, and the screenplay tool complete the set (D-497).
+- `Tools` holds the gate tools: the STE checker, the review gate, det-lint, the identity check, and the content hash. It also holds the PNG code and the atlas command (D-496). PR-49 adds the night gate, and PR-15 adds the headless runner. The other content tools are the normal maps, the PNG import, and the audio synthesizer. The map preview, the tile-edge tool, and the screenplay tool complete the set (D-497).
 - A tool whose output a test compares on every CI leg uses integer math, as `Core` does (D-502).
 - `Tests` holds the xUnit tests for `Core`, `Storage`, and `Tools`, and the smoke test that starts the Game headless.
-- The debug assembly is the fifth project, and only development builds reference it (D-260).
-- `Storage` is the sixth project. It holds the file code for saves, run records, crash files, and log files. Game and Tools reference it, and `Core` never does (D-494).
+- `Storage` is the fifth project. It holds the file code for saves, run records, crash files, and log files. Game and Tools reference it, and `Core` never does (D-494).
+- PR-45 adds the debug assembly as the sixth project, and only development builds reference it (D-260).
 - A test asserts the reference list of `Core`. A new package in any project needs a decision entry (G-13).
 
 ## Shape of Core code (D-168)
@@ -32,6 +32,7 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 - Iterate in a fixed order. Use `List<T>` and `SortedDictionary<TKey, TValue>` where the order reaches the state (G-4). Never use `Dictionary<TKey, TValue>` or `HashSet<T>` there. det-lint fails a walk of either type in Core, and a lookup by key stays legal (D-615).
 - Every `Core` behavior change bumps the simulation version constant (G-17).
 - Check every arithmetic operation that a content value can drive with `checked`. An overflow is an error with context, never a wrap.
+- No thread, no task, and no SIMD vector in `Core`. det-lint fails each one (DL 10, T-7).
 - No reflection, no `dynamic`, no LINQ in a hot loop, no conditional compilation in `Core`.
 - No hash from `GetHashCode` or from the .NET hash classes in `Core`. Use the hash function that `Core` holds (F-35).
 - Order strings by an ordinal comparison alone. A `SortedDictionary` with string keys takes `StringComparer.Ordinal`, because the default order follows the culture of the machine (F-39).
@@ -47,7 +48,7 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 
 ## Content (D-116)
 
-- Content is JSON. A schema validates each file at load and in a test. An unknown field and an absent field are both errors.
+- Content is JSON. A schema validates each file at load and in a test. An unknown field, an absent field, and a repeated field are each an error.
 - The JSON reader of `Core` runs with no runtime reflection (F-36).
 - Game reads content bytes from the resources of its own assembly, and `Tools` holds the one reader of the `content/` folder (D-508). A resource read that returns null fails with the resource name (T-2).
 - `Core` holds the record of every content file, also the palette and the atlas index, which no rule reads (D-517).
@@ -90,7 +91,7 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 - A property test is a seed loop: iterate a fixed seed range, assert the property, and name the seed in the failure message.
 - A bug fix ships with a regression test that fails on the old code. The PR description names the test.
 - A test asserts the contract, not a copy of the implementation.
-- The Smoke category starts the Godot build. CI runs it in the smoke workflow alone.
+- The Smoke category starts the Godot build. No test carries it yet, and the PR that adds the first one adds the CI step that runs the category (D-592).
 - A test that reads a built assembly reads the file of the project that built it. A coverage run instruments the copy in the test output folder and adds references to it (F-61).
 
 ## Commands
@@ -103,7 +104,7 @@ dotnet test --solution TheThingBelow.slnx --no-build -- --filter-not-trait "Cate
 dotnet format TheThingBelow.slnx --verify-no-changes
 dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- ste-check --root .
 dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- det-lint --root .
-/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path TheThingBelow.Game -- --smoke
+/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path TheThingBelow.Game --quit-after 600 -- --smoke
 ```
 
 Every option of the test application comes after `--`, because `dotnet test` reads the options before it (D-592).

@@ -50,47 +50,24 @@ public static class ContentHashCommand
         ArgumentNullException.ThrowIfNull(output);
         ArgumentNullException.ThrowIfNull(errors);
 
-        string root = ".";
-        bool write = false;
-        for (int index = 0; index < args.Count; index += 1)
+        OptionParser? options = OptionParser.Read(Name, args, [RootOption], [WriteOption], errors);
+        if (options is null)
         {
-            string option = args[index];
-            if (option == WriteOption)
-            {
-                write = true;
-                continue;
-            }
-
-            if (option != RootOption)
-            {
-                errors.WriteLine(
-                    $"Error: the option '{option}' is unknown. {Name} takes {RootOption} <path> and {WriteOption}.");
-                return Program.FaultExitCode;
-            }
-
-            if (index + 1 >= args.Count)
-            {
-                errors.WriteLine($"Error: the option {RootOption} needs a value after it.");
-                return Program.FaultExitCode;
-            }
-
-            string value = args[index + 1];
-            if (OptionValue.ReportEmpty(RootOption, value, errors))
-            {
-                return Program.FaultExitCode;
-            }
-
-            root = value;
-            index += 1;
+            return Program.FaultExitCode;
         }
+
+        string root = options.ValueOr(RootOption, ".");
+        bool write = options.Holds(WriteOption);
 
         try
         {
             return write ? WriteFile(root, output) : Compare(root, output, errors);
         }
         catch (Exception fault) when (
-            fault is IOException or UnauthorizedAccessException or ContentException)
+            fault is IOException or UnauthorizedAccessException or ContentException or InvalidDataException)
         {
+            // `InvalidDataException` does not derive from `IOException`, so a hash file with
+            // no hash line needs its own name in this list, as the identity command says (T-2).
             errors.WriteLine($"Error: {Name} stopped on the root '{root}': {fault.Message}");
             return Program.FaultExitCode;
         }

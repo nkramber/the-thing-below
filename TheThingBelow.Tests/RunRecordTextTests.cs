@@ -222,6 +222,34 @@ public sealed class RunRecordTextTests
             () => RunReplay.Play(RunRecordText.Read(text), ContentHash, DebugIntentHandlers.None));
     }
 
+    [Fact]
+    public void AStreamIncrementOfAnotherStreamIsAnErrorOfTheSnapshotLine()
+    {
+        // The increment of a stream comes from its number alone, so an odd increment of
+        // another number is no state of this build either (T-7).
+        string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
+        lines[1] = ReplaceFirstIncrement(lines[1], "0x0000000000000011");
+
+        RunRecordException error = Assert.Throws<RunRecordException>(
+            () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
+
+        Assert.Equal(2, error.Line);
+        Assert.Contains("increment", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AFieldOfTheHeaderTwoTimesIsAnErrorThatNamesTheLine()
+    {
+        string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
+        lines[0] = lines[0].Replace("{\"format\":1,", "{\"format\":1,\"format\":1,", StringComparison.Ordinal);
+
+        RunRecordException error = Assert.Throws<RunRecordException>(
+            () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
+
+        Assert.Equal(1, error.Line);
+        Assert.Contains("two times", error.Message, StringComparison.Ordinal);
+    }
+
     /// <summary>Puts another increment in the first stream of a snapshot line.</summary>
     /// <param name="line">The snapshot line of a record.</param>
     /// <param name="increment">The hexadecimal text of the new increment.</param>

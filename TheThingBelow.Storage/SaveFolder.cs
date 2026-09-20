@@ -111,9 +111,9 @@ public static class SaveFolder
                 return Join(system, Require(home, HomeVariable), ".local", "share");
 
             default:
-                throw StorageException.ForPath(
-                    Name,
-                    $"the system '{system}' is not one of the three systems of the game (D-481)");
+                throw StorageException.ForSystem(
+                    system.ToString(),
+                    "the system is not one of the three systems of the game (D-481)");
         }
     }
 
@@ -143,9 +143,9 @@ public static class SaveFolder
     {
         if (string.IsNullOrEmpty(value))
         {
-            throw StorageException.ForPath(
-                Name,
-                $"the environment names no '{variable}', so the game cannot find the folder of the saves (D-465)");
+            throw StorageException.ForVariable(
+                variable,
+                "the environment gives the variable no value, so the game cannot find the folder of the saves (D-465)");
         }
 
         return value;
@@ -174,8 +174,8 @@ public static class SaveFolder
             return SaveSystem.Linux;
         }
 
-        throw StorageException.ForPath(
-            Name,
-            $"the system '{Environment.OSVersion.Platform}' is not Windows, macOS, or Linux, and the game supports those three alone (D-481)");
+        throw StorageException.ForSystem(
+            Environment.OSVersion.Platform.ToString(),
+            "the system is not Windows, macOS, or Linux, and the game supports those three alone (D-481)");
     }
 }

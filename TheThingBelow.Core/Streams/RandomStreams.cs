@@ -43,6 +43,18 @@ public static class RandomStreams
         return new RandomStream(stream, Pcg32.FromSeed(SeedOf(runSeed, stream), (ulong)stream));
     }
 
+    /// <summary>Gives the increment that the generator of one stream takes (D-643).</summary>
+    /// <param name="stream">The subsystem that draws from this stream.</param>
+    /// <returns>The increment, which <see cref="Pcg32.FromSeed"/> makes from the stream number.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Core holds no such stream number (T-2).</exception>
+    /// <remarks>A snapshot check reads it, so no stream of another sequence reaches a replay (T-7).</remarks>
+    public static ulong IncrementOf(StreamId stream)
+    {
+        RequireKnown(stream);
+
+        return Pcg32.IncrementOf((ulong)stream);
+    }
+
     /// <summary>Gives the seed of one stream.</summary>
     /// <param name="runSeed">The seed of the run.</param>
     /// <param name="stream">The subsystem that draws from this stream.</param>

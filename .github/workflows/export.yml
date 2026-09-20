@@ -236,13 +236,15 @@ jobs:
           ls -la export
 
       # Every export carries the notices of Godot, the Terminus fonts, and the .NET runtime
-      # (D-467, D-691). The Godot export packs the project folder alone, so the job copies
-      # the folder beside the build (F-42, D-508).
+      # (D-467, D-691), and the license of the game itself (D-695). The Godot export packs the
+      # project folder alone, so the job copies the folder and the file beside the build
+      # (F-42, D-508).
       - name: Copy the license files into the export
         run: |
           set -euo pipefail
           cp -R licenses export/licenses
-          ls export/licenses
+          cp LICENSE export/LICENSE
+          ls export/licenses export/LICENSE
 
       # Each export starts with `--headless` and runs the smoke session, which a release
       # export template supports (D-512). The session gives an exit code of 0 with no success

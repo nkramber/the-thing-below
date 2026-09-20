@@ -34,6 +34,10 @@ public sealed class DocumentSet
     private readonly List<string> liveDocuments = [];
     private readonly HashSet<string> pathSet = new HashSet<string>(StringComparer.Ordinal);
 
+    // Each rule reads the same file, and the file never changes during one run, so one read
+    // serves every rule (T-1).
+    private readonly Dictionary<string, string[]> lineCache = new Dictionary<string, string[]>(StringComparer.Ordinal);
+
     private DocumentSet(string root) => Root = root;
 
     /// <summary>The full path of the root of the checkout.</summary>
@@ -123,7 +127,13 @@ public sealed class DocumentSet
     public IReadOnlyList<string> ReadLines(string path)
     {
         ArgumentException.ThrowIfNullOrEmpty(path);
-        return File.ReadAllLines(Path.Combine(Root, path.Replace('/', Path.DirectorySeparatorChar)));
+        if (!lineCache.TryGetValue(path, out string[]? lines))
+        {
+            lines = File.ReadAllLines(Path.Combine(Root, path.Replace('/', Path.DirectorySeparatorChar)));
+            lineCache[path] = lines;
+        }
+
+        return lines;
     }
 
     private void ReadFolder(string fullPath, string relativePath)

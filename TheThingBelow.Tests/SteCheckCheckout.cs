@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.SteCheck;
 
 namespace TheThingBelow.Tests;
@@ -101,6 +102,27 @@ public sealed class SteCheckCheckout : IDisposable
             "# The fixture skill",
             string.Empty,
             "This file stands for a skill of the task. It stays small.");
+
+        // The Documents rows of the template and of the skill match the review gate (DOCS 1).
+        List<string> template = ["# The fixture template", string.Empty, "## Documents", string.Empty];
+        List<string> skill = ["# The fixture skill", string.Empty, "## 3. Documents gate", string.Empty, "| Row | Changes |", "|---|---|"];
+        foreach (string row in DocumentRules.RequiredRows)
+        {
+            string cell = "`" + string.Join("` and `", row.Split(" and ")) + "`";
+            template.Add($"- {cell}:");
+            skill.Add($"| {cell} | a change |");
+        }
+
+        checkout.Write(".github/pull_request_template.md", [.. template]);
+        checkout.Write(".claude/skills/one-pr-one-session/SKILL.md", [.. skill]);
+
+        // The path rule reads each row as a path of the repository, so each folder of a row
+        // exists in the fixture (D-605).
+        checkout.Write("docs/world/readme.md", "# The fixture world", string.Empty, "The world of the fixture.");
+        checkout.Write("docs/runbooks/readme.md", "# The fixture runbooks", string.Empty, "The runbooks of the fixture.");
+        checkout.Write("docs/reviews/readme.md", "# The fixture reviews", string.Empty, "The reviews of the fixture.");
+        checkout.Write(".claude/agents/fixture.md", "# The fixture agent", string.Empty, "The agent of the fixture.");
+        checkout.Write("README.md", "# The fixture", string.Empty, "The description of the fixture.");
 
         return checkout;
     }

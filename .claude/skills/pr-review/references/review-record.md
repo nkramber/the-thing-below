@@ -9,7 +9,7 @@ For a new record, use `docs/reviews/pr-<number>.md` with the actual PR number, n
 Record provider names only in the permitted review record and handoff author fields (D-22).
 Omit those names from any PR description or GitHub comment.
 
-The `review-gate` job reads this file once PR-3 creates it (D-15). Three parts of it are machine-read. Keep their format exact:
+The `review-gate` job reads this file (D-15). Three parts of it are machine-read. Keep their format exact:
 
 | Part | Exact form | Rule |
 |---|---|---|
@@ -153,11 +153,11 @@ A claim that is wrong in substance stays a finding. The reviewer corrects a stal
 
 ## The review gate check
 
-PR-3 adds a `review-gate` check (D-15). It applies three rules:
+The `review-gate` check applies eight rules, RG 1 to RG 8 (D-15, D-579). RG 1 and RG 2 read the `review-override` label. RG 6 to RG 8 read the handoff and the Documents section of the description (D-581). Three rules read this file:
 
-1. `docs/reviews/pr-<number>.md` exists for the PR number.
-2. The verdict is `Ready for owner merge`.
-3. The head in the Identity list is the effective head.
+1. RG 3: `docs/reviews/pr-<number>.md` exists for the PR number.
+2. RG 4: the verdict is `Ready for owner merge`.
+3. RG 5: the head in the Identity list is the effective head.
 
 The check also passes a PR in the override set that has the `review-override` label and changes no decision row (D-16, D-401). A PR that changes `.github/workflows/` never passes on the label, because each gate lives in a workflow file (D-560).
 
@@ -173,4 +173,4 @@ Rule 3 fails when the author pushes code after the approval. That result is corr
 Reassess the new diff, then update the head field and the verdict together.
 Rule 3 does not fail when the last commit changes only the metadata paths.
 
-Until PR-3 merges, the check does not exist. The owner reads the verdict in the review record by hand, and the PR template names PR-3 as the creator of the check (G-16). The check cannot run on PR-3 itself, because GitHub starts `pull_request_target` only from `main`. PR-3 proves the command in Tests, and the first live run comes on the next PR (D-500).
+The check cannot run on the PR that creates it or changes it, because GitHub starts `pull_request_target` only from `main` (F-37). Such a PR proves the command in Tests, and the live check reads the new rules on the next PR (D-500).

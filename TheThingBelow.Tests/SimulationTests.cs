@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Streams;
 using Xunit;
@@ -251,10 +252,31 @@ public sealed class SimulationTests
     }
 
     [Fact]
-    public void TheStateHashHoldsTheSimulationVersion()
+    public void TheStateHashStartsWithTheSimulationVersion()
     {
-        // G-17. A build with other rules never gives the hash of this build by accident.
-        Assert.True(SimulationVersion.Current >= 3);
+        // G-17. A build with other rules never gives the hash of this build by accident. The
+        // sequence below is the layout of the state hash, so a change of the layout changes
+        // this test and the identity file together (D-504).
+        Simulation run = Simulation.Start(Seed, DebugIntentHandlers.None);
+        run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
+        RunSnapshot snapshot = run.Snapshot();
+
+        StateHasher hasher = new();
+        hasher.AddInt32(SimulationVersion.Current);
+        hasher.AddUInt64(Seed);
+        hasher.AddInt64(snapshot.Tick);
+        hasher.AddBoolean(snapshot.MenuOpen);
+        hasher.AddInt64(snapshot.WorldTick);
+        hasher.AddInt32(snapshot.PatrolBeats);
+        hasher.AddInt32(snapshot.PatrolChoice);
+        foreach (StreamPosition position in snapshot.Streams)
+        {
+            hasher.AddInt32((int)position.Stream);
+            hasher.AddUInt64(position.State);
+            hasher.AddUInt64(position.Increment);
+        }
+
+        Assert.Equal(hasher.Finish(), run.StateHash());
     }
 
     [Theory]

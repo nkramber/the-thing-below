@@ -77,13 +77,14 @@ public sealed record RunSnapshot(
                 source,
                 $"the stream at position {index} is '{position.Stream}', and a run holds '{RandomStreams.All[index]}' there");
 
-            // Every PCG32 increment is odd, and `Pcg32.FromSnapshot` refuses an even one.
+            // `RandomStreams.Open` gives each stream one increment, from its number alone.
             // The check runs here, so the reader of a record names the line of the fault and
             // no stream of another sequence reaches a replay (T-2, G-18, T-7).
+            ulong increment = RandomStreams.IncrementOf(position.Stream);
             Refuse(
-                (position.Increment & 1UL) == 0,
+                position.Increment != increment,
                 source,
-                $"the increment of the stream '{position.Stream}' is {position.Increment}, which is even, and every increment is odd");
+                $"the increment of the stream '{position.Stream}' is {position.Increment}, and every stream of that number takes the increment {increment}");
         }
     }
 

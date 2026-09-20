@@ -85,7 +85,8 @@ public sealed class CrashStore
         // finds a part of a crash file, also when the crash came from a full disk (T-2).
         SafeWrite.Replace(path, CrashText.Write(hidden));
 
-        FolderFiles.KeepNewest(this.folder, FilePrefix, FileExtension, KeepCount);
+        FolderFiles.KeepNewest(this.folder, FilePrefix, FileExtension, KeepCount, path);
+        FolderFiles.RemoveTemporaryFiles(this.folder, FilePrefix, FileExtension);
         return path;
     }
 
@@ -108,7 +109,7 @@ public sealed class CrashStore
         {
             return CrashText.Read(Encoding.UTF8.GetString(File.ReadAllBytes(path)), path);
         }
-        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
         {
             throw StorageException.ForPath(path, "the game could not read the file of a crash", fault);
         }

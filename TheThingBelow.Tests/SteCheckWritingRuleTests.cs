@@ -46,6 +46,13 @@ public sealed class SteCheckWritingRuleTests
         });
     }
 
+    /// <summary>An irregular participle that the never-a-participle list also holds is a dead entry.</summary>
+    [Fact]
+    public void NoIrregularParticipleIsAlsoNeverAParticiple()
+    {
+        Assert.Empty(EnglishWords.DeadIrregularWords());
+    }
+
     [Fact]
     public void ThePassingFixtureGivesNoFinding()
     {

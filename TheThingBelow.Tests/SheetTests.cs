@@ -98,11 +98,56 @@ public sealed class SheetTests
         AtlasLayout layout = AtlasLayout.Build(drawings);
 
         IReadOnlyList<AtlasPageKind> kinds = ReviewSheet.KindsOf(layout);
-        PngImage sheet = ReviewSheet.Render(AtlasPageKind.MapSprites, layout, AtlasCommand.ById(drawings), palette);
+        PngImage sheet = Assert.Single(ReviewSheet.Render(AtlasPageKind.MapSprites, layout, AtlasCommand.ById(drawings), palette));
 
         Assert.Equal([AtlasPageKind.MapSprites, AtlasPageKind.Portraits], kinds);
         Assert.True(sheet.Width > 32 * ReviewSheet.LargeScale);
         Assert.True(sheet.Width <= ReviewSheet.MaxWidth);
+    }
+
+    /// <summary>A batch that does not fit one sheet takes more sheets, each one of whole rows (D-668).</summary>
+    [Fact]
+    public void ABatchThatDoesNotFitOneSheetTakesMoreSheets()
+    {
+        Palette palette = DrawingFixtures.Palette();
+        List<Drawing> drawings = [];
+        for (int index = 0; index < 8; index += 1)
+        {
+            drawings.Add(DrawingFixtures.Solid($"big{index}", "map_sprites", 64, 64));
+        }
+
+        AtlasLayout layout = AtlasLayout.Build(drawings);
+
+        IReadOnlyList<PngImage> sheets = ReviewSheet.Render(AtlasPageKind.MapSprites, layout, AtlasCommand.ById(drawings), palette);
+
+        Assert.True(sheets.Count > 1, $"The batch gave {sheets.Count} sheet.");
+        Assert.All(sheets, sheet => Assert.True(sheet.Height <= ReviewSheet.MaxHeight));
+    }
+
+    /// <summary>A long color name widens the cell, so no label reaches the next cell or leaves the canvas.</summary>
+    [Fact]
+    public void ALongColorNameWidensTheSwatchCell()
+    {
+        Palette palette = Palette.Read(
+            System.Text.Encoding.UTF8.GetBytes(
+                """
+                {
+                 "comment": "a test palette",
+                 "colors": [
+                  { "index": 0, "key": "s", "hex": "2a2f3a", "name": "slate" },
+                  { "index": 1, "key": "c", "hex": "e8e4d8", "name": "chalk" },
+                  { "index": 2, "key": "i", "hex": "0b0a0f", "name": "ink" },
+                  { "index": 3, "key": "l", "hex": "101010", "name": "a name of twenty two glyphs" }
+                 ]
+                }
+                """),
+            Palette.Path);
+
+        int width = SwatchSheet.CellWidthOf(palette);
+        PngImage sheet = SwatchSheet.Render(palette);
+
+        Assert.True(width > 112, $"The cell is {width} pixels wide.");
+        Assert.True(sheet.Width >= width);
     }
 
     /// <summary>The sheet draws each drawing on a night ground and on a snow ground (D-668).</summary>
@@ -113,7 +158,7 @@ public sealed class SheetTests
         List<Drawing> drawings = [DrawingFixtures.Solid("one", "map_sprites", 8, 8)];
         AtlasLayout layout = AtlasLayout.Build(drawings);
 
-        PngImage sheet = ReviewSheet.Render(AtlasPageKind.MapSprites, layout, AtlasCommand.ById(drawings), palette);
+        PngImage sheet = Assert.Single(ReviewSheet.Render(AtlasPageKind.MapSprites, layout, AtlasCommand.ById(drawings), palette));
 
         Assert.True(HoldsColor(sheet, palette.ColorNamed("night")), "the sheet holds no night ground");
         Assert.True(HoldsColor(sheet, palette.ColorNamed("snow")), "the sheet holds no snow ground");

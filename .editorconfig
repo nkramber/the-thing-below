@@ -1,0 +1,20 @@
+# The editor settings of the repository. `dotnet format` reads this file, and the format
+# check of CI fails a file that breaks a rule of it (D-2). The file holds the rules of the
+# text alone: the character set, the line ending, and the indent. `.gitattributes` holds the
+# same line ending for git (T-7).
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,props,csproj,slnx,cfg,godot,tscn}]
+indent_style = space
+
+[Makefile]
+indent_style = tab

@@ -76,21 +76,39 @@ public sealed class GameRun
     /// <remarks>
     /// The queued intents go to the first tick of the frame, because they came before it.
     /// Each later tick of the same frame takes no intent.
+    /// <para>
+    /// The recorder takes each tick before the step, so the record of a crash holds the
+    /// intents of the tick that crashed, and a replay of the crash file reaches the crash
+    /// (D-170, G-5). A frame that dropped ticks adds one log entry, so no work of a step
+    /// goes in silence (T-2).
+    /// </para>
     /// </remarks>
     public IReadOnlyList<LogEntry> Advance(double seconds)
     {
+        long droppedBefore = this.loop.DroppedTicks;
         int ticks = this.loop.Advance(seconds);
         List<LogEntry> log = [];
         for (int step = 0; step < ticks; step += 1)
         {
             Intent[] intents = step == 0 ? [.. this.queued] : [];
+            this.recorder.Step(this.simulation.Tick + 1, intents);
             log.AddRange(this.simulation.Step(intents));
-            this.recorder.Step(this.simulation.Tick, intents);
         }
 
         if (ticks > 0)
         {
             this.queued.Clear();
+        }
+
+        long dropped = this.loop.DroppedTicks - droppedBefore;
+        if (dropped > 0)
+        {
+            log.Add(new LogEntry(
+                LogLevel.Error,
+                "the loop dropped ticks, because one frame took too long",
+                this.simulation.Tick,
+                LogSubsystems.Game,
+                [LogField.OfNumber("dropped", dropped)]));
         }
 
         return log;

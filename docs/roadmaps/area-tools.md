@@ -133,13 +133,18 @@ The rules, with the id that each finding carries:
 | DL 4 | Reflection: the reflection namespace, `Activator`, a member of `Type`, or `dynamic` | Core |
 | DL 5 | A hash path of F-35: `GetHashCode`, `HashCode`, or a hash class of .NET | Core |
 | DL 6 | A string order or a string comparison with no ordinal comparison | Core |
-| DL 7 | A walk of a `Dictionary` or a `HashSet` | Core |
+| DL 7 | A walk of a `Dictionary` or a `HashSet`, or of an interface of either type | Core |
 | DL 8 | A Godot text member outside the one text helper | Game |
 | DL 9 | A text value in a Godot scene file | Game |
+| DL 10 | A thread, a task, or a SIMD vector | Core |
 
 - DL 4 passes `typeof(X)` alone, because an attribute of the content reader takes it (F-36). It fails each member of `Type` that reflects.
 - DL 6 also fails a comparison that follows a culture, such as `CompareTo` or `StartsWith` with no comparison value (F-39).
-- DL 7 reads one expression at a time. A walk inside a method that takes the collection stays a matter for the review (D-615).
+- DL 7 reads one expression at a time. It reads the interfaces of the two types too, because a field of an interface type hides the collection (D-615).
+- DL 1 also reads the type that an expression converts to, so a whole number that a call takes as a `double` fails (F-38).
+- DL 8 also reads a call that sets a property by a name that holds `text` or `title`. It reads each menu item call of the committed list too (D-614).
+- DL 9 reads the last part of a property name, because Godot writes the text of a menu item as `item_0/text`.
+- A compile error of the Tools scan stays in the report whatever file it names, so a scan that read nothing never passes (F-93).
 
 > *In plain English:* two computers can disagree on decimal math and on the order of words. This tool reads the rules code as the compiler does and refuses anything that can make two machines disagree. It also refuses on-screen text that skips the string table.
 

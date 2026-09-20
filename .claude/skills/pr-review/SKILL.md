@@ -163,7 +163,7 @@ Use the current build commands in `AGENTS.md`. Do not invent a successful comman
 - Distinguish a passed check from a skipped, unavailable, failed, or author-reported check.
 - Record the command, revision, environment, result, and relevant artifact for each required check.
 - Verify CI results against the reviewed revision and configured test target.
-- Check the `replay-identity` result and the bot runs on every CI leg once PR-4 and PR-15 create them. Check the smoke and night results once their PRs create them (G-5, G-22, D-481, D-505).
+- Check the `replay-identity` result and the smoke result on every CI leg (G-5, D-481). Check the bot runs and the night result once PR-15 and PR-49 create them (G-22, D-505).
 
 Use the initial-check clause only as G-16 permits.
 Name the absent check and the PR that creates it. A PR that creates a check must pass it.

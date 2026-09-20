@@ -115,6 +115,43 @@ public sealed class DetLintCommandTests
         Assert.Equal(string.Empty, errors.ToString());
     }
 
+    /// <summary>
+    /// A compile error of the Tools scan stays in the report whatever file it names. The old
+    /// code filtered each finding by the folders of D-502, so an error in another folder of
+    /// Tools dropped every finding, and the scan passed with nothing read (T-2).
+    /// </summary>
+    [Fact]
+    public void ACompileErrorOutsideAToolOfComparedOutputStillFailsTheScan()
+    {
+        using DetLintCheckout checkout = DetLintCheckout.Build();
+        checkout.Write(
+            "TheThingBelow.Tools/SteCheck/Broken.cs",
+            """
+            namespace TheThingBelow.Tools.SteCheck;
+            public static class Broken
+            {
+                public static int Count => ;
+            }
+            """);
+        checkout.Write(
+            "TheThingBelow.Tools/Png/Scale.cs",
+            """
+            namespace TheThingBelow.Tools.Png;
+            public static class Scale
+            {
+                public static double Half(int value) => value / 2.0;
+            }
+            """);
+        using StringWriter output = new StringWriter();
+        using StringWriter errors = new StringWriter();
+
+        int exitCode = DetLintCommand.Run(Arguments(checkout), output, errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains("TheThingBelow.Tools/SteCheck/Broken.cs:4: rule DL 0:", output.ToString(), StringComparison.Ordinal);
+        Assert.Equal(string.Empty, errors.ToString());
+    }
+
     [Fact]
     public void AnAbsentGameBuildNamesTheBuildCommand()
     {

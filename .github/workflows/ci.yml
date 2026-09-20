@@ -17,9 +17,12 @@ on:
 permissions:
   contents: read
 
+# Every push to `main` shares one group, because `github.ref` is the same for each merge. A
+# cancel there leaves a merge with no record of its checks, so a cancel applies to a pull
+# request alone, as the export workflow does.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   DOTNET_NOLOGO: "true"
@@ -55,7 +58,10 @@ jobs:
             exit 0
           fi
 
-          changed=$(git diff --name-only "$BASE_REF" "$HEAD_REF")
+          # Three points give the paths that the PR changes from the merge base. Two points
+          # would compare the two trees, and a branch behind `main` would then read every
+          # path that `main` changed since the branch point as a path of the PR.
+          changed=$(git diff --name-only "$BASE_REF...$HEAD_REF")
           echo "The PR changes these paths:"
           echo "$changed"
 
@@ -417,7 +423,8 @@ jobs:
             -- --smoke 2>&1 | tee smoke.log
 
           # Such a session gives an exit code of 0 and writes no success line, so this step
-          # reads the log and not the code (T-2, D-117, F-64).
+          # reads the log too. `pipefail` above carries a nonzero code of the session through
+          # `tee`, and that code fails the step before the log checks (T-2, D-117, F-64, D-694).
           if ! grep -q "smoke: the session ends with no error." smoke.log; then
             echo "The smoke session wrote no success line. Read smoke.log (T-2)." >&2
             exit 1

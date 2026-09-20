@@ -54,39 +54,14 @@ public static class DetLintCommand
         ArgumentNullException.ThrowIfNull(output);
         ArgumentNullException.ThrowIfNull(errors);
 
-        string root = ".";
-        string configuration = "Debug";
-        for (int index = 0; index < args.Count; index += 2)
+        OptionParser? options = OptionParser.Read(Name, args, [RootOption, ConfigurationOption], [], errors);
+        if (options is null)
         {
-            string option = args[index];
-            if (option != RootOption && option != ConfigurationOption)
-            {
-                errors.WriteLine(
-                    $"Error: the option '{option}' is unknown. {Name} takes {RootOption} <path> and {ConfigurationOption} <name>.");
-                return Program.FaultExitCode;
-            }
-
-            if (index + 1 >= args.Count)
-            {
-                errors.WriteLine($"Error: the option {option} needs a value after it.");
-                return Program.FaultExitCode;
-            }
-
-            string value = args[index + 1];
-            if (OptionValue.ReportEmpty(option, value, errors))
-            {
-                return Program.FaultExitCode;
-            }
-
-            if (option == RootOption)
-            {
-                root = value;
-            }
-            else
-            {
-                configuration = value;
-            }
+            return Program.FaultExitCode;
         }
+
+        string root = options.ValueOr(RootOption, ".");
+        string configuration = options.ValueOr(ConfigurationOption, "Debug");
 
         try
         {
@@ -181,6 +156,14 @@ public static class DetLintCommand
         List<LintFinding> inside = [];
         foreach (LintFinding finding in findings)
         {
+            // A compile error stops every rule of the scan, so it stays in the report whatever
+            // file it names. A filter that dropped it would pass a scan that read nothing (T-2).
+            if (string.Equals(finding.Rule, SourceScan.CompileRule, StringComparison.Ordinal))
+            {
+                inside.Add(finding);
+                continue;
+            }
+
             foreach (string folder in live)
             {
                 if (ProjectFiles.IsInside(finding.File, folder))

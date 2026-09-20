@@ -378,6 +378,69 @@ public sealed class ReviewGateDocumentRuleTests
         Assert.Null(DocumentRules.FormFault("docs/design.md", content));
     }
 
+    /// <summary>A line reads true against the diff, and not in its form alone (D-577).</summary>
+    [Fact]
+    public void AChangedLineWithNoChangedPathOfItsRowIsAFault()
+    {
+        string? fault = DocumentRules.TruthFault(
+            "docs/roadmaps/",
+            "Changed: docs/roadmaps/phase-1-foundations.md. The scope of PR-5.",
+            ["docs/design.md", "docs/session-handoff.md"]);
+
+        Assert.NotNull(fault);
+        Assert.Contains("docs/roadmaps/", fault, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ANoChangeLineWithAChangedPathOfItsRowIsAFault()
+    {
+        string? fault = DocumentRules.TruthFault(
+            "docs/world/",
+            "No change needed because docs/world/ holds no lore of this PR.",
+            ["docs/world/cast.md", "docs/session-handoff.md"]);
+
+        Assert.NotNull(fault);
+        Assert.Contains("docs/world/cast.md", fault, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ANoChangeLineOfTheReviewsRowPassesWhenTheReviewerAddedTheRecord()
+    {
+        // The reviewer commits the record after the author wrote the description.
+        string? fault = DocumentRules.TruthFault(
+            "docs/reviews/",
+            "No change needed because docs/reviews/pr-21.md comes from the reviewer.",
+            ["docs/reviews/pr-21.md", "docs/session-handoff.md"]);
+
+        Assert.Null(fault);
+    }
+
+    [Theory]
+    [InlineData("CLAUDE.md and AGENTS.md", "AGENTS.md")]
+    [InlineData(".claude/skills/ and .claude/agents/", ".claude/agents/design-critic.md")]
+    public void ARowOfTwoNamesReadsBothPaths(string row, string file)
+    {
+        string? fault = DocumentRules.TruthFault(row, "Changed: " + file + ". A rule of the sessions.", [file]);
+
+        Assert.Null(fault);
+    }
+
+    [Fact]
+    public void TheSectionRuleReadsTheTruthOfEachLine()
+    {
+        // The passing facts change `docs/design.md`, so a line that says no change fails RG 7.
+        Dictionary<string, string?> changes = new(StringComparer.Ordinal)
+        {
+            ["docs/design.md"] = "No change needed because docs/design.md holds no rule of this PR.",
+        };
+        PullRequestFacts facts = ReviewGateFixture.PassingFacts() with { Body = ReviewGateFixture.Body(changes) };
+
+        IReadOnlyList<GateCheck> checks = DocumentRules.CheckSection(facts);
+
+        Assert.Equal(GateResult.Fault, checks[0].Result);
+        Assert.Contains("docs/design.md", checks[0].Detail, StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData("no documentation impact")]

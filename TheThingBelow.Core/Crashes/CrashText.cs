@@ -222,31 +222,15 @@ public static class CrashText
 
     private static IReadOnlyList<string> SplitLines(string text, string file)
     {
-        if (text.Contains('\r', StringComparison.Ordinal))
+        TextLines split = TextLines.Split(text);
+        if (split.Fault is not null)
         {
             throw CrashException.ForFile(
-                file, "it holds a carriage return, and each line of the file ends with one line feed alone (T-7)");
+                file,
+                split.FaultLine == 0 ? split.Fault : $"line {split.FaultLine}: {split.Fault}");
         }
 
-        string[] parts = text.Split('\n');
-        List<string> lines = [];
-        for (int index = 0; index < parts.Length; index += 1)
-        {
-            if (parts[index].Length == 0)
-            {
-                // The text ends with a line ending, so the split gives one empty part at the
-                // end. An empty part anywhere else is a line with no object (T-2).
-                if (index == parts.Length - 1)
-                {
-                    continue;
-                }
-
-                throw CrashException.ForFile(file, $"line {index + 1} holds no object");
-            }
-
-            lines.Add(parts[index]);
-        }
-
+        IReadOnlyList<string> lines = split.Lines;
         if (lines.Count == 0)
         {
             throw CrashException.ForFile(file, "it holds no line, and every crash file holds the crash line");

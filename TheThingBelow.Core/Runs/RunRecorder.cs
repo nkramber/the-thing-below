@@ -48,18 +48,24 @@ public sealed class RunRecorder
     public long SnapshotTick => this.snapshot.Tick;
 
     /// <summary>Records one tick of the run.</summary>
-    /// <param name="tick">The tick that the simulation reached, which rises by one on each step.</param>
+    /// <param name="tick">The tick that the simulation runs now, which rises by one on each step.</param>
     /// <param name="intents">The intents of that tick, which can hold none.</param>
     /// <exception cref="ArgumentNullException">The list is null (T-2).</exception>
-    /// <exception cref="ArgumentException">The tick does not follow the last one (T-2).</exception>
+    /// <exception cref="ArgumentException">The tick is not the tick after the last one (T-2).</exception>
+    /// <remarks>
+    /// The host records a tick before it steps the simulation, so the record of a crash holds
+    /// the intents of the tick that crashed and a replay reaches the crash (D-170, G-5).
+    /// </remarks>
     public void Step(long tick, IReadOnlyList<Intent> intents)
     {
         ArgumentNullException.ThrowIfNull(intents);
 
-        if (tick <= this.endTick)
+        // A gap would give a record that replays with no error and another state, because
+        // the replay steps the missing ticks with no intent (T-2, G-5).
+        if (tick != this.endTick + 1)
         {
             throw new ArgumentException(
-                $"The recorder reached tick {this.endTick}, and this step gives tick {tick}.",
+                $"The recorder reached tick {this.endTick}, and this step gives tick {tick}. Each step gives the tick after the last one.",
                 nameof(tick));
         }
 

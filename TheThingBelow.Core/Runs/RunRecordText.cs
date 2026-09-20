@@ -90,33 +90,15 @@ public static class RunRecordText
 
     private static IReadOnlyList<string> SplitLines(string text)
     {
-        if (text.Contains('\r', StringComparison.Ordinal))
+        TextLines split = TextLines.Split(text);
+        if (split.Fault is not null)
         {
-            throw RunRecordException.ForRecord(
-                "it holds a carriage return, and a record ends each line with one line feed alone (T-7)");
+            throw split.FaultLine == 0
+                ? RunRecordException.ForRecord(split.Fault)
+                : RunRecordException.ForLine(split.FaultLine, split.Fault);
         }
 
-        string[] parts = text.Split('\n');
-        List<string> lines = [];
-        for (int index = 0; index < parts.Length; index += 1)
-        {
-            bool last = index == parts.Length - 1;
-            if (parts[index].Length == 0)
-            {
-                // The text ends with a line ending, so the split gives one empty part at the
-                // end. An empty part anywhere else is a line with no object (T-2).
-                if (last)
-                {
-                    continue;
-                }
-
-                throw RunRecordException.ForLine(index + 1, "the line holds no object");
-            }
-
-            lines.Add(parts[index]);
-        }
-
-        return lines;
+        return split.Lines;
     }
 
     private static T ReadLine<T>(string line, int number, ReadLineFunction<T> read)

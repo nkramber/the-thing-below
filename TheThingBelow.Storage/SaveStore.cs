@@ -138,7 +138,7 @@ public sealed class SaveStore
         {
             return Encoding.UTF8.GetString(File.ReadAllBytes(path));
         }
-        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
         {
             throw StorageException.ForPath(path, "the game could not read the file of a save", fault);
         }
@@ -150,7 +150,7 @@ public sealed class SaveStore
         {
             File.Delete(path);
         }
-        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
         {
             throw StorageException.ForPath(path, "the game read the resume file and could not remove it (D-258)", fault);
         }
@@ -162,7 +162,7 @@ public sealed class SaveStore
         {
             Directory.CreateDirectory(this.folder);
         }
-        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
         {
             throw StorageException.ForPath(this.folder, "the game could not make the folder of the saves", fault);
         }

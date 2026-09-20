@@ -121,6 +121,7 @@ Built by PR-5. Phase file: `phase-1-foundations.md`.
 - The content hash covers the rule files alone (D-495). One folder, `content/rules/`, holds every rule file, and a test proves that no other file reaches the hash (D-648).
 - The `content-hash` command of Tools loads every content file and compares the hash with a committed file. The `--write` option writes that file again (D-648).
 - Core holds one fixture rule record until the first real rule record replaces it (D-649). Its files give the hash, the id rules, and the string-id rule real data to read.
+- PR-8 writes the first real rule record. It removes the fixture record, the two fixture files, and the three fixture labels of the string table. It then writes the content hash again (D-649, D-166).
 - PR-5 also writes the SHA-256 that makes the content hash, in Core code beside its one caller (D-644, D-645). Its test holds the published vectors of the reference implementation.
 - The content hash reads the same bytes on every CI leg. The `eol=lf` rule of `.gitattributes` keeps each checkout on LF line ends, where Git for Windows otherwise defaults to CRLF (the external facts above).
 - Game embeds the files of `content/` in its assembly, and a test proves that the embedded set matches the folder (D-508). PR-5 adds the embed, the folder reader in Tools, and the test, and `area-ci.md` holds the details.

@@ -120,6 +120,9 @@ public sealed class ExportWorkflowTests
         // Every export carries the notices of D-467, and the Godot export packs the project
         // folder alone, so one step of the job copies the folder beside the build (F-42).
         Assert.Contains("cp -R licenses export/licenses", text, StringComparison.Ordinal);
+
+        // The license of the game itself goes beside the notices (D-695).
+        Assert.Contains("cp LICENSE export/LICENSE", text, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -139,7 +142,7 @@ public sealed class ExportWorkflowTests
     [Fact]
     public void TheSmokeStepKeepsTheExitCodeOfTheExportedGame()
     {
-        string[] lines = RunBlockOf(ExportWorkflowPath, SmokeStepName);
+        string[] lines = WorkflowText.RunBlockOf(ExportWorkflowPath, SmokeStepName);
 
         int start = Array.FindIndex(lines, line => line.Contains(SmokeCommandMark, StringComparison.Ordinal));
         Assert.True(
@@ -154,9 +157,10 @@ public sealed class ExportWorkflowTests
         Assert.Contains("status=$?", lines[start], StringComparison.Ordinal);
 
         // The log checks run first, so the step reads the code after them and fails the leg.
+        // The exact test of the code is the one line that keeps the code, so the assertion
+        // names it and not a `exit 1` that a log check holds too.
         string tail = string.Join('\n', lines.Skip(start + 1));
-        Assert.Contains("$status", tail, StringComparison.Ordinal);
-        Assert.Contains("exit 1", tail, StringComparison.Ordinal);
+        Assert.Contains("if [ \"$status\" != \"0\" ]; then", tail, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -168,38 +172,6 @@ public sealed class ExportWorkflowTests
         Assert.Contains("retention-days: ${{ env.ARTIFACT_DAYS }}", text, StringComparison.Ordinal);
     }
 
-    /// <summary>Reads the lines of the `run` block of one named step of a workflow.</summary>
-    /// <param name="workflowPath">The path of the workflow under the root of the checkout.</param>
-    /// <param name="stepName">The value of the `name` key of the step.</param>
-    /// <returns>The lines of the block, with the indent of the block removed.</returns>
-    /// <exception cref="InvalidOperationException">The workflow holds no such step or block.</exception>
-    private static string[] RunBlockOf(string workflowPath, string stepName)
-    {
-        string path = RepositoryRoot.PathTo(workflowPath);
-        string[] lines = File.ReadAllLines(path);
-
-        int step = Array.FindIndex(lines, line => line.Trim() == $"- name: {stepName}");
-        if (step < 0)
-        {
-            throw new InvalidOperationException(
-                $"The workflow '{path}' holds no step named '{stepName}' (T-2).");
-        }
-
-        int run = Array.FindIndex(lines, step, line => line.Trim() == "run: |");
-        if (run < 0)
-        {
-            throw new InvalidOperationException(
-                $"The step '{stepName}' of '{path}' holds no `run` block (T-2).");
-        }
-
-        // The block ends at the first line that carries text at the indent of `run` or less.
-        int indent = lines[run].Length - lines[run].TrimStart().Length;
-        return lines
-            .Skip(run + 1)
-            .TakeWhile(line => line.Trim().Length == 0 ||
-                               line.Length - line.TrimStart().Length > indent)
-            .ToArray();
-    }
 
     /// <summary>Reads every value of one matrix key of a workflow file.</summary>
     /// <param name="workflowPath">The path of the workflow under the root of the checkout.</param>

@@ -14,7 +14,8 @@ namespace TheThingBelow.Game;
 /// A frame that took a long time, such as a frame after a load or after the window of the
 /// game came back, gives more ticks than <see cref="MaxTicksInOneFrame"/>. The loop then
 /// runs that maximum and drops the rest of the time. A loop that runs every late tick falls
-/// further behind on each frame, and it never catches up (F-50).
+/// further behind on each frame, and it never catches up (D-164). The host logs each drop, so
+/// no work of a step goes in silence (T-2).
 /// </para>
 /// </remarks>
 public sealed class FixedStepLoop
@@ -34,11 +35,19 @@ public sealed class FixedStepLoop
     public long DroppedTicks { get; private set; }
 
     /// <summary>Adds the time of one frame, and gives the count of ticks to run now.</summary>
-    /// <param name="seconds">The time of the frame, in seconds. It must not be below zero.</param>
+    /// <param name="seconds">The time of the frame, in seconds. It is a finite number, not below zero.</param>
     /// <returns>The count of ticks, from 0 to <see cref="MaxTicksInOneFrame"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The time is below zero (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The time is below zero, or it is not a finite number (T-2).</exception>
     public int Advance(double seconds)
     {
+        // A NaN passes the negative check, and it would then hold the pending time at NaN
+        // for the rest of the session, so the loop would never run a tick again (T-2).
+        if (!double.IsFinite(seconds))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(seconds), seconds, "The time of a frame is a finite number of seconds (T-2).");
+        }
+
         ArgumentOutOfRangeException.ThrowIfNegative(seconds);
 
         this.pending += seconds;

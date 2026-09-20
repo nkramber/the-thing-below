@@ -66,10 +66,19 @@ public static class LogLineText
     {
         ArgumentNullException.ThrowIfNull(text);
 
-        var reader = new ContentReader(Encoding.UTF8.GetBytes(text), LineName);
-        LogLine line = ReadLine(ref reader);
-        reader.ReadFileEnd();
-        return line;
+        try
+        {
+            var reader = new ContentReader(Encoding.UTF8.GetBytes(text), LineName);
+            LogLine line = ReadLine(ref reader);
+            reader.ReadFileEnd();
+            return line;
+        }
+        catch (ArgumentException error)
+        {
+            // The entry and the field constructors refuse a value with a message that names
+            // a parameter and no line. The error of a line names the line (T-2).
+            throw ContentException.ForField(LineName, ContentException.WholeFile, error.Message, error);
+        }
     }
 
     /// <summary>Gives the text name of one level (D-179).</summary>

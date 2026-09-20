@@ -149,7 +149,7 @@ public sealed class AtlasIndex
     }
 
     /// <summary>Gives the drawing that serves one thing and one use (D-519).</summary>
-    /// <param name="content">The id of the thing, such as `party.marrek`.</param>
+    /// <param name="content">The id of the thing, such as `cast.marrek`.</param>
     /// <param name="use">The part that the drawing serves, such as `portrait`.</param>
     /// <returns>The entry.</returns>
     /// <exception cref="ContentException">No drawing serves that thing and that use (T-2).</exception>
@@ -392,7 +392,9 @@ public sealed class AtlasIndex
                     content = reader.ReadContentId();
                     break;
                 case "use":
-                    use = reader.ReadString();
+                    // The same rule as the drawing file, so a stale index fails at load and
+                    // not at the first lookup (D-519).
+                    use = Drawing.ReadUseName(ref reader);
                     break;
                 default:
                     throw reader.UnknownField(field);
@@ -434,7 +436,7 @@ public sealed class AtlasIndex
                     y = ReadPlace(ref reader);
                     break;
                 case "ticks":
-                    ticks = reader.ReadInt();
+                    ticks = Drawing.ReadTicks(ref reader);
                     break;
                 default:
                     throw reader.UnknownField(field);

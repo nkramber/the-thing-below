@@ -12,10 +12,10 @@ GODOT ?= /Applications/Godot_mono.app/Contents/MacOS/Godot
 SMOKE_FRAME_LIMIT := 600
 
 
-.PHONY: verify where hooks build test lint format ste-check identity content smoke run clean
+.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke run clean
 
 ## verify: every check that this machine can run.
-verify: build test format lint ste-check identity content smoke
+verify: build test format lint ste-check identity content atlas smoke
 
 ## build: build every project of the solution.
 build:
@@ -32,14 +32,16 @@ format:
 ## lint: the determinism and string lint (D-496, G-2, G-3, G-7).
 #
 # The command reads the Godot assembly from the build output of the Game project, so the
-# `build` target runs before it (D-614, F-65).
+# `build` target runs before it (D-614, F-65). The run builds the Tools project itself, so
+# the target also runs alone after a change of a rule.
 lint:
 	dotnet run --project $(TOOLS_PROJECT) -- det-lint --root .
 
 ## ste-check: the STE checker, the reference check, and the session number check (D-10, D-605).
 #
 # The command reads every live document of the checkout. The four dated records stay out of
-# the writing rules, and the command holds their paths itself (D-10, D-608).
+# the writing rules, and the command holds their paths itself (D-10, D-608). The run builds
+# the Tools project itself, as the pre-commit hook does, so the target runs alone too.
 ste-check:
 	dotnet run --project $(TOOLS_PROJECT) -- ste-check --root .
 
@@ -57,6 +59,13 @@ identity:
 # value.
 content:
 	dotnet run --project $(TOOLS_PROJECT) --no-build -- content-hash --root .
+
+## atlas: compare the committed atlas with the drawing files by pixel (D-666, G-24).
+#
+# The command reads the build output of the Tools project, so the `build` target runs before
+# it. A change of a drawing file needs `atlas --root .` and a review of the new pages.
+atlas:
+	dotnet run --project $(TOOLS_PROJECT) --no-build -- atlas --root . --check
 
 ## smoke: build the Godot solution, then run the headless session (D-117).
 #
@@ -79,6 +88,10 @@ smoke:
 	    > artifacts/godot-build.log 2>&1 \
 	  || { echo "smoke: the Godot build failed. Read artifacts/godot-build.log (T-2)." >&2; \
 	       tail -5 artifacts/godot-build.log >&2; exit 1; }; \
+	if grep -q "build callback failed" artifacts/godot-build.log; then \
+	    echo "smoke: the Godot build callback failed. Read artifacts/godot-build.log (T-2)." >&2; \
+	    exit 1; \
+	fi; \
 	echo "smoke: the headless session"; \
 	status=0; \
 	"$(GODOT)" --headless --path $(GAME_DIR) --quit-after $(SMOKE_FRAME_LIMIT) -- --smoke \
@@ -95,6 +108,10 @@ smoke:
 	    tail -5 artifacts/smoke.log >&2; exit 1; \
 	fi; \
 	cat artifacts/smoke.log
+
+## run: the play session of this machine (D-3).
+run:
+	"$(GODOT)" --path $(GAME_DIR)
 
 ## where: the branch, the tree, and the PR state.
 where:

@@ -56,6 +56,9 @@ public partial class Boot : Node
     /// <summary>The frame of the smoke session that closes the menu, which logs one line (D-179).</summary>
     private const int SmokeMenuCloseFrame = 70;
 
+    /// <summary>The folder inside the crash folder that the smoke session writes its check into (D-659).</summary>
+    private const string SmokeFolderName = "smoke";
+
     private LogStore? log;
     private GameRun? run;
 
@@ -168,18 +171,31 @@ public partial class Boot : Node
         GameRun? stopped = this.run;
         this.run = null;
 
+        DateTime time = DateTime.UtcNow;
+        string? path = null;
         try
         {
-            DateTime time = DateTime.UtcNow;
-            string path = CrashStore.OfThisSystem().Write(fault, stopped?.Record(), time);
+            path = CrashStore.OfThisSystem().Write(fault, stopped?.Record(), time);
             GD.PrintErr($"the game stopped with an error, and it wrote the crash file '{path}'.");
-            this.log?.Write([CrashEntry(fault, Path.GetFileName(path), stopped)], time);
         }
         catch (Exception second)
         {
             // The report of the second error never hides the first one (T-2, G-18).
             GD.PrintErr($"the game stopped with this error: {fault}");
             GD.PrintErr($"the game could not write the crash file of that error: {second}");
+        }
+
+        if (path is not null)
+        {
+            try
+            {
+                this.log?.Write([CrashEntry(fault, Path.GetFileName(path), stopped)], time);
+            }
+            catch (Exception second)
+            {
+                // The crash file exists, and the log line alone failed. The message says so.
+                GD.PrintErr($"the game could not write the log line of the crash file '{path}': {second}");
+            }
         }
 
         GetTree().Quit(CrashExitCode);
@@ -213,9 +229,12 @@ public partial class Boot : Node
         GD.Print($"smoke: the renderer is {GetRendererName()}.");
         GD.Print($"smoke: the frame is {GetFrameSize()}.");
         GD.Print($"smoke: the save folder is {SaveFolder.OfThisSystem()}.");
-        GD.Print($"smoke: the content is {DescribeContent()}.");
 
-        GameRun session = GameRun.Start(LoadContent(), FixtureSeed);
+        IReadOnlyList<ContentFile> files = EmbeddedContent.Read();
+        ContentSet content = ContentSet.Load(files);
+        GD.Print($"smoke: the content is {files.Count} files with the hash {content.Hash}.");
+
+        GameRun session = GameRun.Start(content, FixtureSeed);
         GD.Print($"smoke: the run is {this.DescribeRun(session)}.");
         GD.Print($"smoke: the log is {this.DescribeLog()}.");
         GD.Print($"smoke: the crash file is {DescribeCrashFile(session)}.");
@@ -262,19 +281,11 @@ public partial class Boot : Node
     private static string NormalizeFolder(string path) => path.Replace('\\', '/').TrimEnd('/');
 
     /// <summary>
-    /// Loads every content file from the resources of this assembly, and gives the count and
-    /// the content hash. The session thus proves the embed of D-508 inside the engine, where
-    /// the match test of Tests reads the assembly file alone (F-42).
+    /// Loads the content of this build from the resources of this assembly (D-508). The
+    /// smoke session loads it the same way, and it prints the count of files and the hash,
+    /// so the session proves the embed inside the engine, where the match test of Tests
+    /// reads the assembly file alone (F-42).
     /// </summary>
-    /// <returns>The number of files and the content hash, as one line.</returns>
-    private static string DescribeContent()
-    {
-        IReadOnlyList<ContentFile> files = EmbeddedContent.Read();
-        ContentSet set = ContentSet.Load(files);
-        return $"{files.Count} files with the hash {set.Hash}";
-    }
-
-    /// <summary>Loads the content of this build from the resources of this assembly (D-508).</summary>
     /// <returns>The content set, with its hash (D-648).</returns>
     private static ContentSet LoadContent() => ContentSet.Load(EmbeddedContent.Read());
 
@@ -331,9 +342,14 @@ public partial class Boot : Node
     /// <param name="session">The run of the smoke session, whose record the file carries.</param>
     /// <returns>The name of the file and the end tick of its record, as one line.</returns>
     /// <exception cref="InvalidOperationException">The file that the check wrote holds no record (T-2).</exception>
+    /// <remarks>
+    /// The check writes into a folder of its own inside the crash folder. A write into the
+    /// crash folder itself would remove a crash file of a real session, because the folder
+    /// keeps the newest files alone (D-659).
+    /// </remarks>
     private static string DescribeCrashFile(GameRun session)
     {
-        CrashStore crashes = CrashStore.OfThisSystem();
+        CrashStore crashes = new(Path.Combine(CrashStore.OfThisSystem().Folder, SmokeFolderName));
         Exception fault = new InvalidOperationException(
             "the smoke session made this error, and the file is a check of the crash path (D-117)");
 

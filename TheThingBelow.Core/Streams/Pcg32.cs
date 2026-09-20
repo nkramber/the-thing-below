@@ -37,12 +37,17 @@ public sealed class Pcg32
     {
         // The reference seeding routine: the increment takes an odd value from the stream
         // number, then two steps mix the seed into the state.
-        Pcg32 generator = new(0, unchecked((sequence << 1) | 1UL));
+        Pcg32 generator = new(0, IncrementOf(sequence));
         generator.Next();
         generator.state = unchecked(generator.state + seed);
         generator.Next();
         return generator;
     }
+
+    /// <summary>Gives the increment of one stream number, which is always odd.</summary>
+    /// <param name="sequence">The stream number.</param>
+    /// <returns>The increment that <see cref="FromSeed"/> gives a generator of that number.</returns>
+    public static ulong IncrementOf(ulong sequence) => unchecked((sequence << 1) | 1UL);
 
     /// <summary>Makes a generator that continues from a saved position.</summary>
     /// <param name="state">The state, from <see cref="State"/>.</param>

@@ -138,8 +138,9 @@ Built by PR-1 and PR-2, and PR-84 adds the size rules. Phase file: `phase-1-foun
 
 Built by PR-1. Phase file: `phase-1-foundations.md`.
 
-- The Makefile holds `verify`, `where`, `hooks`, `test`, `lint`, `ste-check`, `identity`, and `run` (D-3).
-- `make verify` runs the build, the tests, the format check, det-lint, the STE check, the identity check, and the smoke session on the Mac (D-496, D-504).
+- The Makefile holds `verify`, `where`, `hooks`, `build`, `test`, `format`, `lint`, `ste-check`, `identity`, `content`, `atlas`, `smoke`, and `run` (D-3).
+- `make verify` runs the build, the tests, the format check, det-lint, and the STE check (D-496).
+- It then runs the identity check, the content hash, the atlas check, and the smoke session on the Mac (D-504, D-648, D-666).
 - `make where` shows the branch, the tree, and the state of the PR, as `CLAUDE.md` asks before each commit and push.
 - `make hooks` installs the pre-commit hook. The hook refuses a commit on `main` and a document that fails the STE check (D-8, D-25).
 
