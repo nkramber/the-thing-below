@@ -42,6 +42,20 @@ public static class DebugAssembly
         new DebugConsole(new DebugSession(state, queue)).Root;
 
     /// <summary>
+    /// Types one line in an open console and submits it, as the person does. The smoke session
+    /// of CI runs this check inside the engine (D-117, D-724).
+    /// </summary>
+    /// <param name="console">The node of <see cref="Create"/>, open and in the tree.</param>
+    /// <param name="line">The text of the line, such as `help`.</param>
+    /// <returns>The lines that the console shows after the submit.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The node is no console of this assembly, or the console read no submit (T-2).
+    /// </exception>
+    public static IReadOnlyList<string> SubmitLine(Control console, string line) =>
+        DebugConsole.Submit(console, line);
+
+    /// <summary>
     /// Runs one command with no console on the screen. The smoke session of CI runs each
     /// command this way, and the headless runner of PR-15 can drive a bot with it (D-64, D-117).
     /// </summary>

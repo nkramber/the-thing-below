@@ -16,20 +16,20 @@ Session: PR-45, the debug assembly and the console. Repository: the-thing-below.
 
 ### The state of the build
 
-- `make verify` passes on the Mac: 1211 tests, the format check, det-lint and STE with 0 findings, the replay identity, the content hash, the atlas check, and the smoke session.
+- `make verify` passes on the Mac: 1213 tests, the format check, det-lint and STE with 0 findings, the replay identity, the content hash, the atlas check, and the smoke session.
 - No file of Core changed, so the simulation version stands at 5 (G-17).
-- The remote head of `main` is `ea2fec5`. The branch holds one commit and needs its push.
+- The remote head of `main` is `ea2fec5`. The branch holds two commits.
 
 ### What is in flight
 
-The push of the branch, the PR, and the gitar pass.
+The pull request is #43. The gitar pass approved the head `40db317` with no finding of the code review, and the second commit needs a new pass. Then the review of Codex.
 
 ### Traps and gotchas
 
 - The seam is text and reflection, so a rename on one side alone gives no compile error. `DebugSeamTests` reads each name from the built Game assembly and finds each member of the entry (D-723).
 - The debug project takes no Godot source generator, so no type of it derives from a Godot node. The console builds engine nodes and connects to their signals.
 - Tests references neither Game nor the debug project. It loads each built assembly from a path that the project file writes (D-614).
-- The key toggle and the typed line need a play session. The smoke session covers the load, the nodes, the focus, and every command, and PR-41 adds the screen test.
+- The key press needs a play session. The smoke session covers the load, the nodes, the focus, the typed line, and every command, and PR-41 adds the screen test.
 - The export job runs on this pull request, because the pull request changes the export workflow and the project file of Game (D-699).
 - `dotnet build TheThingBelow.Game/TheThingBelow.Game.csproj --configuration ExportRelease` writes a release output, and that folder holds no debug assembly.
 
@@ -39,7 +39,7 @@ None. OQ-115 blocks PR-8 alone.
 
 ### The next concrete action
 
-Push the branch, open the pull request, and answer the gitar pass.
+Answer the gitar pass of the head `f52039c`, and then hand the pull request to Codex.
 
 ## Session 147: 2026-09-20, Codex
 

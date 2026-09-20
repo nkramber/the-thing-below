@@ -63,6 +63,9 @@ public partial class Boot : Node
     /// <summary>The folder inside the crash folder that the smoke session writes its check into (D-659).</summary>
     private const string SmokeFolderName = "smoke";
 
+    /// <summary>The line that the smoke session types in the console of a development build (D-724).</summary>
+    private const string SmokeConsoleLine = "help";
+
     /// <summary>The name that Godot gives the display server of a session with no window.</summary>
     private const string HeadlessDisplay = "headless";
 
@@ -769,19 +772,16 @@ public partial class Boot : Node
         // The console takes the focus when it opens, so every key of the person reaches its
         // entry and the game makes no intent (D-725). A node outside the tree can hold no
         // focus, so the check adds the console to the tree and then takes it away again.
+        // The console takes the focus when it opens, and it reads a typed line from the signal
+        // of its entry. The console owns those nodes, so the check of both lives behind the
+        // seam and it fails with its own message (D-723, D-725, T-2). A node outside the tree
+        // can hold no focus, so the check adds the console and then takes it away again.
         this.AddChild(made);
         made.Visible = true;
-        Control? focused = made.GetViewport().GuiGetFocusOwner();
+        int shown = DebugSeam.SubmitLine(made, SmokeConsoleLine).Count;
         made.Visible = false;
         this.RemoveChild(made);
         made.QueueFree();
-
-        if (focused is not LineEdit)
-        {
-            throw new InvalidOperationException(
-                $"The open console left the focus on '{focused?.Name.ToString() ?? "no node"}', "
-                + $"and the person types in a line of text (D-725, T-2).");
-        }
 
         int answers = 0;
         IReadOnlyList<string> names = DebugSeam.CommandNames();
@@ -803,7 +803,8 @@ public partial class Boot : Node
                 + $"holds {session.Party.Map.Width * session.Party.Map.Height} tiles (D-724, T-2).");
         }
 
-        return $"{names.Count} commands with {answers} answer lines, the entry took the focus, "
+        return $"{names.Count} commands with {answers} answer lines, {shown} lines on the screen "
+            + $"after a typed line, "
             + $"and they marked {marked} more tiles as walked";
     }
 

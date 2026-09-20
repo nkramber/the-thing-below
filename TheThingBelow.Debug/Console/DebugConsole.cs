@@ -40,6 +40,12 @@ public sealed class DebugConsole
     /// <summary>The first line, which the console prints when it opens.</summary>
     public const string OpeningLine = "the debug console of a development build. `help` lists every command.";
 
+    /// <summary>The name of the node that the person types in.</summary>
+    public const string EntryName = "DebugConsoleEntry";
+
+    /// <summary>The name of the node that holds the lines of the console.</summary>
+    public const string OutputName = "DebugConsoleOutput";
+
     private readonly DebugSession session;
     private readonly Label output;
     private readonly LineEdit entry;
@@ -65,7 +71,7 @@ public sealed class DebugConsole
 
         this.output = new Label
         {
-            Name = "DebugConsoleOutput",
+            Name = OutputName,
             OffsetLeft = EdgePixels,
             OffsetTop = EdgePixels,
             OffsetRight = ScreenWidth - EdgePixels,
@@ -76,7 +82,7 @@ public sealed class DebugConsole
 
         this.entry = new LineEdit
         {
-            Name = "DebugConsoleEntry",
+            Name = EntryName,
             OffsetLeft = EdgePixels,
             OffsetTop = Height - EntryHeight - EdgePixels,
             OffsetRight = ScreenWidth - EdgePixels,
@@ -109,6 +115,63 @@ public sealed class DebugConsole
         IReadOnlyList<string> answer = this.session.Run(line);
         this.Write(answer);
         return answer;
+    }
+
+    /// <summary>
+    /// Types one line in the entry of an open console and submits it, as the person does
+    /// (D-724). The smoke session of CI runs this check inside the engine, where no test of
+    /// Tests reaches (D-117, F-23, T-3).
+    /// </summary>
+    /// <param name="root">The node that <c>DebugAssembly.Create</c> gave, and the tree holds.</param>
+    /// <param name="line">The text of the line, such as `help`.</param>
+    /// <returns>The lines that the console shows after the submit.</returns>
+    /// <exception cref="ArgumentNullException">The node or the line is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The node is no console of this assembly, the console is closed, the entry holds no
+    /// focus, or the console read no submit (T-2).
+    /// </exception>
+    public static IReadOnlyList<string> Submit(Control root, string line)
+    {
+        ArgumentNullException.ThrowIfNull(root);
+        ArgumentNullException.ThrowIfNull(line);
+
+        if (root.GetNodeOrNull<LineEdit>(EntryName) is not LineEdit entry
+            || root.GetNodeOrNull<Label>(OutputName) is not Label output)
+        {
+            throw new InvalidOperationException(
+                $"The node '{root.Name}' holds no '{EntryName}' and no '{OutputName}', so it is "
+                + $"no console of this assembly (T-2).");
+        }
+
+        if (!root.Visible)
+        {
+            throw new InvalidOperationException(
+                $"The console '{root.Name}' is closed, and a closed console takes no line (D-725, T-2).");
+        }
+
+        // The console takes the focus when it opens, so every key of the person reaches the
+        // entry and the game makes no intent (D-725).
+        Control? focused = root.GetViewport().GuiGetFocusOwner();
+        if (focused != entry)
+        {
+            throw new InvalidOperationException(
+                $"The open console left the focus on '{focused?.Name.ToString() ?? "no node"}', "
+                + $"and the person types in '{EntryName}' (D-725, T-2).");
+        }
+
+        entry.Text = line;
+        entry.EmitSignal(LineEdit.SignalName.TextSubmitted, line);
+
+        // The console clears the entry after each line, so text that stays there says that no
+        // handler of the signal ran (T-2).
+        if (entry.Text.Length > 0)
+        {
+            throw new InvalidOperationException(
+                $"The console kept the text '{entry.Text}' in '{EntryName}', so it read no "
+                + $"submit of that line (D-723, T-2).");
+        }
+
+        return output.Text.Split(DebugSession.LineBreak, StringSplitOptions.None);
     }
 
     private void OnLineSubmitted(string line)

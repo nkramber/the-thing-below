@@ -49,6 +49,7 @@ public sealed class DebugSeamTests
     [Theory]
     [InlineData("HandlersMember")]
     [InlineData("ConsoleMember")]
+    [InlineData("SubmitMember")]
     [InlineData("RunMember")]
     [InlineData("CommandNamesMember")]
     public void EachMemberThatTheSeamNamesIsAPublicStaticMemberOfTheEntry(string constant)
@@ -79,6 +80,19 @@ public sealed class DebugSeamTests
         Assert.Equal(
             [typeof(Func<RunState>), typeof(Action<Intent>)],
             found.GetParameters().Select(parameter => parameter.ParameterType));
+    }
+
+    [Fact]
+    public void TheSubmitMemberTakesTheConsoleNodeAndTheLine()
+    {
+        // The console owns its nodes, so the check of the typed line lives in the debug
+        // assembly and Game reads no node of the console (D-723).
+        MethodInfo found = DebugAssemblyFile.Member(Seam("SubmitMember"));
+
+        Assert.Equal(
+            ["Godot.Control", typeof(string).FullName],
+            found.GetParameters().Select(parameter => parameter.ParameterType.FullName));
+        Assert.Equal(typeof(IReadOnlyList<string>), found.ReturnType);
     }
 
     [Fact]

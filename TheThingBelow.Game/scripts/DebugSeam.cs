@@ -42,6 +42,9 @@ public static class DebugSeam
     /// <summary>The member that builds the console and gives its node (D-171).</summary>
     public const string ConsoleMember = "Create";
 
+    /// <summary>The member that types one line in an open console and submits it (D-117).</summary>
+    public const string SubmitMember = "SubmitLine";
+
     /// <summary>The member that runs one command with no console on the screen (D-117).</summary>
     public const string RunMember = "Run";
 
@@ -99,6 +102,26 @@ public static class DebugSeam
 
         console = Entry<Func<Func<RunState>, Action<Intent>, Control>>(ConsoleMember)(state, queue);
         return true;
+    }
+
+    /// <summary>
+    /// Types one line in an open console and submits it, as the person does (D-724). The
+    /// console owns its nodes, so the check of that path lives in the debug assembly (D-723).
+    /// </summary>
+    /// <param name="console">The node of <see cref="TryBuildConsole"/>, open and in the tree.</param>
+    /// <param name="line">The text of the line, such as `help`.</param>
+    /// <returns>The lines that the console shows after the submit.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The build is a release build, the entry lost a member, or the console read no submit (T-2).
+    /// </exception>
+    public static IReadOnlyList<string> SubmitLine(Control console, string line)
+    {
+        ArgumentNullException.ThrowIfNull(console);
+        ArgumentNullException.ThrowIfNull(line);
+        RefuseReleaseBuild(nameof(SubmitLine));
+
+        return Entry<Func<Control, string, IReadOnlyList<string>>>(SubmitMember)(console, line);
     }
 
     /// <summary>Runs one command of the console with no console on the screen (D-117).</summary>
