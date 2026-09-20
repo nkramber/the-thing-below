@@ -71,11 +71,12 @@ public sealed class CheckoutContentTests
     {
         // The content hash reads the bytes of each file, and Git for Windows checks out CRLF
         // by default. The `eol=lf` rule of `.gitattributes` keeps one set of bytes (T-7).
-        // A page of the atlas is a PNG, and the compressed bytes of one hold 13 as data, so
-        // the `*.png binary` rule of `.gitattributes` covers it instead (D-666).
+        // A page of the atlas is a PNG and a font is a TrueType file. The bytes of each one
+        // hold 13 as data, so the `*.png binary` and `*.ttf binary` rules of `.gitattributes`
+        // cover them instead (D-666, D-713).
         foreach (ContentFile file in ContentFolder.Read(RepositoryRoot.Find()))
         {
-            if (ContentPaths.IsAtlasPage(file.Path))
+            if (ContentPaths.IsAtlasPage(file.Path) || ContentPaths.IsFontFile(file.Path))
             {
                 continue;
             }

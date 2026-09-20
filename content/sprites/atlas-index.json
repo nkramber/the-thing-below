@@ -1,7 +1,8 @@
 {
  "comment": "The place of every frame in the atlas (D-666). The atlas command of Tools writes this file and each page beside it, and no session edits either one by hand (D-107). A page holds one kind of drawing, and a tile page is a strict grid of 32 by 32 cells (D-667). Run the command again after a change to a drawing file.",
  "pages": [
-  { "kind": "map_sprites", "number": 1, "width": 160, "height": 32 }
+  { "kind": "map_sprites", "number": 1, "width": 160, "height": 32 },
+  { "kind": "ui", "number": 1, "width": 216, "height": 24 }
  ],
  "drawings": [
   {
@@ -62,6 +63,162 @@
    ],
    "frames": [
     { "x": 128, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_glyph_deck_cancel",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "ui.cancel", "use": "glyph_deck" }
+   ],
+   "frames": [
+    { "x": 0, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_glyph_deck_confirm",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "ui.confirm", "use": "glyph_deck" }
+   ],
+   "frames": [
+    { "x": 16, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_glyph_deck_menu",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "ui.menu", "use": "glyph_deck" }
+   ],
+   "frames": [
+    { "x": 32, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_glyph_keyboard_cancel",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "ui.cancel", "use": "glyph_keyboard" }
+   ],
+   "frames": [
+    { "x": 48, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_glyph_keyboard_confirm",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "ui.confirm", "use": "glyph_keyboard" }
+   ],
+   "frames": [
+    { "x": 64, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_glyph_keyboard_menu",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "ui.menu", "use": "glyph_keyboard" }
+   ],
+   "frames": [
+    { "x": 80, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_glyph_playstation_cancel",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "ui.cancel", "use": "glyph_playstation" }
+   ],
+   "frames": [
+    { "x": 96, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_glyph_playstation_confirm",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "ui.confirm", "use": "glyph_playstation" }
+   ],
+   "frames": [
+    { "x": 112, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_glyph_playstation_menu",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "ui.menu", "use": "glyph_playstation" }
+   ],
+   "frames": [
+    { "x": 128, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_glyph_xbox_cancel",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "ui.cancel", "use": "glyph_xbox" }
+   ],
+   "frames": [
+    { "x": 144, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_glyph_xbox_confirm",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "ui.confirm", "use": "glyph_xbox" }
+   ],
+   "frames": [
+    { "x": 160, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_glyph_xbox_menu",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "ui.menu", "use": "glyph_xbox" }
+   ],
+   "frames": [
+    { "x": 176, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_window_frame",
+   "page": "ui",
+   "width": 24,
+   "height": 24,
+   "draws": [
+    { "content": "ui.window", "use": "frame" }
+   ],
+   "frames": [
+    { "x": 192, "y": 0, "ticks": 0 }
    ]
   }
  ]

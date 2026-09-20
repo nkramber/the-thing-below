@@ -1,0 +1,32 @@
+{
+ "id": "drawing.ui_glyph_playstation_menu",
+ "page": "ui",
+ "width": 16,
+ "height": 16,
+ "draws": [
+  { "content": "ui.menu", "use": "glyph_playstation" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................",
+    "................",
+    "................",
+    "................",
+    "...kkkkkkkkkk...",
+    "..kDDDDDDDDDDk..",
+    ".kDDDDDDDDDDDDk.",
+    ".kDDwwwwwwwwDDk.",
+    ".kDDDDDDDDDDDDk.",
+    ".kDDwwwwwwwwDDk.",
+    ".kDDDDDDDDDDDDk.",
+    ".kDDwwwwwwwwDDk.",
+    ".kDDDDDDDDDDDDk.",
+    "..kDDDDDDDDDDk..",
+    "...kkkkkkkkkk...",
+    "................"
+   ]
+  }
+ ]
+}

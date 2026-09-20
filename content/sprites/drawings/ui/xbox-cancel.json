@@ -1,0 +1,32 @@
+{
+ "id": "drawing.ui_glyph_xbox_cancel",
+ "page": "ui",
+ "width": 16,
+ "height": 16,
+ "draws": [
+  { "content": "ui.cancel", "use": "glyph_xbox" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................",
+    "................",
+    "......kkkk......",
+    "....kkxxxxkk....",
+    "...kxxxxxxxxk...",
+    "...kxxxxxxxxk...",
+    "..kxxkkkkxxxxk..",
+    "..kxxkxxxkxxxk..",
+    "..kxxkkkkxxxxk..",
+    "..kxxkxxxkxxxk..",
+    "...kxkkkkxxxk...",
+    "...kxxxxxxxxk...",
+    "....kkxxxxkk....",
+    "......kkkk......",
+    "................",
+    "................"
+   ]
+  }
+ ]
+}

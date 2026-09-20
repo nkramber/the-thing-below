@@ -1,0 +1,32 @@
+{
+ "id": "drawing.ui_glyph_deck_cancel",
+ "page": "ui",
+ "width": 16,
+ "height": 16,
+ "draws": [
+  { "content": "ui.cancel", "use": "glyph_deck" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................",
+    "................",
+    "......kkkk......",
+    "....kkHHHHkk....",
+    "...kHHHHHHHHk...",
+    "...kHHHHHHHHk...",
+    "..kHHwwwwHHHHk..",
+    "..kHHwHHHwHHHk..",
+    "..kHHwwwwHHHHk..",
+    "..kHHwHHHwHHHk..",
+    "...kHwwwwHHHk...",
+    "...kHHHHHHHHk...",
+    "....kkHHHHkk....",
+    "......kkkk......",
+    "................",
+    "................"
+   ]
+  }
+ ]
+}

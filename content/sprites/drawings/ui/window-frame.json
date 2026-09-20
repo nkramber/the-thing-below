@@ -1,0 +1,40 @@
+{
+ "id": "drawing.ui_window_frame",
+ "page": "ui",
+ "width": 24,
+ "height": 24,
+ "draws": [
+  { "content": "ui.window", "use": "frame" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "kkkkkkkkkkkkkkkkkkkkkkkk",
+    "kGGGGGGGGGGGGGGGGGGGGGGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGKKKKKKKKKKKKKKKKKKKKGk",
+    "kGGGGGGGGGGGGGGGGGGGGGGk",
+    "kkkkkkkkkkkkkkkkkkkkkkkk"
+   ]
+  }
+ ]
+}

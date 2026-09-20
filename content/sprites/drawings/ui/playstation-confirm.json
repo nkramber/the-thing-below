@@ -1,0 +1,32 @@
+{
+ "id": "drawing.ui_glyph_playstation_confirm",
+ "page": "ui",
+ "width": 16,
+ "height": 16,
+ "draws": [
+  { "content": "ui.confirm", "use": "glyph_playstation" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................",
+    "................",
+    "......kkkk......",
+    "....kkDDDDkk....",
+    "...kDDDDDDDDk...",
+    "...kDDDDDDDDk...",
+    "..kDDcDDDcDDDk..",
+    "..kDDDcDcDDDDk..",
+    "..kDDDDcDDDDDk..",
+    "..kDDDcDcDDDDk..",
+    "...kDcDDDcDDk...",
+    "...kDDDDDDDDk...",
+    "....kkDDDDkk....",
+    "......kkkk......",
+    "................",
+    "................"
+   ]
+  }
+ ]
+}

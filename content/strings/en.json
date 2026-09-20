@@ -1,6 +1,26 @@
 {
- "comment": "The English string table (D-167, G-7). Every string the player reads lives here, and no C# file holds one. The entries below are the labels of the fixture rules of PR-5 (D-649).",
+ "comment": "The English string table (D-167, G-7). Every string the player reads lives here, and no C# file holds one. The first entries are the labels of the fixture rules of PR-5 (D-649). The crash entries carry the message of a crash and the address of D-473. The address is a placeholder in the reserved .invalid domain until the owner names the studio (D-712, OQ-57).",
  "strings": [
+  {
+   "id": "crash.address",
+   "text": "crashes@thethingbelow.invalid"
+  },
+  {
+   "id": "crash.file",
+   "text": "It wrote a report: {file}"
+  },
+  {
+   "id": "crash.quit",
+   "text": "Press any button to quit."
+  },
+  {
+   "id": "crash.send",
+   "text": "Send that file to {address}."
+  },
+  {
+   "id": "crash.title",
+   "text": "The game stopped."
+  },
   {
    "id": "label.lamp",
    "text": "Tin lamp"
@@ -12,6 +32,22 @@
   {
    "id": "label.rope",
    "text": "Wet rope"
+  },
+  {
+   "id": "ui.cancel",
+   "text": "Back"
+  },
+  {
+   "id": "ui.confirm",
+   "text": "Confirm"
+  },
+  {
+   "id": "ui.menu",
+   "text": "Menu"
+  },
+  {
+   "id": "ui.title",
+   "text": "The Thing Below"
   }
  ]
 }
