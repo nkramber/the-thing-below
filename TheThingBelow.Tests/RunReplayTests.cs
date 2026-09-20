@@ -150,6 +150,31 @@ public sealed class RunReplayTests
         Assert.Equal(run.StateHash(), replayed.StateHash());
     }
 
+    [Fact]
+    public void AReplayOfAWalkGivesTheSameStateHashAndTheSameWalkedTiles()
+    {
+        // Exit test 7 of section 7.3 of `phase-2-first-playable.md`. The walk of a run
+        // replays to the same tile, the same step, and the same record (D-567, G-5, T-7).
+        const ulong seed = 0x0000000000cafe01;
+        Simulation run = Simulation.Start(seed, TestMaps.Room, DebugIntentHandlers.None);
+        RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, seed), run.Snapshot());
+
+        foreach (IReadOnlyList<Intent> intents in RunScripts.Make(seed, 400))
+        {
+            run.Step(intents);
+            recorder.Step(run.Tick, intents);
+        }
+
+        RunState replayed = RunReplay.Play(recorder.Build(), ContentHash, TestMaps.Room, DebugIntentHandlers.None);
+
+        Assert.Equal(run.StateHash(), replayed.StateHash());
+        Assert.Equal(run.State.Party.LeadAt, replayed.Party.LeadAt);
+        Assert.Equal(run.State.Party.Stepping, replayed.Party.Stepping);
+        Assert.Equal(run.State.Party.StepTicks, replayed.Party.StepTicks);
+        Assert.Equal(run.State.Party.Walked.Rows(), replayed.Party.Walked.Rows());
+        Assert.True(replayed.Party.Walked.Count > 1);
+    }
+
     private static RunRecord OneTickRecord(Func<RunHeader, RunHeader> change)
     {
         const ulong seed = 1;
