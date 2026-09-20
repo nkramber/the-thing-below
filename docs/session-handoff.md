@@ -20,10 +20,15 @@ Session: PR-7, the tile map. Repository: the-thing-below. Branch: `feat/pr-7-til
 
 ### What is in flight
 
-The push, the PR, the gitar pass, and the review of Codex. The `review-gate` check needs the review record of `docs/reviews/pr-<number>.md`.
+The PR is #42, and it waits for the review of Codex at the effective head `2ead9c8`.
+
+The gitar pass of `2ead9c8` approved the code review, and it closed its one finding. That finding is the crash below, and `2ead9c8` fixes it. The pass of the earlier head `28b06c6` raised it, and the answer sits on the thread of `TheThingBelow.Game/scripts/Boot.cs`.
+
+Every CI check passes on every leg. The `review-gate` check gives one fault, RG 3, because the head holds no `docs/reviews/pr-42.md`. That fault clears with the review record. RG 1, RG 2, RG 6, RG 7, and RG 8 pass.
 
 ### Traps and gotchas
 
+- A press of the menu button with a direction held crashed the run, and `2ead9c8` fixes it. The host reads input before it runs the ticks of a frame, so the queue held the open-menu intent while the menu state of the run was still closed. `GameRun.MenuOpenNextTick` now gives the state with the queued intents applied.
 - The prompt of this session said that `docs/reviews/pr-41.md` still held `Changes required`. It does not. Session 145 wrote `Ready for owner merge` before the merge, so no correction was necessary.
 - The save fixture of format 2 holds a step in progress, so a resume reads the step ticks too.
 - `RunScripts.Make` now walks the party, so a change to it moves the save fixture of format 2 and no other stored file.
@@ -35,7 +40,7 @@ None. OQ-115 blocks PR-8 alone.
 
 ### The next concrete action
 
-Push the branch, open the PR with its Documents section, and answer the gitar pass.
+Start the review of PR #42 at the effective head `2ead9c8`.
 
 ## Session 145: 2026-09-20, Codex
 
