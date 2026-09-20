@@ -2,7 +2,7 @@
 
 Status: a throwaway spike. Owner: Nate. Written in ASD-STE100 (D-10).
 
-This project shows one mock frame of 1280 by 720 at three combinations (D-621). The owner read
+This project shows one mock frame of 1280 by 720 at two combinations (D-621). The owner read
 the frame on four screens, and then picked the scale of the world and the sizes of the text
 (OQ-183). The file `handover.md` holds each pick. The branch `spike/screen-scale-probe` holds the project, and it never merges to
 `main` (D-597, D-621). The step is section 7.8 of `docs/roadmaps/phase-1-foundations.md`.
@@ -17,9 +17,9 @@ the frame on four screens, and then picked the scale of the world and the sizes 
 The tiles in `tiles/` are throwaway. They are not art of the game, and PR-34 draws the real
 tiles. The five sprite grids in `sprites/` are copies of the sample of D-402.
 
-## The three combinations
+## The two combinations
 
-One key steps through the three combinations. The world draws at 2x in each one, because D-633
+One key steps through the two combinations. The world draws at 2x in each one, because D-633
 sets that scale and no setting changes it. The body size is the one value that changes.
 
 Terminus carries a bitmap at 12, 14, 16, 18, 20, 22, 24, 28, and 32 pixels alone. Thus every
@@ -31,19 +31,15 @@ the size of the bitmap, under the scale, and never at the product of the two.
 |---|---|---|---|
 | 1 | 24 (24x1) | 48 (24x2) | 20 by 11.25 |
 | 2 | 32 (32x1) | 64 (32x2) | 20 by 11.25 |
-| 3 | 48 (24x2) | 96 (32x3) | 20 by 11.25 |
 
-A title is twice its body. 32 is the largest strike, so each title doubles or triples a smaller
-one. Thus each title draws on a coarser pixel grid than its body.
+A title is twice its body, and each title doubles a strike. Thus each title draws on a coarser
+pixel grid than its body.
 
-A body of 24 and a body of 32 draw their own strike at 1x. A stem is one frame pixel there, and
-one device pixel on the Deck. Those two bodies miss the floor of D-639, and the panel gives a
-note. Each carries four times the glyph detail of a doubled smaller strike.
+Each body draws its own strike at 1x. A stem is one frame pixel there, and one device pixel on
+the Deck. Thus no body meets the floor of D-639, and the panel gives a note on each one. Each
+body carries four times the glyph detail of a doubled smaller strike.
 
-A body of 48 doubles the 24 strike. A glyph pixel takes 2 frame pixels there, and the floor of
-D-639 holds.
-
-The border of a panel follows the glyph: 1 frame pixel at a body of 24 and 32, and 2 at 48.
+The border of a panel is 1 frame pixel, because each body draws at 1x.
 
 The text budget falls as the body grows. The panel gives both counts for each combination.
 
@@ -51,11 +47,9 @@ The text budget falls as the body grows. The panel gives both counts for each co
 |---|---|---|
 | 24 | 104 | 106 |
 | 32 | 76 | 80 |
-| 48 | 49 | 53 |
 
-The box keeps the three lines of the `game-text-style` skill at every size. A body that needs
-more lines takes more pages, and no limit of the skill changes. The panel gives the page count
-(D-635).
+A line of 76 characters fits one rendered line at each body size. Thus the box needs no second
+page for the size of its text, and D-635 stands at 76 characters.
 
 ## The two fit modes
 
@@ -161,7 +155,7 @@ device pixel, and the one screen that answers the floor of D-639.
 ## How the report works
 
 Each run writes one Markdown file in `reports/`, beside the build. The file holds the facts of
-the screen, a row for each of the three combinations, and the marks of the owner. The file holds the
+the screen, a row for each of the two combinations, and the marks of the owner. The file holds the
 rows of M-8. A second run of the same screen writes a second file, and no run overwrites
 another (T-2).
 

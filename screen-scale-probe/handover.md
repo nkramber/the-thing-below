@@ -26,11 +26,11 @@ D- id.
 |---|---|---|
 | The world scale | 2x on every screen, and no setting | Confirms D-633 |
 | The title size | Twice the body, and no setting | The player changes it through the body alone |
-| The body size | A setting of 24, 32, and 48 | Revises D-639 in part: three body sizes, not two UI values |
+| The body size | A setting of 24 and 32 | Revises D-639 in part: two body sizes, and no floor |
 | The default body | 32 at a frame fit of 1x, and 24 above that fit | One rule, and no table of screens |
-| The text limits | No limit changes. The box reveals the next part on the advance intent | A body of 48 holds 49 characters, so long text takes more pages |
+| The text limits | No limit changes. D-635 stands at 76 characters | A line of 76 characters fits one rendered line at each body size |
 | How the box reveals more | It scrolls up one line on the advance intent | The player gives the intent with the A button or a click |
-| A panel that cannot page | It reflows to more rows, and it holds all of its text | The party row takes two rows at a body of 48 |
+| A panel that cannot page | It reflows to more rows, and it holds all of its text | A guardrail. No panel of the two body sizes needs it |
 | The type-out | Each prose box types one character at a time | Confirms D-223. The HUD and the menus appear at once |
 | The type-out layout | The box holds its layout as it types | Closes the layout half of OQ-112 |
 | The text speed | An accessibility setting of the settings screen | Confirms D-214 and PR-63 |
@@ -38,14 +38,14 @@ D- id.
 D-639 loses its floor of 2 device pixels for each art pixel. A body of 24 and a body of 32 draw
 a stem of one frame pixel, and the owner picked both. G-28 needs the same revision.
 
-D-635 stands at 76 characters. The box keeps 3 lines at each body size, and it reveals the next
-part of the text on the advance intent. Thus a body of 48 takes more pages, and no line of the
-game gets shorter.
+D-635 stands at 76 characters. A line of 76 characters fits one rendered line at a body of 32,
+and it fits easily at a body of 24. Thus no box needs a second page for the size of its text.
+The scroll of the advance intent stays for text that is longer than its panel.
 
 A panel that cannot page reflows. It grows rows, and it holds all of its text at each body
-size. The party row takes two rows at a body of 48, where the frame holds 50 columns and the
-five members need 68. A panel that cannot hold its text is a design finding in the PR that
-builds it. The probe drops the extra members instead, because it predates this answer.
+size. A panel that cannot hold its text is a design finding in the PR that builds it. The rule
+is a guardrail here. The frame holds 77 columns at a body of 32, and the five party members
+need 68. Thus each panel of the two body sizes holds its text with no reflow.
 
 D-241 needs a revision in part. A panel that pages holds one page, and every other panel holds
 its longest string at each body size.
@@ -59,6 +59,18 @@ of OQ-112 and the skip of OQ-150 stay open, and both block PR-36.
 Two pairings of the picks were not on the screen of the first round. The probe paired a body of
 24 with a title of 32, and a body of 32 with a title of 48. The second run of 2026-09-19 draws
 the picked pairings on the Mac. The owner reads that run before PR-61 starts.
+
+### The owner drops the body of 48
+
+The owner kept the body of 24 and the body of 32, and dropped the body of 48. Three results
+follow.
+
+- Each body now draws its own strike at 1x. No body meets the floor of D-639, so the floor goes.
+- The worst text budget is 76 characters, which is the limit of D-635 today. No limit changes.
+- No panel needs a reflow or a second page at either body size. Both rules stay as guardrails.
+
+The largest text of the game is now 32 frame pixels. On the Deck that is 32 device pixels, and
+on the 27-inch 4K screen it is 96. A player who needs larger text has no option above that.
 
 ## The second round of 2026-09-19
 
