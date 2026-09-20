@@ -1,5 +1,40 @@
 # Session handoff
 
+## Session 141: 2026-09-20, Codex
+
+Author: Codex
+Session: review PR #40, the audit fixes. Repository: the-thing-below. Branch: `fix/audit-fixes`. Role: reviewer. Base: `4a472c5`.
+
+### What this session did, and why
+
+- Reviewed PR #40 at effective head `828e5b0` after the author completed the audit fixes.
+- Verified the opposite-provider gate, the full changed path set, the existing Gitar comment and answer, the changed contracts, and the affected callers.
+- Ran `make verify`. It passed with 953 tests and all local gates.
+- Added `docs/reviews/pr-40.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- The local build, tests, format, det-lint, STE, replay identity, content hash, atlas, and smoke checks pass.
+- The PR head is `828e5b0`. The review record waits for the metadata commit and push.
+
+### What is in flight
+
+The review record and this handoff entry need one metadata commit and push. The review-gate check should pass after the push.
+
+### Traps and gotchas
+
+- The effective head is `828e5b0`. The review publication commit changes only the metadata set.
+- The existing review-gate failure is expected before the review record exists.
+- `HANDOFF-PR-61.md` is an unrelated untracked note. Do not delete it.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run the STE check and diff check, commit the review record and this entry, push, fetch, and verify the remote head and review-gate result.
+
 ## Session 140: 2026-09-20, Claude Code
 
 Author: Claude Code
@@ -371,38 +406,3 @@ None. D-682 to D-685 hold the four answers of this PR.
 ### The next concrete action
 
 Codex reviews PR #37 and writes `docs/reviews/pr-37.md`. Then the owner adds the three names to the required checks of `main` after the merge (D-685).
-
-## Session 131: 2026-09-19, Codex
-
-Author: Codex
-Session: review PR #36, the refutation of F-84 and D-673. Repository: the-thing-below. Branch: `docs/pr-88-refute-f-84`. Role: reviewer. Base: `122f3ef`.
-
-### What this session did, and why
-
-- Reopened PR #36 at effective head `f513ff3`. The later handoff commit `ae1ff1f` changes only metadata.
-- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Inspected all six changed paths and verified the historical claims of D-680.
-- Confirmed that `docs/reviews/pr-33.md` arrived in squash commit `3204545` and that RG 3 faults when the review record is absent.
-- Wrote `docs/reviews/pr-36.md` with no finding and the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 794 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and bounded smoke checks.
-- The review-gate check faults only because this review record is not yet on the PR head.
-
-### What is in flight
-
-The review record and this handoff entry need a commit and push. The review is ready for owner merge after the remote gate reads the record.
-
-### Traps and gotchas
-
-- The effective head is `f513ff3`, not metadata tip `ae1ff1f`.
-- OQ-3 remains open as the owner action of D-681 and does not block this review verdict.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and handoff entry. Then verify the remote head and the review-gate result.

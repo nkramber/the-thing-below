@@ -1,5 +1,40 @@
 # Session handoff archive
 
+## Session 131: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #36, the refutation of F-84 and D-673. Repository: the-thing-below. Branch: `docs/pr-88-refute-f-84`. Role: reviewer. Base: `122f3ef`.
+
+### What this session did, and why
+
+- Reopened PR #36 at effective head `f513ff3`. The later handoff commit `ae1ff1f` changes only metadata.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Inspected all six changed paths and verified the historical claims of D-680.
+- Confirmed that `docs/reviews/pr-33.md` arrived in squash commit `3204545` and that RG 3 faults when the review record is absent.
+- Wrote `docs/reviews/pr-36.md` with no finding and the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 794 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and bounded smoke checks.
+- The review-gate check faults only because this review record is not yet on the PR head.
+
+### What is in flight
+
+The review record and this handoff entry need a commit and push. The review is ready for owner merge after the remote gate reads the record.
+
+### Traps and gotchas
+
+- The effective head is `f513ff3`, not metadata tip `ae1ff1f`.
+- OQ-3 remains open as the owner action of D-681 and does not block this review verdict.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff entry. Then verify the remote head and the review-gate result.
+
 ## Session 130: 2026-09-19, Claude Code
 
 Author: Claude Code
