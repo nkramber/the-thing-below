@@ -237,6 +237,33 @@ jobs:
           fi
           ls -la export
 
+      # Exit test 2 of PR-45: a release export holds no debug assembly (D-171, D-260, D-492).
+      # The export builds the Game project in the `ExportRelease` configuration, and the
+      # project references that assembly in every other configuration alone (D-723, D-726).
+      #
+      # The step reads the file names of the export and never the bytes. The Game assembly
+      # holds the name of the debug assembly as text, because `DebugSeam` loads it by name, so
+      # a read of the bytes would match on every export (D-723).
+      - name: Check that the export holds no debug assembly
+        run: |
+          set -euo pipefail
+
+          # The search must find the Game assembly. A search of the wrong folder finds no file
+          # of either name, and the check would then pass on any export (T-2).
+          if [ -z "$(find "$PWD/export" -name 'TheThingBelow.Game.dll' -print)" ]; then
+            echo "The search found no 'TheThingBelow.Game.dll' under export, so it read the wrong folder (T-2)." >&2
+            find "$PWD/export" -maxdepth 3 >&2
+            exit 1
+          fi
+
+          found=$(find "$PWD/export" -name 'TheThingBelow.Debug*' -print)
+          if [ -n "$found" ]; then
+            echo "The export holds the debug assembly, and a release export must hold none (D-260, D-492, T-2)." >&2
+            printf '%s\n' "$found" >&2
+            exit 1
+          fi
+          echo "The export holds no file of the debug assembly (D-492)."
+
       # Every export carries the notices of Godot, the Terminus fonts, and the .NET runtime
       # (D-467, D-691), and the license of the game itself (D-695). The Godot export packs the
       # project folder alone, so the job copies the folder and the file beside the build
@@ -287,6 +314,13 @@ jobs:
 
           if ! grep -q "smoke: the session ends with no error." export-smoke.log; then
             echo "The smoke session of the export wrote no success line (T-2)." >&2
+            exit 1
+          fi
+
+          # A release export loads no debug assembly, and the session says so. The check above
+          # reads the files of the export, and this one reads the running build (D-492, D-726).
+          if ! grep -q "smoke: the console is absent" export-smoke.log; then
+            echo "The smoke session of the export loaded a debug console (D-260, D-492, T-2)." >&2
             exit 1
           fi
           if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR)" export-smoke.log; then

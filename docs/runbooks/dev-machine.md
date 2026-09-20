@@ -29,6 +29,14 @@ Facts checked on 2026-09-12:
 4. The STE check reads the `.md` files that git tracks, and no other file (D-702). An untracked scratch note fails no check and no commit.
 5. A `.DS_Store` file under `content/` fails the content tests, because no record reads it. Remove the file.
 
+## The debug console
+
+1. Run `make run` for a play session on this machine (D-3).
+2. Press the backquote key to open the debug console, and press it again to close it (D-725).
+3. Type `help` for the list of the commands. The console takes every key while it is open, so the game reads none of them.
+4. A command that changes the run enters the run record with its debug mark, so the run still replays (D-171).
+5. A release export holds no console, because it references no debug assembly (D-260, D-492).
+
 ## The Steam Deck
 
 1. Put the Deck in desktop mode and enable SSH, or copy the Linux export by USB.

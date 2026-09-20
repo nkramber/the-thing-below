@@ -63,8 +63,18 @@ public partial class Boot : Node
     /// <summary>The folder inside the crash folder that the smoke session writes its check into (D-659).</summary>
     private const string SmokeFolderName = "smoke";
 
+    /// <summary>The line that the smoke session types in the console of a development build (D-724).</summary>
+    private const string SmokeConsoleLine = "help";
+
     /// <summary>The name that Godot gives the display server of a session with no window.</summary>
     private const string HeadlessDisplay = "headless";
+
+    /// <summary>
+    /// The key that opens the debug console and closes it, in a development build alone
+    /// (D-171, D-725). The key sits outside the input map, so it makes no intent and the
+    /// remap of PR-63 never reaches it (D-214, F-50).
+    /// </summary>
+    private const Key ConsoleKey = Key.Quoteleft;
 
     private LogStore? log;
     private GameRun? run;
@@ -73,6 +83,7 @@ public partial class Boot : Node
     private FrameRoot? frame;
     private PromptBar? prompts;
     private MapScreen? map;
+    private Control? console;
     private readonly HeldSteps held = new();
     private bool crashed;
 
@@ -168,7 +179,7 @@ public partial class Boot : Node
 
         ContentSet loaded = LoadContent();
         this.content = loaded;
-        this.run = GameRun.Start(loaded, FixtureSeed);
+        this.run = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers());
         this.BuildScreen(loaded);
     }
 
@@ -215,6 +226,82 @@ public partial class Boot : Node
         built.Layer.AddChild(row);
         row.Build(built_ui);
         this.prompts = row;
+
+        this.BuildConsole(built, open);
+    }
+
+    /// <summary>
+    /// Builds the debug console of a development build, and adds it to the frame layer above
+    /// every other node (D-171, D-725). A release build builds none, because it holds no debug
+    /// assembly (D-260, D-492).
+    /// </summary>
+    /// <param name="built">The frame, which holds the layer of every UI node (D-568).</param>
+    /// <param name="open">The run that the console reads and sends its intents to.</param>
+    private void BuildConsole(FrameRoot built, GameRun open)
+    {
+        if (!DebugSeam.TryBuildConsole(() => open.State, open.Queue, out Control? made) || made is null)
+        {
+            return;
+        }
+
+        built.Layer.AddChild(made);
+        made.Visible = false;
+        this.console = made;
+    }
+
+    /// <summary>
+    /// Reads the key that opens the debug console and closes it, before any node of the frame
+    /// reads it (D-171, D-725).
+    /// </summary>
+    /// <param name="signal">Every input event of this frame.</param>
+    /// <remarks>
+    /// The entry of the console takes every key while the console is open, so a method that
+    /// ran after the nodes of the frame would never see the key that closes it. Thus this
+    /// method takes the key here and marks the event as handled, and no other node reads it.
+    /// </remarks>
+    public override void _Input(InputEvent signal)
+    {
+        if (this.crashed || this.console is null || signal is not InputEventKey key)
+        {
+            return;
+        }
+
+        if (!key.Pressed || key.Echo || key.Keycode != ConsoleKey)
+        {
+            return;
+        }
+
+        try
+        {
+            this.ToggleConsole(this.console);
+        }
+        catch (Exception fault)
+        {
+            this.ReportCrash(fault);
+        }
+
+        GetViewport().SetInputAsHandled();
+    }
+
+    /// <summary>
+    /// Opens the debug console or closes it, and forgets every held direction (D-725).
+    /// </summary>
+    /// <param name="open">The node of the console.</param>
+    /// <remarks>
+    /// The console takes every key of the person while it is open, so the release of a held
+    /// direction never reaches <see cref="HeldSteps"/>. A party that kept the direction would
+    /// walk on while the person types, so the set empties on each change (T-2).
+    /// </remarks>
+    private void ToggleConsole(Control open)
+    {
+        open.Visible = !open.Visible;
+        this.held.Clear();
+        this.WriteLog([new LogEntry(
+            LogLevel.Debug,
+            open.Visible ? "the debug console opened" : "the debug console closed",
+            this.run?.Tick ?? 0,
+            LogSubsystems.Game,
+            [])]);
     }
 
     /// <summary>
@@ -259,6 +346,14 @@ public partial class Boot : Node
     /// <param name="signal">The event of this frame.</param>
     private void ReadInput(InputEvent signal)
     {
+        if (this.console is not null && this.console.Visible)
+        {
+            // The person types in the console, and the game makes no intent at all until it
+            // closes. The entry takes every key, and a gamepad event still reaches this
+            // method, so the refusal stands here for every device (D-725, T-2).
+            return;
+        }
+
         if (this.ui is not null && this.ui.Device.Read(signal) && this.prompts is not null)
         {
             this.prompts.DrawPrompts();
@@ -460,12 +555,13 @@ public partial class Boot : Node
         ContentSet content = ContentSet.Load(files);
         GD.Print($"smoke: the content is {files.Count} files with the hash {content.Hash}.");
 
-        GameRun session = GameRun.Start(content, FixtureSeed);
+        GameRun session = GameRun.Start(content, FixtureSeed, DebugSeam.Handlers());
         GD.Print($"smoke: the run is {this.DescribeRun(session)}.");
         GD.Print($"smoke: the log is {this.DescribeLog()}.");
         GD.Print($"smoke: the crash file is {DescribeCrashFile(session)}.");
         GD.Print($"smoke: the UI base is {DescribeUiBase(content)}.");
         GD.Print($"smoke: the map is {DescribeMap(content, session)}.");
+        GD.Print($"smoke: the console is {this.DescribeConsole(session)}.");
         GD.Print("smoke: the session ends with no error.");
         GetTree().Quit(SuccessExitCode);
     }
@@ -642,6 +738,71 @@ public partial class Boot : Node
         drawn.QueueFree();
         return $"'{map.Id.Value}' at {map.Width} by {map.Height} tiles, "
             + $"the lead at {session.Party.LeadAt}, the view at ({view.X}, {view.Y}), and {ground}";
+    }
+
+    /// <summary>
+    /// Builds the debug console and runs every command of it, inside the engine (D-171,
+    /// D-724). A release export holds no debug assembly, so the line of this session says so,
+    /// and the export leg of CI reads that line (D-260, D-492, D-726).
+    /// </summary>
+    /// <param name="session">The run of the smoke session.</param>
+    /// <returns>The count of commands, the count of answer lines, and the effect of `reveal`.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// A development build built no console, or a command changed no state (T-2).
+    /// </exception>
+    /// <remarks>
+    /// The console of this session goes free at once, because a headless session draws no
+    /// pixel (F-23). The commands run through the same seam that the console uses, so each
+    /// leg of CI reads the load of the assembly, the build of the nodes, and every command
+    /// (D-117).
+    /// </remarks>
+    private string DescribeConsole(GameRun session)
+    {
+        if (!DebugSeam.IsDevelopmentBuild)
+        {
+            return $"absent, because this build has no feature '{DebugSeam.DevelopmentFeature}' (D-260, D-492)";
+        }
+
+        if (!DebugSeam.TryBuildConsole(() => session.State, session.Queue, out Control? made) || made is null)
+        {
+            throw new InvalidOperationException(
+                "This build has the feature of a development build, and it built no debug console (D-723, T-2).");
+        }
+
+        // The console takes the focus when it opens, and it reads a typed line from the signal
+        // of its entry. The console owns those nodes, so the check of both lives behind the
+        // seam and it fails with its own message (D-723, D-725, T-2). A node outside the tree
+        // can hold no focus, so the check adds the console and then takes it away again.
+        this.AddChild(made);
+        made.Visible = true;
+        int shown = DebugSeam.SubmitLine(made, SmokeConsoleLine).Count;
+        made.Visible = false;
+        this.RemoveChild(made);
+        made.QueueFree();
+
+        int answers = 0;
+        IReadOnlyList<string> names = DebugSeam.CommandNames();
+        foreach (string name in names)
+        {
+            answers += DebugSeam.Run(name, () => session.State, session.Queue).Count;
+        }
+
+        // The console sends an intent, and the rules apply it on the next tick. Thus the
+        // count below reads the work of the handler of the seam, and never a change that the
+        // console made itself (D-171, T-7).
+        int walked = session.Party.Walked.Count;
+        this.WriteLog(session.Advance(SmokeFrameSeconds));
+        int marked = session.Party.Walked.Count - walked;
+        if (marked <= 0)
+        {
+            throw new InvalidOperationException(
+                $"The commands of the console marked {marked} more tiles, and the map "
+                + $"holds {session.Party.Map.Width * session.Party.Map.Height} tiles (D-724, T-2).");
+        }
+
+        return $"{names.Count} commands with {answers} answer lines, {shown} lines on the screen "
+            + $"after a typed line, "
+            + $"and they marked {marked} more tiles as walked";
     }
 
     /// <summary>

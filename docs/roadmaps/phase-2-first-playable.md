@@ -208,14 +208,17 @@ Area file: `area-core.md` section 7.13.
 **Scope.**
 
 - The debug assembly, which holds the console and the extra intent handlers of the seam of PR-6 (D-260, D-492).
-- The console of D-171, which a development build opens and a release build lacks.
+- The console of D-171, which a development build opens and a release build lacks. The key is backquote, and the world keeps its ticks (D-725).
+- The four commands of D-724: `reveal`, `hash`, `where`, and `help`.
+- The seam of Game, which loads the assembly by name outside the `ExportRelease` configuration (D-723).
 - The mark that a debug intent carries in the run record (D-171).
-- The test that a release export never loads the assembly (D-492).
+- The test that a release export never loads the assembly (D-492, D-726).
 
 **Out of scope.**
 
 - The capture (PR-74) and the sound room (PR-71), which land later behind the same seam.
 - No change to Core, which names no debug assembly (D-492).
+- A command that takes a value, because an intent carries an id alone (D-493, D-724).
 
 **Exit tests.**
 
@@ -227,9 +230,11 @@ Area file: `area-core.md` section 7.13.
 **Review focus.**
 
 - Core names no debug assembly, and no conditional compilation enters Core (D-260, F-27).
-- Each console command makes an intent, so a cheat still replays.
+- Each console command that changes the run makes an intent, so a cheat still replays (D-724).
+- The seam is text and reflection, so a test holds each name of it (D-723).
+- The commands stay engine-free, and det-lint reads them with the rules of Core (D-724, T-7).
 
-**Questions.** None.
+**Questions.** OQ-210 to OQ-215, which D-723 to D-728 answer.
 
 > *In plain English:* cheats and test commands live in a separate part that the shipped game never contains. A run that used one still replays, and the record says so.
 

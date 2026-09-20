@@ -640,3 +640,26 @@ How to file a question (D-19, D-24):
 207. **OQ-207. The scope of T-6 in a document.** T-6 names code, game text, commits, PR descriptions, and comments, and the PR gate says "anywhere". The cost model of `docs/design.md` names the harness of each PR (D-672). Does T-6 bind a document? Raised 2026-09-20. Blocks no PR. Closed 2026-09-20 by D-703.
 208. **OQ-208. The word for the five travelers.** The glossary keeps "party" for the one to three characters in battle (D-12). `docs/world/arc.md` and `docs/world/cast.md` use that word for the five travelers. Which word names the five? Raised 2026-09-20. Blocks no PR. Closed 2026-09-20 by D-704.
 209. **OQ-209. The push wait of gitar.** The shared `gitar-review` skill cited D-160 for its wait of three minutes, and D-160 is the renderer test. Does the register take a decision row for the wait? Raised 2026-09-20. Blocks no PR. Closed 2026-09-20 by D-705.
+210. **OQ-210. How a development build reaches the console.** A release export must hold no debug assembly (D-260, D-492). The Game project can reference that assembly outside one configuration. Game must then compile with no reference to it. Raised 2026-09-20. Blocked PR-45. Closed 2026-09-20 by D-723.
+    - One reflection seam, the recommendation. One file of Game loads the assembly by name and reads each entry member. No conditional compilation enters Game or Core, and D-260 holds as written. The seam is text, so a test stands in the place of the compiler.
+    - Conditional compilation in Game. The types stay explicit, and the compile set follows the configuration. A partial method gives back no handler set, so the seam needs a static field that another file fills, against T-1.
+    - One reference in every configuration, with a filter of the export. The project file is the simplest, and the release build still holds the debug code, against D-260. The Godot export adds the .NET assemblies itself, so a filter can miss them.
+211. **OQ-211. The commands of the first console.** An intent carries an id and no value (D-493). Thus no command takes an argument. A command that takes a value needs a change of Core that PR-45 excludes. Raised 2026-09-20. Blocked PR-45. Closed 2026-09-20 by D-724.
+    - `reveal`, `hash`, `where`, and `help`, the recommendation. One cheat sends an intent, and three commands report and send none. One cheat proves the seam end to end, and the record holds no line that no rule reads.
+    - Every command sends an intent. D-171 holds word for word, and each report needs a handler that changes nothing. The record grows lines that no rule reads.
+    - `reveal` and `help` alone. The least code, and no state hash and no tile position for a determinism defect.
+    - The four walk commands too. The bots of PR-15 can drive a run from the list, and each command repeats a player intent with a debug mark.
+212. **OQ-212. The console key and the world.** The console needs a key that no input map holds, and the world either keeps its ticks or stops. Raised 2026-09-20. Blocked PR-45. Closed 2026-09-20 by D-725.
+    - Backquote, and no pause, the recommendation. The key makes no intent, and the party stands still because typing makes no step intent. A keyboard layout that is not US moves that key.
+    - Backquote, and a pause through the menu intent. The run waits while the person types, and the menu state then means two things for PR-62.
+    - The F1 key, and no pause. Every layout holds F1 in one place, and a console on backquote is the convention.
+213. **OQ-213. The proof of a release export.** Exit test 2 of PR-45 asks for a proof that a release export holds no reference to the debug assembly. Raised 2026-09-20. Blocked PR-45. Closed 2026-09-20 by D-726.
+    - A test and an export step, the recommendation. The test reads the project file on every pull request, and the step reads the real export on each system.
+    - The export step alone. It reads the truth, and the export job runs on a merge and on a pull request that changes an export path alone.
+    - A test that builds the `ExportRelease` configuration. It proves the real output on every pull request, and it adds a build to every test run.
+214. **OQ-214. The kind of a debug intent id.** An id is permanent (D-166), so the kind of the first debug command binds every later one. Raised 2026-09-20. Blocked PR-45. Closed 2026-09-20 by D-727.
+    - The kind `debug`, the recommendation. The kind names the source of the entry, and the seam test of PR-6 already used it. The action field of a record then holds two kinds.
+    - The kind `intent`, with a `debug_` name. One kind for one field, and the kind then says nothing about the source.
+215. **OQ-215. The stale file of a deleted script.** The uid file of the deleted script BaseScreen.cs stays in git, in the UI folder of Game. PR #42 deleted that script (D-722). Raised 2026-09-20. Blocked no PR. Closed 2026-09-20 by D-728.
+    - The delete in PR-45, the recommendation. The pull request that corrects the stale names of that script takes the file too. It is one file outside the concern of the pull request.
+    - A later pull request. This pull request holds one concern, and an orphan file stays in the tree.

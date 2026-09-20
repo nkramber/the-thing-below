@@ -1,5 +1,88 @@
 # Session handoff
 
+## Session 149: 2026-09-20, Codex
+
+Author: Codex
+Session: review PR #43, the debug assembly and the console. Repository: the-thing-below. Branch: `feat/pr-45-debug-assembly`. Role: reviewer. Base: `ea2fec5`.
+
+### What this session did, and why
+
+- Reviewed PR #43 at effective head `fd9e0ae`.
+- Verified the opposite-provider gate, the complete diff, the PR comments, the PR-45 roadmap exit tests, the debug seam, command dispatch, replay mark, release exclusion, console focus, and export checks.
+- Verified the closed Gitar finding and found no additional in-scope defect.
+- Added `docs/reviews/pr-43.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1213 tests and all local gates.
+- GitHub passes build, test, format, smoke, replay identity, det-lint, STE, coverage, changed paths, and all three export legs for the PR.
+- Gitar approves the effective head `fd9e0ae`, and its one finding is closed.
+- The review-gate check is expected to fail until the review record is pushed. RG 3 is the only missing record condition.
+
+### What is in flight
+
+- The review record and this handoff entry are pushed in `32fa076`.
+
+### Traps and gotchas
+
+- The effective code head is `fd9e0ae`. Commits `5cb8912` and `99c8c5c` change metadata only.
+- PR #43 is roadmap PR-45. Do not confuse the GitHub number with the roadmap number.
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Fetch and verify that the review-gate check is green and that no branch commits remain ahead of the remote.
+
+## Session 148: 2026-09-20, Claude Code
+
+Author: Claude Code
+Session: PR-45, the debug assembly and the console. Repository: the-thing-below. Branch: `feat/pr-45-debug-assembly`. Role: author. Base: `ea2fec5`.
+
+### What this session did, and why
+
+- Asked the six questions of PR-45 first, and the owner answered each one (D-723 to D-728). Section 7.4 said "None", and the seam, the command set, the key, the proof of a release export, the kind of a debug id, and one stale file each needed an answer.
+- `TheThingBelow.Debug` is the sixth project. It holds the four commands, the console screen, and one entry type (D-260, D-723, D-724).
+- Game references it outside the `ExportRelease` configuration, and `DebugSeam` loads it by name. Thus no conditional compilation enters Game or Core, and F-27 of `area-core.md` closes (D-723).
+- The backquote key opens the console, the world keeps its ticks, and the game makes no intent while the console is open (D-725).
+- det-lint reads the commands folder with the float, clock, and OS random rules, because a handler changes a run inside a tick (D-724, T-7).
+- The smoke session builds the console, reads the focus, and runs every command inside the engine. A release export reports an absent console, and the export job reads the file names of each build too (D-726).
+
+### The state of the build
+
+- `make verify` passes on the Mac: 1213 tests, the format check, det-lint and STE with 0 findings, the replay identity, the content hash, the atlas check, and the smoke session.
+- No file of Core changed, so the simulation version stands at 5 (G-17).
+- The remote head of `main` is `ea2fec5`. The branch holds four commits, and the effective head is `fd9e0ae`.
+- CI passes on `fd9e0ae` on every leg: build, test, and format, smoke, replay identity, det-lint, ste-check, and coverage.
+- The export job passes on Ubuntu, Windows, and macOS. Each export holds no file of the debug assembly, and each release build reports an absent console (D-726). The job runs on this pull request, because the pull request changes the export workflow and the project file of Game (D-699).
+
+### What is in flight
+
+The pull request is #43, and it waits for the review of Codex at the effective head `fd9e0ae`.
+
+The gitar pass of `fd9e0ae` approved the code review, and it closed its one finding. That finding was a stale comment paragraph of `DescribeConsole`, which the move of the console check behind the seam left. The commit `fd9e0ae` drops it, and the answer sits on the thread of `TheThingBelow.Game/scripts/Boot.cs`.
+
+The `review-gate` check gives one fault, RG 3, because the head holds no `docs/reviews/pr-43.md`. That fault clears with the review record. RG 1, RG 2, RG 6, RG 7, and RG 8 pass.
+
+### Traps and gotchas
+
+- The seam is text and reflection, so a rename on one side alone gives no compile error. `DebugSeamTests` reads each name from the built Game assembly and finds each member of the entry (D-723).
+- The debug project takes no Godot source generator, so no type of it derives from a Godot node. The console builds engine nodes and connects to their signals.
+- Tests references neither Game nor the debug project. It loads each built assembly from a path that the project file writes (D-614).
+- The key press needs a play session. The smoke session covers the load, the nodes, the focus, the typed line, and every command, and PR-41 adds the screen test.
+- The export job runs on this pull request, because the pull request changes the export workflow and the project file of Game (D-699).
+- `dotnet build TheThingBelow.Game/TheThingBelow.Game.csproj --configuration ExportRelease` writes a release output, and that folder holds no debug assembly.
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Start the review of PR #43 at the effective head `fd9e0ae`.
+
 ## Session 147: 2026-09-20, Codex
 
 Author: Codex
@@ -306,77 +389,3 @@ None.
 ### The next concrete action
 
 Wait three minutes for gitar (D-705), answer each comment, and tell the owner that the PR is ready for Codex.
-
-## Session 139: 2026-09-20, Codex
-
-Author: Codex
-Session: repeat review PR #39, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: reviewer. Base: `fb17f87`.
-
-### What this session did, and why
-
-- Reopened PR #39 at effective head `82d1afd`.
-- Verified the provider gate and read the author response file.
-- Rechecked P1-1 against its original trigger. The export command and the `Makefile` smoke target now keep the process exit code.
-- Ran `make verify`. It passed with 837 tests and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
-- Confirmed the revision-matched CI checks and all three export legs pass. Gitar passes.
-- Updated `docs/reviews/pr-39.md`, kept the earlier verdict, and set the current verdict to `Ready for owner merge`.
-
-### The state of the build
-
-- The effective head is `82d1afd`. The review-gate check waits for this review record.
-- The earlier finding P1-1 is fixed in `82d1afd`.
-
-### What is in flight
-
-The repeat-review record and this handoff entry need a metadata commit and push. The current review-gate check still reads the earlier record.
-
-### Traps and gotchas
-
-- The effective head is `82d1afd`, not the later metadata commit that will publish this review.
-- The author response also repairs the same exit-status fault in `Makefile` under owner decision D-694.
-
-### The questions that block progress
-
-None. OQ-198 and OQ-199 remain open but do not block this review.
-
-### The next concrete action
-
-Run STE and the diff check, commit the review record and this entry, push, and verify the remote tip and review-gate result.
-
-## Session 138: 2026-09-19, Codex
-
-Author: Codex
-Session: review PR #39, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: reviewer. Base: `fb17f87`.
-
-### What this session did, and why
-
-- Recomputed PR #39 at effective head `671d712`. The later commit `620f690` changes only the handoff metadata.
-- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Inspected the complete 18-path diff, the workflow, export presets, project setting, tests, licenses, decisions, questions, roadmaps, and handoff records.
-- Ran `make verify`. It passed with 832 tests and clean build, format, det-lint, STE, replay identity, content hash, and smoke checks.
-- Found P1-1: the exported smoke process is followed by `|| true`, so a nonzero process status is discarded.
-- Wrote `docs/reviews/pr-39.md` with the verdict `Changes required` for effective head `671d712`.
-
-### The state of the build
-
-- The remote PR head is `620f690`, and the effective implementation head is `671d712`.
-- The automated pass is current at `671d712` and approved after its cancellation finding was fixed.
-- The review-gate check waits for this review record.
-
-### What is in flight
-
-The author must preserve the exported process status and rerun the export checks. The review record and this entry need a commit and push for the current review round.
-
-### Traps and gotchas
-
-- The review verdict targets `671d712`, not the metadata tip `620f690`.
-- The repository test command is `make verify`. A direct `dotnet test` filter discovered zero tests and is failed evidence.
-- The existing CI smoke job uses `pipefail` and preserves the process status. The export workflow must keep that property while also checking the success line.
-
-### The questions that block progress
-
-None. OQ-198 and OQ-199 remain open but do not block this review.
-
-### The next concrete action
-
-Correct P1-1, push the author correction, and rerun the review at the new effective head.

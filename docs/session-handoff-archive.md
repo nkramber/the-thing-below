@@ -1,5 +1,78 @@
 # Session handoff archive
 
+## Session 139: 2026-09-20, Codex
+
+Author: Codex
+Session: repeat review PR #39, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: reviewer. Base: `fb17f87`.
+
+### What this session did, and why
+
+- Reopened PR #39 at effective head `82d1afd`.
+- Verified the provider gate and read the author response file.
+- Rechecked P1-1 against its original trigger. The export command and the `Makefile` smoke target now keep the process exit code.
+- Ran `make verify`. It passed with 837 tests and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
+- Confirmed the revision-matched CI checks and all three export legs pass. Gitar passes.
+- Updated `docs/reviews/pr-39.md`, kept the earlier verdict, and set the current verdict to `Ready for owner merge`.
+
+### The state of the build
+
+- The effective head is `82d1afd`. The review-gate check waits for this review record.
+- The earlier finding P1-1 is fixed in `82d1afd`.
+
+### What is in flight
+
+The repeat-review record and this handoff entry need a metadata commit and push. The current review-gate check still reads the earlier record.
+
+### Traps and gotchas
+
+- The effective head is `82d1afd`, not the later metadata commit that will publish this review.
+- The author response also repairs the same exit-status fault in `Makefile` under owner decision D-694.
+
+### The questions that block progress
+
+None. OQ-198 and OQ-199 remain open but do not block this review.
+
+### The next concrete action
+
+Run STE and the diff check, commit the review record and this entry, push, and verify the remote tip and review-gate result.
+
+## Session 138: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #39, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: reviewer. Base: `fb17f87`.
+
+### What this session did, and why
+
+- Recomputed PR #39 at effective head `671d712`. The later commit `620f690` changes only the handoff metadata.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Inspected the complete 18-path diff, the workflow, export presets, project setting, tests, licenses, decisions, questions, roadmaps, and handoff records.
+- Ran `make verify`. It passed with 832 tests and clean build, format, det-lint, STE, replay identity, content hash, and smoke checks.
+- Found P1-1: the exported smoke process is followed by `|| true`, so a nonzero process status is discarded.
+- Wrote `docs/reviews/pr-39.md` with the verdict `Changes required` for effective head `671d712`.
+
+### The state of the build
+
+- The remote PR head is `620f690`, and the effective implementation head is `671d712`.
+- The automated pass is current at `671d712` and approved after its cancellation finding was fixed.
+- The review-gate check waits for this review record.
+
+### What is in flight
+
+The author must preserve the exported process status and rerun the export checks. The review record and this entry need a commit and push for the current review round.
+
+### Traps and gotchas
+
+- The review verdict targets `671d712`, not the metadata tip `620f690`.
+- The repository test command is `make verify`. A direct `dotnet test` filter discovered zero tests and is failed evidence.
+- The existing CI smoke job uses `pipefail` and preserves the process status. The export workflow must keep that property while also checking the success line.
+
+### The questions that block progress
+
+None. OQ-198 and OQ-199 remain open but do not block this review.
+
+### The next concrete action
+
+Correct P1-1, push the author correction, and rerun the review at the new effective head.
 ## Session 137: 2026-09-19, Claude Code
 
 Author: Claude Code

@@ -5,10 +5,10 @@ using System.IO;
 namespace TheThingBelow.Tools.DetLint;
 
 /// <summary>
-/// The `det-lint` command. It reads the code of Core, of Game, and of each tool of D-502, and
-/// it gives one line for each finding: the file, the line, the rule id, and what the rule saw
-/// (D-496, D-498, G-2, G-3, G-7). The command reads a build of the solution, so `make verify`
-/// and the `det-lint` job build first (D-614).
+/// The `det-lint` command. It reads the code of Core, of Game, of the debug commands, and of
+/// each tool of D-502, and it gives one line for each finding: the file, the line, the rule id,
+/// and what the rule saw (D-496, D-498, G-2, G-3, G-7). The command reads a build of the
+/// solution, so `make verify` and the `det-lint` job build first (D-614).
 /// </summary>
 public static class DetLintCommand
 {
@@ -29,6 +29,15 @@ public static class DetLintCommand
 
     /// <summary>The folder of the Tools project, from the root of the checkout.</summary>
     public const string ToolsProject = "TheThingBelow.Tools";
+
+    /// <summary>The folder of the debug assembly, from the root of the checkout (D-260).</summary>
+    public const string DebugProject = "TheThingBelow.Debug";
+
+    /// <summary>
+    /// The folder of the debug commands, which run inside a tick of the rules (D-171, D-724).
+    /// The console of the same assembly draws with the engine, and it lies outside this folder.
+    /// </summary>
+    public const string DebugCommandsFolder = $"{DebugProject}/Commands";
 
     /// <summary>
     /// The folder of each tool whose output a test compares on every CI leg, and the PR that
@@ -107,6 +116,7 @@ public static class DetLintCommand
             ProjectFiles.ReadCode(root, GameProject),
             ReferenceSet.WithOutputOf(GameOutputFolder(root, configuration), $"{GameProject}"),
             [new GodotTextRule()]));
+        findings.AddRange(CheckDebugCommands(root));
         findings.AddRange(CheckComparedOutputTools(root, output));
         findings.AddRange(CheckScenes(root));
 
@@ -176,6 +186,24 @@ public static class DetLintCommand
 
         return inside;
     }
+
+    /// <summary>
+    /// Reads the commands of the debug assembly with the float, clock, and OS random rules
+    /// (D-171, D-724, T-7). A handler of a debug command changes the state of a run inside a
+    /// tick, so it takes the determinism rules of a rule of Core (G-2, G-3).
+    /// </summary>
+    /// <remarks>
+    /// The scan compiles the files of that folder alone, against the framework set of this
+    /// process. That set holds Core and no Godot assembly, so a Godot type in this folder
+    /// fails the compile and the report holds that fault. Thus the folder stays engine-free,
+    /// and the console of the same assembly keeps every engine call (D-723, T-2).
+    /// </remarks>
+    private static IReadOnlyList<LintFinding> CheckDebugCommands(string root) =>
+        SourceScan.Check(
+            "det-lint.debug",
+            ProjectFiles.ReadCode(root, DebugCommandsFolder),
+            ReferenceSet.Framework(),
+            CoreRules.ComparedOutputTools());
 
     /// <summary>Reads each Godot scene file of Game with the text rule (D-499).</summary>
     private static IReadOnlyList<LintFinding> CheckScenes(string root)

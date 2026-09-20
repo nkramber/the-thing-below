@@ -25,6 +25,20 @@
   </ItemGroup>
 
   <!--
+    The debug assembly of D-260, which holds the console and the extra intent handlers of the
+    seam. The Godot export runs `dotnet publish` in the `ExportRelease` configuration, so this
+    condition keeps the assembly out of every release export, and a test of Tests reads the
+    condition (D-492, D-723, D-726).
+
+    No file of Game names a type of this assembly. `DebugSeam` loads it by name and reads its
+    entry by reflection, so Game compiles in `ExportRelease` with no conditional compilation
+    (D-723, F-27).
+  -->
+  <ItemGroup Condition="'$(Configuration)' != 'ExportRelease'">
+    <ProjectReference Include="../TheThingBelow.Debug/TheThingBelow.Debug.csproj" />
+  </ItemGroup>
+
+  <!--
     The Godot export walks the project folder alone, and `content/` lies outside it (F-42).
     Thus the assembly carries every content file as a resource, and Game reads the bytes from
     its own assembly in the editor and in every export (D-508).

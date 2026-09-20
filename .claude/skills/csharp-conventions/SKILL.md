@@ -15,7 +15,12 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 - A tool whose output a test compares on every CI leg uses integer math, as `Core` does (D-502).
 - `Tests` holds the xUnit tests for `Core`, `Storage`, and `Tools`, and the smoke test that starts the Game headless.
 - `Storage` is the fifth project. It holds the file code for saves, run records, crash files, and log files. Game and Tools reference it, and `Core` never does (D-494).
-- PR-45 adds the debug assembly as the sixth project, and only development builds reference it (D-260).
+- `TheThingBelow.Debug` is the sixth project, and only development builds reference it (D-260). PR-45 built it.
+- Game references it in every configuration except `ExportRelease`, and Game names no type of it. `DebugSeam` of Game loads it by name and reads each entry member of `DebugAssembly` as a delegate (D-723).
+- A new member of that entry needs its name in `DebugSeam` and a test of that name. The seam is text, and no compiler reads it (D-723).
+- `TheThingBelow.Debug/Commands/` stays engine-free, and det-lint reads it with the float, clock, and OS random rules of Core. A handler of a command changes a run inside a tick (D-724, T-7).
+- The console of that assembly builds engine nodes and connects to their signals. The project takes no Godot source generator, so no type of it derives from a Godot node (D-723).
+- A command that changes the run sends an intent of the kind `debug`, and a command that reports sends none (D-724, D-727).
 - A test asserts the reference list of `Core`. A new package in any project needs a decision entry (G-13).
 
 ## Shape of Core code (D-168)

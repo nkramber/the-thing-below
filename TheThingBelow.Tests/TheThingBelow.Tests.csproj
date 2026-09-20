@@ -49,6 +49,19 @@
   </ItemGroup>
 
   <!--
+    The tests of the debug console read the file that the debug project built (D-260, D-492).
+    This project takes no reference to that project either, because it references GodotSharp
+    and its assemblies would then join the assembly list of the test host, which the det-lint
+    fixture reads as the framework set (D-614, D-723).
+  -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>DebugAssemblyPath</_Parameter1>
+      <_Parameter2>$(MSBuildThisFileDirectory)../TheThingBelow.Debug/bin/$(Configuration)/$(TargetFramework)/TheThingBelow.Debug.dll</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <!--
     The reference test of Storage reads the file that the Storage project built, for the same
     reason as the Core test above (F-61, D-494).
   -->

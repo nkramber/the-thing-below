@@ -14,9 +14,9 @@ namespace TheThingBelow.Game;
 /// (D-164, G-5). Game holds no rule, and it calls Core on each tick (D-100).
 /// </summary>
 /// <remarks>
-/// A release build passes no debug handler, so a debug intent in a record fails here with
-/// the intent and the tick (D-260, D-492). PR-45 creates the debug assembly, and a
-/// development build then passes its handlers to <see cref="Simulation.Start"/>.
+/// The host passes the handlers of <see cref="DebugSeam.Handlers"/> to the start of the run.
+/// A development build passes the handlers of the console, and a release build passes none, so
+/// a debug intent in a record fails there with the intent and the tick (D-260, D-492).
 /// <para>
 /// PR-61 makes an intent from each input event and gives it to <see cref="Queue"/>. No
 /// intent comes from a Godot timer, a physics step, or a poll of the input singleton (G-23,
@@ -86,6 +86,15 @@ public sealed class GameRun
         }
     }
 
+    /// <summary>
+    /// The state of the run, which a report command of the debug console reads (D-171, D-724).
+    /// </summary>
+    /// <remarks>
+    /// The console reads this state and never changes it. A change of the state outside a tick
+    /// would leave the run record behind the state, and the run would no longer replay (T-7).
+    /// </remarks>
+    public RunState State => this.simulation.State;
+
     /// <summary>The party on its map, which the map scene draws (D-106, D-203).</summary>
     /// <remarks>
     /// Game reads the tile of the lead and the ticks of the step that runs, and it slides
@@ -97,15 +106,21 @@ public sealed class GameRun
     /// <summary>Starts a run over a content set.</summary>
     /// <param name="content">The content of this build, which gives the content hash (D-648).</param>
     /// <param name="seed">The seed of the run (G-3, G-4).</param>
+    /// <param name="debugHandlers">
+    /// The extra intent handlers of this build, which <see cref="DebugSeam.Handlers"/> gives.
+    /// A development build passes the handlers of the console, and a release build passes
+    /// <see cref="DebugIntentHandlers.None"/> (D-260, D-492).
+    /// </param>
     /// <returns>The run, at tick zero, on the first map (D-528).</returns>
-    /// <exception cref="ArgumentNullException">The content set is null (T-2).</exception>
+    /// <exception cref="ArgumentNullException">The content set or the handler set is null (T-2).</exception>
     /// <exception cref="ContentException">This build holds no first map (T-2).</exception>
-    public static GameRun Start(ContentSet content, ulong seed)
+    public static GameRun Start(ContentSet content, ulong seed, DebugIntentHandlers debugHandlers)
     {
         ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(debugHandlers);
 
         RunHeader header = RunHeader.ForThisBuild(content.Hash, seed);
-        Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), DebugIntentHandlers.None);
+        Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), debugHandlers);
         return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()));
     }
 

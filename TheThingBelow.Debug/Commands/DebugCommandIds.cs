@@ -1,0 +1,26 @@
+using TheThingBelow.Core.Content;
+
+namespace TheThingBelow.Debug.Commands;
+
+/// <summary>
+/// The intent id of each console command that changes the state of a run (D-171, D-646).
+/// Core reads no id of this class, and the seam of D-260 carries each one to its handler.
+/// </summary>
+/// <remarks>
+/// The kind is `debug`, which names the source of the id: the debug assembly (D-646, D-727).
+/// A reader of a record thus names the source of a line from the id alone, beside the debug
+/// mark that <see cref="Core.Runs.Intent.IsDebug"/> carries (D-171).
+/// <para>
+/// An id is permanent, so no later entry takes one (D-166). An id of this class never enters
+/// `IntentIds` of Core, because no rule of Core reads it (D-492).
+/// </para>
+/// </remarks>
+public static class DebugCommandIds
+{
+    /// <summary>The file that holds these ids, for the error of a malformed id (T-2).</summary>
+    private const string Source = "TheThingBelow.Debug/Commands/DebugCommandIds.cs";
+
+    /// <summary>The console marked every tile of the map as walked (D-567).</summary>
+    public static readonly ContentId RevealMap =
+        ContentId.Parse("debug.reveal_map", Source, nameof(RevealMap));
+}
