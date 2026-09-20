@@ -29,6 +29,11 @@ D- id.
 | The body size | A setting of 24, 32, and 48 | Revises D-639 in part: three body sizes, not two UI values |
 | The default body | 32 at a frame fit of 1x, and 24 above that fit | One rule, and no table of screens |
 | The text limits | No limit changes. The box reveals the next part on the advance intent | A body of 48 holds 49 characters, so long text takes more pages |
+| How the box reveals more | It scrolls up one line on the advance intent | The player gives the intent with the A button or a click |
+| A panel that cannot page | It reflows to more rows, and it holds all of its text | The party row takes two rows at a body of 48 |
+| The type-out | Each prose box types one character at a time | Confirms D-223. The HUD and the menus appear at once |
+| The type-out layout | The box holds its layout as it types | Closes the layout half of OQ-112 |
+| The text speed | An accessibility setting of the settings screen | Confirms D-214 and PR-63 |
 
 D-639 loses its floor of 2 device pixels for each art pixel. A body of 24 and a body of 32 draw
 a stem of one frame pixel, and the owner picked both. G-28 needs the same revision.
@@ -37,9 +42,19 @@ D-635 stands at 76 characters. The box keeps 3 lines at each body size, and it r
 part of the text on the advance intent. Thus a body of 48 takes more pages, and no line of the
 game gets shorter.
 
-A panel that cannot page still holds its text at each body size. The party row of the probe
-shows 3 of the 5 members at a body of 48. D-241 needs a revision in part: a paging panel holds
-one page, and every other panel holds its longest string.
+A panel that cannot page reflows. It grows rows, and it holds all of its text at each body
+size. The party row takes two rows at a body of 48, where the frame holds 50 columns and the
+five members need 68. A panel that cannot hold its text is a design finding in the PR that
+builds it. The probe drops the extra members instead, because it predates this answer.
+
+D-241 needs a revision in part. A panel that pages holds one page, and every other panel holds
+its longest string at each body size.
+
+D-223 and D-214 already hold the type-out and the text speed. These answers add the scope and
+the layout. Each prose box types one character at a time, and the HUD and the menus appear at
+once. The box holds its layout as it types, through `VC_CHARS_AFTER_SHAPING`, which the
+external facts of `area-ui-input.md` record. That closes the layout half of OQ-112. The speeds
+of OQ-112 and the skip of OQ-150 stay open, and both block PR-36.
 
 Two pairings of the picks were not on the screen of the first round. The probe paired a body of
 24 with a title of 32, and a body of 32 with a title of 48. The second run of 2026-09-19 draws
