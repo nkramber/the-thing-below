@@ -21,7 +21,7 @@ Session: review PR #43, the debug assembly and the console. Repository: the-thin
 
 ### What is in flight
 
-- The review record and this handoff entry need one metadata commit and push.
+- The review record and this handoff entry are pushed in `32fa076`.
 
 ### Traps and gotchas
 
@@ -34,7 +34,7 @@ None. OQ-115 blocks PR-8 alone.
 
 ### The next concrete action
 
-Commit and push the review record and this handoff entry. Then fetch and verify that the review-gate check is green and that no branch commits remain ahead of the remote.
+Fetch and verify that the review-gate check is green and that no branch commits remain ahead of the remote.
 
 ## Session 148: 2026-09-20, Claude Code
 
