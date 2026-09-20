@@ -18,11 +18,16 @@ Session: PR-45, the debug assembly and the console. Repository: the-thing-below.
 
 - `make verify` passes on the Mac: 1213 tests, the format check, det-lint and STE with 0 findings, the replay identity, the content hash, the atlas check, and the smoke session.
 - No file of Core changed, so the simulation version stands at 5 (G-17).
-- The remote head of `main` is `ea2fec5`. The branch holds two commits.
+- The remote head of `main` is `ea2fec5`. The branch holds four commits, and the effective head is `fd9e0ae`.
+- CI runs on `fd9e0ae`, and the export job of each system runs too, because this pull request changes the export workflow and the project file of Game (D-699).
 
 ### What is in flight
 
-The pull request is #43. The gitar pass approved the head `40db317` with no finding of the code review, and the second commit needs a new pass. Then the review of Codex.
+The pull request is #43, and it waits for the review of Codex at the effective head `fd9e0ae`.
+
+The gitar pass of `fd9e0ae` approved the code review, and it closed its one finding. That finding was a stale comment paragraph of `DescribeConsole`, which the move of the console check behind the seam left. The commit `fd9e0ae` drops it, and the answer sits on the thread of `TheThingBelow.Game/scripts/Boot.cs`.
+
+The `review-gate` check gives one fault, RG 3, because the head holds no `docs/reviews/pr-43.md`. That fault clears with the review record. RG 1, RG 2, RG 6, RG 7, and RG 8 pass.
 
 ### Traps and gotchas
 
@@ -39,7 +44,7 @@ None. OQ-115 blocks PR-8 alone.
 
 ### The next concrete action
 
-Answer the gitar pass of the head `f52039c`, and then hand the pull request to Codex.
+Start the review of PR #43 at the effective head `fd9e0ae`.
 
 ## Session 147: 2026-09-20, Codex
 
