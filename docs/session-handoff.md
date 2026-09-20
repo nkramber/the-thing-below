@@ -16,13 +16,14 @@ Session: PR-61, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui
 
 ### The state of the build
 
-- `make verify` is the next command. The build, the 1046 tests, det-lint, the STE check, the content hash, and the smoke session each pass on the Mac.
-- The remote head is the commit of this entry, on `origin/feat/pr-61-ui-base`.
+- `make verify` passes on the Mac: 1046 tests, the format check, det-lint and STE with 0 findings, the replay identity on simulation version 4, the content hash, the atlas check, and the smoke session.
+- PR #41 is open. Every CI check passes but `review-gate`, which faults on RG 3 until the review record exists. That is the normal state of a PR before its review.
+- The gitar pass of head `c8ea1ca` approved the code review with no finding. Its CI note found a real fault in the `docs/reviews/` row of the Documents section, and the description now holds the `No change needed because` form. A local gate run gives RG 7 pass and RG 8 pass.
 - The content hash did not move: the fonts and the UI files sit outside `content/rules/` (D-495, D-648).
 
 ### What is in flight
 
-The PR waits for the owner to approve the art batch (G-25), and then for gitar and the review of Codex. No label applies, because the PR adds decision rows and code (D-401, D-560).
+The PR waits for the owner to approve the art batch (G-25), and then for the review of Codex. No label applies, because the PR adds decision rows and code (D-401, D-560).
 
 ### Traps and gotchas
 
@@ -38,7 +39,7 @@ None. OQ-57 stays open, and the placeholder of D-712 unblocks this PR.
 
 ### The next concrete action
 
-Get the owner approval of the art batch, then answer the gitar pass.
+Get the owner approval of the art batch, then hand the PR to Codex for the review.
 
 ## Session 141: 2026-09-20, Codex
 
