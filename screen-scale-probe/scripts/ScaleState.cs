@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace ScreenScaleProbe;
@@ -45,8 +46,10 @@ public sealed class ScaleState
     /// <summary>
     /// The unit of every panel border and margin, in frame pixels. It keeps the chrome in
     /// proportion to the text, and it holds the layout of the earlier runs at a body of 32.
+    /// The floor of 2 holds D-639 for a border: a border of one frame pixel is one device pixel
+    /// on the Deck, where the fit is 1x.
     /// </summary>
-    public int LayoutUnit => BodyPixels / 16;
+    public int LayoutUnit => Math.Max(2, BodyPixels / 16);
 
     /// <summary>True when one art pixel of the world covers a whole number of frame pixels.</summary>
     public bool WorldIsExact => WorldHalves % 2 == 0;
@@ -63,8 +66,8 @@ public sealed class ScaleState
     {
         int[] worlds = [2, 3, 4];
 
-        // Body 32, 48, and 64, each a strike doubled. The title takes one step up the same ladder.
-        (int Body, int TitleNative, int TitleUnit)[] texts = [(16, 24, 2), (24, 32, 2), (32, 32, 3)];
+        // Body 24, 32, and 48, each a strike doubled. The title takes one step up the same ladder.
+        (int Body, int TitleNative, int TitleUnit)[] texts = [(12, 16, 2), (16, 24, 2), (24, 32, 2)];
 
         var all = new List<ScaleState>(worlds.Length * texts.Length);
         foreach (int world in worlds)

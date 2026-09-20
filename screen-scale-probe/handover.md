@@ -15,8 +15,8 @@ stay as they are, and D-633 and D-639 stand until the owner picks again.
 
 | Question | The answer | Note |
 |---|---|---|
-| The body sizes | 32, 48, and 64 frame pixels | Each one is a Terminus bitmap at a whole-number scale |
-| The title sizes | 48, 64, and 96 frame pixels | One step above the body on the same ladder |
+| The body sizes | 24, 32, and 48 frame pixels | Each one is a Terminus bitmap at a whole-number scale |
+| The title sizes | 32, 48, and 64 frame pixels | One step above the body on the same ladder |
 | The world scales | 1x, 1.5x, and 2x | 1.5x is the one combination that is not pixel-exact |
 | What ships to the player | The text size alone | A player world scale would break D-568: every screen shows the same part of the map |
 | Where the probe lives | This branch, with no PR | The same pattern as the first round (D-621) |
@@ -24,7 +24,7 @@ stay as they are, and D-633 and D-639 stand until the owner picks again.
 The owner asked whether one text size can remove the UI scale setting of D-639. It can. Each
 body size takes 2 frame pixels for each glyph pixel. Thus the floor of D-639 holds on the Deck
 at a fit of 1x, and no setting is necessary. The cost is the text budget. A dialogue line holds
-76 characters at a body of 32. It holds 49 at a body of 48, and 36 at a body of 64 (D-635).
+102 characters at a body of 24. It holds 76 at a body of 32, and 49 at a body of 48 (D-635).
 
 ## The owner answers of 2026-09-18
 
