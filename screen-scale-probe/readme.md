@@ -107,28 +107,46 @@ Two more flags help a check on the machine of the author. The flag `--fit=whole`
 sets the mode of the first frame. The flag `--windowed=1920x1080` makes a window of that size,
 which proves the code of a fractional fit on a screen of another size.
 
+### The exports for the Deck and Windows
+
+The folder `build/out/` holds both exports and all three run scripts. Git ignores that folder,
+so each change of the code needs the two commands below. Run them from this folder on the Mac.
+
+```
+/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path . \
+  --export-release "Linux x86_64" build/out/ScreenScaleProbe.x86_64
+/Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path . \
+  --export-release "Windows x86_64" build/out/ScreenScaleProbe.exe
+```
+
+Then copy `build/run-probe-deck.sh`, `build/run-probe-windows.bat`, and
+`build/run-probe-1080p.bat` into `build/out/`. Each script reads the binary beside it.
+
 ### The Steam Deck
 
-1. Copy `build/ScreenScaleProbe.x86_64` and `build/run-probe-deck.sh` to one folder on the Deck.
+1. Copy the folder `build/out/` to the Deck, into a folder of its own.
 2. Start the Deck in desktop mode, and open a terminal in that folder.
-3. Run `chmod +x run-probe-deck.sh`, because a copy through a USB stick loses the mode.
+3. Run `chmod +x run-probe-deck.sh ScreenScaleProbe.x86_64`. A copy through a stick loses the mode.
 4. Run `./run-probe-deck.sh`. The first argument sets the distance, and the default is 45 cm.
 5. The script reads the model of the Deck, and it sets the diagonal from that model.
 6. Read the frame with the buttons of the pad, and press Menu at the end.
 
+The Deck is the one screen with a fit of 1x. Thus it is the one screen that shows a stem of one
+device pixel, and the one screen that answers the floor of D-639.
+
 ### The Windows machine with the 32-inch 1440p screen
 
-1. Copy `build/windows/ScreenScaleProbe.exe` and `build/run-probe-windows.bat` to one folder.
-2. Read the two numbers at the top of the batch file, and correct them for the screen.
+1. Copy the folder `build/out/` to the Windows machine, into a folder of its own.
+2. Read the two numbers at the top of `run-probe-windows.bat`, and correct them for the screen.
 3. Run the batch file. The first argument sets the distance, and the default is 70 cm.
 
 ### The Windows machine with a 1920 by 1080 screen
 
-1. Copy `build/windows/ScreenScaleProbe.exe` and `build/run-probe-1080p.bat` to one folder.
-2. Correct the diagonal in the batch file, or give it as the second argument.
+1. Copy the folder `build/out/` to the Windows machine, into a folder of its own.
+2. Correct the diagonal in `run-probe-1080p.bat`, or give it as the second argument.
 3. Run the batch file. The probe starts in mode fill, at a fit of 1.5x.
 4. Press F or the right shoulder button, and compare mode fill with mode whole.
-5. Mark the UI pick in the mode that the game will draw, which is mode fill.
+5. Mark the text pick in the mode that the game will draw, which is mode fill.
 
 ### The Mac with the 27-inch 4K screen
 
