@@ -1,5 +1,130 @@
 # Session handoff
 
+## Session 139: 2026-09-20, Codex
+
+Author: Codex
+Session: repeat review PR #39, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: reviewer. Base: `fb17f87`.
+
+### What this session did, and why
+
+- Reopened PR #39 at effective head `82d1afd`.
+- Verified the provider gate and read the author response file.
+- Rechecked P1-1 against its original trigger. The export command and the `Makefile` smoke target now keep the process exit code.
+- Ran `make verify`. It passed with 837 tests and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
+- Confirmed the revision-matched CI checks and all three export legs pass. Gitar passes.
+- Updated `docs/reviews/pr-39.md`, kept the earlier verdict, and set the current verdict to `Ready for owner merge`.
+
+### The state of the build
+
+- The effective head is `82d1afd`. The review-gate check waits for this review record.
+- The earlier finding P1-1 is fixed in `82d1afd`.
+
+### What is in flight
+
+The repeat-review record and this handoff entry need a metadata commit and push. The current review-gate check still reads the earlier record.
+
+### Traps and gotchas
+
+- The effective head is `82d1afd`, not the later metadata commit that will publish this review.
+- The author response also repairs the same exit-status fault in `Makefile` under owner decision D-694.
+
+### The questions that block progress
+
+None. OQ-198 and OQ-199 remain open but do not block this review.
+
+### The next concrete action
+
+Run STE and the diff check, commit the review record and this entry, push, and verify the remote tip and review-gate result.
+
+## Session 138: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #39, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: reviewer. Base: `fb17f87`.
+
+### What this session did, and why
+
+- Recomputed PR #39 at effective head `671d712`. The later commit `620f690` changes only the handoff metadata.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Inspected the complete 18-path diff, the workflow, export presets, project setting, tests, licenses, decisions, questions, roadmaps, and handoff records.
+- Ran `make verify`. It passed with 832 tests and clean build, format, det-lint, STE, replay identity, content hash, and smoke checks.
+- Found P1-1: the exported smoke process is followed by `|| true`, so a nonzero process status is discarded.
+- Wrote `docs/reviews/pr-39.md` with the verdict `Changes required` for effective head `671d712`.
+
+### The state of the build
+
+- The remote PR head is `620f690`, and the effective implementation head is `671d712`.
+- The automated pass is current at `671d712` and approved after its cancellation finding was fixed.
+- The review-gate check waits for this review record.
+
+### What is in flight
+
+The author must preserve the exported process status and rerun the export checks. The review record and this entry need a commit and push for the current review round.
+
+### Traps and gotchas
+
+- The review verdict targets `671d712`, not the metadata tip `620f690`.
+- The repository test command is `make verify`. A direct `dotnet test` filter discovered zero tests and is failed evidence.
+- The existing CI smoke job uses `pipefail` and preserves the process status. The export workflow must keep that property while also checking the success line.
+
+### The questions that block progress
+
+None. OQ-198 and OQ-199 remain open but do not block this review.
+
+### The next concrete action
+
+Correct P1-1, push the author correction, and rerun the review at the new effective head.
+
+## Session 137: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: PR-54, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: author. Base: `fb17f87`.
+
+### What this session did, and why
+
+- Added `.github/workflows/export.yml`: three legs, the editor and the template downloads with a SHA-512 check, the import, the export, the license copy, the smoke session, one packed archive, and a 90-day artifact (D-449, D-512, D-596).
+- Added `TheThingBelow.Game/export_presets.cfg` with the three targets of D-481 and D-482, and no include filter (D-508, F-73).
+- Added `licenses/` with the three notices of D-467, each one a copy of its upstream text.
+- Ran every export on the Mac of the owner. The macOS export found two faults, and F-74 and F-90 record them.
+- Added 25 tests in four files: the presets, the project settings, the workflow triggers, the digests, and the license set.
+- The owner answered four questions, and D-690 to D-693 hold them. OQ-198 and OQ-199 are new.
+- Answered the automated pass. It found one bug: each push to `main` shares one concurrency group, so a merge cancelled the export of the merge before it. The cancel now applies to a pull request alone, and a test reads the value.
+- Corrected the `docs/reviews/` row of the PR description. It held no form of D-581, and RG 7 faulted on it, as PR #38 did.
+- Answered the cross-provider review of `671d712`. Its one finding, P1-1, has full merit: the export step ran the game with `|| true` and dropped the exit code. The step now keeps the code and reads it after the log checks.
+- The `smoke` target of the `Makefile` held the same fault, and the owner put the repair in this PR. D-694 records that exception to G-8, and F-92 records the fault.
+- Added `TheThingBelow.Tests/SmokeExitCodeTests.cs`, which holds the rule for the three callers of the session. `docs/reviews/pr-39-response.md` holds each disposition.
+
+### The state of the build
+
+- `make verify` passes on this machine with 837 tests, and `ste-check` gives 0 findings.
+- The remote head of `main` is `fb17f87`, and this branch starts there. The PR is #39.
+- The review record `docs/reviews/pr-39.md` gives `Changes required` for `671d712`. This round answers its one finding.
+- Every CI check passed at `620f690`, the three export legs included. `review-gate` held RG 3 alone, which the review record cleared.
+- The three artifacts are live: 62 MB for Linux, 69 MB for Windows, and 123 MB for macOS. Each one expires on 2026-12-18.
+- The five exit tests of section 7.1 all ran in CI: the export, the smoke session on the export, the three license files, the trigger of this PR, and the artifacts.
+
+### What is in flight
+
+The push of this round, a new automated pass, and the repeat review of the new head. The PR changes code and `.github/workflows/`, so no label of D-401 applies.
+
+### Traps and gotchas
+
+- F-74 is a project setting, and not a preset option. The macOS export fails with the ETC2 ASTC import setting off in `TheThingBelow.Game/project.godot`.
+- F-90: the built-in signer of Godot writes a macOS signature that the kernel refuses. The game dies with signal 9 and no output, and `codesign --verify` calls that signature valid.
+- The executable in the macOS bundle takes the application name, "The Thing Below", and not the name of the export file. The job finds it.
+- An artifact upload drops the execute bit, so the job packs one archive for each leg.
+- The carry-over note of the last prompt is wrong: `main` holds `docs/reviews/pr-38.md`, and PR #38 took its Codex review.
+- The OQ-59 correction goes to its own documents PR (D-690).
+- D-694 puts a second concern in this PR, the `Makefile` fix. It is an owner exception to G-8, and no later PR takes such a fix without one.
+- A push to this PR runs the three exports again, because GitHub reads a path filter of a pull request against the whole diff of the pull request.
+
+### The questions that block progress
+
+None. OQ-198 blocks PR-31, and OQ-199 blocks the move of D-456 in Phase 6.
+
+### The next concrete action
+
+Push this round, answer the new automated pass, and ask for the repeat review of the new head.
+
 ## Session 136: 2026-09-19, Codex
 
 Author: Codex
@@ -282,116 +407,3 @@ None. OQ-3 stays open as an owner action, and it blocks line 4 of Gate 1, not th
 ### The next concrete action
 
 Hand the PR to the other provider for the review of T-4. The reviewer writes `docs/reviews/pr-36.md` for head `f513ff3`, which turns RG 3 green.
-
-## Session 129: 2026-09-19, Codex
-
-Author: Codex
-Session: repeat review PR #35, the empty option value of every Tools command. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: reviewer. Base: `f896dc3`.
-
-### What this session did, and why
-
-- Reopened the review at effective head `8eacf73`.
-- Verified P2-1. The records now state seven option values, five affected commands, and nine regression rows.
-- Checked the base trigger, the correction, and the adjacent whitespace boundary.
-- Preserved the earlier verdict in `docs/reviews/pr-35.md` and set the current verdict to `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
-- Replay identity, content hash, and the bounded smoke session pass.
-- All nine empty-option probes return exit code 1, name the option, and produce no stack trace.
-- `det-lint --root " "` returns a contextual missing-root error without a stack trace.
-
-### What is in flight
-
-The repeat-review record needs a metadata commit and push. The current review-gate run fails because the old record still names `4e9338d` and `Changes required`.
-
-### Traps and gotchas
-
-- The Gitar dashboard summary still says six option values, but its current timestamp covers `8eacf73`. The repository records and the PR description hold the corrected count of seven.
-- The effective head is `8eacf73`. Metadata commits after it do not change the review target.
-
-### The questions that block progress
-
-None for this PR. OQ-3 remains an owner question for Gate 1.
-
-### The next concrete action
-
-Commit and push the repeat-review record and this handoff entry. Then verify the remote head and the review-gate result.
-
-## Session 128: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: PR-87, the answer to the Codex review of PR #35. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: author. Base: `f896dc3`.
-
-### What this session did, and why
-
-- P2-1 of `docs/reviews/pr-35.md` has full merit. The records said six option values and listed seven.
-- A probe of the base commit `f896dc3` in a worktree measured each of the nine rows again.
-- That probe refuted a second count that the review did not name. The records said four commands, and the number is five.
-- Five of the seven values end with a stack trace. The other two give a message that names no empty option.
-- `det-lint --root` named an absent folder, and `review-gate --head-files` named an access fault of the path.
-- F-83, D-678, the roadmap entry, the area file, and the PR description now hold the two corrected counts.
-- The exit tests of section 7.20 now state the nine rows of the theory, and which seven fail on the old code.
-
-### The state of the build
-
-- The effective head before this round is `4e9338d`, and the Codex verdict names it.
-- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
-- No code changes in this round. The round corrects text alone.
-
-### What is in flight
-
-The repeat review of Codex for the new head. The pass of gitar for the new head.
-
-### Traps and gotchas
-
-- A `git stash push` of a committed change saves nothing, and a probe then measures the new code and reads as the old. Use a worktree at the base commit.
-- `review-gate --head-files ""` alone gives the message for the two absent options, and not a stack trace. The stack trace needs both options, with one empty.
-- `det-lint --root ""` never ended with a stack trace. A folder check further down named the absent folder.
-- Six call sites hold the check, and seven option values pass through them. D-679 counts the call sites.
-
-### The questions that block progress
-
-None for this PR. OQ-3 remains an owner question for Gate 1.
-
-### The next concrete action
-
-Push the correction, answer the pass of gitar, and ask Codex for the repeat review.
-
-## Session 127: 2026-09-19, Codex
-
-Author: Codex
-Session: review PR #35, the empty option value of every Tools command. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: reviewer. Base: `f896dc3`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-35 diff from merge base `f896dc3` to effective head `4e9338d`.
-- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Verified the shared empty-option parser, all command call sites, regression tests, decision rows, roadmap entries, and handoff records.
-- Found P2-1. The records say six option values, but they list seven.
-
-### The state of the build
-
-- The PR tip is `c6e755b`, and the effective implementation head is `4e9338d`.
-- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check. Replay identity, content hash, and the bounded smoke session pass.
-- All nine empty-option probes return exit code 1, name the option, and produce no stack trace.
-
-### What is in flight
-
-The review record `docs/reviews/pr-35.md` records `Changes required` for P2-1. The review record and this handoff entry are not yet published to the PR branch.
-
-### Traps and gotchas
-
-- The implementation covers seven non-atlas option values and two atlas option values. The text says six in multiple places.
-- The effective head is `4e9338d`, not the metadata tip `c6e755b`.
-
-### The questions that block progress
-
-None for this PR. OQ-3 remains an owner question for Gate 1.
-
-### The next concrete action
-
-The author corrects the repeated scope count. Then the review reruns the document and review-gate checks before it publishes a final verdict.
-
-Rule (D-18): this file keeps the 10 newest sessions, newest first. At the end of a session, add a new entry at the top. Move any entry beyond the tenth to the top of `docs/session-handoff-archive.md` (D-18). At the start, read the top entry alone (D-584).

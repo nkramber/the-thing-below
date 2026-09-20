@@ -64,35 +64,41 @@ Area files: `area-ci.md` section 7.11, `area-release.md` section 7.2.
 **Scope.**
 
 - The export job of D-449, right before PR-7, so the merge of PR-7 exports the first walkable build (D-503).
-- A run on each merge to `main`, and on each PR that changes the workflow, the presets, or the export code (D-512).
+- A run on each merge to `main`, and on each pull request that changes one of the four paths of D-692 (D-512).
 - Three exports, one on each leg: Windows and Linux on x86_64, and the universal macOS build (D-481, D-482).
 - The unpack of the .NET export templates into the editor data folder of the runner (F-42, D-596).
 - A headless smoke session on each export (D-512).
-- The license files of D-467 in each export, and a build artifact that lasts 90 days (D-449).
+- The three notices of D-467 in `licenses/`, which the job copies into each export (D-691, D-693).
+- One packed archive for each leg, and a build artifact that lasts 90 days (D-449).
 
 **Out of scope.**
 
-- The macOS signature and the notarization (PR-79, D-553).
+- The macOS signature and the notarization (PR-79, D-553). The preset signs ad hoc alone.
 - The release workflow and the GitHub Release (PR-31).
+- The third-party notices of the engine (OQ-198), and the retention of Phase 6 (OQ-199).
 - This job is not a line of the PR gate (D-449).
 
 **Exit tests.**
 
 1. Each leg exports its build from a clean checkout.
-2. Each export starts with `--headless` and ends the smoke session with no log error.
-3. Each export holds the license files of D-467.
-4. A PR that changes an export preset runs the job.
+2. Each export starts with `--headless`. Its smoke session ends with no log error and with the exit code 0 (F-92).
+3. Each export holds the three license files of D-467.
+4. A pull request that changes an export preset runs the job.
 5. Each build artifact appears on the workflow run.
+6. A test reads each preset, the project setting of F-74, and the trigger paths of D-692.
 
 **Review focus.**
 
 - The template file matches its SHA-512, and the job never takes it from an unpinned source (D-511).
 - The export presets name the three targets of D-481 and nothing else.
 - Each export needs no include filter, because Game embeds `content/` and each font in its assembly (D-508, F-73).
-- The macOS preset takes the universal binary format and the ETC2 ASTC import setting (F-74).
+- The macOS preset takes the universal binary format, and the project turns the ETC2 ASTC import setting on (F-74).
+- The macOS preset signs with the command of the Xcode tools, and not with the built-in signer (F-90).
+- The smoke step of the export keeps the exit code of the build, and no caller of the session drops it (F-92, D-694).
+- The job packs one archive for each leg, because an artifact upload drops the execute bit.
 - The owner can download the Linux artifact for a Deck play (D-458).
 
-**Questions.** OQ-83 is resolved (D-596).
+**Questions.** OQ-83 is resolved (D-596). OQ-198 and OQ-199 block no part of this PR.
 
 > *In plain English:* from the first walkable build on, every merge makes a game that the owner can run on the desktop or the handheld. Each build also starts once in CI.
 
