@@ -64,7 +64,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - The map runs in real time, and the patrols walk on the tick whether or not the player moves (D-162).
 - A menu pauses the world (D-162). The tick rises while a menu is open, and the world systems skip their work (D-650).
 - The lead walks the map in every case, in the party or in the reserve (D-292, D-306).
-- OQ-117 holds whether a step can go diagonally.
+- A step goes north, south, east, or west, and a diagonal walk takes two steps (D-716).
 - A door, a lock, a chest, or a save point answers the step into it. The intent names the thing by its id (D-493).
 
 > *In plain English:* the party moves one tile at a time, and the screen slides it smoothly between tiles. The rules only ever see whole tiles, so a replay always lands on the same square.
@@ -93,7 +93,8 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - Game moves the camera from the tick of the step, never from the smoothing of Godot (D-203, F-52). That smoothing can run more than once in a frame.
 - The camera reads the size of the frame from the viewport (D-568, the external facts above).
 - The camera lives in Game and never reaches Core (G-23, D-106).
-- OQ-118 holds whether Godot or Game computes the limits of a small map. OQ-89 holds the pixel snap of each sprite.
+- Game computes the place of the view on each tick, and the limits of the Godot camera stay off (D-717).
+- Game rounds each position to a whole pixel of the world viewport, and both Godot snap settings stay off (D-715).
 
 > *In plain English:* the view follows the party, and it stops at the edge of the place. A place smaller than the screen sits in the middle. The game moves the view itself, so every replay shows the same picture.
 
@@ -104,13 +105,16 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - Core computes what the party sees (D-37). No fog of war covers a map, so the ground is visible from the moment the party enters (D-566).
 - Core records each tile that the party walked, and the dungeon map screen of PR-62 draws those tiles (D-567). The snapshot holds the record.
 - A patrol sees the party by its own sight, and a wall stops it (D-37, the exit tests of PR-8).
-- OQ-114 holds the rule of sight. D-566 resolved OQ-116, because no fog exists to remember.
+- The party sees every direction out to its range, and a wall stops it (D-719). Game draws no enemy outside that range.
+- A patrol sees the quarter of the map that it faces, plus the eight tiles that touch it, and a wall stops it (D-718).
+- A map gives no patrol a longer range than the party has on that map, and the load of PR-8 refuses one (D-720).
+- D-566 resolved OQ-116, because no fog exists to remember.
 - The time of day of the map sets the sight range, the routes, and the enemies, and the story sets the time (D-193, D-442).
 - The wrong things keep no time rule, and the story places each one (D-446).
 - A story flag can change the time of day while the party stands on the map. The light and the music then change on the spot (D-428, D-442).
 - The light of the screen never reaches a rule of sight (G-1, `area-effects.md` section 7.1).
 
-> *In plain English:* the party knows the tiles that it saw, and the rest of the map stays dark. The story says whether a place is in daylight or at night, and that changes what walks there.
+> *In plain English:* the ground of a place is always on screen, and the party sees only the things near it. At night it sees less, so a guard comes out of the dark. A guard sees the quarter that it faces, and the party can pass behind it. The game remembers each square that the party walked.
 
 ### 7.6 Enemies on the map
 
@@ -292,16 +296,16 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 
 The register is `docs/questions.md` (D-19). These questions block exploration PRs, and each PR asks its questions when it starts (D-487):
 
-- OQ-114: the rule of sight for the party and a patrol. Blocks PR-7 and PR-8.
 - OQ-115: how a large enemy holds its tiles and sorts on screen. Blocks PR-8.
-- OQ-117: a diagonal step on the map. Blocks PR-7.
-- OQ-118: the limits of the camera on a map smaller than the view. Blocks PR-7.
 - OQ-119: what a trap does, and what a Theft drill does to it. Blocks PR-64.
 - OQ-120: the hazards of region one. Blocks PR-64.
 - OQ-121: the prices, the buy-back, and the stock of a shop. Blocks PR-65.
 - OQ-122: the format of the region map, and the cost of a route. Blocks PR-35.
 - OQ-123: how the player finds a secret. Blocks PR-21.
-- OQ-89: pixel snap in Game. Blocks PR-7.
+- OQ-89: pixel snap in Game. Resolved 2026-09-20 by D-715.
+- OQ-114: the rule of sight. Resolved 2026-09-20 by D-718, D-719, and D-720.
+- OQ-117: a diagonal step on the map. Resolved 2026-09-20 by D-716.
+- OQ-118: the limits of the camera on a small map. Resolved 2026-09-20 by D-717.
 - OQ-64: the tick while a menu is open. Resolved 2026-09-18 by D-650.
 
 No open question blocks this file.

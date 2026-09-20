@@ -1,5 +1,42 @@
 # Session handoff
 
+## Session 146: 2026-09-20, Claude Code
+
+Author: Claude Code
+Session: PR-7, the tile map. Repository: the-thing-below. Branch: `feat/pr-7-tile-map`. Role: author. Base: `2a8115b`.
+
+### What this session did, and why
+
+- Asked the four open questions of PR-7 first, and the owner answered each one (D-715 to D-720). The sight question took a second pass, because D-208 already said that the facing carries the sight of a patrol.
+- Core gained the map rule file, the four-direction step, the two sight rules, and the record of every walked tile (D-528, D-716, D-718, D-719, D-567).
+- The party on a tile map replaced the patrol of the first world. The snapshot took save format 2, and the simulation version rose to 5 (D-166, G-17).
+- Game gained the map scene, the tile set from the tile page, the place of the view, and the held step (D-667, D-717, D-716).
+- Two scope answers landed: PR-64 takes the whole map HUD, and the map takes the place of the demo panel of PR-61 (D-721, D-722).
+
+### The state of the build
+
+- `make verify` passes on the Mac: 1179 tests, the format check, det-lint and STE with 0 findings, the replay identity on simulation version 5, the content hash, the atlas check, and the smoke session.
+- The remote head of `main` is `2a8115b`. The branch holds three commits and needs its push.
+
+### What is in flight
+
+The push, the PR, the gitar pass, and the review of Codex. The `review-gate` check needs the review record of `docs/reviews/pr-<number>.md`.
+
+### Traps and gotchas
+
+- The prompt of this session said that `docs/reviews/pr-41.md` still held `Changes required`. It does not. Session 145 wrote `Ready for owner merge` before the merge, so no correction was necessary.
+- The save fixture of format 2 holds a step in progress, so a resume reads the step ticks too.
+- `RunScripts.Make` now walks the party, so a change to it moves the save fixture of format 2 and no other stored file.
+- Tests takes no reference to Game, so the camera tests and the held-step tests read the built assembly by reflection (D-614).
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Push the branch, open the PR with its Documents section, and answer the gitar pass.
+
 ## Session 145: 2026-09-20, Codex
 
 Author: Codex
@@ -354,41 +391,3 @@ None. OQ-198 blocks PR-31, and OQ-199 blocks the move of D-456 in Phase 6.
 ### The next concrete action
 
 Push this round, answer the new automated pass, and ask for the repeat review of the new head.
-
-## Session 136: 2026-09-19, Codex
-
-Author: Codex
-Session: review PR #38, the Sprite Fusion test pick. Repository: the-thing-below. Branch: `docs/pr-89-sprite-fusion-pick`. Role: reviewer. Base: `db518fa`.
-
-### What this session did, and why
-
-- Recomputed PR #38 at effective head `83e561c`. The later commit `cae4e90` changes only metadata.
-- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Inspected the complete eight-path diff, the four new decision rows, the four findings, the roadmap changes, and the handoff rotation.
-- Verified the corrected credit arithmetic: 495 credits started, 165 credits were spent, and 330 credits remain.
-- Wrote `docs/reviews/pr-38.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and bounded smoke checks.
-- The effective head is `83e561c`. The metadata tip is `cae4e90`.
-- The automated pass approved `83e561c` with no open thread. Its two findings were answered, and RG 7 passes.
-- `review-gate` waits for this review record.
-
-### What is in flight
-
-The review record and this handoff entry need a commit and push. After the remote gate reads the record, the PR is ready for owner merge.
-
-### Traps and gotchas
-
-- The verdict targets effective head `83e561c`, not metadata tip `cae4e90`.
-- D-687 includes a 45-credit bonus. The arithmetic is 495 minus 165 equals 330.
-- PR-51 owns the PNG import implementation and its tests. This PR records its requirements only.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and this handoff entry. Then fetch and verify the remote head and review-gate result.

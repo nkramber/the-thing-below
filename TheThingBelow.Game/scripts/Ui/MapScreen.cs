@@ -87,6 +87,42 @@ public partial class MapScreen : Node2D
         this.Position = new Vector2(-view.X, -view.Y);
     }
 
+    /// <summary>
+    /// Reads the four Godot defaults of F-51 back, and fails when one of them is wrong
+    /// (T-2). A headless session draws nothing, so this check reads the nodes and never the
+    /// pixels (F-23).
+    /// </summary>
+    /// <returns>The four values, for the report of the smoke session.</returns>
+    /// <exception cref="InvalidOperationException">The layer or the tile set holds another value (T-2).</exception>
+    /// <remarks>
+    /// `TileSet.TileSize` and `TileSetAtlasSource.TextureRegionSize` both default to 16 by
+    /// 16, and the collisions and the navigation of a layer both default to on (F-51).
+    /// </remarks>
+    public string DescribeGround()
+    {
+        TileSet set = this.ground.TileSet;
+        var source = (TileSetAtlasSource)set.GetSource(MapTileSet.SourceId);
+        Vector2I wanted = new(MapTileSet.TilePixels, MapTileSet.TilePixels);
+
+        Refuse(set.TileSize != wanted, $"the tile size is {set.TileSize}, and it takes {wanted} (D-228, F-51)");
+        Refuse(
+            source.TextureRegionSize != wanted,
+            $"the region size is {source.TextureRegionSize}, and it takes {wanted} (D-667, F-51)");
+        Refuse(this.ground.CollisionEnabled, "the collisions of the layer are on, and no rule of Core reads one (G-1, F-51)");
+        Refuse(this.ground.NavigationEnabled, "the navigation of the layer is on, and no rule of Core reads it (G-1, F-51)");
+
+        return $"tile size {set.TileSize}, region size {source.TextureRegionSize}, "
+            + $"collisions {this.ground.CollisionEnabled}, navigation {this.ground.NavigationEnabled}";
+    }
+
+    private static void Refuse(bool broken, string reason)
+    {
+        if (broken)
+        {
+            throw new InvalidOperationException($"The tile map of the screen is wrong: {reason} (T-2).");
+        }
+    }
+
     private static TileMapLayer BuildGround(GameAtlas atlas, GameMap map)
     {
         var layer = new TileMapLayer

@@ -634,9 +634,10 @@ public partial class Boot : Node
         drawn.ShowParty(session.Party);
 
         CameraPlace view = MapCamera.Of(session.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight);
+        string ground = drawn.DescribeGround();
         drawn.QueueFree();
         return $"'{map.Id.Value}' at {map.Width} by {map.Height} tiles, "
-            + $"the lead at {session.Party.LeadAt}, and the view at ({view.X}, {view.Y})";
+            + $"the lead at {session.Party.LeadAt}, the view at ({view.X}, {view.Y}), and {ground}";
     }
 
     /// <summary>

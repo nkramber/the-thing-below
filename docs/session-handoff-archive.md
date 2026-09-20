@@ -1,5 +1,43 @@
 # Session handoff archive
 
+## Session 136: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #38, the Sprite Fusion test pick. Repository: the-thing-below. Branch: `docs/pr-89-sprite-fusion-pick`. Role: reviewer. Base: `db518fa`.
+
+### What this session did, and why
+
+- Recomputed PR #38 at effective head `83e561c`. The later commit `cae4e90` changes only metadata.
+- Confirmed the cross-provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Inspected the complete eight-path diff, the four new decision rows, the four findings, the roadmap changes, and the handoff rotation.
+- Verified the corrected credit arithmetic: 495 credits started, 165 credits were spent, and 330 credits remain.
+- Wrote `docs/reviews/pr-38.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and bounded smoke checks.
+- The effective head is `83e561c`. The metadata tip is `cae4e90`.
+- The automated pass approved `83e561c` with no open thread. Its two findings were answered, and RG 7 passes.
+- `review-gate` waits for this review record.
+
+### What is in flight
+
+The review record and this handoff entry need a commit and push. After the remote gate reads the record, the PR is ready for owner merge.
+
+### Traps and gotchas
+
+- The verdict targets effective head `83e561c`, not metadata tip `cae4e90`.
+- D-687 includes a 45-credit bonus. The arithmetic is 495 minus 165 equals 330.
+- PR-51 owns the PNG import implementation and its tests. This PR records its requirements only.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Then fetch and verify the remote head and review-gate result.
+
 ## Session 135: 2026-09-19, Claude Code
 
 Author: Claude Code
