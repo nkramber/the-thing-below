@@ -91,27 +91,15 @@ public static class SaveText
 
     private static IReadOnlyList<string> SplitLines(string text, string file)
     {
-        if (text.Contains('\r', StringComparison.Ordinal))
+        TextLines split = TextLines.Split(text);
+        if (split.Fault is not null)
         {
             throw SaveException.ForFile(
                 file,
-                "it holds a carriage return, and a save ends each line with one line feed alone (T-7)");
+                split.FaultLine == 0 ? split.Fault : $"line {split.FaultLine}: {split.Fault}");
         }
 
-        string[] parts = text.Split('\n');
-        List<string> lines = [];
-        for (int index = 0; index < parts.Length; index += 1)
-        {
-            // The text ends with a line ending, so the split gives one empty part at the
-            // end. An empty part anywhere else is a line with no object (T-2).
-            if (parts[index].Length == 0 && index == parts.Length - 1)
-            {
-                continue;
-            }
-
-            lines.Add(parts[index]);
-        }
-
+        IReadOnlyList<string> lines = split.Lines;
         if (lines.Count != LineCount)
         {
             throw SaveException.ForFile(

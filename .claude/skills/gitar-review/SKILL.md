@@ -19,7 +19,7 @@ Each repo that uses Gitar keeps a copy of this file. A rule of the repo wins ove
 - **Metadata set**: the four paths of this pull request (D-610): `docs/reviews/pr-<number>.md`, `docs/reviews/pr-<number>-response.md`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md`.
 - **Current review**: a review of the effective head.
 - **Stale review**: a review of a commit older than the effective head.
-- **Push wait**: the minimum wait of three minutes after a push, before a `Gitar review` comment (D-160).
+- **Push wait**: the minimum wait of three minutes after a push, before a `Gitar review` comment (D-705).
 
 ## Why a review goes stale
 
@@ -60,7 +60,7 @@ Do these steps after each push.
 
 ## Find an automatic review
 
-The owner permits a `Gitar review` comment only after the push wait, and only when no automatic review started (D-160).
+The owner permits a `Gitar review` comment only after the push wait, and only when no automatic review started (D-705).
 
 An automatic review started when one of these conditions is true:
 

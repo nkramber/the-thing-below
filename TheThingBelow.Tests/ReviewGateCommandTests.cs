@@ -221,7 +221,7 @@ public sealed class ReviewGateCommandTests
         {
             Body = ReviewGateFixture.Body(new Dictionary<string, string?>(StringComparer.Ordinal)
             {
-                ["docs/design.md"] = "No change needed because `docs/design.md` names PR-46 for the det-lint job (G-16).",
+                ["docs/roadmaps/"] = "No change needed because `docs/roadmaps/area-ci.md` names PR-46 for the det-lint job (G-16).",
             }),
         });
 

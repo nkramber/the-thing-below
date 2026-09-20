@@ -121,7 +121,8 @@ public sealed record PullRequestFacts(
                     $"The field '{field}' of '{path}' holds an item of kind {item.ValueKind}, and each item is a string.");
             }
 
-            items.Add(item.GetString() ?? string.Empty);
+            items.Add(item.GetString() ?? throw new InvalidOperationException(
+                $"The field '{field}' of '{path}' holds an item with no text."));
         }
 
         return items;

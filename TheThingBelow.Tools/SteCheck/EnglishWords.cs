@@ -55,16 +55,20 @@ public static class EnglishWords
         + @"|last|later|again|usually|fully|partly|either|neither|just|rarely|soon|thus|so"
         + @"|well|hence|since|ever)\s+){0,2}";
 
-    /// <summary>Past participles with no "ed" ending. The participle test cannot read these.</summary>
+    /// <summary>
+    /// Past participles with no "ed" ending. The participle test cannot read these. "read"
+    /// and "spread" are absent on purpose: each one is also a base verb, and the list of the
+    /// words that are never a participle holds both, so "the reader read the file" passes.
+    /// </summary>
     private static readonly HashSet<string> Irregular = new HashSet<string>(StringComparer.Ordinal)
     {
-        "written", "read", "built", "made", "set", "sent", "kept", "held", "run", "done",
+        "written", "built", "made", "set", "sent", "kept", "held", "run", "done",
         "given", "taken", "found", "seen", "known", "shown", "chosen", "put", "cut", "left",
         "lost", "met", "paid", "said", "told", "thought", "brought", "bought", "caught",
         "taught", "fought", "sought", "won", "begun", "sung", "drawn", "grown", "thrown",
         "broken", "spoken", "frozen", "stolen", "driven", "hidden", "ridden", "forgotten",
         "gotten", "bitten", "eaten", "fallen", "risen", "beaten", "blown", "flown", "torn",
-        "worn", "born", "sworn", "understood", "withheld", "upheld", "split", "spread",
+        "worn", "born", "sworn", "understood", "withheld", "upheld", "split",
         "shut", "hit", "let", "bet", "cost", "hurt", "quit", "fed", "led", "bred", "sped",
         "lit", "slid", "struck", "stuck", "swung", "hung", "dug", "spun", "wound", "bound",
         "ground", "meant", "dealt", "felt", "dreamt", "learnt", "burnt", "leant", "spelt",
@@ -87,7 +91,7 @@ public static class EnglishWords
         "expected", "unexpected", "used", "unused", "installed", "uninstalled", "cached",
         "outdated", "limited", "unlimited", "finished", "unfinished", "logged", "welcome",
         "detailed", "advanced", "fixed", "tied", "united", "rooted", "based", "sized",
-        "colored", "named", "numbered", "dated", "signed", "enabled", "disabled", "blocked",
+        "colored", "named", "numbered", "signed", "enabled", "disabled", "blocked",
         "defined", "undefined", "unchanged", "unread", "untouched", "unresolved",
         "resolved", "committed", "uncommitted", "tracked", "untracked", "unmerged", "unscored",
         "seeded", "unreviewed", "unpushed", "hosted", "self-hosted",
@@ -124,6 +128,26 @@ public static class EnglishWords
         "leading", "trailing", "pending", "outstanding", "according", "including", "excluding",
         "regarding",
     };
+
+    /// <summary>
+    /// Gives each word of the irregular list that the never-a-participle list also holds. Such
+    /// a word never reaches the irregular test, so the entry is dead. A test keeps the list empty.
+    /// </summary>
+    /// <returns>The words in both lists, in ordinal order.</returns>
+    public static IReadOnlyList<string> DeadIrregularWords()
+    {
+        List<string> dead = [];
+        foreach (string word in Irregular)
+        {
+            if (NeverParticiple.Contains(word))
+            {
+                dead.Add(word);
+            }
+        }
+
+        dead.Sort(StringComparer.Ordinal);
+        return dead;
+    }
 
     /// <summary>Reads a word as a past participle, for the passive rule and the perfect rule.</summary>
     /// <param name="word">The word that follows the helper verb.</param>

@@ -186,6 +186,144 @@ public sealed class DetLintCoreRuleTests
         Assert.Contains("DL 7", DetLintFixture.RuleIds(findings));
     }
 
+    /// <summary>A field or a parameter of an interface type hides the collection behind it.</summary>
+    [Fact]
+    public void AWalkOfADictionaryInterfaceInCoreFails()
+    {
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckCore(
+            """
+            using System.Collections.Generic;
+            namespace TheThingBelow.Core;
+            public static class Fixture
+            {
+                public static int Sum(IReadOnlyDictionary<string, int> values)
+                {
+                    int total = 0;
+                    foreach (KeyValuePair<string, int> pair in values)
+                    {
+                        total += pair.Value;
+                    }
+
+                    return total;
+                }
+            }
+            """);
+
+        Assert.Contains("DL 7", DetLintFixture.RuleIds(findings));
+    }
+
+    [Fact]
+    public void ATaskInCoreFails()
+    {
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckCore(
+            """
+            using System.Threading.Tasks;
+            namespace TheThingBelow.Core;
+            public static class Fixture
+            {
+                public static Task Wait() => Task.Delay(1);
+            }
+            """);
+
+        Assert.Contains("DL 10", DetLintFixture.RuleIds(findings));
+    }
+
+    [Fact]
+    public void AVectorInCoreFails()
+    {
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckCore(
+            """
+            using System.Numerics;
+            namespace TheThingBelow.Core;
+            public static class Fixture
+            {
+                public static int Lanes() => Vector<int>.Count;
+            }
+            """);
+
+        Assert.Contains("DL 10", DetLintFixture.RuleIds(findings));
+    }
+
+    /// <summary>A whole number that a call takes as a `double` converts, and DL 1 reads the conversion (F-38).</summary>
+    [Fact]
+    public void AWholeNumberThatACallConvertsToADoubleFails()
+    {
+        // The constructor of `Complex` takes two `double` values, and the type itself is on no
+        // list, so the conversion of the two whole numbers is the one finding.
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckCore(
+            """
+            namespace TheThingBelow.Core;
+            public static class Fixture
+            {
+                public static System.Numerics.Complex Point() => new System.Numerics.Complex(1, 2);
+            }
+            """);
+
+        Assert.Contains("DL 1", DetLintFixture.RuleIds(findings));
+    }
+
+    [Fact]
+    public void AMinOfStringsWithNoComparerInCoreFails()
+    {
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckCore(
+            """
+            using System.Collections.Generic;
+            using System.Linq;
+            namespace TheThingBelow.Core;
+            public static class Fixture
+            {
+                public static string? First(List<string> names) => names.Min();
+            }
+            """);
+
+        Assert.Contains("DL 6", DetLintFixture.RuleIds(findings));
+    }
+
+    [Fact]
+    public void AnArraySortOfStringKeysWithNoComparerInCoreFails()
+    {
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckCore(
+            """
+            using System;
+            namespace TheThingBelow.Core;
+            public static class Fixture
+            {
+                public static void Order(string[] keys, int[] items) => Array.Sort(keys, items);
+            }
+            """);
+
+        Assert.Contains("DL 6", DetLintFixture.RuleIds(findings));
+    }
+
+    /// <summary>The scan parses with the symbols of the build, so a block behind `#if` takes the rules.</summary>
+    [Fact]
+    public void ABlockBehindABuildSymbolTakesTheRules()
+    {
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckCore(
+            """
+            namespace TheThingBelow.Core;
+            public static class Fixture
+            {
+            #if CONTRACTS_FULL
+                public static double Rate() => 2;
+            #endif
+            }
+            """);
+
+        Assert.Contains("DL 1", DetLintFixture.RuleIds(findings));
+    }
+
+    [Fact]
+    public void TheBuildPropsDefineEverySymbolOfTheScan()
+    {
+        string props = System.IO.File.ReadAllText(RepositoryRoot.PathTo("Directory.Build.props"));
+
+        foreach (string symbol in SourceScan.PreprocessorSymbols)
+        {
+            Assert.Contains(symbol, props, System.StringComparison.Ordinal);
+        }
+    }
+
     [Fact]
     public void ALookupByKeyInCorePasses()
     {

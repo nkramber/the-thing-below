@@ -86,6 +86,9 @@ public sealed class AtlasCommandTests : IDisposable
 
         Assert.Equal(Program.FaultExitCode, code);
         Assert.Contains("sprites/atlas-map_sprites.png", errors.ToString());
+
+        // The message names the first pixel that differs, so a reader finds it (T-2).
+        Assert.Contains("the first different pixel is at x ", errors.ToString());
     }
 
     [Fact]
@@ -160,11 +163,11 @@ public sealed class AtlasCommandTests : IDisposable
     {
         this.Write("one");
         var errors = new StringWriter();
+        string[] args = option == AtlasCommand.RootOption
+            ? [option, string.Empty]
+            : [AtlasCommand.RootOption, this.root, option, string.Empty];
 
-        int code = AtlasCommand.Run(
-            [AtlasCommand.RootOption, this.root, option, string.Empty],
-            new StringWriter(),
-            errors);
+        int code = AtlasCommand.Run(args, new StringWriter(), errors);
 
         Assert.Equal(Program.FaultExitCode, code);
         Assert.Contains($"the value of the option {option} is empty", errors.ToString());

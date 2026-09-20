@@ -60,14 +60,19 @@ public static class SceneTextRule
     }
 
     /// <summary>Tells whether the name of a scene property names player text.</summary>
-    /// <param name="name">The name of the property, such as `text` or `dialog_text`.</param>
+    /// <param name="name">The name of the property, such as `text`, `dialog_text`, or `item_0/text`.</param>
     /// <returns>True for a text property, and false for a name such as `texture`.</returns>
+    /// <remarks>
+    /// Godot writes the text of a menu item as `item_0/text` and of a button popup as
+    /// `popup/item_0/text`, so the rule reads the last part of the name.
+    /// </remarks>
     public static bool IsTextProperty(string name)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
-        return name == "text"
-            || name == "title"
-            || name.EndsWith("_text", StringComparison.Ordinal)
-            || name.EndsWith("_title", StringComparison.Ordinal);
+        string last = name[(name.LastIndexOf('/') + 1)..];
+        return last == "text"
+            || last == "title"
+            || last.EndsWith("_text", StringComparison.Ordinal)
+            || last.EndsWith("_title", StringComparison.Ordinal);
     }
 }

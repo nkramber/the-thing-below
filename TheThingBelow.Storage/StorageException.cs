@@ -50,5 +50,31 @@ public sealed class StorageException : Exception
         return new StorageException(Describe(message, path), path, inner);
     }
 
+    /// <summary>Makes the error of an environment variable that names no folder (D-465).</summary>
+    /// <param name="variable">The name of the variable, such as `HOME`.</param>
+    /// <param name="message">What the code found.</param>
+    /// <returns>The error, ready to throw. Its path is the name of the variable.</returns>
+    /// <exception cref="ArgumentException">The variable or the message has no character (T-2).</exception>
+    public static StorageException ForVariable(string variable, string message)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(variable);
+        ArgumentException.ThrowIfNullOrEmpty(message);
+
+        return new StorageException($"{message} (the variable '{variable}')", variable);
+    }
+
+    /// <summary>Makes the error of a system that the game does not support (D-481).</summary>
+    /// <param name="system">The name of the system, as the code read it.</param>
+    /// <param name="message">What the code found.</param>
+    /// <returns>The error, ready to throw. Its path is the name of the system.</returns>
+    /// <exception cref="ArgumentException">The system or the message has no character (T-2).</exception>
+    public static StorageException ForSystem(string system, string message)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(system);
+        ArgumentException.ThrowIfNullOrEmpty(message);
+
+        return new StorageException($"{message} (the system '{system}')", system);
+    }
+
     private static string Describe(string message, string path) => $"{message} (the path '{path}')";
 }

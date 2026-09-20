@@ -84,6 +84,8 @@ Each line starts with the row name and a colon, as the PR template does. Then it
 
 The `docs/session-handoff.md` line is always `Changed`. Before the review, the author line for `docs/reviews/` names the review that the PR waits for. The reviewer corrects the line when the record lands (the `pr-review` skill).
 
+Each line also reads true against the diff (D-577). A `Changed:` line names a row whose path the diff changes, and a changed path of a row takes a `Changed:` line. The `docs/reviews/` row is the exception, because the reviewer adds the record after the author wrote the description. The `review-gate` command reads both rules under RG 7.
+
 Correct the PR when a line or a record holds one of these:
 
 - A deferral of a document or a record of this PR, such as "later PR", "after the merge", "TBD", or "a docs PR". The `review-gate` command reads the full set of phrases, and `DocumentRules.DeferralPhrases` holds it (D-579). The command reads `pull request` as `pr`, so the spelled-out form of a phrase fails too.
@@ -164,9 +166,9 @@ The session ends with this prompt. It makes no branch and no change for the next
 
 | Rule | Enforced by |
 |---|---|
-| The handoff changes, each row has a line, and no line defers a document or a record of the PR | Machine after PR-3 (D-579). Agent and owner until then |
-| The review record and the effective head | Machine after PR-3 (D-15). Agent and owner until then |
-| `CLAUDE.md` and `AGENTS.md` stay identical | Agent now. The reviewer checks it |
+| The handoff changes, each row has a line, each line reads true against the diff, and no line defers a document or a record of the PR | Machine: the `review-gate` check (D-15, D-579) |
+| The review record and the effective head | Machine: the `review-gate` check (D-15). The record lives in the metadata set, so the gate reads the record and never its author, and the reviewer session reads the record on the effective head before the owner merges (D-610) |
+| `CLAUDE.md` and `AGENTS.md` stay identical | Machine: a test of Tests, which the build and test job runs on every PR that changes either file (D-20, D-600) |
 | The binding, the start gate, and the completion gate | Agent |
 | One PR in each session, and a clean session for each PR | Owner. No check can see the conversation |
 | The merge | Owner (D-8) |

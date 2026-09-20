@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TheThingBelow.Tools.ReviewGate;
 
@@ -44,6 +45,13 @@ public static class DocumentRules
         ".github/pull_request_template.md",
         "README.md",
     ];
+
+    /// <summary>
+    /// The rows whose files another session adds after the author wrote the description: the
+    /// reviewer commits the review record. The truth check reads the diff of such a row and
+    /// asks for no `Changed:` line.
+    /// </summary>
+    public static readonly IReadOnlyList<string> RowsOfALaterSession = ["docs/reviews/"];
 
     /// <summary>
     /// The words of a deferral, in lower case (D-577, D-578). A line that holds one of them
@@ -124,6 +132,14 @@ public static class DocumentRules
             {
                 faults.Add(formFault);
             }
+            else
+            {
+                string? truthFault = TruthFault(row, content, facts.Files);
+                if (truthFault is not null)
+                {
+                    faults.Add(truthFault);
+                }
+            }
 
             string? phrase = DeferralPhrase(content);
             if (phrase is not null)
@@ -202,6 +218,64 @@ public static class DocumentRules
         }
 
         return $"the row `{row}` holds no form of D-581";
+    }
+
+    /// <summary>
+    /// Compares one Documents line with the changed paths of the pull request (D-577). A
+    /// `Changed:` line needs a changed path of its row, and a changed path of a row needs a
+    /// `Changed:` line, except for a row that a later session fills.
+    /// </summary>
+    /// <param name="row">The name of the row, as `RequiredRows` holds it.</param>
+    /// <param name="content">The text after the colon of that row, in one of the three forms.</param>
+    /// <param name="files">Each path that the pull request changes.</param>
+    /// <returns>The fault, or null when the line and the diff agree.</returns>
+    public static string? TruthFault(string row, string content, IReadOnlyList<string> files)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(row);
+        ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(files);
+
+        string? changed = ChangedPathOf(row, files);
+        bool saysChanged = content.StartsWith(ChangedForm, StringComparison.Ordinal);
+        if (saysChanged && changed is null)
+        {
+            return $"the row `{row}` says `{ChangedForm}`, and the diff changes no path of that row";
+        }
+
+        if (!saysChanged && changed is not null && !RowsOfALaterSession.Contains(row))
+        {
+            return $"the diff changes `{changed}`, and the row `{row}` says that the PR changes it not";
+        }
+
+        return null;
+    }
+
+    /// <summary>Gives the paths of one row. A row of two names gives two paths.</summary>
+    /// <param name="row">The name of the row, as `RequiredRows` holds it.</param>
+    /// <returns>Each path. A path that ends with a slash names a folder.</returns>
+    public static IReadOnlyList<string> PathsOf(string row)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(row);
+        return row.Split(" and ");
+    }
+
+    private static string? ChangedPathOf(string row, IReadOnlyList<string> files)
+    {
+        foreach (string path in PathsOf(row))
+        {
+            foreach (string file in files)
+            {
+                bool inside = path.EndsWith('/')
+                    ? file.StartsWith(path, StringComparison.Ordinal)
+                    : string.Equals(file, path, StringComparison.Ordinal);
+                if (inside)
+                {
+                    return file;
+                }
+            }
+        }
+
+        return null;
     }
 
     /// <summary>Reads one Documents line and gives the words of a deferral (D-577, D-578).</summary>

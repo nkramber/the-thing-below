@@ -5,8 +5,8 @@ using System.IO;
 namespace TheThingBelow.Tools.SteCheck;
 
 /// <summary>
-/// The `ste-check` command. It reads every live document of the checkout and gives one line
-/// for each finding: the file, the line, the rule id, and what the rule saw (D-10, D-101).
+/// The `ste-check` command. It reads every live document that git tracks and gives one line
+/// for each finding: the file, the line, the rule id, and what the rule saw (D-10, D-101, D-702).
 /// </summary>
 public static class SteCheckCommand
 {
@@ -27,30 +27,13 @@ public static class SteCheckCommand
         ArgumentNullException.ThrowIfNull(output);
         ArgumentNullException.ThrowIfNull(errors);
 
-        string root = ".";
-        for (int index = 0; index < args.Count; index++)
+        OptionParser? options = OptionParser.Read(Name, args, [RootOption], [], errors);
+        if (options is null)
         {
-            if (args[index] != RootOption)
-            {
-                errors.WriteLine($"Error: the option '{args[index]}' is unknown. {Name} takes {RootOption} <path>.");
-                return Program.FaultExitCode;
-            }
-
-            if (index + 1 >= args.Count)
-            {
-                errors.WriteLine($"Error: the option {RootOption} needs a path after it.");
-                return Program.FaultExitCode;
-            }
-
-            string value = args[index + 1];
-            if (OptionValue.ReportEmpty(RootOption, value, errors))
-            {
-                return Program.FaultExitCode;
-            }
-
-            root = value;
-            index++;
+            return Program.FaultExitCode;
         }
+
+        string root = options.ValueOr(RootOption, ".");
 
         try
         {
@@ -82,6 +65,7 @@ public static class SteCheckCommand
 
         findings.AddRange(SessionNumberRules.Check(documents));
         findings.AddRange(SizeRules.Check(documents));
+        findings.AddRange(DocumentRowRules.Check(documents));
 
         findings.Sort(CompareFindings);
         foreach (Finding finding in findings)

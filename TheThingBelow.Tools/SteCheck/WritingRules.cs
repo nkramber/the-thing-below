@@ -20,7 +20,9 @@ public sealed class WritingRules
     public const int ParagraphSentenceLimit = 6;
 
     private const RegexOptions Options = RegexOptions.CultureInvariant | RegexOptions.Compiled;
-    private static readonly Regex ListItem = new Regex(@"^\s*[-*\d]", Options);
+    // A list item starts with a dash, a star, or a number and a point, then a space. A prose
+    // line that starts with a number, such as a size, is not a list item.
+    private static readonly Regex ListItem = new Regex(@"^\s*(-|\*|\d+\.)\s", Options);
     private static readonly Regex NumberedItem = new Regex(@"^\s*\d+\.", Options);
 
     private readonly string path;

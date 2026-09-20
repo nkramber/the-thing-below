@@ -64,7 +64,7 @@ Area files: `area-ci.md` section 7.11, `area-release.md` section 7.2.
 **Scope.**
 
 - The export job of D-449, right before PR-7, so the merge of PR-7 exports the first walkable build (D-503).
-- A run on each merge to `main`, and on each pull request that changes one of the four paths of D-692 (D-512).
+- A run on each merge to `main`, and on each pull request that changes one of the five export paths (D-512, D-692, D-699).
 - Three exports, one on each leg: Windows and Linux on x86_64, and the universal macOS build (D-481, D-482).
 - The unpack of the .NET export templates into the editor data folder of the runner (F-42, D-596).
 - A headless smoke session on each export (D-512).
@@ -85,7 +85,7 @@ Area files: `area-ci.md` section 7.11, `area-release.md` section 7.2.
 3. Each export holds the three license files of D-467.
 4. A pull request that changes an export preset runs the job.
 5. Each build artifact appears on the workflow run.
-6. A test reads each preset, the project setting of F-74, and the trigger paths of D-692.
+6. A test reads each preset, the project setting of F-74, and the trigger paths of D-692 and D-699.
 
 **Review focus.**
 

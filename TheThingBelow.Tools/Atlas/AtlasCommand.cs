@@ -29,7 +29,10 @@ public static class AtlasCommand
     /// <summary>The option that names the root of the checkout.</summary>
     public const string RootOption = "--root";
 
-    /// <summary>The option that compares the committed atlas and writes no file.</summary>
+    /// <summary>
+    /// The option that compares the committed atlas and writes no page and no index. With
+    /// <see cref="SheetsOption"/> the run still writes the sheets, which enter no commit.
+    /// </summary>
     public const string CheckOption = "--check";
 
     /// <summary>The option that names the folder for the swatch sheet and the review sheets.</summary>
@@ -46,48 +49,15 @@ public static class AtlasCommand
         ArgumentNullException.ThrowIfNull(output);
         ArgumentNullException.ThrowIfNull(errors);
 
-        string root = ".";
-        string? sheets = null;
-        bool check = false;
-        for (int index = 0; index < args.Count; index += 1)
+        OptionParser? options = OptionParser.Read(Name, args, [RootOption, SheetsOption], [CheckOption], errors);
+        if (options is null)
         {
-            string option = args[index];
-            if (option == CheckOption)
-            {
-                check = true;
-                continue;
-            }
-
-            if (option != RootOption && option != SheetsOption)
-            {
-                errors.WriteLine(
-                    $"Error: the option '{option}' is unknown. {Name} takes {RootOption} <path>, {CheckOption}, and {SheetsOption} <folder>.");
-                return Program.FaultExitCode;
-            }
-
-            if (index + 1 >= args.Count)
-            {
-                errors.WriteLine($"Error: the option {option} needs a value after it.");
-                return Program.FaultExitCode;
-            }
-
-            string value = args[index + 1];
-            if (OptionValue.ReportEmpty(option, value, errors))
-            {
-                return Program.FaultExitCode;
-            }
-
-            if (option == RootOption)
-            {
-                root = value;
-            }
-            else
-            {
-                sheets = value;
-            }
-
-            index += 1;
+            return Program.FaultExitCode;
         }
+
+        string root = options.ValueOr(RootOption, ".");
+        string? sheets = options.Value(SheetsOption);
+        bool check = options.Holds(CheckOption);
 
         try
         {
@@ -288,9 +258,10 @@ public static class AtlasCommand
 
         PngImage wanted = RenderPage(page, layout, byId, palette);
         PngImage committed = PngReader.ReadFile(path);
-        if (!SamePixels(wanted, committed))
+        string? difference = Difference(wanted, committed);
+        if (difference is not null)
         {
-            errors.WriteLine($"Error: the page '{page.File}' does not match the drawing files.");
+            errors.WriteLine($"Error: the page '{page.File}' does not match the drawing files: {difference}.");
             return 1;
         }
 
@@ -299,16 +270,41 @@ public static class AtlasCommand
 
     /// <summary>
     /// Compares two images by their decoded pixels, and never by the bytes of a PNG. The
-    /// compressed bytes follow the encoder and its version (F-19).
+    /// compressed bytes follow the encoder and its version (F-19). The result names the first
+    /// difference, so a reader finds the pixel (T-2).
     /// </summary>
-    private static bool SamePixels(PngImage first, PngImage second)
+    /// <returns>The first difference, or null when the two images hold the same pixels.</returns>
+    public static string? Difference(PngImage wanted, PngImage committed)
     {
-        if (first.Width != second.Width || first.Height != second.Height || first.Colors != second.Colors)
+        ArgumentNullException.ThrowIfNull(wanted);
+        ArgumentNullException.ThrowIfNull(committed);
+
+        if (wanted.Width != committed.Width || wanted.Height != committed.Height)
         {
-            return false;
+            return $"the drawing files give {wanted.Width} by {wanted.Height} pixels, and the committed page holds {committed.Width} by {committed.Height}";
         }
 
-        return first.Pixels.SequenceEqual(second.Pixels);
+        if (wanted.Colors != committed.Colors)
+        {
+            return $"the drawing files give the color kind {wanted.Colors}, and the committed page holds {committed.Colors}";
+        }
+
+        int bytesPerPixel = PngImage.BytesPerPixelOf(wanted.Colors);
+        ReadOnlySpan<byte> first = wanted.Pixels;
+        ReadOnlySpan<byte> second = committed.Pixels;
+        for (int index = 0; index < first.Length; index += 1)
+        {
+            if (first[index] != second[index])
+            {
+                int pixel = index / bytesPerPixel;
+                int x = pixel % wanted.Width;
+                int y = pixel / wanted.Width;
+                int channel = index % bytesPerPixel;
+                return $"the first different pixel is at x {x}, y {y}, channel {channel}: the drawing files give {first[index]}, and the committed page holds {second[index]}";
+            }
+        }
+
+        return null;
     }
 
     private static List<string> StalePages(string root, AtlasLayout layout)
@@ -346,10 +342,16 @@ public static class AtlasCommand
 
         foreach (AtlasPageKind kind in ReviewSheet.KindsOf(layout))
         {
-            string name = $"review-{AtlasPages.NameOf(kind)}.png";
-            string path = Path.Combine(folder, name);
-            PngWriter.WriteFile(path, ReviewSheet.Render(kind, layout, byId, palette));
-            output.WriteLine($"{Name}: wrote {path}.");
+            // A batch of one sheet takes the name of its kind, and a larger batch numbers
+            // each sheet, so the PR description names them in order (D-668).
+            IReadOnlyList<PngImage> sheets = ReviewSheet.Render(kind, layout, byId, palette);
+            for (int index = 0; index < sheets.Count; index += 1)
+            {
+                string number = sheets.Count == 1 ? string.Empty : $"-{index + 1}";
+                string path = Path.Combine(folder, $"review-{AtlasPages.NameOf(kind)}{number}.png");
+                PngWriter.WriteFile(path, sheets[index]);
+                output.WriteLine($"{Name}: wrote {path}.");
+            }
         }
     }
 

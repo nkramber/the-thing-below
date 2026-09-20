@@ -73,6 +73,66 @@ public sealed class DetLintGodotTextTests
         Assert.Contains("DrawString", findings[0].Detail, StringComparison.Ordinal);
     }
 
+    /// <summary>A call that sets a property by its name draws text without a member of the words (D-614).</summary>
+    [Fact]
+    public void ASetCallWithATextNameFails()
+    {
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckGame(
+            """
+            using Godot;
+            namespace TheThingBelow.Game;
+            public static class Fixture
+            {
+                public static void Draw(Label label)
+                {
+                    label.Set("text", "Enter the mine.");
+                }
+            }
+            """);
+
+        Assert.Equal(["DL 8"], DetLintFixture.RuleIds(findings));
+        Assert.Contains("Set", findings[0].Detail, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ASetCallWithAnotherNamePasses()
+    {
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckGame(
+            """
+            using Godot;
+            namespace TheThingBelow.Game;
+            public static class Fixture
+            {
+                public static void Move(Node2D node)
+                {
+                    node.Set("position", Vector2.Zero);
+                }
+            }
+            """);
+
+        Assert.Empty(findings);
+    }
+
+    [Fact]
+    public void AnItemCallOfAMenuFails()
+    {
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckGame(
+            """
+            using Godot;
+            namespace TheThingBelow.Game;
+            public static class Fixture
+            {
+                public static void Fill(PopupMenu menu)
+                {
+                    menu.AddItem("Attack");
+                }
+            }
+            """);
+
+        Assert.Equal(["DL 8"], DetLintFixture.RuleIds(findings));
+        Assert.Contains("AddItem", findings[0].Detail, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void AMemberThatHoldsNoTextWordPasses()
     {

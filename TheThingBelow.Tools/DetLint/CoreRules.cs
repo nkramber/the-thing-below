@@ -85,8 +85,30 @@ public static class CoreRules
         members: [],
         memberNames: ["GetHashCode"]);
 
-    /// <summary>Every rule of Core: DL 1 to DL 7.</summary>
-    /// <returns>The seven rules, in the order of their ids.</returns>
+    /// <summary>
+    /// DL 10: no thread, no task, and no SIMD vector. A thread makes the order of two steps
+    /// follow the machine, and the lane count of a vector follows the processor (T-7).
+    /// </summary>
+    public static readonly BannedSymbolRule Threads = new(
+        "DL 10",
+        "Core runs on one thread, and it computes with whole numbers alone. A thread or a task makes the order follow the machine, and a vector makes the lane count follow the processor (T-7, G-4).",
+        types:
+        [
+            "System.Numerics.Vector",
+            "System.Numerics.Vector2",
+            "System.Numerics.Vector3",
+            "System.Numerics.Vector4",
+            "System.Numerics.Matrix3x2",
+            "System.Numerics.Matrix4x4",
+            "System.Numerics.Quaternion",
+            "System.Numerics.Plane",
+        ],
+        namespaces: ["System.Threading", "System.Runtime.Intrinsics"],
+        members: [],
+        memberNames: []);
+
+    /// <summary>Every rule of Core: DL 1 to DL 7, and DL 10.</summary>
+    /// <returns>The eight rules, in the order of their ids.</returns>
     public static IReadOnlyList<ILintRule> All() =>
     [
         FloatTypes,
@@ -96,6 +118,7 @@ public static class CoreRules
         HashPaths,
         new StringOrderRule(),
         new CollectionWalkRule(),
+        Threads,
     ];
 
     /// <summary>

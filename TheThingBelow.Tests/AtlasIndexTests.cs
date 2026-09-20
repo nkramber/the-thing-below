@@ -154,6 +154,43 @@ public sealed class AtlasIndexTests
         Assert.Contains("banners", error.Message);
     }
 
+    /// <summary>The index takes the rules of the drawing file, so a stale index fails at load (D-519, D-669).</summary>
+    [Fact]
+    public void AUseOfAnotherFormFails()
+    {
+        ContentException error = Fails(Body(use: "Map Front"));
+
+        Assert.Equal("drawings[0].draws[0].use", error.Field);
+        Assert.Contains("D-519", error.Message);
+    }
+
+    [Fact]
+    public void ATimeBelowZeroFails()
+    {
+        ContentException error = Fails(Body(ticks: -1));
+
+        Assert.Equal("drawings[0].frames[0].ticks", error.Field);
+        Assert.Contains("below zero", error.Message);
+    }
+
+    [Fact]
+    public void APlaceOutsideThePageRangeFails()
+    {
+        ContentException error = Fails(Body(x: -1));
+
+        Assert.Equal("drawings[0].frames[0].x", error.Field);
+        Assert.Contains("outside 0 to", error.Message);
+    }
+
+    [Fact]
+    public void ADrawingWithNoFrameFails()
+    {
+        ContentException error = Fails(Body(frames: ""));
+
+        Assert.Equal("drawings[0].frames", error.Field);
+        Assert.Contains("one frame at least", error.Message);
+    }
+
     private static ContentId Id(string value) => ContentId.Parse(value, AtlasIndex.Path, "id");
 
     private static AtlasIndex Read(string body) =>
@@ -166,11 +203,15 @@ public sealed class AtlasIndexTests
         string? pages = null,
         string page = "map_sprites",
         int x = 64,
-        string second = "")
+        string second = "",
+        string use = "map_front",
+        int ticks = 0,
+        string? frames = null)
     {
         pages ??= """
               { "kind": "map_sprites", "number": 1, "width": 96, "height": 32 }
             """;
+        frames ??= $$"""{ "x": {{x}}, "y": 0, "ticks": {{ticks}} }""";
 
         return $$"""
             {
@@ -184,8 +225,8 @@ public sealed class AtlasIndexTests
                "page": "{{page}}",
                "width": 32,
                "height": 32,
-               "draws": [ { "content": "cast.test", "use": "map_front" } ],
-               "frames": [ { "x": {{x}}, "y": 0, "ticks": 0 } ]
+               "draws": [ { "content": "cast.test", "use": "{{use}}" } ],
+               "frames": [ {{frames}} ]
               }
             {{second}}
              ]

@@ -5,7 +5,7 @@ namespace TheThingBelow.Core.Content;
 
 /// <summary>One thing that a drawing draws (D-519).</summary>
 /// <param name="Content">
-/// The content id of the thing, such as `party.marrek` or `tile.snow_floor`. A rule file
+/// The content id of the thing, such as `cast.marrek` or `tile.snow_floor`. A rule file
 /// never names art, so the art file carries the link (D-519).
 /// </param>
 /// <param name="Use">
@@ -223,7 +223,7 @@ public sealed class Drawing
             reader.Require(use, depth, "use"));
     }
 
-    private static string ReadUseName(ref ContentReader reader)
+    internal static string ReadUseName(ref ContentReader reader)
     {
         string use = reader.ReadString();
         if (!IsWellFormedUse(use))
@@ -237,7 +237,7 @@ public sealed class Drawing
 
     // The same character set as the name of a content id (D-646), so one drawing file reads
     // with one rule for every name that it holds.
-    private static bool IsWellFormedUse(string use)
+    internal static bool IsWellFormedUse(string use)
     {
         if (use.Length == 0 || use[0] is < 'a' or > 'z')
         {
@@ -294,7 +294,7 @@ public sealed class Drawing
             reader.Require(rows, depth, "rows"));
     }
 
-    private static int ReadTicks(ref ContentReader reader)
+    internal static int ReadTicks(ref ContentReader reader)
     {
         int value = reader.ReadInt();
         if (value < 0)

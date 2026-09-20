@@ -14,8 +14,9 @@ namespace TheThingBelow.Storage;
 /// <remarks>
 /// <see cref="Open"/> makes the file of the session, and every later call adds its lines to
 /// the end of that file. A save takes the safe write of D-178, and a log file takes an append
-/// instead: the file grows through a session, a reader reads it line by line, and a torn
-/// append costs the last line alone (D-178, T-2).
+/// instead: the file grows through a session, and a torn append leaves one partial last line.
+/// <see cref="Read"/> then fails on that line and names it, so no partial line passes as a
+/// whole one (D-178, T-2).
 /// <para>
 /// The store writes an entry of <see cref="Minimum"/> or above, so the file of a player holds
 /// the changes that a report follows and not every step of a subsystem (D-660). The folder
@@ -107,13 +108,13 @@ public sealed class LogStore
         {
             File.WriteAllText(path, string.Empty, TextEncoding);
         }
-        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
         {
             throw StorageException.ForPath(path, "the game could not make the log file of the session", fault);
         }
 
         this.file = path;
-        FolderFiles.KeepNewest(this.folder, FilePrefix, FileExtension, KeepCount);
+        FolderFiles.KeepNewest(this.folder, FilePrefix, FileExtension, KeepCount, path);
         return path;
     }
 
@@ -154,7 +155,7 @@ public sealed class LogStore
         {
             File.AppendAllText(path, text.ToString(), TextEncoding);
         }
-        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
         {
             throw StorageException.ForPath(path, $"the game could not add {count} lines to the log file", fault);
         }
@@ -175,7 +176,7 @@ public sealed class LogStore
         {
             text = Encoding.UTF8.GetString(File.ReadAllBytes(path));
         }
-        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
         {
             throw StorageException.ForPath(path, "the game could not read the log file of the session", fault);
         }

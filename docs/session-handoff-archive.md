@@ -1,5 +1,87 @@
 # Session handoff archive
 
+## Session 131: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #36, the refutation of F-84 and D-673. Repository: the-thing-below. Branch: `docs/pr-88-refute-f-84`. Role: reviewer. Base: `122f3ef`.
+
+### What this session did, and why
+
+- Reopened PR #36 at effective head `f513ff3`. The later handoff commit `ae1ff1f` changes only metadata.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Inspected all six changed paths and verified the historical claims of D-680.
+- Confirmed that `docs/reviews/pr-33.md` arrived in squash commit `3204545` and that RG 3 faults when the review record is absent.
+- Wrote `docs/reviews/pr-36.md` with no finding and the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 794 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and bounded smoke checks.
+- The review-gate check faults only because this review record is not yet on the PR head.
+
+### What is in flight
+
+The review record and this handoff entry need a commit and push. The review is ready for owner merge after the remote gate reads the record.
+
+### Traps and gotchas
+
+- The effective head is `f513ff3`, not metadata tip `ae1ff1f`.
+- OQ-3 remains open as the owner action of D-681 and does not block this review verdict.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff entry. Then verify the remote head and the review-gate result.
+
+## Session 130: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: the refutation of F-84 and D-673. Repository: the-thing-below. Branch: `docs/pr-88-refute-f-84`. Role: author. Base: `122f3ef`.
+
+### What this session did, and why
+
+- F-84 said that PR #33 merged with no review record, and that RG 3 reports nothing when the file is absent. Both claims are false.
+- `docs/reviews/pr-33.md` arrived in the squash commit 3204545 of PR #33 itself, and `git log --follow` gives that one commit.
+- The record names Claude Code as the author and Codex as the reviewer, with the verdict for head `d1b2305`.
+- `TheThingBelow.Tools/ReviewGate/ReviewRecordRules.cs` faults on an absent file, and it has one commit, 9787b2d of PR #21.
+- The gate of PR #33 faulted at head `d1b2305`, then passed at head `320a9bd` after the record landed. It showed both halves of the behavior on the PR that F-84 accuses.
+- RG 3 also faulted on PR #35 and passed after that record landed.
+- D-680 supersedes D-673, and F-84 now reads `✅ doc` with the evidence and the date.
+- D-681 records the branch protection of `main` as an owner action beside this PR. OQ-3 stays open until the protection is live.
+- The PR takes no `PR-#` id and no roadmap entry, because it is a document-only correction (D-680).
+- The stale out-of-scope bullet of section 7.20 of `docs/roadmaps/phase-1-foundations.md` is gone.
+
+### The state of the build
+
+- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
+- Replay identity, content hash, and the bounded smoke session pass.
+- No code change. This PR changes text alone.
+
+### What is in flight
+
+The PR waits for the review of the other provider. It revises a decision row, so the `review-override` label of D-401 does not apply (T-4).
+
+The automated pass approved head `f513ff3` at 2026-09-19T15:23:04Z, with no finding and no open thread. Its CI analysis found one fault of the description, and the fault had full merit. The `docs/reviews/` row of the Documents section held no form of D-581, and it now takes the `Changed:` form. Run `35459166100` gives `RG 7 pass`. The description holds that row, so the fix needed no commit and the head stands.
+
+The `review-gate` check faults on RG 3 alone: the head holds no review record at `docs/reviews/pr-36.md`. That fault stands until the review record lands, and no change of the author clears it. RG 1, RG 2, RG 6, RG 7, and RG 8 pass.
+
+### Traps and gotchas
+
+- The archive and the older handoff entries still read F-84 and D-673 as live. They are dated records, and a rewrite falsifies them (D-10).
+- The branch name holds `pr-88`, and no register defines that id. A branch name takes no reference rule (D-605).
+- `main` takes any push until the owner enables the protection of D-681.
+- Session 119 is absent from both handoff files. The check reads order and duplicates, not a gap.
+
+### The questions that block progress
+
+None. OQ-3 stays open as an owner action, and it blocks line 4 of Gate 1, not this PR.
+
+### The next concrete action
+
+Hand the PR to the other provider for the review of T-4. The reviewer writes `docs/reviews/pr-36.md` for head `f513ff3`, which turns RG 3 green.
+
 ## Session 129: 2026-09-19, Codex
 
 Author: Codex
@@ -434,6 +516,41 @@ None.
 ### The next concrete action
 
 Run `make where`, commit the work, push one time, and answer the Gitar pass with the `gitar-review` skill.
+
+## Session 117: 2026-09-18, Codex
+
+Author: Codex
+Session: review PR #30, PR-43, the Storage project, the snapshots, and the saves. Repository: the-thing-below. Branch: `feat/pr-43-storage-and-saves`. Role: reviewer. Base: `3a7340f`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-30 diff from merge base `3a7340f` to effective head `d1d2a47`.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Traced the save format, checksum, format dispatch, safe write, resume removal, platform folder rules, Core boundary, and Godot boot check.
+- Found no actionable finding. Wrote `docs/reviews/pr-30.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- The metadata tip is `e3ff30b`, and the effective implementation head is `d1d2a47`.
+- `make verify` passes with 536 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
+- GitHub reports the implementation checks and Gitar pass green. The current `review-gate` run fails because the review record named the wrong effective head. The new record targets `d1d2a47`.
+
+### What is in flight
+
+The review record and this handoff entry need a metadata commit and push. A fresh `review-gate` run must then verify the published record.
+
+### Traps and gotchas
+
+- The effective head excludes only the review and handoff metadata commit after `d1d2a47`.
+- PR-16 adds the Game save-load integration. PR-44 adds crash and log files.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run `make where`, commit the review record and handoff entry, push, fetch, and verify the review gate and remote head.
 
 ## Session 116: 2026-09-18, Claude Code
 
@@ -2289,7 +2406,6 @@ None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 ### Next concrete action
 
 Get the review round of PR #19 from Codex at the effective head `38aa19f`, under D-602.
-# Session handoff archive
 
 ## Session 68: 2026-09-17, Claude Code
 
@@ -5453,37 +5569,3 @@ OQ-18, the world-building interview, blocks the rename (D-102) and Phase 4. OQ-3
 ### Next concrete action
 
 The session waits for the pass on this head and applies the label. The owner merges PR #1. The next session runs the world-building interview (OQ-18) as a docs PR under D-68, then the rename PR (D-102). Then a session starts PR-1 from `main` per the Phase 1 roadmap, and writes `docs/roadmaps/phase-1-foundations.md` first with the exit tests of PR-1 to PR-6 and PR-34 and the three font candidates (D-122), under the `design-doc-style` skill.
-# Session 117: 2026-09-18, Codex
-
-Author: Codex
-Session: review PR #30, PR-43, the Storage project, the snapshots, and the saves. Repository: the-thing-below. Branch: `feat/pr-43-storage-and-saves`. Role: reviewer. Base: `3a7340f`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-30 diff from merge base `3a7340f` to effective head `d1d2a47`.
-- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Traced the save format, checksum, format dispatch, safe write, resume removal, platform folder rules, Core boundary, and Godot boot check.
-- Found no actionable finding. Wrote `docs/reviews/pr-30.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- The metadata tip is `e3ff30b`, and the effective implementation head is `d1d2a47`.
-- `make verify` passes with 536 tests and 0 build warnings. Format, `det-lint`, `ste-check`, replay identity, content hash, Godot build, and the bounded smoke session pass.
-- GitHub reports the implementation checks and Gitar pass green. The current `review-gate` run fails because the review record named the wrong effective head. The new record targets `d1d2a47`.
-
-### What is in flight
-
-The review record and this handoff entry need a metadata commit and push. A fresh `review-gate` run must then verify the published record.
-
-### Traps and gotchas
-
-- The effective head excludes only the review and handoff metadata commit after `d1d2a47`.
-- PR-16 adds the Game save-load integration. PR-44 adds crash and log files.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Run `make where`, commit the review record and handoff entry, push, fetch, and verify the review gate and remote head.

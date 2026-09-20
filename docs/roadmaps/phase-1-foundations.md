@@ -873,14 +873,14 @@ Area file: `area-ci.md` section 7.19. D-684 sets the id and the place of this PR
 1. The build, test, and format job is green on the three legs (D-481).
 2. The smoke job is green on the three legs.
 3. The `ste-check` job is green.
-4. The `review-gate` check is green, and the owner requires it on `main` (OQ-3).
+4. The `review-gate` check is green, and the owner requires it on `main` (OQ-3, D-681).
 5. The `det-lint` job is green.
 6. The `replay-identity` job is green, and the three legs and the Mac agree with the identity file (D-504).
 7. `make verify` passes on the Mac.
 8. The atlas pixel test passes on the three legs (F-19).
 9. The cost model holds the M-1 and M-2 numbers of the first ten code PRs.
 10. The Sprite Fusion test ran, and a decision row names the source of the art (D-620, D-676). Met by D-686 on 2026-09-19.
-11. Branch protection on `main` requires these checks: `changed paths`, `build, test, and format`, `smoke`, `replay-identity`, `det-lint`, `coverage report`, `ste-check`, and `review-gate` (D-685).
+11. Branch protection on `main` requires these checks: `changed paths`, `build, test, and format`, `smoke`, `replay-identity`, `det-lint`, `coverage report`, `ste-check`, and `review-gate` (D-685). Met on 2026-09-19 (D-697).
 
 **What the gate does not ask.** No play, no screen, and no sign-off on feel. Gates 2 to 5 hold those (D-52). Line 10 asks for a pick and a decision row, and not a sign-off on feel (D-676).
 
@@ -901,7 +901,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 9. PR-85: the result of the Deck test, the removal of the CRT, and the two tests before PR-34 (D-616).
 10. Owner and a session: the screen scale probe on three screens, right after PR-85 (D-621, D-625).
 11. PR-86: the answers of the probe, and the close of OQ-183 (D-626 to D-640).
-12. Owner: require the checks on `main` (OQ-3).
+12. Owner: require the checks on `main` (OQ-3). Done on 2026-09-19 (D-681).
 13. PR-46: det-lint, before the first Core code (D-496).
 14. PR-4: integer math, the streams, the state hash, and the identity job.
 15. PR-5: content, the content hash, and the string table.
@@ -914,7 +914,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 22. PR-87: the empty option value of the Tools commands, before Gate 1 (D-674, D-677).
 23. PR-88: the stable check names of the CI matrix jobs, before Gate 1 (D-682, D-684).
 24. Owner and a session: the Sprite Fusion test of the art. Done on 2026-09-19 (D-620, D-675, D-686).
-25. Owner: add the three legs to the required checks of `main`, after PR-88 merges (D-685).
+25. Owner: add the three legs to the required checks of `main`, after PR-88 merges (D-685). Done on 2026-09-19 (D-697).
 26. **← GATE 1 (foundation).** Section 7.22 holds each line.
 
 The next phase file is `phase-2-first-playable.md`. Between the two, the owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).

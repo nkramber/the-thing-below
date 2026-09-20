@@ -85,6 +85,20 @@ public sealed class FixedStepLoopTests
         Assert.IsType<ArgumentOutOfRangeException>(thrown.InnerException);
     }
 
+    [Theory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    public void ATimeThatIsNotFiniteIsAnError(double seconds)
+    {
+        // A NaN passes a negative check, and the loop would then never run a tick again (T-2).
+        Loop loop = new();
+
+        TargetInvocationException thrown = Assert.Throws<TargetInvocationException>(
+            () => loop.Advance(seconds));
+
+        Assert.IsType<ArgumentOutOfRangeException>(thrown.InnerException);
+    }
+
     [Fact]
     public void TheLoopRunsSixtyTicksASecond()
     {

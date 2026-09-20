@@ -74,9 +74,16 @@ public sealed class ContentSet
         var sources = new SortedDictionary<string, string>(StringComparer.Ordinal);
         var drawings = new SortedDictionary<string, Drawing>(StringComparer.Ordinal);
         var pageFiles = new SortedSet<string>(StringComparer.Ordinal);
+        var paths = new SortedSet<string>(StringComparer.Ordinal);
 
         foreach (ContentFile file in Ordered(files))
         {
+            // A second file of one path would replace the first in silence (T-2).
+            if (!paths.Add(file.Path))
+            {
+                throw ContentException.ForFile(file.Path, "the content set holds this path two times, and one path names one file");
+            }
+
             if (string.CompareOrdinal(file.Path, Palette.Path) == 0)
             {
                 palette = Palette.Read(file.Bytes, file.Path);
@@ -254,19 +261,34 @@ public sealed class ContentSet
     }
 
     /// <summary>
-    /// Refuses an atlas index that does not match the drawing files. A stale atlas fails
-    /// here, and the pixel test of Tools compares the pages themselves (F-19, G-24).
+    /// Refuses an atlas index that does not match the drawing files or the page files. A
+    /// stale atlas fails here, and the pixel test of Tools compares the pages themselves
+    /// (F-19, G-24).
     /// </summary>
     private void RefuseStaleAtlas(SortedSet<string> pageFiles)
     {
+        var named = new SortedSet<string>(StringComparer.Ordinal);
         foreach (AtlasPage page in this.Atlas.Pages)
         {
+            named.Add(page.File);
             if (!pageFiles.Contains(page.File))
             {
                 throw ContentException.ForField(
                     AtlasIndex.Path,
                     page.Name,
                     $"the index names the page '{page.Name}', and the content set holds no file '{page.File}'");
+            }
+        }
+
+        foreach (string pageFile in pageFiles)
+        {
+            // The atlas command owns every page file, so a page that no index names is a
+            // leftover that would ship in the build (D-666, T-2).
+            if (!named.Contains(pageFile))
+            {
+                throw ContentException.ForFile(
+                    pageFile,
+                    "no page of the atlas index names this file. Run the atlas command again (D-666)");
             }
         }
 
@@ -323,6 +345,33 @@ public sealed class ContentSet
                     $"frame {frame} holds {ticks} ticks in the index, and {drawing.Frames[frame].Ticks} in the file");
             }
         }
+
+        // Game finds a drawing through the uses of the index, so a stale use list would
+        // answer a lookup with the wrong drawing (D-519).
+        if (!SameDraws(entry.Draws, drawing.Draws))
+        {
+            throw StaleAtlas(file, drawing, "the index names other things that the drawing draws");
+        }
+    }
+
+    private static bool SameDraws(IReadOnlyList<DrawingUse> index, IReadOnlyList<DrawingUse> file)
+    {
+        if (index.Count != file.Count)
+        {
+            return false;
+        }
+
+        for (int use = 0; use < index.Count; use += 1)
+        {
+            // A content id compares by its text, and never by its instance (F-39).
+            if (string.CompareOrdinal(index[use].Content.Value, file[use].Content.Value) != 0
+                || string.CompareOrdinal(index[use].Use, file[use].Use) != 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static ContentException StaleAtlas(string file, Drawing drawing, string difference) =>

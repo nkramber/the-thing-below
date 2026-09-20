@@ -58,7 +58,7 @@ public static class SafeWrite
                 file.Flush(flushToDisk: true);
             }
         }
-        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
         {
             throw StorageException.ForPath(
                 temporaryPath, "the game could not write the temporary file of the write", fault);
@@ -70,7 +70,7 @@ public static class SafeWrite
         {
             File.Move(temporaryPath, path, overwrite: true);
         }
-        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
         {
             throw StorageException.ForPath(
                 path, $"the game could not replace the file with the temporary file '{temporaryPath}'", fault);

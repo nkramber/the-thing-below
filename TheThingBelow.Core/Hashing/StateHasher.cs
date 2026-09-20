@@ -11,6 +11,11 @@ namespace TheThingBelow.Core.Hashing;
 /// Each `Add` method writes a length-tagged form into a buffer, and <see cref="Finish"/>
 /// hashes the whole buffer with <see cref="XxHash64"/> (D-644). The length tag of the text
 /// keeps two states apart that hold the same characters in different fields.
+/// <para>
+/// No `Add` method writes a type tag, so `AddUInt64(1)` and `AddBoolean(true)` give the same
+/// bytes. Every caller adds a fixed schema in a fixed order, and a schema whose shape can
+/// change, such as a list, adds its count before its items.
+/// </para>
 /// </remarks>
 public sealed class StateHasher
 {

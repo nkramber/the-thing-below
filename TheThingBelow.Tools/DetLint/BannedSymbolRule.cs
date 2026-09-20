@@ -6,9 +6,10 @@ namespace TheThingBelow.Tools.DetLint;
 
 /// <summary>
 /// A rule that refuses a set of types, namespaces, and members. The rule reads the type that
-/// the compiler gives each expression, so a literal with no suffix fails too (D-498, F-38).
-/// `CoreRules` holds the four rules of this kind: the float types, the clock, the OS random,
-/// and the reflection and hash paths.
+/// the compiler gives each expression, and the type that the expression converts to, so a
+/// literal with no suffix fails too, and so does a whole number that a call turns into a
+/// float (D-498, F-38). `CoreRules` holds the six rules of this kind: the float types, the
+/// clock, the OS random, the reflection, the hash paths, and the threads.
 /// </summary>
 public sealed class BannedSymbolRule : ILintRule
 {
@@ -52,10 +53,15 @@ public sealed class BannedSymbolRule : ILintRule
         ArgumentNullException.ThrowIfNull(node);
         ArgumentNullException.ThrowIfNull(model);
 
-        string? typeName = ReadTypeName(node, model);
+        (string? typeName, string? convertedName) = ReadTypeNames(node, model);
         if (typeName is not null && types.Contains(typeName))
         {
             return [LintFinding.At(path, node, Id, $"the type `{typeName}` is here. {reason}")];
+        }
+
+        if (convertedName is not null && types.Contains(convertedName))
+        {
+            return [LintFinding.At(path, node, Id, $"the value converts to the type `{convertedName}` here. {reason}")];
         }
 
         ISymbol? symbol = model.GetSymbolInfo(node).Symbol;
@@ -86,13 +92,18 @@ public sealed class BannedSymbolRule : ILintRule
         return [];
     }
 
-    private static string? ReadTypeName(SyntaxNode node, SemanticModel model)
+    /// <summary>
+    /// Reads the type of an expression and the type that it converts to. A whole number that
+    /// a call takes as a `double` converts, and the second name reads that (F-38).
+    /// </summary>
+    private static (string? Type, string? Converted) ReadTypeNames(SyntaxNode node, SemanticModel model)
     {
         if (node is not Microsoft.CodeAnalysis.CSharp.Syntax.ExpressionSyntax expression)
         {
-            return null;
+            return (null, null);
         }
 
-        return SymbolNames.FullName(model.GetTypeInfo(expression).Type);
+        TypeInfo info = model.GetTypeInfo(expression);
+        return (SymbolNames.FullName(info.Type), SymbolNames.FullName(info.ConvertedType));
     }
 }

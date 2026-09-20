@@ -144,12 +144,18 @@ public sealed class StringOrderRule : ILintRule
         bool arraySortOfStrings = name == "System.Array.Sort"
             && call.TypeArguments is [{ SpecialType: SpecialType.System_String }]
             && target.Parameters.Length == 1;
+        bool arraySortOfKeys = name == "System.Array.Sort"
+            && call.TypeArguments is [{ SpecialType: SpecialType.System_String }, _]
+            && target.Parameters.Length == 2;
+        bool minOrMaxOfStrings = (name == "System.Linq.Enumerable.Min" || name == "System.Linq.Enumerable.Max")
+            && call.TypeArguments is [{ SpecialType: SpecialType.System_String }]
+            && target.Parameters.Length == 1;
         bool comparisonOfStrings = CultureComparisons.Contains(name)
             && TakesString(target)
             && !TakesComparison(target);
 
         return orderByOfStrings || orderOfStrings || listSortOfStrings || arraySortOfStrings
-            || comparisonOfStrings;
+            || arraySortOfKeys || minOrMaxOfStrings || comparisonOfStrings;
     }
 
     /// <summary>Reads a comparer or a comparison value that follows the culture.</summary>

@@ -31,7 +31,10 @@ public sealed class IdRegister
     private const RegexOptions Options = RegexOptions.CultureInvariant | RegexOptions.Compiled;
     private static readonly Regex PullRequestId = new Regex(@"\bPR-(\d+)\b", Options);
     private static readonly Regex PullRequestHeading = new Regex(@"^#{2,4} [\d.]+ PR-(\d+):", Options);
-    private static readonly Regex SupersededBy = new Regex(@"Superseded by ((?:D-\d+(?: and )?)+)", Options);
+    // The Effect column writes a supersession in two forms: "Superseded by D-N", with "and"
+    // or a comma between two ids, and "D-N supersedes D-M" on a row whose id is D-M.
+    private static readonly Regex SupersededBy = new Regex(@"Superseded by ((?:D-\d+(?:, and |, | and )?)+)", Options);
+    private static readonly Regex Supersedes = new Regex(@"(D-\d+) supersedes (D-\d+)", Options);
     private static readonly Regex DecisionId = new Regex(@"D-(\d+)", Options);
     private static readonly Regex DecisionRow = new Regex(@"^\| (D-\d+) \|", Options);
 
@@ -167,6 +170,15 @@ public sealed class IdRegister
                 foreach (Match id in DecisionId.Matches(match.Groups[1].Value))
                 {
                     superseding.Add(id.Value);
+                }
+            }
+
+            foreach (Match match in Supersedes.Matches(line))
+            {
+                if (string.Equals(match.Groups[2].Value, row.Groups[1].Value, StringComparison.Ordinal)
+                    && !superseding.Contains(match.Groups[1].Value))
+                {
+                    superseding.Add(match.Groups[1].Value);
                 }
             }
 

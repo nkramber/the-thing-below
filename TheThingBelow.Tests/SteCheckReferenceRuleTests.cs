@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 using TheThingBelow.Tools.SteCheck;
 using Xunit;
 
@@ -105,6 +107,44 @@ public sealed class SteCheckReferenceRuleTests
         Finding found = Assert.Single(findings);
         Assert.Equal("REF 3", found.Rule);
         Assert.Contains("D-2", found.Detail);
+    }
+
+    /// <summary>
+    /// The path rule reads a path whose first part is a top-level folder of the repository, so
+    /// the list holds every project folder of the solution and every other folder that a
+    /// document cites (D-605).
+    /// </summary>
+    [Fact]
+    public void EveryProjectFolderOfTheSolutionIsARepositoryRoot()
+    {
+        string solution = File.ReadAllText(RepositoryRoot.PathTo("TheThingBelow.slnx"));
+        MatchCollection projects = Regex.Matches(solution, "Path=\"([^/\"]+)/");
+
+        Assert.NotEmpty(projects);
+        foreach (Match project in projects)
+        {
+            Assert.Contains(project.Groups[1].Value, ReferenceRules.RepositoryRoots);
+        }
+
+        Assert.Contains(".githooks", ReferenceRules.RepositoryRoots);
+        Assert.Contains("licenses", ReferenceRules.RepositoryRoots);
+    }
+
+    /// <summary>The register also writes "D-N supersedes D-M" on the row of D-M (D-606).</summary>
+    [Fact]
+    public void ASupersededDecisionWithTheSuccessorOfTheSupersedesFormPasses()
+    {
+        using SteCheckCheckout checkout = SteCheckCheckout.Build();
+        checkout.Append(
+            "docs/decisions.md",
+            "| D-3 | 2026-09-14 | A third answer | The third answer. | Superseded by D-4 on 2026-09-15. D-5 supersedes D-3 on 2026-09-16. |",
+            "| D-4 | 2026-09-15 | A fourth answer | The fourth answer. | Stands. |",
+            "| D-5 | 2026-09-16 | A fifth answer | The fifth answer. | Stands. |");
+        checkout.Write("docs/note.md", "The note applies D-3, which D-5 superseded.");
+
+        IReadOnlyList<Finding> findings = Check(checkout, "docs/note.md");
+
+        Assert.Empty(findings);
     }
 
     [Fact]

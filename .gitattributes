@@ -1,5 +1,8 @@
 # One line ending on every platform. The STE checker, hashes, and diffs depend on it.
 * text=auto eol=lf
 
-# Binary assets
+# Binary assets. PR-61 adds the fonts, and the audio PRs add the rendered sound (D-263, D-547).
 *.png binary
+*.ttf binary
+*.wav binary
+*.ogg binary

@@ -3,8 +3,9 @@
 # smoke session on that build, and uploads it as a build artifact (D-449, D-503, D-512).
 #
 # This workflow is not a line of the PR gate (D-449, D-512). It runs on each merge to `main`,
-# and on each pull request that changes one of the four export paths of D-692. A pull request
-# that changes no such path starts no run, and it needs none.
+# and on each pull request that changes one of the five export paths: the four of D-692, and
+# the Game project file, which carries `content/` into each export (D-699, D-508). A pull
+# request that changes no such path starts no run, and it needs none.
 #
 # The steps that get the Godot editor repeat the steps of the smoke job of `ci.yml`. Two jobs
 # never share a step list, and D-511 allows no action outside the `actions` organization, so
@@ -23,6 +24,7 @@ on:
       - TheThingBelow.Game/export_presets.cfg
       - TheThingBelow.Game/project.godot
       - licenses/**
+      - TheThingBelow.Game/TheThingBelow.Game.csproj
 
 # The jobs read the checkout alone (T-2).
 permissions:
@@ -236,13 +238,15 @@ jobs:
           ls -la export
 
       # Every export carries the notices of Godot, the Terminus fonts, and the .NET runtime
-      # (D-467, D-691). The Godot export packs the project folder alone, so the job copies
-      # the folder beside the build (F-42, D-508).
+      # (D-467, D-691), and the license of the game itself (D-695). The Godot export packs the
+      # project folder alone, so the job copies the folder and the file beside the build
+      # (F-42, D-508).
       - name: Copy the license files into the export
         run: |
           set -euo pipefail
           cp -R licenses export/licenses
-          ls export/licenses
+          cp LICENSE export/LICENSE
+          ls export/licenses export/LICENSE
 
       # Each export starts with `--headless` and runs the smoke session, which a release
       # export template supports (D-512). The session gives an exit code of 0 with no success

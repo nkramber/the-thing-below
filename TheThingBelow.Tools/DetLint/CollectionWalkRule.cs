@@ -10,18 +10,33 @@ namespace TheThingBelow.Tools.DetLint;
 /// state, and neither type gives a fixed order (G-4, T-7). A lookup by key stays legal, so
 /// Core keeps its fast lookups (D-615). The rule reads three shapes: a `foreach` over the
 /// collection, a read of `Keys` or `Values`, and a call of a LINQ method on the collection.
-/// A walk inside a method that takes the collection as a parameter stays a matter for the
-/// review, because the rule reads one expression at a time (D-615).
+/// The rule reads the interfaces of the two types too, because a field or a parameter of an
+/// interface type hides the collection behind it. A `SortedDictionary` keeps its own type
+/// in Core, so no walk of one takes a finding (D-615).
 /// </summary>
 public sealed class CollectionWalkRule : ILintRule
 {
     private const string Reason =
-        "Neither type gives a fixed order. Use a `List` or a `SortedDictionary` where the order reaches the state (G-4, T-7, D-615).";
+        "The type gives no fixed order, or it hides a type that gives none. Use a `List` or a `SortedDictionary` where the order reaches the state (G-4, T-7, D-615).";
 
     private static readonly HashSet<string> WalkedCollections = new(StringComparer.Ordinal)
     {
         "System.Collections.Generic.Dictionary",
         "System.Collections.Generic.HashSet",
+        "System.Collections.Generic.IDictionary",
+        "System.Collections.Generic.IReadOnlyDictionary",
+        "System.Collections.Generic.ISet",
+        "System.Collections.Generic.IReadOnlySet",
+    };
+
+    private static readonly HashSet<string> WalkedMembers = new(StringComparer.Ordinal)
+    {
+        "System.Collections.Generic.Dictionary.Keys",
+        "System.Collections.Generic.Dictionary.Values",
+        "System.Collections.Generic.IDictionary.Keys",
+        "System.Collections.Generic.IDictionary.Values",
+        "System.Collections.Generic.IReadOnlyDictionary.Keys",
+        "System.Collections.Generic.IReadOnlyDictionary.Values",
     };
 
     private static readonly HashSet<string> QueryTypes = new(StringComparer.Ordinal)
@@ -67,8 +82,7 @@ public sealed class CollectionWalkRule : ILintRule
     {
         ISymbol? symbol = model.GetSymbolInfo(access).Symbol;
         string? name = SymbolNames.MemberFullName(symbol);
-        if (name != "System.Collections.Generic.Dictionary.Keys"
-            && name != "System.Collections.Generic.Dictionary.Values")
+        if (name is null || !WalkedMembers.Contains(name))
         {
             return [];
         }

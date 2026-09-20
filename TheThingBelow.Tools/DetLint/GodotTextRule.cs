@@ -33,6 +33,30 @@ public sealed class GodotTextRule : ILintRule
         "DrawMultilineStringOutline",
         "DrawString",
         "DrawStringOutline",
+        "AddItem",
+        "AddIconItem",
+        "AddCheckItem",
+        "AddIconCheckItem",
+        "AddRadioCheckItem",
+        "AddIconRadioCheckItem",
+        "AddSubmenuItem",
+        "AddSubmenuNodeItem",
+        "AddSeparator",
+        "AppendText",
+        "ParseBbcode",
+    };
+
+    /// <summary>
+    /// The members that set a property by its name. A call with a name that holds `text` or
+    /// `title` draws player text without a member of the words (D-614).
+    /// </summary>
+    private static readonly HashSet<string> NamedCalls = new(StringComparer.Ordinal)
+    {
+        "Set",
+        "SetDeferred",
+        "SetIndexed",
+        "Call",
+        "CallDeferred",
     };
 
     /// <inheritdoc/>
@@ -50,7 +74,12 @@ public sealed class GodotTextRule : ILintRule
             return [];
         }
 
-        if (!SymbolNames.IsInNamespace(symbol.ContainingType, GodotNamespace) || !DrawsText(symbol.Name))
+        if (!SymbolNames.IsInNamespace(symbol.ContainingType, GodotNamespace))
+        {
+            return [];
+        }
+
+        if (!DrawsText(symbol.Name) && !NamesTextProperty(node, symbol))
         {
             return [];
         }
@@ -91,6 +120,28 @@ public sealed class GodotTextRule : ILintRule
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Tells whether a call sets a property by a name that holds `text` or `title`, such as
+    /// `Set("text", value)`. The name is a string literal, and the rule reads it without case.
+    /// </summary>
+    private static bool NamesTextProperty(SyntaxNode node, ISymbol symbol)
+    {
+        if (!NamedCalls.Contains(symbol.Name) || node is not InvocationExpressionSyntax call)
+        {
+            return false;
+        }
+
+        if (call.ArgumentList.Arguments.Count == 0
+            || call.ArgumentList.Arguments[0].Expression is not LiteralExpressionSyntax literal
+            || literal.Token.Value is not string name)
+        {
+            return false;
+        }
+
+        return name.Contains("text", StringComparison.OrdinalIgnoreCase)
+            || name.Contains("title", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsInTextHelper(SyntaxNode node, SemanticModel model)

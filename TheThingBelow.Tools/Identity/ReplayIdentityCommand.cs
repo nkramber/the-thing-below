@@ -33,39 +33,14 @@ public static class ReplayIdentityCommand
         ArgumentNullException.ThrowIfNull(output);
         ArgumentNullException.ThrowIfNull(errors);
 
-        string root = ".";
-        bool write = false;
-        for (int index = 0; index < args.Count; index += 1)
+        OptionParser? options = OptionParser.Read(Name, args, [RootOption], [WriteOption], errors);
+        if (options is null)
         {
-            string option = args[index];
-            if (option == WriteOption)
-            {
-                write = true;
-                continue;
-            }
-
-            if (option != RootOption)
-            {
-                errors.WriteLine(
-                    $"Error: the option '{option}' is unknown. {Name} takes {RootOption} <path> and {WriteOption}.");
-                return Program.FaultExitCode;
-            }
-
-            if (index + 1 >= args.Count)
-            {
-                errors.WriteLine($"Error: the option {RootOption} needs a value after it.");
-                return Program.FaultExitCode;
-            }
-
-            string value = args[index + 1];
-            if (OptionValue.ReportEmpty(RootOption, value, errors))
-            {
-                return Program.FaultExitCode;
-            }
-
-            root = value;
-            index += 1;
+            return Program.FaultExitCode;
         }
+
+        string root = options.ValueOr(RootOption, ".");
+        bool write = options.Holds(WriteOption);
 
         try
         {

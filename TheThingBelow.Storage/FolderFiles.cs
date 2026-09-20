@@ -27,7 +27,7 @@ internal static class FolderFiles
         {
             Directory.CreateDirectory(folder);
         }
-        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
         {
             throw StorageException.ForPath(folder, "the game could not make the folder", fault);
         }
@@ -44,8 +44,10 @@ internal static class FolderFiles
     /// </exception>
     internal static string FreePath(string folder, string prefix, string stamp, string extension)
     {
+        // `File.Exists` throws nothing. It gives false for a path that the system refuses,
+        // and the write that follows then fails with the path (T-2).
         string first = Path.Combine(folder, $"{prefix}-{stamp}{extension}");
-        if (!Exists(first))
+        if (!File.Exists(first))
         {
             return first;
         }
@@ -53,7 +55,7 @@ internal static class FolderFiles
         for (int count = 2; count < MaxNamesOfOneStamp; count += 1)
         {
             string path = Path.Combine(folder, $"{prefix}-{stamp}-{count}{extension}");
-            if (!Exists(path))
+            if (!File.Exists(path))
             {
                 return path;
             }
@@ -69,16 +71,20 @@ internal static class FolderFiles
     /// <param name="prefix">The prefix of the name, such as `crash`.</param>
     /// <param name="extension">The file type, with its point, such as `.json`.</param>
     /// <param name="keep">The count of files that stay. It is 1 at least.</param>
+    /// <param name="newest">The full path of the file that the caller made now, which stays.</param>
     /// <exception cref="ArgumentOutOfRangeException">The count is below 1 (T-2).</exception>
     /// <exception cref="StorageException">The system refused the read or a removal (T-2).</exception>
     /// <remarks>
     /// The stamp of a name sorts as the time sorts, so the order of the names is the order of
     /// the times (D-658). Two files of one second can take either order, and the count of the
-    /// folder holds either way.
+    /// folder holds either way. The file of the caller stays also when the clock of the
+    /// machine runs behind the stamps of the older files, so a write never removes its own
+    /// file (T-2).
     /// </remarks>
-    internal static void KeepNewest(string folder, string prefix, string extension, int keep)
+    internal static void KeepNewest(string folder, string prefix, string extension, int keep, string newest)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(keep, 1);
+        ArgumentException.ThrowIfNullOrEmpty(newest);
 
         IReadOnlyList<string> names = Names(folder, prefix, extension);
         if (names.Count <= keep)
@@ -86,17 +92,62 @@ internal static class FolderFiles
             return;
         }
 
+        string newestName = Path.GetFileName(newest);
         for (int index = keep; index < names.Count; index += 1)
         {
+            if (string.CompareOrdinal(names[index], newestName) == 0)
+            {
+                continue;
+            }
+
             string path = Path.Combine(folder, names[index]);
             try
             {
                 File.Delete(path);
             }
-            catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+            catch (Exception fault) when (StorageFaults.IsFileFault(fault))
             {
                 throw StorageException.ForPath(
                     path, $"the game could not remove the file after the newest {keep} files (D-659)", fault);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Removes each temporary file that a torn safe write left in the folder (D-178). The
+    /// name pattern of the folder never matches one, so no other removal reaches it.
+    /// </summary>
+    /// <param name="folder">The full path of the folder.</param>
+    /// <param name="prefix">The prefix of the name, such as `crash`.</param>
+    /// <param name="extension">The file type, with its point, such as `.json`.</param>
+    /// <exception cref="StorageException">The system refused the read or a removal (T-2).</exception>
+    internal static void RemoveTemporaryFiles(string folder, string prefix, string extension)
+    {
+        if (!Directory.Exists(folder))
+        {
+            return;
+        }
+
+        string[] paths;
+        try
+        {
+            paths = Directory.GetFiles(folder, $"{prefix}-*{extension}{SafeWrite.TemporarySuffix}");
+        }
+        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
+        {
+            throw StorageException.ForPath(folder, "the game could not read the files of the folder", fault);
+        }
+
+        foreach (string path in paths)
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            catch (Exception fault) when (StorageFaults.IsFileFault(fault))
+            {
+                throw StorageException.ForPath(
+                    path, "the game could not remove the temporary file of a torn write (D-178)", fault);
             }
         }
     }
@@ -119,7 +170,7 @@ internal static class FolderFiles
         {
             paths = Directory.GetFiles(folder, $"{prefix}-*{extension}");
         }
-        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
+        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
         {
             throw StorageException.ForPath(folder, "the game could not read the files of the folder", fault);
         }
@@ -134,17 +185,5 @@ internal static class FolderFiles
         // of the order and never the order that the system gave (T-7).
         names.Sort(static (first, second) => string.CompareOrdinal(second, first));
         return names;
-    }
-
-    private static bool Exists(string path)
-    {
-        try
-        {
-            return File.Exists(path);
-        }
-        catch (Exception fault) when (fault is IOException or UnauthorizedAccessException)
-        {
-            throw StorageException.ForPath(path, "the game could not read the folder of the file", fault);
-        }
     }
 }

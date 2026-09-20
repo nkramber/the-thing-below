@@ -356,7 +356,56 @@ public static class PngReader
             throw PngException.For(file, $"the image data is not zlib data. {fault.Message}", fault);
         }
 
+        // The decompressor gives the end of the stream with no error when the data ends before
+        // its check value, so the reader compares the check value itself (T-2).
+        CheckTrailer(compressed, filtered, file);
         return filtered;
+    }
+
+    /// <summary>The largest prime below 65536, the modulus of the Adler-32 check of zlib.</summary>
+    private const uint AdlerModulus = 65521;
+
+    /// <summary>The count of bytes of the zlib header and of its check value.</summary>
+    private const int ZlibHeaderSize = 2;
+    private const int ZlibTrailerSize = 4;
+
+    /// <summary>
+    /// Compares the Adler-32 check value at the end of the zlib data with the check value of
+    /// the inflated bytes. A stream that ends before its check value fails here.
+    /// </summary>
+    private static void CheckTrailer(byte[] compressed, byte[] filtered, string file)
+    {
+        if (compressed.Length < ZlibHeaderSize + ZlibTrailerSize)
+        {
+            throw PngException.For(
+                file, $"the image data holds {compressed.Length} bytes, and zlib data holds a header and a check value at least");
+        }
+
+        int start = compressed.Length - ZlibTrailerSize;
+        uint stored = ((uint)compressed[start] << 24) | ((uint)compressed[start + 1] << 16)
+            | ((uint)compressed[start + 2] << 8) | compressed[start + 3];
+        uint computed = Adler32(filtered);
+        if (stored != computed)
+        {
+            throw PngException.For(
+                file, $"the check value of the image data is 0x{stored:x8}, and the inflated bytes give 0x{computed:x8}. The data ends before its check value, or a byte changed");
+        }
+    }
+
+    /// <summary>Computes the Adler-32 check value of zlib, with whole numbers alone (D-502).</summary>
+    /// <param name="bytes">The bytes to check.</param>
+    /// <returns>The check value.</returns>
+    public static uint Adler32(ReadOnlySpan<byte> bytes)
+    {
+        uint a = 1;
+        uint b = 0;
+        foreach (byte value in bytes)
+        {
+            a = (a + value) % AdlerModulus;
+            b = (b + a) % AdlerModulus;
+        }
+
+        return (b << 16) | a;
     }
 
     /// <summary>Turns the filtered bytes into the pixels of the image.</summary>

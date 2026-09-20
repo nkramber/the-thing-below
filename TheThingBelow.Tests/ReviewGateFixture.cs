@@ -199,16 +199,18 @@ public sealed class ReviewGateFixture : IDisposable
     private static readonly IReadOnlyDictionary<string, string?> DefaultRows =
         new Dictionary<string, string?>(StringComparer.Ordinal)
         {
-            ["docs/design.md"] = "No change needed because `docs/design.md` holds no rule that this PR changes.",
-            ["docs/decisions.md"] = "Changed: `docs/decisions.md`. The PR adds one owner answer.",
-            ["docs/questions.md"] = "Changed: `docs/questions.md`. The PR marks one question as resolved.",
-            ["docs/roadmaps/"] = "Changed: `docs/roadmaps/area-tools.md`. The entry names the new command.",
+            // Each line agrees with the changed paths of `PassingFacts` and of `LabeledFacts`,
+            // because RG 7 reads the truth of a line against the diff (D-577).
+            ["docs/design.md"] = "Changed: `docs/design.md`. The section on the gate names the command.",
+            ["docs/decisions.md"] = "No change needed because `docs/decisions.md` holds no answer of this PR.",
+            ["docs/questions.md"] = "No change needed because `docs/questions.md` holds no question of this PR.",
+            ["docs/roadmaps/"] = "No change needed because `docs/roadmaps/area-tools.md` names the command already.",
             ["docs/world/"] = "Not applicable because this PR holds no lore and no place.",
             ["docs/runbooks/"] = "No change needed because `docs/runbooks/session-context.md` needs no new step.",
-            ["docs/reviews/"] = "Changed: `docs/reviews/pr-21.md`. The record of the review is in this PR.",
+            ["docs/reviews/"] = "No change needed because `docs/reviews/pr-21.md` comes from the reviewer of this PR.",
             ["docs/session-handoff.md"] = "Changed: `docs/session-handoff.md`. The entry of this session is at the top.",
             ["CLAUDE.md and AGENTS.md"] = "No change needed because `CLAUDE.md` and `AGENTS.md` hold no rule that this PR changes.",
-            [".claude/skills/ and .claude/agents/"] = "Changed: `.claude/skills/pr-review/SKILL.md`. The skill names the new rule.",
+            [".claude/skills/ and .claude/agents/"] = "No change needed because `.claude/skills/pr-review/SKILL.md` names the rule already.",
             [".github/pull_request_template.md"] = "No change needed because `.github/pull_request_template.md` holds each line of the gate.",
             ["README.md"] = "No change needed because `README.md` describes the project, and this PR changes no description.",
         };

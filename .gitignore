@@ -15,6 +15,10 @@ artifacts/
 bin/
 obj/
 
+# The local outputs of a spike, such as the Sprite Fusion test (D-620). A spike branch holds
+# the files of a spike that the project keeps.
+spike/
+
 # Godot editor output. The editor writes a backup of the project file when it changes it.
 .godot/
 *.csproj.old

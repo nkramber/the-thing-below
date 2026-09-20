@@ -57,7 +57,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 
 ## Session handoff
 
-At the end of a session, fetch the remote and read the highest session number with `grep -m1 '^## Session' docs/session-handoff.md`. Add one. Then add a new entry at the top (D-18). Keep the 10 newest entries in that file. Move any older entry to the top of `docs/session-handoff-archive.md`.
+At the end of a session, fetch the remote and read the highest session number with `grep -m1 '^## Session' docs/session-handoff.md`. Add one. Then add a new entry at the top, with the UTC date (D-18, D-701). Keep the 10 newest entries in that file. Move any older entry to the top of `docs/session-handoff-archive.md`.
 
 Commit the entry with the review record or the work it describes. Push, then fetch, and check that the status shows no `[ahead N]`. Another provider can add an entry above yours while you work. Add your own entry, and never append to an older one.
 
@@ -88,9 +88,9 @@ The prompt is one fenced block that the owner pastes into the next session. Step
 
 ## Code rules
 
-- C# only, tools included (D-99, D-101). No GDScript. One Python file is the exception: the out-of-date atlas script stays as a reference until PR-34 ports it (D-406).
+- C# only, tools included (D-99, D-101). No GDScript, and no Python: PR-34 retired the interim atlas script (D-406).
 - `Core` has no engine dependency and no file, network, clock, or OS dependency. A test asserts its reference list (G-1, D-100).
-- Integer math only in `Core`. No `float`, `double`, `System.Random`, `DateTime`, or `Stopwatch` in `Core`. The `det-lint` tool enforces it (T-7, G-2, G-3).
+- Integer math only in `Core`. No `float`, `double`, `decimal`, `System.Random`, `DateTime`, or `Stopwatch` in `Core`. The `det-lint` tool enforces it (T-7, G-2, G-3).
 - One seeded random stream per subsystem. Every run writes a record: the seed, the content hash, the versions, and every input. A replay reproduces the state hash on every platform (G-4, G-5).
 - Godot physics, timers, and navigation never feed the simulation. The camera, the shader, the audio, and the input map live in `Game` (D-100, D-106).
 - Content is JSON, validated by a schema at load and in a test. An absent field is an error. No `.tres` files (D-116, G-6).
@@ -123,7 +123,7 @@ An automated reviewer, gitar, comments on every PR after a push (D-14). After ea
 - A reply names no provider, harness, or model as the source of work (T-6).
 - The reviewing provider reads the existing PR comments into its review and never addresses gitar. The `pr-review` skill holds the procedure of the reviewer.
 - Every PR answers the pass, a documentation PR included (D-66). The `review-override` label exempts a documentation PR from the Codex review alone, and only when the PR changes no row of `docs/decisions.md` (D-401).
-- The override set holds `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/`, and `.github/pull_request_template.md` (D-16, D-71, D-239). Every other path takes the review, `.github/workflows/` and `content/` included (D-185, D-560).
+- The override set holds `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/` without `.claude/settings.json`, and `.github/pull_request_template.md` (D-16, D-71, D-239, D-700). Every other path takes the review, `.github/workflows/` and `content/` included (D-185, D-560).
 - On a documentation PR that changes no decision row, the session applies the `review-override` label itself, only after the pass approves the head (D-67, D-401). A change to a decision row is a change to a line of a decision table (D-609). A later push needs a new approval before the label applies. A PR that adds or revises a decision goes to the other provider instead.
 - Before you open a documentation PR, ask the owner every open question that the PR can settle (D-68). Ask in batches, and record the answers in the PR.
 
@@ -136,16 +136,16 @@ The solution and the project names follow D-217. Run each command from the check
 - Hooks, once per checkout: `make hooks`
 - Build: `make build`. Test: `make test`. Format check: `make format`.
 - STE check: `make ste-check`. Determinism and string lint: `make lint`.
-- Identity check: `make identity`. Content hash: `make content`.
+- Identity check: `make identity`. Content hash: `make content`. Atlas check: `make atlas`.
 - Godot build and the smoke session: `make smoke`.
-- Coverage report: `dotnet test --solution TheThingBelow.slnx --no-build -- --coverlet --coverlet-output-format cobertura --results-directory artifacts/coverage`
+- Coverage report: `dotnet test --solution TheThingBelow.slnx --no-build -- --filter-not-trait "Category=Smoke" --coverlet --coverlet-output-format cobertura --results-directory artifacts/coverage`
 - A Tools command with its options: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- atlas --root . --check`
 - Review gate: the same form, with `review-gate --pull-request <file> --head-files <folder>`
 - Play session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --path TheThingBelow.Game`
 
 Every option of the test application comes after `--` (D-592). The coverage command writes a Cobertura file, and the CI job makes a Markdown summary (D-593). The content-hash command takes `--write` after an intended change of a rule file (D-648). The atlas command writes each page and the atlas index, and `--check` compares the committed atlas (D-666). The `--sheets <folder>` option writes the review sheets, and no sheet enters git (D-514).
 
-The name `Godot` is not on the command path of this machine. The play session needs the full path above, and the `smoke` target holds the same path. The STE check reads every live document and takes no file list (D-608). It also runs the reference check, the session number check, and the size rules (D-605, D-607, D-611). The `ste-writing` skill holds each rule and each exempt path. Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585).
+The name `Godot` is not on the command path of this machine. The play session needs the full path above, and the `smoke` target holds the same path. The STE check reads every live document that git tracks and takes no file list (D-608, D-702). It also runs the reference check, the session number check, the size rules, and the Documents rows check (D-605, D-607, D-611, D-696). The `ste-writing` skill holds each rule and each exempt path. Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585).
 
 ## PR gate
 
@@ -160,7 +160,7 @@ A PR merges only when every line holds:
 - [ ] The `screen-test` job is green: each fixture screen matches the committed baseline (D-172, F-23). PR-41 creates it.
 - [ ] The bot job is green on every CI leg: the bot runs end with no crash and no softlock (D-64, D-505). PR-15 creates it.
 - [ ] The `night-gate` job is green: a success record from a night inside 48 hours (G-22). PR-49 creates it (D-496). A docs-only PR passes it (D-513).
-- [ ] The `ste-check` job is green: the writing rules, the reference check, the session number check, and the size rules (G-12, D-605, D-607, D-611).
+- [ ] The `ste-check` job is green: the writing, reference, session number, size, and Documents row rules (G-12, D-605, D-607, D-611, D-696).
 - [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14). The review is current under the `gitar-review` skill.
 - [ ] The other provider reviewed it, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). The label of D-401 exempts a PR of the override set that changes no decision row.
 - [ ] The `review-gate` check is green (D-15, D-500, F-37).
@@ -170,4 +170,4 @@ A PR merges only when every line holds:
 - [ ] Each check that does not exist yet has a line that names the PR that creates it (G-16).
 - [ ] `docs/session-handoff.md` is current.
 - [ ] The Documents section has a line for each row of the `one-pr-one-session` skill (D-581). No line defers a document or a record of the PR (D-577, D-579).
-- [ ] No attribution anywhere (T-6).
+- [ ] No attribution in code, game text, a commit, a PR, or a GitHub comment (T-6, D-703).

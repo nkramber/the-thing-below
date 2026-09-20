@@ -16,6 +16,6 @@ Each sample has its own dated folder:
 - `redraw-compare.png`: each 16 by 16 test sprite beside its 32 by 32 redraw. The warden became Bergit, the hexer Dagvar, the cutpurse Ottild, and the mender Elio (D-289).
 - `marrek.grid`, `bergit.grid`, `dagvar.grid`, `ottild.grid`, and `elio.grid`: 32 lines of 32 palette keys each, from `content/sprites/palette.json`. A dot is transparent.
 
-The grids follow the test style (D-201, D-237). Each material has an outline in a dark shade of itself, light comes from the left, and no pixel uses a dither. They use the 48 colors of the current palette. Elio carries a plain brass stripe, because the foreign church has no symbol yet.
+The grids follow the test style (D-201, D-237). Each material has an outline in a dark shade of itself, light comes from the left, and no pixel uses a dither. They use the 48 colors of the palette of 2026-09-14, and the palette holds 64 colors since PR-34 (D-181). Elio carries a plain brass stripe, because the foreign church has no symbol yet.
 
 The sample shows the front view alone. The two other map views, the walk frames, and the battle poses come later (D-199, D-200). PR-34 started from this sample (D-402). It converted the five grids into drawing files under `content/sprites/drawings/cast/`, and it retired the interim atlas tool (D-406, D-515).

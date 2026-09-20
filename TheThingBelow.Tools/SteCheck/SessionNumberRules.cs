@@ -23,6 +23,11 @@ public static class SessionNumberRules
     private static readonly Regex SessionHeading = new Regex(
         @"^## Session (\d+):", RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
+    // A heading of another level hides an entry from every rule above, so the check refuses it
+    // (T-2). The audit of 2026-09-20 found one entry of the archive under a level-one heading.
+    private static readonly Regex WrongLevelHeading = new Regex(
+        @"^(#|###+) Session (\d+):", RegexOptions.CultureInvariant | RegexOptions.Compiled);
+
     /// <summary>Reads whether a line is the heading of a session entry (D-18).</summary>
     /// <param name="line">One line of the handoff or its archive.</param>
     /// <returns>True when the line has the form `## Session N:`, with a number for N.</returns>
@@ -57,6 +62,17 @@ public static class SessionNumberRules
             IReadOnlyList<string> lines = documents.ReadLines(path);
             for (int index = 0; index < lines.Count; index++)
             {
+                Match wrongLevel = WrongLevelHeading.Match(lines[index]);
+                if (wrongLevel.Success)
+                {
+                    findings.Add(new Finding(
+                        path,
+                        index + 1,
+                        "HANDOFF 4",
+                        $"session {wrongLevel.Groups[2].Value} has a heading of another level. Each entry starts with `## Session` (D-18)"));
+                    continue;
+                }
+
                 Match heading = SessionHeading.Match(lines[index]);
                 if (!heading.Success)
                 {

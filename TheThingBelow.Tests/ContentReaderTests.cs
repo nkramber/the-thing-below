@@ -291,6 +291,139 @@ public sealed class ContentReaderTests
         Assert.Equal(File, error.File);
     }
 
+    [Fact]
+    public void AFieldInTheObjectTwoTimesFails()
+    {
+        // The last value would win in silence, so the reader refuses the second one (G-6).
+        ContentException error = ReadAndFail(
+            """
+            {
+             "comment": "a note",
+             "comment": "a second note",
+             "fixtures": []
+            }
+            """);
+
+        Assert.Equal(File, error.File);
+        Assert.Equal("comment", error.Field);
+        Assert.Contains("two times", error.Message);
+    }
+
+    [Fact]
+    public void AFieldInAnElementTwoTimesNamesTheElement()
+    {
+        ContentException error = ReadAndFail(
+            """
+            {
+             "comment": "a note",
+             "fixtures": [
+              { "id": "fixture.lamp", "label": "label.lamp", "weight": 1, "weight": 2 }
+             ]
+            }
+            """);
+
+        Assert.Equal("fixtures[0].weight", error.Field);
+        Assert.Contains("two times", error.Message);
+    }
+
+    [Fact]
+    public void TheSameFieldInTwoElementsReads()
+    {
+        // Each object holds its own fields, so a second element takes the same names.
+        RuleFixture fixture = ReadFixture(
+            """
+            {
+             "comment": "a note",
+             "fixtures": [
+              { "id": "fixture.lamp", "label": "label.lamp", "weight": 1 },
+              { "id": "fixture.rope", "label": "label.rope", "weight": 2 }
+             ]
+            }
+            """);
+
+        Assert.Equal(2, fixture.Entries.Count);
+    }
+
+    [Fact]
+    public void ALoneSurrogateEscapeFailsWithTheField()
+    {
+        // `Utf8JsonReader` accepts the form of the escape and refuses its value later, with
+        // an error that names no file. The reader adds the file and the field (T-2).
+        ContentException error = ReadAndFail(
+            """
+            {
+             "comment": "\ud800",
+             "fixtures": []
+            }
+            """);
+
+        Assert.Equal(File, error.File);
+        Assert.Equal("comment", error.Field);
+        Assert.Contains("not valid text", error.Message);
+    }
+
+    [Fact]
+    public void AByteThatIsNotUtf8FailsWithTheField()
+    {
+        byte[] head = Encoding.UTF8.GetBytes("{ \"comment\": \"a ");
+        byte[] tail = Encoding.UTF8.GetBytes(" note\", \"fixtures\": [] }");
+        byte[] bytes = [.. head, 0xFF, .. tail];
+
+        ContentException error = Assert.Throws<ContentException>(() => RuleFixture.Read(bytes, File));
+
+        Assert.Equal("comment", error.Field);
+        Assert.Contains("not valid text", error.Message);
+    }
+
+    [Fact]
+    public void AByteOrderMarkFailsWithTheReasonOfTheReader()
+    {
+        byte[] text = Encoding.UTF8.GetBytes("""{ "comment": "a note", "fixtures": [] }""");
+        byte[] bytes = [0xEF, 0xBB, 0xBF, .. text];
+
+        ContentException error = Assert.Throws<ContentException>(() => RuleFixture.Read(bytes, File));
+
+        // The message of the JSON reader names the byte, so a reader of the error sees the
+        // mark and not a comment (T-2).
+        Assert.Equal(File, error.File);
+        Assert.Contains("byte order mark", error.Message);
+        Assert.Contains("0xEF", error.Message);
+    }
+
+    [Fact]
+    public void ANumberThatNoSixtyFourBitValueHoldsFails()
+    {
+        static void Read()
+        {
+            var reader = new ContentReader(Encoding.UTF8.GetBytes("""{ "tick": 9223372036854775808 }"""), File);
+            int depth = reader.ReadObjectStart();
+            reader.ReadNextField(depth, out _);
+            reader.ReadLong();
+        }
+
+        ContentException error = Assert.Throws<ContentException>(Read);
+
+        Assert.Equal("tick", error.Field);
+        Assert.Contains("64-bit", error.Message);
+    }
+
+    [Fact]
+    public void ATextWhereTheRecordNeedsTrueOrFalseFails()
+    {
+        static void Read()
+        {
+            var reader = new ContentReader(Encoding.UTF8.GetBytes("""{ "menu": "yes" }"""), File);
+            int depth = reader.ReadObjectStart();
+            reader.ReadNextField(depth, out _);
+            reader.ReadBoolean();
+        }
+
+        ContentException error = Assert.Throws<ContentException>(Read);
+
+        Assert.Equal("menu", error.Field);
+        Assert.Contains("true or false", error.Message);
+    }
+
     private static RuleFixture ReadFixture(string json) =>
         RuleFixture.Read(Encoding.UTF8.GetBytes(json), File);
 

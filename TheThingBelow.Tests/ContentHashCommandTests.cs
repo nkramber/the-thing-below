@@ -40,6 +40,25 @@ public sealed class ContentHashCommandTests
         Assert.Contains(ContentHashCommand.ReadCommitted(checkout.Root), errors.ToString(), StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// A hash file with no hash line gives the fault code and the path, and never a stack
+    /// trace. `InvalidDataException` is not an `IOException`, so the catch names it (T-2).
+    /// </summary>
+    [Fact]
+    public void AHashFileWithNoHashLineGivesTheFaultCodeAndNotACrash()
+    {
+        using ContentCheckout checkout = ContentCheckout.Copy();
+        string path = Path.Combine(checkout.Root, ContentHashCommand.HashFilePath.Replace('/', Path.DirectorySeparatorChar));
+        File.WriteAllText(path, "# a header alone\n");
+        using StringWriter output = new();
+        using StringWriter errors = new();
+
+        int exitCode = ContentHashCommand.Run(["--root", checkout.Root], output, errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains("holds no hash line", errors.ToString(), StringComparison.Ordinal);
+    }
+
     [Fact]
     public void TheWriteOptionMakesTheCompareRunPass()
     {

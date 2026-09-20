@@ -176,6 +176,23 @@ public sealed class LogStoreTests : IDisposable
     }
 
     [Fact]
+    public void AnOpenWithAClockBehindTheOlderFilesKeepsItsOwnFile()
+    {
+        // A clock that runs behind the stamps of the older files, after a correction of the
+        // time, never makes a session remove its own file (T-2).
+        for (int minute = 1; minute <= LogStore.KeepCount; minute += 1)
+        {
+            LogStore later = new(Path.Combine(this.folder, LogStore.FolderName), LogLevel.Info);
+            later.Open(Moment.AddMinutes(minute));
+        }
+
+        string path = this.store.Open(Moment);
+
+        Assert.True(File.Exists(path));
+        Assert.Equal(LogStore.KeepCount + 1, this.store.Names().Count);
+    }
+
+    [Fact]
     public void TwoSessionsOfOneSecondTakeTwoFiles()
     {
         LogStore second = new(Path.Combine(this.folder, LogStore.FolderName), LogLevel.Info);

@@ -1,6 +1,6 @@
 # Runbook: the development machine
 
-Status: procedure, written 2026-09-12 for the owner's Mac, revised the same day for D-99, and on 2026-09-14 for the new repository name (D-410). Revised again on 2026-09-14 for the move to the external SSD (D-400), for the release block (D-449, D-456, D-458, D-465), and for the review of art batches (D-514). Written in ASD-STE100.
+Status: procedure, written 2026-09-12 for the owner's Mac, and revised the same day for D-99. Revised on 2026-09-14 for the new repository name (D-410), and on 2026-09-20 for the audit (D-696). Revised again on 2026-09-14 for the move to the external SSD (D-400), for the release block (D-449, D-456, D-458, D-465), and for the review of art batches (D-514). Written in ASD-STE100.
 
 Facts checked on 2026-09-12:
 
@@ -11,11 +11,11 @@ Facts checked on 2026-09-12:
 - The checkout is at `/Volumes/SSD-1TB/the-thing-below`, on the external SSD, checked 2026-09-14 (D-400).
 - Python 3.9.6 is present. No tool of this project needs it now, because PR-34 retired the interim atlas script (D-99, D-406).
 - `gh` 2.100.0 is present, checked 2026-09-14. The `--attach` flag came in `gh` 2.99.0, and the review sheets of an art batch need it (D-514).
-- The repository on GitHub is public until Phase 6 (D-4, D-54, D-456).
+- The repository on GitHub is public until Phase 6 (D-4, D-456). Its license is GPL-3.0, because D-695 superseded D-54.
 
 ## Install the tools
 
-1. Install the .NET SDK that `global.json` names, once PR-1 creates it. The current machine already has .NET 10.
+1. Install the .NET SDK that `global.json` names. The current machine already has .NET 10.
 2. Install Godot 4.7.2 .NET from https://godotengine.org/download/macos/ when the machine lacks it. Put it at `/Applications/Godot_mono.app`.
 3. Run `/Applications/Godot_mono.app/Contents/MacOS/Godot --version` and check the version against the design header.
 4. For an export by hand, install the .NET export templates from the Godot editor with "Manage Export Templates".
@@ -24,13 +24,15 @@ Facts checked on 2026-09-12:
 ## Prepare a checkout
 
 1. Clone the repository: `git clone git@github.com:nkramber/the-thing-below.git`.
-2. After PR-1 merges, run `make hooks` once. The pre-commit hook then refuses a commit on `main` (D-8).
-3. Run `make verify` before every PR. It runs the build, the tests, the format check, det-lint, the STE check, the identity check, and the smoke session.
+2. Run `make hooks` once in a fresh checkout. The pre-commit hook then refuses a commit on `main` (D-8).
+3. Run `make verify` before every PR. It runs each check of the Makefile, from the build to the smoke session.
+4. The STE check reads the `.md` files that git tracks, and no other file (D-702). An untracked scratch note fails no check and no commit.
+5. A `.DS_Store` file under `content/` fails the content tests, because no record reads it. Remove the file.
 
 ## The Steam Deck
 
 1. Put the Deck in desktop mode and enable SSH, or copy the Linux export by USB.
-2. Before PR-7, export the Game project for Linux x86_64 by hand. From PR-7 on, download the Linux x86_64 build artifact of the last merge from CI (D-449).
+2. Download the Linux x86_64 build artifact of the last merge from CI, which the export job of PR-54 writes (D-449).
 3. Copy the build to the Deck. Run it from a shell until the Steam build exists (D-85, D-92, D-458).
 4. Find the save folder on the Deck at `~/.local/share/the-thing-below` (D-465).
 5. Record the readability and the frame time under M-6 in `docs/design.md` (D-161).
@@ -39,7 +41,7 @@ Facts checked on 2026-09-12:
 8. Copy `DeckTest.x86_64` and `run-deck-test.sh` to one folder on the Deck, and run the script in desktop mode.
 9. The script runs both renderers and puts each report in a `reports` folder beside it (D-598).
 10. A report with the warning of a capped frame rate gives no budget, and the run needs a repeat (T-2).
-11. Run the screen scale probe before PR-7 and PR-34, on all three screens (D-621, M-8).
+11. Run the screen scale probe before PR-7 and PR-34, on the four screens of M-8 (D-621, D-638).
 
 ## Where a test runs
 
@@ -51,14 +53,15 @@ Facts checked on 2026-09-12:
 ## Owner actions on GitHub
 
 1. Before PR-1, enable "Require actions to be pinned to a full-length commit SHA" in the Actions settings of the repository (D-511). The owner did this on 2026-09-14.
-2. After PR-3 merges, require the `ci`, `smoke`, `ste-check`, and `review-gate` checks on `main` (OQ-3, D-4). GitHub lists a check as a choice only after it ran once.
-3. Require each later check on `main` after its first run, such as the bot runs and `night-gate` (D-505, G-22).
-4. When GitHub disables the night schedule after 60 days with no activity, enable the workflow again (F-41).
-5. Then have a session run a night by hand on `main` (D-509).
-6. Turn off "Allow merge commits" and "Allow rebase merging", and keep "Allow squash merging" (D-8). The owner did this on 2026-09-14.
-7. Before any paid content lands, have a session check that every tool works on a private repository (D-456).
-8. Upgrade the account to GitHub Pro, so the required checks stay on `main` (D-456).
-9. Make the repository private.
+2. Require the eight checks of D-685 on `main` (OQ-3, D-4). GitHub lists a check as a choice only after it ran once.
+3. Turn on the setting that applies the protection to the administrators too, so no direct commit reaches `main` (D-25). The owner did this on 2026-09-20 (D-706).
+4. Require each later check on `main` after its first run, such as the bot runs and `night-gate` (D-505, G-22).
+5. When GitHub disables the night schedule after 60 days with no activity, enable the workflow again (F-41).
+6. Then have a session run a night by hand on `main` (D-509).
+7. Turn off "Allow merge commits" and "Allow rebase merging", and keep "Allow squash merging" (D-8). The owner did this on 2026-09-14.
+8. Before any paid content lands, have a session check that every tool works on a private repository (D-456).
+9. Upgrade the account to GitHub Pro, so the required checks stay on `main` (D-456).
+10. Make the repository private.
 
 ## Session start
 

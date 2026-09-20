@@ -104,6 +104,19 @@ public sealed class RunRecorderTests
     }
 
     [Fact]
+    public void AStepThatSkipsATickIsAnError()
+    {
+        // A gap would replay with no error and another state, because the replay steps the
+        // missing tick with no intent (G-5, T-2).
+        (_, RunRecorder recorder) = Start();
+
+        recorder.Step(1, NoIntents);
+
+        ArgumentException error = Assert.Throws<ArgumentException>(() => recorder.Step(3, NoIntents));
+        Assert.Contains("tick 3", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ASaveOutsideTheRecordedRunIsAnError()
     {
         (Simulation run, RunRecorder recorder) = Start();

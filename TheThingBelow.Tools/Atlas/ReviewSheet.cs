@@ -27,6 +27,12 @@ public static class ReviewSheet
     /// <summary>The widest sheet in pixels, so a sheet reads on one screen.</summary>
     public const int MaxWidth = 1600;
 
+    /// <summary>
+    /// The tallest sheet in pixels. A batch that does not fit one sheet takes more sheets
+    /// (D-668), and each one holds whole rows of cells.
+    /// </summary>
+    public const int MaxHeight = 1600;
+
     private const int Pad = 6;
     private const int LabelHeight = SheetFont.GlyphHeight + 4;
     private const int Margin = 12;
@@ -51,14 +57,17 @@ public static class ReviewSheet
         return kinds;
     }
 
-    /// <summary>Draws the review sheet of one kind of drawing.</summary>
-    /// <param name="kind">The kind of page whose drawings the sheet shows.</param>
+    /// <summary>Draws the review sheets of one kind of drawing.</summary>
+    /// <param name="kind">The kind of page whose drawings the sheets show.</param>
     /// <param name="layout">The layout that names each drawing and its page.</param>
     /// <param name="drawings">Every drawing of the layout, by its id.</param>
     /// <param name="palette">The palette that gives the color of each key.</param>
-    /// <returns>The image of the sheet.</returns>
+    /// <returns>
+    /// The image of each sheet, in the order of the drawings. A batch that fits one sheet gives
+    /// one image, and a larger batch gives one image for each <see cref="MaxHeight"/> (D-668).
+    /// </returns>
     /// <exception cref="InvalidOperationException">The layout holds no drawing of that kind (T-2).</exception>
-    public static PngImage Render(
+    public static IReadOnlyList<PngImage> Render(
         AtlasPageKind kind,
         AtlasLayout layout,
         IReadOnlyDictionary<string, Drawing> drawings,
@@ -75,21 +84,40 @@ public static class ReviewSheet
                 $"The layout holds no drawing of the kind '{AtlasPages.NameOf(kind)}', so it has no review sheet (T-2).");
         }
 
-        string title = Title(kind, batch.Count);
-        var shape = new SheetShape(batch, title);
-        var canvas = new AtlasCanvas(shape.Width, shape.Height);
+        var shape = new SheetShape(batch);
+        int rowsPerSheet = Math.Max(1, (MaxHeight - (Margin * 2) - TitleHeight) / shape.CellHeight);
+        int perSheet = rowsPerSheet * shape.Columns;
+        int sheetCount = (batch.Count + perSheet - 1) / perSheet;
+
+        List<PngImage> sheets = [];
+        for (int sheet = 0; sheet < sheetCount; sheet += 1)
+        {
+            int start = sheet * perSheet;
+            List<Drawing> part = batch.GetRange(start, Math.Min(perSheet, batch.Count - start));
+            string title = Title(kind, batch.Count, sheet + 1, sheetCount);
+            sheets.Add(RenderSheet(part, title, shape, palette));
+        }
+
+        return sheets;
+    }
+
+    private static PngImage RenderSheet(List<Drawing> part, string title, SheetShape shape, Palette palette)
+    {
+        int width = shape.WidthOf(part.Count, title);
+        int height = shape.HeightOf(part.Count);
+        var canvas = new AtlasCanvas(width, height);
         PaletteColor night = palette.ColorNamed("night");
         PaletteColor snow = palette.ColorNamed("snow");
         PaletteColor text = palette.ColorNamed("chalk");
 
-        canvas.Fill(0, 0, shape.Width, shape.Height, palette.ColorNamed("shadow"));
+        canvas.Fill(0, 0, width, height, palette.ColorNamed("shadow"));
         SheetFont.Draw(canvas, title, Margin, Margin, text);
 
-        for (int index = 0; index < batch.Count; index += 1)
+        for (int index = 0; index < part.Count; index += 1)
         {
             int x = Margin + ((index % shape.Columns) * shape.CellWidth);
             int y = Margin + TitleHeight + ((index / shape.Columns) * shape.CellHeight);
-            DrawCell(canvas, batch[index], palette, x, y, shape, night, snow, text);
+            DrawCell(canvas, part[index], palette, x, y, shape, night, snow, text);
         }
 
         return canvas.ToImage();
@@ -113,8 +141,11 @@ public static class ReviewSheet
         return batch;
     }
 
-    private static string Title(AtlasPageKind kind, int count) =>
-        $"{AtlasPages.NameOf(kind)} batch, {count} drawings. each one at 1x and {LargeScale}x, on night and on snow";
+    private static string Title(AtlasPageKind kind, int count, int sheet, int sheetCount)
+    {
+        string part = sheetCount == 1 ? string.Empty : $", sheet {sheet} of {sheetCount}";
+        return $"{AtlasPages.NameOf(kind)} batch, {count} drawings{part}. each one at 1x and {LargeScale}x, on night and on snow";
+    }
 
     private static void DrawCell(
         AtlasCanvas canvas,
@@ -146,10 +177,13 @@ public static class ReviewSheet
         canvas.Draw(drawing, 0, palette, x + Pad + drawing.Width + Pad, y + Pad, LargeScale);
     }
 
-    /// <summary>The size of one cell of the sheet, and the count of cells in one row.</summary>
+    /// <summary>
+    /// The size of one cell of the sheets of a batch, and the count of cells in one row. Every
+    /// sheet of one batch takes the same cell, so the drawings read at one size across sheets.
+    /// </summary>
     private sealed class SheetShape
     {
-        public SheetShape(List<Drawing> batch, string title)
+        public SheetShape(List<Drawing> batch)
         {
             int width = 0;
             int height = 0;
@@ -168,13 +202,6 @@ public static class ReviewSheet
 
             int room = (MaxWidth - (Margin * 2)) / this.CellWidth;
             this.Columns = Math.Max(1, room);
-            int rows = (batch.Count + this.Columns - 1) / this.Columns;
-
-            // The sheet is never narrower than its title, so a batch of small drawings
-            // still holds the line that names the batch (T-2).
-            int cells = Math.Min(this.Columns, batch.Count) * this.CellWidth;
-            this.Width = (Margin * 2) + Math.Max(cells, SheetFont.WidthOf(title));
-            this.Height = (Margin * 2) + TitleHeight + (rows * this.CellHeight);
         }
 
         public int GroundWidth { get; }
@@ -187,8 +214,20 @@ public static class ReviewSheet
 
         public int Columns { get; }
 
-        public int Width { get; }
+        /// <summary>
+        /// The width of a sheet of a count of cells. The sheet is never narrower than its
+        /// title, so a batch of small drawings still holds the line that names it (T-2).
+        /// </summary>
+        public int WidthOf(int count, string title)
+        {
+            int cells = Math.Min(this.Columns, count) * this.CellWidth;
+            return (Margin * 2) + Math.Max(cells, SheetFont.WidthOf(title));
+        }
 
-        public int Height { get; }
+        public int HeightOf(int count)
+        {
+            int rows = (count + this.Columns - 1) / this.Columns;
+            return (Margin * 2) + TitleHeight + (rows * this.CellHeight);
+        }
     }
 }

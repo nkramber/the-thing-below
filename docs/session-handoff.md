@@ -1,5 +1,86 @@
 # Session handoff
 
+## Session 141: 2026-09-20, Codex
+
+Author: Codex
+Session: review PR #40, the audit fixes. Repository: the-thing-below. Branch: `fix/audit-fixes`. Role: reviewer. Base: `4a472c5`.
+
+### What this session did, and why
+
+- Reviewed PR #40 at effective head `828e5b0` after the author completed the audit fixes.
+- Verified the opposite-provider gate, the full changed path set, the existing Gitar comment and answer, the changed contracts, and the affected callers.
+- Ran `make verify`. It passed with 953 tests and all local gates.
+- Added `docs/reviews/pr-40.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- The local build, tests, format, det-lint, STE, replay identity, content hash, atlas, and smoke checks pass.
+- The PR head is `eb1c906`. The review record and handoff entry are on the remote branch.
+
+### What is in flight
+
+The review-gate check is pending after the metadata push. The other required checks are also pending on the new head.
+
+### Traps and gotchas
+
+- The effective head is `828e5b0`. The review publication commit changes only the metadata set.
+- The existing review-gate failure is expected before the review record exists.
+- `HANDOFF-PR-61.md` is an unrelated untracked note. Do not delete it.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for the revision-matched checks, then verify the review-gate result.
+
+## Session 140: 2026-09-20, Claude Code
+
+Author: Claude Code
+Session: the audit fixes PR (D-696). Repository: the-thing-below. Branch: `fix/audit-fixes`. Role: author. Base: `4a472c5`.
+
+### What this session did, and why
+
+- The session before this one ran a principal-level audit of the whole repository at `4a472c5`. The owner asked for every fix in one PR (D-696). That session wrote the commit `78e7f3a` and an untracked note, and no entry. This entry holds the content of that note.
+- `docs/reviews/audit-2026-09-20.md` holds each finding, A-1 to A-28, with its state. F-93 is the finding of the design register. D-695 to D-706 hold the owner answers, and OQ-200 to OQ-209 are closed.
+- This session wrote the three code items that waited for it, each with a test that fails on the old code (T-3):
+  - D-702: `DocumentSet` reads `git ls-files -z` when the root holds `.git`, and `TrackedFiles` is new. A `git` run that fails is an error with the root and the exit code. A root with no git data keeps the read of the folder tree. `SteCheckTrackedFileTests` holds 8 tests.
+  - D-699: `export.yml` holds five trigger paths, and `ExportWorkflowTests` pins them.
+  - D-700: `OverrideRules` refuses `.claude/settings.json` before the folder match, and RG 1 gives that path a reason with D-700.
+- It corrected each document that said the opposite: two runbooks, two skills, one reference file, three roadmaps, both agent files, the PR template, the hook, the `Makefile`, and `ci.yml`.
+- It ran `make smoke` after the changes to `Boot.cs` and `GameRun.cs`, and it moved Session 130 to the archive.
+
+### The state of the build
+
+- `make verify` passes on the Mac: 953 tests, the format check, det-lint and STE with 0 findings, the replay identity on simulation version 4, the content hash, the atlas check, and the smoke session.
+- The branch holds `78e7f3a` and the commit of this entry. The remote head is that commit, on `origin/fix/audit-fixes`.
+- `CLAUDE.md` holds 16220 of 16384 bytes.
+
+### What is in flight
+
+The PR waits for gitar, and then for the review of Codex. No label applies, because the PR changes decision rows, workflows, and code (D-401, D-560).
+
+### Traps and gotchas
+
+- The STE check reads the index for the file set, and the working tree for the text. A staged new file takes the rules. The new tests run `git`, so each CI leg needs it on the path.
+- `HANDOFF-PR-61.md` is the untracked note of another session. Do not delete it.
+- The identity file changed for simulation version 4. The three CI legs must agree with it.
+- The live `review-gate` check runs the code of `main`, so the new RG 7 first reads the next PR (F-37).
+- `rollForward` of `global.json` is `latestPatch` now. No owner answer covers it. Revert it if the reviewer objects.
+- D-704: game text says "party" for the travelers, and the glossary keeps "party" for the characters in battle. Ask the owner when the two uses collide.
+- D-706: a direct push to `main` fails for the owner too.
+- The trial of gitar ends about 2026-09-23 (D-685). The GPL license keeps the free reviews (D-695).
+- Sessions 86, 94, 95, 97, and 119 exist in no file.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait three minutes for gitar (D-705), answer each comment, and tell the owner that the PR is ready for Codex.
+
 ## Session 139: 2026-09-20, Codex
 
 Author: Codex
@@ -325,85 +406,3 @@ None. D-682 to D-685 hold the four answers of this PR.
 ### The next concrete action
 
 Codex reviews PR #37 and writes `docs/reviews/pr-37.md`. Then the owner adds the three names to the required checks of `main` after the merge (D-685).
-
-## Session 131: 2026-09-19, Codex
-
-Author: Codex
-Session: review PR #36, the refutation of F-84 and D-673. Repository: the-thing-below. Branch: `docs/pr-88-refute-f-84`. Role: reviewer. Base: `122f3ef`.
-
-### What this session did, and why
-
-- Reopened PR #36 at effective head `f513ff3`. The later handoff commit `ae1ff1f` changes only metadata.
-- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Inspected all six changed paths and verified the historical claims of D-680.
-- Confirmed that `docs/reviews/pr-33.md` arrived in squash commit `3204545` and that RG 3 faults when the review record is absent.
-- Wrote `docs/reviews/pr-36.md` with no finding and the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 794 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and bounded smoke checks.
-- The review-gate check faults only because this review record is not yet on the PR head.
-
-### What is in flight
-
-The review record and this handoff entry need a commit and push. The review is ready for owner merge after the remote gate reads the record.
-
-### Traps and gotchas
-
-- The effective head is `f513ff3`, not metadata tip `ae1ff1f`.
-- OQ-3 remains open as the owner action of D-681 and does not block this review verdict.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and handoff entry. Then verify the remote head and the review-gate result.
-
-## Session 130: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: the refutation of F-84 and D-673. Repository: the-thing-below. Branch: `docs/pr-88-refute-f-84`. Role: author. Base: `122f3ef`.
-
-### What this session did, and why
-
-- F-84 said that PR #33 merged with no review record, and that RG 3 reports nothing when the file is absent. Both claims are false.
-- `docs/reviews/pr-33.md` arrived in the squash commit 3204545 of PR #33 itself, and `git log --follow` gives that one commit.
-- The record names Claude Code as the author and Codex as the reviewer, with the verdict for head `d1b2305`.
-- `TheThingBelow.Tools/ReviewGate/ReviewRecordRules.cs` faults on an absent file, and it has one commit, 9787b2d of PR #21.
-- The gate of PR #33 faulted at head `d1b2305`, then passed at head `320a9bd` after the record landed. It showed both halves of the behavior on the PR that F-84 accuses.
-- RG 3 also faulted on PR #35 and passed after that record landed.
-- D-680 supersedes D-673, and F-84 now reads `✅ doc` with the evidence and the date.
-- D-681 records the branch protection of `main` as an owner action beside this PR. OQ-3 stays open until the protection is live.
-- The PR takes no `PR-#` id and no roadmap entry, because it is a document-only correction (D-680).
-- The stale out-of-scope bullet of section 7.20 of `docs/roadmaps/phase-1-foundations.md` is gone.
-
-### The state of the build
-
-- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
-- Replay identity, content hash, and the bounded smoke session pass.
-- No code change. This PR changes text alone.
-
-### What is in flight
-
-The PR waits for the review of the other provider. It revises a decision row, so the `review-override` label of D-401 does not apply (T-4).
-
-The automated pass approved head `f513ff3` at 2026-09-19T15:23:04Z, with no finding and no open thread. Its CI analysis found one fault of the description, and the fault had full merit. The `docs/reviews/` row of the Documents section held no form of D-581, and it now takes the `Changed:` form. Run `35459166100` gives `RG 7 pass`. The description holds that row, so the fix needed no commit and the head stands.
-
-The `review-gate` check faults on RG 3 alone: the head holds no review record at `docs/reviews/pr-36.md`. That fault stands until the review record lands, and no change of the author clears it. RG 1, RG 2, RG 6, RG 7, and RG 8 pass.
-
-### Traps and gotchas
-
-- The archive and the older handoff entries still read F-84 and D-673 as live. They are dated records, and a rewrite falsifies them (D-10).
-- The branch name holds `pr-88`, and no register defines that id. A branch name takes no reference rule (D-605).
-- `main` takes any push until the owner enables the protection of D-681.
-- Session 119 is absent from both handoff files. The check reads order and duplicates, not a gap.
-
-### The questions that block progress
-
-None. OQ-3 stays open as an owner action, and it blocks line 4 of Gate 1, not this PR.
-
-### The next concrete action
-
-Hand the PR to the other provider for the review of T-4. The reviewer writes `docs/reviews/pr-36.md` for head `f513ff3`, which turns RG 3 green.

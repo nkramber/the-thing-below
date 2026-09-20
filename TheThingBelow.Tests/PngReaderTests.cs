@@ -327,6 +327,46 @@ public sealed class PngReaderTests
         Assert.Contains("is not zlib data", fault.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// The decompressor gives the end of the stream with no error when the data ends before
+    /// its check value, so the reader compares the check value itself (T-2).
+    /// </summary>
+    [Fact]
+    public void ImageDataThatEndsBeforeItsCheckValueFails()
+    {
+        byte[] filtered = PngFixtures.Filter(4, 4, 3, 0, PngFixtures.Pixels(4, 4, 3));
+        byte[] zlib = PngFixtures.Deflate(filtered);
+        byte[] file = PngFixtures.File(
+            PngFixtures.Chunk("IHDR", PngFixtures.Header(4, 4, 8, 2)),
+            PngFixtures.Chunk("IDAT", zlib[..^4]),
+            PngFixtures.Chunk("IEND", ReadOnlySpan<byte>.Empty));
+
+        PngException fault = Assert.Throws<PngException>(() => PngReader.Read(file, Source));
+
+        Assert.Contains("check value", fault.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ImageDataWithAChangedCheckValueFails()
+    {
+        byte[] filtered = PngFixtures.Filter(4, 4, 3, 0, PngFixtures.Pixels(4, 4, 3));
+        byte[] zlib = PngFixtures.Deflate(filtered);
+        zlib[^1] ^= 0xFF;
+        byte[] file = PngFixtures.File(
+            PngFixtures.Chunk("IHDR", PngFixtures.Header(4, 4, 8, 2)),
+            PngFixtures.Chunk("IDAT", zlib),
+            PngFixtures.Chunk("IEND", ReadOnlySpan<byte>.Empty));
+
+        Assert.Throws<PngException>(() => PngReader.Read(file, Source));
+    }
+
+    [Fact]
+    public void TheAdler32MatchesThePublishedValue()
+    {
+        // The check value of "Wikipedia", from the article on Adler-32, read on 2026-09-20.
+        Assert.Equal(0x11E60398u, PngReader.Adler32("Wikipedia"u8));
+    }
+
     [Fact]
     public void ImageDataOfTooFewBytesFails()
     {

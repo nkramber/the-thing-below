@@ -7,9 +7,9 @@ namespace TheThingBelow.Core.Content;
 
 /// <summary>
 /// The one strict reader of the JSON of this project (D-116, D-177). It refuses an absent
-/// field, an unknown field, a wrong type, and a number that is not a whole number, and every
-/// error names the file and the field (G-6, T-2). The content files and the run record of
-/// D-652 both read through it.
+/// field, an unknown field, a repeated field, a wrong type, and a number that is not a whole
+/// number, and every error names the file and the field (G-6, T-2). The content files and
+/// the run record of D-652 both read through it.
 /// </summary>
 /// <remarks>
 /// The reader calls `JsonSerializer` nowhere, so no reflection path exists in Core (D-647,
@@ -39,6 +39,10 @@ public ref struct ContentReader
 
     private readonly string file;
     private readonly List<string> path;
+
+    // The names of the fields that the object at each depth holds so far. A repeated field
+    // is an error, because the last value would win in silence (G-6, T-2).
+    private readonly List<SortedSet<string>> fieldsSeen;
     private Utf8JsonReader reader;
 
     /// <summary>Makes a reader over the bytes of one content file.</summary>
@@ -50,6 +54,7 @@ public ref struct ContentReader
 
         this.file = file;
         this.path = [];
+        this.fieldsSeen = [];
         this.reader = new Utf8JsonReader(
             bytes,
             new JsonReaderOptions
@@ -76,14 +81,18 @@ public ref struct ContentReader
             throw this.WrongType("an object");
         }
 
-        return this.path.Count;
+        int depth = this.path.Count;
+        this.StartFields(depth);
+        return depth;
     }
 
     /// <summary>Reads the name of the next field of an object, and stops at the end of it.</summary>
     /// <param name="depth">The value that <see cref="ReadObjectStart"/> gave.</param>
     /// <param name="field">The name of the field, and an empty string at the end.</param>
     /// <returns>True when a field follows, and false at the end of the object.</returns>
-    /// <exception cref="ContentException">The file ends inside the object.</exception>
+    /// <exception cref="ContentException">
+    /// The file ends inside the object, or the object holds the field two times.
+    /// </exception>
     public bool ReadNextField(int depth, out string field)
     {
         this.TruncateTo(depth);
@@ -99,8 +108,16 @@ public ref struct ContentReader
             throw this.WrongType("a field name");
         }
 
-        field = this.reader.GetString() ?? throw this.WrongType("a field name");
+        field = this.ReadTokenText("a field name");
         this.path.Add($".{field}");
+        if (!this.fieldsSeen[depth].Add(field))
+        {
+            throw ContentException.ForField(
+                this.file,
+                this.CurrentField(),
+                "the field is in the object two times, and one object holds one value for each field (G-6)");
+        }
+
         return true;
     }
 
@@ -258,7 +275,7 @@ public ref struct ContentReader
             throw this.WrongType("text");
         }
 
-        return this.reader.GetString() ?? throw this.WrongType("text");
+        return this.ReadTokenText("text");
     }
 
     /// <summary>Reads a content id, and fails on any other form (D-646).</summary>
@@ -397,8 +414,8 @@ public ref struct ContentReader
 
     /// <summary>
     /// Moves one token, and turns a JSON fault into an error that names the file and the
-    /// field. `Utf8JsonReader` throws `JsonException` on a comment, a trailing comma, and
-    /// every other fault of the form, and that message names no file (T-2).
+    /// field. `Utf8JsonReader` throws `JsonException` on a comment, a trailing comma, a byte
+    /// order mark, and every other fault of the form, and that message names no file (T-2).
     /// </summary>
     private readonly bool TryRead(ref Utf8JsonReader target)
     {
@@ -408,12 +425,45 @@ public ref struct ContentReader
         }
         catch (JsonException error)
         {
+            // The message of the reader names the byte and the position of the fault, so
+            // the error keeps it. The outer text alone would blame a comment for every fault.
             throw ContentException.ForField(
                 this.file,
                 this.CurrentField(),
-                "the file is not well-formed JSON, and the reader refuses a comment and a trailing comma",
+                $"the file is not well-formed JSON, and the reader refuses a comment, a trailing comma, and a byte order mark: {error.Message}",
                 error);
         }
+    }
+
+    /// <summary>
+    /// Reads the text of the current token. `Utf8JsonReader.Read` checks the form of an
+    /// escape, and `GetString` checks its value and the UTF-8 of the bytes, with an
+    /// `InvalidOperationException` that names no file (T-2).
+    /// </summary>
+    private string ReadTokenText(string expected)
+    {
+        try
+        {
+            return this.reader.GetString() ?? throw this.WrongType(expected);
+        }
+        catch (InvalidOperationException error)
+        {
+            throw ContentException.ForField(
+                this.file,
+                this.CurrentField(),
+                $"the text holds an escape or a byte that is not valid text: {error.Message}",
+                error);
+        }
+    }
+
+    private void StartFields(int depth)
+    {
+        while (this.fieldsSeen.Count <= depth)
+        {
+            this.fieldsSeen.Add(new SortedSet<string>(StringComparer.Ordinal));
+        }
+
+        this.fieldsSeen[depth] = new SortedSet<string>(StringComparer.Ordinal);
     }
 
     /// <summary>
