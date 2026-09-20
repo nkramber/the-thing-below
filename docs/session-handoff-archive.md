@@ -1,5 +1,41 @@
 # Session handoff archive
 
+## Session 139: 2026-09-20, Codex
+
+Author: Codex
+Session: repeat review PR #39, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: reviewer. Base: `fb17f87`.
+
+### What this session did, and why
+
+- Reopened PR #39 at effective head `82d1afd`.
+- Verified the provider gate and read the author response file.
+- Rechecked P1-1 against its original trigger. The export command and the `Makefile` smoke target now keep the process exit code.
+- Ran `make verify`. It passed with 837 tests and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
+- Confirmed the revision-matched CI checks and all three export legs pass. Gitar passes.
+- Updated `docs/reviews/pr-39.md`, kept the earlier verdict, and set the current verdict to `Ready for owner merge`.
+
+### The state of the build
+
+- The effective head is `82d1afd`. The review-gate check waits for this review record.
+- The earlier finding P1-1 is fixed in `82d1afd`.
+
+### What is in flight
+
+The repeat-review record and this handoff entry need a metadata commit and push. The current review-gate check still reads the earlier record.
+
+### Traps and gotchas
+
+- The effective head is `82d1afd`, not the later metadata commit that will publish this review.
+- The author response also repairs the same exit-status fault in `Makefile` under owner decision D-694.
+
+### The questions that block progress
+
+None. OQ-198 and OQ-199 remain open but do not block this review.
+
+### The next concrete action
+
+Run STE and the diff check, commit the review record and this entry, push, and verify the remote tip and review-gate result.
+
 ## Session 138: 2026-09-19, Codex
 
 Author: Codex

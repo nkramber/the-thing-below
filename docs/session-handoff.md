@@ -1,5 +1,41 @@
 # Session handoff
 
+## Session 149: 2026-09-20, Codex
+
+Author: Codex
+Session: review PR #43, the debug assembly and the console. Repository: the-thing-below. Branch: `feat/pr-45-debug-assembly`. Role: reviewer. Base: `ea2fec5`.
+
+### What this session did, and why
+
+- Reviewed PR #43 at effective head `fd9e0ae`.
+- Verified the opposite-provider gate, the complete diff, the PR comments, the PR-45 roadmap exit tests, the debug seam, command dispatch, replay mark, release exclusion, console focus, and export checks.
+- Verified the closed Gitar finding and found no additional in-scope defect.
+- Added `docs/reviews/pr-43.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1213 tests and all local gates.
+- GitHub passes build, test, format, smoke, replay identity, det-lint, STE, coverage, changed paths, and all three export legs for the PR.
+- Gitar approves the effective head `fd9e0ae`, and its one finding is closed.
+- The review-gate check is expected to fail until the review record is pushed. RG 3 is the only missing record condition.
+
+### What is in flight
+
+- The review record and this handoff entry need one metadata commit and push.
+
+### Traps and gotchas
+
+- The effective code head is `fd9e0ae`. Commits `5cb8912` and `99c8c5c` change metadata only.
+- PR #43 is roadmap PR-45. Do not confuse the GitHub number with the roadmap number.
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Then fetch and verify that the review-gate check is green and that no branch commits remain ahead of the remote.
+
 ## Session 148: 2026-09-20, Claude Code
 
 Author: Claude Code
@@ -353,39 +389,3 @@ None.
 ### The next concrete action
 
 Wait three minutes for gitar (D-705), answer each comment, and tell the owner that the PR is ready for Codex.
-
-## Session 139: 2026-09-20, Codex
-
-Author: Codex
-Session: repeat review PR #39, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: reviewer. Base: `fb17f87`.
-
-### What this session did, and why
-
-- Reopened PR #39 at effective head `82d1afd`.
-- Verified the provider gate and read the author response file.
-- Rechecked P1-1 against its original trigger. The export command and the `Makefile` smoke target now keep the process exit code.
-- Ran `make verify`. It passed with 837 tests and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
-- Confirmed the revision-matched CI checks and all three export legs pass. Gitar passes.
-- Updated `docs/reviews/pr-39.md`, kept the earlier verdict, and set the current verdict to `Ready for owner merge`.
-
-### The state of the build
-
-- The effective head is `82d1afd`. The review-gate check waits for this review record.
-- The earlier finding P1-1 is fixed in `82d1afd`.
-
-### What is in flight
-
-The repeat-review record and this handoff entry need a metadata commit and push. The current review-gate check still reads the earlier record.
-
-### Traps and gotchas
-
-- The effective head is `82d1afd`, not the later metadata commit that will publish this review.
-- The author response also repairs the same exit-status fault in `Makefile` under owner decision D-694.
-
-### The questions that block progress
-
-None. OQ-198 and OQ-199 remain open but do not block this review.
-
-### The next concrete action
-
-Run STE and the diff check, commit the review record and this entry, push, and verify the remote tip and review-gate result.
