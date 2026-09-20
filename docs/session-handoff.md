@@ -19,7 +19,8 @@ Session: PR-45, the debug assembly and the console. Repository: the-thing-below.
 - `make verify` passes on the Mac: 1213 tests, the format check, det-lint and STE with 0 findings, the replay identity, the content hash, the atlas check, and the smoke session.
 - No file of Core changed, so the simulation version stands at 5 (G-17).
 - The remote head of `main` is `ea2fec5`. The branch holds four commits, and the effective head is `fd9e0ae`.
-- CI runs on `fd9e0ae`, and the export job of each system runs too, because this pull request changes the export workflow and the project file of Game (D-699).
+- CI passes on `fd9e0ae` on every leg: build, test, and format, smoke, replay identity, det-lint, ste-check, and coverage.
+- The export job passes on Ubuntu, Windows, and macOS. Each export holds no file of the debug assembly, and each release build reports an absent console (D-726). The job runs on this pull request, because the pull request changes the export workflow and the project file of Game (D-699).
 
 ### What is in flight
 
