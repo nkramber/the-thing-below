@@ -143,14 +143,20 @@ public static class SaveText
     /// reader gives the snapshot of this build, so the caller needs no second step.
     /// </summary>
     /// <remarks>
-    /// <see cref="SaveFormat.Current"/> is 1, so one reader exists. The PR that next changes
-    /// the snapshot raises that number, adds a reader of format 1 that fills each new field,
-    /// and commits a fixture save of format 1 for the test of Tests (D-166, D-654).
+    /// Format 1 holds the world of Phase 1, which is a patrol on a beat, and it holds no
+    /// map. Its reader gives a snapshot with no map, and `RunState.Resume` then puts the
+    /// party on the spawn point of the first map (D-166, D-654).
+    /// <para>
+    /// The PR that next changes the snapshot raises <see cref="SaveFormat.Current"/>, adds a
+    /// reader of each older version, and commits a fixture save of the version that it
+    /// leaves (D-166, D-654).
+    /// </para>
     /// </remarks>
     private static RunSnapshot ReadSnapshotLine(string line, int format, string file) =>
         format switch
         {
-            1 => ReadLine(line, file, RunSnapshotText.Read),
+            1 => ReadLine(line, file, RunSnapshotText.ReadFormatOne),
+            2 => ReadLine(line, file, RunSnapshotText.Read),
 
             // `CheckFormat` passed, so this build named the version and wrote no reader for
             // it. The message thus names a fault of the build and never a fault of the file (T-2).

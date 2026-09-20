@@ -1,0 +1,48 @@
+{
+ "id": "drawing.tile_doorway",
+ "page": "tiles",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "tile.doorway", "use": "map" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkddddddddDdddddddddddddddkDgK",
+    "KgDkddddddddddddddddddDdddddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkDDddddddddddddddddddddddkDgK",
+    "KgDkdKddddddddddddddddddddddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkddddddddddddddddDdddddddkDgK",
+    "KgDkdddddddddddddddddKddddddkDgK",
+    "KgDkdddddDddddddddddddddddddkDgK",
+    "KgDkddddddKdddddddddddddddddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkggggggggggggggggggggggggkDgK",
+    "KgDkKKKKKKKKKKKKKKKKKKKKKKKKkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkdddDddddddddddddddddddddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkddddddddddddddDdddddddddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkdddddddddddddddddddddDddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkddddddddddddDdddddddddddkDgK",
+    "KgDkdddddddddddddKddddddddddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkddddddddddddddddddddddddkDgK",
+    "KgDkKKKKKKKKKKKKKKKKKKKKKKKKkDgK"
+   ]
+  }
+ ]
+}

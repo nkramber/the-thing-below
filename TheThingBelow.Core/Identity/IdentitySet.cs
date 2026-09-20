@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using TheThingBelow.Core.Hashing;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Streams;
 
@@ -44,6 +46,32 @@ public static class IdentitySet
 
     /// <summary>The seed of every run of this set. It never changes.</summary>
     private const ulong RunSeed = 20260918;
+
+    /// <summary>
+    /// The map of the replay run. The set holds its own map, because Core reads no file and
+    /// a content change must never move a hash of this set (G-1, D-495). The map has a
+    /// pillar, so the run reads the step rule against a wall as well as open ground.
+    /// </summary>
+    private const string ReplayMapFile = """
+    {
+     "comment": "The map of the replay run of the identity set. It never changes (D-504).",
+     "id": "map.identity_run",
+     "label": "label.identity_run",
+     "time": "day",
+     "terrain": [
+      "#########",
+      "#.......#",
+      "#..###..#",
+      "#..#....#",
+      "#..###..#",
+      "#.......#",
+      "#########"
+     ],
+     "things": [
+      { "id": "spawn_point.identity_run_start", "kind": "spawn_point", "x": 1, "y": 1 }
+     ]
+    }
+    """;
 
     /// <summary>Every run of the set, in the order of the identity file.</summary>
     /// <remarks>The order is the ordinal order of the names, which every machine reads the same (F-39).</remarks>
@@ -171,8 +199,9 @@ public static class IdentitySet
     /// </summary>
     private static ulong ComputeReplay()
     {
+        GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(ReplayMapFile), "identity-set-map.json");
         RunHeader header = RunHeader.ForThisBuild(ReplayContentHash, RunSeed);
-        Simulation simulation = Simulation.Start(RunSeed, DebugIntentHandlers.None);
+        Simulation simulation = Simulation.Start(RunSeed, map, DebugIntentHandlers.None);
         RunRecorder recorder = new(header, simulation.Snapshot());
 
         for (int step = 0; step < ReplayTickCount; step += 1)
@@ -191,7 +220,7 @@ public static class IdentitySet
 
         string text = RunRecordText.Write(recorder.Build());
         RunState replayed = RunReplay.Play(
-            RunRecordText.Read(text), ReplayContentHash, DebugIntentHandlers.None);
+            RunRecordText.Read(text), ReplayContentHash, map, DebugIntentHandlers.None);
 
         StateHasher hasher = new();
         hasher.AddUInt64(simulation.StateHash());
@@ -204,6 +233,11 @@ public static class IdentitySet
     /// The script of the replay run. The menu opens and closes four times, so the run reads
     /// a world that runs and a world that a menu pauses (D-162, D-650).
     /// </summary>
+    /// <remarks>
+    /// The party also walks, so the run reads the step rule, the walked-tile record, and the
+    /// wall of the map on every leg (D-567, D-716). Every step intent lies outside the ticks
+    /// of the open menu, because a menu pauses the world and a step intent then fails (T-2).
+    /// </remarks>
     private static IReadOnlyList<Intent> IntentsOfReplayTick(long tick)
     {
         long inCycle = tick % 150;
@@ -215,6 +249,16 @@ public static class IdentitySet
         if (inCycle == 96)
         {
             return [Intent.OfPlayer(IntentIds.CloseMenu)];
+        }
+
+        if (inCycle >= 1 && inCycle <= 30)
+        {
+            return [Intent.OfPlayer(IntentIds.MoveEast)];
+        }
+
+        if (inCycle >= 100 && inCycle <= 130)
+        {
+            return [Intent.OfPlayer(IntentIds.MoveSouth)];
         }
 
         return [];

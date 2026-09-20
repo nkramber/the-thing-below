@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using Xunit;
 
@@ -74,21 +75,21 @@ public sealed class RunRecordTextTests
     public void ADebugIntentCarriesItsMarkThroughTheText()
     {
         // D-171: the record marks a debug intent, so a run with a cheat says so.
-        Simulation run = Simulation.Start(Seed, new DebugIntentHandlers(
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, new DebugIntentHandlers(
         [
             new KeyValuePair<Core.Content.ContentId, DebugIntentHandler>(
-                RunScripts.DebugWalkPatrol,
-                (state, context) => state.WalkPatrol(context)),
+                RunScripts.DebugStepEast,
+                (state, context) => state.WantStep(StepDirection.East, context)),
         ]));
         RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, Seed), run.Snapshot());
 
-        Intent[] intents = [Intent.OfDebugConsole(RunScripts.DebugWalkPatrol)];
+        Intent[] intents = [Intent.OfDebugConsole(RunScripts.DebugStepEast)];
         run.Step(intents);
         recorder.Step(run.Tick, intents);
 
         string text = RunRecordText.Write(recorder.Build());
 
-        Assert.Contains("\"action\":\"debug.walk_patrol\",\"debug\":true", text, StringComparison.Ordinal);
+        Assert.Contains("\"action\":\"debug.step_east\",\"debug\":true", text, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -96,7 +97,7 @@ public sealed class RunRecordTextTests
     {
         // A JSON number of that size loses its top bits in a reader that holds numbers as a
         // fraction, so the seed takes the hexadecimal text form (T-7).
-        Simulation run = Simulation.Start(ulong.MaxValue, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(ulong.MaxValue, TestMaps.Room, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, ulong.MaxValue), run.Snapshot());
         run.Step([]);
         recorder.Step(run.Tick, []);
@@ -184,7 +185,8 @@ public sealed class RunRecordTextTests
     public void ASnapshotWithTooFewStreamsIsAnErrorOfTheSnapshotLine()
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
-        lines[1] = "{\"tick\":0,\"menu\":false,\"world\":0,\"beats\":0,\"choice\":0,\"streams\":[]}";
+        lines[1] = "{\"tick\":0,\"menu\":false,\"world\":0,\"map\":{\"id\":\"map.test_room\",\"x\":2,\"y\":2,"
+            + "\"facing\":\"south\",\"step_ticks\":0,\"walked\":[\"x\"]},\"streams\":[]}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
@@ -219,7 +221,7 @@ public sealed class RunRecordTextTests
         string text = string.Join('\n', lines) + "\n";
 
         Assert.Throws<RunRecordException>(
-            () => RunReplay.Play(RunRecordText.Read(text), ContentHash, DebugIntentHandlers.None));
+            () => RunReplay.Play(RunRecordText.Read(text), ContentHash, TestMaps.Room, DebugIntentHandlers.None));
     }
 
     [Fact]
@@ -276,7 +278,7 @@ public sealed class RunRecordTextTests
 
     private static RunRecord SmallRecord()
     {
-        Simulation run = Simulation.Start(Seed, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, Seed), run.Snapshot());
 
         Intent[] open = [Intent.OfPlayer(IntentIds.OpenMenu)];

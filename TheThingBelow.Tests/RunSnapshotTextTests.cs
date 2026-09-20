@@ -1,5 +1,6 @@
 using System;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using Xunit;
 
@@ -33,8 +34,15 @@ public sealed class RunSnapshotTextTests
         Assert.Equal(written.Tick, read.Tick);
         Assert.Equal(written.MenuOpen, read.MenuOpen);
         Assert.Equal(written.WorldTick, read.WorldTick);
-        Assert.Equal(written.PatrolBeats, read.PatrolBeats);
-        Assert.Equal(written.PatrolChoice, read.PatrolChoice);
+        Assert.NotNull(written.Map);
+        Assert.NotNull(read.Map);
+        Assert.Equal(written.Map.Map.Value, read.Map.Map.Value);
+        Assert.Equal(written.Map.LeadX, read.Map.LeadX);
+        Assert.Equal(written.Map.LeadY, read.Map.LeadY);
+        Assert.Equal(written.Map.Facing, read.Map.Facing);
+        Assert.Equal(written.Map.Stepping, read.Map.Stepping);
+        Assert.Equal(written.Map.StepTicks, read.Map.StepTicks);
+        Assert.Equal(written.Map.Walked, read.Map.Walked);
         Assert.Equal(written.Streams, read.Streams);
     }
 
@@ -57,7 +65,7 @@ public sealed class RunSnapshotTextTests
     {
         // The reader of a record names the record, and the reader of a save names the file,
         // so every fault of a snapshot carries the place that holds it (T-2).
-        string line = WithField(RunSnapshotText.Write(SaveRuns.Play(20).Snapshot()), "beats", "-1");
+        string line = WithField(RunSnapshotText.Write(SaveRuns.Play(20).Snapshot()), "world", "-1");
 
         ArgumentException error = Assert.Throws<ArgumentException>(() => Read(line));
 

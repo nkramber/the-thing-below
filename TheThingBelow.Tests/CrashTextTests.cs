@@ -59,7 +59,7 @@ public sealed class CrashTextTests
         CrashReport read = CrashText.Read(
             CrashText.Write(Report(recorder.Build())), "the-file.json");
 
-        RunState replayed = RunReplay.Play(read.Record!, SaveRuns.ContentHash, DebugIntentHandlers.None);
+        RunState replayed = RunReplay.Play(read.Record!, SaveRuns.ContentHash, TestMaps.Room, DebugIntentHandlers.None);
         Assert.Equal(run.StateHash(), replayed.StateHash());
     }
 
@@ -225,7 +225,7 @@ public sealed class CrashTextTests
     private static CrashReport Report(RunRecord? record)
     {
         SimulationException fault = Assert.Throws<SimulationException>(
-            () => Simulation.Start(Seed, DebugIntentHandlers.None).Step([Intent.OfPlayer(IntentIds.CloseMenu)]));
+            () => Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None).Step([Intent.OfPlayer(IntentIds.CloseMenu)]));
 
         return CrashReport.Of(fault, fault.GetType().Name, Moment, record);
     }

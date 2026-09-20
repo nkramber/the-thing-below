@@ -1,5 +1,6 @@
 using System;
 using TheThingBelow.Core;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Saves;
 using Xunit;
@@ -69,8 +70,15 @@ public sealed class SaveTextTests
         Assert.Equal(written.Snapshot.Tick, read.Snapshot.Tick);
         Assert.Equal(written.Snapshot.MenuOpen, read.Snapshot.MenuOpen);
         Assert.Equal(written.Snapshot.WorldTick, read.Snapshot.WorldTick);
-        Assert.Equal(written.Snapshot.PatrolBeats, read.Snapshot.PatrolBeats);
-        Assert.Equal(written.Snapshot.PatrolChoice, read.Snapshot.PatrolChoice);
+        // A record holds its list by reference, so the rows of the walk compare one by one
+        // (D-567).
+        Assert.NotNull(written.Snapshot.Map);
+        Assert.NotNull(read.Snapshot.Map);
+        Assert.Equal(written.Snapshot.Map.Map.Value, read.Snapshot.Map.Map.Value);
+        Assert.Equal(written.Snapshot.Map.LeadX, read.Snapshot.Map.LeadX);
+        Assert.Equal(written.Snapshot.Map.LeadY, read.Snapshot.Map.LeadY);
+        Assert.Equal(written.Snapshot.Map.Facing, read.Snapshot.Map.Facing);
+        Assert.Equal(written.Snapshot.Map.Walked, read.Snapshot.Map.Walked);
         Assert.Equal(written.Snapshot.Streams, read.Snapshot.Streams);
     }
 
@@ -84,7 +92,7 @@ public sealed class SaveTextTests
 
         Assert.Equal(
             run.StateHash(),
-            Simulation.Resume(read.Header.Seed, read.Snapshot, DebugIntentHandlers.None).StateHash());
+            Simulation.Resume(read.Header.Seed, read.Snapshot, TestMaps.Room, DebugIntentHandlers.None).StateHash());
     }
 
     [Fact]
@@ -123,7 +131,7 @@ public sealed class SaveTextTests
     {
         string text = SaveText.Write(SaveRuns.SaveAfter(40));
         string[] lines = text.TrimEnd('\n').Split('\n');
-        string changed = lines[1].Replace("\"beats\":", "\"beats\": ", StringComparison.Ordinal);
+        string changed = lines[1].Replace("\"world\":", "\"world\": ", StringComparison.Ordinal);
         string broken = lines[0] + "\n" + changed + "\n";
 
         SaveException error = Assert.Throws<SaveException>(() => SaveText.Read(broken, FilePath));

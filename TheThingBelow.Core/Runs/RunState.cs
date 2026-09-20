@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Hashing;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Runs;
@@ -14,8 +15,8 @@ namespace TheThingBelow.Core.Runs;
 /// open included (D-650). The world values rise only while no menu is open, because a menu
 /// pauses the world (D-162).
 /// <para>
-/// The world of Phase 1 is a patrol that walks on a fixed beat. PR-7 replaces it with the
-/// tile map, the party, and the sight of the map (D-100, D-106).
+/// The world of this run is the party on a tile map (D-100, D-106). The party walks one tile
+/// at a time, and the record of the walked tiles grows with it (D-567, D-716).
 /// </para>
 /// </remarks>
 public sealed class RunState
@@ -24,15 +25,14 @@ public sealed class RunState
     // every machine and a snapshot writes them in one order (G-4, T-7).
     private readonly RandomStream[] streams;
 
-    private RunState(ulong seed, RandomStream[] streams, RunSnapshot start)
+    private RunState(ulong seed, RandomStream[] streams, long tick, bool menuOpen, long worldTick, MapState map)
     {
         this.Seed = seed;
         this.streams = streams;
-        this.Tick = start.Tick;
-        this.MenuOpen = start.MenuOpen;
-        this.WorldTick = start.WorldTick;
-        this.PatrolBeats = start.PatrolBeats;
-        this.PatrolChoice = start.PatrolChoice;
+        this.Tick = tick;
+        this.MenuOpen = menuOpen;
+        this.WorldTick = worldTick;
+        this.Party = map;
     }
 
     /// <summary>The seed that started the run (G-3).</summary>
@@ -47,36 +47,46 @@ public sealed class RunState
     /// <summary>The count of ticks in which the world ran (D-650).</summary>
     public long WorldTick { get; private set; }
 
-    /// <summary>The count of beats that the patrol walked.</summary>
-    public int PatrolBeats { get; private set; }
+    /// <summary>The party on its map: the lead, the step that runs, and the walked tiles (D-106, D-567).</summary>
+    public MapState Party { get; }
 
-    /// <summary>The direction of the last beat of the patrol, from 0 to 3.</summary>
-    public int PatrolChoice { get; private set; }
-
-    /// <summary>Starts a new run from a seed, at tick zero.</summary>
+    /// <summary>Starts a new run from a seed, at tick zero, on one map.</summary>
     /// <param name="seed">The seed of the run (G-3, G-4).</param>
+    /// <param name="map">The map that the run opens, with the party on its spawn point (D-528).</param>
     /// <returns>The state, with every stream at its first value.</returns>
-    public static RunState Start(ulong seed)
+    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
+    public static RunState Start(ulong seed, GameMap map)
     {
+        ArgumentNullException.ThrowIfNull(map);
+
         RandomStream[] streams = new RandomStream[RandomStreams.All.Count];
         for (int index = 0; index < streams.Length; index += 1)
         {
             streams[index] = RandomStreams.Open(seed, RandomStreams.All[index]);
         }
 
-        RunSnapshot start = new(0, false, 0, 0, 0, ReadPositions(streams));
-        return new RunState(seed, streams, start);
+        return new RunState(seed, streams, 0, false, 0, MapState.Enter(map));
     }
 
     /// <summary>Starts a run again from a snapshot (D-259, D-651).</summary>
     /// <param name="seed">The seed of the run, which the record header holds (G-5).</param>
     /// <param name="snapshot">The snapshot, which the caller checked (T-2).</param>
+    /// <param name="map">
+    /// The map of the snapshot, which the caller read from its content by
+    /// <see cref="RunSnapshot.MapIdOrFirst"/> (D-166).
+    /// </param>
     /// <returns>The state, with every stream at the position of the snapshot.</returns>
-    /// <exception cref="ArgumentNullException">The snapshot is null (T-2).</exception>
-    /// <exception cref="ArgumentException">The snapshot is not a state of a run (T-2).</exception>
-    public static RunState Resume(ulong seed, RunSnapshot snapshot)
+    /// <exception cref="ArgumentNullException">The snapshot or the map is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the map is another map (T-2).</exception>
+    /// <remarks>
+    /// A snapshot of save format 1 holds no map, because it predates the tile map. Its
+    /// migration puts the party on the spawn point of the first map, with that tile walked
+    /// and no other (D-166, D-654).
+    /// </remarks>
+    public static RunState Resume(ulong seed, RunSnapshot snapshot, GameMap map)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
+        ArgumentNullException.ThrowIfNull(map);
         snapshot.Check("this run");
 
         RandomStream[] streams = new RandomStream[snapshot.Streams.Count];
@@ -88,7 +98,38 @@ public sealed class RunState
                 Pcg32.FromSnapshot(position.State, position.Increment));
         }
 
-        return new RunState(seed, streams, snapshot);
+        return new RunState(
+            seed,
+            streams,
+            snapshot.Tick,
+            snapshot.MenuOpen,
+            snapshot.WorldTick,
+            ResumeMap(snapshot, map));
+    }
+
+    private static MapState ResumeMap(RunSnapshot snapshot, GameMap map)
+    {
+        if (string.CompareOrdinal(snapshot.MapIdOrFirst.Value, map.Id.Value) != 0)
+        {
+            throw new ArgumentException(
+                $"The snapshot names the map '{snapshot.MapIdOrFirst.Value}', and the caller gave the map '{map.Id.Value}' (T-2, D-166).",
+                nameof(map));
+        }
+
+        if (snapshot.Map is null)
+        {
+            return MapState.Enter(map);
+        }
+
+        MapSnapshot party = snapshot.Map;
+        return MapState.Resume(
+            map,
+            new TilePoint(party.LeadX, party.LeadY),
+            party.Facing,
+            party.Stepping,
+            party.StepTicks,
+            WalkedTiles.OfRows(party.Walked, "this run"),
+            "this run");
     }
 
     /// <summary>Gives the stream of one subsystem (G-4).</summary>
@@ -123,8 +164,14 @@ public sealed class RunState
             this.Tick,
             this.MenuOpen,
             this.WorldTick,
-            this.PatrolBeats,
-            this.PatrolChoice,
+            new MapSnapshot(
+                this.Party.Map.Id,
+                this.Party.LeadAt.X,
+                this.Party.LeadAt.Y,
+                this.Party.Facing,
+                this.Party.Stepping,
+                this.Party.StepTicks,
+                this.Party.Walked.Rows()),
             ReadPositions(this.streams));
 
     /// <summary>Computes the state hash that a replay and the identity job compare (G-5).</summary>
@@ -142,8 +189,7 @@ public sealed class RunState
         hasher.AddInt64(this.Tick);
         hasher.AddBoolean(this.MenuOpen);
         hasher.AddInt64(this.WorldTick);
-        hasher.AddInt32(this.PatrolBeats);
-        hasher.AddInt32(this.PatrolChoice);
+        this.Party.Hash(hasher);
 
         foreach (RandomStream stream in this.streams)
         {
@@ -176,23 +222,28 @@ public sealed class RunState
         this.MenuOpen = open;
     }
 
-    /// <summary>Walks the patrol one beat, and draws its direction from the map stream (G-4).</summary>
+    /// <summary>Reads a move intent of this tick, which the world step then applies (D-493).</summary>
+    /// <param name="direction">The direction of the step that the player asked for.</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
-    /// <exception cref="SimulationException">The count of beats passes the range of an `int` (T-2).</exception>
-    public void WalkPatrol(RunContext context)
+    /// <exception cref="ArgumentNullException">The context is null (T-2).</exception>
+    /// <exception cref="SimulationException">A menu is open, and a menu pauses the world (T-2).</exception>
+    /// <remarks>
+    /// A move intent while a menu is open is an error and never a value that the rule drops.
+    /// The menu screen takes every input of the player, so a step intent from it points at a
+    /// fault in the screen that made it (D-162, T-2).
+    /// </remarks>
+    public void WantStep(StepDirection direction, RunContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        if (this.PatrolBeats == int.MaxValue)
+        if (this.MenuOpen)
         {
             throw new SimulationException(
-                $"a patrol beat after {int.MaxValue} beats, which passes the range of the count",
+                $"a step to the {StepDirections.NameOf(direction)} while the menu is open, and a menu pauses the world (D-162)",
                 context);
         }
 
-        this.PatrolBeats += 1;
-        this.PatrolChoice = this.Stream(StreamId.Exploration)
-            .NextInt(WorldRules.PatrolChoiceCount, context);
+        this.Party.Want(direction);
     }
 
     /// <summary>

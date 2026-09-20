@@ -169,6 +169,7 @@ public sealed class ContentHashCommandTests
         {
          "comment": "a note",
          "strings": [
+          { "id": "label.fixture_dungeon", "text": "The old cut" },
           { "id": "label.lamp", "text": "Tin lamp" },
           { "id": "label.nail", "text": "Bent nail" },
           { "id": "label.rope", "text": "Dry rope" }

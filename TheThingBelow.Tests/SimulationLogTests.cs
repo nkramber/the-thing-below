@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Logging;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using Xunit;
 
@@ -25,7 +26,7 @@ public sealed class SimulationLogTests
     [Fact]
     public void AStepOfNoChangeReturnsNoEntry()
     {
-        Simulation run = Simulation.Start(Seed, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
 
         Assert.Empty(run.Step(NoIntents));
     }
@@ -33,7 +34,7 @@ public sealed class SimulationLogTests
     [Fact]
     public void AMenuChangeReturnsOneInfoEntryOfTheRun()
     {
-        Simulation run = Simulation.Start(Seed, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
 
         LogEntry opened = Assert.Single(run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]));
 
@@ -48,7 +49,7 @@ public sealed class SimulationLogTests
     [Fact]
     public void ACloseOfTheMenuReturnsItsOwnEntry()
     {
-        Simulation run = Simulation.Start(Seed, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
 
         LogEntry closed = Assert.Single(run.Step([Intent.OfPlayer(IntentIds.CloseMenu)]));
@@ -58,28 +59,44 @@ public sealed class SimulationLogTests
     }
 
     [Fact]
-    public void ABeatOfThePatrolReturnsOneDebugEntryOfTheWorld()
+    public void TheStartOfAStepReturnsOneDebugEntryOfTheWorld()
     {
-        Simulation run = Simulation.Start(Seed, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
 
-        LogEntry beat = FirstBeat(run);
+        LogEntry started = Assert.Single(run.Step([Intent.OfPlayer(IntentIds.MoveEast)]));
 
-        Assert.Equal(LogLevel.Debug, beat.Level);
-        Assert.Equal("the patrol walked one beat", beat.Message);
-        Assert.Equal(LogSubsystems.World, beat.Subsystem);
-        Assert.Equal(WorldRules.TicksPerPatrolBeat, beat.Tick);
-        Assert.Equal(["beats", "choice", "world-tick"], Names(beat));
-        Assert.Equal("1", beat.Fields[0].Value);
+        Assert.Equal(LogLevel.Debug, started.Level);
+        Assert.Equal("the party started a step to the east", started.Message);
+        Assert.Equal(LogSubsystems.World, started.Subsystem);
+        Assert.Equal(1, started.Tick);
+        Assert.Equal(["x", "y", "direction"], Names(started));
     }
 
     [Fact]
-    public void AMenuHoldsTheBeatsOfThePatrol()
+    public void TheEndOfAStepReturnsOneDebugEntryWithTheWalkedCount()
     {
-        // A menu pauses the world, so no beat logs while the menu is open (D-162, D-650).
-        Simulation run = Simulation.Start(Seed, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
+        for (int tick = 1; tick < MapRules.TicksPerStep; tick += 1)
+        {
+            run.Step(NoIntents);
+        }
+
+        LogEntry reached = Assert.Single(run.Step(NoIntents));
+
+        Assert.Equal("the party reached a tile", reached.Message);
+        Assert.Equal(["x", "y", "walked", "world-tick"], Names(reached));
+        Assert.Equal("2", reached.Fields[2].Value);
+    }
+
+    [Fact]
+    public void AMenuHoldsTheStepOfTheParty()
+    {
+        // A menu pauses the world, so no step logs while the menu is open (D-162, D-650).
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
 
-        for (int tick = 0; tick < WorldRules.TicksPerPatrolBeat * 2; tick += 1)
+        for (int tick = 0; tick < MapRules.TicksPerStep * 2; tick += 1)
         {
             Assert.Empty(run.Step(NoIntents));
         }
@@ -110,39 +127,25 @@ public sealed class SimulationLogTests
     [Fact]
     public void AStepReturnsTheEntriesOfThatStepAlone()
     {
-        Simulation run = Simulation.Start(Seed, DebugIntentHandlers.None);
-        FirstBeat(run);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Assert.Single(run.Step([Intent.OfPlayer(IntentIds.MoveEast)]));
 
-        // The step after a beat holds no entry, so Core kept none of the entries before it.
+        // The step after the start of a step holds no entry, so Core kept none of the
+        // entries before it.
         Assert.Empty(run.Step(NoIntents));
     }
 
     [Fact]
     public void TheWorldRefusesAListThatIsNull()
     {
-        RunState state = Simulation.Start(Seed, DebugIntentHandlers.None).State;
+        RunState state = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None).State;
 
         Assert.Throws<ArgumentNullException>(() => WorldRules.Step(state, null!));
     }
 
-    private static LogEntry FirstBeat(Simulation run)
-    {
-        for (int tick = 0; tick < WorldRules.TicksPerPatrolBeat; tick += 1)
-        {
-            IReadOnlyList<LogEntry> entries = run.Step(NoIntents);
-            if (entries.Count > 0)
-            {
-                return Assert.Single(entries);
-            }
-        }
-
-        throw new InvalidOperationException(
-            $"The run logged no beat in {WorldRules.TicksPerPatrolBeat} ticks (T-2).");
-    }
-
     private static IReadOnlyList<LogEntry> Play(ulong seed, int tickCount)
     {
-        Simulation run = Simulation.Start(seed, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(seed, TestMaps.Room, DebugIntentHandlers.None);
         List<LogEntry> entries = [];
         foreach (IReadOnlyList<Intent> intents in RunScripts.Make(seed, tickCount))
         {

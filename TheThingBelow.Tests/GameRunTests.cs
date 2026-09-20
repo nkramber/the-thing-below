@@ -59,7 +59,7 @@ public sealed class GameRunTests
         Assert.Equal(IntentIds.CloseMenu, line.Intents[0].Action);
 
         SimulationException replay = Assert.Throws<SimulationException>(
-            () => RunReplay.Play(record, record.Header.ContentHash, DebugIntentHandlers.None));
+            () => RunReplay.Play(record, record.Header.ContentHash, TestMaps.FixtureDungeon, DebugIntentHandlers.None));
         Assert.Equal(1, replay.Context.Tick);
     }
 

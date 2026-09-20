@@ -133,7 +133,7 @@ public sealed class LogStoreTests : IDisposable
         LogStore debug = new(Path.Combine(this.folder, "debug-logs"), LogLevel.Debug);
         debug.Open(Moment);
 
-        Simulation run = Simulation.Start(Seed, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
         foreach (IReadOnlyList<Intent> intents in RunScripts.Make(Seed, 200))
         {
             IReadOnlyList<LogEntry> entries = run.Step(intents);
