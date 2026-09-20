@@ -1,5 +1,41 @@
 # Session handoff
 
+## Session 143: 2026-09-20, Codex
+
+Author: Codex
+Session: review PR #41, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: reviewer. Base: `938ab7b`.
+
+### What this session did, and why
+
+- Reviewed PR #41 at effective head `c8ea1ca` after the author completed the UI base and the Gitar pass.
+- Verified the opposite-provider gate, the complete 81-path diff, the PR comments, the affected contracts, and the roadmap exit tests.
+- Found two blocking defects: `Boot.ReadInput` always passes `menuOpen: false`, and the PR does not add the screen-test workflow assigned to PR-41.
+- Added `docs/reviews/pr-41.md` with the verdict `Changes required`.
+
+### The state of the build
+
+- `make verify` passes on the Mac with 1046 tests and all local gates.
+- Revision-matched build, test, format, det-lint, replay identity, smoke, export, coverage, STE, and Gitar checks pass.
+- `review-gate` is expected to fail until the review record is pushed. No `screen-test` check exists on the PR.
+
+### What is in flight
+
+- The review waits for the author to correct P1-1 and P1-2, push the corrections, and request a re-review.
+
+### Traps and gotchas
+
+- The effective head is `c8ea1ca`. The two later commits change only the metadata set.
+- The PR title says PR-61, but the GitHub PR number is 41. The review record uses `pr-41.md`.
+- The roadmap says OQ-79 blocks the screen-test job. The PR does not answer it or create the job.
+
+### The questions that block progress
+
+- OQ-79 remains open. It blocks the missing screen-test job.
+
+### The next concrete action
+
+Author fixes P1-1 and P1-2, then starts a re-review of PR #41 at the new effective head.
+
 ## Session 142: 2026-09-20, Claude Code
 
 Author: Claude Code
@@ -370,39 +406,3 @@ None.
 ### The next concrete action
 
 A new clean session opens the documents PR that carries the two decision rows, the four findings, the changes of the documents, and this entry.
-
-## Session 133: 2026-09-19, Codex
-
-Author: Codex
-Session: review PR #37, the stable check names of the CI matrix jobs. Repository: the-thing-below. Branch: `fix/pr-88-ci-matrix-check-names`. Role: reviewer. Base: `51a040f`.
-
-### What this session did, and why
-
-- Recomputed PR #37 at effective head `9927be7`. The later commit `8a041e3` changes only metadata.
-- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Inspected the complete nine-path diff. The three gate jobs preserve the D-595 condition on their matrix jobs, fail on an unexpected skip or a fault of `changed-paths`, and report the stable names of D-682 and D-683.
-- Ran the focused workflow tests and the full local verification. No finding remains.
-- Wrote `docs/reviews/pr-37.md` with the verdict `Ready for owner merge` for effective head `9927be7`.
-
-### The state of the build
-
-- `make verify` passes at tip `8a041e3` with 806 tests, 0 failures, 0 warnings, and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
-- The revision-matched CI checks pass for all matrix legs and all stable gate jobs. `review-gate` waits for this review record.
-- The remote branch head is `8a041e3`.
-
-### What is in flight
-
-The review record and this handoff entry need a commit and push. After the remote gate reads the record, the PR is ready for owner merge.
-
-### Traps and gotchas
-
-- The verdict targets effective head `9927be7`, not metadata tip `8a041e3`.
-- The owner adds the three stable names to branch protection after the PR merges, as D-685 states.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and handoff entry. Then fetch and verify that the remote head and review-gate result match.

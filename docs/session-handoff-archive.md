@@ -1,5 +1,39 @@
 # Session handoff archive
 
+## Session 133: 2026-09-19, Codex
+
+Author: Codex
+Session: review PR #37, the stable check names of the CI matrix jobs. Repository: the-thing-below. Branch: `fix/pr-88-ci-matrix-check-names`. Role: reviewer. Base: `51a040f`.
+
+### What this session did, and why
+
+- Recomputed PR #37 at effective head `9927be7`. The later commit `8a041e3` changes only metadata.
+- Confirmed the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Inspected the complete nine-path diff and ran the focused workflow tests and full local verification. No finding remains.
+- Wrote `docs/reviews/pr-37.md` with the verdict `Ready for owner merge` for effective head `9927be7`.
+
+### The state of the build
+
+- `make verify` passes at tip `8a041e3` with 806 tests and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
+- The revision-matched CI checks pass for all matrix legs and stable gate jobs. `review-gate` waits for this record.
+- The remote branch head is `8a041e3`.
+
+### What is in flight
+
+The review record and this handoff entry need a commit and push.
+
+### Traps and gotchas
+
+- The verdict targets effective head `9927be7`, not metadata tip `8a041e3`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff entry. Then verify the remote head and review-gate result.
+
 ## Session 132: 2026-09-19, Claude Code
 
 Author: Claude Code
