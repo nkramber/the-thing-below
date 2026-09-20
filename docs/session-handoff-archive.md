@@ -1,5 +1,36 @@
 # Session handoff archive
 
+## Session 135: 2026-09-19, Claude Code
+
+Author: Claude Code
+Session: the documents PR of the Sprite Fusion pick. Repository: the-thing-below. Branch: `docs/pr-89-sprite-fusion-pick`. Role: author. Base: `db518fa`.
+
+### What this session did, and why
+
+- Carried the Sprite Fusion pick to the documents PR and recorded D-686 to D-689 and F-86 to F-89.
+- Updated the affected roadmaps and sequence lists, answered the automated pass, and corrected the PR Documents line.
+
+### The state of the build
+
+- `make ste-check` passed. The PR changed documents alone.
+- The remote head of `main` was `db518fa`. The branch head was `83e561c`.
+
+### What is in flight
+
+The PR waited for the Codex review.
+
+### Traps and gotchas
+
+- The PR took no roadmap id, and no generated picture entered `content/`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the branch, open the PR, and answer the automated pass.
+
 ## Session 134: 2026-09-19, Claude Code
 
 Author: Claude Code

@@ -1,5 +1,39 @@
 # Session handoff
 
+## Session 145: 2026-09-20, Codex
+
+Author: Codex
+Session: repeat review PR #41, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: reviewer. Base: `938ab7b`.
+
+### What this session did, and why
+
+- Reopened PR #41 at effective head `d6f5e00` after the author answered the prior review.
+- Verified P1-1 against its original trigger and the real-run regression tests. The correction reads the menu state from `RunState` through `GameRun`.
+- Withdrew P1-2. The prior review confused GitHub PR #41 with roadmap PR-41. This change is roadmap PR-61. The screen-test job belongs to later roadmap PR-41, section 7.5.
+- Updated `docs/reviews/pr-41.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1050 tests and all local gates.
+- The remote metadata tip is `74f3c97`. The effective code head is `d6f5e00`.
+
+### What is in flight
+
+- The repeat review record and this handoff entry need one metadata commit and push.
+
+### Traps and gotchas
+
+- Keep the earlier `Changes required` verdict under `## Earlier verdicts`.
+- The review file uses GitHub PR number 41. The roadmap scope uses PR-61.
+
+### The questions that block progress
+
+None. OQ-79 blocks later roadmap PR-41 only.
+
+### The next concrete action
+
+Commit and push the repeat review record and this handoff entry. Then verify the remote head and review-gate result.
+
 ## Session 144: 2026-09-20, Claude Code
 
 Author: Claude Code
@@ -359,46 +393,3 @@ None.
 
 Commit and push the review record and this handoff entry. Then fetch and verify the remote head and review-gate result.
 
-## Session 135: 2026-09-19, Claude Code
-
-Author: Claude Code
-Session: the documents PR of the Sprite Fusion pick. Repository: the-thing-below. Branch: `docs/pr-89-sprite-fusion-pick`. Role: author. Base: `db518fa`.
-
-### What this session did, and why
-
-- Carried the pick of the Sprite Fusion test from `spike/pick.md` on the spike branch to `main`. That branch never merges (D-620).
-- Added D-686 and D-687: the generator draws every picture, and the Starter plan stays at 9 USD each month.
-- The carry found a conflict. The pick gives PR-51 a map to the nearest palette color, and section 7.39 refused a near color (T-2). The owner answered, and D-688 and D-689 record the two answers.
-- Added F-86 to F-89 to the register of `docs/design.md`, and short rows to the findings tables of the two area files.
-- Updated section 7.1 of `docs/roadmaps/area-art.md`, section 7.11 of `docs/roadmaps/area-tools.md`, sections 7.17 and 7.22 of the phase-1 file, and section 7.39 of the phase-2 file.
-- Marked the test done in the three sequence lists, and marked line 10 of Gate 1 met by D-686.
-- Carried the entry of Session 134 from the spike branch, and moved the entries of Session 124 and Session 125 to the archive.
-- Answered the automated pass. It read the three credit figures of D-687 as a contradiction on a 450-credit plan. The owner said that a bonus of 45 credits arrived, so the row now records 495 credits at the start.
-- Fixed the `docs/reviews/` row of the PR description. It held no form of D-581, and RG 7 faulted on it.
-
-### The state of the build
-
-- `make ste-check` passes at the commit of this entry. The PR changes documents alone.
-- The remote head of `main` is `db518fa`, and this branch starts there.
-- The automated pass approved the head `83e561c` at 22:57 UTC, with one finding closed and no open thread. The CI summary of that pass still names the old RG 7 fault, and the log of the job gives `RG 7 pass`.
-- The `review-gate` check holds one fault: RG 3, which asks for `docs/reviews/pr-38.md`. The Codex review record clears it.
-
-### What is in flight
-
-The PR waits for the Codex review. The PR adds decision rows, so the label of D-401 does not apply. RG 3 faults until the record `docs/reviews/pr-38.md` lands, which is the normal state before a review.
-
-### Traps and gotchas
-
-- The draft of D-686 in `spike/pick.md` said that the pick revises D-57 in part. D-57 covers the story text and not a picture, so D-686 drops that claim. D-107 takes the revision alone.
-- The pick draft named two decision rows. The conflict of section 7.39 needed an owner answer, so the PR carries four.
-- No picture of `spike/generated/` reaches `content/`. The import of PR-51 gives each one a frame and the palette (G-24).
-- The spend of 165 credits is 11 calls at 15 credits, and the test made eight calls. The dashboard of the supplier gives the figure, and the row says so.
-- This PR takes no `PR-#` id and no roadmap entry, as the documents PR of D-680 did.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push the branch, open the PR, and answer the pass of gitar. Then hand the PR to Codex for the review.
