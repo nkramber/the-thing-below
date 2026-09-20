@@ -1,5 +1,41 @@
 # Session handoff
 
+## Session 139: 2026-09-20, Codex
+
+Author: Codex
+Session: repeat review PR #39, the export job. Repository: the-thing-below. Branch: `feat/pr-54-export-job`. Role: reviewer. Base: `fb17f87`.
+
+### What this session did, and why
+
+- Reopened PR #39 at effective head `82d1afd`.
+- Verified the provider gate and read the author response file.
+- Rechecked P1-1 against its original trigger. The export command and the `Makefile` smoke target now keep the process exit code.
+- Ran `make verify`. It passed with 837 tests and clean format, det-lint, STE, replay identity, content hash, and smoke checks.
+- Confirmed the revision-matched CI checks and all three export legs pass. Gitar passes.
+- Updated `docs/reviews/pr-39.md`, kept the earlier verdict, and set the current verdict to `Ready for owner merge`.
+
+### The state of the build
+
+- The effective head is `82d1afd`. The review-gate check waits for this review record.
+- The earlier finding P1-1 is fixed in `82d1afd`.
+
+### What is in flight
+
+The repeat-review record and this handoff entry need a metadata commit and push. The current review-gate check still reads the earlier record.
+
+### Traps and gotchas
+
+- The effective head is `82d1afd`, not the later metadata commit that will publish this review.
+- The author response also repairs the same exit-status fault in `Makefile` under owner decision D-694.
+
+### The questions that block progress
+
+None. OQ-198 and OQ-199 remain open but do not block this review.
+
+### The next concrete action
+
+Run STE and the diff check, commit the review record and this entry, push, and verify the remote tip and review-gate result.
+
 ## Session 138: 2026-09-19, Codex
 
 Author: Codex
@@ -371,39 +407,3 @@ None. OQ-3 stays open as an owner action, and it blocks line 4 of Gate 1, not th
 ### The next concrete action
 
 Hand the PR to the other provider for the review of T-4. The reviewer writes `docs/reviews/pr-36.md` for head `f513ff3`, which turns RG 3 green.
-
-## Session 129: 2026-09-19, Codex
-
-Author: Codex
-Session: repeat review PR #35, the empty option value of every Tools command. Repository: the-thing-below. Branch: `fix/pr-87-content-hash-empty-option`. Role: reviewer. Base: `f896dc3`.
-
-### What this session did, and why
-
-- Reopened the review at effective head `8eacf73`.
-- Verified P2-1. The records now state seven option values, five affected commands, and nine regression rows.
-- Checked the base trigger, the correction, and the adjacent whitespace boundary.
-- Preserved the earlier verdict in `docs/reviews/pr-35.md` and set the current verdict to `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 794 tests, 0 warnings, and 0 findings from det-lint and the STE check.
-- Replay identity, content hash, and the bounded smoke session pass.
-- All nine empty-option probes return exit code 1, name the option, and produce no stack trace.
-- `det-lint --root " "` returns a contextual missing-root error without a stack trace.
-
-### What is in flight
-
-The repeat-review record needs a metadata commit and push. The current review-gate run fails because the old record still names `4e9338d` and `Changes required`.
-
-### Traps and gotchas
-
-- The Gitar dashboard summary still says six option values, but its current timestamp covers `8eacf73`. The repository records and the PR description hold the corrected count of seven.
-- The effective head is `8eacf73`. Metadata commits after it do not change the review target.
-
-### The questions that block progress
-
-None for this PR. OQ-3 remains an owner question for Gate 1.
-
-### The next concrete action
-
-Commit and push the repeat-review record and this handoff entry. Then verify the remote head and the review-gate result.
