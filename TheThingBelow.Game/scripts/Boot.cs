@@ -769,9 +769,6 @@ public partial class Boot : Node
                 "This build has the feature of a development build, and it built no debug console (D-723, T-2).");
         }
 
-        // The console takes the focus when it opens, so every key of the person reaches its
-        // entry and the game makes no intent (D-725). A node outside the tree can hold no
-        // focus, so the check adds the console to the tree and then takes it away again.
         // The console takes the focus when it opens, and it reads a typed line from the signal
         // of its entry. The console owns those nodes, so the check of both lives behind the
         // seam and it fails with its own message (D-723, D-725, T-2). A node outside the tree
