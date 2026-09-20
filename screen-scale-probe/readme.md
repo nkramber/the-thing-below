@@ -2,9 +2,9 @@
 
 Status: a throwaway spike. Owner: Nate. Written in ASD-STE100 (D-10).
 
-This project shows one mock frame of 1280 by 720 at nine combinations (D-621). The owner reads
-the frame on four screens, and then picks the scale of the world and the sizes of the text
-(OQ-183). The branch `spike/screen-scale-probe` holds the project, and it never merges to
+This project shows one mock frame of 1280 by 720 at three combinations (D-621). The owner read
+the frame on four screens, and then picked the scale of the world and the sizes of the text
+(OQ-183). The file `handover.md` holds each pick. The branch `spike/screen-scale-probe` holds the project, and it never merges to
 `main` (D-597, D-621). The step is section 7.8 of `docs/roadmaps/phase-1-foundations.md`.
 
 ## What the frame holds
@@ -17,42 +17,33 @@ the frame on four screens, and then picks the scale of the world and the sizes o
 The tiles in `tiles/` are throwaway. They are not art of the game, and PR-34 draws the real
 tiles. The five sprite grids in `sprites/` are copies of the sample of D-402.
 
-## The nine combinations
+## The three combinations
 
-One key steps through the nine combinations. The world scale and the text size are separate,
-because OQ-183 asks two questions.
+One key steps through the three combinations. The world draws at 2x in each one, because D-633
+sets that scale and no setting changes it. The body size is the one value that changes.
 
 Terminus carries a bitmap at 12, 14, 16, 18, 20, 22, 24, 28, and 32 pixels alone. Thus every
 text size below is a bitmap at a whole-number scale. A size with no bitmap falls back to the
 traced outline, and the glyph loses its square pixel (F-49, D-230). The probe draws each line at
 the size of the bitmap, under the scale, and never at the product of the two.
 
-| State | The world | Tiles in the frame | Body text | Title text |
-|---|---|---|---|---|
-| 1 | 1x | 40 by 22.5 | 24 (24x1) | 32 (32x1) |
-| 2 | 1x | 40 by 22.5 | 32 (32x1) | 48 (24x2) |
-| 3 | 1x | 40 by 22.5 | 48 (24x2) | 64 (32x2) |
-| 4 | 1.5x | 26.67 by 15 | 24 (24x1) | 32 (32x1) |
-| 5 | 1.5x | 26.67 by 15 | 32 (32x1) | 48 (24x2) |
-| 6 | 1.5x | 26.67 by 15 | 48 (24x2) | 64 (32x2) |
-| 7 | 2x | 20 by 11.25 | 24 (24x1) | 32 (32x1) |
-| 8 | 2x | 20 by 11.25 | 32 (32x1) | 48 (24x2) |
-| 9 | 2x | 20 by 11.25 | 48 (24x2) | 64 (32x2) |
+| State | Body text | Title text | Tiles in the frame |
+|---|---|---|---|
+| 1 | 24 (24x1) | 48 (24x2) | 20 by 11.25 |
+| 2 | 32 (32x1) | 64 (32x2) | 20 by 11.25 |
+| 3 | 48 (24x2) | 96 (32x3) | 20 by 11.25 |
 
-A body of 24 and a body of 32 draw their own strike at 1x. A stem is one frame pixel there,
-and one device pixel on the Deck. Those two bodies miss the floor of D-639, and the panel gives
-a note. Each carries four times the glyph detail of a doubled smaller strike.
+A title is twice its body. 32 is the largest strike, so each title doubles or triples a smaller
+one. Thus each title draws on a coarser pixel grid than its body.
 
-A body of 48 doubles the 24 strike, because 32 is the largest strike of Terminus. A glyph pixel
-takes 2 frame pixels there, and the floor of D-639 holds.
+A body of 24 and a body of 32 draw their own strike at 1x. A stem is one frame pixel there, and
+one device pixel on the Deck. Those two bodies miss the floor of D-639, and the panel gives a
+note. Each carries four times the glyph detail of a doubled smaller strike.
 
-32 is the largest strike. Thus a title above 32 frame pixels must double a smaller strike. The
-row of the body of 32 is the one row with a 1x body under a 2x title.
+A body of 48 doubles the 24 strike. A glyph pixel takes 2 frame pixels there, and the floor of
+D-639 holds.
 
 The border of a panel follows the glyph: 1 frame pixel at a body of 24 and 32, and 2 at 48.
-
-The world at 1.5x is the one combination that is not pixel-exact. An art pixel covers 1 or 2
-frame pixels there, and the edges are uneven. The panel of the probe gives that note.
 
 The text budget falls as the body grows. The panel gives both counts for each combination.
 
@@ -169,7 +160,7 @@ device pixel, and the one screen that answers the floor of D-639.
 ## How the report works
 
 Each run writes one Markdown file in `reports/`, beside the build. The file holds the facts of
-the screen, a row for each of the nine combinations, and the marks of the owner. The file holds the
+the screen, a row for each of the three combinations, and the marks of the owner. The file holds the
 rows of M-8. A second run of the same screen writes a second file, and no run overwrites
 another (T-2).
 

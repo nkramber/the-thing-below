@@ -7,6 +7,40 @@ This file keeps the owner answers and the state of the probe. The step is sectio
 document in `docs/` holds these answers yet. The next PR reads this file and records each row.
 The Deck test of D-160 set the same pattern, and PR-1 recorded its answers.
 
+## The owner picks of 2026-09-19
+
+The owner read the combinations on four screens and then picked. Each pick took the fit mode
+that the game draws.
+
+| Screen | Fit | World | Body | Title |
+|---|---|---|---|---|
+| Mac, 27-inch 4K | 3x | 2x | 24 (24x1) | 48 |
+| Steam Deck OLED | 1x | 2x | 32 (32x1) | 64 |
+| Windows, 27-inch 1080p | 1.5x | 2x | 24 (24x1) | 48 |
+| Windows, 32-inch 1440p | 2x | 2x | 24 (24x1) | 48 |
+
+The answers below follow from those picks. Each one needs a decision row, from the next free
+D- id.
+
+| Question | The answer | Note |
+|---|---|---|
+| The world scale | 2x on every screen, and no setting | Confirms D-633 |
+| The title size | Twice the body, and no setting | The player changes it through the body alone |
+| The body size | A setting of 24, 32, and 48 | Revises D-639 in part: three body sizes, not two UI values |
+| The default body | 32 at a frame fit of 1x, and 24 above that fit | One rule, and no table of screens |
+| The text limits | Each limit above 49 characters falls to 49 | A body of 48 holds 49 characters in a dialogue line |
+
+D-639 loses its floor of 2 device pixels for each art pixel. A body of 24 and a body of 32 draw
+a stem of one frame pixel, and the owner picked both. G-28 needs the same revision.
+
+D-635 falls from 76 characters to 49. The `game-text-style` skill holds the dialogue limit, the
+lore limit, and the item description limit. The battle message of 40 and the menu label of 16
+stay, because each one is below 49.
+
+Two pairings of the picks were not on the screen of the first round. The probe paired a body of
+24 with a title of 32, and a body of 32 with a title of 48. The second run of 2026-09-19 draws
+the picked pairings on the Mac. The owner reads that run before PR-61 starts.
+
 ## The second round of 2026-09-19
 
 The owner reopened the text half of the answer before PR-61 starts. The probe now shows nine

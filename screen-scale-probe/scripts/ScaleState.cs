@@ -67,19 +67,19 @@ public sealed class ScaleState
         $"world {WorldScale:0.#}x, body {BodyPixels} ({BodyNative}x{BodyUnit}),"
         + $" title {TitlePixels} ({TitleNative}x{TitleUnit})";
 
-    /// <summary>The nine combinations, in the order that one key steps through.</summary>
+    /// <summary>The three combinations, in the order that one key steps through.</summary>
     public static ScaleState[] All { get; } = Build();
 
     private static ScaleState[] Build()
     {
-        int[] worlds = [2, 3, 4];
+        // The world draws at 2x on every screen, and no setting changes it (D-633).
+        int[] worlds = [4];
 
-        // Body 24, 32, and 48, and the title one step up the ladder. A body of 24 and a body of
-        // 32 draw their own strike at 1x, for the finest glyph. 32 is the largest strike, so a
-        // title above it must double a smaller one. Thus the row of the body of 32 is the one
-        // row with a 1x body under a 2x title.
+        // Body 24, 32, and 48, and a title of twice the body. A body of 24 and a body of 32 draw
+        // their own strike at 1x, for the finest glyph. A body of 48 doubles the 24 strike,
+        // because 32 is the largest strike. Each title doubles or triples a strike.
         (int Body, int BodyUnit, int TitleNative, int TitleUnit)[] texts =
-            [(24, 1, 32, 1), (32, 1, 24, 2), (24, 2, 32, 2)];
+            [(24, 1, 24, 2), (32, 1, 32, 2), (24, 2, 32, 3)];
 
         var all = new List<ScaleState>(worlds.Length * texts.Length);
         foreach (int world in worlds)
