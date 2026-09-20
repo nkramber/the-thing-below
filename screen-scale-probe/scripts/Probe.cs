@@ -28,6 +28,7 @@ public sealed partial class Probe : Node2D
 
     private ProbeOptions _options = null!;
     private FontFile _body = null!;
+    private FontFile _title = null!;
     private ScreenFacts _facts = null!;
     private SubViewport _frameView = null!;
     private SubViewport _stepView = null!;
@@ -38,7 +39,7 @@ public sealed partial class Probe : Node2D
     private FitMode _fit;
     private bool _chrome = true;
     private string? _worldPick;
-    private string? _uiPick;
+    private string? _fontPick;
     private string _message = string.Empty;
     private bool _stopped;
 
@@ -50,7 +51,8 @@ public sealed partial class Probe : Node2D
         {
             _options = ProbeOptions.Parse(OS.GetCmdlineUserArgs());
             MockFrame frame = MockFrame.Bake(Root);
-            _body = LoadBody($"{Root}fonts/TerminusTTF.ttf");
+            _body = LoadFont($"{Root}fonts/TerminusTTF.ttf");
+            _title = LoadFont($"{Root}fonts/TerminusTTF-Bold.ttf");
             _state = _options.StartState - 1;
             _fit = _options.StartFit;
             BuildViewports(frame);
@@ -63,7 +65,7 @@ public sealed partial class Probe : Node2D
             GD.PushError(error.Message);
             GD.PrintErr($"the probe stopped: {error.Message}");
             GD.PrintErr("flags: --screen=name --diagonal=inches --distance=cm"
-                + " [--windowed[=WxH]] [--state=1..4] [--fit=whole|fill]");
+                + $" [--windowed[=WxH]] [--state=1..{ScaleState.All.Length}] [--fit=whole|fill]");
             GetTree().Quit(1);
             return;
         }
@@ -120,7 +122,7 @@ public sealed partial class Probe : Node2D
         Key.Space or Key.Right => ProbeCommand.NextState,
         Key.Left => ProbeCommand.StateBefore,
         Key.W => ProbeCommand.WorldPick,
-        Key.U => ProbeCommand.UiPick,
+        Key.U => ProbeCommand.FontPick,
         Key.F => ProbeCommand.NextFitMode,
         Key.H => ProbeCommand.HidePanel,
         Key.R => ProbeCommand.Report,
@@ -133,7 +135,7 @@ public sealed partial class Probe : Node2D
         JoyButton.A => ProbeCommand.NextState,
         JoyButton.B => ProbeCommand.StateBefore,
         JoyButton.X => ProbeCommand.WorldPick,
-        JoyButton.Y => ProbeCommand.UiPick,
+        JoyButton.Y => ProbeCommand.FontPick,
         JoyButton.RightShoulder => ProbeCommand.NextFitMode,
         JoyButton.Back => ProbeCommand.HidePanel,
         JoyButton.Start => ProbeCommand.ReportAndQuit,
@@ -156,13 +158,13 @@ public sealed partial class Probe : Node2D
                 Present();
                 break;
             case ProbeCommand.WorldPick:
-                _worldPick = PickName();
+                _worldPick = WorldPickName();
                 _message = $"the world pick is {_worldPick}";
                 QueueRedraw();
                 break;
-            case ProbeCommand.UiPick:
-                _uiPick = PickName();
-                _message = $"the UI pick is {_uiPick}";
+            case ProbeCommand.FontPick:
+                _fontPick = TextPickName();
+                _message = $"the text pick is {_fontPick}";
                 QueueRedraw();
                 break;
             case ProbeCommand.HidePanel:
@@ -211,7 +213,7 @@ public sealed partial class Probe : Node2D
         _drawer = new FrameDrawer();
         _frameView.AddChild(_drawer);
         AddChild(_frameView);
-        _drawer.Configure(frame, _body);
+        _drawer.Configure(frame, _body, _title);
 
         // The second viewport is the first step of D-573: a whole-number scale with Nearest.
         _stepView = new SubViewport
@@ -231,12 +233,12 @@ public sealed partial class Probe : Node2D
         AddChild(_stepView);
     }
 
-    private static FontFile LoadBody(string path)
+    private static FontFile LoadFont(string path)
     {
         var font = GD.Load<FontFile>(path);
         if (font is null)
         {
-            throw new InvalidOperationException($"cannot load the body font at {path}");
+            throw new InvalidOperationException($"cannot load the font at {path}");
         }
 
         font.Antialiasing = TextServer.FontAntialiasing.None;
@@ -251,7 +253,11 @@ public sealed partial class Probe : Node2D
 
     private static string FitName(FitMode mode) => mode == FitMode.Whole ? "whole" : "fill";
 
-    private string PickName() => $"{Current().Name}, fit mode {FitName(_fit)}";
+    private string WorldPickName() =>
+        $"world {Current().WorldScale:0.#}x, fit mode {FitName(_fit)}";
+
+    private string TextPickName() =>
+        $"body {Current().BodyPixels}, title {Current().TitlePixels}";
 
     private void Step(int direction)
     {
@@ -365,6 +371,7 @@ public sealed partial class Probe : Node2D
         ScaleState state = Current();
         double? spriteMm = _facts.SpriteMm(state, _fit);
         double? glyphMm = _facts.GlyphMm(state, _fit);
+        double? titleMm = _facts.TitleMm(state, _fit);
         var rows = new List<string>
         {
             $"STATE {_state + 1} of {ScaleState.All.Length}: {state.Name}",
@@ -373,15 +380,30 @@ public sealed partial class Probe : Node2D
             $"screen {_facts.ScreenPixels.X}x{_facts.ScreenPixels.Y}"
                 + $"  window {_facts.WindowPixels.X}x{_facts.WindowPixels.Y}",
             $"tiles {Format(ScreenFacts.TilesAcross(state), "0.##")} x {Format(ScreenFacts.TilesDown(state), "0.##")}"
-                + $"  device px per art px: world {Format(_facts.Scale(_fit) * state.World, "0.##")},"
-                + $" UI {Format(_facts.Scale(_fit) * state.Ui, "0.##")}",
+                + $"  device px per art px: world {Format(_facts.Scale(_fit) * state.WorldScale, "0.##")},"
+                + $" glyph {Format(_facts.Scale(_fit) * state.BodyUnit, "0.##")}",
             $"sprite of 32 px: {Millimeters(spriteMm)}, {Arcminutes(spriteMm)}",
-            $"body line of 16 px: {Millimeters(glyphMm)}, {Arcminutes(glyphMm)}",
-            $"the dialogue box holds {ScreenFacts.DialogueColumns(state)} characters in one line",
-            $"picks: world {_worldPick ?? "none"}, UI {_uiPick ?? "none"}",
-            "A or space: next | X or W: world | Y or U: UI | R1 or F: fit mode",
+            $"body line of {state.BodyPixels} px: {Millimeters(glyphMm)}, {Arcminutes(glyphMm)}",
+            $"title line of {state.TitlePixels} px: {Millimeters(titleMm)}, {Arcminutes(titleMm)}",
+            $"the dialogue box holds {ScreenFacts.DialogueColumns(state)} characters, and the"
+                + $" frame holds {ScreenFacts.FrameColumns(state)}",
+            $"picks: world {_worldPick ?? "none"}, text {_fontPick ?? "none"}",
+            "A or space: next | X or W: world | Y or U: text | R1 or F: fit mode",
             "View or H: hide | R: report | Menu or Esc: report and quit",
         };
+
+        int needed = ProbeText.WrappedDialogue(ScreenFacts.DialogueColumns(state)).Count;
+        if (needed > ProbeText.DialogueLines)
+        {
+            rows.Add($"note the sample dialogue needs {needed} lines at this body size, and the"
+                + $" box holds {ProbeText.DialogueLines}. The text of the game would be cut (D-635)");
+        }
+
+        if (!state.WorldIsExact)
+        {
+            rows.Add("note world 1.5x is the one combination that is not pixel-exact: an art"
+                + " pixel covers 1 or 2 frame pixels, and the edges are uneven (D-573)");
+        }
 
         if (_message.Length > 0)
         {
@@ -471,7 +493,7 @@ public sealed partial class Probe : Node2D
     {
         try
         {
-            string path = ProbeReport.Write(folder, _options, _facts, _worldPick, _uiPick);
+            string path = ProbeReport.Write(folder, _options, _facts, _worldPick, _fontPick);
             _message = $"the report is at {ProjectSettings.GlobalizePath(path)}";
             GD.Print(_message);
             QueueRedraw();

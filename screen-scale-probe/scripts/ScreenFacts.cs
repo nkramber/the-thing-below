@@ -122,11 +122,15 @@ public sealed class ScreenFacts
 
     /// <summary>The height of a 32-pixel sprite on the screen, in millimeters.</summary>
     public double? SpriteMm(ScaleState state, FitMode mode) =>
-        MmPerPixel * GridArt.TilePixels * Scale(mode) * state.World;
+        MmPerPixel * GridArt.TilePixels * Scale(mode) * state.WorldScale;
 
     /// <summary>The height of one line of body text on the screen, in millimeters.</summary>
     public double? GlyphMm(ScaleState state, FitMode mode) =>
-        MmPerPixel * FontPixels * Scale(mode) * state.Ui;
+        MmPerPixel * state.BodyPixels * Scale(mode);
+
+    /// <summary>The height of one line of title text on the screen, in millimeters.</summary>
+    public double? TitleMm(ScaleState state, FitMode mode) =>
+        MmPerPixel * state.TitlePixels * Scale(mode);
 
     /// <summary>The apparent size in arcminutes of a height in millimeters, at the distance of the run.</summary>
     public static double? Arcminutes(double? millimeters, double? distanceCm)
@@ -141,15 +145,18 @@ public sealed class ScreenFacts
     }
 
     /// <summary>The count of tiles across the frame at the world scale of a state.</summary>
-    public static double TilesAcross(ScaleState state) => (double)FrameWidth / GridArt.TilePixels / state.World;
+    public static double TilesAcross(ScaleState state) => FrameWidth / (double)GridArt.TilePixels / state.WorldScale;
 
     /// <summary>The count of tiles down the frame at the world scale of a state.</summary>
-    public static double TilesDown(ScaleState state) => (double)FrameHeight / GridArt.TilePixels / state.World;
+    public static double TilesDown(ScaleState state) => FrameHeight / (double)GridArt.TilePixels / state.WorldScale;
 
-    /// <summary>The count of characters that one line of the dialogue box holds at a UI scale.</summary>
+    /// <summary>The count of characters that one line of the dialogue box holds at a body size.</summary>
     /// <remarks>The fit of the frame cancels, so the count is the same on every screen.</remarks>
     public static int DialogueColumns(ScaleState state) =>
-        (FrameWidth - (28 * state.Ui)) / (FontPixels * state.Ui / 2);
+        (FrameWidth - (28 * state.LayoutUnit)) / (state.BodyPixels / 2);
+
+    /// <summary>The count of body characters that the whole width of the frame holds.</summary>
+    public static int FrameColumns(ScaleState state) => FrameWidth / (state.BodyPixels / 2);
 
     /// <summary>The rectangle of the frame in the window, centered, with black bars around it.</summary>
     public Rect2 FrameRect(FitMode mode)

@@ -15,8 +15,8 @@ public enum ProbeCommand
     /// <summary>Marks the world scale of the current state as the pick of the owner.</summary>
     WorldPick,
 
-    /// <summary>Marks the UI scale of the current state as the pick of the owner.</summary>
-    UiPick,
+    /// <summary>Marks the text sizes of the current combination as the pick of the owner.</summary>
+    FontPick,
 
     /// <summary>Changes the fit mode between whole and fill.</summary>
     NextFitMode,

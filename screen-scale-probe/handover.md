@@ -7,6 +7,25 @@ This file keeps the owner answers and the state of the probe. The step is sectio
 document in `docs/` holds these answers yet. The next PR reads this file and records each row.
 The Deck test of D-160 set the same pattern, and PR-1 recorded its answers.
 
+## The second round of 2026-09-19
+
+The owner reopened the text half of the answer before PR-61 starts. The probe now shows nine
+combinations: three world scales and three text sizes. The first round and its answers below
+stay as they are, and D-633 and D-639 stand until the owner picks again.
+
+| Question | The answer | Note |
+|---|---|---|
+| The body sizes | 32, 48, and 64 frame pixels | Each one is a Terminus bitmap at a whole-number scale |
+| The title sizes | 48, 64, and 96 frame pixels | One step above the body on the same ladder |
+| The world scales | 1x, 1.5x, and 2x | 1.5x is the one combination that is not pixel-exact |
+| What ships to the player | The text size alone | A player world scale would break D-568: every screen shows the same part of the map |
+| Where the probe lives | This branch, with no PR | The same pattern as the first round (D-621) |
+
+The owner asked whether one text size can remove the UI scale setting of D-639. It can. Each
+body size takes 2 frame pixels for each glyph pixel. Thus the floor of D-639 holds on the Deck
+at a fit of 1x, and no setting is necessary. The cost is the text budget. A dialogue line holds
+76 characters at a body of 32. It holds 49 at a body of 48, and 36 at a body of 64 (D-635).
+
 ## The owner answers of 2026-09-18
 
 Each answer needs a decision row, from the next free D- id.

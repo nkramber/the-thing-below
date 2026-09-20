@@ -83,7 +83,9 @@ public sealed class MockFrame
     /// <summary>The part of the world that the frame shows at one world scale.</summary>
     public Rect2I VisibleRegion(ScaleState state)
     {
-        var size = new Vector2I(ScreenFacts.FrameWidth / state.World, ScreenFacts.FrameHeight / state.World);
+        var size = new Vector2I(
+            ScreenFacts.FrameWidth * 2 / state.WorldHalves,
+            ScreenFacts.FrameHeight * 2 / state.WorldHalves);
         var origin = new Vector2I(PartyCenter.X - (size.X / 2), PartyCenter.Y - (size.Y / 2));
         var world = new Vector2I(World.GetWidth(), World.GetHeight());
         origin.X = Math.Clamp(origin.X, 0, Math.Max(0, world.X - size.X));

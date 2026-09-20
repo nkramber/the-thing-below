@@ -9,7 +9,8 @@ namespace ScreenScaleProbe;
 public static class ProbeReport
 {
     /// <summary>Writes the report, and gives the path of the file that it wrote.</summary>
-    public static string Write(string folder, ProbeOptions options, ScreenFacts facts, string? worldPick, string? uiPick)
+    public static string Write(
+        string folder, ProbeOptions options, ScreenFacts facts, string? worldPick, string? textPick)
     {
         Error made = DirAccess.MakeDirRecursiveAbsolute(folder);
         if (made != Error.Ok)
@@ -24,7 +25,7 @@ public static class ProbeReport
             throw new InvalidOperationException($"cannot write the report at {path}: {FileAccess.GetOpenError()}");
         }
 
-        file.StoreString(Build(options, facts, worldPick, uiPick));
+        file.StoreString(Build(options, facts, worldPick, textPick));
         return path;
     }
 
@@ -41,7 +42,8 @@ public static class ProbeReport
         return path;
     }
 
-    private static string Build(ProbeOptions options, ScreenFacts facts, string? worldPick, string? uiPick)
+    private static string Build(
+        ProbeOptions options, ScreenFacts facts, string? worldPick, string? textPick)
     {
         var text = new StringBuilder();
         text.AppendLine($"# Screen scale probe: {options.ScreenLabel}");
@@ -86,7 +88,7 @@ public static class ProbeReport
         text.AppendLine("## The pick of the owner");
         text.AppendLine();
         text.AppendLine($"- The scale of the world: {worldPick ?? "no pick in this run"}");
-        text.AppendLine($"- The scale of the UI: {uiPick ?? "no pick in this run"}");
+        text.AppendLine($"- The sizes of the text: {textPick ?? "no pick in this run"}");
         text.AppendLine();
         text.AppendLine("## Notes");
         text.AppendLine();
@@ -111,22 +113,26 @@ public static class ProbeReport
         text.AppendLine($"## {heading}");
         text.AppendLine();
         text.AppendLine("| State | Tiles across | Device pixels for one art pixel of the world "
-            + "| Device pixels for one art pixel of the UI | Sprite of 32 pixels | Apparent sprite "
-            + "| Line of body text | Apparent line | Characters in a dialogue line |");
-        text.AppendLine("|---|---|---|---|---|---|---|---|---|");
+            + "| Device pixels for one glyph pixel | Sprite of 32 pixels | Apparent sprite "
+            + "| Line of body text | Apparent line | Line of title text "
+            + "| Characters in a dialogue line | Characters across the frame |");
+        text.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|");
         foreach (ScaleState state in ScaleState.All)
         {
             double? spriteMm = facts.SpriteMm(state, mode);
             double? glyphMm = facts.GlyphMm(state, mode);
+            double? titleMm = facts.TitleMm(state, mode);
             text.Append($"| {state.Name} ");
             text.Append($"| {ScreenFacts.TilesAcross(state).ToString("0.##", CultureInfo.InvariantCulture)} ");
-            text.Append($"| {Number(facts.Scale(mode) * state.World)} ");
-            text.Append($"| {Number(facts.Scale(mode) * state.Ui)} ");
+            text.Append($"| {Number(facts.Scale(mode) * state.WorldScale)} ");
+            text.Append($"| {Number(facts.Scale(mode) * state.BodyUnit)} ");
             text.Append($"| {Millimeters(spriteMm, 2)} ");
             text.Append($"| {Arcminutes(spriteMm, options.DistanceCm)} ");
             text.Append($"| {Millimeters(glyphMm, 2)} ");
             text.Append($"| {Arcminutes(glyphMm, options.DistanceCm)} ");
-            text.AppendLine($"| {ScreenFacts.DialogueColumns(state)} |");
+            text.Append($"| {Millimeters(titleMm, 2)} ");
+            text.Append($"| {ScreenFacts.DialogueColumns(state)} ");
+            text.AppendLine($"| {ScreenFacts.FrameColumns(state)} |");
         }
 
         text.AppendLine();

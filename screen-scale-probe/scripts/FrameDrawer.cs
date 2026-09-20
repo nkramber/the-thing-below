@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Godot;
 
 namespace ScreenScaleProbe;
@@ -10,17 +12,19 @@ public sealed partial class FrameDrawer : Node2D
 {
     private MockFrame _frame = null!;
     private FontFile _body = null!;
+    private FontFile _title = null!;
     private ScaleState _state = ScaleState.All[0];
 
-    /// <summary>Gives the drawer the baked world and the body font, before the first draw.</summary>
-    public void Configure(MockFrame frame, FontFile body)
+    /// <summary>Gives the drawer the baked world and the two fonts, before the first draw.</summary>
+    public void Configure(MockFrame frame, FontFile body, FontFile title)
     {
         TextureFilter = TextureFilterEnum.Nearest;
         _frame = frame;
         _body = body;
+        _title = title;
     }
 
-    /// <summary>Sets the scale state that the next draw shows.</summary>
+    /// <summary>Sets the combination that the next draw shows.</summary>
     public void Show(ScaleState state)
     {
         _state = state;
@@ -33,12 +37,17 @@ public sealed partial class FrameDrawer : Node2D
         var frame = new Rect2I(0, 0, ScreenFacts.FrameWidth, ScreenFacts.FrameHeight);
         DrawRect(frame, Colors.Black);
         DrawWorld(frame);
+        DrawTitle(frame);
         DrawPartyRow(frame);
         DrawDialogue(frame);
     }
 
-    /// <summary>The height of the party row and its margin, in frame pixels.</summary>
-    public static int PartyRowBand(ScaleState state) => 30 * state.Ui;
+    /// <summary>The height of the title band, the party row, and their margins, in frame pixels.</summary>
+    public static int PartyRowBand(ScaleState state)
+    {
+        int unit = state.LayoutUnit;
+        return (8 * unit) + state.TitlePixels + (6 * unit) + state.BodyPixels + (14 * unit);
+    }
 
     private void DrawWorld(Rect2I frame)
     {
@@ -46,25 +55,40 @@ public sealed partial class FrameDrawer : Node2D
         DrawTextureRectRegion(_frame.World, frame, region);
     }
 
+    private void DrawTitle(Rect2I frame)
+    {
+        int unit = _state.LayoutUnit;
+        var pen = frame.Position + new Vector2I(8 * unit, 8 * unit);
+        DrawText(pen, ProbeText.Title, _title, _state.TitleNative, _state.TitleUnit, new Color("e6c85a"));
+    }
+
     private void DrawPartyRow(Rect2I frame)
     {
-        int unit = _state.Ui;
-        int fontSize = ScreenFacts.FontPixels * unit;
-        float width = _body.GetStringSize(ProbeText.PartyRow, HorizontalAlignment.Left, -1, fontSize).X;
+        int unit = _state.LayoutUnit;
+        int top = (8 * unit) + _state.TitlePixels + (6 * unit);
+
+        // The row takes the members that fit, so the panel never passes the edge of the frame.
+        int columns = (frame.Size.X - (24 * unit)) / (_state.BodyPixels / 2);
+        string text = ProbeText.PartyRow(columns);
+        float width = TextWidth(text, _body, _state.BodyNative, _state.BodyUnit);
         var box = new Rect2I(
-            frame.Position + new Vector2I(8 * unit, 8 * unit),
-            new Vector2I((int)width + (8 * unit), ScreenFacts.FontPixels * unit + (6 * unit)));
+            frame.Position + new Vector2I(8 * unit, top),
+            new Vector2I((int)width + (8 * unit), _state.BodyPixels + (6 * unit)));
         DrawPanel(box, unit);
-        DrawText(box.Position + new Vector2I(4 * unit, 3 * unit), ProbeText.PartyRow, fontSize, Colors.White);
+        DrawText(box.Position + new Vector2I(4 * unit, 3 * unit), text,
+            _body, _state.BodyNative, _state.BodyUnit, Colors.White);
     }
 
     private void DrawDialogue(Rect2I frame)
     {
-        int unit = _state.Ui;
-        int fontSize = ScreenFacts.FontPixels * unit;
-        int line = ScreenFacts.FontPixels * unit;
+        int unit = _state.LayoutUnit;
+        int line = _state.BodyPixels;
         int gap = 4 * unit;
-        int rows = ProbeText.Dialogue.Length + 1;
+        // The box keeps the three lines of the game-text-style limit, whatever the body size.
+        // A sample that needs more lines does not grow the box. The chrome reports the overflow.
+        List<string> wrapped = ProbeText.WrappedDialogue(ScreenFacts.DialogueColumns(_state));
+        List<string> dialogue = wrapped.GetRange(0, Math.Min(ProbeText.DialogueLines, wrapped.Count));
+        int rows = dialogue.Count + 1;
         int height = (rows * line) + ((rows - 1) * gap) + (12 * unit);
         var box = new Rect2I(
             new Vector2I(frame.Position.X + (8 * unit), frame.End.Y - (8 * unit) - height),
@@ -72,11 +96,11 @@ public sealed partial class FrameDrawer : Node2D
         DrawPanel(box, unit);
 
         var pen = box.Position + new Vector2I(6 * unit, 6 * unit);
-        DrawText(pen, ProbeText.Speaker, fontSize, new Color("e6c85a"));
+        DrawText(pen, ProbeText.Speaker, _body, _state.BodyNative, _state.BodyUnit, new Color("e6c85a"));
         pen.Y += line + gap;
-        foreach (string text in ProbeText.Dialogue)
+        foreach (string text in dialogue)
         {
-            DrawText(pen, text, fontSize, Colors.White);
+            DrawText(pen, text, _body, _state.BodyNative, _state.BodyUnit, Colors.White);
             pen.Y += line + gap;
         }
     }
@@ -87,10 +111,20 @@ public sealed partial class FrameDrawer : Node2D
         DrawRect(box, new Color("d6d0d8"), false, unit);
     }
 
-    private void DrawText(Vector2I topLeft, string text, int fontSize, Color color)
+    /// <summary>The width of a line in frame pixels, at the strike and the scale of the state.</summary>
+    private static float TextWidth(string text, FontFile font, int native, int unit) =>
+        font.GetStringSize(text, HorizontalAlignment.Left, -1, native).X * unit;
+
+    /// <summary>
+    /// Draws one line at a bitmap strike of the font, under a whole-number scale. The size that
+    /// reaches the rasterizer is the strike, never the strike times the scale, because a size
+    /// with no strike falls back to the traced outline and loses the square pixel (F-49, D-230).
+    /// </summary>
+    private void DrawText(Vector2I topLeft, string text, FontFile font, int native, int unit, Color color)
     {
-        float baseline = _body.GetAscent(fontSize);
-        DrawString(_body, new Vector2(topLeft.X, topLeft.Y + baseline), text,
-            HorizontalAlignment.Left, -1, fontSize, color);
+        float baseline = font.GetAscent(native);
+        DrawSetTransform(topLeft, 0, new Vector2(unit, unit));
+        DrawString(font, new Vector2(0, baseline), text, HorizontalAlignment.Left, -1, native, color);
+        DrawSetTransform(Vector2.Zero, 0, Vector2.One);
     }
 }

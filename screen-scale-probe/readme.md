@@ -2,8 +2,8 @@
 
 Status: a throwaway spike. Owner: Nate. Written in ASD-STE100 (D-10).
 
-This project shows one mock frame of 1280 by 720 at four scale states (D-621). The owner reads
-the frame on three screens, and then picks the scale of the world and the scale of the UI
+This project shows one mock frame of 1280 by 720 at nine combinations (D-621). The owner reads
+the frame on four screens, and then picks the scale of the world and the sizes of the text
 (OQ-183). The branch `spike/screen-scale-probe` holds the project, and it never merges to
 `main` (D-597, D-621). The step is section 7.8 of `docs/roadmaps/phase-1-foundations.md`.
 
@@ -17,17 +17,44 @@ the frame on three screens, and then picks the scale of the world and the scale 
 The tiles in `tiles/` are throwaway. They are not art of the game, and PR-34 draws the real
 tiles. The five sprite grids in `sprites/` are copies of the sample of D-402.
 
-## The four states
+## The nine combinations
 
-One key steps through the four states. The world scale and the UI scale are separate, because
-OQ-183 asks two questions.
+One key steps through the nine combinations. The world scale and the text size are separate,
+because OQ-183 asks two questions.
 
-| State | The world | The UI | Tiles in the frame |
-|---|---|---|---|
-| 1 | 1x | 1x | 40 by 22.5 |
-| 2 | 2x | 2x | 20 by 11.25 |
-| 3 | 2x | 1x | 20 by 11.25 |
-| 4 | 1x | 2x | 40 by 22.5 |
+Terminus carries a bitmap at 12, 14, 16, 18, 20, 22, 24, 28, and 32 pixels alone. Thus every
+text size below is a bitmap at a whole-number scale. A size with no bitmap falls back to the
+traced outline, and the glyph loses its square pixel (F-49, D-230). The probe draws each line at
+the size of the bitmap, under the scale, and never at the product of the two.
+
+| State | The world | Tiles in the frame | Body text | Title text |
+|---|---|---|---|---|
+| 1 | 1x | 40 by 22.5 | 32 (16x2) | 48 (24x2) |
+| 2 | 1x | 40 by 22.5 | 48 (24x2) | 64 (32x2) |
+| 3 | 1x | 40 by 22.5 | 64 (32x2) | 96 (32x3) |
+| 4 | 1.5x | 26.67 by 15 | 32 (16x2) | 48 (24x2) |
+| 5 | 1.5x | 26.67 by 15 | 48 (24x2) | 64 (32x2) |
+| 6 | 1.5x | 26.67 by 15 | 64 (32x2) | 96 (32x3) |
+| 7 | 2x | 20 by 11.25 | 32 (16x2) | 48 (24x2) |
+| 8 | 2x | 20 by 11.25 | 48 (24x2) | 64 (32x2) |
+| 9 | 2x | 20 by 11.25 | 64 (32x2) | 96 (32x3) |
+
+A body glyph takes 2 frame pixels for each glyph pixel in every combination. Thus the floor of
+D-639 holds on the Deck, where the fit is 1x, and no player setting is necessary.
+
+The world at 1.5x is the one combination that is not pixel-exact. An art pixel covers 1 or 2
+frame pixels there, and the edges are uneven. The panel of the probe gives that note.
+
+The text budget falls as the body grows. The panel gives both counts for each combination.
+
+| Body text | Characters in a dialogue line | Characters across the frame |
+|---|---|---|
+| 32 | 76 | 80 |
+| 48 | 49 | 53 |
+| 64 | 36 | 40 |
+
+The box keeps the three lines of the `game-text-style` skill at every size. The panel gives a
+note when the sample needs more lines than three (D-635).
 
 ## The two fit modes
 
@@ -49,8 +76,8 @@ D-573, and the report holds a state table for each mode.
 
 | Key | Button of the pad | What it does |
 |---|---|---|
-| Space, or the right arrow | A | The next state |
-| The left arrow | B | The state before |
+| Space, or the right arrow | A | The next combination |
+| The left arrow | B | The combination before |
 | W | X | Marks the current world scale as the pick of the owner |
 | U | Y | Marks the current UI scale as the pick of the owner |
 | F | R1 | The next fit mode, whole or fill |
@@ -112,7 +139,7 @@ which proves the code of a fractional fit on a screen of another size.
 ## How the report works
 
 Each run writes one Markdown file in `reports/`, beside the build. The file holds the facts of
-the screen, a row for each of the four states, and the marks of the owner. The file holds the
+the screen, a row for each of the nine combinations, and the marks of the owner. The file holds the
 rows of M-8. A second run of the same screen writes a second file, and no run overwrites
 another (T-2).
 
