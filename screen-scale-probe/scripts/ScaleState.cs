@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace ScreenScaleProbe;
@@ -11,10 +10,11 @@ namespace ScreenScaleProbe;
 /// </summary>
 public sealed class ScaleState
 {
-    private ScaleState(int worldHalves, int bodyNative, int titleNative, int titleUnit)
+    private ScaleState(int worldHalves, int bodyNative, int bodyUnit, int titleNative, int titleUnit)
     {
         WorldHalves = worldHalves;
         BodyNative = bodyNative;
+        BodyUnit = bodyUnit;
         TitleNative = titleNative;
         TitleUnit = titleUnit;
     }
@@ -31,8 +31,12 @@ public sealed class ScaleState
     /// <summary>The whole-number scale of a title glyph.</summary>
     public int TitleUnit { get; }
 
-    /// <summary>The whole-number scale of a body glyph. D-639 takes the floor of 2 device pixels.</summary>
-    public int BodyUnit => 2;
+    /// <summary>
+    /// The whole-number scale of a body glyph. A scale of 1 draws the finer strike and gives a
+    /// stem of one frame pixel. That stem is one device pixel on the Deck, below the floor of
+    /// D-639. The owner reads both kinds in this run.
+    /// </summary>
+    public int BodyUnit { get; }
 
     /// <summary>The height of a body line in frame pixels: 32, 48, or 64.</summary>
     public int BodyPixels => BodyNative * BodyUnit;
@@ -46,10 +50,11 @@ public sealed class ScaleState
     /// <summary>
     /// The unit of every panel border and margin, in frame pixels. It keeps the chrome in
     /// proportion to the text, and it holds the layout of the earlier runs at a body of 32.
-    /// The floor of 2 holds D-639 for a border: a border of one frame pixel is one device pixel
-    /// on the Deck, where the fit is 1x.
     /// </summary>
-    public int LayoutUnit => Math.Max(2, BodyPixels / 16);
+    public int LayoutUnit => BodyPixels / 16;
+
+    /// <summary>True when a body glyph pixel covers 2 frame pixels, the floor of D-639.</summary>
+    public bool BodyMeetsFloor => BodyUnit >= 2;
 
     /// <summary>True when one art pixel of the world covers a whole number of frame pixels.</summary>
     public bool WorldIsExact => WorldHalves % 2 == 0;
@@ -66,15 +71,18 @@ public sealed class ScaleState
     {
         int[] worlds = [2, 3, 4];
 
-        // Body 24, 32, and 48, each a strike doubled. The title takes one step up the same ladder.
-        (int Body, int TitleNative, int TitleUnit)[] texts = [(12, 16, 2), (16, 24, 2), (24, 32, 2)];
+        // Body 24, 32, and 48. The title takes one step up the same ladder, at the same scale.
+        // The body of 24 draws the 24 strike at 1x, so it carries four times the glyph detail of
+        // the 12 strike doubled. It is the one body that does not meet the floor of D-639.
+        (int Body, int BodyUnit, int TitleNative, int TitleUnit)[] texts =
+            [(24, 1, 32, 1), (16, 2, 24, 2), (24, 2, 32, 2)];
 
         var all = new List<ScaleState>(worlds.Length * texts.Length);
         foreach (int world in worlds)
         {
-            foreach ((int body, int titleNative, int titleUnit) in texts)
+            foreach ((int body, int bodyUnit, int titleNative, int titleUnit) in texts)
             {
-                all.Add(new ScaleState(world, body, titleNative, titleUnit));
+                all.Add(new ScaleState(world, body, bodyUnit, titleNative, titleUnit));
             }
         }
 

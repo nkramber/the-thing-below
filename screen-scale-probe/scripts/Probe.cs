@@ -399,6 +399,13 @@ public sealed partial class Probe : Node2D
                 + $" box holds {ProbeText.DialogueLines}. The text of the game would be cut (D-635)");
         }
 
+        if (!state.BodyMeetsFloor)
+        {
+            rows.Add($"note the body draws the {state.BodyNative} strike at 1x, so a stem is one"
+                + " frame pixel. It is one device pixel on the Deck, below the floor of D-639."
+                + " The glyph carries four times the detail of the finer strike doubled");
+        }
+
         if (!state.WorldIsExact)
         {
             rows.Add("note world 1.5x is the one combination that is not pixel-exact: an art"
