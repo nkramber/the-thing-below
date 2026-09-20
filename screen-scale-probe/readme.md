@@ -109,22 +109,25 @@ which proves the code of a fractional fit on a screen of another size.
 
 ### The exports for the Deck and Windows
 
-The folder `build/out/` holds both exports and all three run scripts. Git ignores that folder,
-so each change of the code needs the two commands below. Run them from this folder on the Mac.
+The folder `build/` holds the three run scripts and both exports. Each script reads the binary
+beside it, so the binary and the script stay in one flat folder. Git keeps the three scripts
+and ignores each export. Thus a change of the code needs the two commands below. Run them from
+this folder on the Mac.
 
 ```
 /Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path . \
-  --export-release "Linux x86_64" build/out/ScreenScaleProbe.x86_64
+  --export-release "Linux x86_64" build/ScreenScaleProbe.x86_64
 /Applications/Godot_mono.app/Contents/MacOS/Godot --headless --path . \
-  --export-release "Windows x86_64" build/out/ScreenScaleProbe.exe
+  --export-release "Windows x86_64" build/ScreenScaleProbe.exe
 ```
 
-Then copy `build/run-probe-deck.sh`, `build/run-probe-windows.bat`, and
-`build/run-probe-1080p.bat` into `build/out/`. Each script reads the binary beside it.
+Each export embeds its pack, and no other file goes with it. Copy `build/` to the machine, or
+copy the one binary and the one script of that machine. Never make a second copy of a script
+in a folder below `build/`, because the script then reads the wrong folder.
 
 ### The Steam Deck
 
-1. Copy the folder `build/out/` to the Deck, into a folder of its own.
+1. Copy the folder `build/` to the Deck, into a folder of its own.
 2. Start the Deck in desktop mode, and open a terminal in that folder.
 3. Run `chmod +x run-probe-deck.sh ScreenScaleProbe.x86_64`. A copy through a stick loses the mode.
 4. Run `./run-probe-deck.sh`. The first argument sets the distance, and the default is 45 cm.
@@ -136,13 +139,13 @@ device pixel, and the one screen that answers the floor of D-639.
 
 ### The Windows machine with the 32-inch 1440p screen
 
-1. Copy the folder `build/out/` to the Windows machine, into a folder of its own.
+1. Copy the folder `build/` to the Windows machine, into a folder of its own.
 2. Read the two numbers at the top of `run-probe-windows.bat`, and correct them for the screen.
 3. Run the batch file. The first argument sets the distance, and the default is 70 cm.
 
 ### The Windows machine with a 1920 by 1080 screen
 
-1. Copy the folder `build/out/` to the Windows machine, into a folder of its own.
+1. Copy the folder `build/` to the Windows machine, into a folder of its own.
 2. Correct the diagonal in `run-probe-1080p.bat`, or give it as the second argument.
 3. Run the batch file. The probe starts in mode fill, at a fit of 1.5x.
 4. Press F or the right shoulder button, and compare mode fill with mode whole.
