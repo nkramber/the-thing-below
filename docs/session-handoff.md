@@ -1,5 +1,42 @@
 # Session handoff
 
+## Session 151: 2026-09-20, Codex
+
+Author: Codex
+Session: review PR #44, the screen-test job. Repository: the-thing-below. Branch: `feat/pr-41-screen-test`. Role: reviewer. Base: `1e0c6b1`.
+
+### What this session did, and why
+
+- Reviewed PR #44 at effective head `233b890`.
+- Verified the opposite-provider gate, the complete diff, the PR comments, the PR-41 roadmap exit tests, the capture lifecycle, the renderer checks, the deterministic two-run comparison, the baseline comparison, and the contact-sheet command.
+- Found no in-scope defect.
+- Added `docs/reviews/pr-44.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1272 tests and all local gates.
+- GitHub passes the build, test, format, smoke, replay identity, det-lint, STE, coverage, changed-paths, screen-test, and Gitar checks at tip `023211d`. Two Windows jobs were still in progress when read.
+- The effective implementation head is `233b890`. The later commits change only handoff and review metadata.
+- The review-gate check waits for `docs/reviews/pr-44.md` and should pass after this record reaches the branch.
+
+### What is in flight
+
+The pull request waits for the owner merge. The review applies to effective head `233b890`.
+
+### Traps and gotchas
+
+- The GitHub tip is `023211d`, but the two commits after `233b890` change only metadata paths.
+- A later Mesa pin needs a new baseline in the same PR.
+- A PR that changes `.github/workflows/` never takes the review-override label.
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Push the review record and verify the review-gate check and the remote branch state.
+
 ## Session 150: 2026-09-20, Claude Code
 
 Author: Claude Code
@@ -360,38 +397,3 @@ None. OQ-57 stays open, and the placeholder of D-712 unblocks this PR.
 ### The next concrete action
 
 Hand PR #41 to Codex for the review.
-
-## Session 141: 2026-09-20, Codex
-
-Author: Codex
-Session: review PR #40, the audit fixes. Repository: the-thing-below. Branch: `fix/audit-fixes`. Role: reviewer. Base: `4a472c5`.
-
-### What this session did, and why
-
-- Reviewed PR #40 at effective head `828e5b0` after the author completed the audit fixes.
-- Verified the opposite-provider gate, the full changed path set, the existing Gitar comment and answer, the changed contracts, and the affected callers.
-- Ran `make verify`. It passed with 953 tests and all local gates.
-- Added `docs/reviews/pr-40.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- The local build, tests, format, det-lint, STE, replay identity, content hash, atlas, and smoke checks pass.
-- The PR head is `eb1c906`. The review record and handoff entry are on the remote branch.
-
-### What is in flight
-
-The review-gate check is pending after the metadata push. The other required checks are also pending on the new head.
-
-### Traps and gotchas
-
-- The effective head is `828e5b0`. The review publication commit changes only the metadata set.
-- The existing review-gate failure is expected before the review record exists.
-- `HANDOFF-PR-61.md` is an unrelated untracked note. Do not delete it.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for the revision-matched checks, then verify the review-gate result.
