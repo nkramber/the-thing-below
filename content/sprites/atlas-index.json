@@ -3,7 +3,8 @@
  "pages": [
   { "kind": "tiles", "number": 1, "width": 2048, "height": 32 },
   { "kind": "map_sprites", "number": 1, "width": 192, "height": 32 },
-  { "kind": "ui", "number": 1, "width": 24, "height": 24 },
+  { "kind": "battle_sprites", "number": 1, "width": 160, "height": 64 },
+  { "kind": "ui", "number": 1, "width": 320, "height": 24 },
   { "kind": "pieces", "number": 1, "width": 192, "height": 64 }
  ],
  "drawings": [
@@ -118,6 +119,282 @@
    ]
   },
   {
+   "id": "drawing.fixture_brute_battle",
+   "page": "battle_sprites",
+   "width": 64,
+   "height": 64,
+   "draws": [
+    { "content": "enemy.fixture_brute", "use": "battle" }
+   ],
+   "frames": [
+    { "x": 0, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.fixture_grunt_battle",
+   "page": "battle_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "enemy.fixture_grunt", "use": "battle" }
+   ],
+   "frames": [
+    { "x": 64, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.marrek_battle",
+   "page": "battle_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "character.marrek", "use": "battle" }
+   ],
+   "frames": [
+    { "x": 96, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.marrek_battle_attack",
+   "page": "battle_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "character.marrek", "use": "battle_attack" }
+   ],
+   "frames": [
+    { "x": 128, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_element_dark",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "element.dark", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 0, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_element_earth",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "element.earth", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 16, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_element_fire",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "element.fire", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 32, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_element_holy",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "element.holy", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 48, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_element_ice",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "element.ice", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 64, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_element_lightning",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "element.lightning", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 80, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_element_water",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "element.water", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 96, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_element_wind",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "element.wind", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 112, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_status_bleed",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "status.bleed", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 128, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_status_blind",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "status.blind", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 144, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_status_haste",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "status.haste", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 160, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_status_poison",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "status.poison", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 176, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_status_regen",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "status.regen", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 192, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_status_shell",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "status.shell", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 208, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_status_silence",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "status.silence", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 224, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_status_sleep",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "status.sleep", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 240, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_status_slow",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "status.slow", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 256, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.icon_status_stun",
+   "page": "ui",
+   "width": 16,
+   "height": 16,
+   "draws": [
+    { "content": "status.stun", "use": "icon" }
+   ],
+   "frames": [
+    { "x": 272, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.ui_pointer",
+   "page": "ui",
+   "width": 8,
+   "height": 8,
+   "draws": [
+    { "content": "ui.pointer", "use": "pointer" }
+   ],
+   "frames": [
+    { "x": 288, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
    "id": "drawing.ui_window_frame",
    "page": "ui",
    "width": 24,
@@ -126,7 +403,7 @@
     { "content": "ui.window", "use": "frame" }
    ],
    "frames": [
-    { "x": 0, "y": 0, "ticks": 0 }
+    { "x": 296, "y": 0, "ticks": 0 }
    ]
   },
   {

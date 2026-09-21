@@ -62,13 +62,16 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 - A load error names the file, the field, and the reason.
 - One test loads every file under `content/` and fails on the first error.
 - Player-visible text is a string id, never a string literal in code (G-7). Game puts it on screen through the one text helper, and det-lint fails a Godot text property outside it (D-499).
-- No `.tres` or `.res` file holds game data. The Godot project holds Godot scene files and settings alone.
+- No `.tres` or `.res` file holds game data. The Godot project holds Godot scene files, settings, and shader files alone (D-825).
 
 ## Godot
 
 - A screen is a C# class that builds its nodes in code, or a minimal Godot scene file that holds layout alone. Game data never lives in a Godot scene file.
 - The Game loop calls `Core` at a fixed rate. Game draws each step as a slide between tiles, and `Core` positions stay on whole tiles (D-106, D-203).
 - The camera, each shader, the audio, and the input map live in `Game` and never reach `Core`.
+- Each shader is a `.gdshader` file in `TheThingBelow.Game/shaders/`, and the review reads it as code (D-825). Game loads it with `ResourceLoader.Load` and checks the result, because a failed load writes to the log alone (T-2).
+- A shader on a sprite, a tile, or a piece never writes `NORMAL_MAP`, and a test reads each shader file for it (D-183). Game sets each uniform by a name constant, and a test reads each name in the file.
+- A shader that fails to compile writes to the log alone. The screen-test job and `make sheet` fail on an error line, so each shader draws in a capture (D-172).
 - No rule waits for an effect. Game counts the ticks of an effect on its fixed-step clock, and it sends a wait intent at the end where the world waits (D-266, D-522).
 - `Core` runs each story scene and holds its step index. Game draws each step, and it sends the same wait intent when the step ends (D-540).
 - Each effect file is JSON with integer values, and a test fails a map or a battle that passes the effect budget (D-517, D-523).

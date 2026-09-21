@@ -1,0 +1,32 @@
+{
+ "id": "drawing.icon_element_holy",
+ "page": "ui",
+ "width": 16,
+ "height": 16,
+ "draws": [
+  { "content": "element.holy", "use": "icon" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................",
+    ".......kk.......",
+    "......k##k......",
+    "......k##k......",
+    "..kk..k##k..kk..",
+    "..k#kkk##kkk#k..",
+    "...k########k...",
+    "kkkk##aaaa##kkkk",
+    "k#####aaaa#####k",
+    "kkkk##aaaa##kkkk",
+    "...k########k...",
+    "..k#kkk##kkk#k..",
+    "..kk..k##k..kk..",
+    "......k##k......",
+    ".......kk.......",
+    "................"
+   ]
+  }
+ ]
+}

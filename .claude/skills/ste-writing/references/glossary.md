@@ -39,6 +39,13 @@ Game terms from the roadmap interview of 2026-09-12:
 | field | the enemies that stand in a battle, six at most (D-759) | board, arena |
 | wave | the waiting enemies of a group, which step in as others fall (D-758, D-778) | reinforcement, spawn |
 | strip | the six turns of the timeline that the screen shows (D-756) | bar, queue |
+| command menu | the menu of the actions of a character on its turn (D-111, D-827) | action bar, battle menu |
+| message line | the one line of the battle screen that states each event (D-213) | log, text box |
+| hit flash | the short change of a sprite to one color when a hit strikes it (D-96, D-825) | blink, flicker |
+| pointer | the drawing that marks the target under the cursor (D-833) | arrow, cursor, when the text means the drawing |
+| lane | one of the two columns of places inside a row of the battle screen (D-759) | column, file |
+| lunge | the short slide of an enemy toward the party when it acts (D-832) | bump, charge |
+| battle view | the fight as the battle screen shows it, which follows the events that the screen played (D-532) | model, mirror, and view alone, which names the part of the map on screen |
 | defend | the action that cuts the damage until the next turn of the character (D-755) | guard, which names a lesson kind (D-377), block |
 | move | one kind of strike: its delay, its power, its element, and its status chance. The basic attack is one move (D-376, D-793) | skill, technique, attack, when the text means the kind |
 | affinity | how a combatant takes a hit of one element: normal, weak, resist, or absorb (D-794) | weakness, when the text means the whole set, and resistance |

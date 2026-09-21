@@ -39,18 +39,28 @@ public sealed class ScreenCapturesTests
         "ui-whole-1440.png",
     ];
 
+    /// <summary>The captures of the battle fixture (D-827, D-833).</summary>
+    private static readonly string[] BattleNames =
+    [
+        "battle-menu-1x.png",
+        "battle-menu-fill-1080.png",
+        "battle-target-1x.png",
+        "battle-blow-1x.png",
+    ];
+
     // This property stays below `StillNames`, because its build reads that array, and a static
     // member takes its value in the order of the file (T-2).
     /// <summary>Every file that one run of the capture session writes, in the order of the list.</summary>
     public static TheoryData<string> ExpectedNames { get; } = BuildExpectedNames();
 
     [Fact]
-    public void TheListHoldsFiveCapturesOfEachStillFixtureAndOneForEachTickOfTheWalk()
+    public void TheListHoldsFiveCapturesOfEachStillFixtureOneForEachTickOfTheWalkAndFourOfTheBattle()
     {
         // D-734. Two still fixtures, and five captures of each one: the frame at 1x, and both
         // fit modes at 1080 and 1440 screen rows (D-232, D-568). D-782 adds the walk: 17 ticks
         // of one step north and 17 of one step south (D-821). D-819 adds the picture at 1x.
-        Assert.Equal(10 + 34 + 1, FileNames().Count);
+        // D-827 adds the battle: the menu at both body sizes, the pointer, and a blow.
+        Assert.Equal(10 + 34 + 1 + 4, FileNames().Count);
     }
 
     [Fact]
@@ -196,6 +206,11 @@ public sealed class ScreenCapturesTests
         }
 
         names.Add("picture-1x.png");
+        foreach (string name in BattleNames)
+        {
+            names.Add(name);
+        }
+
         return names;
     }
 

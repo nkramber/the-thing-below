@@ -1,0 +1,32 @@
+{
+ "id": "drawing.icon_status_bleed",
+ "page": "ui",
+ "width": 16,
+ "height": 16,
+ "draws": [
+  { "content": "status.bleed", "use": "icon" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................",
+    "....k...........",
+    "...kRk..........",
+    "...kRk......k...",
+    "..kRRRk....kRk..",
+    "..kRxRk....kRk..",
+    "..kRRRk...kRRRk.",
+    "...kkk....kRxRk.",
+    "......k...kRRRk.",
+    ".....kRk...kkk..",
+    ".....kRk........",
+    "....kRRRk.......",
+    "....kRxRRk......",
+    "....kRRRRk......",
+    ".....kkkk.......",
+    "................"
+   ]
+  }
+ ]
+}

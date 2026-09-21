@@ -18,7 +18,8 @@ namespace TheThingBelow.Game;
 /// clock, and a tick from it would put the party in another place on each run (T-7, G-3).
 /// Thus those captures show the run of <see cref="Boot.FixtureSeed"/> at tick 0. The walk
 /// fixture gives the run the time of exactly one tick for each frame, and never the frame
-/// time of the engine, so two runs give the same frames too (D-782).
+/// time of the engine, so two runs give the same frames too (D-782). The battle fixture walks
+/// into the fixture fight the same way, one tick for each call of the run (D-827).
 /// <para>
 /// A capture needs a drawn frame, so the session waits <see cref="FramesBeforeCapture"/>
 /// frames after each change of the window size. The world draws into a viewport, the frame
@@ -296,6 +297,12 @@ public sealed partial class CaptureSession : Node
             return;
         }
 
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.BattleFixture) == 0)
+        {
+            this.BuildBattle(built, @base, capture);
+            return;
+        }
+
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.UiFixture) == 0)
         {
             var panel = new UiFixture();
@@ -308,6 +315,40 @@ public sealed partial class CaptureSession : Node
             nameof(capture),
             capture.Fixture,
             $"The capture list names the fixture '{capture.Fixture}', and the session builds none (T-2).");
+    }
+
+    /// <summary>
+    /// Walks the run of the fixture seed into the fixture fight, and builds the battle screen
+    /// at the moment of one frame (D-172, D-827).
+    /// </summary>
+    /// <param name="built">The frame of this capture.</param>
+    /// <param name="base">The atlas, the theme, and the text helper.</param>
+    /// <param name="capture">The capture, whose frame names the moment.</param>
+    /// <exception cref="InvalidOperationException">The walk or the menu failed (T-2).</exception>
+    /// <remarks>
+    /// The run takes the time of exactly one tick on each call, so every session reaches the
+    /// same tick, the same sway of the backdrop, and the same pixels (T-7, D-782). The menu
+    /// frames show the first command of the fight. The target frame presses confirm on the
+    /// attack, and the blow frame plays a hit of a character to <see cref="ScreenCaptures.BlowFrameTicks"/>.
+    /// </remarks>
+    private void BuildBattle(FrameRoot built, UiBase @base, ScreenCapture capture)
+    {
+        GameRun fight = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers());
+        BattleWalk.ToFirstCommand(fight);
+        if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleBlowFrame) == 0)
+        {
+            BattleWalk.ToBlowOfCharacter(fight, ScreenCaptures.BlowFrameTicks);
+        }
+
+        BattleScreen screen = BattleScreen.Build(built, @base, this.content, fight);
+        if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleTargetFrame) == 0
+            && screen.Read(InputActions.Confirm) is not null)
+        {
+            throw new InvalidOperationException(
+                $"The capture '{capture.FileName}' pressed confirm on the attack, and the menu sent an intent before a target (D-827, T-2).");
+        }
+
+        screen.Show(fight);
     }
 
     /// <summary>

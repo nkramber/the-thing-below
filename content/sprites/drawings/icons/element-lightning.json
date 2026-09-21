@@ -1,0 +1,32 @@
+{
+ "id": "drawing.icon_element_lightning",
+ "page": "ui",
+ "width": 16,
+ "height": 16,
+ "draws": [
+  { "content": "element.lightning", "use": "icon" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................",
+    ".........kkkkk..",
+    "........kyyyk...",
+    ".......kyyyk....",
+    "......kyyyk.....",
+    ".....kyyyk......",
+    "....kyyyykkkk...",
+    "...kyyyyyyyyk...",
+    "...kkkkyyyyk....",
+    "......kyyyk.....",
+    ".....kyyyk......",
+    "....kyyk........",
+    "...kyyk.........",
+    "..kyk...........",
+    "..kk............",
+    "................"
+   ]
+  }
+ ]
+}

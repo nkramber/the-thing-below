@@ -1,0 +1,32 @@
+{
+ "id": "drawing.icon_status_regen",
+ "page": "ui",
+ "width": 16,
+ "height": 16,
+ "draws": [
+  { "content": "status.regen", "use": "icon" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................",
+    "..........kkkk..",
+    "........kkvvvk..",
+    "......kkvvVvvk..",
+    ".....kvvvVvvvk..",
+    "....kvvvVvvvk...",
+    "...kvvvVvvvvk...",
+    "...kvvVvvvvk....",
+    "..kvvVvvvvk.....",
+    "..kvVvvvkk......",
+    "..kVvvkk........",
+    ".kVkkk..........",
+    ".kVk............",
+    "kVk.............",
+    "kk..............",
+    "................"
+   ]
+  }
+ ]
+}

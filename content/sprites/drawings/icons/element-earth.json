@@ -1,0 +1,32 @@
+{
+ "id": "drawing.icon_element_earth",
+ "page": "ui",
+ "width": 16,
+ "height": 16,
+ "draws": [
+  { "content": "element.earth", "use": "icon" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................",
+    "................",
+    "......kk........",
+    ".....kttk.......",
+    "....ktt3tk......",
+    "....ktt33tk.kk..",
+    "...kttttt3tkttk.",
+    "..kttBtttttt3tk.",
+    "..ktBBtttBttttk.",
+    ".kttBtttBBtttttk",
+    ".ktttttBBttBtttk",
+    "ktttttttttBBtttk",
+    "ktBtttBttttttttk",
+    "kbBBBBBBBBBBBBbk",
+    "kkkkkkkkkkkkkkkk",
+    "................"
+   ]
+  }
+ ]
+}

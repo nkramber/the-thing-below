@@ -78,7 +78,7 @@ Built by PR-34. Phase file: `phase-1-foundations.md`.
 - Light on screen can reach any color, and a drawing file names palette keys alone (D-181).
 - Effect files name palette colors too, so Game reads the palette (D-182). Core holds the record of the palette file (D-517).
 
-The palette holds a color of its own for each of the eight elements and the ten statuses, which F-17 asked for (D-74, D-75). PR-10 draws the icons, and it confirms or changes each pick (D-811):
+The palette holds a color of its own for each of the eight elements and the ten statuses, which F-17 asked for (D-74, D-75). PR-10 draws the icons, and its review confirmed each pick (D-811). A test reads the main color of each icon:
 
 | Element | Color | Key | Status | Color | Key |
 |---|---|---|---|---|---|
@@ -207,7 +207,7 @@ The phase files give each batch its scope. This table names the art that the dec
 | PR-34 | The 16 new colors and the swatch sheet. The front views of the five cast members, from the sample | D-185, D-402, D-405 |
 | PR-7 | Fixture tiles for the fixture dungeon, and the lead on the map | D-306, PR-7 in `docs/design.md` |
 | PR-8 | One fixture drawing of an enemy, a front view, which each fixture enemy takes | D-744 |
-| PR-10 | The attack pose, the hit flash, and a fixture backdrop as a large picture | D-96, D-108, D-111, D-516 |
+| PR-10 | The fixture battle drawings of Marrek with his attack pose, the grunt, and the brute. The pointer, and the 18 icons of the elements and the statuses. Every fight draws the fixture backdrop of PR-55 | D-96, D-108, D-214, D-811, D-828, D-831, D-833 |
 | PR-36 | Fixture portraits | D-234 |
 | PR-17 | The tile sets of the village, the land near it, the mining town, and the hanging cells, with their edge tiles. The enemies with their three views and their walk, the mark of a sight, the NPCs, and the backdrop. The map and battle frames of Marrek, Bergit, and Dagvar | D-110, D-199, D-200, D-204, D-207, D-362, D-369, D-744 |
 | PR-23 to PR-27 and PR-81 | The tile sets, enemies, bosses, and backdrops of each later place, the sealed gallery included, and the NPCs of the second hub | D-110, D-313, D-575 |

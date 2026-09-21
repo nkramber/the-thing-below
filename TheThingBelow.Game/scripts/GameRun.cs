@@ -37,6 +37,9 @@ public sealed class GameRun
     private readonly BattleEventQueue events = new();
     private readonly Simulation simulation;
     private readonly RunRecorder recorder;
+    private BattleView? view;
+    private BattleEvent? playing;
+    private long playingSince;
 
     private GameRun(Simulation simulation, RunRecorder recorder)
     {
@@ -115,12 +118,22 @@ public sealed class GameRun
     /// <summary>The count of battle events that the screen has yet to play (D-532).</summary>
     public int WaitingEvents => this.events.Count;
 
+    /// <summary>The fight as the screen shows it, or no value outside a battle (D-532).</summary>
+    public BattleView? BattleView => this.view;
+
+    /// <summary>The battle event that the screen plays or played last, or no value (D-532).</summary>
+    /// <remarks>The message line keeps this event on screen until the next one (D-213).</remarks>
+    public BattleEvent? PlayingEvent => this.playing;
+
+    /// <summary>The ticks since the screen started <see cref="PlayingEvent"/> (D-829).</summary>
+    public int PlayingTicks => this.playing is null ? 0 : (int)Math.Min(int.MaxValue, this.simulation.Tick - this.playingSince);
+
     /// <summary>
     /// True when the screen has played every event and a character has the turn. Game takes
     /// the next command of the player only then, so this is the input gate of a battle (D-532).
     /// </summary>
     public bool TakesBattleCommand =>
-        this.events.Empty
+        this.EventsPlayed
         && this.simulation.State.Battle is Battle battle
         && battle.Outcome == BattleOutcome.Running
         && battle.Next() is Combatant next
@@ -128,9 +141,17 @@ public sealed class GameRun
 
     /// <summary>True when the screen has played the events of a wipe, and the host reloads (D-397, D-776).</summary>
     public bool WipeReady =>
-        this.events.Empty
+        this.EventsPlayed
         && this.simulation.State.Battle is Battle battle
         && battle.Outcome == BattleOutcome.Wiped;
+
+    /// <summary>True when the queue is empty and the last event played all its ticks (D-532, D-829).</summary>
+    private bool EventsPlayed => this.events.Empty && this.PlayedOut;
+
+    /// <summary>True when no event plays, or the one that plays reached its end (D-829).</summary>
+    private bool PlayedOut =>
+        this.playing is null
+        || this.simulation.Tick - this.playingSince >= BattleTimes.TicksOf(this.playing.Kind);
 
     /// <summary>Starts a run over a content set.</summary>
     /// <param name="content">The content of this build, which gives the content hash (D-648).</param>
@@ -257,7 +278,7 @@ public sealed class GameRun
             this.queued.Clear();
         }
 
-        this.PlayBattleEvent(log);
+        this.PlayBattleEvents(log);
 
         long dropped = this.loop.DroppedTicks - droppedBefore;
         if (dropped > 0)
@@ -273,28 +294,48 @@ public sealed class GameRun
         return log;
     }
 
-    /// <summary>Gives the record of the run as it stands now (G-5, D-651).</summary>
-    /// <returns>The record, which the crash file of D-170 carries.</returns>
     /// <summary>
-    /// Plays one battle event on this frame, and writes it as one log line until the battle
-    /// screen of PR-10 (D-532, D-767). When the queue drains after a win or a flee, the run
-    /// takes the wait intent, and the map runs again on the next tick (D-522).
+    /// Starts each battle event whose turn came: the next event starts when the one before
+    /// played all its ticks, and an event of no ticks lets the next one start at once (D-532,
+    /// D-829). Each start applies the event to the view of the screen and writes one log line.
+    /// When the queue drains after a win or a flee, the run takes the wait intent, and the map
+    /// runs again on the next tick (D-522).
     /// </summary>
-    private void PlayBattleEvent(List<LogEntry> log)
+    /// <remarks>
+    /// The pace counts ticks of the run and never the frames of the host, so a faster screen
+    /// plays a fight in the same time (D-266). The rules never read the pace: a command of the
+    /// player waits for it, and each command is an intent of the record (D-522, T-7).
+    /// </remarks>
+    private void PlayBattleEvents(List<LogEntry> log)
     {
-        if (!this.events.Empty)
+        this.FollowBattle();
+
+        while (this.PlayedOut && !this.events.Empty)
         {
             BattleEvent played = this.events.PlayNext();
+            if (played.Kind == BattleEventKind.Started)
+            {
+                this.view = BattleView.AtStart(this.simulation.State);
+            }
+
+            BattleView shown = this.view ?? throw new InvalidOperationException(
+                $"The screen plays the battle event '{played.Describe()}' at tick {this.simulation.Tick}, "
+                + "and no view of the fight exists, because no start event came first (D-532, T-2).");
+
+            shown.Apply(played);
+            this.playing = played;
+            this.playingSince = this.simulation.Tick;
             log.Add(new LogEntry(
                 LogLevel.Info,
                 "the screen played a battle event",
                 this.simulation.Tick,
                 LogSubsystems.Battle,
                 [new LogField("event", played.Describe())]));
-            return;
         }
 
-        if (this.simulation.State.Battle is not Battle battle
+        if (!this.PlayedOut
+            || !this.events.Empty
+            || this.simulation.State.Battle is not Battle battle
             || (battle.Outcome != BattleOutcome.Won && battle.Outcome != BattleOutcome.Fled))
         {
             return;
@@ -313,6 +354,27 @@ public sealed class GameRun
         this.queued.Add(Intent.OfPlayer(IntentIds.WaitBattleEnd));
     }
 
+    /// <summary>
+    /// Drops the view when the fight ended, and builds it from the state when a fight runs
+    /// with no event to play, as after the load of a save inside a fight (D-531).
+    /// </summary>
+    private void FollowBattle()
+    {
+        if (this.simulation.State.Battle is not Battle battle)
+        {
+            this.view = null;
+            this.playing = null;
+            return;
+        }
+
+        if (this.view is null && this.events.Empty)
+        {
+            this.view = BattleView.Of(battle);
+        }
+    }
+
+    /// <summary>Gives the record of the run as it stands now (G-5, D-651).</summary>
+    /// <returns>The record, which the crash file of D-170 carries.</returns>
     public RunRecord Record() => this.recorder.Build();
 
     /// <summary>Gives the state hash of the run, which a replay compares (G-5).</summary>

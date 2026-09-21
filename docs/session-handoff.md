@@ -1,5 +1,44 @@
 # Session handoff
 
+## Session 179: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-10, round 1. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: the PR-10 intent, number after the push. Role: author. Base: `8b10888`.
+
+### What this session did, and why
+
+- Asked OQ-103 and OQ-131, then seven scope questions. Recorded D-825 to D-833, and D-831 revises D-819 in part.
+- Built the battle screen: `BattleScreen`, `BattleView`, `BattleCommands`, `BattleMessages`, `BattleLayout`, `BattleTimes`, and `BattleWalk` in Game, with the hit flash in `TheThingBelow.Game/shaders/hit_flash.gdshader`.
+- `GameRun` plays each event for its ticks, and it keeps the view of the fight (D-532, D-829).
+- Drew the fixture art batch: Marrek in battle with his attack pose, the grunt, the brute, the pointer, and 18 icons (D-828, D-830, D-833). The strings of the screen joined the table.
+- The smoke session fights through the menu, and the capture list holds the `battle` fixture.
+
+### The state of the build
+
+- `make format`, `make lint`, `make smoke`, and the STE check pass on this machine. `make sheet FIXTURE=battle` wrote four frames, and the author read each one.
+- The test run fails four cases alone: `TheBaselineHoldsThisCapture` for the four `battle-*` files. The baselines come from the artifact of the screen-test job (D-733).
+- The remote head is the push of this round.
+
+### What is in flight
+
+- The first CI run of the branch, and its `screen-captures` artifact.
+- The gitar pass of the first push.
+
+### Traps and gotchas
+
+- The rules resolve each enemy turn at once. The screen draws `GameRun.BattleView`, never the state, or a hit shows before its blow.
+- An enemy that went down leaves its row, so a wave never puts a seventh combatant in one row (D-759).
+- The glossary term is `battle view`, because `view` names the part of the map on screen.
+- The art generator ran from a scratch folder outside the repository. The drawing files are the source.
+
+### The questions that block progress
+
+None. The owner approves the art batch and the text batch from the PR description (D-57, G-25).
+
+### The next concrete action
+
+Download the `screen-captures` artifact, read the four `battle-*` frames, and commit them to `screens/baseline/`. Then answer each gitar comment.
+
 ## Session 178: 2026-09-21, Codex
 
 Author: Codex
@@ -308,37 +347,3 @@ None.
 ### The next concrete action
 
 Push, open the PR, and follow the `gitar-review` skill.
-
-## Session 169: 2026-09-21, Codex
-
-Author: Codex
-Session: repeat review PR-48, the enemy record correction. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: reviewer. Base: `86528a3`.
-
-### What this session did, and why
-
-- Reopened PR #48 after the author answered P1-1 at effective head `ef02f4a`.
-- Read the response file, recomputed the effective head, inspected the full correction diff, and verified the original mismatch trigger and the waiting-enemy boundary.
-- Ran `make verify`. It passed with 1587 tests and all local gates.
-- Updated `docs/reviews/pr-48.md`: P1-1 is fixed, and the verdict is `Ready for owner merge` for `ef02f4a`.
-
-### The state of the build
-
-- The effective head is `ef02f4a`. The remote metadata tip is `ebffa5e`.
-- GitHub CI and Gitar pass at `d887605c`. Review-gate waits for this updated review record.
-
-### What is in flight
-
-The repeat review record and this handoff entry are pushed at `ebffa5e`.
-
-### Traps and gotchas
-
-- The size check selects the largest enemy in the group, including waiting enemies, as D-788 requires.
-- The review verdict targets `ef02f4a`, not the later metadata commits.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the repeat review record and handoff entry. Then verify the remote head and review-gate result.

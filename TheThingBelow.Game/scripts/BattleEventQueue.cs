@@ -10,10 +10,10 @@ namespace TheThingBelow.Game;
 /// the input gate of a battle (D-532, T-2).
 /// </summary>
 /// <remarks>
-/// Core resolves each action at once and emits its events, and Game plays one event on each
-/// frame. The battle screen of PR-10 plays the poses, the numbers, and the hit-stop of each
-/// event, and each one then takes more frames (D-186, D-532). Until then an event writes one
-/// log line (D-767). A test proves that the queue always drains (exit test 6 of PR-9).
+/// Core resolves each action at once and emits its events. The run of Game takes the next
+/// event when the one before played all its ticks on the battle screen, such as the pose, the
+/// flash, and the number of a strike (D-532, D-829). A test proves that the queue always
+/// drains (exit test 6 of PR-9).
 /// </remarks>
 public sealed class BattleEventQueue
 {

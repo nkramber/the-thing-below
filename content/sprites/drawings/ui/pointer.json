@@ -1,0 +1,24 @@
+{
+ "id": "drawing.ui_pointer",
+ "page": "ui",
+ "width": 8,
+ "height": 8,
+ "draws": [
+  { "content": "ui.pointer", "use": "pointer" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "kkkkkkkk",
+    "kyyyyyyk",
+    ".kyyyyk.",
+    ".kyyyyk.",
+    "..kyyk..",
+    "..kyyk..",
+    "...kk...",
+    "........"
+   ]
+  }
+ ]
+}

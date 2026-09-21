@@ -240,7 +240,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 |---|---|---|
 | PR-61 | The 16:9 frame, the fit, the fonts, the text helper, the UI style file, the window frames, the input map, the intents, and the glyph sets | D-524, D-527, D-561, D-568 |
 | PR-7 | The map scene, the camera, and the map HUD | D-106, D-212, D-306 |
-| PR-10 | The battle screen: the timeline strip, the command menu, the status, and the damage numbers | D-111, D-213 |
+| PR-10 | The battle screen: the timeline strip, the command menu with its keyboard and gamepad input, the pointer of a target, the status, the health bars, and the damage numbers | D-111, D-213, D-826, D-827, D-833 |
 | PR-62 | The window stack, the party window with the starting row, the status window, the notices, the notice log, and the dungeon map screen | D-211, D-218, D-221, D-525, D-558, D-567, D-569 |
 | PR-63 | The settings screen, the settings file, and the four accessibility settings | D-214, D-226, D-526 |
 | PR-12 to PR-16 | The lesson, gear, item, status, and save screens, one for each system | D-211 |

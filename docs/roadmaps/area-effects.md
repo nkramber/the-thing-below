@@ -197,7 +197,8 @@ Built by PR-57. Phase file: `phase-2-first-playable.md`.
 Built by PR-10 and PR-57. Phase file: `phase-2-first-playable.md`.
 
 - Battle effects are heavy and short (D-186).
-- PR-10 draws the attack pose, the hit flash, and the damage numbers (D-96, D-108, D-213).
+- PR-10 draws the attack pose, the lunge of an enemy, the hit flash, and the damage numbers (D-96, D-108, D-213, D-832). The hit flash is a `.gdshader` file of Game (D-825).
+- PR-10 keeps each timing as a constant of Game, in ticks, and PR-57 moves each one into its effect files (D-829).
 - PR-57 adds blood and sparks on a hit, a short screen shake on a heavy blow, and a brief hit-stop (D-186).
 - PR-57 also adds the flash of a spell, with a point light of PR-56 for its length (D-183, D-186).
 - A heavy blow also starts the vibration of D-434, and `area-ui-input.md` holds it.
@@ -241,7 +242,7 @@ Built by PR-60. Phase file: `phase-2-first-playable.md`.
 
 - The library holds ten transitions (D-195).
 - Content assigns a transition to each kind of encounter, with a default for each region (D-196). The table names encounter kinds and region ids (section 7.1).
-- A transition is an effect file with its shader in Game (D-182, D-191). OQ-103 holds where shader code lives.
+- A transition is an effect file with its shader in a `.gdshader` file of Game (D-182, D-191, D-825).
 - A transition is a full-screen pass, so it counts against the effect budget (D-523).
 - Color split meets the flash and shake reduction (D-195, D-214).
 - Snow whiteout fits region one, and each later region adds transitions of its own (D-194).
@@ -357,7 +358,7 @@ The register is `docs/questions.md` (D-19). These questions block effect PRs, an
 - OQ-100: the reduced form of a flash and a shake. Blocks PR-57.
 - OQ-101: how fog keeps an enemy visible. Blocks PR-58.
 - OQ-102: how glow stays off sprites. Blocks PR-59.
-- OQ-103: where shader code lives. Blocks PR-10.
+- OQ-103: where shader code lives. Resolved by D-825.
 - OQ-79: how the screen-test job pins Mesa. Closed 2026-09-20 by D-729, and D-730 holds the pin.
 - OQ-89: pixel snap in Game. Blocks PR-7.
 - OQ-183: the scale of the frame on a screen. Blocks PR-7 and PR-34, and the probe of D-621 answers it.

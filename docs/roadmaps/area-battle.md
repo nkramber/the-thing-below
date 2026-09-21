@@ -176,9 +176,11 @@ Built by PR-10 and PR-57. Phase file: `phase-2-first-playable.md`.
 
 - The side view puts the enemies on the left and the party on the right, each side in two rows (D-111, D-377).
 - The timeline strip runs across the top, and the command menu and the status sit at the bottom (D-111).
+- The player picks each action, item, and target from the keyboard or the gamepad, and a pointer marks the target (D-827, D-833).
+- A short bar under each enemy shows its health, with no number (D-826).
 - A damage number pops over its target, and one message line states the action in the game voice (D-213, G-20).
 - The attack pose plays on an action, and a color flash marks a hit (D-96, D-108).
-- The backdrop of the place drifts behind the fight, in the light of the time of day of the map (D-205, D-442).
+- The backdrop of the place drifts behind the fight, in the light of the time of day of the map (D-205, D-442). Every fight draws the fixture backdrop until the place art of PR-17 (D-831).
 - PR-57 adds the blood, the sparks, the shake, and the hit-stop, and `area-effects.md` holds them (D-186).
 - The battle track of the region plays, and a sting marks the victory (D-415, D-422).
 - Every string comes from the string table through the text helper (G-7, D-499).
@@ -273,7 +275,7 @@ The register is `docs/questions.md` (D-19). These questions block battle PRs, an
 - OQ-128: what makes a profile unable to act. Blocks PR-11.
 - OQ-129: the chance of a steal, and the cost of a failure. Blocks PR-11.
 - OQ-130: what starts a boss phase. Blocks PR-20.
-- OQ-131: how the screen shows the health of an enemy. Blocks PR-10.
+- OQ-131: how the screen shows the health of an enemy. Resolved by D-826.
 - OQ-132: a group larger than its rows. Resolved by D-758.
 - OQ-133: the flee chance and the grace time. Resolved by D-748 and D-763.
 

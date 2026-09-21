@@ -1,0 +1,32 @@
+{
+ "id": "drawing.icon_status_slow",
+ "page": "ui",
+ "width": 16,
+ "height": 16,
+ "draws": [
+  { "content": "status.slow", "use": "icon" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................",
+    "..kkkkkkkkkkkk..",
+    "..kBBBBBBBBBBk..",
+    "..kk!!!!!!!!kk..",
+    "...k!!!!!!!!k...",
+    "....k!!!!!!k....",
+    ".....k!!!!k.....",
+    "......k!!k......",
+    "......k!!k......",
+    ".....k!..!k.....",
+    "....k!....!k....",
+    "...k!!!..!!!k...",
+    "..kk!!!!!!!!kk..",
+    "..kBBBBBBBBBBk..",
+    "..kkkkkkkkkkkk..",
+    "................"
+   ]
+  }
+ ]
+}

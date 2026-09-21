@@ -1,0 +1,48 @@
+{
+ "id": "drawing.fixture_grunt_battle",
+ "page": "battle_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "enemy.fixture_grunt", "use": "battle" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "....................kk..........",
+    ".....................kk....kk...",
+    ".....................kk...kk....",
+    "......................kk..kk....",
+    "..........k...........kk..kk....",
+    "......kkkkdkkkk.....kkgdkkdk....",
+    "....kkggggDgggdkkkkkggDDggdk....",
+    "....kgDDDDDDDDDgggggDDDDDDdk....",
+    "...kdDDDDDDDDDDDDDDDDDDDDxxk....",
+    "....kgDDDDDDDDDDDDDDDDDDDDDdk...",
+    "....kgDDDDglgDDDDDDDDDDDDDdk....",
+    "...kdDDDDDDDDDDDDDDDDDDDDDdL....",
+    "....kgDDDDDDDDDDDDDDDDDDdLLk....",
+    "....kdDDDDDDDDDDDDDDDDDdkkk.....",
+    ".....kdDDDDDDDDDDDDDdDdk........",
+    "......kgDddDDDdddDDdkddk........",
+    "......kgdkkdDdkkkddk.kdk........",
+    "......kdk..kdk...kdk.kdk........",
+    "......kdk..kdk...kdk.kdk........",
+    "......kkk..kkk...kkk.kkk........",
+    "......kkk..kkk...kkk.kkk........",
+    "................................"
+   ]
+  }
+ ]
+}
