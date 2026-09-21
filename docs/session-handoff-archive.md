@@ -1,5 +1,45 @@
 # Session handoff archive
 
+## Session 173: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-55, the large pictures, with four owner changes first. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: the PR-55 PR. Role: author. Base: `27fb790`.
+
+### What this session did, and why
+
+- OQ-91: the owner chose a place and a repeat alone, with no mirror (D-812).
+- The owner approved four changes first, after the merge of PR #49:
+  - The console draws in the frame viewport, and no key reached it. The host now pushes each key of an open console there (D-725).
+  - Escape closes an open console. On the map of a development build, it ends the session (D-813).
+  - Game draws every live enemy at any distance. D-814 revises D-719 in part, and the range stays as the ceiling of D-720.
+  - The game shows no button prompt (D-815). The row, the device table, the tracker, and the 12 glyph drawings left the build.
+- The simulation version is 10, and the identity file is new (G-17).
+- The author read all 42 frames of `make sheet` and `make walk`. The prompt row is gone, and the east enemy draws in each frame.
+- The format of large pictures is not started yet.
+
+### The state of the build
+
+- Remote head: the push of this entry. `make verify` passed before the commit.
+- The `screen-test` baselines still show the old frames. The job fails until the new captures replace them.
+
+### What is in flight
+
+- The PR waits for gitar and the CI legs. The screen baselines come from the artifact of the `screen-test` job (the readme of `screens/baseline`).
+
+### Traps and gotchas
+
+- A key of the frame viewport never arrives by itself, because the screen shows that viewport through a texture. Use `FrameRoot.PushToLayer`.
+- The smoke console check pushes key events into the root viewport. A check that sets the text of the entry passes on the old fault.
+- D-815 closed OQ-176, and PR-78 has no controller type call now.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer gitar, copy the new screen baselines from the CI artifact, and then build the large picture format of D-812.
+
 ## Session 172: 2026-09-21, Codex
 
 Author: Codex

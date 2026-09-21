@@ -1,5 +1,37 @@
 # Session handoff
 
+## Session 183: 2026-09-21, Codex
+
+Author: Codex
+Session: reviewer PR-51, round 1. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: reviewer. Base: `8b10888`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-51 diff from merge base `8b10888` through effective head `3859a74`.
+- Verified the opposite-provider gate, the battle event flow, the command menu, the string table, the screen layout, and the tests.
+- Added `docs/reviews/pr-51.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passed with 1781 tests and all local gates.
+- GitHub checks pass for `3859a74` except the review gate, which waits for the review record.
+
+### What is in flight
+
+- This review record and this handoff entry need commit and push.
+
+### Traps and gotchas
+
+- Gitar reports no issues, but its functional validation is disabled. The review uses the local contract-specific tests and smoke output.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the review record and handoff files. Push, fetch, and verify the remote head and the review-gate check.
+
 ## Session 182: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -303,43 +335,3 @@ None.
 ### The next concrete action
 
 Copy the baselines from the CI artifact, read each frame, and answer gitar.
-
-## Session 173: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-55, the large pictures, with four owner changes first. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: the PR-55 PR. Role: author. Base: `27fb790`.
-
-### What this session did, and why
-
-- OQ-91: the owner chose a place and a repeat alone, with no mirror (D-812).
-- The owner approved four changes first, after the merge of PR #49:
-  - The console draws in the frame viewport, and no key reached it. The host now pushes each key of an open console there (D-725).
-  - Escape closes an open console. On the map of a development build, it ends the session (D-813).
-  - Game draws every live enemy at any distance. D-814 revises D-719 in part, and the range stays as the ceiling of D-720.
-  - The game shows no button prompt (D-815). The row, the device table, the tracker, and the 12 glyph drawings left the build.
-- The simulation version is 10, and the identity file is new (G-17).
-- The author read all 42 frames of `make sheet` and `make walk`. The prompt row is gone, and the east enemy draws in each frame.
-- The format of large pictures is not started yet.
-
-### The state of the build
-
-- Remote head: the push of this entry. `make verify` passed before the commit.
-- The `screen-test` baselines still show the old frames. The job fails until the new captures replace them.
-
-### What is in flight
-
-- The PR waits for gitar and the CI legs. The screen baselines come from the artifact of the `screen-test` job (the readme of `screens/baseline`).
-
-### Traps and gotchas
-
-- A key of the frame viewport never arrives by itself, because the screen shows that viewport through a texture. Use `FrameRoot.PushToLayer`.
-- The smoke console check pushes key events into the root viewport. A check that sets the text of the entry passes on the old fault.
-- D-815 closed OQ-176, and PR-78 has no controller type call now.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Answer gitar, copy the new screen baselines from the CI artifact, and then build the large picture format of D-812.
