@@ -13,16 +13,8 @@ namespace TheThingBelow.Core.Battles;
 /// <param name="Row">The row at the start of a run (D-558).</param>
 public sealed record CharacterRecord(ContentId Id, int Health, int Attack, int Defense, int Speed, BattleRow Row);
 
-/// <summary>The fixed stats of one enemy, until the enemy record of PR-80 (D-557).</summary>
-/// <param name="Id">The id, of the kind `enemy`.</param>
-/// <param name="Health">The full health.</param>
-/// <param name="Attack">The attack (D-771).</param>
-/// <param name="Defense">The defense (D-771).</param>
-/// <param name="Speed">The speed (D-768).</param>
-public sealed record EnemyRecord(ContentId Id, int Health, int Attack, int Defense, int Speed);
-
 /// <summary>One enemy of a group (D-535, D-760).</summary>
-/// <param name="Enemy">The id of the enemy record.</param>
+/// <param name="Enemy">The id of the enemy record (D-786).</param>
 /// <param name="Row">The row that the enemy stands in, or steps into (D-760).</param>
 /// <param name="Waits">True when the enemy waits off the field for a fall (D-778).</param>
 public sealed record GroupEntry(ContentId Enemy, BattleRow Row, bool Waits);
@@ -45,13 +37,14 @@ public sealed record ItemRecord(ContentId Id, int Heal, int Delay);
 public sealed record PackEntry(ContentId Item, int Count);
 
 /// <summary>
-/// The fixture file of the battle core: the characters, the enemies, the groups, the items,
-/// and the start of a run (D-765, D-766, D-775). The file is `content/rules/fixtures/battle.json`.
+/// The fixture file of the battle core: the characters, the groups, the items, and the
+/// start of a run (D-765, D-766, D-775). The file is `content/rules/fixtures/battle.json`.
 /// </summary>
 /// <remarks>
-/// PR-67 replaces the characters with the stat curves, PR-80 the enemies with the enemy
-/// record, PR-11 the groups with the group file of each region, and PR-13 the items with
-/// the pack (D-557, D-765, D-766, D-775). Each id stays.
+/// PR-67 replaces the characters with the stat curves, PR-11 the groups with the group file
+/// of each region, and PR-13 the items with the pack (D-765, D-766, D-775). Each id stays.
+/// PR-80 moved the enemies to the enemy record, and the battle content checks that each
+/// group names a record (D-557, D-786).
 /// </remarks>
 public sealed class BattleFixture
 {
@@ -60,9 +53,6 @@ public sealed class BattleFixture
 
     /// <summary>The kind of a character id.</summary>
     public const string CharacterKind = "character";
-
-    /// <summary>The kind of an enemy id.</summary>
-    public const string EnemyKind = "enemy";
 
     /// <summary>The kind of an item id.</summary>
     public const string ItemKind = "item";
@@ -81,14 +71,12 @@ public sealed class BattleFixture
 
     private BattleFixture(
         IReadOnlyList<CharacterRecord> characters,
-        IReadOnlyList<EnemyRecord> enemies,
         IReadOnlyList<GroupRecord> groups,
         IReadOnlyList<ItemRecord> items,
         IReadOnlyList<ContentId> startParty,
         IReadOnlyList<PackEntry> pack)
     {
         this.Characters = characters;
-        this.Enemies = enemies;
         this.Groups = groups;
         this.Items = items;
         this.StartParty = startParty;
@@ -97,9 +85,6 @@ public sealed class BattleFixture
 
     /// <summary>Every character, in the order of the file.</summary>
     public IReadOnlyList<CharacterRecord> Characters { get; }
-
-    /// <summary>Every enemy, in the order of the file.</summary>
-    public IReadOnlyList<EnemyRecord> Enemies { get; }
 
     /// <summary>Every group, in the order of the file.</summary>
     public IReadOnlyList<GroupRecord> Groups { get; }
@@ -123,7 +108,6 @@ public sealed class BattleFixture
         var reader = new ContentReader(bytes, file);
         string? comment = null;
         List<CharacterRecord>? characters = null;
-        List<EnemyRecord>? enemies = null;
         List<GroupRecord>? groups = null;
         List<ItemRecord>? items = null;
         List<ContentId>? startParty = null;
@@ -139,9 +123,6 @@ public sealed class BattleFixture
                     break;
                 case "characters":
                     characters = ReadList(ref reader, ReadCharacter);
-                    break;
-                case "enemies":
-                    enemies = ReadList(ref reader, ReadEnemy);
                     break;
                 case "groups":
                     groups = ReadList(ref reader, ReadGroup);
@@ -163,7 +144,6 @@ public sealed class BattleFixture
         _ = reader.Require(comment, depth, "comment");
         var fixture = new BattleFixture(
             reader.Require(characters, depth, "characters"),
-            reader.Require(enemies, depth, "enemies"),
             reader.Require(groups, depth, "groups"),
             reader.Require(items, depth, "items"),
             reader.Require(startParty, depth, "start_party"),
@@ -175,18 +155,13 @@ public sealed class BattleFixture
     }
 
     /// <summary>Gives every content id that the file defines, in the order of the file (D-166).</summary>
-    /// <returns>The ids of the characters, the enemies, the groups, and the items.</returns>
+    /// <returns>The ids of the characters, the groups, and the items.</returns>
     public IReadOnlyList<ContentId> DefinedIds()
     {
         List<ContentId> ids = [];
         foreach (CharacterRecord character in this.Characters)
         {
             ids.Add(character.Id);
-        }
-
-        foreach (EnemyRecord enemy in this.Enemies)
-        {
-            ids.Add(enemy.Id);
         }
 
         foreach (GroupRecord group in this.Groups)
@@ -260,47 +235,6 @@ public sealed class BattleFixture
             reader.RequireInt(defense, depth, "defense"),
             reader.RequireInt(speed, depth, "speed"),
             reader.RequireValue(row, depth, "row"));
-    }
-
-    private static EnemyRecord ReadEnemy(ref ContentReader reader)
-    {
-        ContentId? id = null;
-        int? health = null;
-        int? attack = null;
-        int? defense = null;
-        int? speed = null;
-
-        int depth = reader.ReadObjectStart();
-        while (reader.ReadNextField(depth, out string field))
-        {
-            switch (field)
-            {
-                case "id":
-                    id = reader.ReadContentId(EnemyKind);
-                    break;
-                case "health":
-                    health = ReadStat(ref reader, 1);
-                    break;
-                case "attack":
-                    attack = ReadStat(ref reader, 0);
-                    break;
-                case "defense":
-                    defense = ReadStat(ref reader, 0);
-                    break;
-                case "speed":
-                    speed = ReadStat(ref reader, 1);
-                    break;
-                default:
-                    throw reader.UnknownField(field);
-            }
-        }
-
-        return new EnemyRecord(
-            reader.Require(id, depth, "id"),
-            reader.RequireInt(health, depth, "health"),
-            reader.RequireInt(attack, depth, "attack"),
-            reader.RequireInt(defense, depth, "defense"),
-            reader.RequireInt(speed, depth, "speed"));
     }
 
     private static GroupRecord ReadGroup(ref ContentReader reader)
@@ -377,7 +311,7 @@ public sealed class BattleFixture
             switch (field)
             {
                 case "enemy":
-                    enemy = reader.ReadContentId(EnemyKind);
+                    enemy = reader.ReadContentId(EnemyRecord.Kind);
                     break;
                 case "row":
                     row = ReadRow(ref reader);
@@ -453,7 +387,12 @@ public sealed class BattleFixture
         return new PackEntry(reader.Require(item, depth, "item"), reader.RequireInt(count, depth, "count"));
     }
 
-    private static int ReadStat(ref ContentReader reader, int lowest)
+    /// <summary>Reads a stat, and refuses a value outside the lowest value to <see cref="MostStat"/> (T-2).</summary>
+    /// <param name="reader">The reader, at the value.</param>
+    /// <param name="lowest">The lowest value of the stat.</param>
+    /// <returns>The value.</returns>
+    /// <remarks>The enemy record reads its stats with this rule too (D-557).</remarks>
+    internal static int ReadStat(ref ContentReader reader, int lowest)
     {
         int value = reader.ReadInt();
         if (value < lowest || value > MostStat)
@@ -487,14 +426,6 @@ public sealed class BattleFixture
             if (!defined.Add(id.Value))
             {
                 throw ContentException.ForField(file, id.Value, "the file defines this id two times, and an id is permanent (D-166)");
-            }
-        }
-
-        foreach (GroupRecord group in this.Groups)
-        {
-            foreach (GroupEntry entry in group.Entries)
-            {
-                Require(defined, file, entry.Enemy, $"the group '{group.Id.Value}'");
             }
         }
 

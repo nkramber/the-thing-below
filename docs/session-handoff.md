@@ -1,5 +1,176 @@
 # Session handoff
 
+## Session 169: 2026-09-21, Codex
+
+Author: Codex
+Session: repeat review PR-48, the enemy record correction. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: reviewer. Base: `86528a3`.
+
+### What this session did, and why
+
+- Reopened PR #48 after the author answered P1-1 at effective head `ef02f4a`.
+- Read the response file, recomputed the effective head, inspected the full correction diff, and verified the original mismatch trigger and the waiting-enemy boundary.
+- Ran `make verify`. It passed with 1587 tests and all local gates.
+- Updated `docs/reviews/pr-48.md`: P1-1 is fixed, and the verdict is `Ready for owner merge` for `ef02f4a`.
+
+### The state of the build
+
+- The effective head is `ef02f4a`. The remote metadata tip is `ebffa5e`.
+- GitHub CI and Gitar pass at `d887605c`. Review-gate waits for this updated review record.
+
+### What is in flight
+
+The repeat review record and this handoff entry are pushed at `ebffa5e`.
+
+### Traps and gotchas
+
+- The size check selects the largest enemy in the group, including waiting enemies, as D-788 requires.
+- The review verdict targets `ef02f4a`, not the later metadata commits.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the repeat review record and handoff entry. Then verify the remote head and review-gate result.
+
+## Session 168: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: PR-80, the enemy record, the answer to the review. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: author. Base: `86528a3`.
+
+### What this session did, and why
+
+- Answered P1-1 of `docs/reviews/pr-48.md` with full merit: D-754 asks the enemy record for the size, and the load to fail a map that disagrees.
+- Asked the owner which record of a group sets the size, and the size of each fixture enemy. The answers are D-788 and D-789.
+- Commit `ef02f4a`: the `size` field of `EnemyRecord`, the size check in `BattleContent.RequireGroupsOf`, the records, the tests, and the documents.
+- Wrote `docs/reviews/pr-48-response.md`.
+- Gitar reviewed `f8cc578` at 15:50:12 UTC, after the push at 15:48:31 UTC: no issues, no review thread, 0 comments with merit. CI passes, and review-gate fails on RG 4 and RG 5 alone, which wait for the repeat review.
+
+### The state of the build
+
+- The effective head is `ef02f4a`. `make verify` passes with 1587 tests. The identity hashes stay, and the content hash changes.
+
+### What is in flight
+
+The repeat review by Codex of effective head `ef02f4a`.
+
+### Traps and gotchas
+
+- The test guard of `BattleRuns.Map` takes the size of its group. An elite guard holds an area of 3 by 2 tiles, because an area must leave room to move (D-209).
+- The tests pair the checkout map with the test records, so the test brute stays elite, as in `content/`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The owner starts a Codex session for the repeat review of PR #48 at `ef02f4a`. This author session answers each finding.
+
+## Session 167: 2026-09-21, Codex
+
+Author: Codex
+Session: review PR-48, the enemy record. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: reviewer. Base: `86528a3`.
+
+### What this session did, and why
+
+- Reviewed PR #48 at effective head `fd97eb2`.
+- Inspected the complete diff, the PR comments, the PR-80 roadmap scope and exit tests, the affected Core, content, test, identity, and document paths, and the D-754 contract.
+- Found that the enemy record omits body size and that content loading does not compare map patrol size with the enemy record.
+- Added `docs/reviews/pr-48.md` with finding P1-1 and the verdict `Changes required`.
+
+### The state of the build
+
+- The effective head is `fd97eb2`. The current branch tip is metadata commit `4385650`.
+- `make verify` passes locally with 1583 tests. GitHub CI and Gitar pass at `2a8da97`, except `review-gate`, which waits for the review record.
+
+### What is in flight
+
+The review record and this handoff entry are pushed at `4385650`. The author must add the D-754 size field and the map-to-record consistency test and validation.
+
+### Traps and gotchas
+
+- `Patrol` already stores the map size, but `EnemyRecord` has no size member.
+- A metadata commit does not move the effective head. The review targets `fd97eb2`, not `2a8da97`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff entry. Then the author answers P1-1 in a new round.
+
+## Session 166: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: PR-80, the enemy record, the Gitar round. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: author. Base: `86528a3`.
+
+### What this session did, and why
+
+- Opened PR #48 at `fd97eb2`, and ran the push wait and the Gitar wait (D-586, D-705).
+- The Gitar pass is current: the head is `fd97eb2`, and the dashboard edit at 14:55:50 UTC comes after the push at 14:52:59 UTC. The review found no issues, and the PR has no review thread.
+- Answered the CI note of the dashboard in a PR comment: the review-gate check fails on RG 3 alone, because no review record exists yet.
+
+### The state of the build
+
+- The effective head is `fd97eb2`. This entry is a metadata commit, and it does not move the effective head (D-610).
+- CI at `fd97eb2`: build, test, and format, smoke, det-lint, replay-identity, screen-test, and ste-check pass on every leg. The review-gate check waits for `docs/reviews/pr-48.md`.
+
+### What is in flight
+
+The Codex review of PR #48. The PR adds D-785 to D-787, so the `review-override` label does not apply (D-401).
+
+### Traps and gotchas
+
+- Session 165 holds the traps of the change: the ordinal order of the enemy files, and the check of a group entry against a record in another file.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The owner starts a Codex session to review PR #48 at effective head `fd97eb2`. This author session answers each finding of that review.
+
+## Session 165: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: PR-80, the enemy record. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: the one PR of PR-80, with no GitHub number at this commit. Role: author. Base: `86528a3`.
+
+### What this session did, and why
+
+- Asked the owner three start questions, and recorded the answers as D-785 to D-787. No file held an ability id, so exit test 3 had no list to check.
+- Added the ability file `content/rules/abilities.json` and one record file for each enemy under `content/rules/enemies/`. The two fixture enemies moved there with the same ids.
+- Core: `AbilityList` and `EnemyRecord` read the files. `BattleContent` now holds the records and the ability file, and it checks each id between the files.
+- The identity set gains the `enemy-record` run. The simulation version goes from 7 to 8.
+- Tests: `EnemyRecordTests` holds exit tests 1 to 4, and the identity file holds exit test 5.
+- Docs: the PR-80 entry, a PR-12 scope line, area-battle section 7.7, a design pass line, and two glossary rows.
+
+### The state of the build
+
+- The local head is the commit of this entry, on base `86528a3`. `make verify` passes with 1583 tests.
+- At version 7 the old runs give their old hashes, so the move of the enemies changes no fight. The version bump alone moves `battle`, `replay`, and `state-hash`.
+
+### What is in flight
+
+The push, the PR, and the gitar pass. The PR changes decision rows, so it goes to Codex for review.
+
+### Traps and gotchas
+
+- The content set reads files in the ordinal order of the paths. A repeated enemy id thus fails on the file with the later path.
+- A group entry and its enemy record now lie in two files. `BattleContent` checks the id, and the error names the battle fixture file.
+- No screen changes, so the visual review of D-784 does not apply.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the branch, open the PR, and follow the `gitar-review` skill.
+
 ## Session 164: 2026-09-21, Codex
 
 Author: Codex
@@ -174,180 +345,3 @@ None.
 ### The next concrete action
 
 Download the `screen-captures` artifact, read each walk frame, and commit the 32 walk PNGs to `screens/baseline/`. Then answer the gitar pass.
-
-## Session 159: 2026-09-21, Codex
-
-Author: Codex
-Session: review PR-9, the battle core and the timeline. Repository: the-thing-below. Branch: `feat/pr-9-battle-core`. PR: #46. Role: reviewer. Base: `c6cc71c`.
-
-### What this session did, and why
-
-- Reviewed PR #46 at effective head `c480baa`.
-- Inspected the complete 78-path diff, the PR comments, the PR-9 roadmap scope and exit tests, and the affected Core, Game, debug, content, save, replay, test, and document paths.
-- Verified the timeline, action, row, wave, wipe, event queue, map freeze, migration, content, and replay contracts.
-- Added `docs/reviews/pr-46.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 1485 tests and all local gates.
-- GitHub CI and Gitar pass at `c480baa`. The `review-gate` check fails only because the review record was absent before this session.
-- The effective implementation head is `c480baa`.
-- The remote head of `main` is `c6cc71c`.
-
-### What is in flight
-
-PR #46 waits for the final Gitar and review-gate results after the metadata push. The review verdict remains for effective head `c480baa`.
-
-### Traps and gotchas
-
-- The review target is `c480baa`. The review commit changes only the review record and this handoff entry.
-- The smoke battle wipes and exercises the reload path. The tests also cover a successful flee and the wait intent.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Verify the final Gitar and review-gate results at metadata tip `d837238`. The owner merges after the checks pass.
-
-## Session 158: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: PR-9, the battle core and the timeline. Repository: the-thing-below. Branch: `feat/pr-9-battle-core`. PR: #46. Role: author. Base: `c6cc71c`.
-
-### What this session did, and why
-
-- Asked the five open questions and each gap that the code showed. D-755 to D-781 hold the answers.
-- Built the battle in Core: the timeline, five actions, the rows, the wave, the wipe, and the wait intent.
-- Added content files, record format 2, save format 4, simulation version 7, and a battle identity run.
-- Replaced the `flee` command with five battle commands. Game drains the event queue, and a wipe reloads.
-- Found and fixed a snapshot that shared the pack array. `ASnapshotKeepsTheCountOfThePackOfItsTick` guards it.
-- Measured the fixture fights over 1000 seeds, and D-781 corrected the elite.
-
-### The state of the build
-
-- `make verify` passes locally with 1485 tests, the smoke battle included.
-- The remote head is the push of this entry. CI and gitar have not run yet.
-
-### What is in flight
-
-The first push, the PR, and the gitar pass. The Codex review follows.
-
-### Traps and gotchas
-
-- A snapshot must copy each list of the live state. A shared list changes the start of a record.
-- The smoke battle wipes on the fixture seed, so it runs the reload path. A test covers a flee.
-- `TestBattles` holds its own rules and groups. A change in `content/` moves no test.
-- The owner asked for a separate PR after PR-9: a texture fault on a walk north or south, and capture frames inside a step.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push, open PR #46, and follow the `gitar-review` skill.
-
-## Session 157: 2026-09-21, Codex
-
-Author: Codex
-Session: repeat review PR-8, the enemies on the map. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: reviewer. Base: `626d2fe`.
-
-### What this session did, and why
-
-- Reopened PR #45 at effective head `801d6aa` after the author corrected P2-1 from the review of `e83e2d6`.
-- Verified the original overflow trigger, the subtraction-based correction, the three-case regression theory, and the full affected consumer path.
-- Updated `docs/reviews/pr-45.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes locally with 1,393 tests and all local gates.
-- CI passes the build, test, format, smoke, replay identity, screen-test, det-lint, STE, coverage, changed-paths, and Gitar checks at PR tip `06ad10b`.
-- The effective implementation head is `801d6aa`.
-- The remote head of `main` is `626d2fe`.
-
-### What is in flight
-
-The review record and this handoff entry need one metadata commit and push.
-
-### Traps and gotchas
-
-- The effective head is `801d6aa`. The tip `06ad10b` changes only review metadata.
-- The area edge check depends on the reader refusing negative coordinates and dimensions.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the repeat review record and this handoff entry. Then verify the remote head and review-gate result.
-
-## Session 156: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: PR-8, the enemies on the map, the answer to the review. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: author. Base: `626d2fe`.
-
-### What this session did, and why
-
-- Answered `docs/reviews/pr-45.md`, which gave `Changes required` at `e83e2d6` for one finding.
-- P2-1 has full merit. An area whose coordinate and side sum past the range of an `int` loaded with no error. Commit `801d6aa` compares each side with the room that the map leaves, and a theory of three cases holds the regression.
-- `docs/reviews/pr-45-response.md` records the disposition and the evidence.
-
-### The state of the build
-
-- `make verify` passes with 1393 tests. The identity file and the content hash stay the same, and the simulation version stays at 6.
-- The effective head is `801d6aa`.
-- The remote head of `main` is `626d2fe`.
-
-### What is in flight
-
-The push of this round runs CI and the gitar pass on `801d6aa`. PR #45 then waits for a repeat review of that head.
-
-### Traps and gotchas
-
-- The reader of an area refuses a value below zero. The edge check relies on that, so a change of that reader needs a new look at the check.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for CI and the gitar pass on `801d6aa`, answer each gitar comment, and hand PR #45 to the repeat review.
-
-## Session 155: 2026-09-21, Codex
-
-Author: Codex
-Session: review PR-8, the enemies on the map. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: reviewer. Base: `626d2fe`.
-
-### What this session did, and why
-
-- Reviewed PR #45 at effective head `e83e2d6` after the author metadata tip `111fbe1`.
-- Inspected the complete diff, the PR comments, the PR-8 contracts and exit tests, and the affected Core, Debug, Game, content, test, identity, baseline, and document paths.
-- Found P2-1 in `PatrolLayout.CheckArea`: unchecked area-bound arithmetic can bypass the required map-boundary and body-fit checks for malformed oversized content.
-
-### The state of the build
-
-- `make verify` passes locally with 1,390 tests and all local gates.
-- CI passes the build, test, format, smoke, replay identity, screen-test, det-lint, STE, coverage, changed-paths, and Gitar checks at PR tip `111fbe1`.
-- The review-gate check fails only because the review record was absent before this session.
-- The remote head of `main` is `626d2fe`.
-
-### What is in flight
-
-PR #45 needs a correction for P2-1 and a repeat cross-provider review at the new effective head.
-
-### Traps and gotchas
-
-- The effective implementation head is `e83e2d6`, not the metadata tip `111fbe1`.
-- The area layout check must protect every positive coordinate and dimension from `int` overflow.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Correct P2-1 with a regression test, then request a repeat review of the new effective head.

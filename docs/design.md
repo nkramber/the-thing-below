@@ -72,6 +72,8 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-21 walk pass: the ground drew over the feet of a sprite inside a step north or south (F-95). The ground now draws below every sprite (D-783). The screen test holds a frame after each tick of one step north and one step south (D-782). `make walk` gives a session the same frames. The author of a PR that changes a screen reads each frame before the hand-over (D-784).
 
+2026-09-21 enemy record pass: each enemy has a record file of its own, with its stats and the ids of its abilities (D-557, D-786). A new ability file holds each ability id, and PR-12 adds the fields of a lesson to it (D-785). No fight reads an ability id before PR-11 and PR-12 (D-787). The record gives the size of the body, and a map patrol takes the size of the largest enemy of its group (D-754, D-788, D-789).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -462,7 +464,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 7. PR-8: the enemies and the patrols on the map (D-37).
 8. PR-9: the encounter state, the timeline, the actions, the rows, the wave, the wipe, and the hand-off (D-29, D-376, D-377, D-531, D-755 to D-781).
 9. PR-89: the ground over a sprite inside a step, and the walk frames of the screen test (D-782 to D-784, F-95).
-10. PR-80: the enemy record, with the stats and the ability ids of each enemy (D-557).
+10. PR-80: the enemy record, with the stats and the ability ids of each enemy, and the ability file (D-557, D-754, D-785 to D-789).
 11. PR-66: the eight elements and the ten statuses (D-74, D-75, D-533).
 12. PR-55: the large pictures, right before PR-10 (D-516, D-518).
 13. PR-10: the battle scene, its message line, and its backdrop (D-111, D-213).

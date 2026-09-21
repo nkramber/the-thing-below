@@ -28,6 +28,9 @@ public static class IdentitySet
     /// <summary>The name of the run that reads a battle, its snapshot, and its replay (D-531, D-532).</summary>
     public const string BattleRun = "battle";
 
+    /// <summary>The name of the run that fights an enemy record with an ability (exit test 5 of PR-80, D-557, D-787).</summary>
+    public const string EnemyRecordRun = "enemy-record";
+
     /// <summary>The name of the run that reads the stream split (D-643).</summary>
     public const string StreamSplitRun = "stream-split";
 
@@ -140,6 +143,78 @@ public static class IdentitySet
     }
     """;
 
+    /// <summary>
+    /// The map of the enemy-record run: the battle map, with a guard of the record group. The
+    /// brute of that group names an ability, so the run fights a record with an ability id,
+    /// which no fight reads yet (D-787).
+    /// </summary>
+    private const string RecordMapFile = """
+    {
+     "comment": "The map of the enemy-record run of the identity set. PR-80 added it, and the map never changes again.",
+     "id": "map.identity_record",
+     "label": "label.identity_record",
+     "time": "day",
+     "terrain": [
+      "#########",
+      "#.......#",
+      "#.......#",
+      "#########"
+     ],
+     "things": [
+      { "id": "spawn_point.identity_record_start", "kind": "spawn_point", "x": 1, "y": 1 }
+     ],
+     "enemies": [
+      {
+       "id": "patrol.identity_record_guard",
+       "group": "group.identity_record",
+       "size": "common",
+       "facing": "east",
+       "step_ticks": 15,
+       "sight_range": 0,
+       "routes": [
+        { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 3, "y": 1 }] }
+       ]
+      }
+     ]
+    }
+    """;
+
+    /// <summary>The grunt record of this set. PR-9 gave the stats, and PR-80 moved them to a record. It never changes.</summary>
+    private const string GruntRecordFile = """
+    {
+     "comment": "The grunt of the identity set. It never changes.",
+     "id": "enemy.identity_grunt",
+     "size": "common",
+     "health": 20,
+     "attack": 6,
+     "defense": 2,
+     "speed": 90,
+     "abilities": []
+    }
+    """;
+
+    /// <summary>The brute record of this set, which names an ability (D-787). PR-80 added it, and it never changes.</summary>
+    private const string BruteRecordFile = """
+    {
+     "comment": "The brute of the identity set. It never changes.",
+     "id": "enemy.identity_brute",
+     "size": "common",
+     "health": 45,
+     "attack": 11,
+     "defense": 5,
+     "speed": 80,
+     "abilities": ["ability.identity_strike"]
+    }
+    """;
+
+    /// <summary>The ability file of this set (D-785). PR-80 added it, and it never changes.</summary>
+    private const string AbilityFile = """
+    {
+     "comment": "The ability file of the identity set. It never changes.",
+     "abilities": [{ "id": "ability.identity_strike" }]
+    }
+    """;
+
     /// <summary>The battle rules of this set, with the numbers of D-777. They never change.</summary>
     private const string BattleRulesFile = """
     {
@@ -174,18 +249,23 @@ public static class IdentitySet
     /// </summary>
     private const string BattleFixtureFile = """
     {
-     "comment": "The battle fixture of the identity set. PR-9 added it, and it never changes.",
+     "comment": "The battle fixture of the identity set. PR-9 added it, and PR-80 moved its enemies to the enemy records and added the record group.",
      "characters": [
       { "id": "character.identity_hero", "health": 90, "attack": 14, "defense": 4, "speed": 100, "row": "front" }
-     ],
-     "enemies": [
-      { "id": "enemy.identity_grunt", "health": 20, "attack": 6, "defense": 2, "speed": 90 }
      ],
      "groups": [
       {
        "id": "group.identity_run",
        "boss": false,
        "enemies": [{ "enemy": "enemy.identity_grunt", "row": "front", "waits": false }]
+      },
+      {
+       "id": "group.identity_record",
+       "boss": false,
+       "enemies": [
+        { "enemy": "enemy.identity_brute", "row": "front", "waits": false },
+        { "enemy": "enemy.identity_grunt", "row": "back", "waits": false }
+       ]
       },
       {
        "id": "group.identity_battle",
@@ -211,6 +291,7 @@ public static class IdentitySet
     [
         BasisPointsRun,
         BattleRun,
+        EnemyRecordRun,
         RandomDrawsRun,
         ReplayRun,
         StateHashRun,
@@ -228,7 +309,8 @@ public static class IdentitySet
         return runName switch
         {
             BasisPointsRun => ComputeBasisPoints(),
-            BattleRun => ComputeBattle(),
+            BattleRun => ComputeBattle(BattleMapFile),
+            EnemyRecordRun => ComputeBattle(RecordMapFile),
             RandomDrawsRun => ComputeRandomDraws(),
             ReplayRun => ComputeReplay(),
             StateHashRun => ComputeStateHash(),
@@ -405,16 +487,22 @@ public static class IdentitySet
     private static BattleContent ReplayBattleContent() =>
         new(
             BattleRules.Read(Encoding.UTF8.GetBytes(BattleRulesFile), "identity-set-battle.json"),
-            BattleFixture.Read(Encoding.UTF8.GetBytes(BattleFixtureFile), "identity-set-fixture.json"));
+            BattleFixture.Read(Encoding.UTF8.GetBytes(BattleFixtureFile), "identity-set-fixture.json"),
+            [
+                EnemyRecord.Read(Encoding.UTF8.GetBytes(BruteRecordFile), "identity-set-brute.json"),
+                EnemyRecord.Read(Encoding.UTF8.GetBytes(GruntRecordFile), "identity-set-grunt.json"),
+            ],
+            AbilityList.Read(Encoding.UTF8.GetBytes(AbilityFile), "identity-set-abilities.json"));
 
     /// <summary>
     /// Runs a scripted battle, writes the record, reads the text of it again, and replays it
     /// (exit test 7 of PR-9). The party steps into the guard, fights with every action, saves
     /// in the middle of the battle, and walks on after the wait intent (D-522, D-531, D-532).
+    /// The battle run and the enemy-record run each give one map (exit test 5 of PR-80).
     /// </summary>
-    private static ulong ComputeBattle()
+    private static ulong ComputeBattle(string mapFile)
     {
-        GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(BattleMapFile), "identity-set-battle-map.json");
+        GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(mapFile), "identity-set-battle-map.json");
         BattleContent content = ReplayBattleContent();
         RunHeader header = RunHeader.ForThisBuild(ReplayContentHash, RunSeed);
         Simulation simulation = Simulation.Start(RunSeed, map, content, DebugIntentHandlers.None);

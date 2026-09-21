@@ -84,7 +84,6 @@ public sealed class BattleFixtureTests
     }
 
     [Theory]
-    [InlineData("\"enemy\": \"enemy.fixture_grunt\"", "\"enemy\": \"enemy.absent\"", "enemy.absent")]
     [InlineData("\"start_party\": [\"character.marrek\"]", "\"start_party\": []", "start_party")]
     [InlineData("\"start_party\": [\"character.marrek\"]", "\"start_party\": [\"character.marrek\", \"character.marrek\"]", "two times")]
     [InlineData("\"item\": \"item.fixture_draught\"", "\"item\": \"item.absent\"", "item.absent")]
@@ -141,7 +140,6 @@ public sealed class BattleFixtureTests
         {
          "comment": "A fixture with one group.",
          "characters": [{ "id": "character.marrek", "health": 60, "attack": 12, "defense": 4, "speed": 100, "row": "front" }],
-         "enemies": [{ "id": "enemy.fixture_grunt", "health": 30, "attack": 8, "defense": 2, "speed": 90 }],
          "groups": [{ "id": "group.big", "boss": false, "enemies": [{{entries}}] }],
          "items": [],
          "start_party": ["character.marrek"],
