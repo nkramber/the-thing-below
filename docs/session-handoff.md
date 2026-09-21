@@ -1,5 +1,43 @@
 # Session handoff
 
+## Session 186: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-56, the light and the shadows. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
+
+### What this session did, and why
+
+- The owner answered OQ-94 to OQ-97 and added two requests: the party carries a torch, and the art target is the HD-2D look. D-842 to D-851 record each answer.
+- PR-91 (the torch item, after PR-13) and PR-92 (three HD-2D passes, after PR-59) join the roadmaps. OQ-217 and OQ-218 block PR-91.
+- Core reads the decor kinds, the decor files, the light setups, the carried light, and the effect budget. The load checks each file against the maps and the palette. It also checks the worst view of the Deck and the 15 lights of one canvas item.
+- The simulation version is 12, and the identity file is new (G-17).
+- Game draws the lit atlas pages, the full-tile wall shadows, the torches, the carried light, and the key light of a battle. The `torch` command of the console switches the carried light with no intent.
+
+### The state of the build
+
+- `make verify` passes with 1,891 tests. `make smoke` passes. `make sheet` shows the lit map, walk, and battle frames.
+- The remote head is the first push of this branch.
+
+### What is in flight
+
+- The screen-test job fails on the first push, because every map, walk, and battle frame changes. The next round commits the baseline from the `screen-captures` artifact (D-733).
+- Gitar and the Codex review wait for the PR.
+
+### Traps and gotchas
+
+- Do not send the output of `make smoke` to `artifacts/smoke.log`. The target writes that file and then `cat`s it, so the file grows with no end.
+- `OccluderPolygon2D.CullMode` Clockwise keeps each wall dark. CounterClockwise lights the wall tile of each torch alone, as a flat block.
+- The collection expression `[0, last]` in Core pulls in `System.Runtime.InteropServices`, and the Core reference test fails.
+- zsh arrays count from 1.
+
+### The questions that block progress
+
+None for PR-56. OQ-217 records a clash for PR-91: D-566 puts no fog of war on a map, and D-848 makes the torch needed to see in the dark.
+
+### The next concrete action
+
+Download the `screen-captures` artifact of the first CI run, read each frame, and commit the new baseline. Then answer gitar.
+
 ## Session 185: 2026-09-21, Codex
 
 Author: Codex
@@ -304,34 +342,3 @@ None.
 ### The next concrete action
 
 Read the review record when it lands, and answer each finding.
-
-## Session 176: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-55, round 4. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: #50. Role: author. Base: `27fb790`.
-
-### What this session did, and why
-
-- The review sheets of the four fixture pieces and the render of the backdrop reached the PR description. The owner approved them (D-823).
-- Gitar approved `59692d2` with one finding: two items 7 in the Gate 4 list of `phase-4-region-one.md`. The item of the budget test is 8 now.
-- The CI note of Gitar named RG 7 again. Both review-gate jobs on `59692d2` report RG 7 pass, and RG 3 alone waits for the Codex review record.
-
-### The state of the build
-
-- Every CI job passed on `59692d2` except the review gate, which waits for `docs/reviews/pr-50.md`. 1712 tests pass on this machine.
-
-### What is in flight
-
-- The push of this round, the reply on the Gitar thread, and a Gitar pass on the new head. Then the PR leaves draft for the Codex review.
-
-### Traps and gotchas
-
-- The Gitar CI note reads the review-gate jobs of older heads. Read the log of the job of the current head.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Reply on the Gitar thread with the fix commit, prove the next Gitar pass current, and mark the PR ready for the Codex review.

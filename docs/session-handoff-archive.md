@@ -1,5 +1,36 @@
 # Session handoff archive
 
+## Session 176: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-55, round 4. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: #50. Role: author. Base: `27fb790`.
+
+### What this session did, and why
+
+- The review sheets of the four fixture pieces and the render of the backdrop reached the PR description. The owner approved them (D-823).
+- Gitar approved `59692d2` with one finding: two items 7 in the Gate 4 list of `phase-4-region-one.md`. The item of the budget test is 8 now.
+- The CI note of Gitar named RG 7 again. Both review-gate jobs on `59692d2` report RG 7 pass, and RG 3 alone waits for the Codex review record.
+
+### The state of the build
+
+- Every CI job passed on `59692d2` except the review gate, which waits for `docs/reviews/pr-50.md`. 1712 tests pass on this machine.
+
+### What is in flight
+
+- The push of this round, the reply on the Gitar thread, and a Gitar pass on the new head. Then the PR leaves draft for the Codex review.
+
+### Traps and gotchas
+
+- The Gitar CI note reads the review-gate jobs of older heads. Read the log of the job of the current head.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Reply on the Gitar thread with the fix commit, prove the next Gitar pass current, and mark the PR ready for the Codex review.
+
 ## Session 175: 2026-09-21, Claude Code
 
 Author: Claude Code
