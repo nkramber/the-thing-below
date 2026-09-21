@@ -121,6 +121,8 @@ public sealed class ContentSet
         var drawings = new SortedDictionary<string, Drawing>(StringComparer.Ordinal);
         var pictures = new SortedDictionary<string, LargePicture>(StringComparer.Ordinal);
         var pageFiles = new SortedSet<string>(StringComparer.Ordinal);
+        var normalPageFiles = new SortedSet<string>(StringComparer.Ordinal);
+        List<NormalOverride> overrides = [];
         var paths = new SortedSet<string>(StringComparer.Ordinal);
 
         foreach (ContentFile file in Ordered(files))
@@ -190,6 +192,17 @@ public sealed class ContentSet
                 // A page is an image, and the atlas index holds its record (D-517, D-666).
                 pageFiles.Add(file.Path);
             }
+            else if (ContentPaths.IsNormalPage(file.Path))
+            {
+                // A normal-map page takes the place of each frame from the atlas index of the
+                // color atlas (D-184, D-517).
+                normalPageFiles.Add(file.Path);
+            }
+            else if (NormalOverride.IsOverrideFile(file.Path))
+            {
+                // Each grid needs its drawing, so the check runs after the loop (D-839).
+                overrides.Add(NormalOverride.Read(file.Bytes, file.Path));
+            }
             else if (GameMap.IsMapFile(file.Path))
             {
                 // A map lies under the rule folder, so this branch comes before the fixture
@@ -228,6 +241,8 @@ public sealed class ContentSet
         set.RefuseAbsentString(sources);
         set.RefuseAbsentColor();
         set.RefuseStaleAtlas(pageFiles);
+        set.RefuseStaleNormalPages(normalPageFiles);
+        set.RefuseWrongOverride(overrides);
         set.RefuseAbsentFont();
         set.RefuseAbsentStyleDrawing();
         set.RefuseWrongPiece();
@@ -628,6 +643,73 @@ public sealed class ContentSet
         foreach (Drawing drawing in this.drawings.Values)
         {
             this.RefuseStaleEntry(drawing);
+        }
+    }
+
+    /// <summary>
+    /// Refuses a normal-map atlas that does not match the color atlas: a page of a kind that
+    /// takes scene light with no normal page, or a normal page that no such page names
+    /// (D-184, D-210). The pixel test of Tools compares the pages themselves (F-19).
+    /// </summary>
+    private void RefuseStaleNormalPages(SortedSet<string> normalPageFiles)
+    {
+        var named = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (AtlasPage page in this.Atlas.Pages)
+        {
+            if (!AtlasPages.TakesLight(page.Kind))
+            {
+                continue;
+            }
+
+            named.Add(page.NormalFile);
+            if (!normalPageFiles.Contains(page.NormalFile))
+            {
+                throw ContentException.ForField(
+                    AtlasIndex.Path,
+                    page.Name,
+                    $"the page '{page.Name}' takes scene light, and the content set holds no normal map '{page.NormalFile}'. Run the atlas command again (D-184)");
+            }
+        }
+
+        foreach (string normalFile in normalPageFiles)
+        {
+            // The atlas command owns every normal page, so a page that no color page names
+            // is a leftover that would ship in the build (D-666, T-2).
+            if (!named.Contains(normalFile))
+            {
+                throw ContentException.ForFile(
+                    normalFile,
+                    "no page of the atlas index that takes scene light names this normal map. Run the atlas command again (D-184, D-210)");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Refuses an override grid that names no drawing, a second grid of one drawing, or a
+    /// grid that does not fit its drawing (D-839, T-2).
+    /// </summary>
+    private void RefuseWrongOverride(List<NormalOverride> overrides)
+    {
+        var seen = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach (NormalOverride grid in overrides)
+        {
+            if (!this.drawings.TryGetValue(grid.Drawing.Value, out Drawing? drawing))
+            {
+                throw ContentException.ForField(
+                    grid.File,
+                    "drawing",
+                    $"the grid names the drawing '{grid.Drawing.Value}', and no drawing file holds it");
+            }
+
+            if (!seen.TryAdd(grid.Drawing.Value, grid.File))
+            {
+                throw ContentException.ForField(
+                    grid.File,
+                    "drawing",
+                    $"the file '{seen[grid.Drawing.Value]}' already holds the grid of '{grid.Drawing.Value}', and a drawing takes one grid (D-839)");
+            }
+
+            grid.RefuseWrongShape(drawing);
         }
     }
 

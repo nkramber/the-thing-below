@@ -4,6 +4,7 @@ using System.IO;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Tools;
 using TheThingBelow.Tools.Atlas;
+using TheThingBelow.Tools.NormalMaps;
 using TheThingBelow.Tools.Png;
 using Xunit;
 
@@ -144,6 +145,105 @@ public sealed class AtlasCommandTests : IDisposable
         Assert.True(File.Exists(Path.Combine(sheets, "review-map_sprites.png")));
     }
 
+    /// <summary>A page of sprites takes scene light, so the command writes its normal map beside it (D-184).</summary>
+    [Fact]
+    public void TheCommandWritesTheNormalMapOfALitPageAlone()
+    {
+        this.Write("one");
+        this.WriteFile(DrawingFixtures.PathOf("icon"), DrawingFixtures.Body("icon", page: "ui", width: 16, height: 16));
+
+        int code = this.Run();
+
+        Assert.Equal(0, code);
+        PngImage normals = PngReader.ReadFile(this.PathOf("sprites/normal-map-map_sprites.png"));
+        Assert.Equal([128, 128, 255, 255], normals.Row(0)[..4].ToArray());
+        Assert.False(File.Exists(this.PathOf("sprites/normal-map-ui.png")));
+    }
+
+    /// <summary>The normal-map atlas takes the pixel test of the color atlas (D-184, F-19).</summary>
+    [Fact]
+    public void TheCheckFailsOnAChangedNormalMap()
+    {
+        this.Write("one");
+        this.Run();
+        PngImage flat = PngReader.ReadFile(this.PathOf("sprites/normal-map-map_sprites.png"));
+        byte[] pixels = flat.Pixels.ToArray();
+        pixels[0] = 200;
+        PngWriter.WriteFile(this.PathOf("sprites/normal-map-map_sprites.png"), new PngImage(flat.Width, flat.Height, flat.Colors, pixels));
+
+        var errors = new StringWriter();
+        int code = AtlasCommand.Run([AtlasCommand.RootOption, this.root, AtlasCommand.CheckOption], new StringWriter(), errors);
+
+        Assert.Equal(Program.FaultExitCode, code);
+        Assert.Contains("sprites/normal-map-map_sprites.png", errors.ToString());
+        Assert.Contains("the first different pixel is at x 0, y 0", errors.ToString());
+    }
+
+    [Fact]
+    public void TheCheckFailsOnAnAbsentNormalMap()
+    {
+        this.Write("one");
+        this.Run();
+        File.Delete(this.PathOf("sprites/normal-map-map_sprites.png"));
+
+        var errors = new StringWriter();
+        int code = AtlasCommand.Run([AtlasCommand.RootOption, this.root, AtlasCommand.CheckOption], new StringWriter(), errors);
+
+        Assert.Equal(Program.FaultExitCode, code);
+        Assert.Contains("the page 'sprites/normal-map-map_sprites.png' is absent", errors.ToString());
+    }
+
+    /// <summary>The override grid reaches the committed normal map (D-839).</summary>
+    [Fact]
+    public void AnOverrideGridChangesTheNormalMapOfItsPixel()
+    {
+        this.Write("one");
+        this.WriteFile(DrawingFixtures.OverridePathOf("one"), DrawingFixtures.OverrideBody("one", OverrideRows('6')));
+
+        this.Run();
+
+        PngImage normals = PngReader.ReadFile(this.PathOf("sprites/normal-map-map_sprites.png"));
+        (int red, int green, int blue) = NormalMap.Encode(1, 0, 1);
+        Assert.Equal([(byte)red, (byte)green, (byte)blue, 255], normals.Row(0)[..4].ToArray());
+    }
+
+    [Fact]
+    public void AnOverrideGridOfNoDrawingFails()
+    {
+        this.Write("one");
+        this.WriteFile(DrawingFixtures.OverridePathOf("absent"), DrawingFixtures.OverrideBody("absent", OverrideRows('5')));
+
+        var errors = new StringWriter();
+        int code = AtlasCommand.Run([AtlasCommand.RootOption, this.root], new StringWriter(), errors);
+
+        Assert.Equal(Program.FaultExitCode, code);
+        Assert.Contains("drawing.absent", errors.ToString());
+    }
+
+    [Fact]
+    public void TheCommandRemovesANormalMapThatNoPageNeeds()
+    {
+        this.Write("one");
+        File.WriteAllBytes(this.PathOf("sprites/normal-map-tiles.png"), PngWriter.Write(new PngImage(1, 1, PngColorKind.Rgba, new byte[4])));
+
+        var output = new StringWriter();
+        AtlasCommand.Run([AtlasCommand.RootOption, this.root], output, new StringWriter());
+
+        Assert.False(File.Exists(this.PathOf("sprites/normal-map-tiles.png")));
+        Assert.Contains("removed sprites/normal-map-tiles.png", output.ToString());
+    }
+
+    [Fact]
+    public void TheCommandWritesTheNormalSheetOfALitKind()
+    {
+        this.Write("one");
+        string sheets = Path.Combine(this.root, "sheets");
+
+        this.Run(AtlasCommand.SheetsOption, sheets);
+
+        Assert.True(File.Exists(Path.Combine(sheets, "review-normals-map_sprites.png")));
+    }
+
     [Fact]
     public void AnUnknownOptionFails()
     {
@@ -182,6 +282,18 @@ public sealed class AtlasCommandTests : IDisposable
 
         Assert.Equal(Program.FaultExitCode, code);
         Assert.Contains("content", errors.ToString());
+    }
+
+    /// <summary>The rows of a grid of 32 by 32 pixels with one digit at the top left pixel.</summary>
+    private static List<string> OverrideRows(char digit)
+    {
+        var rows = new List<string> { digit + new string('.', 31) };
+        for (int row = 1; row < 32; row += 1)
+        {
+            rows.Add(new string('.', 32));
+        }
+
+        return rows;
     }
 
     private int Run(params string[] options)

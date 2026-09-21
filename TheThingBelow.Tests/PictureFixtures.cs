@@ -77,6 +77,7 @@ public static class PictureFixtures
 
             // Core reads no pixel of a page, so the bytes are free (D-517).
             File("sprites/atlas-pieces.png", "png"),
+            File("sprites/normal-map-pieces.png", "png"),
             File(PicturePath, picture ?? PictureBody()),
         ];
 

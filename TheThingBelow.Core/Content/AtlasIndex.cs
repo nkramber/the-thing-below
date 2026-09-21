@@ -20,6 +20,13 @@ public sealed record AtlasPage(AtlasPageKind Kind, int Number, int Width, int He
     /// <summary>The path of the PNG of the page, under `content/`.</summary>
     public string File => $"sprites/atlas-{this.Name}.png";
 
+    /// <summary>
+    /// The path of the PNG of the normal map of the page, under `content/`. Each frame sits at
+    /// the same place as on the color page (D-184, D-517). A page of a kind that takes no
+    /// scene light has none (D-210).
+    /// </summary>
+    public string NormalFile => $"{ContentPaths.NormalPagePrefix}{this.Name}.png";
+
     /// <summary>Gives the name of a page from its kind and its number.</summary>
     /// <param name="kind">The kind of the page.</param>
     /// <param name="number">The position inside the kind, which starts at 1.</param>

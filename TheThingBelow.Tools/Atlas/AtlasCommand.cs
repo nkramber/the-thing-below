@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Tools.Content;
+using TheThingBelow.Tools.NormalMaps;
 using TheThingBelow.Tools.Png;
 
 namespace TheThingBelow.Tools.Atlas;
@@ -11,7 +12,9 @@ namespace TheThingBelow.Tools.Atlas;
 /// <summary>
 /// The `atlas` command. It reads the palette and every drawing file of `content/`, packs the
 /// frames into the pages of the atlas, and writes each page and the atlas index (D-107,
-/// D-666, D-667). It replaces the interim script of D-406.
+/// D-666, D-667). It also writes the normal map of each page that takes scene light, with
+/// each frame at its place on the color page (D-184, D-517). It replaces the interim script
+/// of D-406.
 /// </summary>
 /// <remarks>
 /// The command reads the drawing files itself, and not through <see cref="ContentSet"/>,
@@ -98,6 +101,52 @@ public static class AtlasCommand
         return palette ?? throw ContentException.ForFile(Palette.Path, "the content folder holds no palette");
     }
 
+    /// <summary>Reads every override grid of a checkout, and checks each one against its drawing.</summary>
+    /// <param name="root">The root of the checkout, which holds the `content` folder.</param>
+    /// <param name="drawings">Every drawing of the checkout, by its id.</param>
+    /// <returns>Every override grid, by the id of its drawing (D-839).</returns>
+    /// <exception cref="ContentException">
+    /// A grid breaks a rule of the reader, names no drawing, repeats a drawing, or does not fit
+    /// its drawing (T-2).
+    /// </exception>
+    public static SortedDictionary<string, NormalOverride> ReadOverrides(
+        string root,
+        IReadOnlyDictionary<string, Drawing> drawings)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(root);
+        ArgumentNullException.ThrowIfNull(drawings);
+
+        var overrides = new SortedDictionary<string, NormalOverride>(StringComparer.Ordinal);
+        foreach (ContentFile file in ContentFolder.Read(root))
+        {
+            if (!NormalOverride.IsOverrideFile(file.Path))
+            {
+                continue;
+            }
+
+            NormalOverride grid = NormalOverride.Read(file.Bytes, file.Path);
+            if (!drawings.TryGetValue(grid.Drawing.Value, out Drawing? drawing))
+            {
+                throw ContentException.ForField(
+                    file.Path,
+                    "drawing",
+                    $"the grid names the drawing '{grid.Drawing.Value}', and no drawing file holds it");
+            }
+
+            if (!overrides.TryAdd(grid.Drawing.Value, grid))
+            {
+                throw ContentException.ForField(
+                    file.Path,
+                    "drawing",
+                    $"the file '{overrides[grid.Drawing.Value].File}' already holds the grid of '{grid.Drawing.Value}', and a drawing takes one grid (D-839)");
+            }
+
+            grid.RefuseWrongShape(drawing);
+        }
+
+        return overrides;
+    }
+
     /// <summary>Draws one page of a layout.</summary>
     /// <param name="page">The page to draw.</param>
     /// <param name="layout">The layout that names the place of each frame.</param>
@@ -158,15 +207,16 @@ public static class AtlasCommand
     {
         Palette palette = ReadArt(root, out List<Drawing> drawings);
         SortedDictionary<string, Drawing> byId = ById(drawings);
+        SortedDictionary<string, NormalOverride> overrides = ReadOverrides(root, byId);
         AtlasLayout layout = AtlasLayout.Build(drawings);
 
         int faults = check
-            ? CheckFiles(root, layout, byId, palette, output, errors)
-            : WriteFiles(root, layout, byId, palette, output);
+            ? CheckFiles(root, layout, byId, palette, overrides, output, errors)
+            : WriteFiles(root, layout, byId, palette, overrides, output);
 
         if (sheets is not null)
         {
-            WriteSheets(sheets, layout, byId, palette, output);
+            WriteSheets(sheets, layout, byId, palette, overrides, output);
         }
 
         output.WriteLine($"{Name}: drawings {drawings.Count}, pages {layout.Pages.Count}.");
@@ -178,6 +228,7 @@ public static class AtlasCommand
         AtlasLayout layout,
         SortedDictionary<string, Drawing> byId,
         Palette palette,
+        SortedDictionary<string, NormalOverride> overrides,
         TextWriter output)
     {
         foreach (AtlasPage page in layout.Pages)
@@ -185,12 +236,21 @@ public static class AtlasCommand
             string path = ContentPath(root, page.File);
             PngWriter.WriteFile(path, RenderPage(page, layout, byId, palette));
             output.WriteLine($"{Name}: wrote {page.File}, {page.Width} by {page.Height} pixels.");
+
+            // A page of a kind that takes scene light gets its normal map, with each frame at
+            // the same place (D-184, D-517). A portrait and the UI take none (D-210).
+            if (AtlasPages.TakesLight(page.Kind))
+            {
+                PngImage normals = NormalMap.RenderPage(page, layout, byId, palette, overrides);
+                PngWriter.WriteFile(ContentPath(root, page.NormalFile), normals);
+                output.WriteLine($"{Name}: wrote {page.NormalFile}, {page.Width} by {page.Height} pixels.");
+            }
         }
 
         foreach (string stale in StalePages(root, layout))
         {
-            // The command owns every page file, so a kind that lost its last drawing leaves
-            // no page behind (D-666, T-2).
+            // The command owns every page file and every normal-map page, so a kind that lost
+            // its last drawing leaves no page behind (D-666, T-2).
             File.Delete(ContentPath(root, stale));
             output.WriteLine($"{Name}: removed {stale}, which no drawing needs now.");
         }
@@ -205,13 +265,21 @@ public static class AtlasCommand
         AtlasLayout layout,
         SortedDictionary<string, Drawing> byId,
         Palette palette,
+        SortedDictionary<string, NormalOverride> overrides,
         TextWriter output,
         TextWriter errors)
     {
         int faults = 0;
         foreach (AtlasPage page in layout.Pages)
         {
-            faults += ComparePage(root, page, layout, byId, palette, errors);
+            faults += ComparePage(root, page.File, RenderPage(page, layout, byId, palette), errors);
+
+            // The normal-map atlas takes the same pixel test as the color atlas (D-184, F-19).
+            if (AtlasPages.TakesLight(page.Kind))
+            {
+                PngImage normals = NormalMap.RenderPage(page, layout, byId, palette, overrides);
+                faults += ComparePage(root, page.NormalFile, normals, errors);
+            }
         }
 
         foreach (string stale in StalePages(root, layout))
@@ -231,7 +299,7 @@ public static class AtlasCommand
 
         if (faults == 0)
         {
-            output.WriteLine($"{Name}: the committed atlas matches every drawing file.");
+            output.WriteLine($"{Name}: the committed atlas and its normal maps match every drawing file.");
         }
         else
         {
@@ -241,27 +309,20 @@ public static class AtlasCommand
         return faults;
     }
 
-    private static int ComparePage(
-        string root,
-        AtlasPage page,
-        AtlasLayout layout,
-        SortedDictionary<string, Drawing> byId,
-        Palette palette,
-        TextWriter errors)
+    private static int ComparePage(string root, string file, PngImage wanted, TextWriter errors)
     {
-        string path = ContentPath(root, page.File);
+        string path = ContentPath(root, file);
         if (!File.Exists(path))
         {
-            errors.WriteLine($"Error: the page '{page.File}' is absent.");
+            errors.WriteLine($"Error: the page '{file}' is absent.");
             return 1;
         }
 
-        PngImage wanted = RenderPage(page, layout, byId, palette);
         PngImage committed = PngReader.ReadFile(path);
         string? difference = Difference(wanted, committed);
         if (difference is not null)
         {
-            errors.WriteLine($"Error: the page '{page.File}' does not match the drawing files: {difference}.");
+            errors.WriteLine($"Error: the page '{file}' does not match the drawing files: {difference}.");
             return 1;
         }
 
@@ -313,12 +374,17 @@ public static class AtlasCommand
         foreach (AtlasPage page in layout.Pages)
         {
             wanted.Add(page.File);
+            if (AtlasPages.TakesLight(page.Kind))
+            {
+                wanted.Add(page.NormalFile);
+            }
         }
 
         var stale = new List<string>();
         foreach (ContentFile file in ContentFolder.Read(root))
         {
-            if (ContentPaths.IsAtlasPage(file.Path) && !wanted.Contains(file.Path))
+            bool page = ContentPaths.IsAtlasPage(file.Path) || ContentPaths.IsNormalPage(file.Path);
+            if (page && !wanted.Contains(file.Path))
             {
                 stale.Add(file.Path);
             }
@@ -332,6 +398,7 @@ public static class AtlasCommand
         AtlasLayout layout,
         SortedDictionary<string, Drawing> byId,
         Palette palette,
+        SortedDictionary<string, NormalOverride> overrides,
         TextWriter output)
     {
         Directory.CreateDirectory(folder);
@@ -344,14 +411,25 @@ public static class AtlasCommand
         {
             // A batch of one sheet takes the name of its kind, and a larger batch numbers
             // each sheet, so the PR description names them in order (D-668).
-            IReadOnlyList<PngImage> sheets = ReviewSheet.Render(kind, layout, byId, palette);
-            for (int index = 0; index < sheets.Count; index += 1)
+            WriteSheetSet(folder, $"review-{AtlasPages.NameOf(kind)}", ReviewSheet.Render(kind, layout, byId, palette), output);
+
+            // A kind that takes scene light gets the sheet of its normal maps too (D-521, D-841).
+            if (AtlasPages.TakesLight(kind))
             {
-                string number = sheets.Count == 1 ? string.Empty : $"-{index + 1}";
-                string path = Path.Combine(folder, $"review-{AtlasPages.NameOf(kind)}{number}.png");
-                PngWriter.WriteFile(path, sheets[index]);
-                output.WriteLine($"{Name}: wrote {path}.");
+                IReadOnlyList<PngImage> lit = NormalSheet.Render(kind, layout, byId, palette, overrides);
+                WriteSheetSet(folder, $"review-normals-{AtlasPages.NameOf(kind)}", lit, output);
             }
+        }
+    }
+
+    private static void WriteSheetSet(string folder, string stem, IReadOnlyList<PngImage> sheets, TextWriter output)
+    {
+        for (int index = 0; index < sheets.Count; index += 1)
+        {
+            string number = sheets.Count == 1 ? string.Empty : $"-{index + 1}";
+            string path = Path.Combine(folder, $"{stem}{number}.png");
+            PngWriter.WriteFile(path, sheets[index]);
+            output.WriteLine($"{Name}: wrote {path}.");
         }
     }
 

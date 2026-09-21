@@ -99,6 +99,36 @@ public sealed class PaletteTests
     }
 
     [Fact]
+    public void AColorGivesItsHeight()
+    {
+        Palette palette = Read(Body().Replace("\"chalk\", \"height\": 0", "\"chalk\", \"height\": 3"));
+
+        Assert.Equal(3, palette.ColorNamed("chalk").Height);
+        Assert.Equal(0, palette.ColorNamed("ink").Height);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(4)]
+    public void AHeightOutsideZeroToThreeFails(int height)
+    {
+        ContentException error = Fails(Body().Replace("\"chalk\", \"height\": 0", $"\"chalk\", \"height\": {height}"));
+
+        Assert.Equal("colors[1].height", error.Field);
+        Assert.Contains($"the height {height}", error.Message);
+        Assert.Contains("D-838", error.Message);
+    }
+
+    /// <summary>An absent height is an error, and never a height of 0 (T-2, D-116).</summary>
+    [Fact]
+    public void AnAbsentHeightFails()
+    {
+        ContentException error = Fails(Body().Replace("\"chalk\", \"height\": 0", "\"chalk\""));
+
+        Assert.Contains("height", error.Message);
+    }
+
+    [Fact]
     public void ANameThatThePaletteLacksFails()
     {
         Palette palette = Read(Body());
@@ -119,8 +149,8 @@ public sealed class PaletteTests
         {
          "comment": "a test palette",
          "colors": [
-          { "index": 0, "key": "k", "hex": "0b0a0f", "name": "ink" },
-          { "index": 1, "key": "{{second}}", "hex": "f2eeea", "name": "chalk" }
+          { "index": 0, "key": "k", "hex": "0b0a0f", "name": "ink", "height": 0 },
+          { "index": 1, "key": "{{second}}", "hex": "f2eeea", "name": "chalk", "height": 0 }
          ]
         }
         """;
