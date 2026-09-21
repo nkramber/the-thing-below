@@ -144,6 +144,8 @@ Effects terms from the roadmaps PR of 2026-09-15:
 | Term | Use for | Do not use |
 |---|---|---|
 | normal map | the image that tells 2D light which way each pixel of a drawing faces (D-183, D-184) | bump map, normal texture |
+| override grid | the optional file of the `normals` folder under `content/sprites/` that sets the direction of a pixel of a normal map by a numpad digit (D-184, D-839) | normal override, direction map |
+| normal-map atlas | the pages `sprites/normal-map-<page>.png`, with each frame at its place on the color page (D-184, D-517) | normal atlas, lighting atlas |
 | light setup | the ambient light and the lights of one map at one time of day (D-442) | lighting, light rig, light map |
 | effect file | the JSON file of one effect: its emitters, its palette colors, and its timings in ticks (D-182, D-266) | effect resource, particle file |
 | effect budget | the committed limits of lights with shadows, live particles, and full-screen passes that hold 60 frames per second on the Deck (D-523) | frame budget, perf budget |

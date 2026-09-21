@@ -1,5 +1,41 @@
 # Session handoff archive
 
+## Session 174: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-55, round 2. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: #50. Role: author. Base: `27fb790`.
+
+### What this session did, and why
+
+- The large picture format of D-812 and D-816 to D-819: the Core record and checks, the `picture` command, `PictureView` in Game, and the `picture` screen fixture.
+- Four fixture pieces wait for the owner approval through their review sheets in the PR description (D-514, G-25).
+- The owner added three fixes to this PR:
+  - The captures saved the linear colors of HDR 2D, so each baseline and sheet showed the game much darker than the screen. `CaptureColors` writes sRGB now.
+  - Game draws each slide at the part of a tick, and the held step reaches each tick of a frame (D-820). A 144 Hz screen showed a hitch between two tiles.
+  - A step lasts 16, 32, or 64 ticks, and the party takes 16 (D-821).
+- Gitar found no issue in round 1. It named the `docs/reviews/` row of the PR description, and the row now takes a form of D-581.
+
+### The state of the build
+
+- `make build`, format, lint, STE, identity, content, atlas, and smoke pass. The tests fail only on the baselines, which come from the CI artifact.
+
+### What is in flight
+
+- The push of this round, then the new baselines from the `screen-test` artifact: 45 captures in sRGB, with 17 walk frames each step.
+
+### Traps and gotchas
+
+- A test finds a palette color in each pixel of each 1x world baseline, so an old dark baseline fails it.
+- `GameRun.Advance` takes a function for the held step. A test or a tool with no player passes null.
+- The owner asked if a PR adds automated balance tuning before Act 1. The answer waits for the next question.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Copy the baselines from the CI artifact, read each frame, and answer gitar.
 ## Session 173: 2026-09-21, Claude Code
 
 Author: Claude Code

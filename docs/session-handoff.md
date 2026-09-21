@@ -1,5 +1,42 @@
 # Session handoff
 
+## Session 184: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-48, round 1. Repository: the-thing-below. Branch: `feat/pr-48-normal-maps`. PR: #52. Role: author. Base: `9e9dc59`.
+
+### What this session did, and why
+
+- Built the normal maps of PR-48 (D-183, D-184, D-502). The `atlas` command writes `sprites/normal-map-<page>.png` beside each page of tiles, map sprites, battle sprites, and pieces, and `--check` compares them by pixel (F-19). Portraits and the UI take none (D-210).
+- Asked the owner four questions and recorded the answers: the height of each palette color (D-838), the override grid (D-839), the rim of 4 pixels (D-840), and the form of the review sheet (D-841).
+- Fixed the second concern that the owner approved in Session 182. `Boot` now checks the run before it reads the held steps, so a key in the capture window writes no InputMap error line. The capture session pushes one stray step key as its regression test.
+- Raised the simulation version to 11, because the content reader refuses new shapes (G-17). The identity file changed with it (D-504).
+
+### The state of the build
+
+- `make verify` passes on this machine. The remote head is the commit of this entry on `feat/pr-48-normal-maps`.
+- The capture of the old `Boot` code failed on "The InputMap action "step_north" doesn't exist". With the fix, `make sheet` passes with no error line.
+- The branch captures match the captures of `main` pixel for pixel, 49 of 49. Six captures of this Mac differ from the committed baselines by one color level on `main` too, so this PR does not cause that difference.
+
+### What is in flight
+
+- The Gitar pass of this push, and the review of the other provider.
+- The owner approval of the normal-map sheets in the PR description (exit test 5, G-25).
+
+### Traps and gotchas
+
+- The row of nine copies of a 64-pixel piece is wider than 1600 pixels. D-841 records the wrong count of the question.
+- The drawing reader refuses a tile that is not 32 by 32, so a small test drawing goes on the `map_sprites` page.
+- A picture or an atlas fixture of a lit page needs its `normal-map-` page, or the content set refuses the set.
+
+### The questions that block progress
+
+None. The owner approval of the sheets is exit test 5.
+
+### The next concrete action
+
+Follow the `gitar-review` skill for this push. Ask the owner to approve the normal-map sheets. Then tell the owner that PR #52 is ready for the other provider.
+
 ## Session 183: 2026-09-21, Codex
 
 Author: Codex
@@ -298,40 +335,3 @@ Session: author PR-55, round 3. Repository: the-thing-below. Branch: `feat/pr-55
 ### The next concrete action
 
 Answer the Gitar pass on this head, and then ask the owner to approve the fixture art.
-
-## Session 174: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-55, round 2. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: #50. Role: author. Base: `27fb790`.
-
-### What this session did, and why
-
-- The large picture format of D-812 and D-816 to D-819: the Core record and checks, the `picture` command, `PictureView` in Game, and the `picture` screen fixture.
-- Four fixture pieces wait for the owner approval through their review sheets in the PR description (D-514, G-25).
-- The owner added three fixes to this PR:
-  - The captures saved the linear colors of HDR 2D, so each baseline and sheet showed the game much darker than the screen. `CaptureColors` writes sRGB now.
-  - Game draws each slide at the part of a tick, and the held step reaches each tick of a frame (D-820). A 144 Hz screen showed a hitch between two tiles.
-  - A step lasts 16, 32, or 64 ticks, and the party takes 16 (D-821).
-- Gitar found no issue in round 1. It named the `docs/reviews/` row of the PR description, and the row now takes a form of D-581.
-
-### The state of the build
-
-- `make build`, format, lint, STE, identity, content, atlas, and smoke pass. The tests fail only on the baselines, which come from the CI artifact.
-
-### What is in flight
-
-- The push of this round, then the new baselines from the `screen-test` artifact: 45 captures in sRGB, with 17 walk frames each step.
-
-### Traps and gotchas
-
-- A test finds a palette color in each pixel of each 1x world baseline, so an old dark baseline fails it.
-- `GameRun.Advance` takes a function for the held step. A test or a tool with no player passes null.
-- The owner asked if a PR adds automated balance tuning before Act 1. The answer waits for the next question.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Copy the baselines from the CI artifact, read each frame, and answer gitar.
