@@ -17,7 +17,7 @@ Session: review PR #44, the screen-test job. Repository: the-thing-below. Branch
 - `make verify` passes with 1272 tests and all local gates.
 - GitHub passes the build, test, format, smoke, replay identity, det-lint, STE, coverage, changed-paths, screen-test, and Gitar checks at tip `023211d`. Two Windows jobs were still in progress when read.
 - The effective implementation head is `233b890`. The later commits change only handoff and review metadata.
-- The review-gate check waits for `docs/reviews/pr-44.md` and should pass after this record reaches the branch.
+- The review record and handoff are on remote head `4858ab7`. The review-gate check should pass after CI reads this metadata commit.
 
 ### What is in flight
 
@@ -35,7 +35,7 @@ None. OQ-115 blocks PR-8 alone.
 
 ### The next concrete action
 
-Push the review record and verify the review-gate check and the remote branch state.
+Verify the review-gate check and the remote branch state.
 
 ## Session 150: 2026-09-20, Claude Code
 
