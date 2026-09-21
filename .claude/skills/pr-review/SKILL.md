@@ -164,6 +164,8 @@ Use the current build commands in `AGENTS.md`. Do not invent a successful comman
 - Record the command, revision, environment, result, and relevant artifact for each required check.
 - Verify CI results against the reviewed revision and configured test target.
 - Check the `replay-identity` result and the smoke result on every CI leg (G-5, D-481). Check the bot runs and the night result once PR-15 and PR-49 create them (G-22, D-505).
+- For a PR that changes what a screen draws, confirm that the PR records the visual review of the author (D-784). The record names `make sheet` or `make walk`, the frames that the author read, and the result. An absent record blocks approval.
+- Read the frames of the screen-test artifact that the change reaches, the walk frames included, and report each visual fault as a finding (D-782, D-784).
 
 Use the initial-check clause only as G-16 permits.
 Name the absent check and the PR that creates it. A PR that creates a check must pass it.

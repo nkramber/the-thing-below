@@ -1,5 +1,43 @@
 # Session handoff
 
+## Session 160: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-89, the walk fault and the frames inside a step. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: the one PR of PR-89, opened in this session. Role: author. Base: `ce06eda`.
+
+### What this session did, and why
+
+- The owner saw a fault on a walk north or south in `make run`. The owner asked for a capture that a session can read by itself while the lead moves (D-782).
+- Added the `walk` fixture: one frame at 1x after each tick of one step north and one step south. Added `--fixture <name>`, `make sheet FIXTURE=<name>`, and `make walk`. `make sheet` now builds the Godot solution first.
+- The walk frames proved the cause (F-95). Each ground tile sorted at the center of its cell, so the floor cut the legs for half of each step north or south.
+- The fix: the ground layer takes no part in the sort, and it draws at the Z index -1 (D-783). The smoke session reads both values back.
+- The author read all 32 walk frames before and after the fix. Before: legs cut in `walk-north-09`, `walk-north-12`, and `walk-south-06`. After: the lead draws whole in every frame.
+- Recorded D-782 to D-784, F-95, the PR-89 entry of the phase-2 file, and the PR gate line of the visual review (D-784).
+
+### The state of the build
+
+- Remote head of `main`: `ce06eda`. No Core file changes, so the simulation version stays (G-17).
+- Local: build, format, lint, STE check, and smoke pass. 1495 of 1501 tests pass.
+- The six failed tests are `TheBaselineHoldsThisCapture` for the walk frames. The baseline PNGs come from the artifact of the first screen-test run (D-733).
+
+### What is in flight
+
+The first push of the PR. The screen-test job fails until the 32 walk baselines land from its artifact.
+
+### Traps and gotchas
+
+- `CLAUDE.md` and `AGENTS.md` hold 16383 bytes, one byte under the 16 KB limit of SIZE 1. The next edit must make room first.
+- The screen of this Mac gives 955 rows, so `make sheet` fails on the 1080-row capture. Use `make walk`, or a larger screen.
+- In `ScreenCaptures`, `WalkSteps` must stay above `All`. A static property takes its value in the order of the file.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Download the `screen-captures` artifact, read each walk frame, and commit the 32 walk PNGs to `screens/baseline/`. Then answer the gitar pass.
+
 ## Session 159: 2026-09-21, Codex
 
 Author: Codex
@@ -320,55 +358,3 @@ None. OQ-115 blocks PR-8 alone.
 ### The next concrete action
 
 Verify the review-gate check and the remote branch state.
-
-## Session 150: 2026-09-20, Claude Code
-
-Author: Claude Code
-Session: PR-41, the screen-test job. Repository: the-thing-below. Branch: `feat/pr-41-screen-test`. Role: author. Base: `1e0c6b1`.
-
-### What this session did, and why
-
-- Asked the seven questions of PR-41 first, and the owner answered each one (D-729 to D-736). OQ-79 blocked the PR, and the register options needed one more (D-19).
-- The job installs Mesa from one pinned timestamp of the snapshot service of Ubuntu, and it reads back each version. The snapshot service keeps every timestamp, so the pin can never drop out of the archive (D-729, D-730).
-- The job draws with the Mobile renderer on lavapipe, and not with the Compatibility renderer of D-172. D-616 picked Mobile for every shipped build five days after D-172, so each capture now shows the renderer of the player (D-731).
-- The `--capture` argument of Game writes one PNG for each capture of `ScreenCaptures` (D-732). The fixtures are the map screen and a UI panel (D-734).
-- The `screens` command of Tools compares decoded pixels, or it joins the captures into a contact sheet (D-735, D-736, F-19).
-- A baseline comes from the renderer of CI, so the artifact of the job gives each new frame and the author commits it by hand (D-733).
-
-### The state of the build
-
-- `make verify` passes on the Mac with 1272 tests, and `make sheet` writes the sheet, so exit test 6 holds.
-- CI passes on every leg at the head `233b890`, and the `screen-test` job is green.
-- The job reports the rendering method `mobile` and the rendering driver `vulkan` on `llvmpipe (LLVM 20.1.2, 256 bits)`, so D-731 holds.
-- The two runs of the job give the same frames, so exit test 4 holds.
-- `screens/baseline` holds the 10 files of the artifact of the run `35549963049`, and they take 184 KB.
-- No file of Core changed, so the simulation version stands (G-17).
-- The remote head of `main` is `1e0c6b1`.
-
-### What is in flight
-
-The pull request is #44, and it waits for the review of Codex at the effective head `233b890`. The gitar pass of that head found no issue, and the pull request holds no review thread.
-
-The `review-gate` check gives one fault, RG 3, because the head holds no `docs/reviews/pr-44.md`. That fault clears with the review record. RG 1, RG 2, RG 6, RG 7, and RG 8 pass. RG 7 failed one time, because the `docs/reviews/` row of the description held no form of D-581, and the description now holds that form.
-
-Three rounds came before the green run, and each one found a real fault:
-
-- The readiness check of Xvfb called `xdpyinfo`, which the image of the runner does not hold. The job now starts the screen with `xvfb-run`, which also ends the background process of the step.
-- The driver file of lavapipe is `lvp_icd.json` on this image, and not `lvp_icd.x86_64.json`. The loader then held no driver, and Godot fell back to OpenGL. The job now finds the file and fails when the pin installs none.
-- A session with a window opens the audio driver of the system, and the runner has no sound card. The session now takes the dummy audio driver.
-
-### Traps and gotchas
-
-- The Mac cannot write a baseline. It is Apple silicon, and the baseline comes from the software Vulkan driver of Linux (D-733).
-- The capture session runs no tick, so the frame time of the engine reaches no capture (T-7).
-- Each capture builds its fixture again, because the default body size follows the fit of the screen (D-707).
-- At 1440 rows both fit modes give one picture, because the frame reaches that screen at a whole scale of 2 (D-568).
-- A move of the Mesa pin needs a new baseline in the same PR (D-730).
-
-### The questions that block progress
-
-None. OQ-115 blocks PR-8 alone.
-
-### The next concrete action
-
-Hand PR #44 to Codex for the cross-provider review. A PR that changes `.github/workflows/` never takes the label of D-401 (D-700).

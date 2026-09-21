@@ -1,5 +1,57 @@
 # Session handoff archive
 
+## Session 150: 2026-09-20, Claude Code
+
+Author: Claude Code
+Session: PR-41, the screen-test job. Repository: the-thing-below. Branch: `feat/pr-41-screen-test`. Role: author. Base: `1e0c6b1`.
+
+### What this session did, and why
+
+- Asked the seven questions of PR-41 first, and the owner answered each one (D-729 to D-736). OQ-79 blocked the PR, and the register options needed one more (D-19).
+- The job installs Mesa from one pinned timestamp of the snapshot service of Ubuntu, and it reads back each version. The snapshot service keeps every timestamp, so the pin can never drop out of the archive (D-729, D-730).
+- The job draws with the Mobile renderer on lavapipe, and not with the Compatibility renderer of D-172. D-616 picked Mobile for every shipped build five days after D-172, so each capture now shows the renderer of the player (D-731).
+- The `--capture` argument of Game writes one PNG for each capture of `ScreenCaptures` (D-732). The fixtures are the map screen and a UI panel (D-734).
+- The `screens` command of Tools compares decoded pixels, or it joins the captures into a contact sheet (D-735, D-736, F-19).
+- A baseline comes from the renderer of CI, so the artifact of the job gives each new frame and the author commits it by hand (D-733).
+
+### The state of the build
+
+- `make verify` passes on the Mac with 1272 tests, and `make sheet` writes the sheet, so exit test 6 holds.
+- CI passes on every leg at the head `233b890`, and the `screen-test` job is green.
+- The job reports the rendering method `mobile` and the rendering driver `vulkan` on `llvmpipe (LLVM 20.1.2, 256 bits)`, so D-731 holds.
+- The two runs of the job give the same frames, so exit test 4 holds.
+- `screens/baseline` holds the 10 files of the artifact of the run `35549963049`, and they take 184 KB.
+- No file of Core changed, so the simulation version stands (G-17).
+- The remote head of `main` is `1e0c6b1`.
+
+### What is in flight
+
+The pull request is #44, and it waits for the review of Codex at the effective head `233b890`. The gitar pass of that head found no issue, and the pull request holds no review thread.
+
+The `review-gate` check gives one fault, RG 3, because the head holds no `docs/reviews/pr-44.md`. That fault clears with the review record. RG 1, RG 2, RG 6, RG 7, and RG 8 pass. RG 7 failed one time, because the `docs/reviews/` row of the description held no form of D-581, and the description now holds that form.
+
+Three rounds came before the green run, and each one found a real fault:
+
+- The readiness check of Xvfb called `xdpyinfo`, which the image of the runner does not hold. The job now starts the screen with `xvfb-run`, which also ends the background process of the step.
+- The driver file of lavapipe is `lvp_icd.json` on this image, and not `lvp_icd.x86_64.json`. The loader then held no driver, and Godot fell back to OpenGL. The job now finds the file and fails when the pin installs none.
+- A session with a window opens the audio driver of the system, and the runner has no sound card. The session now takes the dummy audio driver.
+
+### Traps and gotchas
+
+- The Mac cannot write a baseline. It is Apple silicon, and the baseline comes from the software Vulkan driver of Linux (D-733).
+- The capture session runs no tick, so the frame time of the engine reaches no capture (T-7).
+- Each capture builds its fixture again, because the default body size follows the fit of the screen (D-707).
+- At 1440 rows both fit modes give one picture, because the frame reaches that screen at a whole scale of 2 (D-568).
+- A move of the Mesa pin needs a new baseline in the same PR (D-730).
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Hand PR #44 to Codex for the cross-provider review. A PR that changes `.github/workflows/` never takes the label of D-401 (D-700).
+
 ## Session 149: 2026-09-20, Codex
 
 Author: Codex
