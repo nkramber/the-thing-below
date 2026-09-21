@@ -21,7 +21,7 @@ Session: review PR-9, the battle core and the timeline. Repository: the-thing-be
 
 ### What is in flight
 
-PR #46 waits for the owner merge.
+PR #46 waits for the final Gitar and review-gate results after the metadata push. The review verdict remains for effective head `c480baa`.
 
 ### Traps and gotchas
 
@@ -34,7 +34,7 @@ None.
 
 ### The next concrete action
 
-Commit and push the review record and this handoff entry. Then verify the remote head and the review-gate result.
+Verify the final Gitar and review-gate results at metadata tip `d837238`. The owner merges after the checks pass.
 
 ## Session 158: 2026-09-21, Claude Code
 
