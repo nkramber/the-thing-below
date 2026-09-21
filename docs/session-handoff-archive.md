@@ -1,5 +1,38 @@
 # Session handoff archive
 
+## Session 175: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-55, round 3. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: #50. Role: author. Base: `27fb790`.
+
+### What this session did, and why
+
+- Copied the 45 baselines of the CI artifact of `c4988bb` into `screens/baseline`, after a read of each frame. Each world pixel is a palette color.
+- Gitar found no code issue on `c4988bb`. Its CI note on the `docs/reviews/` row read an older job, and RG 7 passes on this head.
+- The owner asked for an automated balance PR before Act 1, and approved PR-90, the balance harness, first in Phase 4 (D-822). OQ-216 holds its metrics, bands, and policy.
+- The review sheets of the four fixture pieces go to the PR description for the owner approval (D-514, D-819, G-25).
+
+### The state of the build
+
+- 1712 tests pass. Build, format, lint, STE, identity, content, atlas, and smoke pass. RG 3 waits for the Codex review record.
+
+### What is in flight
+
+- The push of this round, and the Gitar pass on it. Then the PR leaves draft for the Codex review.
+
+### Traps and gotchas
+
+- The PR holds nine concerns under the override of the owner, and the PR description notes it once.
+- A baseline comes from the CI artifact alone (the readme of `screens/baseline`).
+
+### The questions that block progress
+
+- The owner approval of the four fixture pieces (G-25).
+
+### The next concrete action
+
+Answer the Gitar pass on this head, and then ask the owner to approve the fixture art.
+
 ## Session 174: 2026-09-21, Claude Code
 
 Author: Claude Code
