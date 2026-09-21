@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Streams;
@@ -43,6 +44,11 @@ public sealed record MapSnapshot(
     SightMark? Mark,
     MapEncounter? Encounter);
 
+/// <summary>The characters of the party and their pack in a snapshot (D-765).</summary>
+/// <param name="Characters">Each character, in slot order.</param>
+/// <param name="Pack">Each item of the pack, in the order of the fixture file.</param>
+public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IReadOnlyList<PackValues> Pack);
+
 /// <summary>
 /// The whole state of a run at the end of one tick. A record holds one snapshot and the
 /// intents after it, so its size stays bounded (F-10, D-651).
@@ -61,17 +67,26 @@ public sealed record MapSnapshot(
 /// migration puts each enemy of the map on the start tile of its station, which is where a
 /// new run puts it (D-654, D-750).
 /// </para>
+/// <para>
+/// A snapshot before save format 4 holds no party, and its migration starts the party of the
+/// fixture at full health (D-166, D-765). One snapshot covers the map and the battle, so a
+/// battle that runs, or that waits for the screen, takes its place in the snapshot (D-531).
+/// </para>
 /// </remarks>
 /// <param name="Tick">The count of ticks since the start of the run (D-164, D-650).</param>
 /// <param name="MenuOpen">True while a menu is open and the world waits (D-162).</param>
 /// <param name="WorldTick">The count of ticks in which the world ran (D-650).</param>
 /// <param name="Map">The party on its map, or no value on a snapshot of save format 1 (D-166).</param>
+/// <param name="Characters">The characters and the pack, or no value on a snapshot before save format 4 (D-765).</param>
+/// <param name="Battle">The battle, or no value when none runs (D-531).</param>
 /// <param name="Streams">The position of every stream, in the order of `RandomStreams.All`.</param>
 public sealed record RunSnapshot(
     long Tick,
     bool MenuOpen,
     long WorldTick,
     MapSnapshot? Map,
+    PartySnapshot? Characters,
+    BattleValues? Battle,
     IReadOnlyList<StreamPosition> Streams)
 {
     /// <summary>
@@ -101,6 +116,10 @@ public sealed record RunSnapshot(
             source,
             $"the world tick is {this.WorldTick}, and the tick is {this.Tick}, which is lower");
         this.CheckMap(source);
+        Refuse(
+            this.Battle is not null && (this.Characters is null || this.Map?.Encounter is null),
+            source,
+            "it holds a battle with no party or no encounter, and a battle needs both (D-531)");
         Refuse(
             this.Streams.Count != RandomStreams.All.Count,
             source,

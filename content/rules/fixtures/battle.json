@@ -1,0 +1,63 @@
+{
+ "comment": "The fixture of the battle core (D-765, D-766, D-775, D-777). PR-67, PR-80, PR-11, and PR-13 replace each part, and each id stays.",
+ "characters": [
+  {
+   "id": "character.marrek",
+   "health": 60,
+   "attack": 12,
+   "defense": 4,
+   "speed": 100,
+   "row": "front"
+  }
+ ],
+ "enemies": [
+  {
+   "id": "enemy.fixture_grunt",
+   "health": 30,
+   "attack": 8,
+   "defense": 2,
+   "speed": 90
+  },
+  {
+   "id": "enemy.fixture_brute",
+   "health": 80,
+   "attack": 14,
+   "defense": 6,
+   "speed": 80
+  }
+ ],
+ "groups": [
+  {
+   "id": "group.fixture_pair",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false },
+    { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false }
+   ]
+  },
+  {
+   "id": "group.fixture_elite",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.fixture_brute", "row": "front", "waits": false },
+    { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false },
+    { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false },
+    { "enemy": "enemy.fixture_grunt", "row": "front", "waits": true },
+    { "enemy": "enemy.fixture_grunt", "row": "front", "waits": true }
+   ]
+  }
+ ],
+ "items": [
+  {
+   "id": "item.fixture_draught",
+   "heal": 30,
+   "delay": 100
+  }
+ ],
+ "start_party": [
+  "character.marrek"
+ ],
+ "pack": [
+  { "item": "item.fixture_draught", "count": 3 }
+ ]
+}

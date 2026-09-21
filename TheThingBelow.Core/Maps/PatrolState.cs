@@ -88,7 +88,7 @@ public sealed class PatrolState
 
     /// <summary>
     /// True when the party killed this enemy. A killed enemy stays dead, and no exit brings
-    /// it back (D-555). PR-9 kills an enemy, and this build never sets the value.
+    /// it back (D-555). A won battle sets it (D-531).
     /// </summary>
     public bool Dead { get; private set; }
 
@@ -207,6 +207,9 @@ public sealed class PatrolState
 
     /// <summary>Starts the grace time of a flee (D-381, D-748).</summary>
     public void StartGrace() => this.GraceTicks = MapRules.GraceTicks;
+
+    /// <summary>Marks the enemy dead after a won battle (D-555). It never walks or sees again.</summary>
+    public void Defeat() => this.Dead = true;
 
     /// <summary>
     /// Counts one tick of the step that runs, and moves the body when the step ends (D-742).

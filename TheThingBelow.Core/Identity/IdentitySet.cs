@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
@@ -22,6 +24,9 @@ public static class IdentitySet
 {
     /// <summary>The name of the run that reads the fixed-point math (D-641).</summary>
     public const string BasisPointsRun = "basis-points";
+
+    /// <summary>The name of the run that reads a battle, its snapshot, and its replay (D-531, D-532).</summary>
+    public const string BattleRun = "battle";
 
     /// <summary>The name of the run that reads the stream split (D-643).</summary>
     public const string StreamSplitRun = "stream-split";
@@ -97,11 +102,115 @@ public static class IdentitySet
     }
     """;
 
+    /// <summary>The count of ticks that the battle run steps.</summary>
+    private const int BattleTickCount = 240;
+
+    /// <summary>
+    /// The map of the battle run. The party stands two tiles west of a guard that never
+    /// moves, so two steps east bump into it and start a battle from behind (D-746, D-747).
+    /// </summary>
+    private const string BattleMapFile = """
+    {
+     "comment": "The map of the battle run of the identity set. PR-9 added it, and the map never changes again.",
+     "id": "map.identity_battle",
+     "label": "label.identity_battle",
+     "time": "day",
+     "terrain": [
+      "#########",
+      "#.......#",
+      "#.......#",
+      "#########"
+     ],
+     "things": [
+      { "id": "spawn_point.identity_battle_start", "kind": "spawn_point", "x": 1, "y": 1 }
+     ],
+     "enemies": [
+      {
+       "id": "patrol.identity_battle_guard",
+       "group": "group.identity_battle",
+       "size": "common",
+       "facing": "east",
+       "step_ticks": 15,
+       "sight_range": 0,
+       "routes": [
+        { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 3, "y": 1 }] }
+       ]
+      }
+     ]
+    }
+    """;
+
+    /// <summary>The battle rules of this set, with the numbers of D-777. They never change.</summary>
+    private const string BattleRulesFile = """
+    {
+     "comment": "The battle rules of the identity set. PR-9 added them, and they never change.",
+     "attack_delay": 100,
+     "attack_power": 10000,
+     "defend_delay": 60,
+     "step_delay": 60,
+     "flee_delay": 100,
+     "hit_low": 9000,
+     "hit_high": 11000,
+     "miss_base": 500,
+     "miss_per_speed": 25,
+     "miss_floor": 0,
+     "miss_ceiling": 1500,
+     "defend_cut": 5000,
+     "back_row_rate": 5000,
+     "haste_rate": 7500,
+     "slow_rate": 15000,
+     "stun_ticks": 50,
+     "flee_base": 5000,
+     "flee_per_speed": 100,
+     "flee_floor": 1000,
+     "flee_ceiling": 9000,
+     "item_rate": 5000
+    }
+    """;
+
+    /// <summary>
+    /// The battle fixture of this set. The guard group holds a wave, so the run reads the
+    /// step of a waiting enemy too (D-778). It never changes.
+    /// </summary>
+    private const string BattleFixtureFile = """
+    {
+     "comment": "The battle fixture of the identity set. PR-9 added it, and it never changes.",
+     "characters": [
+      { "id": "character.identity_hero", "health": 90, "attack": 14, "defense": 4, "speed": 100, "row": "front" }
+     ],
+     "enemies": [
+      { "id": "enemy.identity_grunt", "health": 20, "attack": 6, "defense": 2, "speed": 90 }
+     ],
+     "groups": [
+      {
+       "id": "group.identity_run",
+       "boss": false,
+       "enemies": [{ "enemy": "enemy.identity_grunt", "row": "front", "waits": false }]
+      },
+      {
+       "id": "group.identity_battle",
+       "boss": false,
+       "enemies": [
+        { "enemy": "enemy.identity_grunt", "row": "front", "waits": false },
+        { "enemy": "enemy.identity_grunt", "row": "back", "waits": false },
+        { "enemy": "enemy.identity_grunt", "row": "front", "waits": true }
+       ]
+      }
+     ],
+     "items": [
+      { "id": "item.identity_draught", "heal": 30, "delay": 100 }
+     ],
+     "start_party": ["character.identity_hero"],
+     "pack": [{ "item": "item.identity_draught", "count": 9 }]
+    }
+    """;
+
     /// <summary>Every run of the set, in the order of the identity file.</summary>
     /// <remarks>The order is the ordinal order of the names, which every machine reads the same (F-39).</remarks>
     public static readonly IReadOnlyList<string> RunNames =
     [
         BasisPointsRun,
+        BattleRun,
         RandomDrawsRun,
         ReplayRun,
         StateHashRun,
@@ -119,6 +228,7 @@ public static class IdentitySet
         return runName switch
         {
             BasisPointsRun => ComputeBasisPoints(),
+            BattleRun => ComputeBattle(),
             RandomDrawsRun => ComputeRandomDraws(),
             ReplayRun => ComputeReplay(),
             StateHashRun => ComputeStateHash(),
@@ -225,7 +335,7 @@ public static class IdentitySet
     {
         GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(ReplayMapFile), "identity-set-map.json");
         RunHeader header = RunHeader.ForThisBuild(ReplayContentHash, RunSeed);
-        Simulation simulation = Simulation.Start(RunSeed, map, DebugIntentHandlers.None);
+        Simulation simulation = Simulation.Start(RunSeed, map, ReplayBattleContent(), DebugIntentHandlers.None);
         RunRecorder recorder = new(header, simulation.Snapshot());
 
         for (int step = 0; step < ReplayTickCount; step += 1)
@@ -244,7 +354,7 @@ public static class IdentitySet
 
         string text = RunRecordText.Write(recorder.Build());
         RunState replayed = RunReplay.Play(
-            RunRecordText.Read(text), ReplayContentHash, map, DebugIntentHandlers.None);
+            RunRecordText.Read(text), ReplayContentHash, map, ReplayBattleContent(), DebugIntentHandlers.None);
 
         StateHasher hasher = new();
         hasher.AddUInt64(simulation.StateHash());
@@ -286,6 +396,97 @@ public static class IdentitySet
         }
 
         return [];
+    }
+
+    /// <summary>
+    /// The battle content of both runs of this set. The set holds its own copy, because Core
+    /// reads no file and a content change must never move a hash of this set (G-1, D-495).
+    /// </summary>
+    private static BattleContent ReplayBattleContent() =>
+        new(
+            BattleRules.Read(Encoding.UTF8.GetBytes(BattleRulesFile), "identity-set-battle.json"),
+            BattleFixture.Read(Encoding.UTF8.GetBytes(BattleFixtureFile), "identity-set-fixture.json"));
+
+    /// <summary>
+    /// Runs a scripted battle, writes the record, reads the text of it again, and replays it
+    /// (exit test 7 of PR-9). The party steps into the guard, fights with every action, saves
+    /// in the middle of the battle, and walks on after the wait intent (D-522, D-531, D-532).
+    /// </summary>
+    private static ulong ComputeBattle()
+    {
+        GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(BattleMapFile), "identity-set-battle-map.json");
+        BattleContent content = ReplayBattleContent();
+        RunHeader header = RunHeader.ForThisBuild(ReplayContentHash, RunSeed);
+        Simulation simulation = Simulation.Start(RunSeed, map, content, DebugIntentHandlers.None);
+        RunRecorder recorder = new(header, simulation.Snapshot());
+        StateHasher hasher = new();
+        int turns = 0;
+        bool saved = false;
+
+        for (int step = 0; step < BattleTickCount; step += 1)
+        {
+            IReadOnlyList<Intent> intents = IntentsOfBattleTick(simulation.State, turns);
+            if (intents.Count > 0 && simulation.State.Battle is not null)
+            {
+                turns += 1;
+            }
+
+            simulation.Step(intents);
+            recorder.Step(simulation.Tick, intents);
+            foreach (BattleEvent battleEvent in simulation.TakeBattleEvents())
+            {
+                hasher.AddText(battleEvent.Describe());
+            }
+
+            // A save inside the battle makes the battle part of the snapshot too (D-531).
+            if (!saved && turns == 3)
+            {
+                recorder.Save(simulation.Snapshot());
+                saved = true;
+            }
+        }
+
+        string text = RunRecordText.Write(recorder.Build());
+        RunState replayed = RunReplay.Play(
+            RunRecordText.Read(text), ReplayContentHash, map, content, DebugIntentHandlers.None);
+
+        hasher.AddUInt64(simulation.StateHash());
+        hasher.AddUInt64(replayed.StateHash());
+        hasher.AddText(text);
+        return hasher.Finish();
+    }
+
+    /// <summary>
+    /// The script of the battle run. It reads the state, and the record holds each intent,
+    /// so the replay needs no script (D-493). Each turn of a character takes the next action
+    /// of a fixed cycle, so the run reads every action of a character.
+    /// </summary>
+    private static IReadOnlyList<Intent> IntentsOfBattleTick(RunState state, int turns)
+    {
+        if (state.Battle is not Battle battle)
+        {
+            return state.Party.Patrols.Encounter is null ? [Intent.OfPlayer(IntentIds.MoveEast)] : [];
+        }
+
+        if (battle.Outcome == BattleOutcome.Won || battle.Outcome == BattleOutcome.Fled)
+        {
+            return [Intent.OfPlayer(IntentIds.WaitBattleEnd)];
+        }
+
+        if (battle.Outcome != BattleOutcome.Running || battle.Next() is not Combatant next || next.Side != BattleSide.Party)
+        {
+            return [];
+        }
+
+        BattleTarget self = next.Target;
+        return (turns % 6) switch
+        {
+            1 => [Intent.OfPlayer(IntentIds.BattleDefend)],
+            2 => [Intent.OfPlayer(IntentIds.BattleStep)],
+            4 => [Intent.OfPlayer(IntentIds.BattleStep)],
+            5 => [Intent.OfPlayer(IntentIds.BattleItem, self, ContentId.Parse("item.identity_draught", "identity", "item"))],
+            _ => [Intent.OfPlayer(IntentIds.BattleAttack, battle.MeleeTargets(BattleSide.Enemy)[0].Target, null)],
+        };
     }
 
     private static ulong ComputeStateHash()

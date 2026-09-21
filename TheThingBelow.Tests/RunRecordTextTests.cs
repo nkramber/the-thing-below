@@ -38,7 +38,7 @@ public sealed class RunRecordTextTests
         string header = RunRecordText.Write(SmallRecord()).Split('\n')[0];
 
         Assert.Equal(
-            "{\"format\":1,\"simulation\":" + SimulationVersion.Current +
+            "{\"format\":2,\"simulation\":" + SimulationVersion.Current +
             ",\"content\":\"a-content-hash\",\"seed\":\"0x0000000001352836\",\"game\":\"" +
             GameVersion.Current + "\"}",
             header);
@@ -75,11 +75,11 @@ public sealed class RunRecordTextTests
     public void ADebugIntentCarriesItsMarkThroughTheText()
     {
         // D-171: the record marks a debug intent, so a run with a cheat says so.
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, new DebugIntentHandlers(
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, new DebugIntentHandlers(
         [
             new KeyValuePair<Core.Content.ContentId, DebugIntentHandler>(
                 RunScripts.DebugStepEast,
-                (state, context, log) => state.WantStep(StepDirection.East, context)),
+                (state, intent, context, log) => state.WantStep(StepDirection.East, context)),
         ]));
         RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, Seed), run.Snapshot());
 
@@ -97,7 +97,7 @@ public sealed class RunRecordTextTests
     {
         // A JSON number of that size loses its top bits in a reader that holds numbers as a
         // fraction, so the seed takes the hexadecimal text form (T-7).
-        Simulation run = Simulation.Start(ulong.MaxValue, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(ulong.MaxValue, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, ulong.MaxValue), run.Snapshot());
         run.Step([]);
         recorder.Step(run.Tick, []);
@@ -142,7 +142,7 @@ public sealed class RunRecordTextTests
     public void AnAbsentFieldOfTheHeaderIsAnErrorThatNamesTheLineAndTheField()
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
-        lines[0] = "{\"format\":1,\"simulation\":3,\"content\":\"a\",\"seed\":\"0x0000000000000001\"}";
+        lines[0] = "{\"format\":2,\"simulation\":3,\"content\":\"a\",\"seed\":\"0x0000000000000001\"}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
@@ -173,7 +173,7 @@ public sealed class RunRecordTextTests
     public void ASeedOfAnotherFormIsAnError(string seed)
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
-        lines[0] = "{\"format\":1,\"simulation\":3,\"content\":\"a\",\"seed\":" + seed + ",\"game\":\"0.1.0\"}";
+        lines[0] = "{\"format\":2,\"simulation\":3,\"content\":\"a\",\"seed\":" + seed + ",\"game\":\"0.1.0\"}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
@@ -186,7 +186,8 @@ public sealed class RunRecordTextTests
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
         lines[1] = "{\"tick\":0,\"menu\":false,\"world\":0,\"map\":{\"id\":\"map.test_room\",\"x\":2,\"y\":2,"
-            + "\"facing\":\"south\",\"step_ticks\":0,\"walked\":[\"x\"],\"enemies\":[]},\"streams\":[]}";
+            + "\"facing\":\"south\",\"step_ticks\":0,\"walked\":[\"x\"],\"enemies\":[]},"
+            + "\"party\":{\"characters\":[{\"id\":\"character.marrek\",\"health\":60,\"row\":\"front\"}],\"pack\":[]},\"streams\":[]}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
@@ -221,7 +222,7 @@ public sealed class RunRecordTextTests
         string text = string.Join('\n', lines) + "\n";
 
         Assert.Throws<RunRecordException>(
-            () => RunReplay.Play(RunRecordText.Read(text), ContentHash, TestMaps.Room, DebugIntentHandlers.None));
+            () => RunReplay.Play(RunRecordText.Read(text), ContentHash, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None));
     }
 
     [Fact]
@@ -243,7 +244,7 @@ public sealed class RunRecordTextTests
     public void AFieldOfTheHeaderTwoTimesIsAnErrorThatNamesTheLine()
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
-        lines[0] = lines[0].Replace("{\"format\":1,", "{\"format\":1,\"format\":1,", StringComparison.Ordinal);
+        lines[0] = lines[0].Replace("{\"format\":2,", "{\"format\":2,\"format\":1,", StringComparison.Ordinal);
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
@@ -278,7 +279,7 @@ public sealed class RunRecordTextTests
 
     private static RunRecord SmallRecord()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, Seed), run.Snapshot());
 
         Intent[] open = [Intent.OfPlayer(IntentIds.OpenMenu)];

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Streams;
@@ -25,8 +26,24 @@ public sealed class RunState
     // every machine and a snapshot writes them in one order (G-4, T-7).
     private readonly RandomStream[] streams;
 
-    private RunState(ulong seed, RandomStream[] streams, long tick, bool menuOpen, long worldTick, MapState map)
+    // The events of the battle wait here until Game takes them. They are output, and not
+    // state, so no snapshot and no hash reads them (D-168, D-532).
+    private readonly List<BattleEvent> events = [];
+
+    private RunState(
+        ulong seed,
+        RandomStream[] streams,
+        long tick,
+        bool menuOpen,
+        long worldTick,
+        MapState map,
+        BattleContent battleContent,
+        PartyState characters,
+        Battle? battle)
     {
+        this.BattleContent = battleContent;
+        this.Characters = characters;
+        this.Battle = battle;
         this.Seed = seed;
         this.streams = streams;
         this.Tick = tick;
@@ -50,14 +67,26 @@ public sealed class RunState
     /// <summary>The party on its map: the lead, the step that runs, and the walked tiles (D-106, D-567).</summary>
     public MapState Party { get; }
 
+    /// <summary>The battle rules and the fixture of this run (D-757, D-766).</summary>
+    public BattleContent BattleContent { get; }
+
+    /// <summary>The characters of the party and their pack, which last between battles (D-36, D-765).</summary>
+    public PartyState Characters { get; }
+
+    /// <summary>The battle that runs, or that ended and waits for the screen, or no value (D-522, D-531).</summary>
+    public Battle? Battle { get; private set; }
+
     /// <summary>Starts a new run from a seed, at tick zero, on one map.</summary>
     /// <param name="seed">The seed of the run (G-3, G-4).</param>
     /// <param name="map">The map that the run opens, with the party on its spawn point (D-528).</param>
+    /// <param name="battleContent">The battle rules and the fixture, which hold every group that the map names (D-766).</param>
     /// <returns>The state, with every stream at its first value.</returns>
     /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
-    public static RunState Start(ulong seed, GameMap map)
+    public static RunState Start(ulong seed, GameMap map, BattleContent battleContent)
     {
         ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(battleContent);
+        battleContent.RequireGroupsOf(map);
 
         RandomStream[] streams = new RandomStream[RandomStreams.All.Count];
         for (int index = 0; index < streams.Length; index += 1)
@@ -65,7 +94,16 @@ public sealed class RunState
             streams[index] = RandomStreams.Open(seed, RandomStreams.All[index]);
         }
 
-        return new RunState(seed, streams, 0, false, 0, MapState.Enter(map));
+        return new RunState(
+            seed,
+            streams,
+            0,
+            false,
+            0,
+            MapState.Enter(map),
+            battleContent,
+            PartyState.Start(battleContent),
+            null);
     }
 
     /// <summary>Starts a run again from a snapshot (D-259, D-651).</summary>
@@ -75,6 +113,7 @@ public sealed class RunState
     /// The map of the snapshot, which the caller read from its content by
     /// <see cref="RunSnapshot.MapIdOrFirst"/> (D-166).
     /// </param>
+    /// <param name="battleContent">The battle rules and the fixture, which hold every group that the map names (D-766).</param>
     /// <returns>The state, with every stream at the position of the snapshot.</returns>
     /// <exception cref="ArgumentNullException">The snapshot or the map is null (T-2).</exception>
     /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the map is another map (T-2).</exception>
@@ -84,10 +123,12 @@ public sealed class RunState
     /// and no other (D-166, D-654). A snapshot of save format 2 holds no enemy, and its
     /// migration puts each enemy of the map on the start tile of its station (D-750).
     /// </remarks>
-    public static RunState Resume(ulong seed, RunSnapshot snapshot, GameMap map)
+    public static RunState Resume(ulong seed, RunSnapshot snapshot, GameMap map, BattleContent battleContent)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(battleContent);
+        battleContent.RequireGroupsOf(map);
         snapshot.Check("this run");
 
         RandomStream[] streams = new RandomStream[snapshot.Streams.Count];
@@ -99,13 +140,17 @@ public sealed class RunState
                 Pcg32.FromSnapshot(position.State, position.Increment));
         }
 
+        MapState party = ResumeMap(snapshot, map);
         return new RunState(
             seed,
             streams,
             snapshot.Tick,
             snapshot.MenuOpen,
             snapshot.WorldTick,
-            ResumeMap(snapshot, map));
+            party,
+            battleContent,
+            ResumeCharacters(snapshot, battleContent),
+            ResumeBattle(snapshot, party, battleContent));
     }
 
     private static MapState ResumeMap(RunSnapshot snapshot, GameMap map)
@@ -137,6 +182,40 @@ public sealed class RunState
             party.Mark,
             party.Encounter,
             "this run");
+    }
+
+    /// <summary>
+    /// Gives the party of a snapshot. A snapshot before save format 4 holds no party, and its
+    /// migration starts the party of the fixture at full health (D-166, D-765).
+    /// </summary>
+    private static PartyState ResumeCharacters(RunSnapshot snapshot, BattleContent battleContent)
+    {
+        if (snapshot.Characters is not PartySnapshot stored)
+        {
+            return PartyState.Start(battleContent);
+        }
+
+        return PartyState.Resume(battleContent, stored.Characters, stored.Pack, "this run");
+    }
+
+    /// <summary>Gives the battle of a snapshot, which must match the encounter of its map (D-531, T-2).</summary>
+    private static Battle? ResumeBattle(RunSnapshot snapshot, MapState party, BattleContent battleContent)
+    {
+        if (snapshot.Battle is not BattleValues stored)
+        {
+            return null;
+        }
+
+        if (party.Patrols.Encounter is not MapEncounter encounter
+            || string.CompareOrdinal(encounter.Enemy.Value, stored.Enemy.Value) != 0
+            || string.CompareOrdinal(encounter.Group.Value, stored.Group.Value) != 0)
+        {
+            throw new ArgumentException(
+                $"The snapshot holds a battle of the enemy '{stored.Enemy.Value}' and the group '{stored.Group.Value}', and its map holds no encounter of both (T-2, D-531).",
+                nameof(snapshot));
+        }
+
+        return Battle.Resume(battleContent, stored, "this run");
     }
 
     /// <summary>Gives the stream of one subsystem (G-4).</summary>
@@ -182,6 +261,8 @@ public sealed class RunState
                 this.Party.Patrols.Values(),
                 this.Party.Patrols.Mark,
                 this.Party.Patrols.Encounter),
+            new PartySnapshot(this.Characters.CharacterValues(), this.Characters.PackValues()),
+            this.Battle?.Values(),
             ReadPositions(this.streams));
 
     /// <summary>Computes the state hash that a replay and the identity job compare (G-5).</summary>
@@ -200,6 +281,9 @@ public sealed class RunState
         hasher.AddBoolean(this.MenuOpen);
         hasher.AddInt64(this.WorldTick);
         this.Party.Hash(hasher);
+        this.Characters.Hash(hasher);
+        hasher.AddBoolean(this.Battle is not null);
+        this.Battle?.Hash(hasher);
 
         foreach (RandomStream stream in this.streams)
         {
@@ -255,6 +339,21 @@ public sealed class RunState
 
         this.Party.Want(direction);
     }
+
+    /// <summary>Takes every battle event since the last take, in the order of the rules (D-532).</summary>
+    /// <returns>The events, which the run no longer holds.</returns>
+    public IReadOnlyList<BattleEvent> TakeEvents()
+    {
+        BattleEvent[] taken = [.. this.events];
+        this.events.Clear();
+        return taken;
+    }
+
+    /// <summary>Sets the battle, or ends it with null (D-531).</summary>
+    internal void SetBattle(Battle? battle) => this.Battle = battle;
+
+    /// <summary>Adds one battle event for Game (D-168, D-532).</summary>
+    internal void AddEvent(BattleEvent battleEvent) => this.events.Add(battleEvent);
 
     /// <summary>
     /// Counts one step of the loop (D-164, D-650). The tick is the one time line of the run,

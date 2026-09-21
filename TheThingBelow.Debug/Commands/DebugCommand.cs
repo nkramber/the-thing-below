@@ -1,4 +1,5 @@
 using System;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Runs;
 
@@ -15,8 +16,12 @@ namespace TheThingBelow.Debug.Commands;
 /// still replays (D-171, D-260, T-7).
 /// <para>
 /// A command that reports changes no state, so it makes no intent and the record stays free
-/// of a line that no rule reads (D-724). An intent of this build carries an id and no value,
-/// so no command takes an argument (D-493).
+/// of a line that no rule reads (D-724).
+/// </para>
+/// <para>
+/// A battle command that aims takes one argument: the slot of its target, on the side that the
+/// command names. The intent carries the target, so the record holds it (D-764, D-767). No
+/// other command takes an argument.
 /// </para>
 /// </remarks>
 public sealed class DebugCommand
@@ -28,8 +33,10 @@ public sealed class DebugCommand
         string summary,
         ContentId? action,
         DebugIntentHandler? handler,
-        Func<RunState, string>? report)
+        Func<RunState, string>? report,
+        BattleSide? targetSide)
     {
+        this.TargetSide = targetSide;
         this.Name = name;
         this.Summary = summary;
         this.Action = action;
@@ -48,6 +55,9 @@ public sealed class DebugCommand
 
     /// <summary>The handler of the intent, or no value when the command reports alone.</summary>
     public DebugIntentHandler? Handler { get; }
+
+    /// <summary>The side of the slot that the command takes as its argument, or no value when it takes none (D-767).</summary>
+    public BattleSide? TargetSide { get; }
 
     /// <summary>Makes a command that changes the run through a debug intent (D-171).</summary>
     /// <param name="name">The word that the person types, such as `reveal`.</param>
@@ -68,7 +78,31 @@ public sealed class DebugCommand
         ArgumentNullException.ThrowIfNull(action);
         ArgumentNullException.ThrowIfNull(handler);
 
-        return new DebugCommand(name, summary, action, handler, null);
+        return new DebugCommand(name, summary, action, handler, null, null);
+    }
+
+    /// <summary>Makes a battle command that takes the slot of its target as its argument (D-767).</summary>
+    /// <param name="name">The word that the person types, such as `attack`.</param>
+    /// <param name="summary">One line for `help`.</param>
+    /// <param name="action">The id of the intent, which <see cref="DebugCommandIds"/> holds.</param>
+    /// <param name="handler">The rule of the command, which the seam of D-260 calls.</param>
+    /// <param name="targetSide">The side of the slot that the argument names.</param>
+    /// <returns>The command.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The name or the summary is empty (T-2).</exception>
+    public static DebugCommand OfAimedIntent(
+        string name,
+        string summary,
+        ContentId action,
+        DebugIntentHandler handler,
+        BattleSide targetSide)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        ArgumentException.ThrowIfNullOrEmpty(summary);
+        ArgumentNullException.ThrowIfNull(action);
+        ArgumentNullException.ThrowIfNull(handler);
+
+        return new DebugCommand(name, summary, action, handler, null, targetSide);
     }
 
     /// <summary>Makes a command that reads the run and changes nothing (D-724).</summary>
@@ -84,7 +118,7 @@ public sealed class DebugCommand
         ArgumentException.ThrowIfNullOrEmpty(summary);
         ArgumentNullException.ThrowIfNull(report);
 
-        return new DebugCommand(name, summary, null, null, report);
+        return new DebugCommand(name, summary, null, null, report, null);
     }
 
     /// <summary>True when the command sends an intent that the run record holds (D-171).</summary>

@@ -115,7 +115,7 @@ public sealed class WalkedTilesTests
         // and never shrinks, and it holds every tile that the lead stood on.
         for (ulong seed = 0; seed < 1000; seed += 1)
         {
-            Simulation run = Simulation.Start(seed, TestMaps.Room, DebugIntentHandlers.None);
+            Simulation run = Simulation.Start(seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
             Pcg32 generator = Pcg32.FromSeed(seed, TestSequence);
             List<TilePoint> stood = [TestMaps.Room.Spawn];
             int count = run.State.Party.Walked.Count;

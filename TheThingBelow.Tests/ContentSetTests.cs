@@ -339,6 +339,7 @@ public sealed class ContentSetTests
         ];
 
         files.AddRange(UiContentFixtures.Files());
+        files.AddRange(TestBattles.Files());
         drawing ??= DrawingBody();
         if (drawing.Length > 0)
         {
@@ -503,6 +504,7 @@ public sealed class ContentSetTests
         ];
 
         files.AddRange(UiContentFixtures.Files());
+        files.AddRange(TestBattles.Files());
         files.AddRange(rules);
         return files;
     }

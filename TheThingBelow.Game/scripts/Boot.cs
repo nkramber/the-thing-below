@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using Godot;
 using TheThingBelow.Core;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Crashes;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Core.Saves;
 using TheThingBelow.Game.Ui;
 using TheThingBelow.Storage;
 
@@ -69,6 +71,15 @@ public partial class Boot : Node
     /// <summary>The folder inside the crash folder that the smoke session writes its check into (D-659).</summary>
     private const string SmokeFolderName = "smoke";
 
+    /// <summary>The most frames that the smoke session walks or fights before it fails (T-2).</summary>
+    private const int SmokeBattleFrames = 6000;
+
+    /// <summary>The column of the east end of the hall of the first map, where the smoke walk turns south.</summary>
+    private const int SmokeTurnColumn = 26;
+
+    /// <summary>The row of the night route of the hall patrol, where the smoke walk turns west.</summary>
+    private const int SmokePatrolRow = 7;
+
     /// <summary>The line that the smoke session types in the console of a development build (D-724).</summary>
     private const string SmokeConsoleLine = "help";
 
@@ -123,6 +134,11 @@ public partial class Boot : Node
         {
             this.QueueHeldStep();
             this.WriteLog(this.run.Advance(delta));
+            if (this.run.WipeReady)
+            {
+                this.ReloadAfterWipe();
+            }
+
             this.map?.ShowParty(this.run.Party);
         }
         catch (Exception fault)
@@ -146,8 +162,9 @@ public partial class Boot : Node
 
         // The queue can already hold the intent that opens the menu, because the host reads
         // input before it runs the ticks of a frame. A step intent for that tick would meet
-        // the refusal of the rules (D-162, T-2).
-        if (open is null || open.MenuOpenNextTick)
+        // the refusal of the rules (D-162, T-2). An encounter holds the map still, so a step
+        // intent then moves nothing, and the record stays free of it (D-531).
+        if (open is null || open.MenuOpenNextTick || open.InBattle)
         {
             return;
         }
@@ -193,6 +210,7 @@ public partial class Boot : Node
         ContentSet loaded = LoadContent();
         this.content = loaded;
         this.run = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers());
+        GameInputMap.Build();
         this.BuildScreen(loaded);
     }
 
@@ -236,8 +254,6 @@ public partial class Boot : Node
     /// </remarks>
     private void BuildScreen(ContentSet loaded)
     {
-        GameInputMap.Build();
-
         var built = new FrameRoot();
         this.AddChild(built);
         this.frame = built;
@@ -256,6 +272,43 @@ public partial class Boot : Node
         this.prompts = drawn.Prompts;
 
         this.BuildConsole(built, open);
+    }
+
+    /// <summary>
+    /// Starts the run again after a wipe, and builds the screen again over the new run, so the
+    /// map and the console read it (D-231, D-397, D-776).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The session loaded no content (T-2).</exception>
+    private void ReloadAfterWipe()
+    {
+        ContentSet loaded = this.content ?? throw new InvalidOperationException(
+            "A wipe reloads the run, and the session loaded no content (T-2).");
+
+        GameRun reloaded = ReloadRun(loaded);
+        this.run = reloaded;
+        this.frame?.QueueFree();
+        this.frame = null;
+        this.map = null;
+        this.prompts = null;
+        this.console = null;
+        this.BuildScreen(loaded);
+        this.WriteLog([new LogEntry(
+            LogLevel.Info,
+            "the party wiped and the run reloaded",
+            reloaded.Tick,
+            LogSubsystems.Game,
+            [LogField.OfNumber("tick", reloaded.Tick)])]);
+    }
+
+    /// <summary>Gives the run after a wipe: the newer save, or a new run when no save exists (D-231, D-776).</summary>
+    /// <param name="loaded">The content set of this build.</param>
+    /// <returns>The run.</returns>
+    private static GameRun ReloadRun(ContentSet loaded)
+    {
+        SaveStore saves = SaveStore.OfThisSystem();
+        SaveDocument? slot = saves.Exists(SaveKind.Slot) ? saves.Read(SaveKind.Slot) : null;
+        SaveDocument? autosave = saves.Exists(SaveKind.Autosave) ? saves.Read(SaveKind.Autosave) : null;
+        return GameRun.Reload(loaded, slot, autosave, FixtureSeed, DebugSeam.Handlers());
     }
 
     /// <summary>
@@ -590,6 +643,7 @@ public partial class Boot : Node
         GD.Print($"smoke: the UI base is {DescribeUiBase(content)}.");
         GD.Print($"smoke: the map is {DescribeMap(content, session)}.");
         GD.Print($"smoke: the console is {this.DescribeConsole(session)}.");
+        GD.Print($"smoke: the battle is {this.DescribeBattle(content, session)}.");
         GD.Print("smoke: the session ends with no error.");
         GetTree().Quit(SuccessExitCode);
     }
@@ -834,6 +888,76 @@ public partial class Boot : Node
         return $"{names.Count} commands with {answers} answer lines, {shown} lines on the screen "
             + $"after a typed line, "
             + $"and they marked {marked} more tiles as walked";
+    }
+
+    /// <summary>
+    /// Walks the party into the hall patrol of the first map and fights the battle to its end,
+    /// inside the engine (D-767). A win or a flee then waits for the event queue to drain and
+    /// for the wait intent, and a wipe reloads the run (D-522, D-532, D-776).
+    /// </summary>
+    /// <param name="loaded">The content set of this build.</param>
+    /// <param name="session">The run of the smoke session.</param>
+    /// <returns>The frames, the outcome, and the tick after the battle, as one line.</returns>
+    /// <exception cref="InvalidOperationException">No battle starts, or no battle ends, inside the frame limit (T-2).</exception>
+    /// <remarks>
+    /// The walk goes east along the hall, south at its east end, and west along the night route
+    /// of the patrol, so the party meets it by sight or by a step into it. The fight sends the
+    /// attack of a player at the first enemy that melee reaches, on each turn that the input
+    /// gate of D-532 opens.
+    /// </remarks>
+    private string DescribeBattle(ContentSet loaded, GameRun session)
+    {
+        GameRun open = session;
+        string outcome = "none";
+        int frame = 0;
+        for (; frame < SmokeBattleFrames && !open.InBattle; frame += 1)
+        {
+            open.Queue(Intent.OfPlayer(SmokeStepOf(open.Party)));
+            this.WriteLog(open.Advance(SmokeFrameSeconds));
+        }
+
+        for (; frame < SmokeBattleFrames && open.InBattle; frame += 1)
+        {
+            if (open.State.Battle is Battle battle && battle.Outcome != BattleOutcome.Running)
+            {
+                outcome = Battle.OutcomeName(battle.Outcome);
+            }
+
+            if (open.WipeReady)
+            {
+                open = ReloadRun(loaded);
+                break;
+            }
+
+            if (open.TakesBattleCommand && open.State.Battle is Battle running)
+            {
+                BattleTarget target = running.MeleeTargets(BattleSide.Enemy)[0].Target;
+                open.Queue(Intent.OfPlayer(IntentIds.BattleAttack, target, null));
+            }
+
+            this.WriteLog(open.Advance(SmokeFrameSeconds));
+        }
+
+        // A wipe reloads a run that stands on the map, and a win or a flee ends on the map
+        // after the wait intent. A run still in the battle ran out of frames (T-2).
+        if (string.CompareOrdinal(outcome, "none") == 0 || open.InBattle)
+        {
+            throw new InvalidOperationException(
+                $"The smoke battle reached no end in {SmokeBattleFrames} frames: the outcome is '{outcome}', and the party is at {open.Party.LeadAt} (D-767, T-2).");
+        }
+
+        return $"'{outcome}' after {frame} frames, and the run is at tick {open.Tick} with the party at {open.Party.LeadAt}";
+    }
+
+    /// <summary>Gives the step of the smoke walk: east along the hall, then south, then west (D-767).</summary>
+    private static ContentId SmokeStepOf(MapState party)
+    {
+        if (party.LeadAt.X < SmokeTurnColumn && party.LeadAt.Y < SmokePatrolRow)
+        {
+            return IntentIds.MoveEast;
+        }
+
+        return party.LeadAt.Y < SmokePatrolRow ? IntentIds.MoveSouth : IntentIds.MoveWest;
     }
 
     /// <summary>

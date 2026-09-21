@@ -1,0 +1,537 @@
+using System;
+using System.Collections.Generic;
+using TheThingBelow.Core.Content;
+
+namespace TheThingBelow.Core.Battles;
+
+/// <summary>The fixed stats of one character, until the stat curves of PR-67 (D-765).</summary>
+/// <param name="Id">The id, of the kind `character`.</param>
+/// <param name="Health">The full health.</param>
+/// <param name="Attack">The attack, which the damage reads (D-771).</param>
+/// <param name="Defense">The defense, which the damage reads (D-771).</param>
+/// <param name="Speed">The speed, which each push and each tie reads (D-768, D-769).</param>
+/// <param name="Row">The row at the start of a run (D-558).</param>
+public sealed record CharacterRecord(ContentId Id, int Health, int Attack, int Defense, int Speed, BattleRow Row);
+
+/// <summary>The fixed stats of one enemy, until the enemy record of PR-80 (D-557).</summary>
+/// <param name="Id">The id, of the kind `enemy`.</param>
+/// <param name="Health">The full health.</param>
+/// <param name="Attack">The attack (D-771).</param>
+/// <param name="Defense">The defense (D-771).</param>
+/// <param name="Speed">The speed (D-768).</param>
+public sealed record EnemyRecord(ContentId Id, int Health, int Attack, int Defense, int Speed);
+
+/// <summary>One enemy of a group (D-535, D-760).</summary>
+/// <param name="Enemy">The id of the enemy record.</param>
+/// <param name="Row">The row that the enemy stands in, or steps into (D-760).</param>
+/// <param name="Waits">True when the enemy waits off the field for a fall (D-778).</param>
+public sealed record GroupEntry(ContentId Enemy, BattleRow Row, bool Waits);
+
+/// <summary>One enemy group, until the group file of PR-11 (D-766).</summary>
+/// <param name="Id">The id, of the kind `group`, which a map names (D-753).</param>
+/// <param name="Boss">True for a boss group, which no party flees (D-378).</param>
+/// <param name="Entries">The enemies, in the order of the file (D-760).</param>
+public sealed record GroupRecord(ContentId Id, bool Boss, IReadOnlyList<GroupEntry> Entries);
+
+/// <summary>One item that a character can use in battle, until the items of PR-13 (D-775).</summary>
+/// <param name="Id">The id, of the kind `item`.</param>
+/// <param name="Heal">The health that the item restores outside a battle (D-382).</param>
+/// <param name="Delay">The delay of a use, in ticks at speed 100 (D-757).</param>
+public sealed record ItemRecord(ContentId Id, int Heal, int Delay);
+
+/// <summary>The count of one item in the pack at the start of a run (D-775).</summary>
+/// <param name="Item">The id of the item.</param>
+/// <param name="Count">The count.</param>
+public sealed record PackEntry(ContentId Item, int Count);
+
+/// <summary>
+/// The fixture file of the battle core: the characters, the enemies, the groups, the items,
+/// and the start of a run (D-765, D-766, D-775). The file is `content/rules/fixtures/battle.json`.
+/// </summary>
+/// <remarks>
+/// PR-67 replaces the characters with the stat curves, PR-80 the enemies with the enemy
+/// record, PR-11 the groups with the group file of each region, and PR-13 the items with
+/// the pack (D-557, D-765, D-766, D-775). Each id stays.
+/// </remarks>
+public sealed class BattleFixture
+{
+    /// <summary>The path of the file under the content folder (D-766).</summary>
+    public const string Path = "rules/fixtures/battle.json";
+
+    /// <summary>The kind of a character id.</summary>
+    public const string CharacterKind = "character";
+
+    /// <summary>The kind of an enemy id.</summary>
+    public const string EnemyKind = "enemy";
+
+    /// <summary>The kind of an item id.</summary>
+    public const string ItemKind = "item";
+
+    /// <summary>The most characters in the party (D-31, D-336).</summary>
+    public const int MostCharacters = 3;
+
+    /// <summary>The most enemies on the field (D-31, D-759).</summary>
+    public const int MostOnField = 6;
+
+    /// <summary>The most enemies in a group, the waiting ones included (D-762).</summary>
+    public const int MostInGroup = 12;
+
+    /// <summary>The largest health, attack, defense, speed, heal, or count, which keeps every product inside a `long` (T-2).</summary>
+    public const int MostStat = 100_000;
+
+    private BattleFixture(
+        IReadOnlyList<CharacterRecord> characters,
+        IReadOnlyList<EnemyRecord> enemies,
+        IReadOnlyList<GroupRecord> groups,
+        IReadOnlyList<ItemRecord> items,
+        IReadOnlyList<ContentId> startParty,
+        IReadOnlyList<PackEntry> pack)
+    {
+        this.Characters = characters;
+        this.Enemies = enemies;
+        this.Groups = groups;
+        this.Items = items;
+        this.StartParty = startParty;
+        this.Pack = pack;
+    }
+
+    /// <summary>Every character, in the order of the file.</summary>
+    public IReadOnlyList<CharacterRecord> Characters { get; }
+
+    /// <summary>Every enemy, in the order of the file.</summary>
+    public IReadOnlyList<EnemyRecord> Enemies { get; }
+
+    /// <summary>Every group, in the order of the file.</summary>
+    public IReadOnlyList<GroupRecord> Groups { get; }
+
+    /// <summary>Every item, in the order of the file.</summary>
+    public IReadOnlyList<ItemRecord> Items { get; }
+
+    /// <summary>The characters of the party at the start of a run, in slot order (D-336).</summary>
+    public IReadOnlyList<ContentId> StartParty { get; }
+
+    /// <summary>The pack at the start of a run, in the order of the file (D-775).</summary>
+    public IReadOnlyList<PackEntry> Pack { get; }
+
+    /// <summary>Reads the fixture file, and checks every record and every id that one record names (T-2).</summary>
+    /// <param name="bytes">The bytes of the file.</param>
+    /// <param name="file">The path of the file, for an error.</param>
+    /// <returns>The fixture.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, repeated, or out of its range, or an id names no record (G-6, T-2).</exception>
+    public static BattleFixture Read(ReadOnlySpan<byte> bytes, string file)
+    {
+        var reader = new ContentReader(bytes, file);
+        string? comment = null;
+        List<CharacterRecord>? characters = null;
+        List<EnemyRecord>? enemies = null;
+        List<GroupRecord>? groups = null;
+        List<ItemRecord>? items = null;
+        List<ContentId>? startParty = null;
+        List<PackEntry>? pack = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "comment":
+                    comment = reader.ReadString();
+                    break;
+                case "characters":
+                    characters = ReadList(ref reader, ReadCharacter);
+                    break;
+                case "enemies":
+                    enemies = ReadList(ref reader, ReadEnemy);
+                    break;
+                case "groups":
+                    groups = ReadList(ref reader, ReadGroup);
+                    break;
+                case "items":
+                    items = ReadList(ref reader, ReadItem);
+                    break;
+                case "start_party":
+                    startParty = ReadList(ref reader, ReadCharacterId);
+                    break;
+                case "pack":
+                    pack = ReadList(ref reader, ReadPackEntry);
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        _ = reader.Require(comment, depth, "comment");
+        var fixture = new BattleFixture(
+            reader.Require(characters, depth, "characters"),
+            reader.Require(enemies, depth, "enemies"),
+            reader.Require(groups, depth, "groups"),
+            reader.Require(items, depth, "items"),
+            reader.Require(startParty, depth, "start_party"),
+            reader.Require(pack, depth, "pack"));
+        reader.ReadFileEnd();
+
+        fixture.CheckIds(file);
+        return fixture;
+    }
+
+    /// <summary>Gives every content id that the file defines, in the order of the file (D-166).</summary>
+    /// <returns>The ids of the characters, the enemies, the groups, and the items.</returns>
+    public IReadOnlyList<ContentId> DefinedIds()
+    {
+        List<ContentId> ids = [];
+        foreach (CharacterRecord character in this.Characters)
+        {
+            ids.Add(character.Id);
+        }
+
+        foreach (EnemyRecord enemy in this.Enemies)
+        {
+            ids.Add(enemy.Id);
+        }
+
+        foreach (GroupRecord group in this.Groups)
+        {
+            ids.Add(group.Id);
+        }
+
+        foreach (ItemRecord item in this.Items)
+        {
+            ids.Add(item.Id);
+        }
+
+        return ids;
+    }
+
+    private delegate T ReadOne<T>(ref ContentReader reader);
+
+    private static List<T> ReadList<T>(ref ContentReader reader, ReadOne<T> readOne)
+    {
+        List<T> list = [];
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, list.Count))
+        {
+            list.Add(readOne(ref reader));
+        }
+
+        return list;
+    }
+
+    private static CharacterRecord ReadCharacter(ref ContentReader reader)
+    {
+        ContentId? id = null;
+        int? health = null;
+        int? attack = null;
+        int? defense = null;
+        int? speed = null;
+        BattleRow? row = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "id":
+                    id = reader.ReadContentId(CharacterKind);
+                    break;
+                case "health":
+                    health = ReadStat(ref reader, 1);
+                    break;
+                case "attack":
+                    attack = ReadStat(ref reader, 0);
+                    break;
+                case "defense":
+                    defense = ReadStat(ref reader, 0);
+                    break;
+                case "speed":
+                    speed = ReadStat(ref reader, 1);
+                    break;
+                case "row":
+                    row = ReadRow(ref reader);
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new CharacterRecord(
+            reader.Require(id, depth, "id"),
+            reader.RequireInt(health, depth, "health"),
+            reader.RequireInt(attack, depth, "attack"),
+            reader.RequireInt(defense, depth, "defense"),
+            reader.RequireInt(speed, depth, "speed"),
+            reader.RequireValue(row, depth, "row"));
+    }
+
+    private static EnemyRecord ReadEnemy(ref ContentReader reader)
+    {
+        ContentId? id = null;
+        int? health = null;
+        int? attack = null;
+        int? defense = null;
+        int? speed = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "id":
+                    id = reader.ReadContentId(EnemyKind);
+                    break;
+                case "health":
+                    health = ReadStat(ref reader, 1);
+                    break;
+                case "attack":
+                    attack = ReadStat(ref reader, 0);
+                    break;
+                case "defense":
+                    defense = ReadStat(ref reader, 0);
+                    break;
+                case "speed":
+                    speed = ReadStat(ref reader, 1);
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new EnemyRecord(
+            reader.Require(id, depth, "id"),
+            reader.RequireInt(health, depth, "health"),
+            reader.RequireInt(attack, depth, "attack"),
+            reader.RequireInt(defense, depth, "defense"),
+            reader.RequireInt(speed, depth, "speed"));
+    }
+
+    private static GroupRecord ReadGroup(ref ContentReader reader)
+    {
+        ContentId? id = null;
+        bool? boss = null;
+        List<GroupEntry>? entries = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "id":
+                    id = reader.ReadContentId(Maps.Patrol.GroupKind);
+                    break;
+                case "boss":
+                    boss = reader.ReadBoolean();
+                    break;
+                case "enemies":
+                    entries = ReadList(ref reader, ReadGroupEntry);
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        var group = new GroupRecord(
+            reader.Require(id, depth, "id"),
+            reader.RequireValue(boss, depth, "boss"),
+            reader.Require(entries, depth, "enemies"));
+        CheckGroupSize(ref reader, depth, group);
+        return group;
+    }
+
+    /// <summary>
+    /// Refuses a group that no encounter can hold: no enemy on the field at the start, more
+    /// than six there, or more than twelve in all (D-758, D-759, D-762).
+    /// </summary>
+    private static void CheckGroupSize(ref ContentReader reader, int depth, GroupRecord group)
+    {
+        int standing = 0;
+        foreach (GroupEntry entry in group.Entries)
+        {
+            standing += entry.Waits ? 0 : 1;
+        }
+
+        if (group.Entries.Count > MostInGroup)
+        {
+            throw reader.RefuseField(
+                depth,
+                "enemies",
+                $"the group '{group.Id.Value}' holds {group.Entries.Count} enemies, and a group holds at most {MostInGroup} (D-762)");
+        }
+
+        if (standing == 0 || standing > MostOnField)
+        {
+            throw reader.RefuseField(
+                depth,
+                "enemies",
+                $"the group '{group.Id.Value}' starts {standing} enemies on the field, and the field holds 1 to {MostOnField} (D-759, D-778)");
+        }
+    }
+
+    private static GroupEntry ReadGroupEntry(ref ContentReader reader)
+    {
+        ContentId? enemy = null;
+        BattleRow? row = null;
+        bool? waits = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "enemy":
+                    enemy = reader.ReadContentId(EnemyKind);
+                    break;
+                case "row":
+                    row = ReadRow(ref reader);
+                    break;
+                case "waits":
+                    waits = reader.ReadBoolean();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new GroupEntry(
+            reader.Require(enemy, depth, "enemy"),
+            reader.RequireValue(row, depth, "row"),
+            reader.RequireValue(waits, depth, "waits"));
+    }
+
+    private static ItemRecord ReadItem(ref ContentReader reader)
+    {
+        ContentId? id = null;
+        int? heal = null;
+        int? delay = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "id":
+                    id = reader.ReadContentId(ItemKind);
+                    break;
+                case "heal":
+                    heal = ReadStat(ref reader, 1);
+                    break;
+                case "delay":
+                    delay = ReadStat(ref reader, 1);
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new ItemRecord(
+            reader.Require(id, depth, "id"),
+            reader.RequireInt(heal, depth, "heal"),
+            reader.RequireInt(delay, depth, "delay"));
+    }
+
+    private static ContentId ReadCharacterId(ref ContentReader reader) => reader.ReadContentId(CharacterKind);
+
+    private static PackEntry ReadPackEntry(ref ContentReader reader)
+    {
+        ContentId? item = null;
+        int? count = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "item":
+                    item = reader.ReadContentId(ItemKind);
+                    break;
+                case "count":
+                    count = ReadStat(ref reader, 0);
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new PackEntry(reader.Require(item, depth, "item"), reader.RequireInt(count, depth, "count"));
+    }
+
+    private static int ReadStat(ref ContentReader reader, int lowest)
+    {
+        int value = reader.ReadInt();
+        if (value < lowest || value > MostStat)
+        {
+            throw reader.Refuse($"the value {value} is outside {lowest} to {MostStat} (T-2)");
+        }
+
+        return value;
+    }
+
+    private static BattleRow ReadRow(ref ContentReader reader)
+    {
+        string name = reader.ReadString();
+        if (!BattleSides.TryRowOf(name, out BattleRow row))
+        {
+            throw reader.Refuse($"the row '{name}' is not one of {BattleSides.EveryRowName} (D-377)");
+        }
+
+        return row;
+    }
+
+    /// <summary>
+    /// Refuses a repeated id, and an id that names no record of this file. The ids of the
+    /// file are few, so a walk of each list reads better than a map (T-1).
+    /// </summary>
+    private void CheckIds(string file)
+    {
+        var defined = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (ContentId id in this.DefinedIds())
+        {
+            if (!defined.Add(id.Value))
+            {
+                throw ContentException.ForField(file, id.Value, "the file defines this id two times, and an id is permanent (D-166)");
+            }
+        }
+
+        foreach (GroupRecord group in this.Groups)
+        {
+            foreach (GroupEntry entry in group.Entries)
+            {
+                Require(defined, file, entry.Enemy, $"the group '{group.Id.Value}'");
+            }
+        }
+
+        if (this.StartParty.Count == 0 || this.StartParty.Count > MostCharacters)
+        {
+            throw ContentException.ForField(
+                file,
+                "start_party",
+                $"the party starts with {this.StartParty.Count} characters, and a party holds 1 to {MostCharacters} (D-31, D-336)");
+        }
+
+        var started = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (ContentId character in this.StartParty)
+        {
+            Require(defined, file, character, "the start party");
+            if (!started.Add(character.Value))
+            {
+                throw ContentException.ForField(file, "start_party", $"the party starts with '{character.Value}' two times");
+            }
+        }
+
+        var packed = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (PackEntry entry in this.Pack)
+        {
+            Require(defined, file, entry.Item, "the pack");
+            if (!packed.Add(entry.Item.Value))
+            {
+                throw ContentException.ForField(file, "pack", $"the pack holds '{entry.Item.Value}' two times, and one entry holds each item");
+            }
+        }
+    }
+
+    private static void Require(SortedSet<string> defined, string file, ContentId id, string owner)
+    {
+        if (!defined.Contains(id.Value))
+        {
+            throw ContentException.ForField(file, id.Value, $"{owner} names this id, and the file defines no record with it (T-2)");
+        }
+    }
+}

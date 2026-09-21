@@ -10,12 +10,13 @@ namespace TheThingBelow.Core.Runs;
 /// handler, and Core names that assembly nowhere (D-260, D-492).
 /// </summary>
 /// <param name="state">The state of the run, which the command changes.</param>
+/// <param name="intent">The intent, which carries the target and the item of a battle command (D-767).</param>
 /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
 /// <param name="log">
 /// The log entries of this tick, which the handler adds to. A command that changes a value
 /// of the run says so in the log, at the level that the change deserves (D-179, D-751).
 /// </param>
-public delegate void DebugIntentHandler(RunState state, RunContext context, List<LogEntry> log);
+public delegate void DebugIntentHandler(RunState state, Intent intent, RunContext context, List<LogEntry> log);
 
 /// <summary>
 /// The extra intent handlers that the host gives to a run at its start. A development build

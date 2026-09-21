@@ -21,8 +21,8 @@ namespace TheThingBelow.Core.Maps;
 /// </para>
 /// <para>
 /// While the encounter holds, no map system ticks, so the patrols and the grace time all
-/// stand still (D-531). PR-9 builds the fight, and one command of the debug console ends the
-/// encounter as a flee until then (D-749).
+/// stand still (D-531). The encounter becomes a battle, and the end of the battle ends the
+/// encounter as a win or a flee (D-522, D-767).
 /// </para>
 /// </remarks>
 public sealed class MapPatrols
@@ -341,6 +341,20 @@ public sealed class MapPatrols
         patrol.StartGrace();
         this.Encounter = null;
         return patrol.Patrol.Id;
+    }
+
+    /// <summary>Ends the encounter as a win, and marks its enemy dead (D-531, D-555).</summary>
+    /// <exception cref="InvalidOperationException">No encounter runs (T-2).</exception>
+    public void Defeat()
+    {
+        if (this.Encounter is not MapEncounter running)
+        {
+            throw new InvalidOperationException(
+                "The map holds no encounter, and a win ends one (D-531, T-2).");
+        }
+
+        this.Find(running.Enemy).Defeat();
+        this.Encounter = null;
     }
 
     /// <summary>Gives the stored values of every enemy, in the order of the map file (D-750).</summary>

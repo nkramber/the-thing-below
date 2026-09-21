@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Core.Runs;
@@ -24,6 +25,7 @@ public static class RunReplay
     /// The map of the snapshot of the record, which the host read from its content by
     /// <see cref="RunSnapshot.MapIdOrFirst"/> (D-166).
     /// </param>
+    /// <param name="battleContent">The battle rules and the fixture of this build (D-766).</param>
     /// <param name="debugHandlers">
     /// The extra intent handlers of this host. A release host passes
     /// <see cref="DebugIntentHandlers.None"/>, and it then refuses a record with a debug
@@ -36,16 +38,22 @@ public static class RunReplay
     /// A rule refused an intent of the record, and the message names the intent and the tick
     /// (T-2).
     /// </exception>
-    public static RunState Play(RunRecord record, string contentHash, GameMap map, DebugIntentHandlers debugHandlers)
+    public static RunState Play(
+        RunRecord record,
+        string contentHash,
+        GameMap map,
+        BattleContent battleContent,
+        DebugIntentHandlers debugHandlers)
     {
         ArgumentNullException.ThrowIfNull(record);
         ArgumentException.ThrowIfNullOrEmpty(contentHash);
         ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(battleContent);
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
         record.Header.CheckAgainstThisBuild(contentHash);
 
-        Simulation simulation = Simulation.Resume(record.Header.Seed, record.Snapshot, map, debugHandlers);
+        Simulation simulation = Simulation.Resume(record.Header.Seed, record.Snapshot, map, battleContent, debugHandlers);
         int next = 0;
 
         while (simulation.Tick < record.EndTick)

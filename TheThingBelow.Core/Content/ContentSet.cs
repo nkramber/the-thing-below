@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Core.Content;
@@ -36,6 +37,7 @@ public sealed class ContentSet
         AtlasIndex atlas,
         UiStyle style,
         DeviceNames devices,
+        BattleContent battle,
         SortedDictionary<string, RuleFixtureEntry> ruleEntries,
         SortedDictionary<string, GameMap> maps,
         SortedDictionary<string, Drawing> drawings,
@@ -47,6 +49,7 @@ public sealed class ContentSet
         this.Atlas = atlas;
         this.Style = style;
         this.Devices = devices;
+        this.Battle = battle;
         this.ruleEntries = ruleEntries;
         this.maps = maps;
         this.drawings = drawings;
@@ -68,6 +71,9 @@ public sealed class ContentSet
 
     /// <summary>The table that picks a glyph set from the name of a gamepad (D-711).</summary>
     public DeviceNames Devices { get; }
+
+    /// <summary>The battle rules and the battle fixture (D-757, D-766).</summary>
+    public BattleContent Battle { get; }
 
     /// <summary>The hash of the rule files, as 64 lowercase hexadecimal characters (G-5).</summary>
     public string Hash { get; }
@@ -103,6 +109,8 @@ public sealed class ContentSet
         AtlasIndex? atlas = null;
         UiStyle? style = null;
         DeviceNames? devices = null;
+        BattleRules? battleRules = null;
+        BattleFixture? battleFixture = null;
         var fonts = new SortedDictionary<string, FontStrikes>(StringComparer.Ordinal);
         var ruleEntries = new SortedDictionary<string, RuleFixtureEntry>(StringComparer.Ordinal);
         var maps = new SortedDictionary<string, GameMap>(StringComparer.Ordinal);
@@ -138,6 +146,17 @@ public sealed class ContentSet
             else if (string.CompareOrdinal(file.Path, DeviceNames.Path) == 0)
             {
                 devices = DeviceNames.Read(file.Bytes, file.Path);
+            }
+            else if (string.CompareOrdinal(file.Path, BattleRules.Path) == 0)
+            {
+                battleRules = BattleRules.Read(file.Bytes, file.Path);
+            }
+            else if (string.CompareOrdinal(file.Path, BattleFixture.Path) == 0)
+            {
+                // The fixture lies under the rule folder, so this branch comes before the
+                // branch of the rule fixtures below (D-766).
+                battleFixture = BattleFixture.Read(file.Bytes, file.Path);
+                AddFixtureIds(file.Path, battleFixture, sources);
             }
             else if (ContentPaths.IsFontFile(file.Path))
             {
@@ -178,6 +197,9 @@ public sealed class ContentSet
             atlas ?? throw AbsentFile(AtlasIndex.Path),
             style ?? throw AbsentFile(UiStyle.Path),
             devices ?? throw AbsentFile(DeviceNames.Path),
+            new BattleContent(
+                battleRules ?? throw AbsentFile(BattleRules.Path),
+                battleFixture ?? throw AbsentFile(BattleFixture.Path)),
             ruleEntries,
             maps,
             drawings,
@@ -190,6 +212,7 @@ public sealed class ContentSet
         set.RefuseAbsentFont();
         set.RefuseAbsentStyleDrawing();
         set.RefuseAbsentGlyph();
+        set.RefuseAbsentGroup();
         return set;
     }
 
@@ -315,6 +338,24 @@ public sealed class ContentSet
                 path,
                 id.Value,
                 $"the content id '{id.Value}' is already the id of an entry of '{first}', and an id is permanent (D-166)");
+        }
+    }
+
+    private static void AddFixtureIds(string path, BattleFixture fixture, SortedDictionary<string, string> sources)
+    {
+        foreach (ContentId id in fixture.DefinedIds())
+        {
+            RefuseTakenId(path, id, sources);
+            sources.Add(id.Value, path);
+        }
+    }
+
+    /// <summary>Refuses a map that names a group which the battle fixture does not hold (D-753, D-766).</summary>
+    private void RefuseAbsentGroup()
+    {
+        foreach (GameMap map in this.maps.Values)
+        {
+            this.Battle.RequireGroupsOf(map);
         }
     }
 

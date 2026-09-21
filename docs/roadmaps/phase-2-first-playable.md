@@ -345,7 +345,7 @@ Area files: `area-battle.md` sections 7.1, 7.2, 7.3, 7.5, and 7.9.
 - The half damage of a melee attack from the back row (D-779).
 - The fixture files: the characters, the groups, the draught, and the numbers of D-777 (D-765, D-766, D-775).
 - The test that each group of a map exists (D-766).
-- The target of an intent, with record format 2 (D-764). The party in the snapshot, with save format 4 (D-765).
+- The target and the item of an intent, with record format 2 (D-764, D-780). The party in the snapshot, with save format 4 (D-765).
 - The console commands of each action, which replace the flee command of PR-8 (D-767).
 - The reload of the newer save after a wipe, or a new start with no save (D-776).
 

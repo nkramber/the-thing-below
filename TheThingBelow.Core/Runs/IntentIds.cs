@@ -47,4 +47,25 @@ public static class IntentIds
 
     /// <summary>The player went one step to the west (D-84, D-493).</summary>
     public static readonly ContentId MoveWest = ContentId.Parse("intent.move_west", Source, nameof(MoveWest));
+
+    /// <summary>The character whose turn it is attacks one enemy (D-359, D-764).</summary>
+    public static readonly ContentId BattleAttack = ContentId.Parse("intent.battle_attack", Source, nameof(BattleAttack));
+
+    /// <summary>The character whose turn it is defends (D-755).</summary>
+    public static readonly ContentId BattleDefend = ContentId.Parse("intent.battle_defend", Source, nameof(BattleDefend));
+
+    /// <summary>The character whose turn it is steps to the other row (D-380).</summary>
+    public static readonly ContentId BattleStep = ContentId.Parse("intent.battle_step", Source, nameof(BattleStep));
+
+    /// <summary>The character whose turn it is uses one item on one character (D-382, D-780).</summary>
+    public static readonly ContentId BattleItem = ContentId.Parse("intent.battle_item", Source, nameof(BattleItem));
+
+    /// <summary>The character whose turn it is tries to flee (D-378).</summary>
+    public static readonly ContentId BattleFlee = ContentId.Parse("intent.battle_flee", Source, nameof(BattleFlee));
+
+    /// <summary>
+    /// The screen of a won or fled battle is done, and the map runs again. Game sends it when
+    /// its event queue drains, and a bot sends it at once (D-522, D-532).
+    /// </summary>
+    public static readonly ContentId WaitBattleEnd = ContentId.Parse("intent.wait_battle_end", Source, nameof(WaitBattleEnd));
 }

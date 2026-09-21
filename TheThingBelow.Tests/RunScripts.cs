@@ -84,7 +84,7 @@ public static class RunScripts
     {
         ArgumentNullException.ThrowIfNull(script);
 
-        Simulation run = Simulation.Start(seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild(contentHash, seed), run.Snapshot());
 
         foreach (IReadOnlyList<Intent> intents in script)

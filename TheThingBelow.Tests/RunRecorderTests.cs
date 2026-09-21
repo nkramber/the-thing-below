@@ -132,7 +132,7 @@ public sealed class RunRecorderTests
     [Fact]
     public void ARecordWithATickThatDoesNotRiseIsAnError()
     {
-        RunSnapshot start = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None).Snapshot();
+        RunSnapshot start = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None).Snapshot();
         RunHeader header = RunHeader.ForThisBuild(ContentHash, Seed);
         Intent[] intents = [Intent.OfPlayer(IntentIds.OpenMenu)];
 
@@ -146,7 +146,7 @@ public sealed class RunRecorderTests
     [Fact]
     public void ARecordWithATickWithNoIntentIsAnError()
     {
-        RunSnapshot start = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None).Snapshot();
+        RunSnapshot start = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None).Snapshot();
         RunHeader header = RunHeader.ForThisBuild(ContentHash, Seed);
 
         Assert.Throws<ArgumentException>(() => new RunRecord(
@@ -156,7 +156,7 @@ public sealed class RunRecorderTests
     [Fact]
     public void ARecordThatEndsBeforeItsLastLineIsAnError()
     {
-        RunSnapshot start = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None).Snapshot();
+        RunSnapshot start = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None).Snapshot();
         RunHeader header = RunHeader.ForThisBuild(ContentHash, Seed);
 
         Assert.Throws<ArgumentException>(() => new RunRecord(
@@ -165,7 +165,7 @@ public sealed class RunRecorderTests
 
     private static (Simulation Run, RunRecorder Recorder) Start()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
         return (run, new RunRecorder(RunHeader.ForThisBuild(ContentHash, Seed), run.Snapshot()));
     }
 }
