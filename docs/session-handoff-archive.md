@@ -1,5 +1,36 @@
 # Session handoff archive
 
+## Session 177: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-55, round 5. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: #50. Role: author. Base: `27fb790`.
+
+### What this session did, and why
+
+- The review of PR #50 prepared its record on `e290570` and could not commit it. The scope limits of the `pr-review` skill allowed the record and the handoff entry alone, and a valid handoff also moves an entry to the archive.
+- The owner set D-824: a reviewer changes both handoff files as the author does, and never changes the words of another entry. The `pr-review` skill and its reference `commit-and-end.md` hold the rule.
+- The prepared review edits were uncommitted in this checkout. `docs/reviews/pr-50.md` stays in place, untracked. The handoff files of that review are saved outside the repository, and the handoff files hold the committed state again.
+
+### The state of the build
+
+- `e290570` passed every CI job except the review gate, which waits for `docs/reviews/pr-50.md`. This round changes a skill, a decision row, and the handoff alone.
+
+### What is in flight
+
+- The review commits its record and its entry as Session 178, under D-824.
+
+### Traps and gotchas
+
+- The prepared entry moved Session 168 to the archive and kept Session 167, so HANDOFF 2 failed. The oldest entry moves first.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the review record when it lands, and answer each finding.
+
 ## Session 176: 2026-09-21, Claude Code
 
 Author: Claude Code
