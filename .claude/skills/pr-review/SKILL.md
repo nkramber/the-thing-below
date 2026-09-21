@@ -276,8 +276,8 @@ The reviewing provider reads the existing PR comments and takes them into its ow
 
 A review request authorizes these actions and no other:
 
-- Inspection, verification, the review record, and the handoff entry.
-- A commit of those two files, and a push of that commit to the PR branch.
+- Inspection, verification, the review record, and the handoff files. The reviewer adds its entry and makes both handoff files pass the checks, as "The handoff files" of `references/commit-and-end.md` sets (D-824).
+- A commit of those files, and a push of that commit to the PR branch.
 - A correction of a stale fact in the PR description, under "Correct the PR description" in `references/review-record.md`.
 
 It does not by itself authorize a code fix, a merge, or another external message. A reply to the automated reviewer is an external message, and the reviewer never writes one (D-14). A reviewer never pushes to `main` (D-8). Honor explicit authorization already present in the session.

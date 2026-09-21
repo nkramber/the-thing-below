@@ -8,8 +8,8 @@ Always commit the review record and the session handoff, then push them to the P
 
 | After | Commit these files | Who commits |
 |---|---|---|
-| A review or a repeat review | `docs/reviews/pr-<number>.md` and `docs/session-handoff.md` | The reviewer |
-| Work that answers a review | `docs/reviews/pr-<number>-response.md`, each corrected file, and `docs/session-handoff.md` | The author |
+| A review or a repeat review | `docs/reviews/pr-<number>.md`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md` when an entry moves | The reviewer |
+| Work that answers a review | `docs/reviews/pr-<number>-response.md`, each corrected file, `docs/session-handoff.md`, and `docs/session-handoff-archive.md` when an entry moves | The author |
 
 Make one commit that holds the record and its handoff entry. Never leave either file uncommitted or unpushed.
 A push is the only way `review-gate` sees the record, because the gate reads the PR head.
@@ -27,7 +27,19 @@ Fetch the remote and read the handoff again before you write the entry. Take the
 Name the remote head in the state of the build.
 Add the handoff entry at the top of the file, as a new entry (D-18).
 
-Another provider can add an entry above yours while you work. Add your own entry. Never append to an older one, and never edit theirs.
+Another provider can add an entry above yours while you work. Add your own entry. Never append to an older one, and never change the words of theirs.
+
+## The handoff files
+
+The reviewer and the author have the same rights over the two handoff files (D-824). Both files are in the metadata set, so a change to them never moves the effective head (D-610). Before the commit, make both files pass the handoff rules of the `ste-check` command, HANDOFF 1 to HANDOFF 4 (D-18, D-607):
+
+- Add your own entry at the top of `docs/session-handoff.md`, with the next session number.
+- Move each entry past the 10 newest to the top of `docs/session-handoff-archive.md`, with no change to its text.
+- Correct the order of the entries, so the two files hold one list, newest first.
+- Give your own entry a new number when another session took that number first. Fetch, read the highest number again, and add one.
+- Keep the top entry under the size limit of 5 KB (D-611).
+
+A move and a change of order are no edit of an entry. Never change the words of an entry of another session. A fault that needs a change of the words of another entry goes into your record. The author of that entry corrects it.
 
 ## Session end gate
 
