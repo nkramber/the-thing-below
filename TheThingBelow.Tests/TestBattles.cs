@@ -122,6 +122,7 @@ internal static class TestBattles
     {
      "comment": "The grunt of the tests.",
      "id": "enemy.fixture_grunt",
+     "size": "common",
      "health": 30,
      "attack": 8,
      "defense": 2,
@@ -130,11 +131,12 @@ internal static class TestBattles
     }
     """;
 
-    /// <summary>The brute record of the tests, with the stats of D-777 and one ability (D-786, D-787).</summary>
+    /// <summary>The brute record of the tests, with the stats of D-777, the size of D-789, and one ability (D-786, D-787).</summary>
     public const string BruteFile = """
     {
      "comment": "The brute of the tests.",
      "id": "enemy.fixture_brute",
+     "size": "elite",
      "health": 80,
      "attack": 14,
      "defense": 6,

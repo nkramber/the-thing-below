@@ -18,11 +18,19 @@ internal static class BattleRuns
     /// <summary>The most ticks that a run of these tests steps before it fails (T-2).</summary>
     public const int TickLimit = 20_000;
 
-    /// <summary>Gives the map of one guard, whose group is the named one.</summary>
+    /// <summary>
+    /// Gives the map of one guard, whose group is the named one. The guard takes the size of
+    /// the largest enemy of its group (D-788). A common guard walks a route of one tile, and an
+    /// elite guard holds an area one column wider than its body, both east of the spawn point (D-209).
+    /// </summary>
     /// <param name="group">The id of the group, which the test fixture holds.</param>
     /// <returns>The map.</returns>
     public static GameMap Map(string group)
     {
+        EnemySize size = GuardSize(group);
+        string station = size == EnemySize.Common
+            ? "\"routes\": [{ \"times\": [\"dawn\", \"day\", \"dusk\", \"night\"], \"tiles\": [{ \"x\": 2, \"y\": 1 }] }]"
+            : "\"areas\": [{ \"times\": [\"dawn\", \"day\", \"dusk\", \"night\"], \"x\": 2, \"y\": 1, \"width\": 3, \"height\": 2 }]";
         string text = $$"""
         {
          "comment": "A room with one guard beside the spawn point.",
@@ -42,13 +50,11 @@ internal static class BattleRuns
           {
            "id": "patrol.test_guard",
            "group": "{{group}}",
-           "size": "common",
+           "size": "{{EnemySizes.NameOf(size)}}",
            "facing": "east",
            "step_ticks": 30,
            "sight_range": 0,
-           "routes": [
-            { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 2, "y": 1 }] }
-           ]
+           {{station}}
           }
          ]
         }
@@ -107,6 +113,27 @@ internal static class BattleRuns
         }
         """;
         return GameMap.Read(Encoding.UTF8.GetBytes(text), "tests-guarded-walker.json");
+    }
+
+    /// <summary>Gives the size of the largest enemy of a group of the tests, or common for a group that the tests lack (D-788).</summary>
+    private static EnemySize GuardSize(string group)
+    {
+        EnemySize largest = EnemySize.Common;
+        foreach (GroupRecord record in TestBattles.Content.Fixture.Groups)
+        {
+            if (string.CompareOrdinal(record.Id.Value, group) != 0)
+            {
+                continue;
+            }
+
+            foreach (GroupEntry entry in record.Entries)
+            {
+                EnemySize size = TestBattles.Content.Enemy(entry.Enemy).Size;
+                largest = size > largest ? size : largest;
+            }
+        }
+
+        return largest;
     }
 
     /// <summary>Starts a run and steps it into a battle with the named group.</summary>

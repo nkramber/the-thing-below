@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Runs;
 using TheThingBelow.Tools.Content;
 using Xunit;
 
@@ -30,6 +32,8 @@ public sealed class EnemyRecordTests
         Assert.Empty(grunt.Abilities);
         Assert.Equal("ability.fixture_bash", Assert.Single(brute.Abilities).Value);
         Assert.Equal(BrutePath, brute.File);
+        Assert.Equal(EnemySize.Common, grunt.Size);
+        Assert.Equal(EnemySize.Elite, brute.Size);
     }
 
     [Fact]
@@ -55,6 +59,7 @@ public sealed class EnemyRecordTests
     [Theory]
     [InlineData("comment")]
     [InlineData("id")]
+    [InlineData("size")]
     [InlineData("health")]
     [InlineData("attack")]
     [InlineData("defense")]
@@ -110,6 +115,7 @@ public sealed class EnemyRecordTests
     [InlineData("[\"ability.fixture_bash\"]", "[\"enemy.fixture_bash\"]", "ability")]
     [InlineData("[\"ability.fixture_bash\"]", "[\"ability.fixture_bash\", \"ability.fixture_bash\"]", "two times")]
     [InlineData("\"speed\": 80,", "\"speed\": 80, \"magic\": 3,", "magic")]
+    [InlineData("\"size\": \"elite\"", "\"size\": \"giant\"", "giant")]
     public void ARecordThatBreaksARuleFailsWithTheFile(string from, string to, string reason)
     {
         string text = TestBattles.BruteFile.Replace(from, to, StringComparison.Ordinal);
@@ -133,6 +139,56 @@ public sealed class EnemyRecordTests
 
         Assert.Equal(AbilityList.Path, error.File);
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AMapWhoseSizeDiffersFromTheRecordFailsTheContentSet()
+    {
+        // P1-1 of the PR-48 review, D-754, D-788: the record alone changes, and the elite patrol
+        // of the fixture map no longer agrees with the brute of its group.
+        List<ContentFile> files = [.. ContentFolder.Read(RepositoryRoot.Find())];
+        ReplaceIn(files, BrutePath, "\"size\": \"elite\"", "\"size\": \"boss\"");
+
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(files));
+
+        Assert.Equal("rules/maps/fixture-dungeon.json", error.File);
+        Assert.Contains("patrol.fixture_dungeon_deep", error.Message, StringComparison.Ordinal);
+        Assert.Contains("group.fixture_elite", error.Message, StringComparison.Ordinal);
+        Assert.Contains("enemy.fixture_brute", error.Message, StringComparison.Ordinal);
+        Assert.Contains("'elite'", error.Message, StringComparison.Ordinal);
+        Assert.Contains("'boss'", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AWaitingEnemyCountsForTheSizeOfTheGroup()
+    {
+        // D-788: the largest enemy of the group sets the size, the waiting enemies included.
+        string fixture = TestBattles.FixtureFile.Replace(
+            """
+              "id": "group.test_pair",
+               "boss": false,
+               "enemies": [
+                { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false },
+                { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false }
+            """,
+            """
+              "id": "group.test_pair",
+               "boss": false,
+               "enemies": [
+                { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false },
+                { "enemy": "enemy.fixture_brute", "row": "front", "waits": true }
+            """,
+            StringComparison.Ordinal);
+        Assert.NotEqual(TestBattles.FixtureFile, fixture);
+        BattleContent content = TestBattles.Of(fixture);
+
+        ContentException error = Assert.Throws<ContentException>(
+            () => Simulation.Start(1, BattleRuns.Map("group.test_pair"), content, DebugIntentHandlers.None));
+
+        Assert.Equal("tests-guarded.json", error.File);
+        Assert.Contains("enemy.fixture_brute", error.Message, StringComparison.Ordinal);
+        Assert.Contains("'common'", error.Message, StringComparison.Ordinal);
+        Assert.Contains("'elite'", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]

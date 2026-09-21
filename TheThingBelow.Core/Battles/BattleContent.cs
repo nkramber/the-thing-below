@@ -119,9 +119,16 @@ public sealed class BattleContent
         throw Absent(id, "item");
     }
 
-    /// <summary>Refuses a map that names a group which the fixture does not hold (D-766).</summary>
+    /// <summary>
+    /// Refuses a map that names a group which the fixture does not hold (D-766), and a map
+    /// whose patrol size differs from the largest enemy record of its group (D-754, D-788).
+    /// </summary>
     /// <param name="map">The map.</param>
-    /// <exception cref="ContentException">An enemy of the map names an absent group, and the error names the map, the enemy, and the group (T-2).</exception>
+    /// <exception cref="ContentException">
+    /// An enemy of the map names an absent group, or takes another size than the largest enemy
+    /// of its group. The error names the map, the patrol, and the group, and a size error also
+    /// names the enemy and both sizes (T-2).
+    /// </exception>
     public void RequireGroupsOf(GameMap map)
     {
         ArgumentNullException.ThrowIfNull(map);
@@ -135,7 +142,39 @@ public sealed class BattleContent
                     patrol.Id.Value,
                     $"the enemy names the group '{patrol.Group.Value}', and '{BattleFixture.Path}' holds no such group (D-753, D-766)");
             }
+
+            EnemyRecord largest = this.LargestOf(this.Group(patrol.Group));
+            if (patrol.Size != largest.Size)
+            {
+                throw ContentException.ForField(
+                    map.File,
+                    patrol.Id.Value,
+                    $"the patrol takes the size '{EnemySizes.NameOf(patrol.Size)}', and the largest enemy of the group '{patrol.Group.Value}' is '{largest.Id.Value}' with the size '{EnemySizes.NameOf(largest.Size)}' (D-754, D-788)");
+            }
         }
+    }
+
+    /// <summary>
+    /// Gives the enemy record of the largest body in a group, the waiting enemies included
+    /// (D-788). Of two records with one size, the first in the group wins, so the error of a
+    /// size names the same enemy on every machine (T-7).
+    /// </summary>
+    private EnemyRecord LargestOf(GroupRecord group)
+    {
+        EnemyRecord? largest = null;
+        foreach (GroupEntry entry in group.Entries)
+        {
+            EnemyRecord enemy = this.Enemy(entry.Enemy);
+
+            // The order of the enum is the order of the bodies: common, elite, boss (D-236).
+            if (largest is null || enemy.Size > largest.Size)
+            {
+                largest = enemy;
+            }
+        }
+
+        // A group holds at least one enemy on the field, and the reader refuses an empty group (D-759).
+        return largest ?? throw ContentException.ForField(BattleFixture.Path, group.Id.Value, "the group holds no enemy (D-759)");
     }
 
     private bool HoldsGroup(ContentId id)

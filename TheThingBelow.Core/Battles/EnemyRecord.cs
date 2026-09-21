@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Core.Battles;
 
 /// <summary>
-/// The record of one enemy: its stats and the ids of its abilities (D-557). Each enemy has
-/// one file under `content/rules/enemies/` (D-786).
+/// The record of one enemy: its body size, its stats, and the ids of its abilities (D-557,
+/// D-754). Each enemy has one file under `content/rules/enemies/` (D-786).
 /// </summary>
 /// <remarks>
 /// The fight reads the stats alone. Each enemy keeps the basic attack until PR-11 picks an
@@ -20,10 +21,11 @@ public sealed class EnemyRecord
     /// <summary>The kind of an enemy id (D-646).</summary>
     public const string Kind = "enemy";
 
-    private EnemyRecord(string file, ContentId id, int health, int attack, int defense, int speed, IReadOnlyList<ContentId> abilities)
+    private EnemyRecord(string file, ContentId id, EnemySize size, int health, int attack, int defense, int speed, IReadOnlyList<ContentId> abilities)
     {
         this.File = file;
         this.Id = id;
+        this.Size = size;
         this.Health = health;
         this.Attack = attack;
         this.Defense = defense;
@@ -36,6 +38,9 @@ public sealed class EnemyRecord
 
     /// <summary>The id, of the kind `enemy`.</summary>
     public ContentId Id { get; }
+
+    /// <summary>The size of the body, which each map patrol of a group of this enemy agrees with (D-754, D-788).</summary>
+    public EnemySize Size { get; }
 
     /// <summary>The full health.</summary>
     public int Health { get; }
@@ -74,6 +79,7 @@ public sealed class EnemyRecord
         var reader = new ContentReader(bytes, file);
         string? comment = null;
         ContentId? id = null;
+        EnemySize? size = null;
         int? health = null;
         int? attack = null;
         int? defense = null;
@@ -90,6 +96,9 @@ public sealed class EnemyRecord
                     break;
                 case "id":
                     id = reader.ReadContentId(Kind);
+                    break;
+                case "size":
+                    size = ReadSize(ref reader);
                     break;
                 case "health":
                     health = BattleFixture.ReadStat(ref reader, 1);
@@ -115,6 +124,7 @@ public sealed class EnemyRecord
         var record = new EnemyRecord(
             file,
             reader.Require(id, depth, "id"),
+            reader.RequireValue(size, depth, "size"),
             reader.RequireInt(health, depth, "health"),
             reader.RequireInt(attack, depth, "attack"),
             reader.RequireInt(defense, depth, "defense"),
@@ -124,6 +134,17 @@ public sealed class EnemyRecord
 
         record.RefuseRepeatedAbility();
         return record;
+    }
+
+    private static EnemySize ReadSize(ref ContentReader reader)
+    {
+        string name = reader.ReadString();
+        if (!EnemySizes.TryOf(name, out EnemySize size))
+        {
+            throw reader.Refuse($"the size '{name}' is not one of {EnemySizes.EveryName} (D-206)");
+        }
+
+        return size;
     }
 
     private static List<ContentId> ReadAbilityIds(ref ContentReader reader)

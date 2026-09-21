@@ -184,6 +184,7 @@ public static class IdentitySet
     {
      "comment": "The grunt of the identity set. It never changes.",
      "id": "enemy.identity_grunt",
+     "size": "common",
      "health": 20,
      "attack": 6,
      "defense": 2,
@@ -197,6 +198,7 @@ public static class IdentitySet
     {
      "comment": "The brute of the identity set. It never changes.",
      "id": "enemy.identity_brute",
+     "size": "common",
      "health": 45,
      "attack": 11,
      "defense": 5,

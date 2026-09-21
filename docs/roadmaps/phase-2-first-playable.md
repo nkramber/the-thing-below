@@ -431,6 +431,7 @@ Area file: `area-battle.md` section 7.7.
 - The strict reader of the record and of the ability file in Core, with a load test (D-177, G-6).
 - The switch of PR-9 from fixture stats to the record, with the same ids (D-557, D-786).
 - The ability ids stay data: each enemy keeps the basic attack (D-787).
+- The size of each enemy on its record, and the load check of each map patrol against the largest enemy of its group (D-754, D-788, D-789).
 
 **Out of scope.**
 
@@ -446,6 +447,7 @@ Area file: `area-battle.md` section 7.7.
 3. A record that names an absent ability id fails the load with the file and the id (D-785).
 4. A number with a fraction in a record fails the load (G-2).
 5. The replay of a fixture fight against the record gives the same state hash on every leg.
+6. A map patrol with another size than the largest enemy of its group fails the load, with both sizes (D-754, D-788).
 
 **Review focus.**
 
@@ -453,7 +455,7 @@ Area file: `area-battle.md` section 7.7.
 - The simulation version bumps, and the identity file gains a run (G-17, D-504).
 - Each new content id is permanent (D-166).
 
-**Questions.** None. D-758 answers OQ-132 with the wave, and D-785 to D-787 answer the start questions of the PR.
+**Questions.** None. D-758 answers OQ-132 with the wave. D-785 to D-787 answer the start questions, and D-788 and D-789 answer the size questions of the review.
 
 > *In plain English:* each enemy gets its numbers and its list of moves in a data file of its own. The fight reads that file in place of the placeholder numbers. The moves do nothing yet, and a later change makes the enemies use them.
 
