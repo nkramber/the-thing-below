@@ -1,5 +1,40 @@
 # Session handoff archive
 
+## Session 147: 2026-09-20, Codex
+
+Author: Codex
+Session: review PR #42, the tile map. Repository: the-thing-below. Branch: `feat/pr-7-tile-map`. Role: reviewer. Base: `2a8115b`.
+
+### What this session did, and why
+
+- Reviewed PR #42 at effective head `2ead9c8`.
+- Verified the opposite-provider gate, the complete 83-path diff, the PR comments, the PR-7 roadmap scope and exit tests, the changed contracts, and the save and replay migration.
+- Verified the menu-opening crash correction and its regression tests.
+- Added `docs/reviews/pr-42.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes at `2ead9c8` with 1182 tests, format, det-lint, STE, replay identity, content hash, atlas, and smoke.
+- CI passes on Ubuntu, Windows, and macOS for build, test, format, replay identity, smoke, coverage, det-lint, STE, and changed paths. Gitar approves the current head.
+- The review-gate check has the expected RG 3 fault until this review record is pushed.
+
+### What is in flight
+
+- This review record and this handoff entry need one metadata commit and push.
+
+### Traps and gotchas
+
+- The effective code head is `2ead9c8`. The tip `e4b311f` is metadata-only.
+- The map HUD belongs to PR-64. The screen-test job belongs to PR-41.
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Then verify the remote head and review-gate result.
+
 ## Session 146: 2026-09-20, Claude Code
 
 Author: Claude Code

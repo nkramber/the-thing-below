@@ -1,5 +1,40 @@
 # Session handoff
 
+## Session 157: 2026-09-21, Codex
+
+Author: Codex
+Session: repeat review PR-8, the enemies on the map. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: reviewer. Base: `626d2fe`.
+
+### What this session did, and why
+
+- Reopened PR #45 at effective head `801d6aa` after the author corrected P2-1 from the review of `e83e2d6`.
+- Verified the original overflow trigger, the subtraction-based correction, the three-case regression theory, and the full affected consumer path.
+- Updated `docs/reviews/pr-45.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes locally with 1,393 tests and all local gates.
+- CI passes the build, test, format, smoke, replay identity, screen-test, det-lint, STE, coverage, changed-paths, and Gitar checks at PR tip `06ad10b`.
+- The effective implementation head is `801d6aa`.
+- The remote head of `main` is `626d2fe`.
+
+### What is in flight
+
+The review record and this handoff entry need one metadata commit and push.
+
+### Traps and gotchas
+
+- The effective head is `801d6aa`. The tip `06ad10b` changes only review metadata.
+- The area edge check depends on the reader refusing negative coordinates and dimensions.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the repeat review record and this handoff entry. Then verify the remote head and review-gate result.
+
 ## Session 156: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -346,38 +381,3 @@ None. OQ-115 blocks PR-8 alone.
 ### The next concrete action
 
 Start the review of PR #43 at the effective head `fd9e0ae`.
-
-## Session 147: 2026-09-20, Codex
-
-Author: Codex
-Session: review PR #42, the tile map. Repository: the-thing-below. Branch: `feat/pr-7-tile-map`. Role: reviewer. Base: `2a8115b`.
-
-### What this session did, and why
-
-- Reviewed PR #42 at effective head `2ead9c8`.
-- Verified the opposite-provider gate, the complete 83-path diff, the PR comments, the PR-7 roadmap scope and exit tests, the changed contracts, and the save and replay migration.
-- Verified the menu-opening crash correction and its regression tests.
-- Added `docs/reviews/pr-42.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes at `2ead9c8` with 1182 tests, format, det-lint, STE, replay identity, content hash, atlas, and smoke.
-- CI passes on Ubuntu, Windows, and macOS for build, test, format, replay identity, smoke, coverage, det-lint, STE, and changed paths. Gitar approves the current head.
-- The review-gate check has the expected RG 3 fault until this review record is pushed.
-
-### What is in flight
-
-- This review record and this handoff entry need one metadata commit and push.
-
-### Traps and gotchas
-
-- The effective code head is `2ead9c8`. The tip `e4b311f` is metadata-only.
-- The map HUD belongs to PR-64. The screen-test job belongs to PR-41.
-
-### The questions that block progress
-
-None. OQ-115 blocks PR-8 alone.
-
-### The next concrete action
-
-Commit and push the review record and this handoff entry. Then verify the remote head and review-gate result.
