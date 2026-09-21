@@ -36,6 +36,29 @@ public sealed class GameFrameSettingsTests
     }
 
     [Fact]
+    public void TheProjectKeepsTheWindowedDefault()
+    {
+        // The play session sets borderless fullscreen in code. A fullscreen setting in the
+        // project reaches the capture session too, and Godot then ignores its `--windowed`
+        // option, so no capture gets the exact size of its screen.
+        Assert.False(
+            Section("display").ContainsKey("window/size/mode"),
+            "The project sets a window mode, and the capture session needs the windowed default.");
+    }
+
+    [Fact]
+    public void ThePlaySessionEntersBorderlessFullscreen()
+    {
+        // The fullscreen mode of Godot is a window with no border that covers the screen, and
+        // the exclusive mode is another value. The play session of every build, the
+        // development build included, takes the borderless one.
+        string boot = System.IO.File.ReadAllText(RepositoryRoot.PathTo("TheThingBelow.Game/scripts/Boot.cs"));
+
+        Assert.Contains("DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);", boot, StringComparison.Ordinal);
+        Assert.DoesNotContain("WindowMode.ExclusiveFullscreen", boot, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void TheProjectScalesNothingByItself()
     {
         // Exit test 3, F-45, F-48. Godot has no mode that scales up by a whole number and

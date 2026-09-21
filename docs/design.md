@@ -70,6 +70,8 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-21 battle core pass: a battle is the encounter of the map, and one snapshot holds both (D-531). A defend, a strip of six turns, and a wave of up to twelve enemies join the rules (D-755, D-756, D-758 to D-762, D-778). Content holds every delay and every number, and PR-9 fights fixture characters, groups, and items (D-757, D-765, D-766, D-775, D-777). An intent carries its target and its item (D-764, D-780). A measurement set the fixture elite (D-781).
 
+2026-09-21 walk pass: the ground drew over the feet of a sprite inside a step north or south (F-95). The ground now draws below every sprite (D-783). The screen test holds a frame after each tick of one step north and one step south (D-782). `make walk` gives a session the same frames. The author of a PR that changes a screen reads each frame before the hand-over (D-784).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -358,6 +360,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-92 | A caller of the smoke session that ends the command with `|| true` drops the exit code of the session. The `smoke` target of the Makefile and the first export step of PR-54 each read the log alone, so a session that writes the success line and then fails passed both. A probe with a stub that writes the line and ends with the code 3 gave an exit of 0 from the old text of each one. The smoke job of CI does not hold the fault, because its pipeline runs under `pipefail` | 2026-09-19 | ✅ PR-54: each caller keeps the exit code and reads it after the log checks, and both parts are needed (F-64). `TheThingBelow.Tests/SmokeExitCodeTests.cs` holds the rule for the three callers (D-694). The review of PR #39 found the fault in the export step |
 | F-93 | A principal-level audit of the whole repository found four gaps of the gates and a set of defects. The commit `6910017` changed `LICENSE` on `main` with no PR, and PR #15 and PR #17 merged with no review record and no label, because the protection of `main` does not bind an administrator. The Tools scan of det-lint dropped each compile error outside a folder of D-502, so a scan that read nothing passed. Game recorded each tick after its step, so the record of a crash ended one tick before the crash. Every JSON reader of Core took a repeated field in silence. `docs/reviews/audit-2026-09-20.md` holds each finding and its fix | 2026-09-20 | ✅ the audit fixes PR (D-695, D-696). Each fix of a defect has a regression test, and the simulation version is 4. D-706: the owner enabled the protection of the administrators on 2026-09-20. D-697 to D-705 answer OQ-201 to OQ-209 |
 | F-94 | Every map sprite drew behind the floor tile that it stands on, so the map screen of PR-7 showed no character at all. A tile takes the center of its cell as its sort value, and each sprite sat at the north edge of its tile, which is 16 pixels above that center. The committed baseline of the screen test of PR #44 holds a frame with the ground alone, and the capture of the party is black. A local capture with the sprite at the south edge of its tile draws the lead | 2026-09-21 | ✅ PR-8: each map sprite sits at the south edge of the front row of its body, and its picture draws up from there (D-737). The smoke session reads the picture of each sprite back, and the new baseline of the screen test holds the lead and each enemy in sight |
+| F-95 | A map sprite lost its feet for half of each step north and each step south. Each ground tile took part in the Y sort at the center of its cell. The feet of a sliding sprite sit inside a row of tiles, so the tile of that row drew over the sprite while the feet stood above its center. A step east or west keeps the feet on the edge of a row, so it showed no fault. The capture session of PR-41 ran no tick, and no frame showed a step. The owner found the fault in a play session. The walk frames of D-782 show the cut legs on the old code | 2026-09-21 | ✅ PR-89: the ground layer takes no part in the sort, and it draws below every sprite (D-783). The screen test holds a frame after each tick of one step north and one step south (D-782), and the smoke session reads the sort and the Z index of the layer back. The author reads each frame before the hand-over (D-784) |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -410,7 +413,7 @@ Five phases. Gate 1 is a foundation gate with no play. Gates 2 to 5 are builds t
 
 This section is the high-level roadmap (D-554). Each phase below gives its gate, its items in order, and one line for each item. The phase file of that phase gives each PR its scope, its exit tests, its review focus, and its questions (D-144, D-487). An area file says how one area works and which PR builds each part. The index of both sets is `docs/roadmaps/readme.md`.
 
-An item that kept its purpose through the pivots kept its number. PR-22 and PR-32 are retired, and no later item takes either id (G-10). The new ids of D-486 run from PR-43 to PR-79. PR-80 to PR-86 are in use, and a new item takes the next number after them.
+An item that kept its purpose through the pivots kept its number. PR-22 and PR-32 are retired, and no later item takes either id (G-10). The new ids of D-486 run from PR-43 to PR-79. PR-80 to PR-89 are in use, and a new item takes the next number after them.
 
 ### Phase 1: Foundations (gate: every CI leg green with an identical state hash, the smoke session green, docs and PR gate live, no play)
 
@@ -458,51 +461,52 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 6. PR-41: the screen-test job under Xvfb, with its committed baseline (D-172, D-729, D-736).
 7. PR-8: the enemies and the patrols on the map (D-37).
 8. PR-9: the encounter state, the timeline, the actions, the rows, the wave, the wipe, and the hand-off (D-29, D-376, D-377, D-531, D-755 to D-781).
-9. PR-80: the enemy record, with the stats and the ability ids of each enemy (D-557).
-10. PR-66: the eight elements and the ten statuses (D-74, D-75, D-533).
-11. PR-55: the large pictures, right before PR-10 (D-516, D-518).
-12. PR-10: the battle scene, its message line, and its backdrop (D-111, D-213).
-13. PR-48: the normal maps and their review sheet, right before PR-56 (D-184, D-521).
-14. PR-56: the light setups, the shadows, and the effect budget (D-183, D-520, D-523).
-15. PR-63: the settings screen, the four accessibility settings, and a versioned settings file (D-214, D-526, D-570).
-16. PR-57: the effect files, the particles, and the battle effects (D-182, D-186).
-17. PR-58: the four ambient kinds of region one (D-187).
-18. PR-59: the glow on fire, spells, and waystones (D-188).
-19. PR-60: the ten transitions and their table (D-195, D-196).
-20. PR-11: the evaluator, the enemy profiles, and the groups, with the cost of a turn (D-65, D-534, F-53).
-21. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537).
-22. PR-62: the menu windows, the party and status windows, the dungeon map screen, and the notices (D-211, D-558, D-567, D-569).
-23. PR-68: the story scene format and runner, the join step, the flags, and the conditions, before PR-12 (D-541, D-544, D-556, D-563).
-24. PR-50: the screenplay tool, right after PR-68 (D-173, D-545).
-25. PR-12: the lessons, the slots, the forms, and the aptitudes (D-272, D-356, D-539).
-26. PR-13: the six gear slots, the items, and the pack (D-44, D-382).
-27. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
-28. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
-29. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
-30. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).
-31. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
-32. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-33. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
-34. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
-35. PR-35: the region map of nodes and routes (D-113).
-36. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command (D-432, D-438).
-37. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
-38. PR-70: every rule of what plays when (D-413, D-546).
-39. PR-71: the sound room in a development build (D-439, D-546).
-40. PR-51: the PNG import for a hand edit (D-107, D-497).
-41. PR-52: the map preview as a PNG (D-165, D-497).
-42. PR-53: the tile-edge tool and the edge files (D-204, D-501).
-43. PR-72: the music, the themes, and the sounds of the first playable (D-549).
-44. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
-45. M-3: the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
-46. M-4: the turns of each encounter and the party downs of each dungeon, by policy.
-47. M-6: the frame time and the readability on the Deck, at the scale of OQ-183 (D-161, D-621).
-48. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
-49. **← GATE 2 (first playable).**
-50. PR-74: the capture, which replays a record into frames and audio (D-476, D-551).
-51. PR-75: the store text and the checklist of the owner steps (D-452, D-550).
-52. PR-76: the store art and the five screenshots (D-475, D-550).
-53. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
+9. PR-89: the ground over a sprite inside a step, and the walk frames of the screen test (D-782 to D-784, F-95).
+10. PR-80: the enemy record, with the stats and the ability ids of each enemy (D-557).
+11. PR-66: the eight elements and the ten statuses (D-74, D-75, D-533).
+12. PR-55: the large pictures, right before PR-10 (D-516, D-518).
+13. PR-10: the battle scene, its message line, and its backdrop (D-111, D-213).
+14. PR-48: the normal maps and their review sheet, right before PR-56 (D-184, D-521).
+15. PR-56: the light setups, the shadows, and the effect budget (D-183, D-520, D-523).
+16. PR-63: the settings screen, the four accessibility settings, and a versioned settings file (D-214, D-526, D-570).
+17. PR-57: the effect files, the particles, and the battle effects (D-182, D-186).
+18. PR-58: the four ambient kinds of region one (D-187).
+19. PR-59: the glow on fire, spells, and waystones (D-188).
+20. PR-60: the ten transitions and their table (D-195, D-196).
+21. PR-11: the evaluator, the enemy profiles, and the groups, with the cost of a turn (D-65, D-534, F-53).
+22. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537).
+23. PR-62: the menu windows, the party and status windows, the dungeon map screen, and the notices (D-211, D-558, D-567, D-569).
+24. PR-68: the story scene format and runner, the join step, the flags, and the conditions, before PR-12 (D-541, D-544, D-556, D-563).
+25. PR-50: the screenplay tool, right after PR-68 (D-173, D-545).
+26. PR-12: the lessons, the slots, the forms, and the aptitudes (D-272, D-356, D-539).
+27. PR-13: the six gear slots, the items, and the pack (D-44, D-382).
+28. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
+29. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
+30. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
+31. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).
+32. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
+33. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+34. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
+35. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
+36. PR-35: the region map of nodes and routes (D-113).
+37. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command (D-432, D-438).
+38. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
+39. PR-70: every rule of what plays when (D-413, D-546).
+40. PR-71: the sound room in a development build (D-439, D-546).
+41. PR-51: the PNG import for a hand edit (D-107, D-497).
+42. PR-52: the map preview as a PNG (D-165, D-497).
+43. PR-53: the tile-edge tool and the edge files (D-204, D-501).
+44. PR-72: the music, the themes, and the sounds of the first playable (D-549).
+45. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
+46. M-3: the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
+47. M-4: the turns of each encounter and the party downs of each dungeon, by policy.
+48. M-6: the frame time and the readability on the Deck, at the scale of OQ-183 (D-161, D-621).
+49. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
+50. **← GATE 2 (first playable).**
+51. PR-74: the capture, which replays a record into frames and audio (D-476, D-551).
+52. PR-75: the store text and the checklist of the owner steps (D-452, D-550).
+53. PR-76: the store art and the five screenshots (D-475, D-550).
+54. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 
 PR-37 is retired. The CRT pass of the first plan has no purpose after D-618, and no later item takes the id (G-10).
 
@@ -587,7 +591,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 12. **← GATE 1 (foundation).** The identity job, `dotnet test`, the smoke job, `det-lint`, and `ste-check` are green on every CI leg.
 13. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
 14. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8.
-15. PR-9, PR-80, PR-66, PR-55, PR-10.
+15. PR-9, PR-89, PR-80, PR-66, PR-55, PR-10.
 16. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60.
 17. PR-11, PR-67, PR-62.
 18. PR-68, PR-50.

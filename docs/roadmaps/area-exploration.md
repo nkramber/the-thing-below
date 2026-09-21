@@ -36,6 +36,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-46 | Godot drops a light past 15 on one canvas item with no message | PR-56: a map layer draws 256 tiles as one canvas item |
 | F-51 | Four Godot defaults meet the tile map | PR-7: the tile size, the region size, and the two switches |
 | F-52 | The camera centers a small map, and no doc states it | PR-7: a test locks it, and the tick moves the camera |
+| F-95 | The ground drew over the feet of a sprite inside a step north or south | PR-89: the ground draws below every sprite, and the screen test holds the walk (D-782, D-783) |
 
 ## 7. Roadmap
 
@@ -77,13 +78,14 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - Game draws a map through a `TileMapLayer` of Godot, and it builds the `TileSetAtlasSource` from the tile page at load (D-667).
 - With a `TileMapLayer`, PR-7 sets the tile size and the region size to 32, because both Godot defaults are 16 (F-51).
 - PR-7 also turns off the collisions and the navigation of each layer, because no rule reads them (F-51, G-1, G-23).
-- Godot sorts each canvas item by one Y value, and a tile takes the center of its cell (the external facts above).
+- Godot sorts each canvas item by one Y value, and a tile takes the center of its cell (the external facts above). The ground layer takes no part in that sort, and it draws below every sprite (D-783).
 - A sprite of more than one tile takes its sort value at the front row of its body (D-206, D-737).
-- Each map sprite sits at the south edge of its front row, and its picture draws up from there. A sprite at the north edge draws behind its own floor tile (F-94).
+- Each map sprite sits at the south edge of its front row, and its picture draws up from there. A sprite at the north edge drew behind its own floor tile (F-94).
+- A tile that sorted by its cell drew over the feet of a sprite for half of each step north or south (F-95). A later tile that stands in front of a sprite takes a layer of its own (D-783).
 - A layer holds coordinates from `-32768` to `32767`, which every map of the game fits (the external facts above).
 - No fog of war covers a map, so Game draws every tile of the ground from the moment the party enters (D-566).
 
-> *In plain English:* the ground, the walls, and the borders come from one packed image. Each figure draws in front of what is behind it, so a character can walk behind a pillar.
+> *In plain English:* the ground, the walls, and the borders come from one packed image. Each figure draws in front of what is behind it. The ground always draws under the figures, so no step cuts off the feet of a character.
 
 ### 7.4 The camera
 

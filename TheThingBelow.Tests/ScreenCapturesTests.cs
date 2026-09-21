@@ -24,9 +24,9 @@ public sealed class ScreenCapturesTests
     /// <summary>The folder of the committed baseline, under the root of the checkout (D-736).</summary>
     private const string BaselineFolder = "screens/baseline";
 
-    /// <summary>Every file that one run of the capture session writes, in the order of the list.</summary>
-    public static TheoryData<string> ExpectedNames { get; } = new TheoryData<string>
-    {
+    /// <summary>The ten files of the map fixture and the ui fixture, in the order of the list.</summary>
+    private static readonly string[] StillNames =
+    [
         "map-1x.png",
         "map-fill-1080.png",
         "map-whole-1080.png",
@@ -37,14 +37,74 @@ public sealed class ScreenCapturesTests
         "ui-whole-1080.png",
         "ui-fill-1440.png",
         "ui-whole-1440.png",
-    };
+    ];
+
+    // This property stays below `StillNames`, because its build reads that array, and a static
+    // member takes its value in the order of the file (T-2).
+    /// <summary>Every file that one run of the capture session writes, in the order of the list.</summary>
+    public static TheoryData<string> ExpectedNames { get; } = BuildExpectedNames();
 
     [Fact]
-    public void TheListHoldsFiveCapturesOfEachFixture()
+    public void TheListHoldsFiveCapturesOfEachStillFixtureAndOneForEachTickOfTheWalk()
     {
-        // D-734. Two fixtures, and five captures of each one: the frame at 1x, and both fit
-        // modes at 1080 and 1440 screen rows (D-232, D-568).
-        Assert.Equal(10, FileNames().Count);
+        // D-734. Two still fixtures, and five captures of each one: the frame at 1x, and both
+        // fit modes at 1080 and 1440 screen rows (D-232, D-568). D-782 adds the walk: 16 ticks
+        // of one step north and 16 of one step south.
+        Assert.Equal(10 + 32, FileNames().Count);
+    }
+
+    [Fact]
+    public void TheWalkTakesEveryTickOfEachStepInOrder()
+    {
+        // D-782. The frames inside a step are the regression test of F-95, so no tick of a
+        // step north or south may drop out of the list.
+        Assert.Equal(WalkNames(), NamesOf(OfFixture("walk")));
+    }
+
+    [Fact]
+    public void EachStepOfTheWalkTakesItsIntentAndItsTick()
+    {
+        // D-782. The session queues the intent of the step on tick 1 alone, and it writes the
+        // frame after each tick up to the arrival of the lead.
+        int index = 0;
+        foreach (object capture in OfFixture("walk"))
+        {
+            object walk = Read<object>(capture, "Walk");
+            string action = index < 16 ? "step_north" : "step_south";
+
+            Assert.Equal(action, Read<string>(walk, "Action"));
+            Assert.Equal((index % 16) + 1, Read<int>(walk, "Tick"));
+            Assert.Equal(1280, Read<int>(capture, "Width"));
+            Assert.Equal(720, Read<int>(capture, "Height"));
+            index += 1;
+        }
+
+        Assert.Equal(32, index);
+    }
+
+    [Fact]
+    public void AStillFixtureRunsNoTick()
+    {
+        // D-782, T-7. The map and ui captures show the run at tick 0, so no walk tick reaches them.
+        foreach (string fixture in new[] { "map", "ui" })
+        {
+            foreach (object capture in OfFixture(fixture))
+            {
+                Assert.Null(capture.GetType().GetProperty("Walk")!.GetValue(capture));
+            }
+        }
+    }
+
+    [Fact]
+    public void AFixtureOutsideTheListFails()
+    {
+        // T-2. An unknown fixture is an error, and never every capture.
+        MethodInfo method = GameAssemblyFile.Type(CapturesTypeName).GetMethod("OfFixture")!;
+        TargetInvocationException thrown = Assert.Throws<TargetInvocationException>(
+            () => method.Invoke(null, ["none"]));
+
+        Assert.IsType<ArgumentOutOfRangeException>(thrown.InnerException);
+        Assert.Contains("walk", thrown.InnerException!.Message, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -114,6 +174,59 @@ public sealed class ScreenCapturesTests
         foreach (object? name in (IEnumerable)names)
         {
             read.Add((string)name!);
+        }
+
+        return read;
+    }
+
+    private static TheoryData<string> BuildExpectedNames()
+    {
+        // The walk names come from a loop, so each of the 32 walk baselines has its own case,
+        // and a baseline that drops out names its file (D-782, T-2).
+        var names = new TheoryData<string>();
+        foreach (string name in StillNames)
+        {
+            names.Add(name);
+        }
+
+        foreach (string name in WalkNames())
+        {
+            names.Add(name);
+        }
+
+        return names;
+    }
+
+    /// <summary>The 32 files of the walk fixture: 16 ticks of one step north, then 16 of one step south.</summary>
+    private static List<string> WalkNames()
+    {
+        var names = new List<string>();
+        foreach (string direction in new[] { "north", "south" })
+        {
+            for (int tick = 1; tick <= 16; tick += 1)
+            {
+                names.Add($"walk-{direction}-{tick:D2}.png");
+            }
+        }
+
+        return names;
+    }
+
+    private static IEnumerable<object> OfFixture(string fixture)
+    {
+        object found = GameAssemblyFile.Type(CapturesTypeName).GetMethod("OfFixture")!.Invoke(null, [fixture])!;
+        foreach (object? capture in (IEnumerable)found)
+        {
+            yield return capture!;
+        }
+    }
+
+    private static List<string> NamesOf(IEnumerable<object> captures)
+    {
+        var read = new List<string>();
+        foreach (object capture in captures)
+        {
+            read.Add(Read<string>(capture, "FileName"));
         }
 
         return read;

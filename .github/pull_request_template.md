@@ -14,6 +14,7 @@ Each line holds before the owner merges (`CLAUDE.md`, PR gate).
 - [ ] The `det-lint` job is green (G-2, G-3, G-7).
 - [ ] The `replay-identity` job is green on every CI leg (G-5, D-481).
 - [ ] The `screen-test` job is green (D-172, F-23, D-731).
+- [ ] A screen change: the author read each frame of `make sheet` or `make walk` that the change reaches. The PR records the result (D-784). A PR that changes no screen says so.
 - [ ] The bot job is green on every CI leg (D-64, D-505). PR-15 creates it.
 - [ ] The `night-gate` job is green (G-22). PR-49 creates it.
 - [ ] The `ste-check` job is green: the writing, reference, session number, size, and Documents row rules (G-12, D-605, D-607, D-611, D-696).

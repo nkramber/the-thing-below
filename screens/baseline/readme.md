@@ -1,6 +1,6 @@
 # The baseline of the screen tests
 
-Status: active. Written in ASD-STE100. Decisions: D-172, D-729 to D-736.
+Status: active. Written in ASD-STE100. Decisions: D-172, D-729 to D-736, D-782, and D-784.
 
 This folder holds one committed PNG for each capture of the screen-test job (D-736). The job
 compares the captures of each run with these files by decoded pixel, and one changed pixel
@@ -28,11 +28,16 @@ can change a pixel.
 
 ## The list of captures
 
-`TheThingBelow.Game/scripts/ScreenCaptures.cs` holds the list, and a test locks it. The list
-holds the frame at 1x and both fit modes at 1080 and 1440 screen rows, for each fixture
-(D-232, D-568, D-734).
+`TheThingBelow.Game/scripts/ScreenCaptures.cs` holds the list, and a test locks it. The map
+fixture and the ui fixture each take the frame at 1x, and both fit modes at 1080 and 1440
+screen rows (D-232, D-568, D-734). The walk fixture adds one frame at 1x after each
+tick of one step north and one step south, such as walk-north-09.png (D-782).
 
 ## The contact sheet
 
 The owner reads the real renderer on the Mac, and not these files. The `screens` command of
 Tools makes that sheet under `artifacts/`, and no sheet enters git (D-735).
+
+A session reads the same frames before it hands a change of a screen to the owner (D-784).
+`make walk` captures the walk fixture alone, and a screen below 1080 rows cannot hold the
+larger captures of `make sheet` (D-782).

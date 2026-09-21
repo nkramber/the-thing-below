@@ -12,7 +12,7 @@ GODOT ?= /Applications/Godot_mono.app/Contents/MacOS/Godot
 SMOKE_FRAME_LIMIT := 600
 
 
-.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke sheet run clean
+.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke sheet walk run clean
 
 ## verify: every check that this machine can run.
 verify: build test format lint ste-check identity content atlas smoke
@@ -117,14 +117,27 @@ smoke:
 #
 # The sheet lands under `artifacts/`, which git ignores. `gh pr edit --attach` puts it in a
 # PR description (D-514, D-735).
+#
+# The target builds the Godot solution first, so the captures never show an old build (D-782).
+# `FIXTURE=<name>` takes the captures of one fixture alone, such as `make sheet FIXTURE=walk`.
+# A screen below 1080 rows cannot hold the larger captures of the map fixture (D-782).
 sheet:
 	@set -eu; \
 	mkdir -p artifacts; \
 	rm -rf artifacts/captures; \
+	echo "sheet: the Godot build"; \
+	"$(GODOT)" --headless --editor --path $(GAME_DIR) --build-solutions --quit \
+	    > artifacts/godot-build.log 2>&1 \
+	  || { echo "sheet: the Godot build failed. Read artifacts/godot-build.log (T-2)." >&2; \
+	       tail -5 artifacts/godot-build.log >&2; exit 1; }; \
+	if grep -q "build callback failed" artifacts/godot-build.log; then \
+	    echo "sheet: the Godot build callback failed. Read artifacts/godot-build.log (T-2)." >&2; \
+	    exit 1; \
+	fi; \
 	echo "sheet: the capture session"; \
 	status=0; \
 	"$(GODOT)" --path $(GAME_DIR) --quit-after $(SMOKE_FRAME_LIMIT) \
-	    -- --capture "$(CURDIR)/artifacts/captures" > artifacts/capture.log 2>&1 || status=$$?; \
+	    -- --capture "$(CURDIR)/artifacts/captures" $(if $(FIXTURE),--fixture $(FIXTURE)) > artifacts/capture.log 2>&1 || status=$$?; \
 	if ! grep -q "capture: the session wrote every frame." artifacts/capture.log; then \
 	    echo "sheet: the session wrote no success line. Read artifacts/capture.log (T-2)." >&2; \
 	    tail -5 artifacts/capture.log >&2; exit 1; \
@@ -137,6 +150,13 @@ sheet:
 	fi; \
 	dotnet run --project $(TOOLS_PROJECT) -- \
 	    screens --captures artifacts/captures --sheet artifacts/contact-sheet.png
+
+## walk: the frames of one step north and one step south, after each tick (D-782).
+#
+# A session reads these frames before it hands a change of the map screen to the owner. Each
+# frame is one PNG under `artifacts/captures/`, and the sheet joins them.
+walk:
+	@$(MAKE) --no-print-directory sheet FIXTURE=walk
 
 ## run: the play session of this machine (D-3).
 run:
