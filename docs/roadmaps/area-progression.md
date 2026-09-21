@@ -199,7 +199,8 @@ Built by PR-67, PR-12, PR-13, and PR-15. Phase files: `phase-2-first-playable.md
 | The chests, the save points, and the shops | `area-exploration.md` | PR-16 and PR-65 |
 | The quests, the flags, and the story scenes of each task | `area-story.md` | PR-68, PR-18, and PR-19 |
 | The party, lesson, gear, item, and status screens | `area-ui-input.md` | PR-62 |
-| The icons of the lessons, the elements, and the statuses | `area-art.md` | PR-42 |
+| The icons of the lessons | `area-art.md` | PR-42 |
+| The icons of the elements and the statuses | `area-art.md` | PR-10 (D-811) |
 
 ### 7.14 The contract of every later progression PR
 

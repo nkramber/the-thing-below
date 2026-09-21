@@ -43,8 +43,12 @@ public enum BattleOutcome
 /// <param name="Row">The row now.</param>
 /// <param name="Place">Where the combatant is.</param>
 /// <param name="ReadyAt">The tick of the timeline of its next turn.</param>
-/// <param name="PushRate">The rate on each push, in basis points (D-768).</param>
 /// <param name="Defending">True while a defend holds (D-755).</param>
+/// <param name="Statuses">The statuses, in the order of D-75, each with its end (D-798).</param>
+/// <remarks>
+/// The push rate follows from haste and slow, so the values hold no push rate from save
+/// format 5 (D-768, D-800).
+/// </remarks>
 public sealed record CombatantValues(
     BattleSide Side,
     int Slot,
@@ -53,8 +57,8 @@ public sealed record CombatantValues(
     BattleRow Row,
     CombatantPlace Place,
     long ReadyAt,
-    int PushRate,
-    bool Defending);
+    bool Defending,
+    IReadOnlyList<StatusValues> Statuses);
 
 /// <summary>The stored values of one battle (D-531).</summary>
 /// <param name="Enemy">The id of the map enemy of the encounter (D-749).</param>
@@ -72,7 +76,7 @@ public sealed record BattleValues(
 /// <summary>One character or one enemy in a battle.</summary>
 public sealed class Combatant
 {
-    internal Combatant(BattleSide side, int slot, ContentId id, int fullHealth, int attack, int defense, int speed)
+    internal Combatant(BattleSide side, int slot, ContentId id, int fullHealth, int attack, int defense, int speed, ElementTable elements, IReadOnlyList<StatusKind> immune)
     {
         this.Side = side;
         this.Slot = slot;
@@ -82,6 +86,8 @@ public sealed class Combatant
         this.Defense = defense;
         this.Speed = speed;
         this.PushRate = BasisPoints.One;
+        this.Elements = elements;
+        this.Immune = immune;
     }
 
     /// <summary>The side.</summary>
@@ -117,11 +123,20 @@ public sealed class Combatant
     /// <summary>The tick of the timeline of the next turn (D-376).</summary>
     public long ReadyAt { get; internal set; }
 
-    /// <summary>The rate on each push, in basis points: haste, slow, or none (D-768).</summary>
+    /// <summary>The rate on each push, in basis points: haste, slow, or none (D-768). Haste and slow set it (D-800).</summary>
     public int PushRate { get; internal set; }
 
     /// <summary>True while a defend holds, until the next turn of the combatant (D-755).</summary>
     public bool Defending { get; internal set; }
+
+    /// <summary>The affinity to each element: the table of the enemy record, or every element normal for a character until PR-13 (D-790, D-794).</summary>
+    public ElementTable Elements { get; }
+
+    /// <summary>The statuses that do nothing to this combatant (D-805). A character refuses none.</summary>
+    public IReadOnlyList<StatusKind> Immune { get; }
+
+    /// <summary>The statuses that the combatant holds (D-75, D-798).</summary>
+    public StatusSet Statuses { get; } = new();
 
     /// <summary>The target of this combatant.</summary>
     public BattleTarget Target => new(this.Side, this.Slot);
@@ -195,12 +210,19 @@ public sealed class Battle
         {
             PartyMember member = partyState.Members[slot];
             CharacterRecord record = member.Record;
-            Combatant combatant = new(BattleSide.Party, slot, record.Id, record.Health, record.Attack, record.Defense, record.Speed)
+            Combatant combatant = new(BattleSide.Party, slot, record.Id, record.Health, record.Attack, record.Defense, record.Speed, ElementTable.AllNormal, [])
             {
                 Health = member.Health,
                 Row = member.Row,
                 Place = member.Down ? CombatantPlace.Down : CombatantPlace.Field,
             };
+
+            // Poison, blind, and silence follow a character into the fight (D-390, D-792).
+            foreach (StatusKind status in member.Statuses)
+            {
+                combatant.Statuses.Put(status, null);
+            }
+
             party.Add(combatant);
         }
 
@@ -209,7 +231,7 @@ public sealed class Battle
         {
             GroupEntry entry = group.Entries[slot];
             EnemyRecord record = content.Enemy(entry.Enemy);
-            Combatant combatant = new(BattleSide.Enemy, slot, record.Id, record.Health, record.Attack, record.Defense, record.Speed)
+            Combatant combatant = new(BattleSide.Enemy, slot, record.Id, record.Health, record.Attack, record.Defense, record.Speed, record.Elements, record.Immune)
             {
                 Health = record.Health,
                 Row = entry.Row,
@@ -261,14 +283,14 @@ public sealed class Battle
                 (stored.Health == 0) != (stored.Place == CombatantPlace.Down),
                 source,
                 $"the combatant '{stored.Id.Value}' holds the health {stored.Health} and the place '{PlaceName(stored.Place)}', and a down holds zero health alone");
-            Refuse(stored.PushRate <= 0 || stored.PushRate > BattleRules.MostRate, source, $"the push rate {stored.PushRate} is outside 1 to {BattleRules.MostRate}");
             Refuse(stored.ReadyAt < 0, source, $"the next turn of '{stored.Id.Value}' is at {stored.ReadyAt}, which is below zero");
             combatant.Health = stored.Health;
             combatant.Row = stored.Row;
             combatant.Place = stored.Place;
             combatant.ReadyAt = stored.ReadyAt;
-            combatant.PushRate = stored.PushRate;
             combatant.Defending = stored.Defending;
+            PutStatuses(combatant, stored, values.Now, source);
+            combatant.PushRate = PushRateOf(combatant, content.Rules);
             side.Add(combatant);
         }
 
@@ -280,6 +302,23 @@ public sealed class Battle
             Now = values.Now,
             Outcome = values.Outcome,
         };
+    }
+
+    /// <summary>Gives the rate on each push that the statuses of a combatant set: haste, slow, or none (D-768, D-800).</summary>
+    /// <param name="combatant">The combatant.</param>
+    /// <param name="rules">The rules, for the two rates.</param>
+    /// <returns>The rate, in basis points.</returns>
+    public static int PushRateOf(Combatant combatant, BattleRules rules)
+    {
+        ArgumentNullException.ThrowIfNull(combatant);
+        ArgumentNullException.ThrowIfNull(rules);
+
+        if (combatant.Statuses.Holds(StatusKind.Haste))
+        {
+            return rules.HasteRate;
+        }
+
+        return combatant.Statuses.Holds(StatusKind.Slow) ? rules.SlowRate : BasisPoints.One;
     }
 
     /// <summary>Gives the push of one action: the delay times 100, divided by the speed, times the rate, and at least 1 (D-768).</summary>
@@ -440,8 +479,8 @@ public sealed class Battle
                 combatant.Row,
                 combatant.Place,
                 combatant.ReadyAt,
-                combatant.PushRate,
-                combatant.Defending));
+                combatant.Defending,
+                combatant.Statuses.Values()));
         }
 
         return new BattleValues(this.Enemy, this.Group.Id, this.Now, this.Outcome, combatants);
@@ -467,6 +506,7 @@ public sealed class Battle
             hasher.AddInt64(combatant.ReadyAt);
             hasher.AddInt32(combatant.PushRate);
             hasher.AddBoolean(combatant.Defending);
+            combatant.Statuses.Hash(hasher);
         }
     }
 
@@ -524,7 +564,7 @@ public sealed class Battle
         if (stored.Side == BattleSide.Party)
         {
             CharacterRecord character = content.Character(stored.Id);
-            return new Combatant(BattleSide.Party, stored.Slot, character.Id, character.Health, character.Attack, character.Defense, character.Speed);
+            return new Combatant(BattleSide.Party, stored.Slot, character.Id, character.Health, character.Attack, character.Defense, character.Speed, ElementTable.AllNormal, []);
         }
 
         Refuse(stored.Slot >= group.Entries.Count, source, $"the enemy slot {stored.Slot} is past the group '{group.Id.Value}'");
@@ -534,7 +574,42 @@ public sealed class Battle
             source,
             $"the enemy slot {stored.Slot} holds '{stored.Id.Value}', and the group '{group.Id.Value}' holds '{expected.Value}' there");
         EnemyRecord enemy = content.Enemy(stored.Id);
-        return new Combatant(BattleSide.Enemy, stored.Slot, enemy.Id, enemy.Health, enemy.Attack, enemy.Defense, enemy.Speed);
+        return new Combatant(BattleSide.Enemy, stored.Slot, enemy.Id, enemy.Health, enemy.Attack, enemy.Defense, enemy.Speed, enemy.Elements, enemy.Immune);
+    }
+
+    /// <summary>
+    /// Puts the stored statuses on a combatant, and refuses a set that no run can make: a
+    /// status off the field, a repeat, an end at or before the timeline, a wrong end, a status
+    /// that the enemy refuses, or haste with slow (D-390, D-798, D-800, D-801, D-805).
+    /// </summary>
+    private static void PutStatuses(Combatant combatant, CombatantValues stored, long now, string source)
+    {
+        string who = stored.Id.Value;
+        Refuse(
+            stored.Statuses.Count > 0 && stored.Place != CombatantPlace.Field,
+            source,
+            $"the combatant '{who}' holds a status in the place '{PlaceName(stored.Place)}', and a status holds on the field alone (D-801)");
+        foreach (StatusValues status in stored.Statuses)
+        {
+            ArgumentNullException.ThrowIfNull(status);
+            string name = Statuses.NameOf(status.Status);
+            Refuse(combatant.Statuses.Holds(status.Status), source, $"the combatant '{who}' holds '{name}' two times (D-800)");
+            Refuse(
+                Statuses.Lasts(status.Status) != (status.EndsAt is null),
+                source,
+                $"the status '{name}' of '{who}' takes {(Statuses.Lasts(status.Status) ? "no end" : "an end")} (D-390, D-798)");
+            Refuse(
+                status.EndsAt is long ends && ends <= now,
+                source,
+                $"the status '{name}' of '{who}' ends at {status.EndsAt}, and the timeline is at {now}, past its end (D-798)");
+            Refuse(Statuses.Refuses(combatant.Immune, status.Status), source, $"the enemy '{who}' holds '{name}', which it refuses (D-805)");
+            combatant.Statuses.Put(status.Status, status.EndsAt);
+        }
+
+        Refuse(
+            combatant.Statuses.Holds(StatusKind.Haste) && combatant.Statuses.Holds(StatusKind.Slow),
+            source,
+            $"the combatant '{who}' holds haste and slow, and each removes the other (D-800)");
     }
 
     private static void Refuse(bool broken, string source, string reason)

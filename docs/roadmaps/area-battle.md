@@ -81,10 +81,18 @@ Built by PR-66. Phase file: `phase-2-first-playable.md`.
 
 - PR-66 adds the eight elements with weakness, resist, and absorb, and the ten statuses (D-74, D-75, D-533).
 - Damage uses fixed-point integers, and content writes each rate in basis points (D-169, G-2).
-- An aptitude adds a bonus to a lesson of its kind, and a side aptitude adds half (D-358, D-360).
+- Each enemy record holds one affinity for each element, and a list of the statuses that it refuses (D-794, D-805). PR-13 gives gear the same table (D-790).
+- A move holds one element or none, and a status with its chance or none (D-793, D-796). The basic attack holds neither.
+- One hit takes the rate of its affinity, then the back row, the defend, and the shell cut. An absorb heals the hit, and no cut applies to it (D-795, D-809).
+- A hit rolls the miss, then the hit factor, then the status chance, on the battle stream (D-807).
+- Each status holds the tick of its end on the timeline, and a second copy resets the end. Haste and slow cancel each other (D-798, D-800).
+- Poison, bleed, and regen act at the start of each turn of the holder. A sleeper passes its turn, and a strike wakes it. A stun pushes the next turn once (D-799, D-802, D-803, D-810).
+- Blind adds a miss chance past the ceiling, silence marks the holder for PR-12, and shell cuts an elemental hit (D-804, D-806).
+- A down clears every status (D-801).
+- An aptitude adds a bonus to a lesson of its kind, and a side aptitude adds half. PR-12 holds the bonus (D-358, D-360, D-791).
 - Holy and dark are two ways that the thing below answers, and the text never calls them proof of a god (D-158).
 - Every status but poison, blind, and silence ends with its fight (D-390).
-- Poison, blind, and silence last until a cure or a rest at a hub, and `area-exploration.md` holds what they do on the map (D-390, D-393).
+- Poison, blind, and silence last until a cure or a rest at a hub. Each character keeps them in the save, and `area-exploration.md` holds what they do on the map (D-390, D-393, D-792).
 - A rite that cures an affliction belongs to Mend (D-394).
 - Property tests over one thousand seeds prove each element and each status (the exit tests of PR-66).
 
@@ -196,7 +204,7 @@ Built by PR-9, PR-11, and PR-15. Phase files: `phase-2-first-playable.md` and ev
 | PR | Rules | Decisions |
 |---|---|---|
 | PR-9 | The timeline, the actions, the defend, the damage, the rows, the wave, the flee, the row change, and the item use | D-376 to D-382, D-533, D-755 to D-781 |
-| PR-66 | The eight elements and the ten statuses | D-74, D-75, D-390, D-533 |
+| PR-66 | The eight elements and the ten statuses | D-74, D-75, D-390, D-533, D-790 to D-811 |
 | PR-10 | The battle screen | D-111, D-213 |
 | PR-11 | The evaluator, the profiles, and the groups | D-65, D-534, D-535 |
 | PR-57 | The blood, the sparks, the shake, and the hit-stop | D-186 |

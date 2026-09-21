@@ -4,6 +4,7 @@ using System.Text;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
+using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Streams;
@@ -30,6 +31,9 @@ public static class IdentitySet
 
     /// <summary>The name of the run that fights an enemy record with an ability (exit test 5 of PR-80, D-557, D-787).</summary>
     public const string EnemyRecordRun = "enemy-record";
+
+    /// <summary>The name of the run that fights with every element level and every status (G-17, D-504, D-793).</summary>
+    public const string StatusRun = "statuses";
 
     /// <summary>The name of the run that reads the stream split (D-643).</summary>
     public const string StreamSplitRun = "stream-split";
@@ -179,6 +183,42 @@ public static class IdentitySet
     }
     """;
 
+    /// <summary>
+    /// The map of the statuses run: the battle map, with a guard of the status group. The
+    /// brute of that group is weak to fire, resists ice, absorbs dark, and refuses sleep, so
+    /// the run reads each level of the element table and the immune list (D-794, D-805).
+    /// </summary>
+    private const string StatusMapFile = """
+    {
+     "comment": "The map of the statuses run of the identity set. PR-66 added it, and the map never changes again.",
+     "id": "map.identity_status",
+     "label": "label.identity_status",
+     "time": "day",
+     "terrain": [
+      "#########",
+      "#.......#",
+      "#.......#",
+      "#########"
+     ],
+     "things": [
+      { "id": "spawn_point.identity_status_start", "kind": "spawn_point", "x": 1, "y": 1 }
+     ],
+     "enemies": [
+      {
+       "id": "patrol.identity_status_guard",
+       "group": "group.identity_status",
+       "size": "common",
+       "facing": "east",
+       "step_ticks": 15,
+       "sight_range": 0,
+       "routes": [
+        { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 3, "y": 1 }] }
+       ]
+      }
+     ]
+    }
+    """;
+
     /// <summary>The grunt record of this set. PR-9 gave the stats, and PR-80 moved them to a record. It never changes.</summary>
     private const string GruntRecordFile = """
     {
@@ -189,7 +229,9 @@ public static class IdentitySet
      "attack": 6,
      "defense": 2,
      "speed": 90,
-     "abilities": []
+     "abilities": [],
+     "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
+     "immune": []
     }
     """;
 
@@ -203,7 +245,9 @@ public static class IdentitySet
      "attack": 11,
      "defense": 5,
      "speed": 80,
-     "abilities": ["ability.identity_strike"]
+     "abilities": ["ability.identity_strike"],
+     "elements": { "fire": "weak", "ice": "resist", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "absorb" },
+     "immune": ["sleep"]
     }
     """;
 
@@ -234,12 +278,27 @@ public static class IdentitySet
      "back_row_rate": 5000,
      "haste_rate": 7500,
      "slow_rate": 15000,
-     "stun_ticks": 50,
+     "stun_push": 50,
      "flee_base": 5000,
      "flee_per_speed": 100,
      "flee_floor": 1000,
      "flee_ceiling": 9000,
-     "item_rate": 5000
+     "item_rate": 5000,
+     "weak_rate": 15000,
+     "resist_rate": 5000,
+     "absorb_rate": 10000,
+     "poison_share": 500,
+     "bleed_share": 1000,
+     "bleed_ticks": 300,
+     "regen_share": 1000,
+     "regen_ticks": 400,
+     "sleep_ticks": 300,
+     "haste_ticks": 400,
+     "slow_ticks": 400,
+     "stun_ticks": 50,
+     "shell_cut": 5000,
+     "shell_ticks": 400,
+     "blind_miss": 3000
     }
     """;
 
@@ -265,6 +324,14 @@ public static class IdentitySet
        "enemies": [
         { "enemy": "enemy.identity_brute", "row": "front", "waits": false },
         { "enemy": "enemy.identity_grunt", "row": "back", "waits": false }
+       ]
+      },
+      {
+       "id": "group.identity_status",
+       "boss": false,
+       "enemies": [
+        { "enemy": "enemy.identity_brute", "row": "front", "waits": false },
+        { "enemy": "enemy.identity_grunt", "row": "front", "waits": false }
        ]
       },
       {
@@ -295,6 +362,7 @@ public static class IdentitySet
         RandomDrawsRun,
         ReplayRun,
         StateHashRun,
+        StatusRun,
         StreamSplitRun,
     ];
 
@@ -314,6 +382,7 @@ public static class IdentitySet
             RandomDrawsRun => ComputeRandomDraws(),
             ReplayRun => ComputeReplay(),
             StateHashRun => ComputeStateHash(),
+            StatusRun => ComputeStatuses(),
             StreamSplitRun => ComputeStreamSplit(),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(runName),
@@ -575,6 +644,124 @@ public static class IdentitySet
             5 => [Intent.OfPlayer(IntentIds.BattleItem, self, ContentId.Parse("item.identity_draught", "identity", "item"))],
             _ => [Intent.OfPlayer(IntentIds.BattleAttack, battle.MeleeTargets(BattleSide.Enemy)[0].Target, null)],
         };
+    }
+
+    /// <summary>
+    /// Runs a scripted fight that reaches each level of the element table and each of the ten
+    /// statuses, through the move fields and the status call of D-793. The party steps into
+    /// the guard, and each turn of the character takes the next step of a fixed script.
+    /// </summary>
+    /// <remarks>
+    /// No intent carries a move with an element before PR-12, so this run keeps no record. It
+    /// writes the snapshot in the middle of the fight, reads it again, and fights on from both
+    /// copies. The hash holds every event and both state hashes, so a change of a rule, of the
+    /// snapshot, or of the order of the rolls moves it (G-5, T-7).
+    /// </remarks>
+    private static ulong ComputeStatuses()
+    {
+        GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(StatusMapFile), "identity-set-status-map.json");
+        BattleContent content = ReplayBattleContent();
+        Simulation simulation = Simulation.Start(RunSeed, map, content, DebugIntentHandlers.None);
+        for (int step = 0; step < BattleTickCount && simulation.State.Battle is null; step += 1)
+        {
+            _ = simulation.Step(simulation.State.Party.Patrols.Encounter is null ? [Intent.OfPlayer(IntentIds.MoveEast)] : []);
+        }
+
+        if (simulation.State.Battle is null)
+        {
+            throw new SimulationException($"the statuses run, and no battle started in {BattleTickCount} ticks", simulation.State.Context("identity"));
+        }
+
+        StateHasher hasher = new();
+        Simulation? copy = null;
+        for (int turn = 0; turn < StatusTurnLimit && BattleRuns(simulation); turn += 1)
+        {
+            StatusTurn(simulation.State, turn);
+            copy = copy is null ? null : StatusTurnOf(copy, turn);
+            if (turn == StatusTurnLimit / 4)
+            {
+                string text = RunSnapshotText.Write(simulation.Snapshot());
+                var reader = new ContentReader(Encoding.UTF8.GetBytes(text), "identity-set-status-snapshot");
+                copy = Simulation.Resume(RunSeed, RunSnapshotText.Read(ref reader), map, content, DebugIntentHandlers.None);
+                hasher.AddText(text);
+            }
+
+            foreach (BattleEvent battleEvent in simulation.TakeBattleEvents())
+            {
+                hasher.AddText(battleEvent.Describe());
+            }
+        }
+
+        hasher.AddUInt64(simulation.StateHash());
+        hasher.AddUInt64(copy?.StateHash() ?? 0);
+        return hasher.Finish();
+    }
+
+    /// <summary>The most turns of a character that the statuses run takes.</summary>
+    private const int StatusTurnLimit = 40;
+
+    private static bool BattleRuns(Simulation simulation) =>
+        simulation.State.Battle is Battle battle && battle.Outcome == BattleOutcome.Running;
+
+    private static Simulation? StatusTurnOf(Simulation copy, int turn)
+    {
+        if (BattleRuns(copy))
+        {
+            StatusTurn(copy.State, turn);
+        }
+
+        return copy;
+    }
+
+    /// <summary>
+    /// One turn of the character in the statuses run. The script gives a status to each side
+    /// and strikes with each element level in a fixed cycle, so the run reads every rule of
+    /// D-794 to D-810 on every leg.
+    /// </summary>
+    private static void StatusTurn(RunState state, int turn)
+    {
+        Battle battle = state.Battle ?? throw new SimulationException("a turn of the statuses run, and no battle runs", state.Context("identity"));
+        RunContext context = state.Context($"identity/{StatusRun} {turn}");
+        List<LogEntry> log = [];
+        BattleTarget self = new(BattleSide.Party, 0);
+        BattleTarget aimed = battle.MeleeTargets(BattleSide.Enemy)[0].Target;
+        int attack = state.BattleContent.Rules.AttackDelay;
+        int power = state.BattleContent.Rules.AttackPower;
+        switch (turn % 8)
+        {
+            case 0:
+                BattleTurns.GiveStatus(state, self, StatusKind.Regen, context);
+                BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Fire, new StatusChance(StatusKind.Poison, 10000)), aimed, context, log);
+                break;
+            case 1:
+                BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Ice, new StatusChance(StatusKind.Sleep, 6000)), aimed, context, log);
+                break;
+            case 2:
+                BattleTurns.GiveStatus(state, self, StatusKind.Haste, context);
+                BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Dark, new StatusChance(StatusKind.Bleed, 8000)), aimed, context, log);
+                break;
+            case 3:
+                BattleTurns.GiveStatus(state, self, StatusKind.Shell, context);
+                BattleTurns.GiveStatus(state, aimed, StatusKind.Slow, context);
+                BattleTurns.StrikeWith(state, new BattleMove(160, power, null, new StatusChance(StatusKind.Stun, 10000)), aimed, context, log);
+                break;
+            case 4:
+                BattleTurns.GiveStatus(state, self, StatusKind.Blind, context);
+                BattleTurns.GiveStatus(state, aimed, StatusKind.Haste, context);
+                BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Holy, new StatusChance(StatusKind.Stun, 10000)), aimed, context, log);
+                break;
+            case 5:
+                BattleTurns.GiveStatus(state, self, StatusKind.Silence, context);
+                BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Lightning, null), aimed, context, log);
+                break;
+            case 6:
+                BattleTurns.GiveStatus(state, self, StatusKind.Poison, context);
+                BattleTurns.StrikeWith(state, BattleMove.BasicAttack(state.BattleContent.Rules), aimed, context, log);
+                break;
+            default:
+                BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Water, new StatusChance(StatusKind.Sleep, 10000)), aimed, context, log);
+                break;
+        }
     }
 
     private static ulong ComputeStateHash()

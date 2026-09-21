@@ -140,13 +140,12 @@ public sealed class BattleTurnsTests
         // D-755: the grunt hits for 7, and a defend of 5000 basis points makes it 3.
         Simulation run = BattleRuns.IntoBattle(Seed, "group.one", TestBattles.Exact);
 
+        // Marrek acts again at tick 60, before the grunt at 111. His next turn begins before
+        // his choice, so the defend ends there (D-799).
         run.Step([Intent.OfPlayer(IntentIds.BattleDefend)]);
         Battle battle = BattleRuns.BattleOf(run);
-        Assert.True(battle.Party[0].Defending);
         Assert.Equal(60, battle.Party[0].ReadyAt);
-
-        // Marrek acts again at tick 60, before the grunt at 111, and the defend ends there.
-        run.Step([BattleRuns.AttackFirst(run)]);
+        Assert.Equal(60, battle.Now);
         Assert.False(battle.Party[0].Defending);
     }
 
@@ -388,27 +387,34 @@ public sealed class BattleTurnsTests
     [Fact]
     public void HasteShortensAndSlowLengthensEachLaterPush()
     {
-        // D-376, D-768: the statuses of PR-66 set the pace, and each push reads it.
+        // D-376, D-768, D-800: haste and slow set the pace, each push reads it, and slow on
+        // a hasted holder cancels the haste and does not land.
         Simulation run = BattleRuns.IntoBattle(Seed, "group.one", TestBattles.Exact);
         RunContext context = run.State.Context("test");
+        BattleTarget marrek = new(BattleSide.Party, 0);
+        List<LogEntry> log = [];
 
-        BattleTurns.SetPace(run.State, new BattleTarget(BattleSide.Party, 0), BattlePace.Haste, context);
+        BattleTurns.GiveStatus(run.State, marrek, StatusKind.Haste, context);
         run.Step([Intent.OfPlayer(IntentIds.BattleDefend)]);
         Assert.Equal(45, BattleRuns.BattleOf(run).Party[0].ReadyAt);
 
-        BattleTurns.SetPace(run.State, new BattleTarget(BattleSide.Party, 0), BattlePace.Slow, context);
+        BattleTurns.GiveStatus(run.State, marrek, StatusKind.Slow, context);
         run.Step([Intent.OfPlayer(IntentIds.BattleDefend)]);
-        Assert.Equal(45 + 90, BattleRuns.BattleOf(run).Party[0].ReadyAt);
+        Assert.Equal(45 + 60, BattleRuns.BattleOf(run).Party[0].ReadyAt);
+
+        BattleTurns.GiveStatus(run.State, marrek, StatusKind.Slow, context);
+        run.Step([Intent.OfPlayer(IntentIds.BattleDefend)]);
+        Assert.Equal(45 + 60 + 90, BattleRuns.BattleOf(run).Party[0].ReadyAt);
     }
 
     [Fact]
     public void AHeavyBlowPushesFurtherAndAStunPushesItsTargetBack()
     {
-        // D-376: a heavy move of 160 ticks, and a stun that adds the 50 ticks of the rules.
+        // D-376, D-802: a heavy move of 160 ticks, and a stun that adds the push of 50 ticks.
         Simulation run = BattleRuns.IntoBattle(Seed, "group.test_pair", TestBattles.Exact);
         List<LogEntry> log = [];
 
-        BattleTurns.StrikeWith(run.State, new BattleMove(160, 10000, true), new BattleTarget(BattleSide.Enemy, 0), run.State.Context("test"), log);
+        BattleTurns.StrikeWith(run.State, new BattleMove(160, 10000, null, new StatusChance(StatusKind.Stun, 10000)), new BattleTarget(BattleSide.Enemy, 0), run.State.Context("test"), log);
 
         Battle battle = BattleRuns.BattleOf(run);
         Assert.Equal(160, battle.Party[0].ReadyAt);

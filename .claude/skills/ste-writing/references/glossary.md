@@ -30,7 +30,7 @@ Game terms from the roadmap interview of 2026-09-12:
 | area | the rectangle that holds a large enemy, in the place of a route (D-209, D-741) | zone, pen, region, for this rectangle |
 | body | the tiles that one enemy holds: one, two by two, or three by three (D-206, D-737) | footprint, hitbox |
 | timeline | the visible turn order in battle (D-29) | queue, initiative |
-| turn | one action of one combatant on the timeline | move, round |
+| turn | one action of one combatant on the timeline | move, when the text means one turn, and round |
 | save point | the place in a dungeon that saves and swaps the party (D-36, D-58) | checkpoint, shrine, in documents |
 | down | the state of a fallen character (D-36) | dead, KO, unconscious |
 | push | the ticks that one action adds to the next turn of its user (D-376, D-768) | cooldown, recovery |
@@ -40,6 +40,11 @@ Game terms from the roadmap interview of 2026-09-12:
 | wave | the waiting enemies of a group, which step in as others fall (D-758, D-778) | reinforcement, spawn |
 | strip | the six turns of the timeline that the screen shows (D-756) | bar, queue |
 | defend | the action that cuts the damage until the next turn of the character (D-755) | guard, which names a lesson kind (D-377), block |
+| move | one kind of strike: its delay, its power, its element, and its status chance. The basic attack is one move (D-376, D-793) | skill, technique, attack, when the text means the kind |
+| affinity | how a combatant takes a hit of one element: normal, weak, resist, or absorb (D-794) | weakness, when the text means the whole set, and resistance |
+| element table | the eight affinities of one enemy record, and later of one piece of gear (D-790, D-794) | affinity row, element chart |
+| immune list | the statuses that an enemy record refuses (D-805) | resistances, immunities |
+| share | the part of full health that poison, bleed, or regen moves at a turn, in basis points (D-803, D-808) | tick damage, DoT |
 | gear | items in equipment slots (D-44) | equipment, armor, as the set |
 | item | a thing in the inventory that is not gear (D-45) | consumable, object |
 | gold | the currency (D-60) | money, coins, gil |

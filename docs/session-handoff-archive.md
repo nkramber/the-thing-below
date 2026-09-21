@@ -1,5 +1,113 @@
 # Session handoff archive
 
+## Session 162: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-89, round 3: the launch in borderless fullscreen. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: author. Base: `ce06eda`.
+
+### What this session did, and why
+
+- Round 2 went green at `6652b0d`: every CI leg, the screen test, and Gitar with "No issues found". Only `review-gate` waits for the review record.
+- The owner asked that the game launch in borderless fullscreen, the development build included, with the chosen ratios of text, UI, and world. The owner put the change in this PR. The PR description holds the record of that choice.
+- `Boot` sets the fullscreen mode of Godot for the play session, and it logs the mode at the start. A mode other than fullscreen is an error line (T-2).
+- `Boot` builds the screen again when a size change moves the default body size (D-707), because on some systems the switch ends after the first frame.
+- The CI captures showed a fault on `main`: at 1920 by 1080 in the fill mode, the frame drew at 2560 by 1440 and the window cut it, with no prompt row (D-573). The screen view kept the size of its texture. Both texture rects of `FrameRoot` now ignore the texture size.
+- A project setting of fullscreen failed: Godot ignores `--windowed` when the project asks for fullscreen, so the capture session lost its window sizes. The project keeps the windowed default, and a test locks that.
+
+### The state of the build
+
+- Remote head of `main`: `ce06eda`. Local: 1555 of 1555 tests pass. Format, lint, and `make walk` pass.
+- The play session of this Mac logs "the window opened in borderless fullscreen" at 1920 by 1080.
+
+### What is in flight
+
+The push of this round. The screen test fails on `map-fill-1080.png` and `ui-fill-1080.png` until their new baselines land from the artifact.
+
+### Traps and gotchas
+
+- The movie mode of Godot scales its frames to 1280 by 720, and its colors differ. It shows the layout of the fullscreen session, and not its pixels.
+- `screencapture` has no screen permission in this session.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the two new fill-1080 captures of the artifact, commit them to `screens/baseline/`, and answer the Gitar pass.
+
+## Session 161: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-89, round 2: the walk baselines and the Gitar answer. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: author. Base: `ce06eda`.
+
+### What this session did, and why
+
+- The first CI run of `f4eaabe` failed only where the plan said: 32 walk frames with no baseline, six `TheBaselineHoldsThisCapture` cases on each test leg, and RG 3 of `review-gate`. The 10 still captures matched their baselines.
+- Downloaded the `screen-captures` artifact of run 35600042818. Read all 32 walk frames as one strip of the lead, and one full frame (D-733, D-784). The lead draws whole in each frame.
+- Committed the 32 walk PNGs to `screens/baseline/`.
+- Gitar approved `f4eaabe` with one finding: `ExpectedNames` claimed every file but held 6 of the 32 walk frames. Full merit. The list now holds all 42 names, so each walk baseline has its own test case.
+
+### The state of the build
+
+- Remote head of `main`: `ce06eda`. Local: 1553 of 1553 tests pass, and format passes.
+- At `f4eaabe`, CI passed smoke, replay-identity, det-lint, and ste-check on every leg.
+
+### What is in flight
+
+The push of this round. After it: the screen-test job, the Gitar pass of the new head, and the Codex review, which adds `docs/reviews/pr-47.md`.
+
+### Traps and gotchas
+
+- The traps of Session 160 stand: `CLAUDE.md` is one byte under 16 KB, and this Mac cannot hold the 1080-row captures.
+- In `ScreenCapturesTests`, `StillNames` must stay above `ExpectedNames`, for the same static order as `WalkSteps` in `ScreenCaptures`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for Gitar and CI on the new head, and answer each finding. Then tell the owner that PR #47 is ready for the Codex review.
+
+## Session 160: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-89, the walk fault and the frames inside a step. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: the one PR of PR-89, opened in this session. Role: author. Base: `ce06eda`.
+
+### What this session did, and why
+
+- The owner saw a fault on a walk north or south in `make run`. The owner asked for a capture that a session can read by itself while the lead moves (D-782).
+- Added the `walk` fixture: one frame at 1x after each tick of one step north and one step south. Added `--fixture <name>`, `make sheet FIXTURE=<name>`, and `make walk`. `make sheet` now builds the Godot solution first.
+- The walk frames proved the cause (F-95). Each ground tile sorted at the center of its cell, so the floor cut the legs for half of each step north or south.
+- The fix: the ground layer takes no part in the sort, and it draws at the Z index -1 (D-783). The smoke session reads both values back.
+- The author read all 32 walk frames before and after the fix. Before: legs cut in `walk-north-09`, `walk-north-12`, and `walk-south-06`. After: the lead draws whole in every frame.
+- Recorded D-782 to D-784, F-95, the PR-89 entry of the phase-2 file, and the PR gate line of the visual review (D-784).
+
+### The state of the build
+
+- Remote head of `main`: `ce06eda`. No Core file changes, so the simulation version stays (G-17).
+- Local: build, format, lint, STE check, and smoke pass. 1495 of 1501 tests pass.
+- The six failed tests are `TheBaselineHoldsThisCapture` for the walk frames. The baseline PNGs come from the artifact of the first screen-test run (D-733).
+
+### What is in flight
+
+The first push of the PR. The screen-test job fails until the 32 walk baselines land from its artifact.
+
+### Traps and gotchas
+
+- `CLAUDE.md` and `AGENTS.md` hold 16383 bytes, one byte under the 16 KB limit of SIZE 1. The next edit must make room first.
+- The screen of this Mac gives 955 rows, so `make sheet` fails on the 1080-row capture. Use `make walk`, or a larger screen.
+- In `ScreenCaptures`, `WalkSteps` must stay above `All`. A static property takes its value in the order of the file.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Download the `screen-captures` artifact, read each walk frame, and commit the 32 walk PNGs to `screens/baseline/`. Then answer the gitar pass.
+
 ## Session 159: 2026-09-21, Codex
 
 Author: Codex
@@ -3234,7 +3342,6 @@ None for PR-2. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3.
 
 Push the branch, open PR-2, and get the Gitar pass on the head.
 
-
 ## Session 74: 2026-09-17, Codex
 
 Author: Codex
@@ -3771,7 +3878,6 @@ None for PR #18. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 ### Next concrete action
 
 Hand PR #18 back to Codex for the repeat review of `d8c31b8`. The session stays bound to PR #18 and answers each finding (D-582).
-
 
 ## Session 61: 2026-09-16, Codex
 

@@ -1,5 +1,110 @@
 # Session handoff
 
+## Session 172: 2026-09-21, Codex
+
+Author: Codex
+Session: review PR-49, the elements and the statuses. Repository: the-thing-below. Branch: `feat/pr-66-elements-statuses`. PR: #49. Role: reviewer. Base: `74c3a64`.
+
+### What this session did, and why
+
+- Reviewed the complete PR diff from merge base `74c3a64`.
+- Verified the Gitar correction at `34e6272` and the regression test for a stun on the open turn.
+- Added `docs/reviews/pr-49.md` with the verdict for effective head `34e6272`.
+
+### The state of the build
+
+- `make verify` passed with 1625 tests and all local gates.
+- GitHub checks passed for the implementation head. The review-gate check waits for the review record.
+
+### What is in flight
+
+- The review record and this handoff entry are pushed. GitHub review-gate passes for the effective head.
+
+### Traps and gotchas
+
+- The effective head is `34e6272`. Commit `3690b61` changes only handoff metadata.
+- The review-gate check reads `docs/reviews/pr-49.md` from the PR head.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for the remaining GitHub checks, then verify the final PR head and check results.
+
+## Session 171: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-66, the answer to the Gitar pass. Repository: the-thing-below. Branch: `feat/pr-66-elements-statuses`. PR: #49. Role: author. Base: `74c3a64`.
+
+### What this session did, and why
+
+- Opened PR #49 at `911a7d3`. The Gitar pass of that head approved with one finding, and its check passed at 16:57:09Z.
+- The finding had merit: a stun on the character whose turn is open began that turn again, so poison, bleed, or regen acted two times.
+- Commit `34e6272` makes `GiveStatus` refuse that stun, because no strike reaches the character whose turn is open. The test `AStunOnTheCharacterWhoseTurnIsOpenIsAnErrorAndChangesNothing` proves it.
+- `GiveStatus` takes no log now, because it no longer runs the loop.
+
+### The state of the build
+
+- 1625 tests pass. The identity hashes do not change.
+- At `911a7d3`, every CI job passed except `review-gate`, which waits for the review record of RG 3.
+
+### What is in flight
+
+The push of this round waits for a current Gitar pass. Then the PR goes to the review of Codex (D-401).
+
+### Traps and gotchas
+
+- In play, no strike reaches the character whose turn is open. PR-12 keeps that true, or it asks the owner for the rule of a stun on the actor.
+- The `review-gate` fault of RG 3 clears only with `docs/reviews/pr-49.md`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Reply on the Gitar thread with `34e6272`, prove the next pass current, and hand the PR to Codex.
+
+## Session 170: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-66, the elements and the statuses. Repository: the-thing-below. Branch: `feat/pr-66-elements-statuses`. PR: the PR of PR-66, which this round opens. Role: author. Base: `74c3a64`.
+
+### What this session did, and why
+
+- Asked the owner 22 start questions, and recorded the answers as D-790 to D-811. D-533 is revised in part by D-792.
+- Moved the gear table to PR-13, the aptitude bonus to PR-12, and the icons to PR-10 (D-790, D-791, D-811).
+- Added the element table and the immune list to each enemy record, and the ten statuses to each combatant, on the timeline.
+- Poison, blind, and silence stay on each character after a fight, in save format 5 with a reader of format 4.
+- Raised the simulation version to 9, and added the identity run `statuses`.
+- Added the tests of the five exit tests, with seed loops of 1000 seeds.
+
+### The state of the build
+
+- `make verify` passed before the commits, with 1625 tests. The later edits touched comments and one blank line.
+- The remote head is `74c3a64` on `main`. This round pushes the branch and opens the PR.
+
+### What is in flight
+
+The PR waits for the Gitar pass, then for the review of Codex, because it adds decisions (D-401).
+
+### Traps and gotchas
+
+- A turn now begins before the choice of a character: the timeline moves, statuses end, shares act, and a sleeper passes. `Act` reads the open turn.
+- A stun on the character whose turn is open ends that turn, and `GiveStatus` runs the loop again.
+- PR-66 changes no screen, so the visual review of D-784 has no frame to read.
+- The perl edits of this session broke two files on an unbalanced brace. Use the Edit tool for C# blocks.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, open the PR, and follow the `gitar-review` skill.
+
 ## Session 169: 2026-09-21, Codex
 
 Author: Codex
@@ -237,111 +342,3 @@ None.
 ### The next concrete action
 
 Confirm the green screen test and the Gitar pass on the new head. Then tell the owner that PR #47 is ready for the Codex review.
-
-## Session 162: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-89, round 3: the launch in borderless fullscreen. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: author. Base: `ce06eda`.
-
-### What this session did, and why
-
-- Round 2 went green at `6652b0d`: every CI leg, the screen test, and Gitar with "No issues found". Only `review-gate` waits for the review record.
-- The owner asked that the game launch in borderless fullscreen, the development build included, with the chosen ratios of text, UI, and world. The owner put the change in this PR. The PR description holds the record of that choice.
-- `Boot` sets the fullscreen mode of Godot for the play session, and it logs the mode at the start. A mode other than fullscreen is an error line (T-2).
-- `Boot` builds the screen again when a size change moves the default body size (D-707), because on some systems the switch ends after the first frame.
-- The CI captures showed a fault on `main`: at 1920 by 1080 in the fill mode, the frame drew at 2560 by 1440 and the window cut it, with no prompt row (D-573). The screen view kept the size of its texture. Both texture rects of `FrameRoot` now ignore the texture size.
-- A project setting of fullscreen failed: Godot ignores `--windowed` when the project asks for fullscreen, so the capture session lost its window sizes. The project keeps the windowed default, and a test locks that.
-
-### The state of the build
-
-- Remote head of `main`: `ce06eda`. Local: 1555 of 1555 tests pass. Format, lint, and `make walk` pass.
-- The play session of this Mac logs "the window opened in borderless fullscreen" at 1920 by 1080.
-
-### What is in flight
-
-The push of this round. The screen test fails on `map-fill-1080.png` and `ui-fill-1080.png` until their new baselines land from the artifact.
-
-### Traps and gotchas
-
-- The movie mode of Godot scales its frames to 1280 by 720, and its colors differ. It shows the layout of the fullscreen session, and not its pixels.
-- `screencapture` has no screen permission in this session.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Read the two new fill-1080 captures of the artifact, commit them to `screens/baseline/`, and answer the Gitar pass.
-
-## Session 161: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-89, round 2: the walk baselines and the Gitar answer. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: author. Base: `ce06eda`.
-
-### What this session did, and why
-
-- The first CI run of `f4eaabe` failed only where the plan said: 32 walk frames with no baseline, six `TheBaselineHoldsThisCapture` cases on each test leg, and RG 3 of `review-gate`. The 10 still captures matched their baselines.
-- Downloaded the `screen-captures` artifact of run 35600042818. Read all 32 walk frames as one strip of the lead, and one full frame (D-733, D-784). The lead draws whole in each frame.
-- Committed the 32 walk PNGs to `screens/baseline/`.
-- Gitar approved `f4eaabe` with one finding: `ExpectedNames` claimed every file but held 6 of the 32 walk frames. Full merit. The list now holds all 42 names, so each walk baseline has its own test case.
-
-### The state of the build
-
-- Remote head of `main`: `ce06eda`. Local: 1553 of 1553 tests pass, and format passes.
-- At `f4eaabe`, CI passed smoke, replay-identity, det-lint, and ste-check on every leg.
-
-### What is in flight
-
-The push of this round. After it: the screen-test job, the Gitar pass of the new head, and the Codex review, which adds `docs/reviews/pr-47.md`.
-
-### Traps and gotchas
-
-- The traps of Session 160 stand: `CLAUDE.md` is one byte under 16 KB, and this Mac cannot hold the 1080-row captures.
-- In `ScreenCapturesTests`, `StillNames` must stay above `ExpectedNames`, for the same static order as `WalkSteps` in `ScreenCaptures`.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for Gitar and CI on the new head, and answer each finding. Then tell the owner that PR #47 is ready for the Codex review.
-
-## Session 160: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-89, the walk fault and the frames inside a step. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: the one PR of PR-89, opened in this session. Role: author. Base: `ce06eda`.
-
-### What this session did, and why
-
-- The owner saw a fault on a walk north or south in `make run`. The owner asked for a capture that a session can read by itself while the lead moves (D-782).
-- Added the `walk` fixture: one frame at 1x after each tick of one step north and one step south. Added `--fixture <name>`, `make sheet FIXTURE=<name>`, and `make walk`. `make sheet` now builds the Godot solution first.
-- The walk frames proved the cause (F-95). Each ground tile sorted at the center of its cell, so the floor cut the legs for half of each step north or south.
-- The fix: the ground layer takes no part in the sort, and it draws at the Z index -1 (D-783). The smoke session reads both values back.
-- The author read all 32 walk frames before and after the fix. Before: legs cut in `walk-north-09`, `walk-north-12`, and `walk-south-06`. After: the lead draws whole in every frame.
-- Recorded D-782 to D-784, F-95, the PR-89 entry of the phase-2 file, and the PR gate line of the visual review (D-784).
-
-### The state of the build
-
-- Remote head of `main`: `ce06eda`. No Core file changes, so the simulation version stays (G-17).
-- Local: build, format, lint, STE check, and smoke pass. 1495 of 1501 tests pass.
-- The six failed tests are `TheBaselineHoldsThisCapture` for the walk frames. The baseline PNGs come from the artifact of the first screen-test run (D-733).
-
-### What is in flight
-
-The first push of the PR. The screen-test job fails until the 32 walk baselines land from its artifact.
-
-### Traps and gotchas
-
-- `CLAUDE.md` and `AGENTS.md` hold 16383 bytes, one byte under the 16 KB limit of SIZE 1. The next edit must make room first.
-- The screen of this Mac gives 955 rows, so `make sheet` fails on the 1080-row capture. Use `make walk`, or a larger screen.
-- In `ScreenCaptures`, `WalkSteps` must stay above `All`. A static property takes its value in the order of the file.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Download the `screen-captures` artifact, read each walk frame, and commit the 32 walk PNGs to `screens/baseline/`. Then answer the gitar pass.

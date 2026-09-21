@@ -187,7 +187,7 @@ public sealed class RunRecordTextTests
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
         lines[1] = "{\"tick\":0,\"menu\":false,\"world\":0,\"map\":{\"id\":\"map.test_room\",\"x\":2,\"y\":2,"
             + "\"facing\":\"south\",\"step_ticks\":0,\"walked\":[\"x\"],\"enemies\":[]},"
-            + "\"party\":{\"characters\":[{\"id\":\"character.marrek\",\"health\":60,\"row\":\"front\"}],\"pack\":[]},\"streams\":[]}";
+            + "\"party\":{\"characters\":[{\"id\":\"character.marrek\",\"health\":60,\"row\":\"front\",\"statuses\":[]}],\"pack\":[]},\"streams\":[]}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));

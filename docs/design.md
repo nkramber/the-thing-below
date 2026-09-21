@@ -465,9 +465,9 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 8. PR-9: the encounter state, the timeline, the actions, the rows, the wave, the wipe, and the hand-off (D-29, D-376, D-377, D-531, D-755 to D-781).
 9. PR-89: the ground over a sprite inside a step, and the walk frames of the screen test (D-782 to D-784, F-95).
 10. PR-80: the enemy record, with the stats and the ability ids of each enemy, and the ability file (D-557, D-754, D-785 to D-789).
-11. PR-66: the eight elements and the ten statuses (D-74, D-75, D-533).
+11. PR-66: the eight elements, the ten statuses, and the three that last past a fight (D-74, D-75, D-533, D-790 to D-810).
 12. PR-55: the large pictures, right before PR-10 (D-516, D-518).
-13. PR-10: the battle scene, its message line, and its backdrop (D-111, D-213).
+13. PR-10: the battle scene, its message line, its backdrop, and the icons of the elements and the statuses (D-111, D-213, D-811).
 14. PR-48: the normal maps and their review sheet, right before PR-56 (D-184, D-521).
 15. PR-56: the light setups, the shadows, and the effect budget (D-183, D-520, D-523).
 16. PR-63: the settings screen, the four accessibility settings, and a versioned settings file (D-214, D-526, D-570).

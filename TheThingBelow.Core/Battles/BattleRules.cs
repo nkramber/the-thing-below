@@ -6,7 +6,7 @@ namespace TheThingBelow.Core.Battles;
 
 /// <summary>
 /// The numbers of the battle rules: the delay of each action, the rolls, and the rates
-/// (D-757, D-777). The file is `content/rules/battle.json`.
+/// (D-757, D-777, D-808). The file is `content/rules/battle.json`.
 /// </summary>
 /// <remarks>
 /// Every delay counts ticks at speed 100, and every rate is in basis points (D-169, D-768).
@@ -43,12 +43,27 @@ public sealed class BattleRules
         "back_row_rate",
         "haste_rate",
         "slow_rate",
-        "stun_ticks",
+        "stun_push",
         "flee_base",
         "flee_per_speed",
         "flee_floor",
         "flee_ceiling",
         "item_rate",
+        "weak_rate",
+        "resist_rate",
+        "absorb_rate",
+        "poison_share",
+        "bleed_share",
+        "bleed_ticks",
+        "regen_share",
+        "regen_ticks",
+        "sleep_ticks",
+        "haste_ticks",
+        "slow_ticks",
+        "stun_ticks",
+        "shell_cut",
+        "shell_ticks",
+        "blind_miss",
     ];
 
     private BattleRules(SortedDictionary<string, int> numbers)
@@ -68,12 +83,27 @@ public sealed class BattleRules
         this.BackRowRate = numbers["back_row_rate"];
         this.HasteRate = numbers["haste_rate"];
         this.SlowRate = numbers["slow_rate"];
-        this.StunTicks = numbers["stun_ticks"];
+        this.StunPush = numbers["stun_push"];
         this.FleeBase = numbers["flee_base"];
         this.FleePerSpeed = numbers["flee_per_speed"];
         this.FleeFloor = numbers["flee_floor"];
         this.FleeCeiling = numbers["flee_ceiling"];
         this.ItemRate = numbers["item_rate"];
+        this.WeakRate = numbers["weak_rate"];
+        this.ResistRate = numbers["resist_rate"];
+        this.AbsorbRate = numbers["absorb_rate"];
+        this.PoisonShare = numbers["poison_share"];
+        this.BleedShare = numbers["bleed_share"];
+        this.BleedTicks = numbers["bleed_ticks"];
+        this.RegenShare = numbers["regen_share"];
+        this.RegenTicks = numbers["regen_ticks"];
+        this.SleepTicks = numbers["sleep_ticks"];
+        this.HasteTicks = numbers["haste_ticks"];
+        this.SlowTicks = numbers["slow_ticks"];
+        this.StunTicks = numbers["stun_ticks"];
+        this.ShellCut = numbers["shell_cut"];
+        this.ShellTicks = numbers["shell_ticks"];
+        this.BlindMiss = numbers["blind_miss"];
     }
 
     /// <summary>The delay of the basic attack, in ticks at speed 100 (D-359, D-757).</summary>
@@ -121,8 +151,8 @@ public sealed class BattleRules
     /// <summary>The rate that slow puts on each push (D-768).</summary>
     public int SlowRate { get; }
 
-    /// <summary>The ticks that a stun adds to the next turn of its target (D-376).</summary>
-    public int StunTicks { get; }
+    /// <summary>The ticks that a stun adds to the next turn of a target that holds no stun (D-376, D-810).</summary>
+    public int StunPush { get; }
 
     /// <summary>The flee chance of two sides of one average speed (D-763).</summary>
     public int FleeBase { get; }
@@ -138,6 +168,51 @@ public sealed class BattleRules
 
     /// <summary>The rate of the effect of an item in battle (D-382).</summary>
     public int ItemRate { get; }
+
+    /// <summary>The rate of a hit of an element that the target is weak to (D-794).</summary>
+    public int WeakRate { get; }
+
+    /// <summary>The rate of a hit of an element that the target resists (D-794).</summary>
+    public int ResistRate { get; }
+
+    /// <summary>The rate of the heal of a hit of an element that the target absorbs (D-795).</summary>
+    public int AbsorbRate { get; }
+
+    /// <summary>The share of full health that poison takes at each turn of the holder (D-803).</summary>
+    public int PoisonShare { get; }
+
+    /// <summary>The share of full health that bleed takes at each turn of the holder (D-803).</summary>
+    public int BleedShare { get; }
+
+    /// <summary>The ticks that bleed lasts (D-798).</summary>
+    public int BleedTicks { get; }
+
+    /// <summary>The share of full health that regen heals at each turn of the holder (D-799).</summary>
+    public int RegenShare { get; }
+
+    /// <summary>The ticks that regen lasts (D-798).</summary>
+    public int RegenTicks { get; }
+
+    /// <summary>The ticks that sleep lasts, unless a strike wakes the holder (D-802).</summary>
+    public int SleepTicks { get; }
+
+    /// <summary>The ticks that haste lasts (D-798).</summary>
+    public int HasteTicks { get; }
+
+    /// <summary>The ticks that slow lasts (D-798).</summary>
+    public int SlowTicks { get; }
+
+    /// <summary>The ticks that a stun lasts (D-802).</summary>
+    public int StunTicks { get; }
+
+    /// <summary>The part of the damage of a move with an element that shell cuts (D-804).</summary>
+    public int ShellCut { get; }
+
+    /// <summary>The ticks that shell lasts (D-798).</summary>
+    public int ShellTicks { get; }
+
+    /// <summary>The miss chance that blind adds after the clamp (D-806).</summary>
+    public int BlindMiss { get; }
 
     /// <summary>Reads the rules file, and checks every number (T-2).</summary>
     /// <param name="bytes">The bytes of the file.</param>
@@ -198,12 +273,27 @@ public sealed class BattleRules
         CheckRange(numbers, file, "back_row_rate", 0, BasisPoints.One);
         CheckRange(numbers, file, "haste_rate", 1, MostRate);
         CheckRange(numbers, file, "slow_rate", 1, MostRate);
-        CheckRange(numbers, file, "stun_ticks", 0, MostTicks);
+        CheckRange(numbers, file, "stun_push", 0, MostTicks);
         CheckRange(numbers, file, "flee_base", 0, BasisPoints.One);
         CheckRange(numbers, file, "flee_per_speed", 0, BasisPoints.One);
         CheckRange(numbers, file, "flee_floor", 0, BasisPoints.One);
         CheckRange(numbers, file, "flee_ceiling", numbers["flee_floor"], BasisPoints.One);
         CheckRange(numbers, file, "item_rate", 0, BasisPoints.One);
+        CheckRange(numbers, file, "weak_rate", 0, MostRate);
+        CheckRange(numbers, file, "resist_rate", 0, MostRate);
+        CheckRange(numbers, file, "absorb_rate", 0, MostRate);
+        CheckRange(numbers, file, "poison_share", 1, BasisPoints.One);
+        CheckRange(numbers, file, "bleed_share", 1, BasisPoints.One);
+        CheckRange(numbers, file, "bleed_ticks", 1, MostTicks);
+        CheckRange(numbers, file, "regen_share", 1, BasisPoints.One);
+        CheckRange(numbers, file, "regen_ticks", 1, MostTicks);
+        CheckRange(numbers, file, "sleep_ticks", 1, MostTicks);
+        CheckRange(numbers, file, "haste_ticks", 1, MostTicks);
+        CheckRange(numbers, file, "slow_ticks", 1, MostTicks);
+        CheckRange(numbers, file, "stun_ticks", 1, MostTicks);
+        CheckRange(numbers, file, "shell_cut", 0, BasisPoints.One);
+        CheckRange(numbers, file, "shell_ticks", 1, MostTicks);
+        CheckRange(numbers, file, "blind_miss", 0, BasisPoints.One);
     }
 
     private static void CheckRange(SortedDictionary<string, int> numbers, string file, string field, int lowest, int highest)
@@ -214,7 +304,7 @@ public sealed class BattleRules
             throw ContentException.ForField(
                 file,
                 field,
-                $"the value {value} is outside {lowest} to {highest} (D-169, D-777)");
+                $"the value {value} is outside {lowest} to {highest} (D-169, D-777, D-808)");
         }
     }
 }

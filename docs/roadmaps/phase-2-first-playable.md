@@ -465,15 +465,24 @@ Area file: `area-battle.md` section 7.4.
 
 **Scope.**
 
-- The eight elements, each with weakness, resist, and absorb (D-74).
-- The ten statuses, and the rule that every status but poison, blind, and silence ends with its fight (D-75, D-390).
-- The aptitude bonus and the half bonus of a side aptitude, in basis points (D-358, D-360).
-- The element table of each enemy, on the record of PR-80, and of each piece of gear (D-557).
+- The eight elements, and the element table of each enemy record, with one affinity for each element: normal, weak, resist, or absorb (D-74, D-794 to D-797).
+- The ten statuses in a fight, each with the tick of its end (D-75, D-798).
+- The refresh of a second copy, and the cancel of haste and slow (D-800).
+- The shares of poison, bleed, and regen, and the sleep that a strike wakes (D-799, D-802, D-803).
+- The stun push, blind, silence, and shell (D-804, D-806, D-810).
+- The immune list of each enemy record (D-805).
+- A move with an element and a status chance (D-793, D-807).
+- A call of Core that gives a status, for the tests and the identity run (D-793).
+- Poison, blind, and silence on each character after the fight, in the party state and in save format 5 (D-390, D-792).
+- The numbers in the battle rules file (D-808), and the order of the rates on one hit (D-809).
 
 **Out of scope.**
 
-- What poison, blind, and silence do on the map (PR-64, D-393).
-- The shape icons of the accessibility settings (PR-63, D-214).
+- The element table of gear (PR-13, D-790).
+- The bonus of an aptitude and of a side aptitude (PR-12, D-791).
+- What poison, blind, and silence do on the map (PR-64, D-393, D-792).
+- The icons of the elements and the statuses (PR-10, D-811), and their shape variants (PR-63, D-214).
+- A lesson that gives an element or a status in play, and the refusal of a rite of a silenced holder (PR-12, D-793, D-806).
 - The cure rites, which PR-12 gives to Mend (D-394).
 
 **Exit tests.**
@@ -486,11 +495,12 @@ Area file: `area-battle.md` section 7.4.
 
 **Review focus.**
 
-- Holy and dark carry no claim of a god in any string (D-158, G-20).
-- The bonus of an aptitude reads the same table as a side aptitude, at half (D-360).
+- Holy and dark carry no claim of a god in any string (D-158, G-20). PR-66 adds no player string.
+- Each roll draws on the battle stream in the order of D-807, and an immune target draws none.
 - The simulation version bumps, and the identity file gains a run (G-17, D-504).
+- The save format goes to 5, with a reader of format 4 and a stored save of format 5 (D-166, D-654).
 
-**Questions.** None. OQ-134 to OQ-143 block the numbers, and PR-67 and PR-12 hold them.
+**Questions.** None. D-790 to D-811 answer the start questions of the session.
 
 > *In plain English:* fire, ice, and six more elements meet armor that likes or hates each one. Poison, blindness, and silence follow you out of the fight.
 
@@ -540,6 +550,7 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 - One message line for each action, in the game voice, from the string table (G-7, G-20).
 - The backdrop of the place, as a large picture of PR-55, with its drift (D-205).
 - The shader of the hit flash, which never uses the normal map member (D-183, the external facts of `area-effects.md`).
+- The 18 icons of the elements and the statuses, and a check of the palette color of each (D-214, D-811).
 
 **Out of scope.**
 
@@ -558,6 +569,7 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 **Review focus.**
 
 - The strip shows six turns (D-756), and a row draws up to six enemies (D-759).
+- The author reads each icon in `make sheet`, and confirms or changes its palette color (D-784, D-811).
 - The answer of OQ-103 sets where shader code lives.
 - The backdrop drift never moves a rule, and no rule waits for it (D-522, G-23).
 
@@ -1033,9 +1045,12 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 - The points that every equipped lesson gains from each battle won, and half for a reserve character (D-357).
 - The named forms of each lesson, and the point total that opens each form (D-539).
 - The growth that belongs to the character, not to the lesson (D-361).
-- The eight kinds, the main aptitude of each character, and the bonus of a lesson of that kind (D-274, D-281, D-358).
+- The eight kinds, the main aptitude of each character, and the bonus of a lesson of that kind, in basis points (D-274, D-281, D-358, D-791).
+- The half bonus of a side aptitude, which reads the same table (D-360, D-791).
 - The side aptitude behind a story flag of PR-68, with an empty mark in the menu before the unlock (D-282, D-283, D-538, D-556).
 - The Mend rites and the cure rites that also work from the menu outside battle (D-391).
+- The element and the status chance of each lesson move, which fill the move fields of PR-66 (D-793).
+- The refusal of a rite of a silenced holder, in a fight and from the menu (D-393, D-806).
 - The lesson window in the stack of PR-62.
 
 **Out of scope.**
@@ -1071,6 +1086,7 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 
 - The six equipment slots: the weapon, the shield or off-hand, the head, the body, and two accessories (D-44).
 - Gear that any character wears, because the aptitudes carry the difference (D-374).
+- The element table of each piece of gear, which PR-66 builds for the enemy record (D-790, D-794).
 - Fixed, hand-authored gear with a few rarity tiers, and no random affix and no crafting (D-45, OQ-143).
 - The pack, with a small fixed number of each item (D-382, OQ-142).
 - The item use on a turn, which restores less in a fight than outside one (D-382).
@@ -1343,7 +1359,7 @@ Area file: `area-exploration.md` section 7.9.
 - The traps of D-41, apart from the parts of PR-16 (D-529, OQ-119).
 - The hazards of region one (OQ-120).
 - The Theft drill that reveals and disarms a trap (D-386).
-- Poison, blind, and silence that last past a battle until a cure or a rest at a hub (D-390).
+- What poison, blind, and silence do after a battle, until a cure or a rest at a hub. PR-66 keeps them on each character (D-390, D-792).
 - The poison that ticks on the map and can down a character (D-392).
 - The silence that stops a rite from the menu, and the blind that does nothing outside battle (D-393).
 - The wipe when poison downs every character who fights, even with a healthy reserve (D-397).
@@ -1351,7 +1367,7 @@ Area file: `area-exploration.md` section 7.9.
 
 **Out of scope.**
 
-- The statuses inside a fight (PR-66, D-533).
+- The statuses inside a fight, and the three that each character keeps after it (PR-66, D-533, D-792).
 - The puzzles and the secrets (PR-21).
 
 **Exit tests.**
