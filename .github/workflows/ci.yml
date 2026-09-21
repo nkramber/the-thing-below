@@ -533,6 +533,19 @@ jobs:
             echo "The package $package is $actual, which matches the pin of D-730."
           done
 
+          # The Vulkan loader reads its drivers from this file. A path that no file holds
+          # gives a loader with no driver, and Godot then falls back to OpenGL (D-731, T-2).
+          icd=$(find /usr/share/vulkan/icd.d -name 'lvp_icd*.json' | sort | head -1)
+          if [ -z "$icd" ]; then
+            echo "The pinned Mesa installed no lavapipe driver file (D-730, D-731, T-2)." >&2
+            ls -la /usr/share/vulkan/icd.d >&2 || true
+            exit 1
+          fi
+
+          echo "The lavapipe driver file is $icd."
+          echo "VK_DRIVER_FILES=$icd" >> "$GITHUB_ENV"
+          echo "VK_ICD_FILENAMES=$icd" >> "$GITHUB_ENV"
+
       # The cache keeps the Godot editor between runs, and every run checks the SHA-512
       # of the file, a cache hit included (D-511, D-596).
       - name: Read the Godot editor from the cache
@@ -599,9 +612,6 @@ jobs:
       # fixture seed is fixed (T-7). The second run proves it.
       - name: Take the captures two times
         env:
-          # lavapipe is the software Vulkan driver of the pinned Mesa (D-730, D-731).
-          VK_DRIVER_FILES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
-          VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
           LIBGL_ALWAYS_SOFTWARE: "1"
         run: |
           set -euo pipefail
@@ -610,9 +620,23 @@ jobs:
             # `xvfb-run` starts the software screen, waits for it, and stops it when the
             # session ends. It picks a free display itself, so no step of this job holds a
             # background process of another step (T-2).
+            #
+            # The runner has no sound card, and a session with a window opens the audio
+            # driver of the system. The dummy driver keeps the job on the picture (D-172).
             xvfb-run --auto-servernum --server-args="-screen 0 $XVFB_SCREEN" \
-              "$GODOT" --path TheThingBelow.Game --quit-after 1200 \
+              "$GODOT" --path TheThingBelow.Game --audio-driver Dummy --quit-after 1200 \
               -- --capture "$PWD/captures-$run" 2>&1 | tee "capture-$run.log"
+
+            # The renderer check comes first, because a fallback explains every later fault.
+            # Godot falls back to another driver when it cannot start the one of the project,
+            # and another renderer draws another picture (D-616, D-731, T-2).
+            for line in "capture: the rendering method is mobile." "capture: the rendering driver is vulkan."; do
+              if ! grep -qF "$line" "capture-$run.log"; then
+                echo "The capture session did not write '$line'. Read capture-$run.log (D-731, T-2)." >&2
+                grep "^capture: the rendering" "capture-$run.log" >&2 || true
+                exit 1
+              fi
+            done
 
             if ! grep -q "capture: the session wrote every frame." "capture-$run.log"; then
               echo "The capture session $run wrote no success line. Read capture-$run.log (T-2)." >&2
@@ -623,16 +647,6 @@ jobs:
             # line fails this job (T-2, `docs/roadmaps/area-effects.md` section 7.13).
             if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR)" "capture-$run.log"; then
               echo "The capture session $run wrote an error line (T-2)." >&2
-              exit 1
-            fi
-          done
-
-          # Godot falls back to another driver when it cannot start the one of the project,
-          # and another renderer draws another picture (D-616, D-731, T-2).
-          for line in "capture: the rendering method is mobile." "capture: the rendering driver is vulkan."; do
-            if ! grep -qF "$line" capture-1.log; then
-              echo "The capture session did not write '$line'. Read capture-1.log (D-731, T-2)." >&2
-              grep "^capture: the rendering" capture-1.log >&2 || true
               exit 1
             fi
           done

@@ -64,7 +64,28 @@ public sealed class ScreenTestWorkflowTests
 
         Assert.Contains("the rendering method is mobile.", text, StringComparison.Ordinal);
         Assert.Contains("the rendering driver is vulkan.", text, StringComparison.Ordinal);
-        Assert.Contains("lvp_icd", Workflow(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheJobFailsWhenTheMesaPinBringsNoLavapipeDriver()
+    {
+        // D-731, T-2. A driver file that no file holds gives a loader with no driver, and
+        // Godot then falls back to OpenGL with no word of this job.
+        string text = string.Join("\n", WorkflowText.RunBlockOf(CiWorkflowPath, "Install the pinned Mesa"));
+
+        Assert.Contains("lvp_icd", text, StringComparison.Ordinal);
+        Assert.Contains("VK_DRIVER_FILES=$icd", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheCaptureSessionTakesTheDummyAudioDriver()
+    {
+        // The runner has no sound card, and a session with a window opens the audio driver
+        // of the system. Its failure writes error lines that have nothing to do with a
+        // screen (D-172, T-2).
+        string text = string.Join("\n", WorkflowText.RunBlockOf(CiWorkflowPath, "Take the captures two times"));
+
+        Assert.Contains("--audio-driver Dummy", text, StringComparison.Ordinal);
     }
 
     [Fact]
