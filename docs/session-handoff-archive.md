@@ -1,5 +1,39 @@
 # Session handoff archive
 
+## Session 168: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: PR-80, the enemy record, the answer to the review. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: author. Base: `86528a3`.
+
+### What this session did, and why
+
+- Answered P1-1 of `docs/reviews/pr-48.md` with full merit: D-754 asks the enemy record for the size, and the load to fail a map that disagrees.
+- Asked the owner which record of a group sets the size, and the size of each fixture enemy. The answers are D-788 and D-789.
+- Commit `ef02f4a`: the `size` field of `EnemyRecord`, the size check in `BattleContent.RequireGroupsOf`, the records, the tests, and the documents.
+- Wrote `docs/reviews/pr-48-response.md`.
+- Gitar reviewed `f8cc578` at 15:50:12 UTC, after the push at 15:48:31 UTC: no issues, no review thread, 0 comments with merit. CI passes, and review-gate fails on RG 4 and RG 5 alone, which wait for the repeat review.
+
+### The state of the build
+
+- The effective head is `ef02f4a`. `make verify` passes with 1587 tests. The identity hashes stay, and the content hash changes.
+
+### What is in flight
+
+The repeat review by Codex of effective head `ef02f4a`.
+
+### Traps and gotchas
+
+- The test guard of `BattleRuns.Map` takes the size of its group. An elite guard holds an area of 3 by 2 tiles, because an area must leave room to move (D-209).
+- The tests pair the checkout map with the test records, so the test brute stays elite, as in `content/`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The owner starts a Codex session for the repeat review of PR #48 at `ef02f4a`. This author session answers each finding.
+
 ## Session 167: 2026-09-21, Codex
 
 Author: Codex
