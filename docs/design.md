@@ -536,21 +536,22 @@ PR-22 is retired. Jobs five to eight have no purpose after D-268, and no later i
 
 Phase file: `docs/roadmaps/phase-4-region-one.md`. Each item here is content, and the balance pass is the one item that moves a number that a replay reads.
 
-1. PR-23: the deep mine, and the sprite frames of Ottild and Elio (D-313, D-342).
-2. PR-24: the second visit to the hanging cells (D-327, F-29).
-3. PR-81: the sealed gallery, the fifth dungeon, where the flight begins (D-343, D-575).
-4. PR-27: the second hub, the refuge of the old faith, right after PR-81 (D-28, D-574).
-5. PR-25: the border fort.
-6. PR-26: the ice crossing.
-7. PR-42: the lessons of region one, across the eight kinds (D-275, D-304).
-8. PR-73: the rest of the music and the sounds of region one (D-549).
-9. PR-28: the arc of region one, the first batch (D-56, D-350).
-10. PR-29: the arc of region one, the second batch (D-352, D-355).
-11. PR-77: the credits roll, right after PR-29 (D-467, D-552).
-12. PR-30: the balance pass over the numbers of D-35, D-60, D-382, and D-388.
-13. M-5: the play time of the owner from the first hub to the end of the arc (D-56).
-14. **← GATE 4 (region one).**
-15. The trusted players play the CI build artifacts and send their notes outside Steam (D-469).
+1. PR-90: the balance harness, with a careful bot, a report, bands, and a night check (D-822).
+2. PR-23: the deep mine, and the sprite frames of Ottild and Elio (D-313, D-342).
+3. PR-24: the second visit to the hanging cells (D-327, F-29).
+4. PR-81: the sealed gallery, the fifth dungeon, where the flight begins (D-343, D-575).
+5. PR-27: the second hub, the refuge of the old faith, right after PR-81 (D-28, D-574).
+6. PR-25: the border fort.
+7. PR-26: the ice crossing.
+8. PR-42: the lessons of region one, across the eight kinds (D-275, D-304).
+9. PR-73: the rest of the music and the sounds of region one (D-549).
+10. PR-28: the arc of region one, the first batch (D-56, D-350).
+11. PR-29: the arc of region one, the second batch (D-352, D-355).
+12. PR-77: the credits roll, right after PR-29 (D-467, D-552).
+13. PR-30: the balance pass over the numbers of D-35, D-60, D-382, and D-388, against the bands of PR-90 (D-822).
+14. M-5: the play time of the owner from the first hub to the end of the arc (D-56).
+15. **← GATE 4 (region one).**
+16. The trusted players play the CI build artifacts and send their notes outside Steam (D-469).
 
 > *In plain English:* the free prologue takes shape. Five more dungeon builds, a second town, their lessons, the story, and the numbers tuned by robots and by play.
 
@@ -616,7 +617,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 31. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 32. PR-18, PR-19, PR-20, PR-21.
 33. **← GATE 3 (story systems).** The owner plays a branch and a hub that changes with an earlier choice.
-34. PR-23, PR-24, PR-81, PR-27, PR-25, PR-26.
+34. PR-90, then PR-23, PR-24, PR-81, PR-27, PR-25, PR-26.
 35. PR-42, PR-73.
 36. PR-28, PR-29, PR-77.
 37. PR-30.

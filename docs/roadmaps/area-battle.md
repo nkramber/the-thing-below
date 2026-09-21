@@ -194,6 +194,7 @@ Built by PR-9, PR-11, and PR-15. Phase files: `phase-2-first-playable.md` and ev
 - The bots play the fixture dungeon on every CI leg, and a crash or a softlock names its seed (D-64, D-505).
 - M-4 records the turns of an encounter and the downs of a dungeon, by bot policy (M-4, D-35).
 - PR-30 tunes the numbers of D-35, D-60, D-382, and D-388 on the M-4 band, with a number before and after (G-14).
+- PR-90 reports the win rate and the turns of each encounter, and a night fails when one leaves its band (D-822).
 - A screen test captures a fixture fight (D-172).
 - Every Core change here bumps the simulation version (G-17).
 
@@ -212,6 +213,7 @@ Built by PR-9, PR-11, and PR-15. Phase files: `phase-2-first-playable.md` and ev
 | PR-12 | The lessons and the aptitudes that a fight uses | D-272, D-358 |
 | PR-13 | The gear and the items that a fight spends | D-44, D-382 |
 | PR-17 | The enemies and the groups of the first places | D-313, D-362 |
+| PR-90 | The balance harness, which measures each encounter | D-822 |
 | PR-30 | The balance pass over every number | D-35, G-14 |
 
 ### 7.13 Battle that other area files hold

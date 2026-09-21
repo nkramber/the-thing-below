@@ -1,5 +1,42 @@
 # Session handoff archive
 
+## Session 165: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: PR-80, the enemy record. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: the one PR of PR-80, with no GitHub number at this commit. Role: author. Base: `86528a3`.
+
+### What this session did, and why
+
+- Asked the owner three start questions, and recorded the answers as D-785 to D-787. No file held an ability id, so exit test 3 had no list to check.
+- Added the ability file `content/rules/abilities.json` and one record file for each enemy under `content/rules/enemies/`. The two fixture enemies moved there with the same ids.
+- Core: `AbilityList` and `EnemyRecord` read the files. `BattleContent` now holds the records and the ability file, and it checks each id between the files.
+- The identity set gains the `enemy-record` run. The simulation version goes from 7 to 8.
+- Tests: `EnemyRecordTests` holds exit tests 1 to 4, and the identity file holds exit test 5.
+- Docs: the PR-80 entry, a PR-12 scope line, area-battle section 7.7, a design pass line, and two glossary rows.
+
+### The state of the build
+
+- The local head is the commit of this entry, on base `86528a3`. `make verify` passes with 1583 tests.
+- At version 7 the old runs give their old hashes, so the move of the enemies changes no fight. The version bump alone moves `battle`, `replay`, and `state-hash`.
+
+### What is in flight
+
+The push, the PR, and the gitar pass. The PR changes decision rows, so it goes to Codex for review.
+
+### Traps and gotchas
+
+- The content set reads files in the ordinal order of the paths. A repeated enemy id thus fails on the file with the later path.
+- A group entry and its enemy record now lie in two files. `BattleContent` checks the id, and the error names the battle fixture file.
+- No screen changes, so the visual review of D-784 does not apply.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the branch, open the PR, and follow the `gitar-review` skill.
+
 ## Session 164: 2026-09-21, Codex
 
 Author: Codex

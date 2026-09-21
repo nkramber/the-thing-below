@@ -262,6 +262,7 @@ Built by PR-49. Phase file: `phase-2-first-playable.md`.
 - A leg near the 6-hour limit of GitHub splits into more than one job, and M-3 records the wall time of each leg (D-507).
 - GitHub disables the schedule of a public repository after 60 days with no activity, and the night gate then fails every PR (F-41). The owner enables the workflow again, and a session runs a night by hand.
 - The first live check runs after the first night on `main` (D-500).
+- PR-90 adds a balance check to the night. A metric outside its band fails the night with the metric, the band, and the seed (D-822).
 - M-3 copies the wall time and the counts of the first seven nights into `docs/design.md` before GitHub deletes the records (D-509).
 
 > *In plain English:* every night, robots play thousands of games on all three systems and leave a result file behind. The files expire after 90 days, so the design doc keeps the numbers that matter.

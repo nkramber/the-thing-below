@@ -314,7 +314,8 @@ Area files: `area-progression.md` section 7.3, `area-battle.md` section 7.6, `ar
 
 **Scope.**
 
-- The numbers of D-35, D-60, D-382, and D-388, tuned on the M-4 band and the night runs.
+- The numbers of D-35, D-60, D-382, and D-388, tuned on the M-4 band, the night runs, and the report of PR-90 (D-822).
+- The numbers of each item and each lesson of region one, against the report of PR-90 (D-822).
 - The eight stat curves of the cast, against the M-4 band (D-537, F-54).
 - The prices, the stock, and the buy-back of each shop (D-60).
 - The weights of each enemy profile, where a fight reads wrong (D-65).
@@ -333,6 +334,7 @@ Area files: `area-progression.md` section 7.3, `area-battle.md` section 7.6, `ar
 4. The numbers hold with a short-handed party after a down (D-58, F-7).
 5. The numbers hold with each side aptitude absent in turn (D-282, D-304).
 6. The simulation version bumps, and the identity file gains its new hashes (G-17, D-504).
+7. Each metric of PR-90 sits inside its band, and a night proves it (D-822).
 
 **Review focus.**
 
@@ -378,30 +380,65 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds the row.
 4. The M-4 numbers land inside the band that the owner set after M-4 (D-571).
 5. Every job of the PR gate is green on every leg (D-481).
 6. A night of bot runs over region one ends with no crash and no softlock (D-507).
+7. The balance check of PR-90 passes on the night before the gate (D-822).
 7. The budget test passes for every place of region one (D-523).
 
 **After the gate.** A few players whom the owner picks play the CI build artifacts and send their notes outside Steam (D-469). No Steam Playtest runs. Each player installs an unsigned build with the steps of the runbook, and each build carries the license files (D-463, D-467). Their notes feed the fixes before the release.
 
 > *In plain English:* the free part of the game is complete. The owner plays all of it, then a few trusted people play it and write back.
+### 7.11 PR-90: the balance harness
+
+Area files: `area-tools.md` section 7.16, `area-ci.md` section 7.14.
+
+**Scope.**
+
+- A third bot policy that plays as a careful player: it heals when low, uses items, and picks its targets (D-822).
+- The `balance` command of Tools, which plays a loop of seeds and reports the metrics of each encounter, dungeon, item, and lesson (D-822, OQ-216).
+- A content file of bands, one for each metric, which the owner sets from the first report (D-571, D-822).
+- A check of the night job that fails when a metric leaves its band, with the seed and the report (D-507, D-822).
+
+**Out of scope.**
+
+- A change of a number. PR-30 moves the numbers against the harness (D-822).
+- The balance of later regions, which their own phases hold.
+
+**Exit tests.**
+
+1. Two runs of the `balance` command with one seed list give the same report (T-7).
+2. A planted metric outside its band fails the night check with the metric, the band, and the seed.
+3. The careful policy wins more fixture battles than the greedy policy over the same seeds.
+4. The policy makes the same intents that Game makes, and a test proves it (D-493).
+5. det-lint finds no float type in the report code (D-502).
+
+**Review focus.**
+
+- The answer of OQ-216 sets the metrics, the bands, and the play of the policy.
+- The report reads a run record, so a replay repeats each number (G-5).
+
+**Questions.** OQ-216.
+
+> *In plain English:* a careful robot plays the game many times and writes down how hard each fight is and how useful each item is. When a later change makes the game too hard or too easy, the nightly check fails and says where.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). Phase 4 holds this order:
 
-1. PR-23: the deep mine.
-2. PR-24: the second visit to the hanging cells (D-327).
-3. PR-81: the sealed gallery, where the flight begins (D-562).
-4. PR-27: the second hub, the refuge of the old faith, right after the sealed gallery (D-574).
-5. PR-25: the border fort.
-6. PR-26: the ice crossing.
-7. PR-42: the lessons of region one.
-8. PR-73: the rest of the music and the sounds of region one (D-549).
-9. PR-28: the arc, the first batch.
-10. PR-29: the arc, the second batch.
-11. PR-77: the credits roll, right after PR-29 (D-552).
-12. PR-30: the balance pass.
-13. M-5: the play time of region one.
-14. **← GATE 4 (region one).** Section 7.10 holds each line.
-15. The trusted players play the build artifacts (D-469).
+1. PR-90: the balance harness, first in the phase, so each content PR keeps the bands (D-822).
+2. PR-23: the deep mine.
+3. PR-24: the second visit to the hanging cells (D-327).
+4. PR-81: the sealed gallery, where the flight begins (D-562).
+5. PR-27: the second hub, the refuge of the old faith, right after the sealed gallery (D-574).
+6. PR-25: the border fort.
+7. PR-26: the ice crossing.
+8. PR-42: the lessons of region one.
+9. PR-73: the rest of the music and the sounds of region one (D-549).
+10. PR-28: the arc, the first batch.
+11. PR-29: the arc, the second batch.
+12. PR-77: the credits roll, right after PR-29 (D-552).
+13. PR-30: the balance pass, against the bands of PR-90 (D-822).
+14. M-5: the play time of region one.
+15. **← GATE 4 (region one).** Section 7.10 holds each line.
+16. The trusted players play the build artifacts (D-469).
 
 The next phase file is `phase-5-first-release.md`.
 
@@ -413,7 +450,8 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 |---|---|---|
 | OQ-57 | The studio name | PR-77 |
 | OQ-180 | The boss of the sealed gallery | PR-81 |
+| OQ-216 | The metrics, the bands, and the policy of the balance harness | PR-90 |
 
 The open items of `docs/world/arc.md` are not questions of the register. PR-28 and PR-29 propose each one to the owner inside the PR that needs it (D-352, D-355).
 
-No open question blocks this file.
+OQ-216 blocks PR-90, and PR-90 asks it when it starts.

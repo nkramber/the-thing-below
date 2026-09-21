@@ -664,3 +664,6 @@ How to file a question (D-19, D-24):
 215. **OQ-215. The stale file of a deleted script.** The uid file of the deleted script BaseScreen.cs stays in git, in the UI folder of Game. PR #42 deleted that script (D-722). Raised 2026-09-20. Blocked no PR. Closed 2026-09-20 by D-728.
     - The delete in PR-45, the recommendation. The pull request that corrects the stale names of that script takes the file too. It is one file outside the concern of the pull request.
     - A later pull request. This pull request holds one concern, and an orphan file stays in the tree.
+216. **OQ-216. The metrics, the bands, and the policy of the balance harness.** PR-90 reports balance metrics over a loop of seeds, and a night fails when a metric leaves its band (D-822). Which metrics does the report hold, and which band does each one take? How does the careful policy choose its actions? Raised 2026-09-21. Blocks PR-90.
+    - The recommendation for the metrics: the win rate and the turns of each encounter, and the HP, MP, and items that each dungeon costs. The gold at each hub, and the use and the effect of each item and lesson, complete the list.
+    - The recommendation for the bands: the owner sets each band from the first report of PR-90, as the M-4 band of D-571.
