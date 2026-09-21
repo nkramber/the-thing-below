@@ -61,7 +61,7 @@ public partial class Main : Node2D
 
         _results.Add(_meter.Result(
             stage.Name,
-            stage.Lights,
+            stage.Lights + (2 * stage.Pairs),
             stage.Emitters,
             stage.Emitters * SceneRig.ParticlesForEachEmitter,
             _rig.ActivePassCount()));
@@ -94,6 +94,15 @@ public partial class Main : Node2D
         _stages.Add(new Stage("full-load", 8, 4, Crt: true, Glow: true, Fog: true, Transition: false));
         _stages.Add(new Stage("full-load-transition", 8, 4, Crt: true, Glow: true, Fog: true, Transition: true));
         _stages.Add(new Stage("worst-case", SceneRig.MaxLights, SceneRig.MaxEmitters, Crt: true, Glow: true, Fog: true, Transition: true));
+
+        // The light row of D-854: paired sources of D-853, from 4 to 24 Godot lights. The CRT
+        // left the plan (D-618), so these stages run the glow and the fog alone.
+        foreach (int pairs in new[] { 2, 4, 6, 8, 10, 12 })
+        {
+            _stages.Add(new Stage($"pairs-{pairs * 2}", 0, 0, Crt: false, Glow: true, Fog: true, Transition: false, Pairs: pairs));
+        }
+
+        _stages.Add(new Stage("full-load-24", 0, 4, Crt: false, Glow: true, Fog: true, Transition: true, Pairs: SceneRig.MaxPairs));
     }
 
     private void StartNextStage()
@@ -109,6 +118,7 @@ public partial class Main : Node2D
 
         Stage stage = _stages[_stageIndex];
         _rig.SetLightCount(stage.Lights);
+        _rig.SetPairCount(stage.Pairs);
         _rig.SetEmitterCount(stage.Emitters);
         _rig.SetPasses(stage.Crt, stage.Glow, stage.Fog);
         _rig.SetTransition(stage.Transition ? 0f : -1f);
@@ -204,6 +214,7 @@ public partial class Main : Node2D
 
         text.AppendLine("The effect budget of this run (D-523). Each row is the largest load that held the target.");
         text.AppendLine($"  lights with shadows   {LargestHeld("lights-")}");
+        text.AppendLine($"  paired lights         {LargestHeld("pairs-")} (the row of D-854 asks for 24)");
         text.AppendLine($"  live particles        {LargestHeld("particles-")}");
         text.AppendLine($"  full-screen passes    {LargestHeld("pass-")}");
 
@@ -213,6 +224,14 @@ public partial class Main : Node2D
             text.AppendLine(
                 $"  the load of D-160 held the target: {(full.Value.HoldsTarget ? "yes" : "no")} " +
                 $"(p95 {full.Value.P95Ms.ToString("F2", culture)} ms)");
+        }
+
+        StageResult? paired = Find("full-load-24");
+        if (paired is not null)
+        {
+            text.AppendLine(
+                $"  24 paired lights with particles and a transition held the target: {(paired.Value.HoldsTarget ? "yes" : "no")} " +
+                $"(p95 {paired.Value.P95Ms.ToString("F2", culture)} ms)");
         }
 
         text.AppendLine();
@@ -325,5 +344,6 @@ public partial class Main : Node2D
         bool Crt,
         bool Glow,
         bool Fog,
-        bool Transition);
+        bool Transition,
+        int Pairs = 0);
 }

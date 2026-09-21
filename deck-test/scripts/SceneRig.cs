@@ -26,12 +26,25 @@ public sealed class SceneRig
     /// <summary>Godot drops each light past 15 on one canvas item, with no message (F-46).</summary>
     public const int MaxLights = 15;
 
+    /// <summary>
+    /// The paired sources of D-853: 12 sources give 24 Godot lights, the row of D-854. Each
+    /// source is one light for the ground and the walls, and one light for the figures.
+    /// </summary>
+    public const int MaxPairs = 12;
+
+    /// <summary>The light mask of the ground and the walls.</summary>
+    private const int GroundItems = 1;
+
+    /// <summary>The light mask of each figure, and the occluder mask of its feet.</summary>
+    private const int FigureItems = 2;
+
     public const int MaxEmitters = 16;
     public const int ParticlesForEachEmitter = 512;
 
     private const int TileSize = 32;
 
     private readonly List<PointLight2D> _lights = new();
+    private readonly List<(PointLight2D Ground, PointLight2D Figures)> _pairs = new();
     private readonly List<GpuParticles2D> _emitters = new();
 
     private readonly CanvasModulate _ambient;
@@ -53,6 +66,7 @@ public sealed class SceneRig
         AddProps(world);
         AddOccluders(world);
         BuildLights(world);
+        BuildPairs(world);
         BuildEmitters(world);
 
         _ambient = new CanvasModulate { Name = "Ambient", Color = new Color(0.34f, 0.36f, 0.46f) };
@@ -70,6 +84,7 @@ public sealed class SceneRig
         _transitionMaterial = (ShaderMaterial)_transition.Material;
 
         SetLightCount(0);
+        SetPairCount(0);
         SetEmitterCount(0);
         SetPasses(crt: false, glow: false, fog: false);
         SetTransition(-1f);
@@ -86,6 +101,21 @@ public sealed class SceneRig
         for (int i = 0; i < _lights.Count; i++)
         {
             _lights[i].Visible = i < count;
+        }
+    }
+
+    /// <summary>Turns on the first <paramref name="count"/> paired sources, and turns off the rest.</summary>
+    public void SetPairCount(int count)
+    {
+        if (count < 0 || count > MaxPairs)
+        {
+            throw new ArgumentOutOfRangeException(nameof(count), count, $"The rig holds 0 to {MaxPairs} paired sources.");
+        }
+
+        for (int i = 0; i < _pairs.Count; i++)
+        {
+            _pairs[i].Ground.Visible = i < count;
+            _pairs[i].Figures.Visible = i < count;
         }
     }
 
@@ -213,12 +243,32 @@ public sealed class SceneRig
 
         for (int i = 0; i < 24; i++)
         {
-            props.AddChild(new Sprite2D
+            var prop = new Sprite2D
             {
                 Texture = texture,
                 Position = new Vector2(rng.RandfRange(40f, FrameWidth - 40f), rng.RandfRange(40f, FrameHeight - 40f)),
                 ZIndex = 1,
+                LightMask = FigureItems,
+            };
+
+            // The feet of a figure block light, as D-853 sets for the game.
+            prop.AddChild(new LightOccluder2D
+            {
+                OccluderLightMask = FigureItems,
+                Occluder = new OccluderPolygon2D
+                {
+                    Polygon = new[]
+                    {
+                        new Vector2(-10f, 13f),
+                        new Vector2(-5f, 10f),
+                        new Vector2(5f, 10f),
+                        new Vector2(10f, 13f),
+                        new Vector2(5f, 16f),
+                        new Vector2(-5f, 16f),
+                    },
+                },
             });
+            props.AddChild(prop);
         }
     }
 
@@ -281,11 +331,60 @@ public sealed class SceneRig
                 // Hard shadows, as D-183 sets.
                 ShadowFilter = Light2D.ShadowFilterEnum.None,
                 ZIndex = 5,
+
+                // The figures take the figure mask now, so a single light still lights them,
+                // and it takes the shadows of the walls alone, as in the sweep of 2026-09-17.
+                RangeItemCullMask = GroundItems | FigureItems,
+                ShadowItemCullMask = GroundItems,
             };
 
             holder.AddChild(light);
             _lights.Add(light);
         }
+    }
+
+    /// <summary>
+    /// Builds the paired sources of D-853. The ground light lights the ground and takes the
+    /// shadows of the walls and the figures. The figure light lights the figures and takes the
+    /// shadows of the walls alone, so no figure darkens itself.
+    /// </summary>
+    private void BuildPairs(Node2D world)
+    {
+        var holder = new Node2D { Name = "Pairs" };
+        world.AddChild(holder);
+
+        var texture = TextureFactory.MakeSoftDot(256, falloff: 1.5f);
+        var rng = new RandomNumberGenerator { Seed = 59 };
+
+        for (int i = 0; i < MaxPairs; i++)
+        {
+            float scale = rng.RandfRange(1.8f, 3.3f);
+            float energy = rng.RandfRange(1.6f, 2.4f);
+            var position = new Vector2(rng.RandfRange(80f, FrameWidth - 80f), rng.RandfRange(80f, FrameHeight - 80f));
+            PointLight2D ground = PairLight(texture, scale, energy, position, GroundItems, GroundItems | FigureItems);
+            PointLight2D figures = PairLight(texture, scale, energy, position, FigureItems, GroundItems);
+            holder.AddChild(ground);
+            holder.AddChild(figures);
+            _pairs.Add((ground, figures));
+        }
+    }
+
+    private static PointLight2D PairLight(Texture2D texture, float scale, float energy, Vector2 position, int items, int shadows)
+    {
+        return new PointLight2D
+        {
+            Texture = texture,
+            TextureScale = scale,
+            Energy = energy,
+            Color = new Color(1.00f, 0.72f, 0.38f),
+            Position = position,
+            Height = 40f,
+            RangeItemCullMask = items,
+            ShadowEnabled = true,
+            ShadowItemCullMask = shadows,
+            ShadowFilter = Light2D.ShadowFilterEnum.None,
+            ZIndex = 5,
+        };
     }
 
     private void BuildEmitters(Node2D world)

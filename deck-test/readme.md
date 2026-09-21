@@ -37,6 +37,22 @@ caps the frame rate, so each frame shows its true cost.
 The sweep stops the light row at 15, because Godot drops each light past 15 on one canvas
 item with no message (F-46).
 
+### The paired sweep of PR-56
+
+PR-56 splits each light source into a pair of Godot lights, so a figure casts a shadow and
+never darkens itself (D-853). The owner raised the light row from 15 to 24, and this sweep
+measures that load before PR-56 merges (D-854, G-14).
+
+| Stage | What it gives |
+|---|---|
+| `pairs-4` to `pairs-24` | 2 to 12 paired sources: 4 to 24 Godot lights with shadows, on figures that cast shadows |
+| `full-load-24` | 24 paired lights, 2048 particles, the glow, the fog, and a transition |
+
+One canvas item takes one light of each pair, so no item takes more than 12 lights. The CRT
+left the plan (D-618), so these stages run the glow and the fog alone. The report gives the
+row `paired lights` and the line of `full-load-24`. The row of D-854 stands when `pairs-24`
+and `full-load-24` both hold the target under the Mobile renderer (D-616).
+
 ## How to run it on the Deck
 
 1. Export the native Linux build on the Mac (D-458):
