@@ -18,7 +18,7 @@ Session: review PR-49, the elements and the statuses. Repository: the-thing-belo
 
 ### What is in flight
 
-- The review record and this handoff entry need one metadata commit and push.
+- The review record and this handoff entry are pushed. GitHub review-gate passes for the effective head.
 
 ### Traps and gotchas
 
@@ -31,7 +31,7 @@ None.
 
 ### The next concrete action
 
-Commit and push the review record and handoff entry. Fetch and verify the review-gate result and the PR head.
+Wait for the remaining GitHub checks, then verify the final PR head and check results.
 
 ## Session 171: 2026-09-21, Claude Code
 
