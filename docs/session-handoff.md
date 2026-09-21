@@ -14,12 +14,12 @@ Session: review PR-48, the enemy record. Repository: the-thing-below. Branch: `f
 
 ### The state of the build
 
-- The effective head is `fd97eb2`. The current branch tip is metadata commit `2a8da97`.
+- The effective head is `fd97eb2`. The current branch tip is metadata commit `4385650`.
 - `make verify` passes locally with 1583 tests. GitHub CI and Gitar pass at `2a8da97`, except `review-gate`, which waits for the review record.
 
 ### What is in flight
 
-The review record and this handoff entry need a commit and push. The author must add the D-754 size field and the map-to-record consistency test and validation.
+The review record and this handoff entry are pushed at `4385650`. The author must add the D-754 size field and the map-to-record consistency test and validation.
 
 ### Traps and gotchas
 
