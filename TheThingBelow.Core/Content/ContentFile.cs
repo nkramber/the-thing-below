@@ -33,7 +33,7 @@ public static class ContentPaths
     /// <summary>The file type of every font file (D-263, D-264).</summary>
     public const string FontFileType = ".ttf";
 
-    /// <summary>The folder that holds the files of the UI base (D-527, D-711).</summary>
+    /// <summary>The folder that holds the files of the UI base (D-527).</summary>
     public const string UiFolder = "ui/";
 
     /// <summary>Tells whether a content path lies inside the rule folder.</summary>

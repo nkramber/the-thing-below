@@ -33,23 +33,22 @@ public static class MapRules
     /// </summary>
     /// <remarks>
     /// The party walks four tiles a second, so 5 seconds carry it 20 tiles. That clears the
-    /// longest sight range of the party, which is 12 tiles on a map set to day (D-719).
+    /// longest sight of a patrol, because the 12 tiles of the party on a map set to day cap
+    /// it (D-720).
     /// </remarks>
     public const int GraceTicks = 300;
 
     /// <summary>
     /// Gives the sight range of the party on a map of one time of day, in tiles (D-193,
-    /// D-719).
+    /// D-720).
     /// </summary>
     /// <param name="time">The time of day of the map (D-442).</param>
     /// <returns>The range, in tiles.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value names no time (T-2).</exception>
     /// <remarks>
-    /// The frame holds 20 by 11.25 tiles (D-633). A range of 12 reaches past every edge of
-    /// that frame, so a day map hides no enemy that the player can see. A range of 5 holds
-    /// the party inside its own part of the frame, so a night map hides a patrol until it
-    /// comes close. This is what gives a night map its threat, because no fog of war covers
-    /// the ground (D-566).
+    /// The range decides nothing that Game draws, because every live enemy draws at any
+    /// distance (D-814). It sets the ceiling of the sight of each patrol on a map of that
+    /// time, so a night map holds patrols that see less far (D-720).
     /// </remarks>
     public static int PartySightRange(TimeOfDay time) => time switch
     {

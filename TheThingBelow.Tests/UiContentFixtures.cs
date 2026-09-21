@@ -6,22 +6,19 @@ using TheThingBelow.Core.Content;
 namespace TheThingBelow.Tests;
 
 /// <summary>
-/// The smallest UI base that a content set needs: the style file, the device table, both
-/// fonts, and the drawings that they name (D-527, D-710, D-711). A test of another rule adds
-/// these files, so it fails on its own rule and never on an absent UI file (T-2).
+/// The smallest UI base that a content set needs: the style file, both fonts, and the drawing
+/// that the style names (D-527, D-710). A test of another rule adds these files, so it fails
+/// on its own rule and never on an absent UI file (T-2).
 /// </summary>
 public static class UiContentFixtures
 {
     /// <summary>The id of the window frame drawing that the fixture style names.</summary>
     public const string WindowDrawingId = "drawing.ui_window_frame";
 
-    /// <summary>The id of the one glyph drawing that the fixture device table needs.</summary>
-    public const string GlyphDrawingId = "drawing.ui_glyph_keyboard_confirm";
-
-    /// <summary>The name of the page of the two UI drawings.</summary>
+    /// <summary>The name of the page of the UI drawing.</summary>
     public const string PageName = "ui";
 
-    /// <summary>The path of the page file of the two UI drawings.</summary>
+    /// <summary>The path of the page file of the UI drawing.</summary>
     public const string PageFile = "sprites/atlas-ui.png";
 
     /// <summary>The body of the fixture style file.</summary>
@@ -38,20 +35,7 @@ public static class UiContentFixtures
         }
         """;
 
-    /// <summary>The body of the fixture device table.</summary>
-    public const string DevicesBody =
-        """
-        {
-         "comment": "a test device table",
-         "sets": [ "keyboard" ],
-         "keyboard_set": "keyboard",
-         "default_set": "keyboard",
-         "prompts": [ "confirm" ],
-         "names": [ ]
-        }
-        """;
-
-    /// <summary>The entries that the fixture atlas index holds for the two UI drawings.</summary>
+    /// <summary>The entry that the fixture atlas index holds for the UI drawing.</summary>
     public const string AtlasEntries =
         """
           {
@@ -61,30 +45,20 @@ public static class UiContentFixtures
            "height": 1,
            "draws": [ { "content": "ui.window", "use": "frame" } ],
            "frames": [ { "x": 0, "y": 0, "ticks": 0 } ]
-          },
-          {
-           "id": "drawing.ui_glyph_keyboard_confirm",
-           "page": "ui",
-           "width": 1,
-           "height": 1,
-           "draws": [ { "content": "ui.confirm", "use": "glyph_keyboard" } ],
-           "frames": [ { "x": 1, "y": 0, "ticks": 0 } ]
           }
         """;
 
     /// <summary>The page record that the fixture atlas index holds.</summary>
-    public const string AtlasPageRecord = """{ "kind": "ui", "number": 1, "width": 2, "height": 1 }""";
+    public const string AtlasPageRecord = """{ "kind": "ui", "number": 1, "width": 1, "height": 1 }""";
 
     /// <summary>Every file of the UI base, for a content set that tests another rule.</summary>
-    /// <returns>The style file, the device table, both fonts, two drawings, and the page file.</returns>
+    /// <returns>The style file, both fonts, the drawing, and the page file.</returns>
     public static IReadOnlyList<ContentFile> Files() =>
     [
         Of(UiStyle.Path, StyleBody),
-        Of(DeviceNames.Path, DevicesBody),
         new ContentFile(FontStrikes.BodyPath, FontBytes(12, 16, 24, 32)),
         new ContentFile(FontStrikes.TitlePath, FontBytes(12, 16, 24, 32)),
         Of("sprites/drawings/ui/window-frame.json", DrawingBody(WindowDrawingId, "ui.window", "frame")),
-        Of("sprites/drawings/ui/keyboard-confirm.json", DrawingBody(GlyphDrawingId, "ui.confirm", "glyph_keyboard")),
 
         // The page is an image, and the content set records its path alone (D-517).
         new ContentFile(PageFile, [0]),

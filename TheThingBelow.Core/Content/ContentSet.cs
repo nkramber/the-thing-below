@@ -20,8 +20,7 @@ namespace TheThingBelow.Core.Content;
 /// </para>
 /// <para>
 /// The load also checks the UI base. Both fonts carry a bitmap of each body size, the style
-/// file names a drawing and a palette key that exist, and each glyph set holds the drawing of
-/// each button (D-527, D-707, D-710, D-711).
+/// file names a drawing and a palette key that exist (D-527, D-707, D-710).
 /// </para>
 /// </remarks>
 public sealed class ContentSet
@@ -36,7 +35,6 @@ public sealed class ContentSet
         StringTable strings,
         AtlasIndex atlas,
         UiStyle style,
-        DeviceNames devices,
         BattleContent battle,
         SortedDictionary<string, RuleFixtureEntry> ruleEntries,
         SortedDictionary<string, GameMap> maps,
@@ -48,7 +46,6 @@ public sealed class ContentSet
         this.Strings = strings;
         this.Atlas = atlas;
         this.Style = style;
-        this.Devices = devices;
         this.Battle = battle;
         this.ruleEntries = ruleEntries;
         this.maps = maps;
@@ -68,9 +65,6 @@ public sealed class ContentSet
 
     /// <summary>The look of every menu, panel, and label (D-527).</summary>
     public UiStyle Style { get; }
-
-    /// <summary>The table that picks a glyph set from the name of a gamepad (D-711).</summary>
-    public DeviceNames Devices { get; }
 
     /// <summary>The battle rules and the battle fixture (D-757, D-766).</summary>
     public BattleContent Battle { get; }
@@ -108,7 +102,6 @@ public sealed class ContentSet
         StringTable? strings = null;
         AtlasIndex? atlas = null;
         UiStyle? style = null;
-        DeviceNames? devices = null;
         BattleRules? battleRules = null;
         BattleFixture? battleFixture = null;
         AbilityList? abilities = null;
@@ -144,10 +137,6 @@ public sealed class ContentSet
             else if (string.CompareOrdinal(file.Path, UiStyle.Path) == 0)
             {
                 style = UiStyle.Read(file.Bytes, file.Path);
-            }
-            else if (string.CompareOrdinal(file.Path, DeviceNames.Path) == 0)
-            {
-                devices = DeviceNames.Read(file.Bytes, file.Path);
             }
             else if (string.CompareOrdinal(file.Path, BattleRules.Path) == 0)
             {
@@ -211,7 +200,6 @@ public sealed class ContentSet
             strings ?? throw AbsentFile(StringTable.Path),
             atlas ?? throw AbsentFile(AtlasIndex.Path),
             style ?? throw AbsentFile(UiStyle.Path),
-            devices ?? throw AbsentFile(DeviceNames.Path),
             new BattleContent(
                 battleRules ?? throw AbsentFile(BattleRules.Path),
                 battleFixture ?? throw AbsentFile(BattleFixture.Path),
@@ -228,7 +216,6 @@ public sealed class ContentSet
         set.RefuseStaleAtlas(pageFiles);
         set.RefuseAbsentFont();
         set.RefuseAbsentStyleDrawing();
-        set.RefuseAbsentGlyph();
         set.RefuseAbsentGroup();
         return set;
     }
@@ -465,28 +452,6 @@ public sealed class ContentSet
                     UiStyle.Path,
                     color.Role,
                     $"the style names the palette key '{color.Key}', and the palette has no such color (D-181)");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Refuses a build that lacks the glyph of one button in one glyph set. A prompt draws
-    /// the glyph of the last device, so every set holds every button (D-222, D-711, T-2).
-    /// </summary>
-    private void RefuseAbsentGlyph()
-    {
-        foreach (string set in this.Devices.Sets)
-        {
-            foreach (string prompt in this.Devices.Prompts)
-            {
-                string id = DeviceNames.GlyphDrawingId(set, prompt);
-                if (!this.drawings.ContainsKey(id))
-                {
-                    throw ContentException.ForField(
-                        DeviceNames.Path,
-                        set,
-                        $"the glyph set holds no drawing '{id}' for the button '{prompt}' (D-222)");
-                }
             }
         }
     }

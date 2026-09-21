@@ -280,7 +280,7 @@ public sealed partial class CaptureSession : Node
             // map, and each later frame of the walk runs one tick of them (D-782).
             GameRun walked = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers());
             this.walkRun = walked;
-            this.walkMap = MapFixture.Build(built, @base, walked.Party).Map;
+            this.walkMap = MapFixture.Build(built, @base, walked.Party);
             return;
         }
 

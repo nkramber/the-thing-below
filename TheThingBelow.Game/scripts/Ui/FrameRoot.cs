@@ -72,6 +72,23 @@ public partial class FrameRoot : Node
     }
 
     /// <summary>
+    /// Gives one input event to the nodes of <see cref="Layer"/>, such as the entry of the
+    /// debug console (D-725).
+    /// </summary>
+    /// <param name="signal">A key event of the root viewport.</param>
+    /// <remarks>
+    /// The screen shows the frame viewport through a texture and not through a viewport
+    /// container, so the engine gives that viewport no event of its own. A focused node of the
+    /// frame thus reads a key only through this method.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">The event is null (T-2).</exception>
+    public void PushToLayer(InputEvent signal)
+    {
+        ArgumentNullException.ThrowIfNull(signal);
+        this.frameViewport.PushInput(signal);
+    }
+
+    /// <summary>
     /// Measures the screen again and places the frame on it. The method runs at the start and
     /// after every change of the window size.
     /// </summary>

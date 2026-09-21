@@ -299,7 +299,7 @@ public sealed class MapPatrolsTests
     [Fact]
     public void APatrolNeverSeesThroughAWallOverOneThousandSeeds()
     {
-        // Exit test 2 of section 7.6 of `phase-2-first-playable.md` (D-718, D-719).
+        // Exit test 2 of section 7.6 of `phase-2-first-playable.md` (D-718).
         for (ulong seed = 0; seed < SeedCount; seed += 1)
         {
             Simulation run = Simulation.Start(seed, TwoRooms(12), TestBattles.Content, DebugIntentHandlers.None);

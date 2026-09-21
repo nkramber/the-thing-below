@@ -93,20 +93,12 @@ public partial class Boot : Node
     /// <summary>The name that Godot gives the display server of a session with no window.</summary>
     private const string HeadlessDisplay = "headless";
 
-    /// <summary>
-    /// The key that opens the debug console and closes it, in a development build alone
-    /// (D-171, D-725). The key sits outside the input map, so it makes no intent and the
-    /// remap of PR-63 never reaches it (D-214, F-50).
-    /// </summary>
-    private const Key ConsoleKey = Key.Quoteleft;
-
     private LogStore? log;
     private GameRun? run;
     private ContentSet? content;
     private UiBase? ui;
     private int builtBody;
     private FrameRoot? frame;
-    private PromptBar? prompts;
     private MapScreen? map;
     private Control? console;
     private readonly HeldSteps held = new();
@@ -274,14 +266,12 @@ public partial class Boot : Node
     }
 
     /// <summary>
-    /// Builds the frame, the UI base, the map, and the row of button prompts (D-524, D-561,
-    /// D-568, D-722).
+    /// Builds the frame, the UI base, and the map (D-524, D-561, D-568, D-815).
     /// </summary>
     /// <param name="loaded">The content set of this build.</param>
     /// <remarks>
     /// The map draws in the world viewport at 1x, and the frame shows that viewport at 2x
-    /// (D-633, D-634). The prompts draw on the frame layer, so the text of a prompt matches
-    /// the art pixel of the frame (D-230).
+    /// (D-633, D-634). The game shows no button prompt, so no row draws on the frame (D-815).
     /// <para>
     /// The body size comes from the fit of the frame on this screen, and no setting exists
     /// yet. PR-63 adds the display setting that changes it (D-707).
@@ -302,10 +292,8 @@ public partial class Boot : Node
         GameRun open = this.run ?? throw new InvalidOperationException(
             $"The screen built before the run started (T-2).");
 
-        // The capture session of the screen-test job builds the same two nodes (D-172, D-734).
-        MapFixture drawn = MapFixture.Build(built, built_ui, open.Party);
-        this.map = drawn.Map;
-        this.prompts = drawn.Prompts;
+        // The capture session of the screen-test job builds the same map (D-172, D-734).
+        this.map = MapFixture.Build(built, built_ui, open.Party);
 
         this.BuildConsole(built, open);
     }
@@ -338,7 +326,6 @@ public partial class Boot : Node
         this.frame?.QueueFree();
         this.frame = null;
         this.map = null;
-        this.prompts = null;
         this.console = null;
         this.BuildScreen(loaded);
     }
@@ -468,30 +455,38 @@ public partial class Boot : Node
     }
 
     /// <summary>
-    /// Reads the key that opens the debug console and closes it, before any node of the frame
-    /// reads it (D-171, D-725).
+    /// Reads each key event before any node of the frame reads it, and sends it on its route
+    /// (D-171, D-725, D-813).
     /// </summary>
     /// <param name="signal">Every input event of this frame.</param>
     /// <remarks>
-    /// The entry of the console takes every key while the console is open, so a method that
-    /// ran after the nodes of the frame would never see the key that closes it. Thus this
-    /// method takes the key here and marks the event as handled, and no other node reads it.
+    /// The console draws in the frame viewport, which gets no event from the engine, so this
+    /// method pushes each key of an open console there itself. The method then marks the event
+    /// as handled, and no other node reads it. Before this rule the entry held the focus and
+    /// read no key at all, so no battle could run from the console.
     /// </remarks>
     public override void _Input(InputEvent signal)
     {
-        if (this.crashed || this.console is null || signal is not InputEventKey key)
+        if (this.crashed || signal is not InputEventKey key)
         {
             return;
         }
 
-        if (!key.Pressed || key.Echo || key.Keycode != ConsoleKey)
+        KeyRoute route = KeyRoutes.Of(
+            (long)key.Keycode,
+            key.Pressed,
+            key.Echo,
+            this.console?.Visible == true,
+            this.QuitAllowed());
+
+        if (route == KeyRoute.Game || (route == KeyRoute.ToggleConsole && this.console is null))
         {
             return;
         }
 
         try
         {
-            this.ToggleConsole(this.console);
+            this.Follow(route, key);
         }
         catch (Exception fault)
         {
@@ -499,6 +494,47 @@ public partial class Boot : Node
         }
 
         GetViewport().SetInputAsHandled();
+    }
+
+    /// <summary>
+    /// Tells whether the quit key ends this session: a development build with a run on the
+    /// map and no menu (D-813). A release build reads the key as cancel alone.
+    /// </summary>
+    /// <returns>True when the quit key ends the session.</returns>
+    private bool QuitAllowed() =>
+        DebugSeam.IsDevelopmentBuild && this.run is not null && !this.run.MenuOpenNextTick;
+
+    /// <summary>Does what the route of one key event asks (D-725, D-813).</summary>
+    /// <param name="route">The route, other than <see cref="KeyRoute.Game"/>.</param>
+    /// <param name="key">The key event.</param>
+    /// <exception cref="InvalidOperationException">The route needs a node that this session has not built (T-2).</exception>
+    private void Follow(KeyRoute route, InputEventKey key)
+    {
+        switch (route)
+        {
+            case KeyRoute.ToggleConsole:
+            case KeyRoute.CloseConsole:
+                this.ToggleConsole(this.console ?? throw new InvalidOperationException(
+                    $"The key route '{route}' needs the debug console, and this session built none (T-2)."));
+                return;
+            case KeyRoute.Console:
+                FrameRoot frame = this.frame ?? throw new InvalidOperationException(
+                    "The debug console is open, and this session built no frame to take its keys (D-725, T-2).");
+                frame.PushToLayer(key);
+                return;
+            case KeyRoute.Quit:
+                this.WriteLog([new LogEntry(
+                    LogLevel.Info,
+                    "the quit key ended the session of a development build",
+                    this.run?.Tick ?? 0,
+                    LogSubsystems.Game,
+                    [])]);
+                GetTree().Quit(SuccessExitCode);
+                return;
+            default:
+                throw new InvalidOperationException(
+                    $"The key route '{route}' has no action here (T-2).");
+        }
     }
 
     /// <summary>
@@ -523,8 +559,7 @@ public partial class Boot : Node
     }
 
     /// <summary>
-    /// Reads one input event. The event sets the device of the prompts, and it makes at most
-    /// one intent (D-222, D-493, F-50).
+    /// Reads one input event, and makes at most one intent (D-493, F-50).
     /// </summary>
     /// <param name="signal">The event that no node of the frame took.</param>
     /// <remarks>
@@ -560,7 +595,7 @@ public partial class Boot : Node
         }
     }
 
-    /// <summary>Sets the glyph set of the prompts, and makes the intent of one action.</summary>
+    /// <summary>Makes the intent of one action.</summary>
     /// <param name="signal">The event of this frame.</param>
     private void ReadInput(InputEvent signal)
     {
@@ -570,11 +605,6 @@ public partial class Boot : Node
             // closes. The entry takes every key, and a gamepad event still reaches this
             // method, so the refusal stands here for every device (D-725, T-2).
             return;
-        }
-
-        if (this.ui is not null && this.ui.Device.Read(signal) && this.prompts is not null)
-        {
-            this.prompts.DrawPrompts();
         }
 
         // The party walks while a direction is down, so the map needs the press and the
@@ -985,22 +1015,7 @@ public partial class Boot : Node
             return $"absent, because this build has no feature '{DebugSeam.DevelopmentFeature}' (D-260, D-492)";
         }
 
-        if (!DebugSeam.TryBuildConsole(() => session.State, session.Queue, out Control? made) || made is null)
-        {
-            throw new InvalidOperationException(
-                "This build has the feature of a development build, and it built no debug console (D-723, T-2).");
-        }
-
-        // The console takes the focus when it opens, and it reads a typed line from the signal
-        // of its entry. The console owns those nodes, so the check of both lives behind the
-        // seam and it fails with its own message (D-723, D-725, T-2). A node outside the tree
-        // can hold no focus, so the check adds the console and then takes it away again.
-        this.AddChild(made);
-        made.Visible = true;
-        int shown = DebugSeam.SubmitLine(made, SmokeConsoleLine).Count;
-        made.Visible = false;
-        this.RemoveChild(made);
-        made.QueueFree();
+        int shown = this.TypeInConsole(session);
 
         int answers = 0;
         IReadOnlyList<string> names = DebugSeam.CommandNames();
@@ -1025,6 +1040,78 @@ public partial class Boot : Node
         return $"{names.Count} commands with {answers} answer lines, {shown} lines on the screen "
             + $"after a typed line, "
             + $"and they marked {marked} more tiles as walked";
+    }
+
+    /// <summary>
+    /// Builds the frame and the console as a play session does, and types a line in the
+    /// console through key events of the root viewport, as the person does (D-725, D-813).
+    /// </summary>
+    /// <param name="session">The run of the smoke session.</param>
+    /// <returns>The count of lines that the console shows after the typed line.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// The build built no console, the console key opened nothing, the typed line reached no
+    /// entry, or the quit key left the console open (T-2).
+    /// </exception>
+    /// <remarks>
+    /// The console draws in the frame viewport, which gets no event from the engine. A check
+    /// that set the text of the entry, or that put the console outside the frame, passed while
+    /// no key of the person reached the entry. Thus this check sends every key through
+    /// <see cref="_Input"/>, on the path of a real key (T-3).
+    /// </remarks>
+    private int TypeInConsole(GameRun session)
+    {
+        // A key that the console does not take goes on to the input map, as in a play session.
+        GameInputMap.Build();
+        var built = new FrameRoot();
+        this.AddChild(built);
+        this.frame = built;
+        this.BuildConsole(built, session);
+        Control made = this.console ?? throw new InvalidOperationException(
+            "This build has the feature of a development build, and it built no debug console (D-723, T-2).");
+
+        this.PushKey((Key)KeyRoutes.ConsoleKey, 0);
+        if (!made.Visible)
+        {
+            throw new InvalidOperationException(
+                "The smoke session pressed the console key, and the console stayed closed (D-725, T-2).");
+        }
+
+        int before = DebugSeam.ShownLines(made).Count;
+        foreach (char typed in SmokeConsoleLine)
+        {
+            this.PushKey((Key)char.ToUpperInvariant(typed), typed);
+        }
+
+        this.PushKey(Key.Enter, 0);
+        int shown = DebugSeam.ShownLines(made).Count;
+        if (shown <= before)
+        {
+            throw new InvalidOperationException(
+                $"The smoke session typed '{SmokeConsoleLine}' and Enter, and the console still "
+                + $"shows {shown} lines. No key reached the entry of the console (D-725, T-2).");
+        }
+
+        this.PushKey((Key)KeyRoutes.QuitKey, 0);
+        if (made.Visible)
+        {
+            throw new InvalidOperationException(
+                "The smoke session pressed the quit key, and the console stayed open (D-813, T-2).");
+        }
+
+        this.console = null;
+        this.frame = null;
+        this.RemoveChild(built);
+        built.QueueFree();
+        return shown;
+    }
+
+    /// <summary>Pushes the press and the release of one key into the root viewport.</summary>
+    /// <param name="key">The key.</param>
+    /// <param name="unicode">The character that the key types, or 0 for a key that types none.</param>
+    private void PushKey(Key key, long unicode)
+    {
+        GetViewport().PushInput(new InputEventKey { Keycode = key, Unicode = unicode, Pressed = true });
+        GetViewport().PushInput(new InputEventKey { Keycode = key, Unicode = unicode, Pressed = false });
     }
 
     /// <summary>

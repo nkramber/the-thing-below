@@ -25,14 +25,12 @@ public sealed class MapRulesTests
     }
 
     [Fact]
-    public void ADayMapReachesPastTheFrameAndANightMapDoesNot()
+    public void ANightMapHoldsPatrolsThatSeeLessFarThanADayMap()
     {
-        // The frame holds 20 by 11.25 tiles (D-633). A day map hides no enemy that the
-        // player can see, and a night map hides a patrol until it comes close (D-719).
-        const int halfOfTheFrameWidth = 10;
-
-        Assert.True(MapRules.PartySightRange(TimeOfDay.Day) > halfOfTheFrameWidth);
-        Assert.True(MapRules.PartySightRange(TimeOfDay.Night) < halfOfTheFrameWidth);
+        // The range of the party is the ceiling of the sight of each patrol (D-720), and it
+        // decides nothing that Game draws (D-814).
+        Assert.True(MapRules.PartySightRange(TimeOfDay.Night) < MapRules.PartySightRange(TimeOfDay.Dusk));
+        Assert.True(MapRules.PartySightRange(TimeOfDay.Dusk) < MapRules.PartySightRange(TimeOfDay.Day));
     }
 
     [Fact]

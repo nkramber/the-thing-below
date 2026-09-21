@@ -45,7 +45,7 @@ public sealed record WalkTick(string Action, int Tick);
 /// </remarks>
 public static class ScreenCaptures
 {
-    /// <summary>The running screen: the frame, the world, and the row of button prompts (D-734).</summary>
+    /// <summary>The running screen: the frame and the world, with no button prompt (D-734, D-815).</summary>
     public const string MapFixture = "map";
 
     /// <summary>The window frame and the longest string of the string table, with no world (D-734).</summary>

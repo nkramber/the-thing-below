@@ -21,7 +21,7 @@ public enum AtlasPageKind
     /// <summary>A portrait of the dialogue box, 64 by 64 pixels (D-234).</summary>
     Portraits,
 
-    /// <summary>A window frame, an icon, or a glyph of the interface (D-214, D-220, D-222).</summary>
+    /// <summary>A window frame or an icon of the interface (D-214, D-220).</summary>
     Ui,
 }
 
