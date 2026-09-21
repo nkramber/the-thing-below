@@ -1,5 +1,42 @@
 # Session handoff archive
 
+## Session 151: 2026-09-20, Codex
+
+Author: Codex
+Session: review PR #44, the screen-test job. Repository: the-thing-below. Branch: `feat/pr-41-screen-test`. Role: reviewer. Base: `1e0c6b1`.
+
+### What this session did, and why
+
+- Reviewed PR #44 at effective head `233b890`.
+- Verified the opposite-provider gate, the complete diff, the PR comments, the PR-41 roadmap exit tests, the capture lifecycle, the renderer checks, the deterministic two-run comparison, the baseline comparison, and the contact-sheet command.
+- Found no in-scope defect.
+- Added `docs/reviews/pr-44.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1272 tests and all local gates.
+- GitHub passes the build, test, format, smoke, replay identity, det-lint, STE, coverage, changed-paths, screen-test, and Gitar checks at tip `023211d`. Two Windows jobs were still in progress when read.
+- The effective implementation head is `233b890`. The later commits change only handoff and review metadata.
+- The review record and handoff are on remote head `4858ab7`. The review-gate check should pass after CI reads this metadata commit.
+
+### What is in flight
+
+The pull request waits for the owner merge. The review applies to effective head `233b890`.
+
+### Traps and gotchas
+
+- The GitHub tip is `023211d`, but the two commits after `233b890` change only metadata paths.
+- A later Mesa pin needs a new baseline in the same PR.
+- A PR that changes `.github/workflows/` never takes the review-override label.
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Verify the review-gate check and the remote branch state.
+
 ## Session 150: 2026-09-20, Claude Code
 
 Author: Claude Code

@@ -1,5 +1,39 @@
 # Session handoff
 
+## Session 161: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-89, round 2: the walk baselines and the Gitar answer. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: author. Base: `ce06eda`.
+
+### What this session did, and why
+
+- The first CI run of `f4eaabe` failed only where the plan said: 32 walk frames with no baseline, six `TheBaselineHoldsThisCapture` cases on each test leg, and RG 3 of `review-gate`. The 10 still captures matched their baselines.
+- Downloaded the `screen-captures` artifact of run 35600042818. Read all 32 walk frames as one strip of the lead, and one full frame (D-733, D-784). The lead draws whole in each frame.
+- Committed the 32 walk PNGs to `screens/baseline/`.
+- Gitar approved `f4eaabe` with one finding: `ExpectedNames` claimed every file but held 6 of the 32 walk frames. Full merit. The list now holds all 42 names, so each walk baseline has its own test case.
+
+### The state of the build
+
+- Remote head of `main`: `ce06eda`. Local: 1553 of 1553 tests pass, and format passes.
+- At `f4eaabe`, CI passed smoke, replay-identity, det-lint, and ste-check on every leg.
+
+### What is in flight
+
+The push of this round. After it: the screen-test job, the Gitar pass of the new head, and the Codex review, which adds `docs/reviews/pr-47.md`.
+
+### Traps and gotchas
+
+- The traps of Session 160 stand: `CLAUDE.md` is one byte under 16 KB, and this Mac cannot hold the 1080-row captures.
+- In `ScreenCapturesTests`, `StillNames` must stay above `ExpectedNames`, for the same static order as `WalkSteps` in `ScreenCaptures`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for Gitar and CI on the new head, and answer each finding. Then tell the owner that PR #47 is ready for the Codex review.
+
 ## Session 160: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -321,40 +355,3 @@ None.
 ### The next concrete action
 
 Read the result of the `screen-test` job, download its artifact, read each frame, and commit the new baseline. Then run the gitar wait.
-
-## Session 151: 2026-09-20, Codex
-
-Author: Codex
-Session: review PR #44, the screen-test job. Repository: the-thing-below. Branch: `feat/pr-41-screen-test`. Role: reviewer. Base: `1e0c6b1`.
-
-### What this session did, and why
-
-- Reviewed PR #44 at effective head `233b890`.
-- Verified the opposite-provider gate, the complete diff, the PR comments, the PR-41 roadmap exit tests, the capture lifecycle, the renderer checks, the deterministic two-run comparison, the baseline comparison, and the contact-sheet command.
-- Found no in-scope defect.
-- Added `docs/reviews/pr-44.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 1272 tests and all local gates.
-- GitHub passes the build, test, format, smoke, replay identity, det-lint, STE, coverage, changed-paths, screen-test, and Gitar checks at tip `023211d`. Two Windows jobs were still in progress when read.
-- The effective implementation head is `233b890`. The later commits change only handoff and review metadata.
-- The review record and handoff are on remote head `4858ab7`. The review-gate check should pass after CI reads this metadata commit.
-
-### What is in flight
-
-The pull request waits for the owner merge. The review applies to effective head `233b890`.
-
-### Traps and gotchas
-
-- The GitHub tip is `023211d`, but the two commits after `233b890` change only metadata paths.
-- A later Mesa pin needs a new baseline in the same PR.
-- A PR that changes `.github/workflows/` never takes the review-override label.
-
-### The questions that block progress
-
-None. OQ-115 blocks PR-8 alone.
-
-### The next concrete action
-
-Verify the review-gate check and the remote branch state.

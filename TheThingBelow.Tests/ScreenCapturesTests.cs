@@ -24,9 +24,9 @@ public sealed class ScreenCapturesTests
     /// <summary>The folder of the committed baseline, under the root of the checkout (D-736).</summary>
     private const string BaselineFolder = "screens/baseline";
 
-    /// <summary>Every file that one run of the capture session writes, in the order of the list.</summary>
-    public static TheoryData<string> ExpectedNames { get; } = new TheoryData<string>
-    {
+    /// <summary>The ten files of the map fixture and the ui fixture, in the order of the list.</summary>
+    private static readonly string[] StillNames =
+    [
         "map-1x.png",
         "map-fill-1080.png",
         "map-whole-1080.png",
@@ -37,13 +37,12 @@ public sealed class ScreenCapturesTests
         "ui-whole-1080.png",
         "ui-fill-1440.png",
         "ui-whole-1440.png",
-        "walk-north-01.png",
-        "walk-north-08.png",
-        "walk-north-16.png",
-        "walk-south-01.png",
-        "walk-south-09.png",
-        "walk-south-16.png",
-    };
+    ];
+
+    // This property stays below `StillNames`, because its build reads that array, and a static
+    // member takes its value in the order of the file (T-2).
+    /// <summary>Every file that one run of the capture session writes, in the order of the list.</summary>
+    public static TheoryData<string> ExpectedNames { get; } = BuildExpectedNames();
 
     [Fact]
     public void TheListHoldsFiveCapturesOfEachStillFixtureAndOneForEachTickOfTheWalk()
@@ -59,16 +58,7 @@ public sealed class ScreenCapturesTests
     {
         // D-782. The frames inside a step are the regression test of F-95, so no tick of a
         // step north or south may drop out of the list.
-        var expected = new List<string>();
-        foreach (string direction in new[] { "north", "south" })
-        {
-            for (int tick = 1; tick <= 16; tick += 1)
-            {
-                expected.Add($"walk-{direction}-{tick:D2}.png");
-            }
-        }
-
-        Assert.Equal(expected, NamesOf(OfFixture("walk")));
+        Assert.Equal(WalkNames(), NamesOf(OfFixture("walk")));
     }
 
     [Fact]
@@ -187,6 +177,39 @@ public sealed class ScreenCapturesTests
         }
 
         return read;
+    }
+
+    private static TheoryData<string> BuildExpectedNames()
+    {
+        // The walk names come from a loop, so each of the 32 walk baselines has its own case,
+        // and a baseline that drops out names its file (D-782, T-2).
+        var names = new TheoryData<string>();
+        foreach (string name in StillNames)
+        {
+            names.Add(name);
+        }
+
+        foreach (string name in WalkNames())
+        {
+            names.Add(name);
+        }
+
+        return names;
+    }
+
+    /// <summary>The 32 files of the walk fixture: 16 ticks of one step north, then 16 of one step south.</summary>
+    private static List<string> WalkNames()
+    {
+        var names = new List<string>();
+        foreach (string direction in new[] { "north", "south" })
+        {
+            for (int tick = 1; tick <= 16; tick += 1)
+            {
+                names.Add($"walk-{direction}-{tick:D2}.png");
+            }
+        }
+
+        return names;
     }
 
     private static IEnumerable<object> OfFixture(string fixture)
