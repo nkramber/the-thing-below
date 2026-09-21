@@ -1,5 +1,40 @@
 # Session handoff archive
 
+## Session 157: 2026-09-21, Codex
+
+Author: Codex
+Session: repeat review PR-8, the enemies on the map. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: reviewer. Base: `626d2fe`.
+
+### What this session did, and why
+
+- Reopened PR #45 at effective head `801d6aa` after the author corrected P2-1 from the review of `e83e2d6`.
+- Verified the original overflow trigger, the subtraction-based correction, the three-case regression theory, and the full affected consumer path.
+- Updated `docs/reviews/pr-45.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes locally with 1,393 tests and all local gates.
+- CI passes the build, test, format, smoke, replay identity, screen-test, det-lint, STE, coverage, changed-paths, and Gitar checks at PR tip `06ad10b`.
+- The effective implementation head is `801d6aa`.
+- The remote head of `main` is `626d2fe`.
+
+### What is in flight
+
+The review record and this handoff entry need one metadata commit and push.
+
+### Traps and gotchas
+
+- The effective head is `801d6aa`. The tip `06ad10b` changes only review metadata.
+- The area edge check depends on the reader refusing negative coordinates and dimensions.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the repeat review record and this handoff entry. Then verify the remote head and review-gate result.
+
 ## Session 156: 2026-09-21, Claude Code
 
 Author: Claude Code

@@ -1,5 +1,39 @@
 # Session handoff
 
+## Session 167: 2026-09-21, Codex
+
+Author: Codex
+Session: review PR-48, the enemy record. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: reviewer. Base: `86528a3`.
+
+### What this session did, and why
+
+- Reviewed PR #48 at effective head `fd97eb2`.
+- Inspected the complete diff, the PR comments, the PR-80 roadmap scope and exit tests, the affected Core, content, test, identity, and document paths, and the D-754 contract.
+- Found that the enemy record omits body size and that content loading does not compare map patrol size with the enemy record.
+- Added `docs/reviews/pr-48.md` with finding P1-1 and the verdict `Changes required`.
+
+### The state of the build
+
+- The effective head is `fd97eb2`. The current branch tip is metadata commit `2a8da97`.
+- `make verify` passes locally with 1583 tests. GitHub CI and Gitar pass at `2a8da97`, except `review-gate`, which waits for the review record.
+
+### What is in flight
+
+The review record and this handoff entry need a commit and push. The author must add the D-754 size field and the map-to-record consistency test and validation.
+
+### Traps and gotchas
+
+- `Patrol` already stores the map size, but `EnemyRecord` has no size member.
+- A metadata commit does not move the effective head. The review targets `fd97eb2`, not `2a8da97`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff entry. Then the author answers P1-1 in a new round.
+
 ## Session 166: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -317,38 +351,3 @@ None.
 ### The next concrete action
 
 Push, open PR #46, and follow the `gitar-review` skill.
-
-## Session 157: 2026-09-21, Codex
-
-Author: Codex
-Session: repeat review PR-8, the enemies on the map. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: reviewer. Base: `626d2fe`.
-
-### What this session did, and why
-
-- Reopened PR #45 at effective head `801d6aa` after the author corrected P2-1 from the review of `e83e2d6`.
-- Verified the original overflow trigger, the subtraction-based correction, the three-case regression theory, and the full affected consumer path.
-- Updated `docs/reviews/pr-45.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes locally with 1,393 tests and all local gates.
-- CI passes the build, test, format, smoke, replay identity, screen-test, det-lint, STE, coverage, changed-paths, and Gitar checks at PR tip `06ad10b`.
-- The effective implementation head is `801d6aa`.
-- The remote head of `main` is `626d2fe`.
-
-### What is in flight
-
-The review record and this handoff entry need one metadata commit and push.
-
-### Traps and gotchas
-
-- The effective head is `801d6aa`. The tip `06ad10b` changes only review metadata.
-- The area edge check depends on the reader refusing negative coordinates and dimensions.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the repeat review record and this handoff entry. Then verify the remote head and review-gate result.
