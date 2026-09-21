@@ -36,10 +36,11 @@ public static class DebugAssembly
     /// <summary>Builds the console over one run, and gives its node (D-171).</summary>
     /// <param name="state">Gives the state of the run now, which a report command reads.</param>
     /// <param name="queue">Takes an intent of the console into the next tick of the run.</param>
+    /// <param name="switchCarriedLight">Turns the carried light on or off, and tells whether it is on now (D-851).</param>
     /// <returns>The node of the console, which the host adds to the frame layer (D-568).</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    public static Control Create(Func<RunState> state, Action<Intent> queue) =>
-        new DebugConsole(new DebugSession(state, queue)).Root;
+    public static Control Create(Func<RunState> state, Action<Intent> queue, Func<bool> switchCarriedLight) =>
+        new DebugConsole(new DebugSession(state, queue, switchCarriedLight)).Root;
 
     /// <summary>
     /// Gives the lines that a console shows now. The smoke session of CI reads them after it
@@ -59,10 +60,11 @@ public static class DebugAssembly
     /// <param name="line">The text of the line, such as `reveal`.</param>
     /// <param name="state">Gives the state of the run now.</param>
     /// <param name="queue">Takes an intent of the console into the next tick of the run.</param>
+    /// <param name="switchCarriedLight">Turns the carried light on or off, and tells whether it is on now (D-851).</param>
     /// <returns>The lines that a console would print.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    public static IReadOnlyList<string> Run(string line, Func<RunState> state, Action<Intent> queue) =>
-        new DebugSession(state, queue).Run(line);
+    public static IReadOnlyList<string> Run(string line, Func<RunState> state, Action<Intent> queue, Func<bool> switchCarriedLight) =>
+        new DebugSession(state, queue, switchCarriedLight).Run(line);
 
     /// <summary>The name of each command of this build, which the smoke session runs (D-117).</summary>
     /// <returns>One name for each command, in the order of `help`.</returns>

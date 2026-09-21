@@ -80,13 +80,21 @@ public static class DebugAssemblyFile
     /// <param name="line">The text of the line, such as `reveal`.</param>
     /// <param name="state">Gives the state of the run now.</param>
     /// <param name="queue">Takes an intent of the console into the next tick of the run.</param>
+    /// <param name="switchCarriedLight">
+    /// Switches the carried light, or no value for a test that never switches it. The default
+    /// fails, so a command that switches the light by mistake fails its test (D-851, T-2).
+    /// </param>
     /// <returns>The lines that a console would print.</returns>
-    public static IReadOnlyList<string> Run(string line, Func<RunState> state, Action<Intent> queue) =>
+    public static IReadOnlyList<string> Run(string line, Func<RunState> state, Action<Intent> queue, Func<bool>? switchCarriedLight = null) =>
         Member("Run")
-            .CreateDelegate<Func<string, Func<RunState>, Action<Intent>, IReadOnlyList<string>>>()(
+            .CreateDelegate<Func<string, Func<RunState>, Action<Intent>, Func<bool>, IReadOnlyList<string>>>()(
                 line,
                 state,
-                queue);
+                queue,
+                switchCarriedLight ?? RefuseSwitch);
+
+    private static bool RefuseSwitch() =>
+        throw new InvalidOperationException("The command switched the carried light, and this test gave no switch (T-2, D-851).");
 
     /// <summary>Names every command of the build, in the order of `help` (D-724).</summary>
     /// <returns>One name for each command.</returns>

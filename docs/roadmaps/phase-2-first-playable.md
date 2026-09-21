@@ -674,7 +674,7 @@ Area file: `area-effects.md` sections 7.4 and 7.6.
 4. A map that passes a row of the budget file fails the budget test, with the file and the count.
 5. A light setup that names an absent map id fails with the file and the id.
 6. No shader on lit art uses the normal map member of Godot.
-7. A change of a piece with no light, or of no piece, fails with the file and the id (D-843).
+7. A change of an absent piece fails with the file and the id (D-843).
 8. A test proves that the change of a light setup wins over the default of the decor kind (D-843).
 9. A wall torch off a wall, or with no floor south, fails with the file and the id (D-844).
 10. The budget test counts the carried light in each view (D-842, D-847).

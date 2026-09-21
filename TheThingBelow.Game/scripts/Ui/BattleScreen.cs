@@ -4,6 +4,7 @@ using System.Globalization;
 using Godot;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Runs;
 
 namespace TheThingBelow.Game.Ui;
@@ -25,6 +26,10 @@ namespace TheThingBelow.Game.Ui;
 /// <para>
 /// The sprite of each combatant takes the hit flash shader of D-825. The shader never writes
 /// the normal map, so the light of PR-56 finds the normal that Godot corrects (D-183).
+/// </para>
+/// <para>
+/// The fight takes the ambient light and the key light of the light setup of the map where it
+/// began, at the time of day of that map (D-205, D-442, D-850).
 /// </para>
 /// </remarks>
 public sealed class BattleScreen
@@ -154,6 +159,7 @@ public sealed class BattleScreen
             $"The battle screen builds at tick {run.Tick}, and the run holds no view of a fight (D-532, T-2).");
 
         var screen = new BattleScreen(ui, content, frame);
+        screen.BuildLight(run.Party.Map);
         Shader flash = LoadFlashShader();
         foreach (ShownCombatant shown in view.Party)
         {
@@ -169,6 +175,42 @@ public sealed class BattleScreen
         screen.PlaceStatusLines();
         screen.Show(run);
         return screen;
+    }
+
+    /// <summary>
+    /// The place of the key light over the world viewport, in art pixels: above the middle of
+    /// the fight, so each figure takes light on its upper side (D-850).
+    /// </summary>
+    public static readonly Vector2 KeyLightPlace = new(FrameRoot.WorldWidth / 2, 0);
+
+    /// <summary>
+    /// Reads each light of the fight back, and fails on a light that draws nothing (F-46). A
+    /// headless session draws nothing, so this check reads the nodes and never the pixels (F-23).
+    /// </summary>
+    /// <returns>The count of lights.</returns>
+    /// <exception cref="InvalidOperationException">A light has no texture or no height, or the fight holds no light (T-2, F-46).</exception>
+    public int CheckLights()
+    {
+        int count = WorldLights.CheckLights(this.world);
+        if (count != 1)
+        {
+            throw new InvalidOperationException(
+                $"The fight holds {count} lights, and it takes the one key light of its map (T-2, D-850).");
+        }
+
+        return count;
+    }
+
+    /// <summary>Builds the ambient light and the key light of the map where the fight began (D-850).</summary>
+    private void BuildLight(TheThingBelow.Core.Maps.GameMap map)
+    {
+        LightSetup setup = this.content.Light.SetupOf(map.Id, map.Time);
+        this.world.AddChild(WorldLights.Ambient(this.content.Palette, setup.Ambient));
+
+        // No wall stands in a fight, so the key light casts no shadow (D-850).
+        PointLight2D key = WorldLights.Point("key_light", this.content.Palette, setup.Battle, WorldLights.BuildTexture(), shadows: false);
+        key.Position = KeyLightPlace;
+        this.world.AddChild(key);
     }
 
     /// <summary>Removes every node of the screen from the frame.</summary>

@@ -14,6 +14,12 @@ namespace TheThingBelow.Game.Ui;
 /// Each texture draws with the Nearest filter, which the project setting of F-45 sets for
 /// every canvas texture. `ImageTexture.CreateFromImage` reports a failure in the log alone,
 /// so the load checks its result right after the call (T-2, F-45).
+/// <para>
+/// A page that takes scene light is a `CanvasTexture` of the color page and its normal-map
+/// page, so each sprite, tile, and piece catches light on the side that faces it (D-183,
+/// D-184). Both pages draw with the Nearest filter (F-45). A page of portraits or of the UI
+/// takes no scene light and has no normal map (D-210).
+/// </para>
 /// </remarks>
 public sealed class GameAtlas
 {
@@ -39,7 +45,8 @@ public sealed class GameAtlas
         var pages = new SortedDictionary<string, Texture2D>(StringComparer.Ordinal);
         foreach (AtlasPage page in index.Pages)
         {
-            pages.Add(page.Name, LoadPage(page));
+            Texture2D color = LoadPage(page, page.File);
+            pages.Add(page.Name, AtlasPages.TakesLight(page.Kind) ? Lit(color, LoadPage(page, page.NormalFile)) : color);
         }
 
         return new GameAtlas(index, pages);
@@ -88,28 +95,41 @@ public sealed class GameAtlas
         };
     }
 
-    private static Texture2D LoadPage(AtlasPage page)
+    /// <summary>Joins a color page and its normal-map page into one texture that takes scene light (D-183).</summary>
+    /// <remarks>
+    /// The canvas texture takes the Linear filter by default, and pixel art takes the Nearest
+    /// filter (F-45). Its default shininess of 1.0 gives no specular light, and no decision asks
+    /// for one (D-183).
+    /// </remarks>
+    private static CanvasTexture Lit(Texture2D color, Texture2D normal) => new()
     {
-        byte[] bytes = EmbeddedContent.ReadFile(page.File);
+        DiffuseTexture = color,
+        NormalTexture = normal,
+        TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
+    };
+
+    private static Texture2D LoadPage(AtlasPage page, string file)
+    {
+        byte[] bytes = EmbeddedContent.ReadFile(file);
 
         var picture = new Image();
         Error read = picture.LoadPngFromBuffer(bytes);
         if (read != Error.Ok)
         {
             throw new InvalidOperationException(
-                $"The page '{page.File}' of the Game assembly is not a PNG that Godot reads: {read} (T-2, D-508).");
+                $"The page '{file}' of the Game assembly is not a PNG that Godot reads: {read} (T-2, D-508).");
         }
 
         if (picture.GetWidth() != page.Width || picture.GetHeight() != page.Height)
         {
             throw new InvalidOperationException(
-                $"The page '{page.File}' is {picture.GetWidth()} by {picture.GetHeight()} pixels, "
+                $"The page '{file}' is {picture.GetWidth()} by {picture.GetHeight()} pixels, "
                 + $"and the atlas index holds {page.Width} by {page.Height}. Run the atlas command again (T-2, D-666).");
         }
 
         // The call reports a failure in the log alone, so the result takes a check (F-45, T-2).
         ImageTexture? texture = ImageTexture.CreateFromImage(picture);
         return texture ?? throw new InvalidOperationException(
-            $"Godot made no texture from the page '{page.File}' (T-2, F-45).");
+            $"Godot made no texture from the page '{file}' (T-2, F-45).");
     }
 }

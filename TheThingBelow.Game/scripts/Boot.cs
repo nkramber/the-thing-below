@@ -38,6 +38,9 @@ public partial class Boot : Node
     /// <summary>The argument that puts the debug lines of each subsystem in the log file (D-660).</summary>
     public const string DebugLogArgument = "--log-debug";
 
+    /// <summary>The console command that switches the carried light, which the smoke session runs again (D-851).</summary>
+    private const string TorchCommand = "torch";
+
     /// <summary>
     /// The argument that asks for the capture session of the screen-test job (D-172, D-732).
     /// The argument after it names the folder that takes one PNG for each capture.
@@ -290,7 +293,7 @@ public partial class Boot : Node
             $"The screen built before the run started (T-2).");
 
         // The capture session of the screen-test job builds the same map (D-172, D-734).
-        this.map = MapFixture.Build(built, built_ui, open.Party);
+        this.map = MapFixture.Build(built, built_ui, open.Party, loaded);
 
         this.BuildConsole(built, open);
     }
@@ -481,6 +484,20 @@ public partial class Boot : Node
     }
 
     /// <summary>
+    /// Turns the carried light of the map on or off, for the `torch` command of the console
+    /// (D-847, D-851). No rule reads the light, so no intent and no record exist.
+    /// </summary>
+    /// <returns>True when the carried light is on now.</returns>
+    /// <exception cref="InvalidOperationException">The session built no map (T-2).</exception>
+    private bool SwitchCarriedLight()
+    {
+        MapScreen shown = this.map ?? throw new InvalidOperationException(
+            "The console switched the carried light, and this session built no map (T-2, D-851).");
+        shown.CarriedLightOn = !shown.CarriedLightOn;
+        return shown.CarriedLightOn;
+    }
+
+    /// <summary>
     /// Builds the debug console of a development build, and adds it to the frame layer above
     /// every other node (D-171, D-725). A release build builds none, because it holds no debug
     /// assembly (D-260, D-492).
@@ -489,7 +506,7 @@ public partial class Boot : Node
     /// <param name="open">The run that the console reads and sends its intents to.</param>
     private void BuildConsole(FrameRoot built, GameRun open)
     {
-        if (!DebugSeam.TryBuildConsole(() => open.State, open.Queue, out Control? made) || made is null)
+        if (!DebugSeam.TryBuildConsole(() => open.State, open.Queue, this.SwitchCarriedLight, out Control? made) || made is null)
         {
             return;
         }
@@ -1094,16 +1111,18 @@ public partial class Boot : Node
         GameMap map = session.Party.Map;
         UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
         var drawn = new MapScreen();
-        drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, session.Party);
+        drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, session.Party, loaded);
+        drawn.CarriedLightOn = true;
         drawn.ShowParty(session.Party, 0);
 
         CameraPlace view = MapCamera.Of(session.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, 0);
         string ground = drawn.DescribeGround();
         string sprites = drawn.DescribeSprites(session.Party);
+        string lights = drawn.DescribeLights();
         drawn.QueueFree();
         return $"'{map.Id.Value}' at {map.Width} by {map.Height} tiles, "
             + $"the party at {session.Party.LeadAt}, the view at ({view.X}, {view.Y}), "
-            + $"{sprites}, and {ground}";
+            + $"{sprites}, {lights}, and {ground}";
     }
 
     /// <summary>
@@ -1131,12 +1150,23 @@ public partial class Boot : Node
 
         int shown = this.TypeInConsole(session);
 
+        // The `torch` command switches a light of the view alone, so this session holds the
+        // switch in a local value and reads it back (D-851).
+        bool carriedOn = false;
+        bool SwitchLight()
+        {
+            carriedOn = !carriedOn;
+            return carriedOn;
+        }
+
         int answers = 0;
         IReadOnlyList<string> names = DebugSeam.CommandNames();
         foreach (string name in names)
         {
-            answers += DebugSeam.Run(name, () => session.State, session.Queue).Count;
+            answers += DebugSeam.Run(name, () => session.State, session.Queue, SwitchLight).Count;
         }
+
+        string torch = CheckTorchCommand(session, SwitchLight, () => carriedOn);
 
         // The console sends an intent, and the rules apply it on the next tick. Thus the
         // count below reads the work of the handler of the seam, and never a change that the
@@ -1153,7 +1183,36 @@ public partial class Boot : Node
 
         return $"{names.Count} commands with {answers} answer lines, {shown} lines on the screen "
             + $"after a typed line, "
-            + $"and they marked {marked} more tiles as walked";
+            + $"they marked {marked} more tiles as walked, and {torch}";
+    }
+
+    /// <summary>
+    /// Runs the `torch` command a second time, and fails when it sent an intent or left the
+    /// carried light on (D-851). The loop of every command ran it once and turned the light on.
+    /// </summary>
+    /// <param name="session">The run of the smoke session.</param>
+    /// <param name="switchLight">The switch that the commands of this session call.</param>
+    /// <param name="isOn">Reads the switch back.</param>
+    /// <returns>The line of the check, for the report of the smoke session.</returns>
+    /// <exception cref="InvalidOperationException">The command sent an intent, or it did not switch the light (T-2).</exception>
+    private static string CheckTorchCommand(GameRun session, Func<bool> switchLight, Func<bool> isOn)
+    {
+        if (!isOn())
+        {
+            throw new InvalidOperationException(
+                $"The loop of every command ran '{TorchCommand}', and the carried light stayed off (D-851, T-2).");
+        }
+
+        int queued = 0;
+        DebugSeam.Run(TorchCommand, () => session.State, _ => queued += 1, switchLight);
+        if (isOn() || queued != 0)
+        {
+            throw new InvalidOperationException(
+                $"The second '{TorchCommand}' left the carried light on {isOn()} and sent {queued} intents, "
+                + "and it switches the light off with no intent (D-851, T-2).");
+        }
+
+        return $"'{TorchCommand}' switched the carried light on and off with no intent";
     }
 
     /// <summary>
@@ -1282,7 +1341,7 @@ public partial class Boot : Node
                 if (screen is null)
                 {
                     screen = BattleScreen.Build(built, shownBase, loaded, open);
-                    nodes = $"{screen.CombatantCount} combatants over {screen.BackdropCopies} backdrop copies";
+                    nodes = $"{screen.CombatantCount} combatants over {screen.BackdropCopies} backdrop copies in {screen.CheckLights()} key light";
                 }
 
                 screen.Show(open);

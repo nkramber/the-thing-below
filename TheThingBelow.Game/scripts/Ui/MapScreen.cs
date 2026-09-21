@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Game.Ui;
 
 /// <summary>
-/// The map on screen: the tiles of the map, the sprite of the lead, and the view that
-/// follows it (D-106, D-203, D-667).
+/// The map on screen: the tiles of the map, the sprite of the lead, the decor pieces, the
+/// scene light, and the view that follows it (D-106, D-203, D-667, D-843).
 /// </summary>
 /// <remarks>
 /// The node draws the state that Core stepped, and it holds no rule of its own (D-100). The
@@ -34,6 +35,12 @@ namespace TheThingBelow.Game.Ui;
 /// sprite. A tile that sorted by its cell drew over the feet of a sprite for half of each
 /// step north and each step south, because the feet then sit inside a row of tiles (F-95,
 /// D-783).
+/// </para>
+/// <para>
+/// The light setup of the map at its time of day gives the ambient light, and each decor piece
+/// gives its own light (D-442, D-843). Each wall casts the shadow of its full tile (D-845). The
+/// carried light follows the drawn place of the lead on each frame, inside a step too, and no
+/// rule reads it (D-847, G-1).
 /// </para>
 /// </remarks>
 public partial class MapScreen : Node2D
@@ -68,6 +75,8 @@ public partial class MapScreen : Node2D
     private Sprite2D lead = null!;
     private Sprite2D[] enemies = [];
     private Node2D mark = null!;
+    private PointLight2D carried = null!;
+    private CarriedLight carriedPlace = null!;
 
     /// <summary>
     /// Builds the tiles of one map, the sprite of the lead, one sprite for each enemy, and
@@ -76,19 +85,24 @@ public partial class MapScreen : Node2D
     /// <param name="atlas">The pages of the atlas, as textures (D-666).</param>
     /// <param name="theme">The theme, for the color of the mark (D-527).</param>
     /// <param name="party">The party and the enemies on the map (D-528, D-738).</param>
+    /// <param name="content">The content set, for the palette, the decor, and the light setup (D-843).</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="ContentException">The atlas holds no drawing of a tile, of the lead, or of an enemy (T-2).</exception>
+    /// <exception cref="ContentException">
+    /// The atlas holds no drawing of a tile, of the lead, of an enemy, or of a decor piece, or
+    /// the map has no light setup for its time of day (T-2).
+    /// </exception>
     /// <exception cref="InvalidOperationException">A call of the engine made no tile (T-2, F-45).</exception>
     /// <remarks>
     /// The enemies of the map never change while the party stands on it, because the time of
     /// day picks each station at the start of the run (D-743). Thus one sprite serves one
     /// enemy for the whole visit.
     /// </remarks>
-    public void Build(GameAtlas atlas, UiTheme theme, MapState party)
+    public void Build(GameAtlas atlas, UiTheme theme, MapState party, ContentSet content)
     {
         ArgumentNullException.ThrowIfNull(atlas);
         ArgumentNullException.ThrowIfNull(theme);
         ArgumentNullException.ThrowIfNull(party);
+        ArgumentNullException.ThrowIfNull(content);
 
         // Godot sorts each canvas item by one Y value, so a character draws in front of what
         // stands behind it (D-206, the external facts of `area-exploration.md`).
@@ -112,6 +126,8 @@ public partial class MapScreen : Node2D
 
         this.mark = BuildMark(theme);
         this.AddChild(this.mark);
+
+        this.BuildLight(atlas, party.Map, content);
     }
 
     /// <summary>Puts the party where Core put it, and moves the view (D-203, D-717).</summary>
@@ -129,10 +145,77 @@ public partial class MapScreen : Node2D
         int leadX = MapCamera.LeadX(party, tickPart);
         int leadY = MapCamera.LeadY(party, tickPart);
         this.lead.Position = new Vector2(leadX, FeetOf(leadY, 1));
+        this.carried.Position = new Vector2(leadX + this.carriedPlace.X, FeetOf(leadY, 1) + this.carriedPlace.Y);
         this.ShowEnemies(party, tickPart);
 
         CameraPlace view = MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tickPart);
         this.Position = new Vector2(-view.X, -view.Y);
+    }
+
+    /// <summary>
+    /// Turns the carried light on or off (D-847). It is off in play until PR-91 connects it to
+    /// the torch item, and the lit screen-test fixture and the `torch` command turn it on (D-851).
+    /// </summary>
+    public bool CarriedLightOn
+    {
+        get => this.carried.Visible;
+        set => this.carried.Visible = value;
+    }
+
+    /// <summary>
+    /// Reads each light of the map back, and fails on a light that draws nothing (F-46). A
+    /// headless session draws nothing, so this check reads the nodes and never the pixels (F-23).
+    /// </summary>
+    /// <returns>The count of lights, the carried light included.</returns>
+    /// <exception cref="InvalidOperationException">A light has no texture or no height (T-2, F-46).</exception>
+    public string DescribeLights()
+    {
+        int lights = WorldLights.CheckLights(this);
+        string carried = this.CarriedLightOn ? "on" : "off";
+        return $"{lights} lights with the carried light {carried}";
+    }
+
+    /// <summary>
+    /// Builds the scene light of the map: the ambient light, each decor piece and its light,
+    /// each added light, and the carried light (D-843, D-844, D-847).
+    /// </summary>
+    private void BuildLight(GameAtlas atlas, GameMap map, ContentSet content)
+    {
+        LightSetup setup = content.Light.SetupOf(map.Id, map.Time);
+        this.AddChild(WorldLights.Ambient(content.Palette, setup.Ambient));
+
+        foreach (DecorPiece piece in content.Light.DecorOf(map.Id).Pieces)
+        {
+            AtlasEntry entry = atlas.Index.Entry(piece.Kind, LightContent.MapUse);
+
+            // A piece sorts by the south edge of its wall, as a map sprite sorts by its feet
+            // (F-94, D-737). A figure in front of the wall then draws over it.
+            this.AddChild(new Sprite2D
+            {
+                Name = piece.Id.Value,
+                Texture = atlas.Frame(entry.Id, 0),
+                Centered = false,
+                Position = new Vector2(piece.Tile.X * MapCamera.TilePixels, FeetOf(piece.Tile.Y * MapCamera.TilePixels, 1)),
+                Offset = new Vector2(0, -entry.Height),
+
+                // A flame gives light and takes none, so the dark of the ambient light never
+                // dims it. Glow stays with PR-59 (D-188).
+                Material = new CanvasItemMaterial { LightMode = CanvasItemMaterial.LightModeEnum.Unshaded },
+            });
+        }
+
+        ImageTexture texture = WorldLights.BuildTexture();
+        foreach (MapLight light in content.Light.LightsOf(map.Id, map.Time))
+        {
+            PointLight2D point = WorldLights.Point(light.Id.Value, content.Palette, light.Light, texture, shadows: true);
+            point.Position = new Vector2(light.X, light.Y);
+            this.AddChild(point);
+        }
+
+        this.carriedPlace = content.Light.Carried;
+        this.carried = WorldLights.Point("carried_light", content.Palette, this.carriedPlace.Light, texture, shadows: true);
+        this.carried.Visible = false;
+        this.AddChild(this.carried);
     }
 
     /// <summary>Puts each enemy where Core put it, and shows the mark of a sight (D-208, D-737).</summary>
@@ -263,6 +346,12 @@ public partial class MapScreen : Node2D
         Refuse(
             this.ground.ZIndex != GroundZIndex,
             $"the layer draws at the Z index {this.ground.ZIndex}, and it takes {GroundZIndex} (F-95, D-783)");
+        Refuse(
+            this.ground.RenderingQuadrantSize != LightBudget.QuadrantTiles,
+            $"the quadrant is {this.ground.RenderingQuadrantSize} tiles, and the budget test counts {LightBudget.QuadrantTiles} (F-46, D-842)");
+        Refuse(
+            set.GetOcclusionLayersCount() != 1,
+            $"the tile set holds {set.GetOcclusionLayersCount()} occlusion layers, and the walls cast their shadows on one (D-845)");
 
         return $"tile size {set.TileSize}, region size {source.TextureRegionSize}, "
             + $"collisions {this.ground.CollisionEnabled}, navigation {this.ground.NavigationEnabled}, "
@@ -340,6 +429,10 @@ public partial class MapScreen : Node2D
             // of a slide (F-95, D-783). A later tile that stands up takes a layer of its own.
             YSortEnabled = false,
             ZIndex = GroundZIndex,
+
+            // Godot draws each quadrant as one canvas item, and one canvas item takes 15 lights
+            // at most. The budget test of Core counts each quadrant of this size (F-46, D-842).
+            RenderingQuadrantSize = LightBudget.QuadrantTiles,
         };
 
         for (int row = 0; row < map.Height; row += 1)

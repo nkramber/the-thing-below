@@ -29,9 +29,12 @@ public static class MapTileSet
     /// <summary>The number of the one atlas source of the set.</summary>
     public const int SourceId = 0;
 
+    /// <summary>The number of the one occlusion layer, which holds the shadow of each wall (D-845).</summary>
+    public const int OcclusionLayer = 0;
+
     /// <summary>Builds the tile set of every tile kind from the tile page (D-667).</summary>
     /// <param name="atlas">The pages of the atlas, as textures (D-666).</param>
-    /// <returns>The set, with one tile for each kind of <see cref="TileKind"/>.</returns>
+    /// <returns>The set, with one tile for each kind of <see cref="TileKind"/>, and a full-tile shadow on the wall (D-845).</returns>
     /// <exception cref="ArgumentNullException">The atlas is null (T-2).</exception>
     /// <exception cref="ContentException">The atlas holds no drawing of a tile kind (T-2).</exception>
     /// <exception cref="InvalidOperationException">A call of the engine made no tile (T-2, F-45).</exception>
@@ -45,6 +48,12 @@ public static class MapTileSet
             TextureRegionSize = new Vector2I(TilePixels, TilePixels),
         };
 
+        // The occlusion layer and the source join the set before the tiles, because a tile
+        // takes its occluder slots from the layers of its set.
+        var set = new TileSet { TileSize = new Vector2I(TilePixels, TilePixels) };
+        set.AddOcclusionLayer();
+        set.AddSource(source, SourceId);
+
         foreach (TileKind kind in new[] { TileKind.Floor, TileKind.Wall, TileKind.Doorway })
         {
             Vector2I cell = CellOf(atlas, kind);
@@ -57,11 +66,32 @@ public static class MapTileSet
                 throw new InvalidOperationException(
                     $"Godot made no tile at the cell {cell} of the tile page for '{TileIds.Of(kind).Value}' (T-2, D-667).");
             }
+
+            if (kind == TileKind.Wall)
+            {
+                TileData data = source.GetTileData(cell, 0);
+                data.SetOccluderPolygonsCount(OcclusionLayer, 1);
+                data.SetOccluderPolygon(OcclusionLayer, 0, WallShadow());
+            }
         }
 
-        var set = new TileSet { TileSize = new Vector2I(TilePixels, TilePixels) };
-        set.AddSource(source, SourceId);
         return set;
+    }
+
+    /// <summary>Builds the shadow shape of a wall: the full tile of 32 by 32 pixels (D-845).</summary>
+    /// <remarks>
+    /// The points of a tile shape count from the center of the tile. Each wall throws a square
+    /// shadow, so a round pillar casts a shadow that does not match its drawing (D-845).
+    /// </remarks>
+    public static OccluderPolygon2D WallShadow()
+    {
+        const float Half = TilePixels / 2f;
+        return new OccluderPolygon2D
+        {
+            Polygon = [new Vector2(-Half, -Half), new Vector2(Half, -Half), new Vector2(Half, Half), new Vector2(-Half, Half)],
+            Closed = true,
+            CullMode = OccluderPolygon2D.CullModeEnum.Clockwise,
+        };
     }
 
     /// <summary>Gives the cell of one tile kind on the tile page (D-667).</summary>

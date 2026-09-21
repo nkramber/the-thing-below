@@ -1,8 +1,8 @@
 {
  "comment": "The carried light: the light on the lead that follows its drawn place on each frame (D-847). A switch of Game turns it on, and it is off in play until PR-91 makes the torch an item (D-848). The lit screen-test fixture and the `torch` command of the console turn it on (D-851). The x and the y put the light in the hand of the lead, from the west edge and the feet of the lead.",
  "color": "A",
- "strength": 9000,
- "range": 112,
+ "strength": 14000,
+ "range": 144,
  "height": 24,
  "x": 16,
  "y": -24
