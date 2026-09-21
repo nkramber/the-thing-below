@@ -134,10 +134,10 @@ public sealed class SheetTests
                 {
                  "comment": "a test palette",
                  "colors": [
-                  { "index": 0, "key": "s", "hex": "2a2f3a", "name": "slate" },
-                  { "index": 1, "key": "c", "hex": "e8e4d8", "name": "chalk" },
-                  { "index": 2, "key": "i", "hex": "0b0a0f", "name": "ink" },
-                  { "index": 3, "key": "l", "hex": "101010", "name": "a name of twenty two glyphs" }
+                  { "index": 0, "key": "s", "hex": "2a2f3a", "name": "slate", "height": 0 },
+                  { "index": 1, "key": "c", "hex": "e8e4d8", "name": "chalk", "height": 0 },
+                  { "index": 2, "key": "i", "hex": "0b0a0f", "name": "ink", "height": 0 },
+                  { "index": 3, "key": "l", "hex": "101010", "name": "a name of twenty two glyphs", "height": 0 }
                  ]
                 }
                 """),

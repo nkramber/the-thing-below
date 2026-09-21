@@ -652,15 +652,18 @@ public partial class Boot : Node
             return;
         }
 
-        // The party walks while a direction is down, so the map needs the press and the
-        // release of each step action, and never a poll (D-716, F-50).
-        this.held.Read(signal);
-
+        // The capture session holds no run and builds no input map. A read of an action that
+        // the map lacks writes an error line, and the capture fails on it, so the check of
+        // the run comes first (T-2).
         GameRun? run = this.run;
         if (run is null)
         {
             return;
         }
+
+        // The party walks while a direction is down, so the map needs the press and the
+        // release of each step action, and never a poll (D-716, F-50).
+        this.held.Read(signal);
 
         // While a character has the turn, the command menu takes every action. A move of its
         // cursor makes no intent, and a whole choice makes one (D-493, D-827).

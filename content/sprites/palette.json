@@ -1,389 +1,453 @@
 {
- "comment": "The palette of 64 colors (D-181, D-238). Index 0 to 47 keep their keys and their indices from D-89 and D-121. Index 48 to 63 are the colors of D-185: the snow, the ice, and the stone of the passes, the fire and the torchlight, and the glow of the waystones and of the thing below. A drawing file names a color by its key, and the dot is transparent. Light on screen can reach a color that this file does not hold.",
+ "comment": "The palette of 64 colors (D-181, D-238). Index 0 to 47 keep their keys and their indices from D-89 and D-121. Index 48 to 63 are the colors of D-185: the snow, the ice, and the stone of the passes, the fire and the torchlight, and the glow of the waystones and of the thing below. A drawing file names a color by its key, and the dot is transparent. Light on screen can reach a color that this file does not hold. The height of a color, from 0 to 3, raises its pixels in the normal map, and the first values follow the brightness of the color (D-184, D-838).",
  "colors": [
   {
    "index": 0,
    "key": "k",
    "hex": "0b0a0f",
-   "name": "ink"
+   "name": "ink",
+   "height": 0
   },
   {
    "index": 1,
    "key": "K",
    "hex": "1a1823",
-   "name": "night"
+   "name": "night",
+   "height": 0
   },
   {
    "index": 2,
    "key": "d",
    "hex": "2b2836",
-   "name": "shadow"
+   "name": "shadow",
+   "height": 0
   },
   {
    "index": 3,
    "key": "D",
    "hex": "403c4d",
-   "name": "slate"
+   "name": "slate",
+   "height": 0
   },
   {
    "index": 4,
    "key": "g",
    "hex": "5a5566",
-   "name": "iron"
+   "name": "iron",
+   "height": 1
   },
   {
    "index": 5,
    "key": "G",
    "hex": "7d7788",
-   "name": "steel"
+   "name": "steel",
+   "height": 1
   },
   {
    "index": 6,
    "key": "l",
    "hex": "a39dab",
-   "name": "ash"
+   "name": "ash",
+   "height": 2
   },
   {
    "index": 7,
    "key": "L",
    "hex": "d6d0d8",
-   "name": "bone"
+   "name": "bone",
+   "height": 3
   },
   {
    "index": 8,
    "key": "w",
    "hex": "f2eeea",
-   "name": "chalk"
+   "name": "chalk",
+   "height": 3
   },
   {
    "index": 9,
    "key": "b",
    "hex": "3a2418",
-   "name": "peat"
+   "name": "peat",
+   "height": 0
   },
   {
    "index": 10,
    "key": "B",
    "hex": "6b4427",
-   "name": "leather"
+   "name": "leather",
+   "height": 1
   },
   {
    "index": 11,
    "key": "t",
    "hex": "a06a3c",
-   "name": "tan"
+   "name": "tan",
+   "height": 1
   },
   {
    "index": 12,
    "key": "s",
    "hex": "d29a6a",
-   "name": "skin"
+   "name": "skin",
+   "height": 2
   },
   {
    "index": 13,
    "key": "S",
    "hex": "e9c9a6",
-   "name": "pale"
+   "name": "pale",
+   "height": 3
   },
   {
    "index": 14,
    "key": "r",
    "hex": "4a0f14",
-   "name": "dried blood"
+   "name": "dried blood",
+   "height": 0
   },
   {
    "index": 15,
    "key": "R",
    "hex": "8a1c22",
-   "name": "blood"
+   "name": "blood",
+   "height": 0
   },
   {
    "index": 16,
    "key": "x",
    "hex": "c8353a",
-   "name": "red"
+   "name": "red",
+   "height": 1
   },
   {
    "index": 17,
    "key": "X",
    "hex": "e8734f",
-   "name": "ember"
+   "name": "ember",
+   "height": 2
   },
   {
    "index": 18,
    "key": "o",
    "hex": "6e5218",
-   "name": "bronze"
+   "name": "bronze",
+   "height": 1
   },
   {
    "index": 19,
    "key": "O",
    "hex": "b8902a",
-   "name": "brass"
+   "name": "brass",
+   "height": 2
   },
   {
    "index": 20,
    "key": "y",
    "hex": "e6c85a",
-   "name": "gold"
+   "name": "gold",
+   "height": 3
   },
   {
    "index": 21,
    "key": "n",
    "hex": "142b1c",
-   "name": "moss dark"
+   "name": "moss dark",
+   "height": 0
   },
   {
    "index": 22,
    "key": "N",
    "hex": "2c5a30",
-   "name": "moss"
+   "name": "moss",
+   "height": 1
   },
   {
    "index": 23,
    "key": "v",
    "hex": "5b9a48",
-   "name": "leaf"
+   "name": "leaf",
+   "height": 1
   },
   {
    "index": 24,
    "key": "V",
    "hex": "9fd45f",
-   "name": "lime"
+   "name": "lime",
+   "height": 2
   },
   {
    "index": 25,
    "key": "i",
    "hex": "16263f",
-   "name": "deep"
+   "name": "deep",
+   "height": 0
   },
   {
    "index": 26,
    "key": "I",
    "hex": "2f4f7a",
-   "name": "sea"
+   "name": "sea",
+   "height": 1
   },
   {
    "index": 27,
    "key": "c",
    "hex": "4f86b8",
-   "name": "sky"
+   "name": "sky",
+   "height": 1
   },
   {
    "index": 28,
    "key": "C",
    "hex": "8fc3e6",
-   "name": "ice"
+   "name": "ice",
+   "height": 2
   },
   {
    "index": 29,
    "key": "p",
    "hex": "2c1740",
-   "name": "hex dark"
+   "name": "hex dark",
+   "height": 0
   },
   {
    "index": 30,
    "key": "P",
    "hex": "5c2e82",
-   "name": "hex"
+   "name": "hex",
+   "height": 1
   },
   {
    "index": 31,
    "key": "m",
    "hex": "9a5bd1",
-   "name": "violet"
+   "name": "violet",
+   "height": 1
   },
   {
    "index": 32,
    "key": "1",
    "hex": "7a3b1e",
-   "name": "rust"
+   "name": "rust",
+   "height": 1
   },
   {
    "index": 33,
    "key": "2",
    "hex": "c56a2b",
-   "name": "copper"
+   "name": "copper",
+   "height": 1
   },
   {
    "index": 34,
    "key": "3",
    "hex": "d9b97f",
-   "name": "sand"
+   "name": "sand",
+   "height": 2
   },
   {
    "index": 35,
    "key": "4",
    "hex": "6b6a2a",
-   "name": "olive"
+   "name": "olive",
+   "height": 1
   },
   {
    "index": 36,
    "key": "5",
    "hex": "14383a",
-   "name": "teal dark"
+   "name": "teal dark",
+   "height": 0
   },
   {
    "index": 37,
    "key": "6",
    "hex": "2e7d75",
-   "name": "teal"
+   "name": "teal",
+   "height": 1
   },
   {
    "index": 38,
    "key": "7",
    "hex": "62c5b3",
-   "name": "aqua"
+   "name": "aqua",
+   "height": 2
   },
   {
    "index": 39,
    "key": "8",
    "hex": "3d4a63",
-   "name": "storm"
+   "name": "storm",
+   "height": 1
   },
   {
    "index": 40,
    "key": "9",
    "hex": "b9a0dd",
-   "name": "lavender"
+   "name": "lavender",
+   "height": 2
   },
   {
    "index": 41,
    "key": "0",
    "hex": "c46a8a",
-   "name": "rose"
+   "name": "rose",
+   "height": 2
   },
   {
    "index": 42,
    "key": "!",
    "hex": "4d2438",
-   "name": "plum"
+   "name": "plum",
+   "height": 0
   },
   {
    "index": 43,
    "key": "@",
    "hex": "7e4a3a",
-   "name": "flesh dark"
+   "name": "flesh dark",
+   "height": 1
   },
   {
    "index": 44,
    "key": "#",
    "hex": "f5e6a3",
-   "name": "candle"
+   "name": "candle",
+   "height": 3
   },
   {
    "index": 45,
    "key": "%",
    "hex": "c9d848",
-   "name": "sulfur"
+   "name": "sulfur",
+   "height": 3
   },
   {
    "index": 46,
    "key": "&",
    "hex": "d8f0ff",
-   "name": "frost"
+   "name": "frost",
+   "height": 3
   },
   {
    "index": 47,
    "key": "~",
    "hex": "05040a",
-   "name": "void"
+   "name": "void",
+   "height": 0
   },
   {
    "index": 48,
    "key": "e",
    "hex": "e8f2f7",
-   "name": "snow"
+   "name": "snow",
+   "height": 3
   },
   {
    "index": 49,
    "key": "E",
    "hex": "bcd2e0",
-   "name": "snow shade"
+   "name": "snow shade",
+   "height": 3
   },
   {
    "index": 50,
    "key": "f",
    "hex": "8fb6c9",
-   "name": "glacier"
+   "name": "glacier",
+   "height": 2
   },
   {
    "index": 51,
    "key": "F",
    "hex": "5c86a0",
-   "name": "glacier deep"
+   "name": "glacier deep",
+   "height": 1
   },
   {
    "index": 52,
    "key": "h",
    "hex": "6f7a80",
-   "name": "granite"
+   "name": "granite",
+   "height": 1
   },
   {
    "index": 53,
    "key": "H",
    "hex": "424b52",
-   "name": "granite dark"
+   "name": "granite dark",
+   "height": 1
   },
   {
    "index": 54,
    "key": "a",
    "hex": "fff6d5",
-   "name": "flame white"
+   "name": "flame white",
+   "height": 3
   },
   {
    "index": 55,
    "key": "A",
    "hex": "ffd863",
-   "name": "flame yellow"
+   "name": "flame yellow",
+   "height": 3
   },
   {
    "index": 56,
    "key": "j",
    "hex": "fb9b21",
-   "name": "flame orange"
+   "name": "flame orange",
+   "height": 2
   },
   {
    "index": 57,
    "key": "J",
    "hex": "d85a14",
-   "name": "flame deep"
+   "name": "flame deep",
+   "height": 1
   },
   {
    "index": 58,
    "key": "q",
    "hex": "7d2a0b",
-   "name": "coal"
+   "name": "coal",
+   "height": 0
   },
   {
    "index": 59,
    "key": "Q",
    "hex": "5a4f4a",
-   "name": "smoke"
+   "name": "smoke",
+   "height": 1
   },
   {
    "index": 60,
    "key": "u",
    "hex": "7fe3d4",
-   "name": "waystone glow"
+   "name": "waystone glow",
+   "height": 3
   },
   {
    "index": 61,
    "key": "U",
    "hex": "2aa79a",
-   "name": "waystone deep"
+   "name": "waystone deep",
+   "height": 2
   },
   {
    "index": 62,
    "key": "z",
    "hex": "b06bff",
-   "name": "below glow"
+   "name": "below glow",
+   "height": 2
   },
   {
    "index": 63,
    "key": "Z",
    "hex": "3b0d5c",
-   "name": "below deep"
+   "name": "below deep",
+   "height": 0
   }
  ]
 }

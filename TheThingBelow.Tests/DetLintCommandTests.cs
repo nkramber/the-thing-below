@@ -116,6 +116,32 @@ public sealed class DetLintCommandTests
     }
 
     /// <summary>
+    /// Exit test 4 of PR-48: the normal-map command takes the float rule, because a test
+    /// compares its pixels on every CI leg (D-502, F-38).
+    /// </summary>
+    [Fact]
+    public void AFloatInTheNormalMapCommandIsAFinding()
+    {
+        using DetLintCheckout checkout = DetLintCheckout.Build();
+        checkout.Write(
+            "TheThingBelow.Tools/NormalMaps/Length.cs",
+            """
+            namespace TheThingBelow.Tools.NormalMaps;
+            public static class Length
+            {
+                public static float Of(int x, int y) => (float)System.Math.Sqrt((x * x) + (y * y));
+            }
+            """);
+        using StringWriter output = new StringWriter();
+        using StringWriter errors = new StringWriter();
+
+        int exitCode = DetLintCommand.Run(Arguments(checkout), output, errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains("TheThingBelow.Tools/NormalMaps/Length.cs:4: rule DL 1:", output.ToString(), StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// A compile error of the Tools scan stays in the report whatever file it names. The old
     /// code filtered each finding by the folders of D-502, so an error in another folder of
     /// Tools dropped every finding, and the scan passed with nothing read (T-2).

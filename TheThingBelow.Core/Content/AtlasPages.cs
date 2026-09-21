@@ -80,6 +80,25 @@ public static class AtlasPages
         }
     }
 
+    /// <summary>Tells whether the drawings of a kind take scene light, and so have a normal map.</summary>
+    /// <param name="kind">The kind of the page.</param>
+    /// <returns>True for tiles, map sprites, battle sprites, and pieces.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The value names no kind.</exception>
+    /// <remarks>
+    /// A portrait, an icon, and a window frame sit on a layer above the light, so they take
+    /// no normal map (D-183, D-210, D-516).
+    /// </remarks>
+    public static bool TakesLight(AtlasPageKind kind) => kind switch
+    {
+        AtlasPageKind.Tiles => true,
+        AtlasPageKind.MapSprites => true,
+        AtlasPageKind.BattleSprites => true,
+        AtlasPageKind.Pieces => true,
+        AtlasPageKind.Portraits => false,
+        AtlasPageKind.Ui => false,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no atlas page kind (D-666)"),
+    };
+
     /// <summary>Gives every name, in the order of the kinds, for an error message.</summary>
     /// <returns>The names, separated by a comma and a space.</returns>
     public static string Names() => "tiles, map_sprites, battle_sprites, portraits, ui, pieces";

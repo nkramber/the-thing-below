@@ -27,6 +27,9 @@ public static class ContentPaths
     /// <summary>The start of the path of every page of the atlas (D-666).</summary>
     public const string AtlasPagePrefix = "sprites/atlas-";
 
+    /// <summary>The start of the path of every page of the normal-map atlas (D-184).</summary>
+    public const string NormalPagePrefix = "sprites/normal-map-";
+
     /// <summary>The folder that holds the two font files of the game (D-713).</summary>
     public const string FontFolder = "fonts/";
 
@@ -58,6 +61,21 @@ public static class ContentPaths
         ArgumentNullException.ThrowIfNull(path);
 
         return path.StartsWith(AtlasPagePrefix, StringComparison.Ordinal) &&
+            path.EndsWith(".png", StringComparison.Ordinal);
+    }
+
+    /// <summary>Tells whether a content path is a page of the normal-map atlas (D-184).</summary>
+    /// <param name="path">The path under `content/`, with `/` separators.</param>
+    /// <returns>True when the path is a PNG of the normal-map atlas.</returns>
+    /// <remarks>
+    /// The page takes the place of each frame from the atlas index of the color atlas, so it
+    /// needs no index of its own (D-184, D-517).
+    /// </remarks>
+    public static bool IsNormalPage(string path)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+
+        return path.StartsWith(NormalPagePrefix, StringComparison.Ordinal) &&
             path.EndsWith(".png", StringComparison.Ordinal);
     }
 

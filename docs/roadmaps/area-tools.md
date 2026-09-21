@@ -182,6 +182,7 @@ Built by PR-34. Phase file: `phase-1-foundations.md`.
 Built by PR-48. Phase file: `phase-2-first-playable.md`.
 
 - The command builds a normal map for each grid from its shape, with an optional override grid (D-183, D-184). It lands right before PR-56, the first PR that draws light (D-520, D-521).
+- The `atlas` command holds the builder. It writes each page of the normal-map atlas beside its color page, and its `--check` option compares both by pixel (D-184, F-19). The code lives in `TheThingBelow.Tools/NormalMaps/`, which det-lint reads with the float rule (D-502).
 - It uses integer math alone, with an integer square root, so every CI leg gives the same pixels (D-502, F-38).
 - The normal-map atlas takes the same pixel test as the color atlas (D-184, F-19).
 - A review sheet draws each sprite under eight fixed light directions for the owner, and the session attaches it to the PR description (D-514, D-521).

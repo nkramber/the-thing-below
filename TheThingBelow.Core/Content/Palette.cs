@@ -9,12 +9,16 @@ namespace TheThingBelow.Core.Content;
 /// <param name="Key">The one character that a drawing file writes for this color (D-107).</param>
 /// <param name="Hex">The color as six lowercase hexadecimal digits, such as `0b0a0f`.</param>
 /// <param name="Name">The name of the color, such as `ink`, for a review sheet and a diff.</param>
+/// <param name="Height">
+/// The height of the color in the normal map, from 0 to <see cref="Palette.MaxHeight"/>. The
+/// normal-map command adds it to the height from the edge of the drawing (D-184, D-838).
+/// </param>
 /// <remarks>
 /// The reader of <see cref="Palette"/> checks the form of the key and of the hexadecimal
 /// text, so <see cref="Red"/>, <see cref="Green"/>, and <see cref="Blue"/> always read a
 /// color that came from a file (T-2).
 /// </remarks>
-public sealed record PaletteColor(int Index, string Key, string Hex, string Name)
+public sealed record PaletteColor(int Index, string Key, string Hex, string Name, int Height)
 {
     /// <summary>The red part of the color, from 0 to 255.</summary>
     public int Red => Channel(this.Hex, 0);
@@ -79,6 +83,9 @@ public sealed class Palette
 {
     /// <summary>The path of the palette file, under `content/`.</summary>
     public const string Path = "sprites/palette.json";
+
+    /// <summary>The largest height of a color in the normal map (D-838).</summary>
+    public const int MaxHeight = 3;
 
     private readonly SortedDictionary<char, PaletteColor> byKey;
 
@@ -193,6 +200,14 @@ public sealed class Palette
             }
 
             RefuseWrongKey(ref reader, depth, position, color);
+            if (color.Height < 0 || color.Height > MaxHeight)
+            {
+                throw reader.RefuseField(
+                    depth,
+                    $"colors[{position}].height",
+                    $"the color '{color.Key}' holds the height {color.Height}, and a height is 0 to {MaxHeight} (D-838)");
+            }
+
             if (!PaletteColor.IsWellFormedHex(color.Hex))
             {
                 throw reader.RefuseField(
@@ -267,6 +282,7 @@ public sealed class Palette
         string? key = null;
         string? hex = null;
         string? name = null;
+        int? height = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -285,6 +301,9 @@ public sealed class Palette
                 case "name":
                     name = reader.ReadString();
                     break;
+                case "height":
+                    height = reader.ReadInt();
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -294,6 +313,7 @@ public sealed class Palette
             reader.RequireInt(index, depth, "index"),
             reader.Require(key, depth, "key"),
             reader.Require(hex, depth, "hex"),
-            reader.Require(name, depth, "name"));
+            reader.Require(name, depth, "name"),
+            reader.RequireInt(height, depth, "height"));
     }
 }

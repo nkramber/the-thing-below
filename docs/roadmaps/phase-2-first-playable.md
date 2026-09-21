@@ -611,11 +611,11 @@ Area files: `area-tools.md` section 7.7, `area-effects.md` section 7.5, `area-ar
 
 **Scope.**
 
-- The normal-map command, which builds a normal map for each sprite, tile, and piece from its drawing file (D-183, D-516).
-- The optional override grid, which the artist writes by hand (D-184).
+- The normal-map command, which builds a normal map for each sprite, tile, and piece from its drawing file (D-183, D-516). The height of a pixel comes from the rim of D-840 and the height of its color (D-838).
+- The optional override grid, which the artist writes by hand (D-184, D-839).
 - Integer math with an integer square root, so every leg gives the same pixels (D-502, F-38).
 - The normal-map atlas, which uses the atlas index of the color atlas (D-184, D-517).
-- The review sheet, which draws each sprite under eight fixed light directions (D-514, D-521).
+- The review sheet, which draws each sprite under eight fixed light directions (D-514, D-521, D-841).
 
 **Out of scope.**
 
@@ -636,7 +636,7 @@ Area files: `area-tools.md` section 7.7, `area-effects.md` section 7.5, `area-ar
 - The sheet names each drawing on it, so the owner can name a fix (D-514).
 - From this PR on, each art PR commits the normal-map atlas with its test.
 
-**Questions.** None. D-668 set the form of a review sheet in PR-34.
+**Questions.** None. D-668 set the form of a review sheet in PR-34. The owner answered the details of the command on 2026-09-21 (D-838 to D-841).
 
 > *In plain English:* a normal map tells the light which way each pixel faces. A tool builds it from the drawing, and the owner checks a sheet of each sprite lit from eight sides.
 

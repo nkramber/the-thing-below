@@ -105,6 +105,7 @@ public sealed partial class CaptureSession : Node
             GD.Print($"capture: the rendering driver is {RenderingServer.GetCurrentRenderingDriverName()}.");
             GD.Print($"capture: the video adapter is {RenderingServer.GetVideoAdapterName()}.");
             GD.Print($"capture: the folder is {this.folder}.");
+            this.PushStrayKey();
             this.Begin(0);
         }
         catch (Exception fault)
@@ -112,6 +113,22 @@ public sealed partial class CaptureSession : Node
             this.stopped = true;
             this.reportFault(fault);
         }
+    }
+
+    /// <summary>
+    /// Sends one press and one release of a step key through the root viewport, as a key of
+    /// the person reaches the capture window.
+    /// </summary>
+    /// <remarks>
+    /// The regression test of the fault that Session 182 found: a key in the capture window
+    /// wrote "The InputMap action ... doesn't exist", because this session builds no input
+    /// map and the boot node read the held steps before it checked the run. The screen-test
+    /// job and `make sheet` fail on that error line, so each capture now proves the fix (T-3).
+    /// </remarks>
+    private void PushStrayKey()
+    {
+        GetViewport().PushInput(new InputEventKey { Keycode = Key.Up, PhysicalKeycode = Key.Up, Pressed = true });
+        GetViewport().PushInput(new InputEventKey { Keycode = Key.Up, PhysicalKeycode = Key.Up, Pressed = false });
     }
 
     /// <summary>Waits for the draw of the current capture, writes it, and starts the next one.</summary>

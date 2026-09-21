@@ -4,6 +4,7 @@ using System.IO;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Tools.Atlas;
 using TheThingBelow.Tools.Content;
+using TheThingBelow.Tools.NormalMaps;
 using TheThingBelow.Tools.Png;
 using Xunit;
 
@@ -62,6 +63,61 @@ public sealed class CheckoutAtlasTests
             Assert.True(
                 wanted.Pixels.SequenceEqual(committed.Pixels),
                 $"The page '{page.File}' does not match the drawing files. Run the atlas command again (G-24).");
+        }
+    }
+
+    /// <summary>The pixel test of the color atlas also covers the normal-map atlas (exit test 1 of PR-48, D-184, F-19).</summary>
+    [Fact]
+    public void EachCommittedNormalMapMatchesTheDrawingFilesByPixel()
+    {
+        Palette palette = ReadArt(out List<Drawing> drawings);
+        AtlasLayout layout = AtlasLayout.Build(drawings);
+        SortedDictionary<string, Drawing> byId = AtlasCommand.ById(drawings);
+        SortedDictionary<string, NormalOverride> overrides = AtlasCommand.ReadOverrides(RepositoryRoot.Find(), byId);
+
+        int lit = 0;
+        foreach (AtlasPage page in layout.Pages)
+        {
+            if (!AtlasPages.TakesLight(page.Kind))
+            {
+                Assert.False(File.Exists(PathOf(page.NormalFile)), $"The page '{page.Name}' takes no scene light, and '{page.NormalFile}' exists (D-210).");
+                continue;
+            }
+
+            lit += 1;
+            PngImage wanted = NormalMap.RenderPage(page, layout, byId, palette, overrides);
+            PngImage committed = PngReader.ReadFile(PathOf(page.NormalFile));
+            string? difference = AtlasCommand.Difference(wanted, committed);
+            Assert.True(difference is null, $"The normal map '{page.NormalFile}' does not match the drawing files: {difference}. Run the atlas command again (D-184).");
+        }
+
+        Assert.True(lit > 0, "The checkout holds no page that takes scene light, so the test read no normal map.");
+    }
+
+    /// <summary>Each frame sits at the same place in both atlases (exit test 2 of PR-48, D-184).</summary>
+    [Fact]
+    public void EachNormalMapCoversTheSamePixelsAsItsColorPage()
+    {
+        ReadArt(out List<Drawing> drawings);
+        AtlasLayout layout = AtlasLayout.Build(drawings);
+
+        foreach (AtlasPage page in layout.Pages)
+        {
+            if (!AtlasPages.TakesLight(page.Kind))
+            {
+                continue;
+            }
+
+            PngImage color = PngReader.ReadFile(PathOf(page.File));
+            PngImage normals = PngReader.ReadFile(PathOf(page.NormalFile));
+            Assert.Equal(color.Width, normals.Width);
+            Assert.Equal(color.Height, normals.Height);
+            for (int index = 3; index < color.Pixels.Length; index += 4)
+            {
+                Assert.True(
+                    color.Pixels[index] == normals.Pixels[index],
+                    $"The pixel {index / 4 % color.Width},{index / 4 / color.Width} of '{page.File}' and of '{page.NormalFile}' differ in cover.");
+            }
         }
     }
 

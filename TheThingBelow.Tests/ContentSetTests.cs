@@ -19,7 +19,7 @@ public sealed class ContentSetTests
         """
         {
          "comment": "a test palette",
-         "colors": [ { "index": 0, "key": "k", "hex": "0b0a0f", "name": "ink" } ]
+         "colors": [ { "index": 0, "key": "k", "hex": "0b0a0f", "name": "ink", "height": 0 } ]
         }
         """;
 
@@ -225,6 +225,70 @@ public sealed class ContentSetTests
         Assert.Contains("D-666", error.Message);
     }
 
+    /// <summary>A page of sprites takes scene light, so it needs its normal map (D-184).</summary>
+    [Fact]
+    public void ALitPageWithNoNormalMapFails()
+    {
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(Art(normal: false)));
+
+        Assert.Equal(AtlasIndex.Path, error.File);
+        Assert.Equal("map_sprites", error.Field);
+        Assert.Contains(NormalPagePath, error.Message);
+    }
+
+    [Fact]
+    public void ANormalMapThatNoLitPageNamesFails()
+    {
+        // The UI takes no scene light, so a normal map of the UI page is a leftover (D-210).
+        ContentException error = Assert.Throws<ContentException>(
+            () => ContentSet.Load(Art(extra: File("sprites/normal-map-ui.png", "png"))));
+
+        Assert.Equal("sprites/normal-map-ui.png", error.File);
+        Assert.Contains("D-210", error.Message);
+    }
+
+    [Fact]
+    public void AWellFormedOverrideGridLoads()
+    {
+        ContentSet set = ContentSet.Load(Art(extra: File("sprites/normals/test.json", OverrideBody(DrawingId, "\"8.\", \".5\""))));
+
+        Assert.Equal(DrawingPath, set.DrawingOf(Id(DrawingId)).File);
+    }
+
+    [Fact]
+    public void AnOverrideGridOfNoDrawingFails()
+    {
+        ContentException error = Assert.Throws<ContentException>(
+            () => ContentSet.Load(Art(extra: File("sprites/normals/test.json", OverrideBody("drawing.absent", "\"8.\", \".5\"")))));
+
+        Assert.Equal("sprites/normals/test.json", error.File);
+        Assert.Contains("drawing.absent", error.Message);
+    }
+
+    [Fact]
+    public void ASecondOverrideGridOfOneDrawingFails()
+    {
+        ContentFile first = File("sprites/normals/a.json", OverrideBody(DrawingId, "\"8.\", \".5\""));
+        ContentFile second = File("sprites/normals/b.json", OverrideBody(DrawingId, "\"..\", \"..\""));
+
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(Art(extra: [first, second])));
+
+        Assert.Equal("sprites/normals/b.json", error.File);
+        Assert.Contains("D-839", error.Message);
+    }
+
+    /// <summary>A direction on a transparent pixel changes no pixel, so it fails and never passes in silence (T-2).</summary>
+    [Fact]
+    public void AnOverrideDirectionOnATransparentPixelFails()
+    {
+        ContentException error = Assert.Throws<ContentException>(
+            () => ContentSet.Load(Art(extra: File("sprites/normals/test.json", OverrideBody(DrawingId, "\"8.\", \"5.\"")))));
+
+        Assert.Equal("frames[0].rows[1]", error.Field);
+        Assert.Contains("column 0", error.Message);
+        Assert.Contains("transparent", error.Message);
+    }
+
     [Fact]
     public void AnIndexEntryWithNoDrawingFileFails()
     {
@@ -332,16 +396,19 @@ public sealed class ContentSetTests
     private const string DrawingId = "drawing.test_map_front";
     private const string DrawingPath = "sprites/drawings/cast/test-map-front.json";
     private const string PagePath = "sprites/atlas-map_sprites.png";
+    private const string NormalPagePath = "sprites/normal-map-map_sprites.png";
 
     /// <summary>A set with one drawing, its page, and an index that matches them.</summary>
     /// <param name="index">The text of the index, or null for one that matches the drawing.</param>
     /// <param name="drawing">The text of the drawing file, null for the default, and empty for no file.</param>
     /// <param name="page">True to hold the page file of the index.</param>
+    /// <param name="normal">True to hold the normal-map page of that page (D-184).</param>
     /// <param name="extra">Other files of the set.</param>
     private static IReadOnlyList<ContentFile> Art(
         string? index = null,
         string? drawing = null,
         bool page = true,
+        bool normal = true,
         params ContentFile[] extra)
     {
         List<ContentFile> files =
@@ -365,6 +432,11 @@ public sealed class ContentSetTests
             files.Add(File(PagePath, "png"));
         }
 
+        if (normal)
+        {
+            files.Add(File(NormalPagePath, "png"));
+        }
+
         files.AddRange(extra);
         return files;
     }
@@ -378,6 +450,14 @@ public sealed class ContentSetTests
          "height": 2,
          "draws": [ { "content": "cast.test", "use": "map_front" } ],
          "frames": [ { "ticks": 0, "rows": [ {{rows}} ] } ]
+        }
+        """;
+
+    private static string OverrideBody(string drawing, string rows) =>
+        $$"""
+        {
+         "drawing": "{{drawing}}",
+         "frames": [ { "rows": [ {{rows}} ] } ]
         }
         """;
 

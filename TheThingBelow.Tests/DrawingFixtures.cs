@@ -16,13 +16,13 @@ public static class DrawingFixtures
         {
          "comment": "a test palette",
          "colors": [
-          { "index": 0, "key": "k", "hex": "0b0a0f", "name": "ink" },
-          { "index": 1, "key": "K", "hex": "1a1823", "name": "night" },
-          { "index": 2, "key": "d", "hex": "2b2836", "name": "shadow" },
-          { "index": 3, "key": "D", "hex": "403c4d", "name": "slate" },
-          { "index": 4, "key": "w", "hex": "f2eeea", "name": "chalk" },
-          { "index": 5, "key": "e", "hex": "e8f2f7", "name": "snow" },
-          { "index": 6, "key": "x", "hex": "c8353a", "name": "red" }
+          { "index": 0, "key": "k", "hex": "0b0a0f", "name": "ink", "height": 0 },
+          { "index": 1, "key": "K", "hex": "1a1823", "name": "night", "height": 0 },
+          { "index": 2, "key": "d", "hex": "2b2836", "name": "shadow", "height": 0 },
+          { "index": 3, "key": "D", "hex": "403c4d", "name": "slate", "height": 0 },
+          { "index": 4, "key": "w", "hex": "f2eeea", "name": "chalk", "height": 0 },
+          { "index": 5, "key": "e", "hex": "e8f2f7", "name": "snow", "height": 0 },
+          { "index": 6, "key": "x", "hex": "c8353a", "name": "red", "height": 0 }
          ]
         }
         """;
@@ -94,6 +94,77 @@ public static class DrawingFixtures
             }
             """;
     }
+
+    /// <summary>Builds one drawing of one frame from its rows.</summary>
+    /// <param name="name">The name part of the id.</param>
+    /// <param name="rows">The rows of the frame, all of one length.</param>
+    /// <param name="page">The name of the page kind.</param>
+    /// <returns>The drawing, as the reader of Core gives it.</returns>
+    public static Drawing FromRows(string name, IReadOnlyList<string> rows, string page = "map_sprites") =>
+        Drawing.Read(Encoding.UTF8.GetBytes(BodyOfRows(name, rows, page)), PathOf(name));
+
+    /// <summary>Gives the text of a drawing file of one frame from its rows.</summary>
+    /// <param name="name">The name part of the id.</param>
+    /// <param name="rows">The rows of the frame, all of one length.</param>
+    /// <param name="page">The name of the page kind.</param>
+    /// <returns>The text of the file.</returns>
+    public static string BodyOfRows(string name, IReadOnlyList<string> rows, string page = "map_sprites")
+    {
+        var quoted = new List<string>(rows.Count);
+        foreach (string row in rows)
+        {
+            quoted.Add($"\"{row}\"");
+        }
+
+        return $$"""
+            {
+             "id": "drawing.{{name}}",
+             "page": "{{page}}",
+             "width": {{rows[0].Length}},
+             "height": {{rows.Count}},
+             "draws": [
+              { "content": "cast.{{name}}", "use": "map_front" }
+             ],
+             "frames": [
+              { "ticks": 0, "rows": [ {{string.Join(", ", quoted)}} ] }
+             ]
+            }
+            """;
+    }
+
+    /// <summary>Gives the text of an override file of one frame (D-839).</summary>
+    /// <param name="name">The name part of the id of the drawing.</param>
+    /// <param name="rows">The rows of the grid.</param>
+    /// <returns>The text of the file.</returns>
+    public static string OverrideBody(string name, IReadOnlyList<string> rows)
+    {
+        var quoted = new List<string>(rows.Count);
+        foreach (string row in rows)
+        {
+            quoted.Add($"\"{row}\"");
+        }
+
+        return $$"""
+            {
+             "drawing": "drawing.{{name}}",
+             "frames": [
+              { "rows": [ {{string.Join(", ", quoted)}} ] }
+             ]
+            }
+            """;
+    }
+
+    /// <summary>Reads an override grid of one frame (D-839).</summary>
+    /// <param name="name">The name part of the id of the drawing.</param>
+    /// <param name="rows">The rows of the grid.</param>
+    /// <returns>The grid, as the reader of Core gives it.</returns>
+    public static NormalOverride Override(string name, IReadOnlyList<string> rows) =>
+        NormalOverride.Read(Encoding.UTF8.GetBytes(OverrideBody(name, rows)), OverridePathOf(name));
+
+    /// <summary>Gives the content path of a fixture override file.</summary>
+    /// <param name="name">The name part of the id of the drawing.</param>
+    /// <returns>The path under `content/`.</returns>
+    public static string OverridePathOf(string name) => $"{NormalOverride.Folder}{name}.json";
 
     /// <summary>Gives the content path of a fixture drawing file.</summary>
     /// <param name="name">The name part of the id.</param>
