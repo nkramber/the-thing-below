@@ -103,7 +103,10 @@ public static class PatrolLayout
     /// </summary>
     private static void CheckArea(ref ContentReader reader, GameMap map, Patrol patrol, TileArea area)
     {
-        if (area.X + area.Width > map.Width || area.Y + area.Height > map.Height)
+        // Each side reads against the room that the map leaves, and never as a sum. A sum of
+        // a large coordinate and a side wraps below zero, and the area then passes (T-2).
+        // The reader already proved each value at zero or more, so no difference wraps.
+        if (area.Width > map.Width - area.X || area.Height > map.Height - area.Y)
         {
             throw reader.Refuse(
                 $"the enemy '{patrol.Id.Value}' holds the area {area}, and the map is {map.Width} by {map.Height} tiles (D-741)");

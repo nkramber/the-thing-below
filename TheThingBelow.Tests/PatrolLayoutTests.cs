@@ -78,6 +78,25 @@ public sealed class PatrolLayoutTests
         Assert.Contains("the map is 10 by 8 tiles", error.Message, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData(2147483640, 1, 100, 2)]
+    [InlineData(1, 2147483640, 3, 100)]
+    [InlineData(2147483647, 1, 1, 2)]
+    public void AnAreaWhoseEdgePassesTheRangeOfAnIntFailsTheLoad(int x, int y, int width, int height)
+    {
+        // A regression test for P2-1 of `docs/reviews/pr-45.md`. The sum of a coordinate
+        // and a side wrapped below zero, so the area passed the edge check and the fit loop
+        // ran no pass (D-209, D-741, T-2).
+        ContentException error = Refuse(PatrolMaps.Enemy(stations: $$"""
+           "areas": [
+            { "times": ["day"], "x": {{x}}, "y": {{y}}, "width": {{width}}, "height": {{height}} }
+           ]
+          """));
+
+        Assert.Contains("patrol.one", error.Message, StringComparison.Ordinal);
+        Assert.Contains("the map is 10 by 8 tiles", error.Message, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void AnAreaSmallerThanTheBodyFailsTheLoad()
     {
