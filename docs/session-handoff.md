@@ -1,5 +1,40 @@
 # Session handoff
 
+## Session 155: 2026-09-21, Codex
+
+Author: Codex
+Session: review PR-8, the enemies on the map. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: reviewer. Base: `626d2fe`.
+
+### What this session did, and why
+
+- Reviewed PR #45 at effective head `e83e2d6` after the author metadata tip `111fbe1`.
+- Inspected the complete diff, the PR comments, the PR-8 contracts and exit tests, and the affected Core, Debug, Game, content, test, identity, baseline, and document paths.
+- Found P2-1 in `PatrolLayout.CheckArea`: unchecked area-bound arithmetic can bypass the required map-boundary and body-fit checks for malformed oversized content.
+
+### The state of the build
+
+- `make verify` passes locally with 1,390 tests and all local gates.
+- CI passes the build, test, format, smoke, replay identity, screen-test, det-lint, STE, coverage, changed-paths, and Gitar checks at PR tip `111fbe1`.
+- The review-gate check fails only because the review record was absent before this session.
+- The remote head of `main` is `626d2fe`.
+
+### What is in flight
+
+PR #45 needs a correction for P2-1 and a repeat cross-provider review at the new effective head.
+
+### Traps and gotchas
+
+- The effective implementation head is `e83e2d6`, not the metadata tip `111fbe1`.
+- The area layout check must protect every positive coordinate and dimension from `int` overflow.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Correct P2-1 with a regression test, then request a repeat review of the new effective head.
+
 ## Session 154: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -355,37 +390,3 @@ None. OQ-115 blocks PR-8 alone.
 ### The next concrete action
 
 Start the review of PR #42 at the effective head `2ead9c8`.
-
-## Session 145: 2026-09-20, Codex
-
-Author: Codex
-Session: repeat review PR #41, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: reviewer. Base: `938ab7b`.
-
-### What this session did, and why
-
-- Reopened PR #41 at effective head `d6f5e00` after the author answered the prior review.
-- Verified P1-1 against its original trigger and the real-run regression tests. The correction reads the menu state from `RunState` through `GameRun`.
-- Withdrew P1-2. The prior review confused GitHub PR #41 with roadmap PR-41. This change is roadmap PR-61. The screen-test job belongs to later roadmap PR-41, section 7.5.
-- Updated `docs/reviews/pr-41.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 1050 tests and all local gates.
-- The remote metadata tip is `74f3c97`. The effective code head is `d6f5e00`.
-
-### What is in flight
-
-- The repeat review record and this handoff entry need one metadata commit and push.
-
-### Traps and gotchas
-
-- Keep the earlier `Changes required` verdict under `## Earlier verdicts`.
-- The review file uses GitHub PR number 41. The roadmap scope uses PR-61.
-
-### The questions that block progress
-
-None. OQ-79 blocks later roadmap PR-41 only.
-
-### The next concrete action
-
-Commit and push the repeat review record and this handoff entry. Then verify the remote head and review-gate result.

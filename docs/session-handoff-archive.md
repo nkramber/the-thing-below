@@ -1,5 +1,39 @@
 # Session handoff archive
 
+## Session 145: 2026-09-20, Codex
+
+Author: Codex
+Session: repeat review PR #41, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: reviewer. Base: `938ab7b`.
+
+### What this session did, and why
+
+- Reopened PR #41 at effective head `d6f5e00` after the author answered the prior review.
+- Verified P1-1 against its original trigger and the real-run regression tests. The correction reads the menu state from `RunState` through `GameRun`.
+- Withdrew P1-2. The prior review confused GitHub PR #41 with roadmap PR-41. This change is roadmap PR-61. The screen-test job belongs to later roadmap PR-41, section 7.5.
+- Updated `docs/reviews/pr-41.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1050 tests and all local gates.
+- The remote metadata tip is `74f3c97`. The effective code head is `d6f5e00`.
+
+### What is in flight
+
+- The repeat review record and this handoff entry need one metadata commit and push.
+
+### Traps and gotchas
+
+- Keep the earlier `Changes required` verdict under `## Earlier verdicts`.
+- The review file uses GitHub PR number 41. The roadmap scope uses PR-61.
+
+### The questions that block progress
+
+None. OQ-79 blocks later roadmap PR-41 only.
+
+### The next concrete action
+
+Commit and push the repeat review record and this handoff entry. Then verify the remote head and review-gate result.
+
 ## Session 144: 2026-09-20, Claude Code
 
 Author: Claude Code
