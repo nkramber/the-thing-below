@@ -490,7 +490,6 @@ jobs:
       GODOT_SHA512: 1855960b27ee3ef5e66e5e228cced69d55637b24334a7411162687dcd077d8f9f645348cdb8eae984bec8135d49ed855a1e3a16476786b8bce60774fd8402d13
       # The screen of Xvfb holds the largest capture of the list, which is 2560 by 1440.
       XVFB_SCREEN: "2560x1440x24"
-      DISPLAY: ":99"
     defaults:
       run:
         shell: bash
@@ -596,21 +595,6 @@ jobs:
             exit 1
           fi
 
-      - name: Start the software screen
-        run: |
-          set -euo pipefail
-          Xvfb "$DISPLAY" -screen 0 "$XVFB_SCREEN" &
-          for wait in 1 2 3 4 5 6 7 8 9 10; do
-            if xdpyinfo -display "$DISPLAY" > /dev/null 2>&1; then
-              echo "The software screen is up after $wait check(s)."
-              exit 0
-            fi
-            sleep 1
-          done
-
-          echo "Xvfb did not answer on $DISPLAY in 10 seconds (T-2)." >&2
-          exit 1
-
       # Two runs give the same frames, because the capture session runs no tick and the
       # fixture seed is fixed (T-7). The second run proves it.
       - name: Take the captures two times
@@ -623,7 +607,11 @@ jobs:
           set -euo pipefail
           for run in 1 2; do
             rm -rf "captures-$run"
-            "$GODOT" --path TheThingBelow.Game --quit-after 1200 \
+            # `xvfb-run` starts the software screen, waits for it, and stops it when the
+            # session ends. It picks a free display itself, so no step of this job holds a
+            # background process of another step (T-2).
+            xvfb-run --auto-servernum --server-args="-screen 0 $XVFB_SCREEN" \
+              "$GODOT" --path TheThingBelow.Game --quit-after 1200 \
               -- --capture "$PWD/captures-$run" 2>&1 | tee "capture-$run.log"
 
             if ! grep -q "capture: the session wrote every frame." "capture-$run.log"; then
