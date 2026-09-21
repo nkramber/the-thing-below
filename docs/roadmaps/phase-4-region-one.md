@@ -381,7 +381,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds the row.
 5. Every job of the PR gate is green on every leg (D-481).
 6. A night of bot runs over region one ends with no crash and no softlock (D-507).
 7. The balance check of PR-90 passes on the night before the gate (D-822).
-7. The budget test passes for every place of region one (D-523).
+8. The budget test passes for every place of region one (D-523).
 
 **After the gate.** A few players whom the owner picks play the CI build artifacts and send their notes outside Steam (D-469). No Steam Playtest runs. Each player installs an unsigned build with the steps of the runbook, and each build carries the license files (D-463, D-467). Their notes feed the fixes before the release.
 

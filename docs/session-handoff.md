@@ -1,5 +1,36 @@
 # Session handoff
 
+## Session 176: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-55, round 4. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: #50. Role: author. Base: `27fb790`.
+
+### What this session did, and why
+
+- The review sheets of the four fixture pieces and the render of the backdrop reached the PR description. The owner approved them (D-823).
+- Gitar approved `59692d2` with one finding: two items 7 in the Gate 4 list of `phase-4-region-one.md`. The item of the budget test is 8 now.
+- The CI note of Gitar named RG 7 again. Both review-gate jobs on `59692d2` report RG 7 pass, and RG 3 alone waits for the Codex review record.
+
+### The state of the build
+
+- Every CI job passed on `59692d2` except the review gate, which waits for `docs/reviews/pr-50.md`. 1712 tests pass on this machine.
+
+### What is in flight
+
+- The push of this round, the reply on the Gitar thread, and a Gitar pass on the new head. Then the PR leaves draft for the Codex review.
+
+### Traps and gotchas
+
+- The Gitar CI note reads the review-gate jobs of older heads. Read the log of the job of the current head.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Reply on the Gitar thread with the fix commit, prove the next Gitar pass current, and mark the PR ready for the Codex review.
+
 ## Session 175: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -316,35 +347,3 @@ None.
 ### The next concrete action
 
 Commit and push the review record and handoff entry. Then the author answers P1-1 in a new round.
-
-## Session 166: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: PR-80, the enemy record, the Gitar round. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: author. Base: `86528a3`.
-
-### What this session did, and why
-
-- Opened PR #48 at `fd97eb2`, and ran the push wait and the Gitar wait (D-586, D-705).
-- The Gitar pass is current: the head is `fd97eb2`, and the dashboard edit at 14:55:50 UTC comes after the push at 14:52:59 UTC. The review found no issues, and the PR has no review thread.
-- Answered the CI note of the dashboard in a PR comment: the review-gate check fails on RG 3 alone, because no review record exists yet.
-
-### The state of the build
-
-- The effective head is `fd97eb2`. This entry is a metadata commit, and it does not move the effective head (D-610).
-- CI at `fd97eb2`: build, test, and format, smoke, det-lint, replay-identity, screen-test, and ste-check pass on every leg. The review-gate check waits for `docs/reviews/pr-48.md`.
-
-### What is in flight
-
-The Codex review of PR #48. The PR adds D-785 to D-787, so the `review-override` label does not apply (D-401).
-
-### Traps and gotchas
-
-- Session 165 holds the traps of the change: the ordinal order of the enemy files, and the check of a group entry against a record in another file.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The owner starts a Codex session to review PR #48 at effective head `fd97eb2`. This author session answers each finding of that review.
