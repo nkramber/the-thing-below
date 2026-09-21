@@ -82,6 +82,8 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-21 battle screen review pass: the owner approved the art batch and played a fight (D-834). A win shows no line, and a summary of the loot and the level-ups follows a fight from PR-67 on (D-835). The step names the move from the row of the actor (D-836). The owner approved the text batch, with a new line for a resisted hit (D-837).
 
+2026-09-21 light pass: the budget test counts the worst view of the Deck (D-842). Each torch lights itself from its decor kind, and a decor file beside each map places it (D-843, D-844). Walls cast full-tile shadows, and each light names a palette key with a strength (D-845, D-846). The party carries a light, and PR-91 makes the torch an item (D-847, D-848). The art target is the HD-2D look in 2D, and PR-92 adds three full-screen passes after a new Deck sweep (D-849). A battle takes the ambient light and one key light of its map (D-850).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -461,7 +463,7 @@ Phase file: `docs/roadmaps/phase-1-foundations.md`.
 
 ### Phase 2: First playable (gate: the owner plays the village, one hub, and one dungeon with lessons and a shop, on the desktop and on the Deck, D-51, D-92, D-268, D-362, D-369)
 
-Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase: 46 PRs, and 43 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8).
+Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase: 48 PRs, and 45 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8).
 
 1. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
 2. PR-54: the export job, right before PR-7 (D-449, D-503).
@@ -477,46 +479,48 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 12. PR-55: the large pictures, right before PR-10 (D-516, D-518).
 13. PR-10: the battle scene, its message line, its backdrop, and the icons of the elements and the statuses (D-111, D-213, D-811).
 14. PR-48: the normal maps and their review sheet, right before PR-56 (D-184, D-521).
-15. PR-56: the light setups, the shadows, and the effect budget (D-183, D-520, D-523).
+15. PR-56: the light setups, the decor files, the carried light, the shadows, and the effect budget (D-183, D-520, D-523, D-842 to D-847, D-850, D-851).
 16. PR-63: the settings screen, the four accessibility settings, and a versioned settings file (D-214, D-526, D-570).
 17. PR-57: the effect files, the particles, and the battle effects (D-182, D-186).
 18. PR-58: the four ambient kinds of region one (D-187).
 19. PR-59: the glow on fire, spells, and waystones (D-188).
-20. PR-60: the ten transitions and their table (D-195, D-196).
-21. PR-11: the evaluator, the enemy profiles, and the groups, with the cost of a turn (D-65, D-534, F-53).
-22. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537).
-23. PR-62: the menu windows, the party and status windows, the dungeon map screen, and the notices (D-211, D-558, D-567, D-569).
-24. PR-68: the story scene format and runner, the join step, the flags, and the conditions, before PR-12 (D-541, D-544, D-556, D-563).
-25. PR-50: the screenplay tool, right after PR-68 (D-173, D-545).
-26. PR-12: the lessons, the slots, the forms, and the aptitudes (D-272, D-356, D-539).
-27. PR-13: the six gear slots, the items, and the pack (D-44, D-382).
-28. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
-29. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
-30. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
-31. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).
-32. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
-33. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-34. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
-35. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
-36. PR-35: the region map of nodes and routes (D-113).
-37. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command (D-432, D-438).
-38. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
-39. PR-70: every rule of what plays when (D-413, D-546).
-40. PR-71: the sound room in a development build (D-439, D-546).
-41. PR-51: the PNG import for a hand edit (D-107, D-497).
-42. PR-52: the map preview as a PNG (D-165, D-497).
-43. PR-53: the tile-edge tool and the edge files (D-204, D-501).
-44. PR-72: the music, the themes, and the sounds of the first playable (D-549).
-45. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
-46. M-3: the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
-47. M-4: the turns of each encounter and the party downs of each dungeon, by policy.
-48. M-6: the frame time and the readability on the Deck, at the scale of OQ-183 (D-161, D-621).
-49. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
-50. **← GATE 2 (first playable).**
-51. PR-74: the capture, which replays a record into frames and audio (D-476, D-551).
-52. PR-75: the store text and the checklist of the owner steps (D-452, D-550).
-53. PR-76: the store art and the five screenshots (D-475, D-550).
-54. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
+20. PR-92: the three passes of the HD-2D look, after a new Deck sweep (D-849).
+21. PR-60: the ten transitions and their table (D-195, D-196).
+22. PR-11: the evaluator, the enemy profiles, and the groups, with the cost of a turn (D-65, D-534, F-53).
+23. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537).
+24. PR-62: the menu windows, the party and status windows, the dungeon map screen, and the notices (D-211, D-558, D-567, D-569).
+25. PR-68: the story scene format and runner, the join step, the flags, and the conditions, before PR-12 (D-541, D-544, D-556, D-563).
+26. PR-50: the screenplay tool, right after PR-68 (D-173, D-545).
+27. PR-12: the lessons, the slots, the forms, and the aptitudes (D-272, D-356, D-539).
+28. PR-13: the six gear slots, the items, and the pack (D-44, D-382).
+29. PR-91: the torch item, right after PR-13 (D-847, D-848).
+30. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
+31. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
+32. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
+33. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).
+34. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
+35. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+36. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
+37. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
+38. PR-35: the region map of nodes and routes (D-113).
+39. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command (D-432, D-438).
+40. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
+41. PR-70: every rule of what plays when (D-413, D-546).
+42. PR-71: the sound room in a development build (D-439, D-546).
+43. PR-51: the PNG import for a hand edit (D-107, D-497).
+44. PR-52: the map preview as a PNG (D-165, D-497).
+45. PR-53: the tile-edge tool and the edge files (D-204, D-501).
+46. PR-72: the music, the themes, and the sounds of the first playable (D-549).
+47. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
+48. M-3: the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
+49. M-4: the turns of each encounter and the party downs of each dungeon, by policy.
+50. M-6: the frame time and the readability on the Deck, at the scale of OQ-183 (D-161, D-621).
+51. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
+52. **← GATE 2 (first playable).**
+53. PR-74: the capture, which replays a record into frames and audio (D-476, D-551).
+54. PR-75: the store text and the checklist of the owner steps (D-452, D-550).
+55. PR-76: the store art and the five screenshots (D-475, D-550).
+56. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 
 PR-37 is retired. The CRT pass of the first plan has no purpose after D-618, and no later item takes the id (G-10).
 
@@ -603,10 +607,10 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 13. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
 14. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8.
 15. PR-9, PR-89, PR-80, PR-66, PR-55, PR-10.
-16. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60.
+16. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-92, PR-60.
 17. PR-11, PR-67, PR-62.
 18. PR-68, PR-50.
-19. PR-12, PR-13, PR-14, PR-65.
+19. PR-12, PR-13, PR-91, PR-14, PR-65.
 20. PR-36.
 21. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
 22. Owner: require the bot and `night-gate` checks on `main` after their first runs.

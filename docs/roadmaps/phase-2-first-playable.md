@@ -12,7 +12,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 Phase 2 turns the machine of Phase 1 into a game that the owner plays. It ends at Gate 2. There the owner walks the village, one hub, and one dungeon on the desktop and on the Deck. Then the owner signs off on feel (D-51, D-92, D-362).
 
-Phase 2 is the largest phase of the plan. It holds 46 PRs, and 43 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
+Phase 2 is the largest phase of the plan. It holds 48 PRs, and 45 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
 
 Four lines of work run through the phase. The walk comes first: the frame, the map, the camera, and the enemies on it (PR-61, PR-7, PR-8). The fight follows, with the enemy record and the screen (PR-9, PR-80, PR-66, PR-10). The light and the effects then land, each right after the first map scene or battle scene that it needs (PR-48 to PR-60, D-520). The build, the story, and the audio close the phase, and PR-17 writes the content that the owner plays.
 
@@ -646,20 +646,25 @@ Area file: `area-effects.md` sections 7.4 and 7.6.
 
 **Scope.**
 
-- The light setup file: the ambient light and the point lights of one map at one time of day (D-442, D-519).
+- The light setup of one map and one time of day: the ambient light, the changes, the added lights, and the battle light (D-442, D-843).
+- The decor file of each map and the kind file of each decor kind, with the wall torch as the first kind (D-843, D-844).
+- Each color of light as a palette key with a strength in basis points (D-846).
 - The ambient light as the one canvas modulate of the world.
 - The point lights of torches, waystones, and spells, each with a light texture that Game builds and checks (D-183, F-46).
+- The carried light on the lead, its switch in Game, and the `torch` command of the console (D-847, D-851).
 - A height on each light, because a light at height zero gives no light to a flat normal (F-46).
-- Hard shadows from walls (D-183, OQ-96).
+- Hard shadows from walls, with a full tile for each wall (D-183, D-845).
 - The normal map of each sprite, tile, and piece through a canvas texture, with the Nearest filter on both atlases (F-45).
-- The effect budget file, its strict reader in Core, and the budget test with its light rows (D-517, D-523).
-- The light of the battle backdrop, which comes from the map where the fight began (D-205).
+- The effect budget file, its strict reader in Core, and the budget test with its light rows (D-517, D-523, D-842).
+- The light of a battle: the ambient light and one key light from the setup of the map where the fight began (D-205, D-850).
 
 **Out of scope.**
 
 - Particles and the battle effects (PR-57), and glow (PR-59).
 - The light of a puzzle, which PR-21 drives from Core state (D-41).
 - The light setups of the first playable (PR-17).
+- The torch item and its rules (PR-91, D-848).
+- The tilt-shift blur, the vignette, and the light shafts (PR-92, D-849).
 
 **Exit tests.**
 
@@ -669,17 +674,23 @@ Area file: `area-effects.md` sections 7.4 and 7.6.
 4. A map that passes a row of the budget file fails the budget test, with the file and the count.
 5. A light setup that names an absent map id fails with the file and the id.
 6. No shader on lit art uses the normal map member of Godot.
+7. A change of a piece with no light, or of no piece, fails with the file and the id (D-843).
+8. A test proves that the change of a light setup wins over the default of the decor kind (D-843).
+9. A wall torch off a wall, or with no floor south, fails with the file and the id (D-844).
+10. The budget test counts the carried light in each view (D-842, D-847).
+11. The `torch` command turns the carried light on and off, and it sends no intent (D-851).
 
 **Review focus.**
 
 - The budget rows match the numbers that the Deck test measured (D-523).
-- The answer of OQ-94 settles how the test counts one view.
-- The answer of OQ-95 settles where a torch light comes from, and OQ-97 its color.
+- The budget test counts the worst view of the Deck (D-842).
+- Each torch lights itself, and a change names a piece and never a tile (D-843, D-844).
+- The carried light follows the drawn place of the lead, and no rule reads it (D-847, G-1).
 - The light setup stays outside the content hash, so new light never breaks a record (D-495, D-519).
 
-**Questions.** OQ-94, OQ-95, OQ-96, and OQ-97.
+**Questions.** OQ-94 to OQ-97, resolved by D-842, D-843, D-845, and D-846.
 
-> *In plain English:* each place gets its light from a small file: how dark it is and where each torch glows. Walls throw hard shadows, and each sprite catches light on the side that faces the flame.
+> *In plain English:* each place gets its light from a small file: how dark it is, and how each torch glows. Each torch lights itself, so a moved torch keeps its light. Walls throw hard shadows, and the party carries a light of its own.
 
 ### 7.15 PR-63: the settings and the accessibility settings
 
@@ -830,7 +841,39 @@ Area file: `area-effects.md` section 7.10.
 
 > *In plain English:* flames and magic give off a soft haze of light, and the people and walls that they light stay crisp.
 
-### 7.19 PR-60: the transitions
+### 7.19 PR-92: the HD-2D passes
+
+Area file: `area-effects.md` section 7.17.
+
+**Scope.**
+
+- A tilt-shift blur at the top and the bottom of the frame (D-849).
+- A vignette at the edges of the frame (D-849).
+- Light shafts in the world (D-849).
+- Three rows of full-screen passes in the effect budget, from a new Deck sweep (D-523, D-617, G-14).
+
+**Out of scope.**
+
+- The glow (PR-59), and the transitions (PR-60).
+- A 3D scene, which D-849 keeps out of the plan.
+
+**Exit tests.**
+
+1. A screen test captures a lit fixture map with the three passes (D-172).
+2. The budget test counts each pass (D-523).
+3. The UI stays sharp, with no blur, no vignette, and no shaft (D-210).
+4. The PR holds the Deck sweep of the heavier stack, before and after the passes (G-14).
+
+**Review focus.**
+
+- The budget rows match the new sweep (D-617, G-14).
+- Each pass draws the world alone (D-210).
+
+**Questions.** None yet. The session asks its questions when it starts (D-487).
+
+> *In plain English:* the edges of the view blur a little, the corners fall dark, and shafts of light cut through the dark. The Deck proves it can hold this before the change lands.
+
+### 7.20 PR-60: the transitions
 
 Area file: `area-effects.md` section 7.11.
 
@@ -866,7 +909,7 @@ Area file: `area-effects.md` section 7.11.
 
 > *In plain English:* each fight starts with a screen effect, such as shattered glass or a whiteout of snow. The kind of fight picks the effect, so a boss always looks different.
 
-### 7.20 PR-11: the evaluator, the profiles, and the groups
+### 7.21 PR-11: the evaluator, the profiles, and the groups
 
 Area file: `area-battle.md` sections 7.6 and 7.7.
 
@@ -904,7 +947,7 @@ Area file: `area-battle.md` sections 7.6 and 7.7.
 
 > *In plain English:* each enemy tries every move it can make, imagines your best answer, and picks the move that leaves it best off. That is what makes the fights hard.
 
-### 7.21 PR-67: the character level, the experience, MP, and the stat curves
+### 7.22 PR-67: the character level, the experience, MP, and the stat curves
 
 Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
@@ -942,7 +985,7 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
 > *In plain English:* a fight makes each character stronger, and the people who wait or fall behind still learn a little. Each person grows on their own line.
 
-### 7.22 PR-62: the menu windows and the dungeon map screen
+### 7.23 PR-62: the menu windows and the dungeon map screen
 
 Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
@@ -984,7 +1027,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
 > *In plain English:* menus are windows that stack on each other, and the world stops while one is open. A second screen draws each tile of the dungeon that the party walked.
 
-### 7.23 PR-68: the story scene format, the story scene runner, the flags, and the conditions
+### 7.24 PR-68: the story scene format, the story scene runner, the flags, and the conditions
 
 Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
@@ -1030,7 +1073,7 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
 > *In plain English:* a story scene is a list of simple steps in a data file: walk here, say this line, ask this question. The rules run it, so a robot can play it and a replay always matches.
 
-### 7.24 PR-50: the screenplay tool
+### 7.25 PR-50: the screenplay tool
 
 Area files: `area-tools.md` section 7.10, `area-story.md` section 7.8.
 
@@ -1061,7 +1104,7 @@ Area files: `area-tools.md` section 7.10, `area-story.md` section 7.8.
 
 > *In plain English:* a tool prints each story scene in the shape of a film script. The owner reads the story as a story before anybody builds it.
 
-### 7.25 PR-12: the lessons, the slots, and the aptitudes
+### 7.26 PR-12: the lessons, the slots, and the aptitudes
 
 Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 
@@ -1107,7 +1150,7 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 
 > *In plain English:* abilities come from rites and drills that anybody can carry. Use one long enough and it opens a stronger form, and that progress belongs to the person who carried it.
 
-### 7.26 PR-13: the gear, the items, and the inventory
+### 7.27 PR-13: the gear, the items, and the inventory
 
 Area file: `area-progression.md` sections 7.8 and 7.9.
 
@@ -1148,7 +1191,41 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 
 > *In plain English:* six slots, and anyone can wear anything. What you find is what the author placed, so a good weapon is a real event.
 
-### 7.27 PR-14: the hub map, the NPCs, and the services
+### 7.28 PR-91: the torch item
+
+Area file: `area-exploration.md` section 7.17.
+
+**Scope.**
+
+- The torch as an item of Core in the pack of PR-13, which never burns out (D-848).
+- The intent that lights the torch or puts it out (D-848).
+- The sight of the party in the dark, with a lit torch and with none (D-848, OQ-217).
+- The longer sight of an enemy toward a lit torch (D-848, OQ-218).
+- The switch of the carried light, which follows the state of the torch (D-847).
+- A simulation version bump, because the rules change (G-17).
+
+**Out of scope.**
+
+- The braziers of a puzzle (PR-21, D-41).
+- The light itself, which PR-56 builds (D-847).
+
+**Exit tests.**
+
+1. A seed loop proves the sight of the party with a lit torch and with none.
+2. A seed loop proves that an enemy sees a lit torch from farther away.
+3. A replay with the intent of the torch gives the same state hash on every CI leg (G-5).
+4. The carried light draws while the torch burns, and it goes dark when the player puts the torch out.
+
+**Review focus.**
+
+- The answer of OQ-217 meets D-566, which puts no fog of war on a map.
+- The light of the screen never reaches a rule of sight (G-1).
+
+**Questions.** OQ-217 and OQ-218.
+
+> *In plain English:* the torch becomes a real item. Dark places need it, and guards see it from far away, so the player chooses between light and stealth.
+
+### 7.29 PR-14: the hub map, the NPCs, and the services
 
 Area file: `area-exploration.md` section 7.11.
 
@@ -1189,7 +1266,7 @@ Area file: `area-exploration.md` section 7.11.
 
 > *In plain English:* the hub is a place you walk through, where the party recovers and reshapes itself before the next dungeon. Every hub has a different shape.
 
-### 7.28 PR-65: the shop and the gold
+### 7.30 PR-65: the shop and the gold
 
 Area file: `area-exploration.md` section 7.12.
 
@@ -1225,7 +1302,7 @@ Area file: `area-exploration.md` section 7.12.
 
 > *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
 
-### 7.29 PR-36: the dialogue box, the portraits, and the story scene on screen
+### 7.31 PR-36: the dialogue box, the portraits, and the story scene on screen
 
 Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
@@ -1263,7 +1340,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 > *In plain English:* people walk, turn, and speak on the map you already walk on. Their words appear in a box at the bottom, with a face beside them.
 
-### 7.30 PR-15: the headless runner and the bots
+### 7.32 PR-15: the headless runner and the bots
 
 Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
@@ -1301,7 +1378,7 @@ Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
 > *In plain English:* simple robots play the game with no screen. They make the same choices a player makes, and every crash they find comes with the seed that repeats it.
 
-### 7.31 PR-49: the night job and the night gate
+### 7.33 PR-49: the night job and the night gate
 
 Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
@@ -1339,7 +1416,7 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
 > *In plain English:* every night the robots play thousands of runs on all three systems. No change merges unless a recent night ended with no crash and no dead end.
 
-### 7.32 PR-16: the dungeon parts, the death, and the save points
+### 7.34 PR-16: the dungeon parts, the death, and the save points
 
 Area file: `area-exploration.md` section 7.8.
 
@@ -1381,7 +1458,7 @@ Area file: `area-exploration.md` section 7.8.
 
 > *In plain English:* the dungeon gains its chests, doors, keys, and resting stones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
-### 7.33 PR-64: the traps, the hazards, and the statuses on the map
+### 7.35 PR-64: the traps, the hazards, and the statuses on the map
 
 Area file: `area-exploration.md` section 7.9.
 
@@ -1421,7 +1498,7 @@ Area file: `area-exploration.md` section 7.9.
 
 > *In plain English:* the dungeon itself can hurt you. Poison still hurts while you walk, and a party can go down between fights.
 
-### 7.34 PR-35: the region map
+### 7.36 PR-35: the region map
 
 Area file: `area-exploration.md` section 7.13.
 
@@ -1457,11 +1534,11 @@ Area file: `area-exploration.md` section 7.13.
 
 > *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
 
-### 7.35 PR-37: retired
+### 7.37 PR-37: retired
 
 PR-37 held the CRT shader and its toggle, which have no purpose after D-618. No later item takes the id (G-10). This entry exists so that a reader of the sequence finds the gap and its reason.
 
-### 7.36 PR-38: the audio synthesizer and the first sounds
+### 7.38 PR-38: the audio synthesizer and the first sounds
 
 Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
@@ -1500,7 +1577,7 @@ Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
 > *In plain English:* music and sound start as rows of numbers in a text file. A tool of ours turns those rows into sound, the same way on every computer.
 
-### 7.37 PR-69: the audio player base
+### 7.39 PR-69: the audio player base
 
 Area file: `area-audio.md` sections 7.2 and 7.3.
 
@@ -1536,7 +1613,7 @@ Area file: `area-audio.md` sections 7.2 and 7.3.
 
 > *In plain English:* this part makes sound come out. It sets the volumes, and it mutes the game when the window loses focus.
 
-### 7.38 PR-70: the rules of what plays when
+### 7.40 PR-70: the rules of what plays when
 
 Area file: `area-audio.md` sections 7.4 to 7.10.
 
@@ -1581,7 +1658,7 @@ Area file: `area-audio.md` sections 7.4 to 7.10.
 
 > *In plain English:* every place has its own music, a low bed of wind or fire under it, and its own footsteps. The music changes when the story turns the day to night.
 
-### 7.39 PR-71: the sound room
+### 7.41 PR-71: the sound room
 
 Area file: `area-audio.md` section 7.11.
 
@@ -1611,7 +1688,7 @@ Area file: `area-audio.md` section 7.11.
 
 > *In plain English:* the owner listens to every piece of music before it ships. One tool plays a batch on the desk, and this one plays it inside the game.
 
-### 7.40 PR-51: the PNG import
+### 7.42 PR-51: the PNG import
 
 Area file: `area-tools.md` section 7.11.
 
@@ -1653,7 +1730,7 @@ Area file: `area-tools.md` section 7.11.
 
 > *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
 
-### 7.41 PR-52: the map preview
+### 7.43 PR-52: the map preview
 
 Area file: `area-tools.md` section 7.12.
 
@@ -1683,7 +1760,7 @@ Area file: `area-tools.md` section 7.12.
 
 > *In plain English:* maps are text files too. This tool draws a map as a picture, so the owner can see and approve a place before anyone walks it.
 
-### 7.42 PR-53: the tile-edge tool
+### 7.44 PR-53: the tile-edge tool
 
 Area file: `area-tools.md` section 7.13.
 
@@ -1716,7 +1793,7 @@ Area file: `area-tools.md` section 7.13.
 
 > *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own.
 
-### 7.43 PR-72: the music and the sounds of the first playable
+### 7.45 PR-72: the music and the sounds of the first playable
 
 Area file: `area-audio.md` section 7.12.
 
@@ -1751,7 +1828,7 @@ Area file: `area-audio.md` section 7.12.
 
 > *In plain English:* the music arrives in two batches. This is the first: enough for the first thing that the owner plays.
 
-### 7.44 PR-17: the village, the first hub, and the first dungeon
+### 7.46 PR-17: the village, the first hub, and the first dungeon
 
 Area files: every area file. The content PR touches each area.
 
@@ -1797,7 +1874,7 @@ Area files: every area file. The content PR touches each area.
 
 > *In plain English:* the first real place to play. Everything before this was machinery.
 
-### 7.45 M-3, M-4, and M-6: the measurements of the phase
+### 7.47 M-3, M-4, and M-6: the measurements of the phase
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
@@ -1826,7 +1903,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* three sets of numbers close the phase. They are the cost of the robots each night, the length of a fight, and the speed on the handheld.
 
-### 7.46 Gate 2: the first playable
+### 7.48 Gate 2: the first playable
 
 **The gate.** Gate 2 passes when every line holds:
 
@@ -1844,7 +1921,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* at this point the game is a game. The owner walks a village, fights in a mine, and says whether it feels right.
 
-### 7.47 PR-74: the capture
+### 7.49 PR-74: the capture
 
 Area file: `area-release.md` section 7.6.
 
@@ -1878,7 +1955,7 @@ Area file: `area-release.md` section 7.6.
 
 > *In plain English:* the game can replay a recorded run and write every frame to disk. That gives the same picture each time, so a screenshot or a trailer shot is repeatable.
 
-### 7.48 PR-75: the store text and the owner steps
+### 7.50 PR-75: the store text and the owner steps
 
 Area file: `area-release.md` section 7.7.
 
@@ -1915,7 +1992,7 @@ Area file: `area-release.md` section 7.7.
 
 > *In plain English:* the shop page words get written and approved like any other text in the game. The owner pays the fee and answers the questions that only Valve asks.
 
-### 7.49 PR-76: the store art and the screenshots
+### 7.51 PR-76: the store art and the screenshots
 
 Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
@@ -1956,10 +2033,10 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 1. The owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).
 2. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8: the export job, the frame, the map, and the enemies.
 3. PR-9, PR-89, PR-80, PR-66, PR-55, PR-10: the fight, the walk fault, the enemy record, and the screen (D-557, D-782).
-4. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-60: the normal maps, the light, the settings, and the effects.
+4. PR-48, PR-56, PR-63, PR-57, PR-58, PR-59, PR-92, PR-60: the normal maps, the light, the settings, and the effects.
 5. PR-11, PR-67, PR-62: the enemies that think, the character level, and the menu windows.
 6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
-7. PR-12, PR-13, PR-14, PR-65: the build of a party, the hub, and the shop.
+7. PR-12, PR-13, PR-91, PR-14, PR-65: the build of a party, the torch, the hub, and the shop.
 8. PR-36: the dialogue box.
 9. PR-15, PR-49: the bots, the night job, and the night gate.
 10. Owner: require the bot and `night-gate` checks on `main` after their first runs.
@@ -1995,10 +2072,10 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-86 | How the atlas places tiles, and how Game draws a map | PR-7, answered by D-667 |
 | OQ-89 | Pixel snap in Game | PR-7 |
 | OQ-91 | The operations of a large picture on a piece, resolved by D-812 | PR-55 |
-| OQ-94 | How the budget test counts one view | PR-56 |
-| OQ-95 | Where a torch light comes from | PR-56 |
-| OQ-96 | Where the shape of a shadow comes from | PR-56 |
-| OQ-97 | The colors of light | PR-56 |
+| OQ-94 | How the budget test counts one view, resolved by D-842 | PR-56 |
+| OQ-95 | Where a torch light comes from, resolved by D-843 | PR-56 |
+| OQ-96 | Where the shape of a shadow comes from, resolved by D-845 | PR-56 |
+| OQ-97 | The colors of light, resolved by D-846 | PR-56 |
 | OQ-98 | GPU particles or CPU particles | PR-57 |
 | OQ-99 | What a screen shake moves | PR-57 |
 | OQ-100 | The reduced form of a flash and a shake | PR-57 and PR-63 |
@@ -2041,6 +2118,8 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-141 | Two accessories with one effect | PR-13 |
 | OQ-142 | The stack limit of each item | PR-13 |
 | OQ-143 | What a rarity tier changes | PR-13 |
+| OQ-217 | How far the party sees in the dark | PR-91 |
+| OQ-218 | How much farther an enemy sees a lit torch | PR-91 |
 | OQ-144 | The full step list of a story scene script | PR-68 |
 | OQ-145 | How a step that takes time ends | PR-68 |
 | OQ-146 | The shape of a condition | PR-68 |

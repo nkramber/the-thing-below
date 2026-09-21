@@ -282,6 +282,19 @@ Each later PR that adds a map rule or a place keeps this list. The phase files m
 
 > *In plain English:* every new place and every new rule follows the same seven steps. The rules stay in one place, each map is one file, and every change proves itself over a thousand runs.
 
+### 7.17 The torch
+
+Built by PR-56 and PR-91. Phase file: `phase-2-first-playable.md`.
+
+- PR-56 draws the carried light in Game, and a switch of Game turns it on (D-847). No rule reads that light (G-1).
+- PR-91 makes the torch an item of Core. It never burns out, and the player can put it out (D-848).
+- The party needs a lit torch to see in the dark. OQ-217 holds how far the party sees with it and with none (D-848).
+- An enemy sees a lit torch from farther away. OQ-218 holds how much farther (D-848).
+- A lit torch lights a brazier, and a puzzle of PR-21 reads the brazier (D-41, D-848).
+- The state of the torch turns the carried light on or off (D-847).
+
+> *In plain English:* the party carries a torch. First it is only a light on the screen. Later it becomes a real item: dark places need it, and guards see it from far away.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The exploration work keeps this order inside it:
@@ -293,16 +306,17 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 5. PR-9 and PR-10: the battle and its screen (`area-battle.md`).
 6. PR-62: the menu windows and the dungeon map screen.
 7. PR-12 and PR-13: the lessons and the items that a chest gives.
-8. PR-14: the hub map and its services.
-9. PR-65: the shop and the gold economy, after PR-13 (D-530).
-10. PR-16: the treasure, the doors, the keys, and the save points.
-11. PR-64: the traps, the hazards, and the statuses on the map (D-529).
-12. PR-35: the region map.
-13. PR-52 and PR-53: the map preview and the tile-edge tool, before PR-17 (D-497).
-14. PR-17: the village, the town, and the first dungeons.
-15. **← GATE 2 (first playable).**
-16. PR-21: the puzzles and the secrets, in Phase 3.
-17. PR-23, PR-24, PR-81, PR-27, PR-25, and PR-26: the other places of region one, in the order of play (D-562, D-574).
+8. PR-91: the torch item, right after PR-13 (D-848).
+9. PR-14: the hub map and its services.
+10. PR-65: the shop and the gold economy, after PR-13 (D-530).
+11. PR-16: the treasure, the doors, the keys, and the save points.
+12. PR-64: the traps, the hazards, and the statuses on the map (D-529).
+13. PR-35: the region map.
+14. PR-52 and PR-53: the map preview and the tile-edge tool, before PR-17 (D-497).
+15. PR-17: the village, the town, and the first dungeons.
+16. **← GATE 2 (first playable).**
+17. PR-21: the puzzles and the secrets, in Phase 3.
+18. PR-23, PR-24, PR-81, PR-27, PR-25, and PR-26: the other places of region one, in the order of play (D-562, D-574).
 
 ## 9. Open questions
 
@@ -314,10 +328,10 @@ The register is `docs/questions.md` (D-19). These questions block exploration PR
 - OQ-121: the prices, the buy-back, and the stock of a shop. Blocks PR-65.
 - OQ-122: the format of the region map, and the cost of a route. Blocks PR-35.
 - OQ-123: how the player finds a secret. Blocks PR-21.
+- OQ-217: how far the party sees in the dark. Blocks PR-91.
+- OQ-218: how much farther an enemy sees a lit torch. Blocks PR-91.
 - OQ-89: pixel snap in Game. Resolved 2026-09-20 by D-715.
 - OQ-114: the rule of sight. Resolved 2026-09-20 by D-718, D-719, and D-720.
 - OQ-117: a diagonal step on the map. Resolved 2026-09-20 by D-716.
 - OQ-118: the limits of the camera on a small map. Resolved 2026-09-20 by D-717.
 - OQ-64: the tick while a menu is open. Resolved 2026-09-18 by D-650.
-
-No open question blocks this file.
