@@ -1,5 +1,40 @@
 # Session handoff
 
+## Session 153: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: PR-8, the enemies on the map, round 2. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: author. Base: `626d2fe`.
+
+### What this session did, and why
+
+- Read the first CI run of PR #45. The `screen-test` job failed on the five map frames alone, because the lead now draws (F-94). The five UI frames match the baseline by pixel.
+- Downloaded the artifact `screen-captures` of the run `35555586770`, and read each map frame. Each one shows Marrek on the spawn tile, crisp at each scale. No enemy is in the sight of the party on this night map, as D-719 wants.
+- Committed the five map frames as the new baseline (D-733).
+- Attached the review sheet of the map sprite page to the PR description, with the fixture enemy (D-514).
+
+### The state of the build
+
+- On the first run, every leg of the build, test, and format job that finished passed, and so did the smoke, replay identity, det-lint, and STE jobs.
+- The `review-gate` check fails on RG 3 alone until the review record lands.
+- The remote head of `main` is `626d2fe`.
+
+### What is in flight
+
+The push of this round runs CI again. The gitar pass follows, and then the PR goes to the cross-provider review.
+
+### Traps and gotchas
+
+- The logs of a job stay locked while its run is still in progress, but the artifact is ready at once.
+- The map frames of PR #44 held no character, and the owner approved them. A dark frame hides a missing sprite, so read each frame at a crop.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for CI and the gitar pass on the new head, answer each gitar comment, and hand PR #45 to the cross-provider review.
+
 ## Session 152: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -357,39 +392,3 @@ None. OQ-79 blocks roadmap PR-41, which is a later PR, and it blocks no line of 
 ### The next concrete action
 
 Start the repeat review of PR #41 at the new effective head.
-
-## Session 143: 2026-09-20, Codex
-
-Author: Codex
-Session: review PR #41, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: reviewer. Base: `938ab7b`.
-
-### What this session did, and why
-
-- Reviewed PR #41 at effective head `c8ea1ca` after the author completed the UI base and the Gitar pass.
-- Verified the opposite-provider gate, the complete 81-path diff, the PR comments, the affected contracts, and the roadmap exit tests.
-- Found two blocking defects: `Boot.ReadInput` always passes `menuOpen: false`, and the PR does not add the screen-test workflow assigned to PR-41.
-- Added `docs/reviews/pr-41.md` with the verdict `Changes required`.
-
-### The state of the build
-
-- `make verify` passes on the Mac with 1046 tests and all local gates.
-- Revision-matched build, test, format, det-lint, replay identity, smoke, export, coverage, STE, and Gitar checks pass.
-- `review-gate` is expected to fail until the review record is pushed. No `screen-test` check exists on the PR.
-
-### What is in flight
-
-- The review waits for the author to correct P1-1 and P1-2, push the corrections, and request a re-review.
-
-### Traps and gotchas
-
-- The effective head is `c8ea1ca`. The two later commits change only the metadata set.
-- The PR title says PR-61, but the GitHub PR number is 41. The review record uses `pr-41.md`.
-- The roadmap says OQ-79 blocks the screen-test job. The PR does not answer it or create the job.
-
-### The questions that block progress
-
-- OQ-79 remains open. It blocks the missing screen-test job.
-
-### The next concrete action
-
-Author fixes P1-1 and P1-2, then starts a re-review of PR #41 at the new effective head.

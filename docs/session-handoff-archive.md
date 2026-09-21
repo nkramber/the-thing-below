@@ -1,5 +1,41 @@
 # Session handoff archive
 
+## Session 143: 2026-09-20, Codex
+
+Author: Codex
+Session: review PR #41, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: reviewer. Base: `938ab7b`.
+
+### What this session did, and why
+
+- Reviewed PR #41 at effective head `c8ea1ca` after the author completed the UI base and the Gitar pass.
+- Verified the opposite-provider gate, the complete 81-path diff, the PR comments, the affected contracts, and the roadmap exit tests.
+- Found two blocking defects: `Boot.ReadInput` always passes `menuOpen: false`, and the PR does not add the screen-test workflow assigned to PR-41.
+- Added `docs/reviews/pr-41.md` with the verdict `Changes required`.
+
+### The state of the build
+
+- `make verify` passes on the Mac with 1046 tests and all local gates.
+- Revision-matched build, test, format, det-lint, replay identity, smoke, export, coverage, STE, and Gitar checks pass.
+- `review-gate` is expected to fail until the review record is pushed. No `screen-test` check exists on the PR.
+
+### What is in flight
+
+- The review waits for the author to correct P1-1 and P1-2, push the corrections, and request a re-review.
+
+### Traps and gotchas
+
+- The effective head is `c8ea1ca`. The two later commits change only the metadata set.
+- The PR title says PR-61, but the GitHub PR number is 41. The review record uses `pr-41.md`.
+- The roadmap says OQ-79 blocks the screen-test job. The PR does not answer it or create the job.
+
+### The questions that block progress
+
+- OQ-79 remains open. It blocks the missing screen-test job.
+
+### The next concrete action
+
+Author fixes P1-1 and P1-2, then starts a re-review of PR #41 at the new effective head.
+
 ## Session 142: 2026-09-20, Claude Code
 
 Author: Claude Code
