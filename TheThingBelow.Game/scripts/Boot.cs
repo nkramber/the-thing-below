@@ -44,6 +44,13 @@ public partial class Boot : Node
     /// </summary>
     public const string CaptureArgument = "--capture";
 
+    /// <summary>
+    /// The argument that limits the capture session to one fixture, such as `walk` (D-782).
+    /// The argument after it names the fixture. A session with no such argument takes every
+    /// capture.
+    /// </summary>
+    public const string FixtureArgument = "--fixture";
+
     /// <summary>The exit code of a session that ends with no error (T-2).</summary>
     public const int SuccessExitCode = 0;
 
@@ -203,7 +210,8 @@ public partial class Boot : Node
         string? captureFolder = CaptureFolderOf(userArguments);
         if (captureFolder is not null)
         {
-            CaptureSession.Start(this, LoadContent(), captureFolder, this.ReportCrash);
+            CaptureSession.Start(
+                this, LoadContent(), captureFolder, CapturesOf(userArguments), this.ReportCrash);
             return;
         }
 
@@ -236,6 +244,29 @@ public partial class Boot : Node
         }
 
         return userArguments[mark + 1];
+    }
+
+    /// <summary>Reads the captures of the capture session from the arguments of the session (D-782).</summary>
+    /// <param name="userArguments">The arguments after the two dashes of the session.</param>
+    /// <returns>Every capture, or the captures of the fixture that the arguments name.</returns>
+    /// <exception cref="InvalidOperationException">The argument names no fixture (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">No capture has that fixture (T-2).</exception>
+    private static IReadOnlyList<ScreenCapture> CapturesOf(string[] userArguments)
+    {
+        int mark = Array.IndexOf(userArguments, FixtureArgument);
+        if (mark < 0)
+        {
+            return ScreenCaptures.All;
+        }
+
+        if (mark + 1 >= userArguments.Length || userArguments[mark + 1].Length == 0)
+        {
+            throw new InvalidOperationException(
+                $"The argument '{FixtureArgument}' takes the name of a fixture after it, " +
+                $"and this session gave none (T-2).");
+        }
+
+        return ScreenCaptures.OfFixture(userArguments[mark + 1]);
     }
 
     /// <summary>

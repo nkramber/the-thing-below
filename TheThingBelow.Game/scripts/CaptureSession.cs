@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Godot;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Logging;
 using TheThingBelow.Game.Ui;
 
 namespace TheThingBelow.Game;
@@ -12,9 +14,11 @@ namespace TheThingBelow.Game;
 /// writes one PNG for each one. Then it quits with the success code.
 /// </summary>
 /// <remarks>
-/// The session runs no tick. The frame time of the engine is a float clock, and a tick from
-/// it would put the party in another place on each run (T-7, G-3). Thus every capture shows
-/// the run of <see cref="Boot.FixtureSeed"/> at tick 0, and two runs give the same frames.
+/// The map fixture and the ui fixture run no tick. The frame time of the engine is a float
+/// clock, and a tick from it would put the party in another place on each run (T-7, G-3).
+/// Thus those captures show the run of <see cref="Boot.FixtureSeed"/> at tick 0. The walk
+/// fixture gives the run the time of exactly one tick for each frame, and never the frame
+/// time of the engine, so two runs give the same frames too (D-782).
 /// <para>
 /// A capture needs a drawn frame, so the session waits <see cref="FramesBeforeCapture"/>
 /// frames after each change of the window size. The world draws into a viewport, the frame
@@ -31,10 +35,19 @@ public sealed partial class CaptureSession : Node
     /// <summary>The count of frames that the session waits after each change of the window.</summary>
     public const int FramesBeforeCapture = 8;
 
+    /// <summary>
+    /// The time of one tick, which the walk fixture gives to the run for each frame that it
+    /// writes. The fixed-step loop then runs exactly one tick (D-164, D-782).
+    /// </summary>
+    private const double OneTickSeconds = 1.0 / FixedStepLoop.TicksPerSecond;
+
     private ContentSet content = null!;
     private Action<Exception> reportFault = null!;
     private string folder = string.Empty;
+    private IReadOnlyList<ScreenCapture> captures = [];
     private FrameRoot? frame;
+    private GameRun? walkRun;
+    private MapScreen? walkMap;
     private int next;
     private int waited;
     private bool stopped;
@@ -43,22 +56,34 @@ public sealed partial class CaptureSession : Node
     /// <param name="host">The node that holds the session, which is the boot node.</param>
     /// <param name="content">The content set of this build.</param>
     /// <param name="folder">The folder that takes one PNG for each capture.</param>
+    /// <param name="captures">The captures of this session, in order: every capture, or the captures of one fixture (D-782).</param>
     /// <param name="reportFault">The reporter of a fault, which writes the crash file (D-170).</param>
     /// <returns>The session, which draws from the next frame onward.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="ArgumentException">The folder is empty (T-2).</exception>
+    /// <exception cref="ArgumentException">The folder is empty, or the list holds no capture (T-2).</exception>
     public static CaptureSession Start(
-        Node host, ContentSet content, string folder, Action<Exception> reportFault)
+        Node host,
+        ContentSet content,
+        string folder,
+        IReadOnlyList<ScreenCapture> captures,
+        Action<Exception> reportFault)
     {
         ArgumentNullException.ThrowIfNull(host);
         ArgumentNullException.ThrowIfNull(content);
         ArgumentException.ThrowIfNullOrEmpty(folder);
+        ArgumentNullException.ThrowIfNull(captures);
+        if (captures.Count == 0)
+        {
+            throw new ArgumentException("The capture session takes one capture or more (T-2).", nameof(captures));
+        }
+
         ArgumentNullException.ThrowIfNull(reportFault);
 
         var session = new CaptureSession
         {
             content = content,
             folder = folder,
+            captures = captures,
             reportFault = reportFault,
         };
 
@@ -119,12 +144,12 @@ public sealed partial class CaptureSession : Node
             return;
         }
 
-        ScreenCapture capture = ScreenCaptures.All[this.next];
+        ScreenCapture capture = this.captures[this.next];
         this.Write(capture);
         GD.Print($"capture: wrote {capture.FileName}.");
 
         this.next++;
-        if (this.next >= ScreenCaptures.All.Count)
+        if (this.next >= this.captures.Count)
         {
             this.stopped = true;
             GD.Print(SuccessLine);
@@ -136,7 +161,7 @@ public sealed partial class CaptureSession : Node
     }
 
     /// <summary>Sets the window size of one capture, and builds its fixture.</summary>
-    /// <param name="index">The place of the capture in <see cref="ScreenCaptures.All"/>.</param>
+    /// <param name="index">The place of the capture in the captures of this session.</param>
     /// <remarks>
     /// The window takes its new size first, so the frame reads that size when it builds its
     /// fit. Each capture builds its fixture again, because the default body size follows the
@@ -144,10 +169,72 @@ public sealed partial class CaptureSession : Node
     /// </remarks>
     private void Begin(int index)
     {
-        ScreenCapture capture = ScreenCaptures.All[index];
+        ScreenCapture capture = this.captures[index];
         this.GetWindow().Size = new Vector2I(capture.Width, capture.Height);
-        this.BuildFixture(capture);
+        if (capture.Walk is null)
+        {
+            this.BuildFixture(capture);
+        }
+        else
+        {
+            this.WalkOneTick(capture, capture.Walk);
+        }
+
         this.waited = 0;
+    }
+
+    /// <summary>
+    /// Runs one tick of the walk, and shows the party where that tick put it (D-782). The
+    /// first frame of the walk builds the fixture, and every later frame keeps its run.
+    /// </summary>
+    /// <param name="capture">The capture of this tick.</param>
+    /// <param name="walk">The step and the tick of the step.</param>
+    /// <exception cref="InvalidOperationException">
+    /// The loop ran another count of ticks, a tick wrote an error, or the step did not start (T-2).
+    /// </exception>
+    /// <remarks>
+    /// The time of each frame is the time of one tick, and never the frame time of the
+    /// engine. Thus every session walks the same ticks, and two sessions give the same
+    /// frames (T-7, G-3).
+    /// </remarks>
+    private void WalkOneTick(ScreenCapture capture, WalkTick walk)
+    {
+        if (this.walkRun is null || this.walkMap is null)
+        {
+            this.BuildFixture(capture);
+        }
+
+        GameRun run = this.walkRun!;
+        if (walk.Tick == 1)
+        {
+            run.Queue(run.IntentOf(walk.Action));
+        }
+
+        long before = run.Tick;
+        foreach (LogEntry entry in run.Advance(OneTickSeconds))
+        {
+            if (entry.Level == LogLevel.Error)
+            {
+                throw new InvalidOperationException(
+                    $"The tick {run.Tick} of the capture '{capture.FileName}' wrote an error: {entry.Message} (T-2).");
+            }
+        }
+
+        if (run.Tick != before + 1)
+        {
+            throw new InvalidOperationException(
+                $"The capture '{capture.FileName}' gave the run the time of one tick, and the loop ran "
+                + $"{run.Tick - before} ticks (T-2, D-782).");
+        }
+
+        if (walk.Tick == 1 && run.Party.Stepping is null)
+        {
+            throw new InvalidOperationException(
+                $"The intent '{walk.Action}' of the capture '{capture.FileName}' started no step from "
+                + $"{run.Party.LeadAt}. The walk fixture needs an open tile on each side of the start (T-2, D-782).");
+        }
+
+        this.walkMap!.ShowParty(run.Party);
     }
 
     /// <summary>
@@ -165,6 +252,8 @@ public sealed partial class CaptureSession : Node
             this.RemoveChild(this.frame);
             this.frame.QueueFree();
             this.frame = null;
+            this.walkRun = null;
+            this.walkMap = null;
         }
 
         var built = new FrameRoot();
@@ -182,6 +271,16 @@ public sealed partial class CaptureSession : Node
         {
             GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers());
             MapFixture.Build(built, @base, open.Party);
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.WalkFixture) == 0)
+        {
+            // The same running screen as the map fixture. The session keeps the run and the
+            // map, and each later frame of the walk runs one tick of them (D-782).
+            GameRun walked = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers());
+            this.walkRun = walked;
+            this.walkMap = MapFixture.Build(built, @base, walked.Party).Map;
             return;
         }
 

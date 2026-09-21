@@ -30,8 +30,10 @@ namespace TheThingBelow.Game.Ui;
 /// </para>
 /// <para>
 /// Every map sprite sits at the south edge of its front row, and its picture draws up from
-/// there. A tile takes the center of its cell as its sort value, so a sprite at the north
-/// edge of a tile draws behind the floor that it stands on (F-94, D-737).
+/// there (F-94, D-737). The ground layer takes no part in the sort, and it draws below every
+/// sprite. A tile that sorted by its cell drew over the feet of a sprite for half of each
+/// step north and each step south, because the feet then sit inside a row of tiles (F-95,
+/// D-783).
 /// </para>
 /// </remarks>
 public partial class MapScreen : Node2D
@@ -58,6 +60,9 @@ public partial class MapScreen : Node2D
 
     /// <summary>The height of the dot of the mark, and the gap above it, in art pixels.</summary>
     private const int MarkDot = 4;
+
+    /// <summary>The Z index of the ground layer, below every sprite and below the mark (F-95, D-783).</summary>
+    private const int GroundZIndex = -1;
 
     private TileMapLayer ground = null!;
     private Sprite2D lead = null!;
@@ -257,9 +262,14 @@ public partial class MapScreen : Node2D
             $"the region size is {source.TextureRegionSize}, and it takes {wanted} (D-667, F-51)");
         Refuse(this.ground.CollisionEnabled, "the collisions of the layer are on, and no rule of Core reads one (G-1, F-51)");
         Refuse(this.ground.NavigationEnabled, "the navigation of the layer is on, and no rule of Core reads it (G-1, F-51)");
+        Refuse(this.ground.YSortEnabled, "the layer takes part in the sort, and a tile then draws over a sprite inside a step (F-95, D-783)");
+        Refuse(
+            this.ground.ZIndex != GroundZIndex,
+            $"the layer draws at the Z index {this.ground.ZIndex}, and it takes {GroundZIndex} (F-95, D-783)");
 
         return $"tile size {set.TileSize}, region size {source.TextureRegionSize}, "
-            + $"collisions {this.ground.CollisionEnabled}, navigation {this.ground.NavigationEnabled}";
+            + $"collisions {this.ground.CollisionEnabled}, navigation {this.ground.NavigationEnabled}, "
+            + $"sort {this.ground.YSortEnabled}, Z index {this.ground.ZIndex}";
     }
 
     /// <summary>
@@ -319,7 +329,12 @@ public partial class MapScreen : Node2D
             // (F-51). No rule of Core reads a collision or a navigation mesh (G-1, G-23).
             CollisionEnabled = false,
             NavigationEnabled = false,
-            YSortEnabled = true,
+
+            // The ground is flat, so no tile of it ever stands in front of a sprite. Thus the
+            // layer takes no part in the sort, and it draws below every sprite at every pixel
+            // of a slide (F-95, D-783). A later tile that stands up takes a layer of its own.
+            YSortEnabled = false,
+            ZIndex = GroundZIndex,
         };
 
         for (int row = 0; row < map.Height; row += 1)
