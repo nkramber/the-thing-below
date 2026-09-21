@@ -49,12 +49,13 @@ Built by PR-9. Phase file: `phase-2-first-playable.md`.
 Built by PR-9. Phase file: `phase-2-first-playable.md`.
 
 - Each action pushes its user back on the timeline by an amount that the action and the speed of the user set (D-376).
-- The strip shows the next several turns, so each choice reads before the player makes it (D-29, D-376). OQ-125 holds how many turns it shows.
+- The strip shows the next several turns, so each choice reads before the player makes it (D-29, D-376). It shows six turns (D-756).
 - A heavy action pushes further, haste shortens each push, and slow lengthens it (D-29, D-376).
 - A stun pushes an enemy back on the strip (D-376).
 - A fast character can act twice before a slow one, which the balance of PR-30 must hold (D-376, M-4).
 - The delays count ticks, and Core computes them with integer math alone (D-164, D-169, G-2).
-- OQ-126 holds where the delay of each action lives.
+- Content holds the delay of each action and each item (D-757). The push is the delay times 100, divided by the speed, and haste and slow multiply it (D-768).
+- On one ready tick, the higher speed acts first, then the party, then the lower slot (D-769). The side that came from behind starts at tick 0 (D-770).
 - Property tests over one thousand seeds prove that the timeline never stalls (the exit tests of PR-9).
 
 > *In plain English:* turn order is a strip across the top that you can read ahead. A heavy swing buys its power with a longer wait.
@@ -69,8 +70,8 @@ Built by PR-9. Phase file: `phase-2-first-playable.md`.
 - Any character can use an item on their turn, and the use costs an action. An item restores less in a fight than outside one (D-382).
 - A character can step to the other row, and the step costs a light delay (D-380).
 - Any character can try to flee. The chance rises with the speed of the party, a failure costs the turn, and no party flees from a boss (D-378).
-- After a flee, the group returns to its route, and no fight with it starts for a short grace time (D-381). OQ-133 holds the numbers.
-- OQ-124 holds whether a character can defend.
+- After a flee, the group returns to its route, and no fight with it starts for a short grace time (D-381). The grace time is 300 ticks (D-748). The flee chance reads the speed gap of the two sides (D-763).
+- A character can defend, which cuts the damage until the next turn of that character (D-755).
 
 > *In plain English:* attack, use a rite or a drill, take an item, change row, or flee. A flight is always possible, never free, and never open against a boss.
 
@@ -125,10 +126,10 @@ Built by PR-11 and PR-9. Phase file: `phase-2-first-playable.md`.
 - Every profile validates at load, and a profile that can never act fails that load (G-21, T-2). OQ-128 holds what makes a profile unable to act.
 - Each profile carries a steal list of items and some gold, and a human enemy carries what a person carries (D-383). OQ-129 holds the chance of a steal.
 - A group file for each region holds each enemy group: its enemies, their rows, and their profiles (D-535).
-- A map names a group by its id, and a test proves that each named group exists (D-528, D-535).
+- A map names a group by its id, and a test proves that each named group exists (D-528, D-535). PR-9 holds that test on its fixture group file, and PR-11 grows the file (D-766).
 - PR-11 proves the evaluator on fixture profiles, and PR-17 writes the profiles of the first playable.
 - PR-80 holds the enemy record: the stats of each enemy and the ids of its abilities. PR-66 adds the element table to it (D-557).
-- OQ-132 holds what a group larger than its rows does.
+- A group holds up to twelve enemies. Six stand on the field, in any split of the two rows, and the rest wait to step in as a wave (D-758 to D-762).
 
 > *In plain English:* each kind of enemy weighs the same choices differently, so a brute and a healer act unlike each other. The groups they come in live in one file for each region.
 
@@ -253,15 +254,15 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 
 The register is `docs/questions.md` (D-19). These questions block battle PRs, and each PR asks its questions when it starts (D-487):
 
-- OQ-124: a defend action. Blocks PR-9.
-- OQ-125: how many turns the timeline strip shows. Blocks PR-9 and PR-10.
-- OQ-126: where the delay of each action lives. Blocks PR-9.
+- OQ-124: a defend action. Resolved by D-755.
+- OQ-125: how many turns the timeline strip shows. Resolved by D-756.
+- OQ-126: where the delay of each action lives. Resolved by D-757.
 - OQ-127: the tie-break of two equal scores. Blocks PR-11.
 - OQ-128: what makes a profile unable to act. Blocks PR-11.
 - OQ-129: the chance of a steal, and the cost of a failure. Blocks PR-11.
 - OQ-130: what starts a boss phase. Blocks PR-20.
 - OQ-131: how the screen shows the health of an enemy. Blocks PR-10.
-- OQ-132: a group larger than its rows. Blocks PR-9.
-- OQ-133: the flee chance and the grace time. Blocks PR-9.
+- OQ-132: a group larger than its rows. Resolved by D-758.
+- OQ-133: the flee chance and the grace time. Resolved by D-748 and D-763.
 
 No open question blocks this file.
