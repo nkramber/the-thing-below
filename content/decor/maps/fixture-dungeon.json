@@ -1,0 +1,14 @@
+{
+ "comment": "The decor pieces of the first dungeon (D-844). No rule reads a piece, so this file stays out of the content hash (D-495). Each wall torch hangs on a wall with a floor or a doorway to its south, and it lights itself from its kind (D-843).",
+ "map": "map.fixture_dungeon",
+ "pieces": [
+  { "id": "piece.fixture_dungeon_camp_west", "kind": "decor.wall_torch", "x": 4, "y": 1 },
+  { "id": "piece.fixture_dungeon_camp_east", "kind": "decor.wall_torch", "x": 8, "y": 1 },
+  { "id": "piece.fixture_dungeon_hall_west", "kind": "decor.wall_torch", "x": 18, "y": 1 },
+  { "id": "piece.fixture_dungeon_hall_east", "kind": "decor.wall_torch", "x": 24, "y": 1 },
+  { "id": "piece.fixture_dungeon_store", "kind": "decor.wall_torch", "x": 34, "y": 3 },
+  { "id": "piece.fixture_dungeon_pit_west", "kind": "decor.wall_torch", "x": 4, "y": 12 },
+  { "id": "piece.fixture_dungeon_pit_east", "kind": "decor.wall_torch", "x": 10, "y": 12 },
+  { "id": "piece.fixture_dungeon_vault", "kind": "decor.wall_torch", "x": 25, "y": 13 }
+ ]
+}

@@ -1,0 +1,13 @@
+{
+ "comment": "The light of the first dungeon at night (D-442). The ambient light is the one canvas modulate of the world, and each wall torch lights itself from its kind (D-843). The change dims the torch of the vault to a low red, and the added light is the cold glow of the deep marker, where no torch hangs. A battle that begins here takes the ambient light and the key light of `battle` (D-850). Each color is a palette key with a strength in basis points (D-846).",
+ "map": "map.fixture_dungeon",
+ "time": "night",
+ "ambient": { "color": "8", "strength": 9000 },
+ "battle": { "color": "A", "strength": 10000, "range": 480, "height": 96 },
+ "changes": [
+  { "piece": "piece.fixture_dungeon_vault", "color": "J", "strength": 9000, "range": 80, "height": 24 }
+ ],
+ "added": [
+  { "id": "light.fixture_dungeon_deep", "x": 25, "y": 18, "color": "u", "strength": 8000, "range": 64, "height": 16 }
+ ]
+}

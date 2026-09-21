@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Core.Content;
@@ -39,6 +40,7 @@ public sealed class ContentSet
         AtlasIndex atlas,
         UiStyle style,
         BattleContent battle,
+        LightContent light,
         SortedDictionary<string, RuleFixtureEntry> ruleEntries,
         SortedDictionary<string, GameMap> maps,
         SortedDictionary<string, Drawing> drawings,
@@ -51,6 +53,7 @@ public sealed class ContentSet
         this.Atlas = atlas;
         this.Style = style;
         this.Battle = battle;
+        this.Light = light;
         this.ruleEntries = ruleEntries;
         this.maps = maps;
         this.drawings = drawings;
@@ -73,6 +76,9 @@ public sealed class ContentSet
 
     /// <summary>The battle rules and the battle fixture (D-757, D-766).</summary>
     public BattleContent Battle { get; }
+
+    /// <summary>The decor, the light setups, the carried light, and the effect budget (D-523, D-843, D-844, D-847).</summary>
+    public LightContent Light { get; }
 
     /// <summary>The hash of the rule files, as 64 lowercase hexadecimal characters (G-5).</summary>
     public string Hash { get; }
@@ -123,6 +129,7 @@ public sealed class ContentSet
         var pageFiles = new SortedSet<string>(StringComparer.Ordinal);
         var normalPageFiles = new SortedSet<string>(StringComparer.Ordinal);
         List<NormalOverride> overrides = [];
+        List<ContentFile> lightFiles = [];
         var paths = new SortedSet<string>(StringComparer.Ordinal);
 
         foreach (ContentFile file in Ordered(files))
@@ -203,6 +210,12 @@ public sealed class ContentSet
                 // Each grid needs its drawing, so the check runs after the loop (D-839).
                 overrides.Add(NormalOverride.Read(file.Bytes, file.Path));
             }
+            else if (LightContent.IsLightFile(file.Path))
+            {
+                // A light file needs the maps, the palette, and the atlas, so the reader of the
+                // light files runs after the loop (D-843, D-844).
+                lightFiles.Add(file);
+            }
             else if (GameMap.IsMapFile(file.Path))
             {
                 // A map lies under the rule folder, so this branch comes before the fixture
@@ -221,16 +234,19 @@ public sealed class ContentSet
             }
         }
 
+        Palette readPalette = palette ?? throw AbsentFile(Palette.Path);
+        AtlasIndex readAtlas = atlas ?? throw AbsentFile(AtlasIndex.Path);
         var set = new ContentSet(
-            palette ?? throw AbsentFile(Palette.Path),
+            readPalette,
             strings ?? throw AbsentFile(StringTable.Path),
-            atlas ?? throw AbsentFile(AtlasIndex.Path),
+            readAtlas,
             style ?? throw AbsentFile(UiStyle.Path),
             new BattleContent(
                 battleRules ?? throw AbsentFile(BattleRules.Path),
                 battleFixture ?? throw AbsentFile(BattleFixture.Path),
                 enemies,
                 abilities ?? throw AbsentFile(AbilityList.Path)),
+            LightContent.Load(lightFiles, maps, readPalette, readAtlas),
             ruleEntries,
             maps,
             drawings,

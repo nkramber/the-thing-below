@@ -516,7 +516,7 @@ public sealed class ContentSetTests
     [Fact]
     public void AMapFileJoinsTheSetUnderItsId()
     {
-        ContentSet set = ContentSet.Load(Files(MapFile("rules/maps/one.json", "map.one", "label.lamp")));
+        ContentSet set = ContentSet.Load(Files([MapFile("rules/maps/one.json", "map.one", "label.lamp"), .. UiContentFixtures.LightFilesOf("one", "map.one", "day")]));
 
         GameMap map = set.Map(ContentId.Parse("map.one", "test", "id"));
 
@@ -541,7 +541,7 @@ public sealed class ContentSetTests
     {
         // G-7: every string the player reads lives in the string table.
         ContentException error = Assert.Throws<ContentException>(
-            () => ContentSet.Load(Files(MapFile("rules/maps/one.json", "map.one", "label.absent"))));
+            () => ContentSet.Load(Files([MapFile("rules/maps/one.json", "map.one", "label.absent"), .. UiContentFixtures.LightFilesOf("one", "map.one", "day")])));
 
         Assert.Contains("label.absent", error.Message, StringComparison.Ordinal);
         Assert.Contains("rules/maps/one.json", error.Message, StringComparison.Ordinal);
