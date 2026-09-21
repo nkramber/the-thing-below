@@ -117,7 +117,7 @@ public sealed class RunReplayTests
         [
             new KeyValuePair<ContentId, DebugIntentHandler>(
                 RunScripts.DebugStepEast,
-                (state, context) => state.WantStep(StepDirection.East, context)),
+                (state, context, log) => state.WantStep(StepDirection.East, context)),
         ]);
 
         RunState replayed = RunReplay.Play(record, ContentHash, TestMaps.Room, handlers);
@@ -194,7 +194,7 @@ public sealed class RunReplayTests
         [
             new KeyValuePair<ContentId, DebugIntentHandler>(
                 RunScripts.DebugStepEast,
-                (state, context) => state.WantStep(StepDirection.East, context)),
+                (state, context, log) => state.WantStep(StepDirection.East, context)),
         ]);
 
         Simulation run = Simulation.Start(seed, TestMaps.Room, handlers);

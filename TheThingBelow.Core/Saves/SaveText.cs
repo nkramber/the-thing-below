@@ -145,7 +145,8 @@ public static class SaveText
     /// <remarks>
     /// Format 1 holds the world of Phase 1, which is a patrol on a beat, and it holds no
     /// map. Its reader gives a snapshot with no map, and `RunState.Resume` then puts the
-    /// party on the spawn point of the first map (D-166, D-654).
+    /// party on the spawn point of the first map (D-166, D-654). Format 2 holds the map and
+    /// no enemy, and its migration puts each enemy on the start tile of its station (D-750).
     /// <para>
     /// The PR that next changes the snapshot raises <see cref="SaveFormat.Current"/>, adds a
     /// reader of each older version, and commits a fixture save of the version that it
@@ -156,7 +157,8 @@ public static class SaveText
         format switch
         {
             1 => ReadLine(line, file, RunSnapshotText.ReadFormatOne),
-            2 => ReadLine(line, file, RunSnapshotText.Read),
+            2 => ReadLine(line, file, RunSnapshotText.ReadFormatTwo),
+            3 => ReadLine(line, file, RunSnapshotText.Read),
 
             // `CheckFormat` passed, so this build named the version and wrote no reader for
             // it. The message thus names a fault of the build and never a fault of the file (T-2).

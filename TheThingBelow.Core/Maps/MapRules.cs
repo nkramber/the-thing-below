@@ -17,6 +17,27 @@ public static class MapRules
     public const int TicksPerStep = 15;
 
     /// <summary>
+    /// The count of world ticks of the mark that a patrol shows before an encounter starts
+    /// (D-208, D-745). The loop runs 60 ticks a second, so the mark lasts half a second.
+    /// </summary>
+    /// <remarks>
+    /// Core counts the beat, and Game draws the mark over exactly these ticks. Thus the beat
+    /// replays from the seed with no intent, and a bot meets the same map as a player
+    /// (D-522, D-745, T-7). Nothing cancels the beat.
+    /// </remarks>
+    public const int BeatTicks = 30;
+
+    /// <summary>
+    /// The count of world ticks after a flee in which no battle with that enemy starts
+    /// (D-381, D-748). The loop runs 60 ticks a second, so the grace time lasts 5 seconds.
+    /// </summary>
+    /// <remarks>
+    /// The party walks four tiles a second, so 5 seconds carry it 20 tiles. That clears the
+    /// longest sight range of the party, which is 12 tiles on a map set to day (D-719).
+    /// </remarks>
+    public const int GraceTicks = 300;
+
+    /// <summary>
     /// Gives the sight range of the party on a map of one time of day, in tiles (D-193,
     /// D-719).
     /// </summary>
@@ -53,5 +74,57 @@ public static class MapRules
         ArgumentNullException.ThrowIfNull(map);
 
         return map.Holds(at) && TileKinds.CanWalk(map.TileAt(at));
+    }
+
+    /// <summary>Tells whether the body of an enemy can stand on one map (D-206, D-209).</summary>
+    /// <param name="map">The map.</param>
+    /// <param name="body">The body, which can lie outside the map.</param>
+    /// <returns>True when every tile of the body lies inside the map and takes a step.</returns>
+    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
+    /// <exception cref="OverflowException">A count passes the range of an `int` (T-2).</exception>
+    /// <remarks>
+    /// The load of a map reads this rule for each tile of a route and for each anchor tile of
+    /// an area, and the walk of an enemy reads it for each step (D-739, D-741).
+    /// </remarks>
+    public static bool CanPlace(GameMap map, EnemyBody body)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+
+        int side = body.Side;
+        for (int row = 0; row < side; row += 1)
+        {
+            for (int column = 0; column < side; column += 1)
+            {
+                var at = new TilePoint(checked(body.Anchor.X + column), checked(body.Anchor.Y + row));
+                if (!CanEnter(map, at))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>Tells whether two bodies hold one tile in common (D-206).</summary>
+    /// <param name="one">The first body.</param>
+    /// <param name="other">The second body.</param>
+    /// <returns>True when the two bodies share a tile.</returns>
+    /// <exception cref="OverflowException">A count passes the range of an `int` (T-2).</exception>
+    public static bool BodiesOverlap(EnemyBody one, EnemyBody other)
+    {
+        int side = other.Side;
+        for (int row = 0; row < side; row += 1)
+        {
+            for (int column = 0; column < side; column += 1)
+            {
+                if (one.Holds(new TilePoint(checked(other.Anchor.X + column), checked(other.Anchor.Y + row))))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

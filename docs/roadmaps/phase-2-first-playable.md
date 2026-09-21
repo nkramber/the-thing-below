@@ -284,18 +284,23 @@ Area file: `area-exploration.md` sections 7.6 and 7.7.
 
 **Scope.**
 
-- Fixed enemies and patrols with their own sight, and no random encounter (D-37).
-- The sight mark for a beat, then the start of the encounter (D-208).
-- The first blow to the side that reached the other from behind (D-265).
-- The return of a fled group to its route, with a grace time before the next fight (D-381).
-- Three views with a two-frame walk for an enemy that moves, and a flip for one that stands (D-108, D-207).
-- The area of a large enemy, and the proof that its body fits everywhere in that area (D-206, D-209).
+- The `enemies` array of the map file, with the id, the group, the size, the step, and the sight of each enemy (D-738, D-752 to D-754).
+- Fixed enemies and patrols in one record, where a route of one tile stands still, and no random encounter (D-37, D-739, D-740).
+- The area of a large enemy, the random step inside it, and the proof at load that its body fits everywhere in it (D-206, D-209, D-741).
+- The routes by the time of day of the map, and the enemies that a time keeps off the map (D-193, D-442, D-743).
+- The sight of each enemy, the mark for a beat, and then the start of the encounter (D-208, D-718, D-745).
+- The block of every tile of a body, and the step of the party into one, which starts the encounter at once (D-206, D-747).
+- The side that reached the other from behind, which the encounter records (D-265, D-746).
+- The grace time after a flee, and the console command that ends an encounter until PR-9 (D-381, D-748, D-749).
+- The enemies in the snapshot, at save format 3, with the reader of each older format (D-654, D-750).
+- The sprites of the enemies and the mark in Game, with one fixture drawing for the enemies (D-737, D-744).
 
 **Out of scope.**
 
 - The fight itself and the hand-off of the encounter (PR-9, D-531), and the battle screen (PR-10).
 - The transition over the hand-off (PR-60).
-- The enemy groups of the first playable (PR-17).
+- The three views and the two-frame walk of a moving enemy, which PR-17 draws with the enemies of the first playable (D-207, D-744).
+- The enemy groups and their profiles (PR-11, D-535), and the stats of an enemy (PR-80, D-557).
 
 **Exit tests.**
 
@@ -304,14 +309,18 @@ Area file: `area-exploration.md` sections 7.6 and 7.7.
 3. The time of day of the map picks the route (D-193, D-442).
 4. A large enemy never leaves its area, and a load proves the fit (D-209).
 5. A fled group starts no battle inside its grace time (D-381).
+6. A replay of a run with the enemies gives the same state hash on every leg (G-5).
+7. The screen test holds a baseline with the lead and each enemy that the party sees (F-94, D-733).
 
 **Review focus.**
 
-- The sight rule of OQ-114 covers the party and a patrol with one implementation (T-1).
-- The rule of OQ-115 gives a large enemy one sort value at its front row.
-- The grace time counts ticks in Core, and no clock reaches it (G-3).
+- The sight rule of D-718 and D-719 covers the party and a patrol with one implementation (T-1).
+- The rule of D-737 gives a large enemy one sort value at its front row. Each map sprite sits at the south edge of that row (F-94).
+- The grace time and the beat count ticks in Core, and no clock reaches either one (G-3).
+- The order of the tick is fixed: the beat, the party, the encounter of a step, and then the enemies (D-168, T-7).
+- No map system ticks while an encounter runs, and the wanted direction of the party still ends each tick (D-531).
 
-**Questions.** OQ-114 and OQ-115.
+**Questions.** None. D-737 resolved OQ-115, and D-718 to D-720 resolved OQ-114. D-738 to D-754 answer the questions that this PR raised.
 
 > *In plain English:* enemies stand and walk in the dungeon where you can see them. You choose the fight, you sneak past, or they catch you.
 
@@ -1648,6 +1657,8 @@ Area files: every area file. The content PR touches each area.
 - The village and the land near it, the mining town, and the hanging cells, as content (D-28, D-39, D-313, D-369, D-370).
 - The tile sets, the layouts, and the edge files of each map (D-110, D-501).
 - The enemies with their sprites, their profiles, and their groups (D-535).
+- The three views and the two-frame walk of each moving enemy, and a flip for each standing one (D-207, D-744).
+- The drawing of the mark of a sight, in the place of the two rectangles of PR-8 (D-208, D-744).
 - The backdrop of each place with fights, as a large picture (D-205, D-516).
 - The light setup of each map, at its time of day (D-442, D-519).
 - The ambient effects of each place (D-187, D-520).

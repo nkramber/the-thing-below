@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Saves;
 using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Runs;
@@ -57,9 +58,9 @@ public static class RunSnapshotText
     }
 
     /// <summary>
-    /// Writes the party on its map. A snapshot of save format 1 holds no map, and this build
-    /// writes save format 2, so the field is always present in a file that this build writes
-    /// (D-166, D-654).
+    /// Writes the party and the enemies on the map. A snapshot of save format 1 holds no
+    /// map, and this build writes save format 3, so the field is always present in a file
+    /// that this build writes (D-166, D-654, D-750).
     /// </summary>
     private static void WriteMap(Utf8JsonWriter writer, MapSnapshot? map)
     {
@@ -88,6 +89,74 @@ public static class RunSnapshotText
         }
 
         writer.WriteEndArray();
+        WriteEnemies(writer, map.Enemies);
+        WriteMark(writer, map.Mark);
+        WriteEncounter(writer, map.Encounter);
+        writer.WriteEndObject();
+    }
+
+    /// <summary>
+    /// Writes the stored values of each enemy of the map (D-750). This build writes save
+    /// format 3, so the field is always present, and it holds an empty array on a map that
+    /// places no enemy.
+    /// </summary>
+    private static void WriteEnemies(Utf8JsonWriter writer, IReadOnlyList<PatrolValues>? enemies)
+    {
+        if (enemies is null)
+        {
+            throw new ArgumentException(
+                "A snapshot that this build writes holds an enemy list. A snapshot with none comes from save format 2, and this build never writes one (T-2, D-166).",
+                nameof(enemies));
+        }
+
+        writer.WriteStartArray("enemies");
+        foreach (PatrolValues enemy in enemies)
+        {
+            writer.WriteStartObject();
+            writer.WriteString("id", enemy.Enemy.Value);
+            writer.WriteNumber("x", enemy.X);
+            writer.WriteNumber("y", enemy.Y);
+            writer.WriteString("facing", StepDirections.NameOf(enemy.Facing));
+            if (enemy.Stepping is StepDirection stepping)
+            {
+                writer.WriteString("stepping", StepDirections.NameOf(stepping));
+            }
+
+            writer.WriteNumber("step_ticks", enemy.StepTicks);
+            writer.WriteNumber("target", enemy.Target);
+            writer.WriteBoolean("forward", enemy.Forward);
+            writer.WriteNumber("grace_ticks", enemy.GraceTicks);
+            writer.WriteBoolean("dead", enemy.Dead);
+            writer.WriteEndObject();
+        }
+
+        writer.WriteEndArray();
+    }
+
+    private static void WriteMark(Utf8JsonWriter writer, SightMark? mark)
+    {
+        if (mark is null)
+        {
+            return;
+        }
+
+        writer.WriteStartObject("mark");
+        writer.WriteString("enemy", mark.Enemy.Value);
+        writer.WriteNumber("ticks_left", mark.TicksLeft);
+        writer.WriteEndObject();
+    }
+
+    private static void WriteEncounter(Utf8JsonWriter writer, MapEncounter? encounter)
+    {
+        if (encounter is null)
+        {
+            return;
+        }
+
+        writer.WriteStartObject("encounter");
+        writer.WriteString("enemy", encounter.Enemy.Value);
+        writer.WriteString("group", encounter.Group.Value);
+        writer.WriteString("behind", EncounterSides.NameOf(encounter.Behind));
         writer.WriteEndObject();
     }
 
@@ -100,7 +169,20 @@ public static class RunSnapshotText
     /// The check runs here, inside the read of the line, so the caller names the line and
     /// the file of every fault of a snapshot. A check after the read loses both (T-2).
     /// </remarks>
-    public static RunSnapshot Read(ref ContentReader reader)
+    public static RunSnapshot Read(ref ContentReader reader) => ReadLine(ref reader, SaveFormat.Current);
+
+    /// <summary>
+    /// Reads a snapshot of save format 2, which holds no enemy (D-654, D-750). The migration
+    /// runs in `MapState.Resume`, which puts each enemy of the map on the start tile of its
+    /// station.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <returns>The snapshot, with no enemy list.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatTwo(ref ContentReader reader) => ReadLine(ref reader, 2);
+
+    private static RunSnapshot ReadLine(ref ContentReader reader, int format)
     {
         long? tick = null;
         bool? menu = null;
@@ -123,7 +205,7 @@ public static class RunSnapshotText
                     world = reader.ReadLong();
                     break;
                 case "map":
-                    map = ReadMap(ref reader);
+                    map = ReadMap(ref reader, format);
                     break;
                 case "streams":
                     streams = ReadStreams(ref reader);
@@ -207,9 +289,12 @@ public static class RunSnapshotText
         return snapshot;
     }
 
-    private static MapSnapshot ReadMap(ref ContentReader reader)
+    private static MapSnapshot ReadMap(ref ContentReader reader, int format)
     {
         ContentId? id = null;
+        List<PatrolValues>? enemies = null;
+        SightMark? mark = null;
+        MapEncounter? encounter = null;
         int? x = null;
         int? y = null;
         string? facing = null;
@@ -243,9 +328,30 @@ public static class RunSnapshotText
                 case "walked":
                     walked = ReadWalked(ref reader);
                     break;
+                case "enemies":
+                    enemies = ReadEnemies(ref reader);
+                    break;
+                case "mark":
+                    mark = ReadMark(ref reader);
+                    break;
+                case "encounter":
+                    encounter = ReadEncounter(ref reader);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
+        }
+
+        // Save format 2 predates the enemies, so its map object holds no enemy list, no
+        // mark, and no encounter. Each later format holds the list (D-654, D-750).
+        if (format >= 3)
+        {
+            _ = reader.Require(enemies, depth, "enemies");
+        }
+        else if (enemies is not null || mark is not null || encounter is not null)
+        {
+            throw reader.Refuse(
+                $"the map of save format {format} holds an enemy list, a mark, or an encounter, and that format predates the enemies (D-750)");
         }
 
         return new MapSnapshot(
@@ -255,7 +361,152 @@ public static class RunSnapshotText
             ReadDirection(ref reader, reader.Require(facing, depth, "facing"), "facing"),
             stepping is null ? null : ReadDirection(ref reader, stepping, "stepping"),
             reader.RequireInt(stepTicks, depth, "step_ticks"),
-            reader.Require(walked, depth, "walked"));
+            reader.Require(walked, depth, "walked"),
+            enemies,
+            mark,
+            encounter);
+    }
+
+    private static List<PatrolValues> ReadEnemies(ref ContentReader reader)
+    {
+        List<PatrolValues> enemies = [];
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, enemies.Count))
+        {
+            enemies.Add(ReadEnemy(ref reader));
+        }
+
+        return enemies;
+    }
+
+    private static PatrolValues ReadEnemy(ref ContentReader reader)
+    {
+        ContentId? id = null;
+        int? x = null;
+        int? y = null;
+        string? facing = null;
+        string? stepping = null;
+        int? stepTicks = null;
+        int? target = null;
+        bool? forward = null;
+        int? graceTicks = null;
+        bool? dead = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "id":
+                    id = reader.ReadContentId(Patrol.IdKind);
+                    break;
+                case "x":
+                    x = reader.ReadInt();
+                    break;
+                case "y":
+                    y = reader.ReadInt();
+                    break;
+                case "facing":
+                    facing = reader.ReadString();
+                    break;
+                case "stepping":
+                    stepping = reader.ReadString();
+                    break;
+                case "step_ticks":
+                    stepTicks = reader.ReadInt();
+                    break;
+                case "target":
+                    target = reader.ReadInt();
+                    break;
+                case "forward":
+                    forward = reader.ReadBoolean();
+                    break;
+                case "grace_ticks":
+                    graceTicks = reader.ReadInt();
+                    break;
+                case "dead":
+                    dead = reader.ReadBoolean();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new PatrolValues(
+            reader.Require(id, depth, "id"),
+            reader.RequireInt(x, depth, "x"),
+            reader.RequireInt(y, depth, "y"),
+            ReadDirection(ref reader, reader.Require(facing, depth, "facing"), "facing"),
+            stepping is null ? null : ReadDirection(ref reader, stepping, "stepping"),
+            reader.RequireInt(stepTicks, depth, "step_ticks"),
+            reader.RequireInt(target, depth, "target"),
+            reader.RequireValue(forward, depth, "forward"),
+            reader.RequireInt(graceTicks, depth, "grace_ticks"),
+            reader.RequireValue(dead, depth, "dead"));
+    }
+
+    private static SightMark ReadMark(ref ContentReader reader)
+    {
+        ContentId? enemy = null;
+        int? ticksLeft = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "enemy":
+                    enemy = reader.ReadContentId(Patrol.IdKind);
+                    break;
+                case "ticks_left":
+                    ticksLeft = reader.ReadInt();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new SightMark(
+            reader.Require(enemy, depth, "enemy"),
+            reader.RequireInt(ticksLeft, depth, "ticks_left"));
+    }
+
+    private static MapEncounter ReadEncounter(ref ContentReader reader)
+    {
+        ContentId? enemy = null;
+        ContentId? group = null;
+        string? behind = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "enemy":
+                    enemy = reader.ReadContentId(Patrol.IdKind);
+                    break;
+                case "group":
+                    group = reader.ReadContentId(Patrol.GroupKind);
+                    break;
+                case "behind":
+                    behind = reader.ReadString();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        string name = reader.Require(behind, depth, "behind");
+        if (!EncounterSides.TryOf(name, out EncounterSide side))
+        {
+            throw reader.Refuse(
+                $"the encounter holds the side '{name}', and a side is one of {EncounterSides.EveryName} (D-746)");
+        }
+
+        return new MapEncounter(
+            reader.Require(enemy, depth, "enemy"),
+            reader.Require(group, depth, "group"),
+            side);
     }
 
     private static StepDirection ReadDirection(ref ContentReader reader, string name, string field)

@@ -36,6 +36,25 @@ public static class SaveRuns
         return run;
     }
 
+    /// <summary>
+    /// Plays a run on the map with the enemies, so a save of it holds the values of each
+    /// enemy (D-738, D-750).
+    /// </summary>
+    /// <param name="tickCount">The count of ticks to play.</param>
+    /// <returns>The run at that tick.</returns>
+    public static Simulation PlayPatrolled(int tickCount)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(tickCount);
+
+        Simulation run = Simulation.Start(Seed, TestMaps.Patrolled, DebugIntentHandlers.None);
+        foreach (IReadOnlyList<Intent> intents in RunScripts.Make(Seed, tickCount))
+        {
+            run.Step(intents);
+        }
+
+        return run;
+    }
+
     /// <summary>Makes the save of a run of this build, at the tick that the count gives.</summary>
     /// <param name="tickCount">The count of ticks to play before the save.</param>
     /// <returns>The header of this build and the snapshot of the run.</returns>

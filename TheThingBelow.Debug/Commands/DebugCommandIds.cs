@@ -23,4 +23,8 @@ public static class DebugCommandIds
     /// <summary>The console marked every tile of the map as walked (D-567).</summary>
     public static readonly ContentId RevealMap =
         ContentId.Parse("debug.reveal_map", Source, nameof(RevealMap));
+
+    /// <summary>The console ended the encounter as a flee (D-381, D-749).</summary>
+    public static readonly ContentId FleeEncounter =
+        ContentId.Parse("debug.flee_encounter", Source, nameof(FleeEncounter));
 }

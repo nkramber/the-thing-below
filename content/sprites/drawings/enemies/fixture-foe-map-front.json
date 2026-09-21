@@ -1,0 +1,59 @@
+{
+ "id": "drawing.fixture_foe_map_front",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  {
+   "content": "patrol.fixture_dungeon_hall",
+   "use": "map_front"
+  },
+  {
+   "content": "patrol.fixture_dungeon_watch",
+   "use": "map_front"
+  },
+  {
+   "content": "patrol.fixture_dungeon_deep",
+   "use": "map_front"
+  }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    ".........kk..........kk.........",
+    ".........kddk......kddk.........",
+    ".........kdDdk....kdDdk.........",
+    "........kdDDdkkkkddDDdk.........",
+    "........kdDDDDDDDDDDDDdk........",
+    ".......kdDDDDDDDDDDDDDDdk.......",
+    ".......kdDDxxDDDDDDxxDDdk.......",
+    ".......kdDDxxDDDDDDxxDDdk.......",
+    ".......kdDDDDDDDDDDDDDDdk.......",
+    ".......kdDDDkLLLLLLkDDDdk.......",
+    ".......kdDDDDkLLLLkDDDDdk.......",
+    ".......kdDDDDDDDDDDDDDDdk.......",
+    "......kdDDDDDDDDDDDDDDDDdk......",
+    ".....kdDDDDDggggDDDDDDDDdk......",
+    ".....kdDDDDggllggDDDDDDDdk......",
+    ".....kdDDDDDggggDDDDDDDDdk......",
+    ".....kdDDDDDDDDDDDDDDDDDdk......",
+    "......kdDDDDDDDDDDDDDDDDdk......",
+    "......kddDDDDDDDDDDDDDDddk......",
+    "......kkddddddddddddddddkk......",
+    ".......kdk.kdk....kdk.kdk.......",
+    ".......kdk.kdk....kdk.kdk.......",
+    ".......kkk.kkk....kkk.kkk.......",
+    ".......dd..dd......dd..dd.......",
+    "................................",
+    "................................",
+    "................................"
+   ]
+  }
+ ]
+}

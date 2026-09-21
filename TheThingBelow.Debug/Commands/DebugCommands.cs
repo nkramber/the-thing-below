@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 
@@ -13,9 +14,14 @@ namespace TheThingBelow.Debug.Commands;
 /// (D-260, D-492).
 /// </summary>
 /// <remarks>
-/// One command changes the run: `reveal`. It sends a debug intent, and the handler of that
-/// intent marks every tile of the map as walked (D-567). Three commands report and change
-/// nothing: `help`, `hash`, and `where` (D-724).
+/// Two commands change the run. The `reveal` command marks every tile of the map as walked
+/// (D-567), and the `flee` command ends the encounter and starts the grace time of that
+/// enemy (D-381, D-749). Three commands report and change nothing: `help`, `hash`, and
+/// `where` (D-724).
+/// <para>
+/// PR-9 builds the fight, and it replaces the `flee` command with the flee of the battle
+/// rules (D-378, D-749).
+/// </para>
 /// <para>
 /// Each later PR that gives the rules a new value adds its own commands here, such as the
 /// health of a character in PR-67 and the story flags of PR-68.
@@ -35,6 +41,9 @@ public static class DebugCommands
     /// <summary>The name of the command that gives the place of the party.</summary>
     public const string WhereName = "where";
 
+    /// <summary>The name of the command that ends the encounter as a flee (D-749).</summary>
+    public const string FleeName = "flee";
+
     // The order of this list is the order of `help`, and it never follows a hash of a name
     // (G-4). The list is short, so a walk of it reads better than a map of one entry (T-1).
     private static readonly IReadOnlyList<DebugCommand> Commands =
@@ -44,6 +53,11 @@ public static class DebugCommands
             "marks every tile of the map as walked",
             DebugCommandIds.RevealMap,
             RevealMap),
+        DebugCommand.OfIntent(
+            FleeName,
+            "ends the encounter as a flee, and starts the grace time",
+            DebugCommandIds.FleeEncounter,
+            FleeEncounter),
         DebugCommand.OfReport(HashName, "gives the state hash of the run", HashOf),
         DebugCommand.OfReport(WhereName, "gives the tick and the place of the party", PlaceOf),
         DebugCommand.OfReport(HelpName, "lists every command", HelpOf),
@@ -99,10 +113,11 @@ public static class DebugCommands
     /// Marks every tile of the map as walked (D-567). The map HUD of PR-64 draws the record
     /// of the walked tiles, so the command shows the whole map.
     /// </summary>
-    private static void RevealMap(RunState state, RunContext context)
+    private static void RevealMap(RunState state, RunContext context, List<LogEntry> log)
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(log);
 
         MapState party = state.Party;
         for (int row = 0; row < party.Map.Height; row += 1)
@@ -112,6 +127,49 @@ public static class DebugCommands
                 party.Walked.Mark(new TilePoint(column, row));
             }
         }
+    }
+
+    /// <summary>
+    /// Ends the encounter as a flee, and starts the grace time of that enemy (D-381, D-748,
+    /// D-749). PR-9 builds the fight, and the flee of the battle rules then takes this path.
+    /// </summary>
+    /// <remarks>
+    /// A person can type the command while no encounter runs, and that is a fault of the
+    /// person and never a fault of the build. Thus the command changes nothing and writes a
+    /// warning that names the map and the tick, and the run holds (D-179, T-2). A bot of
+    /// PR-15 sends every command of the list, so a stop here would end each bot run.
+    /// </remarks>
+    private static void FleeEncounter(RunState state, RunContext context, List<LogEntry> log)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(log);
+
+        MapPatrols patrols = state.Party.Patrols;
+        if (patrols.Encounter is null)
+        {
+            log.Add(new LogEntry(
+                LogLevel.Warning,
+                $"the command '{FleeName}' found no encounter, and it changed nothing",
+                state.Tick,
+                LogSubsystems.Run,
+                [
+                    new LogField("map", state.Party.Map.Id.Value),
+                    new LogField("context", context.Describe()),
+                ]));
+            return;
+        }
+
+        ContentId enemy = patrols.Flee();
+        log.Add(new LogEntry(
+            LogLevel.Info,
+            "the party fled an encounter and the grace time started",
+            state.Tick,
+            LogSubsystems.Run,
+            [
+                new LogField("enemy", enemy.Value),
+                LogField.OfNumber("grace", MapRules.GraceTicks),
+            ]));
     }
 
     /// <summary>Gives the state hash of the run, which a replay compares (G-5).</summary>

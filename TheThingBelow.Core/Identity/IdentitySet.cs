@@ -54,7 +54,7 @@ public static class IdentitySet
     /// </summary>
     private const string ReplayMapFile = """
     {
-     "comment": "The map of the replay run of the identity set. It never changes (D-504).",
+     "comment": "The map of the replay run of the identity set. One enemy walks a route and one paces an area, so the run reads the walk of a patrol and a draw of the exploration stream too (D-504, D-739, D-741). Each sight range is zero, so the party of the script never starts an encounter and every later tick of the run still does work. PR-8 added the enemies, and the map never changes again.",
      "id": "map.identity_run",
      "label": "label.identity_run",
      "time": "day",
@@ -69,6 +69,30 @@ public static class IdentitySet
      ],
      "things": [
       { "id": "spawn_point.identity_run_start", "kind": "spawn_point", "x": 1, "y": 1 }
+     ],
+     "enemies": [
+      {
+       "id": "patrol.identity_run_walker",
+       "group": "group.identity_run",
+       "size": "common",
+       "facing": "east",
+       "step_ticks": 15,
+       "sight_range": 0,
+       "routes": [
+        { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 4, "y": 3 }, { "x": 5, "y": 3 }] }
+       ]
+      },
+      {
+       "id": "patrol.identity_run_pacer",
+       "group": "group.identity_run",
+       "size": "common",
+       "facing": "south",
+       "step_ticks": 20,
+       "sight_range": 0,
+       "areas": [
+        { "times": ["dawn", "day", "dusk", "night"], "x": 1, "y": 4, "width": 2, "height": 2 }
+       ]
+      }
      ]
     }
     """;

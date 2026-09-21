@@ -17,6 +17,10 @@ public static class SaveFormat
     /// PR-7 raised this number to 2. The snapshot dropped the patrol of the first world and
     /// gained the party on a tile map: the id of the map, the tile of the lead, the facing,
     /// the step that runs, and every walked tile (D-106, D-528, D-567).
+    /// <para>
+    /// PR-8 raised it to 3. The map object of the snapshot gained the stored values of each
+    /// enemy, the mark of a sight, and the encounter (D-750).
+    /// </para>
     /// </remarks>
-    public const int Current = 2;
+    public const int Current = 3;
 }

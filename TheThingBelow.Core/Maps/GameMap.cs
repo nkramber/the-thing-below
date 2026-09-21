@@ -6,7 +6,7 @@ namespace TheThingBelow.Core.Maps;
 
 /// <summary>
 /// One map of the game, as its rule file holds it: the terrain rows, every thing that a rule
-/// reads, and the time of day (D-528).
+/// reads, every enemy, and the time of day (D-528, D-738).
 /// </summary>
 /// <remarks>
 /// One rule file holds each map, so one file holds each place for the author, for the review,
@@ -33,6 +33,7 @@ public sealed class GameMap
 
     private readonly TileKind[] tiles;
     private readonly MapThing[] things;
+    private readonly Patrol[] patrols;
 
     private GameMap(
         string file,
@@ -43,6 +44,7 @@ public sealed class GameMap
         int height,
         TileKind[] tiles,
         MapThing[] things,
+        Patrol[] patrols,
         TilePoint spawn)
     {
         this.File = file;
@@ -53,6 +55,7 @@ public sealed class GameMap
         this.Height = height;
         this.tiles = tiles;
         this.things = things;
+        this.patrols = patrols;
         this.Spawn = spawn;
     }
 
@@ -79,6 +82,9 @@ public sealed class GameMap
 
     /// <summary>Every thing of the map, in the order of the file (G-4).</summary>
     public IReadOnlyList<MapThing> Things => this.things;
+
+    /// <summary>Every enemy that this map places, in the order of the file (D-738, G-4).</summary>
+    public IReadOnlyList<Patrol> Patrols => this.patrols;
 
     /// <summary>Tells whether one tile lies inside the map.</summary>
     /// <param name="at">The tile.</param>
@@ -157,6 +163,7 @@ public sealed class GameMap
         string? time = null;
         List<string>? terrain = null;
         List<ThingLine>? things = null;
+        List<Patrol>? patrols = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -183,6 +190,9 @@ public sealed class GameMap
                 case "things":
                     things = ReadThings(ref reader);
                     break;
+                case "enemies":
+                    patrols = Patrol.ReadAll(ref reader);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -195,7 +205,8 @@ public sealed class GameMap
             reader.Require(label, depth, "label"),
             reader.Require(time, depth, "time"),
             reader.Require(terrain, depth, "terrain"),
-            reader.Require(things, depth, "things"));
+            reader.Require(things, depth, "things"),
+            reader.Require(patrols, depth, "enemies"));
     }
 
     private static List<string> ReadRows(ref ContentReader reader)
@@ -269,7 +280,8 @@ public sealed class GameMap
         ContentId label,
         string time,
         List<string> rows,
-        List<ThingLine> lines)
+        List<ThingLine> lines,
+        List<Patrol> patrols)
     {
         if (!TimesOfDay.TryOf(time, out TimeOfDay parsed))
         {
@@ -280,7 +292,12 @@ public sealed class GameMap
         TileKind[] tiles = ReadTerrain(ref reader, rows, out int width, out int height);
         MapThing[] things = BuildThings(ref reader, lines, tiles, width, height);
         TilePoint spawn = OneSpawn(ref reader, things);
-        return new GameMap(reader.File, id, label, parsed, width, height, tiles, things, spawn);
+        var map = new GameMap(reader.File, id, label, parsed, width, height, tiles, things, [.. patrols], spawn);
+
+        // The map is complete here, so each check of a patrol reads the terrain and the
+        // spawn point through the map itself and never through a second copy of them (T-1).
+        PatrolLayout.Check(ref reader, map);
+        return map;
     }
 
     private static TileKind[] ReadTerrain(ref ContentReader reader, List<string> rows, out int width, out int height)

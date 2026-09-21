@@ -2,7 +2,7 @@
  "comment": "The place of every frame in the atlas (D-666). The atlas command of Tools writes this file and each page beside it, and no session edits either one by hand (D-107). A page holds one kind of drawing, and a tile page is a strict grid of 32 by 32 cells (D-667). Run the command again after a change to a drawing file.",
  "pages": [
   { "kind": "tiles", "number": 1, "width": 2048, "height": 32 },
-  { "kind": "map_sprites", "number": 1, "width": 160, "height": 32 },
+  { "kind": "map_sprites", "number": 1, "width": 192, "height": 32 },
   { "kind": "ui", "number": 1, "width": 216, "height": 24 }
  ],
  "drawings": [
@@ -79,6 +79,20 @@
    ]
   },
   {
+   "id": "drawing.fixture_foe_map_front",
+   "page": "map_sprites",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "patrol.fixture_dungeon_hall", "use": "map_front" },
+    { "content": "patrol.fixture_dungeon_watch", "use": "map_front" },
+    { "content": "patrol.fixture_dungeon_deep", "use": "map_front" }
+   ],
+   "frames": [
+    { "x": 96, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
    "id": "drawing.marrek_map_front",
    "page": "map_sprites",
    "width": 32,
@@ -87,7 +101,7 @@
     { "content": "cast.marrek", "use": "map_front" }
    ],
    "frames": [
-    { "x": 96, "y": 0, "ticks": 0 }
+    { "x": 128, "y": 0, "ticks": 0 }
    ]
   },
   {
@@ -99,7 +113,7 @@
     { "content": "cast.ottild", "use": "map_front" }
    ],
    "frames": [
-    { "x": 128, "y": 0, "ticks": 0 }
+    { "x": 160, "y": 0, "ticks": 0 }
    ]
   },
   {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
@@ -193,7 +194,7 @@ public sealed class SimulationTests
         [
             new KeyValuePair<ContentId, DebugIntentHandler>(
                 RunScripts.DebugStepEast,
-                (state, context) => state.WantStep(StepDirection.East, context)),
+                (state, context, log) => state.WantStep(StepDirection.East, context)),
         ]);
         Simulation run = Simulation.Start(Seed, TestMaps.Room, handlers);
 
@@ -221,7 +222,7 @@ public sealed class SimulationTests
     [Fact]
     public void TwoHandlersOfOneDebugIntentAreAnError()
     {
-        static void Handler(RunState state, RunContext context) =>
+        static void Handler(RunState state, RunContext context, List<LogEntry> log) =>
             state.WantStep(StepDirection.East, context);
 
         Assert.Throws<ArgumentException>(() => new DebugIntentHandlers(

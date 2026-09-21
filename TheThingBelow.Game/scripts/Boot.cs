@@ -757,15 +757,18 @@ public partial class Boot : Node
     private static string DescribeMap(ContentSet loaded, GameRun session)
     {
         GameMap map = session.Party.Map;
+        UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
         var drawn = new MapScreen();
-        drawn.Build(GameAtlas.Load(loaded.Atlas), map);
+        drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, session.Party);
         drawn.ShowParty(session.Party);
 
         CameraPlace view = MapCamera.Of(session.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight);
         string ground = drawn.DescribeGround();
+        string sprites = drawn.DescribeSprites(session.Party);
         drawn.QueueFree();
         return $"'{map.Id.Value}' at {map.Width} by {map.Height} tiles, "
-            + $"the lead at {session.Party.LeadAt}, the view at ({view.X}, {view.Y}), and {ground}";
+            + $"the party at {session.Party.LeadAt}, the view at ({view.X}, {view.Y}), "
+            + $"{sprites}, and {ground}";
     }
 
     /// <summary>

@@ -60,7 +60,7 @@ public static class MapCamera
     {
         ArgumentNullException.ThrowIfNull(party);
 
-        return SlideOf(party.LeadAt.X, AcrossOf(party.Stepping), party.StepTicks);
+        return SlideOf(party.LeadAt.X, AcrossOf(party.Stepping), party.StepTicks, MapRules.TicksPerStep);
     }
 
     /// <summary>
@@ -74,7 +74,40 @@ public static class MapCamera
     {
         ArgumentNullException.ThrowIfNull(party);
 
-        return SlideOf(party.LeadAt.Y, DownOf(party.Stepping), party.StepTicks);
+        return SlideOf(party.LeadAt.Y, DownOf(party.Stepping), party.StepTicks, MapRules.TicksPerStep);
+    }
+
+    /// <summary>
+    /// Gives the pixel of the west edge of one enemy, with the slide of the step that runs
+    /// (D-203, D-742).
+    /// </summary>
+    /// <param name="patrol">The enemy on its map.</param>
+    /// <returns>The pixel, in art pixels of the world viewport.</returns>
+    /// <exception cref="ArgumentNullException">The enemy is null (T-2).</exception>
+    /// <remarks>
+    /// The pixel belongs to the anchor tile of the body, which is its north-west tile
+    /// (D-737). Each enemy carries the count of ticks of its own step, so the slide reads
+    /// that count and not the count of the party (D-742).
+    /// </remarks>
+    public static int EnemyX(PatrolState patrol)
+    {
+        ArgumentNullException.ThrowIfNull(patrol);
+
+        return SlideOf(patrol.At.X, AcrossOf(patrol.Stepping), patrol.StepTicks, patrol.Patrol.StepTicks);
+    }
+
+    /// <summary>
+    /// Gives the pixel of the north edge of one enemy, with the slide of the step that runs
+    /// (D-203, D-742).
+    /// </summary>
+    /// <param name="patrol">The enemy on its map.</param>
+    /// <returns>The pixel, in art pixels of the world viewport.</returns>
+    /// <exception cref="ArgumentNullException">The enemy is null (T-2).</exception>
+    public static int EnemyY(PatrolState patrol)
+    {
+        ArgumentNullException.ThrowIfNull(patrol);
+
+        return SlideOf(patrol.At.Y, DownOf(patrol.Stepping), patrol.StepTicks, patrol.Patrol.StepTicks);
     }
 
     /// <summary>Gives the place of the view on one axis (D-717).</summary>
@@ -99,13 +132,19 @@ public static class MapCamera
         return Math.Clamp(wanted, 0, mapPixels - viewPixels);
     }
 
-    /// <summary>Gives the pixel of one axis of the lead, with the slide of its step (D-203).</summary>
-    /// <param name="tile">The tile of the lead on that axis, which Core holds (D-106).</param>
+    /// <summary>Gives the pixel of one axis of a thing that slides between two tiles (D-203).</summary>
+    /// <param name="tile">The tile of the thing on that axis, which Core holds (D-106).</param>
     /// <param name="step">The step on that axis: -1, 0, or 1.</param>
     /// <param name="stepTicks">The count of ticks of the step that runs.</param>
-    /// <returns>The pixel of the near edge of the lead on that axis.</returns>
-    public static int SlideOf(int tile, int step, int stepTicks) =>
-        (tile * TilePixels) + (step * TilePixels * stepTicks / MapRules.TicksPerStep);
+    /// <param name="ticksPerStep">The count of ticks of one whole step of this thing (D-742).</param>
+    /// <returns>The pixel of the near edge of the thing on that axis.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The count of ticks of one step is below one (T-2).</exception>
+    public static int SlideOf(int tile, int step, int stepTicks, int ticksPerStep)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(ticksPerStep, 1);
+
+        return (tile * TilePixels) + (step * TilePixels * stepTicks / ticksPerStep);
+    }
 
     private static int AcrossOf(StepDirection? stepping) => stepping switch
     {
