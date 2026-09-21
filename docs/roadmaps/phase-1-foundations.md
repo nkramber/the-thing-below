@@ -549,7 +549,7 @@ Area files: `area-core.md` sections 7.8, 7.9, and 7.13, `area-ui-input.md` secti
 
 - The save files (PR-43) and the crash and log files (PR-44).
 - The debug assembly and the console (PR-45).
-- The input map, the glyphs, and the remap, which live in Game (PR-61, PR-63).
+- The input map and the remap, which live in Game (PR-61, PR-63).
 
 **Exit tests.**
 

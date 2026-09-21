@@ -173,25 +173,24 @@ Built by PR-39. Phase file: `phase-5-first-release.md`.
   - No text under 9 pixels high at 1280 by 800.
   - An on-screen keyboard wherever the player types.
 - The body of 32 frame pixels and the target of 60 frames per second clear the text and frame rules (D-707, G-19). The game has no text entry (D-459).
-- The glyph rule is the main work, and PR-78 gives it the controller type (D-460).
+- The game shows no glyph, so the glyph rule holds when no text and no picture names a key or a button (D-815).
 - The pass also checks suspend and resume, and the 1x frame (D-85, D-92, D-228).
 - Valve tests the native Linux build first, and it tests the Windows build under Proton only when the Linux build fails (D-458).
 
-> *In plain English:* the Deck has a checklist, and this pass walks it. The game meets most of it, and the button pictures are the real work.
+> *In plain English:* the Deck has a checklist, and this pass walks it. The game shows no button pictures, so the pass checks that no text names a key.
 
-### 7.11 The Steamworks binding and the glyphs
+### 7.11 The Steamworks binding
 
 Built by PR-78. Phase file: `phase-5-first-release.md`.
 
 - PR-78 picks the C# binding for Steamworks, and it brings the pick to the owner with its license (D-462, D-553, G-13). OQ-58 holds the pick.
-- It starts Steamworks and adds the call that reports the controller type, and the prompts of D-222 pick their glyph set from it (D-460).
-- The game does not use the Steam Input API. Under Steam, a gamepad reaches the game as an Xbox controller, so the type call is what shows Deck glyphs on the Deck (D-460).
+- It starts Steamworks. It adds no controller type call, because the game shows no glyph (D-815).
+- The game does not use the Steam Input API. Under Steam, a gamepad reaches the game as an Xbox controller (D-460).
 - Godot reads the gamepad in every build, so input works with no Steam client, in CI, and in the GitHub builds (D-460).
-- The glyphs cover the controller types that the SDK version knows, and a remap in the Steam settings can show a wrong button (D-460).
 - Phase 6 needs the same binding for the achievements and their stats calls (D-466).
-- OQ-176 holds how the game reads the controller type.
+- D-815 resolved OQ-176, because no glyph reads a controller type.
 
-> *In plain English:* on Steam the game asks which controller a player holds, so the button pictures match. That is the only thing Steam tells it.
+> *In plain English:* the game connects to Steam when Steam runs it, and it still starts with no Steam. Later Steam features use the same connection.
 
 ### 7.12 The macOS signature and the notarization
 
@@ -278,7 +277,7 @@ Built by PR-31, PR-54, PR-74, PR-78, PR-79, and PR-40. Phase files: `phase-2-fir
 | PR-31 | The release workflow, the GitHub Release, and the runbook | D-53, D-453, D-457 |
 | PR-33 | The title screen, the version line, the boot splash, and the credits screen | D-427, D-454, D-467, D-468 |
 | PR-39 | The Steam Deck verification pass | D-459 |
-| PR-78 | The Steamworks binding, the start, and the controller type call | D-460, D-462, D-553 |
+| PR-78 | The Steamworks binding and the start | D-460, D-462, D-553, D-815 |
 | PR-79 | The signature and the notarization of the macOS build | D-455, D-553 |
 | PR-40 | Auto-Cloud, the demo app, and the Linux runtime | D-458, D-461, D-478 |
 
@@ -289,7 +288,7 @@ Built by PR-31, PR-54, PR-74, PR-78, PR-79, and PR-40. Phase files: `phase-2-fir
 | The export job, its templates, and the smoke on each export | `area-ci.md` | PR-54 |
 | The run record header, the save folder, and the crash file | `area-core.md` | PR-6, PR-43, and PR-44 |
 | The debug assembly that holds the capture | `area-core.md` | PR-45 |
-| The settings screen and the button prompts | `area-ui-input.md` | PR-63 |
+| The settings screen | `area-ui-input.md` | PR-63 |
 | The drawing and the render of each store image | `area-art.md` | PR-55 and PR-76 |
 | The main theme under the credits roll | `area-audio.md` | PR-72 |
 | The story scene runner that plays the credits roll | `area-story.md` | PR-68 |
@@ -328,7 +327,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 13. PR-31: the release workflow and the first GitHub Release of the prologue.
 14. PR-33: the title screen, the settings, the version line, and the credits screen.
 15. Owner: join the Apple Developer Program (D-455, D-565).
-16. PR-78: the Steamworks binding, the start, and the controller type call (D-553).
+16. PR-78: the Steamworks binding and the start (D-553, D-815).
 17. PR-39: the Steam Deck verification pass, after PR-78 (D-565).
 18. PR-79: the signature and the notarization of the macOS build (D-553).
 19. PR-40: Auto-Cloud, the demo app, and the Linux runtime.
@@ -352,7 +351,7 @@ The register is `docs/questions.md` (D-19). These questions block release PRs, a
 - OQ-173: the sizes of the store images. Blocks PR-76.
 - OQ-174: which five screenshots. Blocks PR-76.
 - OQ-175: the shot list of the first trailer. Blocks the trailer.
-- OQ-176: how the game reads the controller type. Blocks PR-78.
+- OQ-176: how the game reads the controller type. Resolved 2026-09-21 by D-815.
 - OQ-177: where the signing identity and the notarization secrets live. Blocks PR-79.
 - OQ-178: what the demo build changes from the full build. Blocks PR-40.
 - OQ-198: the third-party notices of the engine in an export. Blocks PR-31.

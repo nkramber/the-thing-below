@@ -1,5 +1,37 @@
 # Session handoff archive
 
+## Session 163: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-89, round 4: the fill baselines at 1080 rows. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: author. Base: `ce06eda`.
+
+### What this session did, and why
+
+- At `1df0418`, every CI leg passed except `screen-test` and `review-gate`. Gitar reported "No issues found" on that head.
+- The screen test failed on `map-fill-1080.png` and `ui-fill-1080.png` alone, as planned. The old baselines held the cut frame of the fit fault.
+- Read both new captures of run 35602012534 (D-733, D-784). The map shows all 20 columns and the prompt row. The window frame of the ui fixture shows on all four edges.
+- The other 40 captures of that run match their baselines byte for byte. Committed the two new baselines.
+
+### The state of the build
+
+- Remote head of `main`: `ce06eda`. Local: 1555 of 1555 tests pass.
+
+### What is in flight
+
+The push of this round, then the Gitar pass of the new head, and the Codex review, which adds `docs/reviews/pr-47.md`.
+
+### Traps and gotchas
+
+The traps of Sessions 160 to 162 stand.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Confirm the green screen test and the Gitar pass on the new head. Then tell the owner that PR #47 is ready for the Codex review.
+
 ## Session 162: 2026-09-21, Claude Code
 
 Author: Claude Code

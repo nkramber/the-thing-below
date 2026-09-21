@@ -141,7 +141,7 @@ Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-59, and PR-60.
 Built by PR-48. Phase file: `phase-2-first-playable.md`.
 
 - PR-48 builds a normal map for each sprite, tile, and piece from its drawing file, with an optional override grid (D-183, D-184, D-516). `area-tools.md` section 7.7 holds the command.
-- A portrait, an icon, a glyph, and a window frame have no normal map, because they never take scene light (D-210, `area-art.md` section 7.4).
+- A portrait, an icon, and a window frame have no normal map, because they never take scene light (D-210, `area-art.md` section 7.4).
 - The normal-map atlas uses the atlas index of the color atlas, so each frame sits at the same place in both (D-184, D-517).
 - The normal-map atlas takes the pixel test of the color atlas on every CI leg (D-184, D-502, F-19).
 - A review sheet draws each sprite under eight fixed light directions, and the PR description names each drawing on it (D-514, D-521).

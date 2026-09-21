@@ -41,7 +41,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-47 | Glow can reach a lit sprite in both HDR and SDR | PR-59: OQ-102 holds how glow stays off sprites and tiles |
 | F-48 | Godot has no stretch mode that upscales in whole steps, then fits | PR-61: a `SubViewport` at 1x, and both steps in Game (D-232) |
 | F-49 | Three font defaults of Godot fight a pixel font | PR-61: the load from bytes and the font settings, with a test |
-| F-50 | Five input facts of Godot meet the plan | PR-61, PR-62, and PR-63: intents from events, glyph sets, and a saved remap |
+| F-50 | Five input facts of Godot meet the plan | PR-61, PR-62, and PR-63: intents from events and a saved remap |
 | F-51 | Four Godot defaults of the tile map fight the plan | PR-7: the tile size, the region size, and the two switches |
 | F-52 | The camera centers a small map, and its smoothing can run twice in a frame | PR-7: a test locks the centering, and the tick moves the camera |
 | F-95 | The ground drew over the feet of a sprite inside a step north or south | PR-89: the ground draws below every sprite, and the screen test holds the walk (D-782, D-783) |
@@ -118,16 +118,15 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 - The text helper that puts a string table entry on screen, which det-lint guards (D-499, G-7).
 - The UI style file, and the Godot `Theme` that Game builds from it at load (D-527, G-6).
 - The input map, and an intent from each input event, never from a poll (D-84, D-493, F-50).
-- The glyph sets for the keyboard, Xbox, PlayStation, and the Deck, and the name table that picks one (D-222, D-561, D-711).
+- The glyph sets for the keyboard, Xbox, PlayStation, and the Deck, and the name table that picks one (D-222, D-561, D-711). PR-55 removed them (D-815).
 - The message of a crash on screen, through the text helper, with a placeholder address in the reserved `.invalid` domain (D-170, D-559, D-712).
-- The review sheets of the window frames and the four glyph sets (D-514, G-25).
+- The review sheets of the window frames and the four glyph sets (D-514, G-25). PR-55 removed the glyphs (D-815).
 
 **Out of scope.**
 
 - The menu windows (PR-62) and the settings screen with the remap (PR-63).
 - The dialogue box (PR-36) and the map HUD (PR-7).
 - The screen captures of the frame and the fit. PR-41 creates the screen-test job and takes them (D-172, G-16).
-- The Steamworks controller type (PR-78, D-553).
 
 **Exit tests.**
 
@@ -137,7 +136,7 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 4. A test proves that the fixture panel holds the longest string of the string table (D-241).
 5. det-lint fails a Godot text property outside the text helper.
 6. A test proves that no intent comes from a poll of the input singleton (F-50).
-7. A prompt shows the glyph of the last device, for each of the four sets.
+7. A prompt shows the glyph of the last device, for each of the four sets. PR-55 removed the prompts (D-815).
 8. No text falls below 9 pixels on the Deck frame (D-459).
 9. A crash shows its message through the text helper, and det-lint passes (D-499, D-559).
 10. The review sheets of the window frames and the glyph sets reach the PR description (D-514).
@@ -153,7 +152,7 @@ Area files: `area-ui-input.md` sections 7.1 to 7.5, 7.9, and 7.10.
 - The `Theme` comes from the style file, and no theme resource file exists (D-527, G-6).
 - Every screen shows the same part of the map, so no screen shape gains knowledge (D-566, D-568).
 
-**Questions.** D-573 resolved OQ-105, D-710 resolved OQ-104, and D-711 resolved OQ-107. OQ-57 stays open, and D-712 gives the crash message a placeholder address.
+**Questions.** D-573 resolved OQ-105, D-710 resolved OQ-104, and D-711 resolved OQ-107, and D-815 superseded D-711. OQ-57 stays open, and D-712 gives the crash message a placeholder address.
 
 > *In plain English:* this builds the picture frame of the game. It sets one fixed size that the handheld shows exactly, the two fonts, and the look of every menu. It also turns keys and buttons into choices that the rules understand.
 
@@ -166,11 +165,11 @@ Area files: `area-exploration.md` sections 7.1 to 7.5, `area-ui-input.md` sectio
 - The map file of D-528, which holds the terrain rows and every thing that a rule reads (D-39, D-41).
 - Those things are the doors, the locks, the chests, the traps, the save points, the spawn points, and the markers (D-386).
 - The time of day of the map, which a story flag can change (D-442).
-- Tile-locked movement in four directions, and the sight of the party and of a patrol, in Core (D-100, D-106, D-716, D-718, D-719).
+- Tile-locked movement in four directions, and the sight of the party and of a patrol, in Core (D-100, D-106, D-716, D-718, D-719). PR-55 removed the sight of the party (D-814).
 - The record of each tile that the party walked, in Core and in the snapshot, which the map screen of PR-62 reads (D-567).
 - The map scene in Game, with the tiles from the atlas and the Nearest filter (F-45). The view holds 20 by 11.25 tiles (D-633).
 - The camera on the lead, with the limits of a large map and the centering of a small map (D-106, D-717, F-52).
-- The map in the place of the demo panel of PR-61, with the row of button prompts (D-722).
+- The map in the place of the demo panel of PR-61, with the row of button prompts (D-722). PR-55 removed the row (D-815).
 - The first content: one fixture dungeon, and the drawing of each tile kind.
 
 **Out of scope.**
@@ -311,11 +310,11 @@ Area file: `area-exploration.md` sections 7.6 and 7.7.
 4. A large enemy never leaves its area, and a load proves the fit (D-209).
 5. A fled group starts no battle inside its grace time (D-381).
 6. A replay of a run with the enemies gives the same state hash on every leg (G-5).
-7. The screen test holds a baseline with the lead and each enemy that the party sees (F-94, D-733).
+7. The screen test holds a baseline with the lead and each enemy that the party sees (F-94, D-733). Each live enemy draws (D-814).
 
 **Review focus.**
 
-- The sight rule of D-718 and D-719 covers the party and a patrol with one implementation (T-1).
+- The sight rule of D-718 and D-719 covers the party and a patrol with one implementation (T-1). PR-55 removed the party half (D-814).
 - The rule of D-737 gives a large enemy one sort value at its front row. Each map sprite sits at the south edge of that row (F-94).
 - The grace time and the beat count ticks in Core, and no clock reaches either one (G-3).
 - The order of the tick is fixed: the beat, the party, the encounter of a step, and then the enemies (D-168, T-7).
@@ -510,10 +509,15 @@ Area files: `area-art.md` section 7.5, `area-tools.md` section 7.5.
 
 **Scope.**
 
-- The large picture format, which places drawn pieces at pixel positions, with repeats (D-516, F-44).
+- The large picture format, which places drawn pieces at pixel positions, with repeats (D-516, F-44). A picture offers no mirror and no other operation on a piece (D-812).
 - The load test of the format, and a failure that names the file and the entry (T-2).
 - The render of a large picture as a PNG in Tools, and the draw in Game (D-518).
 - Full-screen art that covers the frame of 1280 by 720 (D-568).
+- Four changes that the owner added after the merge of PR #49:
+  - Every key of an open debug console reaches its entry, which draws in the frame viewport (D-725).
+  - Escape closes an open console, and it ends a session of a development build (D-813).
+  - Game draws every live enemy at any distance from the party (D-814).
+  - The game shows no button prompt (D-815).
 
 **Out of scope.**
 
@@ -527,14 +531,19 @@ Area files: `area-art.md` section 7.5, `area-tools.md` section 7.5.
 2. A large picture that names an absent piece fails with the file and the entry.
 3. The render covers the frame of 1280 by 720 with no gap (D-568).
 4. det-lint finds no float type in the render code (D-502).
+5. The smoke session types a console line through key events of the root viewport, then closes it with Escape.
+6. A test gives the route of each key: the console, the close, the quit, and the game (D-813).
+7. The smoke session fails when a live enemy draws no sprite (D-814).
+8. The content load refuses the device table of the prompts (D-815).
 
 **Review focus.**
 
-- The answer of OQ-91 sets which operations a picture offers on a piece.
+- A picture offers a place and a repeat alone (D-812).
+- The author reads each frame of `make sheet` and `make walk` for the enemies and the prompts (D-784).
 - Each piece stays small enough to draw by hand and to check (F-44).
 - The render compares pixels, never bytes (F-19).
 
-**Questions.** OQ-91.
+**Questions.** D-812 resolved OQ-91.
 
 > *In plain English:* a battle background is too big to write as one text picture. The game builds it like a stage set from small drawn parts.
 
@@ -592,7 +601,7 @@ Area files: `area-tools.md` section 7.7, `area-effects.md` section 7.5, `area-ar
 **Out of scope.**
 
 - Light in the engine (PR-56). The review sheet computes its light in Tools (D-521).
-- A normal map for a portrait, an icon, a glyph, or a window frame, which take no scene light (D-210).
+- A normal map for a portrait, an icon, or a window frame, which take no scene light (D-210).
 
 **Exit tests.**
 
@@ -1963,7 +1972,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-84 | The seeds of the night | PR-49 |
 | OQ-86 | How the atlas places tiles, and how Game draws a map | PR-7, answered by D-667 |
 | OQ-89 | Pixel snap in Game | PR-7 |
-| OQ-91 | The operations of a large picture on a piece | PR-55 |
+| OQ-91 | The operations of a large picture on a piece, resolved by D-812 | PR-55 |
 | OQ-94 | How the budget test counts one view | PR-56 |
 | OQ-95 | Where a torch light comes from | PR-56 |
 | OQ-96 | Where the shape of a shadow comes from | PR-56 |

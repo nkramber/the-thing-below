@@ -105,10 +105,10 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-7. Phase file: `phase-2-first-playable.md`.
 
-- Core computes what the party sees (D-37). No fog of war covers a map, so the ground is visible from the moment the party enters (D-566).
+- Core computes what a patrol sees (D-37). No fog of war covers a map, so the ground is visible from the moment the party enters (D-566).
 - Core records each tile that the party walked, and the dungeon map screen of PR-62 draws those tiles (D-567). The snapshot holds the record.
 - A patrol sees the party by its own sight, and a wall stops it (D-37, the exit tests of PR-8).
-- The party sees every direction out to its range, and a wall stops it (D-719). Game draws no enemy outside that range.
+- Game draws every live enemy and every thing at any distance, so no enemy pops in on the screen (D-814). The range of the party caps the sight of a patrol alone (D-720).
 - A patrol sees the quarter of the map that it faces, plus the eight tiles that touch it, and a wall stops it (D-718).
 - A map gives no patrol a longer range than the party has on that map, and the load of PR-8 refuses one (D-720).
 - D-566 resolved OQ-116, because no fog exists to remember.
