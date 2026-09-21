@@ -37,6 +37,7 @@ public sealed class CiWorkflowGateTests
     [InlineData("coverage report")]
     [InlineData("det-lint")]
     [InlineData("replay-identity")]
+    [InlineData("screen-test")]
     [InlineData("smoke")]
     [InlineData("ste-check")]
     public void EachRequiredCheckNameIsTheLiteralNameOfOneJob(string checkName)
