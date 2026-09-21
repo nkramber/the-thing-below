@@ -1,5 +1,41 @@
 # Session handoff archive
 
+## Session 159: 2026-09-21, Codex
+
+Author: Codex
+Session: review PR-9, the battle core and the timeline. Repository: the-thing-below. Branch: `feat/pr-9-battle-core`. PR: #46. Role: reviewer. Base: `c6cc71c`.
+
+### What this session did, and why
+
+- Reviewed PR #46 at effective head `c480baa`.
+- Inspected the complete 78-path diff, the PR comments, the PR-9 roadmap scope and exit tests, and the affected Core, Game, debug, content, save, replay, test, and document paths.
+- Verified the timeline, action, row, wave, wipe, event queue, map freeze, migration, content, and replay contracts.
+- Added `docs/reviews/pr-46.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1485 tests and all local gates.
+- GitHub CI and Gitar pass at `c480baa`. The `review-gate` check fails only because the review record was absent before this session.
+- The effective implementation head is `c480baa`.
+- The remote head of `main` is `c6cc71c`.
+
+### What is in flight
+
+PR #46 waits for the final Gitar and review-gate results after the metadata push. The review verdict remains for effective head `c480baa`.
+
+### Traps and gotchas
+
+- The review target is `c480baa`. The review commit changes only the review record and this handoff entry.
+- The smoke battle wipes and exercises the reload path. The tests also cover a successful flee and the wait intent.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Verify the final Gitar and review-gate results at metadata tip `d837238`. The owner merges after the checks pass.
+
 ## Session 158: 2026-09-21, Claude Code
 
 Author: Claude Code

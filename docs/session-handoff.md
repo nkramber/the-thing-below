@@ -1,5 +1,39 @@
 # Session handoff
 
+## Session 169: 2026-09-21, Codex
+
+Author: Codex
+Session: repeat review PR-48, the enemy record correction. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: reviewer. Base: `86528a3`.
+
+### What this session did, and why
+
+- Reopened PR #48 after the author answered P1-1 at effective head `ef02f4a`.
+- Read the response file, recomputed the effective head, inspected the full correction diff, and verified the original mismatch trigger and the waiting-enemy boundary.
+- Ran `make verify`. It passed with 1587 tests and all local gates.
+- Updated `docs/reviews/pr-48.md`: P1-1 is fixed, and the verdict is `Ready for owner merge` for `ef02f4a`.
+
+### The state of the build
+
+- The effective head is `ef02f4a`. The remote metadata tip is `d887605c`.
+- GitHub CI and Gitar pass at `d887605c`. Review-gate waits for this updated review record.
+
+### What is in flight
+
+The repeat review record and this handoff entry need one metadata commit and push.
+
+### Traps and gotchas
+
+- The size check selects the largest enemy in the group, including waiting enemies, as D-788 requires.
+- The review verdict targets `ef02f4a`, not the later metadata commits.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the repeat review record and handoff entry. Then verify the remote head and review-gate result.
+
 ## Session 168: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -311,39 +345,3 @@ None.
 ### The next concrete action
 
 Download the `screen-captures` artifact, read each walk frame, and commit the 32 walk PNGs to `screens/baseline/`. Then answer the gitar pass.
-
-## Session 159: 2026-09-21, Codex
-
-Author: Codex
-Session: review PR-9, the battle core and the timeline. Repository: the-thing-below. Branch: `feat/pr-9-battle-core`. PR: #46. Role: reviewer. Base: `c6cc71c`.
-
-### What this session did, and why
-
-- Reviewed PR #46 at effective head `c480baa`.
-- Inspected the complete 78-path diff, the PR comments, the PR-9 roadmap scope and exit tests, and the affected Core, Game, debug, content, save, replay, test, and document paths.
-- Verified the timeline, action, row, wave, wipe, event queue, map freeze, migration, content, and replay contracts.
-- Added `docs/reviews/pr-46.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 1485 tests and all local gates.
-- GitHub CI and Gitar pass at `c480baa`. The `review-gate` check fails only because the review record was absent before this session.
-- The effective implementation head is `c480baa`.
-- The remote head of `main` is `c6cc71c`.
-
-### What is in flight
-
-PR #46 waits for the final Gitar and review-gate results after the metadata push. The review verdict remains for effective head `c480baa`.
-
-### Traps and gotchas
-
-- The review target is `c480baa`. The review commit changes only the review record and this handoff entry.
-- The smoke battle wipes and exercises the reload path. The tests also cover a successful flee and the wait intent.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Verify the final Gitar and review-gate results at metadata tip `d837238`. The owner merges after the checks pass.
