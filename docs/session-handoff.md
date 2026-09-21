@@ -1,5 +1,39 @@
 # Session handoff
 
+## Session 171: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-66, the answer to the Gitar pass. Repository: the-thing-below. Branch: `feat/pr-66-elements-statuses`. PR: #49. Role: author. Base: `74c3a64`.
+
+### What this session did, and why
+
+- Opened PR #49 at `911a7d3`. The Gitar pass of that head approved with one finding, and its check passed at 16:57:09Z.
+- The finding had merit: a stun on the character whose turn is open began that turn again, so poison, bleed, or regen acted two times.
+- Commit `34e6272` makes `GiveStatus` refuse that stun, because no strike reaches the character whose turn is open. The test `AStunOnTheCharacterWhoseTurnIsOpenIsAnErrorAndChangesNothing` proves it.
+- `GiveStatus` takes no log now, because it no longer runs the loop.
+
+### The state of the build
+
+- 1625 tests pass. The identity hashes do not change.
+- At `911a7d3`, every CI job passed except `review-gate`, which waits for the review record of RG 3.
+
+### What is in flight
+
+The push of this round waits for a current Gitar pass. Then the PR goes to the review of Codex (D-401).
+
+### Traps and gotchas
+
+- In play, no strike reaches the character whose turn is open. PR-12 keeps that true, or it asks the owner for the rule of a stun on the actor.
+- The `review-gate` fault of RG 3 clears only with `docs/reviews/pr-49.md`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Reply on the Gitar thread with `34e6272`, prove the next pass current, and hand the PR to Codex.
+
 ## Session 170: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -311,37 +345,3 @@ None.
 ### The next concrete action
 
 Read the two new fill-1080 captures of the artifact, commit them to `screens/baseline/`, and answer the Gitar pass.
-
-## Session 161: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-89, round 2: the walk baselines and the Gitar answer. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: author. Base: `ce06eda`.
-
-### What this session did, and why
-
-- The first CI run of `f4eaabe` failed only where the plan said: 32 walk frames with no baseline, six `TheBaselineHoldsThisCapture` cases on each test leg, and RG 3 of `review-gate`. The 10 still captures matched their baselines.
-- Downloaded the `screen-captures` artifact of run 35600042818. Read all 32 walk frames as one strip of the lead, and one full frame (D-733, D-784). The lead draws whole in each frame.
-- Committed the 32 walk PNGs to `screens/baseline/`.
-- Gitar approved `f4eaabe` with one finding: `ExpectedNames` claimed every file but held 6 of the 32 walk frames. Full merit. The list now holds all 42 names, so each walk baseline has its own test case.
-
-### The state of the build
-
-- Remote head of `main`: `ce06eda`. Local: 1553 of 1553 tests pass, and format passes.
-- At `f4eaabe`, CI passed smoke, replay-identity, det-lint, and ste-check on every leg.
-
-### What is in flight
-
-The push of this round. After it: the screen-test job, the Gitar pass of the new head, and the Codex review, which adds `docs/reviews/pr-47.md`.
-
-### Traps and gotchas
-
-- The traps of Session 160 stand: `CLAUDE.md` is one byte under 16 KB, and this Mac cannot hold the 1080-row captures.
-- In `ScreenCapturesTests`, `StillNames` must stay above `ExpectedNames`, for the same static order as `WalkSteps` in `ScreenCaptures`.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for Gitar and CI on the new head, and answer each finding. Then tell the owner that PR #47 is ready for the Codex review.
