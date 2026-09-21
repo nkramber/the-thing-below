@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
@@ -18,8 +19,10 @@ namespace TheThingBelow.Core.Runs;
 /// moves (D-162).
 /// <para>
 /// The tick runs in one fixed order: the beat of a mark, the party, the encounter of a step
-/// into a body, and then the enemies and the sight (D-168). While an encounter runs, no map
-/// system ticks, so the patrols and the grace time all stand still (D-531).
+/// into a body, and then the enemies and the sight (D-168). An encounter starts its battle on
+/// the same tick. While the encounter runs, no map system ticks, so the patrols and the grace
+/// time all stand still (D-531). A snapshot of save format 3 can hold an encounter with no
+/// battle, and the next world step starts that battle (D-765).
 /// </para>
 /// <para>
 /// A step of the party and a step of an enemy each take the debug level, and a sight and an
@@ -41,6 +44,12 @@ public static class WorldRules
 
         state.CountWorldTick();
 
+        // A battle holds the map still until the wait intent of Game ends it (D-522, D-531).
+        if (state.Battle is not null)
+        {
+            return;
+        }
+
         MapState party = state.Party;
         MapPatrols patrols = party.Patrols;
 
@@ -58,9 +67,11 @@ public static class WorldRules
             log.Add(EncounterEntry(state, "the party stepped into an enemy and an encounter started"));
         }
 
-        // While an encounter runs, no enemy walks and no enemy sees the party (D-531).
+        // While an encounter runs, no enemy walks and no enemy sees the party. The encounter
+        // becomes a battle on this tick (D-531).
         if (patrols.Encounter is not null)
         {
+            BattleTurns.Begin(state, log);
             return;
         }
 

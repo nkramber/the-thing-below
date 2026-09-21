@@ -5,13 +5,17 @@ namespace TheThingBelow.Core.Runs;
 
 /// <summary>The format version of the run record. PR-6 wrote the first one (D-652).</summary>
 /// <remarks>
-/// A later PR that changes the lines of a record raises this number and adds a fixture
-/// record of the older format, as the snapshot formats of PR-43 do (D-166).
+/// A later PR that changes the lines of a record raises this number. A record replays on its
+/// own simulation version alone (G-17), so a record of an older format fails with its line
+/// and needs no reader (D-764).
+/// <para>
+/// PR-9 raised it to 2. An intent gained its target and its item (D-764, D-780).
+/// </para>
 /// </remarks>
 public static class RunRecordFormat
 {
     /// <summary>The format version that this build writes.</summary>
-    public const int Current = 1;
+    public const int Current = 2;
 }
 
 /// <summary>

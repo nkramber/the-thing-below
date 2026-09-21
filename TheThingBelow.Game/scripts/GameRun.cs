@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Core.Saves;
 using TheThingBelow.Game.Ui;
 
 namespace TheThingBelow.Game;
@@ -32,6 +34,7 @@ public sealed class GameRun
 {
     private readonly FixedStepLoop loop = new();
     private readonly List<Intent> queued = [];
+    private readonly BattleEventQueue events = new();
     private readonly Simulation simulation;
     private readonly RunRecorder recorder;
 
@@ -103,6 +106,29 @@ public sealed class GameRun
     /// </remarks>
     public MapState Party => this.simulation.State.Party;
 
+    /// <summary>True while an encounter or a battle holds the map still (D-531).</summary>
+    public bool InBattle => this.simulation.State.Battle is not null || this.simulation.State.Party.Patrols.Encounter is not null;
+
+    /// <summary>The count of battle events that the screen has yet to play (D-532).</summary>
+    public int WaitingEvents => this.events.Count;
+
+    /// <summary>
+    /// True when the screen has played every event and a character has the turn. Game takes
+    /// the next command of the player only then, so this is the input gate of a battle (D-532).
+    /// </summary>
+    public bool TakesBattleCommand =>
+        this.events.Empty
+        && this.simulation.State.Battle is Battle battle
+        && battle.Outcome == BattleOutcome.Running
+        && battle.Next() is Combatant next
+        && next.Side == BattleSide.Party;
+
+    /// <summary>True when the screen has played the events of a wipe, and the host reloads (D-397, D-776).</summary>
+    public bool WipeReady =>
+        this.events.Empty
+        && this.simulation.State.Battle is Battle battle
+        && battle.Outcome == BattleOutcome.Wiped;
+
     /// <summary>Starts a run over a content set.</summary>
     /// <param name="content">The content of this build, which gives the content hash (D-648).</param>
     /// <param name="seed">The seed of the run (G-3, G-4).</param>
@@ -120,7 +146,44 @@ public sealed class GameRun
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
         RunHeader header = RunHeader.ForThisBuild(content.Hash, seed);
-        Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), debugHandlers);
+        Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), content.Battle, debugHandlers);
+        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()));
+    }
+
+    /// <summary>
+    /// Starts the run again after a wipe: from the newer of the slot save and the autosave, or
+    /// from the start of a new run when neither exists (D-231, D-776).
+    /// </summary>
+    /// <param name="content">The content set of this build.</param>
+    /// <param name="slot">The slot save, or no value.</param>
+    /// <param name="autosave">The autosave, or no value.</param>
+    /// <param name="seed">The seed of a new run, when no save exists.</param>
+    /// <param name="debugHandlers">The debug handlers of the host (D-260).</param>
+    /// <returns>The run, with a new record that starts at its first tick.</returns>
+    /// <exception cref="ArgumentNullException">The content or the handlers are null (T-2).</exception>
+    public static GameRun Reload(
+        ContentSet content,
+        SaveDocument? slot,
+        SaveDocument? autosave,
+        ulong seed,
+        DebugIntentHandlers debugHandlers)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(debugHandlers);
+
+        if (SavePick.NewerOf(slot, autosave) is not SaveDocument save)
+        {
+            return Start(content, seed, debugHandlers);
+        }
+
+        RunSnapshot snapshot = save.Snapshot;
+        Simulation simulation = Simulation.Resume(
+            save.Header.Seed,
+            snapshot,
+            content.Map(snapshot.MapIdOrFirst),
+            content.Battle,
+            debugHandlers);
+        RunHeader header = RunHeader.ForThisBuild(content.Hash, save.Header.Seed);
         return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()));
     }
 
@@ -172,12 +235,15 @@ public sealed class GameRun
             Intent[] intents = step == 0 ? [.. this.queued] : [];
             this.recorder.Step(this.simulation.Tick + 1, intents);
             log.AddRange(this.simulation.Step(intents));
+            this.events.Add(this.simulation.TakeBattleEvents());
         }
 
         if (ticks > 0)
         {
             this.queued.Clear();
         }
+
+        this.PlayBattleEvent(log);
 
         long dropped = this.loop.DroppedTicks - droppedBefore;
         if (dropped > 0)
@@ -195,6 +261,44 @@ public sealed class GameRun
 
     /// <summary>Gives the record of the run as it stands now (G-5, D-651).</summary>
     /// <returns>The record, which the crash file of D-170 carries.</returns>
+    /// <summary>
+    /// Plays one battle event on this frame, and writes it as one log line until the battle
+    /// screen of PR-10 (D-532, D-767). When the queue drains after a win or a flee, the run
+    /// takes the wait intent, and the map runs again on the next tick (D-522).
+    /// </summary>
+    private void PlayBattleEvent(List<LogEntry> log)
+    {
+        if (!this.events.Empty)
+        {
+            BattleEvent played = this.events.PlayNext();
+            log.Add(new LogEntry(
+                LogLevel.Info,
+                "the screen played a battle event",
+                this.simulation.Tick,
+                LogSubsystems.Battle,
+                [new LogField("event", played.Describe())]));
+            return;
+        }
+
+        if (this.simulation.State.Battle is not Battle battle
+            || (battle.Outcome != BattleOutcome.Won && battle.Outcome != BattleOutcome.Fled))
+        {
+            return;
+        }
+
+        // A frame can run no tick, and the queue then still holds the wait intent of an
+        // earlier frame. A second one in one tick meets the refusal of the rules (T-2).
+        foreach (Intent waiting in this.queued)
+        {
+            if (string.CompareOrdinal(waiting.Action.Value, IntentIds.WaitBattleEnd.Value) == 0)
+            {
+                return;
+            }
+        }
+
+        this.queued.Add(Intent.OfPlayer(IntentIds.WaitBattleEnd));
+    }
+
     public RunRecord Record() => this.recorder.Build();
 
     /// <summary>Gives the state hash of the run, which a replay compares (G-5).</summary>

@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Saves;
@@ -40,6 +41,8 @@ public static class RunSnapshotText
             writer.WriteBoolean("menu", snapshot.MenuOpen);
             writer.WriteNumber("world", snapshot.WorldTick);
             WriteMap(writer, snapshot.Map);
+            WriteParty(writer, snapshot.Characters);
+            WriteBattle(writer, snapshot.Battle);
             writer.WriteStartArray("streams");
             foreach (StreamPosition position in snapshot.Streams)
             {
@@ -59,7 +62,7 @@ public static class RunSnapshotText
 
     /// <summary>
     /// Writes the party and the enemies on the map. A snapshot of save format 1 holds no
-    /// map, and this build writes save format 3, so the field is always present in a file
+    /// map, and this build writes save format 4, so the field is always present in a file
     /// that this build writes (D-166, D-654, D-750).
     /// </summary>
     private static void WriteMap(Utf8JsonWriter writer, MapSnapshot? map)
@@ -97,7 +100,7 @@ public static class RunSnapshotText
 
     /// <summary>
     /// Writes the stored values of each enemy of the map (D-750). This build writes save
-    /// format 3, so the field is always present, and it holds an empty array on a map that
+    /// format 4, so the field is always present, and it holds an empty array on a map that
     /// places no enemy.
     /// </summary>
     private static void WriteEnemies(Utf8JsonWriter writer, IReadOnlyList<PatrolValues>? enemies)
@@ -131,6 +134,30 @@ public static class RunSnapshotText
         }
 
         writer.WriteEndArray();
+    }
+
+    /// <summary>
+    /// Writes the party. This build writes save format 4, so the field is always present in a
+    /// file that this build writes (D-166, D-765).
+    /// </summary>
+    private static void WriteParty(Utf8JsonWriter writer, PartySnapshot? party)
+    {
+        if (party is null)
+        {
+            throw new ArgumentException(
+                "A snapshot that this build writes holds a party. A snapshot with none comes from save format 3 or older, and this build never writes one (T-2, D-166).",
+                nameof(party));
+        }
+
+        BattleSnapshotText.WriteParty(writer, party);
+    }
+
+    private static void WriteBattle(Utf8JsonWriter writer, BattleValues? battle)
+    {
+        if (battle is not null)
+        {
+            BattleSnapshotText.WriteBattle(writer, battle);
+        }
     }
 
     private static void WriteMark(Utf8JsonWriter writer, SightMark? mark)
@@ -182,12 +209,24 @@ public static class RunSnapshotText
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
     public static RunSnapshot ReadFormatTwo(ref ContentReader reader) => ReadLine(ref reader, 2);
 
+    /// <summary>
+    /// Reads a snapshot of save format 3, which holds no party and no battle (D-765). The
+    /// migration runs in `RunState.Resume`, which starts the party of the fixture at full health.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <returns>The snapshot, with no party and no battle.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatThree(ref ContentReader reader) => ReadLine(ref reader, 3);
+
     private static RunSnapshot ReadLine(ref ContentReader reader, int format)
     {
         long? tick = null;
         bool? menu = null;
         long? world = null;
         MapSnapshot? map = null;
+        PartySnapshot? party = null;
+        BattleValues? battle = null;
         List<StreamPosition>? streams = null;
 
         int depth = reader.ReadObjectStart();
@@ -207,6 +246,12 @@ public static class RunSnapshotText
                 case "map":
                     map = ReadMap(ref reader, format);
                     break;
+                case "party":
+                    party = BattleSnapshotText.ReadParty(ref reader);
+                    break;
+                case "battle":
+                    battle = BattleSnapshotText.ReadBattle(ref reader);
+                    break;
                 case "streams":
                     streams = ReadStreams(ref reader);
                     break;
@@ -215,11 +260,25 @@ public static class RunSnapshotText
             }
         }
 
+        // Save format 3 and older predate the party and the battle. Each later format holds
+        // the party (D-166, D-765).
+        if (format >= 4)
+        {
+            _ = reader.Require(party, depth, "party");
+        }
+        else if (party is not null || battle is not null)
+        {
+            throw reader.Refuse(
+                $"the snapshot of save format {format} holds a party or a battle, and that format predates both (D-765)");
+        }
+
         RunSnapshot snapshot = new(
             reader.RequireValue(tick, depth, "tick"),
             reader.RequireValue(menu, depth, "menu"),
             reader.RequireValue(world, depth, "world"),
             reader.Require(map, depth, "map"),
+            party,
+            battle,
             reader.Require(streams, depth, "streams"));
 
         snapshot.Check(reader.File);
@@ -282,6 +341,8 @@ public static class RunSnapshotText
             reader.RequireValue(tick, depth, "tick"),
             reader.RequireValue(menu, depth, "menu"),
             reader.RequireValue(world, depth, "world"),
+            null,
+            null,
             null,
             reader.Require(streams, depth, "streams"));
 

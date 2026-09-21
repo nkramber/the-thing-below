@@ -340,6 +340,14 @@ Area files: `area-battle.md` sections 7.1, 7.2, 7.3, 7.5, and 7.9.
 - The hand-off of the encounter, where no map system ticks during a battle (D-531).
 - Fixture enemies with fixture stats, until PR-80 builds the enemy record (D-557).
 - The pace of one turn: Core resolves at once and emits events, and Game drains the queue (D-532).
+- The defend action, the hit roll, and the miss chance of the speed gap (D-755, D-772, D-773).
+- The wave: six enemies on the field at most, and up to twelve in a group (D-758 to D-762, D-778).
+- The half damage of a melee attack from the back row (D-779).
+- The fixture files: the characters, the groups, the draught, and the numbers of D-777 (D-765, D-766, D-775).
+- The test that each group of a map exists (D-766).
+- The target and the item of an intent, with record format 2 (D-764, D-780). The party in the snapshot, with save format 4 (D-765).
+- The console commands of each action, which replace the flee command of PR-8 (D-767).
+- The reload of the newer save after a wipe, or a new start with no save (D-776).
 
 **Out of scope.**
 
@@ -358,15 +366,18 @@ Area files: `area-battle.md` sections 7.1, 7.2, 7.3, 7.5, and 7.9.
 6. A test proves that the event queue of Game always drains (D-532).
 7. The replay of a fixture fight gives the same state hash on every leg.
 8. A test proves that no map system moves during a battle (D-531).
+9. A waiting enemy steps into its row when an enemy falls, one attack push out (D-759 to D-761, D-778).
+10. A group of thirteen enemies fails the load, and a map that names an absent group fails the load (D-762, D-766).
+11. A save of format 3 still loads, and a record of format 1 fails with its line (D-166, D-764, D-765).
 
 **Review focus.**
 
 - No wait intent enters a fight, and the input gate lives in Game (D-532).
 - Each delay counts ticks with integer math alone (D-164, G-2).
-- The answer of OQ-126 puts the delay of each action in one place.
+- Content holds the delay of each action in one place (D-757).
 - The basic attack needs no lesson and no MP (D-359, F-8).
 
-**Questions.** OQ-124, OQ-125, OQ-126, OQ-132, and OQ-133.
+**Questions.** None. D-755 to D-777 answer OQ-124, OQ-125, OQ-126, OQ-132, and OQ-133, and the gaps that the start of PR-9 found.
 
 > *In plain English:* this is the fight itself, with the order of turns shaped by speed. Nothing draws it yet.
 
@@ -400,7 +411,7 @@ Area file: `area-battle.md` section 7.7.
 - The simulation version bumps, and the identity file gains a run (G-17, D-504).
 - Each new content id is permanent (D-166).
 
-**Questions.** None. OQ-132 holds a group larger than its rows, and PR-9 and PR-11 ask it.
+**Questions.** None. D-758 answers OQ-132 with the wave.
 
 > *In plain English:* each enemy gets its numbers and its list of moves in a data file. The fight reads that file in place of the placeholder numbers.
 
@@ -502,11 +513,11 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 
 **Review focus.**
 
-- The answer of OQ-125 sets how many turns the strip shows.
+- The strip shows six turns (D-756), and a row draws up to six enemies (D-759).
 - The answer of OQ-103 sets where shader code lives.
 - The backdrop drift never moves a rule, and no rule waits for it (D-522, G-23).
 
-**Questions.** OQ-103, OQ-125, and OQ-131.
+**Questions.** OQ-103 and OQ-131.
 
 > *In plain English:* the fight appears on screen: who acts next, who is low, and what you can do. Every line reads in the voice of the game.
 
@@ -794,7 +805,7 @@ Area file: `area-battle.md` sections 7.6 and 7.7.
 
 1. A fixture enemy with a protector profile heals its ally before it attacks.
 2. A profile with no legal action fails the load, by the rule of OQ-128.
-3. A map that names an absent group id fails with the map and the id (D-535).
+3. A map that names a group absent from the region file fails with the map and the id (D-535, D-766).
 4. A property test over one thousand seeds proves that the evaluator never stalls a turn.
 5. The tie-break of two equal scores follows OQ-127, and a test locks it.
 6. The PR reports the count of legal actions and the time of a turn (F-53).
@@ -805,7 +816,7 @@ Area file: `area-battle.md` sections 7.6 and 7.7.
 - A miss of that target changes the depth or the profiles in this PR (G-14).
 - The evaluator draws from one seeded stream, and its order of work never changes (G-4, T-7).
 
-**Questions.** OQ-127, OQ-128, OQ-129, and OQ-132.
+**Questions.** OQ-127, OQ-128, and OQ-129.
 
 > *In plain English:* each enemy tries every move it can make, imagines your best answer, and picks the move that leaves it best off. That is what makes the fights hard.
 
@@ -1919,15 +1930,15 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-120 | The hazards of region one | PR-64 |
 | OQ-121 | The prices, the buy-back, and the stock of a shop | PR-65 |
 | OQ-122 | The format of the region map, and the cost of a route | PR-35 |
-| OQ-124 | A defend action | PR-9 |
-| OQ-125 | How many turns the timeline strip shows | PR-9 and PR-10 |
-| OQ-126 | Where the delay of each action lives | PR-9 |
+| OQ-124 | A defend action. Resolved by D-755 | PR-9 |
+| OQ-125 | How many turns the timeline strip shows. Resolved by D-756 | PR-9 and PR-10 |
+| OQ-126 | Where the delay of each action lives. Resolved by D-757 | PR-9 |
 | OQ-127 | The tie-break of two equal scores | PR-11 |
 | OQ-128 | What makes a profile unable to act | PR-11 |
 | OQ-129 | The chance of a steal, and the cost of a failure | PR-11 |
 | OQ-131 | How the screen shows the health of an enemy | PR-10 |
-| OQ-132 | A group larger than its rows | PR-9 and PR-11 |
-| OQ-133 | The flee chance and the grace time | PR-9 |
+| OQ-132 | A group larger than its rows. Resolved by D-758 | PR-9 and PR-11 |
+| OQ-133 | The flee chance and the grace time. Resolved by D-748 and D-763 | PR-9 |
 | OQ-134 | The shape of a stat curve | PR-67 |
 | OQ-135 | The MP that a save point and a rest restore | PR-67 |
 | OQ-136 | The shrink of the experience of an enemy | PR-67 |

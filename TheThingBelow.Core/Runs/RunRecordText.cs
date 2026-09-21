@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 
 namespace TheThingBelow.Core.Runs;
@@ -193,6 +194,19 @@ public static class RunRecordText
                 writer.WriteStartObject();
                 writer.WriteString("action", intent.Action.Value);
                 writer.WriteBoolean("debug", intent.IsDebug);
+                if (intent.Item is ContentId item)
+                {
+                    writer.WriteString("item", item.Value);
+                }
+
+                if (intent.Target is BattleTarget target)
+                {
+                    writer.WriteStartObject("target");
+                    writer.WriteString("side", BattleSides.NameOf(target.Side));
+                    writer.WriteNumber("slot", target.Slot);
+                    writer.WriteEndObject();
+                }
+
                 writer.WriteEndObject();
             }
 
@@ -245,6 +259,8 @@ public static class RunRecordText
     {
         ContentId? action = null;
         bool? debug = null;
+        ContentId? item = null;
+        BattleTarget? target = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -257,6 +273,12 @@ public static class RunRecordText
                 case "debug":
                     debug = reader.ReadBoolean();
                     break;
+                case "item":
+                    item = reader.ReadContentId(BattleFixture.ItemKind);
+                    break;
+                case "target":
+                    target = ReadTarget(ref reader);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -264,7 +286,39 @@ public static class RunRecordText
 
         return new Intent(
             reader.Require(action, depth, "action"),
-            reader.RequireValue(debug, depth, "debug"));
+            reader.RequireValue(debug, depth, "debug"),
+            target,
+            item);
+    }
+
+    private static BattleTarget ReadTarget(ref ContentReader reader)
+    {
+        string? side = null;
+        int? slot = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "side":
+                    side = reader.ReadString();
+                    break;
+                case "slot":
+                    slot = reader.ReadInt();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        string name = reader.Require(side, depth, "side");
+        if (!BattleSides.TrySideOf(name, out BattleSide parsed))
+        {
+            throw reader.RefuseField(depth, "side", $"the side '{name}' is not one of {BattleSides.EverySideName} (D-764)");
+        }
+
+        return new BattleTarget(parsed, reader.RequireInt(slot, depth, "slot"));
     }
 
     private static string WriteEnd(long endTick)

@@ -68,6 +68,8 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-20 map pass: a step goes in four directions, and a diagonal walk takes two steps (D-716). The time of day sets the range of the party, and the party sees every direction (D-719). A patrol sees the quarter that it faces, plus the tiles that touch it (D-718). No map gives a patrol a longer range than the party (D-720). Game computes the place of the view and rounds each position, so no Godot snap setting and no Godot camera limit is on (D-715, D-717). PR-64 takes the whole map HUD (D-721), and the map takes the place of the demo panel of PR-61 (D-722).
 
+2026-09-21 battle core pass: a battle is the encounter of the map, and one snapshot holds both (D-531). A defend, a strip of six turns, and a wave of up to twelve enemies join the rules (D-755, D-756, D-758 to D-762, D-778). Content holds every delay and every number, and PR-9 fights fixture characters, groups, and items (D-757, D-765, D-766, D-775, D-777). An intent carries its target and its item (D-764, D-780). A measurement set the fixture elite (D-781).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -455,7 +457,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 5. PR-45: the debug assembly and the console, right after PR-7 (D-492).
 6. PR-41: the screen-test job under Xvfb, with its committed baseline (D-172, D-729, D-736).
 7. PR-8: the enemies and the patrols on the map (D-37).
-8. PR-9: the encounter state, the timeline, the actions, the rows, the wipe, and the hand-off (D-29, D-376, D-377, D-531).
+8. PR-9: the encounter state, the timeline, the actions, the rows, the wave, the wipe, and the hand-off (D-29, D-376, D-377, D-531, D-755 to D-781).
 9. PR-80: the enemy record, with the stats and the ability ids of each enemy (D-557).
 10. PR-66: the eight elements and the ten statuses (D-74, D-75, D-533).
 11. PR-55: the large pictures, right before PR-10 (D-516, D-518).

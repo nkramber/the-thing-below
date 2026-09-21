@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using TheThingBelow.Core;
+using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Saves;
@@ -24,7 +26,8 @@ namespace TheThingBelow.Tests;
 /// build runs another simulation version, and the load reads the snapshot alone, so the save
 /// still loads (D-259). Format 1 predates the tile map, so its migration puts the party on
 /// the spawn point of the first map (D-654). Format 2 predates the enemies, and its migration
-/// puts each enemy of the map on the start tile of its station (D-750).
+/// puts each enemy of the map on the start tile of its station (D-750). Format 3 predates the
+/// party, and its migration starts the party of the fixture at full health (D-765).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
@@ -89,7 +92,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(1, save.Header.SimulationVersion);
 
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, TestBattles.Content, DebugIntentHandlers.None);
 
         Assert.Equal(120, run.Tick);
     }
@@ -102,7 +105,7 @@ public sealed class SaveFixtureTests
         SaveDocument save = ReadFormat(1);
 
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, TestBattles.Content, DebugIntentHandlers.None);
 
         Assert.Equal(TestMaps.FixtureDungeon.Spawn, run.State.Party.LeadAt);
         Assert.Equal(1, run.State.Party.Walked.Count);
@@ -119,7 +122,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(TestMaps.Room.Id.Value, save.Snapshot.Map.Map.Value);
 
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, TestMaps.Room, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
 
         Assert.Equal(SaveRuns.FixtureTicks, run.Tick);
         Assert.Equal(save.Snapshot.Map.Walked, run.State.Party.Walked.Rows());
@@ -130,7 +133,7 @@ public sealed class SaveFixtureTests
     {
         SaveDocument save = ReadFormat(1);
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, TestBattles.Content, DebugIntentHandlers.None);
 
         run.Step([]);
 
@@ -171,7 +174,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(3, save.Snapshot.Map.Enemies.Count);
 
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, TestMaps.Patrolled, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, TestMaps.Patrolled, TestBattles.Content, DebugIntentHandlers.None);
 
         Assert.Equal(SaveRuns.FixtureTicks, run.Tick);
         IReadOnlyList<PatrolState> enemies = run.State.Party.Patrols.All;
@@ -188,11 +191,60 @@ public sealed class SaveFixtureTests
     }
 
     [Fact]
+    public void TheStoredSaveOfFormatThreeStartsThePartyOfTheFixture()
+    {
+        // D-765: format 3 predates the party, so the migration gives the start party of the
+        // fixture at full health, and the start pack.
+        SaveDocument save = ReadFormat(3);
+        Assert.Null(save.Snapshot.Characters);
+
+        Simulation run = Simulation.Resume(
+            save.Header.Seed, save.Snapshot, TestMaps.Patrolled, TestBattles.Content, DebugIntentHandlers.None);
+
+        PartyMember marrek = Assert.Single(run.State.Characters.Members);
+        Assert.Equal("character.marrek", marrek.Record.Id.Value);
+        Assert.Equal(marrek.Record.Health, marrek.Health);
+        Assert.Equal(3, run.State.Characters.CountOf(ContentId.Parse("item.fixture_draught", "test", "item")));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatFourHoldsTheBattleThatRuns()
+    {
+        // D-531: one snapshot covers the map and the battle, so a save inside a battle
+        // resumes the same battle.
+        SaveDocument save = ReadFormat(4);
+        Assert.NotNull(save.Snapshot.Battle);
+        Assert.NotNull(save.Snapshot.Characters);
+
+        Simulation run = Simulation.Resume(
+            save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, DebugIntentHandlers.None);
+
+        Battle battle = BattleRuns.BattleOf(run);
+        Assert.Equal(BattleOutcome.Running, battle.Outcome);
+        Assert.Equal(19, battle.Enemies[0].Health);
+        Assert.Equal(30, battle.Enemies[1].Health);
+        Assert.Equal(60, battle.Party[0].Health);
+        Assert.Equal(2, run.Tick);
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatFourFightsOnFromItsTick()
+    {
+        SaveDocument save = ReadFormat(4);
+        Simulation run = Simulation.Resume(
+            save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, DebugIntentHandlers.None);
+
+        BattleOutcome outcome = BattleRuns.FightToEnd(run, save.Header.Seed);
+
+        Assert.NotEqual(BattleOutcome.Running, outcome);
+    }
+
+    [Fact]
     public void TheStoredSaveOfFormatThreeRunsAgainFromItsTick()
     {
         SaveDocument save = ReadFormat(3);
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, TestMaps.Patrolled, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, TestMaps.Patrolled, TestBattles.Content, DebugIntentHandlers.None);
 
         run.Step([]);
 

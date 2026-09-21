@@ -17,7 +17,9 @@ public static class SimulationVersion
     /// to 5: the tile map, the step of the party, the sight, and the walked tiles replace
     /// the patrol of the first world (D-106, D-528, D-567, D-716). PR-8 raised it to 6: the
     /// enemies of a map walk their stations, a body blocks a step, a sight starts a beat,
-    /// and an encounter holds the map still (D-208, D-531, D-737 to D-751).
+    /// and an encounter holds the map still (D-208, D-531, D-737 to D-751). PR-9 raised it
+    /// to 7: the battle core, the timeline, the party and its pack, and the wait intent of a
+    /// battle (D-755 to D-780).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -25,5 +27,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 6;
+    public const int Current = 7;
 }

@@ -21,6 +21,10 @@ public static class SaveFormat
     /// PR-8 raised it to 3. The map object of the snapshot gained the stored values of each
     /// enemy, the mark of a sight, and the encounter (D-750).
     /// </para>
+    /// <para>
+    /// PR-9 raised it to 4. The snapshot gained the party: the health and the row of each
+    /// character, and the pack. It also gained the battle that runs (D-531, D-765).
+    /// </para>
     /// </remarks>
-    public const int Current = 3;
+    public const int Current = 4;
 }

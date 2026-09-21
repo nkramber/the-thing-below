@@ -24,7 +24,26 @@ public static class DebugCommandIds
     public static readonly ContentId RevealMap =
         ContentId.Parse("debug.reveal_map", Source, nameof(RevealMap));
 
-    /// <summary>The console ended the encounter as a flee (D-381, D-749).</summary>
-    public static readonly ContentId FleeEncounter =
-        ContentId.Parse("debug.flee_encounter", Source, nameof(FleeEncounter));
+    // PR-8 held the id `debug.flee_encounter`, which ended an encounter as a flee (D-749).
+    // The battle of PR-9 replaced it (D-767), and no later entry takes that id (D-166).
+
+    /// <summary>The console attacked one enemy on the turn of a character (D-767).</summary>
+    public static readonly ContentId BattleAttack =
+        ContentId.Parse("debug.battle_attack", Source, nameof(BattleAttack));
+
+    /// <summary>The console defended on the turn of a character (D-755, D-767).</summary>
+    public static readonly ContentId BattleDefend =
+        ContentId.Parse("debug.battle_defend", Source, nameof(BattleDefend));
+
+    /// <summary>The console stepped to the other row on the turn of a character (D-380, D-767).</summary>
+    public static readonly ContentId BattleStep =
+        ContentId.Parse("debug.battle_step", Source, nameof(BattleStep));
+
+    /// <summary>The console used one item on one character (D-767, D-780).</summary>
+    public static readonly ContentId BattleItem =
+        ContentId.Parse("debug.battle_item", Source, nameof(BattleItem));
+
+    /// <summary>The console tried to flee on the turn of a character (D-378, D-767).</summary>
+    public static readonly ContentId BattleFlee =
+        ContentId.Parse("debug.battle_flee", Source, nameof(BattleFlee));
 }

@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Runs;
 
 namespace TheThingBelow.Debug.Commands;
@@ -47,42 +50,99 @@ public sealed class DebugSession
     /// </returns>
     /// <exception cref="ArgumentNullException">The line is null (T-2).</exception>
     /// <remarks>
-    /// An intent of this build carries an id and no value, so a command takes no argument. A
-    /// line with more than one word is thus a fault, and the answer names the word that the
-    /// session read (D-493, T-2).
+    /// A battle command that aims takes one argument, the slot of its target, and every other
+    /// command takes none. A line of the wrong shape is a fault, and the answer names it (D-767,
+    /// T-2). The item command uses the first item that the pack holds (D-780).
     /// </remarks>
     public IReadOnlyList<string> Run(string line)
     {
         ArgumentNullException.ThrowIfNull(line);
 
-        string name = line.Trim();
-        if (name.Length == 0)
+        string[] words = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length == 0)
         {
             return [];
         }
 
-        if (name.Contains(' ', StringComparison.Ordinal))
+        string name = words[0];
+        string shown = string.Join(' ', words);
+        if (words.Length > 2)
         {
-            return [$"> {name}", "no command takes an argument, and this line holds more than one word (D-724)"];
+            return [$"> {shown}", "a command takes one argument at most, and this line holds more (D-767)"];
         }
 
         if (!DebugCommands.TryFind(name, out DebugCommand? command) || command is null)
         {
-            return [$"> {name}", $"no command takes the name '{name}'. {Names()}"];
+            return [$"> {shown}", $"no command takes the name '{name}'. {Names()}"];
         }
 
-        List<string> answer = [$"> {name}"];
+        if (!TryTarget(command, words, out BattleTarget? target, out string fault))
+        {
+            return [$"> {shown}", fault];
+        }
+
+        ContentId? item = null;
+        if (command.Action is ContentId action && string.CompareOrdinal(action.Value, DebugCommandIds.BattleItem.Value) == 0)
+        {
+            item = FirstItem(this.state());
+            if (item is null)
+            {
+                return [$"> {shown}", "the pack holds no item, and the command sent nothing (D-775)"];
+            }
+        }
+
+        List<string> answer = [$"> {shown}"];
         if (command.MakesIntent)
         {
             // The command changes the run on a tick of the rules, and never here. The host
             // takes the intent into the next tick, and the record holds it (D-171, T-7).
-            this.queue(Intent.OfDebugConsole(command.Action!));
+            this.queue(Intent.OfDebugConsole(command.Action!, target, item));
             answer.Add($"the record takes the intent '{command.Action!.Value}' on the next tick");
             return answer;
         }
 
         answer.AddRange(command.Report(this.state()).Split(LineBreak, StringSplitOptions.None));
         return answer;
+    }
+
+    /// <summary>Reads the slot argument of a command that aims, and refuses an argument on any other (D-767).</summary>
+    private static bool TryTarget(DebugCommand command, string[] words, out BattleTarget? target, out string fault)
+    {
+        target = null;
+        fault = string.Empty;
+        if (command.TargetSide is not BattleSide side)
+        {
+            if (words.Length == 2)
+            {
+                fault = $"the command '{command.Name}' takes no argument (D-724)";
+                return false;
+            }
+
+            return true;
+        }
+
+        if (words.Length != 2 || !int.TryParse(words[1], NumberStyles.None, CultureInfo.InvariantCulture, out int slot))
+        {
+            fault = $"the command '{command.Name}' takes the slot of its target, a whole number from 0 (D-767)";
+            return false;
+        }
+
+        target = new BattleTarget(side, slot);
+        return true;
+    }
+
+    /// <summary>Gives the first item of the pack with a count above zero, or no value (D-775).</summary>
+    private static ContentId? FirstItem(RunState state)
+    {
+        foreach (PackValues entry in state.Characters.Pack)
+        {
+            if (entry.Count > 0)
+            {
+                return entry.Item;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>Gives the names of every command, for the answer to an unknown name (T-2).</summary>

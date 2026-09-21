@@ -24,7 +24,7 @@ public sealed class SimulationTests
     [Fact]
     public void AStepAddsOneToTheTick()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
 
         run.Step(NoIntents);
         run.Step(NoIntents);
@@ -36,7 +36,7 @@ public sealed class SimulationTests
     public void TheTickRisesWhileAMenuIsOpen()
     {
         // D-650. The tick is the one time line of a run, so it rises on every step.
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
 
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
         run.Step(NoIntents);
@@ -50,7 +50,7 @@ public sealed class SimulationTests
     public void TheWorldSkipsItsWorkWhileAMenuIsOpen()
     {
         // D-650 and D-162. The world tick counts the ticks in which the world ran.
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
 
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
         for (int step = 0; step < 10; step += 1)
@@ -65,7 +65,7 @@ public sealed class SimulationTests
     [Fact]
     public void TheWorldRunsAgainWhenTheMenuCloses()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
 
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
         run.Step(NoIntents);
@@ -79,7 +79,7 @@ public sealed class SimulationTests
     [Fact]
     public void ThePartyReachesTheNextTileAfterTheTicksOfAStep()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
         TilePoint start = run.State.Party.LeadAt;
 
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
@@ -100,8 +100,8 @@ public sealed class SimulationTests
     {
         // A menu pauses the world, so a party with a menu open never reaches the next tile
         // (D-162, D-650).
-        Simulation open = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
-        Simulation closed = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation open = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
+        Simulation closed = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
 
         closed.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
         open.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
@@ -121,7 +121,7 @@ public sealed class SimulationTests
     {
         // A menu takes every input of the player, so a step intent from it points at a fault
         // in the screen that made it (D-162, T-2).
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
 
         SimulationException error = Assert.Throws<SimulationException>(
@@ -135,7 +135,7 @@ public sealed class SimulationTests
     {
         // The map rules take no random value, so every stream stays at its first position
         // while the party walks (G-4). PR-8 walks each patrol and draws its route.
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
         RunSnapshot start = run.Snapshot();
 
         for (int step = 0; step < MapRules.TicksPerStep * 3; step += 1)
@@ -153,7 +153,7 @@ public sealed class SimulationTests
     [Fact]
     public void AnIntentThatNamesNoRuleIsAnError()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
         ContentId unknown = ContentId.Parse("intent.fly", "test", "action");
 
         SimulationException error = Assert.Throws<SimulationException>(
@@ -167,7 +167,7 @@ public sealed class SimulationTests
     public void AnOpenOfAnOpenMenuIsAnError()
     {
         // An intent that changes nothing points at a fault in the screen that made it (T-2).
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
 
         SimulationException error = Assert.Throws<SimulationException>(
@@ -180,7 +180,7 @@ public sealed class SimulationTests
     [Fact]
     public void ACloseOfAClosedMenuIsAnError()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
 
         Assert.Throws<SimulationException>(() => run.Step([Intent.OfPlayer(IntentIds.CloseMenu)]));
     }
@@ -194,9 +194,9 @@ public sealed class SimulationTests
         [
             new KeyValuePair<ContentId, DebugIntentHandler>(
                 RunScripts.DebugStepEast,
-                (state, context, log) => state.WantStep(StepDirection.East, context)),
+                (state, intent, context, log) => state.WantStep(StepDirection.East, context)),
         ]);
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, handlers);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, handlers);
 
         run.Step([Intent.OfDebugConsole(RunScripts.DebugStepEast)]);
 
@@ -208,7 +208,7 @@ public sealed class SimulationTests
     {
         // Exit test 4 of section 7.13 of `phase-1-foundations.md`. A release host passes no
         // handler (D-260, D-492).
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
         run.Step(NoIntents);
 
         SimulationException error = Assert.Throws<SimulationException>(
@@ -222,7 +222,7 @@ public sealed class SimulationTests
     [Fact]
     public void TwoHandlersOfOneDebugIntentAreAnError()
     {
-        static void Handler(RunState state, RunContext context, List<LogEntry> log) =>
+        static void Handler(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>
             state.WantStep(StepDirection.East, context);
 
         Assert.Throws<ArgumentException>(() => new DebugIntentHandlers(
@@ -266,7 +266,7 @@ public sealed class SimulationTests
         IReadOnlyList<IReadOnlyList<Intent>> script = RunScripts.Make(Seed, 250);
         (Simulation run, _) = RunScripts.Play(Seed, "hash", script, 0);
 
-        Simulation resumed = Simulation.Resume(Seed, run.Snapshot(), TestMaps.Room, DebugIntentHandlers.None);
+        Simulation resumed = Simulation.Resume(Seed, run.Snapshot(), TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
 
         Assert.Equal(run.StateHash(), resumed.StateHash());
         Assert.Equal(run.Tick, resumed.Tick);
@@ -278,7 +278,7 @@ public sealed class SimulationTests
         // G-17. A build with other rules never gives the hash of this build by accident. The
         // sequence below is the layout of the state hash, so a change of the layout changes
         // this test and the identity file together (D-504).
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
         RunSnapshot snapshot = run.Snapshot();
 
@@ -289,6 +289,8 @@ public sealed class SimulationTests
         hasher.AddBoolean(snapshot.MenuOpen);
         hasher.AddInt64(snapshot.WorldTick);
         run.State.Party.Hash(hasher);
+        run.State.Characters.Hash(hasher);
+        hasher.AddBoolean(false);
         foreach (StreamPosition position in snapshot.Streams)
         {
             hasher.AddInt32((int)position.Stream);
@@ -304,7 +306,7 @@ public sealed class SimulationTests
     [InlineData(MapRules.TicksPerStep)]
     public void ASnapshotWithStepTicksOutsideTheirRangeIsAnError(int ticks)
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
         RunSnapshot start = run.Snapshot();
         RunSnapshot broken = start with { Map = start.Map! with { StepTicks = ticks } };
@@ -317,7 +319,7 @@ public sealed class SimulationTests
     [Fact]
     public void ASnapshotWithAWorldTickAboveItsTickIsAnError()
     {
-        RunSnapshot start = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None).Snapshot();
+        RunSnapshot start = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None).Snapshot();
         RunSnapshot broken = start with { Tick = 5, WorldTick = 6 };
 
         Assert.Throws<ArgumentException>(() => broken.Check("the test"));
@@ -326,7 +328,7 @@ public sealed class SimulationTests
     [Fact]
     public void ASnapshotWithAnAbsentStreamIsAnError()
     {
-        RunSnapshot start = Simulation.Start(Seed, TestMaps.Room, DebugIntentHandlers.None).Snapshot();
+        RunSnapshot start = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None).Snapshot();
         RunSnapshot broken = start with { Streams = [start.Streams[0]] };
 
         ArgumentException error = Assert.Throws<ArgumentException>(() => broken.Check("the test"));
@@ -337,7 +339,7 @@ public sealed class SimulationTests
     [Fact]
     public void ARunHoldsNoStreamOfAnotherNumber()
     {
-        RunState state = RunState.Start(Seed, TestMaps.Room);
+        RunState state = RunState.Start(Seed, TestMaps.Room, TestBattles.Content);
 
         Assert.Throws<ArgumentOutOfRangeException>(() => state.Stream((StreamId)99));
     }

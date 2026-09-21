@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
@@ -14,13 +15,13 @@ namespace TheThingBelow.Debug.Commands;
 /// (D-260, D-492).
 /// </summary>
 /// <remarks>
-/// Two commands change the run. The `reveal` command marks every tile of the map as walked
-/// (D-567), and the `flee` command ends the encounter and starts the grace time of that
-/// enemy (D-381, D-749). Three commands report and change nothing: `help`, `hash`, and
-/// `where` (D-724).
+/// Six commands change the run. The `reveal` command marks every tile of the map as walked
+/// (D-567). The five battle commands take the turn of a character until the battle screen of
+/// PR-10: `attack`, `defend`, `step`, `item`, and `flee` (D-767). Four commands report and
+/// change nothing: `help`, `hash`, `where`, and `battle` (D-724).
 /// <para>
-/// PR-9 builds the fight, and it replaces the `flee` command with the flee of the battle
-/// rules (D-378, D-749).
+/// PR-9 replaced the `flee` command of PR-8, which ended an encounter with no battle, with the
+/// flee of the battle rules (D-378, D-767).
 /// </para>
 /// <para>
 /// Each later PR that gives the rules a new value adds its own commands here, such as the
@@ -41,8 +42,23 @@ public static class DebugCommands
     /// <summary>The name of the command that gives the place of the party.</summary>
     public const string WhereName = "where";
 
-    /// <summary>The name of the command that ends the encounter as a flee (D-749).</summary>
+    /// <summary>The name of the command that attacks one enemy (D-767).</summary>
+    public const string AttackName = "attack";
+
+    /// <summary>The name of the command that defends (D-755, D-767).</summary>
+    public const string DefendName = "defend";
+
+    /// <summary>The name of the command that steps to the other row (D-380, D-767).</summary>
+    public const string StepName = "step";
+
+    /// <summary>The name of the command that uses an item on one character (D-767, D-780).</summary>
+    public const string ItemName = "item";
+
+    /// <summary>The name of the command that tries to flee (D-378, D-767).</summary>
     public const string FleeName = "flee";
+
+    /// <summary>The name of the command that reports the battle (D-767).</summary>
+    public const string BattleName = "battle";
 
     // The order of this list is the order of `help`, and it never follows a hash of a name
     // (G-4). The list is short, so a walk of it reads better than a map of one entry (T-1).
@@ -53,11 +69,22 @@ public static class DebugCommands
             "marks every tile of the map as walked",
             DebugCommandIds.RevealMap,
             RevealMap),
-        DebugCommand.OfIntent(
-            FleeName,
-            "ends the encounter as a flee, and starts the grace time",
-            DebugCommandIds.FleeEncounter,
-            FleeEncounter),
+        DebugCommand.OfAimedIntent(
+            AttackName,
+            "attacks the enemy of one slot on the turn of a character",
+            DebugCommandIds.BattleAttack,
+            Attack,
+            BattleSide.Enemy),
+        DebugCommand.OfIntent(DefendName, "defends on the turn of a character", DebugCommandIds.BattleDefend, Defend),
+        DebugCommand.OfIntent(StepName, "steps to the other row on the turn of a character", DebugCommandIds.BattleStep, Step),
+        DebugCommand.OfAimedIntent(
+            ItemName,
+            "uses the first item of the pack on the character of one slot",
+            DebugCommandIds.BattleItem,
+            UseItem,
+            BattleSide.Party),
+        DebugCommand.OfIntent(FleeName, "tries to flee on the turn of a character", DebugCommandIds.BattleFlee, Flee),
+        DebugCommand.OfReport(BattleName, "gives each combatant, the turn, and the strip", BattleOf),
         DebugCommand.OfReport(HashName, "gives the state hash of the run", HashOf),
         DebugCommand.OfReport(WhereName, "gives the tick and the place of the party", PlaceOf),
         DebugCommand.OfReport(HelpName, "lists every command", HelpOf),
@@ -113,7 +140,7 @@ public static class DebugCommands
     /// Marks every tile of the map as walked (D-567). The map HUD of PR-64 draws the record
     /// of the walked tiles, so the command shows the whole map.
     /// </summary>
-    private static void RevealMap(RunState state, RunContext context, List<LogEntry> log)
+    private static void RevealMap(RunState state, Intent intent, RunContext context, List<LogEntry> log)
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(context);
@@ -129,47 +156,78 @@ public static class DebugCommands
         }
     }
 
+    private static void Attack(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>
+        ActOrWarn(state, new BattleChoice(BattleAction.Attack, intent.Target, null), context, log);
+
+    private static void Defend(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>
+        ActOrWarn(state, new BattleChoice(BattleAction.Defend, null, null), context, log);
+
+    private static void Step(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>
+        ActOrWarn(state, new BattleChoice(BattleAction.Step, null, null), context, log);
+
+    private static void UseItem(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>
+        ActOrWarn(state, new BattleChoice(BattleAction.Item, intent.Target, intent.Item), context, log);
+
+    private static void Flee(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>
+        ActOrWarn(state, new BattleChoice(BattleAction.Flee, null, null), context, log);
+
     /// <summary>
-    /// Ends the encounter as a flee, and starts the grace time of that enemy (D-381, D-748,
-    /// D-749). PR-9 builds the fight, and the flee of the battle rules then takes this path.
+    /// Takes the turn of a character with one choice. A person can type a battle command with
+    /// no battle, on the turn of an enemy, or at a slot that melee does not reach. That is a fault
+    /// of the person and never of the build, so the command changes nothing and writes a warning
+    /// with the reason (D-179, T-2). The smoke session and a bot of PR-15 send every command.
     /// </summary>
-    /// <remarks>
-    /// A person can type the command while no encounter runs, and that is a fault of the
-    /// person and never a fault of the build. Thus the command changes nothing and writes a
-    /// warning that names the map and the tick, and the run holds (D-179, T-2). A bot of
-    /// PR-15 sends every command of the list, so a stop here would end each bot run.
-    /// </remarks>
-    private static void FleeEncounter(RunState state, RunContext context, List<LogEntry> log)
+    private static void ActOrWarn(RunState state, BattleChoice choice, RunContext context, List<LogEntry> log)
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(log);
 
-        MapPatrols patrols = state.Party.Patrols;
-        if (patrols.Encounter is null)
+        string? refusal = BattleTurns.RefusalOf(state, choice);
+        if (refusal is not null)
         {
             log.Add(new LogEntry(
                 LogLevel.Warning,
-                $"the command '{FleeName}' found no encounter, and it changed nothing",
+                $"the command found {refusal}, and it changed nothing",
                 state.Tick,
                 LogSubsystems.Run,
-                [
-                    new LogField("map", state.Party.Map.Id.Value),
-                    new LogField("context", context.Describe()),
-                ]));
+                [new LogField("context", context.Describe())]));
             return;
         }
 
-        ContentId enemy = patrols.Flee();
-        log.Add(new LogEntry(
-            LogLevel.Info,
-            "the party fled an encounter and the grace time started",
-            state.Tick,
-            LogSubsystems.Run,
-            [
-                new LogField("enemy", enemy.Value),
-                LogField.OfNumber("grace", MapRules.GraceTicks),
-            ]));
+        BattleTurns.Act(state, choice, context, log);
+    }
+
+    /// <summary>Gives each combatant with its slot, the combatant whose turn it is, and the strip (D-756, D-767).</summary>
+    private static string BattleOf(RunState state)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+
+        if (state.Battle is not Battle battle)
+        {
+            return "no battle runs";
+        }
+
+        List<string> lines = [$"the battle of '{battle.Group.Id.Value}' is {Battle.OutcomeName(battle.Outcome)}"];
+        foreach (Combatant combatant in battle.All())
+        {
+            lines.Add(
+                $"{combatant.Target.Describe()}: {combatant.Id.Value}, health {combatant.Health} of {combatant.FullHealth}, "
+                + $"{BattleSides.NameOf(combatant.Row)} row, {Battle.PlaceName(combatant.Place)}, next turn at {combatant.ReadyAt}");
+        }
+
+        if (battle.Outcome == BattleOutcome.Running && battle.Next() is Combatant next)
+        {
+            List<string> strip = [];
+            foreach (BattleTarget turn in battle.Strip(state.BattleContent.Rules, state.Context("console/battle")))
+            {
+                strip.Add(turn.Describe());
+            }
+
+            lines.Add($"the turn of {next.Target.Describe()}, then {string.Join(", ", strip)}");
+        }
+
+        return string.Join(DebugSession.LineBreak, lines);
     }
 
     /// <summary>Gives the state hash of the run, which a replay compares (G-5).</summary>

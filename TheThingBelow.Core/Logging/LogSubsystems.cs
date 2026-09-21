@@ -19,4 +19,7 @@ public static class LogSubsystems
 
     /// <summary>The host: the boot, the files of the person, and a crash (D-100, D-170).</summary>
     public const string Game = "game";
+
+    /// <summary>The battle: each action, each down, and the end of an encounter (D-168, D-532).</summary>
+    public const string Battle = "battle";
 }

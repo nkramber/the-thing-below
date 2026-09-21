@@ -37,7 +37,7 @@ Built by PR-9. Phase file: `phase-2-first-playable.md`.
 - Up to six enemies stand against them, from the group of the encounter (D-31, D-535).
 - Each side has a front row and a back row (D-377). A character or an enemy stands in one row.
 - The party window of PR-62 sets the starting row of each character, and the snapshot keeps it (D-558).
-- Melee reaches the front row alone, while anyone stands in it. Shot drills and rites reach either row (D-377).
+- Melee reaches the front row alone, while anyone stands in it. Shot drills and rites reach either row (D-377). A melee attack from the back row deals half damage (D-779).
 - The map pauses while the fight runs, and one run holds both states (D-531).
 - Whoever reached the other from behind acts first (D-265).
 - The encounter ends in a win, a flee, or a wipe (D-36, D-378).
@@ -49,12 +49,13 @@ Built by PR-9. Phase file: `phase-2-first-playable.md`.
 Built by PR-9. Phase file: `phase-2-first-playable.md`.
 
 - Each action pushes its user back on the timeline by an amount that the action and the speed of the user set (D-376).
-- The strip shows the next several turns, so each choice reads before the player makes it (D-29, D-376). OQ-125 holds how many turns it shows.
+- The strip shows the next several turns, so each choice reads before the player makes it (D-29, D-376). It shows six turns (D-756).
 - A heavy action pushes further, haste shortens each push, and slow lengthens it (D-29, D-376).
 - A stun pushes an enemy back on the strip (D-376).
 - A fast character can act twice before a slow one, which the balance of PR-30 must hold (D-376, M-4).
 - The delays count ticks, and Core computes them with integer math alone (D-164, D-169, G-2).
-- OQ-126 holds where the delay of each action lives.
+- Content holds the delay of each action and each item (D-757). The push is the delay times 100, divided by the speed, and haste and slow multiply it (D-768).
+- On one ready tick, the higher speed acts first, then the party, then the lower slot (D-769). The side that came from behind starts at tick 0 (D-770).
 - Property tests over one thousand seeds prove that the timeline never stalls (the exit tests of PR-9).
 
 > *In plain English:* turn order is a strip across the top that you can read ahead. A heavy swing buys its power with a longer wait.
@@ -69,8 +70,8 @@ Built by PR-9. Phase file: `phase-2-first-playable.md`.
 - Any character can use an item on their turn, and the use costs an action. An item restores less in a fight than outside one (D-382).
 - A character can step to the other row, and the step costs a light delay (D-380).
 - Any character can try to flee. The chance rises with the speed of the party, a failure costs the turn, and no party flees from a boss (D-378).
-- After a flee, the group returns to its route, and no fight with it starts for a short grace time (D-381). OQ-133 holds the numbers.
-- OQ-124 holds whether a character can defend.
+- After a flee, the group returns to its route, and no fight with it starts for a short grace time (D-381). The grace time is 300 ticks (D-748). The flee chance reads the speed gap of the two sides (D-763).
+- A character can defend, which cuts the damage until the next turn of that character (D-755).
 
 > *In plain English:* attack, use a rite or a drill, take an item, change row, or flee. A flight is always possible, never free, and never open against a boss.
 
@@ -96,7 +97,7 @@ Built by PR-9. Phase file: `phase-2-first-playable.md`.
 - A fallen character stays down until a hub or a rare item (D-36). A down is a battle fact, and no story line names it (D-135).
 - A downed character earns half experience, as a character in reserve does (D-73, D-387).
 - When every character who fights goes down, the party wipes, even with a healthy reserve (D-336, D-397).
-- A wipe reloads the newer of the slot save and the autosave (D-231).
+- A wipe reloads the newer of the slot save and the autosave (D-231). With no save, the run starts again from its start (D-776).
 - The wipe screen drains to dark and shows one terse line, and a press reloads (D-225).
 - The wipe sting plays before the reload (D-422).
 - A dungeon visit with a down runs short-handed, and the reserve waits for a save point or a hub (D-58, F-7).
@@ -125,10 +126,10 @@ Built by PR-11 and PR-9. Phase file: `phase-2-first-playable.md`.
 - Every profile validates at load, and a profile that can never act fails that load (G-21, T-2). OQ-128 holds what makes a profile unable to act.
 - Each profile carries a steal list of items and some gold, and a human enemy carries what a person carries (D-383). OQ-129 holds the chance of a steal.
 - A group file for each region holds each enemy group: its enemies, their rows, and their profiles (D-535).
-- A map names a group by its id, and a test proves that each named group exists (D-528, D-535).
+- A map names a group by its id, and a test proves that each named group exists (D-528, D-535). PR-9 holds that test on its fixture group file, and PR-11 grows the file (D-766).
 - PR-11 proves the evaluator on fixture profiles, and PR-17 writes the profiles of the first playable.
 - PR-80 holds the enemy record: the stats of each enemy and the ids of its abilities. PR-66 adds the element table to it (D-557).
-- OQ-132 holds what a group larger than its rows does.
+- A group holds up to twelve enemies. Up to six stand on the field, in any split of the two rows. An entry that waits steps in when an enemy falls (D-758 to D-762, D-778).
 
 > *In plain English:* each kind of enemy weighs the same choices differently, so a brute and a healer act unlike each other. The groups they come in live in one file for each region.
 
@@ -154,7 +155,7 @@ Built by PR-9 and PR-10. Phase file: `phase-2-first-playable.md`.
 - Game takes the next command when the queue is empty, and no wait intent enters a fight (D-532).
 - A test proves that the queue always drains, because the input gate lives in Game (T-2, D-532).
 - A bot and a replay send their intents at full speed, because no effect holds the rules (D-532, D-64).
-- The map waits for the screen only at the end of the fight, through the wait intent of D-522.
+- The map waits for the screen only at the end of the fight, through the wait intent of D-522. Game sends it when the queue drains after a win or a flee.
 - No rule reads the length of an effect (D-522, `area-effects.md` section 7.1).
 
 > *In plain English:* the rules settle a blow at once, and the screen then shows it. The game waits for your next order only after the picture catches up.
@@ -192,7 +193,7 @@ Built by PR-9, PR-11, and PR-15. Phase files: `phase-2-first-playable.md` and ev
 
 | PR | Rules | Decisions |
 |---|---|---|
-| PR-9 | The timeline, the actions, the damage, the rows, the flee, the row change, and the item use | D-376 to D-382, D-533 |
+| PR-9 | The timeline, the actions, the defend, the damage, the rows, the wave, the flee, the row change, and the item use | D-376 to D-382, D-533, D-755 to D-781 |
 | PR-66 | The eight elements and the ten statuses | D-74, D-75, D-390, D-533 |
 | PR-10 | The battle screen | D-111, D-213 |
 | PR-11 | The evaluator, the profiles, and the groups | D-65, D-534, D-535 |
@@ -253,15 +254,15 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 
 The register is `docs/questions.md` (D-19). These questions block battle PRs, and each PR asks its questions when it starts (D-487):
 
-- OQ-124: a defend action. Blocks PR-9.
-- OQ-125: how many turns the timeline strip shows. Blocks PR-9 and PR-10.
-- OQ-126: where the delay of each action lives. Blocks PR-9.
+- OQ-124: a defend action. Resolved by D-755.
+- OQ-125: how many turns the timeline strip shows. Resolved by D-756.
+- OQ-126: where the delay of each action lives. Resolved by D-757.
 - OQ-127: the tie-break of two equal scores. Blocks PR-11.
 - OQ-128: what makes a profile unable to act. Blocks PR-11.
 - OQ-129: the chance of a steal, and the cost of a failure. Blocks PR-11.
 - OQ-130: what starts a boss phase. Blocks PR-20.
 - OQ-131: how the screen shows the health of an enemy. Blocks PR-10.
-- OQ-132: a group larger than its rows. Blocks PR-9.
-- OQ-133: the flee chance and the grace time. Blocks PR-9.
+- OQ-132: a group larger than its rows. Resolved by D-758.
+- OQ-133: the flee chance and the grace time. Resolved by D-748 and D-763.
 
 No open question blocks this file.

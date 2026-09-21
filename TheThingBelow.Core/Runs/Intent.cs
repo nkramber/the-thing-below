@@ -1,4 +1,5 @@
 using System;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 
 namespace TheThingBelow.Core.Runs;
@@ -16,12 +17,18 @@ namespace TheThingBelow.Core.Runs;
 /// command still replays and the record says so (D-171). A host with no handler for that
 /// action refuses the record, and the report names the intent and the tick (D-492, T-2).
 /// </para>
+/// <para>
+/// A battle intent names its target, and an item use names its item too (D-764, D-780).
+/// Every other intent carries neither.
+/// </para>
 /// </remarks>
 /// <param name="Action">The id of the choice, such as `intent.open_menu`.</param>
 /// <param name="IsDebug">
 /// True when the debug console of a development build made the intent (D-171, D-260).
 /// </param>
-public sealed record Intent(ContentId Action, bool IsDebug)
+/// <param name="Target">The side and the slot that a battle intent aims at, or no value (D-764).</param>
+/// <param name="Item">The item of an item use, or no value (D-780).</param>
+public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target = null, ContentId? Item = null)
 {
     /// <summary>Makes an intent that the player made through a screen of the game.</summary>
     /// <param name="action">The id of the choice, such as `intent.open_menu`.</param>
@@ -45,7 +52,39 @@ public sealed record Intent(ContentId Action, bool IsDebug)
         return new Intent(action, true);
     }
 
+    /// <summary>Makes a battle intent that the player made, with its target and its item (D-764, D-780).</summary>
+    /// <param name="action">The id of the choice, such as `intent.battle_attack`.</param>
+    /// <param name="target">The target, or no value.</param>
+    /// <param name="item">The item, or no value.</param>
+    /// <returns>The intent, with no debug mark.</returns>
+    /// <exception cref="ArgumentNullException">The action is null (T-2).</exception>
+    public static Intent OfPlayer(ContentId action, BattleTarget? target, ContentId? item)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+
+        return new Intent(action, false, target, item);
+    }
+
+    /// <summary>Makes a battle intent that the debug console made, with its target and its item (D-767).</summary>
+    /// <param name="action">The id of the command, which a host handler reads (D-260).</param>
+    /// <param name="target">The target, or no value.</param>
+    /// <param name="item">The item, or no value.</param>
+    /// <returns>The intent, with the debug mark.</returns>
+    /// <exception cref="ArgumentNullException">The action is null (T-2).</exception>
+    public static Intent OfDebugConsole(ContentId action, BattleTarget? target, ContentId? item)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+
+        return new Intent(action, true, target, item);
+    }
+
     /// <summary>Gives the intent as one line for an error message and a log line (T-2).</summary>
-    /// <returns>The action, and the debug mark when the intent carries one.</returns>
-    public string Describe() => this.IsDebug ? $"{this.Action.Value} (debug)" : this.Action.Value;
+    /// <returns>The action, the item, the target, and the debug mark, each when the intent carries it.</returns>
+    public string Describe()
+    {
+        string target = this.Target is BattleTarget aimed ? $" at {aimed.Describe()}" : string.Empty;
+        string item = this.Item is ContentId used ? $" with {used.Value}" : string.Empty;
+        string mark = this.IsDebug ? " (debug)" : string.Empty;
+        return $"{this.Action.Value}{item}{target}{mark}";
+    }
 }
