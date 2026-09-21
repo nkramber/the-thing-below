@@ -1,5 +1,41 @@
 # Session handoff archive
 
+## Session 180: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-10, round 3. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: author. Base: `8b10888`.
+
+### What this session did, and why
+
+- The owner approved the art batch and played a fight on screen (D-834).
+- A win shows no line, and PR-67 builds the summary of the loot and the level-ups after a fight, with loot from PR-13 and PR-65 (D-835). `battle.won` left the table.
+- The step reads "Back up" in the front row and "Step forward" in the back row, and the step lines use the same words (D-836). `BattleCommands.ActorRow` holds the row.
+- The roadmap blocks of PR-67, PR-13, and PR-65 gained the summary, and the PR-10 block gained D-835 and D-836.
+
+### The state of the build
+
+- Round 2 head `601bfb0`: Gitar found no issue, and every CI job passed except the review gate, which waits for `docs/reviews/pr-51.md`.
+- This round: 1781 tests, format, lint, smoke, and the STE check pass on this machine. The author read the new `battle-menu-1x` frame.
+- The two menu baselines change with the new label, so the screen-test job of this push fails until round 4 commits them.
+
+### What is in flight
+
+- The CI run and the Gitar pass of the round-3 push.
+- The owner approval of the rest of the text batch.
+
+### Traps and gotchas
+
+- `make sheet` can fail on "The InputMap action ... doesn't exist" when an input event reaches the capture window. The capture session builds no input map, and `Boot` reads the held steps before it checks the run. The fault predates PR-10, and CI has no input. Keep the mouse off the window.
+- Each round of a session adds its own handoff entry.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the two `battle-menu-*` baselines from the `screen-captures` artifact of this push. Then follow the `gitar-review` skill, and tell the owner that PR #51 is ready for the other provider.
+
 ## Session 179: 2026-09-21, Claude Code
 
 Author: Claude Code
