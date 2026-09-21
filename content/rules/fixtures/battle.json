@@ -1,5 +1,5 @@
 {
- "comment": "The fixture of the battle core (D-765, D-766, D-775, D-777). PR-67, PR-80, PR-11, and PR-13 replace each part, and each id stays.",
+ "comment": "The fixture of the battle core (D-765, D-766, D-775, D-777, D-781). PR-67, PR-80, PR-11, and PR-13 replace each part, and each id stays.",
  "characters": [
   {
    "id": "character.marrek",
@@ -40,9 +40,6 @@
    "boss": false,
    "enemies": [
     { "enemy": "enemy.fixture_brute", "row": "front", "waits": false },
-    { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false },
-    { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false },
-    { "enemy": "enemy.fixture_grunt", "row": "front", "waits": true },
     { "enemy": "enemy.fixture_grunt", "row": "front", "waits": true }
    ]
   }

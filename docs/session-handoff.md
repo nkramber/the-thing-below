@@ -1,5 +1,43 @@
 # Session handoff
 
+## Session 158: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: PR-9, the battle core and the timeline. Repository: the-thing-below. Branch: `feat/pr-9-battle-core`. PR: #46. Role: author. Base: `c6cc71c`.
+
+### What this session did, and why
+
+- Asked the five open questions and each gap that the code showed. D-755 to D-781 hold the answers.
+- Built the battle in Core: the timeline, five actions, the rows, the wave, the wipe, and the wait intent.
+- Added content files, record format 2, save format 4, simulation version 7, and a battle identity run.
+- Replaced the `flee` command with five battle commands. Game drains the event queue, and a wipe reloads.
+- Found and fixed a snapshot that shared the pack array. `ASnapshotKeepsTheCountOfThePackOfItsTick` guards it.
+- Measured the fixture fights over 1000 seeds, and D-781 corrected the elite.
+
+### The state of the build
+
+- `make verify` passes locally with 1485 tests, the smoke battle included.
+- The remote head is the push of this entry. CI and gitar have not run yet.
+
+### What is in flight
+
+The first push, the PR, and the gitar pass. The Codex review follows.
+
+### Traps and gotchas
+
+- A snapshot must copy each list of the live state. A shared list changes the start of a record.
+- The smoke battle wipes on the fixture seed, so it runs the reload path. A test covers a flee.
+- `TestBattles` holds its own rules and groups. A change in `content/` moves no test.
+- The owner asked for a separate PR after PR-9: a texture fault on a walk north or south, and capture frames inside a step.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, open PR #46, and follow the `gitar-review` skill.
+
 ## Session 157: 2026-09-21, Codex
 
 Author: Codex
@@ -334,50 +372,3 @@ None. OQ-115 blocks PR-8 alone.
 ### The next concrete action
 
 Fetch and verify that the review-gate check is green and that no branch commits remain ahead of the remote.
-
-## Session 148: 2026-09-20, Claude Code
-
-Author: Claude Code
-Session: PR-45, the debug assembly and the console. Repository: the-thing-below. Branch: `feat/pr-45-debug-assembly`. Role: author. Base: `ea2fec5`.
-
-### What this session did, and why
-
-- Asked the six questions of PR-45 first, and the owner answered each one (D-723 to D-728). Section 7.4 said "None", and the seam, the command set, the key, the proof of a release export, the kind of a debug id, and one stale file each needed an answer.
-- `TheThingBelow.Debug` is the sixth project. It holds the four commands, the console screen, and one entry type (D-260, D-723, D-724).
-- Game references it outside the `ExportRelease` configuration, and `DebugSeam` loads it by name. Thus no conditional compilation enters Game or Core, and F-27 of `area-core.md` closes (D-723).
-- The backquote key opens the console, the world keeps its ticks, and the game makes no intent while the console is open (D-725).
-- det-lint reads the commands folder with the float, clock, and OS random rules, because a handler changes a run inside a tick (D-724, T-7).
-- The smoke session builds the console, reads the focus, and runs every command inside the engine. A release export reports an absent console, and the export job reads the file names of each build too (D-726).
-
-### The state of the build
-
-- `make verify` passes on the Mac: 1213 tests, the format check, det-lint and STE with 0 findings, the replay identity, the content hash, the atlas check, and the smoke session.
-- No file of Core changed, so the simulation version stands at 5 (G-17).
-- The remote head of `main` is `ea2fec5`. The branch holds four commits, and the effective head is `fd9e0ae`.
-- CI passes on `fd9e0ae` on every leg: build, test, and format, smoke, replay identity, det-lint, ste-check, and coverage.
-- The export job passes on Ubuntu, Windows, and macOS. Each export holds no file of the debug assembly, and each release build reports an absent console (D-726). The job runs on this pull request, because the pull request changes the export workflow and the project file of Game (D-699).
-
-### What is in flight
-
-The pull request is #43, and it waits for the review of Codex at the effective head `fd9e0ae`.
-
-The gitar pass of `fd9e0ae` approved the code review, and it closed its one finding. That finding was a stale comment paragraph of `DescribeConsole`, which the move of the console check behind the seam left. The commit `fd9e0ae` drops it, and the answer sits on the thread of `TheThingBelow.Game/scripts/Boot.cs`.
-
-The `review-gate` check gives one fault, RG 3, because the head holds no `docs/reviews/pr-43.md`. That fault clears with the review record. RG 1, RG 2, RG 6, RG 7, and RG 8 pass.
-
-### Traps and gotchas
-
-- The seam is text and reflection, so a rename on one side alone gives no compile error. `DebugSeamTests` reads each name from the built Game assembly and finds each member of the entry (D-723).
-- The debug project takes no Godot source generator, so no type of it derives from a Godot node. The console builds engine nodes and connects to their signals.
-- Tests references neither Game nor the debug project. It loads each built assembly from a path that the project file writes (D-614).
-- The key press needs a play session. The smoke session covers the load, the nodes, the focus, the typed line, and every command, and PR-41 adds the screen test.
-- The export job runs on this pull request, because the pull request changes the export workflow and the project file of Game (D-699).
-- `dotnet build TheThingBelow.Game/TheThingBelow.Game.csproj --configuration ExportRelease` writes a release output, and that folder holds no debug assembly.
-
-### The questions that block progress
-
-None. OQ-115 blocks PR-8 alone.
-
-### The next concrete action
-
-Start the review of PR #43 at the effective head `fd9e0ae`.

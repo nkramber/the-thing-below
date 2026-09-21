@@ -37,6 +37,18 @@ Facts checked on 2026-09-12:
 4. A command that changes the run enters the run record with its debug mark, so the run still replays (D-171).
 5. A release export holds no console, because it references no debug assembly (D-260, D-492).
 
+## A battle before the battle screen
+
+The battle screen lands in PR-10. Until then, the console takes the turn of a character, and the log shows each event (D-767).
+
+1. Walk into an enemy, or let an enemy see the party. The map stops, and a battle starts (D-531).
+2. Open the console, and type `battle`. The answer gives each combatant with its slot, and the next six turns (D-756).
+3. Type `attack 0` to attack the enemy of slot 0. Melee reaches the front row while anyone stands in it (D-377).
+4. Type `defend`, `step`, `flee`, or `item 0` for the other actions of the turn (D-755, D-767).
+5. A command on the turn of no character changes nothing, and the log file names the reason (T-2).
+6. After a win or a flee, the map runs again when the log shows every event (D-522).
+7. After a wipe, the run starts again from its start, because no save exists before PR-16 (D-776).
+
 ## The Steam Deck
 
 1. Put the Deck in desktop mode and enable SSH, or copy the Linux export by USB.

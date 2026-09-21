@@ -97,7 +97,7 @@ Built by PR-9. Phase file: `phase-2-first-playable.md`.
 - A fallen character stays down until a hub or a rare item (D-36). A down is a battle fact, and no story line names it (D-135).
 - A downed character earns half experience, as a character in reserve does (D-73, D-387).
 - When every character who fights goes down, the party wipes, even with a healthy reserve (D-336, D-397).
-- A wipe reloads the newer of the slot save and the autosave (D-231).
+- A wipe reloads the newer of the slot save and the autosave (D-231). With no save, the run starts again from its start (D-776).
 - The wipe screen drains to dark and shows one terse line, and a press reloads (D-225).
 - The wipe sting plays before the reload (D-422).
 - A dungeon visit with a down runs short-handed, and the reserve waits for a save point or a hub (D-58, F-7).
@@ -155,7 +155,7 @@ Built by PR-9 and PR-10. Phase file: `phase-2-first-playable.md`.
 - Game takes the next command when the queue is empty, and no wait intent enters a fight (D-532).
 - A test proves that the queue always drains, because the input gate lives in Game (T-2, D-532).
 - A bot and a replay send their intents at full speed, because no effect holds the rules (D-532, D-64).
-- The map waits for the screen only at the end of the fight, through the wait intent of D-522.
+- The map waits for the screen only at the end of the fight, through the wait intent of D-522. Game sends it when the queue drains after a win or a flee.
 - No rule reads the length of an effect (D-522, `area-effects.md` section 7.1).
 
 > *In plain English:* the rules settle a blow at once, and the screen then shows it. The game waits for your next order only after the picture catches up.
@@ -193,7 +193,7 @@ Built by PR-9, PR-11, and PR-15. Phase files: `phase-2-first-playable.md` and ev
 
 | PR | Rules | Decisions |
 |---|---|---|
-| PR-9 | The timeline, the actions, the damage, the rows, the flee, the row change, and the item use | D-376 to D-382, D-533 |
+| PR-9 | The timeline, the actions, the defend, the damage, the rows, the wave, the flee, the row change, and the item use | D-376 to D-382, D-533, D-755 to D-781 |
 | PR-66 | The eight elements and the ten statuses | D-74, D-75, D-390, D-533 |
 | PR-10 | The battle screen | D-111, D-213 |
 | PR-11 | The evaluator, the profiles, and the groups | D-65, D-534, D-535 |

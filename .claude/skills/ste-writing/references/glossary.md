@@ -33,6 +33,13 @@ Game terms from the roadmap interview of 2026-09-12:
 | turn | one action of one combatant on the timeline | move, round |
 | save point | the place in a dungeon that saves and swaps the party (D-36, D-58) | checkpoint, shrine, in documents |
 | down | the state of a fallen character (D-36) | dead, KO, unconscious |
+| push | the ticks that one action adds to the next turn of its user (D-376, D-768) | cooldown, recovery |
+| delay | the number of an action in content that a push reads, in ticks at speed 100 (D-757) | cost, speed cost |
+| slot | the place of a combatant on its side, from zero (D-764) | position, index, in prose |
+| field | the enemies that stand in a battle, six at most (D-759) | board, arena |
+| wave | the waiting enemies of a group, which step in as others fall (D-758, D-778) | reinforcement, spawn |
+| strip | the six turns of the timeline that the screen shows (D-756) | bar, queue |
+| defend | the action that cuts the damage until the next turn of the character (D-755) | guard, which names a lesson kind (D-377), block |
 | gear | items in equipment slots (D-44) | equipment, armor, as the set |
 | item | a thing in the inventory that is not gear (D-45) | consumable, object |
 | gold | the currency (D-60) | money, coins, gil |
