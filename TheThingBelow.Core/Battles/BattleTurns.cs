@@ -69,7 +69,7 @@ public static class BattleTurns
         }
 
         Battle battle = RunningBattle(state, context);
-        Combatant actor = StartTurn(battle, BattleSide.Party, context);
+        Combatant actor = ActorOf(battle, BattleSide.Party, context);
         BattleRules rules = state.BattleContent.Rules;
 
         switch (choice.Action)
@@ -152,32 +152,47 @@ public static class BattleTurns
         ArgumentNullException.ThrowIfNull(log);
 
         Battle battle = RunningBattle(state, context);
-        Combatant actor = StartTurn(battle, BattleSide.Party, context);
+        Combatant actor = ActorOf(battle, BattleSide.Party, context);
         Strike(state, battle, actor, move, target, context, log);
         RunUntilCharacter(state, battle, log);
     }
 
-    /// <summary>Sets the haste or slow of one combatant, which rates each later push (D-376, D-768). The statuses of PR-66 call it.</summary>
+    /// <summary>
+    /// Gives one status to one combatant on the field, with no roll (D-793). PR-12 gives a
+    /// status through a move, and the tests and the identity run call this. A stun that
+    /// takes the turn from the character whose turn it is lets the next turn run (D-802).
+    /// </summary>
     /// <param name="state">The run.</param>
     /// <param name="target">The combatant.</param>
-    /// <param name="pace">The pace.</param>
+    /// <param name="status">The status.</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <param name="log">The log entries of this tick (D-179).</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="SimulationException">No battle runs, or the target names no combatant (T-2).</exception>
-    public static void SetPace(RunState state, BattleTarget target, BattlePace pace, RunContext context)
+    /// <exception cref="SimulationException">No battle runs, or the target names no combatant on the field (T-2).</exception>
+    public static void GiveStatus(RunState state, BattleTarget target, StatusKind status, RunContext context, List<LogEntry> log)
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(log);
 
         Battle battle = RunningBattle(state, context);
-        BattleRules rules = state.BattleContent.Rules;
-        battle.At(target, context).PushRate = pace switch
+        Combatant holder = battle.At(target, context);
+        if (holder.Place != CombatantPlace.Field)
         {
-            BattlePace.Normal => BasisPoints.One,
-            BattlePace.Haste => rules.HasteRate,
-            BattlePace.Slow => rules.SlowRate,
-            _ => throw new SimulationException($"the pace {pace}, which names no rate (D-768)", context),
-        };
+            throw new SimulationException(
+                $"a status '{Statuses.NameOf(status)}' for {target.Describe()}, which is not on the field (D-801)",
+                context);
+        }
+
+        // A stun can push the character whose turn is open. That turn then ends, and the loop
+        // begins the next turn, which can be a new turn of the same character (D-802).
+        Combatant? open = battle.Next();
+        long? openAt = open?.ReadyAt;
+        Give(state, battle, holder, status, context);
+        if (!ReferenceEquals(battle.Next(), open) || open?.ReadyAt != openAt)
+        {
+            RunUntilCharacter(state, battle, log);
+        }
     }
 
     /// <summary>
@@ -279,11 +294,11 @@ public static class BattleTurns
     }
 
     /// <summary>
-    /// Starts the turn of the next combatant: the timeline moves to its tick, and its defend
-    /// ends (D-755). The side must match, because Game sends a choice on the turn of a
-    /// character alone (D-532).
+    /// Gives the combatant whose turn is open. <see cref="RunUntilCharacter"/> began that turn,
+    /// so the timeline stands at its tick. The side must match, because Game sends a choice on
+    /// the turn of a character alone (D-532).
     /// </summary>
-    private static Combatant StartTurn(Battle battle, BattleSide side, RunContext context)
+    private static Combatant ActorOf(Battle battle, BattleSide side, RunContext context)
     {
         Combatant actor = battle.Next()
             ?? throw new SimulationException("a turn, and no combatant stands on the field (T-2)", context);
@@ -294,28 +309,170 @@ public static class BattleTurns
                 context);
         }
 
-        battle.Now = actor.ReadyAt;
-        actor.Defending = false;
         return actor;
     }
 
+    /// <summary>
+    /// Runs each turn up to the turn of a character. Each turn begins before its actor acts,
+    /// so a character whose turn is open holds the next turn, and a battle at rest always
+    /// waits on the choice of that character (D-532).
+    /// </summary>
     private static void RunUntilCharacter(RunState state, Battle battle, List<LogEntry> log)
     {
         while (battle.Outcome == BattleOutcome.Running)
         {
             Combatant next = battle.Next()
                 ?? throw new SimulationException("a turn, and no combatant stands on the field (T-2)", state.Context("battle"));
+            RunContext context = state.Context($"battle/{next.Target.Describe()}");
+            if (!BeginTurn(state, battle, next, context, log))
+            {
+                continue;
+            }
+
             if (next.Side == BattleSide.Party)
             {
                 state.AddEvent(new BattleEvent(BattleEventKind.Turn, next.Target, null, 0));
                 return;
             }
 
-            RunContext context = state.Context($"battle/enemy {next.Slot}");
-            Combatant enemy = StartTurn(battle, BattleSide.Enemy, context);
-            EnemyTurn(state, battle, enemy, context, log);
+            EnemyTurn(state, battle, next, context, log);
         }
     }
+
+    /// <summary>
+    /// Begins the turn of the next combatant (D-755, D-798, D-799, D-802). The timeline moves
+    /// to its tick, each status whose end the timeline reached ends, and the defend of the
+    /// actor ends. Then poison, bleed, and regen act, in the order of D-75. A sleeper passes
+    /// its turn with one attack push.
+    /// </summary>
+    /// <returns>True when the actor acts, and false when a share put it down or it sleeps.</returns>
+    private static bool BeginTurn(RunState state, Battle battle, Combatant actor, RunContext context, List<LogEntry> log)
+    {
+        BattleRules rules = state.BattleContent.Rules;
+        battle.Now = actor.ReadyAt;
+        EndStatuses(state, battle);
+        actor.Defending = false;
+
+        TakeShare(state, battle, actor, StatusKind.Poison, rules.PoisonShare, context, log);
+        TakeShare(state, battle, actor, StatusKind.Bleed, rules.BleedShare, context, log);
+        if (actor.Place == CombatantPlace.Field && actor.Statuses.Holds(StatusKind.Regen))
+        {
+            int heal = ShareOf(actor, rules.RegenShare, context);
+            int restored = Math.Min(heal, actor.FullHealth - actor.Health);
+            actor.Health += restored;
+            state.AddEvent(new BattleEvent(BattleEventKind.StatusHeal, actor.Target, null, restored, StatusKind.Regen));
+        }
+
+        if (actor.Place != CombatantPlace.Field)
+        {
+            CheckEnd(state, battle, log);
+            return false;
+        }
+
+        if (actor.Statuses.Holds(StatusKind.Sleep))
+        {
+            state.AddEvent(new BattleEvent(BattleEventKind.Asleep, actor.Target, null, 0, StatusKind.Sleep));
+            PushBack(actor, rules.AttackDelay, context);
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>Ends each timed status whose end the timeline reached, for every combatant, in slot order and in the order of D-75 (D-798, G-4).</summary>
+    private static void EndStatuses(RunState state, Battle battle)
+    {
+        BattleRules rules = state.BattleContent.Rules;
+        foreach (Combatant combatant in battle.All())
+        {
+            foreach (StatusKind status in Statuses.All)
+            {
+                if (combatant.Statuses.EndOf(status) is long ends && ends <= battle.Now)
+                {
+                    combatant.Statuses.Remove(status);
+                    combatant.PushRate = Battle.PushRateOf(combatant, rules);
+                    state.AddEvent(new BattleEvent(BattleEventKind.StatusOff, combatant.Target, null, 0, status));
+                }
+            }
+        }
+    }
+
+    /// <summary>Takes the share of poison or bleed from the actor at the start of its turn, at least 1 (D-799, D-803).</summary>
+    private static void TakeShare(RunState state, Battle battle, Combatant actor, StatusKind status, int share, RunContext context, List<LogEntry> log)
+    {
+        if (actor.Place != CombatantPlace.Field || !actor.Statuses.Holds(status))
+        {
+            return;
+        }
+
+        int damage = Math.Min(ShareOf(actor, share, context), actor.Health);
+        actor.Health -= damage;
+        state.AddEvent(new BattleEvent(BattleEventKind.StatusHurt, actor.Target, null, damage, status));
+        if (actor.Health == 0)
+        {
+            FallDown(state, battle, actor, context, log);
+        }
+    }
+
+    /// <summary>Gives a share of the full health of a combatant, at least 1 (D-808).</summary>
+    private static int ShareOf(Combatant combatant, int share, RunContext context)
+    {
+        int amount = BasisPoints.Apply(combatant.FullHealth, share, context);
+        return amount < 1 ? 1 : amount;
+    }
+
+    /// <summary>
+    /// Puts one status on a combatant on the field (D-798, D-800, D-805, D-810). An enemy
+    /// that refuses the status takes nothing. Haste on a slowed holder removes the slow and
+    /// does not land, and slow on a hasted holder does the same. A stun on a holder with no
+    /// stun pushes its next turn.
+    /// </summary>
+    private static void Give(RunState state, Battle battle, Combatant holder, StatusKind status, RunContext context)
+    {
+        BattleRules rules = state.BattleContent.Rules;
+        if (Statuses.Refuses(holder.Immune, status))
+        {
+            state.AddEvent(new BattleEvent(BattleEventKind.Immune, holder.Target, null, 0, status));
+            return;
+        }
+
+        StatusKind? opposite = status switch
+        {
+            StatusKind.Haste => StatusKind.Slow,
+            StatusKind.Slow => StatusKind.Haste,
+            _ => null,
+        };
+        if (opposite is StatusKind cancelled && holder.Statuses.Holds(cancelled))
+        {
+            holder.Statuses.Remove(cancelled);
+            holder.PushRate = Battle.PushRateOf(holder, rules);
+            state.AddEvent(new BattleEvent(BattleEventKind.StatusOff, holder.Target, null, 0, cancelled));
+            return;
+        }
+
+        bool stunned = holder.Statuses.Holds(StatusKind.Stun);
+        long? ends = Statuses.Lasts(status) ? null : checked(battle.Now + TicksOf(rules, status, context));
+        holder.Statuses.Put(status, ends);
+        holder.PushRate = Battle.PushRateOf(holder, rules);
+        state.AddEvent(new BattleEvent(BattleEventKind.StatusOn, holder.Target, null, 0, status));
+        if (status == StatusKind.Stun && !stunned)
+        {
+            holder.ReadyAt = checked(holder.ReadyAt + rules.StunPush);
+        }
+    }
+
+    /// <summary>Gives the ticks that one timed status lasts (D-808).</summary>
+    private static int TicksOf(BattleRules rules, StatusKind status, RunContext context) => status switch
+    {
+        StatusKind.Sleep => rules.SleepTicks,
+        StatusKind.Slow => rules.SlowTicks,
+        StatusKind.Haste => rules.HasteTicks,
+        StatusKind.Stun => rules.StunTicks,
+        StatusKind.Bleed => rules.BleedTicks,
+        StatusKind.Regen => rules.RegenTicks,
+        StatusKind.Shell => rules.ShellTicks,
+        _ => throw new SimulationException($"the ticks of the status '{Statuses.NameOf(status)}', which lasts until a cure (D-390)", context),
+    };
 
     /// <summary>A basic attack on a legal target that the battle stream draws (D-774). The evaluator of PR-11 replaces the draw.</summary>
     private static void EnemyTurn(RunState state, Battle battle, Combatant enemy, RunContext context, List<LogEntry> log)
@@ -352,17 +509,34 @@ public static class BattleTurns
         else
         {
             int factor = stream.NextInt(rules.HitLow, rules.HitHigh, context);
-            int damage = Damage(rules, attacker, target, move.Power, factor, context);
-            target.Health = Math.Max(0, target.Health - damage);
-            state.AddEvent(new BattleEvent(BattleEventKind.Hit, attacker.Target, target.Target, damage));
-            if (target.Health == 0)
+            long hit = Hit(attacker, target, move.Power, factor);
+            Affinity affinity = move.Element is Element element ? target.Elements.Of(element) : Affinity.Normal;
+            if (affinity == Affinity.Absorb)
             {
-                FallDown(state, battle, target, context, log);
+                // D-795 and D-809: an absorb heals the hit times the absorb rate, and no cut applies.
+                int heal = ToHealth(hit * rules.AbsorbRate / BasisPoints.One, context);
+                int restored = Math.Min(heal, target.FullHealth - target.Health);
+                target.Health += restored;
+                state.AddEvent(new BattleEvent(BattleEventKind.Absorb, attacker.Target, target.Target, restored, null, affinity));
             }
-            else if (move.Stun)
+            else
             {
-                target.ReadyAt = checked(target.ReadyAt + rules.StunTicks);
+                int damage = Damage(rules, attacker, target, hit, affinity, move.Element is not null, context);
+                target.Health = Math.Max(0, target.Health - damage);
+                state.AddEvent(new BattleEvent(BattleEventKind.Hit, attacker.Target, target.Target, damage, null, affinity));
+                if (target.Health == 0)
+                {
+                    FallDown(state, battle, target, context, log);
+                }
+                else if (target.Statuses.Holds(StatusKind.Sleep))
+                {
+                    // D-802: the damage of a strike wakes a sleeper.
+                    target.Statuses.Remove(StatusKind.Sleep);
+                    state.AddEvent(new BattleEvent(BattleEventKind.StatusOff, target.Target, null, 0, StatusKind.Sleep));
+                }
             }
+
+            RollStatus(state, battle, target, move, stream, context);
         }
 
         PushBack(attacker, move.Delay, context);
@@ -370,16 +544,56 @@ public static class BattleTurns
     }
 
     /// <summary>
-    /// Gives the damage of one hit (D-771, D-772, D-779, D-755): the attack times the power,
-    /// times 100 over 100 plus the defense, times the hit factor. A melee attack from the back
-    /// row takes the back row rate, and a defend takes the cut. The result is at least 1.
+    /// Rolls the status of a move after a hit, on the battle stream (D-807). A move with no
+    /// status, a target that went down, and an enemy that refuses the status draw no roll.
     /// </summary>
-    private static int Damage(BattleRules rules, Combatant attacker, Combatant target, int power, int factor, RunContext context)
+    private static void RollStatus(RunState state, Battle battle, Combatant target, BattleMove move, RandomStream stream, RunContext context)
+    {
+        if (move.Status is not StatusChance chance || target.Place != CombatantPlace.Field)
+        {
+            return;
+        }
+
+        if (Statuses.Refuses(target.Immune, chance.Status))
+        {
+            state.AddEvent(new BattleEvent(BattleEventKind.Immune, target.Target, null, 0, chance.Status));
+            return;
+        }
+
+        if (stream.NextChance(chance.Chance, context))
+        {
+            Give(state, battle, target, chance.Status, context);
+        }
+    }
+
+    /// <summary>
+    /// Gives the hit of D-771 and D-772: the attack times the power, times 100 over 100 plus
+    /// the defense, times the hit factor, with no rate and no floor yet.
+    /// </summary>
+    private static long Hit(Combatant attacker, Combatant target, int power, int factor)
     {
         // Each factor is at most 100000, so the product stays inside a `long` (T-2).
         long numerator = checked((long)attacker.Attack * power * 100 * factor);
         long denominator = checked((long)BasisPoints.One * (100 + target.Defense) * BasisPoints.One);
-        long damage = numerator / denominator;
+        return numerator / denominator;
+    }
+
+    /// <summary>
+    /// Gives the damage of one hit, in the order of D-809: the hit, times the rate of the
+    /// affinity, then the back row rate of a melee attack from the back row (D-779), the
+    /// defend cut (D-755), and the shell cut of a move with an element (D-804). The result is
+    /// at least 1.
+    /// </summary>
+    private static int Damage(BattleRules rules, Combatant attacker, Combatant target, long hit, Affinity affinity, bool elemental, RunContext context)
+    {
+        long damage = affinity switch
+        {
+            Affinity.Normal => hit,
+            Affinity.Weak => checked(hit * rules.WeakRate) / BasisPoints.One,
+            Affinity.Resist => checked(hit * rules.ResistRate) / BasisPoints.One,
+            _ => throw new SimulationException($"the damage of a hit on the affinity '{Elements.NameOf(affinity)}', which heals (D-795)", context),
+        };
+
         if (attacker.Row == BattleRow.Back)
         {
             damage = damage * rules.BackRowRate / BasisPoints.One;
@@ -390,24 +604,38 @@ public static class BattleTurns
             damage = damage * (BasisPoints.One - rules.DefendCut) / BasisPoints.One;
         }
 
-        if (damage < 1)
+        if (elemental && target.Statuses.Holds(StatusKind.Shell))
         {
-            return 1;
+            damage = damage * (BasisPoints.One - rules.ShellCut) / BasisPoints.One;
         }
 
-        if (damage > int.MaxValue)
-        {
-            throw new SimulationException($"a hit of {damage}, which no `int` holds", context);
-        }
-
-        return (int)damage;
+        return damage < 1 ? 1 : ToHealth(damage, context);
     }
 
-    /// <summary>The miss chance of D-773: the base, plus the rate for each point that the target is faster, clamped.</summary>
+    private static int ToHealth(long amount, RunContext context)
+    {
+        if (amount > int.MaxValue)
+        {
+            throw new SimulationException($"a hit of {amount}, which no `int` holds", context);
+        }
+
+        return (int)amount;
+    }
+
+    /// <summary>
+    /// The miss chance of D-773: the base, plus the rate for each point that the target is
+    /// faster, clamped. Blind then adds its rate after the clamp, up to 10000 (D-806).
+    /// </summary>
     private static int MissChance(BattleRules rules, Combatant attacker, Combatant target)
     {
         long gap = (long)target.Speed - attacker.Speed;
-        return Clamp(rules.MissBase + (gap * rules.MissPerSpeed), rules.MissFloor, rules.MissCeiling);
+        int chance = Clamp(rules.MissBase + (gap * rules.MissPerSpeed), rules.MissFloor, rules.MissCeiling);
+        if (attacker.Statuses.Holds(StatusKind.Blind))
+        {
+            chance = Math.Min(BasisPoints.One, chance + rules.BlindMiss);
+        }
+
+        return chance;
     }
 
     /// <summary>The flee chance of D-763: the base, plus the rate for each point of the average speed of the party over the field, clamped.</summary>
@@ -487,13 +715,20 @@ public static class BattleTurns
     }
 
     /// <summary>
-    /// Puts a combatant down (D-36). A fallen enemy lets the next waiting enemy of the group
-    /// step into its row, one attack push out (D-761, D-778).
+    /// Puts a combatant down (D-36), and takes every status off it (D-801). A fallen enemy
+    /// lets the next waiting enemy of the group step into its row, one attack push out
+    /// (D-761, D-778).
     /// </summary>
     private static void FallDown(RunState state, Battle battle, Combatant fallen, RunContext context, List<LogEntry> log)
     {
         fallen.Place = CombatantPlace.Down;
         fallen.Defending = false;
+        foreach (StatusKind status in Statuses.All)
+        {
+            fallen.Statuses.Remove(status);
+        }
+
+        fallen.PushRate = BasisPoints.One;
         state.AddEvent(new BattleEvent(BattleEventKind.Down, fallen.Target, null, 0));
         log.Add(Entry(state, LogLevel.Info, "a combatant went down", [new LogField("combatant", fallen.Target.Describe())]));
 
@@ -548,13 +783,28 @@ public static class BattleTurns
         return false;
     }
 
-    /// <summary>Ends the battle, and copies the health of each character back to the party (D-36, D-765).</summary>
+    /// <summary>
+    /// Ends the battle, and copies the health of each character back to the party (D-36,
+    /// D-765). Poison, blind, and silence go back with it, and every other status ends with
+    /// the fight (D-390, D-792).
+    /// </summary>
     private static void End(RunState state, Battle battle, BattleOutcome outcome, List<LogEntry> log)
     {
         battle.Outcome = outcome;
         for (int slot = 0; slot < battle.Party.Count; slot += 1)
         {
-            state.Characters.Members[slot].Health = battle.Party[slot].Health;
+            Combatant character = battle.Party[slot];
+            List<StatusKind> lasting = [];
+            foreach (StatusKind status in Statuses.All)
+            {
+                if (Statuses.Lasts(status) && character.Statuses.Holds(status))
+                {
+                    lasting.Add(status);
+                }
+            }
+
+            state.Characters.Members[slot].Health = character.Health;
+            state.Characters.Members[slot].Statuses = lasting;
         }
 
         log.Add(Entry(state, LogLevel.Info, "a battle ended", [new LogField("outcome", Battle.OutcomeName(outcome))]));

@@ -32,12 +32,27 @@ internal static class TestBattles
      "back_row_rate": 5000,
      "haste_rate": 7500,
      "slow_rate": 15000,
-     "stun_ticks": 50,
+     "stun_push": 50,
      "flee_base": 5000,
      "flee_per_speed": 100,
      "flee_floor": 1000,
      "flee_ceiling": 9000,
-     "item_rate": 5000
+     "item_rate": 5000,
+     "weak_rate": 15000,
+     "resist_rate": 5000,
+     "absorb_rate": 10000,
+     "poison_share": 500,
+     "bleed_share": 1000,
+     "bleed_ticks": 300,
+     "regen_share": 1000,
+     "regen_ticks": 400,
+     "sleep_ticks": 300,
+     "haste_ticks": 400,
+     "slow_ticks": 400,
+     "stun_ticks": 50,
+     "shell_cut": 5000,
+     "shell_ticks": 400,
+     "blind_miss": 3000
     }
     """;
 
@@ -127,7 +142,9 @@ internal static class TestBattles
      "attack": 8,
      "defense": 2,
      "speed": 90,
-     "abilities": []
+     "abilities": [],
+     "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
+     "immune": []
     }
     """;
 
@@ -141,7 +158,9 @@ internal static class TestBattles
      "attack": 14,
      "defense": 6,
      "speed": 80,
-     "abilities": ["ability.fixture_bash"]
+     "abilities": ["ability.fixture_bash"],
+     "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
+     "immune": []
     }
     """;
 
@@ -188,6 +207,32 @@ internal static class TestBattles
     public static BattleContent ExactWithParty(int size) =>
         Build(FixtureWithParty(size), [("hit_low", 10000), ("hit_high", 10000), ("miss_base", 0), ("miss_ceiling", 0)]);
 
+    /// <summary>
+    /// The exact content of <see cref="Exact"/>, with a grunt that holds one affinity to one
+    /// element and an immune list (D-794, D-805). Each other element stays normal.
+    /// </summary>
+    /// <param name="element">The element whose affinity changes.</param>
+    /// <param name="affinity">The affinity of the grunt to that element.</param>
+    /// <param name="immune">The statuses that the grunt refuses.</param>
+    /// <param name="exact">True for the rolls of <see cref="Exact"/>, and false for the rolls of the rules of the tests.</param>
+    /// <returns>The battle content.</returns>
+    public static BattleContent WithGrunt(Element element, Affinity affinity, StatusKind[] immune, bool exact)
+    {
+        string elements = $"\"{Elements.NameOf(element)}\": \"normal\"";
+        string grunt = GruntFile.Replace(elements, $"\"{Elements.NameOf(element)}\": \"{Elements.NameOf(affinity)}\"", StringComparison.Ordinal);
+        List<string> names = [];
+        foreach (StatusKind status in immune)
+        {
+            names.Add($"\"{Statuses.NameOf(status)}\"");
+        }
+
+        grunt = grunt.Replace("\"immune\": []", $"\"immune\": [{string.Join(", ", names)}]", StringComparison.Ordinal);
+        (string Field, int Value)[] changes = exact
+            ? [("hit_low", 10000), ("hit_high", 10000), ("miss_base", 0), ("miss_ceiling", 0)]
+            : [];
+        return Build(FixtureFile, changes, grunt);
+    }
+
     /// <summary>Reads the rules of the tests with some numbers changed, and the fixture of the tests.</summary>
     /// <param name="changes">Each field and its new value.</param>
     /// <returns>The battle content.</returns>
@@ -210,7 +255,7 @@ internal static class TestBattles
         return FixtureFile.Replace("\"start_party\": [\"character.marrek\"]", $"\"start_party\": [{party}]", System.StringComparison.Ordinal);
     }
 
-    private static BattleContent Build(string fixture, (string Field, int Value)[] changes)
+    private static BattleContent Build(string fixture, (string Field, int Value)[] changes, string? grunt = null)
     {
         string rules = RulesFile;
         foreach ((string field, int value) in changes)
@@ -226,7 +271,7 @@ internal static class TestBattles
             BattleFixture.Read(Encoding.UTF8.GetBytes(fixture), "tests-fixture.json"),
             [
                 EnemyRecord.Read(Encoding.UTF8.GetBytes(BruteFile), BrutePath),
-                EnemyRecord.Read(Encoding.UTF8.GetBytes(GruntFile), GruntPath),
+                EnemyRecord.Read(Encoding.UTF8.GetBytes(grunt ?? GruntFile), GruntPath),
             ],
             AbilityList.Read(Encoding.UTF8.GetBytes(AbilitiesFile), AbilityList.Path));
     }

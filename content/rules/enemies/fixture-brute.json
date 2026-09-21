@@ -6,5 +6,7 @@
  "attack": 14,
  "defense": 6,
  "speed": 80,
- "abilities": ["ability.fixture_bash"]
+ "abilities": ["ability.fixture_bash"],
+ "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
+ "immune": []
 }

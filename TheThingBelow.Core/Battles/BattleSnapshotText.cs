@@ -9,7 +9,9 @@ namespace TheThingBelow.Core.Battles;
 
 /// <summary>
 /// The text of the party and the battle inside one snapshot line, from save format 4 (D-531,
-/// D-652, D-765). `RunSnapshotText` calls it for the two objects.
+/// D-652, D-765). `RunSnapshotText` calls it for the two objects. Save format 5 adds the
+/// statuses of each character and each combatant, and drops the push rate, which haste and
+/// slow now set (D-792, D-800).
 /// </summary>
 public static class BattleSnapshotText
 {
@@ -34,6 +36,13 @@ public static class BattleSnapshotText
             writer.WriteString("id", character.Character.Value);
             writer.WriteNumber("health", character.Health);
             writer.WriteString("row", BattleSides.NameOf(character.Row));
+            writer.WriteStartArray("statuses");
+            foreach (StatusKind status in character.Statuses)
+            {
+                writer.WriteStringValue(Statuses.NameOf(status));
+            }
+
+            writer.WriteEndArray();
             writer.WriteEndObject();
         }
 
@@ -76,8 +85,21 @@ public static class BattleSnapshotText
             writer.WriteString("row", BattleSides.NameOf(combatant.Row));
             writer.WriteString("place", Battle.PlaceName(combatant.Place));
             writer.WriteNumber("ready_at", combatant.ReadyAt);
-            writer.WriteNumber("push_rate", combatant.PushRate);
             writer.WriteBoolean("defending", combatant.Defending);
+            writer.WriteStartArray("statuses");
+            foreach (StatusValues status in combatant.Statuses)
+            {
+                writer.WriteStartObject();
+                writer.WriteString("status", Statuses.NameOf(status.Status));
+                if (status.EndsAt is long ends)
+                {
+                    writer.WriteNumber("ends_at", ends);
+                }
+
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndArray();
             writer.WriteEndObject();
         }
 
@@ -87,9 +109,10 @@ public static class BattleSnapshotText
 
     /// <summary>Reads the object `party`.</summary>
     /// <param name="reader">The reader of the snapshot line.</param>
+    /// <param name="format">The save format of the line, 4 or later. Format 4 holds no status, and each character then holds none (D-792).</param>
     /// <returns>The party.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
-    public static PartySnapshot ReadParty(ref ContentReader reader)
+    public static PartySnapshot ReadParty(ref ContentReader reader, int format)
     {
         List<CharacterValues>? characters = null;
         List<PackValues>? pack = null;
@@ -104,7 +127,7 @@ public static class BattleSnapshotText
                     int charactersDepth = reader.ReadArrayStart();
                     while (reader.ReadNextElement(charactersDepth, characters.Count))
                     {
-                        characters.Add(ReadCharacter(ref reader));
+                        characters.Add(ReadCharacter(ref reader, format));
                     }
 
                     break;
@@ -127,9 +150,10 @@ public static class BattleSnapshotText
 
     /// <summary>Reads the object `battle`.</summary>
     /// <param name="reader">The reader of the snapshot line.</param>
+    /// <param name="format">The save format of the line, 4 or later. Format 4 holds a push rate and no status (D-792).</param>
     /// <returns>The battle.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
-    public static BattleValues ReadBattle(ref ContentReader reader)
+    public static BattleValues ReadBattle(ref ContentReader reader, int format)
     {
         ContentId? enemy = null;
         ContentId? group = null;
@@ -159,7 +183,7 @@ public static class BattleSnapshotText
                     int combatantsDepth = reader.ReadArrayStart();
                     while (reader.ReadNextElement(combatantsDepth, combatants.Count))
                     {
-                        combatants.Add(ReadCombatant(ref reader));
+                        combatants.Add(ReadCombatant(ref reader, format));
                     }
 
                     break;
@@ -176,11 +200,12 @@ public static class BattleSnapshotText
             reader.Require(combatants, depth, "combatants"));
     }
 
-    private static CharacterValues ReadCharacter(ref ContentReader reader)
+    private static CharacterValues ReadCharacter(ref ContentReader reader, int format)
     {
         ContentId? id = null;
         int? health = null;
         BattleRow? row = null;
+        IReadOnlyList<StatusKind>? statuses = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -196,6 +221,9 @@ public static class BattleSnapshotText
                 case "row":
                     row = ReadRow(ref reader);
                     break;
+                case "statuses" when format >= 5:
+                    statuses = Statuses.ReadList(ref reader);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -204,7 +232,8 @@ public static class BattleSnapshotText
         return new CharacterValues(
             reader.Require(id, depth, "id"),
             reader.RequireInt(health, depth, "health"),
-            reader.RequireValue(row, depth, "row"));
+            reader.RequireValue(row, depth, "row"),
+            format >= 5 ? reader.Require(statuses, depth, "statuses") : []);
     }
 
     private static PackValues ReadPackEntry(ref ContentReader reader)
@@ -231,7 +260,7 @@ public static class BattleSnapshotText
         return new PackValues(reader.Require(item, depth, "item"), reader.RequireInt(count, depth, "count"));
     }
 
-    private static CombatantValues ReadCombatant(ref ContentReader reader)
+    private static CombatantValues ReadCombatant(ref ContentReader reader, int format)
     {
         BattleSide? side = null;
         int? slot = null;
@@ -242,6 +271,7 @@ public static class BattleSnapshotText
         long? readyAt = null;
         int? pushRate = null;
         bool? defending = null;
+        List<StatusValues>? statuses = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -269,14 +299,38 @@ public static class BattleSnapshotText
                 case "ready_at":
                     readyAt = reader.ReadLong();
                     break;
-                case "push_rate":
+                case "push_rate" when format == 4:
                     pushRate = reader.ReadInt();
                     break;
                 case "defending":
                     defending = reader.ReadBoolean();
                     break;
+                case "statuses" when format >= 5:
+                    statuses = [];
+                    int statusesDepth = reader.ReadArrayStart();
+                    while (reader.ReadNextElement(statusesDepth, statuses.Count))
+                    {
+                        statuses.Add(ReadStatus(ref reader));
+                    }
+
+                    break;
                 default:
                     throw reader.UnknownField(field);
+            }
+        }
+
+        // Save format 4 predates the statuses, and its push rate came from a test seam alone.
+        // A rate other than 10000 names haste or slow with no end, which no status of format
+        // 5 can hold, so the migration refuses it (T-2, D-798).
+        if (format == 4)
+        {
+            int rate = reader.RequireInt(pushRate, depth, "push_rate");
+            if (rate != BasisPoints.One)
+            {
+                throw reader.RefuseField(
+                    depth,
+                    "push_rate",
+                    $"the push rate {rate} of save format 4 names haste or slow with no end, and format 5 holds each status with its end (D-798)");
             }
         }
 
@@ -288,8 +342,53 @@ public static class BattleSnapshotText
             reader.RequireValue(row, depth, "row"),
             reader.RequireValue(place, depth, "place"),
             reader.RequireValue(readyAt, depth, "ready_at"),
-            reader.RequireInt(pushRate, depth, "push_rate"),
-            reader.RequireValue(defending, depth, "defending"));
+            reader.RequireValue(defending, depth, "defending"),
+            format >= 5 ? reader.Require(statuses, depth, "statuses") : []);
+    }
+
+    private static StatusValues ReadStatus(ref ContentReader reader)
+    {
+        StatusKind? status = null;
+        long? endsAt = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "status":
+                    status = ReadStatusName(ref reader);
+                    break;
+                case "ends_at":
+                    endsAt = reader.ReadLong();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        StatusKind held = reader.RequireValue(status, depth, "status");
+        if (!Statuses.Lasts(held))
+        {
+            _ = reader.RequireValue(endsAt, depth, "ends_at");
+        }
+        else if (endsAt is not null)
+        {
+            throw reader.RefuseField(depth, "ends_at", $"the status '{Statuses.NameOf(held)}' lasts until a cure and holds no end (D-390)");
+        }
+
+        return new StatusValues(held, endsAt);
+    }
+
+    private static StatusKind ReadStatusName(ref ContentReader reader)
+    {
+        string name = reader.ReadString();
+        if (!Statuses.TryOf(name, out StatusKind status))
+        {
+            throw reader.Refuse($"the status '{name}' is not one of {Statuses.EveryName} (D-75)");
+        }
+
+        return status;
     }
 
     private static BattleSide ReadSide(ref ContentReader reader)

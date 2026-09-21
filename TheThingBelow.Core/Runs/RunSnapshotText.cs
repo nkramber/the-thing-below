@@ -62,7 +62,7 @@ public static class RunSnapshotText
 
     /// <summary>
     /// Writes the party and the enemies on the map. A snapshot of save format 1 holds no
-    /// map, and this build writes save format 4, so the field is always present in a file
+    /// map, and this build writes save format 5, so the field is always present in a file
     /// that this build writes (D-166, D-654, D-750).
     /// </summary>
     private static void WriteMap(Utf8JsonWriter writer, MapSnapshot? map)
@@ -100,7 +100,7 @@ public static class RunSnapshotText
 
     /// <summary>
     /// Writes the stored values of each enemy of the map (D-750). This build writes save
-    /// format 4, so the field is always present, and it holds an empty array on a map that
+    /// format 5, so the field is always present, and it holds an empty array on a map that
     /// places no enemy.
     /// </summary>
     private static void WriteEnemies(Utf8JsonWriter writer, IReadOnlyList<PatrolValues>? enemies)
@@ -137,7 +137,7 @@ public static class RunSnapshotText
     }
 
     /// <summary>
-    /// Writes the party. This build writes save format 4, so the field is always present in a
+    /// Writes the party. This build writes save format 5, so the field is always present in a
     /// file that this build writes (D-166, D-765).
     /// </summary>
     private static void WriteParty(Utf8JsonWriter writer, PartySnapshot? party)
@@ -219,6 +219,16 @@ public static class RunSnapshotText
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
     public static RunSnapshot ReadFormatThree(ref ContentReader reader) => ReadLine(ref reader, 3);
 
+    /// <summary>
+    /// Reads a snapshot of save format 4, which holds no status and holds a push rate for each
+    /// combatant (D-792). Each character and each combatant then holds no status.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <returns>The snapshot, with no status.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed, or a push rate names haste or slow (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatFour(ref ContentReader reader) => ReadLine(ref reader, 4);
+
     private static RunSnapshot ReadLine(ref ContentReader reader, int format)
     {
         long? tick = null;
@@ -246,11 +256,16 @@ public static class RunSnapshotText
                 case "map":
                     map = ReadMap(ref reader, format);
                     break;
+                // Save format 3 and older predate the party and the battle, so the read stops at
+                // the field and names the format, before the fields inside it (D-765).
+                case "party" or "battle" when format < 4:
+                    throw reader.Refuse(
+                        $"the snapshot of save format {format} holds a party or a battle, and that format predates both (D-765)");
                 case "party":
-                    party = BattleSnapshotText.ReadParty(ref reader);
+                    party = BattleSnapshotText.ReadParty(ref reader, format);
                     break;
                 case "battle":
-                    battle = BattleSnapshotText.ReadBattle(ref reader);
+                    battle = BattleSnapshotText.ReadBattle(ref reader, format);
                     break;
                 case "streams":
                     streams = ReadStreams(ref reader);

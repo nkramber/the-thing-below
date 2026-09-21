@@ -25,6 +25,11 @@ public static class SaveFormat
     /// PR-9 raised it to 4. The snapshot gained the party: the health and the row of each
     /// character, and the pack. It also gained the battle that runs (D-531, D-765).
     /// </para>
+    /// <para>
+    /// PR-66 raised it to 5. Each character gained the statuses that last past a fight, and
+    /// each combatant gained its statuses with their ends in place of its push rate (D-792,
+    /// D-798).
+    /// </para>
     /// </remarks>
-    public const int Current = 4;
+    public const int Current = 5;
 }

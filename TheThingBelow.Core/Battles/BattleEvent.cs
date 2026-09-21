@@ -11,7 +11,7 @@ public enum BattleEventKind
     /// <summary>A character takes the turn, and Game takes the next command (D-532).</summary>
     Turn,
 
-    /// <summary>A strike hit. The amount is the damage.</summary>
+    /// <summary>A strike hit. The amount is the damage. The affinity of the target names the rate (D-809).</summary>
     Hit,
 
     /// <summary>A strike missed (D-772).</summary>
@@ -43,6 +43,27 @@ public enum BattleEventKind
 
     /// <summary>Every character who fights is down, and Game reloads (D-397, D-776).</summary>
     Wiped,
+
+    /// <summary>A strike of an absorbed element hit. The amount is the health restored (D-795).</summary>
+    Absorb,
+
+    /// <summary>A status landed on the combatant, or reset its end (D-800).</summary>
+    StatusOn,
+
+    /// <summary>A status ended: its ticks passed, a strike woke a sleeper, or haste and slow met (D-798, D-800, D-802).</summary>
+    StatusOff,
+
+    /// <summary>A status landed on an enemy that refuses it, and did nothing (D-805).</summary>
+    Immune,
+
+    /// <summary>Poison or bleed took its share at the start of a turn. The amount is the damage (D-799, D-803).</summary>
+    StatusHurt,
+
+    /// <summary>Regen healed its share at the start of a turn. The amount is the health restored (D-799).</summary>
+    StatusHeal,
+
+    /// <summary>A turn of a sleeper passed with no action (D-802).</summary>
+    Asleep,
 }
 
 /// <summary>One event of a battle (D-168, D-532).</summary>
@@ -50,15 +71,19 @@ public enum BattleEventKind
 /// <param name="Actor">The combatant that the event is about.</param>
 /// <param name="Target">The target of a strike or an item, and no value for the other kinds.</param>
 /// <param name="Amount">The damage or the health, and zero for the other kinds.</param>
-public sealed record BattleEvent(BattleEventKind Kind, BattleTarget Actor, BattleTarget? Target, int Amount)
+/// <param name="Status">The status of a status event, and no value for the other kinds (D-75).</param>
+/// <param name="Affinity">The affinity of the target of a hit or an absorb, and `normal` for the other kinds (D-794).</param>
+public sealed record BattleEvent(BattleEventKind Kind, BattleTarget Actor, BattleTarget? Target, int Amount, StatusKind? Status = null, Affinity Affinity = Affinity.Normal)
 {
     /// <summary>Gives the event as one text, for a log line of Game (D-767).</summary>
-    /// <returns>The kind, the actor, the target, and the amount.</returns>
+    /// <returns>The kind, the actor, the target, and the amount, then the status and an affinity other than `normal`.</returns>
     public string Describe()
     {
         string target = this.Target is BattleTarget aimed ? $" at {aimed.Describe()}" : string.Empty;
         string amount = this.Amount != 0 ? $" for {this.Amount}" : string.Empty;
-        return $"{BattleEvents.NameOf(this.Kind)}: {this.Actor.Describe()}{target}{amount}";
+        string status = this.Status is StatusKind held ? $" ({Statuses.NameOf(held)})" : string.Empty;
+        string affinity = this.Affinity != Affinity.Normal ? $" ({Elements.NameOf(this.Affinity)})" : string.Empty;
+        return $"{BattleEvents.NameOf(this.Kind)}: {this.Actor.Describe()}{target}{amount}{status}{affinity}";
     }
 }
 
@@ -84,6 +109,13 @@ public static class BattleEvents
         BattleEventKind.Won => "won",
         BattleEventKind.Fled => "fled",
         BattleEventKind.Wiped => "wiped",
+        BattleEventKind.Absorb => "absorb",
+        BattleEventKind.StatusOn => "status on",
+        BattleEventKind.StatusOff => "status off",
+        BattleEventKind.Immune => "immune",
+        BattleEventKind.StatusHurt => "status hurt",
+        BattleEventKind.StatusHeal => "status heal",
+        BattleEventKind.Asleep => "asleep",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no battle event (D-532)"),
     };
 }

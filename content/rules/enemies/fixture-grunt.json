@@ -6,5 +6,7 @@
  "attack": 8,
  "defense": 2,
  "speed": 90,
- "abilities": []
+ "abilities": [],
+ "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
+ "immune": []
 }

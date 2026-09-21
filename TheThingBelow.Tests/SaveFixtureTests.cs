@@ -27,7 +27,8 @@ namespace TheThingBelow.Tests;
 /// still loads (D-259). Format 1 predates the tile map, so its migration puts the party on
 /// the spawn point of the first map (D-654). Format 2 predates the enemies, and its migration
 /// puts each enemy of the map on the start tile of its station (D-750). Format 3 predates the
-/// party, and its migration starts the party of the fixture at full health (D-765).
+/// party, and its migration starts the party of the fixture at full health (D-765). Format 4
+/// predates the statuses, and its migration gives each character and each combatant none (D-792).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
@@ -237,6 +238,23 @@ public sealed class SaveFixtureTests
         BattleOutcome outcome = BattleRuns.FightToEnd(run, save.Header.Seed);
 
         Assert.NotEqual(BattleOutcome.Running, outcome);
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatFiveHoldsTheStatusesOfTheFight()
+    {
+        // D-792, D-798: Marrek holds poison with no end and haste to tick 400, and the second
+        // grunt holds slow to tick 400. Poison took 3 at the start of the turn of Marrek at 75.
+        SaveDocument save = ReadFormat(5);
+        Simulation run = Simulation.Resume(
+            save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, DebugIntentHandlers.None);
+
+        Battle battle = BattleRuns.BattleOf(run);
+        Assert.Equal([new StatusValues(StatusKind.Poison, null), new StatusValues(StatusKind.Haste, 400)], battle.Party[0].Statuses.Values());
+        Assert.Equal([new StatusValues(StatusKind.Slow, 400)], battle.Enemies[1].Statuses.Values());
+        Assert.Equal(7500, battle.Party[0].PushRate);
+        Assert.Equal(57, battle.Party[0].Health);
+        Assert.NotEqual(BattleOutcome.Running, BattleRuns.FightToEnd(run, save.Header.Seed));
     }
 
     [Fact]

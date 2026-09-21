@@ -42,13 +42,15 @@ public enum BattleAction
 public sealed record BattleChoice(BattleAction Action, BattleTarget? Target, ContentId? Item);
 
 /// <summary>
-/// One strike: its delay, its power, and whether it stuns (D-376). The basic attack is one
-/// move, and a lesson of PR-12 adds others, such as a heavy blow.
+/// One strike: its delay, its power, its element, and the status that it gives on a hit
+/// (D-376, D-793). The basic attack is one move, and a lesson of PR-12 adds others, such as a
+/// heavy blow or a rite of fire.
 /// </summary>
 /// <param name="Delay">The delay, in ticks at speed 100 (D-768).</param>
 /// <param name="Power">The power, in basis points (D-771).</param>
-/// <param name="Stun">True when a hit pushes the target back by the stun ticks of the rules (D-376).</param>
-public sealed record BattleMove(int Delay, int Power, bool Stun)
+/// <param name="Element">The one element of the move, or none (D-796).</param>
+/// <param name="Status">The status that a hit gives, with its chance, or none (D-807).</param>
+public sealed record BattleMove(int Delay, int Power, Element? Element, StatusChance? Status)
 {
     /// <summary>Gives the basic attack of the rules (D-359).</summary>
     /// <param name="rules">The rules.</param>
@@ -57,19 +59,6 @@ public sealed record BattleMove(int Delay, int Power, bool Stun)
     {
         ArgumentNullException.ThrowIfNull(rules);
 
-        return new BattleMove(rules.AttackDelay, rules.AttackPower, false);
+        return new BattleMove(rules.AttackDelay, rules.AttackPower, null, null);
     }
-}
-
-/// <summary>The rate on each push of one combatant: normal, haste, or slow (D-376, D-768).</summary>
-public enum BattlePace
-{
-    /// <summary>No rate, which is 10000 basis points.</summary>
-    Normal,
-
-    /// <summary>The haste rate of the rules, which shortens each push.</summary>
-    Haste,
-
-    /// <summary>The slow rate of the rules, which lengthens each push.</summary>
-    Slow,
 }

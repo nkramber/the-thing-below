@@ -9,7 +9,8 @@ namespace TheThingBelow.Core.Battles;
 /// <param name="Character">The id of the character.</param>
 /// <param name="Health">The health now. Zero is a down (D-36).</param>
 /// <param name="Row">The row now (D-558).</param>
-public sealed record CharacterValues(ContentId Character, int Health, BattleRow Row);
+/// <param name="Statuses">Poison, blind, and silence, in the order of D-75, which last past a fight (D-390, D-792).</param>
+public sealed record CharacterValues(ContentId Character, int Health, BattleRow Row, IReadOnlyList<StatusKind> Statuses);
 
 /// <summary>The stored count of one item of the pack (D-775).</summary>
 /// <param name="Item">The id of the item.</param>
@@ -19,11 +20,12 @@ public sealed record PackValues(ContentId Item, int Count);
 /// <summary>One character of the party, with the health and the row that last between battles (D-36, D-765).</summary>
 public sealed class PartyMember
 {
-    internal PartyMember(CharacterRecord record, int health, BattleRow row)
+    internal PartyMember(CharacterRecord record, int health, BattleRow row, IReadOnlyList<StatusKind> statuses)
     {
         this.Record = record;
         this.Health = health;
         this.Row = row;
+        this.Statuses = statuses;
     }
 
     /// <summary>The fixed stats of the character (D-765).</summary>
@@ -35,13 +37,16 @@ public sealed class PartyMember
     /// <summary>The row now, which the next battle starts from (D-558).</summary>
     public BattleRow Row { get; internal set; }
 
+    /// <summary>Poison, blind, and silence, in the order of D-75, until a cure or a rest at a hub (D-390, D-792). PR-64 makes them act on the map.</summary>
+    public IReadOnlyList<StatusKind> Statuses { get; internal set; }
+
     /// <summary>True while the character is down, which lasts until a hub or a rare item (D-36).</summary>
     public bool Down => this.Health == 0;
 }
 
 /// <summary>
 /// The characters of the party and their pack, which last between battles (D-36, D-765,
-/// D-775). The snapshot holds them from save format 4.
+/// D-775). The snapshot holds them from save format 4, and the statuses that last from save format 5 (D-792).
 /// </summary>
 public sealed class PartyState
 {
@@ -72,7 +77,7 @@ public sealed class PartyState
         foreach (ContentId id in content.Fixture.StartParty)
         {
             CharacterRecord record = content.Character(id);
-            members.Add(new PartyMember(record, record.Health, record.Row));
+            members.Add(new PartyMember(record, record.Health, record.Row, []));
         }
 
         List<PackValues> pack = [];
@@ -125,7 +130,8 @@ public sealed class PartyState
                     $"it holds the character '{record.Id.Value}' two times");
             }
 
-            members.Add(new PartyMember(record, stored.Health, stored.Row));
+            CheckStatuses(stored, source);
+            members.Add(new PartyMember(record, stored.Health, stored.Row, stored.Statuses));
         }
 
         List<PackValues> items = [];
@@ -165,7 +171,7 @@ public sealed class PartyState
         List<CharacterValues> values = [];
         foreach (PartyMember member in this.members)
         {
-            values.Add(new CharacterValues(member.Record.Id, member.Health, member.Row));
+            values.Add(new CharacterValues(member.Record.Id, member.Health, member.Row, member.Statuses));
         }
 
         return values;
@@ -201,6 +207,11 @@ public sealed class PartyState
             hasher.AddText(member.Record.Id.Value);
             hasher.AddInt32(member.Health);
             hasher.AddInt32((int)member.Row);
+            hasher.AddInt32(member.Statuses.Count);
+            foreach (StatusKind status in member.Statuses)
+            {
+                hasher.AddInt32((int)status);
+            }
         }
 
         hasher.AddInt32(this.pack.Length);
@@ -235,6 +246,22 @@ public sealed class PartyState
         }
 
         throw new SimulationException($"a use of the item '{item.Value}', and the pack holds none (D-775)", context);
+    }
+
+    /// <summary>Refuses a stored status list that no run can make: a status that ends with its fight, a status out of the order of D-75, or a status on a down character (D-390, D-801).</summary>
+    private static void CheckStatuses(CharacterValues stored, string source)
+    {
+        ArgumentNullException.ThrowIfNull(stored.Statuses);
+
+        string who = stored.Character.Value;
+        Refuse(stored.Health == 0 && stored.Statuses.Count > 0, source, $"the down character '{who}' holds a status (D-801)");
+        int last = -1;
+        foreach (StatusKind status in stored.Statuses)
+        {
+            Refuse(!Battles.Statuses.Lasts(status), source, $"the character '{who}' holds '{Battles.Statuses.NameOf(status)}' outside a fight, and it ends with its fight (D-390)");
+            Refuse((int)status <= last, source, $"the statuses of '{who}' repeat or leave the order of D-75");
+            last = (int)status;
+        }
     }
 
     private static void Refuse(bool broken, string source, string reason)

@@ -10,9 +10,10 @@
 #     replay-identity --root . --write
 
 basis-points 0xD0BC4F3990C13820
-battle 0xC9A33A5F6F59A861
-enemy-record 0x301C0246F97D8F38
+battle 0xE186FA83B7D1A116
+enemy-record 0x44B5306C40B2D2DD
 random-draws 0x835F6D70A3B14C86
-replay 0x29C2B4C83A1138F3
-state-hash 0xB29CB1C3A35B787B
+replay 0x2EA74C4649E372FD
+state-hash 0x142AC7E5ACE7CB7C
+statuses 0x2652491A1924116A
 stream-split 0xAAAEFEAF015D7A5D

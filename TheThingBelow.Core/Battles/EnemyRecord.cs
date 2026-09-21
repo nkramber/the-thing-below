@@ -6,12 +6,12 @@ using TheThingBelow.Core.Maps;
 namespace TheThingBelow.Core.Battles;
 
 /// <summary>
-/// The record of one enemy: its body size, its stats, and the ids of its abilities (D-557,
-/// D-754). Each enemy has one file under `content/rules/enemies/` (D-786).
+/// The record of one enemy: its body size, its stats, the ids of its abilities, its element
+/// table, and the statuses that it refuses (D-557, D-754, D-794, D-805). Each enemy has one file under `content/rules/enemies/` (D-786).
 /// </summary>
 /// <remarks>
 /// The fight reads the stats alone. Each enemy keeps the basic attack until PR-11 picks an
-/// action and PR-12 gives an ability its effect (D-787). PR-66 adds the element table (D-533).
+/// action and PR-12 gives an ability its effect (D-787).
 /// </remarks>
 public sealed class EnemyRecord
 {
@@ -21,7 +21,7 @@ public sealed class EnemyRecord
     /// <summary>The kind of an enemy id (D-646).</summary>
     public const string Kind = "enemy";
 
-    private EnemyRecord(string file, ContentId id, EnemySize size, int health, int attack, int defense, int speed, IReadOnlyList<ContentId> abilities)
+    private EnemyRecord(string file, ContentId id, EnemySize size, int health, int attack, int defense, int speed, IReadOnlyList<ContentId> abilities, ElementTable elements, IReadOnlyList<StatusKind> immune)
     {
         this.File = file;
         this.Id = id;
@@ -31,6 +31,8 @@ public sealed class EnemyRecord
         this.Defense = defense;
         this.Speed = speed;
         this.Abilities = abilities;
+        this.Elements = elements;
+        this.Immune = immune;
     }
 
     /// <summary>The path of the file, for an error that names this record (T-2).</summary>
@@ -57,6 +59,12 @@ public sealed class EnemyRecord
     /// <summary>The ids of the abilities, in the order of the file. The list can be empty, because every enemy has the basic attack (D-787).</summary>
     public IReadOnlyList<ContentId> Abilities { get; }
 
+    /// <summary>The affinity to each of the eight elements (D-74, D-794).</summary>
+    public ElementTable Elements { get; }
+
+    /// <summary>The statuses that do nothing to this enemy, in the order of the file. The list can be empty (D-805).</summary>
+    public IReadOnlyList<StatusKind> Immune { get; }
+
     /// <summary>Tells whether a content path is an enemy file (D-786).</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
     /// <returns>True when the path is a JSON file of the enemy folder.</returns>
@@ -72,7 +80,7 @@ public sealed class EnemyRecord
     /// <param name="bytes">The bytes of the file, as UTF-8.</param>
     /// <param name="file">The path of the file, for an error.</param>
     /// <returns>The record.</returns>
-    /// <exception cref="ContentException">A field is absent, unknown, repeated, or out of its range, or an ability id repeats (G-6, T-2).</exception>
+    /// <exception cref="ContentException">A field is absent, unknown, repeated, or out of its range, or an ability id repeats, or a status of the immune list repeats (G-6, T-2).</exception>
     /// <remarks>The content set checks each ability id against the ability file (D-785).</remarks>
     public static EnemyRecord Read(ReadOnlySpan<byte> bytes, string file)
     {
@@ -85,6 +93,8 @@ public sealed class EnemyRecord
         int? defense = null;
         int? speed = null;
         List<ContentId>? abilities = null;
+        ElementTable? elements = null;
+        IReadOnlyList<StatusKind>? immune = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -115,6 +125,12 @@ public sealed class EnemyRecord
                 case "abilities":
                     abilities = ReadAbilityIds(ref reader);
                     break;
+                case "elements":
+                    elements = ElementTable.Read(ref reader);
+                    break;
+                case "immune":
+                    immune = Statuses.ReadList(ref reader);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -129,7 +145,9 @@ public sealed class EnemyRecord
             reader.RequireInt(attack, depth, "attack"),
             reader.RequireInt(defense, depth, "defense"),
             reader.RequireInt(speed, depth, "speed"),
-            reader.Require(abilities, depth, "abilities"));
+            reader.Require(abilities, depth, "abilities"),
+            reader.Require(elements, depth, "elements"),
+            reader.Require(immune, depth, "immune"));
         reader.ReadFileEnd();
 
         record.RefuseRepeatedAbility();
