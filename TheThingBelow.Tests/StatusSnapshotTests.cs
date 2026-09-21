@@ -143,7 +143,7 @@ public sealed class StatusSnapshotTests
     }
 
     private static void Give(Simulation run, BattleTarget target, StatusKind status) =>
-        BattleTurns.GiveStatus(run.State, target, status, run.State.Context("test"), []);
+        BattleTurns.GiveStatus(run.State, target, status, run.State.Context("test"));
 
     private static ArgumentException ResumeWithEnemy(Func<CombatantValues, CombatantValues> change)
     {

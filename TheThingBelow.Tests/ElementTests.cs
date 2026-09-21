@@ -86,8 +86,8 @@ public sealed class ElementTests
         List<LogEntry> log = [];
         BattleTarget first = new(BattleSide.Enemy, 0);
         BattleTarget second = new(BattleSide.Enemy, 1);
-        BattleTurns.GiveStatus(run.State, first, StatusKind.Shell, run.State.Context("test"), log);
-        BattleTurns.GiveStatus(run.State, second, StatusKind.Shell, run.State.Context("test"), log);
+        BattleTurns.GiveStatus(run.State, first, StatusKind.Shell, run.State.Context("test"));
+        BattleTurns.GiveStatus(run.State, second, StatusKind.Shell, run.State.Context("test"));
 
         BattleTurns.StrikeWith(run.State, Fire(), first, run.State.Context("test"), log);
         run.Step([Intent.OfPlayer(IntentIds.BattleAttack, second, null)]);
@@ -108,7 +108,7 @@ public sealed class ElementTests
         run.Step([BattleRuns.AttackFirst(run)]);
         Assert.Equal(19, BattleRuns.BattleOf(run).Enemies[0].Health);
 
-        BattleTurns.GiveStatus(run.State, grunt, StatusKind.Shell, run.State.Context("test"), log);
+        BattleTurns.GiveStatus(run.State, grunt, StatusKind.Shell, run.State.Context("test"));
         BattleTurns.StrikeWith(run.State, Fire(), grunt, run.State.Context("test"), log);
 
         Assert.Equal(30, BattleRuns.BattleOf(run).Enemies[0].Health);
@@ -124,7 +124,7 @@ public sealed class ElementTests
         List<LogEntry> log = [];
         BattleTarget grunt = new(BattleSide.Enemy, 0);
         run.Step([Intent.OfPlayer(IntentIds.BattleStep)]);
-        BattleTurns.GiveStatus(run.State, grunt, StatusKind.Shell, run.State.Context("test"), log);
+        BattleTurns.GiveStatus(run.State, grunt, StatusKind.Shell, run.State.Context("test"));
         int before = BattleRuns.BattleOf(run).Enemies[0].Health;
 
         BattleTurns.StrikeWith(run.State, Fire(), grunt, run.State.Context("test"), log);

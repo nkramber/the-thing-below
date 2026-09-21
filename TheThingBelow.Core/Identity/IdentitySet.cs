@@ -730,32 +730,32 @@ public static class IdentitySet
         switch (turn % 8)
         {
             case 0:
-                BattleTurns.GiveStatus(state, self, StatusKind.Regen, context, log);
+                BattleTurns.GiveStatus(state, self, StatusKind.Regen, context);
                 BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Fire, new StatusChance(StatusKind.Poison, 10000)), aimed, context, log);
                 break;
             case 1:
                 BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Ice, new StatusChance(StatusKind.Sleep, 6000)), aimed, context, log);
                 break;
             case 2:
-                BattleTurns.GiveStatus(state, self, StatusKind.Haste, context, log);
+                BattleTurns.GiveStatus(state, self, StatusKind.Haste, context);
                 BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Dark, new StatusChance(StatusKind.Bleed, 8000)), aimed, context, log);
                 break;
             case 3:
-                BattleTurns.GiveStatus(state, self, StatusKind.Shell, context, log);
-                BattleTurns.GiveStatus(state, aimed, StatusKind.Slow, context, log);
+                BattleTurns.GiveStatus(state, self, StatusKind.Shell, context);
+                BattleTurns.GiveStatus(state, aimed, StatusKind.Slow, context);
                 BattleTurns.StrikeWith(state, new BattleMove(160, power, null, new StatusChance(StatusKind.Stun, 10000)), aimed, context, log);
                 break;
             case 4:
-                BattleTurns.GiveStatus(state, self, StatusKind.Blind, context, log);
-                BattleTurns.GiveStatus(state, aimed, StatusKind.Haste, context, log);
+                BattleTurns.GiveStatus(state, self, StatusKind.Blind, context);
+                BattleTurns.GiveStatus(state, aimed, StatusKind.Haste, context);
                 BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Holy, new StatusChance(StatusKind.Stun, 10000)), aimed, context, log);
                 break;
             case 5:
-                BattleTurns.GiveStatus(state, self, StatusKind.Silence, context, log);
+                BattleTurns.GiveStatus(state, self, StatusKind.Silence, context);
                 BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Lightning, null), aimed, context, log);
                 break;
             case 6:
-                BattleTurns.GiveStatus(state, self, StatusKind.Poison, context, log);
+                BattleTurns.GiveStatus(state, self, StatusKind.Poison, context);
                 BattleTurns.StrikeWith(state, BattleMove.BasicAttack(state.BattleContent.Rules), aimed, context, log);
                 break;
             default:

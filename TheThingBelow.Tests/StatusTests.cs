@@ -196,17 +196,23 @@ public sealed class StatusTests
     }
 
     [Fact]
-    public void AStunOnTheCharacterWhoseTurnIsOpenLetsTheNextTurnRun()
+    public void AStunOnTheCharacterWhoseTurnIsOpenIsAnErrorAndChangesNothing()
     {
-        // D-802: a stun moves Marrek from 0 to 50, and no other turn comes before 50, so his
-        // turn opens again at 50 with the stun still on him.
+        // D-799, D-802, T-2: no strike reaches the character whose turn is open. A stun there
+        // pushed a turn that had begun, and poison took its share two times at 0 and at 50.
         Simulation run = BattleRuns.IntoBattle(Seed, "group.one", TestBattles.Exact);
         Battle battle = BattleRuns.BattleOf(run);
+        run.Step([Intent.OfPlayer(IntentIds.BattleDefend)]);
+        Give(run, Marrek, StatusKind.Poison);
+        run.Step([Intent.OfPlayer(IntentIds.BattleDefend)]);
+        int health = battle.Party[0].Health;
+        long readyAt = battle.Party[0].ReadyAt;
 
-        Give(run, Marrek, StatusKind.Stun);
+        SimulationException error = Assert.Throws<SimulationException>(() => Give(run, Marrek, StatusKind.Stun));
 
-        Assert.Equal(50, battle.Now);
-        Assert.Same(battle.Party[0], battle.Next());
+        Assert.Contains("whose turn is open", error.Message, StringComparison.Ordinal);
+        Assert.Equal(health, battle.Party[0].Health);
+        Assert.Equal(readyAt, battle.Party[0].ReadyAt);
         Assert.False(battle.Party[0].Statuses.Holds(StatusKind.Stun));
     }
 
@@ -280,7 +286,7 @@ public sealed class StatusTests
     }
 
     private static void Give(Simulation run, BattleTarget target, StatusKind status) =>
-        BattleTurns.GiveStatus(run.State, target, status, run.State.Context("test"), []);
+        BattleTurns.GiveStatus(run.State, target, status, run.State.Context("test"));
 
     private static List<BattleEvent> Events(Simulation run) => [.. run.TakeBattleEvents()];
 

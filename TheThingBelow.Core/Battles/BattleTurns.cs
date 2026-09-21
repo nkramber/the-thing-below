@@ -15,7 +15,8 @@ namespace TheThingBelow.Core.Battles;
 /// </summary>
 /// <remarks>
 /// Every roll draws on the battle stream alone (G-4). A roll runs in one fixed order for each
-/// strike: the miss, then the hit factor on a hit (D-772, D-773).
+/// strike: the miss, then the hit factor on a hit, then the status chance of the move on a
+/// hit (D-772, D-773, D-807).
 /// <para>
 /// A win and a flee end the battle, and the map waits for the wait intent of Game before it
 /// runs again (D-522). A wipe ends the run, and Game reloads (D-397, D-776).
@@ -159,21 +160,19 @@ public static class BattleTurns
 
     /// <summary>
     /// Gives one status to one combatant on the field, with no roll (D-793). PR-12 gives a
-    /// status through a move, and the tests and the identity run call this. A stun that
-    /// takes the turn from the character whose turn it is lets the next turn run (D-802).
+    /// status through a move, and the tests and the identity run call this. A stun on the
+    /// character whose turn is open is an error, because no strike reaches that character.
     /// </summary>
     /// <param name="state">The run.</param>
     /// <param name="target">The combatant.</param>
     /// <param name="status">The status.</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
-    /// <param name="log">The log entries of this tick (D-179).</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="SimulationException">No battle runs, or the target names no combatant on the field (T-2).</exception>
-    public static void GiveStatus(RunState state, BattleTarget target, StatusKind status, RunContext context, List<LogEntry> log)
+    /// <exception cref="SimulationException">No battle runs, or the target names no combatant on the field, or a stun names the character whose turn is open (T-2).</exception>
+    public static void GiveStatus(RunState state, BattleTarget target, StatusKind status, RunContext context)
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(context);
-        ArgumentNullException.ThrowIfNull(log);
 
         Battle battle = RunningBattle(state, context);
         Combatant holder = battle.At(target, context);
@@ -184,15 +183,17 @@ public static class BattleTurns
                 context);
         }
 
-        // A stun can push the character whose turn is open. That turn then ends, and the loop
-        // begins the next turn, which can be a new turn of the same character (D-802).
-        Combatant? open = battle.Next();
-        long? openAt = open?.ReadyAt;
-        Give(state, battle, holder, status, context);
-        if (!ReferenceEquals(battle.Next(), open) || open?.ReadyAt != openAt)
+        // No strike reaches the character whose turn is open: enemies act while no turn of a
+        // character is open, and no move strikes its user. A stun there would push a turn that
+        // already began, and its shares would act two times (D-799, D-802).
+        if (status == StatusKind.Stun && ReferenceEquals(battle.Next(), holder) && holder.Side == BattleSide.Party)
         {
-            RunUntilCharacter(state, battle, log);
+            throw new SimulationException(
+                $"a stun for {target.Describe()}, whose turn is open, and no strike reaches the combatant whose turn is open (D-799, D-802)",
+                context);
         }
+
+        Give(state, battle, holder, status, context);
     }
 
     /// <summary>

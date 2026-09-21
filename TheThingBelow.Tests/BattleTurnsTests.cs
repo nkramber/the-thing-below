@@ -394,15 +394,15 @@ public sealed class BattleTurnsTests
         BattleTarget marrek = new(BattleSide.Party, 0);
         List<LogEntry> log = [];
 
-        BattleTurns.GiveStatus(run.State, marrek, StatusKind.Haste, context, log);
+        BattleTurns.GiveStatus(run.State, marrek, StatusKind.Haste, context);
         run.Step([Intent.OfPlayer(IntentIds.BattleDefend)]);
         Assert.Equal(45, BattleRuns.BattleOf(run).Party[0].ReadyAt);
 
-        BattleTurns.GiveStatus(run.State, marrek, StatusKind.Slow, context, log);
+        BattleTurns.GiveStatus(run.State, marrek, StatusKind.Slow, context);
         run.Step([Intent.OfPlayer(IntentIds.BattleDefend)]);
         Assert.Equal(45 + 60, BattleRuns.BattleOf(run).Party[0].ReadyAt);
 
-        BattleTurns.GiveStatus(run.State, marrek, StatusKind.Slow, context, log);
+        BattleTurns.GiveStatus(run.State, marrek, StatusKind.Slow, context);
         run.Step([Intent.OfPlayer(IntentIds.BattleDefend)]);
         Assert.Equal(45 + 60 + 90, BattleRuns.BattleOf(run).Party[0].ReadyAt);
     }
