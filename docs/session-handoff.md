@@ -1,5 +1,41 @@
 # Session handoff
 
+## Session 180: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-10, round 3. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: author. Base: `8b10888`.
+
+### What this session did, and why
+
+- The owner approved the art batch and played a fight on screen (D-834).
+- A win shows no line, and PR-67 builds the summary of the loot and the level-ups after a fight, with loot from PR-13 and PR-65 (D-835). `battle.won` left the table.
+- The step reads "Back up" in the front row and "Step forward" in the back row, and the step lines use the same words (D-836). `BattleCommands.ActorRow` holds the row.
+- The roadmap blocks of PR-67, PR-13, and PR-65 gained the summary, and the PR-10 block gained D-835 and D-836.
+
+### The state of the build
+
+- Round 2 head `601bfb0`: Gitar found no issue, and every CI job passed except the review gate, which waits for `docs/reviews/pr-51.md`.
+- This round: 1781 tests, format, lint, smoke, and the STE check pass on this machine. The author read the new `battle-menu-1x` frame.
+- The two menu baselines change with the new label, so the screen-test job of this push fails until round 4 commits them.
+
+### What is in flight
+
+- The CI run and the Gitar pass of the round-3 push.
+- The owner approval of the rest of the text batch.
+
+### Traps and gotchas
+
+- `make sheet` can fail on "The InputMap action ... doesn't exist" when an input event reaches the capture window. The capture session builds no input map, and `Boot` reads the held steps before it checks the run. The fault predates PR-10, and CI has no input. Keep the mouse off the window.
+- Each round of a session adds its own handoff entry.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the two `battle-menu-*` baselines from the `screen-captures` artifact of this push. Then follow the `gitar-review` skill, and tell the owner that PR #51 is ready for the other provider.
+
 ## Session 179: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -309,41 +345,3 @@ None.
 ### The next concrete action
 
 Reply on the Gitar thread with `34e6272`, prove the next pass current, and hand the PR to Codex.
-
-## Session 170: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-66, the elements and the statuses. Repository: the-thing-below. Branch: `feat/pr-66-elements-statuses`. PR: the PR of PR-66, which this round opens. Role: author. Base: `74c3a64`.
-
-### What this session did, and why
-
-- Asked the owner 22 start questions, and recorded the answers as D-790 to D-811. D-533 is revised in part by D-792.
-- Moved the gear table to PR-13, the aptitude bonus to PR-12, and the icons to PR-10 (D-790, D-791, D-811).
-- Added the element table and the immune list to each enemy record, and the ten statuses to each combatant, on the timeline.
-- Poison, blind, and silence stay on each character after a fight, in save format 5 with a reader of format 4.
-- Raised the simulation version to 9, and added the identity run `statuses`.
-- Added the tests of the five exit tests, with seed loops of 1000 seeds.
-
-### The state of the build
-
-- `make verify` passed before the commits, with 1625 tests. The later edits touched comments and one blank line.
-- The remote head is `74c3a64` on `main`. This round pushes the branch and opens the PR.
-
-### What is in flight
-
-The PR waits for the Gitar pass, then for the review of Codex, because it adds decisions (D-401).
-
-### Traps and gotchas
-
-- A turn now begins before the choice of a character: the timeline moves, statuses end, shares act, and a sleeper passes. `Act` reads the open turn.
-- A stun on the character whose turn is open ends that turn, and `GiveStatus` runs the loop again.
-- PR-66 changes no screen, so the visual review of D-784 has no frame to read.
-- The perl edits of this session broke two files on an unbalanced brace. Use the Edit tool for C# blocks.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push, open the PR, and follow the `gitar-review` skill.

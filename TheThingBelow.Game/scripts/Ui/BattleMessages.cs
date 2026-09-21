@@ -46,13 +46,13 @@ public static class BattleMessages
     public const string StatusPlace = "status";
 
     /// <summary>
-    /// Gives the line of one event, or no value for a turn, which changes only who acts and
-    /// leaves the line of the last event on screen.
+    /// Gives the line of one event, or no value for a turn or a win. A turn changes only who
+    /// acts, and a win keeps the line of the last event on screen (D-835).
     /// </summary>
     /// <param name="played">The event.</param>
     /// <param name="view">The view, which gives the row of a step after the event.</param>
     /// <param name="strings">The string table, which gives each name.</param>
-    /// <returns>The line, or no value for a turn.</returns>
+    /// <returns>The line, or no value for a turn or a win.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="ContentException">The table holds no name of a combatant or of a status (T-2).</exception>
     public static BattleLine? Of(BattleEvent played, BattleView view, StringTable strings)
@@ -64,6 +64,10 @@ public static class BattleMessages
         return played.Kind switch
         {
             BattleEventKind.Turn => null,
+
+            // A win shows no line of its own. The last line of the fight stands, and the
+            // summary of the loot and the level-ups of PR-67, PR-13, and PR-65 follows (D-835).
+            BattleEventKind.Won => null,
             BattleEventKind.Started => Line("battle.started"),
             BattleEventKind.Hit => Line(HitIdOf(played.Affinity), Target(played, view, strings), Amount(played)),
             BattleEventKind.Miss => Line("battle.miss", Actor(played, view, strings)),
@@ -74,7 +78,6 @@ public static class BattleMessages
             BattleEventKind.FleeFailed => Line("battle.flee_failed"),
             BattleEventKind.Down => Line(DownIdOf(played.Actor.Side), Actor(played, view, strings)),
             BattleEventKind.StepIn => Line("battle.step_in", Actor(played, view, strings)),
-            BattleEventKind.Won => Line("battle.won"),
             BattleEventKind.Fled => Line("battle.fled"),
             BattleEventKind.Wiped => Line("battle.wiped"),
             BattleEventKind.StatusOn => Line(StatusOnIdOf(StatusOf(played)), Actor(played, view, strings)),

@@ -26,14 +26,15 @@ public sealed class BattleMessagesTests
         new(() => ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find())));
 
     [Fact]
-    public void EveryKindOfEventGivesALineFromTheTableOrNoneForATurn()
+    public void EveryKindOfEventGivesALineFromTheTableOrNoneForATurnOrAWin()
     {
         // Exit test 3 of PR-10. det-lint proves that Game shows no inline string (DL 8), and
-        // this test proves that each event names an id of the table.
+        // this test proves that each event names an id of the table. A win shows no line, and
+        // the summary of the loot and the level-ups follows it in a later PR (D-835).
         foreach (BattleEvent played in EveryEvent())
         {
             object? line = LineOf(played, EnemyNamedFirst());
-            if (played.Kind == BattleEventKind.Turn)
+            if (played.Kind == BattleEventKind.Turn || played.Kind == BattleEventKind.Won)
             {
                 Assert.Null(line);
                 continue;
@@ -115,7 +116,8 @@ public sealed class BattleMessagesTests
     [Fact]
     public void AStepLineReadsTheRowThatTheActorReached()
     {
-        // D-380: a step to the back row falls back, and a step to the front row steps up.
+        // D-380, D-836: a step to the back row backs up, and a step to the front row steps
+        // forward.
         Assert.Equal("battle.step_back", ((ContentId)Method("StepIdOf").Invoke(null, [BattleRow.Back])!).Value);
         Assert.Equal("battle.step_front", ((ContentId)Method("StepIdOf").Invoke(null, [BattleRow.Front])!).Value);
     }

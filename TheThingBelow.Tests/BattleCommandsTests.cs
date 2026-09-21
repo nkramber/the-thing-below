@@ -141,6 +141,17 @@ public sealed class BattleCommandsTests
     }
 
     [Fact]
+    public void TheMenuReadsTheRowOfTheCharacterWhoseTurnItIs()
+    {
+        // D-836: the step reads "Back up" in the front row and "Step forward" in the back row,
+        // so the menu holds the row of the actor.
+        Simulation run = OnFirstCommand();
+        Combatant actor = BattleRuns.BattleOf(run).Next()!;
+
+        Assert.Equal(actor.Row, (BattleRow)Read(Open(run), "ActorRow"));
+    }
+
+    [Fact]
     public void TheMenuOfAFightThatEndedIsAnError()
     {
         // T-2: a menu with no fight to command is an error, never an empty menu. The last

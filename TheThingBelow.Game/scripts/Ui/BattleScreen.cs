@@ -631,7 +631,7 @@ public sealed class BattleScreen
             case CommandStage.Action:
                 foreach (BattleAction action in BattleCommands.Actions)
                 {
-                    entries.Add((CommandIdOf(action), Values(), open.Allows(action)));
+                    entries.Add((CommandIdOf(action, open.ActorRow), Values(), open.Allows(action)));
                 }
 
                 break;
@@ -704,12 +704,13 @@ public sealed class BattleScreen
         this.pointer.Visible = true;
     }
 
-    private static ContentId CommandIdOf(BattleAction action) => ContentId.Parse(
+    /// <summary>Gives the label of an action. The step names the move from the row of the actor (D-836).</summary>
+    private static ContentId CommandIdOf(BattleAction action, BattleRow row) => ContentId.Parse(
         action switch
         {
             BattleAction.Attack => "battle.command_attack",
             BattleAction.Defend => "battle.command_defend",
-            BattleAction.Step => "battle.command_step",
+            BattleAction.Step => row == BattleRow.Front ? "battle.command_back_up" : "battle.command_step_forward",
             BattleAction.Item => "battle.command_item",
             BattleAction.Flee => "battle.command_flee",
             _ => throw new ArgumentOutOfRangeException(nameof(action), action, $"The action '{action}' has no label (T-2)."),

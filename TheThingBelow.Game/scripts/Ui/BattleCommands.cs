@@ -52,10 +52,14 @@ public sealed class BattleCommands
     private BattleAction action = BattleAction.Attack;
     private ContentId? item;
 
-    private BattleCommands(RunState state)
+    private BattleCommands(RunState state, BattleRow actorRow)
     {
         this.state = state;
+        this.ActorRow = actorRow;
     }
+
+    /// <summary>The row of the character whose turn it is, which names the step on the menu (D-836).</summary>
+    public BattleRow ActorRow { get; }
 
     /// <summary>The part of the menu that the cursor stands in.</summary>
     public CommandStage Stage { get; private set; } = CommandStage.Action;
@@ -98,7 +102,7 @@ public sealed class BattleCommands
                 $"The command menu opened at tick {state.Tick}, and no fight runs with a character to command (D-532, T-2).");
         }
 
-        return new BattleCommands(state);
+        return new BattleCommands(state, next.Row);
     }
 
     /// <summary>Tells whether the action takes at least one choice that the rules allow now.</summary>

@@ -116,7 +116,7 @@ public sealed class BattleLayoutTests
         // with half a body between the parts.
         StringTable strings = Content.Value.Strings;
         int labels = 0;
-        foreach (string id in new[] { "battle.command_attack", "battle.command_defend", "battle.command_step", "battle.command_item", "battle.command_flee" })
+        foreach (string id in new[] { "battle.command_attack", "battle.command_defend", "battle.command_step_forward", "battle.command_item", "battle.command_flee" })
         {
             labels += strings.Text(ContentId.Parse(id, StringTable.Path, "id")).Length;
         }

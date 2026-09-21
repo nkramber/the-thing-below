@@ -571,6 +571,7 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 - The fixture backdrop of PR-55 behind every fight, with its sway (D-205, D-831).
 - The hit flash as a `.gdshader` file of the Game project, which never uses the normal map member (D-183, D-825, the external facts of `area-effects.md`).
 - The pace of the screen: each event plays for a count of ticks, and each timing is a constant of Game (D-829).
+- A win shows no line of its own, and the summary of PR-67 follows the fight (D-835). The step reads "Back up" or "Step forward" from the row of the actor (D-836).
 - The fixture art: Marrek with an idle frame and an attack pose, the grunt, and the brute (D-828).
 - The 18 icons of the elements and the statuses, and a check of the palette color of each (D-214, D-811). The icon of each status shows beside the health of its holder (D-830).
 
@@ -915,6 +916,7 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 - MP, and its recovery at a hub, at a save point once for the place, and from scarce items (D-42, D-389, D-555).
 - The stat curve of each character in content: the health, the MP, the attack, the defense, and the speed at each level (D-537, F-54).
 - The level-up sting event, which PR-70 plays (D-422).
+- The summary after a fight: the experience and each level-up. PR-13 and PR-65 add their loot to it (D-835).
 
 **Out of scope.**
 
@@ -1117,6 +1119,7 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 - Fixed, hand-authored gear with a few rarity tiers, and no random affix and no crafting (D-45, OQ-143).
 - The pack, with a small fixed number of each item (D-382, OQ-142).
 - The item use on a turn, which restores less in a fight than outside one (D-382).
+- The items that a fight gives, on the summary after the fight of PR-67 (D-835).
 - The find over the stack limit, which stays in its chest and which the save records (D-385).
 - The gear window and the item window in the stack of PR-62.
 
@@ -1193,6 +1196,7 @@ Area file: `area-exploration.md` section 7.12.
 **Scope.**
 
 - The gold economy: gold from enemies and from treasure, which buys gear, items, and rest (D-60).
+- The gold that a fight gives, on the summary after the fight of PR-67 (D-835).
 - The shop screen in the window stack of PR-62.
 - The shop stock in content, with its prices and its buy-back rule (D-60, OQ-121).
 - A shop that sells a lesson too (D-365).

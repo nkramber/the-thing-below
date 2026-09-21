@@ -1,5 +1,43 @@
 # Session handoff archive
 
+## Session 170: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-66, the elements and the statuses. Repository: the-thing-below. Branch: `feat/pr-66-elements-statuses`. PR: the PR of PR-66, which this round opens. Role: author. Base: `74c3a64`.
+
+### What this session did, and why
+
+- Asked the owner 22 start questions, and recorded the answers as D-790 to D-811. D-533 is revised in part by D-792.
+- Moved the gear table to PR-13, the aptitude bonus to PR-12, and the icons to PR-10 (D-790, D-791, D-811).
+- Added the element table and the immune list to each enemy record, and the ten statuses to each combatant, on the timeline.
+- Poison, blind, and silence stay on each character after a fight, in save format 5 with a reader of format 4.
+- Raised the simulation version to 9, and added the identity run `statuses`.
+- Added the tests of the five exit tests, with seed loops of 1000 seeds.
+
+### The state of the build
+
+- `make verify` passed before the commits, with 1625 tests. The later edits touched comments and one blank line.
+- The remote head is `74c3a64` on `main`. This round pushes the branch and opens the PR.
+
+### What is in flight
+
+The PR waits for the Gitar pass, then for the review of Codex, because it adds decisions (D-401).
+
+### Traps and gotchas
+
+- A turn now begins before the choice of a character: the timeline moves, statuses end, shares act, and a sleeper passes. `Act` reads the open turn.
+- A stun on the character whose turn is open ends that turn, and `GiveStatus` runs the loop again.
+- PR-66 changes no screen, so the visual review of D-784 has no frame to read.
+- The perl edits of this session broke two files on an unbalanced brace. Use the Edit tool for C# blocks.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, open the PR, and follow the `gitar-review` skill.
+
 ## Session 169: 2026-09-21, Codex
 
 Author: Codex

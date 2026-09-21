@@ -14,6 +14,10 @@
    "text": "Attack"
   },
   {
+   "id": "battle.command_back_up",
+   "text": "Back up"
+  },
+  {
    "id": "battle.command_defend",
    "text": "Defend"
   },
@@ -26,8 +30,8 @@
    "text": "Item"
   },
   {
-   "id": "battle.command_step",
-   "text": "Step"
+   "id": "battle.command_step_forward",
+   "text": "Step forward"
   },
   {
    "id": "battle.defend",
@@ -143,11 +147,11 @@
   },
   {
    "id": "battle.step_back",
-   "text": "{actor} falls back."
+   "text": "{actor} backs up."
   },
   {
    "id": "battle.step_front",
-   "text": "{actor} steps up."
+   "text": "{actor} steps forward."
   },
   {
    "id": "battle.step_in",
@@ -156,10 +160,6 @@
   {
    "id": "battle.wiped",
    "text": "Nobody gets up."
-  },
-  {
-   "id": "battle.won",
-   "text": "Quiet again."
   },
   {
    "id": "crash.address",
