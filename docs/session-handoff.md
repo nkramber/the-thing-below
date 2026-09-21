@@ -1,5 +1,37 @@
 # Session handoff
 
+## Session 163: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-89, round 4: the fill baselines at 1080 rows. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: author. Base: `ce06eda`.
+
+### What this session did, and why
+
+- At `1df0418`, every CI leg passed except `screen-test` and `review-gate`. Gitar reported "No issues found" on that head.
+- The screen test failed on `map-fill-1080.png` and `ui-fill-1080.png` alone, as planned. The old baselines held the cut frame of the fit fault.
+- Read both new captures of run 35602012534 (D-733, D-784). The map shows all 20 columns and the prompt row. The window frame of the ui fixture shows on all four edges.
+- The other 40 captures of that run match their baselines byte for byte. Committed the two new baselines.
+
+### The state of the build
+
+- Remote head of `main`: `ce06eda`. Local: 1555 of 1555 tests pass.
+
+### What is in flight
+
+The push of this round, then the Gitar pass of the new head, and the Codex review, which adds `docs/reviews/pr-47.md`.
+
+### Traps and gotchas
+
+The traps of Sessions 160 to 162 stand.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Confirm the green screen test and the Gitar pass on the new head. Then tell the owner that PR #47 is ready for the Codex review.
+
 ## Session 162: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -318,38 +350,3 @@ None.
 ### The next concrete action
 
 Hand PR #45 to the cross-provider review. Answer each finding in this session (D-582).
-
-## Session 153: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: PR-8, the enemies on the map, round 2. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: author. Base: `626d2fe`.
-
-### What this session did, and why
-
-- Read the first CI run of PR #45. The `screen-test` job failed on the five map frames alone, because the lead now draws (F-94). The five UI frames match the baseline by pixel.
-- Downloaded the artifact `screen-captures` of the run `35555586770`, and read each map frame. Each one shows Marrek on the spawn tile, crisp at each scale. No enemy is in the sight of the party on this night map, as D-719 wants.
-- Committed the five map frames as the new baseline (D-733).
-- Attached the review sheet of the map sprite page to the PR description, with the fixture enemy (D-514).
-
-### The state of the build
-
-- On the first run, every leg of the build, test, and format job that finished passed, and so did the smoke, replay identity, det-lint, and STE jobs.
-- The `review-gate` check fails on RG 3 alone until the review record lands.
-- The remote head of `main` is `626d2fe`.
-
-### What is in flight
-
-The push of this round runs CI again. The gitar pass follows, and then the PR goes to the cross-provider review.
-
-### Traps and gotchas
-
-- The logs of a job stay locked while its run is still in progress, but the artifact is ready at once.
-- The map frames of PR #44 held no character, and the owner approved them. A dark frame hides a missing sprite, so read each frame at a crop.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for CI and the gitar pass on the new head, answer each gitar comment, and hand PR #45 to the cross-provider review.

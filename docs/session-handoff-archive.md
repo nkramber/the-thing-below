@@ -1,5 +1,40 @@
 # Session handoff archive
 
+## Session 153: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: PR-8, the enemies on the map, round 2. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: author. Base: `626d2fe`.
+
+### What this session did, and why
+
+- Read the first CI run of PR #45. The `screen-test` job failed on the five map frames alone, because the lead now draws (F-94). The five UI frames match the baseline by pixel.
+- Downloaded the artifact `screen-captures` of the run `35555586770`, and read each map frame. Each one shows Marrek on the spawn tile, crisp at each scale. No enemy is in the sight of the party on this night map, as D-719 wants.
+- Committed the five map frames as the new baseline (D-733).
+- Attached the review sheet of the map sprite page to the PR description, with the fixture enemy (D-514).
+
+### The state of the build
+
+- On the first run, every leg of the build, test, and format job that finished passed, and so did the smoke, replay identity, det-lint, and STE jobs.
+- The `review-gate` check fails on RG 3 alone until the review record lands.
+- The remote head of `main` is `626d2fe`.
+
+### What is in flight
+
+The push of this round runs CI again. The gitar pass follows, and then the PR goes to the cross-provider review.
+
+### Traps and gotchas
+
+- The logs of a job stay locked while its run is still in progress, but the artifact is ready at once.
+- The map frames of PR #44 held no character, and the owner approved them. A dark frame hides a missing sprite, so read each frame at a crop.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for CI and the gitar pass on the new head, answer each gitar comment, and hand PR #45 to the cross-provider review.
+
 ## Session 152: 2026-09-21, Claude Code
 
 Author: Claude Code
