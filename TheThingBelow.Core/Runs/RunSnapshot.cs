@@ -24,6 +24,13 @@ public sealed record StreamPosition(StreamId Stream, ulong State, ulong Incremen
 /// <param name="Stepping">The direction of the step that ran, or no value while the lead stood.</param>
 /// <param name="StepTicks">The count of ticks of that step (D-203).</param>
 /// <param name="Walked">Every tile that the party walked, one string for each row (D-567).</param>
+/// <param name="Enemies">
+/// The stored values of each enemy that the map places, in the order of the map file
+/// (D-750). The value is absent on a snapshot of save format 2, which predates the enemies,
+/// and the migration then puts each enemy on the start tile of its station (D-654).
+/// </param>
+/// <param name="Mark">The mark of a sight that ran, or no value (D-745).</param>
+/// <param name="Encounter">The encounter that ran, or no value (D-749).</param>
 public sealed record MapSnapshot(
     ContentId Map,
     int LeadX,
@@ -31,7 +38,10 @@ public sealed record MapSnapshot(
     StepDirection Facing,
     StepDirection? Stepping,
     int StepTicks,
-    IReadOnlyList<string> Walked);
+    IReadOnlyList<string> Walked,
+    IReadOnlyList<PatrolValues>? Enemies,
+    SightMark? Mark,
+    MapEncounter? Encounter);
 
 /// <summary>
 /// The whole state of a run at the end of one tick. A record holds one snapshot and the
@@ -42,9 +52,14 @@ public sealed record MapSnapshot(
 /// a snapshot and applies the intents that follow it, so a snapshot must hold every value
 /// that a rule reads. PR-43 writes a snapshot to a save file (D-259, D-494).
 /// <para>
-/// The world of this build is the party on a tile map (D-100, D-106). A snapshot of save
-/// format 1 predates the map, so its map value is absent and the migration of `RunState`
-/// puts the party on the spawn point of the first map (D-166, D-654).
+/// The world of this build is the party and the enemies on a tile map (D-100, D-106). A
+/// snapshot of save format 1 predates the map, so its map value is absent and the migration
+/// of `RunState` puts the party on the spawn point of the first map (D-166, D-654).
+/// </para>
+/// <para>
+/// A snapshot of save format 2 predates the enemies, so its enemy list holds none. Its
+/// migration puts each enemy of the map on the start tile of its station, which is where a
+/// new run puts it (D-654, D-750).
 /// </para>
 /// </remarks>
 /// <param name="Tick">The count of ticks since the start of the run (D-164, D-650).</param>
@@ -137,6 +152,23 @@ public sealed record RunSnapshot(
             source,
             $"the step ticks are {map.StepTicks}, and the range of a step is 0 to {MapRules.TicksPerStep - 1}");
         Refuse(map.Walked.Count == 0, source, "the walked tiles hold no row, and a map holds at least one");
+
+        // The values of one enemy take their full check in `MapPatrols.Resume`, which holds
+        // the map of this build and can read the record of each enemy (T-2, D-750).
+        foreach (PatrolValues enemy in map.Enemies ?? [])
+        {
+            ArgumentNullException.ThrowIfNull(enemy);
+            ArgumentNullException.ThrowIfNull(enemy.Enemy);
+        }
+
+        Refuse(
+            map.Mark is not null && map.Encounter is not null,
+            source,
+            "it holds a mark and an encounter, and one encounter ends every mark");
+        Refuse(
+            map.Enemies is null && (map.Mark is not null || map.Encounter is not null),
+            source,
+            "it holds no enemy list and it holds a mark or an encounter, and both name an enemy");
     }
 
     private static void Refuse(bool broken, string source, string reason)

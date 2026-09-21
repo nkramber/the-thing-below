@@ -23,7 +23,8 @@ namespace TheThingBelow.Tests;
 /// The stored save of format 1 names simulation version 1 and the game version 0.1.0. This
 /// build runs another simulation version, and the load reads the snapshot alone, so the save
 /// still loads (D-259). Format 1 predates the tile map, so its migration puts the party on
-/// the spawn point of the first map (D-654).
+/// the spawn point of the first map (D-654). Format 2 predates the enemies, and its migration
+/// puts each enemy of the map on the start tile of its station (D-750).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
@@ -154,6 +155,48 @@ public sealed class SaveFixtureTests
 
         found.Sort(StringComparer.Ordinal);
         Assert.Equal(wanted, found);
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatThreeHoldsEachEnemyOfItsMap()
+    {
+        // D-750: a load puts each patrol back where it stood, so a save and a reload never
+        // move a fight.
+        SaveDocument save = ReadFormat(3);
+
+        Assert.Equal(3, save.Header.FormatVersion);
+        Assert.NotNull(save.Snapshot.Map);
+        Assert.Equal(TestMaps.Patrolled.Id.Value, save.Snapshot.Map.Map.Value);
+        Assert.NotNull(save.Snapshot.Map.Enemies);
+        Assert.Equal(3, save.Snapshot.Map.Enemies.Count);
+
+        Simulation run = Simulation.Resume(
+            save.Header.Seed, save.Snapshot, TestMaps.Patrolled, DebugIntentHandlers.None);
+
+        Assert.Equal(SaveRuns.FixtureTicks, run.Tick);
+        IReadOnlyList<PatrolState> enemies = run.State.Party.Patrols.All;
+        for (int index = 0; index < enemies.Count; index += 1)
+        {
+            PatrolValues stored = save.Snapshot.Map.Enemies[index];
+            Assert.Equal(stored.Enemy.Value, enemies[index].Patrol.Id.Value);
+            Assert.Equal(new TilePoint(stored.X, stored.Y), enemies[index].At);
+            Assert.Equal(stored.Facing, enemies[index].Facing);
+            Assert.Equal(stored.Stepping, enemies[index].Stepping);
+            Assert.Equal(stored.StepTicks, enemies[index].StepTicks);
+            Assert.Equal(stored.Target, enemies[index].Target);
+        }
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatThreeRunsAgainFromItsTick()
+    {
+        SaveDocument save = ReadFormat(3);
+        Simulation run = Simulation.Resume(
+            save.Header.Seed, save.Snapshot, TestMaps.Patrolled, DebugIntentHandlers.None);
+
+        run.Step([]);
+
+        Assert.Equal(SaveRuns.FixtureTicks + 1, run.Tick);
     }
 
     private static SaveDocument ReadFormat(int version)

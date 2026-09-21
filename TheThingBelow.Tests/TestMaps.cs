@@ -11,7 +11,7 @@ namespace TheThingBelow.Tests;
 /// <remarks>
 /// A test that needs the real dungeon reads it from the content set of the checkout. These
 /// maps hold the shapes that a rule test needs: a room with a pillar, a map larger than the
-/// view, and a map smaller than the view (F-52).
+/// view, a map smaller than the view, and a room with enemies (F-52, D-738).
 /// </remarks>
 public static class TestMaps
 {
@@ -42,6 +42,74 @@ public static class TestMaps
           { "id": "spawn_point.test_room_start", "kind": "spawn_point", "x": 2, "y": 2 },
           { "id": "door.test_room_east", "kind": "door", "x": 11, "y": 4 },
           { "id": "lock.test_room_east", "kind": "lock", "x": 11, "y": 4, "pickable": false }
+         ],
+         "enemies": []
+        }
+        """);
+
+    /// <summary>
+    /// A room of 16 by 12 tiles with three enemies: one that walks a route, one that stands
+    /// still, and one elite in an area (D-739, D-740, D-741).
+    /// </summary>
+    public static GameMap Patrolled { get; } = Of(
+        "test-patrolled.json",
+        """
+        {
+         "comment": "A room with three enemies, for the tests of the walk rule and the sight rule.",
+         "id": "map.test_patrolled",
+         "label": "label.test_patrolled",
+         "time": "day",
+         "terrain": [
+          "################",
+          "#..............#",
+          "#..............#",
+          "#..............#",
+          "#..............#",
+          "#..............#",
+          "#..............#",
+          "#..............#",
+          "#..............#",
+          "#..............#",
+          "#..............#",
+          "################"
+         ],
+         "things": [
+          { "id": "spawn_point.test_patrolled_start", "kind": "spawn_point", "x": 1, "y": 1 }
+         ],
+         "enemies": [
+          {
+           "id": "patrol.test_walker",
+           "group": "group.test_pair",
+           "size": "common",
+           "facing": "east",
+           "step_ticks": 30,
+           "sight_range": 3,
+           "routes": [
+            { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 4, "y": 5 }, { "x": 10, "y": 5 }] }
+           ]
+          },
+          {
+           "id": "patrol.test_guard",
+           "group": "group.test_pair",
+           "size": "common",
+           "facing": "north",
+           "step_ticks": 30,
+           "sight_range": 2,
+           "routes": [
+            { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 13, "y": 9 }] }
+           ]
+          },
+          {
+           "id": "patrol.test_elite",
+           "group": "group.test_elite",
+           "size": "elite",
+           "facing": "south",
+           "step_ticks": 30,
+           "sight_range": 2,
+           "areas": [
+            { "times": ["dawn", "day", "dusk", "night"], "x": 2, "y": 7, "width": 5, "height": 3 }
+           ]
+          }
          ]
         }
         """);
@@ -82,7 +150,7 @@ public static class TestMaps
 
         text.Append(" ],\n \"things\": [\n");
         text.Append($"  {{ \"id\": \"spawn_point.{id[4..]}_start\", \"kind\": \"spawn_point\", \"x\": 1, \"y\": 1 }}\n");
-        text.Append(" ]\n}\n");
+        text.Append(" ],\n \"enemies\": []\n}\n");
         return text.ToString();
     }
 }

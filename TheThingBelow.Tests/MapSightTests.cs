@@ -1,3 +1,4 @@
+using System;
 using TheThingBelow.Core.Maps;
 using Xunit;
 
@@ -132,6 +133,58 @@ public sealed class MapSightTests
                 }
             }
         }
+    }
+
+    [Fact]
+    public void TheQuarterBehindAFacingIsTheMirrorOfTheQuarterThatItSees()
+    {
+        // D-746: one shape serves the sight of a patrol and the approach of each side, so the
+        // quarter behind a facing is the mirror of the quarter of D-718.
+        TilePoint at = new(5, 5);
+
+        Assert.True(MapSight.BehindFacing(at, StepDirection.North, new TilePoint(5, 6)));
+        Assert.True(MapSight.BehindFacing(at, StepDirection.North, new TilePoint(6, 7)));
+        Assert.True(MapSight.BehindFacing(at, StepDirection.South, new TilePoint(5, 4)));
+        Assert.True(MapSight.BehindFacing(at, StepDirection.East, new TilePoint(4, 5)));
+        Assert.True(MapSight.BehindFacing(at, StepDirection.West, new TilePoint(6, 5)));
+    }
+
+    [Fact]
+    public void NoTileAheadOfAFacingOrBesideItLiesBehindIt()
+    {
+        TilePoint at = new(5, 5);
+
+        Assert.False(MapSight.BehindFacing(at, StepDirection.North, new TilePoint(5, 4)));
+        Assert.False(MapSight.BehindFacing(at, StepDirection.North, new TilePoint(8, 5)));
+        Assert.False(MapSight.BehindFacing(at, StepDirection.North, new TilePoint(8, 6)));
+        Assert.False(MapSight.BehindFacing(at, StepDirection.North, at));
+    }
+
+    [Fact]
+    public void ThePartAheadAndThePartBehindNeverHoldOneTile()
+    {
+        // A seed loop over every tile of the room: no tile lies in the quarter that a facing
+        // sees and in the quarter behind it (D-718, D-746).
+        foreach (StepDirection facing in StepDirections.All)
+        {
+            for (int y = 1; y < Room.Height - 1; y += 1)
+            {
+                for (int x = 1; x < Room.Width - 1; x += 1)
+                {
+                    TilePoint other = new(x, y);
+                    bool ahead = MapSight.PatrolSees(Room, new TilePoint(5, 5), facing, 40, other) &&
+                        MapSight.Reach(new TilePoint(5, 5), other) > MapSight.PatrolTouchRange;
+                    Assert.False(ahead && MapSight.BehindFacing(new TilePoint(5, 5), facing, other));
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void AFacingThatNamesNoDirectionIsAnError()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => MapSight.BehindFacing(new TilePoint(1, 1), (StepDirection)9, new TilePoint(2, 2)));
     }
 
     [Fact]

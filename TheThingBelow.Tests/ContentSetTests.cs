@@ -488,7 +488,8 @@ public sealed class ContentSetTests
              "terrain": [ "###", "#.#", "###" ],
              "things": [
               { "id": "spawn_point.one_start", "kind": "spawn_point", "x": 1, "y": 1 }
-             ]
+             ],
+             "enemies": []
             }
             """);
 

@@ -21,6 +21,9 @@ public sealed class DebugConsoleTests
     /// <summary>The permanent id of the reveal command (D-166, D-727).</summary>
     private const string RevealId = "debug.reveal_map";
 
+    /// <summary>The id of the intent of the `flee` command (D-749).</summary>
+    private const string FleeId = "debug.flee_encounter";
+
     /// <summary>The seed of the runs of these tests.</summary>
     private const ulong Seed = 20260920;
 
@@ -34,9 +37,11 @@ public sealed class DebugConsoleTests
         // a debug handler (D-260, D-492).
         DebugIntentHandlers handlers = DebugAssemblyFile.Handlers();
 
-        Assert.Equal(1, handlers.Count);
+        Assert.Equal(2, handlers.Count);
         Assert.True(handlers.TryFind(Id(RevealId), out DebugIntentHandler? found));
         Assert.NotNull(found);
+        Assert.True(handlers.TryFind(Id(FleeId), out DebugIntentHandler? flee));
+        Assert.NotNull(flee);
     }
 
     [Fact]
@@ -203,7 +208,7 @@ public sealed class DebugConsoleTests
             Assert.True(names.Add(name), $"Two commands take the name '{name}' (T-2).");
         }
 
-        Assert.Equal(4, names.Count);
+        Assert.Equal(5, names.Count);
     }
 
     private static Simulation Start() =>

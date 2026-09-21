@@ -83,6 +83,28 @@ public static class MapSight
     }
 
     /// <summary>
+    /// Tells whether one tile lies in the quarter behind a facing (D-265, D-746). The side
+    /// that reached the other from behind acts first in the fight.
+    /// </summary>
+    /// <param name="from">The tile of the side that faces.</param>
+    /// <param name="facing">The direction that this side faces (D-207, D-718).</param>
+    /// <param name="at">The tile of the other side.</param>
+    /// <returns>True when that tile lies behind the facing.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The value names no direction (T-2).</exception>
+    /// <exception cref="OverflowException">A distance passes the range of an `int` (T-2).</exception>
+    /// <remarks>
+    /// The quarter behind a facing is the mirror of the quarter that <see cref="PatrolSees"/>
+    /// reads, so one shape serves the sight of a patrol and the approach of each side
+    /// (D-718, D-746, T-1). A wall reaches no part of this rule, because the encounter
+    /// already started.
+    /// </remarks>
+    public static bool BehindFacing(TilePoint from, StepDirection facing, TilePoint at)
+    {
+        Forward(from, at, facing, out int ahead, out int beside);
+        return ahead <= -1 && beside <= -ahead;
+    }
+
+    /// <summary>
     /// Gives the reach between two tiles: the larger of the two axis distances. A step goes
     /// in four directions alone, and this reach counts a diagonal as one (D-716, D-719).
     /// </summary>

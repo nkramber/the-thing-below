@@ -283,7 +283,8 @@ public sealed class GameMapTests
         string things = """
          { "id": "spawn_point.bad_start", "kind": "spawn_point", "x": 1, "y": 1 }
         """,
-        string time = "day") =>
+        string time = "day",
+        string enemies = "") =>
         $$"""
         {
          "comment": "a map for one test",
@@ -295,6 +296,9 @@ public sealed class GameMapTests
          ],
          "things": [
         {{things}}
+         ],
+         "enemies": [
+        {{enemies}}
          ]
         }
         """;

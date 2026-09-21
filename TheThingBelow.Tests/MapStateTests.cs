@@ -27,9 +27,10 @@ public sealed class MapStateTests
         MapState party = MapState.Enter(TestMaps.Room);
 
         party.Want(StepDirection.East);
-        Assert.True(party.Advance(out _, out StepDirection? started) is false);
+        PartyStep step = party.Advance();
 
-        Assert.Equal(StepDirection.East, started);
+        Assert.False(step.Arrived);
+        Assert.Equal(StepDirection.East, step.Started);
         Assert.Equal(StepDirection.East, party.Stepping);
         Assert.Equal(0, party.StepTicks);
     }
@@ -40,17 +41,18 @@ public sealed class MapStateTests
         MapState party = MapState.Enter(TestMaps.Room);
         TilePoint start = party.LeadAt;
         party.Want(StepDirection.East);
-        party.Advance(out _, out _);
+        party.Advance();
 
         for (int tick = 1; tick < MapRules.TicksPerStep; tick += 1)
         {
-            Assert.False(party.Advance(out _, out _));
+            Assert.False(party.Advance().Arrived);
             Assert.Equal(start, party.LeadAt);
         }
 
-        Assert.True(party.Advance(out TilePoint walked, out _));
+        PartyStep last = party.Advance();
+        Assert.True(last.Arrived);
         Assert.Equal(start.Step(StepDirection.East), party.LeadAt);
-        Assert.Equal(party.LeadAt, walked);
+        Assert.Equal(party.LeadAt, last.At);
         Assert.True(party.Walked.WasWalked(party.LeadAt));
     }
 
@@ -65,7 +67,7 @@ public sealed class MapStateTests
         for (int tick = 0; tick <= MapRules.TicksPerStep * 2; tick += 1)
         {
             party.Want(StepDirection.East);
-            party.Advance(out _, out _);
+            party.Advance();
         }
 
         Assert.Equal(new TilePoint(start.X + 2, start.Y), party.LeadAt);
@@ -81,12 +83,12 @@ public sealed class MapStateTests
         TilePoint start = party.LeadAt;
 
         party.Want(StepDirection.North);
-        party.Advance(out _, out StepDirection? started);
+        PartyStep first = party.Advance();
         party.Want(StepDirection.West);
-        party.Advance(out _, out StepDirection? blocked);
+        PartyStep second = party.Advance();
 
-        Assert.Equal(StepDirection.North, started);
-        Assert.Null(blocked);
+        Assert.Equal(StepDirection.North, first.Started);
+        Assert.Null(second.Started);
         Assert.Equal(StepDirection.North, party.Stepping);
         Assert.Equal(start, party.LeadAt);
     }
@@ -101,13 +103,16 @@ public sealed class MapStateTests
             null,
             0,
             WalkedOf(TestMaps.Room, new TilePoint(1, 1)),
+            null,
+            null,
+            null,
             "the test");
 
         party.Want(StepDirection.West);
-        bool arrived = party.Advance(out _, out StepDirection? started);
+        PartyStep step = party.Advance();
 
-        Assert.False(arrived);
-        Assert.Null(started);
+        Assert.False(step.Arrived);
+        Assert.Null(step.Started);
         Assert.Null(party.Stepping);
         Assert.Equal(StepDirection.West, party.Facing);
         Assert.Equal(new TilePoint(1, 1), party.LeadAt);
@@ -123,7 +128,7 @@ public sealed class MapStateTests
         party.Want(StepDirection.East);
         for (int tick = 0; tick <= MapRules.TicksPerStep; tick += 1)
         {
-            party.Advance(out _, out _);
+            party.Advance();
         }
 
         Assert.Null(party.Stepping);
@@ -153,6 +158,9 @@ public sealed class MapStateTests
             null,
             0,
             WalkedTiles.Empty(4, 4),
+            null,
+            null,
+            null,
             "the save"));
 
         Assert.Contains("the save", error.Message, StringComparison.Ordinal);
@@ -169,6 +177,9 @@ public sealed class MapStateTests
             null,
             0,
             WalkedOf(TestMaps.Room, new TilePoint(0, 0)),
+            null,
+            null,
+            null,
             "the save"));
 
         Assert.Contains("wall", error.Message, StringComparison.Ordinal);
@@ -184,6 +195,9 @@ public sealed class MapStateTests
             null,
             0,
             WalkedTiles.Empty(TestMaps.Room.Width, TestMaps.Room.Height),
+            null,
+            null,
+            null,
             "the save"));
 
         Assert.Contains("(40, 40)", error.Message, StringComparison.Ordinal);
@@ -199,6 +213,9 @@ public sealed class MapStateTests
             null,
             0,
             WalkedTiles.Empty(TestMaps.Room.Width, TestMaps.Room.Height),
+            null,
+            null,
+            null,
             "the save"));
 
         Assert.Contains("walked tiles", error.Message, StringComparison.Ordinal);
@@ -214,6 +231,9 @@ public sealed class MapStateTests
             StepDirection.West,
             3,
             WalkedOf(TestMaps.Room, new TilePoint(1, 1)),
+            null,
+            null,
+            null,
             "the save"));
 
         Assert.Contains("takes no step", error.Message, StringComparison.Ordinal);
@@ -229,6 +249,9 @@ public sealed class MapStateTests
             null,
             4,
             WalkedOf(TestMaps.Room, TestMaps.Room.Spawn),
+            null,
+            null,
+            null,
             "the save"));
 
         Assert.Contains("step ticks are 4", error.Message, StringComparison.Ordinal);

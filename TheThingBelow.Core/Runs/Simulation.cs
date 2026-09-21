@@ -139,7 +139,7 @@ public sealed class Simulation
                     context);
             }
 
-            handler!(this.State, context);
+            handler!(this.State, context, log);
             return;
         }
 

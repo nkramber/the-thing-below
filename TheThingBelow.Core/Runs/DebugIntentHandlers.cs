@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Logging;
 
 namespace TheThingBelow.Core.Runs;
 
@@ -10,7 +11,11 @@ namespace TheThingBelow.Core.Runs;
 /// </summary>
 /// <param name="state">The state of the run, which the command changes.</param>
 /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
-public delegate void DebugIntentHandler(RunState state, RunContext context);
+/// <param name="log">
+/// The log entries of this tick, which the handler adds to. A command that changes a value
+/// of the run says so in the log, at the level that the change deserves (D-179, D-751).
+/// </param>
+public delegate void DebugIntentHandler(RunState state, RunContext context, List<LogEntry> log);
 
 /// <summary>
 /// The extra intent handlers that the host gives to a run at its start. A development build

@@ -79,7 +79,7 @@ public sealed class RunRecordTextTests
         [
             new KeyValuePair<Core.Content.ContentId, DebugIntentHandler>(
                 RunScripts.DebugStepEast,
-                (state, context) => state.WantStep(StepDirection.East, context)),
+                (state, context, log) => state.WantStep(StepDirection.East, context)),
         ]));
         RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, Seed), run.Snapshot());
 
@@ -186,7 +186,7 @@ public sealed class RunRecordTextTests
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
         lines[1] = "{\"tick\":0,\"menu\":false,\"world\":0,\"map\":{\"id\":\"map.test_room\",\"x\":2,\"y\":2,"
-            + "\"facing\":\"south\",\"step_ticks\":0,\"walked\":[\"x\"]},\"streams\":[]}";
+            + "\"facing\":\"south\",\"step_ticks\":0,\"walked\":[\"x\"],\"enemies\":[]},\"streams\":[]}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));

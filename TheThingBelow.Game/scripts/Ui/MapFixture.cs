@@ -32,7 +32,7 @@ public sealed record MapFixture(MapScreen Map, PromptBar Prompts)
 
         var drawn = new MapScreen();
         frame.World.AddChild(drawn);
-        drawn.Build(@base.Atlas, party.Map);
+        drawn.Build(@base.Atlas, @base.Theme, party);
         drawn.ShowParty(party);
 
         var row = new PromptBar

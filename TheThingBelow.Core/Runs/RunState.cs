@@ -81,7 +81,8 @@ public sealed class RunState
     /// <remarks>
     /// A snapshot of save format 1 holds no map, because it predates the tile map. Its
     /// migration puts the party on the spawn point of the first map, with that tile walked
-    /// and no other (D-166, D-654).
+    /// and no other (D-166, D-654). A snapshot of save format 2 holds no enemy, and its
+    /// migration puts each enemy of the map on the start tile of its station (D-750).
     /// </remarks>
     public static RunState Resume(ulong seed, RunSnapshot snapshot, GameMap map)
     {
@@ -122,6 +123,9 @@ public sealed class RunState
         }
 
         MapSnapshot party = snapshot.Map;
+
+        // A snapshot of save format 2 predates the enemies, so its enemy list is absent and
+        // each enemy of the map starts on the start tile of its station (D-654, D-750).
         return MapState.Resume(
             map,
             new TilePoint(party.LeadX, party.LeadY),
@@ -129,6 +133,9 @@ public sealed class RunState
             party.Stepping,
             party.StepTicks,
             WalkedTiles.OfRows(party.Walked, "this run"),
+            party.Enemies,
+            party.Mark,
+            party.Encounter,
             "this run");
     }
 
@@ -171,7 +178,10 @@ public sealed class RunState
                 this.Party.Facing,
                 this.Party.Stepping,
                 this.Party.StepTicks,
-                this.Party.Walked.Rows()),
+                this.Party.Walked.Rows(),
+                this.Party.Patrols.Values(),
+                this.Party.Patrols.Mark,
+                this.Party.Patrols.Encounter),
             ReadPositions(this.streams));
 
     /// <summary>Computes the state hash that a replay and the identity job compare (G-5).</summary>

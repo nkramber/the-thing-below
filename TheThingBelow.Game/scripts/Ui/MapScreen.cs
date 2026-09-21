@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
@@ -22,6 +23,16 @@ namespace TheThingBelow.Game.Ui;
 /// A layer turns off its collisions and its navigation, because no rule of Core reads them
 /// and both default to on (F-51, G-1, G-23).
 /// </para>
+/// <para>
+/// The party sees every direction out to its range, so an enemy outside that range is not
+/// drawn and the ground under it is drawn (D-719). The sort value of each enemy comes from
+/// the front row of its body, so the body draws in front of what it stands before (D-737).
+/// </para>
+/// <para>
+/// Every map sprite sits at the south edge of its front row, and its picture draws up from
+/// there. A tile takes the center of its cell as its sort value, so a sprite at the north
+/// edge of a tile draws behind the floor that it stands on (F-94, D-737).
+/// </para>
 /// </remarks>
 public partial class MapScreen : Node2D
 {
@@ -36,36 +47,66 @@ public partial class MapScreen : Node2D
     /// <summary>The use that the map drawing of a character serves (D-519).</summary>
     public const string MapUse = "map_front";
 
+    /// <summary>The role of the color of the mark of a sight, in the UI style file (D-527).</summary>
+    public const string MarkRole = "text_warning";
+
+    /// <summary>The width of the bar and of the dot of the mark, in art pixels (D-208).</summary>
+    private const int MarkWidth = 4;
+
+    /// <summary>The height of the bar of the mark, in art pixels.</summary>
+    private const int MarkBar = 10;
+
+    /// <summary>The height of the dot of the mark, and the gap above it, in art pixels.</summary>
+    private const int MarkDot = 4;
+
     private TileMapLayer ground = null!;
     private Sprite2D lead = null!;
+    private Sprite2D[] enemies = [];
+    private Node2D mark = null!;
 
-    /// <summary>Builds the tiles of one map and the sprite of the lead.</summary>
+    /// <summary>
+    /// Builds the tiles of one map, the sprite of the lead, one sprite for each enemy, and
+    /// the mark of a sight (D-208, D-738).
+    /// </summary>
     /// <param name="atlas">The pages of the atlas, as textures (D-666).</param>
-    /// <param name="map">The map that the party stands on (D-528).</param>
+    /// <param name="theme">The theme, for the color of the mark (D-527).</param>
+    /// <param name="party">The party and the enemies on the map (D-528, D-738).</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="ContentException">The atlas holds no drawing of a tile or of the lead (T-2).</exception>
+    /// <exception cref="ContentException">The atlas holds no drawing of a tile, of the lead, or of an enemy (T-2).</exception>
     /// <exception cref="InvalidOperationException">A call of the engine made no tile (T-2, F-45).</exception>
-    public void Build(GameAtlas atlas, GameMap map)
+    /// <remarks>
+    /// The enemies of the map never change while the party stands on it, because the time of
+    /// day picks each station at the start of the run (D-743). Thus one sprite serves one
+    /// enemy for the whole visit.
+    /// </remarks>
+    public void Build(GameAtlas atlas, UiTheme theme, MapState party)
     {
         ArgumentNullException.ThrowIfNull(atlas);
-        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(theme);
+        ArgumentNullException.ThrowIfNull(party);
 
         // Godot sorts each canvas item by one Y value, so a character draws in front of what
         // stands behind it (D-206, the external facts of `area-exploration.md`).
         this.YSortEnabled = true;
 
-        this.ground = BuildGround(atlas, map);
+        this.ground = BuildGround(atlas, party.Map);
         this.AddChild(this.ground);
 
-        AtlasEntry entry = atlas.Index.Entry(
-            ContentId.Parse(LeadContentId, AtlasIndex.Path, nameof(LeadContentId)),
-            MapUse);
-        this.lead = new Sprite2D
-        {
-            Texture = atlas.Frame(entry.Id, 0),
-            Centered = false,
-        };
+        this.lead = BuildSprite(
+            atlas,
+            ContentId.Parse(LeadContentId, AtlasIndex.Path, nameof(LeadContentId)));
         this.AddChild(this.lead);
+
+        IReadOnlyList<PatrolState> patrols = party.Patrols.All;
+        this.enemies = new Sprite2D[patrols.Count];
+        for (int index = 0; index < patrols.Count; index += 1)
+        {
+            this.enemies[index] = BuildSprite(atlas, patrols[index].Patrol.Id);
+            this.AddChild(this.enemies[index]);
+        }
+
+        this.mark = BuildMark(theme);
+        this.AddChild(this.mark);
     }
 
     /// <summary>Puts the party where Core put it, and moves the view (D-203, D-717).</summary>
@@ -81,10 +122,116 @@ public partial class MapScreen : Node2D
 
         int leadX = MapCamera.LeadX(party);
         int leadY = MapCamera.LeadY(party);
-        this.lead.Position = new Vector2(leadX, leadY);
+        this.lead.Position = new Vector2(leadX, FeetOf(leadY, 1));
+        this.ShowEnemies(party);
 
         CameraPlace view = MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight);
         this.Position = new Vector2(-view.X, -view.Y);
+    }
+
+    /// <summary>Puts each enemy where Core put it, and shows the mark of a sight (D-208, D-737).</summary>
+    /// <remarks>
+    /// The position of a sprite is the north-west pixel of the front row of the body, so
+    /// Godot sorts the body by that row (D-737). The offset of the sprite draws the picture
+    /// up from there, so a picture taller than one tile covers the whole body.
+    /// </remarks>
+    private void ShowEnemies(MapState party)
+    {
+        IReadOnlyList<PatrolState> patrols = party.Patrols.All;
+        SightMark? mark = party.Patrols.Mark;
+        this.mark.Visible = false;
+
+        for (int index = 0; index < patrols.Count; index += 1)
+        {
+            PatrolState patrol = patrols[index];
+            Sprite2D sprite = this.enemies[index];
+            int x = MapCamera.EnemyX(patrol);
+            int y = MapCamera.EnemyY(patrol);
+
+            // The party sees every direction out to its range, and the sight of the body
+            // starts at the tile of it nearest the lead (D-719, D-737).
+            bool seen = !patrol.Dead && MapSight.PartySees(
+                party.Map,
+                party.LeadAt,
+                patrol.Body.Nearest(party.LeadAt),
+                party.SightRange);
+
+            sprite.Visible = seen;
+            sprite.Position = new Vector2(x, FeetOf(y, patrol.Body.Side));
+
+            if (!seen || mark is null || string.CompareOrdinal(mark.Enemy.Value, patrol.Patrol.Id.Value) != 0)
+            {
+                continue;
+            }
+
+            this.mark.Visible = true;
+            this.mark.Position = new Vector2(
+                x + (patrol.Body.Side * MapCamera.TilePixels / 2) - (MarkWidth / 2),
+                y - MarkBar - MarkDot - MarkDot);
+        }
+    }
+
+    /// <summary>
+    /// Gives the sort value of one map sprite: the south edge of the front row of its body
+    /// (F-94, D-737).
+    /// </summary>
+    /// <param name="northPixel">The pixel of the north edge of the anchor tile.</param>
+    /// <param name="sideTiles">The count of tiles on one side of the body (D-206).</param>
+    /// <returns>The pixel of the south edge of the front row.</returns>
+    private static int FeetOf(int northPixel, int sideTiles) =>
+        northPixel + (sideTiles * MapCamera.TilePixels);
+
+    /// <summary>Builds the sprite of one thing of the map from its drawing (D-519, D-666).</summary>
+    /// <remarks>
+    /// The sprite draws its whole picture up from its position, because that position is the
+    /// south edge of the front row of the body (F-94, D-737). A picture taller than one tile
+    /// then covers the whole body.
+    /// </remarks>
+    private static Sprite2D BuildSprite(GameAtlas atlas, ContentId content)
+    {
+        AtlasEntry entry = atlas.Index.Entry(content, MapUse);
+        return new Sprite2D
+        {
+            Texture = atlas.Frame(entry.Id, 0),
+            Centered = false,
+            Offset = new Vector2(0, -entry.Height),
+        };
+    }
+
+    /// <summary>
+    /// Builds the mark that a patrol shows for a beat before an encounter (D-208, D-745).
+    /// The mark is a bar and a dot in the warning color of the style file (D-527).
+    /// </summary>
+    /// <remarks>
+    /// The art of the enemies lands in PR-17, and the mark takes its own drawing there
+    /// (D-744, section 7.9 of `docs/roadmaps/area-art.md`). Until then two rectangles of the
+    /// palette read as a mark at every scale of the frame (D-568).
+    /// </remarks>
+    private static Node2D BuildMark(UiTheme theme)
+    {
+        Color color = theme.ColorOf(MarkRole);
+        var node = new Node2D
+        {
+            Visible = false,
+
+            // The mark draws above every body of the map, and Godot sorts by the Y value
+            // inside one Z index alone (the external facts of `area-exploration.md`).
+            ZIndex = 1,
+        };
+
+        node.AddChild(new ColorRect
+        {
+            Position = new Vector2(0, 0),
+            Size = new Vector2(MarkWidth, MarkBar),
+            Color = color,
+        });
+        node.AddChild(new ColorRect
+        {
+            Position = new Vector2(0, MarkBar + MarkDot),
+            Size = new Vector2(MarkWidth, MarkDot),
+            Color = color,
+        });
+        return node;
     }
 
     /// <summary>
@@ -113,6 +260,45 @@ public partial class MapScreen : Node2D
 
         return $"tile size {set.TileSize}, region size {source.TextureRegionSize}, "
             + $"collisions {this.ground.CollisionEnabled}, navigation {this.ground.NavigationEnabled}";
+    }
+
+    /// <summary>
+    /// Reads the sprite of the lead and the sprite of each enemy back, and fails when one of
+    /// them holds no picture (T-2, F-45). A headless session draws nothing, so this check
+    /// reads the nodes and never the pixels (F-23).
+    /// </summary>
+    /// <param name="party">The party and the enemies on the map.</param>
+    /// <returns>The count of sprites, the count that the party sees, and the mark.</returns>
+    /// <exception cref="ArgumentNullException">The party is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">A sprite holds no picture of 32 pixels or more (T-2).</exception>
+    /// <remarks>
+    /// `AtlasTexture` reports an absent page or an empty region in the log alone, so a sprite
+    /// with no picture would draw nothing and no check would see it (F-45).
+    /// </remarks>
+    public string DescribeSprites(MapState party)
+    {
+        ArgumentNullException.ThrowIfNull(party);
+
+        CheckSprite(this.lead, "the lead");
+        int drawn = 0;
+        for (int index = 0; index < this.enemies.Length; index += 1)
+        {
+            CheckSprite(this.enemies[index], $"the enemy '{party.Patrols.All[index].Patrol.Id.Value}'");
+            drawn += this.enemies[index].Visible ? 1 : 0;
+        }
+
+        string mark = this.mark.Visible ? "a mark" : "no mark";
+        return $"the lead at {this.lead.Position}, {this.enemies.Length} enemies with {drawn} drawn, and {mark}";
+    }
+
+    private static void CheckSprite(Sprite2D sprite, string what)
+    {
+        Texture2D? texture = sprite.Texture;
+        Refuse(texture is null, $"{what} holds no picture (F-45)");
+        Vector2 size = texture!.GetSize();
+        Refuse(
+            size.X < MapCamera.TilePixels || size.Y < MapCamera.TilePixels,
+            $"{what} holds a picture of {size}, and a map sprite is {MapCamera.TilePixels} pixels or more (D-236, F-45)");
     }
 
     private static void Refuse(bool broken, string reason)

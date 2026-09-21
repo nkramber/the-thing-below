@@ -1,7 +1,19 @@
 using System;
+using System.Collections.Generic;
+using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
 
 namespace TheThingBelow.Core.Maps;
+
+/// <summary>What one world tick did to the party on the map (D-203, D-747).</summary>
+/// <param name="Arrived">True when the lead reached a new tile on this tick.</param>
+/// <param name="At">The tile of the lead at the end of the tick.</param>
+/// <param name="Started">The direction of the step that started on this tick, or no value.</param>
+/// <param name="Bumped">
+/// The id of the enemy that the party stepped into, or no value. A step into a body starts
+/// the encounter at once, with the party as the side that reached the other (D-747).
+/// </param>
+public readonly record struct PartyStep(bool Arrived, TilePoint At, StepDirection? Started, ContentId? Bumped);
 
 /// <summary>
 /// The party on one map: the tile of the lead, the facing, the step that runs now, and every
@@ -26,7 +38,8 @@ public sealed class MapState
         StepDirection facing,
         StepDirection? stepping,
         int stepTicks,
-        WalkedTiles walked)
+        WalkedTiles walked,
+        MapPatrols patrols)
     {
         this.Map = map;
         this.LeadAt = leadAt;
@@ -34,6 +47,7 @@ public sealed class MapState
         this.Stepping = stepping;
         this.StepTicks = stepTicks;
         this.Walked = walked;
+        this.Patrols = patrols;
     }
 
     /// <summary>The map that the party stands on (D-528).</summary>
@@ -57,6 +71,9 @@ public sealed class MapState
     /// <summary>Every tile that the party walked on this map (D-567).</summary>
     public WalkedTiles Walked { get; }
 
+    /// <summary>Every enemy of the map, the mark, and the encounter (D-738, D-749).</summary>
+    public MapPatrols Patrols { get; }
+
     /// <summary>The sight range of the party here, which the time of day of the map gives (D-193).</summary>
     public int SightRange => MapRules.PartySightRange(this.Map.Time);
 
@@ -70,7 +87,7 @@ public sealed class MapState
 
         var walked = WalkedTiles.Empty(map.Width, map.Height);
         walked.Mark(map.Spawn);
-        return new MapState(map, map.Spawn, StepDirection.South, null, 0, walked);
+        return new MapState(map, map.Spawn, StepDirection.South, null, 0, walked, MapPatrols.Enter(map));
     }
 
     /// <summary>Puts the party back on a map from the values of a snapshot (D-166, D-651).</summary>
@@ -80,6 +97,13 @@ public sealed class MapState
     /// <param name="stepping">The direction of the step that ran, or no value.</param>
     /// <param name="stepTicks">The count of ticks of that step.</param>
     /// <param name="walked">The walked tiles of the snapshot.</param>
+    /// <param name="enemies">
+    /// The stored values of each enemy that the map places, or no value on a snapshot of
+    /// save format 2. With no value, each enemy starts on the start tile of its station
+    /// (D-654, D-750).
+    /// </param>
+    /// <param name="mark">The mark of a sight of the snapshot, or no value (D-745).</param>
+    /// <param name="encounter">The encounter of the snapshot, or no value (D-749).</param>
     /// <param name="source">What the values came from, such as `the save`, for an error (T-2).</param>
     /// <returns>The state.</returns>
     /// <exception cref="ArgumentNullException">The map, the record, or the source is null (T-2).</exception>
@@ -91,6 +115,9 @@ public sealed class MapState
         StepDirection? stepping,
         int stepTicks,
         WalkedTiles walked,
+        IReadOnlyList<PatrolValues>? enemies,
+        SightMark? mark,
+        MapEncounter? encounter,
         string source)
     {
         ArgumentNullException.ThrowIfNull(map);
@@ -128,7 +155,21 @@ public sealed class MapState
                 $"the lead steps {StepDirections.NameOf(direction)} from {leadAt}, and the tile {target} takes no step");
         }
 
-        return new MapState(map, leadAt, facing, stepping, stepTicks, walked);
+        MapPatrols patrols = enemies is null
+            ? MapPatrols.Enter(map)
+            : MapPatrols.Resume(map, enemies, mark, encounter, source);
+
+        // The body of an enemy blocks every step into it, so no state of a run holds the
+        // party and an enemy on one tile (D-747, T-2).
+        if (patrols.TryEnemyAt(leadAt, out PatrolState? found))
+        {
+            Refuse(
+                true,
+                source,
+                $"the lead stands at {leadAt}, and the enemy '{found!.Patrol.Id.Value}' holds the body {found.Body} there");
+        }
+
+        return new MapState(map, leadAt, facing, stepping, stepTicks, walked, patrols);
     }
 
     /// <summary>
@@ -162,20 +203,30 @@ public sealed class MapState
     }
 
     /// <summary>Runs the party for one world tick: the step that runs, and then the next one.</summary>
-    /// <param name="walked">Takes the tile that the lead reached on this tick, or no value.</param>
-    /// <param name="started">Takes the direction of the step that started on this tick, or no value.</param>
-    /// <returns>True when the lead moved to a new tile on this tick.</returns>
+    /// <returns>What the tick did to the party (D-203, D-747).</returns>
     /// <exception cref="OverflowException">A count passes the range of an `int` (T-2).</exception>
     /// <remarks>
     /// A menu pauses the world, so the world step of a run calls this method only while no menu
     /// is open (D-162, D-650). The wanted direction lasts one tick alone, so a step
     /// never starts from an intent of an earlier tick.
+    /// <para>
+    /// While an encounter runs, no map system ticks, so no step of the party runs either
+    /// (D-531). The wanted direction still ends here, so no intent of an older tick starts a
+    /// step when the encounter ends.
+    /// </para>
     /// </remarks>
-    public bool Advance(out TilePoint walked, out StepDirection? started)
+    public PartyStep Advance()
     {
-        walked = this.LeadAt;
-        started = null;
+        TilePoint walked = this.LeadAt;
+        StepDirection? started = null;
+        ContentId? bumped = null;
         bool arrived = false;
+
+        if (this.Patrols.Encounter is not null)
+        {
+            this.wanted = null;
+            return new PartyStep(false, this.LeadAt, null, null);
+        }
 
         if (this.Stepping is StepDirection running)
         {
@@ -196,7 +247,14 @@ public sealed class MapState
             // The lead turns whether or not it can move, so a push against a wall turns it
             // and the player reads the direction of the party from the sprite (D-207).
             this.Facing = next;
-            if (MapRules.CanEnter(this.Map, this.LeadAt.Step(next)))
+            TilePoint target = this.LeadAt.Step(next);
+            if (this.Patrols.TryEnemyAt(target, out PatrolState? found))
+            {
+                // The body blocks the step, and the step starts the encounter at once. This
+                // is the sneak of D-265 in the hands of the player (D-747).
+                bumped = found!.Patrol.Id;
+            }
+            else if (MapRules.CanEnter(this.Map, target))
             {
                 this.Stepping = next;
                 this.StepTicks = 0;
@@ -205,7 +263,7 @@ public sealed class MapState
         }
 
         this.wanted = null;
-        return arrived;
+        return new PartyStep(arrived, walked, started, bumped);
     }
 
     /// <summary>Adds every value of this state to the state hash (G-5).</summary>
@@ -227,6 +285,7 @@ public sealed class MapState
         hasher.AddInt32(this.Stepping.HasValue ? (int)this.Stepping.Value : 0);
         hasher.AddInt32(this.StepTicks);
         this.Walked.Hash(hasher);
+        this.Patrols.Hash(hasher);
     }
 
     private static void Refuse(bool broken, string source, string reason)
