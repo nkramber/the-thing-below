@@ -1,5 +1,41 @@
 # Session handoff
 
+## Session 162: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-89, round 3: the launch in borderless fullscreen. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: author. Base: `ce06eda`.
+
+### What this session did, and why
+
+- Round 2 went green at `6652b0d`: every CI leg, the screen test, and Gitar with "No issues found". Only `review-gate` waits for the review record.
+- The owner asked that the game launch in borderless fullscreen, the development build included, with the chosen ratios of text, UI, and world. The owner put the change in this PR. The PR description holds the record of that choice.
+- `Boot` sets the fullscreen mode of Godot for the play session, and it logs the mode at the start. A mode other than fullscreen is an error line (T-2).
+- `Boot` builds the screen again when a size change moves the default body size (D-707), because on some systems the switch ends after the first frame.
+- The CI captures showed a fault on `main`: at 1920 by 1080 in the fill mode, the frame drew at 2560 by 1440 and the window cut it, with no prompt row (D-573). The screen view kept the size of its texture. Both texture rects of `FrameRoot` now ignore the texture size.
+- A project setting of fullscreen failed: Godot ignores `--windowed` when the project asks for fullscreen, so the capture session lost its window sizes. The project keeps the windowed default, and a test locks that.
+
+### The state of the build
+
+- Remote head of `main`: `ce06eda`. Local: 1555 of 1555 tests pass. Format, lint, and `make walk` pass.
+- The play session of this Mac logs "the window opened in borderless fullscreen" at 1920 by 1080.
+
+### What is in flight
+
+The push of this round. The screen test fails on `map-fill-1080.png` and `ui-fill-1080.png` until their new baselines land from the artifact.
+
+### Traps and gotchas
+
+- The movie mode of Godot scales its frames to 1280 by 720, and its colors differ. It shows the layout of the fullscreen session, and not its pixels.
+- `screencapture` has no screen permission in this session.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the two new fill-1080 captures of the artifact, commit them to `screens/baseline/`, and answer the Gitar pass.
+
 ## Session 161: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -317,41 +353,3 @@ None.
 ### The next concrete action
 
 Wait for CI and the gitar pass on the new head, answer each gitar comment, and hand PR #45 to the cross-provider review.
-
-## Session 152: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: PR-8, the enemies on the map. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. Role: author. Base: `626d2fe`.
-
-### What this session did, and why
-
-- Asked 18 questions before any change, and the owner took each recommendation (D-737 to D-754). OQ-115 blocked the PR, and D-737 closes it.
-- Core: the `enemies` array of the map file, the route and the area of each enemy, the walk, the sight with the beat, the block and the step into a body, the side from behind, the grace time, and save format 3.
-- The console gains `flee`, which ends an encounter as a flee until PR-9 (D-749). With no encounter, it writes a warning and changes nothing, so the smoke session and a bot never stop.
-- Game draws each enemy that the party sees, and the mark of a sight (D-719, D-744).
-- F-94: every map sprite drew behind its own floor tile, so the baseline of PR #44 shows no character. Each map sprite now sits at the south edge of its front row (D-737).
-
-### The state of the build
-
-- `make verify` passes on the Mac with 1390 tests, the smoke session included.
-- The simulation version is 6, the save format is 3, and the identity file and the content hash are new.
-- The remote head of `main` is `626d2fe`.
-
-### What is in flight
-
-The PR opens in this round. The screen-test job must fail on the old baseline, because the lead now draws (F-94). The next round commits the frames of its artifact as the new baseline (D-733), and then the gitar pass runs.
-
-### Traps and gotchas
-
-- A spread of an `IReadOnlyList` into an array calls `System.Linq`, and the reference test of Core fails. Copy with a loop.
-- `make test` runs with no build. Run `make build` first, or a test reads an old assembly.
-- The fixture drawing of the enemy comes from this session by hand, as the fixture tiles of PR-7 did. The owner reads its sheet in the PR, and PR-17 draws each real enemy (D-686, D-744).
-- The step of an enemy starts on the tick that it arrives, so a step of 30 ticks lands 31 ticks after the start of the run.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Read the result of the `screen-test` job, download its artifact, read each frame, and commit the new baseline. Then run the gitar wait.

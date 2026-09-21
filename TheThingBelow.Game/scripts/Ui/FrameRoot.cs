@@ -141,6 +141,12 @@ public partial class FrameRoot : Node
         this.screenView = new TextureRect
         {
             StretchMode = TextureRect.StretchModeEnum.Scale,
+
+            // The default expand mode keeps a texture rect at the size of its texture or
+            // larger. The first step at 1920 by 1080 draws 2560 by 1440, so the rect then
+            // stayed at that size and the window cut the frame, where the rect must scale the
+            // picture down (D-573). The rect takes the size that the fit gives it alone.
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
         };
 
@@ -182,6 +188,7 @@ public partial class FrameRoot : Node
             Position = Vector2.Zero,
             Size = new Vector2(this.Fit.StepWidth, this.Fit.StepHeight),
             StretchMode = TextureRect.StretchModeEnum.Scale,
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
         };
 

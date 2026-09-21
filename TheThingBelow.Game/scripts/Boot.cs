@@ -104,6 +104,7 @@ public partial class Boot : Node
     private GameRun? run;
     private ContentSet? content;
     private UiBase? ui;
+    private int builtBody;
     private FrameRoot? frame;
     private PromptBar? prompts;
     private MapScreen? map;
@@ -219,7 +220,10 @@ public partial class Boot : Node
         this.content = loaded;
         this.run = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers());
         GameInputMap.Build();
+        EnterBorderlessFullscreen();
         this.BuildScreen(loaded);
+        this.ReportWindowMode();
+        this.GetWindow().SizeChanged += this.OnWindowSizeChanged;
     }
 
     /// <summary>
@@ -293,6 +297,7 @@ public partial class Boot : Node
         int body = BodySize.DefaultFor(built.Fit.Height, style.SmallBody, style.LargeBody);
         UiBase built_ui = UiBase.Load(loaded, body);
         this.ui = built_ui;
+        this.builtBody = body;
 
         GameRun open = this.run ?? throw new InvalidOperationException(
             $"The screen built before the run started (T-2).");
@@ -317,18 +322,119 @@ public partial class Boot : Node
 
         GameRun reloaded = ReloadRun(loaded);
         this.run = reloaded;
-        this.frame?.QueueFree();
-        this.frame = null;
-        this.map = null;
-        this.prompts = null;
-        this.console = null;
-        this.BuildScreen(loaded);
+        this.RebuildScreen(loaded);
         this.WriteLog([new LogEntry(
             LogLevel.Info,
             "the party wiped and the run reloaded",
             reloaded.Tick,
             LogSubsystems.Game,
             [LogField.OfNumber("tick", reloaded.Tick)])]);
+    }
+
+    /// <summary>Removes the frame and its nodes, and builds the screen again over the current run.</summary>
+    /// <param name="loaded">The content set of this build.</param>
+    private void RebuildScreen(ContentSet loaded)
+    {
+        this.frame?.QueueFree();
+        this.frame = null;
+        this.map = null;
+        this.prompts = null;
+        this.console = null;
+        this.BuildScreen(loaded);
+    }
+
+    /// <summary>
+    /// Builds the screen again when a new window size gives another default body size (D-707).
+    /// </summary>
+    /// <remarks>
+    /// The window opens in borderless fullscreen, and on some systems it reaches the size of
+    /// the screen only after the first frame. The frame refits by itself, but the body size
+    /// comes from the fit when the screen builds. Thus a screen that built at the first size
+    /// would keep the text size of the wrong fit.
+    /// <para>
+    /// The fit comes from the window size here, and never from the frame, because the frame
+    /// reads the same signal and the order of two handlers is not a contract.
+    /// </para>
+    /// </remarks>
+    private void OnWindowSizeChanged()
+    {
+        try
+        {
+            ContentSet? loaded = this.content;
+            FrameRoot? built = this.frame;
+            if (loaded is null || built is null)
+            {
+                return;
+            }
+
+            Vector2I screen = this.GetWindow().Size;
+            ScreenFit fit = ScreenFit.Of(built.Mode, Math.Max(1, screen.X), Math.Max(1, screen.Y));
+            int body = BodySize.DefaultFor(fit.Height, loaded.Style.SmallBody, loaded.Style.LargeBody);
+            if (body == this.builtBody)
+            {
+                return;
+            }
+
+            int before = this.builtBody;
+            this.RebuildScreen(loaded);
+            this.WriteLog([new LogEntry(
+                LogLevel.Info,
+                "the window size changed the default body size, and the screen built again",
+                this.run?.Tick ?? 0,
+                LogSubsystems.Game,
+                [
+                    LogField.OfNumber("width", screen.X),
+                    LogField.OfNumber("height", screen.Y),
+                    LogField.OfNumber("body_before", before),
+                    LogField.OfNumber("body", this.builtBody),
+                ])]);
+        }
+        catch (Exception fault)
+        {
+            this.ReportCrash(fault);
+        }
+    }
+
+    /// <summary>
+    /// Puts the window of the play session in borderless fullscreen: a window with no border
+    /// that covers the screen, and not the exclusive mode. Every build takes it, the
+    /// development build included.
+    /// </summary>
+    /// <remarks>
+    /// The play session sets the mode, and the project keeps the windowed default. The capture
+    /// session sets the exact window size of each capture, and Godot ignores its `--windowed`
+    /// option when the project asks for fullscreen. The smoke session has no window.
+    /// <para>
+    /// On macOS the switch ends a few frames later. The frame refits on each size change, and
+    /// <see cref="OnWindowSizeChanged"/> builds the screen again when the body size moves.
+    /// </para>
+    /// </remarks>
+    private static void EnterBorderlessFullscreen()
+    {
+        DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
+    }
+
+    /// <summary>
+    /// Writes the window mode and the window size of the start to the log. A mode other than
+    /// borderless fullscreen is an error line, because the project asks for that mode (T-2).
+    /// </summary>
+    private void ReportWindowMode()
+    {
+        DisplayServer.WindowMode mode = DisplayServer.WindowGetMode();
+        Vector2I screen = this.GetWindow().Size;
+        bool fullscreen = mode == DisplayServer.WindowMode.Fullscreen;
+        this.WriteLog([new LogEntry(
+            fullscreen ? LogLevel.Info : LogLevel.Error,
+            fullscreen
+                ? "the window opened in borderless fullscreen"
+                : "the window opened in another mode than borderless fullscreen, which the project asks for",
+            0,
+            LogSubsystems.Game,
+            [
+                new LogField("mode", mode.ToString()),
+                LogField.OfNumber("width", screen.X),
+                LogField.OfNumber("height", screen.Y),
+            ])]);
     }
 
     /// <summary>Gives the run after a wipe: the newer save, or a new run when no save exists (D-231, D-776).</summary>
