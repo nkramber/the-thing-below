@@ -31,7 +31,11 @@ can change a pixel.
 `TheThingBelow.Game/scripts/ScreenCaptures.cs` holds the list, and a test locks it. The map
 fixture and the ui fixture each take the frame at 1x, and both fit modes at 1080 and 1440
 screen rows (D-232, D-568, D-734). The walk fixture adds one frame at 1x after each
-tick of one step north and one step south, such as walk-north-09.png (D-782).
+tick of one step north and one step south, such as walk-north-09.png (D-782). The picture
+fixture takes the fixture large picture at 1x (D-819).
+
+Each file holds the sRGB colors that the screen shows. The window renders in linear HDR 2D,
+and the capture session turns each pixel back into sRGB before it writes the file (D-188).
 
 ## The contact sheet
 

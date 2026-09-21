@@ -140,6 +140,10 @@ Built by PR-55. Phase file: `phase-2-first-playable.md`.
 
 - A large picture places pieces at pixel positions, with repeats (D-516). A piece is a drawing file of section 7.3.
 - A picture offers no mirror and no other operation on a piece, so each piece takes light as its drawing file sets it (D-812).
+- A picture holds art pixels, and Game shows it at 2x like the world. A backdrop is 640 by 360 art pixels (D-816).
+- An entry names a piece, the place of its first copy, and a count across and down. The copies sit edge to edge, and the picture clips each one at its edge (D-817).
+- The `picture` command of Tools renders each picture as a PNG with integer math (D-502, D-518). The draw of Game reads the same copies.
+- Each piece lies on the `pieces` page, with one frame (D-818). The `picture` fixture of the screen-test job draws the fixture backdrop (D-819).
 - A backdrop layer, other full-screen art, and a store image are each a large picture (D-205, D-475, D-516). Full-screen art covers the frame of 1280 by 720 (D-568).
 - PR-55 adds the format with its load test, a render as a PNG in Tools, and the draw in Game (D-518).
 - PR-55 lands right before PR-10, the first PR that draws a backdrop (D-518).

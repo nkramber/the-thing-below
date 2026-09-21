@@ -70,6 +70,8 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-21 PR-55 pass: a large picture places and repeats a piece, and offers no mirror (D-812). Escape ends a session of a development build, and it closes an open console (D-813). Game draws every live enemy at any distance, and the range of the party only caps the sight of a patrol (D-814). The game shows no button prompt, and PR-78 adds no controller type call (D-815).
 
+2026-09-21 PR-55 format pass: a large picture holds art pixels at 2x, and it repeats a piece edge to edge with a clip (D-816, D-817). Its pieces lie on a `pieces` page, and a screen fixture draws it (D-818, D-819). Game draws each slide between two ticks, and a step lasts 16, 32, or 64 ticks. The motion is then even at each screen rate (D-820, D-821).
+
 2026-09-21 battle core pass: a battle is the encounter of the map, and one snapshot holds both (D-531). A defend, a strip of six turns, and a wave of up to twelve enemies join the rules (D-755, D-756, D-758 to D-762, D-778). Content holds every delay and every number, and PR-9 fights fixture characters, groups, and items (D-757, D-765, D-766, D-775, D-777). An intent carries its target and its item (D-764, D-780). A measurement set the fixture elite (D-781).
 
 2026-09-21 walk pass: the ground drew over the feet of a sprite inside a step north or south (F-95). The ground now draws below every sprite (D-783). The screen test holds a frame after each tick of one step north and one step south (D-782). `make walk` gives a session the same frames. The author of a PR that changes a screen reads each frame before the hand-over (D-784).

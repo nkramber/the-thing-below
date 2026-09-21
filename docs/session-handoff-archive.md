@@ -1,5 +1,40 @@
 # Session handoff archive
 
+## Session 164: 2026-09-21, Codex
+
+Author: Codex
+Session: review PR-47, the ground draw order, walk captures, fullscreen launch, and frame fit. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: reviewer. Base: `ce06eda`.
+
+### What this session did, and why
+
+- Reviewed PR #47 at effective head `4c1bdec`.
+- Inspected the complete diff, the PR description and comments, the PR-89 roadmap scope and exit tests, the affected Game and Tests paths, the capture baselines, and the changed documents.
+- Verified the ground-layer order, deterministic walk capture sequence, fullscreen startup, 1080-row frame fit, baseline coverage, and the visual-review record.
+- Added `docs/reviews/pr-47.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- Remote head of the PR branch: `4c1bdec`.
+- `make verify` passes with 1555 tests, no failures, and no skips.
+- GitHub CI and Gitar pass at `4c1bdec`. The review-gate check waits for this review record.
+
+### What is in flight
+
+The review record and this handoff entry need a push. After the push, the owner can wait for review-gate and merge the PR.
+
+### Traps and gotchas
+
+- The review target is `4c1bdec`, not the metadata commit that publishes this record.
+- The capture session stays windowed so it can set exact screen sizes. Only the play session enters borderless fullscreen.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the review record and handoff entry. Verify the remote head and the review-gate result.
+
 ## Session 163: 2026-09-21, Claude Code
 
 Author: Claude Code

@@ -231,6 +231,7 @@ Built by PR-41. Phase file: `phase-2-first-playable.md`.
 - The `--capture` argument of Game draws each fixture and writes one PNG for each capture (D-732). The fixtures are the map screen and the UI panel (D-734).
 - It captures each fixture at 1x, and both fit modes of D-232 at 1080 and 1440 screen rows (D-568).
 - PR-89 adds the `walk` fixture: one frame at 1x after each tick of one step north and one step south (D-782). The frames inside a step are the regression test of F-95.
+- PR-55 adds the `picture` fixture: the fixture large picture at 1x (D-819). Each capture turns the linear colors of HDR 2D into the sRGB colors of the screen (D-188). A test finds a palette color in each pixel of each 1x baseline of the world.
 - The `--fixture <name>` argument takes one fixture alone, and `make walk` runs the walk on the machine of the owner (D-782). The author reads each frame before the hand-over (D-784).
 - The `screens` command of Tools compares decoded pixels with the committed baseline of `screens/baseline` (F-19, D-736, `area-tools.md` section 7.14). One changed pixel fails the job.
 - Two runs give the same frames, because the fixture seed is fixed (T-7). The walk gives the run the time of exactly one tick for each frame (D-782). The job takes the captures two times and compares them.

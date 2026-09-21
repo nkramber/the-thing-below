@@ -406,7 +406,7 @@ Area files: `area-exploration.md` section 7.3, `area-ci.md` section 7.12.
 2. The screen-test job compares each walk frame with its baseline, and the lead draws whole in each one.
 3. Two capture sessions give the same walk frames (T-7).
 4. The smoke session reads back the sort and the Z index of the ground, and fails on another value (T-2).
-5. A test locks the walk list: 16 ticks of each step, in order, with the intent on tick 1 alone.
+5. A test locks the walk list: each tick of each step, in order, with the intent on tick 1 alone.
 6. An unknown fixture name fails the capture session with the list of fixtures (T-2).
 
 **Review focus.**
@@ -518,6 +518,10 @@ Area files: `area-art.md` section 7.5, `area-tools.md` section 7.5.
   - Escape closes an open console, and it ends a session of a development build (D-813).
   - Game draws every live enemy at any distance from the party (D-814).
   - The game shows no button prompt (D-815).
+- Three fixes that the owner added during the work:
+  - Each capture holds the sRGB colors of the screen, and not the linear colors of HDR 2D (D-188).
+  - Game draws each slide at the part of a tick that the frame reached, and the held step reaches each tick (D-820).
+  - A step lasts 16, 32, or 64 ticks, so each tick moves a sprite by the same count of pixels (D-821).
 
 **Out of scope.**
 
@@ -529,12 +533,15 @@ Area files: `area-art.md` section 7.5, `area-tools.md` section 7.5.
 
 1. A test decodes the render of a fixture large picture and compares its pixels with its pieces (F-19).
 2. A large picture that names an absent piece fails with the file and the entry.
-3. The render covers the frame of 1280 by 720 with no gap (D-568).
+3. The fixture backdrop covers 640 by 360 art pixels with no gap, the frame at 2x (D-568, D-816).
 4. det-lint finds no float type in the render code (D-502).
 5. The smoke session types a console line through key events of the root viewport, then closes it with Escape.
 6. A test gives the route of each key: the console, the close, the quit, and the game (D-813).
 7. The smoke session fails when a live enemy draws no sprite (D-814).
 8. The content load refuses the device table of the prompts (D-815).
+9. A test finds a palette color in each pixel of each 1x baseline of the world.
+10. A frame of two ticks gives the held step to both ticks (D-820).
+11. The load refuses an enemy step of any count other than 16, 32, or 64 (D-821).
 
 **Review focus.**
 
