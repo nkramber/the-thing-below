@@ -1,5 +1,44 @@
 # Session handoff archive
 
+## Session 179: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-10, round 1. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: author. Base: `8b10888`.
+
+### What this session did, and why
+
+- Asked OQ-103 and OQ-131, then seven scope questions. Recorded D-825 to D-833, and D-831 revises D-819 in part.
+- Built the battle screen: `BattleScreen`, `BattleView`, `BattleCommands`, `BattleMessages`, `BattleLayout`, `BattleTimes`, and `BattleWalk` in Game, with the hit flash in `TheThingBelow.Game/shaders/hit_flash.gdshader`.
+- `GameRun` plays each event for its ticks, and it keeps the view of the fight (D-532, D-829).
+- Drew the fixture art batch: Marrek in battle with his attack pose, the grunt, the brute, the pointer, and 18 icons (D-828, D-830, D-833). The strings of the screen joined the table.
+- The smoke session fights through the menu, and the capture list holds the `battle` fixture.
+
+### The state of the build
+
+- `make format`, `make lint`, `make smoke`, and the STE check pass on this machine. `make sheet FIXTURE=battle` wrote four frames, and the author read each one.
+- Round 1 pushed `b72563f`. Gitar found no issue in its review of that head. The CI run failed on the four absent `battle-*` baselines, and the review gate waits for the review record.
+- Round 2 commits the four baselines from the artifact of that run (D-733). The author read each frame, and each one matches the local capture.
+
+### What is in flight
+
+- The CI run and the gitar pass of the round-2 push.
+- The review of the other provider, and the owner approval of the art batch and the text batch.
+
+### Traps and gotchas
+
+- The rules resolve each enemy turn at once. The screen draws `GameRun.BattleView`, never the state, or a hit shows before its blow.
+- An enemy that went down leaves its row, so a wave never puts a seventh combatant in one row (D-759).
+- The glossary term is `battle view`, because `view` names the part of the map on screen.
+- The art generator ran from a scratch folder outside the repository. The drawing files are the source.
+
+### The questions that block progress
+
+None. The owner approves the art batch and the text batch from the PR description (D-57, G-25).
+
+### The next concrete action
+
+Follow the `gitar-review` skill for the round-2 push. Then tell the owner that PR #51 is ready for the other provider.
+
 ## Session 178: 2026-09-21, Codex
 
 Author: Codex
