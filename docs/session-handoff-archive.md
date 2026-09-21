@@ -1,5 +1,39 @@
 # Session handoff archive
 
+## Session 171: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-66, the answer to the Gitar pass. Repository: the-thing-below. Branch: `feat/pr-66-elements-statuses`. PR: #49. Role: author. Base: `74c3a64`.
+
+### What this session did, and why
+
+- Opened PR #49 at `911a7d3`. The Gitar pass of that head approved with one finding, and its check passed at 16:57:09Z.
+- The finding had merit: a stun on the character whose turn is open began that turn again, so poison, bleed, or regen acted two times.
+- Commit `34e6272` makes `GiveStatus` refuse that stun, because no strike reaches the character whose turn is open. The test `AStunOnTheCharacterWhoseTurnIsOpenIsAnErrorAndChangesNothing` proves it.
+- `GiveStatus` takes no log now, because it no longer runs the loop.
+
+### The state of the build
+
+- 1625 tests pass. The identity hashes do not change.
+- At `911a7d3`, every CI job passed except `review-gate`, which waits for the review record of RG 3.
+
+### What is in flight
+
+The push of this round waits for a current Gitar pass. Then the PR goes to the review of Codex (D-401).
+
+### Traps and gotchas
+
+- In play, no strike reaches the character whose turn is open. PR-12 keeps that true, or it asks the owner for the rule of a stun on the actor.
+- The `review-gate` fault of RG 3 clears only with `docs/reviews/pr-49.md`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Reply on the Gitar thread with `34e6272`, prove the next pass current, and hand the PR to Codex.
+
 ## Session 170: 2026-09-21, Claude Code
 
 Author: Claude Code
