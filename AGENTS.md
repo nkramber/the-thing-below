@@ -137,7 +137,7 @@ The solution and the project names follow D-217. Run each command from the check
 - Build: `make build`. Test: `make test`. Format check: `make format`.
 - STE check: `make ste-check`. Determinism and string lint: `make lint`.
 - Identity check: `make identity`. Content hash: `make content`. Atlas check: `make atlas`.
-- Godot build and the smoke session: `make smoke`.
+- Godot build and the smoke session: `make smoke`. Contact sheet: `make sheet` (D-735).
 - Coverage report: `dotnet test --solution TheThingBelow.slnx --no-build -- --filter-not-trait "Category=Smoke" --coverlet --coverlet-output-format cobertura --results-directory artifacts/coverage`
 - A Tools command with its options: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- atlas --root . --check`
 - Review gate: the same form, with `review-gate --pull-request <file> --head-files <folder>`
@@ -157,7 +157,7 @@ A PR merges only when every line holds:
 - [ ] The `smoke` job is green on every CI leg: the headless Godot session (D-117, D-481).
 - [ ] The `det-lint` job is green: no float, clock, or OS random in `core`, and no inline player string (G-2, G-3, G-7).
 - [ ] The `replay-identity` job is green: the same state hash and content hash on every CI leg (G-5, D-481, D-504, D-648).
-- [ ] The `screen-test` job is green: each fixture screen matches the committed baseline (D-172, F-23). PR-41 creates it.
+- [ ] The `screen-test` job is green: each fixture matches the committed baseline (D-172, F-23, D-731).
 - [ ] The bot job is green on every CI leg: the bot runs end with no crash and no softlock (D-64, D-505). PR-15 creates it.
 - [ ] The `night-gate` job is green: a success record from a night inside 48 hours (G-22). PR-49 creates it (D-496). A docs-only PR passes it (D-513).
 - [ ] The `ste-check` job is green: the writing, reference, session number, size, and Documents row rules (G-12, D-605, D-607, D-611, D-696).

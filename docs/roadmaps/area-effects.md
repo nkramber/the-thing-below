@@ -114,7 +114,7 @@ Built by the owner and a session, before PR-1. Phase file: `phase-1-foundations.
 - The test scene measures itself, and `deck-test/scripts/FrameMeter.cs` reads the time of each frame (D-598). Each run writes a report file, which a session can read.
 - The LCD Deck has a 60 Hz screen, and the OLED Deck runs up to 90 Hz (the external facts above). The test records the model of the Deck and its refresh rate.
 - Valve asks for 30 frames per second at 800p for the Deck rating, so D-161 sets a stricter target (the external facts above).
-- The screen tests of CI use the Compatibility renderer, whatever the Deck test picks (D-172). The contact sheet on the Mac of the owner shows the real renderer.
+- The screen tests of CI use the Mobile renderer of the shipped build, on a software Vulkan driver (D-616, D-731). The contact sheet on the Mac of the owner shows the same renderer on a real card.
 
 > *In plain English:* before any code, a small test scene with every kind of effect runs on the owner's Deck. It picks the faster of two graphics modes and finds how many lights and particles the Deck can hold at full speed.
 
@@ -187,7 +187,7 @@ Built by PR-57. Phase file: `phase-2-first-playable.md`.
 - A particle with no texture draws as a square, so a spark of one color needs no drawing file (the external facts above).
 - OQ-98 holds whether Game uses `GPUParticles2D` or `CPUParticles2D`.
 - In the screen tests, each emitter takes a fixed seed (D-172). `CPUParticles2D` ignores that seed for some emission shapes (the external facts above).
-- The Compatibility renderer lacks particle trails and `emit_particle`, so a CI capture of an effect that uses either differs from the Deck (D-172, the external facts above).
+- The screen tests of CI run the Mobile renderer, which holds particle trails and `emit_particle` (D-731). Thus each capture shows the effect of the Deck.
 - The effect file of an ability, an element, or a place names the content ids that it serves (section 7.1).
 
 > *In plain English:* a burst of sparks or a drift of snow is a small data file: how many bits, which colors, and how long. The game builds the effect from that file when it starts.
@@ -229,7 +229,7 @@ Built by PR-59. Phase file: `phase-2-first-playable.md`.
 - Fire, spells, waystones, and the thing below glow a little, and sprites and tiles never glow (D-188).
 - UI never glows (D-210).
 - Glow is a full-screen pass, so it counts against the effect budget (D-523).
-- HDR 2D works on Forward+ and Mobile, and the Compatibility renderer of CI draws glow in another way (D-172, the external facts above). So the CI captures of glow can differ from the Deck.
+- HDR 2D works on Forward+ and Mobile, and the screen tests of CI run the Mobile renderer (D-731, the external facts above). So a CI capture of glow shows the glow of the Deck.
 - Godot adds light to a pixel with no upper clamp, so a bright light on a pale sprite can pass the glow threshold (F-47).
 - OQ-102 holds how glow stays off sprites and tiles.
 
@@ -268,7 +268,7 @@ Built by every effect PR, and kept by the screen tests. Phase file: `phase-2-fir
 Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 
 - `--headless` draws nothing, so the smoke session never tests an effect (F-23).
-- The screen-test job of PR-41 captures each effect in a fixture scene under Xvfb with the Compatibility renderer. A changed pixel fails the job (D-172, `area-ci.md` section 7.12).
+- The screen-test job of PR-41 captures each effect in a fixture under Xvfb with the Mobile renderer of the shipped build. A changed pixel fails the job (D-172, D-731, `area-ci.md` section 7.12).
 - Each effect PR adds its captures, and the reduced form of each flash and shake (D-214).
 - A shader that fails to compile writes its failure to the log (the external facts above). So the screen-test job fails on an error line in the Godot log (T-2).
 - The test job loads each effect file and light setup, and it runs the budget test on every CI leg (D-517, D-523).
@@ -358,7 +358,7 @@ The register is `docs/questions.md` (D-19). These questions block effect PRs, an
 - OQ-101: how fog keeps an enemy visible. Blocks PR-58.
 - OQ-102: how glow stays off sprites. Blocks PR-59.
 - OQ-103: where shader code lives. Blocks PR-10.
-- OQ-79: how the screen-test job pins Mesa. Blocks PR-41.
+- OQ-79: how the screen-test job pins Mesa. Closed 2026-09-20 by D-729, and D-730 holds the pin.
 - OQ-89: pixel snap in Game. Blocks PR-7.
 - OQ-183: the scale of the frame on a screen. Blocks PR-7 and PR-34, and the probe of D-621 answers it.
 

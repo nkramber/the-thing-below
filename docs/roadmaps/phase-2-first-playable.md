@@ -244,11 +244,14 @@ Area files: `area-ci.md` section 7.12, `area-effects.md` section 7.13, `area-ui-
 
 **Scope.**
 
-- The Linux job of D-172, which runs Godot under Xvfb with the OpenGL driver and a pinned Mesa (F-23, OQ-79).
-- The capture of each fixture scene at 1x, and both fit modes at 1080 and 1440 screen rows (D-232, D-568).
-- The frame compare in Tools, which compares decoded pixels with a committed CI baseline (F-19).
-- The fixed sources of change at capture: the particle seeds and the time of day.
-- The desktop command that makes a contact sheet with the real renderer (D-172).
+- The Linux job of D-172, which runs Godot under Xvfb with the Mobile renderer. It draws on lavapipe, the software Vulkan driver of a pinned Mesa (F-23, D-729, D-730, D-731).
+- The `--capture` argument of Game, which draws each fixture and writes one PNG for each capture (D-732).
+- The two fixtures: the map screen, and the UI panel with the window frame and the longest string (D-734).
+- The capture of each fixture at 1x, and both fit modes at 1080 and 1440 screen rows (D-232, D-568).
+- The `screens` command of Tools, which compares decoded pixels with the committed baseline of `screens/baseline` (F-19, D-736).
+- The fixed sources of change at capture: the fixture seed, and a session that runs no tick (T-7).
+- The artifact of every run, from which the author commits a new baseline by hand (D-733).
+- The desktop command that makes a contact sheet with the real renderer (D-172, D-735).
 
 **Out of scope.**
 
@@ -266,12 +269,12 @@ Area files: `area-ci.md` section 7.12, `area-effects.md` section 7.13, `area-ui-
 
 **Review focus.**
 
-- The Mesa pin, from the answer of OQ-79, and its decision row (G-13).
-- The Compatibility renderer of CI differs from the Deck, and the PR says where (D-172).
+- The Mesa pin of D-730, its decision row under G-13, and the read back of each installed version.
+- The job runs the Mobile renderer of the shipped build on a software Vulkan driver (D-616, D-731). A fallback to another driver fails the job (T-2).
 - The baseline holds both fit modes at both screen row counts (D-232, D-568).
 - The capture at 1080 rows proves the rule of D-573. Every pixel keeps the same size, with a slight softness at pixel edges.
 
-**Questions.** OQ-79.
+**Questions.** D-729 resolved OQ-79 on 2026-09-20, and D-730 holds the Mesa pin.
 
 > *In plain English:* the computers that check each change have no screen. This job gives one of them a software screen with a fixed picture, so a broken screen fails before it merges.
 
@@ -651,7 +654,7 @@ Area file: `area-effects.md` sections 7.7 and 7.8.
 **Review focus.**
 
 - The answer of OQ-98 settles the particle node kind, and the fixed seed of a capture (D-172).
-- The Compatibility renderer lacks two particle features, and the PR names each capture that differs (D-172).
+- The Mobile renderer of CI holds every particle feature of the Deck, so each capture shows the effect that the Deck draws (D-731).
 - A particle color is a palette key, so the screen keeps one palette (D-181).
 
 **Questions.** OQ-98, OQ-99, and OQ-100.
@@ -712,7 +715,7 @@ Area file: `area-effects.md` section 7.10.
 1. A screen test captures a lit fixture scene with glow.
 2. A bright light on a pale sprite never makes that sprite glow (F-47).
 3. The budget test counts the glow pass (D-523).
-4. The PR names each capture where the Compatibility renderer differs from the Deck (D-172).
+4. The captures show the glow of the Deck, because CI runs the Mobile renderer too (D-731).
 
 **Review focus.**
 

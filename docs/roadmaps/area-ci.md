@@ -46,7 +46,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 |---|---|---|
 | F-12 | A claim that gitar was absent had no check | Every PR: the author answers the pass (D-66) |
 | F-19 | Compressed PNG bytes depend on the encoder | PR-34, PR-41, and PR-48: tests compare decoded pixels |
-| F-23 | `--headless` draws nothing, so a screen test needs Xvfb | PR-41: a Linux job with a pinned Mesa (D-172, OQ-79) |
+| F-23 | `--headless` draws nothing, so a screen test needs Xvfb | PR-41: a Linux job with a pinned Mesa (D-172, D-729) |
 | F-26 | No PR created the screen-test job | PR-41 creates it |
 | F-37 | Two GitHub triggers start only from `main` | PR-3 and PR-49: a proof in Tests (D-500) |
 | F-38 | Double math can differ by platform | PR-4, PR-34, PR-38, and PR-48: integer math on every leg (D-502) |
@@ -226,11 +226,15 @@ Built by PR-54. Phase file: `phase-2-first-playable.md`. The file `.github/workf
 
 Built by PR-41. Phase file: `phase-2-first-playable.md`.
 
-- A Linux job runs Godot under Xvfb with the OpenGL driver and a pinned Mesa, because `--headless` draws nothing (D-172, F-23). OQ-79 holds how the job pins Mesa.
-- It captures each fixture scene at 1x, and both fit modes of D-232 at 1080 and 1440 screen rows (D-568).
-- The frame compare of Tools compares decoded pixels with a committed CI baseline (F-19, `area-tools.md` section 7.14). One changed pixel fails the job.
-- Two runs give the same frames, because the capture fixes the particle seeds and the time of day.
-- The contact sheet uses the real renderer on the machine of the owner, outside CI (D-172).
+- A Linux job runs Godot under Xvfb, because `--headless` draws nothing (D-172, F-23). It draws with the Mobile renderer on lavapipe, the software Vulkan driver of the pinned Mesa (D-616, D-731).
+- The job installs Mesa from one pinned timestamp of the snapshot service of Ubuntu, and it reads back each version (D-729, D-730).
+- The `--capture` argument of Game draws each fixture and writes one PNG for each capture (D-732). The fixtures are the map screen and the UI panel (D-734).
+- It captures each fixture at 1x, and both fit modes of D-232 at 1080 and 1440 screen rows (D-568).
+- The `screens` command of Tools compares decoded pixels with the committed baseline of `screens/baseline` (F-19, D-736, `area-tools.md` section 7.14). One changed pixel fails the job.
+- Two runs give the same frames, because the capture session runs no tick and the fixture seed is fixed (T-7). The job takes the captures two times and compares them.
+- Every run keeps the captures as an artifact, and the author commits a new baseline by hand (D-733).
+- An error line in the log of the session fails the job (T-2). A shader that fails to compile reports in the log alone.
+- The contact sheet uses the real renderer on the machine of the owner, outside CI (D-172, D-735).
 
 > *In plain English:* the CI computers have no screen, so this job gives one of them a software screen with a fixed picture. A change that breaks what the player sees fails before it merges.
 
@@ -378,7 +382,7 @@ The register is `docs/questions.md` (D-19). These questions block CI PRs, and ea
 
 - OQ-75, OQ-76, OQ-77, OQ-78, and OQ-83 are resolved. D-592 to D-596 hold the answers, and PR-1 builds them.
 - D-614 answers OQ-70, and the lint reads the Godot assembly of the Game build output.
-- OQ-79: how the screen-test job pins Mesa. Blocks PR-41.
+- OQ-79: how the screen-test job pins Mesa. Closed 2026-09-20 by D-729, and D-730 holds the pin.
 - OQ-74: how the runner finds a softlock. Blocks PR-15.
 - OQ-80: the count of bot runs on each PR. Blocks PR-15.
 - OQ-81: how the night gate result stays current until the merge. Blocks PR-49.

@@ -1,5 +1,46 @@
 # Session handoff
 
+## Session 150: 2026-09-20, Claude Code
+
+Author: Claude Code
+Session: PR-41, the screen-test job. Repository: the-thing-below. Branch: `feat/pr-41-screen-test`. Role: author. Base: `1e0c6b1`.
+
+### What this session did, and why
+
+- Asked the seven questions of PR-41 first, and the owner answered each one (D-729 to D-736). OQ-79 blocked the PR, and the register options needed one more (D-19).
+- The job installs Mesa from one pinned timestamp of the snapshot service of Ubuntu, and it reads back each version. The snapshot service keeps every timestamp, so the pin can never drop out of the archive (D-729, D-730).
+- The job draws with the Mobile renderer on lavapipe, and not with the Compatibility renderer of D-172. D-616 picked Mobile for every shipped build five days after D-172, so each capture now shows the renderer of the player (D-731).
+- The `--capture` argument of Game writes one PNG for each capture of `ScreenCaptures` (D-732). The fixtures are the map screen and a UI panel (D-734).
+- The `screens` command of Tools compares decoded pixels, or it joins the captures into a contact sheet (D-735, D-736, F-19).
+- A baseline comes from the renderer of CI, so the artifact of the job gives each new frame and the author commits it by hand (D-733).
+
+### The state of the build
+
+- `make verify` passes on the Mac, except the 10 baseline tests, which wait for the first artifact of the job.
+- `make sheet` runs the capture session and writes the sheet, so exit test 6 holds.
+- No file of Core changed, so the simulation version stands (G-17).
+- The remote head of `main` is `1e0c6b1`.
+
+### What is in flight
+
+The first push holds no baseline, so the `screen-test` job and the 10 baseline tests fail by design. That is the flow of D-733: the job uploads the artifact `screen-captures`, and the next commit holds the 10 files of `screens/baseline`.
+
+### Traps and gotchas
+
+- The Mac cannot write a baseline. It is Apple silicon, and the baseline comes from the software Vulkan driver of Linux (D-733).
+- The capture session runs no tick, so the frame time of the engine reaches no capture (T-7).
+- Each capture builds its fixture again, because the default body size follows the fit of the screen (D-707).
+- At 1440 rows both fit modes give one picture, because the frame reaches that screen at a whole scale of 2 (D-568).
+- A move of the Mesa pin needs a new baseline in the same PR (D-730).
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Push the branch, open the PR, and read the first run of the `screen-test` job. Then download the artifact `screen-captures`, read each frame, and commit the 10 files into `screens/baseline`.
+
 ## Session 149: 2026-09-20, Codex
 
 Author: Codex
@@ -343,49 +384,3 @@ None.
 ### The next concrete action
 
 Wait for the revision-matched checks, then verify the review-gate result.
-
-## Session 140: 2026-09-20, Claude Code
-
-Author: Claude Code
-Session: the audit fixes PR (D-696). Repository: the-thing-below. Branch: `fix/audit-fixes`. Role: author. Base: `4a472c5`.
-
-### What this session did, and why
-
-- The session before this one ran a principal-level audit of the whole repository at `4a472c5`. The owner asked for every fix in one PR (D-696). That session wrote the commit `78e7f3a` and an untracked note, and no entry. This entry holds the content of that note.
-- `docs/reviews/audit-2026-09-20.md` holds each finding, A-1 to A-28, with its state. F-93 is the finding of the design register. D-695 to D-706 hold the owner answers, and OQ-200 to OQ-209 are closed.
-- This session wrote the three code items that waited for it, each with a test that fails on the old code (T-3):
-  - D-702: `DocumentSet` reads `git ls-files -z` when the root holds `.git`, and `TrackedFiles` is new. A `git` run that fails is an error with the root and the exit code. A root with no git data keeps the read of the folder tree. `SteCheckTrackedFileTests` holds 8 tests.
-  - D-699: `export.yml` holds five trigger paths, and `ExportWorkflowTests` pins them.
-  - D-700: `OverrideRules` refuses `.claude/settings.json` before the folder match, and RG 1 gives that path a reason with D-700.
-- It corrected each document that said the opposite: two runbooks, two skills, one reference file, three roadmaps, both agent files, the PR template, the hook, the `Makefile`, and `ci.yml`.
-- It ran `make smoke` after the changes to `Boot.cs` and `GameRun.cs`, and it moved Session 130 to the archive.
-
-### The state of the build
-
-- `make verify` passes on the Mac: 953 tests, the format check, det-lint and STE with 0 findings, the replay identity on simulation version 4, the content hash, the atlas check, and the smoke session.
-- The branch holds `78e7f3a` and the commit of this entry. The remote head is that commit, on `origin/fix/audit-fixes`.
-- `CLAUDE.md` holds 16220 of 16384 bytes.
-
-### What is in flight
-
-The PR waits for gitar, and then for the review of Codex. No label applies, because the PR changes decision rows, workflows, and code (D-401, D-560).
-
-### Traps and gotchas
-
-- The STE check reads the index for the file set, and the working tree for the text. A staged new file takes the rules. The new tests run `git`, so each CI leg needs it on the path.
-- `HANDOFF-PR-61.md` is the untracked note of another session. Do not delete it.
-- The identity file changed for simulation version 4. The three CI legs must agree with it.
-- The live `review-gate` check runs the code of `main`, so the new RG 7 first reads the next PR (F-37).
-- `rollForward` of `global.json` is `latestPatch` now. No owner answer covers it. Revert it if the reviewer objects.
-- D-704: game text says "party" for the travelers, and the glossary keeps "party" for the characters in battle. Ask the owner when the two uses collide.
-- D-706: a direct push to `main` fails for the owner too.
-- The trial of gitar ends about 2026-09-23 (D-685). The GPL license keeps the free reviews (D-695).
-- Sessions 86, 94, 95, 97, and 119 exist in no file.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait three minutes for gitar (D-705), answer each comment, and tell the owner that the PR is ready for Codex.
