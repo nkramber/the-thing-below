@@ -39,8 +39,8 @@ public static class LightValues
     /// <summary>The highest strength of an ambient light, in basis points: the palette color itself.</summary>
     public const int MostAmbientStrength = BasisPoints.One;
 
-    /// <summary>The longest range of a point light, in art pixels: the width of the world view (D-634).</summary>
-    public const int MostRange = 640;
+    /// <summary>The longest range of a point light, in art pixels (D-855).</summary>
+    public const int MostRange = 1024;
 
     /// <summary>The greatest height of a point light, in art pixels.</summary>
     public const int MostHeight = 256;

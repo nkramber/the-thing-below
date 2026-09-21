@@ -22,12 +22,18 @@ public sealed class EffectBudget
     /// </summary>
     public const int GodotLightsPerItem = 15;
 
+    /// <summary>
+    /// The Godot lights of each light source of a map: one for the floor and the walls, and one
+    /// for the figures, so no figure darkens itself (D-853).
+    /// </summary>
+    public const int LightsPerSource = 2;
+
     private EffectBudget(int lightsInView)
     {
         this.LightsInView = lightsInView;
     }
 
-    /// <summary>The most lights with shadows whose range reaches one view of the Deck (D-617, D-842).</summary>
+    /// <summary>The most Godot lights with shadows whose range reaches one view of the Deck, two for each source (D-842, D-853, D-854).</summary>
     public int LightsInView { get; }
 
     /// <summary>Reads the budget from the bytes of its file.</summary>

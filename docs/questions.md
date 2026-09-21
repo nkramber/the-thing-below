@@ -671,3 +671,5 @@ How to file a question (D-19, D-24):
     - No recommendation yet. The PR-91 session reads the sight rules of PR-7 and the map screen, and it gives the options with a recommendation.
 218. **OQ-218. How much farther an enemy sees a lit torch.** An enemy sees a lit torch from farther away (D-848). Each enemy has a sight range (D-738). How does a lit torch change that range? Raised 2026-09-21. Blocks PR-91.
     - No recommendation yet. The PR-91 session reads the patrol sight rules of PR-8, and it gives the options with a recommendation.
+219. **OQ-219. The paths of the docs-only set of PR-93.** On a docs-only change, CI runs ste-check, review-gate, and Gitar alone (D-856). The owner named skills, roadmaps, runbooks, the session handoff, and review records. D-600 keeps `CLAUDE.md` and `AGENTS.md` out of the skip set, because a test proves that the two files match. Do `CLAUDE.md`, `AGENTS.md`, and `.claude/settings.json` join the set? Raised 2026-09-21. Blocks PR-93.
+    - No recommendation yet. The PR-93 session reads the jobs of `.github/workflows/ci.yml` and gives the options with a recommendation.

@@ -75,7 +75,8 @@ public partial class MapScreen : Node2D
     private Sprite2D lead = null!;
     private Sprite2D[] enemies = [];
     private Node2D mark = null!;
-    private PointLight2D carried = null!;
+    private PointLight2D carriedGround = null!;
+    private PointLight2D carriedFigures = null!;
     private CarriedLight carriedPlace = null!;
 
     /// <summary>
@@ -114,6 +115,7 @@ public partial class MapScreen : Node2D
         this.lead = BuildSprite(
             atlas,
             ContentId.Parse(LeadContentId, AtlasIndex.Path, nameof(LeadContentId)));
+        this.lead.AddChild(FeetShadow(this.lead, WorldLights.LeadShadows));
         this.AddChild(this.lead);
 
         IReadOnlyList<PatrolState> patrols = party.Patrols.All;
@@ -121,6 +123,7 @@ public partial class MapScreen : Node2D
         for (int index = 0; index < patrols.Count; index += 1)
         {
             this.enemies[index] = BuildSprite(atlas, patrols[index].Patrol.Id);
+            this.enemies[index].AddChild(FeetShadow(this.enemies[index], WorldLights.FigureShadows));
             this.AddChild(this.enemies[index]);
         }
 
@@ -145,7 +148,9 @@ public partial class MapScreen : Node2D
         int leadX = MapCamera.LeadX(party, tickPart);
         int leadY = MapCamera.LeadY(party, tickPart);
         this.lead.Position = new Vector2(leadX, FeetOf(leadY, 1));
-        this.carried.Position = new Vector2(leadX + this.carriedPlace.X, FeetOf(leadY, 1) + this.carriedPlace.Y);
+        var carriedAt = new Vector2(leadX + this.carriedPlace.X, FeetOf(leadY, 1) + this.carriedPlace.Y);
+        this.carriedGround.Position = carriedAt;
+        this.carriedFigures.Position = carriedAt;
         this.ShowEnemies(party, tickPart);
 
         CameraPlace view = MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tickPart);
@@ -158,8 +163,12 @@ public partial class MapScreen : Node2D
     /// </summary>
     public bool CarriedLightOn
     {
-        get => this.carried.Visible;
-        set => this.carried.Visible = value;
+        get => this.carriedGround.Visible;
+        set
+        {
+            this.carriedGround.Visible = value;
+            this.carriedFigures.Visible = value;
+        }
     }
 
     /// <summary>
@@ -172,7 +181,7 @@ public partial class MapScreen : Node2D
     {
         int lights = WorldLights.CheckLights(this);
         string carried = this.CarriedLightOn ? "on" : "off";
-        return $"{lights} lights with the carried light {carried}";
+        return $"{lights} lights with the carried light {carried}, and {CountOccluders(this)} occluders";
     }
 
     /// <summary>
@@ -204,18 +213,96 @@ public partial class MapScreen : Node2D
             });
         }
 
-        ImageTexture texture = WorldLights.BuildTexture();
-        foreach (MapLight light in content.Light.LightsOf(map.Id, map.Time))
+        foreach (WallShadow wall in WallShadows.Of(map))
         {
-            PointLight2D point = WorldLights.Point(light.Id.Value, content.Palette, light.Light, texture, shadows: true);
-            point.Position = new Vector2(light.X, light.Y);
-            this.AddChild(point);
+            this.AddChild(WallOccluder(wall));
         }
 
+        ImageTexture texture = WorldLights.BuildTexture();
+        const int EveryShadow = WorldLights.WallShadows | WorldLights.FigureShadows | WorldLights.LeadShadows;
+        foreach (MapLight light in content.Light.LightsOf(map.Id, map.Time))
+        {
+            (PointLight2D ground, PointLight2D figures) = WorldLights.Pair(light.Id.Value, content.Palette, light.Light, texture, EveryShadow);
+            ground.Position = new Vector2(light.X, light.Y);
+            figures.Position = ground.Position;
+            this.AddChild(ground);
+            this.AddChild(figures);
+        }
+
+        // The lead holds the carried light, so its own feet never shadow it (D-853).
         this.carriedPlace = content.Light.Carried;
-        this.carried = WorldLights.Point("carried_light", content.Palette, this.carriedPlace.Light, texture, shadows: true);
-        this.carried.Visible = false;
-        this.AddChild(this.carried);
+        (this.carriedGround, this.carriedFigures) = WorldLights.Pair(
+            "carried_light",
+            content.Palette,
+            this.carriedPlace.Light,
+            texture,
+            WorldLights.WallShadows | WorldLights.FigureShadows);
+        this.CarriedLightOn = false;
+        this.AddChild(this.carriedGround);
+        this.AddChild(this.carriedFigures);
+    }
+
+    /// <summary>Builds the occluder of one wall from its shape (D-852).</summary>
+    private static LightOccluder2D WallOccluder(WallShadow wall)
+    {
+        return new LightOccluder2D
+        {
+            Name = $"wall_{wall.Tile.X}_{wall.Tile.Y}",
+            Position = new Vector2(wall.Tile.X * MapCamera.TilePixels, wall.Tile.Y * MapCamera.TilePixels),
+            OccluderLightMask = WorldLights.WallShadows,
+            Occluder = new OccluderPolygon2D
+            {
+                Polygon =
+                [
+                    new Vector2(wall.Left, wall.Top),
+                    new Vector2(wall.Right, wall.Top),
+                    new Vector2(wall.Right, wall.Bottom),
+                    new Vector2(wall.Left, wall.Bottom),
+                ],
+                Closed = true,
+            },
+        };
+    }
+
+    /// <summary>
+    /// Builds the occluder at the feet of one figure: a flat octagon across the middle of the
+    /// body, which throws the shadow of the figure away from each light (D-853).
+    /// </summary>
+    private static LightOccluder2D FeetShadow(Sprite2D sprite, int mask)
+    {
+        float width = sprite.Texture.GetSize().X;
+        float half = width * 0.3f;
+        float middle = width / 2f;
+        const float Depth = 3f;
+        return new LightOccluder2D
+        {
+            Name = "feet_shadow",
+            OccluderLightMask = mask,
+            Occluder = new OccluderPolygon2D
+            {
+                Polygon =
+                [
+                    new Vector2(middle - half, -Depth),
+                    new Vector2(middle - (half / 2f), -2f * Depth),
+                    new Vector2(middle + (half / 2f), -2f * Depth),
+                    new Vector2(middle + half, -Depth),
+                    new Vector2(middle + (half / 2f), 0f),
+                    new Vector2(middle - (half / 2f), 0f),
+                ],
+                Closed = true,
+            },
+        };
+    }
+
+    private static int CountOccluders(Node root)
+    {
+        int count = 0;
+        foreach (Node child in root.GetChildren())
+        {
+            count += (child is LightOccluder2D ? 1 : 0) + CountOccluders(child);
+        }
+
+        return count;
     }
 
     /// <summary>Puts each enemy where Core put it, and shows the mark of a sight (D-208, D-737).</summary>
@@ -280,6 +367,9 @@ public partial class MapScreen : Node2D
             Texture = atlas.Frame(entry.Id, 0),
             Centered = false,
             Offset = new Vector2(0, -entry.Height),
+
+            // The figure light of each pair lights a figure, so no figure darkens itself (D-853).
+            LightMask = WorldLights.FigureItems,
         };
     }
 
@@ -349,9 +439,6 @@ public partial class MapScreen : Node2D
         Refuse(
             this.ground.RenderingQuadrantSize != LightBudget.QuadrantTiles,
             $"the quadrant is {this.ground.RenderingQuadrantSize} tiles, and the budget test counts {LightBudget.QuadrantTiles} (F-46, D-842)");
-        Refuse(
-            set.GetOcclusionLayersCount() != 1,
-            $"the tile set holds {set.GetOcclusionLayersCount()} occlusion layers, and the walls cast their shadows on one (D-845)");
 
         return $"tile size {set.TileSize}, region size {source.TextureRegionSize}, "
             + $"collisions {this.ground.CollisionEnabled}, navigation {this.ground.NavigationEnabled}, "
@@ -428,6 +515,7 @@ public partial class MapScreen : Node2D
             // layer takes no part in the sort, and it draws below every sprite at every pixel
             // of a slide (F-95, D-783). A later tile that stands up takes a layer of its own.
             YSortEnabled = false,
+            LightMask = WorldLights.GroundItems,
             ZIndex = GroundZIndex,
 
             // Godot draws each quadrant as one canvas item, and one canvas item takes 15 lights

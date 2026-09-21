@@ -338,7 +338,7 @@ public sealed class LightContent
     private void RefuseOverBudget(SortedDictionary<string, GameMap> maps)
     {
         // The carried light follows the lead, so each view and each canvas item can hold it
-        // (D-847). Thus each count below adds one light.
+        // (D-847). Thus each count below adds one source.
         const int Carried = 1;
 
         foreach (LightSetup setup in this.setups.Values)
@@ -349,19 +349,23 @@ public sealed class LightContent
             int height = checked(map.Height * AtlasPages.TileSize);
 
             LightCount view = LightBudget.WorstWindow(lights, width, height, LightBudget.ViewWidth, LightBudget.ViewHeight);
-            RefuseCount(setup, view, Carried, this.Budget.LightsInView, $"a view of {LightBudget.ViewWidth} by {LightBudget.ViewHeight} art pixels", $"the row `lights_in_view` of `{EffectBudget.Path}` (D-523, D-842)");
+            RefuseCount(setup, view, Carried, EffectBudget.LightsPerSource, this.Budget.LightsInView, $"a view of {LightBudget.ViewWidth} by {LightBudget.ViewHeight} art pixels", $"the row `lights_in_view` of `{EffectBudget.Path}` (D-523, D-842)");
 
             LightCount quadrant = LightBudget.WorstQuadrant(lights, width, height);
-            RefuseCount(setup, quadrant, Carried, EffectBudget.GodotLightsPerItem, "a quadrant of the ground layer, which Godot draws as one canvas item", "the lights that Godot draws on one canvas item (F-46)");
+            RefuseCount(setup, quadrant, Carried, 1, EffectBudget.GodotLightsPerItem, "a quadrant of the ground layer, which Godot draws as one canvas item", "the lights that Godot draws on one canvas item (F-46)");
 
             LightCount sprite = LightBudget.WorstWindow(lights, width, height, LightBudget.LargestSprite, LightBudget.LargestSprite);
-            RefuseCount(setup, sprite, Carried, EffectBudget.GodotLightsPerItem, "the largest sprite of a map, which Godot draws as one canvas item", "the lights that Godot draws on one canvas item (F-46)");
+            RefuseCount(setup, sprite, Carried, 1, EffectBudget.GodotLightsPerItem, "the largest sprite of a map, which Godot draws as one canvas item", "the lights that Godot draws on one canvas item (F-46)");
         }
     }
 
-    private static void RefuseCount(LightSetup setup, LightCount count, int carried, int limit, string place, string rule)
+    /// <remarks>
+    /// Each source of a map is a pair of Godot lights, so a view counts two lights for each
+    /// source. One canvas item takes one light of each pair, so it counts one (D-853).
+    /// </remarks>
+    private static void RefuseCount(LightSetup setup, LightCount count, int carried, int lightsPerSource, int limit, string place, string rule)
     {
-        int total = checked(count.Count + carried);
+        int total = checked((count.Count + carried) * lightsPerSource);
         if (total > limit)
         {
             throw ContentException.ForFile(

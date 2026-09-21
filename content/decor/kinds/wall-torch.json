@@ -1,5 +1,5 @@
 {
  "comment": "A torch that hangs on a wall and faces the tile to its south (D-843, D-844). Its light is the default of every wall torch, and a light setup can change the light of one torch by the id of its piece. The light hangs over the tile south of the wall, because each wall casts the shadow of its full tile (D-845). The color is a palette key with a strength in basis points (D-846), and the height keeps a flat pixel of a normal map lit (F-46).",
  "id": "decor.wall_torch",
- "light": { "color": "j", "strength": 16000, "range": 160, "height": 40, "x": 16, "y": 34 }
+ "light": { "color": "j", "strength": 24000, "range": 240, "height": 40, "x": 16, "y": 34 }
 }

@@ -195,30 +195,34 @@ public sealed class LightContentTests
     [Fact]
     public void AMapOverTheRowOfTheBudgetFailsWithTheFileAndTheCount()
     {
-        // D-523, D-842: four lights and the carried light reach one view, and the row allows 4.
+        // D-523, D-842, D-853: five sources and the carried light reach one view as 12 Godot
+        // lights, two for each source, and the row allows 10.
         ContentException error = Assert.Throws<ContentException>(() => LightFixtures.Load(LightFixtures.Files(
             LightFixtures.DecorBody(string.Empty),
-            LightFixtures.SetupBody(added: AddedLights(4)),
-            LightFixtures.BudgetBody(4))));
+            LightFixtures.SetupBody(added: AddedLights(5)),
+            LightFixtures.BudgetBody(10))));
 
         Assert.Equal(LightFixtures.SetupPath, error.File);
-        Assert.Contains("5 lights", error.Message, StringComparison.Ordinal);
+        Assert.Contains("12 lights", error.Message, StringComparison.Ordinal);
         Assert.Contains("lights_in_view", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
     public void TheCarriedLightCountsInEachView()
     {
-        // D-847: 14 lights and the carried light fill the row of 15, and 15 lights pass it.
+        // D-847, D-853: 11 sources and the carried light fill the row of 24 as pairs, and 12
+        // sources pass it.
         LightFixtures.Load(LightFixtures.Files(
             LightFixtures.DecorBody(string.Empty),
-            LightFixtures.SetupBody(added: AddedLights(14))));
+            LightFixtures.SetupBody(added: AddedLights(11)),
+            LightFixtures.BudgetBody(24)));
 
         ContentException error = Assert.Throws<ContentException>(() => LightFixtures.Load(LightFixtures.Files(
             LightFixtures.DecorBody(string.Empty),
-            LightFixtures.SetupBody(added: AddedLights(15)))));
+            LightFixtures.SetupBody(added: AddedLights(12)),
+            LightFixtures.BudgetBody(24))));
 
-        Assert.Contains("16 lights, the carried light included", error.Message, StringComparison.Ordinal);
+        Assert.Contains("26 lights, the carried light included", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]

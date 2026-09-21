@@ -24,7 +24,7 @@ public sealed class LightFileTests
     [InlineData("\"height\": 24", "\"height\": 0", "light.height", "height 0")]
     [InlineData("\"color\": \"j\"", "\"color\": \"jj\"", "light.color", "one palette key")]
     [InlineData("\"strength\": 12000", "\"strength\": 40001", "light.strength", "0 to 40000")]
-    [InlineData("\"range\": 96", "\"range\": 0", "light.range", "1 to 640")]
+    [InlineData("\"range\": 96", "\"range\": 0", "light.range", "1 to 1024")]
     [InlineData("\"y\": 36", "\"y\": 64", "light.y", "0 to 63")]
     [InlineData("\"x\": 16", "\"x\": 32", "light.x", "0 to 31")]
     public void AKindValueOutsideItsLimitFailsWithTheField(string from, string to, string field, string reason)

@@ -3,11 +3,11 @@
  "map": "map.fixture_dungeon",
  "time": "night",
  "ambient": { "color": "8", "strength": 10000 },
- "battle": { "color": "A", "strength": 16000, "range": 480, "height": 96 },
+ "battle": { "color": "A", "strength": 24000, "range": 720, "height": 96 },
  "changes": [
-  { "piece": "piece.fixture_dungeon_vault", "color": "J", "strength": 12000, "range": 128, "height": 32 }
+  { "piece": "piece.fixture_dungeon_vault", "color": "J", "strength": 18000, "range": 192, "height": 32 }
  ],
  "added": [
-  { "id": "light.fixture_dungeon_deep", "x": 25, "y": 18, "color": "u", "strength": 12000, "range": 112, "height": 24 }
+  { "id": "light.fixture_dungeon_deep", "x": 25, "y": 18, "color": "u", "strength": 18000, "range": 168, "height": 24 }
  ]
 }

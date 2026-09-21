@@ -30,6 +30,21 @@ public static class WorldLights
     /// <summary>The side of the light texture, in pixels. A light scales it to twice its range.</summary>
     public const int TextureSize = 256;
 
+    /// <summary>The light mask of the floor and the walls: the items that the ground light of a pair lights (D-853).</summary>
+    public const int GroundItems = 1;
+
+    /// <summary>The light mask of each figure: the items that the figure light of a pair lights (D-853).</summary>
+    public const int FigureItems = 2;
+
+    /// <summary>The occluder mask of each wall (D-852).</summary>
+    public const int WallShadows = 1;
+
+    /// <summary>The occluder mask of each figure but the lead (D-853).</summary>
+    public const int FigureShadows = 2;
+
+    /// <summary>The occluder mask of the lead, whose carried light it never blocks (D-853).</summary>
+    public const int LeadShadows = 4;
+
     /// <summary>Builds the light texture: full light at the center, and none at the edge of the circle.</summary>
     /// <returns>The texture.</returns>
     /// <exception cref="InvalidOperationException">Godot made no texture from the image (T-2, F-45).</exception>
@@ -98,10 +113,11 @@ public static class WorldLights
     /// <param name="palette">The palette.</param>
     /// <param name="values">The color, the range, and the height of the light.</param>
     /// <param name="texture">The light texture of <see cref="BuildTexture"/>.</param>
-    /// <param name="shadows">True when the walls cast a shadow of this light (D-845).</param>
+    /// <param name="items">The light mask of the items that the light lights.</param>
+    /// <param name="shadows">The occluder mask of the shadows that the light takes, or 0 for no shadow.</param>
     /// <returns>The light.</returns>
     /// <exception cref="ContentException">The palette holds no such key (T-2).</exception>
-    public static PointLight2D Point(string id, Palette palette, PointLightValues values, Texture2D texture, bool shadows)
+    public static PointLight2D Point(string id, Palette palette, PointLightValues values, Texture2D texture, int items, int shadows)
     {
         ArgumentException.ThrowIfNullOrEmpty(id);
         ArgumentNullException.ThrowIfNull(values);
@@ -115,11 +131,38 @@ public static class WorldLights
             Color = PaletteColorOf(palette, values.Color),
             Energy = values.Color.Strength / (float)BasisPoints.One,
             Height = values.Height,
-            ShadowEnabled = shadows,
+            RangeItemCullMask = items,
+            ShadowEnabled = shadows != 0,
+            ShadowItemCullMask = shadows,
 
             // Hard shadows from walls (D-183).
             ShadowFilter = Light2D.ShadowFilterEnum.None,
         };
+    }
+
+    /// <summary>
+    /// Builds the pair of Godot lights of one source of a map (D-853). The ground light lights
+    /// the floor and the walls, and it takes the shadows that the ground mask names. The figure
+    /// light lights the figures, and it takes the shadows of the walls alone, so no figure
+    /// darkens itself.
+    /// </summary>
+    /// <param name="id">The id of the piece or the light.</param>
+    /// <param name="palette">The palette.</param>
+    /// <param name="values">The color, the range, and the height of the source.</param>
+    /// <param name="texture">The light texture of <see cref="BuildTexture"/>.</param>
+    /// <param name="groundShadows">The occluder mask of the shadows that the ground light takes.</param>
+    /// <returns>The two lights.</returns>
+    /// <exception cref="ContentException">The palette holds no such key (T-2).</exception>
+    public static (PointLight2D Ground, PointLight2D Figures) Pair(
+        string id,
+        Palette palette,
+        PointLightValues values,
+        Texture2D texture,
+        int groundShadows)
+    {
+        return (
+            Point($"{id}_ground", palette, values, texture, GroundItems, groundShadows),
+            Point($"{id}_figures", palette, values, texture, FigureItems, WallShadows));
     }
 
     /// <summary>

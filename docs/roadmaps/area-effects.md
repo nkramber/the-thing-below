@@ -131,6 +131,7 @@ Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-59, and PR-60.
 - So the budget test also fails more than 15 lights on one canvas item, whatever the Deck test measures (T-2).
 - PR-56 adds the budget file and its test with the rows for light. PR-57 adds particles, and PR-58, PR-59, and PR-60 add their full-screen passes.
 - The first rows of the budget come from the run of 2026-09-17: 15 lights with shadows, 8192 live particles, and 3 full-screen passes (D-617).
+- The light row rises to 24 after a new Deck sweep with 24 paired lights, before PR-56 merges (D-854). Each light source counts two lights (D-853).
 - Each row is a floor, and not the ceiling of the Deck, because no stage of the sweep missed the target (F-66).
 - The sweep measured those 3 passes with the CRT on, and D-618 later removed that pass, so the shipped stack carries one pass less.
 - M-6 measures the first playable on the Deck against the budget (D-161). A miss changes the budget or the content in a PR with a measurement (G-14).
@@ -167,8 +168,9 @@ Built by PR-56. Phase file: `phase-2-first-playable.md`.
 - An atlas texture cannot serve as a light texture, so the light textures stay outside the atlas (the external facts above).
 - Each light sets a height, because at the default height of 0 a flat pixel of a normal-mapped sprite takes no light (F-46).
 - Each light and the ambient light name a palette key with a strength in basis points (D-846).
-- Walls cast hard shadows (D-183). Game gives each wall tile a full shape of 32 by 32 pixels (D-845).
-- A `TileSet` can give each atlas tile its occluder polygons, and Game builds one from the tile page at load (D-667).
+- Walls cast hard shadows (D-183). Each wall that faces a walkable tile takes light on its face, and a strip at its back blocks the light (D-845, D-852).
+- Each figure casts a shadow from its feet. Each light source is a pair of lights, so no figure darkens itself (D-853).
+- A `TileSet` gives one occluder to each kind of tile, and a wall face needs a shape of its own place. Thus Game builds one occluder for each wall that faces a walkable tile, from the terrain (D-852).
 - Game gives each sprite, tile, and piece its normal map through a `CanvasTexture` with the color atlas and the normal-map atlas. Both atlases draw with the Nearest filter (F-45).
 - A `CanvasTexture` gives no specular light by default, and no decision asks for specular light (D-183).
 - A shader on a lit sprite, tile, or piece never uses `NORMAL_MAP`. Godot corrects the normal of a flipped draw before the shader code, and `NORMAL_MAP` replaces that normal (the external facts above).
