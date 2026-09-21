@@ -1,5 +1,37 @@
 # Session handoff
 
+## Session 166: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: PR-80, the enemy record, the Gitar round. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: author. Base: `86528a3`.
+
+### What this session did, and why
+
+- Opened PR #48 at `fd97eb2`, and ran the push wait and the Gitar wait (D-586, D-705).
+- The Gitar pass is current: the head is `fd97eb2`, and the dashboard edit at 14:55:50 UTC comes after the push at 14:52:59 UTC. The review found no issues, and the PR has no review thread.
+- Answered the CI note of the dashboard in a PR comment: the review-gate check fails on RG 3 alone, because no review record exists yet.
+
+### The state of the build
+
+- The effective head is `fd97eb2`. This entry is a metadata commit, and it does not move the effective head (D-610).
+- CI at `fd97eb2`: build, test, and format, smoke, det-lint, replay-identity, screen-test, and ste-check pass on every leg. The review-gate check waits for `docs/reviews/pr-48.md`.
+
+### What is in flight
+
+The Codex review of PR #48. The PR adds D-785 to D-787, so the `review-override` label does not apply (D-401).
+
+### Traps and gotchas
+
+- Session 165 holds the traps of the change: the ordinal order of the enemy files, and the check of a group entry against a record in another file.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The owner starts a Codex session to review PR #48 at effective head `fd97eb2`. This author session answers each finding of that review.
+
 ## Session 165: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -320,36 +352,3 @@ None.
 ### The next concrete action
 
 Commit and push the repeat review record and this handoff entry. Then verify the remote head and review-gate result.
-
-## Session 156: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: PR-8, the enemies on the map, the answer to the review. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: author. Base: `626d2fe`.
-
-### What this session did, and why
-
-- Answered `docs/reviews/pr-45.md`, which gave `Changes required` at `e83e2d6` for one finding.
-- P2-1 has full merit. An area whose coordinate and side sum past the range of an `int` loaded with no error. Commit `801d6aa` compares each side with the room that the map leaves, and a theory of three cases holds the regression.
-- `docs/reviews/pr-45-response.md` records the disposition and the evidence.
-
-### The state of the build
-
-- `make verify` passes with 1393 tests. The identity file and the content hash stay the same, and the simulation version stays at 6.
-- The effective head is `801d6aa`.
-- The remote head of `main` is `626d2fe`.
-
-### What is in flight
-
-The push of this round runs CI and the gitar pass on `801d6aa`. PR #45 then waits for a repeat review of that head.
-
-### Traps and gotchas
-
-- The reader of an area refuses a value below zero. The edge check relies on that, so a change of that reader needs a new look at the check.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for CI and the gitar pass on `801d6aa`, answer each gitar comment, and hand PR #45 to the repeat review.
