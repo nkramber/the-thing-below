@@ -1,5 +1,40 @@
 # Session handoff
 
+## Session 164: 2026-09-21, Codex
+
+Author: Codex
+Session: review PR-47, the ground draw order, walk captures, fullscreen launch, and frame fit. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: reviewer. Base: `ce06eda`.
+
+### What this session did, and why
+
+- Reviewed PR #47 at effective head `4c1bdec`.
+- Inspected the complete diff, the PR description and comments, the PR-89 roadmap scope and exit tests, the affected Game and Tests paths, the capture baselines, and the changed documents.
+- Verified the ground-layer order, deterministic walk capture sequence, fullscreen startup, 1080-row frame fit, baseline coverage, and the visual-review record.
+- Added `docs/reviews/pr-47.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- Remote head of the PR branch: `4c1bdec`.
+- `make verify` passes with 1555 tests, no failures, and no skips.
+- GitHub CI and Gitar pass at `4c1bdec`. The review-gate check waits for this review record.
+
+### What is in flight
+
+The review record and this handoff entry need a push. After the push, the owner can wait for review-gate and merge the PR.
+
+### Traps and gotchas
+
+- The review target is `4c1bdec`, not the metadata commit that publishes this record.
+- The capture session stays windowed so it can set exact screen sizes. Only the play session enters borderless fullscreen.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the review record and handoff entry. Verify the remote head and the review-gate result.
+
 ## Session 163: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -316,37 +351,3 @@ None.
 ### The next concrete action
 
 Correct P2-1 with a regression test, then request a repeat review of the new effective head.
-
-## Session 154: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: PR-8, the enemies on the map, round 3. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: author. Base: `626d2fe`.
-
-### What this session did, and why
-
-- Recorded the gitar pass and the CI result of the effective head `e83e2d6`. This commit changes the metadata set alone, so the effective head stays `e83e2d6` (D-610).
-
-### The state of the build
-
-- CI passes on every leg at `e83e2d6`: the build, test, and format job, the smoke job, and the replay identity job on each of the three legs. The screen-test, det-lint, STE, coverage, and changed-paths jobs pass too.
-- The `screen-test` job passes on the new map baseline.
-- The gitar pass of `e83e2d6` is current. The dashboard edit at 02:57:40 UTC comes after the push at 02:55:25 UTC. Its code review found no issue and opened no thread. Its CI note describes the first run, which the new baseline answered.
-- The `review-gate` check gives RG 3 alone, because the head holds no `docs/reviews/pr-45.md`. RG 1, RG 2, and RG 6 to RG 8 pass.
-- The remote head of `main` is `626d2fe`.
-
-### What is in flight
-
-PR #45 waits for the cross-provider review at the effective head `e83e2d6`. The PR changes code, so the label of D-401 never applies.
-
-### Traps and gotchas
-
-- The review reads the 18 answers of D-737 to D-754, and the fix of F-94 in `TheThingBelow.Game/scripts/Ui/MapScreen.cs`.
-- The `flee` command with no encounter writes a warning and changes nothing, so a bot or the smoke session never stops (D-749).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Hand PR #45 to the cross-provider review. Answer each finding in this session (D-582).

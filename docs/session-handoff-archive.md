@@ -1,5 +1,39 @@
 # Session handoff archive
 
+## Session 154: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: PR-8, the enemies on the map, round 3. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: author. Base: `626d2fe`.
+
+### What this session did, and why
+
+- Recorded the gitar pass and the CI result of the effective head `e83e2d6`. This commit changes the metadata set alone, so the effective head stays `e83e2d6` (D-610).
+
+### The state of the build
+
+- CI passes on every leg at `e83e2d6`: the build, test, and format job, the smoke job, and the replay identity job on each of the three legs. The screen-test, det-lint, STE, coverage, and changed-paths jobs pass too.
+- The `screen-test` job passes on the new map baseline.
+- The gitar pass of `e83e2d6` is current. The dashboard edit at 02:57:40 UTC comes after the push at 02:55:25 UTC. Its code review found no issue and opened no thread. Its CI note describes the first run, which the new baseline answered.
+- The `review-gate` check gives RG 3 alone, because the head holds no `docs/reviews/pr-45.md`. RG 1, RG 2, and RG 6 to RG 8 pass.
+- The remote head of `main` is `626d2fe`.
+
+### What is in flight
+
+PR #45 waits for the cross-provider review at the effective head `e83e2d6`. The PR changes code, so the label of D-401 never applies.
+
+### Traps and gotchas
+
+- The review reads the 18 answers of D-737 to D-754, and the fix of F-94 in `TheThingBelow.Game/scripts/Ui/MapScreen.cs`.
+- The `flee` command with no encounter writes a warning and changes nothing, so a bot or the smoke session never stops (D-749).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Hand PR #45 to the cross-provider review. Answer each finding in this session (D-582).
+
 ## Session 153: 2026-09-21, Claude Code
 
 Author: Claude Code
