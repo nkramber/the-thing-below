@@ -1,5 +1,41 @@
 # Session handoff archive
 
+## Session 149: 2026-09-20, Codex
+
+Author: Codex
+Session: review PR #43, the debug assembly and the console. Repository: the-thing-below. Branch: `feat/pr-45-debug-assembly`. Role: reviewer. Base: `ea2fec5`.
+
+### What this session did, and why
+
+- Reviewed PR #43 at effective head `fd9e0ae`.
+- Verified the opposite-provider gate, the complete diff, the PR comments, the PR-45 roadmap exit tests, the debug seam, command dispatch, replay mark, release exclusion, console focus, and export checks.
+- Verified the closed Gitar finding and found no additional in-scope defect.
+- Added `docs/reviews/pr-43.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1213 tests and all local gates.
+- GitHub passes build, test, format, smoke, replay identity, det-lint, STE, coverage, changed paths, and all three export legs for the PR.
+- Gitar approves the effective head `fd9e0ae`, and its one finding is closed.
+- The review-gate check is expected to fail until the review record is pushed. RG 3 is the only missing record condition.
+
+### What is in flight
+
+- The review record and this handoff entry are pushed in `32fa076`.
+
+### Traps and gotchas
+
+- The effective code head is `fd9e0ae`. Commits `5cb8912` and `99c8c5c` change metadata only.
+- PR #43 is roadmap PR-45. Do not confuse the GitHub number with the roadmap number.
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Fetch and verify that the review-gate check is green and that no branch commits remain ahead of the remote.
+
 ## Session 148: 2026-09-20, Claude Code
 
 Author: Claude Code

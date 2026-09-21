@@ -1,5 +1,41 @@
 # Session handoff
 
+## Session 159: 2026-09-21, Codex
+
+Author: Codex
+Session: review PR-9, the battle core and the timeline. Repository: the-thing-below. Branch: `feat/pr-9-battle-core`. PR: #46. Role: reviewer. Base: `c6cc71c`.
+
+### What this session did, and why
+
+- Reviewed PR #46 at effective head `c480baa`.
+- Inspected the complete 78-path diff, the PR comments, the PR-9 roadmap scope and exit tests, and the affected Core, Game, debug, content, save, replay, test, and document paths.
+- Verified the timeline, action, row, wave, wipe, event queue, map freeze, migration, content, and replay contracts.
+- Added `docs/reviews/pr-46.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1485 tests and all local gates.
+- GitHub CI and Gitar pass at `c480baa`. The `review-gate` check fails only because the review record was absent before this session.
+- The effective implementation head is `c480baa`.
+- The remote head of `main` is `c6cc71c`.
+
+### What is in flight
+
+PR #46 waits for the owner merge.
+
+### Traps and gotchas
+
+- The review target is `c480baa`. The review commit changes only the review record and this handoff entry.
+- The smoke battle wipes and exercises the reload path. The tests also cover a successful flee and the wait intent.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Then verify the remote head and the review-gate result.
+
 ## Session 158: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -336,39 +372,3 @@ None. OQ-115 blocks PR-8 alone.
 ### The next concrete action
 
 Hand PR #44 to Codex for the cross-provider review. A PR that changes `.github/workflows/` never takes the label of D-401 (D-700).
-
-## Session 149: 2026-09-20, Codex
-
-Author: Codex
-Session: review PR #43, the debug assembly and the console. Repository: the-thing-below. Branch: `feat/pr-45-debug-assembly`. Role: reviewer. Base: `ea2fec5`.
-
-### What this session did, and why
-
-- Reviewed PR #43 at effective head `fd9e0ae`.
-- Verified the opposite-provider gate, the complete diff, the PR comments, the PR-45 roadmap exit tests, the debug seam, command dispatch, replay mark, release exclusion, console focus, and export checks.
-- Verified the closed Gitar finding and found no additional in-scope defect.
-- Added `docs/reviews/pr-43.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 1213 tests and all local gates.
-- GitHub passes build, test, format, smoke, replay identity, det-lint, STE, coverage, changed paths, and all three export legs for the PR.
-- Gitar approves the effective head `fd9e0ae`, and its one finding is closed.
-- The review-gate check is expected to fail until the review record is pushed. RG 3 is the only missing record condition.
-
-### What is in flight
-
-- The review record and this handoff entry are pushed in `32fa076`.
-
-### Traps and gotchas
-
-- The effective code head is `fd9e0ae`. Commits `5cb8912` and `99c8c5c` change metadata only.
-- PR #43 is roadmap PR-45. Do not confuse the GitHub number with the roadmap number.
-
-### The questions that block progress
-
-None. OQ-115 blocks PR-8 alone.
-
-### The next concrete action
-
-Fetch and verify that the review-gate check is green and that no branch commits remain ahead of the remote.
