@@ -1,0 +1,32 @@
+{
+ "id": "drawing.icon_status_silence",
+ "page": "ui",
+ "width": 16,
+ "height": 16,
+ "draws": [
+  { "content": "status.silence", "use": "icon" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................",
+    "................",
+    "....kkkkkkkk....",
+    "...k88888888k...",
+    "..k8888888888k..",
+    ".k888888888888k.",
+    ".k88kkkkkkkk88k.",
+    ".k8kLLLLLLLLk8k.",
+    ".k8kkkkkkkkkk8k.",
+    ".k888888888888k.",
+    "..k8888888888k..",
+    "...k88888888k...",
+    "....kkkkkkkk....",
+    "................",
+    "................",
+    "................"
+   ]
+  }
+ ]
+}

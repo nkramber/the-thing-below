@@ -78,6 +78,10 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-21 enemy record pass: each enemy has a record file of its own, with its stats and the ids of its abilities (D-557, D-786). A new ability file holds each ability id, and PR-12 adds the fields of a lesson to it (D-785). No fight reads an ability id before PR-11 and PR-12 (D-787). The record gives the size of the body, and a map patrol takes the size of the largest enemy of its group (D-754, D-788, D-789).
 
+2026-09-21 battle screen pass: PR-10 draws the fight, and the player gives each command from the keyboard or the gamepad (D-827). Shader code lives in `.gdshader` files of the Game project (D-825). An enemy shows a short bar of health with no number (D-826). The screen plays each event for a count of ticks, and every timing stays a constant of Game until the effect files of PR-57 (D-829). A fixture art batch, a pointer, and the 18 icons join the atlas (D-828, D-830, D-833). Every fight draws the fixture backdrop until the place art of PR-17 (D-831).
+
+2026-09-21 battle screen review pass: the owner approved the art batch and played a fight (D-834). A win shows no line, and a summary of the loot and the level-ups follows a fight from PR-67 on (D-835). The step names the move from the row of the actor (D-836). The owner approved the text batch, with a new line for a resisted hit (D-837).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.

@@ -1,0 +1,32 @@
+{
+ "id": "drawing.icon_status_sleep",
+ "page": "ui",
+ "width": 16,
+ "height": 16,
+ "draws": [
+  { "content": "status.sleep", "use": "icon" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................",
+    "......kkkkkkkkk.",
+    "......k9999999k.",
+    "......kkkkk99k..",
+    "..........k9k...",
+    ".........k99k...",
+    "........k99kkkk.",
+    "kkkkkkk.k99999k.",
+    "k99999k.kkkkkkk.",
+    "kkkk99k.........",
+    "...k9k..........",
+    "..k99k..........",
+    ".k99kkkk........",
+    "k999999k........",
+    "kkkkkkkk........",
+    "................"
+   ]
+  }
+ ]
+}

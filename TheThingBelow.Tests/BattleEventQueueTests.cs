@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using TheThingBelow.Core.Battles;
@@ -115,6 +116,50 @@ public sealed class BattleEventQueueTests
     }
 
     [Fact]
+    public void EachEventPlaysAllItsTicksAndTheMenuWaitsForTheLast()
+    {
+        // D-532, D-829: the next event starts when the one before played its ticks, and the
+        // command of the player waits until the last one ends. At each command the view of
+        // the screen matches the state of the rules.
+        GameRunView run = GameRunView.Start();
+        int frame = 0;
+        for (; frame < FrameLimit && !run.InBattle; frame += 1)
+        {
+            run.Queue(Intent.OfPlayer(WalkOf(run.Party)));
+            run.Advance(OneTick);
+        }
+
+        MethodInfo ticksOf = GameAssemblyFile.Type("TheThingBelow.Game.Ui.BattleTimes").GetMethod("TicksOf")!;
+        BattleEvent? before = null;
+        int beforeTicks = 0;
+        int changes = 0;
+        for (; frame < FrameLimit && run.InBattle && !run.WipeReady; frame += 1)
+        {
+            BattleEvent? playing = run.PlayingEvent;
+            if (playing is not null && before is not null && !ReferenceEquals(playing, before))
+            {
+                changes += 1;
+                int needed = (int)ticksOf.Invoke(null, [before.Kind])!;
+                Assert.True(beforeTicks >= needed - 1, $"The event '{before.Kind}' played {beforeTicks + 1} ticks, and it needs {needed}.");
+            }
+
+            if (run.TakesBattleCommand)
+            {
+                Assert.True(playing is null || run.PlayingTicks >= (int)ticksOf.Invoke(null, [playing.Kind])!, "The menu opened while an event played.");
+                AssertViewMatches(run);
+                Battle battle = run.State.Battle!;
+                run.Queue(Intent.OfPlayer(IntentIds.BattleAttack, battle.MeleeTargets(BattleSide.Enemy)[0].Target, null));
+            }
+
+            before = playing;
+            beforeTicks = run.PlayingTicks;
+            run.Advance(OneTick);
+        }
+
+        Assert.True(changes > 5, $"The fight played {changes} events.");
+    }
+
+    [Fact]
     public void GameSendsTheWaitIntentAfterAFleeAndTheMapRunsAgain()
     {
         // D-522, D-532: the queue drains after the flee, Game sends the wait intent itself, and
@@ -187,6 +232,22 @@ public sealed class BattleEventQueueTests
         return events;
     }
 
+    /// <summary>Checks that the view of the screen shows the health of each combatant of the state.</summary>
+    private static void AssertViewMatches(GameRunView run)
+    {
+        object view = run.BattleView ?? throw new InvalidOperationException("The run holds no view of the fight.");
+        Battle battle = run.State.Battle!;
+        foreach ((string side, IReadOnlyList<Combatant> combatants) in new[] { ("Party", battle.Party), ("Enemies", battle.Enemies) })
+        {
+            IList shown = (IList)view.GetType().GetProperty(side)!.GetValue(view)!;
+            for (int slot = 0; slot < combatants.Count; slot += 1)
+            {
+                int health = (int)shown[slot]!.GetType().GetProperty("Health")!.GetValue(shown[slot])!;
+                Assert.Equal(combatants[slot].Health, health);
+            }
+        }
+    }
+
     private static InvalidOperationException Absent(string member) =>
         new($"The Game assembly holds no '{member}' of the battle event queue (T-2).");
 
@@ -215,6 +276,12 @@ public sealed class BattleEventQueueTests
         public RunState State => (RunState)this.Read("State");
 
         public MapState Party => (MapState)this.Read("Party");
+
+        public BattleEvent? PlayingEvent => (BattleEvent?)this.type.GetProperty("PlayingEvent")!.GetValue(this.instance);
+
+        public int PlayingTicks => (int)this.Read("PlayingTicks");
+
+        public object? BattleView => this.type.GetProperty("BattleView")!.GetValue(this.instance);
 
         public static GameRunView Start()
         {

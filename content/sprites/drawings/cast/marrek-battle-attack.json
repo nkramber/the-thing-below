@@ -1,0 +1,48 @@
+{
+ "id": "drawing.marrek_battle_attack",
+ "page": "battle_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "character.marrek", "use": "battle_attack" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "...........kkkkkkk..............",
+    ".........kkBBBBBBtkk............",
+    "........kBBBBBBBBttbk...........",
+    "........kttttttBBBBbk...........",
+    ".......kSssttttttBBbk...........",
+    ".......kSkssssstttBbk...........",
+    "......kSSsssssssstBk............",
+    ".......kssssssssstk.............",
+    "........@ssskkssss@.............",
+    ".........@ssssssss@.............",
+    "..........@ssssss@..............",
+    ".........rRRRRRRRRr.............",
+    ".......bbXXXxxxRRRRbb...........",
+    "....@@sbb3tXXxxtttttBBbb........",
+    "...@ss333ttXxtttttBBBBBb........",
+    "...t@b3333tXxttotttBBBBb........",
+    "..t...b333tXxtttttBBBBBb........",
+    "..t...b3ttbbbbOObbbbbbBb........",
+    ".t.....@tBBBBBBBBBBBBBt.........",
+    "Gt......@b3ttBBdd33ttBb.........",
+    "GgG.....dDDDd...dDDDd...........",
+    ".G......dGgDd....dGgDd..........",
+    "........dGgDd.....dGgDd.........",
+    ".......dGgDd......dGgDd.........",
+    ".......dGgDd.......dGgDd........",
+    ".......kbbbk.......kbbbk........",
+    "......ktBBbk.......ktBBbk.......",
+    "......kkkkkk.......kkkkkk.......",
+    "................................"
+   ]
+  }
+ ]
+}

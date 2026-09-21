@@ -1,6 +1,166 @@
 {
- "comment": "The English string table (D-167, G-7). Every string the player reads lives here, and no C# file holds one. The first entries are the labels of the fixture rules of PR-5 (D-649). The crash entries carry the message of a crash and the address of D-473. The address is a placeholder in the reserved .invalid domain until the owner names the studio (D-712, OQ-57). The map label is the name of the first dungeon, which PR-7 ships (D-528).",
+ "comment": "The English string table (D-167, G-7). Every string the player reads lives here, and no C# file holds one. The first entries are the labels of the fixture rules of PR-5 (D-649). The crash entries carry the message of a crash and the address of D-473. The address is a placeholder in the reserved .invalid domain until the owner names the studio (D-712, OQ-57). The map label is the name of the first dungeon, which PR-7 ships (D-528). The battle entries are the lines, the commands, and the names of the battle screen of PR-10 (D-213, D-827). A name entry is `name.` and the name part of a content id.",
  "strings": [
+  {
+   "id": "battle.absorb",
+   "text": "{target} takes it in. {amount} back."
+  },
+  {
+   "id": "battle.asleep",
+   "text": "{actor} sleeps on."
+  },
+  {
+   "id": "battle.command_attack",
+   "text": "Attack"
+  },
+  {
+   "id": "battle.command_back_up",
+   "text": "Back up"
+  },
+  {
+   "id": "battle.command_defend",
+   "text": "Defend"
+  },
+  {
+   "id": "battle.command_flee",
+   "text": "Flee"
+  },
+  {
+   "id": "battle.command_item",
+   "text": "Item"
+  },
+  {
+   "id": "battle.command_step_forward",
+   "text": "Step forward"
+  },
+  {
+   "id": "battle.defend",
+   "text": "{actor} braces."
+  },
+  {
+   "id": "battle.down_enemy",
+   "text": "{actor} falls."
+  },
+  {
+   "id": "battle.down_party",
+   "text": "{actor} goes down."
+  },
+  {
+   "id": "battle.fled",
+   "text": "Away. Nobody follows."
+  },
+  {
+   "id": "battle.flee_failed",
+   "text": "No way out."
+  },
+  {
+   "id": "battle.health",
+   "text": "{health}/{full}"
+  },
+  {
+   "id": "battle.hit",
+   "text": "{target} takes {amount}."
+  },
+  {
+   "id": "battle.hit_resist",
+   "text": "{target} takes {amount}. Barely a mark."
+  },
+  {
+   "id": "battle.hit_weak",
+   "text": "{target} takes {amount}. A weak spot."
+  },
+  {
+   "id": "battle.immune",
+   "text": "{actor} shrugs off the {status}."
+  },
+  {
+   "id": "battle.item",
+   "text": "{target} gets {amount} back."
+  },
+  {
+   "id": "battle.item_entry",
+   "text": "{item} x{count}"
+  },
+  {
+   "id": "battle.miss",
+   "text": "{actor} misses."
+  },
+  {
+   "id": "battle.number",
+   "text": "{amount}"
+  },
+  {
+   "id": "battle.on_bleed",
+   "text": "{actor} bleeds."
+  },
+  {
+   "id": "battle.on_blind",
+   "text": "{actor} cannot see."
+  },
+  {
+   "id": "battle.on_haste",
+   "text": "{actor} quickens."
+  },
+  {
+   "id": "battle.on_poison",
+   "text": "{actor} is poisoned."
+  },
+  {
+   "id": "battle.on_regen",
+   "text": "{actor}'s wounds close."
+  },
+  {
+   "id": "battle.on_shell",
+   "text": "{actor} hardens."
+  },
+  {
+   "id": "battle.on_silence",
+   "text": "{actor} goes quiet."
+  },
+  {
+   "id": "battle.on_sleep",
+   "text": "{actor} sleeps."
+  },
+  {
+   "id": "battle.on_slow",
+   "text": "{actor} slows."
+  },
+  {
+   "id": "battle.on_stun",
+   "text": "{actor} reels."
+  },
+  {
+   "id": "battle.started",
+   "text": "Weapons out."
+  },
+  {
+   "id": "battle.status_heal",
+   "text": "{actor} mends. {amount} back."
+  },
+  {
+   "id": "battle.status_hurt",
+   "text": "{actor} takes {amount} from the {status}."
+  },
+  {
+   "id": "battle.status_off",
+   "text": "{actor}'s {status} ends."
+  },
+  {
+   "id": "battle.step_back",
+   "text": "{actor} backs up."
+  },
+  {
+   "id": "battle.step_front",
+   "text": "{actor} steps forward."
+  },
+  {
+   "id": "battle.step_in",
+   "text": "{actor} steps in."
+  },
+  {
+   "id": "battle.wiped",
+   "text": "Nobody gets up."
+  },
   {
    "id": "crash.address",
    "text": "crashes@thethingbelow.invalid"
@@ -36,6 +196,62 @@
   {
    "id": "label.rope",
    "text": "Wet rope"
+  },
+  {
+   "id": "name.fixture_brute",
+   "text": "Brute"
+  },
+  {
+   "id": "name.fixture_draught",
+   "text": "Draught"
+  },
+  {
+   "id": "name.fixture_grunt",
+   "text": "Grunt"
+  },
+  {
+   "id": "name.marrek",
+   "text": "Marrek"
+  },
+  {
+   "id": "status.bleed",
+   "text": "bleeding"
+  },
+  {
+   "id": "status.blind",
+   "text": "blindness"
+  },
+  {
+   "id": "status.haste",
+   "text": "haste"
+  },
+  {
+   "id": "status.poison",
+   "text": "poison"
+  },
+  {
+   "id": "status.regen",
+   "text": "mending"
+  },
+  {
+   "id": "status.shell",
+   "text": "shell"
+  },
+  {
+   "id": "status.silence",
+   "text": "silence"
+  },
+  {
+   "id": "status.sleep",
+   "text": "sleep"
+  },
+  {
+   "id": "status.slow",
+   "text": "slowness"
+  },
+  {
+   "id": "status.stun",
+   "text": "stun"
   },
   {
    "id": "ui.title",

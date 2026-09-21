@@ -81,12 +81,6 @@ public partial class Boot : Node
     /// <summary>The most frames that the smoke session walks or fights before it fails (T-2).</summary>
     private const int SmokeBattleFrames = 6000;
 
-    /// <summary>The column of the east end of the hall of the first map, where the smoke walk turns south.</summary>
-    private const int SmokeTurnColumn = 26;
-
-    /// <summary>The row of the night route of the hall patrol, where the smoke walk turns west.</summary>
-    private const int SmokePatrolRow = 7;
-
     /// <summary>The line that the smoke session types in the console of a development build (D-724).</summary>
     private const string SmokeConsoleLine = "help";
 
@@ -100,6 +94,7 @@ public partial class Boot : Node
     private int builtBody;
     private FrameRoot? frame;
     private MapScreen? map;
+    private BattleScreen? battle;
     private Control? console;
     private readonly HeldSteps held = new();
     private bool crashed;
@@ -138,7 +133,11 @@ public partial class Boot : Node
                 this.ReloadAfterWipe();
             }
 
-            this.map?.ShowParty(this.run.Party, this.run.TickPart);
+            this.FollowBattleScreen();
+            if (this.battle is null)
+            {
+                this.map?.ShowParty(this.run.Party, this.run.TickPart);
+            }
         }
         catch (Exception fault)
         {
@@ -317,6 +316,53 @@ public partial class Boot : Node
             [LogField.OfNumber("tick", reloaded.Tick)])]);
     }
 
+    /// <summary>
+    /// Builds the battle screen when a fight starts, draws it on each frame, and removes it
+    /// when the fight ends, so the map shows again (D-111, D-532).
+    /// </summary>
+    /// <remarks>
+    /// The screen follows the view of the run, which exists from the first event of a fight
+    /// to the end of it. An encounter before the fight keeps the map on screen, and PR-60
+    /// adds the transition between the two (D-531).
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">A fight runs, and the session built no frame or UI base (T-2).</exception>
+    private void FollowBattleScreen()
+    {
+        GameRun? open = this.run;
+        if (open is null)
+        {
+            return;
+        }
+
+        if (open.BattleView is null)
+        {
+            if (this.battle is not null)
+            {
+                this.battle.Free();
+                this.battle = null;
+                this.map?.Show();
+            }
+
+            return;
+        }
+
+        if (this.battle is null)
+        {
+            FrameRoot built = this.frame ?? throw new InvalidOperationException(
+                $"A fight started at tick {open.Tick}, and the session built no frame (T-2).");
+            UiBase shown = this.ui ?? throw new InvalidOperationException(
+                $"A fight started at tick {open.Tick}, and the session built no UI base (T-2).");
+            ContentSet loaded = this.content ?? throw new InvalidOperationException(
+                $"A fight started at tick {open.Tick}, and the session loaded no content (T-2).");
+
+            this.map?.Hide();
+            this.battle = BattleScreen.Build(built, shown, loaded, open);
+            return;
+        }
+
+        this.battle.Show(open);
+    }
+
     /// <summary>Removes the frame and its nodes, and builds the screen again over the current run.</summary>
     /// <param name="loaded">The content set of this build.</param>
     private void RebuildScreen(ContentSet loaded)
@@ -324,6 +370,7 @@ public partial class Boot : Node
         this.frame?.QueueFree();
         this.frame = null;
         this.map = null;
+        this.battle = null;
         this.console = null;
         this.BuildScreen(loaded);
     }
@@ -615,6 +662,14 @@ public partial class Boot : Node
             return;
         }
 
+        // While a character has the turn, the command menu takes every action. A move of its
+        // cursor makes no intent, and a whole choice makes one (D-493, D-827).
+        if (this.battle?.Commands is not null)
+        {
+            this.ReadBattleCommand(run, this.battle, signal);
+            return;
+        }
+
         foreach (string action in InputActions.Names)
         {
             // A step action moves the party while the player holds it, so `HeldStepIntent`
@@ -642,6 +697,34 @@ public partial class Boot : Node
                     run.Tick,
                     LogSubsystems.Game,
                     [new LogField("action", action), new LogField("intent", made.Action.Value)])]);
+            }
+
+            return;
+        }
+    }
+
+    /// <summary>Gives one pressed action to the command menu, and queues the intent of a whole choice (D-827).</summary>
+    /// <param name="run">The run.</param>
+    /// <param name="shown">The battle screen, whose menu is open.</param>
+    /// <param name="signal">The event of this frame.</param>
+    private void ReadBattleCommand(GameRun run, BattleScreen shown, InputEvent signal)
+    {
+        foreach (string action in InputActions.Names)
+        {
+            if (!signal.IsActionPressed(action))
+            {
+                continue;
+            }
+
+            if (shown.Read(action) is Intent made)
+            {
+                run.Queue(made);
+                this.WriteLog([new LogEntry(
+                    LogLevel.Debug,
+                    "the player chose a battle command",
+                    run.Tick,
+                    LogSubsystems.Game,
+                    [new LogField("intent", made.Action.Value)])]);
             }
 
             return;
@@ -1143,19 +1226,23 @@ public partial class Boot : Node
     }
 
     /// <summary>
-    /// Walks the party into the hall patrol of the first map and fights the battle to its end,
-    /// inside the engine (D-767). A win or a flee then waits for the event queue to drain and
-    /// for the wait intent, and a wipe reloads the run (D-522, D-532, D-776).
+    /// Walks the party into the hall patrol of the first map and fights the battle to its end
+    /// through the battle screen, inside the engine (D-767, D-827). A win or a flee then waits
+    /// for the events to play and for the wait intent, and a wipe reloads the run (D-522,
+    /// D-532, D-776).
     /// </summary>
     /// <param name="loaded">The content set of this build.</param>
     /// <param name="session">The run of the smoke session.</param>
-    /// <returns>The frames, the outcome, and the tick after the battle, as one line.</returns>
-    /// <exception cref="InvalidOperationException">No battle starts, or no battle ends, inside the frame limit (T-2).</exception>
+    /// <returns>The frames, the outcome, the nodes of the screen, and the tick after the battle, as one line.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// No battle starts, no battle ends inside the frame limit, or the menu sent no command (T-2).
+    /// </exception>
     /// <remarks>
-    /// The walk goes east along the hall, south at its east end, and west along the night route
-    /// of the patrol, so the party meets it by sight or by a step into it. The fight sends the
-    /// attack of a player at the first enemy that melee reaches, on each turn that the input
-    /// gate of D-532 opens.
+    /// The walk of <see cref="BattleWalk"/> meets the patrol. On each turn of a character the
+    /// session presses confirm twice in the command menu: the attack, then the first target.
+    /// Thus each leg of CI reads the build of the screen, the load of the flash shader, and
+    /// the path of a real command (D-117). A headless session draws no pixel, so the `battle`
+    /// fixture of the screen-test job reads the pixels (F-23).
     /// </remarks>
     private string DescribeBattle(ContentSet loaded, GameRun session)
     {
@@ -1164,10 +1251,16 @@ public partial class Boot : Node
         int frame = 0;
         for (; frame < SmokeBattleFrames && !open.InBattle; frame += 1)
         {
-            open.Queue(Intent.OfPlayer(SmokeStepOf(open.Party)));
+            open.Queue(Intent.OfPlayer(BattleWalk.StepOf(open.Party)));
             this.WriteLog(open.Advance(SmokeFrameSeconds));
         }
 
+        var built = new FrameRoot();
+        this.AddChild(built);
+        UiBase shownBase = UiBase.Load(loaded, loaded.Style.SmallBody);
+        BattleScreen? screen = null;
+        int commands = 0;
+        string nodes = "no screen";
         for (; frame < SmokeBattleFrames && open.InBattle; frame += 1)
         {
             if (open.State.Battle is Battle battle && battle.Outcome != BattleOutcome.Running)
@@ -1181,35 +1274,53 @@ public partial class Boot : Node
                 break;
             }
 
-            if (open.TakesBattleCommand && open.State.Battle is Battle running)
+            if (open.BattleView is not null)
             {
-                BattleTarget target = running.MeleeTargets(BattleSide.Enemy)[0].Target;
-                open.Queue(Intent.OfPlayer(IntentIds.BattleAttack, target, null));
+                if (screen is null)
+                {
+                    screen = BattleScreen.Build(built, shownBase, loaded, open);
+                    nodes = $"{screen.CombatantCount} combatants over {screen.BackdropCopies} backdrop copies";
+                }
+
+                screen.Show(open);
+            }
+
+            if (screen?.Commands is not null)
+            {
+                commands += 1;
+                open.Queue(PressConfirmTwice(screen, open.Tick));
             }
 
             this.WriteLog(open.Advance(SmokeFrameSeconds));
         }
 
+        this.RemoveChild(built);
+        built.QueueFree();
+
         // A wipe reloads a run that stands on the map, and a win or a flee ends on the map
         // after the wait intent. A run still in the battle ran out of frames (T-2).
-        if (string.CompareOrdinal(outcome, "none") == 0 || open.InBattle)
+        if (string.CompareOrdinal(outcome, "none") == 0 || open.InBattle || commands == 0)
         {
             throw new InvalidOperationException(
-                $"The smoke battle reached no end in {SmokeBattleFrames} frames: the outcome is '{outcome}', and the party is at {open.Party.LeadAt} (D-767, T-2).");
+                $"The smoke battle reached no end in {SmokeBattleFrames} frames: the outcome is '{outcome}', the menu sent "
+                + $"{commands} commands, and the party is at {open.Party.LeadAt} (D-767, D-827, T-2).");
         }
 
-        return $"'{outcome}' after {frame} frames, and the run is at tick {open.Tick} with the party at {open.Party.LeadAt}";
+        return $"'{outcome}' after {frame} frames and {commands} commands of the menu, with {nodes}, "
+            + $"and the run is at tick {open.Tick} with the party at {open.Party.LeadAt}";
     }
 
-    /// <summary>Gives the step of the smoke walk: east along the hall, then south, then west (D-767).</summary>
-    private static ContentId SmokeStepOf(MapState party)
+    /// <summary>Presses confirm twice in the command menu: the attack, then the first target (D-827).</summary>
+    /// <param name="screen">The battle screen, whose menu is open.</param>
+    /// <param name="tick">The tick of the run, for an error.</param>
+    /// <returns>The intent of the attack.</returns>
+    /// <exception cref="InvalidOperationException">The menu gave no intent (T-2).</exception>
+    private static Intent PressConfirmTwice(BattleScreen screen, long tick)
     {
-        if (party.LeadAt.X < SmokeTurnColumn && party.LeadAt.Y < SmokePatrolRow)
-        {
-            return IntentIds.MoveEast;
-        }
-
-        return party.LeadAt.Y < SmokePatrolRow ? IntentIds.MoveSouth : IntentIds.MoveWest;
+        Intent? first = screen.Read(InputActions.Confirm);
+        Intent? second = first is null ? screen.Read(InputActions.Confirm) : null;
+        return first ?? second ?? throw new InvalidOperationException(
+            $"The smoke session pressed confirm twice at tick {tick}, and the command menu sent no intent (D-827, T-2).");
     }
 
     /// <summary>

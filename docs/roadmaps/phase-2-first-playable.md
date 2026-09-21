@@ -560,38 +560,50 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 
 **Scope.**
 
-- The side view: the enemies on the left, the party on the right, each side in two rows (D-111, D-377).
+- The side view: the enemies on the left, the party on the right, each side in two rows (D-111, D-377). A row stands in two lanes, so six fit on the ground (D-759).
 - The timeline strip across the top, and the command menu and the status at the bottom (D-111).
-- The attack pose on an action, the color flash on a hit, and the damage number over its target (D-96, D-108, D-213).
+- The command of the player from the keyboard and the gamepad: an action, then an item or a target (D-827). The mouse waits for OQ-110 and PR-62.
+- The attack pose on an action, and the lunge of an enemy (D-96, D-108, D-832).
+- The color flash on a hit, and the damage number over its target (D-96, D-213).
+- A pointer over the target under the cursor (D-833).
 - One message line for each action, in the game voice, from the string table (G-7, G-20).
-- The backdrop of the place, as a large picture of PR-55, with its drift (D-205).
-- The shader of the hit flash, which never uses the normal map member (D-183, the external facts of `area-effects.md`).
-- The 18 icons of the elements and the statuses, and a check of the palette color of each (D-214, D-811).
+- A short bar of health under each enemy, with no number (D-826).
+- The fixture backdrop of PR-55 behind every fight, with its sway (D-205, D-831).
+- The hit flash as a `.gdshader` file of the Game project, which never uses the normal map member (D-183, D-825, the external facts of `area-effects.md`).
+- The pace of the screen: each event plays for a count of ticks, and each timing is a constant of Game (D-829).
+- A win shows no line of its own, and the summary of PR-67 follows the fight (D-835). The step reads "Back up" or "Step forward" from the row of the actor (D-836).
+- The fixture art: Marrek with an idle frame and an attack pose, the grunt, and the brute (D-828).
+- The 18 icons of the elements and the statuses, and a check of the palette color of each (D-214, D-811). The icon of each status shows beside the health of its holder (D-830).
 
 **Out of scope.**
 
-- The blood, the sparks, the shake, and the hit-stop (PR-57, D-186).
+- The blood, the sparks, the shake, and the hit-stop (PR-57, D-186). PR-57 also moves each timing into its effect files (D-829).
 - The light on the battle scene (PR-56) and the battle music (PR-70, PR-72).
 - The boss phases (PR-20).
+- The hurt flinch and the down pose of a character (PR-57 and PR-17, D-200, D-828).
+- The backdrop of a place, and the link from a map to it (PR-17, D-831).
+- The mouse on the menu, and the remembered cursor (PR-62, PR-63, D-226).
 
 **Exit tests.**
 
-1. A screen test renders a fixture battle (D-172).
+1. A screen test renders a fixture battle: the menu at both body sizes, the pointer, and a blow (D-172).
 2. The owner reads a fight from the screen alone.
 3. Each message comes from the string table, and det-lint proves it.
 4. A test proves that each panel holds its longest string (D-241).
-5. The health of an enemy reads from the screen, in the form of OQ-131.
+5. The health of an enemy reads from the screen as a short bar (D-826).
+6. The view of the screen matches the state of the rules after every tick, over a loop of seeds (D-532).
+7. Each intent of the menu passes the rules, and a move of the cursor makes no intent (D-493, D-827).
 
 **Review focus.**
 
 - The strip shows six turns (D-756), and a row draws up to six enemies (D-759).
 - The author reads each icon in `make sheet`, and confirms or changes its palette color (D-784, D-811).
-- The answer of OQ-103 sets where shader code lives.
+- Shader code lives in a `.gdshader` file (D-825).
 - The backdrop drift never moves a rule, and no rule waits for it (D-522, G-23).
 
-**Questions.** OQ-103 and OQ-131.
+**Questions.** None. D-825 answered OQ-103, and D-826 answered OQ-131.
 
-> *In plain English:* the fight appears on screen: who acts next, who is low, and what you can do. Every line reads in the voice of the game.
+> *In plain English:* the fight appears on screen: who acts next, who is low, and what you can do. You pick each action with the keys or a pad, and every line reads in the voice of the game.
 
 ### 7.13 PR-48: the normal maps
 
@@ -826,7 +838,7 @@ Area file: `area-effects.md` section 7.11.
 
 - The library of ten transitions (D-195).
 - The content table that assigns a transition to each kind of encounter, with a default for each region (D-196).
-- The transition as an effect file with its shader in Game (D-182, D-191, OQ-103).
+- The transition as an effect file with its shader in a `.gdshader` file of Game (D-182, D-191, D-825).
 - The color split under the flash and shake reduction (D-195, D-214).
 - The wait at the end of a battle, which a wait intent ends (D-522).
 - The full-screen row of the effect budget for a transition (D-523).
@@ -846,11 +858,11 @@ Area file: `area-effects.md` section 7.11.
 
 **Review focus.**
 
-- The answer of OQ-103 sets where shader code lives.
+- Shader code lives in a `.gdshader` file (D-825).
 - A replay never waits, because the wait intent sits in the record (D-493, D-522).
 - Snow whiteout fits region one, and the table names its default (D-194, D-196).
 
-**Questions.** OQ-103.
+**Questions.** None. D-825 resolved OQ-103.
 
 > *In plain English:* each fight starts with a screen effect, such as shattered glass or a whiteout of snow. The kind of fight picks the effect, so a boss always looks different.
 
@@ -904,6 +916,7 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 - MP, and its recovery at a hub, at a save point once for the place, and from scarce items (D-42, D-389, D-555).
 - The stat curve of each character in content: the health, the MP, the attack, the defense, and the speed at each level (D-537, F-54).
 - The level-up sting event, which PR-70 plays (D-422).
+- The summary after a fight: the experience and each level-up. PR-13 and PR-65 add their loot to it (D-835).
 
 **Out of scope.**
 
@@ -1106,6 +1119,7 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 - Fixed, hand-authored gear with a few rarity tiers, and no random affix and no crafting (D-45, OQ-143).
 - The pack, with a small fixed number of each item (D-382, OQ-142).
 - The item use on a turn, which restores less in a fight than outside one (D-382).
+- The items that a fight gives, on the summary after the fight of PR-67 (D-835).
 - The find over the stack limit, which stays in its chest and which the save records (D-385).
 - The gear window and the item window in the stack of PR-62.
 
@@ -1182,6 +1196,7 @@ Area file: `area-exploration.md` section 7.12.
 **Scope.**
 
 - The gold economy: gold from enemies and from treasure, which buys gear, items, and rest (D-60).
+- The gold that a fight gives, on the summary after the fight of PR-67 (D-835).
 - The shop screen in the window stack of PR-62.
 - The shop stock in content, with its prices and its buy-back rule (D-60, OQ-121).
 - A shop that sells a lesson too (D-365).
@@ -1989,7 +2004,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-100 | The reduced form of a flash and a shake | PR-57 and PR-63 |
 | OQ-101 | How fog keeps an enemy visible | PR-58 |
 | OQ-102 | How glow stays off sprites | PR-59 |
-| OQ-103 | Where shader code lives | PR-10 and PR-60 |
+| OQ-103 | Where shader code lives, resolved by D-825 | PR-10 and PR-60 |
 | OQ-104 | The font settings and the load from bytes | PR-61 |
 | OQ-106 | Where the settings file lives, and its form | PR-63 |
 | OQ-107 | How Game knows the last device of the player | PR-61 |
@@ -2013,7 +2028,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-127 | The tie-break of two equal scores | PR-11 |
 | OQ-128 | What makes a profile unable to act | PR-11 |
 | OQ-129 | The chance of a steal, and the cost of a failure | PR-11 |
-| OQ-131 | How the screen shows the health of an enemy | PR-10 |
+| OQ-131 | How the screen shows the health of an enemy, resolved by D-826 | PR-10 |
 | OQ-132 | A group larger than its rows. Resolved by D-758 | PR-9 and PR-11 |
 | OQ-133 | The flee chance and the grace time. Resolved by D-748 and D-763 | PR-9 |
 | OQ-134 | The shape of a stat curve | PR-67 |

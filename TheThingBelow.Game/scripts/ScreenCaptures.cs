@@ -9,7 +9,7 @@ namespace TheThingBelow.Game;
 /// One frame that the screen-test job takes: a fixture, a screen size, and a fit (D-172,
 /// D-732). The file name of the capture names the fixture and the frame.
 /// </summary>
-/// <param name="Fixture">The fixture that draws, either `map` or `ui` (D-734).</param>
+/// <param name="Fixture">The fixture that draws, such as `map`, `ui`, or `battle` (D-734).</param>
 /// <param name="Frame">The name of this frame of the fixture, such as `fill-1080`.</param>
 /// <param name="Width">The width of the screen of this capture, in device pixels.</param>
 /// <param name="Height">The height of the screen of this capture, in device pixels.</param>
@@ -60,6 +60,24 @@ public static class ScreenCaptures
     /// <summary>The fixture large picture in the world viewport, with no map (D-819).</summary>
     public const string PictureFixture = "picture";
 
+    /// <summary>
+    /// The battle screen of the fixture fight: the command menu, the pointer of a target, and
+    /// a blow of a character with its flash and its number (D-172, D-827).
+    /// </summary>
+    public const string BattleFixture = "battle";
+
+    /// <summary>The frame of the battle fixture that shows the pointer on the first target (D-833).</summary>
+    public const string BattleTargetFrame = "target-1x";
+
+    /// <summary>The frame of the battle fixture that shows a blow of a character (D-96, D-213).</summary>
+    public const string BattleBlowFrame = "blow-1x";
+
+    /// <summary>
+    /// The ticks of the hit that the blow frame shows: the flash is on, and the number rises
+    /// (D-829).
+    /// </summary>
+    public const int BlowFrameTicks = Ui.BattleTimes.BlowTick + 2;
+
     /// <summary>The id of the large picture that the picture fixture draws (D-819).</summary>
     public const string FixturePicture = "picture.fixture_backdrop";
 
@@ -89,7 +107,7 @@ public static class ScreenCaptures
     public static IReadOnlyList<ScreenCapture> All { get; } = Build();
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
-    public static IReadOnlyList<string> Fixtures { get; } = [MapFixture, UiFixture, WalkFixture, PictureFixture];
+    public static IReadOnlyList<string> Fixtures { get; } = [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -140,6 +158,16 @@ public static class ScreenCaptures
         // viewport, and the picture draws inside that viewport (D-634, D-819).
         captures.Add(new ScreenCapture(
             PictureFixture, "1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+
+        // The menu draws at both body sizes: 32 at 1x, and 24 at 1080 rows (D-707). The
+        // pointer and the blow draw at 1x, where every part of the screen shows its pixels.
+        captures.Add(new ScreenCapture(
+            BattleFixture, "menu-1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(BattleFixture, "menu-fill-1080", DesktopWidth, 1080, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(
+            BattleFixture, BattleTargetFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(
+            BattleFixture, BattleBlowFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         return captures;
     }
 

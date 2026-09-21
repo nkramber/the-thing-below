@@ -1,5 +1,177 @@
 # Session handoff
 
+## Session 183: 2026-09-21, Codex
+
+Author: Codex
+Session: reviewer PR-51, round 1. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: reviewer. Base: `8b10888`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-51 diff from merge base `8b10888` through effective head `3859a74`.
+- Verified the opposite-provider gate, the battle event flow, the command menu, the string table, the screen layout, and the tests.
+- Added `docs/reviews/pr-51.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passed with 1781 tests and all local gates.
+- GitHub checks pass for `3859a74` except the review gate, which waits for the review record.
+
+### What is in flight
+
+- This review record and this handoff entry need commit and push.
+
+### Traps and gotchas
+
+- Gitar reports no issues, but its functional validation is disabled. The review uses the local contract-specific tests and smoke output.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the review record and handoff files. Push, fetch, and verify the remote head and the review-gate check.
+
+## Session 182: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-10, round 5. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: author. Base: `8b10888`.
+
+### What this session did, and why
+
+- The owner approved the text batch, with one change: a resisted hit reads "{target} takes {amount}. Barely a mark." (D-837).
+- Round 4 head `5b0ab39` passed Gitar with no issue and every CI job except the review gate.
+
+### The state of the build
+
+- This round changes one string, a decision row, the design pass line, and this entry. No capture shows a resisted hit, so no baseline changes.
+- 1781 tests pass on this machine. The review gate waits for `docs/reviews/pr-51.md`.
+
+### What is in flight
+
+- The CI run and the Gitar pass of the round-5 push, then the review of the other provider.
+
+### Traps and gotchas
+
+- `make sheet` can fail on "The InputMap action ... doesn't exist" when an input event reaches the capture window. The capture session builds no input map, and `Boot` reads the held steps before it checks the run. CI has no input.
+- The owner approved a second concern for the next PR: the fix of the fault above. The next PR carries it beside its own concern. G-8 yields to this owner approval, and the fix needs no decision row. Name both concerns in the PR description.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Follow the `gitar-review` skill for the round-5 push. Then tell the owner that PR #51 is ready for the other provider.
+
+## Session 181: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-10, round 4. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: author. Base: `8b10888`.
+
+### What this session did, and why
+
+- Committed the `battle-menu-1x` and `battle-menu-fill-1080` baselines from the `screen-captures` artifact of the round-3 run. The author read both frames, and the step label alone changed.
+- Corrected the case of one word in the review pass line of `docs/design.md`.
+
+### The state of the build
+
+- Round 3 head `f7fb2aa`: Gitar found no issue, and every CI job passed except `screen-test`, which waited for these two baselines, and the review gate, which waits for `docs/reviews/pr-51.md`.
+- 1781 tests pass on this machine.
+
+### What is in flight
+
+- The CI run and the Gitar pass of the round-4 push.
+- The review of the other provider, and the owner approval of the rest of the text batch.
+
+### Traps and gotchas
+
+- `make sheet` can fail on "The InputMap action ... doesn't exist" when an input event reaches the capture window. The capture session builds no input map, and `Boot` reads the held steps before it checks the run. CI has no input.
+- The owner approved a second concern for the next PR: the fix of the fault above. The next PR carries it beside its own concern. G-8 yields to this owner approval, and the fix needs no decision row. Name both concerns in the PR description.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Follow the `gitar-review` skill for the round-4 push. Then tell the owner that PR #51 is ready for the other provider.
+
+## Session 180: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-10, round 3. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: author. Base: `8b10888`.
+
+### What this session did, and why
+
+- The owner approved the art batch and played a fight on screen (D-834).
+- A win shows no line, and PR-67 builds the summary of the loot and the level-ups after a fight, with loot from PR-13 and PR-65 (D-835). `battle.won` left the table.
+- The step reads "Back up" in the front row and "Step forward" in the back row, and the step lines use the same words (D-836). `BattleCommands.ActorRow` holds the row.
+- The roadmap blocks of PR-67, PR-13, and PR-65 gained the summary, and the PR-10 block gained D-835 and D-836.
+
+### The state of the build
+
+- Round 2 head `601bfb0`: Gitar found no issue, and every CI job passed except the review gate, which waits for `docs/reviews/pr-51.md`.
+- This round: 1781 tests, format, lint, smoke, and the STE check pass on this machine. The author read the new `battle-menu-1x` frame.
+- The two menu baselines change with the new label, so the screen-test job of this push fails until round 4 commits them.
+
+### What is in flight
+
+- The CI run and the Gitar pass of the round-3 push.
+- The owner approval of the rest of the text batch.
+
+### Traps and gotchas
+
+- `make sheet` can fail on "The InputMap action ... doesn't exist" when an input event reaches the capture window. The capture session builds no input map, and `Boot` reads the held steps before it checks the run. The fault predates PR-10, and CI has no input. Keep the mouse off the window.
+- Each round of a session adds its own handoff entry.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the two `battle-menu-*` baselines from the `screen-captures` artifact of this push. Then follow the `gitar-review` skill, and tell the owner that PR #51 is ready for the other provider.
+
+## Session 179: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-10, round 1. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: author. Base: `8b10888`.
+
+### What this session did, and why
+
+- Asked OQ-103 and OQ-131, then seven scope questions. Recorded D-825 to D-833, and D-831 revises D-819 in part.
+- Built the battle screen: `BattleScreen`, `BattleView`, `BattleCommands`, `BattleMessages`, `BattleLayout`, `BattleTimes`, and `BattleWalk` in Game, with the hit flash in `TheThingBelow.Game/shaders/hit_flash.gdshader`.
+- `GameRun` plays each event for its ticks, and it keeps the view of the fight (D-532, D-829).
+- Drew the fixture art batch: Marrek in battle with his attack pose, the grunt, the brute, the pointer, and 18 icons (D-828, D-830, D-833). The strings of the screen joined the table.
+- The smoke session fights through the menu, and the capture list holds the `battle` fixture.
+
+### The state of the build
+
+- `make format`, `make lint`, `make smoke`, and the STE check pass on this machine. `make sheet FIXTURE=battle` wrote four frames, and the author read each one.
+- Round 1 pushed `b72563f`. Gitar found no issue in its review of that head. The CI run failed on the four absent `battle-*` baselines, and the review gate waits for the review record.
+- Round 2 commits the four baselines from the artifact of that run (D-733). The author read each frame, and each one matches the local capture.
+
+### What is in flight
+
+- The CI run and the gitar pass of the round-2 push.
+- The review of the other provider, and the owner approval of the art batch and the text batch.
+
+### Traps and gotchas
+
+- The rules resolve each enemy turn at once. The screen draws `GameRun.BattleView`, never the state, or a hit shows before its blow.
+- An enemy that went down leaves its row, so a wave never puts a seventh combatant in one row (D-759).
+- The glossary term is `battle view`, because `view` names the part of the map on screen.
+- The art generator ran from a scratch folder outside the repository. The drawing files are the source.
+
+### The questions that block progress
+
+None. The owner approves the art batch and the text batch from the PR description (D-57, G-25).
+
+### The next concrete action
+
+Follow the `gitar-review` skill for the round-2 push. Then tell the owner that PR #51 is ready for the other provider.
+
 ## Session 178: 2026-09-21, Codex
 
 Author: Codex
@@ -163,182 +335,3 @@ None.
 ### The next concrete action
 
 Copy the baselines from the CI artifact, read each frame, and answer gitar.
-
-## Session 173: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-55, the large pictures, with four owner changes first. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: the PR-55 PR. Role: author. Base: `27fb790`.
-
-### What this session did, and why
-
-- OQ-91: the owner chose a place and a repeat alone, with no mirror (D-812).
-- The owner approved four changes first, after the merge of PR #49:
-  - The console draws in the frame viewport, and no key reached it. The host now pushes each key of an open console there (D-725).
-  - Escape closes an open console. On the map of a development build, it ends the session (D-813).
-  - Game draws every live enemy at any distance. D-814 revises D-719 in part, and the range stays as the ceiling of D-720.
-  - The game shows no button prompt (D-815). The row, the device table, the tracker, and the 12 glyph drawings left the build.
-- The simulation version is 10, and the identity file is new (G-17).
-- The author read all 42 frames of `make sheet` and `make walk`. The prompt row is gone, and the east enemy draws in each frame.
-- The format of large pictures is not started yet.
-
-### The state of the build
-
-- Remote head: the push of this entry. `make verify` passed before the commit.
-- The `screen-test` baselines still show the old frames. The job fails until the new captures replace them.
-
-### What is in flight
-
-- The PR waits for gitar and the CI legs. The screen baselines come from the artifact of the `screen-test` job (the readme of `screens/baseline`).
-
-### Traps and gotchas
-
-- A key of the frame viewport never arrives by itself, because the screen shows that viewport through a texture. Use `FrameRoot.PushToLayer`.
-- The smoke console check pushes key events into the root viewport. A check that sets the text of the entry passes on the old fault.
-- D-815 closed OQ-176, and PR-78 has no controller type call now.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Answer gitar, copy the new screen baselines from the CI artifact, and then build the large picture format of D-812.
-
-## Session 172: 2026-09-21, Codex
-
-Author: Codex
-Session: review PR-49, the elements and the statuses. Repository: the-thing-below. Branch: `feat/pr-66-elements-statuses`. PR: #49. Role: reviewer. Base: `74c3a64`.
-
-### What this session did, and why
-
-- Reviewed the complete PR diff from merge base `74c3a64`.
-- Verified the Gitar correction at `34e6272` and the regression test for a stun on the open turn.
-- Added `docs/reviews/pr-49.md` with the verdict for effective head `34e6272`.
-
-### The state of the build
-
-- `make verify` passed with 1625 tests and all local gates.
-- GitHub checks passed for the implementation head. The review-gate check waits for the review record.
-
-### What is in flight
-
-- The review record and this handoff entry are pushed. GitHub review-gate passes for the effective head.
-
-### Traps and gotchas
-
-- The effective head is `34e6272`. Commit `3690b61` changes only handoff metadata.
-- The review-gate check reads `docs/reviews/pr-49.md` from the PR head.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for the remaining GitHub checks, then verify the final PR head and check results.
-
-## Session 171: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-66, the answer to the Gitar pass. Repository: the-thing-below. Branch: `feat/pr-66-elements-statuses`. PR: #49. Role: author. Base: `74c3a64`.
-
-### What this session did, and why
-
-- Opened PR #49 at `911a7d3`. The Gitar pass of that head approved with one finding, and its check passed at 16:57:09Z.
-- The finding had merit: a stun on the character whose turn is open began that turn again, so poison, bleed, or regen acted two times.
-- Commit `34e6272` makes `GiveStatus` refuse that stun, because no strike reaches the character whose turn is open. The test `AStunOnTheCharacterWhoseTurnIsOpenIsAnErrorAndChangesNothing` proves it.
-- `GiveStatus` takes no log now, because it no longer runs the loop.
-
-### The state of the build
-
-- 1625 tests pass. The identity hashes do not change.
-- At `911a7d3`, every CI job passed except `review-gate`, which waits for the review record of RG 3.
-
-### What is in flight
-
-The push of this round waits for a current Gitar pass. Then the PR goes to the review of Codex (D-401).
-
-### Traps and gotchas
-
-- In play, no strike reaches the character whose turn is open. PR-12 keeps that true, or it asks the owner for the rule of a stun on the actor.
-- The `review-gate` fault of RG 3 clears only with `docs/reviews/pr-49.md`.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Reply on the Gitar thread with `34e6272`, prove the next pass current, and hand the PR to Codex.
-
-## Session 170: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-66, the elements and the statuses. Repository: the-thing-below. Branch: `feat/pr-66-elements-statuses`. PR: the PR of PR-66, which this round opens. Role: author. Base: `74c3a64`.
-
-### What this session did, and why
-
-- Asked the owner 22 start questions, and recorded the answers as D-790 to D-811. D-533 is revised in part by D-792.
-- Moved the gear table to PR-13, the aptitude bonus to PR-12, and the icons to PR-10 (D-790, D-791, D-811).
-- Added the element table and the immune list to each enemy record, and the ten statuses to each combatant, on the timeline.
-- Poison, blind, and silence stay on each character after a fight, in save format 5 with a reader of format 4.
-- Raised the simulation version to 9, and added the identity run `statuses`.
-- Added the tests of the five exit tests, with seed loops of 1000 seeds.
-
-### The state of the build
-
-- `make verify` passed before the commits, with 1625 tests. The later edits touched comments and one blank line.
-- The remote head is `74c3a64` on `main`. This round pushes the branch and opens the PR.
-
-### What is in flight
-
-The PR waits for the Gitar pass, then for the review of Codex, because it adds decisions (D-401).
-
-### Traps and gotchas
-
-- A turn now begins before the choice of a character: the timeline moves, statuses end, shares act, and a sleeper passes. `Act` reads the open turn.
-- A stun on the character whose turn is open ends that turn, and `GiveStatus` runs the loop again.
-- PR-66 changes no screen, so the visual review of D-784 has no frame to read.
-- The perl edits of this session broke two files on an unbalanced brace. Use the Edit tool for C# blocks.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push, open the PR, and follow the `gitar-review` skill.
-
-## Session 169: 2026-09-21, Codex
-
-Author: Codex
-Session: repeat review PR-48, the enemy record correction. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: reviewer. Base: `86528a3`.
-
-### What this session did, and why
-
-- Reopened PR #48 after the author answered P1-1 at effective head `ef02f4a`.
-- Read the response file, recomputed the effective head, inspected the full correction diff, and verified the original mismatch trigger and the waiting-enemy boundary.
-- Ran `make verify`. It passed with 1587 tests and all local gates.
-- Updated `docs/reviews/pr-48.md`: P1-1 is fixed, and the verdict is `Ready for owner merge` for `ef02f4a`.
-
-### The state of the build
-
-- The effective head is `ef02f4a`. The remote metadata tip is `ebffa5e`.
-- GitHub CI and Gitar pass at `d887605c`. Review-gate waits for this updated review record.
-
-### What is in flight
-
-The repeat review record and this handoff entry are pushed at `ebffa5e`.
-
-### Traps and gotchas
-
-- The size check selects the largest enemy in the group, including waiting enemies, as D-788 requires.
-- The review verdict targets `ef02f4a`, not the later metadata commits.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the repeat review record and handoff entry. Then verify the remote head and review-gate result.
