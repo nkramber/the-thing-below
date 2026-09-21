@@ -1,5 +1,94 @@
 # Session handoff
 
+## Session 151: 2026-09-20, Codex
+
+Author: Codex
+Session: review PR #44, the screen-test job. Repository: the-thing-below. Branch: `feat/pr-41-screen-test`. Role: reviewer. Base: `1e0c6b1`.
+
+### What this session did, and why
+
+- Reviewed PR #44 at effective head `233b890`.
+- Verified the opposite-provider gate, the complete diff, the PR comments, the PR-41 roadmap exit tests, the capture lifecycle, the renderer checks, the deterministic two-run comparison, the baseline comparison, and the contact-sheet command.
+- Found no in-scope defect.
+- Added `docs/reviews/pr-44.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1272 tests and all local gates.
+- GitHub passes the build, test, format, smoke, replay identity, det-lint, STE, coverage, changed-paths, screen-test, and Gitar checks at tip `023211d`. Two Windows jobs were still in progress when read.
+- The effective implementation head is `233b890`. The later commits change only handoff and review metadata.
+- The review record and handoff are on remote head `4858ab7`. The review-gate check should pass after CI reads this metadata commit.
+
+### What is in flight
+
+The pull request waits for the owner merge. The review applies to effective head `233b890`.
+
+### Traps and gotchas
+
+- The GitHub tip is `023211d`, but the two commits after `233b890` change only metadata paths.
+- A later Mesa pin needs a new baseline in the same PR.
+- A PR that changes `.github/workflows/` never takes the review-override label.
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Verify the review-gate check and the remote branch state.
+
+## Session 150: 2026-09-20, Claude Code
+
+Author: Claude Code
+Session: PR-41, the screen-test job. Repository: the-thing-below. Branch: `feat/pr-41-screen-test`. Role: author. Base: `1e0c6b1`.
+
+### What this session did, and why
+
+- Asked the seven questions of PR-41 first, and the owner answered each one (D-729 to D-736). OQ-79 blocked the PR, and the register options needed one more (D-19).
+- The job installs Mesa from one pinned timestamp of the snapshot service of Ubuntu, and it reads back each version. The snapshot service keeps every timestamp, so the pin can never drop out of the archive (D-729, D-730).
+- The job draws with the Mobile renderer on lavapipe, and not with the Compatibility renderer of D-172. D-616 picked Mobile for every shipped build five days after D-172, so each capture now shows the renderer of the player (D-731).
+- The `--capture` argument of Game writes one PNG for each capture of `ScreenCaptures` (D-732). The fixtures are the map screen and a UI panel (D-734).
+- The `screens` command of Tools compares decoded pixels, or it joins the captures into a contact sheet (D-735, D-736, F-19).
+- A baseline comes from the renderer of CI, so the artifact of the job gives each new frame and the author commits it by hand (D-733).
+
+### The state of the build
+
+- `make verify` passes on the Mac with 1272 tests, and `make sheet` writes the sheet, so exit test 6 holds.
+- CI passes on every leg at the head `233b890`, and the `screen-test` job is green.
+- The job reports the rendering method `mobile` and the rendering driver `vulkan` on `llvmpipe (LLVM 20.1.2, 256 bits)`, so D-731 holds.
+- The two runs of the job give the same frames, so exit test 4 holds.
+- `screens/baseline` holds the 10 files of the artifact of the run `35549963049`, and they take 184 KB.
+- No file of Core changed, so the simulation version stands (G-17).
+- The remote head of `main` is `1e0c6b1`.
+
+### What is in flight
+
+The pull request is #44, and it waits for the review of Codex at the effective head `233b890`. The gitar pass of that head found no issue, and the pull request holds no review thread.
+
+The `review-gate` check gives one fault, RG 3, because the head holds no `docs/reviews/pr-44.md`. That fault clears with the review record. RG 1, RG 2, RG 6, RG 7, and RG 8 pass. RG 7 failed one time, because the `docs/reviews/` row of the description held no form of D-581, and the description now holds that form.
+
+Three rounds came before the green run, and each one found a real fault:
+
+- The readiness check of Xvfb called `xdpyinfo`, which the image of the runner does not hold. The job now starts the screen with `xvfb-run`, which also ends the background process of the step.
+- The driver file of lavapipe is `lvp_icd.json` on this image, and not `lvp_icd.x86_64.json`. The loader then held no driver, and Godot fell back to OpenGL. The job now finds the file and fails when the pin installs none.
+- A session with a window opens the audio driver of the system, and the runner has no sound card. The session now takes the dummy audio driver.
+
+### Traps and gotchas
+
+- The Mac cannot write a baseline. It is Apple silicon, and the baseline comes from the software Vulkan driver of Linux (D-733).
+- The capture session runs no tick, so the frame time of the engine reaches no capture (T-7).
+- Each capture builds its fixture again, because the default body size follows the fit of the screen (D-707).
+- At 1440 rows both fit modes give one picture, because the frame reaches that screen at a whole scale of 2 (D-568).
+- A move of the Mesa pin needs a new baseline in the same PR (D-730).
+
+### The questions that block progress
+
+None. OQ-115 blocks PR-8 alone.
+
+### The next concrete action
+
+Hand PR #44 to Codex for the cross-provider review. A PR that changes `.github/workflows/` never takes the label of D-401 (D-700).
+
 ## Session 149: 2026-09-20, Codex
 
 Author: Codex
@@ -308,84 +397,3 @@ None. OQ-57 stays open, and the placeholder of D-712 unblocks this PR.
 ### The next concrete action
 
 Hand PR #41 to Codex for the review.
-
-## Session 141: 2026-09-20, Codex
-
-Author: Codex
-Session: review PR #40, the audit fixes. Repository: the-thing-below. Branch: `fix/audit-fixes`. Role: reviewer. Base: `4a472c5`.
-
-### What this session did, and why
-
-- Reviewed PR #40 at effective head `828e5b0` after the author completed the audit fixes.
-- Verified the opposite-provider gate, the full changed path set, the existing Gitar comment and answer, the changed contracts, and the affected callers.
-- Ran `make verify`. It passed with 953 tests and all local gates.
-- Added `docs/reviews/pr-40.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- The local build, tests, format, det-lint, STE, replay identity, content hash, atlas, and smoke checks pass.
-- The PR head is `eb1c906`. The review record and handoff entry are on the remote branch.
-
-### What is in flight
-
-The review-gate check is pending after the metadata push. The other required checks are also pending on the new head.
-
-### Traps and gotchas
-
-- The effective head is `828e5b0`. The review publication commit changes only the metadata set.
-- The existing review-gate failure is expected before the review record exists.
-- `HANDOFF-PR-61.md` is an unrelated untracked note. Do not delete it.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for the revision-matched checks, then verify the review-gate result.
-
-## Session 140: 2026-09-20, Claude Code
-
-Author: Claude Code
-Session: the audit fixes PR (D-696). Repository: the-thing-below. Branch: `fix/audit-fixes`. Role: author. Base: `4a472c5`.
-
-### What this session did, and why
-
-- The session before this one ran a principal-level audit of the whole repository at `4a472c5`. The owner asked for every fix in one PR (D-696). That session wrote the commit `78e7f3a` and an untracked note, and no entry. This entry holds the content of that note.
-- `docs/reviews/audit-2026-09-20.md` holds each finding, A-1 to A-28, with its state. F-93 is the finding of the design register. D-695 to D-706 hold the owner answers, and OQ-200 to OQ-209 are closed.
-- This session wrote the three code items that waited for it, each with a test that fails on the old code (T-3):
-  - D-702: `DocumentSet` reads `git ls-files -z` when the root holds `.git`, and `TrackedFiles` is new. A `git` run that fails is an error with the root and the exit code. A root with no git data keeps the read of the folder tree. `SteCheckTrackedFileTests` holds 8 tests.
-  - D-699: `export.yml` holds five trigger paths, and `ExportWorkflowTests` pins them.
-  - D-700: `OverrideRules` refuses `.claude/settings.json` before the folder match, and RG 1 gives that path a reason with D-700.
-- It corrected each document that said the opposite: two runbooks, two skills, one reference file, three roadmaps, both agent files, the PR template, the hook, the `Makefile`, and `ci.yml`.
-- It ran `make smoke` after the changes to `Boot.cs` and `GameRun.cs`, and it moved Session 130 to the archive.
-
-### The state of the build
-
-- `make verify` passes on the Mac: 953 tests, the format check, det-lint and STE with 0 findings, the replay identity on simulation version 4, the content hash, the atlas check, and the smoke session.
-- The branch holds `78e7f3a` and the commit of this entry. The remote head is that commit, on `origin/fix/audit-fixes`.
-- `CLAUDE.md` holds 16220 of 16384 bytes.
-
-### What is in flight
-
-The PR waits for gitar, and then for the review of Codex. No label applies, because the PR changes decision rows, workflows, and code (D-401, D-560).
-
-### Traps and gotchas
-
-- The STE check reads the index for the file set, and the working tree for the text. A staged new file takes the rules. The new tests run `git`, so each CI leg needs it on the path.
-- `HANDOFF-PR-61.md` is the untracked note of another session. Do not delete it.
-- The identity file changed for simulation version 4. The three CI legs must agree with it.
-- The live `review-gate` check runs the code of `main`, so the new RG 7 first reads the next PR (F-37).
-- `rollForward` of `global.json` is `latestPatch` now. No owner answer covers it. Revert it if the reviewer objects.
-- D-704: game text says "party" for the travelers, and the glossary keeps "party" for the characters in battle. Ask the owner when the two uses collide.
-- D-706: a direct push to `main` fails for the owner too.
-- The trial of gitar ends about 2026-09-23 (D-685). The GPL license keeps the free reviews (D-695).
-- Sessions 86, 94, 95, 97, and 119 exist in no file.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait three minutes for gitar (D-705), answer each comment, and tell the owner that the PR is ready for Codex.

@@ -6,6 +6,7 @@ using TheThingBelow.Tools.Content;
 using TheThingBelow.Tools.DetLint;
 using TheThingBelow.Tools.Identity;
 using TheThingBelow.Tools.ReviewGate;
+using TheThingBelow.Tools.Screens;
 using TheThingBelow.Tools.SteCheck;
 
 namespace TheThingBelow.Tools;
@@ -80,6 +81,11 @@ public static class Program
             return AtlasCommand.Run(args[1..], output, errors);
         }
 
+        if (command == ScreensCommand.Name)
+        {
+            return ScreensCommand.Run(args[1..], output, errors);
+        }
+
         if (PlannedCommands.TryGetValue(command, out string? pullRequest))
         {
             errors.WriteLine(
@@ -101,6 +107,7 @@ public static class Program
         errors.WriteLine($"  {ReplayIdentityCommand.Name}: ready");
         errors.WriteLine($"  {ContentHashCommand.Name}: ready");
         errors.WriteLine($"  {AtlasCommand.Name}: ready");
+        errors.WriteLine($"  {ScreensCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {

@@ -470,6 +470,209 @@ jobs:
           echo "Read the check run of each leg for the failure." >&2
           exit 1
 
+  # The screen-test job of D-172. A headless session draws nothing, so this job runs Godot
+  # under Xvfb with the Mobile renderer on lavapipe, the software Vulkan driver of the pinned
+  # Mesa (F-23, D-729, D-730, D-731). It runs on Linux alone, because one renderer and one
+  # driver give one baseline (D-172).
+  screen-test:
+    name: screen-test
+    needs: changed-paths
+    # A job that a condition skips reports Success, so the required check passes (D-595).
+    if: needs.changed-paths.outputs.documents-alone != 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      # The snapshot timestamp and the Mesa version of D-730. A move of either one is a PR,
+      # and that PR writes the new baseline too, because Mesa can change a pixel (D-172).
+      MESA_SNAPSHOT: "20260901T000000Z"
+      MESA_VERSION: "25.2.8-0ubuntu0.24.04.2"
+      GODOT_ARCHIVE: Godot_v4.7.2-stable_mono_linux_x86_64.zip
+      GODOT_SHA512: 1855960b27ee3ef5e66e5e228cced69d55637b24334a7411162687dcd077d8f9f645348cdb8eae984bec8135d49ed855a1e3a16476786b8bce60774fd8402d13
+      # The screen of Xvfb holds the largest capture of the list, which is 2560 by 1440.
+      XVFB_SCREEN: "2560x1440x24"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install the .NET SDK of global.json
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # The snapshot service keeps every timestamp, so this version can never drop out of the
+      # archive, and every run installs the same Mesa (D-729, D-730).
+      - name: Install the pinned Mesa
+        run: |
+          set -euo pipefail
+          sudo tee /etc/apt/sources.list.d/mesa-snapshot.sources > /dev/null <<SOURCES
+          Types: deb
+          URIs: https://snapshot.ubuntu.com/ubuntu/$MESA_SNAPSHOT
+          Suites: noble noble-updates
+          Components: main universe
+          Architectures: amd64
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+          SOURCES
+
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            "mesa-vulkan-drivers=$MESA_VERSION" \
+            "libgl1-mesa-dri=$MESA_VERSION" \
+            libvulkan1 xvfb
+
+          # A dependency rule can pull another version, so the job reads back each one and
+          # fails when it differs from the pin (D-729, T-2).
+          for package in mesa-vulkan-drivers libgl1-mesa-dri; do
+            actual=$(dpkg-query --show --showformat='${Version}' "$package")
+            if [ "$actual" != "$MESA_VERSION" ]; then
+              echo "The package $package is $actual, and the pin of D-730 is $MESA_VERSION (T-2)." >&2
+              exit 1
+            fi
+            echo "The package $package is $actual, which matches the pin of D-730."
+          done
+
+          # The Vulkan loader reads its drivers from this file. A path that no file holds
+          # gives a loader with no driver, and Godot then falls back to OpenGL (D-731, T-2).
+          icd=$(find /usr/share/vulkan/icd.d -name 'lvp_icd*.json' | sort | head -1)
+          if [ -z "$icd" ]; then
+            echo "The pinned Mesa installed no lavapipe driver file (D-730, D-731, T-2)." >&2
+            ls -la /usr/share/vulkan/icd.d >&2 || true
+            exit 1
+          fi
+
+          echo "The lavapipe driver file is $icd."
+          echo "VK_DRIVER_FILES=$icd" >> "$GITHUB_ENV"
+          echo "VK_ICD_FILENAMES=$icd" >> "$GITHUB_ENV"
+
+      # The cache keeps the Godot editor between runs, and every run checks the SHA-512
+      # of the file, a cache hit included (D-511, D-596).
+      - name: Read the Godot editor from the cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: godot-download
+          key: godot-${{ env.GODOT_VERSION }}-${{ env.GODOT_ARCHIVE }}
+
+      - name: Get the Godot editor and check its SHA-512
+        run: |
+          set -euo pipefail
+          mkdir -p godot-download
+
+          if [ ! -f "godot-download/$GODOT_ARCHIVE" ]; then
+            echo "The cache holds no archive. The run downloads it."
+            curl --location --fail --silent --show-error \
+              --output "godot-download/$GODOT_ARCHIVE" \
+              "https://github.com/godotengine/godot-builds/releases/download/$GODOT_VERSION/$GODOT_ARCHIVE"
+          fi
+
+          actual=$(sha512sum "godot-download/$GODOT_ARCHIVE" | cut -d ' ' -f 1)
+          if [ "$actual" != "$GODOT_SHA512" ]; then
+            echo "The SHA-512 of $GODOT_ARCHIVE does not match the value of this workflow (T-2)." >&2
+            echo "  expected: $GODOT_SHA512" >&2
+            echo "  actual:   $actual" >&2
+            exit 1
+          fi
+          echo "The SHA-512 of $GODOT_ARCHIVE matches."
+
+      - name: Unpack the Godot editor
+        run: |
+          set -euo pipefail
+          rm -rf godot-editor
+          mkdir -p godot-editor
+          unzip -q "godot-download/$GODOT_ARCHIVE" -d godot-editor
+
+          matches=$(find godot-editor -type f -name 'Godot_v*_mono_linux.x86_64')
+          count=$(printf '%s\n' "$matches" | grep -c . || true)
+          if [ "$count" != "1" ]; then
+            echo "The archive $GODOT_ARCHIVE holds $count Godot executables, and not one (T-2)." >&2
+            printf '%s\n' "$matches" >&2
+            exit 1
+          fi
+
+          godot=$(printf '%s\n' "$matches")
+          chmod +x "$godot"
+          echo "GODOT=$PWD/$godot" >> "$GITHUB_ENV"
+
+      - name: Build the Godot solution
+        run: |
+          set -euo pipefail
+          "$GODOT" --headless --editor --path TheThingBelow.Game \
+            --build-solutions --quit 2>&1 | tee godot-build.log
+
+          # The editor gives a nonzero exit code when the build callback fails, and
+          # `pipefail` carries that code through `tee`. This grep is a second guard, and it
+          # names the fault in the log (T-2, F-60).
+          if grep -q "build callback failed" godot-build.log; then
+            echo "The Godot build callback failed. Read godot-build.log (T-2)." >&2
+            exit 1
+          fi
+
+      # Two runs give the same frames, because the capture session runs no tick and the
+      # fixture seed is fixed (T-7). The second run proves it.
+      - name: Take the captures two times
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          set -euo pipefail
+          for run in 1 2; do
+            rm -rf "captures-$run"
+            # `xvfb-run` starts the software screen, waits for it, and stops it when the
+            # session ends. It picks a free display itself, so no step of this job holds a
+            # background process of another step (T-2).
+            #
+            # The runner has no sound card, and a session with a window opens the audio
+            # driver of the system. The dummy driver keeps the job on the picture (D-172).
+            xvfb-run --auto-servernum --server-args="-screen 0 $XVFB_SCREEN" \
+              "$GODOT" --path TheThingBelow.Game --audio-driver Dummy --quit-after 1200 \
+              -- --capture "$PWD/captures-$run" 2>&1 | tee "capture-$run.log"
+
+            # The renderer check comes first, because a fallback explains every later fault.
+            # Godot falls back to another driver when it cannot start the one of the project,
+            # and another renderer draws another picture (D-616, D-731, T-2).
+            for line in "capture: the rendering method is mobile." "capture: the rendering driver is vulkan."; do
+              if ! grep -qF "$line" "capture-$run.log"; then
+                echo "The capture session did not write '$line'. Read capture-$run.log (D-731, T-2)." >&2
+                grep "^capture: the rendering" "capture-$run.log" >&2 || true
+                exit 1
+              fi
+            done
+
+            if ! grep -q "capture: the session wrote every frame." "capture-$run.log"; then
+              echo "The capture session $run wrote no success line. Read capture-$run.log (T-2)." >&2
+              exit 1
+            fi
+
+            # A shader that fails to compile writes its failure to the log alone, so an error
+            # line fails this job (T-2, `docs/roadmaps/area-effects.md` section 7.13).
+            if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR)" "capture-$run.log"; then
+              echo "The capture session $run wrote an error line (T-2)." >&2
+              exit 1
+            fi
+          done
+
+      - name: Compare the two runs
+        run: |
+          set -euo pipefail
+          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj \
+            -- screens --captures captures-2 --baseline captures-1
+
+      - name: Compare the captures with the committed baseline
+        run: |
+          set -euo pipefail
+          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj \
+            -- screens --captures captures-1 --baseline screens/baseline
+
+      # Every run keeps the captures, so an intended change of a screen gives the author the
+      # new baseline to read and to commit (D-733).
+      - name: Keep the captures of this run
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: screen-captures
+          path: captures-1
+          if-no-files-found: warn
+
   ste-check:
     name: ste-check
     # Every document PR takes this check, so it reads no path rule (D-10, G-12).

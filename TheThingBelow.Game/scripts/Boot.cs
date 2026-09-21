@@ -36,8 +36,14 @@ public partial class Boot : Node
     /// <summary>The argument that puts the debug lines of each subsystem in the log file (D-660).</summary>
     public const string DebugLogArgument = "--log-debug";
 
+    /// <summary>
+    /// The argument that asks for the capture session of the screen-test job (D-172, D-732).
+    /// The argument after it names the folder that takes one PNG for each capture.
+    /// </summary>
+    public const string CaptureArgument = "--capture";
+
     /// <summary>The exit code of a session that ends with no error (T-2).</summary>
-    private const int SuccessExitCode = 0;
+    public const int SuccessExitCode = 0;
 
     /// <summary>The exit code of a session that a crash ended (D-170, T-2).</summary>
     private const int CrashExitCode = 1;
@@ -46,7 +52,7 @@ public partial class Boot : Node
     /// The seed of the run of this build. The title screen of PR-33 and the load of a save
     /// in PR-16 pick the seed of a real run, and this constant stands until then (D-258, G-3).
     /// </summary>
-    private const ulong FixtureSeed = 20260918;
+    public const ulong FixtureSeed = 20260918;
 
     /// <summary>The count of frames that the smoke session runs, at one frame of 1/60 second.</summary>
     private const int SmokeFrameCount = 120;
@@ -177,10 +183,41 @@ public partial class Boot : Node
             return;
         }
 
+        string? captureFolder = CaptureFolderOf(userArguments);
+        if (captureFolder is not null)
+        {
+            CaptureSession.Start(this, LoadContent(), captureFolder, this.ReportCrash);
+            return;
+        }
+
         ContentSet loaded = LoadContent();
         this.content = loaded;
         this.run = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers());
         this.BuildScreen(loaded);
+    }
+
+    /// <summary>
+    /// Reads the folder of the capture session from the arguments of the session (D-732).
+    /// </summary>
+    /// <param name="userArguments">The arguments after the two dashes of the session.</param>
+    /// <returns>The folder, or null when the session holds no capture argument.</returns>
+    /// <exception cref="InvalidOperationException">The argument names no folder (T-2).</exception>
+    private static string? CaptureFolderOf(string[] userArguments)
+    {
+        int mark = Array.IndexOf(userArguments, CaptureArgument);
+        if (mark < 0)
+        {
+            return null;
+        }
+
+        if (mark + 1 >= userArguments.Length || userArguments[mark + 1].Length == 0)
+        {
+            throw new InvalidOperationException(
+                $"The argument '{CaptureArgument}' takes the folder of the captures after it, " +
+                $"and this session gave none (T-2).");
+        }
+
+        return userArguments[mark + 1];
     }
 
     /// <summary>
@@ -213,19 +250,10 @@ public partial class Boot : Node
         GameRun open = this.run ?? throw new InvalidOperationException(
             $"The screen built before the run started (T-2).");
 
-        var drawn = new MapScreen();
-        built.World.AddChild(drawn);
-        drawn.Build(built_ui.Atlas, open.Party.Map);
-        drawn.ShowParty(open.Party);
-        this.map = drawn;
-
-        var row = new PromptBar
-        {
-            Position = new Vector2(UiMetrics.EdgePixels, ScreenFit.FrameHeight - UiMetrics.EdgePixels - body),
-        };
-        built.Layer.AddChild(row);
-        row.Build(built_ui);
-        this.prompts = row;
+        // The capture session of the screen-test job builds the same two nodes (D-172, D-734).
+        MapFixture drawn = MapFixture.Build(built, built_ui, open.Party);
+        this.map = drawn.Map;
+        this.prompts = drawn.Prompts;
 
         this.BuildConsole(built, open);
     }

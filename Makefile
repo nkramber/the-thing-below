@@ -12,7 +12,7 @@ GODOT ?= /Applications/Godot_mono.app/Contents/MacOS/Godot
 SMOKE_FRAME_LIMIT := 600
 
 
-.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke run clean
+.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke sheet run clean
 
 ## verify: every check that this machine can run.
 verify: build test format lint ste-check identity content atlas smoke
@@ -108,6 +108,35 @@ smoke:
 	    tail -5 artifacts/smoke.log >&2; exit 1; \
 	fi; \
 	cat artifacts/smoke.log
+
+## sheet: the contact sheet of this machine, with the real renderer (D-172, D-735).
+#
+# The capture session opens a window, so this target runs alone and never inside `verify`.
+# The picture of this machine never matches the baseline of CI, which draws on the software
+# Vulkan driver of Linux. Thus the target makes the sheet and never compares (D-731, D-733).
+#
+# The sheet lands under `artifacts/`, which git ignores. `gh pr edit --attach` puts it in a
+# PR description (D-514, D-735).
+sheet:
+	@set -eu; \
+	mkdir -p artifacts; \
+	rm -rf artifacts/captures; \
+	echo "sheet: the capture session"; \
+	status=0; \
+	"$(GODOT)" --path $(GAME_DIR) --quit-after $(SMOKE_FRAME_LIMIT) \
+	    -- --capture "$(CURDIR)/artifacts/captures" > artifacts/capture.log 2>&1 || status=$$?; \
+	if ! grep -q "capture: the session wrote every frame." artifacts/capture.log; then \
+	    echo "sheet: the session wrote no success line. Read artifacts/capture.log (T-2)." >&2; \
+	    tail -5 artifacts/capture.log >&2; exit 1; \
+	fi; \
+	if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR)" artifacts/capture.log; then \
+	    echo "sheet: the session wrote an error line (T-2)." >&2; exit 1; \
+	fi; \
+	if [ "$$status" != "0" ]; then \
+	    echo "sheet: the session ended with the exit code $$status (T-2)." >&2; exit 1; \
+	fi; \
+	dotnet run --project $(TOOLS_PROJECT) -- \
+	    screens --captures artifacts/captures --sheet artifacts/contact-sheet.png
 
 ## run: the play session of this machine (D-3).
 run:

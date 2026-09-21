@@ -271,7 +271,7 @@ The table names the tools that live in Tools while another area file holds their
 | Audio synthesizer, hash list, and listen command | `area-audio.md` | PR-38 |
 | The sound room in a development build | `area-audio.md` | PR-71 |
 | The runs that the `replay-identity` job compares | `area-ci.md` | PR-4 |
-| Frame compare of the screen tests | `area-ci.md` | PR-41 |
+| The `screens` command: the frame compare and the contact sheet | `area-ci.md` | PR-41 |
 | The render of large pictures | `area-art.md` | PR-55 |
 
 The synthesizer keeps the integer math of D-432, and det-lint reads its code (D-502).
