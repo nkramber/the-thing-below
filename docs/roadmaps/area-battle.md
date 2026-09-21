@@ -129,6 +129,7 @@ Built by PR-11 and PR-9. Phase file: `phase-2-first-playable.md`.
 - A map names a group by its id, and a test proves that each named group exists (D-528, D-535). PR-9 holds that test on its fixture group file, and PR-11 grows the file (D-766).
 - PR-11 proves the evaluator on fixture profiles, and PR-17 writes the profiles of the first playable.
 - PR-80 holds the enemy record: the stats of each enemy and the ids of its abilities. PR-66 adds the element table to it (D-557).
+- Each enemy has one record file, and each ability id of a record names an entry of the ability file (D-785, D-786). The fight reads no ability id before PR-11 and PR-12 (D-787).
 - A group holds up to twelve enemies. Up to six stand on the field, in any split of the two rows. An entry that waits steps in when an enemy falls (D-758 to D-762, D-778).
 
 > *In plain English:* each kind of enemy weighs the same choices differently, so a brute and a healer act unlike each other. The groups they come in live in one file for each region.

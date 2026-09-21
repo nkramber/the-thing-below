@@ -111,6 +111,8 @@ public sealed class ContentSet
         DeviceNames? devices = null;
         BattleRules? battleRules = null;
         BattleFixture? battleFixture = null;
+        AbilityList? abilities = null;
+        List<EnemyRecord> enemies = [];
         var fonts = new SortedDictionary<string, FontStrikes>(StringComparer.Ordinal);
         var ruleEntries = new SortedDictionary<string, RuleFixtureEntry>(StringComparer.Ordinal);
         var maps = new SortedDictionary<string, GameMap>(StringComparer.Ordinal);
@@ -156,7 +158,20 @@ public sealed class ContentSet
                 // The fixture lies under the rule folder, so this branch comes before the
                 // branch of the rule fixtures below (D-766).
                 battleFixture = BattleFixture.Read(file.Bytes, file.Path);
-                AddFixtureIds(file.Path, battleFixture, sources);
+                AddIds(file.Path, battleFixture.DefinedIds(), sources);
+            }
+            else if (string.CompareOrdinal(file.Path, AbilityList.Path) == 0)
+            {
+                abilities = AbilityList.Read(file.Bytes, file.Path);
+                AddIds(file.Path, abilities.Ids, sources);
+            }
+            else if (EnemyRecord.IsEnemyFile(file.Path))
+            {
+                // An enemy file lies under the rule folder, so this branch comes before the
+                // branch of the rule fixtures below (D-786).
+                EnemyRecord enemy = EnemyRecord.Read(file.Bytes, file.Path);
+                AddIds(file.Path, [enemy.Id], sources);
+                enemies.Add(enemy);
             }
             else if (ContentPaths.IsFontFile(file.Path))
             {
@@ -199,7 +214,9 @@ public sealed class ContentSet
             devices ?? throw AbsentFile(DeviceNames.Path),
             new BattleContent(
                 battleRules ?? throw AbsentFile(BattleRules.Path),
-                battleFixture ?? throw AbsentFile(BattleFixture.Path)),
+                battleFixture ?? throw AbsentFile(BattleFixture.Path),
+                enemies,
+                abilities ?? throw AbsentFile(AbilityList.Path)),
             ruleEntries,
             maps,
             drawings,
@@ -341,9 +358,9 @@ public sealed class ContentSet
         }
     }
 
-    private static void AddFixtureIds(string path, BattleFixture fixture, SortedDictionary<string, string> sources)
+    private static void AddIds(string path, IReadOnlyList<ContentId> ids, SortedDictionary<string, string> sources)
     {
-        foreach (ContentId id in fixture.DefinedIds())
+        foreach (ContentId id in ids)
         {
             RefuseTakenId(path, id, sources);
             sources.Add(id.Value, path);

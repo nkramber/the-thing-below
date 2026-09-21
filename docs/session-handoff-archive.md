@@ -1,5 +1,39 @@
 # Session handoff archive
 
+## Session 155: 2026-09-21, Codex
+
+Author: Codex
+Session: review PR-8, the enemies on the map. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: reviewer. Base: `626d2fe`.
+
+### What this session did, and why
+
+- Reviewed PR #45 at effective head `e83e2d6` after the author metadata tip `111fbe1`.
+- Inspected the complete diff, the PR comments, the PR-8 contracts and exit tests, and the affected Core, Debug, Game, content, test, identity, baseline, and document paths.
+- Found P2-1 in `PatrolLayout.CheckArea`: unchecked area-bound arithmetic can bypass the required map-boundary and body-fit checks for malformed oversized content.
+
+### The state of the build
+
+- `make verify` passes locally with 1,390 tests and all local gates.
+- CI passes the build, test, format, smoke, replay identity, screen-test, det-lint, STE, coverage, changed-paths, and Gitar checks at PR tip `111fbe1`.
+- The review-gate check fails only because the review record was absent before this session.
+- The remote head of `main` is `626d2fe`.
+
+### What is in flight
+
+PR #45 needs a correction for P2-1 and a repeat cross-provider review at the new effective head.
+
+### Traps and gotchas
+
+- The effective implementation head is `e83e2d6`, not the metadata tip `111fbe1`.
+- The area layout check must protect every positive coordinate and dimension from `int` overflow.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Correct P2-1 with a regression test, then request a repeat review of the new effective head.
 ## Session 154: 2026-09-21, Claude Code
 
 Author: Claude Code

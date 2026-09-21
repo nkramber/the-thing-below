@@ -426,21 +426,24 @@ Area file: `area-battle.md` section 7.7.
 
 **Scope.**
 
-- The enemy record in content: the stats of each enemy and the ids of its abilities (D-557).
-- The strict reader of the record in Core, with a load test (D-177, G-6).
-- The switch of PR-9 from fixture stats to the record (D-557).
+- The enemy record in content: the stats of each enemy and the ids of its abilities (D-557). Each enemy has one file under `content/rules/enemies/` (D-786).
+- The ability file `content/rules/abilities.json`, which holds each ability id alone (D-785).
+- The strict reader of the record and of the ability file in Core, with a load test (D-177, G-6).
+- The switch of PR-9 from fixture stats to the record, with the same ids (D-557, D-786).
+- The ability ids stay data: each enemy keeps the basic attack (D-787).
 
 **Out of scope.**
 
 - The element table of each enemy, which PR-66 adds to the record (D-533).
 - The profile, the steal list, and the group file (PR-11, D-65, D-535).
 - The enemies of the first playable, which PR-17 writes.
+- An action that reads an ability id. PR-11 picks the action, and PR-12 gives an ability its effect (D-787).
 
 **Exit tests.**
 
 1. A fixture enemy record loads, and PR-9 fights it in place of its fixture stats (D-557).
 2. A record with an absent field fails the load with the file and the field (T-2).
-3. A record that names an absent ability id fails the load with the file and the id.
+3. A record that names an absent ability id fails the load with the file and the id (D-785).
 4. A number with a fraction in a record fails the load (G-2).
 5. The replay of a fixture fight against the record gives the same state hash on every leg.
 
@@ -450,9 +453,9 @@ Area file: `area-battle.md` section 7.7.
 - The simulation version bumps, and the identity file gains a run (G-17, D-504).
 - Each new content id is permanent (D-166).
 
-**Questions.** None. D-758 answers OQ-132 with the wave.
+**Questions.** None. D-758 answers OQ-132 with the wave, and D-785 to D-787 answer the start questions of the PR.
 
-> *In plain English:* each enemy gets its numbers and its list of moves in a data file. The fight reads that file in place of the placeholder numbers.
+> *In plain English:* each enemy gets its numbers and its list of moves in a data file of its own. The fight reads that file in place of the placeholder numbers. The moves do nothing yet, and a later change makes the enemies use them.
 
 ### 7.10 PR-66: the elements and the statuses
 
@@ -1022,6 +1025,7 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 **Scope.**
 
 - The lesson, a rite or a drill that any character equips to gain an ability (D-272, D-275, D-278).
+- The fields of a lesson on each entry of the ability file of PR-80, with the same ids (D-785).
 - The lesson slots on the character, which grow with the character level (D-356, OQ-137).
 - The swap of lessons at a hub and at a save point, which holds for the dungeon visit (D-356).
 - The points that every equipped lesson gains from each battle won, and half for a reserve character (D-357).

@@ -1,0 +1,9 @@
+{
+ "comment": "The fixture brute, with the stats of D-777 and D-781 (D-557, D-786). It names the fixture ability, which no fight reads before PR-11 and PR-12 (D-787). PR-17 writes the enemies of the first playable.",
+ "id": "enemy.fixture_brute",
+ "health": 80,
+ "attack": 14,
+ "defense": 6,
+ "speed": 80,
+ "abilities": ["ability.fixture_bash"]
+}

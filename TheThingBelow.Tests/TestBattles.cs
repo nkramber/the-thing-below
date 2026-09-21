@@ -54,10 +54,6 @@ internal static class TestBattles
       { "id": "character.test_second", "health": 50, "attack": 10, "defense": 3, "speed": 110, "row": "front" },
       { "id": "character.test_third", "health": 40, "attack": 8, "defense": 2, "speed": 120, "row": "back" }
      ],
-     "enemies": [
-      { "id": "enemy.fixture_grunt", "health": 30, "attack": 8, "defense": 2, "speed": 90 },
-      { "id": "enemy.fixture_brute", "health": 80, "attack": 14, "defense": 6, "speed": 80 }
-     ],
      "groups": [
       { "id": "group.one", "boss": false, "enemies": [{ "enemy": "enemy.fixture_grunt", "row": "front", "waits": false }] },
       { "id": "group.other", "boss": false, "enemies": [{ "enemy": "enemy.fixture_grunt", "row": "front", "waits": false }] },
@@ -121,12 +117,55 @@ internal static class TestBattles
     }
     """;
 
-    /// <summary>Gives the two battle files of a content set, with the text of the tests (D-757, D-766).</summary>
-    /// <returns>The rules file and the fixture file.</returns>
+    /// <summary>The grunt record of the tests, with the stats of D-777 and no ability (D-786, D-787).</summary>
+    public const string GruntFile = """
+    {
+     "comment": "The grunt of the tests.",
+     "id": "enemy.fixture_grunt",
+     "health": 30,
+     "attack": 8,
+     "defense": 2,
+     "speed": 90,
+     "abilities": []
+    }
+    """;
+
+    /// <summary>The brute record of the tests, with the stats of D-777 and one ability (D-786, D-787).</summary>
+    public const string BruteFile = """
+    {
+     "comment": "The brute of the tests.",
+     "id": "enemy.fixture_brute",
+     "health": 80,
+     "attack": 14,
+     "defense": 6,
+     "speed": 80,
+     "abilities": ["ability.fixture_bash"]
+    }
+    """;
+
+    /// <summary>The ability file of the tests (D-785).</summary>
+    public const string AbilitiesFile = """
+    {
+     "comment": "The ability file of the tests.",
+     "abilities": [{ "id": "ability.fixture_bash" }]
+    }
+    """;
+
+    /// <summary>The path of the grunt record in a content set of the tests (D-786).</summary>
+    public const string GruntPath = "rules/enemies/fixture-grunt.json";
+
+    /// <summary>The path of the brute record in a content set of the tests (D-786).</summary>
+    public const string BrutePath = "rules/enemies/fixture-brute.json";
+
+    /// <summary>Gives the battle files of a content set, with the text of the tests (D-757, D-766, D-785, D-786).</summary>
+    /// <returns>The rules file, the fixture file, the ability file, and the two enemy records.</returns>
     public static IReadOnlyList<ContentFile> Files() =>
     [
         new ContentFile(BattleRules.Path, Encoding.UTF8.GetBytes(RulesFile)),
         new ContentFile(BattleFixture.Path, Encoding.UTF8.GetBytes(FixtureFile)),
+        new ContentFile(AbilityList.Path, Encoding.UTF8.GetBytes(AbilitiesFile)),
+        new ContentFile(BrutePath, Encoding.UTF8.GetBytes(BruteFile)),
+        new ContentFile(GruntPath, Encoding.UTF8.GetBytes(GruntFile)),
     ];
 
     /// <summary>The battle content of the tests, with Marrek alone in the party (D-336).</summary>
@@ -182,6 +221,11 @@ internal static class TestBattles
 
         return new(
             BattleRules.Read(Encoding.UTF8.GetBytes(rules), "tests-battle.json"),
-            BattleFixture.Read(Encoding.UTF8.GetBytes(fixture), "tests-fixture.json"));
+            BattleFixture.Read(Encoding.UTF8.GetBytes(fixture), "tests-fixture.json"),
+            [
+                EnemyRecord.Read(Encoding.UTF8.GetBytes(BruteFile), BrutePath),
+                EnemyRecord.Read(Encoding.UTF8.GetBytes(GruntFile), GruntPath),
+            ],
+            AbilityList.Read(Encoding.UTF8.GetBytes(AbilitiesFile), AbilityList.Path));
     }
 }

@@ -1,0 +1,9 @@
+{
+ "comment": "The fixture grunt, with the stats of D-777 (D-557, D-786). It names no ability, so it fights with the basic attack alone (D-787). PR-17 writes the enemies of the first playable.",
+ "id": "enemy.fixture_grunt",
+ "health": 30,
+ "attack": 8,
+ "defense": 2,
+ "speed": 90,
+ "abilities": []
+}

@@ -45,6 +45,8 @@ Game terms from the roadmap interview of 2026-09-12:
 | gold | the currency (D-60) | money, coins, gil |
 | character level | the level from experience (D-34) | level, alone |
 | profile | an enemy's personality data (D-65) | personality, brain |
+| enemy record | the content file of one enemy: its stats and the ids of its abilities (D-557, D-786) | enemy definition, monster file, stat block |
+| ability file | the content file that holds each ability id (D-785) | ability table, move list |
 | evaluator | the tactical scorer in core (D-65) | planner, AI, alone |
 | tile | one 32 by 32 map position (D-228) | cell, square, glyph |
 | sprite | the drawing of a character, an enemy, or an item (D-107) | glyph, icon, image |
