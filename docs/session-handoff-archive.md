@@ -1,5 +1,41 @@
 # Session handoff archive
 
+## Session 162: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-89, round 3: the launch in borderless fullscreen. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: author. Base: `ce06eda`.
+
+### What this session did, and why
+
+- Round 2 went green at `6652b0d`: every CI leg, the screen test, and Gitar with "No issues found". Only `review-gate` waits for the review record.
+- The owner asked that the game launch in borderless fullscreen, the development build included, with the chosen ratios of text, UI, and world. The owner put the change in this PR. The PR description holds the record of that choice.
+- `Boot` sets the fullscreen mode of Godot for the play session, and it logs the mode at the start. A mode other than fullscreen is an error line (T-2).
+- `Boot` builds the screen again when a size change moves the default body size (D-707), because on some systems the switch ends after the first frame.
+- The CI captures showed a fault on `main`: at 1920 by 1080 in the fill mode, the frame drew at 2560 by 1440 and the window cut it, with no prompt row (D-573). The screen view kept the size of its texture. Both texture rects of `FrameRoot` now ignore the texture size.
+- A project setting of fullscreen failed: Godot ignores `--windowed` when the project asks for fullscreen, so the capture session lost its window sizes. The project keeps the windowed default, and a test locks that.
+
+### The state of the build
+
+- Remote head of `main`: `ce06eda`. Local: 1555 of 1555 tests pass. Format, lint, and `make walk` pass.
+- The play session of this Mac logs "the window opened in borderless fullscreen" at 1920 by 1080.
+
+### What is in flight
+
+The push of this round. The screen test fails on `map-fill-1080.png` and `ui-fill-1080.png` until their new baselines land from the artifact.
+
+### Traps and gotchas
+
+- The movie mode of Godot scales its frames to 1280 by 720, and its colors differ. It shows the layout of the fullscreen session, and not its pixels.
+- `screencapture` has no screen permission in this session.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the two new fill-1080 captures of the artifact, commit them to `screens/baseline/`, and answer the Gitar pass.
+
 ## Session 161: 2026-09-21, Claude Code
 
 Author: Claude Code
