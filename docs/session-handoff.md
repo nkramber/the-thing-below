@@ -11,6 +11,7 @@ Session: PR-80, the enemy record, the answer to the review. Repository: the-thin
 - Asked the owner which record of a group sets the size, and the size of each fixture enemy. The answers are D-788 and D-789.
 - Commit `ef02f4a`: the `size` field of `EnemyRecord`, the size check in `BattleContent.RequireGroupsOf`, the records, the tests, and the documents.
 - Wrote `docs/reviews/pr-48-response.md`.
+- Gitar reviewed `f8cc578` at 15:50:12 UTC, after the push at 15:48:31 UTC: no issues, no review thread, 0 comments with merit. CI passes, and review-gate fails on RG 4 and RG 5 alone, which wait for the repeat review.
 
 ### The state of the build
 
@@ -18,7 +19,7 @@ Session: PR-80, the enemy record, the answer to the review. Repository: the-thin
 
 ### What is in flight
 
-The push, the Gitar pass of `ef02f4a`, and the repeat review by Codex.
+The repeat review by Codex of effective head `ef02f4a`.
 
 ### Traps and gotchas
 
@@ -31,7 +32,7 @@ None.
 
 ### The next concrete action
 
-Push, run the Gitar wait, answer each comment, and hand the PR to the Codex repeat review.
+The owner starts a Codex session for the repeat review of PR #48 at `ef02f4a`. This author session answers each finding.
 
 ## Session 167: 2026-09-21, Codex
 
