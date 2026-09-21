@@ -25,6 +25,10 @@ Game terms from the roadmap interview of 2026-09-12:
 | region | a slice of the game with hubs and dungeons (D-56) | chapter, act, world |
 | arc | the part of the main story that one region tells (D-56, D-131) | plot, chapter |
 | encounter | one battle against one enemy group | fight, combat, when a noun |
+| patrol | one enemy that a map places, with its routes, its size, and its group (D-740, D-752) | mob, spawn, guard, map enemy |
+| route | the list of tiles that one patrol walks (D-739). `docs/design.md` and D-113 use the same word for a link of the region map | path, waypoint list |
+| area | the rectangle that holds a large enemy, in the place of a route (D-209, D-741) | zone, pen, region, for this rectangle |
+| body | the tiles that one enemy holds: one, two by two, or three by three (D-206, D-737) | footprint, hitbox |
 | timeline | the visible turn order in battle (D-29) | queue, initiative |
 | turn | one action of one combatant on the timeline | move, round |
 | save point | the place in a dungeon that saves and swaps the party (D-36, D-58) | checkpoint, shrine, in documents |
