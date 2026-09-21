@@ -1,5 +1,43 @@
 # Session handoff
 
+## Session 152: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: PR-8, the enemies on the map. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. Role: author. Base: `626d2fe`.
+
+### What this session did, and why
+
+- Asked 18 questions before any change, and the owner took each recommendation (D-737 to D-754). OQ-115 blocked the PR, and D-737 closes it.
+- Core: the `enemies` array of the map file, the route and the area of each enemy, the walk, the sight with the beat, the block and the step into a body, the side from behind, the grace time, and save format 3.
+- The console gains `flee`, which ends an encounter as a flee until PR-9 (D-749). With no encounter, it writes a warning and changes nothing, so the smoke session and a bot never stop.
+- Game draws each enemy that the party sees, and the mark of a sight (D-719, D-744).
+- F-94: every map sprite drew behind its own floor tile, so the baseline of PR #44 shows no character. Each map sprite now sits at the south edge of its front row (D-737).
+
+### The state of the build
+
+- `make verify` passes on the Mac with 1390 tests, the smoke session included.
+- The simulation version is 6, the save format is 3, and the identity file and the content hash are new.
+- The remote head of `main` is `626d2fe`.
+
+### What is in flight
+
+The PR opens in this round. The screen-test job must fail on the old baseline, because the lead now draws (F-94). The next round commits the frames of its artifact as the new baseline (D-733), and then the gitar pass runs.
+
+### Traps and gotchas
+
+- A spread of an `IReadOnlyList` into an array calls `System.Linq`, and the reference test of Core fails. Copy with a loop.
+- `make test` runs with no build. Run `make build` first, or a test reads an old assembly.
+- The fixture drawing of the enemy comes from this session by hand, as the fixture tiles of PR-7 did. The owner reads its sheet in the PR, and PR-17 draws each real enemy (D-686, D-744).
+- The step of an enemy starts on the tick that it arrives, so a step of 30 ticks lands 31 ticks after the start of the run.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the result of the `screen-test` job, download its artifact, read each frame, and commit the new baseline. Then run the gitar wait.
+
 ## Session 151: 2026-09-20, Codex
 
 Author: Codex
@@ -355,45 +393,3 @@ Session: review PR #41, the UI base. Repository: the-thing-below. Branch: `feat/
 ### The next concrete action
 
 Author fixes P1-1 and P1-2, then starts a re-review of PR #41 at the new effective head.
-
-## Session 142: 2026-09-20, Claude Code
-
-Author: Claude Code
-Session: PR-61, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: author. Base: `938ab7b`.
-
-### What this session did, and why
-
-- Asked the three open questions of the PR and got each owner answer (D-19). D-707 to D-713 record them, with the probe answers of 2026-09-19.
-- D-707 revises D-639 and G-28 in part: the floor of 2 device pixels goes, and the setting gives two body sizes, 24 and 32 frame pixels. D-708 revises D-241 in part. D-263, D-264, and D-228 gain a note on the font size.
-- Added the two fonts under `content/fonts/`, the UI style file, the device table, and 13 UI drawings.
-- Core gained `FontStrikes`, `UiStyle`, and `DeviceNames`. The content set now refuses a build with no strike for a body size, a style that names an absent drawing, or a glyph set with a hole.
-- Game gained the `Ui` namespace: the frame of 1280 by 720, both steps of the fit of D-573, the world viewport of 640 by 360 at 2x, the fonts, the theme, the one text helper of D-499, the input map, the intents, the glyph sets, and the crash message.
-- The smoke session builds the UI base at both body sizes and reads each font setting back, so every CI leg proves D-710 inside the engine.
-- The owner approved the art batch of 13 drawings on 2026-09-20 (D-714, G-25). The review sheets are in the description of PR #41 (D-514).
-
-### The state of the build
-
-- `make verify` passes on the Mac: 1046 tests, the format check, det-lint and STE with 0 findings, the replay identity on simulation version 4, the content hash, the atlas check, and the smoke session.
-- PR #41 is open. Every CI check passes but `review-gate`, which faults on RG 3 until the review record exists. That is the normal state of a PR before its review.
-- The gitar pass of head `c8ea1ca` approved the code review with no finding. Its CI note found a real fault in the `docs/reviews/` row of the Documents section, and the description now holds the `No change needed because` form. A local gate run gives RG 7 pass and RG 8 pass.
-- The content hash did not move: the fonts and the UI files sit outside `content/rules/` (D-495, D-648).
-
-### What is in flight
-
-The PR waits for the review of Codex. No label applies, because the PR adds decision rows and code (D-401, D-560).
-
-### Traps and gotchas
-
-- A font size with no bitmap strike draws the traced outline in silence (F-49). `FontStrikes.RequireSize` and the pinned `FixedSize` of `GameFonts` each refuse it.
-- The simulation version stays at 4. PR-61 adds intent ids that no rule of Core reads, and it changes no state.
-- `content/ui/devices.json` names the buttons. A new button needs its drawing in all four sets, and its label in the string table.
-- The crash address is a placeholder in the reserved `.invalid` domain. OQ-57 stays open, and it blocks PR-33 and PR-75 (D-712).
-- The session deleted `HANDOFF-PR-61.md`, the untracked note of 2026-09-19. Its answers are in D-707 to D-713.
-
-### The questions that block progress
-
-None. OQ-57 stays open, and the placeholder of D-712 unblocks this PR.
-
-### The next concrete action
-
-Hand PR #41 to Codex for the review.

@@ -1,5 +1,47 @@
 # Session handoff archive
 
+## Session 142: 2026-09-20, Claude Code
+
+Author: Claude Code
+Session: PR-61, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: author. Base: `938ab7b`.
+
+### What this session did, and why
+
+- Asked the three open questions of the PR and got each owner answer (D-19). D-707 to D-713 record them, with the probe answers of 2026-09-19.
+- D-707 revises D-639 and G-28 in part: the floor of 2 device pixels goes, and the setting gives two body sizes, 24 and 32 frame pixels. D-708 revises D-241 in part. D-263, D-264, and D-228 gain a note on the font size.
+- Added the two fonts under `content/fonts/`, the UI style file, the device table, and 13 UI drawings.
+- Core gained `FontStrikes`, `UiStyle`, and `DeviceNames`. The content set now refuses a build with no strike for a body size, a style that names an absent drawing, or a glyph set with a hole.
+- Game gained the `Ui` namespace: the frame of 1280 by 720, both steps of the fit of D-573, the world viewport of 640 by 360 at 2x, the fonts, the theme, the one text helper of D-499, the input map, the intents, the glyph sets, and the crash message.
+- The smoke session builds the UI base at both body sizes and reads each font setting back, so every CI leg proves D-710 inside the engine.
+- The owner approved the art batch of 13 drawings on 2026-09-20 (D-714, G-25). The review sheets are in the description of PR #41 (D-514).
+
+### The state of the build
+
+- `make verify` passes on the Mac: 1046 tests, the format check, det-lint and STE with 0 findings, the replay identity on simulation version 4, the content hash, the atlas check, and the smoke session.
+- PR #41 is open. Every CI check passes but `review-gate`, which faults on RG 3 until the review record exists. That is the normal state of a PR before its review.
+- The gitar pass of head `c8ea1ca` approved the code review with no finding. Its CI note found a real fault in the `docs/reviews/` row of the Documents section, and the description now holds the `No change needed because` form. A local gate run gives RG 7 pass and RG 8 pass.
+- The content hash did not move: the fonts and the UI files sit outside `content/rules/` (D-495, D-648).
+
+### What is in flight
+
+The PR waits for the review of Codex. No label applies, because the PR adds decision rows and code (D-401, D-560).
+
+### Traps and gotchas
+
+- A font size with no bitmap strike draws the traced outline in silence (F-49). `FontStrikes.RequireSize` and the pinned `FixedSize` of `GameFonts` each refuse it.
+- The simulation version stays at 4. PR-61 adds intent ids that no rule of Core reads, and it changes no state.
+- `content/ui/devices.json` names the buttons. A new button needs its drawing in all four sets, and its label in the string table.
+- The crash address is a placeholder in the reserved `.invalid` domain. OQ-57 stays open, and it blocks PR-33 and PR-75 (D-712).
+- The session deleted `HANDOFF-PR-61.md`, the untracked note of 2026-09-19. Its answers are in D-707 to D-713.
+
+### The questions that block progress
+
+None. OQ-57 stays open, and the placeholder of D-712 unblocks this PR.
+
+### The next concrete action
+
+Hand PR #41 to Codex for the review.
+
 ## Session 141: 2026-09-20, Codex
 
 Author: Codex

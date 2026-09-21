@@ -78,7 +78,8 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - With a `TileMapLayer`, PR-7 sets the tile size and the region size to 32, because both Godot defaults are 16 (F-51).
 - PR-7 also turns off the collisions and the navigation of each layer, because no rule reads them (F-51, G-1, G-23).
 - Godot sorts each canvas item by one Y value, and a tile takes the center of its cell (the external facts above).
-- A sprite of more than one tile needs its sort value at the front row of its body (D-206). OQ-115 holds the rule.
+- A sprite of more than one tile takes its sort value at the front row of its body (D-206, D-737).
+- Each map sprite sits at the south edge of its front row, and its picture draws up from there. A sprite at the north edge draws behind its own floor tile (F-94).
 - A layer holds coordinates from `-32768` to `32767`, which every map of the game fits (the external facts above).
 - No fog of war covers a map, so Game draws every tile of the ground from the moment the party enters (D-566).
 
@@ -121,12 +122,19 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 Built by PR-8. Phase file: `phase-2-first-playable.md`.
 
 - Enemies stand or walk their routes on the map, and no encounter is random (D-37).
-- A patrol that sees the party shows a mark for a beat, and then the encounter starts (D-208).
-- Whoever reaches the other from behind acts first in the fight (D-265).
-- An enemy that moves has three views with a two-frame walk, and one that stands flips (D-207).
+- The `enemies` array of the map file holds each enemy, and its id takes the kind `patrol` (D-738, D-752).
+- One record serves a fixed enemy and a walking one. A route of one tile stands still (D-740).
+- A route is a list of tiles. Each leg is straight, and the patrol walks to the last tile and back (D-739).
 - An elite holds two by two tiles, and a boss three by three, on the map as in battle (D-206, D-236).
-- A large enemy keeps its place inside its own area, and a load proves that its body fits everywhere in that area (D-209, T-2).
-- After a flee, the group returns to its route, and no battle with it starts for a short grace time (D-381).
+- The body blocks every tile that it holds. Its sort value comes from its front row, and its sight starts at the tile nearest the party (D-737).
+- A large enemy steps at random inside a rectangle, and a load proves that its body fits everywhere in it (D-209, D-741, T-2).
+- The record gives the size, the step, and the sight range. No enemy outwalks the party, and no enemy outsees it (D-720, D-742, D-754).
+- The time of day of the map picks each route, and a time that no route names keeps the enemy off the map (D-193, D-743).
+- A patrol that sees the party shows a mark for a beat of 30 ticks, and then the encounter starts (D-208, D-745).
+- A step of the party into a body starts the encounter at once (D-747).
+- Whoever reaches the other from behind acts first in the fight. The facings at the start of the encounter decide it (D-265, D-746).
+- After a flee, the group returns to its route, and no battle with it starts for 300 ticks (D-381, D-748).
+- The record names its group, and PR-11 adds the test that each named group exists (D-535, D-753).
 - Property tests over one thousand seeds prove that a patrol never leaves its route and never sees through a wall (the exit tests of PR-8).
 
 > *In plain English:* you see every enemy before it sees you. Sneak past it, take it from behind for the first blow, or walk away and it goes back to its rounds.
@@ -139,6 +147,8 @@ Built by PR-8, PR-9, and PR-60. Phase file: `phase-2-first-playable.md`.
 - While a battle runs, no map system ticks. The patrols, the poison on the map, and the grace time all stand still (D-531).
 - The party returns to the tile that it left, and one state hash covers the map and the battle (D-531, G-5).
 - A test proves that no map system moves during a battle (D-531, T-3).
+- PR-8 holds the encounter in the map state, and one console command ends it as a flee until PR-9 builds the fight (D-749).
+- The snapshot holds each enemy, the mark, and the encounter, at save format 3 (D-750).
 - The transition of PR-60 plays over the hand-off, and the kind of the encounter picks it (D-196).
 - After the battle, the map waits for the screen, and a wait intent ends the wait (D-522).
 - A killed enemy stays dead until a story event reopens the place, and the exit does not bring it back (D-555).
