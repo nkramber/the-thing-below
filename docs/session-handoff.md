@@ -14,12 +14,12 @@ Session: repeat review PR-48, the enemy record correction. Repository: the-thing
 
 ### The state of the build
 
-- The effective head is `ef02f4a`. The remote metadata tip is `d887605c`.
+- The effective head is `ef02f4a`. The remote metadata tip is `ebffa5e`.
 - GitHub CI and Gitar pass at `d887605c`. Review-gate waits for this updated review record.
 
 ### What is in flight
 
-The repeat review record and this handoff entry need one metadata commit and push.
+The repeat review record and this handoff entry are pushed at `ebffa5e`.
 
 ### Traps and gotchas
 
