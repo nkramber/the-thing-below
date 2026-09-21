@@ -1,5 +1,38 @@
 # Session handoff archive
 
+## Session 181: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-10, round 4. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: author. Base: `8b10888`.
+
+### What this session did, and why
+
+- Committed the `battle-menu-1x` and `battle-menu-fill-1080` baselines from the `screen-captures` artifact of the round-3 run. The author read both frames, and the step label alone changed.
+- Corrected the case of one word in the review pass line of `docs/design.md`.
+
+### The state of the build
+
+- Round 3 head `f7fb2aa`: Gitar found no issue, and every CI job passed except `screen-test`, which waited for these two baselines, and the review gate, which waits for `docs/reviews/pr-51.md`.
+- 1781 tests pass on this machine.
+
+### What is in flight
+
+- The CI run and the Gitar pass of the round-4 push.
+- The review of the other provider, and the owner approval of the rest of the text batch.
+
+### Traps and gotchas
+
+- `make sheet` can fail on "The InputMap action ... doesn't exist" when an input event reaches the capture window. The capture session builds no input map, and `Boot` reads the held steps before it checks the run. CI has no input.
+- The owner approved a second concern for the next PR: the fix of the fault above. The next PR carries it beside its own concern. G-8 yields to this owner approval, and the fix needs no decision row. Name both concerns in the PR description.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Follow the `gitar-review` skill for the round-4 push. Then tell the owner that PR #51 is ready for the other provider.
+
 ## Session 180: 2026-09-21, Claude Code
 
 Author: Claude Code

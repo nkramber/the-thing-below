@@ -1,5 +1,36 @@
 # Session handoff
 
+## Session 191: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-56, round 5. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
+
+### What this session did, and why
+
+- CI run 35668891800 of `d31b896` passed each job except screen-test and review-gate. The screen-test job failed on 43 lit captures, because the wall faces and the figure shadows change each frame.
+- The author read the map, walk, and battle frames of its `screen-captures` artifact. They match the local sheet, and this round commits them as the baseline (D-733).
+
+### The state of the build
+
+- `make verify` and `make smoke` pass. The remote head is this round.
+
+### What is in flight
+
+- Gitar on this head, and the repeat review of Codex. The review of `6095f70` is stale.
+- The owner runs the Deck test of D-854.
+
+### Traps and gotchas
+
+- The review-gate check fails until the repeat review names the effective head.
+
+### The questions that block progress
+
+The Deck result of D-854.
+
+### The next concrete action
+
+Prove that the Gitar review of this head is current. Then tell the owner that PR #53 is ready for the repeat review.
+
 ## Session 190: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -300,36 +331,3 @@ None.
 ### The next concrete action
 
 Follow the `gitar-review` skill for the round-5 push. Then tell the owner that PR #51 is ready for the other provider.
-
-## Session 181: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-10, round 4. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: author. Base: `8b10888`.
-
-### What this session did, and why
-
-- Committed the `battle-menu-1x` and `battle-menu-fill-1080` baselines from the `screen-captures` artifact of the round-3 run. The author read both frames, and the step label alone changed.
-- Corrected the case of one word in the review pass line of `docs/design.md`.
-
-### The state of the build
-
-- Round 3 head `f7fb2aa`: Gitar found no issue, and every CI job passed except `screen-test`, which waited for these two baselines, and the review gate, which waits for `docs/reviews/pr-51.md`.
-- 1781 tests pass on this machine.
-
-### What is in flight
-
-- The CI run and the Gitar pass of the round-4 push.
-- The review of the other provider, and the owner approval of the rest of the text batch.
-
-### Traps and gotchas
-
-- `make sheet` can fail on "The InputMap action ... doesn't exist" when an input event reaches the capture window. The capture session builds no input map, and `Boot` reads the held steps before it checks the run. CI has no input.
-- The owner approved a second concern for the next PR: the fix of the fault above. The next PR carries it beside its own concern. G-8 yields to this owner approval, and the fix needs no decision row. Name both concerns in the PR description.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Follow the `gitar-review` skill for the round-4 push. Then tell the owner that PR #51 is ready for the other provider.
