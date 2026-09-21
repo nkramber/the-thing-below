@@ -116,21 +116,22 @@ public partial class MapScreen : Node2D
 
     /// <summary>Puts the party where Core put it, and moves the view (D-203, D-717).</summary>
     /// <param name="party">The party on its map, at the end of the last tick.</param>
+    /// <param name="tickPart">The part of the next tick that the frame reached, from 0 to 999 (D-820).</param>
     /// <exception cref="ArgumentNullException">The party is null (T-2).</exception>
     /// <remarks>
     /// Every value is a whole art pixel of the world viewport, so no sprite draws between
     /// two pixels and no Godot snap setting is on (D-715).
     /// </remarks>
-    public void ShowParty(MapState party)
+    public void ShowParty(MapState party, int tickPart)
     {
         ArgumentNullException.ThrowIfNull(party);
 
-        int leadX = MapCamera.LeadX(party);
-        int leadY = MapCamera.LeadY(party);
+        int leadX = MapCamera.LeadX(party, tickPart);
+        int leadY = MapCamera.LeadY(party, tickPart);
         this.lead.Position = new Vector2(leadX, FeetOf(leadY, 1));
-        this.ShowEnemies(party);
+        this.ShowEnemies(party, tickPart);
 
-        CameraPlace view = MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight);
+        CameraPlace view = MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tickPart);
         this.Position = new Vector2(-view.X, -view.Y);
     }
 
@@ -140,7 +141,7 @@ public partial class MapScreen : Node2D
     /// Godot sorts the body by that row (D-737). The offset of the sprite draws the picture
     /// up from there, so a picture taller than one tile covers the whole body.
     /// </remarks>
-    private void ShowEnemies(MapState party)
+    private void ShowEnemies(MapState party, int tickPart)
     {
         IReadOnlyList<PatrolState> patrols = party.Patrols.All;
         SightMark? mark = party.Patrols.Mark;
@@ -150,8 +151,8 @@ public partial class MapScreen : Node2D
         {
             PatrolState patrol = patrols[index];
             Sprite2D sprite = this.enemies[index];
-            int x = MapCamera.EnemyX(patrol);
-            int y = MapCamera.EnemyY(patrol);
+            int x = MapCamera.EnemyX(patrol, tickPart);
+            int y = MapCamera.EnemyY(patrol, tickPart);
 
             // Every live enemy draws, wherever it stands, so no enemy on the screen pops in
             // when the party comes near. If the player could see it, the party can (D-814).

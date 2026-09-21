@@ -185,12 +185,13 @@ public sealed class Patrol
                 $"the enemy '{id.Value}' faces '{facing}', and a facing is north, south, east, or west (D-716)");
         }
 
-        // A patrol that steps faster than the party can never be walked away from, and no
-        // check would then hold the fairness line that D-720 drew for the sight (D-742).
-        if (stepTicks < MapRules.TicksPerStep)
+        // A step that the tile of 32 art pixels does not divide moves a sprite by an uneven
+        // count of pixels on each tick, which shows as a hitch (D-821). Each count of the list
+        // is the party step or slower, so no enemy outwalks the party either (D-742).
+        if (!MapRules.IsEnemyStep(stepTicks))
         {
             throw reader.Refuse(
-                $"the enemy '{id.Value}' steps in {stepTicks} ticks, and the party steps in {MapRules.TicksPerStep}. No enemy outwalks the party (D-742)");
+                $"the enemy '{id.Value}' steps in {stepTicks} ticks, and an enemy steps in {string.Join(", ", MapRules.EnemyStepTicks)}. The party steps in {MapRules.TicksPerStep}, and no enemy outwalks it (D-742, D-821)");
         }
 
         if (sightRange < 0)

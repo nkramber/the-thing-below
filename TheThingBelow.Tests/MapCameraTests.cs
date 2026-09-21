@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using TheThingBelow.Core.Maps;
 using Xunit;
@@ -117,30 +118,82 @@ public sealed class MapCameraTests
         MapState party = MapState.Enter(TestMaps.Room);
 
         Assert.Equal(TestMaps.Room.Spawn.X * TilePixels, LeadX(party));
-        Assert.Equal(TestMaps.Room.Spawn.Y * TilePixels, Call<int>("LeadY", party));
+        Assert.Equal(TestMaps.Room.Spawn.Y * TilePixels, Call<int>("LeadY", party, 0));
     }
 
     [Theory]
     [InlineData(0, 0)]
     [InlineData(1, 2)]
     [InlineData(7, 14)]
-    [InlineData(15, 32)]
+    [InlineData(16, 32)]
     public void TheSlideOfAStepGrowsWithTheTicksOfThatStep(int stepTicks, int pixels)
     {
-        Assert.Equal(pixels, Call<int>("SlideOf", 0, 1, stepTicks, MapRules.TicksPerStep));
-        Assert.Equal(-pixels, Call<int>("SlideOf", 0, -1, stepTicks, MapRules.TicksPerStep));
+        Assert.Equal(pixels, Call<int>("SlideOf", 0, 1, stepTicks, MapRules.TicksPerStep, 0));
+        Assert.Equal(-pixels, Call<int>("SlideOf", 0, -1, stepTicks, MapRules.TicksPerStep, 0));
     }
 
     [Theory]
-    [InlineData(30, 0, 0)]
-    [InlineData(30, 15, 16)]
-    [InlineData(30, 29, 30)]
-    [InlineData(40, 20, 16)]
+    [InlineData(32, 0, 0)]
+    [InlineData(32, 15, 15)]
+    [InlineData(32, 31, 31)]
+    [InlineData(64, 20, 10)]
     public void TheSlideOfAnEnemyReadsTheStepCountOfItsOwnRecord(int ticksPerStep, int stepTicks, int pixels)
     {
         // D-742: each enemy carries the count of ticks of its own step, so the slide reads
         // that count and not the count of the party.
-        Assert.Equal(pixels, Call<int>("SlideOf", 0, 1, stepTicks, ticksPerStep));
+        Assert.Equal(pixels, Call<int>("SlideOf", 0, 1, stepTicks, ticksPerStep, 0));
+    }
+
+    [Theory]
+    [InlineData(16)]
+    [InlineData(32)]
+    [InlineData(64)]
+    public void EachTickOfAnEvenStepMovesTheSameCountOfPixels(int ticksPerStep)
+    {
+        // D-821. A step that divides the tile of 32 art pixels, or that 32 divides, moves the
+        // sprite by one count on each tick. A step of 15, 30, or 40 ticks once moved it by two
+        // counts, which showed as a hitch at each tile.
+        // A step of 64 ticks moves 1 pixel every other tick, so it compares two ticks at a time.
+        int period = Math.Max(1, ticksPerStep / TilePixels);
+        var moves = new SortedSet<int>();
+        for (int tick = period; tick <= ticksPerStep; tick += period)
+        {
+            int now = tick == ticksPerStep ? TilePixels : Call<int>("SlideOf", 0, 1, tick, ticksPerStep, 0);
+            int before = Call<int>("SlideOf", 0, 1, tick - period, ticksPerStep, 0);
+            moves.Add(now - before);
+        }
+
+        Assert.Single(moves);
+    }
+
+    [Theory]
+    [InlineData(0, 8)]
+    [InlineData(500, 9)]
+    [InlineData(999, 9)]
+    public void ThePartOfATickMovesTheSlideBetweenTwoTicks(int tickPart, int pixels)
+    {
+        // D-820. The party steps in 16 ticks, 2 art pixels a tick, so tick 4 sits at 8 pixels,
+        // and half of the next tick adds one whole pixel.
+        Assert.Equal(pixels, Call<int>("SlideOf", 0, 1, 4, MapRules.TicksPerStep, tickPart));
+        Assert.Equal(-pixels, Call<int>("SlideOf", 0, -1, 4, MapRules.TicksPerStep, tickPart));
+    }
+
+    [Fact]
+    public void ThePartOfATickNeverPassesTheNextTile()
+    {
+        // D-820. The last tick of a step and the largest part stay short of the next tile.
+        Assert.Equal(TilePixels - 1, Call<int>("SlideOf", 0, 1, MapRules.TicksPerStep - 1, MapRules.TicksPerStep, 999));
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(1000)]
+    public void APartOutsideOneTickFails(int tickPart)
+    {
+        TargetInvocationException thrown = Assert.Throws<TargetInvocationException>(
+            () => Call<int>("SlideOf", 0, 1, 0, MapRules.TicksPerStep, tickPart));
+
+        Assert.IsType<ArgumentOutOfRangeException>(thrown.InnerException);
     }
 
     [Theory]
@@ -163,7 +216,7 @@ public sealed class MapCameraTests
         MapState party = MapState.Enter(TestMaps.Room);
 
         TargetInvocationException error = Assert.Throws<TargetInvocationException>(
-            () => Method("Of").Invoke(null, [party, 0, ViewHeight]));
+            () => Method("Of").Invoke(null, [party, 0, ViewHeight, 0]));
 
         Assert.IsType<ArgumentOutOfRangeException>(error.InnerException);
     }
@@ -175,12 +228,12 @@ public sealed class MapCameraTests
         return MapState.Resume(map, at, StepDirection.South, null, 0, walked, null, null, null, "the test");
     }
 
-    private static int LeadX(MapState party) => Call<int>("LeadX", party);
+    private static int LeadX(MapState party) => Call<int>("LeadX", party, 0);
 
     /// <summary>Gives the place of the view as its two pixels, through the Game assembly.</summary>
     private static (int X, int Y) Place(MapState party)
     {
-        object place = Method("Of").Invoke(null, [party, ViewWidth, ViewHeight])
+        object place = Method("Of").Invoke(null, [party, ViewWidth, ViewHeight, 0])
             ?? throw new InvalidOperationException("The camera gave no place (T-2).");
 
         Type type = place.GetType();

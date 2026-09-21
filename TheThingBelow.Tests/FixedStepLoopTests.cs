@@ -115,6 +115,26 @@ public sealed class FixedStepLoopTests
     }
 
     /// <summary>The fixed-step loop of the built Game assembly, through its public members.</summary>
+    [Fact]
+    public void ThePartOfATickCountsTheTimeLeftAfterTheWholeTicks()
+    {
+        // D-820. Game draws each slide at this part, so a screen of 144 Hz moves a sprite on
+        // each frame and not on two frames of every five.
+        Loop loop = new();
+
+        Assert.Equal(0, loop.Advance(OneTick / 4));
+        Assert.InRange(loop.TickPart, 249, 250);
+
+        Assert.Equal(1, loop.Advance(OneTick));
+        Assert.InRange(loop.TickPart, 249, 250);
+    }
+
+    [Fact]
+    public void ThePartOfATickStartsAtZero()
+    {
+        Assert.Equal(0, new Loop().TickPart);
+    }
+
     private sealed class Loop
     {
         private readonly object instance;
@@ -134,10 +154,14 @@ public sealed class FixedStepLoopTests
 
         public int MaxTicksInOneFrame => ReadConstant("MaxTicksInOneFrame");
 
+        public int TickPart => (int)(this.instance.GetType().GetProperty("TickPart")!.GetValue(this.instance)
+            ?? throw new InvalidOperationException("The part of a tick has no value (T-2)."));
+
         public long DroppedTicks => (long)(this.dropped.GetValue(this.instance)
             ?? throw new InvalidOperationException("The dropped count has no value (T-2)."));
 
         public int Advance(double seconds) => (int)(this.advance.Invoke(this.instance, [seconds])
             ?? throw new InvalidOperationException("The 'Advance' method gave nothing (T-2)."));
     }
+
 }

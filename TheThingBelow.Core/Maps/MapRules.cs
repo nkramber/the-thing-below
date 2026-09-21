@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace TheThingBelow.Core.Maps;
 
@@ -11,10 +12,37 @@ namespace TheThingBelow.Core.Maps;
 public static class MapRules
 {
     /// <summary>
-    /// The count of world ticks that one step takes (D-164, D-203). The loop runs 60 ticks a
-    /// second, so the party walks four tiles a second.
+    /// The count of world ticks that one step of the party takes (D-164, D-203, D-821). The
+    /// loop runs 60 ticks a second, so the party walks 3.75 tiles a second.
     /// </summary>
-    public const int TicksPerStep = 15;
+    /// <remarks>
+    /// A tile is 32 art pixels, so each tick of a step moves the lead by 2 art pixels, and the
+    /// slide shows no uneven tick (D-228, D-821).
+    /// </remarks>
+    public const int TicksPerStep = 16;
+
+    /// <summary>
+    /// The counts of world ticks that one step of an enemy can take (D-742, D-821). Each count
+    /// divides the tile of 32 art pixels or is a multiple of it, so each tick moves the sprite
+    /// by 2 pixels, by 1 pixel, or by 1 pixel every other tick. None is faster than the party.
+    /// </summary>
+    public static IReadOnlyList<int> EnemyStepTicks { get; } = [16, 32, 64];
+
+    /// <summary>Tells whether an enemy can step in a count of ticks (D-821).</summary>
+    /// <param name="ticks">The count of ticks of one step of the enemy.</param>
+    /// <returns>True when the count is one of <see cref="EnemyStepTicks"/>.</returns>
+    public static bool IsEnemyStep(int ticks)
+    {
+        foreach (int allowed in EnemyStepTicks)
+        {
+            if (ticks == allowed)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// The count of world ticks of the mark that a patrol shows before an encounter starts
@@ -32,7 +60,7 @@ public static class MapRules
     /// (D-381, D-748). The loop runs 60 ticks a second, so the grace time lasts 5 seconds.
     /// </summary>
     /// <remarks>
-    /// The party walks four tiles a second, so 5 seconds carry it 20 tiles. That clears the
+    /// The party walks 3.75 tiles a second, so 5 seconds carry it 18 tiles. That clears the
     /// longest sight of a patrol, because the 12 tiles of the party on a map set to day cap
     /// it (D-720).
     /// </remarks>

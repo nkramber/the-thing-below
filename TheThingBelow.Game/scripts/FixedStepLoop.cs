@@ -31,6 +31,13 @@ public sealed class FixedStepLoop
 
     private double pending;
 
+    /// <summary>
+    /// The part of the next tick that the time of the frames reached, in thousandths, from 0
+    /// to 999. Game draws each slide of a step at this part, so a screen of any rate shows
+    /// even motion (D-820). Core never reads it (G-3).
+    /// </summary>
+    public int TickPart => Math.Clamp((int)(this.pending / SecondsOfOneTick * 1000), 0, 999);
+
     /// <summary>The count of ticks that the loop dropped, because a frame took too long.</summary>
     public long DroppedTicks { get; private set; }
 

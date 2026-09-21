@@ -132,14 +132,13 @@ public partial class Boot : Node
 
         try
         {
-            this.QueueHeldStep();
-            this.WriteLog(this.run.Advance(delta));
+            this.WriteLog(this.run.Advance(delta, this.HeldStepIntent));
             if (this.run.WipeReady)
             {
                 this.ReloadAfterWipe();
             }
 
-            this.map?.ShowParty(this.run.Party);
+            this.map?.ShowParty(this.run.Party, this.run.TickPart);
         }
         catch (Exception fault)
         {
@@ -148,15 +147,17 @@ public partial class Boot : Node
     }
 
     /// <summary>
-    /// Makes the step intent of the direction that the player holds now (D-493, D-716). The
-    /// party walks while a key or a button is down, so one intent goes to each tick.
+    /// Gives the step intent of the direction that the player holds now, for one tick (D-493,
+    /// D-716, D-820). The party walks while a key or a button is down, so the run asks for one
+    /// intent before each tick of a frame.
     /// </summary>
+    /// <returns>The step intent, or null when no direction is down or the tick takes no step.</returns>
     /// <remarks>
     /// The held set comes from the press events and the release events, and never from a
     /// poll of the input singleton (F-50). A menu pauses the world and takes every input of
     /// the player, so no step intent goes out for a tick that a menu pauses (D-162, T-2).
     /// </remarks>
-    private void QueueHeldStep()
+    private Intent? HeldStepIntent()
     {
         GameRun? open = this.run;
 
@@ -166,14 +167,11 @@ public partial class Boot : Node
         // intent then moves nothing, and the record stays free of it (D-531).
         if (open is null || open.MenuOpenNextTick || open.InBattle)
         {
-            return;
+            return null;
         }
 
         string? action = this.held.Newest;
-        if (action is not null)
-        {
-            open.Queue(open.IntentOf(action));
-        }
+        return action is null ? null : open.IntentOf(action);
     }
 
     /// <summary>
@@ -619,7 +617,7 @@ public partial class Boot : Node
 
         foreach (string action in InputActions.Names)
         {
-            // A step action moves the party while the player holds it, so `QueueHeldStep`
+            // A step action moves the party while the player holds it, so `HeldStepIntent`
             // makes its intent on each tick and this loop skips it (D-716, F-50).
             if (InputActions.IsStep(action) || !signal.IsActionPressed(action))
             {
@@ -809,6 +807,7 @@ public partial class Boot : Node
         GD.Print($"smoke: the crash file is {DescribeCrashFile(session)}.");
         GD.Print($"smoke: the UI base is {DescribeUiBase(content)}.");
         GD.Print($"smoke: the map is {DescribeMap(content, session)}.");
+        GD.Print($"smoke: the picture is {DescribePicture(content)}.");
         GD.Print($"smoke: the console is {this.DescribeConsole(session)}.");
         GD.Print($"smoke: the battle is {this.DescribeBattle(content, session)}.");
         GD.Print("smoke: the session ends with no error.");
@@ -968,6 +967,35 @@ public partial class Boot : Node
     }
 
     /// <summary>
+    /// Builds the fixture large picture from the atlas, and checks that the view made one
+    /// sprite for each copy (D-518, D-819). A headless session draws nothing, so the
+    /// `picture` fixture of the screen-test job reads the pixels (F-23).
+    /// </summary>
+    /// <param name="loaded">The content set of this build.</param>
+    /// <returns>The size of the picture, the count of copies, and the count of entries.</returns>
+    /// <exception cref="InvalidOperationException">The view built another count of sprites (T-2).</exception>
+    private static string DescribePicture(ContentSet loaded)
+    {
+        ContentId id = ContentId.Parse(ScreenCaptures.FixturePicture, LargePicture.Folder, "fixture");
+        LargePicture picture = loaded.PictureOf(id);
+        int expected = PictureCopies.Of(picture, loaded).Count;
+
+        var view = new PictureView();
+        view.Build(GameAtlas.Load(loaded.Atlas), picture, loaded);
+        int built = view.CopyCount;
+        view.QueueFree();
+
+        if (built != expected)
+        {
+            throw new InvalidOperationException(
+                $"The picture '{id.Value}' holds {expected} copies, and the view built {built} sprites (D-817, T-2).");
+        }
+
+        return $"'{id.Value}' at {picture.Width} by {picture.Height} art pixels, with {built} copies of "
+            + $"{picture.Places.Count} entries";
+    }
+
+    /// <summary>
     /// Builds the tiles of the map and reads the place of the view back (D-667, D-717). A
     /// headless session draws nothing, so this check reads the nodes and never the pixels
     /// (F-23). PR-41 builds the screen test that reads the pixels.
@@ -981,9 +1009,9 @@ public partial class Boot : Node
         UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
         var drawn = new MapScreen();
         drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, session.Party);
-        drawn.ShowParty(session.Party);
+        drawn.ShowParty(session.Party, 0);
 
-        CameraPlace view = MapCamera.Of(session.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight);
+        CameraPlace view = MapCamera.Of(session.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, 0);
         string ground = drawn.DescribeGround();
         string sprites = drawn.DescribeSprites(session.Party);
         drawn.QueueFree();

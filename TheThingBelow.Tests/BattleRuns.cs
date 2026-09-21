@@ -52,7 +52,7 @@ internal static class BattleRuns
            "group": "{{group}}",
            "size": "{{EnemySizes.NameOf(size)}}",
            "facing": "east",
-           "step_ticks": 30,
+           "step_ticks": 32,
            "sight_range": 0,
            {{station}}
           }
@@ -92,7 +92,7 @@ internal static class BattleRuns
            "group": "{{group}}",
            "size": "common",
            "facing": "east",
-           "step_ticks": 30,
+           "step_ticks": 32,
            "sight_range": 0,
            "routes": [
             { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 2, "y": 1 }] }
@@ -103,7 +103,7 @@ internal static class BattleRuns
            "group": "{{group}}",
            "size": "common",
            "facing": "east",
-           "step_ticks": 20,
+           "step_ticks": 16,
            "sight_range": 0,
            "routes": [
             { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 1, "y": 3 }, { "x": 6, "y": 3 }] }

@@ -48,9 +48,9 @@ public sealed class ScreenCapturesTests
     public void TheListHoldsFiveCapturesOfEachStillFixtureAndOneForEachTickOfTheWalk()
     {
         // D-734. Two still fixtures, and five captures of each one: the frame at 1x, and both
-        // fit modes at 1080 and 1440 screen rows (D-232, D-568). D-782 adds the walk: 16 ticks
-        // of one step north and 16 of one step south.
-        Assert.Equal(10 + 32, FileNames().Count);
+        // fit modes at 1080 and 1440 screen rows (D-232, D-568). D-782 adds the walk: 17 ticks
+        // of one step north and 17 of one step south (D-821). D-819 adds the picture at 1x.
+        Assert.Equal(10 + 34 + 1, FileNames().Count);
     }
 
     [Fact]
@@ -70,23 +70,24 @@ public sealed class ScreenCapturesTests
         foreach (object capture in OfFixture("walk"))
         {
             object walk = Read<object>(capture, "Walk");
-            string action = index < 16 ? "step_north" : "step_south";
+            string action = index < 17 ? "step_north" : "step_south";
 
             Assert.Equal(action, Read<string>(walk, "Action"));
-            Assert.Equal((index % 16) + 1, Read<int>(walk, "Tick"));
+            Assert.Equal((index % 17) + 1, Read<int>(walk, "Tick"));
             Assert.Equal(1280, Read<int>(capture, "Width"));
             Assert.Equal(720, Read<int>(capture, "Height"));
             index += 1;
         }
 
-        Assert.Equal(32, index);
+        Assert.Equal(34, index);
     }
 
     [Fact]
     public void AStillFixtureRunsNoTick()
     {
-        // D-782, T-7. The map and ui captures show the run at tick 0, so no walk tick reaches them.
-        foreach (string fixture in new[] { "map", "ui" })
+        // D-782, T-7. The map, ui, and picture captures show the run at tick 0, so no walk tick
+        // reaches them.
+        foreach (string fixture in new[] { "map", "ui", "picture" })
         {
             foreach (object capture in OfFixture(fixture))
             {
@@ -181,7 +182,7 @@ public sealed class ScreenCapturesTests
 
     private static TheoryData<string> BuildExpectedNames()
     {
-        // The walk names come from a loop, so each of the 32 walk baselines has its own case,
+        // The walk names come from a loop, so each of the 34 walk baselines has its own case,
         // and a baseline that drops out names its file (D-782, T-2).
         var names = new TheoryData<string>();
         foreach (string name in StillNames)
@@ -194,16 +195,17 @@ public sealed class ScreenCapturesTests
             names.Add(name);
         }
 
+        names.Add("picture-1x.png");
         return names;
     }
 
-    /// <summary>The 32 files of the walk fixture: 16 ticks of one step north, then 16 of one step south.</summary>
+    /// <summary>The 34 files of the walk fixture: 17 ticks of one step north, then 17 of one step south.</summary>
     private static List<string> WalkNames()
     {
         var names = new List<string>();
         foreach (string direction in new[] { "north", "south" })
         {
-            for (int tick = 1; tick <= 16; tick += 1)
+            for (int tick = 1; tick <= 17; tick += 1)
             {
                 names.Add($"walk-{direction}-{tick:D2}.png");
             }

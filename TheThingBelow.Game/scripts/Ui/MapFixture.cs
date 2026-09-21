@@ -30,7 +30,7 @@ public static class MapFixture
         var drawn = new MapScreen();
         frame.World.AddChild(drawn);
         drawn.Build(@base.Atlas, @base.Theme, party);
-        drawn.ShowParty(party);
+        drawn.ShowParty(party, 0);
         return drawn;
     }
 }

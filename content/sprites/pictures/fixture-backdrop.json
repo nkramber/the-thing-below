@@ -1,0 +1,13 @@
+{
+ "id": "picture.fixture_backdrop",
+ "width": 640,
+ "height": 360,
+ "places": [
+  { "piece": "drawing.piece_fixture_sky", "x": 0, "y": 0, "across": 20, "down": 6 },
+  { "piece": "drawing.piece_fixture_ridge", "x": 0, "y": 160, "across": 10, "down": 1 },
+  { "piece": "drawing.piece_fixture_ground", "x": 0, "y": 192, "across": 20, "down": 6 },
+  { "piece": "drawing.piece_fixture_rock", "x": 96, "y": 224, "across": 1, "down": 1 },
+  { "piece": "drawing.piece_fixture_rock", "x": 400, "y": 256, "across": 2, "down": 1 },
+  { "piece": "drawing.piece_fixture_rock", "x": 600, "y": 320, "across": 1, "down": 1 }
+ ]
+}

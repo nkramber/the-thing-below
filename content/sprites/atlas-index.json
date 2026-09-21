@@ -3,7 +3,8 @@
  "pages": [
   { "kind": "tiles", "number": 1, "width": 2048, "height": 32 },
   { "kind": "map_sprites", "number": 1, "width": 192, "height": 32 },
-  { "kind": "ui", "number": 1, "width": 24, "height": 24 }
+  { "kind": "ui", "number": 1, "width": 24, "height": 24 },
+  { "kind": "pieces", "number": 1, "width": 192, "height": 64 }
  ],
  "drawings": [
   {
@@ -126,6 +127,54 @@
    ],
    "frames": [
     { "x": 0, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.piece_fixture_ground",
+   "page": "pieces",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "picture.fixture_backdrop", "use": "ground" }
+   ],
+   "frames": [
+    { "x": 0, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.piece_fixture_ridge",
+   "page": "pieces",
+   "width": 64,
+   "height": 32,
+   "draws": [
+    { "content": "picture.fixture_backdrop", "use": "ridge" }
+   ],
+   "frames": [
+    { "x": 32, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.piece_fixture_rock",
+   "page": "pieces",
+   "width": 64,
+   "height": 64,
+   "draws": [
+    { "content": "picture.fixture_backdrop", "use": "rock" }
+   ],
+   "frames": [
+    { "x": 96, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.piece_fixture_sky",
+   "page": "pieces",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "picture.fixture_backdrop", "use": "sky" }
+   ],
+   "frames": [
+    { "x": 160, "y": 0, "ticks": 0 }
    ]
   }
  ]

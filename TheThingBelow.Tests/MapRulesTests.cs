@@ -8,10 +8,12 @@ namespace TheThingBelow.Tests;
 public sealed class MapRulesTests
 {
     [Fact]
-    public void AStepTakesAQuarterOfASecond()
+    public void AStepMovesTheLeadTwoPixelsOnEachTick()
     {
-        // The loop runs 60 ticks a second (D-164), so the party walks four tiles a second.
-        Assert.Equal(15, MapRules.TicksPerStep);
+        // D-821. The loop runs 60 ticks a second (D-164), so the party walks 3.75 tiles a
+        // second, and each tick of a step of 32 art pixels moves the lead by 2.
+        Assert.Equal(16, MapRules.TicksPerStep);
+        Assert.Equal(0, 32 % MapRules.TicksPerStep);
     }
 
     [Theory]
