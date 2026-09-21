@@ -265,7 +265,7 @@ public partial class MapScreen : Node2D
     }
 
     /// <summary>
-    /// Builds the occluder at the feet of one figure: a flat octagon across the middle of the
+    /// Builds the occluder at the feet of one figure: a flat hexagon across the middle of the
     /// body, which throws the shadow of the figure away from each light (D-853).
     /// </summary>
     private static LightOccluder2D FeetShadow(Sprite2D sprite, int mask)

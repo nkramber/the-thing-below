@@ -1,5 +1,35 @@
 # Session handoff
 
+## Session 192: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-56, round 6. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
+
+### What this session did, and why
+
+- Gitar reviewed `45e8464` with the verdict "Approved with suggestions" and one finding: the doc comment of `FeetShadow` named its six-point polygon an octagon. The finding holds, and this round names it a hexagon.
+- Each CI job of `45e8464` passed except review-gate, which waits for the repeat review.
+
+### The state of the build
+
+- The change is one word of a comment. The remote head is this round.
+
+### What is in flight
+
+- The repeat review of Codex, and the Deck test of D-854.
+
+### Traps and gotchas
+
+None new.
+
+### The questions that block progress
+
+The Deck result of D-854.
+
+### The next concrete action
+
+Reply on the Gitar thread with this commit, prove that the review of this head is current, and tell the owner that PR #53 is ready for the repeat review.
+
 ## Session 191: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -299,35 +329,3 @@ None.
 ### The next concrete action
 
 Commit the review record and handoff files. Push, fetch, and verify the remote head and the review-gate check.
-
-## Session 182: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-10, round 5. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: author. Base: `8b10888`.
-
-### What this session did, and why
-
-- The owner approved the text batch, with one change: a resisted hit reads "{target} takes {amount}. Barely a mark." (D-837).
-- Round 4 head `5b0ab39` passed Gitar with no issue and every CI job except the review gate.
-
-### The state of the build
-
-- This round changes one string, a decision row, the design pass line, and this entry. No capture shows a resisted hit, so no baseline changes.
-- 1781 tests pass on this machine. The review gate waits for `docs/reviews/pr-51.md`.
-
-### What is in flight
-
-- The CI run and the Gitar pass of the round-5 push, then the review of the other provider.
-
-### Traps and gotchas
-
-- `make sheet` can fail on "The InputMap action ... doesn't exist" when an input event reaches the capture window. The capture session builds no input map, and `Boot` reads the held steps before it checks the run. CI has no input.
-- The owner approved a second concern for the next PR: the fix of the fault above. The next PR carries it beside its own concern. G-8 yields to this owner approval, and the fix needs no decision row. Name both concerns in the PR description.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Follow the `gitar-review` skill for the round-5 push. Then tell the owner that PR #51 is ready for the other provider.
