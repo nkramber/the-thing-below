@@ -1,5 +1,36 @@
 # Session handoff
 
+## Session 188: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-56, round 3. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
+
+### What this session did, and why
+
+- Gitar approved the code of `96298b7` with no thread. Its CI note named a real failure: `CaptureColorsTests` read each pixel of the lit map and walk baselines as a palette color.
+- Light blends to any color (D-181), so a lit capture holds colors outside the palette. The test now reads the unlit world capture, `picture-1x.png`, alone. That capture still guards the sRGB conversion of PR-55 and the Nearest filter.
+- The old test fails on the new baseline, which proves the change.
+
+### The state of the build
+
+- 1,856 tests pass locally against the new baseline. The remote head is this round.
+
+### What is in flight
+
+- The push wait of Gitar on this head, then the Codex review of `docs/reviews/pr-53.md`.
+
+### Traps and gotchas
+
+- Run the tests after a new baseline lands. `make verify` read the old baseline and passed.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Prove that the Gitar review of this head is current, then tell the owner that PR #53 is ready for the Codex review.
+
 ## Session 187: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -310,35 +341,3 @@ None. The owner approves the art batch and the text batch from the PR descriptio
 ### The next concrete action
 
 Follow the `gitar-review` skill for the round-2 push. Then tell the owner that PR #51 is ready for the other provider.
-
-## Session 178: 2026-09-21, Codex
-
-Author: Codex
-Session: reviewer PR-50, round 1. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: #50. Role: reviewer. Base: `27fb790`.
-
-### What this session did, and why
-
-- Refreshed the review after the handoff-rule update in `45de10f`.
-- Rechecked the implementation-only change since the assessed head `e290570`. The changed paths are the review skill, its commit reference, and D-824.
-- Prepared the PR-50 review record with no findings and a `Ready for owner merge` verdict.
-
-### The state of the build
-
-- The implementation head `e290570` passed `make verify` and every required CI job except the review gate.
-- The effective head is `45de10f`. The later review-record and handoff commits are metadata commits and do not move it.
-
-### What is in flight
-
-- The review record, this entry, and the handoff archive move need commit and push.
-
-### Traps and gotchas
-
-- Session 168 is the oldest live entry and must move to the archive. Keep its text unchanged.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit the review record and both handoff files. Push, fetch, and verify the remote head and the review-gate check.
