@@ -1,5 +1,43 @@
 # Session handoff
 
+## Session 170: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-66, the elements and the statuses. Repository: the-thing-below. Branch: `feat/pr-66-elements-statuses`. PR: the PR of PR-66, which this round opens. Role: author. Base: `74c3a64`.
+
+### What this session did, and why
+
+- Asked the owner 22 start questions, and recorded the answers as D-790 to D-811. D-533 is revised in part by D-792.
+- Moved the gear table to PR-13, the aptitude bonus to PR-12, and the icons to PR-10 (D-790, D-791, D-811).
+- Added the element table and the immune list to each enemy record, and the ten statuses to each combatant, on the timeline.
+- Poison, blind, and silence stay on each character after a fight, in save format 5 with a reader of format 4.
+- Raised the simulation version to 9, and added the identity run `statuses`.
+- Added the tests of the five exit tests, with seed loops of 1000 seeds.
+
+### The state of the build
+
+- `make verify` passed before the commits, with 1625 tests. The later edits touched comments and one blank line.
+- The remote head is `74c3a64` on `main`. This round pushes the branch and opens the PR.
+
+### What is in flight
+
+The PR waits for the Gitar pass, then for the review of Codex, because it adds decisions (D-401).
+
+### Traps and gotchas
+
+- A turn now begins before the choice of a character: the timeline moves, statuses end, shares act, and a sleeper passes. `Act` reads the open turn.
+- A stun on the character whose turn is open ends that turn, and `GiveStatus` runs the loop again.
+- PR-66 changes no screen, so the visual review of D-784 has no frame to read.
+- The perl edits of this session broke two files on an unbalanced brace. Use the Edit tool for C# blocks.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, open the PR, and follow the `gitar-review` skill.
+
 ## Session 169: 2026-09-21, Codex
 
 Author: Codex
@@ -307,41 +345,3 @@ None.
 ### The next concrete action
 
 Wait for Gitar and CI on the new head, and answer each finding. Then tell the owner that PR #47 is ready for the Codex review.
-
-## Session 160: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-89, the walk fault and the frames inside a step. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: the one PR of PR-89, opened in this session. Role: author. Base: `ce06eda`.
-
-### What this session did, and why
-
-- The owner saw a fault on a walk north or south in `make run`. The owner asked for a capture that a session can read by itself while the lead moves (D-782).
-- Added the `walk` fixture: one frame at 1x after each tick of one step north and one step south. Added `--fixture <name>`, `make sheet FIXTURE=<name>`, and `make walk`. `make sheet` now builds the Godot solution first.
-- The walk frames proved the cause (F-95). Each ground tile sorted at the center of its cell, so the floor cut the legs for half of each step north or south.
-- The fix: the ground layer takes no part in the sort, and it draws at the Z index -1 (D-783). The smoke session reads both values back.
-- The author read all 32 walk frames before and after the fix. Before: legs cut in `walk-north-09`, `walk-north-12`, and `walk-south-06`. After: the lead draws whole in every frame.
-- Recorded D-782 to D-784, F-95, the PR-89 entry of the phase-2 file, and the PR gate line of the visual review (D-784).
-
-### The state of the build
-
-- Remote head of `main`: `ce06eda`. No Core file changes, so the simulation version stays (G-17).
-- Local: build, format, lint, STE check, and smoke pass. 1495 of 1501 tests pass.
-- The six failed tests are `TheBaselineHoldsThisCapture` for the walk frames. The baseline PNGs come from the artifact of the first screen-test run (D-733).
-
-### What is in flight
-
-The first push of the PR. The screen-test job fails until the 32 walk baselines land from its artifact.
-
-### Traps and gotchas
-
-- `CLAUDE.md` and `AGENTS.md` hold 16383 bytes, one byte under the 16 KB limit of SIZE 1. The next edit must make room first.
-- The screen of this Mac gives 955 rows, so `make sheet` fails on the 1080-row capture. Use `make walk`, or a larger screen.
-- In `ScreenCaptures`, `WalkSteps` must stay above `All`. A static property takes its value in the order of the file.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Download the `screen-captures` artifact, read each walk frame, and commit the 32 walk PNGs to `screens/baseline/`. Then answer the gitar pass.
