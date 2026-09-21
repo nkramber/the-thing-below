@@ -1,5 +1,38 @@
 # Session handoff
 
+## Session 168: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: PR-80, the enemy record, the answer to the review. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: author. Base: `86528a3`.
+
+### What this session did, and why
+
+- Answered P1-1 of `docs/reviews/pr-48.md` with full merit: D-754 asks the enemy record for the size, and the load to fail a map that disagrees.
+- Asked the owner which record of a group sets the size, and the size of each fixture enemy. The answers are D-788 and D-789.
+- Commit `ef02f4a`: the `size` field of `EnemyRecord`, the size check in `BattleContent.RequireGroupsOf`, the records, the tests, and the documents.
+- Wrote `docs/reviews/pr-48-response.md`.
+
+### The state of the build
+
+- The effective head is `ef02f4a`. `make verify` passes with 1587 tests. The identity hashes stay, and the content hash changes.
+
+### What is in flight
+
+The push, the Gitar pass of `ef02f4a`, and the repeat review by Codex.
+
+### Traps and gotchas
+
+- The test guard of `BattleRuns.Map` takes the size of its group. An elite guard holds an area of 3 by 2 tiles, because an area must leave room to move (D-209).
+- The tests pair the checkout map with the test records, so the test brute stays elite, as in `content/`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, run the Gitar wait, answer each comment, and hand the PR to the Codex repeat review.
+
 ## Session 167: 2026-09-21, Codex
 
 Author: Codex
@@ -313,41 +346,3 @@ None.
 ### The next concrete action
 
 Verify the final Gitar and review-gate results at metadata tip `d837238`. The owner merges after the checks pass.
-
-## Session 158: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: PR-9, the battle core and the timeline. Repository: the-thing-below. Branch: `feat/pr-9-battle-core`. PR: #46. Role: author. Base: `c6cc71c`.
-
-### What this session did, and why
-
-- Asked the five open questions and each gap that the code showed. D-755 to D-781 hold the answers.
-- Built the battle in Core: the timeline, five actions, the rows, the wave, the wipe, and the wait intent.
-- Added content files, record format 2, save format 4, simulation version 7, and a battle identity run.
-- Replaced the `flee` command with five battle commands. Game drains the event queue, and a wipe reloads.
-- Found and fixed a snapshot that shared the pack array. `ASnapshotKeepsTheCountOfThePackOfItsTick` guards it.
-- Measured the fixture fights over 1000 seeds, and D-781 corrected the elite.
-
-### The state of the build
-
-- `make verify` passes locally with 1485 tests, the smoke battle included.
-- The remote head is the push of this entry. CI and gitar have not run yet.
-
-### What is in flight
-
-The first push, the PR, and the gitar pass. The Codex review follows.
-
-### Traps and gotchas
-
-- A snapshot must copy each list of the live state. A shared list changes the start of a record.
-- The smoke battle wipes on the fixture seed, so it runs the reload path. A test covers a flee.
-- `TestBattles` holds its own rules and groups. A change in `content/` moves no test.
-- The owner asked for a separate PR after PR-9: a texture fault on a walk north or south, and capture frames inside a step.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push, open PR #46, and follow the `gitar-review` skill.
