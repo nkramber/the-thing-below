@@ -1,5 +1,39 @@
 # Session handoff
 
+## Session 154: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: PR-8, the enemies on the map, round 3. Repository: the-thing-below. Branch: `feat/pr-8-map-enemies`. PR: #45. Role: author. Base: `626d2fe`.
+
+### What this session did, and why
+
+- Recorded the gitar pass and the CI result of the effective head `e83e2d6`. This commit changes the metadata set alone, so the effective head stays `e83e2d6` (D-610).
+
+### The state of the build
+
+- CI passes on every leg at `e83e2d6`: the build, test, and format job, the smoke job, and the replay identity job on each of the three legs. The screen-test, det-lint, STE, coverage, and changed-paths jobs pass too.
+- The `screen-test` job passes on the new map baseline.
+- The gitar pass of `e83e2d6` is current. The dashboard edit at 02:57:40 UTC comes after the push at 02:55:25 UTC. Its code review found no issue and opened no thread. Its CI note describes the first run, which the new baseline answered.
+- The `review-gate` check gives RG 3 alone, because the head holds no `docs/reviews/pr-45.md`. RG 1, RG 2, and RG 6 to RG 8 pass.
+- The remote head of `main` is `626d2fe`.
+
+### What is in flight
+
+PR #45 waits for the cross-provider review at the effective head `e83e2d6`. The PR changes code, so the label of D-401 never applies.
+
+### Traps and gotchas
+
+- The review reads the 18 answers of D-737 to D-754, and the fix of F-94 in `TheThingBelow.Game/scripts/Ui/MapScreen.cs`.
+- The `flee` command with no encounter writes a warning and changes nothing, so a bot or the smoke session never stops (D-749).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Hand PR #45 to the cross-provider review. Answer each finding in this session (D-582).
+
 ## Session 153: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -355,40 +389,3 @@ None. OQ-79 blocks later roadmap PR-41 only.
 ### The next concrete action
 
 Commit and push the repeat review record and this handoff entry. Then verify the remote head and review-gate result.
-
-## Session 144: 2026-09-20, Claude Code
-
-Author: Claude Code
-Session: PR-61, the UI base. Repository: the-thing-below. Branch: `feat/pr-61-ui-base`. Role: author. Base: `938ab7b`.
-
-### What this session did, and why
-
-- Answered the review of `docs/reviews/pr-41.md`, which gave `Changes required` for head `c8ea1ca`. `docs/reviews/pr-41-response.md` holds each disposition with its evidence.
-- P1-1 has full merit on the defect. `Boot.ReadInput` passed a constant menu state, so the menu action made `intent.open_menu` on every press. `GameRun.MenuOpen` and `GameRun.IntentOf` now read the one source of that state, which is `RunState`, and `Boot` calls the run. A copy in the host would drift from the run after a replay or a load.
-- The consequence of P1-1 needed one correction of fact: this head queues no intent, so no player could reach a menu. The defect was real and it would have become the stated consequence at the first PR that queues the intent.
-- P1-2 has no merit. The finding read the GitHub number 41 as the roadmap id PR-41. This PR is roadmap PR-61, section 7.2 of the phase-2 file. The screen-test job is roadmap PR-41, section 7.5 of the same file, and OQ-79 blocks it.
-- Four regression tests landed. One of them, `InputIntentTests.NoCallSiteOfTheInputMapPassesAConstantMenuState`, fails on the old code.
-
-### The state of the build
-
-- `make verify` passes on the Mac: 1050 tests, the format check, det-lint and STE with 0 findings, the replay identity on simulation version 4, the content hash, the atlas check, and the smoke session.
-- The gitar pass of head `d6f5e00` approved the code review with no finding, and it opened no thread. The earlier pass of `6c5571a` did the same, and its CI note has its answer on the PR.
-- The simulation version stays at 4. `GameRun.MenuOpen` reads a value that `RunState` already held, and no rule of Core changed (G-17).
-
-### What is in flight
-
-The PR waits for the repeat review of Codex at the new effective head `d6f5e00`. The `review-gate` check gives RG 4 and RG 5 faults, because the record still holds the verdict `Changes required` for head `c8ea1ca`. Both clear with the repeat review. RG 3, RG 7, and RG 8 pass. The CI legs run on the new head.
-
-### Traps and gotchas
-
-- Two numbering systems meet on this PR. The GitHub number is 41, and the roadmap id is PR-61. The review record file takes the GitHub number, and every roadmap line takes the roadmap id.
-- The response file refutes P1-2 and never deletes it. The reviewer sets a refuted finding to `withdrawn` and keeps the evidence.
-- `GameRun` now references the `Ui` namespace of Game for the input map. Core still holds no reference to either.
-
-### The questions that block progress
-
-None. OQ-79 blocks roadmap PR-41, which is a later PR, and it blocks no line of this one.
-
-### The next concrete action
-
-Start the repeat review of PR #41 at the new effective head.
