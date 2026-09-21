@@ -14,7 +14,7 @@ Session: reviewer PR-50, round 1. Repository: the-thing-below. Branch: `feat/pr-
 ### The state of the build
 
 - The implementation head `e290570` passed `make verify` and every required CI job except the review gate.
-- The effective head remains `e290570` because `45de10f` changes only metadata and review-procedure paths.
+- The effective head is `45de10f`. The later review-record and handoff commits are metadata commits and do not move it.
 
 ### What is in flight
 
