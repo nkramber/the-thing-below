@@ -1,5 +1,37 @@
 # Session handoff
 
+## Session 182: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-10, round 5. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: author. Base: `8b10888`.
+
+### What this session did, and why
+
+- The owner approved the text batch, with one change: a resisted hit reads "{target} takes {amount}. Barely a mark." (D-837).
+- Round 4 head `5b0ab39` passed Gitar with no issue and every CI job except the review gate.
+
+### The state of the build
+
+- This round changes one string, a decision row, the design pass line, and this entry. No capture shows a resisted hit, so no baseline changes.
+- 1781 tests pass on this machine. The review gate waits for `docs/reviews/pr-51.md`.
+
+### What is in flight
+
+- The CI run and the Gitar pass of the round-5 push, then the review of the other provider.
+
+### Traps and gotchas
+
+- `make sheet` can fail on "The InputMap action ... doesn't exist" when an input event reaches the capture window. The capture session builds no input map, and `Boot` reads the held steps before it checks the run. CI has no input.
+- The owner approved a second concern for the next PR: the fix of the fault above. The next PR carries it beside its own concern. G-8 yields to this owner approval, and the fix needs no decision row. Name both concerns in the PR description.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Follow the `gitar-review` skill for the round-5 push. Then tell the owner that PR #51 is ready for the other provider.
+
 ## Session 181: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -311,36 +343,3 @@ None.
 ### The next concrete action
 
 Answer gitar, copy the new screen baselines from the CI artifact, and then build the large picture format of D-812.
-
-## Session 172: 2026-09-21, Codex
-
-Author: Codex
-Session: review PR-49, the elements and the statuses. Repository: the-thing-below. Branch: `feat/pr-66-elements-statuses`. PR: #49. Role: reviewer. Base: `74c3a64`.
-
-### What this session did, and why
-
-- Reviewed the complete PR diff from merge base `74c3a64`.
-- Verified the Gitar correction at `34e6272` and the regression test for a stun on the open turn.
-- Added `docs/reviews/pr-49.md` with the verdict for effective head `34e6272`.
-
-### The state of the build
-
-- `make verify` passed with 1625 tests and all local gates.
-- GitHub checks passed for the implementation head. The review-gate check waits for the review record.
-
-### What is in flight
-
-- The review record and this handoff entry are pushed. GitHub review-gate passes for the effective head.
-
-### Traps and gotchas
-
-- The effective head is `34e6272`. Commit `3690b61` changes only handoff metadata.
-- The review-gate check reads `docs/reviews/pr-49.md` from the PR head.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for the remaining GitHub checks, then verify the final PR head and check results.

@@ -63,7 +63,7 @@
   },
   {
    "id": "battle.hit_resist",
-   "text": "{target} takes {amount}. It holds."
+   "text": "{target} takes {amount}. Barely a mark."
   },
   {
    "id": "battle.hit_weak",

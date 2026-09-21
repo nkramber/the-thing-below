@@ -1,5 +1,38 @@
 # Session handoff archive
 
+## Session 172: 2026-09-21, Codex
+
+Author: Codex
+Session: review PR-49, the elements and the statuses. Repository: the-thing-below. Branch: `feat/pr-66-elements-statuses`. PR: #49. Role: reviewer. Base: `74c3a64`.
+
+### What this session did, and why
+
+- Reviewed the complete PR diff from merge base `74c3a64`.
+- Verified the Gitar correction at `34e6272` and the regression test for a stun on the open turn.
+- Added `docs/reviews/pr-49.md` with the verdict for effective head `34e6272`.
+
+### The state of the build
+
+- `make verify` passed with 1625 tests and all local gates.
+- GitHub checks passed for the implementation head. The review-gate check waits for the review record.
+
+### What is in flight
+
+- The review record and this handoff entry are pushed. GitHub review-gate passes for the effective head.
+
+### Traps and gotchas
+
+- The effective head is `34e6272`. Commit `3690b61` changes only handoff metadata.
+- The review-gate check reads `docs/reviews/pr-49.md` from the PR head.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for the remaining GitHub checks, then verify the final PR head and check results.
+
 ## Session 171: 2026-09-21, Claude Code
 
 Author: Claude Code
