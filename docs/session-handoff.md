@@ -3,7 +3,7 @@
 ## Session 179: 2026-09-21, Claude Code
 
 Author: Claude Code
-Session: author PR-10, round 1. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: the PR-10 intent, number after the push. Role: author. Base: `8b10888`.
+Session: author PR-10, round 1. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: author. Base: `8b10888`.
 
 ### What this session did, and why
 
@@ -16,13 +16,13 @@ Session: author PR-10, round 1. Repository: the-thing-below. Branch: `feat/pr-10
 ### The state of the build
 
 - `make format`, `make lint`, `make smoke`, and the STE check pass on this machine. `make sheet FIXTURE=battle` wrote four frames, and the author read each one.
-- The test run fails four cases alone: `TheBaselineHoldsThisCapture` for the four `battle-*` files. The baselines come from the artifact of the screen-test job (D-733).
-- The remote head is the push of this round.
+- Round 1 pushed `b72563f`. Gitar found no issue in its review of that head. The CI run failed on the four absent `battle-*` baselines, and the review gate waits for the review record.
+- Round 2 commits the four baselines from the artifact of that run (D-733). The author read each frame, and each one matches the local capture.
 
 ### What is in flight
 
-- The first CI run of the branch, and its `screen-captures` artifact.
-- The gitar pass of the first push.
+- The CI run and the gitar pass of the round-2 push.
+- The review of the other provider, and the owner approval of the art batch and the text batch.
 
 ### Traps and gotchas
 
@@ -37,7 +37,7 @@ None. The owner approves the art batch and the text batch from the PR descriptio
 
 ### The next concrete action
 
-Download the `screen-captures` artifact, read the four `battle-*` frames, and commit them to `screens/baseline/`. Then answer each gitar comment.
+Follow the `gitar-review` skill for the round-2 push. Then tell the owner that PR #51 is ready for the other provider.
 
 ## Session 178: 2026-09-21, Codex
 
