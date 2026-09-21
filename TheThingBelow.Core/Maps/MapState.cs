@@ -74,9 +74,6 @@ public sealed class MapState
     /// <summary>Every enemy of the map, the mark, and the encounter (D-738, D-749).</summary>
     public MapPatrols Patrols { get; }
 
-    /// <summary>The sight range of the party here, which the time of day of the map gives (D-193).</summary>
-    public int SightRange => MapRules.PartySightRange(this.Map.Time);
-
     /// <summary>Puts the party on a map at its spawn point (D-528).</summary>
     /// <param name="map">The map to enter.</param>
     /// <returns>The state, with the spawn tile walked.</returns>

@@ -155,7 +155,7 @@ UI and input terms from the roadmaps PR of 2026-09-16:
 | fit mode | one of the two ways that the probe of D-621 puts the frame on a screen, whole or fill (D-638) | scale mode |
 | fit | the scale of the frame to the screen of the player (D-232) | scaling, and stretch, which names the Godot setting |
 | UI style file | the content file of the font sizes, the colors, and the frame drawings, which Game turns into a Godot `Theme` (D-527) | theme file, skin |
-| button prompt | the glyph of the button that a line of text names (D-222) | icon, when the text means a button |
+| button prompt | the glyph of a button on the screen, which the game never shows (D-815) | icon, when the text means a button |
 | notice | the one-line message that slides in at the top edge of the screen (D-221) | toast, banner |
 | window frame | the drawn border of a menu window (D-220) | panel, and border, when the text means this drawing |
 

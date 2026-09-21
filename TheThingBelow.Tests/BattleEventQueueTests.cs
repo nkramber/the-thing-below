@@ -241,9 +241,10 @@ public sealed class BattleEventQueueTests
 
         public IReadOnlyList<LogEntry> Advance(double seconds)
         {
-            MethodInfo advance = this.type.GetMethod("Advance", [typeof(double)])
+            // A test holds no key, so no tick takes a held step (D-820).
+            MethodInfo advance = this.type.GetMethod("Advance", [typeof(double), typeof(Func<Intent>)])
                 ?? throw new InvalidOperationException("The run holds no 'Advance' method (T-2).");
-            return (IReadOnlyList<LogEntry>)advance.Invoke(this.instance, [seconds])!;
+            return (IReadOnlyList<LogEntry>)advance.Invoke(this.instance, [seconds, null])!;
         }
 
         private object Read(string name)

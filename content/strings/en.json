@@ -38,18 +38,6 @@
    "text": "Wet rope"
   },
   {
-   "id": "ui.cancel",
-   "text": "Back"
-  },
-  {
-   "id": "ui.confirm",
-   "text": "Confirm"
-  },
-  {
-   "id": "ui.menu",
-   "text": "Menu"
-  },
-  {
    "id": "ui.title",
    "text": "The Thing Below"
   }

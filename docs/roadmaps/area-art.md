@@ -126,12 +126,11 @@ Built by PR-34, and drawn by the content PRs. Phase files: every phase file.
 | Piece of a large picture | Set by the format of PR-55 | One | D-516, D-518 |
 | Window frame | 48 by 48, which Game draws as nine parts that stretch | One | D-220, `area-ui-input.md` |
 | Icon for an element or a status | 16 by 16 | One | D-214, `area-ui-input.md` |
-| Glyph for a button | 16 by 16 | One | D-222, `area-ui-input.md` |
 
 - A side view faces one way, and Game mirrors it for the other side with `flip_h` (D-199). The atlas holds no mirrored frame.
 - Both renderer families correct the normal map of a sprite that `flip_h` mirrors, so its light falls on the correct side (the external facts above).
 - A custom shader that writes `NORMAL_MAP` gets no such correction (the external facts above). Section 7.6 of `area-effects.md` keeps each shader on a lit sprite away from `NORMAL_MAP`.
-- Each sprite, tile, and piece has a normal map. A portrait, an icon, a glyph, and a window frame have none, because they never take scene light (D-183, D-210, D-516).
+- Each sprite, tile, and piece has a normal map. A portrait, an icon, and a window frame have none, because they never take scene light (D-183, D-210, D-516).
 
 > *In plain English:* tiles and characters are 32 pixels square, faces are 64, and big enemies are larger. A character that faces left is the same drawing turned over, and the light still falls on the correct side.
 
@@ -140,12 +139,16 @@ Built by PR-34, and drawn by the content PRs. Phase files: every phase file.
 Built by PR-55. Phase file: `phase-2-first-playable.md`.
 
 - A large picture places pieces at pixel positions, with repeats (D-516). A piece is a drawing file of section 7.3.
+- A picture offers no mirror and no other operation on a piece, so each piece takes light as its drawing file sets it (D-812).
+- A picture holds art pixels, and Game shows it at 2x like the world. A backdrop is 640 by 360 art pixels (D-816).
+- An entry names a piece, the place of its first copy, and a count across and down. The copies sit edge to edge, and the picture clips each one at its edge (D-817).
+- The `picture` command of Tools renders each picture as a PNG with integer math (D-502, D-518). The draw of Game reads the same copies.
+- Each piece lies on the `pieces` page, with one frame (D-818). The `picture` fixture of the screen-test job draws the fixture backdrop (D-819).
 - A backdrop layer, other full-screen art, and a store image are each a large picture (D-205, D-475, D-516). Full-screen art covers the frame of 1280 by 720 (D-568).
 - PR-55 adds the format with its load test, a render as a PNG in Tools, and the draw in Game (D-518).
 - PR-55 lands right before PR-10, the first PR that draws a backdrop (D-518).
 - A large picture that names an absent piece fails with the file and the entry (T-2).
 - A test decodes the render of a fixture large picture and compares its pixels with its pieces (F-19).
-- OQ-91 holds which operations a large picture offers on a piece.
 - The battle scene of PR-10 draws the drift of the backdrop layers and the ambient effects over them (D-205).
 - `area-release.md` holds the sizes and the upload of the store images, in PR-76 (D-475, D-550).
 
@@ -216,7 +219,7 @@ The phase files give each batch its scope. This table names the art that the dec
 
 - The design text of PR-17 names the sprite set of Marrek alone. Bergit and Dagvar fight and act in story scenes of the first playable, so PR-17 also needs their frames (D-114, D-200, D-362).
 - The frames of Ottild and Elio land before the place where each joins the party (D-342). PR-23 draws them, because both join between the hanging cells and the deep mine.
-- `area-ui-input.md` places the window frames of D-220, the icons of D-214, and the glyphs of D-222.
+- `area-ui-input.md` places the window frames of D-220 and the icons of D-214. The game draws no button glyph (D-815).
 
 ### 7.10 Art that other area files hold
 
@@ -225,7 +228,7 @@ The phase files give each batch its scope. This table names the art that the dec
 | The `atlas` command, the PNG code, and the PNG import | `area-tools.md` | PR-34, PR-47, and PR-51 |
 | The map preview and the tile-edge tool | `area-tools.md` and `area-exploration.md` | PR-52 and PR-53 |
 | Normal maps, light, particles, glow, and transitions | `area-effects.md` | PR-48, and PR-56 to PR-60 |
-| The frame, the fit, the fonts, the window frames, the icons, and the glyphs | `area-ui-input.md` | PR-7, PR-10, and the PRs that `area-ui-input.md` names |
+| The frame, the fit, the fonts, the window frames, and the icons | `area-ui-input.md` | PR-7, PR-10, and the PRs that `area-ui-input.md` names |
 | The pixel tests in the test job, and the screen tests | `area-ci.md` | PR-34, PR-55, and PR-41 |
 | The store images on the store page | `area-release.md` | PR-76 |
 
@@ -266,7 +269,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 The register is `docs/questions.md` (D-19). These questions block art PRs, and each PR asks its questions when it starts (D-487):
 
 - OQ-89: pixel snap in Game. Blocks PR-7.
-- OQ-91: the operations of a large picture on a piece. Blocks PR-55.
+- OQ-91: the operations of a large picture on a piece. Resolved 2026-09-21 by D-812.
 - OQ-90: where the studio mark shows. Blocks PR-33.
 - OQ-57: the studio name. Blocks the studio mark of PR-33 (D-468).
 

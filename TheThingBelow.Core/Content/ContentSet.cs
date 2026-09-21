@@ -17,11 +17,12 @@ namespace TheThingBelow.Core.Content;
 /// entries take one id (D-166). Every string id that a rule names is in the table (G-7). The
 /// content hash covers the rule files alone (D-495, D-648). Every palette key of a drawing
 /// is in the palette, and the atlas index matches the drawing files (D-666, F-20).
+/// Each piece of a large picture is a drawing of the `pieces` page, and each copy starts
+/// inside its picture (D-817, D-818).
 /// </para>
 /// <para>
-/// The load also checks the UI base. Both fonts carry a bitmap of each body size, the style
-/// file names a drawing and a palette key that exist, and each glyph set holds the drawing of
-/// each button (D-527, D-707, D-710, D-711).
+/// The load also checks the UI base. Both fonts carry a bitmap of each body size, and the style
+/// file names a drawing and a palette key that exist (D-527, D-707, D-710).
 /// </para>
 /// </remarks>
 public sealed class ContentSet
@@ -29,6 +30,7 @@ public sealed class ContentSet
     private readonly SortedDictionary<string, RuleFixtureEntry> ruleEntries;
     private readonly SortedDictionary<string, GameMap> maps;
     private readonly SortedDictionary<string, Drawing> drawings;
+    private readonly SortedDictionary<string, LargePicture> pictures;
     private readonly SortedDictionary<string, FontStrikes> fonts;
 
     private ContentSet(
@@ -36,11 +38,11 @@ public sealed class ContentSet
         StringTable strings,
         AtlasIndex atlas,
         UiStyle style,
-        DeviceNames devices,
         BattleContent battle,
         SortedDictionary<string, RuleFixtureEntry> ruleEntries,
         SortedDictionary<string, GameMap> maps,
         SortedDictionary<string, Drawing> drawings,
+        SortedDictionary<string, LargePicture> pictures,
         SortedDictionary<string, FontStrikes> fonts,
         string hash)
     {
@@ -48,11 +50,11 @@ public sealed class ContentSet
         this.Strings = strings;
         this.Atlas = atlas;
         this.Style = style;
-        this.Devices = devices;
         this.Battle = battle;
         this.ruleEntries = ruleEntries;
         this.maps = maps;
         this.drawings = drawings;
+        this.pictures = pictures;
         this.fonts = fonts;
         this.Hash = hash;
     }
@@ -69,9 +71,6 @@ public sealed class ContentSet
     /// <summary>The look of every menu, panel, and label (D-527).</summary>
     public UiStyle Style { get; }
 
-    /// <summary>The table that picks a glyph set from the name of a gamepad (D-711).</summary>
-    public DeviceNames Devices { get; }
-
     /// <summary>The battle rules and the battle fixture (D-757, D-766).</summary>
     public BattleContent Battle { get; }
 
@@ -86,6 +85,9 @@ public sealed class ContentSet
 
     /// <summary>Every drawing, in ordinal order of its id (F-39).</summary>
     public IEnumerable<Drawing> Drawings => this.drawings.Values;
+
+    /// <summary>Every large picture, in the order of its id (D-516).</summary>
+    public IEnumerable<LargePicture> Pictures => this.pictures.Values;
 
     /// <summary>The bitmap sizes of the body font (D-263, D-710).</summary>
     public FontStrikes BodyFont => this.FontOf(FontStrikes.BodyPath);
@@ -108,7 +110,6 @@ public sealed class ContentSet
         StringTable? strings = null;
         AtlasIndex? atlas = null;
         UiStyle? style = null;
-        DeviceNames? devices = null;
         BattleRules? battleRules = null;
         BattleFixture? battleFixture = null;
         AbilityList? abilities = null;
@@ -118,6 +119,7 @@ public sealed class ContentSet
         var maps = new SortedDictionary<string, GameMap>(StringComparer.Ordinal);
         var sources = new SortedDictionary<string, string>(StringComparer.Ordinal);
         var drawings = new SortedDictionary<string, Drawing>(StringComparer.Ordinal);
+        var pictures = new SortedDictionary<string, LargePicture>(StringComparer.Ordinal);
         var pageFiles = new SortedSet<string>(StringComparer.Ordinal);
         var paths = new SortedSet<string>(StringComparer.Ordinal);
 
@@ -144,10 +146,6 @@ public sealed class ContentSet
             else if (string.CompareOrdinal(file.Path, UiStyle.Path) == 0)
             {
                 style = UiStyle.Read(file.Bytes, file.Path);
-            }
-            else if (string.CompareOrdinal(file.Path, DeviceNames.Path) == 0)
-            {
-                devices = DeviceNames.Read(file.Bytes, file.Path);
             }
             else if (string.CompareOrdinal(file.Path, BattleRules.Path) == 0)
             {
@@ -183,6 +181,10 @@ public sealed class ContentSet
             {
                 AddDrawing(file, drawings, sources);
             }
+            else if (LargePicture.IsPictureFile(file.Path))
+            {
+                AddPicture(file, pictures, sources);
+            }
             else if (ContentPaths.IsAtlasPage(file.Path))
             {
                 // A page is an image, and the atlas index holds its record (D-517, D-666).
@@ -211,7 +213,6 @@ public sealed class ContentSet
             strings ?? throw AbsentFile(StringTable.Path),
             atlas ?? throw AbsentFile(AtlasIndex.Path),
             style ?? throw AbsentFile(UiStyle.Path),
-            devices ?? throw AbsentFile(DeviceNames.Path),
             new BattleContent(
                 battleRules ?? throw AbsentFile(BattleRules.Path),
                 battleFixture ?? throw AbsentFile(BattleFixture.Path),
@@ -220,6 +221,7 @@ public sealed class ContentSet
             ruleEntries,
             maps,
             drawings,
+            pictures,
             fonts,
             ContentHash.Compute(files));
 
@@ -228,7 +230,7 @@ public sealed class ContentSet
         set.RefuseStaleAtlas(pageFiles);
         set.RefuseAbsentFont();
         set.RefuseAbsentStyleDrawing();
-        set.RefuseAbsentGlyph();
+        set.RefuseWrongPiece();
         set.RefuseAbsentGroup();
         return set;
     }
@@ -306,6 +308,40 @@ public sealed class ContentSet
         }
 
         return drawing;
+    }
+
+    /// <summary>Gives one large picture by its id.</summary>
+    /// <param name="id">The id of the picture, such as `picture.fixture_backdrop`.</param>
+    /// <returns>The picture.</returns>
+    /// <exception cref="ContentException">The set holds no picture with that id (T-2).</exception>
+    public LargePicture PictureOf(ContentId id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        if (!this.pictures.TryGetValue(id.Value, out LargePicture? picture))
+        {
+            throw ContentException.ForField(LargePicture.Folder, id.Value, "the content set holds no large picture with this id");
+        }
+
+        return picture;
+    }
+
+    private static void AddPicture(
+        ContentFile file,
+        SortedDictionary<string, LargePicture> pictures,
+        SortedDictionary<string, string> sources)
+    {
+        LargePicture picture = LargePicture.Read(file.Bytes, file.Path);
+        if (sources.TryGetValue(picture.Id.Value, out string? first))
+        {
+            throw ContentException.ForField(
+                file.Path,
+                picture.Id.Value,
+                $"the content id '{picture.Id.Value}' is already the id of an entry of '{first}', and an id is permanent (D-166)");
+        }
+
+        pictures.Add(picture.Id.Value, picture);
+        sources.Add(picture.Id.Value, file.Path);
     }
 
     private static void AddDrawing(
@@ -441,6 +477,47 @@ public sealed class ContentSet
     }
 
     /// <summary>
+    /// Refuses an entry of a large picture whose piece is absent, lies on another page, or
+    /// moves, and an entry whose last copy starts outside the picture (D-817, D-818, T-2).
+    /// </summary>
+    private void RefuseWrongPiece()
+    {
+        foreach (LargePicture picture in this.pictures.Values)
+        {
+            for (int index = 0; index < picture.Places.Count; index += 1)
+            {
+                PicturePlace place = picture.Places[index];
+                string field = $"places[{index}]";
+                if (!this.drawings.TryGetValue(place.Piece.Value, out Drawing? piece))
+                {
+                    throw ContentException.ForField(
+                        picture.File, field, $"the entry names the piece '{place.Piece.Value}', and no drawing file holds it (D-516)");
+                }
+
+                if (piece.Page != AtlasPageKind.Pieces || piece.Frames.Count != 1)
+                {
+                    throw ContentException.ForField(
+                        picture.File,
+                        field,
+                        $"the piece '{piece.Id.Value}' lies on the page '{AtlasPages.NameOf(piece.Page)}' with {piece.Frames.Count} frames, and a piece lies on the page 'pieces' with one frame (D-818)");
+                }
+
+                // A copy that starts outside the picture draws nothing, so the last copy of
+                // each row and each column starts inside it (D-817, T-2).
+                long lastX = place.X + ((long)(place.Across - 1) * piece.Width);
+                long lastY = place.Y + ((long)(place.Down - 1) * piece.Height);
+                if (lastX >= picture.Width || lastY >= picture.Height)
+                {
+                    throw ContentException.ForField(
+                        picture.File,
+                        field,
+                        $"the last copy of '{piece.Id.Value}' starts at {lastX},{lastY}, outside the picture of {picture.Width} by {picture.Height} (D-817)");
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// Refuses a style file that names a window frame which no drawing file holds (D-527,
     /// T-2).
     /// </summary>
@@ -465,28 +542,6 @@ public sealed class ContentSet
                     UiStyle.Path,
                     color.Role,
                     $"the style names the palette key '{color.Key}', and the palette has no such color (D-181)");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Refuses a build that lacks the glyph of one button in one glyph set. A prompt draws
-    /// the glyph of the last device, so every set holds every button (D-222, D-711, T-2).
-    /// </summary>
-    private void RefuseAbsentGlyph()
-    {
-        foreach (string set in this.Devices.Sets)
-        {
-            foreach (string prompt in this.Devices.Prompts)
-            {
-                string id = DeviceNames.GlyphDrawingId(set, prompt);
-                if (!this.drawings.ContainsKey(id))
-                {
-                    throw ContentException.ForField(
-                        DeviceNames.Path,
-                        set,
-                        $"the glyph set holds no drawing '{id}' for the button '{prompt}' (D-222)");
-                }
             }
         }
     }

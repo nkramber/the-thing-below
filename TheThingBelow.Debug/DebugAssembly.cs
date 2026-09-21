@@ -42,18 +42,15 @@ public static class DebugAssembly
         new DebugConsole(new DebugSession(state, queue)).Root;
 
     /// <summary>
-    /// Types one line in an open console and submits it, as the person does. The smoke session
-    /// of CI runs this check inside the engine (D-117, D-724).
+    /// Gives the lines that a console shows now. The smoke session of CI reads them after it
+    /// types a line through key events, as the person does (D-117, D-725).
     /// </summary>
-    /// <param name="console">The node of <see cref="Create"/>, open and in the tree.</param>
-    /// <param name="line">The text of the line, such as `help`.</param>
-    /// <returns>The lines that the console shows after the submit.</returns>
-    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="InvalidOperationException">
-    /// The node is no console of this assembly, or the console read no submit (T-2).
-    /// </exception>
-    public static IReadOnlyList<string> SubmitLine(Control console, string line) =>
-        DebugConsole.Submit(console, line);
+    /// <param name="console">The node of <see cref="Create"/>.</param>
+    /// <returns>The lines of the console, from the oldest to the newest.</returns>
+    /// <exception cref="ArgumentNullException">The node is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The node is no console of this assembly (T-2).</exception>
+    public static IReadOnlyList<string> ShownLines(Control console) =>
+        DebugConsole.ShownLines(console);
 
     /// <summary>
     /// Runs one command with no console on the screen. The smoke session of CI runs each

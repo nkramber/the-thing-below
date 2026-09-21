@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace TheThingBelow.Core.Maps;
 
@@ -11,10 +12,37 @@ namespace TheThingBelow.Core.Maps;
 public static class MapRules
 {
     /// <summary>
-    /// The count of world ticks that one step takes (D-164, D-203). The loop runs 60 ticks a
-    /// second, so the party walks four tiles a second.
+    /// The count of world ticks that one step of the party takes (D-164, D-203, D-821). The
+    /// loop runs 60 ticks a second, so the party walks 3.75 tiles a second.
     /// </summary>
-    public const int TicksPerStep = 15;
+    /// <remarks>
+    /// A tile is 32 art pixels, so each tick of a step moves the lead by 2 art pixels, and the
+    /// slide shows no uneven tick (D-228, D-821).
+    /// </remarks>
+    public const int TicksPerStep = 16;
+
+    /// <summary>
+    /// The counts of world ticks that one step of an enemy can take (D-742, D-821). Each count
+    /// divides the tile of 32 art pixels or is a multiple of it, so each tick moves the sprite
+    /// by 2 pixels, by 1 pixel, or by 1 pixel every other tick. None is faster than the party.
+    /// </summary>
+    public static IReadOnlyList<int> EnemyStepTicks { get; } = [16, 32, 64];
+
+    /// <summary>Tells whether an enemy can step in a count of ticks (D-821).</summary>
+    /// <param name="ticks">The count of ticks of one step of the enemy.</param>
+    /// <returns>True when the count is one of <see cref="EnemyStepTicks"/>.</returns>
+    public static bool IsEnemyStep(int ticks)
+    {
+        foreach (int allowed in EnemyStepTicks)
+        {
+            if (ticks == allowed)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// The count of world ticks of the mark that a patrol shows before an encounter starts
@@ -32,24 +60,23 @@ public static class MapRules
     /// (D-381, D-748). The loop runs 60 ticks a second, so the grace time lasts 5 seconds.
     /// </summary>
     /// <remarks>
-    /// The party walks four tiles a second, so 5 seconds carry it 20 tiles. That clears the
-    /// longest sight range of the party, which is 12 tiles on a map set to day (D-719).
+    /// The party walks 3.75 tiles a second, so 5 seconds carry it 18 tiles. That clears the
+    /// longest sight of a patrol, because the 12 tiles of the party on a map set to day cap
+    /// it (D-720).
     /// </remarks>
     public const int GraceTicks = 300;
 
     /// <summary>
     /// Gives the sight range of the party on a map of one time of day, in tiles (D-193,
-    /// D-719).
+    /// D-720).
     /// </summary>
     /// <param name="time">The time of day of the map (D-442).</param>
     /// <returns>The range, in tiles.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value names no time (T-2).</exception>
     /// <remarks>
-    /// The frame holds 20 by 11.25 tiles (D-633). A range of 12 reaches past every edge of
-    /// that frame, so a day map hides no enemy that the player can see. A range of 5 holds
-    /// the party inside its own part of the frame, so a night map hides a patrol until it
-    /// comes close. This is what gives a night map its threat, because no fog of war covers
-    /// the ground (D-566).
+    /// The range decides nothing that Game draws, because every live enemy draws at any
+    /// distance (D-814). It sets the ceiling of the sight of each patrol on a map of that
+    /// time, so a night map holds patrols that see less far (D-720).
     /// </remarks>
     public static int PartySightRange(TimeOfDay time) => time switch
     {

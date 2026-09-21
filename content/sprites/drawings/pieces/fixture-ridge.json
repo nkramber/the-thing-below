@@ -1,0 +1,48 @@
+{
+ "id": "drawing.piece_fixture_ridge",
+ "page": "pieces",
+ "width": 64,
+ "height": 32,
+ "draws": [
+  { "content": "picture.fixture_backdrop", "use": "ridge" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "h...............................................................",
+    "Hhh...........................hh................................",
+    "HHHhh.......................hhHH................................",
+    "HHHHHhh...................hhHHHHh...............................",
+    "HHHHHHHhh...............hhHHHHHHHhh...........................hh",
+    "HHHHHHHHHhh...........hhHHHHHHHHHHHhh.......................hhHH",
+    "HHHHHHHHHHHhh.......hhHHHHHHHHHHHHHHHhh...................hhHHHH",
+    "HHHHHHHHHHHHHhh...hhHHHHHHHHHHHHHHHHHHHhh...............hhHHHHHH",
+    "HHHHHHHHHHHHHHHhhhHHHHHHHHHHHHHHHHHHHHHHHhh...........hhHHHHHHHH",
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHhh.......hhHHHHHHHHHH",
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHhh...hhHHHHHHHHHHHH",
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHhhhHHHHHHHHHHHHHH",
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
+   ]
+  }
+ ]
+}

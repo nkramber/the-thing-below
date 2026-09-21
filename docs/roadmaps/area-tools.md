@@ -290,6 +290,17 @@ Each later tool PR keeps this list. The phase files make exit tests from it.
 
 > *In plain English:* every new tool follows the same seven steps. Each one fails loudly, proves itself with good and bad samples, and gives the same answer on every computer.
 
+### 7.16 The balance harness
+
+Built by PR-90. Phase file: `phase-4-region-one.md`.
+
+- A third policy plays as a careful player, beside the random and greedy policies of PR-15 (D-64, D-822).
+- The `balance` command plays a loop of seeds and reports the metrics of each encounter, dungeon, item, and lesson (D-822). OQ-216 holds the metrics.
+- A content file holds one band for each metric, and the owner sets each band from the first report (D-571, D-822).
+- The report uses integer math, so every CI leg gives the same numbers (D-502).
+
+> *In plain English:* a careful robot measures how hard the game is. The owner sets the limits, and the nightly check keeps each later change inside them.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The Tools PRs keep this order inside it:
@@ -311,6 +322,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 15. PR-49: the night gate. Its live check first runs after the first night (D-500).
 16. PR-51, PR-52, and PR-53: the PNG import, the map preview, and the tile-edge tool, before PR-17 (D-497).
 17. **← GATE 2 (first playable).**
+18. PR-90: the balance harness, first in Phase 4 (D-822).
 
 ## 9. Open questions
 
@@ -324,6 +336,5 @@ The register is `docs/questions.md` (D-19). These questions block Tools PRs, and
 - D-615 answers OQ-71, and det-lint fails a walk of either type in Core.
 - D-663 answers OQ-72, and Tools holds a CRC-32 of its own. D-664 and D-665 answer OQ-195 and OQ-196.
 - OQ-74: how the runner finds a softlock. Blocks PR-15.
+- OQ-216: the metrics, the bands, and the policy of the balance harness. Blocks PR-90.
 - OQ-3: the required checks on `main`. Waits for PR-3.
-
-No open question blocks this file.

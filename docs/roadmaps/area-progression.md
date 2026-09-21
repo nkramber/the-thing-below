@@ -65,7 +65,7 @@ Built by PR-67. Phase file: `phase-2-first-playable.md`.
 - The death of Elio costs a shape that no other character holds, and the replacement brings a curve of its own (D-270, D-321).
 - Every number in a curve is an integer, and content writes each rate in basis points (D-169, G-2).
 - OQ-134 holds the shape of a curve.
-- PR-30 balances the eight curves against the M-4 band (G-14, D-299).
+- PR-30 balances the eight curves against the M-4 band and the bands of PR-90 (G-14, D-299, D-822).
 
 > *In plain English:* each person in the cast grows on their own line: some take blows, some cast, some move first. That difference exists before anybody equips anything.
 
@@ -188,6 +188,7 @@ Built by PR-67, PR-12, PR-13, and PR-15. Phase files: `phase-2-first-playable.md
 | PR-16 and PR-65 | The chests and the shops that give lessons, gear, and items | D-365, D-530 |
 | PR-42 | The lessons of region one, with their icons and their text | D-304 |
 | PR-28 and PR-29 | The content of each personal task | D-352 |
+| PR-90 | The balance harness: a careful bot, a report of each item and lesson, and a night check | D-822 |
 | PR-30 | The balance pass over every number | D-35, G-14 |
 
 ### 7.13 Progression that other area files hold

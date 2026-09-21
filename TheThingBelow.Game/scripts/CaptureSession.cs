@@ -234,7 +234,8 @@ public sealed partial class CaptureSession : Node
                 + $"{run.Party.LeadAt}. The walk fixture needs an open tile on each side of the start (T-2, D-782).");
         }
 
-        this.walkMap!.ShowParty(run.Party);
+        // A capture runs whole ticks, so it reads no part of a tick (D-782, D-820).
+        this.walkMap!.ShowParty(run.Party, 0);
     }
 
     /// <summary>
@@ -280,7 +281,18 @@ public sealed partial class CaptureSession : Node
             // map, and each later frame of the walk runs one tick of them (D-782).
             GameRun walked = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers());
             this.walkRun = walked;
-            this.walkMap = MapFixture.Build(built, @base, walked.Party).Map;
+            this.walkMap = MapFixture.Build(built, @base, walked.Party);
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.PictureFixture) == 0)
+        {
+            // The fixture picture fills the world viewport, as a backdrop layer of PR-10 does
+            // (D-816, D-819).
+            var view = new PictureView();
+            built.World.AddChild(view);
+            ContentId id = ContentId.Parse(ScreenCaptures.FixturePicture, LargePicture.Folder, "fixture");
+            view.Build(@base.Atlas, this.content.PictureOf(id), this.content);
             return;
         }
 
@@ -298,19 +310,48 @@ public sealed partial class CaptureSession : Node
             $"The capture list names the fixture '{capture.Fixture}', and the session builds none (T-2).");
     }
 
+    /// <summary>
+    /// Gives the image in the sRGB colors that the screen shows. The window renders in linear
+    /// HDR 2D, and its image holds linear half floats (D-188, <see cref="CaptureColors"/>).
+    /// </summary>
+    /// <param name="window">The image of the root viewport.</param>
+    /// <param name="capture">The capture, for the error message.</param>
+    /// <returns>An image of 8-bit RGBA in sRGB.</returns>
+    /// <exception cref="InvalidOperationException">The image holds another format, or Godot made no image (T-2).</exception>
+    private static Image ToScreenColors(Image window, ScreenCapture capture)
+    {
+        if (window.GetFormat() != Image.Format.Rgbh)
+        {
+            throw new InvalidOperationException(
+                $"The capture '{capture.FileName}' holds the format {window.GetFormat()}, and the "
+                + $"window of HDR 2D gives {Image.Format.Rgbh}. Read the setting `viewport/hdr_2d` (D-188, T-2).");
+        }
+
+        int width = window.GetWidth();
+        int height = window.GetHeight();
+        byte[] srgb = CaptureColors.ToSrgb(window.GetData(), width * height);
+
+        // The call reports a failure in the log alone, so the result takes a check (F-45, T-2).
+        Image? image = Image.CreateFromData(width, height, false, Image.Format.Rgba8, srgb);
+        return image ?? throw new InvalidOperationException(
+            $"Godot made no image from the sRGB bytes of the capture '{capture.FileName}' (T-2).");
+    }
+
     /// <summary>Reads the window of this frame and writes one PNG.</summary>
     /// <param name="capture">The capture that this file holds.</param>
     /// <exception cref="InvalidOperationException">The window or the image holds another size (T-2).</exception>
     private void Write(ScreenCapture capture)
     {
-        Image image = this.GetViewport().GetTexture().GetImage();
-        if (image.GetWidth() != capture.Width || image.GetHeight() != capture.Height)
+        Image window = this.GetViewport().GetTexture().GetImage();
+        if (window.GetWidth() != capture.Width || window.GetHeight() != capture.Height)
         {
             throw new InvalidOperationException(
                 $"The capture '{capture.FileName}' asks for {capture.Width} by {capture.Height} pixels, " +
-                $"and the window gave {image.GetWidth()} by {image.GetHeight()}. The screen of the " +
+                $"and the window gave {window.GetWidth()} by {window.GetHeight()}. The screen of the " +
                 $"session is too small, or the window did not resize in {FramesBeforeCapture} frames (T-2).");
         }
+
+        Image image = ToScreenColors(window, capture);
 
         byte[] bytes = image.SavePngToBuffer();
         if (bytes.Length == 0)

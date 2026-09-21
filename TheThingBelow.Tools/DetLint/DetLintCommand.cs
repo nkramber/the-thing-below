@@ -49,6 +49,7 @@ public static class DetLintCommand
             [$"{ToolsProject}/Atlas"] = "PR-34",
             [$"{ToolsProject}/Audio"] = "PR-38",
             [$"{ToolsProject}/NormalMaps"] = "PR-48",
+            [$"{ToolsProject}/Pictures"] = "PR-55",
             [$"{ToolsProject}/Png"] = "PR-47",
         };
 

@@ -118,57 +118,22 @@ public sealed class DebugConsole
     }
 
     /// <summary>
-    /// Types one line in the entry of an open console and submits it, as the person does
-    /// (D-724). The smoke session of CI runs this check inside the engine, where no test of
-    /// Tests reaches (D-117, F-23, T-3).
+    /// Gives the lines that a console shows now. The smoke session types a line through key
+    /// events and reads the answer here, so it proves the path of a real key (D-117, D-725).
     /// </summary>
-    /// <param name="root">The node that <c>DebugAssembly.Create</c> gave, and the tree holds.</param>
-    /// <param name="line">The text of the line, such as `help`.</param>
-    /// <returns>The lines that the console shows after the submit.</returns>
-    /// <exception cref="ArgumentNullException">The node or the line is null (T-2).</exception>
-    /// <exception cref="InvalidOperationException">
-    /// The node is no console of this assembly, the console is closed, the entry holds no
-    /// focus, or the console read no submit (T-2).
-    /// </exception>
-    public static IReadOnlyList<string> Submit(Control root, string line)
+    /// <param name="root">The node that <c>DebugAssembly.Create</c> gave.</param>
+    /// <returns>The lines of the console, from the oldest to the newest.</returns>
+    /// <exception cref="ArgumentNullException">The node is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The node is no console of this assembly (T-2).</exception>
+    public static IReadOnlyList<string> ShownLines(Control root)
     {
         ArgumentNullException.ThrowIfNull(root);
-        ArgumentNullException.ThrowIfNull(line);
 
-        if (root.GetNodeOrNull<LineEdit>(EntryName) is not LineEdit entry
-            || root.GetNodeOrNull<Label>(OutputName) is not Label output)
+        if (root.GetNodeOrNull<Label>(OutputName) is not Label output)
         {
             throw new InvalidOperationException(
-                $"The node '{root.Name}' holds no '{EntryName}' and no '{OutputName}', so it is "
-                + $"no console of this assembly (T-2).");
-        }
-
-        if (!root.Visible)
-        {
-            throw new InvalidOperationException(
-                $"The console '{root.Name}' is closed, and a closed console takes no line (D-725, T-2).");
-        }
-
-        // The console takes the focus when it opens, so every key of the person reaches the
-        // entry and the game makes no intent (D-725).
-        Control? focused = root.GetViewport().GuiGetFocusOwner();
-        if (focused != entry)
-        {
-            throw new InvalidOperationException(
-                $"The open console left the focus on '{focused?.Name.ToString() ?? "no node"}', "
-                + $"and the person types in '{EntryName}' (D-725, T-2).");
-        }
-
-        entry.Text = line;
-        entry.EmitSignal(LineEdit.SignalName.TextSubmitted, line);
-
-        // The console clears the entry after each line, so text that stays there says that no
-        // handler of the signal ran (T-2).
-        if (entry.Text.Length > 0)
-        {
-            throw new InvalidOperationException(
-                $"The console kept the text '{entry.Text}' in '{EntryName}', so it read no "
-                + $"submit of that line (D-723, T-2).");
+                $"The node '{root.Name}' holds no '{OutputName}', so it is no console of this "
+                + $"assembly (T-2).");
         }
 
         return output.Text.Split(DebugSession.LineBreak, StringSplitOptions.None);

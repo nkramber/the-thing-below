@@ -37,7 +37,7 @@ public static class PatrolMaps
         string group = "group.one",
         string size = "common",
         string facing = "east",
-        int stepTicks = 30,
+        int stepTicks = 32,
         int sightRange = 3,
         string stations = """
            "routes": [

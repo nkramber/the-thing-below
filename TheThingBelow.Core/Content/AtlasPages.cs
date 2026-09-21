@@ -21,8 +21,11 @@ public enum AtlasPageKind
     /// <summary>A portrait of the dialogue box, 64 by 64 pixels (D-234).</summary>
     Portraits,
 
-    /// <summary>A window frame, an icon, or a glyph of the interface (D-214, D-220, D-222).</summary>
+    /// <summary>A window frame or an icon of the interface (D-214, D-220).</summary>
     Ui,
+
+    /// <summary>A piece of a large picture, such as a rock of a backdrop (D-516, D-818).</summary>
+    Pieces,
 }
 
 /// <summary>The sizes and the names of the atlas pages (D-666, D-667).</summary>
@@ -53,13 +56,14 @@ public static class AtlasPages
         AtlasPageKind.BattleSprites => "battle_sprites",
         AtlasPageKind.Portraits => "portraits",
         AtlasPageKind.Ui => "ui",
+        AtlasPageKind.Pieces => "pieces",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no atlas page kind (D-666)"),
     };
 
     /// <summary>Gives the kind of a name, and fails on any other text.</summary>
     /// <param name="name">The name that the file holds, such as `tiles`.</param>
-    /// <param name="found">The kind, when the name is one of the five.</param>
-    /// <returns>True when the name is one of the five kinds.</returns>
+    /// <param name="found">The kind, when the name is one of the six.</param>
+    /// <returns>True when the name is one of the six kinds.</returns>
     public static bool TryParse(string name, out AtlasPageKind found)
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -71,11 +75,12 @@ public static class AtlasPages
             case "battle_sprites": found = AtlasPageKind.BattleSprites; return true;
             case "portraits": found = AtlasPageKind.Portraits; return true;
             case "ui": found = AtlasPageKind.Ui; return true;
+            case "pieces": found = AtlasPageKind.Pieces; return true;
             default: found = AtlasPageKind.Tiles; return false;
         }
     }
 
     /// <summary>Gives every name, in the order of the kinds, for an error message.</summary>
     /// <returns>The names, separated by a comma and a space.</returns>
-    public static string Names() => "tiles, map_sprites, battle_sprites, portraits, ui";
+    public static string Names() => "tiles, map_sprites, battle_sprites, portraits, ui, pieces";
 }

@@ -3,7 +3,8 @@
  "pages": [
   { "kind": "tiles", "number": 1, "width": 2048, "height": 32 },
   { "kind": "map_sprites", "number": 1, "width": 192, "height": 32 },
-  { "kind": "ui", "number": 1, "width": 216, "height": 24 }
+  { "kind": "ui", "number": 1, "width": 24, "height": 24 },
+  { "kind": "pieces", "number": 1, "width": 192, "height": 64 }
  ],
  "drawings": [
   {
@@ -117,150 +118,6 @@
    ]
   },
   {
-   "id": "drawing.ui_glyph_deck_cancel",
-   "page": "ui",
-   "width": 16,
-   "height": 16,
-   "draws": [
-    { "content": "ui.cancel", "use": "glyph_deck" }
-   ],
-   "frames": [
-    { "x": 0, "y": 0, "ticks": 0 }
-   ]
-  },
-  {
-   "id": "drawing.ui_glyph_deck_confirm",
-   "page": "ui",
-   "width": 16,
-   "height": 16,
-   "draws": [
-    { "content": "ui.confirm", "use": "glyph_deck" }
-   ],
-   "frames": [
-    { "x": 16, "y": 0, "ticks": 0 }
-   ]
-  },
-  {
-   "id": "drawing.ui_glyph_deck_menu",
-   "page": "ui",
-   "width": 16,
-   "height": 16,
-   "draws": [
-    { "content": "ui.menu", "use": "glyph_deck" }
-   ],
-   "frames": [
-    { "x": 32, "y": 0, "ticks": 0 }
-   ]
-  },
-  {
-   "id": "drawing.ui_glyph_keyboard_cancel",
-   "page": "ui",
-   "width": 16,
-   "height": 16,
-   "draws": [
-    { "content": "ui.cancel", "use": "glyph_keyboard" }
-   ],
-   "frames": [
-    { "x": 48, "y": 0, "ticks": 0 }
-   ]
-  },
-  {
-   "id": "drawing.ui_glyph_keyboard_confirm",
-   "page": "ui",
-   "width": 16,
-   "height": 16,
-   "draws": [
-    { "content": "ui.confirm", "use": "glyph_keyboard" }
-   ],
-   "frames": [
-    { "x": 64, "y": 0, "ticks": 0 }
-   ]
-  },
-  {
-   "id": "drawing.ui_glyph_keyboard_menu",
-   "page": "ui",
-   "width": 16,
-   "height": 16,
-   "draws": [
-    { "content": "ui.menu", "use": "glyph_keyboard" }
-   ],
-   "frames": [
-    { "x": 80, "y": 0, "ticks": 0 }
-   ]
-  },
-  {
-   "id": "drawing.ui_glyph_playstation_cancel",
-   "page": "ui",
-   "width": 16,
-   "height": 16,
-   "draws": [
-    { "content": "ui.cancel", "use": "glyph_playstation" }
-   ],
-   "frames": [
-    { "x": 96, "y": 0, "ticks": 0 }
-   ]
-  },
-  {
-   "id": "drawing.ui_glyph_playstation_confirm",
-   "page": "ui",
-   "width": 16,
-   "height": 16,
-   "draws": [
-    { "content": "ui.confirm", "use": "glyph_playstation" }
-   ],
-   "frames": [
-    { "x": 112, "y": 0, "ticks": 0 }
-   ]
-  },
-  {
-   "id": "drawing.ui_glyph_playstation_menu",
-   "page": "ui",
-   "width": 16,
-   "height": 16,
-   "draws": [
-    { "content": "ui.menu", "use": "glyph_playstation" }
-   ],
-   "frames": [
-    { "x": 128, "y": 0, "ticks": 0 }
-   ]
-  },
-  {
-   "id": "drawing.ui_glyph_xbox_cancel",
-   "page": "ui",
-   "width": 16,
-   "height": 16,
-   "draws": [
-    { "content": "ui.cancel", "use": "glyph_xbox" }
-   ],
-   "frames": [
-    { "x": 144, "y": 0, "ticks": 0 }
-   ]
-  },
-  {
-   "id": "drawing.ui_glyph_xbox_confirm",
-   "page": "ui",
-   "width": 16,
-   "height": 16,
-   "draws": [
-    { "content": "ui.confirm", "use": "glyph_xbox" }
-   ],
-   "frames": [
-    { "x": 160, "y": 0, "ticks": 0 }
-   ]
-  },
-  {
-   "id": "drawing.ui_glyph_xbox_menu",
-   "page": "ui",
-   "width": 16,
-   "height": 16,
-   "draws": [
-    { "content": "ui.menu", "use": "glyph_xbox" }
-   ],
-   "frames": [
-    { "x": 176, "y": 0, "ticks": 0 }
-   ]
-  },
-  {
    "id": "drawing.ui_window_frame",
    "page": "ui",
    "width": 24,
@@ -269,7 +126,55 @@
     { "content": "ui.window", "use": "frame" }
    ],
    "frames": [
-    { "x": 192, "y": 0, "ticks": 0 }
+    { "x": 0, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.piece_fixture_ground",
+   "page": "pieces",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "picture.fixture_backdrop", "use": "ground" }
+   ],
+   "frames": [
+    { "x": 0, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.piece_fixture_ridge",
+   "page": "pieces",
+   "width": 64,
+   "height": 32,
+   "draws": [
+    { "content": "picture.fixture_backdrop", "use": "ridge" }
+   ],
+   "frames": [
+    { "x": 32, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.piece_fixture_rock",
+   "page": "pieces",
+   "width": 64,
+   "height": 64,
+   "draws": [
+    { "content": "picture.fixture_backdrop", "use": "rock" }
+   ],
+   "frames": [
+    { "x": 96, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.piece_fixture_sky",
+   "page": "pieces",
+   "width": 32,
+   "height": 32,
+   "draws": [
+    { "content": "picture.fixture_backdrop", "use": "sky" }
+   ],
+   "frames": [
+    { "x": 160, "y": 0, "ticks": 0 }
    ]
   }
  ]

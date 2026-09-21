@@ -12,7 +12,7 @@ public enum TileKind
     /// <summary>Open ground. The party walks it, and sight passes over it.</summary>
     Floor,
 
-    /// <summary>Solid rock or stone. The party cannot walk it, and it stops sight (D-718, D-719).</summary>
+    /// <summary>Solid rock or stone. The party cannot walk it, and it stops sight (D-718).</summary>
     Wall,
 
     /// <summary>The gap in a wall that holds a door or a lock. The party walks it, and sight passes.</summary>
@@ -99,7 +99,7 @@ public static class TileKinds
 
     /// <summary>Tells whether a tile of this kind stops the sight of the party and of a patrol.</summary>
     /// <param name="kind">The kind of the tile.</param>
-    /// <returns>True when sight cannot pass over the tile (D-718, D-719).</returns>
+    /// <returns>True when sight cannot pass over the tile (D-718).</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value names no kind (T-2).</exception>
     /// <remarks>
     /// A wall stops sight, so a pillar and a corner give the player a place to hide from a

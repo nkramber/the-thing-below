@@ -5,7 +5,7 @@ using Xunit;
 namespace TheThingBelow.Tests;
 
 /// <summary>
-/// The sight of the party and the sight of a patrol (D-718, D-719). A wall stops each one,
+/// The sight of a patrol (D-718). A wall stops it,
 /// and the rule reads whole tiles alone (T-7).
 /// </summary>
 /// <remarks>
@@ -15,42 +15,6 @@ namespace TheThingBelow.Tests;
 public sealed class MapSightTests
 {
     private static readonly GameMap Room = TestMaps.Room;
-
-    [Fact]
-    public void ThePartySeesEveryDirectionInsideItsRange()
-    {
-        // D-719: the party takes no facing, so the player never turns the lead to look.
-        TilePoint lead = new(3, 6);
-
-        Assert.True(MapSight.PartySees(Room, lead, new TilePoint(3, 5), 2));
-        Assert.True(MapSight.PartySees(Room, lead, new TilePoint(3, 7), 2));
-        Assert.True(MapSight.PartySees(Room, lead, new TilePoint(1, 6), 2));
-        Assert.True(MapSight.PartySees(Room, lead, new TilePoint(5, 6), 2));
-        Assert.True(MapSight.PartySees(Room, lead, new TilePoint(1, 7), 2));
-    }
-
-    [Fact]
-    public void ThePartySeesNoTilePastItsRange()
-    {
-        TilePoint lead = new(3, 6);
-
-        Assert.False(MapSight.PartySees(Room, lead, new TilePoint(7, 6), 3));
-        Assert.True(MapSight.PartySees(Room, lead, new TilePoint(6, 6), 3));
-    }
-
-    [Fact]
-    public void ThePartySeesItsOwnTile()
-    {
-        Assert.True(MapSight.PartySees(Room, Room.Spawn, Room.Spawn, 0));
-    }
-
-    [Fact]
-    public void AWallStopsTheSightOfTheParty()
-    {
-        // The pillar stands between the two tiles, so the party sees nothing past it.
-        Assert.False(MapSight.PartySees(Room, new TilePoint(5, 1), new TilePoint(5, 6), 8));
-        Assert.True(MapSight.PartySees(Room, new TilePoint(3, 1), new TilePoint(3, 6), 8));
-    }
 
     [Fact]
     public void APatrolSeesTheQuarterOfTheMapThatItFaces()

@@ -41,34 +41,34 @@ public sealed class MapPatrolsTests
     {
         // D-739: the patrol walks to the last tile of the list, and then it walks back down
         // the list.
-        Simulation run = Start(PatrolMaps.Of(PatrolMaps.Enemy(stepTicks: 15)));
+        Simulation run = Start(PatrolMaps.Of(PatrolMaps.Enemy(stepTicks: 16)));
         List<TilePoint> seen = [];
 
-        for (int tick = 0; tick < 15 * 8; tick += 1)
+        for (int tick = 0; tick < 16 * 8; tick += 1)
         {
             run.Step([]);
             seen.Add(Only(run).At);
         }
 
-        // The step starts on the tick that the enemy arrives, so each arrival lands 15 ticks
+        // The step starts on the tick that the enemy arrives, so each arrival lands 16 ticks
         // after the one before it (D-742).
-        Assert.Equal(new TilePoint(1, 1), seen[14]);
-        Assert.Equal(new TilePoint(2, 1), seen[15]);
-        Assert.Equal(new TilePoint(3, 1), seen[30]);
-        Assert.Equal(new TilePoint(2, 1), seen[45]);
-        Assert.Equal(new TilePoint(1, 1), seen[60]);
-        Assert.Equal(new TilePoint(2, 1), seen[75]);
+        Assert.Equal(new TilePoint(1, 1), seen[15]);
+        Assert.Equal(new TilePoint(2, 1), seen[16]);
+        Assert.Equal(new TilePoint(3, 1), seen[32]);
+        Assert.Equal(new TilePoint(2, 1), seen[48]);
+        Assert.Equal(new TilePoint(1, 1), seen[64]);
+        Assert.Equal(new TilePoint(2, 1), seen[80]);
     }
 
     [Fact]
     public void AnEnemyStepsOnTheTickCountOfItsOwnRecord()
     {
         // D-742: each record gives the count of ticks of one step.
-        Simulation run = Start(PatrolMaps.Of(PatrolMaps.Enemy(stepTicks: 40)));
+        Simulation run = Start(PatrolMaps.Of(PatrolMaps.Enemy(stepTicks: 64)));
 
         // The enemy takes its first step on the tick that the run opens, so it arrives one
         // tick after its own count (D-742).
-        for (int tick = 0; tick < 40; tick += 1)
+        for (int tick = 0; tick < 64; tick += 1)
         {
             run.Step([]);
             Assert.Equal(new TilePoint(1, 1), Only(run).At);
@@ -299,7 +299,7 @@ public sealed class MapPatrolsTests
     [Fact]
     public void APatrolNeverSeesThroughAWallOverOneThousandSeeds()
     {
-        // Exit test 2 of section 7.6 of `phase-2-first-playable.md` (D-718, D-719).
+        // Exit test 2 of section 7.6 of `phase-2-first-playable.md` (D-718).
         for (ulong seed = 0; seed < SeedCount; seed += 1)
         {
             Simulation run = Simulation.Start(seed, TwoRooms(12), TestBattles.Content, DebugIntentHandlers.None);
@@ -371,7 +371,7 @@ public sealed class MapPatrolsTests
     public void ThePartyBlocksAStepOfAnEnemy()
     {
         // No state of a run holds the party and an enemy on one tile (D-747, T-2).
-        Simulation run = Start(PatrolMaps.Of(PatrolMaps.Enemy(stepTicks: 15, stations: TowardSpawn)));
+        Simulation run = Start(PatrolMaps.Of(PatrolMaps.Enemy(stepTicks: 16, stations: TowardSpawn)));
 
         for (int tick = 0; tick < 200; tick += 1)
         {
@@ -386,7 +386,7 @@ public sealed class MapPatrolsTests
     {
         // Each body blocks every other body, and a step that runs counts as the tile of its
         // end too (D-206, T-2).
-        GameMap map = PatrolMaps.Of($"{PatrolMaps.Enemy(id: "patrol.one", stepTicks: 15, stations: RowSix)},\n{PatrolMaps.Enemy(id: "patrol.two", stepTicks: 20, stations: RowSixBack)}");
+        GameMap map = PatrolMaps.Of($"{PatrolMaps.Enemy(id: "patrol.one", stepTicks: 16, stations: RowSix)},\n{PatrolMaps.Enemy(id: "patrol.two", stepTicks: 32, stations: RowSixBack)}");
         Simulation run = Start(map);
 
         for (int tick = 0; tick < 400; tick += 1)
@@ -748,7 +748,7 @@ public sealed class MapPatrolsTests
            "group": "group.ring",
            "size": "common",
            "facing": "east",
-           "step_ticks": 15,
+           "step_ticks": 16,
            "sight_range": {{sightRange}},
            "routes": [
             {

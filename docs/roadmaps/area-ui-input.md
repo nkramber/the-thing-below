@@ -30,7 +30,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 The UI is the frame that the player reads and the input that the player gives. Every screen designs to one 16:9 frame of 1280 by 720 with 32-pixel tiles (G-19, D-568). The world draws at 2x and the UI draws at 1x or 2x, and the fit comes last (D-232, D-633, D-639). Keyboard and gamepad are equals, and the mouse works on menus alone (D-84, D-219). Every player string comes from the string table through one text helper (G-7, D-499).
 
-The order of the area follows the first user of each part. PR-61 builds the base before the first screen: the frame, the fit, the fonts, the text helper, and the UI style (D-524). It also builds the input map, the intents, and the glyph sets (D-561). PR-62 builds the menu windows before the first system screen, and PR-63 builds the settings before the first PR that needs a setting (D-525, D-526). The title screen, the credits, and the Deck checklist close the work in Phase 5 (PR-33, PR-39).
+The order of the area follows the first user of each part. PR-61 builds the base before the first screen: the frame, the fit, the fonts, the text helper, and the UI style (D-524). It also builds the input map and the intents (D-561). PR-55 removed the glyph sets of PR-61 (D-815). PR-62 builds the menu windows before the first system screen, and PR-63 builds the settings before the first PR that needs a setting (D-525, D-526). The title screen, the credits, and the Deck checklist close the work in Phase 5 (PR-33, PR-39).
 
 ## 5. Findings that bind this area
 
@@ -183,16 +183,14 @@ Built by PR-61, on the intents of PR-6. Phase files: `phase-1-foundations.md` an
 
 ### 7.10 Button prompts and glyphs
 
-Built by PR-61, and finished by PR-78. Phase files: `phase-2-first-playable.md` and `phase-5-first-release.md`.
+PR-61 built the prompts, and PR-55 removed them. Phase file: `phase-2-first-playable.md`.
 
-- A prompt shows the glyph of the last device that the player touched, keyboard or gamepad (D-222).
-- Glyph sets cover Xbox, PlayStation, and Steam Deck controllers, drawn as 16 by 16 drawings (D-222, `area-art.md` section 7.4).
-- Godot gives no controller type, so Game reads the event kind and the name of the pad (F-50). OQ-107 holds the rule.
-- Under Steam, PR-78 adds the one Steamworks call that reports the controller type, and the prompts follow it (D-460, D-462, D-553).
+- The game shows no button prompt on any screen (D-815). The row of prompts, the device tracker, the device table, and the glyph drawings left the build in PR-55.
+- D-815 supersedes the prompts of D-222 and the glyph set of D-711, and PR-78 adds no controller type call (D-460, D-553).
 - A button constant of Godot names the place of a button, not its label, so one constant means Cross, A, or B (F-50).
-- The rating Verified needs glyphs that match the input in use, and PR-39 checks them (D-459).
+- The glyph check of Verified holds when no text and no picture names a key or a button, and PR-39 proves that (D-459, D-815).
 
-> *In plain English:* the game shows the button you actually hold, with the right symbol for your controller. On Steam it asks Steam which controller that is.
+> *In plain English:* the screen shows no row of buttons, as most games do. No text on the screen names a key or a button, so no controller shows a wrong symbol.
 
 ### 7.11 The settings screen
 
@@ -249,15 +247,15 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | PR-36 | The dialogue box, the name plate, and the choices | D-114, D-223 |
 | PR-35 | The region map screen | D-113 |
 | PR-33 | The title screen, the version line, the settings entry, and the credits screen | D-454, D-467 |
-| PR-39 | The Deck checklist: the glyphs, the default bindings, and the 9-pixel text floor | D-222, D-459 |
-| PR-78 | The Steamworks call that reports the controller type | D-460, D-462, D-553 |
+| PR-39 | The Deck checklist: no text names a key or a button, the default bindings, and the 9-pixel text floor | D-459, D-815 |
+| PR-78 | The Steamworks binding and the start, with no controller type call | D-460, D-462, D-553, D-815 |
 
 ### 7.15 UI that other area files hold
 
 | Part | Area file | PR |
 |---|---|---|
 | The light and the effects inside the frame, with the style of each one | `area-effects.md` | PR-56 to PR-60 |
-| The drawings of the window frames, the icons, and the glyphs | `area-art.md` | PR-17 and the art PRs |
+| The drawings of the window frames and the icons | `area-art.md` | PR-17 and the art PRs |
 | The intents, the run record, and the tick of a menu | `area-core.md` | PR-6 |
 | The screen-test job and its baselines | `area-ci.md` | PR-41 |
 | The menu sounds | `area-audio.md` | PR-70 |
@@ -297,7 +295,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 12. PR-17: the first playable, read on the Deck (M-6).
 13. **← GATE 2 (first playable).**
 15. PR-33: the title screen, the version line, and the credits.
-16. PR-78 and PR-39: the controller type of Steam, then the Deck checklist (D-565).
+16. PR-78 and PR-39: the Steam binding, then the Deck checklist (D-565).
 
 ## 9. Open questions
 
@@ -305,7 +303,7 @@ The register is `docs/questions.md` (D-19). These questions block UI PRs, and ea
 
 - OQ-104: the font settings and the load from bytes. Blocks PR-61.
 - OQ-106: where the settings file lives, and its form. Blocks PR-63.
-- OQ-107: how Game knows the last device of the player. Blocks PR-61.
+- OQ-107: how Game knows the last device of the player. Resolved 2026-09-20 by D-711, which D-815 superseded on 2026-09-21.
 - OQ-108: where a remap lives, and what a conflict does. Blocks PR-63.
 - OQ-109: the dead zone of a stick, and its range in the settings. Blocks PR-63.
 - OQ-110: the cursor rules of a menu, and the mouse on it. Blocks PR-62.

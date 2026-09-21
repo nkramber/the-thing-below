@@ -137,7 +137,7 @@ Built by PR-5. Phase file: `phase-1-foundations.md`.
 Built by PR-6. Phase file: `phase-1-foundations.md`.
 
 - A fixed-step clock in Game calls Core 60 times a second (D-164). Core counts ticks and reads no clock (G-3).
-- Game makes an intent from each key, button, and mouse action, and Core reads intents alone (D-493, G-23). The input map, remapping, and the device kind stay in Game (D-214, D-222).
+- Game makes an intent from each key, button, and mouse action, and Core reads intents alone (D-493, G-23). The input map and remapping stay in Game (D-214).
 - An intent names what the player chose in content ids and state ids, and never a screen position or a key (D-493).
 - Game makes each intent from an input event, never from a poll of `Input` (F-50). A poll sees input that a menu already took. `area-ui-input.md` holds the input.
 - A menu pauses the world (D-162). A menu action is an intent too, and the tick rises while a menu is open (D-650).

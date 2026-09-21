@@ -77,6 +77,36 @@ public sealed class GameRunTests
     }
 
     [Fact]
+    public void AHeldStepReachesEachTickOfAFrameOfTwoTicks()
+    {
+        // D-820. The held step once reached the first tick of a frame alone, so the party
+        // stood still for a tick when it reached a tile on the second tick of a frame.
+        Run run = Run.Start();
+        Intent step = run.IntentOf("step_north");
+
+        run.Advance(OneTick * 2.5, () => step);
+
+        IReadOnlyList<TickIntents> ticks = run.Record().Ticks;
+        Assert.Equal(2, ticks.Count);
+        foreach (TickIntents tick in ticks)
+        {
+            Assert.Contains(tick.Intents, intent => string.CompareOrdinal(intent.Action.Value, step.Action.Value) == 0);
+        }
+    }
+
+    [Fact]
+    public void AHeldStepThatGivesNothingAddsNoIntent()
+    {
+        Run run = Run.Start();
+
+        run.Advance(OneTick, () => null);
+
+        // The record holds a line for a tick with an intent alone.
+        Assert.Equal(1, run.Record().EndTick);
+        Assert.Empty(run.Record().Ticks);
+    }
+
+    [Fact]
     public void TheRecordOfACrashHoldsTheIntentsOfTheTickThatCrashed()
     {
         // A regression test for the audit of 2026-09-20. The run recorded each tick after
@@ -184,7 +214,7 @@ public sealed class GameRunTests
             this.instance = instance;
             this.queue = type.GetMethod("Queue", [typeof(Intent)])
                 ?? throw new InvalidOperationException("The run holds no 'Queue' method (T-2).");
-            this.advance = type.GetMethod("Advance", [typeof(double)])
+            this.advance = type.GetMethod("Advance", [typeof(double), typeof(Func<Intent>)])
                 ?? throw new InvalidOperationException("The run holds no 'Advance' method (T-2).");
             this.record = type.GetMethod("Record", Type.EmptyTypes)
                 ?? throw new InvalidOperationException("The run holds no 'Record' method (T-2).");
@@ -228,8 +258,8 @@ public sealed class GameRunTests
 
         public void Queue(Intent intent) => this.queue.Invoke(this.instance, [intent]);
 
-        public IReadOnlyList<LogEntry> Advance(double seconds) =>
-            (IReadOnlyList<LogEntry>)(this.advance.Invoke(this.instance, [seconds])
+        public IReadOnlyList<LogEntry> Advance(double seconds, Func<Intent?>? heldStep = null) =>
+            (IReadOnlyList<LogEntry>)(this.advance.Invoke(this.instance, [seconds, heldStep])
                 ?? throw new InvalidOperationException("The 'Advance' method gave nothing (T-2)."));
 
         public RunRecord Record() =>

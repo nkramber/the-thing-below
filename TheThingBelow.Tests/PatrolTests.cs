@@ -21,7 +21,7 @@ public sealed class PatrolTests
         Assert.Equal("group.one", patrol.Group.Value);
         Assert.Equal(EnemySize.Common, patrol.Size);
         Assert.Equal(StepDirection.East, patrol.Facing);
-        Assert.Equal(30, patrol.StepTicks);
+        Assert.Equal(32, patrol.StepTicks);
         Assert.Equal(3, patrol.SightRange);
 
         PatrolStation station = Assert.Single(patrol.Stations);
@@ -88,7 +88,7 @@ public sealed class PatrolTests
                "group": "group.one",
                "size": "common",
                "facing": "east",
-               "step_ticks": 30,
+               "step_ticks": 32,
                "sight_range": 3
               }
              """));
@@ -132,8 +132,33 @@ public sealed class PatrolTests
         // D-742: no enemy outwalks the party, so no patrol can never be walked away from.
         ContentException error = Refuse(PatrolMaps.Enemy(stepTicks: MapRules.TicksPerStep - 1));
 
-        Assert.Contains("steps in 14 ticks", error.Message, StringComparison.Ordinal);
+        Assert.Contains("steps in 15 ticks", error.Message, StringComparison.Ordinal);
         Assert.Contains("D-742", error.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(30)]
+    [InlineData(40)]
+    [InlineData(48)]
+    public void AnEnemyStepThatTheTileDoesNotDivideFailsTheLoad(int ticks)
+    {
+        // D-821: a step of 30 ticks moved the sprite 1 or 2 pixels on each tick, which showed
+        // as a hitch at each tile.
+        ContentException error = Refuse(PatrolMaps.Enemy(stepTicks: ticks));
+
+        Assert.Contains($"steps in {ticks} ticks", error.Message, StringComparison.Ordinal);
+        Assert.Contains("D-821", error.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(16)]
+    [InlineData(32)]
+    [InlineData(64)]
+    public void AnEnemyStepOfTheListLoads(int ticks)
+    {
+        GameMap map = PatrolMaps.Of(PatrolMaps.Enemy(stepTicks: ticks));
+
+        Assert.Equal(ticks, Assert.Single(map.Patrols).StepTicks);
     }
 
     [Fact]

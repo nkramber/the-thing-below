@@ -5,6 +5,7 @@ using TheThingBelow.Tools.Atlas;
 using TheThingBelow.Tools.Content;
 using TheThingBelow.Tools.DetLint;
 using TheThingBelow.Tools.Identity;
+using TheThingBelow.Tools.Pictures;
 using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.Screens;
 using TheThingBelow.Tools.SteCheck;
@@ -86,6 +87,11 @@ public static class Program
             return ScreensCommand.Run(args[1..], output, errors);
         }
 
+        if (command == PictureCommand.Name)
+        {
+            return PictureCommand.Run(args[1..], output, errors);
+        }
+
         if (PlannedCommands.TryGetValue(command, out string? pullRequest))
         {
             errors.WriteLine(
@@ -108,6 +114,7 @@ public static class Program
         errors.WriteLine($"  {ContentHashCommand.Name}: ready");
         errors.WriteLine($"  {AtlasCommand.Name}: ready");
         errors.WriteLine($"  {ScreensCommand.Name}: ready");
+        errors.WriteLine($"  {PictureCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {

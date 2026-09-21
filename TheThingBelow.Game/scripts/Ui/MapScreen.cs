@@ -24,9 +24,9 @@ namespace TheThingBelow.Game.Ui;
 /// and both default to on (F-51, G-1, G-23).
 /// </para>
 /// <para>
-/// The party sees every direction out to its range, so an enemy outside that range is not
-/// drawn and the ground under it is drawn (D-719). The sort value of each enemy comes from
-/// the front row of its body, so the body draws in front of what it stands before (D-737).
+/// Every live enemy draws at any distance from the party, so no enemy pops in on the screen
+/// (D-814). The sort value of each enemy comes from the front row of its body, so the body
+/// draws in front of what it stands before (D-737).
 /// </para>
 /// <para>
 /// Every map sprite sits at the south edge of its front row, and its picture draws up from
@@ -116,21 +116,22 @@ public partial class MapScreen : Node2D
 
     /// <summary>Puts the party where Core put it, and moves the view (D-203, D-717).</summary>
     /// <param name="party">The party on its map, at the end of the last tick.</param>
+    /// <param name="tickPart">The part of the next tick that the frame reached, from 0 to 999 (D-820).</param>
     /// <exception cref="ArgumentNullException">The party is null (T-2).</exception>
     /// <remarks>
     /// Every value is a whole art pixel of the world viewport, so no sprite draws between
     /// two pixels and no Godot snap setting is on (D-715).
     /// </remarks>
-    public void ShowParty(MapState party)
+    public void ShowParty(MapState party, int tickPart)
     {
         ArgumentNullException.ThrowIfNull(party);
 
-        int leadX = MapCamera.LeadX(party);
-        int leadY = MapCamera.LeadY(party);
+        int leadX = MapCamera.LeadX(party, tickPart);
+        int leadY = MapCamera.LeadY(party, tickPart);
         this.lead.Position = new Vector2(leadX, FeetOf(leadY, 1));
-        this.ShowEnemies(party);
+        this.ShowEnemies(party, tickPart);
 
-        CameraPlace view = MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight);
+        CameraPlace view = MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tickPart);
         this.Position = new Vector2(-view.X, -view.Y);
     }
 
@@ -140,7 +141,7 @@ public partial class MapScreen : Node2D
     /// Godot sorts the body by that row (D-737). The offset of the sprite draws the picture
     /// up from there, so a picture taller than one tile covers the whole body.
     /// </remarks>
-    private void ShowEnemies(MapState party)
+    private void ShowEnemies(MapState party, int tickPart)
     {
         IReadOnlyList<PatrolState> patrols = party.Patrols.All;
         SightMark? mark = party.Patrols.Mark;
@@ -150,21 +151,17 @@ public partial class MapScreen : Node2D
         {
             PatrolState patrol = patrols[index];
             Sprite2D sprite = this.enemies[index];
-            int x = MapCamera.EnemyX(patrol);
-            int y = MapCamera.EnemyY(patrol);
+            int x = MapCamera.EnemyX(patrol, tickPart);
+            int y = MapCamera.EnemyY(patrol, tickPart);
 
-            // The party sees every direction out to its range, and the sight of the body
-            // starts at the tile of it nearest the lead (D-719, D-737).
-            bool seen = !patrol.Dead && MapSight.PartySees(
-                party.Map,
-                party.LeadAt,
-                patrol.Body.Nearest(party.LeadAt),
-                party.SightRange);
+            // Every live enemy draws, wherever it stands, so no enemy on the screen pops in
+            // when the party comes near. If the player could see it, the party can (D-814).
+            bool drawn = !patrol.Dead;
 
-            sprite.Visible = seen;
+            sprite.Visible = drawn;
             sprite.Position = new Vector2(x, FeetOf(y, patrol.Body.Side));
 
-            if (!seen || mark is null || string.CompareOrdinal(mark.Enemy.Value, patrol.Patrol.Id.Value) != 0)
+            if (!drawn || mark is null || string.CompareOrdinal(mark.Enemy.Value, patrol.Patrol.Id.Value) != 0)
             {
                 continue;
             }
@@ -278,9 +275,11 @@ public partial class MapScreen : Node2D
     /// reads the nodes and never the pixels (F-23).
     /// </summary>
     /// <param name="party">The party and the enemies on the map.</param>
-    /// <returns>The count of sprites, the count that the party sees, and the mark.</returns>
+    /// <returns>The count of sprites, the count that draws, and the mark.</returns>
     /// <exception cref="ArgumentNullException">The party is null (T-2).</exception>
-    /// <exception cref="InvalidOperationException">A sprite holds no picture of 32 pixels or more (T-2).</exception>
+    /// <exception cref="InvalidOperationException">
+    /// A sprite holds no picture of 32 pixels or more, or a live enemy draws no sprite (T-2, D-814).
+    /// </exception>
     /// <remarks>
     /// `AtlasTexture` reports an absent page or an empty region in the log alone, so a sprite
     /// with no picture would draw nothing and no check would see it (F-45).
@@ -293,7 +292,13 @@ public partial class MapScreen : Node2D
         int drawn = 0;
         for (int index = 0; index < this.enemies.Length; index += 1)
         {
-            CheckSprite(this.enemies[index], $"the enemy '{party.Patrols.All[index].Patrol.Id.Value}'");
+            PatrolState patrol = party.Patrols.All[index];
+            CheckSprite(this.enemies[index], $"the enemy '{patrol.Patrol.Id.Value}'");
+
+            // A live enemy draws at any distance and a dead one never draws (D-814).
+            Refuse(
+                this.enemies[index].Visible == patrol.Dead,
+                $"the enemy '{patrol.Patrol.Id.Value}' draws {this.enemies[index].Visible}, and it is dead {patrol.Dead} (D-814)");
             drawn += this.enemies[index].Visible ? 1 : 0;
         }
 

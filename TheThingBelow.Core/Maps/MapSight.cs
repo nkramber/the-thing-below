@@ -3,17 +3,17 @@ using System;
 namespace TheThingBelow.Core.Maps;
 
 /// <summary>
-/// What the party sees, and what a patrol sees (D-37, D-718, D-719). A wall stops the sight
-/// of each one, and the rule uses integer math alone (T-7).
+/// What a patrol sees (D-37, D-718). A wall stops its sight, and the rule uses integer math
+/// alone (T-7).
 /// </summary>
 /// <remarks>
 /// No fog of war covers a map, so the ground of a map is visible from the moment the party
-/// enters (D-566). This rule decides which enemies and things Game draws, and whether a
-/// patrol notices the party. The light of the screen never reaches it (G-1).
+/// enters (D-566). Game draws every live enemy at any distance, so no sight of the party
+/// decides what Game draws (D-814). This rule decides whether a patrol notices the party. The
+/// light of the screen never reaches it (G-1).
 /// <para>
-/// The party sees every direction out to its range, because a fixed camera already shows the
-/// room and a player that turns the lead to look would find that tedious (D-719). A patrol
-/// sees the quarter of the map that it faces, plus the eight tiles that touch it (D-718).
+/// A patrol sees the quarter of the map that it faces, plus the eight tiles that touch it
+/// (D-718).
 /// </para>
 /// <para>
 /// PR-8 walks each patrol and calls <see cref="PatrolSees"/>. A map gives no patrol a longer
@@ -29,24 +29,6 @@ public static class MapSight
     /// of the game.
     /// </remarks>
     public const int PatrolTouchRange = 1;
-
-    /// <summary>Tells whether the party at one tile sees another tile (D-719).</summary>
-    /// <param name="map">The map that both tiles lie on.</param>
-    /// <param name="from">The tile of the lead.</param>
-    /// <param name="at">The tile of the enemy or the thing.</param>
-    /// <param name="range">The sight range of the party, which the time of day gives (D-193).</param>
-    /// <returns>True when the party sees that tile.</returns>
-    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The range is below zero, or a tile lies outside the map (T-2).</exception>
-    public static bool PartySees(GameMap map, TilePoint from, TilePoint at, int range)
-    {
-        ArgumentNullException.ThrowIfNull(map);
-        ArgumentOutOfRangeException.ThrowIfNegative(range);
-        RefuseOutside(map, from, nameof(from));
-        RefuseOutside(map, at, nameof(at));
-
-        return Reach(from, at) <= range && Clear(map, from, at);
-    }
 
     /// <summary>Tells whether a patrol at one tile sees another tile (D-718).</summary>
     /// <param name="map">The map that both tiles lie on.</param>
@@ -106,7 +88,7 @@ public static class MapSight
 
     /// <summary>
     /// Gives the reach between two tiles: the larger of the two axis distances. A step goes
-    /// in four directions alone, and this reach counts a diagonal as one (D-716, D-719).
+    /// in four directions alone, and this reach counts a diagonal as one (D-716).
     /// </summary>
     /// <param name="from">The first tile.</param>
     /// <param name="at">The second tile.</param>
@@ -118,7 +100,7 @@ public static class MapSight
         return across > down ? across : down;
     }
 
-    /// <summary>Tells whether no wall stands between two tiles (D-718, D-719).</summary>
+    /// <summary>Tells whether no wall stands between two tiles (D-718).</summary>
     /// <param name="map">The map that both tiles lie on.</param>
     /// <param name="from">The first tile.</param>
     /// <param name="at">The second tile.</param>
@@ -127,8 +109,8 @@ public static class MapSight
     /// <exception cref="ArgumentOutOfRangeException">A tile lies outside the map (T-2).</exception>
     /// <remarks>
     /// The walk starts at the lower of the two tiles in one fixed order, so the answer is
-    /// the same for both directions. An order by the caller would let a patrol see the party
-    /// on a line where the party sees no patrol, which a player reads as a fault (T-2).
+    /// the same for both directions. An order by the caller would give one line two answers,
+    /// which a player reads as a fault (T-2).
     /// <para>
     /// The two end tiles take no check. The viewer stands on the first, and the second holds
     /// the thing that the caller asks about.

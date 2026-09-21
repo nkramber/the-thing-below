@@ -98,6 +98,9 @@ public sealed class GameRun
     /// </remarks>
     public RunState State => this.simulation.State;
 
+    /// <summary>The part of the next tick that the frames reached, in thousandths (D-820).</summary>
+    public int TickPart => this.loop.TickPart;
+
     /// <summary>The party on its map, which the map scene draws (D-106, D-203).</summary>
     /// <remarks>
     /// Game reads the tile of the lead and the ticks of the step that runs, and it slides
@@ -213,11 +216,17 @@ public sealed class GameRun
 
     /// <summary>Runs the ticks that the time of one frame gives (D-164).</summary>
     /// <param name="seconds">The time of the frame, in seconds.</param>
+    /// <param name="heldStep">
+    /// Gives the step intent of the direction that the player holds, before each tick, or
+    /// null when that tick takes no step. A session with no player passes null.
+    /// </param>
     /// <returns>The log entries of every tick of this frame, in the order of the ticks (D-179).</returns>
     /// <exception cref="ArgumentOutOfRangeException">The time is below zero (T-2).</exception>
     /// <remarks>
     /// The queued intents go to the first tick of the frame, because they came before it.
-    /// Each later tick of the same frame takes no intent.
+    /// The held step goes to each tick of the frame. A frame of two ticks once gave it to the
+    /// first tick alone, so the party stood still for a tick when it reached a tile on the
+    /// second one (D-820).
     /// <para>
     /// The recorder takes each tick before the step, so the record of a crash holds the
     /// intents of the tick that crashed, and a replay of the crash file reaches the crash
@@ -225,14 +234,19 @@ public sealed class GameRun
     /// goes in silence (T-2).
     /// </para>
     /// </remarks>
-    public IReadOnlyList<LogEntry> Advance(double seconds)
+    public IReadOnlyList<LogEntry> Advance(double seconds, Func<Intent?>? heldStep = null)
     {
         long droppedBefore = this.loop.DroppedTicks;
         int ticks = this.loop.Advance(seconds);
         List<LogEntry> log = [];
         for (int step = 0; step < ticks; step += 1)
         {
-            Intent[] intents = step == 0 ? [.. this.queued] : [];
+            List<Intent> intents = step == 0 ? [.. this.queued] : [];
+            if (heldStep?.Invoke() is Intent held)
+            {
+                intents.Add(held);
+            }
+
             this.recorder.Step(this.simulation.Tick + 1, intents);
             log.AddRange(this.simulation.Step(intents));
             this.events.Add(this.simulation.TakeBattleEvents());

@@ -82,7 +82,7 @@ public static class TestMaps
            "group": "group.test_pair",
            "size": "common",
            "facing": "east",
-           "step_ticks": 30,
+           "step_ticks": 32,
            "sight_range": 3,
            "routes": [
             { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 4, "y": 5 }, { "x": 10, "y": 5 }] }
@@ -93,7 +93,7 @@ public static class TestMaps
            "group": "group.test_pair",
            "size": "common",
            "facing": "north",
-           "step_ticks": 30,
+           "step_ticks": 32,
            "sight_range": 2,
            "routes": [
             { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 13, "y": 9 }] }
@@ -104,7 +104,7 @@ public static class TestMaps
            "group": "group.test_elite",
            "size": "elite",
            "facing": "south",
-           "step_ticks": 30,
+           "step_ticks": 32,
            "sight_range": 2,
            "areas": [
             { "times": ["dawn", "day", "dusk", "night"], "x": 2, "y": 7, "width": 5, "height": 3 }

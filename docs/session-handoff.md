@@ -1,5 +1,209 @@
 # Session handoff
 
+## Session 178: 2026-09-21, Codex
+
+Author: Codex
+Session: reviewer PR-50, round 1. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: #50. Role: reviewer. Base: `27fb790`.
+
+### What this session did, and why
+
+- Refreshed the review after the handoff-rule update in `45de10f`.
+- Rechecked the implementation-only change since the assessed head `e290570`. The changed paths are the review skill, its commit reference, and D-824.
+- Prepared the PR-50 review record with no findings and a `Ready for owner merge` verdict.
+
+### The state of the build
+
+- The implementation head `e290570` passed `make verify` and every required CI job except the review gate.
+- The effective head is `45de10f`. The later review-record and handoff commits are metadata commits and do not move it.
+
+### What is in flight
+
+- The review record, this entry, and the handoff archive move need commit and push.
+
+### Traps and gotchas
+
+- Session 168 is the oldest live entry and must move to the archive. Keep its text unchanged.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the review record and both handoff files. Push, fetch, and verify the remote head and the review-gate check.
+
+## Session 177: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-55, round 5. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: #50. Role: author. Base: `27fb790`.
+
+### What this session did, and why
+
+- The review of PR #50 prepared its record on `e290570` and could not commit it. The scope limits of the `pr-review` skill allowed the record and the handoff entry alone, and a valid handoff also moves an entry to the archive.
+- The owner set D-824: a reviewer changes both handoff files as the author does, and never changes the words of another entry. The `pr-review` skill and its reference `commit-and-end.md` hold the rule.
+- The prepared review edits were uncommitted in this checkout. `docs/reviews/pr-50.md` stays in place, untracked. The handoff files of that review are saved outside the repository, and the handoff files hold the committed state again.
+
+### The state of the build
+
+- `e290570` passed every CI job except the review gate, which waits for `docs/reviews/pr-50.md`. This round changes a skill, a decision row, and the handoff alone.
+
+### What is in flight
+
+- The review commits its record and its entry as Session 178, under D-824.
+
+### Traps and gotchas
+
+- The prepared entry moved Session 168 to the archive and kept Session 167, so HANDOFF 2 failed. The oldest entry moves first.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the review record when it lands, and answer each finding.
+
+## Session 176: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-55, round 4. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: #50. Role: author. Base: `27fb790`.
+
+### What this session did, and why
+
+- The review sheets of the four fixture pieces and the render of the backdrop reached the PR description. The owner approved them (D-823).
+- Gitar approved `59692d2` with one finding: two items 7 in the Gate 4 list of `phase-4-region-one.md`. The item of the budget test is 8 now.
+- The CI note of Gitar named RG 7 again. Both review-gate jobs on `59692d2` report RG 7 pass, and RG 3 alone waits for the Codex review record.
+
+### The state of the build
+
+- Every CI job passed on `59692d2` except the review gate, which waits for `docs/reviews/pr-50.md`. 1712 tests pass on this machine.
+
+### What is in flight
+
+- The push of this round, the reply on the Gitar thread, and a Gitar pass on the new head. Then the PR leaves draft for the Codex review.
+
+### Traps and gotchas
+
+- The Gitar CI note reads the review-gate jobs of older heads. Read the log of the job of the current head.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Reply on the Gitar thread with the fix commit, prove the next Gitar pass current, and mark the PR ready for the Codex review.
+
+## Session 175: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-55, round 3. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: #50. Role: author. Base: `27fb790`.
+
+### What this session did, and why
+
+- Copied the 45 baselines of the CI artifact of `c4988bb` into `screens/baseline`, after a read of each frame. Each world pixel is a palette color.
+- Gitar found no code issue on `c4988bb`. Its CI note on the `docs/reviews/` row read an older job, and RG 7 passes on this head.
+- The owner asked for an automated balance PR before Act 1, and approved PR-90, the balance harness, first in Phase 4 (D-822). OQ-216 holds its metrics, bands, and policy.
+- The review sheets of the four fixture pieces go to the PR description for the owner approval (D-514, D-819, G-25).
+
+### The state of the build
+
+- 1712 tests pass. Build, format, lint, STE, identity, content, atlas, and smoke pass. RG 3 waits for the Codex review record.
+
+### What is in flight
+
+- The push of this round, and the Gitar pass on it. Then the PR leaves draft for the Codex review.
+
+### Traps and gotchas
+
+- The PR holds nine concerns under the override of the owner, and the PR description notes it once.
+- A baseline comes from the CI artifact alone (the readme of `screens/baseline`).
+
+### The questions that block progress
+
+- The owner approval of the four fixture pieces (G-25).
+
+### The next concrete action
+
+Answer the Gitar pass on this head, and then ask the owner to approve the fixture art.
+
+## Session 174: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-55, round 2. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: #50. Role: author. Base: `27fb790`.
+
+### What this session did, and why
+
+- The large picture format of D-812 and D-816 to D-819: the Core record and checks, the `picture` command, `PictureView` in Game, and the `picture` screen fixture.
+- Four fixture pieces wait for the owner approval through their review sheets in the PR description (D-514, G-25).
+- The owner added three fixes to this PR:
+  - The captures saved the linear colors of HDR 2D, so each baseline and sheet showed the game much darker than the screen. `CaptureColors` writes sRGB now.
+  - Game draws each slide at the part of a tick, and the held step reaches each tick of a frame (D-820). A 144 Hz screen showed a hitch between two tiles.
+  - A step lasts 16, 32, or 64 ticks, and the party takes 16 (D-821).
+- Gitar found no issue in round 1. It named the `docs/reviews/` row of the PR description, and the row now takes a form of D-581.
+
+### The state of the build
+
+- `make build`, format, lint, STE, identity, content, atlas, and smoke pass. The tests fail only on the baselines, which come from the CI artifact.
+
+### What is in flight
+
+- The push of this round, then the new baselines from the `screen-test` artifact: 45 captures in sRGB, with 17 walk frames each step.
+
+### Traps and gotchas
+
+- A test finds a palette color in each pixel of each 1x world baseline, so an old dark baseline fails it.
+- `GameRun.Advance` takes a function for the held step. A test or a tool with no player passes null.
+- The owner asked if a PR adds automated balance tuning before Act 1. The answer waits for the next question.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Copy the baselines from the CI artifact, read each frame, and answer gitar.
+
+## Session 173: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-55, the large pictures, with four owner changes first. Repository: the-thing-below. Branch: `feat/pr-55-large-pictures`. PR: the PR-55 PR. Role: author. Base: `27fb790`.
+
+### What this session did, and why
+
+- OQ-91: the owner chose a place and a repeat alone, with no mirror (D-812).
+- The owner approved four changes first, after the merge of PR #49:
+  - The console draws in the frame viewport, and no key reached it. The host now pushes each key of an open console there (D-725).
+  - Escape closes an open console. On the map of a development build, it ends the session (D-813).
+  - Game draws every live enemy at any distance. D-814 revises D-719 in part, and the range stays as the ceiling of D-720.
+  - The game shows no button prompt (D-815). The row, the device table, the tracker, and the 12 glyph drawings left the build.
+- The simulation version is 10, and the identity file is new (G-17).
+- The author read all 42 frames of `make sheet` and `make walk`. The prompt row is gone, and the east enemy draws in each frame.
+- The format of large pictures is not started yet.
+
+### The state of the build
+
+- Remote head: the push of this entry. `make verify` passed before the commit.
+- The `screen-test` baselines still show the old frames. The job fails until the new captures replace them.
+
+### What is in flight
+
+- The PR waits for gitar and the CI legs. The screen baselines come from the artifact of the `screen-test` job (the readme of `screens/baseline`).
+
+### Traps and gotchas
+
+- A key of the frame viewport never arrives by itself, because the screen shows that viewport through a texture. Use `FrameRoot.PushToLayer`.
+- The smoke console check pushes key events into the root viewport. A check that sets the text of the entry passes on the old fault.
+- D-815 closed OQ-176, and PR-78 has no controller type call now.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Answer gitar, copy the new screen baselines from the CI artifact, and then build the large picture format of D-812.
+
 ## Session 172: 2026-09-21, Codex
 
 Author: Codex
@@ -138,207 +342,3 @@ None.
 ### The next concrete action
 
 Commit and push the repeat review record and handoff entry. Then verify the remote head and review-gate result.
-
-## Session 168: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: PR-80, the enemy record, the answer to the review. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: author. Base: `86528a3`.
-
-### What this session did, and why
-
-- Answered P1-1 of `docs/reviews/pr-48.md` with full merit: D-754 asks the enemy record for the size, and the load to fail a map that disagrees.
-- Asked the owner which record of a group sets the size, and the size of each fixture enemy. The answers are D-788 and D-789.
-- Commit `ef02f4a`: the `size` field of `EnemyRecord`, the size check in `BattleContent.RequireGroupsOf`, the records, the tests, and the documents.
-- Wrote `docs/reviews/pr-48-response.md`.
-- Gitar reviewed `f8cc578` at 15:50:12 UTC, after the push at 15:48:31 UTC: no issues, no review thread, 0 comments with merit. CI passes, and review-gate fails on RG 4 and RG 5 alone, which wait for the repeat review.
-
-### The state of the build
-
-- The effective head is `ef02f4a`. `make verify` passes with 1587 tests. The identity hashes stay, and the content hash changes.
-
-### What is in flight
-
-The repeat review by Codex of effective head `ef02f4a`.
-
-### Traps and gotchas
-
-- The test guard of `BattleRuns.Map` takes the size of its group. An elite guard holds an area of 3 by 2 tiles, because an area must leave room to move (D-209).
-- The tests pair the checkout map with the test records, so the test brute stays elite, as in `content/`.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The owner starts a Codex session for the repeat review of PR #48 at `ef02f4a`. This author session answers each finding.
-
-## Session 167: 2026-09-21, Codex
-
-Author: Codex
-Session: review PR-48, the enemy record. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: reviewer. Base: `86528a3`.
-
-### What this session did, and why
-
-- Reviewed PR #48 at effective head `fd97eb2`.
-- Inspected the complete diff, the PR comments, the PR-80 roadmap scope and exit tests, the affected Core, content, test, identity, and document paths, and the D-754 contract.
-- Found that the enemy record omits body size and that content loading does not compare map patrol size with the enemy record.
-- Added `docs/reviews/pr-48.md` with finding P1-1 and the verdict `Changes required`.
-
-### The state of the build
-
-- The effective head is `fd97eb2`. The current branch tip is metadata commit `4385650`.
-- `make verify` passes locally with 1583 tests. GitHub CI and Gitar pass at `2a8da97`, except `review-gate`, which waits for the review record.
-
-### What is in flight
-
-The review record and this handoff entry are pushed at `4385650`. The author must add the D-754 size field and the map-to-record consistency test and validation.
-
-### Traps and gotchas
-
-- `Patrol` already stores the map size, but `EnemyRecord` has no size member.
-- A metadata commit does not move the effective head. The review targets `fd97eb2`, not `2a8da97`.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and handoff entry. Then the author answers P1-1 in a new round.
-
-## Session 166: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: PR-80, the enemy record, the Gitar round. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: #48. Role: author. Base: `86528a3`.
-
-### What this session did, and why
-
-- Opened PR #48 at `fd97eb2`, and ran the push wait and the Gitar wait (D-586, D-705).
-- The Gitar pass is current: the head is `fd97eb2`, and the dashboard edit at 14:55:50 UTC comes after the push at 14:52:59 UTC. The review found no issues, and the PR has no review thread.
-- Answered the CI note of the dashboard in a PR comment: the review-gate check fails on RG 3 alone, because no review record exists yet.
-
-### The state of the build
-
-- The effective head is `fd97eb2`. This entry is a metadata commit, and it does not move the effective head (D-610).
-- CI at `fd97eb2`: build, test, and format, smoke, det-lint, replay-identity, screen-test, and ste-check pass on every leg. The review-gate check waits for `docs/reviews/pr-48.md`.
-
-### What is in flight
-
-The Codex review of PR #48. The PR adds D-785 to D-787, so the `review-override` label does not apply (D-401).
-
-### Traps and gotchas
-
-- Session 165 holds the traps of the change: the ordinal order of the enemy files, and the check of a group entry against a record in another file.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The owner starts a Codex session to review PR #48 at effective head `fd97eb2`. This author session answers each finding of that review.
-
-## Session 165: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: PR-80, the enemy record. Repository: the-thing-below. Branch: `feat/pr-80-enemy-record`. PR: the one PR of PR-80, with no GitHub number at this commit. Role: author. Base: `86528a3`.
-
-### What this session did, and why
-
-- Asked the owner three start questions, and recorded the answers as D-785 to D-787. No file held an ability id, so exit test 3 had no list to check.
-- Added the ability file `content/rules/abilities.json` and one record file for each enemy under `content/rules/enemies/`. The two fixture enemies moved there with the same ids.
-- Core: `AbilityList` and `EnemyRecord` read the files. `BattleContent` now holds the records and the ability file, and it checks each id between the files.
-- The identity set gains the `enemy-record` run. The simulation version goes from 7 to 8.
-- Tests: `EnemyRecordTests` holds exit tests 1 to 4, and the identity file holds exit test 5.
-- Docs: the PR-80 entry, a PR-12 scope line, area-battle section 7.7, a design pass line, and two glossary rows.
-
-### The state of the build
-
-- The local head is the commit of this entry, on base `86528a3`. `make verify` passes with 1583 tests.
-- At version 7 the old runs give their old hashes, so the move of the enemies changes no fight. The version bump alone moves `battle`, `replay`, and `state-hash`.
-
-### What is in flight
-
-The push, the PR, and the gitar pass. The PR changes decision rows, so it goes to Codex for review.
-
-### Traps and gotchas
-
-- The content set reads files in the ordinal order of the paths. A repeated enemy id thus fails on the file with the later path.
-- A group entry and its enemy record now lie in two files. `BattleContent` checks the id, and the error names the battle fixture file.
-- No screen changes, so the visual review of D-784 does not apply.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push the branch, open the PR, and follow the `gitar-review` skill.
-
-## Session 164: 2026-09-21, Codex
-
-Author: Codex
-Session: review PR-47, the ground draw order, walk captures, fullscreen launch, and frame fit. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: reviewer. Base: `ce06eda`.
-
-### What this session did, and why
-
-- Reviewed PR #47 at effective head `4c1bdec`.
-- Inspected the complete diff, the PR description and comments, the PR-89 roadmap scope and exit tests, the affected Game and Tests paths, the capture baselines, and the changed documents.
-- Verified the ground-layer order, deterministic walk capture sequence, fullscreen startup, 1080-row frame fit, baseline coverage, and the visual-review record.
-- Added `docs/reviews/pr-47.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- Remote head of the PR branch: `4c1bdec`.
-- `make verify` passes with 1555 tests, no failures, and no skips.
-- GitHub CI and Gitar pass at `4c1bdec`. The review-gate check waits for this review record.
-
-### What is in flight
-
-The review record and this handoff entry need a push. After the push, the owner can wait for review-gate and merge the PR.
-
-### Traps and gotchas
-
-- The review target is `4c1bdec`, not the metadata commit that publishes this record.
-- The capture session stays windowed so it can set exact screen sizes. Only the play session enters borderless fullscreen.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push the review record and handoff entry. Verify the remote head and the review-gate result.
-
-## Session 163: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-89, round 4: the fill baselines at 1080 rows. Repository: the-thing-below. Branch: `fix/pr-89-walk-texture`. PR: #47. Role: author. Base: `ce06eda`.
-
-### What this session did, and why
-
-- At `1df0418`, every CI leg passed except `screen-test` and `review-gate`. Gitar reported "No issues found" on that head.
-- The screen test failed on `map-fill-1080.png` and `ui-fill-1080.png` alone, as planned. The old baselines held the cut frame of the fit fault.
-- Read both new captures of run 35602012534 (D-733, D-784). The map shows all 20 columns and the prompt row. The window frame of the ui fixture shows on all four edges.
-- The other 40 captures of that run match their baselines byte for byte. Committed the two new baselines.
-
-### The state of the build
-
-- Remote head of `main`: `ce06eda`. Local: 1555 of 1555 tests pass.
-
-### What is in flight
-
-The push of this round, then the Gitar pass of the new head, and the Codex review, which adds `docs/reviews/pr-47.md`.
-
-### Traps and gotchas
-
-The traps of Sessions 160 to 162 stand.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Confirm the green screen test and the Gitar pass on the new head. Then tell the owner that PR #47 is ready for the Codex review.

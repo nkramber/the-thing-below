@@ -24,8 +24,8 @@ public sealed class ContentSetTests
         """;
 
     /// <summary>
-    /// The index of a set with no drawing of its own. It still holds the UI page and the two
-    /// UI drawings, because every set needs the UI base (D-527, D-711).
+    /// The index of a set with no drawing of its own. It still holds the UI page and the
+    /// UI drawing, because every set needs the UI base (D-527).
     /// </summary>
     private static readonly string AtlasBody =
         $$"""
@@ -124,6 +124,19 @@ public sealed class ContentSetTests
     }
 
     [Fact]
+    public void TheDeviceTableOfTheButtonPromptsIsAFileThatNoRecordReads()
+    {
+        // D-815: the game shows no button prompt, so no record of Core reads the device table
+        // that picked the glyph set of a prompt, and a leftover copy fails the load (D-517).
+        IReadOnlyList<ContentFile> files = Files(File("ui/devices.json", "{}"));
+
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(files));
+
+        Assert.Equal("ui/devices.json", error.File);
+        Assert.Contains("D-517", error.Message);
+    }
+
+    [Fact]
     public void AnAbsentPaletteFails()
     {
         IReadOnlyList<ContentFile> files = [File(StringTable.Path, StringsBody)];
@@ -174,8 +187,8 @@ public sealed class ContentSetTests
         Drawing drawing = set.DrawingOf(Id(DrawingId));
         Assert.Equal(DrawingPath, drawing.File);
 
-        // The drawing of the test, and the window frame and the glyph of the UI base.
-        Assert.Equal(3, System.Linq.Enumerable.Count(set.Drawings));
+        // The drawing of the test, and the window frame of the UI base.
+        Assert.Equal(2, System.Linq.Enumerable.Count(set.Drawings));
     }
 
     [Fact]
@@ -391,7 +404,7 @@ public sealed class ContentSetTests
             """;
 
         // Every set needs the UI base, so each index of a test names the UI page and its
-        // two drawings beside the drawing of the test (D-527, D-711).
+        // drawing beside the drawing of the test (D-527).
         return $$"""
             {
              "comment": "a test index",

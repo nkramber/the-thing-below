@@ -143,12 +143,6 @@ public sealed class MapStateTests
     }
 
     [Fact]
-    public void TheSightRangeComesFromTheTimeOfDayOfTheMap()
-    {
-        Assert.Equal(MapRules.PartySightRange(TimeOfDay.Day), MapState.Enter(TestMaps.Room).SightRange);
-    }
-
-    [Fact]
     public void AResumeOnAnotherMapSizeIsAnError()
     {
         ArgumentException error = Assert.Throws<ArgumentException>(() => MapState.Resume(

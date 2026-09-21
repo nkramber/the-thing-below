@@ -22,7 +22,9 @@ public static class SimulationVersion
     /// battle (D-755 to D-780). PR-80 raised it to 8: the enemy record of each enemy file,
     /// the ability file, and the checks of each id between them (D-557, D-785 to D-787).
     /// PR-66 raised it to 9: the eight elements on the enemy record, the ten statuses of a
-    /// fight, and the statuses that last past it (D-790 to D-810).
+    /// fight, and the statuses that last past it (D-790 to D-810). PR-55 raised it to 10:
+    /// the content reader refuses the device table that the button prompts read, and the
+    /// sight of the party leaves Core (D-814, D-815).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -30,5 +32,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 9;
+    public const int Current = 10;
 }

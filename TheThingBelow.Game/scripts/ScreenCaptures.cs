@@ -45,7 +45,7 @@ public sealed record WalkTick(string Action, int Tick);
 /// </remarks>
 public static class ScreenCaptures
 {
-    /// <summary>The running screen: the frame, the world, and the row of button prompts (D-734).</summary>
+    /// <summary>The running screen: the frame and the world, with no button prompt (D-734, D-815).</summary>
     public const string MapFixture = "map";
 
     /// <summary>The window frame and the longest string of the string table, with no world (D-734).</summary>
@@ -56,6 +56,12 @@ public static class ScreenCaptures
     /// the slide inside a step (D-782). The other fixtures run no tick.
     /// </summary>
     public const string WalkFixture = "walk";
+
+    /// <summary>The fixture large picture in the world viewport, with no map (D-819).</summary>
+    public const string PictureFixture = "picture";
+
+    /// <summary>The id of the large picture that the picture fixture draws (D-819).</summary>
+    public const string FixturePicture = "picture.fixture_backdrop";
 
     /// <summary>
     /// The count of ticks from the intent of a step to the arrival of the lead. The intent
@@ -83,7 +89,7 @@ public static class ScreenCaptures
     public static IReadOnlyList<ScreenCapture> All { get; } = Build();
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
-    public static IReadOnlyList<string> Fixtures { get; } = [MapFixture, UiFixture, WalkFixture];
+    public static IReadOnlyList<string> Fixtures { get; } = [MapFixture, UiFixture, WalkFixture, PictureFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -129,6 +135,11 @@ public static class ScreenCaptures
             }
         }
 
+
+        // The picture draws at 1x alone. The map captures prove each fit of the world
+        // viewport, and the picture draws inside that viewport (D-634, D-819).
+        captures.Add(new ScreenCapture(
+            PictureFixture, "1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         return captures;
     }
 

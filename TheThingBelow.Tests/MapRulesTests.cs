@@ -8,10 +8,12 @@ namespace TheThingBelow.Tests;
 public sealed class MapRulesTests
 {
     [Fact]
-    public void AStepTakesAQuarterOfASecond()
+    public void AStepMovesTheLeadTwoPixelsOnEachTick()
     {
-        // The loop runs 60 ticks a second (D-164), so the party walks four tiles a second.
-        Assert.Equal(15, MapRules.TicksPerStep);
+        // D-821. The loop runs 60 ticks a second (D-164), so the party walks 3.75 tiles a
+        // second, and each tick of a step of 32 art pixels moves the lead by 2.
+        Assert.Equal(16, MapRules.TicksPerStep);
+        Assert.Equal(0, 32 % MapRules.TicksPerStep);
     }
 
     [Theory]
@@ -25,14 +27,12 @@ public sealed class MapRulesTests
     }
 
     [Fact]
-    public void ADayMapReachesPastTheFrameAndANightMapDoesNot()
+    public void ANightMapHoldsPatrolsThatSeeLessFarThanADayMap()
     {
-        // The frame holds 20 by 11.25 tiles (D-633). A day map hides no enemy that the
-        // player can see, and a night map hides a patrol until it comes close (D-719).
-        const int halfOfTheFrameWidth = 10;
-
-        Assert.True(MapRules.PartySightRange(TimeOfDay.Day) > halfOfTheFrameWidth);
-        Assert.True(MapRules.PartySightRange(TimeOfDay.Night) < halfOfTheFrameWidth);
+        // The range of the party is the ceiling of the sight of each patrol (D-720), and it
+        // decides nothing that Game draws (D-814).
+        Assert.True(MapRules.PartySightRange(TimeOfDay.Night) < MapRules.PartySightRange(TimeOfDay.Dusk));
+        Assert.True(MapRules.PartySightRange(TimeOfDay.Dusk) < MapRules.PartySightRange(TimeOfDay.Day));
     }
 
     [Fact]

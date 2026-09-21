@@ -88,7 +88,7 @@ public static class IdentitySet
        "group": "group.identity_run",
        "size": "common",
        "facing": "east",
-       "step_ticks": 15,
+       "step_ticks": 16,
        "sight_range": 0,
        "routes": [
         { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 4, "y": 3 }, { "x": 5, "y": 3 }] }
@@ -99,7 +99,7 @@ public static class IdentitySet
        "group": "group.identity_run",
        "size": "common",
        "facing": "south",
-       "step_ticks": 20,
+       "step_ticks": 32,
        "sight_range": 0,
        "areas": [
         { "times": ["dawn", "day", "dusk", "night"], "x": 1, "y": 4, "width": 2, "height": 2 }
@@ -137,7 +137,7 @@ public static class IdentitySet
        "group": "group.identity_battle",
        "size": "common",
        "facing": "east",
-       "step_ticks": 15,
+       "step_ticks": 16,
        "sight_range": 0,
        "routes": [
         { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 3, "y": 1 }] }
@@ -173,7 +173,7 @@ public static class IdentitySet
        "group": "group.identity_record",
        "size": "common",
        "facing": "east",
-       "step_ticks": 15,
+       "step_ticks": 16,
        "sight_range": 0,
        "routes": [
         { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 3, "y": 1 }] }
@@ -209,7 +209,7 @@ public static class IdentitySet
        "group": "group.identity_status",
        "size": "common",
        "facing": "east",
-       "step_ticks": 15,
+       "step_ticks": 16,
        "sight_range": 0,
        "routes": [
         { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 3, "y": 1 }] }

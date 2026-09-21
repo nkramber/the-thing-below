@@ -75,8 +75,7 @@ public static class GameInputMap
 
     /// <summary>
     /// The three choices. A button constant of Godot names the place of a button and not its
-    /// label, so <see cref="JoyButton.A"/> is Cross on a PlayStation pad (F-50). The glyph
-    /// sets of D-222 draw the label of the pad in hand.
+    /// label, so <see cref="JoyButton.A"/> is Cross on a PlayStation pad (F-50).
     /// </summary>
     private static void AddChoices()
     {

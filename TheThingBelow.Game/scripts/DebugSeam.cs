@@ -42,8 +42,8 @@ public static class DebugSeam
     /// <summary>The member that builds the console and gives its node (D-171).</summary>
     public const string ConsoleMember = "Create";
 
-    /// <summary>The member that types one line in an open console and submits it (D-117).</summary>
-    public const string SubmitMember = "SubmitLine";
+    /// <summary>The member that gives the lines that a console shows now (D-117, D-725).</summary>
+    public const string ShownLinesMember = "ShownLines";
 
     /// <summary>The member that runs one command with no console on the screen (D-117).</summary>
     public const string RunMember = "Run";
@@ -105,23 +105,21 @@ public static class DebugSeam
     }
 
     /// <summary>
-    /// Types one line in an open console and submits it, as the person does (D-724). The
-    /// console owns its nodes, so the check of that path lives in the debug assembly (D-723).
+    /// Gives the lines that a console shows now. The smoke session reads them after it types a
+    /// line through key events (D-117, D-725).
     /// </summary>
-    /// <param name="console">The node of <see cref="TryBuildConsole"/>, open and in the tree.</param>
-    /// <param name="line">The text of the line, such as `help`.</param>
-    /// <returns>The lines that the console shows after the submit.</returns>
-    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <param name="console">The node of <see cref="TryBuildConsole"/>.</param>
+    /// <returns>The lines of the console, from the oldest to the newest.</returns>
+    /// <exception cref="ArgumentNullException">The node is null (T-2).</exception>
     /// <exception cref="InvalidOperationException">
-    /// The build is a release build, the entry lost a member, or the console read no submit (T-2).
+    /// The build is a release build, the entry lost a member, or the node is no console (T-2).
     /// </exception>
-    public static IReadOnlyList<string> SubmitLine(Control console, string line)
+    public static IReadOnlyList<string> ShownLines(Control console)
     {
         ArgumentNullException.ThrowIfNull(console);
-        ArgumentNullException.ThrowIfNull(line);
-        RefuseReleaseBuild(nameof(SubmitLine));
+        RefuseReleaseBuild(nameof(ShownLines));
 
-        return Entry<Func<Control, string, IReadOnlyList<string>>>(SubmitMember)(console, line);
+        return Entry<Func<Control, IReadOnlyList<string>>>(ShownLinesMember)(console);
     }
 
     /// <summary>Runs one command of the console with no console on the screen (D-117).</summary>
