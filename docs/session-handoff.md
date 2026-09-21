@@ -16,14 +16,23 @@ Session: PR-41, the screen-test job. Repository: the-thing-below. Branch: `feat/
 
 ### The state of the build
 
-- `make verify` passes on the Mac, except the 10 baseline tests, which wait for the first artifact of the job.
-- `make sheet` runs the capture session and writes the sheet, so exit test 6 holds.
+- `make verify` passes on the Mac with 1272 tests, and `make sheet` writes the sheet, so exit test 6 holds.
+- CI passes on every leg at the head `233b890`, and the `screen-test` job is green.
+- The job reports the rendering method `mobile` and the rendering driver `vulkan` on `llvmpipe (LLVM 20.1.2, 256 bits)`, so D-731 holds.
+- The two runs of the job give the same frames, so exit test 4 holds.
+- `screens/baseline` holds the 10 files of the artifact of the run `35549963049`, and they take 184 KB.
 - No file of Core changed, so the simulation version stands (G-17).
 - The remote head of `main` is `1e0c6b1`.
 
 ### What is in flight
 
-The first push holds no baseline, so the `screen-test` job and the 10 baseline tests fail by design. That is the flow of D-733: the job uploads the artifact `screen-captures`, and the next commit holds the 10 files of `screens/baseline`.
+The pull request is #44, and it waits for the review of Codex at the effective head `233b890`. The gitar pass of that head found no issue, and the pull request holds no review thread.
+
+Three rounds came before the green run, and each one found a real fault:
+
+- The readiness check of Xvfb called `xdpyinfo`, which the image of the runner does not hold. The job now starts the screen with `xvfb-run`, which also ends the background process of the step.
+- The driver file of lavapipe is `lvp_icd.json` on this image, and not `lvp_icd.x86_64.json`. The loader then held no driver, and Godot fell back to OpenGL. The job now finds the file and fails when the pin installs none.
+- A session with a window opens the audio driver of the system, and the runner has no sound card. The session now takes the dummy audio driver.
 
 ### Traps and gotchas
 
@@ -39,7 +48,7 @@ None. OQ-115 blocks PR-8 alone.
 
 ### The next concrete action
 
-Push the branch, open the PR, and read the first run of the `screen-test` job. Then download the artifact `screen-captures`, read each frame, and commit the 10 files into `screens/baseline`.
+Hand PR #44 to Codex for the cross-provider review. A PR that changes `.github/workflows/` never takes the label of D-401 (D-700).
 
 ## Session 149: 2026-09-20, Codex
 
