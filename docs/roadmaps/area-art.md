@@ -78,7 +78,7 @@ Built by PR-34. Phase file: `phase-1-foundations.md`.
 - Light on screen can reach any color, and a drawing file names palette keys alone (D-181).
 - Effect files name palette colors too, so Game reads the palette (D-182). Core holds the record of the palette file (D-517).
 
-The palette holds a color of its own for each of the eight elements and the ten statuses, which F-17 asked for (D-74, D-75). PR-66 draws the icons, and it confirms or changes each pick:
+The palette holds a color of its own for each of the eight elements and the ten statuses, which F-17 asked for (D-74, D-75). PR-10 draws the icons, and it confirms or changes each pick (D-811):
 
 | Element | Color | Key | Status | Color | Key |
 |---|---|---|---|---|---|
