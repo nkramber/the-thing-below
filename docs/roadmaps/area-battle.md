@@ -37,7 +37,7 @@ Built by PR-9. Phase file: `phase-2-first-playable.md`.
 - Up to six enemies stand against them, from the group of the encounter (D-31, D-535).
 - Each side has a front row and a back row (D-377). A character or an enemy stands in one row.
 - The party window of PR-62 sets the starting row of each character, and the snapshot keeps it (D-558).
-- Melee reaches the front row alone, while anyone stands in it. Shot drills and rites reach either row (D-377).
+- Melee reaches the front row alone, while anyone stands in it. Shot drills and rites reach either row (D-377). A melee attack from the back row deals half damage (D-779).
 - The map pauses while the fight runs, and one run holds both states (D-531).
 - Whoever reached the other from behind acts first (D-265).
 - The encounter ends in a win, a flee, or a wipe (D-36, D-378).
@@ -129,7 +129,7 @@ Built by PR-11 and PR-9. Phase file: `phase-2-first-playable.md`.
 - A map names a group by its id, and a test proves that each named group exists (D-528, D-535). PR-9 holds that test on its fixture group file, and PR-11 grows the file (D-766).
 - PR-11 proves the evaluator on fixture profiles, and PR-17 writes the profiles of the first playable.
 - PR-80 holds the enemy record: the stats of each enemy and the ids of its abilities. PR-66 adds the element table to it (D-557).
-- A group holds up to twelve enemies. Six stand on the field, in any split of the two rows, and the rest wait to step in as a wave (D-758 to D-762).
+- A group holds up to twelve enemies. Up to six stand on the field, in any split of the two rows. An entry that waits steps in when an enemy falls (D-758 to D-762, D-778).
 
 > *In plain English:* each kind of enemy weighs the same choices differently, so a brute and a healer act unlike each other. The groups they come in live in one file for each region.
 

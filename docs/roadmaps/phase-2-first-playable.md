@@ -341,7 +341,8 @@ Area files: `area-battle.md` sections 7.1, 7.2, 7.3, 7.5, and 7.9.
 - Fixture enemies with fixture stats, until PR-80 builds the enemy record (D-557).
 - The pace of one turn: Core resolves at once and emits events, and Game drains the queue (D-532).
 - The defend action, the hit roll, and the miss chance of the speed gap (D-755, D-772, D-773).
-- The wave: six enemies on the field, and up to twelve in a group (D-758 to D-762).
+- The wave: six enemies on the field at most, and up to twelve in a group (D-758 to D-762, D-778).
+- The half damage of a melee attack from the back row (D-779).
 - The fixture files: the characters, the groups, the draught, and the numbers of D-777 (D-765, D-766, D-775).
 - The test that each group of a map exists (D-766).
 - The target of an intent, with record format 2 (D-764). The party in the snapshot, with save format 4 (D-765).
@@ -365,9 +366,9 @@ Area files: `area-battle.md` sections 7.1, 7.2, 7.3, 7.5, and 7.9.
 6. A test proves that the event queue of Game always drains (D-532).
 7. The replay of a fixture fight gives the same state hash on every leg.
 8. A test proves that no map system moves during a battle (D-531).
-9. A waiting enemy steps into its row when fewer than six stand, one attack push out (D-759 to D-761).
+9. A waiting enemy steps into its row when an enemy falls, one attack push out (D-759 to D-761, D-778).
 10. A group of thirteen enemies fails the load, and a map that names an absent group fails the load (D-762, D-766).
-11. A record of format 1 and a save of format 3 still load (D-764, D-765, D-166).
+11. A save of format 3 still loads, and a record of format 1 fails with its line (D-166, D-764, D-765).
 
 **Review focus.**
 
