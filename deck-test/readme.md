@@ -69,6 +69,17 @@ and `full-load-24` both hold the target under the Mobile renderer (D-616).
 The script also records the model of the Deck and the refresh rate of its screen. SteamOS
 names the LCD Deck `Jupiter` and the OLED Deck `Galileo`.
 
+## How to build it on the Deck
+
+The owner has Godot 4.7.2 .NET and the .NET SDK on the Deck (2026-09-21), so the Deck can build
+the test itself, with no copy from the Mac.
+
+1. Check out the branch `spike/deck-test` on the Deck.
+2. Set `GODOT` to the path of the Godot .NET binary of the Deck.
+3. Run `./build-on-deck.sh`. It gets the export templates, builds the C# solution, and exports
+   `build/DeckTest.x86_64`. It reads each log, because an export with no assembly still exits 0.
+4. Run `./run-deck-test.sh` in `build/`. The reports land in `build/reports/`.
+
 ## How to read the result
 
 The renderer that holds 60 frames each second with more room wins (D-160, D-161). Compare
@@ -88,6 +99,7 @@ If neither renderer holds 60 frames each second, the owner decides then (D-261).
 | `shaders/` | The CRT pass, the fog pass, and the transition |
 | `fetch-export-templates.sh` | Gets the export templates and checks the SHA-512 (OQ-83) |
 | `run-deck-test.sh` | Runs both renderers on the Deck |
+| `build-on-deck.sh` | Builds and exports the test on the Deck |
 
 ## Traps that this spike found
 

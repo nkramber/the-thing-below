@@ -8,7 +8,12 @@ flavour="mono"
 file="Godot_v${version}_${flavour}_export_templates.tpz"
 base="https://github.com/godotengine/godot-builds/releases/download/${version}"
 work="${TMPDIR:-/tmp}/godot-templates-${version}"
-target="${HOME}/Library/Application Support/Godot/export_templates/4.7.2.stable.mono"
+# macOS and Linux keep the templates in different folders. The Deck runs Linux.
+if [ "$(uname)" = "Darwin" ]; then
+  target="${HOME}/Library/Application Support/Godot/export_templates/4.7.2.stable.mono"
+else
+  target="${XDG_DATA_HOME:-${HOME}/.local/share}/godot/export_templates/4.7.2.stable.mono"
+fi
 
 mkdir -p "${work}"
 
@@ -27,7 +32,11 @@ if [ -z "${expected}" ]; then
   exit 1
 fi
 
-actual="$(shasum -a 512 "${work}/${file}" | awk '{print $1}')"
+if command -v sha512sum >/dev/null; then
+  actual="$(sha512sum "${work}/${file}" | awk '{print $1}')"
+else
+  actual="$(shasum -a 512 "${work}/${file}" | awk '{print $1}')"
+fi
 if [ "${expected}" != "${actual}" ]; then
   echo "SHA-512 mismatch for ${file}" >&2
   echo "  expected ${expected}" >&2
