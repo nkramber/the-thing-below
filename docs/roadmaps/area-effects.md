@@ -18,6 +18,7 @@ External facts, each with the date of its check. The Godot facts come from `godo
 - Both canvas shaders add a light with `color.rgb += light_color.rgb * light_color.a` and end with `frag_color = color`, with no upper clamp. With HDR 2D, "the end result of the Viewport will not be clamped to the 0-1 range". Sources: the two canvas shaders and `doc/classes/ProjectSettings.xml`, read 2026-09-15.
 - "Since Godot 4.2, you can enable HDR for 2D rendering when using the Forward+ and Mobile rendering methods." The glow threshold "needs to be decreased below 1.0 when using glow in 2D, as 2D rendering is performed in SDR". With Compatibility, "glow uses a different implementation". Sources: `tutorials/3d/environment_and_post_processing.rst` and `doc/classes/Environment.xml`, read 2026-09-15.
 - With `use_fixed_seed`, `GPUParticles2D` uses one seed "for every simulation", which "is useful for situations where the visual outcome should be consistent across replays". With no texture, "particles will be squares with a size of 1×1 pixels". Its `emit_particle` "is only supported on the Forward+ and Mobile rendering methods, not Compatibility". Source: `doc/classes/GPUParticles2D.xml`, read 2026-09-15.
+- `GPUParticles2D.request_particles_process` "Requests the particles to process for extra process time during a single frame". With `SpeedScale` at 0.0, the call "is useful to be able to seek a particle system timeline". `restart` with `keep_seed` true keeps the random seed, "Useful for seeking and playback". Source: the `GpuParticles2D` members of `GodotSharp.xml` in the `GodotSharp` package 4.7.2, read 2026-09-22.
 - `CPUParticles2D` seeds each particle with `rng->set_seed(p.seed)`, but its points shapes take `Math::rand()` and its ring shape takes `Math::randf()`, the random numbers of the engine. The docs "recommend using GPUParticles2D unless you have an explicit reason not to". Sources: `scene/2d/cpu_particles_2d.cpp` and `tutorials/2d/particle_systems_2d.rst`, read 2026-09-15.
 - A shader that fails to compile ends with `ERR_FAIL_MSG("Shader compilation failed.")`, a message in the log. A `Shader` is a program "saved with the .gdshader extension", and it has a `code` member. Sources: `servers/rendering/renderer_rd/renderer_canvas_render_rd.cpp` and `doc/classes/Shader.xml`, read 2026-09-15.
 - The `TIME_PROCESS` monitor gives the "Time it took to complete one frame, in seconds". `RenderingServer.viewport_set_measure_render_time` turns on the render times of a viewport. Sources: `doc/classes/Performance.xml` and `doc/classes/RenderingServer.xml`, read 2026-09-15.
@@ -129,7 +130,8 @@ Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-59, and PR-60.
 - The test moves a window of 640 by 360 art pixels over the map. It takes the highest count of lights whose range reaches the window (D-842).
 - Godot drops each light past 15 on one canvas item with no message (F-46). A map layer draws a group of 256 tiles as one canvas item.
 - So the budget test also fails more than 15 lights on one canvas item, whatever the Deck test measures (T-2).
-- PR-56 adds the budget file and its test with the rows for light. PR-57 adds particles, and PR-58, PR-59, and PR-60 add their full-screen passes.
+- PR-56 adds the budget file and its test with the rows for light. PR-57 adds the particle row, and PR-58, PR-59, and PR-60 add their full-screen passes.
+- The particle row holds the 8192 live particles of the sweep of 2026-09-17 (D-617). The screen plays one hit at a time, so the test counts the largest burst of a hit (D-879).
 - The first rows of the budget come from the run of 2026-09-17: 15 lights with shadows, 8192 live particles, and 3 full-screen passes (D-617).
 - The light row rises to 24 after a new Deck sweep with 24 paired lights, before PR-56 merges (D-854). Each light source counts two lights (D-853). The sweep of 2026-09-21 held, with 4.55 ms at the 95th percentile for the full load (F-96).
 - Each row is a floor, and not the ceiling of the Deck, because no stage of the sweep missed the target (F-66).
@@ -188,6 +190,10 @@ Built by PR-57. Phase file: `phase-2-first-playable.md`.
 - An effect file holds its emitters, its palette colors, and its timings in ticks (D-182, D-266).
 - Core holds the record and the strict reader of each effect file (D-517). A bad field fails the load with the file and the field (T-2).
 - Game builds the Godot particle nodes from each effect file at load, and no Godot resource file holds an effect (D-182, G-6).
+- Each palette key of an emitter takes a node of its own, so no particle takes a blend of two keys (D-181).
+- Each node runs at speed zero. The screen seeks a burst to its age in ticks (D-172, D-875).
+- A seek restarts the node with its fixed seed, and then it asks for the time of that age at 60 steps a second.
+- The seed of a burst comes from the tick when its event started. Thus one tick of a fight shows one picture in play and in a capture (T-7).
 - A particle color is a palette key, and scene light can still change it on screen (D-181, D-182).
 - A particle with no texture draws as a square, so a spark of one color needs no drawing file (the external facts above).
 - Game uses `GPUParticles2D` for each emitter (D-875).

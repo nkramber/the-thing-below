@@ -153,6 +153,10 @@ Effects terms from the roadmaps PR of 2026-09-15:
 | wait intent | the intent that Game sends when an effect that the world waits for ends (D-522) | continue intent, done signal |
 | transition | one of the full-screen effects of D-195 that start a battle (D-191, D-196) | wipe, which names a party wipe (D-36), and screen change |
 | hit-stop | the brief freeze of the battle picture on a heavy blow (D-186) | freeze frame, hitlag |
+| heavy blow | a hit on an element that the target is weak to, which shakes the battle picture and takes the hit-stop (D-877) | critical hit, big hit |
+| battle file | the effect file `effects/battle.json` that holds the pace of every fight on screen: the timings of PR-10, the shake, and the hit-stop (D-883) | battle timings file, pace file |
+| hit file | an effect file of `effects/hits/` that holds the particles of a hit, and names each combatant that it serves (D-879) | particle file, hit effect file |
+| burst | the particles that one hit file plays from its target at the blow (D-879) | splash, spray, when the text means the whole effect |
 | decor piece | a drawn thing that a decor file places at a tile, such as a wall torch, which no rule reads (D-844) | prop, doodad, decoration |
 | decor file | the file beside a map that places each decor piece of that map (D-844) | prop file, decor layer |
 | decor kind | the kind of a decor piece, with its default light in its kind file (D-843) | decor type, prop kind |

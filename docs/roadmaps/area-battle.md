@@ -181,7 +181,7 @@ Built by PR-10 and PR-57. Phase file: `phase-2-first-playable.md`.
 - A damage number pops over its target, and one message line states the action in the game voice (D-213, G-20).
 - The attack pose plays on an action, and a color flash marks a hit (D-96, D-108).
 - The backdrop of the place drifts behind the fight, in the light of the time of day of the map (D-205, D-442). Every fight draws the fixture backdrop until the place art of PR-17 (D-831).
-- PR-57 adds the blood, the sparks, the shake, and the hit-stop, and `area-effects.md` holds them (D-186).
+- PR-57 adds the blood, the sparks, the shake, and the hit-stop, and `area-effects.md` holds them (D-186). A heavy blow is a hit on a weakness (D-877).
 - The battle track of the region plays, and a sting marks the victory (D-415, D-422).
 - Every string comes from the string table through the text helper (G-7, D-499).
 
@@ -226,7 +226,7 @@ Built by PR-9, PR-11, and PR-15. Phase files: `phase-2-first-playable.md` and ev
 | The map that starts a fight, and the pause during it | `area-exploration.md` | PR-8 |
 | The lessons, the aptitudes, the gear, and the items | `area-progression.md` | PR-12 and PR-13 |
 | The battle screen, the timeline strip, and the command menu | `area-ui-input.md` | PR-10 and PR-61 |
-| The blood, the flash, the shake, the hit-stop, and the transition | `area-effects.md` | PR-57 and PR-60 |
+| The blood, the sparks, the shake, the hit-stop, the spell flash, and the transition | `area-effects.md` | PR-57, PR-12, and PR-60 |
 | The battle tracks, the stings, and the ability sounds | `area-audio.md` | PR-70 |
 | The sprites of each enemy and the backdrop of each place | `area-art.md` | PR-17 and PR-55 |
 

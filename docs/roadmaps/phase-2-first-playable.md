@@ -577,10 +577,10 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 
 **Out of scope.**
 
-- The blood, the sparks, the shake, and the hit-stop (PR-57, D-186). PR-57 also moves each timing into its effect files (D-829).
+- The blood, the sparks, the shake, and the hit-stop (PR-57, D-186). PR-57 also moves each timing into the battle file (D-829, D-883).
 - The light on the battle scene (PR-56) and the battle music (PR-70, PR-72).
 - The boss phases (PR-20).
-- The hurt flinch and the down pose of a character (PR-57 and PR-17, D-200, D-828).
+- The hurt flinch and the down pose of a character (PR-17, D-200, D-828, D-884).
 - The backdrop of a place, and the link from a map to it (PR-17, D-831).
 - The mouse on the menu, and the remembered cursor (PR-62, PR-63, D-226).
 
@@ -808,7 +808,7 @@ Area file: `area-effects.md` sections 7.7 and 7.8.
 2. An effect file with a bad field fails the load with the file and the field.
 3. The budget test counts each live emitter against the particle rows (D-523).
 4. A test proves that no rule reads the length of an effect (D-522).
-5. Each particle file names the content ids that it serves, and a test fails an absent id. A test also fails a combatant with no hit file (D-879, D-883).
+5. Each hit file names the content ids that it serves, and a test fails an absent id. A test also fails a combatant with no hit file (D-879, D-883).
 
 **Review focus.**
 
@@ -1889,6 +1889,7 @@ Area files: every area file. The content PR touches each area.
 - The light setup of each map, at its time of day (D-442, D-519).
 - The ambient effects of each place (D-187, D-520).
 - The treasure, the shop stock, the NPC sprites, and the sprite set of Marrek (D-292).
+- The hurt flinch and the down pose of each party member in battle, in one art batch (D-200, D-884).
 - A placeholder story scene in the village (D-292).
 - The text of Marrek, Bergit, and Dagvar, and of the lessons of the first playable, in the voice (D-362, G-20).
 - The normal map of each new drawing (D-183, D-521).

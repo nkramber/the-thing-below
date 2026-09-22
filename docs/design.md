@@ -86,6 +86,8 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-21 wall and figure light pass: walls take light on their faces, and figures cast shadows (D-852, D-853). The light row rises to 24 after a new Deck sweep, and each source gives 50% more light (D-854, D-855). On a docs-only change, PR-93 runs ste-check, review-gate, and Gitar alone (D-856).
 
+2026-09-22 effects pass: Game draws each particle with `GPUParticles2D`, and a shake moves the battle picture alone (D-875, D-876). A heavy blow is a hit on a weakness, and it alone takes the shake and the hit-stop (D-877, D-880). Each hit plays the blood or the sparks of its target, and one battle file holds the pace of every fight (D-879, D-882, D-883). The plan held a spell flash in PR-57, and no spell exists before PR-12, so PR-12 builds it (D-878). The hurt flinch waits for PR-17 (D-884).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
