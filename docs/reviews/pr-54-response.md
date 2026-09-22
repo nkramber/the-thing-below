@@ -24,7 +24,12 @@ The payload of the `synchronize` action holds `before` and `after`. The run abov
 
 ## The regression check of the review
 
-The review asks for a run of two docs-only pushes in a row after a green code head. The first is `43c2edc`, after the code head `c9429c4`. The push of this response file is the second. Its previous head, `43c2edc`, skipped each build job, so this run also checks the gate jobs of `c9429c4`. Session 198 of `docs/session-handoff.md` names the run and its result after the push.
+The review asks for a run of two docs-only pushes in a row after a green code head. The first is `43c2edc`, after the code head `c9429c4`. The push of this response file, `38cface`, was meant as the second. It cancelled the run of the review push `3ba4dad`, so it read a head that did not pass and ran every job, as D-858 requires. Two spaced metadata pushes then gave the check:
+
+- `54e8c5c`, after the green `38cface`: run 35681799485 gave `documents-alone: true`.
+- `bed989b`, after `54e8c5c`, which skipped: run 35681880270 read `BEFORE_REF: 54e8c5c…` and gave `documents-alone: true`. Each build job skipped, and each gate job reported `success`.
+
+Thus two docs-only pushes in a row both skip after a green code head. The gate jobs of `c9429c4` carry the pass from one skipped head to the next.
 
 A test with the payload of the event cannot run outside GitHub, because no local runner reads a workflow. The command tests hold each decision, and the two live runs hold the event shape.
 
