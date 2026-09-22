@@ -1,5 +1,38 @@
 # Session handoff
 
+## Session 202: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-55, initial review. Repository: the-thing-below. Branch: `feat/pr-63-settings`. PR: #55. Role: reviewer. Base: `daeccfe`.
+
+### What this session did, and why
+
+- Reviewed the settings file, input remap, settings screen, runtime application, tests, and screen baselines of PR #55.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Wrote `docs/reviews/pr-55.md` with no finding and the verdict `Ready for owner merge` for effective head `d6b3606`.
+
+### The state of the build
+
+- `make verify` passed at `d6b3606` with 1,987 non-Smoke tests, 0 STE findings, 0 det-lint findings, matching replay identity and content hash, matching atlas, and a green smoke session.
+- CI run 35689788015 passed its build, test, format, det-lint, replay identity, smoke, screen-test, and coverage jobs. Gitar approved the tip with no finding.
+
+### What is in flight
+
+- The review record and this handoff entry need commit and push.
+- The owner can merge after the review-gate check turns green.
+
+### Traps and gotchas
+
+- The review targets effective head `d6b3606`. The later baseline and handoff commits are metadata only.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff. Fetch and verify that the review-gate check covers effective head `d6b3606`.
+
 ## Session 201: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -314,33 +347,3 @@ None for PR-56. The measure mode inside the game waits for an owner answer.
 ### The next concrete action
 
 Wait for Gitar on this head, then tell the owner that PR #53 is ready for the repeat review.
-
-## Session 192: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-56, round 6. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
-
-### What this session did, and why
-
-- Gitar reviewed `45e8464` with the verdict "Approved with suggestions" and one finding: the doc comment of `FeetShadow` named its six-point polygon an octagon. The finding holds, and this round names it a hexagon.
-- Each CI job of `45e8464` passed except review-gate, which waits for the repeat review.
-
-### The state of the build
-
-- The change is one word of a comment. The remote head is this round.
-
-### What is in flight
-
-- The repeat review of Codex, and the Deck test of D-854.
-
-### Traps and gotchas
-
-None new.
-
-### The questions that block progress
-
-The Deck result of D-854.
-
-### The next concrete action
-
-Reply on the Gitar thread with this commit, prove that the review of this head is current, and tell the owner that PR #53 is ready for the repeat review.
