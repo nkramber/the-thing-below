@@ -1,5 +1,40 @@
 # Session handoff
 
+## Session 206: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-56. Repository: the-thing-below. Branch: `feat/pr-57-effects`. PR: #56. Role: reviewer. Base: `8aaf0f6`.
+
+### What this session did, and why
+
+- Reviewed the complete diff from `8aaf0f6` to effective head `f1b42b5`.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Traced effect loading, cross-file validation, particle construction and seeking, battle timing, hit-stop, shake, settings updates, and screen capture coverage.
+- Wrote `docs/reviews/pr-56.md` with no finding and the verdict `Ready for owner merge` for effective head `f1b42b5`.
+
+### The state of the build
+
+- `make verify` passed with 2,069 non-Smoke tests, 0 STE findings, matching replay identity and content hash, matching atlas, and a green smoke session.
+- CI run 35742614648 passed the implementation checks, screen-test, and smoke on all current legs. Gitar approved the head. The review-gate check failed only because the review record did not yet exist.
+- The remote head before this review commit is `f1b42b5`.
+
+### What is in flight
+
+- The review record and this handoff entry need commit and push.
+
+### Traps and gotchas
+
+- The review targets effective head `f1b42b5`. The review commit changes only the metadata set and does not move that head.
+- The screen baselines come from the CI artifact, while the Mac uses another renderer path.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Fetch and verify the remote head and review-gate check.
+
 ## Session 205: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -313,40 +348,3 @@ None.
 ### The next concrete action
 
 The author must correct the previous-head source and add an event-shape regression check. Then Codex must repeat the review at the new effective head.
-
-## Session 196: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-93, round 2. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: #54. Role: author. Base: `d1a03f7`.
-
-### What this session did, and why
-
-- Answered the two Gitar items of round 1.
-- The RG 7 fault: the `docs/reviews/` row of the description named no path. The edit of the description fixed it, and review-gate now fails on RG 3 alone.
-- The finding: a plain job that its condition skips reports the conclusion `skipped`, not `success`. Thus after one docs-only push, the rule of D-858 read `coverage report`, `det-lint`, and `screen-test` as no pass, and the next docs-only push ran every job. Full merit.
-- The fix: a gate job with `always()` for each of the three jobs, as the matrix families have (D-682). Each gate takes the required name, and each job takes the name `<name> (run)`. D-858 stays true as written.
-- The regression test `EachJobThatADocsOnlyChangeSkipsHasOneGateJob` fails on the workflow of `d0ca1bc` and passes now. `area-ci.md` section 7.19 lists the three new gates.
-
-### The state of the build
-
-- `make verify` passes with 1,924 tests outside the Smoke category, 0 ste-check findings, and the smoke session.
-- The CI run of `d0ca1bc` passed every job on every leg. The remote head is the push of this entry.
-
-### What is in flight
-
-- The Gitar pass approved `c9429c4` at 2026-09-22T02:45:51Z, with 1 finding closed and no new finding. The Gitar check of that head passed.
-- The review of the other provider (D-401, D-560). The next push holds this entry alone, so it is the first live docs-only push after a green head.
-
-### Traps and gotchas
-
-- Branch protection requires `coverage report` and `det-lint` by name. The gate jobs keep those names, so the protection needs no change. The old job names move to `<name> (run)`.
-- A fault in `changed-paths` skips each plain job. Each new gate now fails in that case, where the old check showed `skipped` (T-2).
-- Session 195 said that a skip on a skip holds. That was wrong for the three plain jobs before this round.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Read the `changed paths` log of the push of this entry: the build jobs skip, and each gate reports `success`. Then the other provider reviews PR #54 at effective head `c9429c4`.
