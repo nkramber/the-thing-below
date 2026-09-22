@@ -4,8 +4,10 @@ using System.Globalization;
 using Godot;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Storage;
 
 namespace TheThingBelow.Game.Ui;
 
@@ -83,14 +85,18 @@ public sealed class BattleScreen
     private readonly Color chosenColor;
     private readonly Color dimColor;
     private readonly CommandMemory memory;
+    private readonly BattleEffects pace;
+    private readonly SortedDictionary<string, HitBurst> bursts = new(StringComparer.Ordinal);
     private BattleEvent? shownEvent;
     private BattleCommands? commands;
     private bool sentCommand;
     private string shownCommands = string.Empty;
 
-    private BattleScreen(UiBase ui, ContentSet content, FrameRoot frame, CommandMemory memory)
+    private BattleScreen(UiBase ui, ContentSet content, FrameRoot frame, CommandMemory memory, EffectLevel effects)
     {
         this.ui = ui;
+        this.pace = content.Effects.Battle;
+        this.Effects = effects;
         this.memory = memory;
         this.content = content;
         this.chosenColor = ui.Theme.ColorOf("text_chosen");
@@ -147,11 +153,12 @@ public sealed class BattleScreen
     /// <param name="content">The content set, for the pictures and the strings.</param>
     /// <param name="run">The run, whose view of the fight the screen draws.</param>
     /// <param name="memory">The remembered cursor of the command menu, which lasts the session (D-226).</param>
+    /// <param name="effects">The level of the flash and shake reduction of the settings (D-863).</param>
     /// <returns>The screen, which the caller shows on each frame and frees at the end of the fight.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="InvalidOperationException">The run holds no view of a fight, or the shader failed to load (T-2).</exception>
     /// <exception cref="ContentException">The atlas holds no drawing of a combatant, an icon, or the pointer (T-2).</exception>
-    public static BattleScreen Build(FrameRoot frame, UiBase ui, ContentSet content, GameRun run, CommandMemory memory)
+    public static BattleScreen Build(FrameRoot frame, UiBase ui, ContentSet content, GameRun run, CommandMemory memory, EffectLevel effects)
     {
         ArgumentNullException.ThrowIfNull(frame);
         ArgumentNullException.ThrowIfNull(memory);
@@ -162,7 +169,7 @@ public sealed class BattleScreen
         BattleView view = run.BattleView ?? throw new InvalidOperationException(
             $"The battle screen builds at tick {run.Tick}, and the run holds no view of a fight (D-532, T-2).");
 
-        var screen = new BattleScreen(ui, content, frame, memory);
+        var screen = new BattleScreen(ui, content, frame, memory, effects);
         screen.BuildLight(run.Party.Map);
         Shader flash = LoadFlashShader();
         foreach (ShownCombatant shown in view.Party)
@@ -174,6 +181,13 @@ public sealed class BattleScreen
         foreach (ShownCombatant shown in view.Enemies)
         {
             screen.enemies.Add(screen.BuildCombatant(shown, flash));
+        }
+
+        // Every hit file builds its nodes at the start of the fight, so a hit never builds a
+        // node while the fight plays (D-182).
+        foreach (HitEffect effect in content.Effects.Hits)
+        {
+            screen.bursts.Add(effect.Id.Value, HitBurst.Build(effect, content.Palette, screen.world));
         }
 
         screen.PlaceStatusLines();
@@ -226,6 +240,33 @@ public sealed class BattleScreen
         this.layer.QueueFree();
     }
 
+    /// <summary>
+    /// Reads each particle node of the fight back, and fails on a hit file with no node (T-2).
+    /// A headless session draws nothing, so this check reads the nodes and never the pixels
+    /// (F-23).
+    /// </summary>
+    /// <returns>The count of particle nodes of every burst.</returns>
+    /// <exception cref="InvalidOperationException">A burst holds no node (T-2).</exception>
+    public int CheckBursts()
+    {
+        int count = 0;
+        foreach (HitBurst burst in this.bursts.Values)
+        {
+            if (burst.NodeCount == 0)
+            {
+                throw new InvalidOperationException(
+                    $"The burst of '{burst.Effect.File}' holds no particle node, and a hit would show nothing (T-2, D-879).");
+            }
+
+            count += burst.NodeCount;
+        }
+
+        return count;
+    }
+
+    /// <summary>The level of the flash and shake reduction, which the settings screen changes (D-863).</summary>
+    public EffectLevel Effects { get; set; }
+
     /// <summary>Draws the fight as the run shows it now (D-532).</summary>
     /// <param name="run">The run.</param>
     /// <exception cref="ArgumentNullException">The run is null (T-2).</exception>
@@ -234,29 +275,97 @@ public sealed class BattleScreen
     {
         ArgumentNullException.ThrowIfNull(run);
 
+        this.Draw(run, run.PlayingEvent);
+    }
+
+    /// <summary>
+    /// Draws the fight of the run with a staged event in place of the event that plays, at the
+    /// same ticks. A capture of the screen-test job stages a heavy blow, which no move of the
+    /// fixture fight gives before PR-12 (D-172, D-877).
+    /// </summary>
+    /// <param name="run">The run, which plays an event.</param>
+    /// <param name="staged">The event that the screen draws.</param>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The run holds no view of a fight, or plays no event (T-2).</exception>
+    public void ShowStaged(GameRun run, BattleEvent staged)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(staged);
+
+        if (run.PlayingEvent is null)
+        {
+            throw new InvalidOperationException(
+                $"The battle screen stages an event at tick {run.Tick}, and the run plays none, so the event has no ticks (T-2).");
+        }
+
+        this.Draw(run, staged);
+    }
+
+    private void Draw(GameRun run, BattleEvent? playing)
+    {
         BattleView view = run.BattleView ?? throw new InvalidOperationException(
             $"The battle screen draws at tick {run.Tick}, and the run holds no view of a fight (D-532, T-2).");
 
-        this.backdrop.Position = new Vector2(BattleTimes.DriftAt(run.Tick), 0);
+        this.backdrop.Position = new Vector2(BattleTimes.DriftAt(this.pace, run.Tick), 0);
         this.FollowCommands(run);
 
-        BattleEvent? playing = run.PlayingEvent;
+        // The shake reads the ticks of the event, and the rest of the picture reads the ticks
+        // of the picture, which stand still during the hit-stop (D-876, D-880).
         int ticks = run.PlayingTicks;
+        int picture = playing is null ? ticks : BattleTimes.PictureTicks(this.pace, playing, ticks);
+        int shake = playing is null ? 0 : BattleTimes.ShakeAt(this.pace, playing, ticks, this.Effects);
+        this.world.Position = new Vector2(shake, 0);
         for (int slot = 0; slot < view.Party.Count; slot += 1)
         {
-            this.ShowCombatant(view, view.Party[slot], this.party[slot], playing, ticks);
+            this.ShowCombatant(view, view.Party[slot], this.party[slot], playing, picture);
             this.ShowStatusLine(view.Party[slot], this.statusLines[slot]);
         }
 
         for (int slot = 0; slot < view.Enemies.Count; slot += 1)
         {
-            this.ShowCombatant(view, view.Enemies[slot], this.enemies[slot], playing, ticks);
+            this.ShowCombatant(view, view.Enemies[slot], this.enemies[slot], playing, picture);
         }
 
+        this.ShowBurst(view, playing, picture, run.Tick - ticks);
         this.ShowMessage(view, playing);
-        this.ShowNumber(view, playing, ticks);
+        this.ShowNumber(view, playing, picture);
         this.ShowStrip(run);
         this.ShowCommands(view);
+    }
+
+    /// <summary>Shows the burst of the hit that plays, from the hit file of its target, and hides every other burst (D-879).</summary>
+    /// <param name="view">The view of the fight.</param>
+    /// <param name="playing">The event that plays, or no value.</param>
+    /// <param name="picture">The ticks of the picture.</param>
+    /// <param name="started">The tick of the run when the event started, which seeds the burst.</param>
+    private void ShowBurst(BattleView view, BattleEvent? playing, int picture, long started)
+    {
+        int? age = playing is null ? null : BattleTimes.BurstAge(this.pace, playing, picture);
+        HitBurst? shown = null;
+        if (playing is not null && age is int ticks)
+        {
+            BattleTarget target = playing.Target ?? throw new InvalidOperationException(
+                $"The hit of {playing.Actor.Describe()} at tick {started} holds no target (T-2).");
+            ShownCombatant struck = view.At(target);
+            HitEffect effect = this.content.Effects.HitOf(struck.Id);
+            shown = this.bursts[effect.Id.Value];
+
+            // The body of the target: half its height above its feet. The party stands on the
+            // right, so a burst on an enemy leaves toward the west (D-832).
+            FieldPlace place = BattleLayout.PlaceOf(view, struck);
+            CombatantNodes nodes = target.Side == BattleSide.Party ? this.party[target.Slot] : this.enemies[target.Slot];
+            var point = new Vector2(place.X, place.Feet - (nodes.Height / 2));
+            int away = target.Side == BattleSide.Enemy ? -1 : 1;
+            shown.Seek(point, away, unchecked((uint)started), ticks);
+        }
+
+        foreach (HitBurst burst in this.bursts.Values)
+        {
+            if (!ReferenceEquals(burst, shown))
+            {
+                burst.Hide();
+            }
+        }
     }
 
     /// <summary>
@@ -524,12 +633,12 @@ public sealed class BattleScreen
         }
 
         FieldPlace place = BattleLayout.PlaceOf(view, shown);
-        bool acts = playing is not null && playing.Actor == shown.Target && BattleTimes.Poses(playing.Kind, ticks);
-        int x = place.X + (acts ? BattleLayout.LungeOf(shown.Target.Side) : 0);
+        bool acts = playing is not null && playing.Actor == shown.Target && BattleTimes.Poses(this.pace, playing.Kind, ticks);
+        int x = place.X + (acts ? BattleLayout.LungeOf(this.pace, shown.Target.Side) : 0);
         nodes.Sprite.Position = new Vector2(x, place.Feet);
         nodes.Sprite.Texture = acts && nodes.Pose is not null ? nodes.Pose : nodes.Idle;
 
-        bool struck = playing is not null && playing.Target == shown.Target && BattleTimes.Flashes(playing.Kind, ticks);
+        bool struck = playing is not null && playing.Target == shown.Target && BattleTimes.Flashes(this.pace, playing.Kind, ticks);
         nodes.Material.SetShaderParameter(FlashAmount, struck ? 1.0f : 0.0f);
 
         // A character who went down stays on the field, dim, until the down pose of PR-17
@@ -614,7 +723,7 @@ public sealed class BattleScreen
     private void ShowNumber(BattleView view, BattleEvent? playing, int ticks)
     {
         BattleTarget? over = playing is null ? null : NumberTargetOf(playing);
-        int? rise = over is null ? null : BattleTimes.NumberRise(ticks);
+        int? rise = over is null ? null : BattleTimes.NumberRise(this.pace, ticks);
         if (playing is null || over is not BattleTarget target || rise is not int height)
         {
             this.number.Visible = false;

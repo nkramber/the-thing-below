@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Effects;
 
 namespace TheThingBelow.Game.Ui;
 
@@ -200,9 +201,16 @@ public static class BattleLayout
     }
 
     /// <summary>Gives the step of an enemy lunge: toward the party, which stands on the right (D-832).</summary>
+    /// <param name="pace">The battle file, which holds the length of the lunge (D-883).</param>
     /// <param name="side">The side of the combatant that acts.</param>
     /// <returns>The columns of the lunge, or zero for a character, which takes its pose instead.</returns>
-    public static int LungeOf(BattleSide side) => side == BattleSide.Enemy ? BattleTimes.LungePixels : 0;
+    /// <exception cref="ArgumentNullException">The battle file is null (T-2).</exception>
+    public static int LungeOf(BattleEffects pace, BattleSide side)
+    {
+        ArgumentNullException.ThrowIfNull(pace);
+
+        return side == BattleSide.Enemy ? pace.LungePixels : 0;
+    }
 
     /// <summary>
     /// Gives the width of the fill of a health bar, in art pixels (D-826). A combatant with

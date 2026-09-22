@@ -1,0 +1,10 @@
+{
+ "comment": "The blood of a hit on flesh (D-186, D-879). A short spray leaves the body away from the blow, and the drops fall fast. The scene light falls on the blood, as on the figure that bleeds. PR-17 names the enemies of the first playable (D-882).",
+ "id": "effect.blood",
+ "serves": ["character.marrek", "enemy.fixture_grunt"],
+ "lit": true,
+ "emitters": [
+  { "amount": 14, "lifetime_ticks": 24, "colors": ["x", "R"], "size": 2, "area": 3, "direction": -35, "spread": 40, "slowest_speed": 80, "fastest_speed": 170, "gravity": 480 },
+  { "amount": 10, "lifetime_ticks": 18, "colors": ["x", "R", "r"], "size": 1, "area": 2, "direction": -10, "spread": 70, "slowest_speed": 50, "fastest_speed": 130, "gravity": 360 }
+ ]
+}

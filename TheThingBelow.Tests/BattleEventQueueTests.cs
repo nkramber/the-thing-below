@@ -165,13 +165,13 @@ public sealed class BattleEventQueueTests
             if (playing is not null && before is not null && !ReferenceEquals(playing, before))
             {
                 changes += 1;
-                int needed = (int)ticksOf.Invoke(null, [before.Kind])!;
+                int needed = (int)ticksOf.Invoke(null, [Content.Value.Effects.Battle, before.Kind])!;
                 Assert.True(beforeTicks >= needed - 1, $"The event '{before.Kind}' played {beforeTicks + 1} ticks, and it needs {needed}.");
             }
 
             if (run.TakesBattleCommand)
             {
-                Assert.True(playing is null || run.PlayingTicks >= (int)ticksOf.Invoke(null, [playing.Kind])!, "The menu opened while an event played.");
+                Assert.True(playing is null || run.PlayingTicks >= (int)ticksOf.Invoke(null, [Content.Value.Effects.Battle, playing.Kind])!, "The menu opened while an event played.");
                 AssertViewMatches(run);
                 Battle battle = run.State.Battle!;
                 run.Queue(Intent.OfPlayer(IntentIds.BattleAttack, battle.MeleeTargets(BattleSide.Enemy)[0].Target, null));

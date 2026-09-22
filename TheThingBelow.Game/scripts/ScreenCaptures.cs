@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Game.Ui;
+using TheThingBelow.Storage;
 
 namespace TheThingBelow.Game;
 
@@ -29,6 +30,11 @@ public sealed record ScreenCapture(string Fixture, string Frame, int Width, int 
 /// arrives (D-203). The session writes the frame after the tick.
 /// </remarks>
 public sealed record WalkTick(string Action, int Tick);
+
+/// <summary>One frame of the battle fixture at one level of the flash and shake reduction (D-863).</summary>
+/// <param name="Frame">The name of the frame, such as `heavy-reduced-1x`.</param>
+/// <param name="Level">The level that the battle screen of the frame takes.</param>
+public sealed record LevelFrame(string Frame, EffectLevel Level);
 
 /// <summary>
 /// The list of captures that the screen-test job takes on every run (D-172, D-734). The
@@ -79,10 +85,25 @@ public static class ScreenCaptures
     public const string BattleBlowFrame = "blow-1x";
 
     /// <summary>
-    /// The ticks of the hit that the blow frame shows: the flash is on, and the number rises
-    /// (D-829).
+    /// The ticks after the blow that the blow frame shows: the flash is on, and the number
+    /// rises (D-829).
     /// </summary>
-    public const int BlowFrameTicks = Ui.BattleTimes.BlowTick + 2;
+    public const int TicksAfterBlow = 2;
+
+    /// <summary>The frame of the battle fixture that shows the blood of a hit on the grunt (D-879, D-882).</summary>
+    public const string BattleBloodFrame = "blood-1x";
+
+    /// <summary>The frame of the battle fixture that shows the sparks of a hit on the brute of the deep room (D-879, D-882).</summary>
+    public const string BattleSparksFrame = "sparks-1x";
+
+    /// <summary>The frame of the battle fixture that stages a heavy blow inside its hit-stop, at the full level (D-877, D-880).</summary>
+    public const string BattleStopFrame = "heavy-stop-1x";
+
+    /// <summary>The ticks after the blow that the blood, the sparks, and each heavy frame show: the burst has spread (D-879).</summary>
+    public const int BurstTicksAfterBlow = 8;
+
+    /// <summary>The ticks after the blow that the stop frame shows: inside the hit-stop of the battle file (D-880).</summary>
+    public const int StopTicksAfterBlow = 3;
 
     /// <summary>The id of the large picture that the picture fixture draws (D-819).</summary>
     public const string FixturePicture = "picture.fixture_backdrop";
@@ -107,7 +128,15 @@ public static class ScreenCaptures
     /// </remarks>
     public static IReadOnlyList<string> WalkSteps { get; } = [InputActions.StepNorth, InputActions.StepSouth];
 
-    // This list stays above `All`, because the build of `All` reads it, and a static
+    /// <summary>The frames of the battle fixture that stage a heavy blow after its hit-stop, one for each level (D-863, D-877).</summary>
+    public static IReadOnlyList<LevelFrame> HeavyFrames { get; } =
+    [
+        new("heavy-full-1x", EffectLevel.Full),
+        new("heavy-reduced-1x", EffectLevel.Reduced),
+        new("heavy-off-1x", EffectLevel.Off),
+    ];
+
+    // These lists stay above `All`, because the build of `All` reads them, and a static
     // property takes its value in the order of the file (T-2).
     /// <summary>Every capture that one session of the job takes, in a fixed order.</summary>
     public static IReadOnlyList<ScreenCapture> All { get; } = Build();
@@ -175,6 +204,18 @@ public static class ScreenCaptures
         captures.Add(new ScreenCapture(
             BattleFixture, BattleBlowFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
 
+        // Each battle effect draws at 1x, and the heavy blow draws at each level of the flash
+        // and shake reduction (D-214, D-863, exit test 1 of PR-57).
+        foreach (string frame in new[] { BattleBloodFrame, BattleSparksFrame, BattleStopFrame })
+        {
+            captures.Add(new ScreenCapture(BattleFixture, frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        }
+
+        foreach (LevelFrame heavy in HeavyFrames)
+        {
+            captures.Add(new ScreenCapture(BattleFixture, heavy.Frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        }
+
         // The settings screen draws at both body sizes: 32 at 1x, and 24 at 1080 rows (D-707).
         // The conflict line draws at 1x, the floor of the Steam Deck (D-862).
         captures.Add(new ScreenCapture(
@@ -183,6 +224,55 @@ public static class ScreenCaptures
         captures.Add(new ScreenCapture(
             SettingsFixture, SettingsConflictFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         return captures;
+    }
+
+    /// <summary>Gives the ticks after the blow that a frame of the battle fixture shows (D-829).</summary>
+    /// <param name="frame">The name of the frame, such as `blood-1x`.</param>
+    /// <returns>The ticks, or no value for a frame that shows the command menu.</returns>
+    public static int? TicksAfterBlowOf(string frame)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(frame);
+
+        if (string.CompareOrdinal(frame, BattleBlowFrame) == 0)
+        {
+            return TicksAfterBlow;
+        }
+
+        if (string.CompareOrdinal(frame, BattleStopFrame) == 0)
+        {
+            return StopTicksAfterBlow;
+        }
+
+        bool burst = string.CompareOrdinal(frame, BattleBloodFrame) == 0 || string.CompareOrdinal(frame, BattleSparksFrame) == 0;
+        return burst || HeavyLevelOf(frame) is not null ? BurstTicksAfterBlow : null;
+    }
+
+    /// <summary>Tells whether a frame of the battle fixture stages a heavy blow in place of the blow of the fight (D-877).</summary>
+    /// <param name="frame">The name of the frame.</param>
+    /// <returns>True for the stop frame and each heavy frame.</returns>
+    public static bool StagesHeavyBlow(string frame)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(frame);
+
+        return string.CompareOrdinal(frame, BattleStopFrame) == 0 || HeavyLevelOf(frame) is not null;
+    }
+
+    /// <summary>Gives the level of the flash and shake reduction of a frame of the battle fixture (D-863).</summary>
+    /// <param name="frame">The name of the frame.</param>
+    /// <returns>The level of a heavy frame, and the default level, full, for every other frame (D-868).</returns>
+    public static EffectLevel LevelOf(string frame) => HeavyLevelOf(frame) ?? EffectLevel.Full;
+
+    private static EffectLevel? HeavyLevelOf(string frame)
+    {
+        foreach (LevelFrame heavy in HeavyFrames)
+        {
+            if (string.CompareOrdinal(heavy.Frame, frame) == 0)
+            {
+                return heavy.Level;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>Gives every capture of one fixture, in the order of <see cref="All"/> (D-782).</summary>

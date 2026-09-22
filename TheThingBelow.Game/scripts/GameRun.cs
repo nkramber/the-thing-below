@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
@@ -38,14 +39,16 @@ public sealed class GameRun
     private readonly BattleEventQueue events = new();
     private readonly Simulation simulation;
     private readonly RunRecorder recorder;
+    private readonly BattleEffects pace;
     private BattleView? view;
     private BattleEvent? playing;
     private long playingSince;
 
-    private GameRun(Simulation simulation, RunRecorder recorder, MessageSpeed messageSpeed)
+    private GameRun(Simulation simulation, RunRecorder recorder, BattleEffects pace, MessageSpeed messageSpeed)
     {
         this.simulation = simulation;
         this.recorder = recorder;
+        this.pace = pace;
         this.MessageSpeed = messageSpeed;
     }
 
@@ -55,6 +58,9 @@ public sealed class GameRun
     /// that the player then makes. Thus a replay needs no setting (T-7).
     /// </remarks>
     public MessageSpeed MessageSpeed { get; set; }
+
+    /// <summary>The pace of the fights on screen, from the battle file of the content set (D-829, D-883).</summary>
+    public BattleEffects Pace => this.pace;
 
     /// <summary>The count of ticks since the start of the run (D-164).</summary>
     public long Tick => this.simulation.Tick;
@@ -150,7 +156,7 @@ public sealed class GameRun
             return false;
         }
 
-        this.playingSince = this.simulation.Tick - BattleTimes.HoldTicksOf(this.playing.Kind, this.MessageSpeed);
+        this.playingSince = this.simulation.Tick - BattleTimes.HoldTicksOf(this.pace, this.playing.Kind, this.MessageSpeed);
         return true;
     }
 
@@ -177,7 +183,7 @@ public sealed class GameRun
     /// <summary>True when no event plays, or the one that plays reached its end (D-829).</summary>
     private bool PlayedOut =>
         this.playing is null
-        || this.simulation.Tick - this.playingSince >= BattleTimes.HoldTicksOf(this.playing.Kind, this.MessageSpeed);
+        || this.simulation.Tick - this.playingSince >= BattleTimes.HoldTicksOf(this.pace, this.playing.Kind, this.MessageSpeed);
 
     /// <summary>Starts a run over a content set.</summary>
     /// <param name="content">The content of this build, which gives the content hash (D-648).</param>
@@ -198,7 +204,7 @@ public sealed class GameRun
 
         RunHeader header = RunHeader.ForThisBuild(content.Hash, seed);
         Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), content.Battle, debugHandlers);
-        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), messageSpeed);
+        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content.Effects.Battle, messageSpeed);
     }
 
     /// <summary>
@@ -237,7 +243,7 @@ public sealed class GameRun
             content.Battle,
             debugHandlers);
         RunHeader header = RunHeader.ForThisBuild(content.Hash, save.Header.Seed);
-        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), messageSpeed);
+        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content.Effects.Battle, messageSpeed);
     }
 
     /// <summary>

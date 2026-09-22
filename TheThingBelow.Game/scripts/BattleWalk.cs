@@ -36,6 +36,12 @@ public static class BattleWalk
     /// <summary>The row of the night route of the hall patrol, where the walk turns west.</summary>
     private const int PatrolRow = 7;
 
+    /// <summary>The column of the passage from the first room south to the deep room (D-882).</summary>
+    private const int DeepColumn = 6;
+
+    /// <summary>The group of the elite patrol of the deep room, whose brute takes the sparks (D-882).</summary>
+    private const string EliteGroup = "group.fixture_elite";
+
     /// <summary>Gives the step of the walk: east along the hall, then south, then west (D-767).</summary>
     /// <param name="party">The party on the first map.</param>
     /// <returns>The intent id of the step.</returns>
@@ -52,6 +58,22 @@ public static class BattleWalk
         return party.LeadAt.Y < PatrolRow ? IntentIds.MoveSouth : IntentIds.MoveWest;
     }
 
+    /// <summary>Gives the step of the walk to the deep room: across to the passage, then south (D-882).</summary>
+    /// <param name="party">The party on the first map.</param>
+    /// <returns>The intent id of the step.</returns>
+    /// <exception cref="ArgumentNullException">The party is null (T-2).</exception>
+    public static ContentId StepToDeep(MapState party)
+    {
+        ArgumentNullException.ThrowIfNull(party);
+
+        if (party.LeadAt.X < DeepColumn)
+        {
+            return IntentIds.MoveEast;
+        }
+
+        return party.LeadAt.X > DeepColumn ? IntentIds.MoveWest : IntentIds.MoveSouth;
+    }
+
     /// <summary>Walks into the fight, and runs it until the first command of a character (D-532).</summary>
     /// <param name="run">The run, on the first map at the fixture seed.</param>
     /// <exception cref="ArgumentNullException">The run is null (T-2).</exception>
@@ -60,6 +82,33 @@ public static class BattleWalk
     {
         ArgumentNullException.ThrowIfNull(run);
 
+        ToFirstCommand(run, StepOf, stepWhileStepping: true);
+    }
+
+    /// <summary>
+    /// Walks into the fight of the elite patrol of the deep room, and runs it until the first
+    /// command of a character. The brute of that group takes the sparks (D-882).
+    /// </summary>
+    /// <param name="run">The run, on the first map at the fixture seed.</param>
+    /// <exception cref="ArgumentNullException">The run is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">No command came inside the limit, a tick wrote an error, or the walk met another group (T-2).</exception>
+    public static void ToFirstCommandOfElite(GameRun run)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+
+        // The walk turns at the passage, so it waits for the end of each step. A step queued
+        // inside a step runs after it and carries the party past the turn.
+        ToFirstCommand(run, StepToDeep, stepWhileStepping: false);
+        string group = run.State.Battle?.Group.Id.Value ?? "no group";
+        if (string.CompareOrdinal(group, EliteGroup) != 0)
+        {
+            throw new InvalidOperationException(
+                $"The walk to the deep room met the group '{group}', and it looks for '{EliteGroup}' (D-882, T-2).");
+        }
+    }
+
+    private static void ToFirstCommand(GameRun run, Func<MapState, ContentId> stepOf, bool stepWhileStepping)
+    {
         for (int tick = 0; tick < TickLimit; tick += 1)
         {
             if (run.TakesBattleCommand)
@@ -67,9 +116,9 @@ public static class BattleWalk
                 return;
             }
 
-            if (!run.InBattle)
+            if (!run.InBattle && (stepWhileStepping || run.Party.Stepping is null))
             {
-                run.Queue(Intent.OfPlayer(StepOf(run.Party)));
+                run.Queue(Intent.OfPlayer(stepOf(run.Party)));
             }
 
             OneTick(run);
@@ -92,7 +141,7 @@ public static class BattleWalk
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentOutOfRangeException.ThrowIfNegative(ticksIntoHit);
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(ticksIntoHit, Ui.BattleTimes.StrikeTicks);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(ticksIntoHit, run.Pace.StrikeTicks);
 
         for (int tick = 0; tick < TickLimit; tick += 1)
         {

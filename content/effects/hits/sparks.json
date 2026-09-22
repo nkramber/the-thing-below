@@ -1,0 +1,9 @@
+{
+ "comment": "The sparks of a hit on armor or stone (D-186, D-879). A fast fan of hot points leaves the blow and dies in a quarter of a second. The sparks give their own light, so the scene light does not dim them. The fixture brute counts as armored (D-882).",
+ "id": "effect.sparks",
+ "serves": ["enemy.fixture_brute"],
+ "lit": false,
+ "emitters": [
+  { "amount": 18, "lifetime_ticks": 16, "colors": ["a", "A", "j"], "size": 1, "area": 2, "direction": -25, "spread": 75, "slowest_speed": 140, "fastest_speed": 280, "gravity": 320 }
+ ]
+}

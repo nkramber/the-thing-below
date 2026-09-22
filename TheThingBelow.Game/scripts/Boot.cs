@@ -373,9 +373,11 @@ public partial class Boot : Node
 
             CommandMemory remembered = this.memory ?? throw new InvalidOperationException(
                 $"A fight started at tick {open.Tick}, and the session made no command memory (T-2).");
+            GameSettings chosen = this.settings ?? throw new InvalidOperationException(
+                $"A fight started at tick {open.Tick}, and the session read no settings (T-2).");
 
             this.map?.Hide();
-            this.battle = BattleScreen.Build(built, shown, loaded, open, remembered);
+            this.battle = BattleScreen.Build(built, shown, loaded, open, remembered, chosen.Access.Effects);
             return;
         }
 
@@ -880,7 +882,7 @@ public partial class Boot : Node
     /// <param name="before">The settings before the screen opened.</param>
     /// <param name="after">The settings of the screen.</param>
     /// <remarks>
-    /// The audio of PR-69 and PR-70, the effects of PR-57 to PR-60, the vibration of D-434, and
+    /// The audio of PR-69 and PR-70, the effects of PR-58 to PR-60, the vibration of D-434, and
     /// the type-out of PR-36 read their settings from <see cref="settings"/> when they land. A
     /// change of the fit or the body size builds the screen again (D-707).
     /// </remarks>
@@ -891,6 +893,10 @@ public partial class Boot : Node
         CommandMemory remembered = this.memory ?? throw new InvalidOperationException(
             $"The settings applied at tick {run.Tick}, and the session made no command memory (T-2).");
         remembered.Enabled = after.Battle.RememberCursor;
+        if (this.battle is BattleScreen fight)
+        {
+            fight.Effects = after.Access.Effects;
+        }
 
         if (after.Display.Window != before.Display.Window)
         {
@@ -1596,8 +1602,8 @@ public partial class Boot : Node
             {
                 if (screen is null)
                 {
-                    screen = BattleScreen.Build(built, shownBase, loaded, open, new CommandMemory(SmokeSettings().Battle.RememberCursor));
-                    nodes = $"{screen.CombatantCount} combatants over {screen.BackdropCopies} backdrop copies in {screen.CheckLights()} key light";
+                    screen = BattleScreen.Build(built, shownBase, loaded, open, new CommandMemory(SmokeSettings().Battle.RememberCursor), SmokeSettings().Access.Effects);
+                    nodes = $"{screen.CombatantCount} combatants over {screen.BackdropCopies} backdrop copies in {screen.CheckLights()} key light, with {screen.CheckBursts()} particle nodes";
                 }
 
                 screen.Show(open);

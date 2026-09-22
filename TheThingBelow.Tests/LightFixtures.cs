@@ -104,7 +104,7 @@ public static class LightFixtures
     /// <param name="lightsInView">The light row.</param>
     /// <returns>The body.</returns>
     public static string BudgetBody(int lightsInView) =>
-        $$"""{ "comment": "a test budget", "lights_in_view": {{lightsInView}} }""";
+        $$"""{ "comment": "a test budget", "lights_in_view": {{lightsInView}}, "live_particles": 8192 }""";
 
     /// <summary>Makes the light files of the test place: the kind, the decor file, the setup, the carried light, and the budget.</summary>
     /// <param name="decor">The body of the decor file.</param>
