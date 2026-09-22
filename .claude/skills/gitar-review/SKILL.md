@@ -5,6 +5,8 @@ description: Get a Gitar review of the head of a pull request, wait three minute
 
 # Gitar review skill
 
+**Gitar pause (D-895).** The owner paused the gitar pass of this repo. While the pause holds, do not follow this skill. The procedure stays here for the end of the pause.
+
 The GitHub app `gitar-bot` reviews pull requests. This skill gets a Gitar review of the head of a pull request, and then answers each finding. A pull request of documents alone waits for the review too.
 
 Each repo that uses Gitar keeps a copy of this file. A rule of the repo wins over this skill. For example, a repo can ask for a second review, or it can limit who replies to Gitar.
