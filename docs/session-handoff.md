@@ -1,5 +1,38 @@
 # Session handoff
 
+## Session 205: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-57, the baseline round. Repository: the-thing-below. Branch: `feat/pr-57-effects`. PR: #56. Role: author. Base: `8aaf0f6`.
+
+### What this session did, and why
+
+- CI run 35741921184 on `f3f2e1f` failed as planned. Each leg failed the six baseline tests alone, and the screen-test job found the six new captures and 132 changed pixels in `battle-blow-1x.png`.
+- The two capture runs on lavapipe matched each other, so the seek of a burst gives one picture on CI too.
+- Read each of the seven frames of the `screen-captures` artifact, and committed them to `screens/baseline/` (D-733, D-784). The heavy frames move the picture by -4, 4, 1, and 0 art pixels, and the number stays still.
+
+### The state of the build
+
+- The remote head before this round is `f3f2e1f`. This round adds the seven baselines and this entry.
+- The review-gate check fails on RG 3 alone: no review record at `docs/reviews/pr-56.md` yet.
+
+### What is in flight
+
+- The CI run of this push, and the gitar pass on it.
+- The Codex review in `docs/reviews/pr-56.md`.
+
+### Traps and gotchas
+
+- The baselines come from the CI artifact alone. The Mac draws other pixels with the same renderer.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Follow the `gitar-review` skill on this push, and answer each comment. Then tell the owner that the PR is ready for Codex.
+
 ## Session 204: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -317,42 +350,3 @@ None.
 ### The next concrete action
 
 Read the `changed paths` log of the push of this entry: the build jobs skip, and each gate reports `success`. Then the other provider reviews PR #54 at effective head `c9429c4`.
-
-## Session 195: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-93, round 1. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: the PR-93 intent, and GitHub gives the number at the open. Role: author. Base: `d1a03f7`.
-
-### What this session did, and why
-
-- Asked OQ-219 and two more questions that the work found. D-857, D-858, and D-859 hold the answers.
-- D-857: `CLAUDE.md` and `AGENTS.md` join the skip set. `.claude/settings.json` was in the set already through `.claude/`.
-- Added rules AGENTS 1 and AGENTS 2 to ste-check. AGENTS 1 reads the rule of D-20. AGENTS 2 reads the count of the Smoke filter option that `TestFilterTests` reads. A docs-only PR skips that test, so ste-check reads the same facts on every PR.
-- D-858: a docs-only push skips the other jobs when each check that it skips passed on the previous head. review-gate and ste-check do not count.
-- D-859: the new `changed-paths` command of Tools decides. The workflow collects the paths and the check runs of the `before` commit, and the job gets `checks: read`.
-- Updated the `ste-writing` and `one-pr-one-session` skills, `area-ci.md` section 7.1, and section 7.15 of the phase 2 file.
-
-### The state of the build
-
-- `make verify` passes with 1,920 tests outside the Smoke category, 0 ste-check findings, and the smoke session.
-- A local run of the two workflow steps against PR #53 gave the expected answer in four cases: a green head, a cancelled head, a force push, and a push to `main`.
-- The remote head is the push of this entry.
-
-### What is in flight
-
-- The Gitar pass, then the review of the other provider. The PR changes `.github/workflows/` and adds decision rows, so no label applies (D-401, D-560).
-
-### Traps and gotchas
-
-- The run of a new push cancels the run of the previous head. A quick docs push after a code push thus runs every job, because the checks of the previous head show `cancelled`.
-- The first CI run of this PR runs every job, because the PR changes code.
-- Branch protection does not require `screen-test`, but the skip rule reads it. The rule is safe, because an absent run fails it.
-- The shell step reads `github.event.before`. That field exists only on the `synchronize` action.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Open the PR. Load the `gitar-review` skill, wait for Gitar, and answer each comment. Then tell the owner that the PR is ready for the other provider.
