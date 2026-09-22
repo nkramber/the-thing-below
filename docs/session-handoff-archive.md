@@ -1,5 +1,41 @@
 # Session handoff archive
 
+## Session 190: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-56, round 4. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
+
+### What this session did, and why
+
+- The owner read the lit map and asked for lit walls with no light behind a wall of one tile, for figures that cast shadows, and for 50% more light. D-852 to D-855 record the answers.
+- Core gives the shape of each wall from the terrain: a south face of 24 pixels, other faces of 8, a strip of 2 in a wall of one tile, and a full tile at a corner.
+- Each source is a pair of Godot lights, and each figure blocks light at its feet. The light row is 24, and each source counts two.
+- The Deck test on `spike/deck-test` (commit `3f9fdda`) gains the stages `pairs-4` to `pairs-24` and `full-load-24`. A run on the Mac proved that each stage runs.
+- The owner asked for CI to skip docs-only changes. D-856 and PR-93 hold it, and OQ-219 blocks it.
+
+### The state of the build
+
+- `make verify` passes with 1,862 tests, and `make smoke` passes. The remote head is this round.
+
+### What is in flight
+
+- The owner runs the Deck test. PR-56 merges only when `pairs-24` and `full-load-24` hold 60 frames per second under Mobile (D-854, G-14).
+- The Codex review of `6095f70` gave `Ready for owner merge`, and this round moves the effective head, so the review repeats.
+- The screen-test job fails on this push, because the walls and the shadows change each lit frame. The next round commits the new baseline.
+
+### Traps and gotchas
+
+- One Godot light cannot light a figure and keep the shadow of that figure off it. The pair and the light masks of `WorldLights` solve it.
+- macOS has no `timeout` command.
+
+### The questions that block progress
+
+The Deck result of D-854.
+
+### The next concrete action
+
+Commit the baseline from the `screen-captures` artifact, then answer Gitar.
+
 ## Session 189: 2026-09-21, Codex
 
 Author: Codex
