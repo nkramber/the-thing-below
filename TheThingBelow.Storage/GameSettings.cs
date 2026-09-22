@@ -38,16 +38,16 @@ public enum TextSpeed
     Fast,
 }
 
-/// <summary>The three times that a battle message stays (D-866).</summary>
+/// <summary>The three speeds of the events of the battle screen (D-866, D-873).</summary>
 public enum MessageSpeed
 {
-    /// <summary>1.5 seconds.</summary>
+    /// <summary>Each event holds 1.5 times as long as at normal.</summary>
     Slow,
 
-    /// <summary>The default. 1 second.</summary>
+    /// <summary>The default. Each event holds the ticks of PR-10: 32 for a line, and 44 for a strike.</summary>
     Normal,
 
-    /// <summary>0.5 seconds.</summary>
+    /// <summary>Each event holds half as long as at normal.</summary>
     Fast,
 }
 
@@ -86,7 +86,7 @@ public sealed record AudioSettings(int Master, int Music, int Effects, int Ambie
 public sealed record ControlSettings(ControlBindings Bindings, int DeadZone, bool Vibration);
 
 /// <summary>The battle group (D-226).</summary>
-/// <param name="Messages">How long each battle message stays (D-866).</param>
+/// <param name="Messages">How long each event of the battle screen holds (D-866, D-873).</param>
 /// <param name="RememberCursor">True when the command menu opens on the last command of each member.</param>
 public sealed record BattleSettings(MessageSpeed Messages, bool RememberCursor);
 
