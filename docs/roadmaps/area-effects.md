@@ -199,16 +199,18 @@ Built by PR-57. Phase file: `phase-2-first-playable.md`.
 
 ### 7.8 Battle effects
 
-Built by PR-10 and PR-57. Phase file: `phase-2-first-playable.md`.
+Built by PR-10, PR-57, and PR-12. Phase file: `phase-2-first-playable.md`.
 
 - Battle effects are heavy and short (D-186).
 - PR-10 draws the attack pose, the lunge of an enemy, the hit flash, and the damage numbers (D-96, D-108, D-213, D-832). The hit flash is a `.gdshader` file of Game (D-825).
-- PR-10 keeps each timing as a constant of Game, in ticks, and PR-57 moves each one into its effect files (D-829).
-- PR-57 adds blood and sparks on a hit, a short screen shake on a heavy blow, and a brief hit-stop (D-186).
-- PR-57 also adds the flash of a spell, with a point light of PR-56 for its length (D-183, D-186).
+- PR-10 keeps each timing as a constant of Game, in ticks, and PR-57 moves each one into the battle file (D-829, D-883).
+- PR-57 adds blood or sparks on a hit, from the hit file that serves the target (D-186, D-879).
+- PR-57 also adds a short screen shake and a brief hit-stop on a heavy blow (D-186, D-880).
+- A heavy blow is a hit on an element that the target is weak to (D-877).
+- PR-12 adds the flash of a spell, with a point light of PR-56 for its length (D-183, D-878).
 - A heavy blow also starts the vibration of D-434, and `area-ui-input.md` holds it.
 - A screen shake moves the battle picture alone, by whole pixels of the frame. The UI stays still (D-876).
-- The flash and shake reduction gives each flash and each shake a reduced form (D-214). The screen tests capture each of the three levels: full, reduced, and off (D-863).
+- The flash and shake reduction gives each flash and each shake a reduced form (D-214). The hit flash of PR-10 stays at each level (D-881). The screen tests capture each of the three levels: full, reduced, and off (D-863).
 - Core resolves each action and emits its events, and Game plays the effects from them (D-168). `area-battle.md` holds how the battle scene paces the events of a turn under D-522.
 
 > *In plain English:* a hit in battle shows blood, sparks, and a jolt, and it passes fast so the fight keeps its pace. A player who needs calm can turn the flashes and the shakes down.
@@ -291,7 +293,8 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | PR-10 | The attack pose, the hit flash, the damage numbers, and the drift of the backdrop | D-96, D-205, D-213 |
 | PR-48 | The normal maps and their review sheets | D-184, D-521 |
 | PR-56 | Light setups, decor files, point lights, the carried light, shadows, and the budget test | D-183, D-442, D-523, D-842 to D-847, D-850 |
-| PR-57 | Effect files, particles, and the battle effects | D-182, D-186 |
+| PR-57 | Effect files, particles, the shake, and the hit-stop | D-182, D-186, D-877 to D-883 |
+| PR-12 | The flash of a spell | D-186, D-878 |
 | PR-58 | The four ambient kinds | D-187, D-202 |
 | PR-59 | Glow | D-188 |
 | PR-92 | The tilt-shift blur, the vignette, and the light shafts of the HD-2D look | D-849 |

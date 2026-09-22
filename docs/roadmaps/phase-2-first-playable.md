@@ -790,14 +790,16 @@ Area file: `area-effects.md` sections 7.7 and 7.8.
 - The effect file: the emitters, the palette colors, and the timings in ticks (D-182, D-266).
 - The record and the strict reader of an effect file in Core, which no rule reads (D-517).
 - The Godot particle nodes that Game builds from each effect file at load, with no resource file (D-182, G-6).
-- The blood and the sparks of a hit, the short screen shake of a heavy blow, and the brief hit-stop (D-186).
-- The flash of a spell, with a point light of PR-56 for its length (D-183, D-186).
-- The reduced form of each flash and each shake, under the setting of PR-63 (D-214, D-863).
+- The blood or the sparks of a hit, from the hit file that serves the target (D-186, D-879, D-882).
+- The short screen shake and the brief hit-stop of a heavy blow: a hit on a weakness (D-186, D-876, D-877, D-880).
+- The battle file, which holds the timings of PR-10, the shake, and the hit-stop (D-829, D-883).
+- The reduced form of each shake, under the setting of PR-63. The hit flash of PR-10 stays at each level (D-214, D-863, D-881).
 - The particle rows of the effect budget (D-523).
 
 **Out of scope.**
 
 - The ambient effects (PR-58), glow (PR-59), and the transitions (PR-60).
+- The flash of a spell, which PR-12 builds with the spells (D-878).
 - The vibration of a heavy blow, which PR-63 holds as a setting and PR-70 plays (D-434).
 
 **Exit tests.**
@@ -806,7 +808,7 @@ Area file: `area-effects.md` sections 7.7 and 7.8.
 2. An effect file with a bad field fails the load with the file and the field.
 3. The budget test counts each live emitter against the particle rows (D-523).
 4. A test proves that no rule reads the length of an effect (D-522).
-5. Each effect file names the content ids that it serves, and a test fails an absent id.
+5. Each particle file names the content ids that it serves, and a test fails an absent id. A test also fails a combatant with no hit file (D-879, D-883).
 
 **Review focus.**
 
@@ -814,7 +816,7 @@ Area file: `area-effects.md` sections 7.7 and 7.8.
 - The Mobile renderer of CI holds every particle feature of the Deck, so each capture shows the effect that the Deck draws (D-731).
 - A particle color is a palette key, so the screen keeps one palette (D-181).
 
-**Questions.** None. D-875 answers OQ-98, D-876 answers OQ-99, and D-863 answers OQ-100.
+**Questions.** None. D-875 answers OQ-98, D-876 answers OQ-99, and D-863 answers OQ-100. D-877 to D-883 set the heavy blow, the hit files, the hit-stop, and the battle file.
 
 > *In plain English:* a burst of sparks is a small data file: how many bits, which colors, and how long. A hit in battle shows blood, sparks, and a jolt, and it passes fast.
 
@@ -1165,6 +1167,7 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 - The side aptitude behind a story flag of PR-68, with an empty mark in the menu before the unlock (D-282, D-283, D-538, D-556).
 - The Mend rites and the cure rites that also work from the menu outside battle (D-391).
 - The element and the status chance of each lesson move, which fill the move fields of PR-66 (D-793).
+- The flash of a spell, with a point light of PR-56 for its length, its effect files, its reduced forms, and its captures (D-183, D-186, D-863, D-878).
 - The refusal of a rite of a silenced holder, in a fight and from the menu (D-393, D-806).
 - The lesson window in the stack of PR-62.
 
