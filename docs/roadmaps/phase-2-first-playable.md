@@ -829,28 +829,31 @@ Area file: `area-effects.md` section 7.9.
 - The four ambient kinds of region one (D-187). They are snow and wind, fog and mist, fire with embers and smoke, and dust with drips and motes.
 - The weather of each map, which its time of day never changes (D-202, D-442).
 - The ambient effects over a battle backdrop (D-205).
-- The point light that a fire can carry (D-183).
+- The point light that a fire can carry. A fire is a decor kind with its light and its emitters (D-183, D-888).
+- The flame, the embers, and the changing light of each wall torch and of the carried light (D-890, D-891). Glow on a torch waits for PR-59.
 - The full-screen rows of the effect budget for fog and the other full-screen kinds (D-523).
 
 **Out of scope.**
 
 - The ambience sound, which PR-70 plays (D-424).
 - The ambient effects of the first playable, which PR-17 writes (D-520).
+- Glow, which PR-59 adds (OQ-102).
 
 **Exit tests.**
 
-1. A screen test captures each of the four kinds.
-2. Fog never hides an enemy that the player must see, by the rule of OQ-101.
+1. A screen test captures each of the four kinds, from the test ambient files of the fixture dungeon (D-889).
+2. Fog draws above the figures (D-885). The load fails a fog that makes an enemy too faint (D-886).
 3. The budget test counts each full-screen pass (D-523).
 4. An ambient effect file that names an absent map id fails with the file and the id.
+5. Each tick shows one picture of each torch light, and two torches change out of step (D-891).
 
 **Review focus.**
 
-- The answer of OQ-101 keeps an enemy visible through fog (D-187).
+- The contrast test of D-886 keeps an enemy visible through fog (D-187, D-885).
 - The weather of a map matches its ambience sound, which PR-70 adds (D-424).
 - The ambient effects draw over the backdrop, not under it (D-205).
 
-**Questions.** OQ-101.
+**Questions.** None. D-885 resolved OQ-101.
 
 > *In plain English:* each place has its own weather: snow in the pass, smoke by a fire, dust in the mine. The weather never hides an enemy that the player needs to see.
 
@@ -2126,7 +2129,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-98 | GPU particles or CPU particles, resolved by D-875 | PR-57 |
 | OQ-99 | What a screen shake moves, resolved by D-876 | PR-57 |
 | OQ-100 | The reduced form of a flash and a shake, resolved by D-863 | PR-57 and PR-63 |
-| OQ-101 | How fog keeps an enemy visible | PR-58 |
+| OQ-101 | How fog keeps an enemy visible, resolved by D-885 | PR-58 |
 | OQ-102 | How glow stays off sprites | PR-59 |
 | OQ-103 | Where shader code lives, resolved by D-825 | PR-10 and PR-60 |
 | OQ-104 | The font settings and the load from bytes | PR-61 |
