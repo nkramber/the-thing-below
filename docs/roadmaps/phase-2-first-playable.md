@@ -759,7 +759,7 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 1. Each setting saves and loads through the settings file.
 2. A remap lasts across a restart, because Godot does not save one (F-50).
 3. A remap conflict blocks the save and the exit of the screen, and the screen shows each conflict (D-862).
-4. A settings file of an older format version loads through its migration step (D-570).
+4. The fixture file of format 1 loads (D-869). A raise of the format with no migration step and no fixture file fails a test (D-570).
 5. A key that no version declares fails the load with the file and the key (T-2, D-570).
 6. No setting reaches a run record, and a test proves it (T-7).
 7. The stick dead zone is 0.5 for every action by default, and the slider goes from 0.2 to 0.8 (D-861, F-50).

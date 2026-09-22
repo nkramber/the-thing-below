@@ -204,7 +204,7 @@ Built by PR-63. Phase file: `phase-2-first-playable.md`.
 - Controls hold the remap, the stick dead zone, and the vibration setting (D-214, D-226, D-434). The dead zone is 0.5 for every action by default, with a slider from 0.2 to 0.8 (D-861).
 - Battle holds the message speed and the remembered cursor (D-226).
 - The settings file lives outside the save files and never enters a run record (T-7, D-494). It is `settings.json` at the root of the folder of D-465, and Storage writes it (D-860).
-- The settings file carries a format version, and each new setting ships with a migration step and a fixture file (D-570).
+- The settings file carries a format version, and each new setting ships with a migration step and a fixture file (D-570). PR-63 writes format 1, with no step yet (D-869).
 - A key that no version declares fails the load with the file and the key, and no setting takes a silent default (T-2, D-570).
 - Vibration has limits on macOS, and the setting turns it off for any player (F-50).
 - A remap conflict blocks the save and the exit of the screen, and the screen shows each conflict (D-862).
