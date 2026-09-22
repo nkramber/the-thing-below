@@ -20,12 +20,19 @@ public sealed class CarriedLight
     /// <summary>The highest row of the light over the feet of the lead, in art pixels: two tiles.</summary>
     public const int MostLift = 2 * AtlasPages.TileSize;
 
-    private CarriedLight(PointLightValues light, int x, int y)
+    /// <summary>The name of the carried light, which picks the steps of its fire (D-891).</summary>
+    public const string Name = "carried_light";
+
+    private CarriedLight(PointLightValues light, int x, int y, TorchFire fire)
     {
+        this.Fire = fire;
         this.Light = light;
         this.X = x;
         this.Y = y;
     }
+
+    /// <summary>The fire of the carried torch: its streams and the steps of its light, from the place of the light (D-890, D-891).</summary>
+    public TorchFire Fire { get; }
 
     /// <summary>The values of the light (D-846, F-46).</summary>
     public PointLightValues Light { get; }
@@ -58,6 +65,7 @@ public sealed class CarriedLight
         string? comment = null;
         int? x = null;
         int? y = null;
+        TorchFire? fire = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -72,6 +80,9 @@ public sealed class CarriedLight
                     break;
                 case "y":
                     y = reader.ReadInt();
+                    break;
+                case "fire":
+                    fire = TorchFire.Read(ref reader);
                     break;
                 default:
                     if (!light.TryRead(ref reader, field))
@@ -98,6 +109,6 @@ public sealed class CarriedLight
             throw reader.RefuseField(depth, "y", $"the row is {row}, and it takes {-MostLift} to 0 from the feet of the lead");
         }
 
-        return new CarriedLight(values, column, row);
+        return new CarriedLight(values, column, row, reader.Require(fire, depth, "fire"));
     }
 }

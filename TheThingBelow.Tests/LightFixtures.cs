@@ -53,9 +53,9 @@ public static class LightFixtures
         {
          "comment": "a test torch",
          "id": "decor.torch",
-         "light": { "color": "j", "strength": 12000, "range": 96, "height": 24, "x": 16, "y": 36 }
-        }
-        """;
+         "light": { "color": "j", "strength": 12000, "range": 96, "height": 24, "x": 16, "y": 36 },
+         "fire":
+        """ + UiContentFixtures.FireBody + " }";
 
     /// <summary>Makes the body of a decor file of the test map.</summary>
     /// <param name="pieces">The JSON of each piece, joined with commas.</param>
@@ -104,7 +104,7 @@ public static class LightFixtures
     /// <param name="lightsInView">The light row.</param>
     /// <returns>The body.</returns>
     public static string BudgetBody(int lightsInView) =>
-        $$"""{ "comment": "a test budget", "lights_in_view": {{lightsInView}}, "live_particles": 8192 }""";
+        $$"""{ "comment": "a test budget", "lights_in_view": {{lightsInView}}, "live_particles": 8192, "full_screen_passes": 3 }""";
 
     /// <summary>Makes the light files of the test place: the kind, the decor file, the setup, the carried light, and the budget.</summary>
     /// <param name="decor">The body of the decor file.</param>

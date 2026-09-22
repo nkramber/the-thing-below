@@ -27,8 +27,9 @@ public sealed class DecorKind
     /// <summary>The kind of the id of each decor kind (D-646).</summary>
     public const string IdKind = "decor";
 
-    private DecorKind(string file, ContentId id, PointLightValues light, int lightX, int lightY)
+    private DecorKind(string file, ContentId id, PointLightValues light, int lightX, int lightY, TorchFire fire)
     {
+        this.Fire = fire;
         this.File = file;
         this.Id = id;
         this.Light = light;
@@ -41,6 +42,9 @@ public sealed class DecorKind
 
     /// <summary>The id of the kind, such as `decor.wall_torch`.</summary>
     public ContentId Id { get; }
+
+    /// <summary>The fire of each piece of this kind: its streams and the steps of its light, from the place of the light (D-888, D-891).</summary>
+    public TorchFire Fire { get; }
 
     /// <summary>The default light of each piece of this kind (D-843).</summary>
     public PointLightValues Light { get; }
@@ -86,6 +90,7 @@ public sealed class DecorKind
         string? comment = null;
         ContentId? id = null;
         PlacedLight? light = null;
+        TorchFire? fire = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -101,6 +106,9 @@ public sealed class DecorKind
                 case "light":
                     light = ReadLight(ref reader);
                     break;
+                case "fire":
+                    fire = TorchFire.Read(ref reader);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -113,7 +121,8 @@ public sealed class DecorKind
             reader.Require(id, depth, "id"),
             placed.Values,
             placed.X,
-            placed.Y);
+            placed.Y,
+            reader.Require(fire, depth, "fire"));
     }
 
     private static PlacedLight ReadLight(ref ContentReader reader)

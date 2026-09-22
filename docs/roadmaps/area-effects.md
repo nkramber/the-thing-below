@@ -84,7 +84,10 @@ The table lists what a frame draws, from the bottom to the top.
 | Backdrop | The large pictures of a battle place, with their drift | Yes | D-205, D-516 |
 | Map | The tiles and the edge tiles of the map | Yes | D-110, D-501 |
 | Figures | The party, the enemies, the NPCs, and objects such as chests | Yes | D-199, D-207 |
-| Particles | Blood, sparks, snow, fog, embers, and dust | As its effect file sets | D-186, D-187 |
+| Flames | The flame, the embers, and the smoke of each torch | No | D-890 |
+| Particles | Blood, sparks, snow, embers, and dust | As its effect file sets | D-186, D-187 |
+| Fog | Each layer of fog of the weather of the place | As its effect file sets | D-885, D-887 |
+| Mark | The mark of a sight over an enemy | No | D-208 |
 | Light | The ambient light of the time of day, the point lights, and the shadows | — | D-183, D-442 |
 | Glow | A soft glow on light sources alone | No | D-188 |
 | UI | Menus, the HUD, text, portraits, and damage numbers | No | D-210, D-213 |
@@ -96,7 +99,9 @@ The table lists what a frame draws, from the bottom to the top.
 - PR-61 draws the world in a `SubViewport` at 1x, and `area-ui-input.md` holds the stretch mode and the fit (F-45, F-48). Otherwise light falls on screen pixels, not on art pixels.
 - The UI sits on a canvas layer above the world, and a light reaches only the canvas layers in its range. So the UI never takes scene light (D-210).
 - A transition is full-screen, so it covers the UI too (D-195, D-210).
-- OQ-101 holds whether fog draws below or above the figures (D-187).
+- Fog draws above the figures, and a contrast test keeps each enemy visible (D-187, D-885, D-886, D-892).
+- The Z index of each step above the figures follows the table: the flame of a torch 2, and the weather 3.
+- Each layer of fog takes 4 and up, a hit burst takes 5, and the mark of a sight takes 8. Fog never hides the mark (D-208).
 - `area-ui-input.md` builds the frame and the fit. This file holds what draws inside the frame.
 
 > *In plain English:* each frame stacks the same way: the world, then its light, then the menus, then a transition over all of it. Menus never catch the torchlight, and the whole stack scales to the screen at the end.
@@ -228,8 +233,11 @@ Built by PR-58. Phase file: `phase-2-first-playable.md`.
 - Region one has four ambient kinds: snow and wind, fog and mist, fire with embers and smoke, and dust with drips and motes (D-187).
 - Each map has its own weather, and its time of day changes its light alone (D-202, D-442).
 - The ambient effects of a place play over its battle backdrop (D-205).
-- A fire can carry a point light of PR-56 (D-183).
-- Fog never hides an enemy that the player must see (D-187). OQ-101 holds how PR-58 keeps that rule.
+- A fire is a decor kind, and it carries a point light of PR-56 (D-183, D-888).
+- Each wall torch and the carried light take a flame, embers, and a light that changes in steps from the tick (D-890, D-891).
+- Fog never hides an enemy that the player must see (D-187). Fog draws above the figures, and the luma test of D-886 caps its strength (D-885).
+- Fog is a text grid of a few shapes in one palette key, which drift over the view (D-887).
+- The test content holds one ambient file of each kind for the fixture dungeon, and the shipped dungeon takes dust and drips (D-889).
 - Fog and each other full-screen ambient effect count against the effect budget (D-523).
 - The ambience of each map matches its ambient effects, and `area-audio.md` holds the sound (D-424).
 - PR-17 adds the ambient effects of the village, the land near it, the mining town, and the hanging cells (D-362, D-369, D-520).
@@ -381,7 +389,7 @@ The register is `docs/questions.md` (D-19). These questions block effect PRs, an
 - OQ-94 to OQ-97 are resolved. D-842, D-843, D-845, and D-846 hold the answers.
 - OQ-98 and OQ-99 are resolved. D-875 and D-876 hold the answers.
 - OQ-100: the reduced form of a flash and a shake. Resolved 2026-09-22 by D-863.
-- OQ-101: how fog keeps an enemy visible. Blocks PR-58.
+- OQ-101: how fog keeps an enemy visible. Resolved 2026-09-22 by D-885.
 - OQ-102: how glow stays off sprites. Blocks PR-59.
 - OQ-103: where shader code lives. Resolved by D-825.
 - OQ-79: how the screen-test job pins Mesa. Closed 2026-09-20 by D-729, and D-730 holds the pin.

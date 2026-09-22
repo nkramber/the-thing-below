@@ -144,6 +144,7 @@ public partial class Boot : Node
             if (this.battle is null)
             {
                 this.map?.ShowParty(this.run.Party, this.run.TickPart);
+                this.map?.ShowWeather(this.run.Tick, seek: false);
             }
         }
         catch (Exception fault)
@@ -1373,18 +1374,85 @@ public partial class Boot : Node
         GameMap map = session.Party.Map;
         UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
         var drawn = new MapScreen();
-        drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, session.Party, loaded);
+        drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, session.Party, loaded, loaded.Effects.Ambient.WeatherOf(map.Id));
         drawn.CarriedLightOn = true;
         drawn.ShowParty(session.Party, 0);
+        drawn.ShowWeather(session.Tick, seek: false);
 
         CameraPlace view = MapCamera.Of(session.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, 0);
         string ground = drawn.DescribeGround();
         string sprites = drawn.DescribeSprites(session.Party);
         string lights = drawn.DescribeLights();
+        string weather = drawn.DescribeWeather();
+        string lights2 = DescribeTorchLights(drawn);
+        string room = DescribeAnotherRoom(loaded, drawn);
         drawn.QueueFree();
         return $"'{map.Id.Value}' at {map.Width} by {map.Height} tiles, "
             + $"the party at {session.Party.LeadAt}, the view at ({view.X}, {view.Y}), "
-            + $"{sprites}, {lights}, and {ground}";
+            + $"{sprites}, {lights}, {weather}, {lights2}, {room}, and {ground}";
+    }
+
+    /// <summary>
+    /// Reads the light of each torch over 120 ticks, and fails on a light that moves (F-99). The
+    /// flame of a torch jumps on each step of its fire, and the light of it never does (D-891).
+    /// </summary>
+    /// <param name="drawn">The map on screen, which this check steps and reads.</param>
+    /// <returns>The ticks that it read, and the count of torches that held their place.</returns>
+    /// <exception cref="InvalidOperationException">A light moved from its place (T-2, F-99).</exception>
+    private static string DescribeTorchLights(MapScreen drawn)
+    {
+        const int Ticks = 120;
+        for (int tick = 0; tick < Ticks; tick += 1)
+        {
+            drawn.ShowWeather(tick, seek: false);
+            if (!drawn.TorchLightsHoldTheirPlaces)
+            {
+                throw new InvalidOperationException(
+                    $"A torch of the map moved its light on tick {tick}, and a light that moves inside a doorway "
+                    + "moves the shadow of the passage by a whole tile (T-2, D-891, F-99).");
+            }
+        }
+
+        return $"each torch held its light over {Ticks} ticks";
+    }
+
+    /// <summary>
+    /// Walks a run of its own into the room below, where the view leaves the first room, and
+    /// reads the light and the streams of each torch back (F-97, F-98). A torch that stops
+    /// there fails this session, because the owner saw each torch go out in a play session.
+    /// </summary>
+    /// <param name="loaded">The content set of this build.</param>
+    /// <param name="drawn">The map on screen, which this check walks and reads.</param>
+    /// <returns>The place of the party and the state of each torch in that room.</returns>
+    /// <exception cref="InvalidOperationException">A step never ended, or a torch stopped (T-2).</exception>
+    private static string DescribeAnotherRoom(ContentSet loaded, MapScreen drawn)
+    {
+        GameRun walked = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
+        foreach (string action in ScreenCaptures.PitRoute)
+        {
+            walked.Queue(walked.IntentOf(action));
+            for (int tick = 0; tick < ScreenCaptures.TicksOfOneStep; tick += 1)
+            {
+                walked.Advance(SmokeFrameSeconds);
+                if (tick > 0 && walked.Party.Stepping is null)
+                {
+                    break;
+                }
+            }
+
+            if (walked.Party.Stepping is not null)
+            {
+                throw new InvalidOperationException(
+                    $"The step '{action}' of the walk to the room below never ended, and the lead stands at {walked.Party.LeadAt} (T-2).");
+            }
+        }
+
+        // The checks of the weather and of each torch run inside this call (F-97, F-98).
+        drawn.ShowParty(walked.Party, 0);
+        drawn.ShowWeather(walked.Tick, seek: false);
+        string weather = drawn.DescribeWeather();
+        CameraPlace view = MapCamera.Of(walked.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, 0);
+        return $"in the room below the party stands at {walked.Party.LeadAt} with the view at ({view.X}, {view.Y}), and {weather}";
     }
 
     /// <summary>

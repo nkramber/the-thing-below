@@ -11,6 +11,10 @@ GODOT ?= /Applications/Godot_mono.app/Contents/MacOS/Godot
 # The frame limit of the smoke session. It ends a session that does not reach `Quit` (F-64).
 SMOKE_FRAME_LIMIT := 600
 
+# The frame limit of the capture session. Each capture waits 8 frames for the window, so the
+# limit holds every capture of the list, and the screen-test job of CI holds the same number.
+SHEET_FRAME_LIMIT := 1200
+
 
 .PHONY: verify where hooks build test lint format ste-check identity content atlas smoke sheet walk run clean
 
@@ -136,7 +140,7 @@ sheet:
 	fi; \
 	echo "sheet: the capture session"; \
 	status=0; \
-	"$(GODOT)" --path $(GAME_DIR) --quit-after $(SMOKE_FRAME_LIMIT) \
+	"$(GODOT)" --path $(GAME_DIR) --quit-after $(SHEET_FRAME_LIMIT) \
 	    -- --capture "$(CURDIR)/artifacts/captures" $(if $(FIXTURE),--fixture $(FIXTURE)) > artifacts/capture.log 2>&1 || status=$$?; \
 	if ! grep -q "capture: the session wrote every frame." artifacts/capture.log; then \
 	    echo "sheet: the session wrote no success line. Read artifacts/capture.log (T-2)." >&2; \

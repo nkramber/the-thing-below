@@ -4,6 +4,7 @@ using System.IO;
 using Godot;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Game.Ui;
 using TheThingBelow.Storage;
@@ -54,6 +55,7 @@ public sealed partial class CaptureSession : Node
     private FrameRoot? frame;
     private GameRun? walkRun;
     private MapScreen? walkMap;
+    private int stepTicks;
     private int next;
     private int waited;
     private bool stopped;
@@ -228,29 +230,38 @@ public sealed partial class CaptureSession : Node
         }
 
         GameRun run = this.walkRun!;
-        if (walk.Tick == 1)
+        if (walk.Tick == 1 && string.CompareOrdinal(walk.Action, ScreenCaptures.StillAction) != 0)
         {
             run.Queue(run.IntentOf(walk.Action));
+            this.stepTicks = 0;
         }
 
+        // The walk fixture names every tick of its step, and the scroll fixture names three of
+        // them (D-782, F-97). Thus this capture runs the ticks from the last frame to its own.
         long before = run.Tick;
-        foreach (LogEntry entry in run.Advance(OneTickSeconds))
+        long asked = walk.Tick - this.stepTicks;
+        while (this.stepTicks < walk.Tick)
         {
-            if (entry.Level == LogLevel.Error)
+            foreach (LogEntry entry in run.Advance(OneTickSeconds))
             {
-                throw new InvalidOperationException(
-                    $"The tick {run.Tick} of the capture '{capture.FileName}' wrote an error: {entry.Message} (T-2).");
+                if (entry.Level == LogLevel.Error)
+                {
+                    throw new InvalidOperationException(
+                        $"The tick {run.Tick} of the capture '{capture.FileName}' wrote an error: {entry.Message} (T-2).");
+                }
             }
+
+            this.stepTicks += 1;
         }
 
-        if (run.Tick != before + 1)
+        if (run.Tick != before + asked)
         {
             throw new InvalidOperationException(
-                $"The capture '{capture.FileName}' gave the run the time of one tick, and the loop ran "
+                $"The capture '{capture.FileName}' gave the run the time of {asked} ticks, and the loop ran "
                 + $"{run.Tick - before} ticks (T-2, D-782).");
         }
 
-        if (walk.Tick == 1 && run.Party.Stepping is null)
+        if (walk.Tick == 1 && string.CompareOrdinal(walk.Action, ScreenCaptures.StillAction) != 0 && run.Party.Stepping is null)
         {
             throw new InvalidOperationException(
                 $"The intent '{walk.Action}' of the capture '{capture.FileName}' started no step from "
@@ -259,6 +270,64 @@ public sealed partial class CaptureSession : Node
 
         // A capture runs whole ticks, so it reads no part of a tick (D-782, D-820).
         this.walkMap!.ShowParty(run.Party, 0);
+        this.walkMap.ShowWeather(run.Tick, seek: true);
+    }
+
+    /// <summary>Gives the ambient file that one capture loads, or no value for the weather of the map (D-889).</summary>
+    /// <exception cref="ContentException">No ambient file holds the id of the capture (T-2).</exception>
+    private AmbientEffect? AmbientOf(ScreenCapture capture)
+    {
+        if (capture.Ambient is null)
+        {
+            return null;
+        }
+
+        return this.content.Effects.Ambient.Effect(
+            ContentId.Parse(capture.Ambient, AmbientEffect.CaptureFolder, capture.FileName));
+    }
+
+    /// <summary>
+    /// Builds the running screen with the party in the pit room: the same map fixture, walked
+    /// from the spawn point down the corridor of column 6 (D-852).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A step of the route never ended, or a tick wrote an error (T-2).</exception>
+    private void BuildPitRoom(FrameRoot built, UiBase @base)
+    {
+        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        MapScreen drawn = MapFixture.Build(built, @base, open.Party, this.content, seekParticles: true);
+        foreach (string action in ScreenCaptures.PitRoute)
+        {
+            this.StepOnce(open, action);
+        }
+
+        drawn.ShowParty(open.Party, 0);
+        drawn.ShowWeather(open.Tick, seek: true);
+    }
+
+    /// <summary>Runs one whole step of the party, from its intent to the arrival of the lead (D-203).</summary>
+    /// <exception cref="InvalidOperationException">The step never ended, or a tick wrote an error (T-2).</exception>
+    private void StepOnce(GameRun run, string action)
+    {
+        run.Queue(run.IntentOf(action));
+        for (int tick = 0; tick < ScreenCaptures.TicksOfOneStep; tick += 1)
+        {
+            foreach (LogEntry entry in run.Advance(OneTickSeconds))
+            {
+                if (entry.Level == LogLevel.Error)
+                {
+                    throw new InvalidOperationException(
+                        $"The tick {run.Tick} of the route to the pit room wrote an error: {entry.Message} (T-2).");
+                }
+            }
+
+            if (run.Party.Stepping is null && tick > 0)
+            {
+                return;
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"The step '{action}' of the route to the pit room never ended, and the lead stands at {run.Party.LeadAt} (T-2, D-852).");
     }
 
     /// <summary>
@@ -294,7 +363,40 @@ public sealed partial class CaptureSession : Node
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.MapFixture) == 0)
         {
             GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-            MapFixture.Build(built, @base, open.Party, this.content);
+            MapFixture.Build(built, @base, open.Party, this.content, this.AmbientOf(capture), seekParticles: true);
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.PitFixture) == 0)
+        {
+            this.BuildPitRoom(built, @base);
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.StillFixture) == 0)
+        {
+            GameRun still = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+            this.walkRun = still;
+            this.walkMap = MapFixture.Build(built, @base, still.Party, this.content, seekParticles: true);
+            this.stepTicks = 0;
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.ScrollFixture) == 0)
+        {
+            // The same map, walked to the pit room, where the view follows the lead. The frames
+            // of this fixture then hold a step that scrolls the view, and each particle of the
+            // weather and of a torch must stay on the world under it (F-97).
+            GameRun scrolled = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+            this.walkRun = scrolled;
+            this.walkMap = MapFixture.Build(built, @base, scrolled.Party, this.content, seekParticles: true);
+            this.walkMap.CarriedLightOn = true;
+            foreach (string action in ScreenCaptures.PitRoute)
+            {
+                this.StepOnce(scrolled, action);
+            }
+
+            this.stepTicks = 0;
             return;
         }
 
@@ -304,7 +406,7 @@ public sealed partial class CaptureSession : Node
             // map, and each later frame of the walk runs one tick of them (D-782).
             GameRun walked = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             this.walkRun = walked;
-            this.walkMap = MapFixture.Build(built, @base, walked.Party, this.content);
+            this.walkMap = MapFixture.Build(built, @base, walked.Party, this.content, seekParticles: true);
 
             // The walk carries the light, so each frame of a step shows the light at the drawn
             // place of the lead, inside the step too (D-847).
@@ -422,7 +524,9 @@ public sealed partial class CaptureSession : Node
             this.content,
             fight,
             new CommandMemory(FixtureSettings.Battle.RememberCursor),
-            ScreenCaptures.LevelOf(capture.Frame));
+            ScreenCaptures.LevelOf(capture.Frame),
+            this.AmbientOf(capture));
+        screen.SeekParticles = true;
         if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleTargetFrame) == 0
             && screen.Read(InputActions.Confirm) is not null)
         {

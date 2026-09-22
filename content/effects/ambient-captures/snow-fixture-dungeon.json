@@ -1,0 +1,12 @@
+{
+ "comment": "A capture file: snow and wind over the fixture dungeon, for the screen test alone (D-187, D-889). The shipped build never loads it, and the dungeon keeps the dust of `content/effects/ambient/dust-fixture-dungeon.json`. Each flake falls the height of a cell in 6 seconds, the wind carries it east, and the sway rocks it as it falls (D-893).",
+ "id": "effect.snow_capture",
+ "kind": "snow",
+ "maps": ["map.fixture_dungeon"],
+ "lit": true,
+ "emitters": [
+  { "amount": 150, "lifetime_ticks": 360, "color": "e", "dark_color": "G", "size": 1, "fall_pixels": 380, "fall_ticks": 360, "drift_pixels": 120, "sway_pixels": 4, "sway_ticks": 90 },
+  { "amount": 40, "lifetime_ticks": 240, "color": "w", "dark_color": "l", "size": 2, "fall_pixels": 380, "fall_ticks": 240, "drift_pixels": 90, "sway_pixels": 2, "sway_ticks": 70 }
+ ],
+ "fogs": []
+}

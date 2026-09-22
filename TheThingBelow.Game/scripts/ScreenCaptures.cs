@@ -16,7 +16,8 @@ namespace TheThingBelow.Game;
 /// <param name="Height">The height of the screen of this capture, in device pixels.</param>
 /// <param name="Fit">The fit of the frame to that screen (D-232).</param>
 /// <param name="Walk">The tick of the walk that this frame shows, or null for a fixture that runs no tick (D-782).</param>
-public sealed record ScreenCapture(string Fixture, string Frame, int Width, int Height, FitMode Fit, WalkTick? Walk)
+/// <param name="Ambient">The id of the ambient file that this frame loads, or null for the weather of the map (D-889).</param>
+public sealed record ScreenCapture(string Fixture, string Frame, int Width, int Height, FitMode Fit, WalkTick? Walk, string? Ambient = null)
 {
     /// <summary>The file name of this capture, under the captures folder and the baseline folder.</summary>
     public string FileName => $"{this.Fixture}-{this.Frame}.png";
@@ -30,6 +31,11 @@ public sealed record ScreenCapture(string Fixture, string Frame, int Width, int 
 /// arrives (D-203). The session writes the frame after the tick.
 /// </remarks>
 public sealed record WalkTick(string Action, int Tick);
+
+/// <summary>One frame of a fixture that loads an ambient file of the screen test (D-889).</summary>
+/// <param name="Frame">The name of the frame, such as `snow-1x`.</param>
+/// <param name="Ambient">The id of the ambient file that the frame loads.</param>
+public sealed record WeatherFrame(string Frame, string Ambient);
 
 /// <summary>One frame of the battle fixture at one level of the flash and shake reduction (D-863).</summary>
 /// <param name="Frame">The name of the frame, such as `heavy-reduced-1x`.</param>
@@ -74,6 +80,15 @@ public static class ScreenCaptures
 
     /// <summary>The settings screen over the paused map (D-226, D-871).</summary>
     public const string SettingsFixture = "settings";
+
+    /// <summary>The running screen with the party in the pit room, which shows the walls beside the doorway at (6, 12) (D-852).</summary>
+    public const string PitFixture = "pit";
+
+    /// <summary>The running screen with the party still, which shows the motion of the weather over 4 seconds (D-894).</summary>
+    public const string StillFixture = "still";
+
+    /// <summary>The running screen through a step that scrolls the view, which shows that each particle stays on the world (F-97).</summary>
+    public const string ScrollFixture = "scroll";
 
     /// <summary>The frame of the settings screen with a binding conflict and its line (D-862).</summary>
     public const string SettingsConflictFrame = "conflict-1x";
@@ -128,6 +143,39 @@ public static class ScreenCaptures
     /// </remarks>
     public static IReadOnlyList<string> WalkSteps { get; } = [InputActions.StepNorth, InputActions.StepSouth];
 
+    /// <summary>The steps from the spawn point to the pit room, in the order that the session walks them (D-852).</summary>
+    /// <remarks>The party goes east to the corridor of column 6, then south through both doorways into the room below.</remarks>
+    public static IReadOnlyList<string> PitRoute { get; } =
+    [
+        InputActions.StepEast, InputActions.StepEast,
+        InputActions.StepSouth, InputActions.StepSouth, InputActions.StepSouth,
+        InputActions.StepSouth, InputActions.StepSouth, InputActions.StepSouth,
+        InputActions.StepSouth, InputActions.StepSouth, InputActions.StepSouth,
+    ];
+
+    /// <summary>The ticks of the still fixture that take a frame: one second apart (D-894).</summary>
+    public static IReadOnlyList<int> StillTicks { get; } = [60, 120, 180, 240];
+
+    /// <summary>The action of a frame that runs ticks and sends no intent, which the still fixture takes.</summary>
+    public const string StillAction = "none";
+
+    /// <summary>The ticks of the step of the scroll fixture that take a frame: the start, the middle, and the arrival (F-97).</summary>
+    /// <remarks>
+    /// The view follows the lead in the pit room, so the three frames hold three places of the
+    /// view. A particle that rides the view stands at the same place of each frame, and a
+    /// particle of the world moves with the tiles under it.
+    /// </remarks>
+    public static IReadOnlyList<int> ScrollTicks { get; } = [1, 9, TicksOfOneStep];
+
+    /// <summary>The ambient file of each capture of a weather: one for each kind of D-187, which the screen test alone loads (D-889).</summary>
+    /// <remarks>The dust of the map shows in every other capture of the map and of a fight, because the fixture dungeon ships with it (D-202).</remarks>
+    public static IReadOnlyList<WeatherFrame> WeatherFrames { get; } =
+    [
+        new("snow-1x", "effect.snow_capture"),
+        new("fog-1x", "effect.fog_capture"),
+        new("fire-1x", "effect.fire_capture"),
+    ];
+
     /// <summary>The frames of the battle fixture that stage a heavy blow after its hit-stop, one for each level (D-863, D-877).</summary>
     public static IReadOnlyList<LevelFrame> HeavyFrames { get; } =
     [
@@ -142,7 +190,8 @@ public static class ScreenCaptures
     public static IReadOnlyList<ScreenCapture> All { get; } = Build();
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
-    public static IReadOnlyList<string> Fixtures { get; } = [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture];
+    public static IReadOnlyList<string> Fixtures { get; } =
+        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -214,6 +263,55 @@ public static class ScreenCaptures
         foreach (LevelFrame heavy in HeavyFrames)
         {
             captures.Add(new ScreenCapture(BattleFixture, heavy.Frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        }
+
+        // Each ambient kind draws on the map and over the backdrop of a fight, at 1x (D-187,
+        // D-205, exit test 1 of PR-58). The dust of the fixture dungeon draws in every other
+        // capture of the map and of a fight (D-889).
+        foreach (WeatherFrame weather in WeatherFrames)
+        {
+            foreach (string fixture in new[] { MapFixture, BattleFixture })
+            {
+                captures.Add(new ScreenCapture(
+                    fixture,
+                    weather.Frame,
+                    ScreenFit.FrameWidth,
+                    ScreenFit.FrameHeight,
+                    FitMode.Fill,
+                    null,
+                    weather.Ambient));
+            }
+        }
+
+        // The party stands still, and each frame reads the weather one second later (D-894).
+        // A fault in the motion of a mote or of a flame then changes a baseline.
+        foreach (int tick in StillTicks)
+        {
+            captures.Add(new ScreenCapture(
+                StillFixture,
+                $"{tick:D3}",
+                ScreenFit.FrameWidth,
+                ScreenFit.FrameHeight,
+                FitMode.Fill,
+                new WalkTick(StillAction, tick)));
+        }
+
+        // The pit room draws at 1x. The frame holds the doorway at (6, 12) and the walls beside
+        // it, whose shape stops the light of a torch on the same wall (D-852).
+        captures.Add(new ScreenCapture(
+            PitFixture, "1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+
+        // The scroll fixture draws at 1x. Each frame holds one tick of a step south in the pit
+        // room, where the view follows the lead (F-97).
+        foreach (int tick in ScrollTicks)
+        {
+            captures.Add(new ScreenCapture(
+                ScrollFixture,
+                $"{tick:D2}",
+                ScreenFit.FrameWidth,
+                ScreenFit.FrameHeight,
+                FitMode.Fill,
+                new WalkTick(InputActions.StepSouth, tick)));
         }
 
         // The settings screen draws at both body sizes: 32 at 1x, and 24 at 1080 rows (D-707).

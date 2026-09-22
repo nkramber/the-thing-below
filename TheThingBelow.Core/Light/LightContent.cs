@@ -85,6 +85,19 @@ public sealed class LightContent
             : throw ContentException.ForFile(DecorFile.Folder, $"no decor file names the map '{map.Value}' (D-844)");
     }
 
+    /// <summary>Gives one decor kind.</summary>
+    /// <param name="kind">The id of the kind.</param>
+    /// <returns>The kind.</returns>
+    /// <exception cref="ContentException">No kind file holds the id (T-2).</exception>
+    public DecorKind KindOf(ContentId kind)
+    {
+        ArgumentNullException.ThrowIfNull(kind);
+
+        return this.kinds.TryGetValue(kind.Value, out DecorKind? found)
+            ? found
+            : throw ContentException.ForFile(DecorKind.Folder, $"no kind file holds the decor kind '{kind.Value}' (D-844)");
+    }
+
     /// <summary>Gives the light setup of one map at one time of day.</summary>
     /// <param name="map">The id of the map.</param>
     /// <param name="time">The time of day.</param>

@@ -316,7 +316,7 @@ How to file a question (D-19, D-24):
     - Off, the recommendation. With the setting on, no shake, no spell flash, and no color split plays. A screen test proves each effect absent, and the rule is the simplest. A heavy blow loses its jolt for a player who needs the setting.
     - Smaller. Each effect plays at a lower strength that its effect file sets, and no effect flashes more than three times in one second. A blow keeps some weight. Each effect needs a second set of values and a test of the flash count.
     - Resolved 2026-09-22: D-863. Three levels: full, reduced, and off. No level flashes more than three times in one second.
-101. **OQ-101. How fog keeps an enemy visible.** Fog never hides an enemy that the player must see (D-37, D-187). How does PR-58 keep that rule? Raised 2026-09-15. Blocks PR-58.
+101. **OQ-101. How fog keeps an enemy visible.** Fog never hides an enemy that the player must see (D-37, D-187). How does PR-58 keep that rule? Raised 2026-09-15. Blocked PR-58. Resolved 2026-09-22: D-885 takes the second option, and D-886 holds the measure of its test.
     - Fog draws below the figures: the party, the enemies, and the NPCs, the recommendation. The order of the layers keeps the rule on every map, and a test reads that order. A figure in fog looks sharp over a soft ground.
     - Fog draws above the figures, with a highest strength in its effect file, and a load test fails a stronger fog. The fog looks thick around figures. The limit needs tuning on the Deck, and a dark enemy in thin fog can still read poorly.
     - Fog draws above the figures, and an enemy in fog gets an outline. Every figure reads in any fog. Each enemy needs an outline shader, and an outline adds a new look to the art (D-201).

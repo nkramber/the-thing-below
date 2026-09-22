@@ -60,6 +60,25 @@ public sealed class ScreenCapturesTests
         "battle-heavy-off-1x.png",
     ];
 
+    /// <summary>The captures of each ambient kind, and the pit room of the wall shape beside a doorway (D-852, D-889).</summary>
+    private static readonly string[] WeatherNames =
+    [
+        "map-snow-1x.png",
+        "battle-snow-1x.png",
+        "map-fog-1x.png",
+        "battle-fog-1x.png",
+        "map-fire-1x.png",
+        "battle-fire-1x.png",
+        "pit-1x.png",
+        "still-060.png",
+        "still-120.png",
+        "still-180.png",
+        "still-240.png",
+        "scroll-01.png",
+        "scroll-09.png",
+        "scroll-17.png",
+    ];
+
     // This property stays below `StillNames`, because its build reads that array, and a static
     // member takes its value in the order of the file (T-2).
     /// <summary>Every file that one run of the capture session writes, in the order of the list.</summary>
@@ -75,7 +94,10 @@ public sealed class ScreenCapturesTests
         // adds the settings screen at both body sizes, and its conflict line (D-862, D-871).
         // PR-57 adds the blood, the sparks, the stop of a heavy blow, and the heavy blow at each
         // level of the flash and shake reduction (D-863, exit test 1 of PR-57).
-        Assert.Equal(10 + 34 + 1 + 10 + 3, FileNames().Count);
+        // PR-58 adds one capture of each ambient kind on the map and over a fight, the pit room
+        // of the wall shape beside a doorway, and three frames of a step that scrolls the view
+        // (D-852, D-889, F-97, exit test 1 of PR-58).
+        Assert.Equal(10 + 34 + 1 + 10 + 3 + 14, FileNames().Count);
     }
 
     [Fact]
@@ -112,7 +134,7 @@ public sealed class ScreenCapturesTests
     {
         // D-782, T-7. The map, ui, and picture captures show the run at tick 0, so no walk tick
         // reaches them.
-        foreach (string fixture in new[] { "map", "ui", "picture" })
+        foreach (string fixture in new[] { "map", "ui", "picture", "pit" })
         {
             foreach (object capture in OfFixture(fixture))
             {
@@ -273,6 +295,11 @@ public sealed class ScreenCapturesTests
 
         names.Add("picture-1x.png");
         foreach (string name in BattleNames)
+        {
+            names.Add(name);
+        }
+
+        foreach (string name in WeatherNames)
         {
             names.Add(name);
         }
