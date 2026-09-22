@@ -744,7 +744,7 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 - Battle: the message speed and the remembered cursor (D-226).
 - The four accessibility settings: the flash and shake reduction, the text speed and skip, the shape icons, and the remap (D-214).
 - The 18 shape drawings of 16 by 16, one for each element and each status (D-74, D-75).
-- The settings file outside the save files, which never enters a run record (D-494, T-7, OQ-106).
+- The settings file outside the save files, which never enters a run record (D-494, D-860, T-7). It is `settings.json` at the root of the folder of D-465.
 - The format version of the settings file, and one migration step with a fixture file for each new setting (D-570).
 - The review sheets of the 18 shape drawings (D-514, G-25).
 
@@ -758,23 +758,23 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 
 1. Each setting saves and loads through the settings file.
 2. A remap lasts across a restart, because Godot does not save one (F-50).
-3. A remap conflict follows the rule of OQ-108, and the screen states it.
+3. A remap conflict blocks the save and the exit of the screen, and the screen shows each conflict (D-862).
 4. A settings file of an older format version loads through its migration step (D-570).
 5. A key that no version declares fails the load with the file and the key (T-2, D-570).
 6. No setting reaches a run record, and a test proves it (T-7).
-7. The stick dead zone takes the value of OQ-109, not the value of the docs (F-50).
+7. The stick dead zone is 0.5 for every action by default, and the slider goes from 0.2 to 0.8 (D-861, F-50).
 8. A screen test captures the settings screen.
 9. The review sheets of the 18 shape drawings reach the PR description (D-514).
 10. The owner approves that art batch (G-25).
 
 **Review focus.**
 
-- The answer of OQ-106 sets the place and the form of the settings file.
-- The default `ui_*` actions keep their events, because Godot cannot remove one (F-50).
+- The settings file follows D-860.
+- The default `ui_*` actions keep their events and take no remap, because Godot cannot remove one and the menus must stay reachable (D-862, F-50).
 - Vibration turns off for any player, and it has limits on macOS (F-50).
 - The shape icons cover all eight elements and all ten statuses (D-214).
 
-**Questions.** OQ-100, OQ-106, OQ-108, and OQ-109.
+**Questions.** None. D-860 to D-863 answer OQ-106, OQ-109, OQ-108, and OQ-100.
 
 > *In plain English:* one screen holds every choice about the game: the picture, the sound, the buttons, and the pace of battle. A player who needs calm can turn the flashes and the shakes down.
 
@@ -789,7 +789,7 @@ Area file: `area-effects.md` sections 7.7 and 7.8.
 - The Godot particle nodes that Game builds from each effect file at load, with no resource file (D-182, G-6).
 - The blood and the sparks of a hit, the short screen shake of a heavy blow, and the brief hit-stop (D-186).
 - The flash of a spell, with a point light of PR-56 for its length (D-183, D-186).
-- The reduced form of each flash and each shake, under the setting of PR-63 (D-214, OQ-100).
+- The reduced form of each flash and each shake, under the setting of PR-63 (D-214, D-863).
 - The particle rows of the effect budget (D-523).
 
 **Out of scope.**
@@ -811,7 +811,7 @@ Area file: `area-effects.md` sections 7.7 and 7.8.
 - The Mobile renderer of CI holds every particle feature of the Deck, so each capture shows the effect that the Deck draws (D-731).
 - A particle color is a palette key, so the screen keeps one palette (D-181).
 
-**Questions.** OQ-98, OQ-99, and OQ-100.
+**Questions.** OQ-98 and OQ-99. D-863 answers OQ-100.
 
 > *In plain English:* a burst of sparks is a small data file: how many bits, which colors, and how long. A hit in battle shows blood, sparks, and a jolt, and it passes fast.
 
@@ -2117,15 +2117,15 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-97 | The colors of light, resolved by D-846 | PR-56 |
 | OQ-98 | GPU particles or CPU particles | PR-57 |
 | OQ-99 | What a screen shake moves | PR-57 |
-| OQ-100 | The reduced form of a flash and a shake | PR-57 and PR-63 |
+| OQ-100 | The reduced form of a flash and a shake, resolved by D-863 | PR-57 and PR-63 |
 | OQ-101 | How fog keeps an enemy visible | PR-58 |
 | OQ-102 | How glow stays off sprites | PR-59 |
 | OQ-103 | Where shader code lives, resolved by D-825 | PR-10 and PR-60 |
 | OQ-104 | The font settings and the load from bytes | PR-61 |
-| OQ-106 | Where the settings file lives, and its form | PR-63 |
+| OQ-106 | Where the settings file lives, and its form, resolved by D-860 | PR-63 |
 | OQ-107 | How Game knows the last device of the player | PR-61 |
-| OQ-108 | Where a remap lives, and what a conflict does | PR-63 |
-| OQ-109 | The dead zone of a stick | PR-63 |
+| OQ-108 | Where a remap lives, and what a conflict does, resolved by D-862 | PR-63 |
+| OQ-109 | The dead zone of a stick, resolved by D-861 | PR-63 |
 | OQ-110 | The cursor rules of a menu | PR-62 |
 | OQ-111 | The scale of the dungeon map screen | PR-62 |
 | OQ-112 | The text speeds and the type-out of the dialogue box | PR-36 |
