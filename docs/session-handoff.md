@@ -1,5 +1,37 @@
 # Session handoff
 
+## Session 193: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-56, round 7. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
+
+### What this session did, and why
+
+- The owner built the Deck test on the Deck and pushed the reports to `spike/deck-test` (commit `82bd091`). The branch also gained `build-on-deck.sh` and a Linux path in the template script.
+- Each stage held 60 frames per second under both renderers. Under Mobile, `pairs-24` gave 4.17 ms and `full-load-24` 4.55 ms at the 95th percentile, with no frame over 16.667 ms. F-96 records it, and the light row of 24 stands (D-854, G-14).
+- The owner asked whether the Deck test matches the game. It does not: it is the stress scene of the renderer pick, and it lights four times the pixels of the world of the game. The session offered a measure mode inside the game, and the owner has not answered.
+
+### The state of the build
+
+- Docs alone change this round. The remote head is this round.
+
+### What is in flight
+
+- The repeat review of Codex on the code head `f4b071b`.
+
+### Traps and gotchas
+
+- A path in backticks of another branch fails the reference check.
+- The owner pushes from the Deck with SSH through `gh auth login -p ssh`.
+
+### The questions that block progress
+
+None for PR-56. The measure mode inside the game waits for an owner answer.
+
+### The next concrete action
+
+Wait for Gitar on this head, then tell the owner that PR #53 is ready for the repeat review.
+
 ## Session 192: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -297,35 +329,3 @@ None. The owner approval of the sheets is exit test 5.
 ### The next concrete action
 
 Follow the `gitar-review` skill for this push. Ask the owner to approve the normal-map sheets. Then tell the owner that PR #52 is ready for the other provider.
-
-## Session 183: 2026-09-21, Codex
-
-Author: Codex
-Session: reviewer PR-51, round 1. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: reviewer. Base: `8b10888`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-51 diff from merge base `8b10888` through effective head `3859a74`.
-- Verified the opposite-provider gate, the battle event flow, the command menu, the string table, the screen layout, and the tests.
-- Added `docs/reviews/pr-51.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passed with 1781 tests and all local gates.
-- GitHub checks pass for `3859a74` except the review gate, which waits for the review record.
-
-### What is in flight
-
-- This review record and this handoff entry need commit and push.
-
-### Traps and gotchas
-
-- Gitar reports no issues, but its functional validation is disabled. The review uses the local contract-specific tests and smoke output.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit the review record and handoff files. Push, fetch, and verify the remote head and the review-gate check.

@@ -131,7 +131,7 @@ Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-59, and PR-60.
 - So the budget test also fails more than 15 lights on one canvas item, whatever the Deck test measures (T-2).
 - PR-56 adds the budget file and its test with the rows for light. PR-57 adds particles, and PR-58, PR-59, and PR-60 add their full-screen passes.
 - The first rows of the budget come from the run of 2026-09-17: 15 lights with shadows, 8192 live particles, and 3 full-screen passes (D-617).
-- The light row rises to 24 after a new Deck sweep with 24 paired lights, before PR-56 merges (D-854). Each light source counts two lights (D-853).
+- The light row rises to 24 after a new Deck sweep with 24 paired lights, before PR-56 merges (D-854). Each light source counts two lights (D-853). The sweep of 2026-09-21 held, with 4.55 ms at the 95th percentile for the full load (F-96).
 - Each row is a floor, and not the ceiling of the Deck, because no stage of the sweep missed the target (F-66).
 - The sweep measured those 3 passes with the CRT on, and D-618 later removed that pass, so the shipped stack carries one pass less.
 - M-6 measures the first playable on the Deck against the budget (D-161). A miss changes the budget or the content in a PR with a measurement (G-14).

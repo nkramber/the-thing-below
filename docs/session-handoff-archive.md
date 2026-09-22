@@ -1,5 +1,37 @@
 # Session handoff archive
 
+## Session 183: 2026-09-21, Codex
+
+Author: Codex
+Session: reviewer PR-51, round 1. Repository: the-thing-below. Branch: `feat/pr-10-battle-scene`. PR: #51. Role: reviewer. Base: `8b10888`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-51 diff from merge base `8b10888` through effective head `3859a74`.
+- Verified the opposite-provider gate, the battle event flow, the command menu, the string table, the screen layout, and the tests.
+- Added `docs/reviews/pr-51.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passed with 1781 tests and all local gates.
+- GitHub checks pass for `3859a74` except the review gate, which waits for the review record.
+
+### What is in flight
+
+- This review record and this handoff entry need commit and push.
+
+### Traps and gotchas
+
+- Gitar reports no issues, but its functional validation is disabled. The review uses the local contract-specific tests and smoke output.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the review record and handoff files. Push, fetch, and verify the remote head and the review-gate check.
+
 ## Session 182: 2026-09-21, Claude Code
 
 Author: Claude Code

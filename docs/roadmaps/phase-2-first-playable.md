@@ -690,7 +690,7 @@ Area file: `area-effects.md` sections 7.4 and 7.6.
 - The budget test counts the worst view of the Deck (D-842).
 - Each torch lights itself, and a change names a piece and never a tile (D-843, D-844).
 - The carried light follows the drawn place of the lead, and no rule reads it (D-847, G-1).
-- The Deck sweep of 24 paired lights holds 60 frames per second before the merge (D-854, G-14).
+- The Deck sweep of 24 paired lights holds 60 frames per second before the merge (D-854, G-14). The sweep of 2026-09-21 held (F-96).
 - The light setup stays outside the content hash, so new light never breaks a record (D-495, D-519).
 
 **Questions.** OQ-94 to OQ-97, resolved by D-842, D-843, D-845, and D-846.
