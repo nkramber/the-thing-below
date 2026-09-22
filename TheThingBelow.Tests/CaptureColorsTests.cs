@@ -23,8 +23,12 @@ public sealed class CaptureColorsTests
 {
     private const string TypeName = "TheThingBelow.Game.CaptureColors";
 
-    /// <summary>The 1x captures of the world, whose every pixel is an art pixel of the palette.</summary>
-    public static TheoryData<string> WorldCaptures { get; } = BuildWorldCaptures();
+    /// <summary>
+    /// The 1x captures of the world that take no scene light, whose every pixel is an art
+    /// pixel of the palette. A lit capture can hold any color, because light blends to any
+    /// color (D-181), so the map and the walk captures left this list in PR-56.
+    /// </summary>
+    public static TheoryData<string> WorldCaptures { get; } = new() { "picture-1x.png" };
 
     [Fact]
     public void EachPaletteColorComesBackFromItsLinearHalfFloat()
@@ -69,7 +73,7 @@ public sealed class CaptureColorsTests
     public void EachPixelOfAWorldBaselineIsAColorOfThePalette(string fileName)
     {
         // D-107: every art pixel is a palette key. The world draws with the Nearest filter at
-        // a whole number of 2x, so the 1x capture holds no blended pixel.
+        // a whole number of 2x, so the 1x capture of an unlit world holds no blended pixel.
         var colors = new HashSet<(int, int, int)>();
         foreach (PaletteColor color in Palette().Colors)
         {
@@ -96,18 +100,4 @@ public sealed class CaptureColorsTests
         Core.Content.Palette.Read(
             File.ReadAllBytes(Path.Combine(RepositoryRoot.Find(), "content", "sprites", "palette.json")),
             Core.Content.Palette.Path);
-
-    private static TheoryData<string> BuildWorldCaptures()
-    {
-        var names = new TheoryData<string> { "map-1x.png", "picture-1x.png" };
-        foreach (string direction in new[] { "north", "south" })
-        {
-            for (int tick = 1; tick <= 17; tick += 1)
-            {
-                names.Add($"walk-{direction}-{tick:D2}.png");
-            }
-        }
-
-        return names;
-    }
 }

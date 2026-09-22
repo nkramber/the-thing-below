@@ -289,7 +289,7 @@ public sealed partial class CaptureSession : Node
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.MapFixture) == 0)
         {
             GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers());
-            MapFixture.Build(built, @base, open.Party);
+            MapFixture.Build(built, @base, open.Party, this.content);
             return;
         }
 
@@ -299,7 +299,11 @@ public sealed partial class CaptureSession : Node
             // map, and each later frame of the walk runs one tick of them (D-782).
             GameRun walked = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers());
             this.walkRun = walked;
-            this.walkMap = MapFixture.Build(built, @base, walked.Party);
+            this.walkMap = MapFixture.Build(built, @base, walked.Party, this.content);
+
+            // The walk carries the light, so each frame of a step shows the light at the drawn
+            // place of the lead, inside the step too (D-847).
+            this.walkMap.CarriedLightOn = true;
             return;
         }
 

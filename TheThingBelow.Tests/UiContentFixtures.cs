@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Light;
 
 namespace TheThingBelow.Tests;
 
 /// <summary>
 /// The smallest UI base that a content set needs: the style file, both fonts, and the drawing
-/// that the style names (D-527, D-710). A test of another rule adds these files, so it fails
-/// on its own rule and never on an absent UI file (T-2).
+/// that the style names (D-527, D-710). It also holds the two light files that every set needs:
+/// the carried light and the effect budget (D-523, D-847). A test of another rule adds these
+/// files, so it fails on its own rule and never on an absent UI file (T-2).
 /// </summary>
 public static class UiContentFixtures
 {
@@ -48,11 +50,18 @@ public static class UiContentFixtures
           }
         """;
 
+    /// <summary>The body of the fixture carried light (D-847).</summary>
+    public const string CarriedBody =
+        """{ "comment": "a test carried light", "color": "k", "strength": 10000, "range": 64, "height": 16, "x": 16, "y": -16 }""";
+
+    /// <summary>The body of the fixture effect budget (D-523).</summary>
+    public const string BudgetBody = """{ "comment": "a test budget", "lights_in_view": 15 }""";
+
     /// <summary>The page record that the fixture atlas index holds.</summary>
     public const string AtlasPageRecord = """{ "kind": "ui", "number": 1, "width": 1, "height": 1 }""";
 
     /// <summary>Every file of the UI base, for a content set that tests another rule.</summary>
-    /// <returns>The style file, both fonts, the drawing, and the page file.</returns>
+    /// <returns>The style file, both fonts, the drawing, the page file, the carried light, and the budget.</returns>
     public static IReadOnlyList<ContentFile> Files() =>
     [
         Of(UiStyle.Path, StyleBody),
@@ -62,6 +71,34 @@ public static class UiContentFixtures
 
         // The page is an image, and the content set records its path alone (D-517).
         new ContentFile(PageFile, [0]),
+        Of(CarriedLight.Path, CarriedBody),
+        Of(EffectBudget.Path, BudgetBody),
+    ];
+
+    /// <summary>
+    /// Makes the decor file and the light setup of one map, with no piece and no light: the two
+    /// files that each map of a content set needs (D-442, D-844).
+    /// </summary>
+    /// <param name="stem">The name of both files, such as `one`.</param>
+    /// <param name="map">The id of the map, such as `map.one`.</param>
+    /// <param name="time">The time of day of the map, such as `day`.</param>
+    /// <returns>The decor file and the light setup.</returns>
+    public static IReadOnlyList<ContentFile> LightFilesOf(string stem, string map, string time) =>
+    [
+        Of($"{DecorFile.Folder}{stem}.json", $$"""{ "comment": "a test decor file", "map": "{{map}}", "pieces": [] }"""),
+        Of(
+            $"{LightSetup.Folder}{stem}-{time}.json",
+            $$"""
+            {
+             "comment": "a test light setup",
+             "map": "{{map}}",
+             "time": "{{time}}",
+             "ambient": { "color": "k", "strength": 10000 },
+             "battle": { "color": "k", "strength": 10000, "range": 64, "height": 32 },
+             "changes": [],
+             "added": []
+            }
+            """),
     ];
 
     /// <summary>

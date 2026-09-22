@@ -142,6 +142,29 @@ public sealed class DebugConsoleTests
     }
 
     [Fact]
+    public void TheTorchCommandSwitchesTheCarriedLightAndSendsNoIntent()
+    {
+        // D-851: the command changes the view alone, so no record holds it.
+        Simulation run = Start();
+        List<Intent> queued = [];
+        bool on = false;
+        bool Switch()
+        {
+            on = !on;
+            return on;
+        }
+
+        IReadOnlyList<string> first = DebugAssemblyFile.Run("torch", () => run.State, queued.Add, Switch);
+        Assert.True(on);
+        Assert.Contains("is on", first[1], StringComparison.Ordinal);
+
+        IReadOnlyList<string> second = DebugAssemblyFile.Run("torch", () => run.State, queued.Add, Switch);
+        Assert.False(on);
+        Assert.Contains("is off", second[1], StringComparison.Ordinal);
+        Assert.Empty(queued);
+    }
+
+    [Fact]
     public void TheHashCommandGivesTheStateHashOfTheRun()
     {
         Simulation run = Start();
@@ -310,7 +333,7 @@ public sealed class DebugConsoleTests
             Assert.True(names.Add(name), $"Two commands take the name '{name}' (T-2).");
         }
 
-        Assert.Equal(10, names.Count);
+        Assert.Equal(11, names.Count);
     }
 
     private static Simulation Start() =>

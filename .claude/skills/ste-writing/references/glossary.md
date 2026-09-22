@@ -153,6 +153,12 @@ Effects terms from the roadmaps PR of 2026-09-15:
 | wait intent | the intent that Game sends when an effect that the world waits for ends (D-522) | continue intent, done signal |
 | transition | one of the full-screen effects of D-195 that start a battle (D-191, D-196) | wipe, which names a party wipe (D-36), and screen change |
 | hit-stop | the brief freeze of the battle picture on a heavy blow (D-186) | freeze frame, hitlag |
+| decor piece | a drawn thing that a decor file places at a tile, such as a wall torch, which no rule reads (D-844) | prop, doodad, decoration |
+| decor file | the file beside a map that places each decor piece of that map (D-844) | prop file, decor layer |
+| decor kind | the kind of a decor piece, with its default light in its kind file (D-843) | decor type, prop kind |
+| carried light | the light on the lead that follows its drawn place, which the torch turns on (D-847, D-848) | player light, torch light, when the text means this light |
+| key light | the one point light of a battle, from the light setup of its map (D-850) | battle lamp, sun |
+| HD-2D look | the art target of D-849: dark ambient light, pools of light, normal maps, hard shadows, and the passes of PR-92 | Octopath style, 2.5D |
 
 UI and input terms from the roadmaps PR of 2026-09-16:
 

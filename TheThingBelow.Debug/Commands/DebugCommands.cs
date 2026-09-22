@@ -18,7 +18,8 @@ namespace TheThingBelow.Debug.Commands;
 /// Six commands change the run. The `reveal` command marks every tile of the map as walked
 /// (D-567). The five battle commands take the turn of a character until the battle screen of
 /// PR-10: `attack`, `defend`, `step`, `item`, and `flee` (D-767). Four commands report and
-/// change nothing: `help`, `hash`, `where`, and `battle` (D-724).
+/// change nothing: `help`, `hash`, `where`, and `battle` (D-724). The `torch` command changes
+/// the view alone: it turns the carried light on or off, and it sends no intent (D-851).
 /// <para>
 /// PR-9 replaced the `flee` command of PR-8, which ended an encounter with no battle, with the
 /// flee of the battle rules (D-378, D-767).
@@ -60,6 +61,9 @@ public static class DebugCommands
     /// <summary>The name of the command that reports the battle (D-767).</summary>
     public const string BattleName = "battle";
 
+    /// <summary>The name of the command that turns the carried light on or off (D-851).</summary>
+    public const string TorchName = "torch";
+
     // The order of this list is the order of `help`, and it never follows a hash of a name
     // (G-4). The list is short, so a walk of it reads better than a map of one entry (T-1).
     private static readonly IReadOnlyList<DebugCommand> Commands =
@@ -84,6 +88,7 @@ public static class DebugCommands
             UseItem,
             BattleSide.Party),
         DebugCommand.OfIntent(FleeName, "tries to flee on the turn of a character", DebugCommandIds.BattleFlee, Flee),
+        DebugCommand.OfView(TorchName, "turns the carried light on or off, and sends no intent (D-847, D-851)"),
         DebugCommand.OfReport(BattleName, "gives each combatant, the turn, and the strip", BattleOf),
         DebugCommand.OfReport(HashName, "gives the state hash of the run", HashOf),
         DebugCommand.OfReport(WhereName, "gives the tick and the place of the party", PlaceOf),

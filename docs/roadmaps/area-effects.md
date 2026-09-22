@@ -126,11 +126,12 @@ Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-59, and PR-60.
 - The effect budget holds the load that the Deck test measured: lights with shadows on screen, live particles, and full-screen passes (D-523).
 - The budget is a content file with integer limits (D-517). A change to it cites a Deck measurement before and after (G-14).
 - A test fails a map or a battle place whose effect files pass the budget. The failure names the file, the view, and the count (T-2, D-523).
-- OQ-94 holds how the test counts one view.
+- The test moves a window of 640 by 360 art pixels over the map. It takes the highest count of lights whose range reaches the window (D-842).
 - Godot drops each light past 15 on one canvas item with no message (F-46). A map layer draws a group of 256 tiles as one canvas item.
 - So the budget test also fails more than 15 lights on one canvas item, whatever the Deck test measures (T-2).
 - PR-56 adds the budget file and its test with the rows for light. PR-57 adds particles, and PR-58, PR-59, and PR-60 add their full-screen passes.
 - The first rows of the budget come from the run of 2026-09-17: 15 lights with shadows, 8192 live particles, and 3 full-screen passes (D-617).
+- The light row rises to 24 after a new Deck sweep with 24 paired lights, before PR-56 merges (D-854). Each light source counts two lights (D-853). The sweep of 2026-09-21 held, with 4.55 ms at the 95th percentile for the full load (F-96).
 - Each row is a floor, and not the ceiling of the Deck, because no stage of the sweep missed the target (F-66).
 - The sweep measured those 3 passes with the CRT on, and D-618 later removed that pass, so the shipped stack carries one pass less.
 - M-6 measures the first playable on the Deck against the budget (D-161). A miss changes the budget or the content in a PR with a measurement (G-14).
@@ -159,20 +160,23 @@ Built by PR-56. Phase file: `phase-2-first-playable.md`.
 - PR-56 is the first PR that draws light (D-520). It lights the map scene of PR-7 and the battle scene of PR-10.
 - A light setup holds the ambient light and the point lights of one map at one time of day (D-442). It names the map id and the time of day, so the map file never changes for light (D-495, D-519).
 - Most maps need one light setup, and a place needs one light setup for each time of day that the story gives it (D-205, D-442).
-- A battle backdrop takes the light setup of the map where the fight began (D-205, D-442).
+- A battle takes the ambient light and one key light from the light setup of the map where the fight began (D-205, D-442, D-850).
 - The ambient light is the one `CanvasModulate` of the world, because Godot allows one on a canvas (the external facts above).
-- Point lights come from torches, waystones, and spells (D-183). OQ-95 holds whether a torch light comes from its tile or from the light setup.
+- Point lights come from torches, waystones, and spells (D-183). A decor file beside each map places each torch, and no rule reads it (D-844).
+- Each decor kind that gives light holds its default light. The light setup can change the light of one piece by its id, or add a light at a tile (D-843).
 - Each point light needs a light texture. Game builds it at load and checks it, because a light with no texture draws nothing in silence (F-46).
 - An atlas texture cannot serve as a light texture, so the light textures stay outside the atlas (the external facts above).
 - Each light sets a height, because at the default height of 0 a flat pixel of a normal-mapped sprite takes no light (F-46).
-- OQ-97 holds whether a light names its color as a palette key or as a free value (D-181, D-182).
-- Walls cast hard shadows (D-183). OQ-96 holds where the shape of each shadow comes from.
-- A `TileSet` can give each atlas tile its occluder polygons, and Game builds one from the tile page at load (D-667).
+- Each light and the ambient light name a palette key with a strength in basis points (D-846).
+- Walls cast hard shadows (D-183). Each wall that faces a walkable tile takes light on its face, and a strip at its back blocks the light (D-845, D-852).
+- Each figure casts a shadow from its feet. Each light source is a pair of lights, so no figure darkens itself (D-853).
+- A `TileSet` gives one occluder to each kind of tile, and a wall face needs a shape of its own place. Thus Game builds one occluder for each wall that faces a walkable tile, from the terrain (D-852).
 - Game gives each sprite, tile, and piece its normal map through a `CanvasTexture` with the color atlas and the normal-map atlas. Both atlases draw with the Nearest filter (F-45).
 - A `CanvasTexture` gives no specular light by default, and no decision asks for specular light (D-183).
 - A shader on a lit sprite, tile, or piece never uses `NORMAL_MAP`. Godot corrects the normal of a flipped draw before the shader code, and `NORMAL_MAP` replaces that normal (the external facts above).
 - The hit flash of PR-10 keeps this rule, and so does each later shader on lit art (`area-art.md` section 7.4).
 - A puzzle of light and dark in PR-21 draws its light from Core state (D-41, section 7.1).
+- The party carries a light that follows the drawn place of the lead on each frame. A switch of Game turns it on, and PR-91 connects the switch to the torch item (D-847, D-848).
 - The screen tests capture a lit fixture map and a lit fixture battle (D-172).
 
 > *In plain English:* each place gets its light from a small file: how dark the place is and where each torch glows. Walls throw hard shadows, and each sprite catches light on the side that faces the flame.
@@ -286,10 +290,11 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | The Deck test | The test scene, the renderer pick, and the effect budget. Done 2026-09-17 | D-160, D-523, D-616, D-617 |
 | PR-10 | The attack pose, the hit flash, the damage numbers, and the drift of the backdrop | D-96, D-205, D-213 |
 | PR-48 | The normal maps and their review sheets | D-184, D-521 |
-| PR-56 | Light setups, point lights, shadows, and the budget test | D-183, D-442, D-523 |
+| PR-56 | Light setups, decor files, point lights, the carried light, shadows, and the budget test | D-183, D-442, D-523, D-842 to D-847, D-850 |
 | PR-57 | Effect files, particles, and the battle effects | D-182, D-186 |
 | PR-58 | The four ambient kinds | D-187, D-202 |
 | PR-59 | Glow | D-188 |
+| PR-92 | The tilt-shift blur, the vignette, and the light shafts of the HD-2D look | D-849 |
 | PR-60 | The ten transitions and the table of kinds | D-195, D-196 |
 | PR-17 | The light setups, the ambient effects, and the effect files of the first places | D-362, D-520 |
 | PR-21 | The light of the puzzles of light and dark | D-41 |
@@ -324,6 +329,19 @@ Each later PR that adds or changes an effect keeps this list. The phase files ma
 
 > *In plain English:* every new effect follows the same seven steps. It lives in a data file, never touches the rules, fits the Deck, and proves its look in a fixed picture.
 
+### 7.17 The HD-2D look
+
+Built by PR-56 and PR-92. Phase file: `phase-2-first-playable.md`.
+
+- The art target is the look of Octopath Traveler, in 2D (D-849). The game stays a flat 2D view, with no 3D scene.
+- PR-56 gives the base of the look: a dark ambient light, warm pools of torch light, normal-mapped sprites, and hard shadows (D-183, D-843).
+- PR-59 gives the glow on light alone (D-188).
+- PR-92 adds three full-screen passes: a tilt-shift blur at the top and the bottom of the frame, a vignette, and light shafts (D-849).
+- Each pass of PR-92 counts against the effect budget (D-523). The budget of D-617 holds 3 passes, so a new Deck sweep measures the heavier stack before PR-92 merges (G-14).
+- The passes draw the world alone, and the UI above it stays sharp and unlit (D-210).
+
+> *In plain English:* the goal is a storybook diorama: dark places, warm pools of light, and a soft blur at the edges. The light comes first, and the blur and the shafts come later, after a test on the Deck.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The effects work keeps this order inside it:
@@ -340,20 +358,18 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 10. PR-57: effect files, particles, and the battle effects.
 11. PR-58: the ambient effects.
 12. PR-59: glow.
-13. PR-60: the transitions.
-14. PR-17: the first places with their light and effects.
-15. M-6: the Deck against the effect budget.
-16. **← GATE 2 (first playable).** The owner plays every effect on the Deck (D-161).
+13. PR-92: the three passes of the HD-2D look, after a new Deck sweep (D-849).
+14. PR-60: the transitions.
+15. PR-17: the first places with their light and effects.
+16. M-6: the Deck against the effect budget.
+17. **← GATE 2 (first playable).** The owner plays every effect on the Deck (D-161).
 
 ## 9. Open questions
 
 The register is `docs/questions.md` (D-19). These questions block effect PRs, and each PR or step asks its questions when it starts (D-487):
 
 - OQ-92 and OQ-93 are resolved. D-597 and D-598 hold the answers, and the branch `spike/deck-test` holds the scene.
-- OQ-94: how the budget test counts one view. Blocks PR-56.
-- OQ-95: where a torch light comes from. Blocks PR-56.
-- OQ-96: where the shape of a shadow comes from. Blocks PR-56.
-- OQ-97: the colors of light. Blocks PR-56.
+- OQ-94 to OQ-97 are resolved. D-842, D-843, D-845, and D-846 hold the answers.
 - OQ-98: GPU particles or CPU particles. Blocks PR-57.
 - OQ-99: what a screen shake moves. Blocks PR-57.
 - OQ-100: the reduced form of a flash and a shake. Blocks PR-57.

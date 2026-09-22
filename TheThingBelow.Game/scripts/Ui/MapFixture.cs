@@ -1,4 +1,5 @@
 using System;
+using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Game.Ui;
@@ -19,17 +20,19 @@ public static class MapFixture
     /// <param name="frame">The frame that holds the world viewport and the UI layer.</param>
     /// <param name="base">The atlas and the theme.</param>
     /// <param name="party">The party of the run, which names the map and the places.</param>
+    /// <param name="content">The content set, for the decor and the light (D-843).</param>
     /// <returns>The map, which the caller keeps to draw each later frame.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    public static MapScreen Build(FrameRoot frame, UiBase @base, MapState party)
+    public static MapScreen Build(FrameRoot frame, UiBase @base, MapState party, ContentSet content)
     {
         ArgumentNullException.ThrowIfNull(frame);
         ArgumentNullException.ThrowIfNull(@base);
         ArgumentNullException.ThrowIfNull(party);
+        ArgumentNullException.ThrowIfNull(content);
 
         var drawn = new MapScreen();
         frame.World.AddChild(drawn);
-        drawn.Build(@base.Atlas, @base.Theme, party);
+        drawn.Build(@base.Atlas, @base.Theme, party, content);
         drawn.ShowParty(party, 0);
         return drawn;
     }

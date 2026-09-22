@@ -82,6 +82,7 @@ Built by PR-1. Phase file: `phase-1-foundations.md`.
 - A new push to a PR stops the older runs of its workflows, so no leg spends time on a stale head.
 - A first job reads the changed paths of the PR. Each build and test job reads that result in a condition, and it skips on a docs PR (D-595). No path filter goes on a workflow, because a check that stays "Pending" stops the merge (F-41).
 - The skip set holds `docs/`, `.claude/`, `README.md`, `LICENSE`, and `.github/pull_request_template.md` (D-600). `CLAUDE.md` and `AGENTS.md` stay out of it, because a test reads both files and fails when they differ (D-20). The skip set and the override set of D-16 are not the same set.
+- PR-93 runs ste-check, review-gate, and Gitar alone on a docs-only PR, and on a docs-only push after a green head (D-856). OQ-219 holds whether `CLAUDE.md`, `AGENTS.md`, and `.claude/settings.json` join the set.
 
 > *In plain English:* every change runs its checks on three kinds of computer, the same three that the game supports. Each check has a time limit, so a stuck test fails in minutes, not hours.
 
@@ -376,10 +377,11 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 13. PR-54: the export job, right before PR-7 (D-503).
 14. PR-7: the first merge that exports a walkable build.
 15. PR-41: the screen-test job, after PR-45 (D-492).
-16. PR-15: the bot runs on every leg (D-505).
-17. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
-18. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-19. **← GATE 2 (first playable).**
+16. PR-93: ste-check, review-gate, and Gitar alone on a docs-only change, right after PR-56 (D-856).
+17. PR-15: the bot runs on every leg (D-505).
+18. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
+19. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+20. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 
@@ -397,5 +399,6 @@ The register is `docs/questions.md` (D-19). These questions block CI PRs, and ea
 - OQ-197: the unstable check names of the matrix jobs. Resolved by D-682 and D-683, and PR-88 builds them.
 - OQ-198: the third-party notices of the engine in an export. Blocks PR-31.
 - OQ-199: the artifact retention of a private repository. Blocks the move of D-456 in Phase 6.
+- OQ-219: the paths of the docs-only set. Blocks PR-93.
 
 No open question blocks this file.

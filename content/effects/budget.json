@@ -1,0 +1,4 @@
+{
+ "comment": "The effect budget (D-523). The light row counts the Godot lights with shadows whose range reaches the worst view of 640 by 360 art pixels (D-842). Each light source is a pair of Godot lights, and the carried light counts too (D-847, D-853). The owner raised the row from the 15 of the sweep of 2026-09-17 to 24, and a new Deck sweep with 24 paired lights proves it before PR-56 merges (D-617, D-854, G-14). Each row is a floor, and not the limit of the Deck (F-66). PR-57 to PR-60 and PR-92 add their rows.",
+ "lights_in_view": 24
+}
