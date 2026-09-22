@@ -3,6 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using TheThingBelow.Core;
+using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Runs;
+using TheThingBelow.Storage;
+using TheThingBelow.Tools.Content;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -39,13 +45,19 @@ public sealed class ScreenCapturesTests
         "ui-whole-1440.png",
     ];
 
-    /// <summary>The captures of the battle fixture (D-827, D-833).</summary>
+    /// <summary>The captures of the battle fixture (D-827, D-833), with each battle effect of PR-57 (D-863, D-879).</summary>
     private static readonly string[] BattleNames =
     [
         "battle-menu-1x.png",
         "battle-menu-fill-1080.png",
         "battle-target-1x.png",
         "battle-blow-1x.png",
+        "battle-blood-1x.png",
+        "battle-sparks-1x.png",
+        "battle-heavy-stop-1x.png",
+        "battle-heavy-full-1x.png",
+        "battle-heavy-reduced-1x.png",
+        "battle-heavy-off-1x.png",
     ];
 
     // This property stays below `StillNames`, because its build reads that array, and a static
@@ -54,14 +66,16 @@ public sealed class ScreenCapturesTests
     public static TheoryData<string> ExpectedNames { get; } = BuildExpectedNames();
 
     [Fact]
-    public void TheListHoldsFiveCapturesOfEachStillFixtureOneForEachTickOfTheWalkFourOfTheBattleAndThreeOfTheSettings()
+    public void TheListHoldsFiveCapturesOfEachStillFixtureOneForEachTickOfTheWalkTenOfTheBattleAndThreeOfTheSettings()
     {
         // D-734. Two still fixtures, and five captures of each one: the frame at 1x, and both
         // fit modes at 1080 and 1440 screen rows (D-232, D-568). D-782 adds the walk: 17 ticks
         // of one step north and 17 of one step south (D-821). D-819 adds the picture at 1x.
         // D-827 adds the battle: the menu at both body sizes, the pointer, and a blow. PR-63
         // adds the settings screen at both body sizes, and its conflict line (D-862, D-871).
-        Assert.Equal(10 + 34 + 1 + 4 + 3, FileNames().Count);
+        // PR-57 adds the blood, the sparks, the stop of a heavy blow, and the heavy blow at each
+        // level of the flash and shake reduction (D-863, exit test 1 of PR-57).
+        Assert.Equal(10 + 34 + 1 + 10 + 3, FileNames().Count);
     }
 
     [Fact]
@@ -166,6 +180,57 @@ public sealed class ScreenCapturesTests
         Assert.Equal(
             new HashSet<string> { "1280 by 720", "1920 by 1080", "2560 by 1440" },
             screens);
+    }
+
+    [Theory]
+    [InlineData("heavy-full-1x", EffectLevel.Full)]
+    [InlineData("heavy-reduced-1x", EffectLevel.Reduced)]
+    [InlineData("heavy-off-1x", EffectLevel.Off)]
+    [InlineData("heavy-stop-1x", EffectLevel.Full)]
+    [InlineData("blood-1x", EffectLevel.Full)]
+    public void EachHeavyFrameTakesItsLevelAndStagesAHeavyBlow(string frame, EffectLevel level)
+    {
+        // Exit test 1 of PR-57: the heavy blow draws at each level of the flash and shake
+        // reduction (D-214, D-863). A frame outside the heavy frames takes the default, full (D-868).
+        Type captures = GameAssemblyFile.Type(CapturesTypeName);
+        Assert.Equal(level, (EffectLevel)captures.GetMethod("LevelOf")!.Invoke(null, [frame])!);
+
+        bool heavy = frame.StartsWith("heavy-", StringComparison.Ordinal);
+        Assert.Equal(heavy, (bool)captures.GetMethod("StagesHeavyBlow")!.Invoke(null, [frame])!);
+    }
+
+    [Theory]
+    [InlineData("menu-1x", null)]
+    [InlineData("target-1x", null)]
+    [InlineData("blow-1x", 2)]
+    [InlineData("heavy-stop-1x", 3)]
+    [InlineData("blood-1x", 8)]
+    [InlineData("sparks-1x", 8)]
+    [InlineData("heavy-off-1x", 8)]
+    public void EachBattleFrameShowsItsTicksAfterTheBlow(string frame, int? ticks)
+    {
+        // D-829, D-880: the stop frame falls inside the hit-stop of 6 ticks, and the burst
+        // frames show a spread burst. A frame of the menu plays no blow.
+        object? found = GameAssemblyFile.Type(CapturesTypeName).GetMethod("TicksAfterBlowOf")!.Invoke(null, [frame]);
+
+        Assert.Equal(ticks, (int?)found);
+    }
+
+    [Fact]
+    public void TheWalkToTheDeepRoomMeetsTheBrute()
+    {
+        // D-882: the sparks frame needs a real fight with the brute, so the walk must meet the
+        // elite patrol of the deep room at the fixture seed.
+        object run = GameAssemblyFile.Type("TheThingBelow.Game.GameRun")
+            .GetMethod("Start", [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])!
+            .Invoke(null, [ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find())), 20260918UL, DebugIntentHandlers.None, MessageSpeed.Normal])!;
+
+        GameAssemblyFile.Type("TheThingBelow.Game.BattleWalk").GetMethod("ToFirstCommandOfElite")!.Invoke(null, [run]);
+
+        var state = (RunState)run.GetType().GetProperty("State")!.GetValue(run)!;
+        Battle battle = state.Battle ?? throw new InvalidOperationException("The walk ended with no battle (T-2).");
+        Assert.Equal("group.fixture_elite", battle.Group.Id.Value);
+        Assert.Contains(battle.Enemies, enemy => string.Equals(enemy.Id.Value, "enemy.fixture_brute", StringComparison.Ordinal));
     }
 
     [Fact]

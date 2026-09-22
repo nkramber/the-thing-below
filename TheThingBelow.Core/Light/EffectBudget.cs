@@ -5,7 +5,7 @@ namespace TheThingBelow.Core.Light;
 
 /// <summary>
 /// The effect budget: the load that the Deck test measured at 60 frames per second (D-523,
-/// D-617). PR-56 writes the light row, and PR-57 to PR-60 and PR-92 add their rows.
+/// D-617). PR-56 writes the light row, PR-57 writes the particle row, and PR-58 to PR-60 and PR-92 add their rows.
 /// </summary>
 /// <remarks>
 /// Each row is a floor, and not the limit of the Deck, because no stage of the sweep missed the
@@ -28,13 +28,17 @@ public sealed class EffectBudget
     /// </summary>
     public const int LightsPerSource = 2;
 
-    private EffectBudget(int lightsInView)
+    private EffectBudget(int lightsInView, int liveParticles)
     {
         this.LightsInView = lightsInView;
+        this.LiveParticles = liveParticles;
     }
 
     /// <summary>The most Godot lights with shadows whose range reaches one view of the Deck, two for each source (D-842, D-853, D-854).</summary>
     public int LightsInView { get; }
+
+    /// <summary>The most live particles on screen at once, the row of the sweep of 2026-09-17 (D-523, D-617).</summary>
+    public int LiveParticles { get; }
 
     /// <summary>Reads the budget from the bytes of its file.</summary>
     /// <param name="bytes">The bytes of the file, as UTF-8.</param>
@@ -53,6 +57,7 @@ public sealed class EffectBudget
     {
         string? comment = null;
         int? lights = null;
+        int? particles = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -65,18 +70,28 @@ public sealed class EffectBudget
                 case "lights_in_view":
                     lights = reader.ReadInt();
                     break;
+                case "live_particles":
+                    particles = reader.ReadInt();
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
         }
 
         _ = reader.Require(comment, depth, "comment");
-        int count = reader.RequireInt(lights, depth, "lights_in_view");
+        return new EffectBudget(
+            Row(ref reader, depth, "lights_in_view", lights),
+            Row(ref reader, depth, "live_particles", particles));
+    }
+
+    private static int Row(ref ContentReader reader, int depth, string field, int? value)
+    {
+        int count = reader.RequireInt(value, depth, field);
         if (count < 1)
         {
-            throw reader.RefuseField(depth, "lights_in_view", $"the row is {count}, and a budget row is 1 or more (D-523)");
+            throw reader.RefuseField(depth, field, $"the row is {count}, and a budget row is 1 or more (D-523)");
         }
 
-        return new EffectBudget(count);
+        return count;
     }
 }

@@ -55,7 +55,7 @@ public static class UiContentFixtures
         """{ "comment": "a test carried light", "color": "k", "strength": 10000, "range": 64, "height": 16, "x": 16, "y": -16 }""";
 
     /// <summary>The body of the fixture effect budget (D-523).</summary>
-    public const string BudgetBody = """{ "comment": "a test budget", "lights_in_view": 15 }""";
+    public const string BudgetBody = """{ "comment": "a test budget", "lights_in_view": 15, "live_particles": 8192 }""";
 
     /// <summary>The page record that the fixture atlas index holds.</summary>
     public const string AtlasPageRecord = """{ "kind": "ui", "number": 1, "width": 1, "height": 1 }""";

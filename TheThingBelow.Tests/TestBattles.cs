@@ -179,7 +179,7 @@ internal static class TestBattles
     public const string BrutePath = "rules/enemies/fixture-brute.json";
 
     /// <summary>Gives the battle files of a content set, with the text of the tests (D-757, D-766, D-785, D-786).</summary>
-    /// <returns>The rules file, the fixture file, the ability file, and the two enemy records.</returns>
+    /// <returns>The rules file, the fixture file, the ability file, the two enemy records, and the effect files that serve those combatants (D-879).</returns>
     public static IReadOnlyList<ContentFile> Files() =>
     [
         new ContentFile(BattleRules.Path, Encoding.UTF8.GetBytes(RulesFile)),
@@ -187,6 +187,7 @@ internal static class TestBattles
         new ContentFile(AbilityList.Path, Encoding.UTF8.GetBytes(AbilitiesFile)),
         new ContentFile(BrutePath, Encoding.UTF8.GetBytes(BruteFile)),
         new ContentFile(GruntPath, Encoding.UTF8.GetBytes(GruntFile)),
+        .. EffectFixtures.Files(),
     ];
 
     /// <summary>The battle content of the tests, with Marrek alone in the party (D-336).</summary>

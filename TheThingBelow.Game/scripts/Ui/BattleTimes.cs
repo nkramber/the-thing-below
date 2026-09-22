@@ -1,17 +1,25 @@
 using System;
 using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Effects;
 using TheThingBelow.Storage;
 
 namespace TheThingBelow.Game.Ui;
 
 /// <summary>
-/// The timings and the motions of the battle screen, in ticks of the fixed-step clock and in
-/// art pixels (D-266, D-829). PR-57 moves each number into its effect files.
+/// The moments and the motions of the battle screen at each tick of an event: the pose, the
+/// flash, the number, the sway, the hit-stop, the shake, and the burst (D-186, D-829). The
+/// battle file holds each number (D-883).
 /// </summary>
 /// <remarks>
 /// No rule reads a number of this type. The rules resolve each action at once, and the screen
 /// then plays the events one after another, so a timing sets the pace of the screen alone and
 /// never reaches a replay (D-522, D-532, T-7).
+/// <para>
+/// A heavy blow freezes the picture at the blow for the ticks of the hit-stop (D-880). The
+/// pose, the flash, the number, and the burst then read the ticks of the picture, which stand
+/// still during the freeze. The event holds the same ticks, so the freeze costs no time
+/// (D-873).
+/// </para>
 /// <para>
 /// This type holds no Godot value, so a test reads it from the built Game assembly with no
 /// engine (D-614).
@@ -19,86 +27,56 @@ namespace TheThingBelow.Game.Ui;
 /// </remarks>
 public static class BattleTimes
 {
-    /// <summary>The ticks that the first line of a fight stands before the next event.</summary>
-    public const int StartTicks = 40;
-
-    /// <summary>The ticks of a strike: the pose, the blow, the flash, and the number (D-96, D-213).</summary>
-    public const int StrikeTicks = 44;
-
-    /// <summary>The ticks of an event that shows its line alone, such as a defend or a status.</summary>
-    public const int LineTicks = 32;
-
-    /// <summary>The ticks of the last line of a fight, before the map runs again (D-522).</summary>
-    public const int EndTicks = 60;
-
-    /// <summary>The ticks that the attack pose or the lunge lasts, from the start of a strike (D-108, D-832).</summary>
-    public const int PoseTicks = 16;
-
-    /// <summary>The tick of a strike when the blow lands: the flash and the number start (D-96, D-213).</summary>
-    public const int BlowTick = 6;
-
-    /// <summary>The ticks of the flash on a hit, from the blow (D-96).</summary>
-    public const int FlashTicks = 8;
-
-    /// <summary>The ticks that the damage number rises, from the blow (D-213).</summary>
-    public const int NumberRiseTicks = 6;
-
-    /// <summary>The frame pixels that the damage number rises on each tick of its rise.</summary>
-    public const int NumberRisePixels = 3;
-
-    /// <summary>The ticks between two frame pixels of the fall of the damage number.</summary>
-    public const int NumberFallTicks = 2;
-
-    /// <summary>The art pixels that an enemy slides toward the party when it acts (D-832).</summary>
-    public const int LungePixels = 4;
-
-    /// <summary>The art pixels that the backdrop sways to each side (D-205, D-831).</summary>
-    public const int DriftPixels = 2;
-
-    /// <summary>The ticks that the backdrop holds each art pixel of its sway (D-205).</summary>
-    public const int DriftStepTicks = 45;
-
     /// <summary>Gives the ticks that the screen plays one event before the next one (D-532).</summary>
+    /// <param name="pace">The battle file.</param>
     /// <param name="kind">The kind of the event.</param>
     /// <returns>The ticks. A turn takes none, because it changes only who acts.</returns>
+    /// <exception cref="ArgumentNullException">The battle file is null (T-2).</exception>
     /// <exception cref="ArgumentOutOfRangeException">The kind has no timing (T-2).</exception>
-    public static int TicksOf(BattleEventKind kind) => kind switch
+    public static int TicksOf(BattleEffects pace, BattleEventKind kind)
     {
-        BattleEventKind.Started => StartTicks,
-        BattleEventKind.Turn => 0,
-        BattleEventKind.Hit => StrikeTicks,
-        BattleEventKind.Miss => StrikeTicks,
-        BattleEventKind.Absorb => StrikeTicks,
-        BattleEventKind.Defend => LineTicks,
-        BattleEventKind.Step => LineTicks,
-        BattleEventKind.Item => LineTicks,
-        BattleEventKind.FleeFailed => LineTicks,
-        BattleEventKind.Down => LineTicks,
-        BattleEventKind.StepIn => LineTicks,
-        BattleEventKind.StatusOn => LineTicks,
-        BattleEventKind.StatusOff => LineTicks,
-        BattleEventKind.Immune => LineTicks,
-        BattleEventKind.StatusHurt => LineTicks,
-        BattleEventKind.StatusHeal => LineTicks,
-        BattleEventKind.Asleep => LineTicks,
-        BattleEventKind.Won => EndTicks,
-        BattleEventKind.Fled => EndTicks,
-        BattleEventKind.Wiped => EndTicks,
-        _ => throw new ArgumentOutOfRangeException(
-            nameof(kind), kind, $"The battle event '{kind}' has no timing on the screen (D-829, T-2)."),
-    };
+        ArgumentNullException.ThrowIfNull(pace);
+
+        return kind switch
+        {
+            BattleEventKind.Started => pace.StartTicks,
+            BattleEventKind.Turn => 0,
+            BattleEventKind.Hit => pace.StrikeTicks,
+            BattleEventKind.Miss => pace.StrikeTicks,
+            BattleEventKind.Absorb => pace.StrikeTicks,
+            BattleEventKind.Defend => pace.LineTicks,
+            BattleEventKind.Step => pace.LineTicks,
+            BattleEventKind.Item => pace.LineTicks,
+            BattleEventKind.FleeFailed => pace.LineTicks,
+            BattleEventKind.Down => pace.LineTicks,
+            BattleEventKind.StepIn => pace.LineTicks,
+            BattleEventKind.StatusOn => pace.LineTicks,
+            BattleEventKind.StatusOff => pace.LineTicks,
+            BattleEventKind.Immune => pace.LineTicks,
+            BattleEventKind.StatusHurt => pace.LineTicks,
+            BattleEventKind.StatusHeal => pace.LineTicks,
+            BattleEventKind.Asleep => pace.LineTicks,
+            BattleEventKind.Won => pace.EndTicks,
+            BattleEventKind.Fled => pace.EndTicks,
+            BattleEventKind.Wiped => pace.EndTicks,
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(kind), kind, $"The battle event '{kind}' has no timing on the screen (D-829, T-2)."),
+        };
+    }
 
     /// <summary>Gives the ticks that the screen holds one event at a message speed (D-866, D-873).</summary>
+    /// <param name="pace">The battle file.</param>
     /// <param name="kind">The kind of the event.</param>
     /// <param name="speed">The message speed of the battle group.</param>
     /// <returns>
     /// The ticks of <see cref="TicksOf"/> at normal, 1.5 times as many at slow, and half as many
     /// at fast. The pose, the blow, and the flash inside a strike keep their own ticks.
     /// </returns>
+    /// <exception cref="ArgumentNullException">The battle file is null (T-2).</exception>
     /// <exception cref="ArgumentOutOfRangeException">The kind has no timing, or the speed has no name (T-2).</exception>
-    public static int HoldTicksOf(BattleEventKind kind, MessageSpeed speed)
+    public static int HoldTicksOf(BattleEffects pace, BattleEventKind kind, MessageSpeed speed)
     {
-        int normal = TicksOf(kind);
+        int normal = TicksOf(pace, kind);
         return speed switch
         {
             MessageSpeed.Slow => normal * 3 / 2,
@@ -115,65 +93,187 @@ public static class BattleTimes
     public static bool IsStrike(BattleEventKind kind) =>
         kind == BattleEventKind.Hit || kind == BattleEventKind.Miss || kind == BattleEventKind.Absorb;
 
-    /// <summary>Tells whether the flash shows on the target at one tick of a strike (D-96).</summary>
-    /// <param name="kind">The kind of the event.</param>
-    /// <param name="ticks">The ticks since the event started.</param>
-    /// <returns>True from the blow of a hit to the end of the flash. A miss and an absorb never flash.</returns>
-    public static bool Flashes(BattleEventKind kind, int ticks) =>
-        kind == BattleEventKind.Hit && ticks >= BlowTick && ticks < BlowTick + FlashTicks;
+    /// <summary>Tells whether an event is a heavy blow: a hit on an element that the target is weak to (D-877).</summary>
+    /// <param name="played">The event.</param>
+    /// <returns>True for a hit with the weak affinity.</returns>
+    /// <exception cref="ArgumentNullException">The event is null (T-2).</exception>
+    public static bool IsHeavy(BattleEvent played)
+    {
+        ArgumentNullException.ThrowIfNull(played);
 
-    /// <summary>Tells whether the actor holds its pose or its lunge at one tick of a strike (D-108, D-832).</summary>
-    /// <param name="kind">The kind of the event.</param>
-    /// <param name="ticks">The ticks since the event started.</param>
-    /// <returns>True inside the pose of a strike.</returns>
-    public static bool Poses(BattleEventKind kind, int ticks) => IsStrike(kind) && ticks < PoseTicks;
+        return played.Kind == BattleEventKind.Hit && played.Affinity == Affinity.Weak;
+    }
 
     /// <summary>
-    /// Gives the frame pixels that the damage number stands above its start, at one tick of a
-    /// strike (D-213). The number pops up, and then it falls away.
+    /// Gives the ticks of the picture at one tick of an event. A heavy blow holds the picture at
+    /// the blow for the ticks of the hit-stop, and every other event shows its own ticks (D-880).
     /// </summary>
+    /// <param name="pace">The battle file.</param>
+    /// <param name="played">The event.</param>
     /// <param name="ticks">The ticks since the event started.</param>
-    /// <returns>The height above the start, or null before the blow, when no number shows.</returns>
-    public static int? NumberRise(int ticks)
+    /// <returns>The ticks that the pose, the flash, the number, and the burst read.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    public static int PictureTicks(BattleEffects pace, BattleEvent played, int ticks)
     {
-        int since = ticks - BlowTick;
+        ArgumentNullException.ThrowIfNull(pace);
+
+        if (!IsHeavy(played) || ticks <= pace.BlowTick)
+        {
+            return ticks;
+        }
+
+        int stopEnd = pace.BlowTick + pace.HitStopTicks;
+        return ticks < stopEnd ? pace.BlowTick : ticks - pace.HitStopTicks;
+    }
+
+    /// <summary>Tells whether the flash shows on the target at one tick of the picture (D-96).</summary>
+    /// <param name="pace">The battle file.</param>
+    /// <param name="kind">The kind of the event.</param>
+    /// <param name="ticks">The ticks of the picture, from <see cref="PictureTicks"/>.</param>
+    /// <returns>True from the blow of a hit to the end of the flash. A miss and an absorb never flash.</returns>
+    /// <exception cref="ArgumentNullException">The battle file is null (T-2).</exception>
+    /// <remarks>The flash shows at each level of the flash and shake reduction (D-881).</remarks>
+    public static bool Flashes(BattleEffects pace, BattleEventKind kind, int ticks)
+    {
+        ArgumentNullException.ThrowIfNull(pace);
+
+        return kind == BattleEventKind.Hit && ticks >= pace.BlowTick && ticks < pace.BlowTick + pace.FlashTicks;
+    }
+
+    /// <summary>Tells whether the actor holds its pose or its lunge at one tick of the picture (D-108, D-832).</summary>
+    /// <param name="pace">The battle file.</param>
+    /// <param name="kind">The kind of the event.</param>
+    /// <param name="ticks">The ticks of the picture, from <see cref="PictureTicks"/>.</param>
+    /// <returns>True inside the pose of a strike.</returns>
+    /// <exception cref="ArgumentNullException">The battle file is null (T-2).</exception>
+    public static bool Poses(BattleEffects pace, BattleEventKind kind, int ticks)
+    {
+        ArgumentNullException.ThrowIfNull(pace);
+
+        return IsStrike(kind) && ticks < pace.PoseTicks;
+    }
+
+    /// <summary>
+    /// Gives the frame pixels that the damage number stands above its start, at one tick of the
+    /// picture of a strike (D-213). The number pops up, and then it falls away.
+    /// </summary>
+    /// <param name="pace">The battle file.</param>
+    /// <param name="ticks">The ticks of the picture, from <see cref="PictureTicks"/>.</param>
+    /// <returns>The height above the start, or null before the blow, when no number shows.</returns>
+    /// <exception cref="ArgumentNullException">The battle file is null (T-2).</exception>
+    public static int? NumberRise(BattleEffects pace, int ticks)
+    {
+        ArgumentNullException.ThrowIfNull(pace);
+
+        int since = ticks - pace.BlowTick;
         if (since < 0)
         {
             return null;
         }
 
-        if (since < NumberRiseTicks)
+        if (since < pace.NumberRiseTicks)
         {
-            return since * NumberRisePixels;
+            return since * pace.NumberRisePixels;
         }
 
-        int top = NumberRiseTicks * NumberRisePixels;
-        return top - ((since - NumberRiseTicks) / NumberFallTicks);
+        int top = pace.NumberRiseTicks * pace.NumberRisePixels;
+        return top - ((since - pace.NumberRiseTicks) / pace.NumberFallTicks);
+    }
+
+    /// <summary>
+    /// Gives the ticks since the burst of a hit started, at one tick of the picture (D-879).
+    /// </summary>
+    /// <param name="pace">The battle file.</param>
+    /// <param name="played">The event.</param>
+    /// <param name="ticks">The ticks of the picture, from <see cref="PictureTicks"/>.</param>
+    /// <returns>The age of the burst, or null when no burst plays: before the blow, or on an event that is no hit.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <remarks>A miss hits nothing, and an absorb heals, so neither one bleeds or sparks.</remarks>
+    public static int? BurstAge(BattleEffects pace, BattleEvent played, int ticks)
+    {
+        ArgumentNullException.ThrowIfNull(pace);
+        ArgumentNullException.ThrowIfNull(played);
+
+        if (played.Kind != BattleEventKind.Hit || ticks < pace.BlowTick)
+        {
+            return null;
+        }
+
+        return ticks - pace.BlowTick;
+    }
+
+    /// <summary>Gives the distance of the shake at one level of the flash and shake reduction (D-863).</summary>
+    /// <param name="shake">The shake of the battle file.</param>
+    /// <param name="level">The level of the settings.</param>
+    /// <returns>The distance, in art pixels.</returns>
+    /// <exception cref="ArgumentNullException">The shake is null (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The level has no name (T-2).</exception>
+    public static int ShakeDistance(ShakeValues shake, EffectLevel level)
+    {
+        ArgumentNullException.ThrowIfNull(shake);
+
+        return level switch
+        {
+            EffectLevel.Full => shake.Full,
+            EffectLevel.Reduced => shake.Reduced,
+            EffectLevel.Off => shake.Off,
+            _ => throw new ArgumentOutOfRangeException(nameof(level), level, $"The level '{level}' has no shake (D-863, T-2)."),
+        };
+    }
+
+    /// <summary>
+    /// Gives the offset of the battle picture at one tick of an event, in art pixels (D-876).
+    /// A heavy blow moves the picture to one side and the other, from the blow to the end of the
+    /// shake. The UI stays still.
+    /// </summary>
+    /// <param name="pace">The battle file.</param>
+    /// <param name="played">The event.</param>
+    /// <param name="ticks">The ticks since the event started, and not the ticks of the picture, because the shake plays through the freeze.</param>
+    /// <param name="level">The level of the flash and shake reduction (D-863).</param>
+    /// <returns>The offset across the screen, or zero outside a shake.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    public static int ShakeAt(BattleEffects pace, BattleEvent played, int ticks, EffectLevel level)
+    {
+        ArgumentNullException.ThrowIfNull(pace);
+
+        int since = ticks - pace.BlowTick;
+        if (!IsHeavy(played) || since < 0 || since >= pace.Shake.Ticks)
+        {
+            return 0;
+        }
+
+        int distance = ShakeDistance(pace.Shake, level);
+        bool firstSide = since / pace.Shake.StepTicks % 2 == 0;
+        return firstSide ? distance : -distance;
     }
 
     /// <summary>
     /// Gives the sway of the backdrop at one tick, in art pixels (D-205, D-831). The sway runs
-    /// from zero to <see cref="DriftPixels"/>, back through zero to the other side, and back.
+    /// from zero to the drift of the battle file, back through zero to the other side, and back.
     /// </summary>
+    /// <param name="pace">The battle file.</param>
     /// <param name="tick">The tick of the run, which the screen reads and never changes.</param>
-    /// <returns>The offset, from minus <see cref="DriftPixels"/> to <see cref="DriftPixels"/>.</returns>
+    /// <returns>The offset, from minus the drift to the drift.</returns>
+    /// <exception cref="ArgumentNullException">The battle file is null (T-2).</exception>
     /// <exception cref="ArgumentOutOfRangeException">The tick is below zero (T-2).</exception>
-    public static int DriftAt(long tick)
+    public static int DriftAt(BattleEffects pace, long tick)
     {
+        ArgumentNullException.ThrowIfNull(pace);
         ArgumentOutOfRangeException.ThrowIfNegative(tick);
 
-        int steps = DriftPixels * 4;
-        int step = (int)(tick / DriftStepTicks % steps);
-        if (step <= DriftPixels)
+        int drift = pace.DriftPixels;
+        int steps = drift * 4;
+        int step = (int)(tick / pace.DriftStepTicks % steps);
+        if (step <= drift)
         {
             return step;
         }
 
-        if (step <= DriftPixels * 3)
+        if (step <= drift * 3)
         {
-            return (DriftPixels * 2) - step;
+            return (drift * 2) - step;
         }
 
-        return step - (DriftPixels * 4);
+        return step - (drift * 4);
     }
 }

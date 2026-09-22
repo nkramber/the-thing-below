@@ -1,5 +1,112 @@
 # Session handoff
 
+## Session 206: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-56. Repository: the-thing-below. Branch: `feat/pr-57-effects`. PR: #56. Role: reviewer. Base: `8aaf0f6`.
+
+### What this session did, and why
+
+- Reviewed the complete diff from `8aaf0f6` to effective head `f1b42b5`.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Traced effect loading, cross-file validation, particle construction and seeking, battle timing, hit-stop, shake, settings updates, and screen capture coverage.
+- Wrote `docs/reviews/pr-56.md` with no finding and the verdict `Ready for owner merge` for effective head `f1b42b5`.
+
+### The state of the build
+
+- `make verify` passed with 2,069 non-Smoke tests, 0 STE findings, matching replay identity and content hash, matching atlas, and a green smoke session.
+- CI run 35742614648 passed the implementation checks, screen-test, and smoke on all current legs. Gitar approved the head. The review-gate check failed only because the review record did not yet exist.
+- The remote head before this review commit is `f1b42b5`.
+
+### What is in flight
+
+- The review record and this handoff entry need commit and push.
+
+### Traps and gotchas
+
+- The review targets effective head `f1b42b5`. The review commit changes only the metadata set and does not move that head.
+- The screen baselines come from the CI artifact, while the Mac uses another renderer path.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Fetch and verify the remote head and review-gate check.
+
+## Session 205: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-57, the baseline round. Repository: the-thing-below. Branch: `feat/pr-57-effects`. PR: #56. Role: author. Base: `8aaf0f6`.
+
+### What this session did, and why
+
+- CI run 35741921184 on `f3f2e1f` failed as planned. Each leg failed the six baseline tests alone, and the screen-test job found the six new captures and 132 changed pixels in `battle-blow-1x.png`.
+- The two capture runs on lavapipe matched each other, so the seek of a burst gives one picture on CI too.
+- Read each of the seven frames of the `screen-captures` artifact, and committed them to `screens/baseline/` (D-733, D-784). The heavy frames move the picture by -4, 4, 1, and 0 art pixels, and the number stays still.
+
+### The state of the build
+
+- The remote head before this round is `f3f2e1f`. This round adds the seven baselines and this entry.
+- The review-gate check fails on RG 3 alone: no review record at `docs/reviews/pr-56.md` yet.
+
+### What is in flight
+
+- The CI run of this push, and the gitar pass on it.
+- The Codex review in `docs/reviews/pr-56.md`.
+
+### Traps and gotchas
+
+- The baselines come from the CI artifact alone. The Mac draws other pixels with the same renderer.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Follow the `gitar-review` skill on this push, and answer each comment. Then tell the owner that the PR is ready for Codex.
+
+## Session 204: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-57. Repository: the-thing-below. Branch: `feat/pr-57-effects`. PR: #56. Role: author. Base: `8aaf0f6`.
+
+### What this session did, and why
+
+- Asked OQ-98 and OQ-99. D-875 sets `GPUParticles2D`, and D-876 shakes the battle picture alone.
+- Found that no heavy blow and no spell exist before PR-12, and asked. D-877 to D-883 set the heavy blow, the spell flash in PR-12, the hit files, the hit-stop, the hit flash, the sparks of the brute, and the battle file. D-884 moves the hurt flinch to PR-17.
+- Built the records and readers of Core (`TheThingBelow.Core/Effects/`), the particle row of the budget, the battle file, and the two hit files.
+- Moved the timings of PR-10 into the battle file. Game builds one particle node for each palette key, and seeks each burst to its age in ticks.
+- Added six battle captures: blood, sparks, a frame inside the hit-stop, and the heavy blow at full, reduced, and off.
+- Read each battle frame of `make sheet FIXTURE=battle` on the Mac. Two runs gave the same bytes.
+
+### The state of the build
+
+- Local: build, format, det-lint, content hash, replay identity, atlas, smoke, and ste-check pass. The smoke line counts 8 particle nodes.
+- 2063 of 2069 tests pass. The six failures are the baselines of the new captures, which the first CI run makes (D-733).
+- The branch holds `f2a0f57` and this entry. The push of this round sets the remote head.
+
+### What is in flight
+
+- The screen-test job fails on the six new captures and on the changed `battle-blow-1x.png`. The author reads each frame of the `screen-captures` artifact and commits them to `screens/baseline/`.
+- The gitar pass, then the Codex review in `docs/reviews/pr-56.md`.
+
+### Traps and gotchas
+
+- The walk to the deep room queues a step only when no step runs. A step queued inside a step runs after it and carries the party past the turn. The hall walk keeps its old queue, so its baselines stay.
+- The capture fixture stages each heavy blow as the real hit of the fight with the weak affinity, because no move carries an element before PR-12.
+- A burst seeks with `Restart(keepSeed: true)` and `RequestParticlesProcess`, at speed zero. The seed comes from the tick when the event started.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, open the PR, and wait for CI. Read and commit the baselines from the artifact, then follow the `gitar-review` skill.
+
 ## Session 203: 2026-09-22, Codex
 
 Author: Codex
@@ -241,110 +348,3 @@ None.
 ### The next concrete action
 
 The author must correct the previous-head source and add an event-shape regression check. Then Codex must repeat the review at the new effective head.
-
-## Session 196: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-93, round 2. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: #54. Role: author. Base: `d1a03f7`.
-
-### What this session did, and why
-
-- Answered the two Gitar items of round 1.
-- The RG 7 fault: the `docs/reviews/` row of the description named no path. The edit of the description fixed it, and review-gate now fails on RG 3 alone.
-- The finding: a plain job that its condition skips reports the conclusion `skipped`, not `success`. Thus after one docs-only push, the rule of D-858 read `coverage report`, `det-lint`, and `screen-test` as no pass, and the next docs-only push ran every job. Full merit.
-- The fix: a gate job with `always()` for each of the three jobs, as the matrix families have (D-682). Each gate takes the required name, and each job takes the name `<name> (run)`. D-858 stays true as written.
-- The regression test `EachJobThatADocsOnlyChangeSkipsHasOneGateJob` fails on the workflow of `d0ca1bc` and passes now. `area-ci.md` section 7.19 lists the three new gates.
-
-### The state of the build
-
-- `make verify` passes with 1,924 tests outside the Smoke category, 0 ste-check findings, and the smoke session.
-- The CI run of `d0ca1bc` passed every job on every leg. The remote head is the push of this entry.
-
-### What is in flight
-
-- The Gitar pass approved `c9429c4` at 2026-09-22T02:45:51Z, with 1 finding closed and no new finding. The Gitar check of that head passed.
-- The review of the other provider (D-401, D-560). The next push holds this entry alone, so it is the first live docs-only push after a green head.
-
-### Traps and gotchas
-
-- Branch protection requires `coverage report` and `det-lint` by name. The gate jobs keep those names, so the protection needs no change. The old job names move to `<name> (run)`.
-- A fault in `changed-paths` skips each plain job. Each new gate now fails in that case, where the old check showed `skipped` (T-2).
-- Session 195 said that a skip on a skip holds. That was wrong for the three plain jobs before this round.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Read the `changed paths` log of the push of this entry: the build jobs skip, and each gate reports `success`. Then the other provider reviews PR #54 at effective head `c9429c4`.
-
-## Session 195: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-93, round 1. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: the PR-93 intent, and GitHub gives the number at the open. Role: author. Base: `d1a03f7`.
-
-### What this session did, and why
-
-- Asked OQ-219 and two more questions that the work found. D-857, D-858, and D-859 hold the answers.
-- D-857: `CLAUDE.md` and `AGENTS.md` join the skip set. `.claude/settings.json` was in the set already through `.claude/`.
-- Added rules AGENTS 1 and AGENTS 2 to ste-check. AGENTS 1 reads the rule of D-20. AGENTS 2 reads the count of the Smoke filter option that `TestFilterTests` reads. A docs-only PR skips that test, so ste-check reads the same facts on every PR.
-- D-858: a docs-only push skips the other jobs when each check that it skips passed on the previous head. review-gate and ste-check do not count.
-- D-859: the new `changed-paths` command of Tools decides. The workflow collects the paths and the check runs of the `before` commit, and the job gets `checks: read`.
-- Updated the `ste-writing` and `one-pr-one-session` skills, `area-ci.md` section 7.1, and section 7.15 of the phase 2 file.
-
-### The state of the build
-
-- `make verify` passes with 1,920 tests outside the Smoke category, 0 ste-check findings, and the smoke session.
-- A local run of the two workflow steps against PR #53 gave the expected answer in four cases: a green head, a cancelled head, a force push, and a push to `main`.
-- The remote head is the push of this entry.
-
-### What is in flight
-
-- The Gitar pass, then the review of the other provider. The PR changes `.github/workflows/` and adds decision rows, so no label applies (D-401, D-560).
-
-### Traps and gotchas
-
-- The run of a new push cancels the run of the previous head. A quick docs push after a code push thus runs every job, because the checks of the previous head show `cancelled`.
-- The first CI run of this PR runs every job, because the PR changes code.
-- Branch protection does not require `screen-test`, but the skip rule reads it. The rule is safe, because an absent run fails it.
-- The shell step reads `github.event.before`. That field exists only on the `synchronize` action.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Open the PR. Load the `gitar-review` skill, wait for Gitar, and answer each comment. Then tell the owner that the PR is ready for the other provider.
-
-## Session 194: 2026-09-21, Codex
-
-Author: Codex
-Session: reviewer PR-53, repeat review. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: reviewer. Base: `e0cc485`.
-
-### What this session did, and why
-
-- Re-reviewed the complete PR-53 diff through effective head `30868a8`.
-- Verified the wall-face, figure-shadow, paired-light, budget, baseline, and Deck-sweep corrections against their original triggers and boundary tests.
-- Updated `docs/reviews/pr-53.md` with the current verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 1,862 non-smoke tests and all local gates. The remote effective head is `30868a8`.
-
-### What is in flight
-
-- The updated review record, this handoff entry, and the archive move need commit and push.
-
-### Traps and gotchas
-
-- Review-gate remains red until this repeat-review record reaches the PR head.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit the repeat review and both handoff files. Push, fetch, and verify the remote head and review-gate check.

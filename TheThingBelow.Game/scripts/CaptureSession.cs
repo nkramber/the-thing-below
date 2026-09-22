@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Godot;
+using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Game.Ui;
@@ -349,20 +350,6 @@ public sealed partial class CaptureSession : Node
     }
 
     /// <summary>
-    /// Walks the run of the fixture seed into the fixture fight, and builds the battle screen
-    /// at the moment of one frame (D-172, D-827).
-    /// </summary>
-    /// <param name="built">The frame of this capture.</param>
-    /// <param name="base">The atlas, the theme, and the text helper.</param>
-    /// <param name="capture">The capture, whose frame names the moment.</param>
-    /// <exception cref="InvalidOperationException">The walk or the menu failed (T-2).</exception>
-    /// <remarks>
-    /// The run takes the time of exactly one tick on each call, so every session reaches the
-    /// same tick, the same sway of the backdrop, and the same pixels (T-7, D-782). The menu
-    /// frames show the first command of the fight. The target frame presses confirm on the
-    /// attack, and the blow frame plays a hit of a character to <see cref="ScreenCaptures.BlowFrameTicks"/>.
-    /// </remarks>
-    /// <summary>
     /// Builds the settings screen over the paused map, with the default settings and never the
     /// file of the person (D-860, D-871). The conflict frame remaps the gamepad slot of the
     /// back action to the button of confirm, so the screen shows the conflict line (D-862).
@@ -392,22 +379,63 @@ public sealed partial class CaptureSession : Node
         screen.Show();
     }
 
+    /// <summary>
+    /// Walks the run of the fixture seed into the fixture fight, and builds the battle screen
+    /// at the moment of one frame (D-172, D-827).
+    /// </summary>
+    /// <param name="built">The frame of this capture.</param>
+    /// <param name="base">The atlas, the theme, and the text helper.</param>
+    /// <param name="capture">The capture, whose frame names the moment.</param>
+    /// <exception cref="InvalidOperationException">The walk or the menu failed (T-2).</exception>
+    /// <remarks>
+    /// The run takes the time of exactly one tick on each call, so every session reaches the
+    /// same tick, the same sway of the backdrop, and the same pixels (T-7, D-782). The menu
+    /// frames show the first command of the fight. The target frame presses confirm on the
+    /// attack. Each frame of a blow plays a hit of a character to the ticks after the blow that
+    /// <see cref="ScreenCaptures.TicksAfterBlowOf"/> gives.
+    /// <para>
+    /// The sparks frame walks to the deep room, where the character hits the brute (D-882). The
+    /// stop frame and each heavy frame stage the same hit on a weakness, because no move of the
+    /// fixture fight carries an element before PR-12 (D-877).
+    /// </para>
+    /// </remarks>
     private void BuildBattle(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
         GameRun fight = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-        BattleWalk.ToFirstCommand(fight);
-        if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleBlowFrame) == 0)
+        if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleSparksFrame) == 0)
         {
-            BattleWalk.ToBlowOfCharacter(fight, ScreenCaptures.BlowFrameTicks);
+            BattleWalk.ToFirstCommandOfElite(fight);
+        }
+        else
+        {
+            BattleWalk.ToFirstCommand(fight);
+        }
+
+        if (ScreenCaptures.TicksAfterBlowOf(capture.Frame) is int afterBlow)
+        {
+            BattleWalk.ToBlowOfCharacter(fight, fight.Pace.BlowTick + afterBlow);
         }
 
         BattleScreen screen = BattleScreen.Build(
-            built, @base, this.content, fight, new CommandMemory(FixtureSettings.Battle.RememberCursor));
+            built,
+            @base,
+            this.content,
+            fight,
+            new CommandMemory(FixtureSettings.Battle.RememberCursor),
+            ScreenCaptures.LevelOf(capture.Frame));
         if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleTargetFrame) == 0
             && screen.Read(InputActions.Confirm) is not null)
         {
             throw new InvalidOperationException(
                 $"The capture '{capture.FileName}' pressed confirm on the attack, and the menu sent an intent before a target (D-827, T-2).");
+        }
+
+        if (ScreenCaptures.StagesHeavyBlow(capture.Frame))
+        {
+            BattleEvent blow = fight.PlayingEvent ?? throw new InvalidOperationException(
+                $"The capture '{capture.FileName}' stages a heavy blow, and the fight plays no event (D-877, T-2).");
+            screen.ShowStaged(fight, blow with { Affinity = Affinity.Weak });
+            return;
         }
 
         screen.Show(fight);

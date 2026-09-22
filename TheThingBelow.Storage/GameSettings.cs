@@ -70,7 +70,7 @@ public enum EffectLevel
     /// <summary>The default. Each flash and each shake plays as its effect file sets (D-868).</summary>
     Full,
 
-    /// <summary>Each shake and each flash plays at a quarter, and a fade replaces the color split.</summary>
+    /// <summary>Each shake and each spell flash plays at a quarter, and a fade replaces the color split. The hit flash stays (D-881).</summary>
     Reduced,
 
     /// <summary>No shake, no spell flash, and no color split. The hit-stop stays.</summary>
