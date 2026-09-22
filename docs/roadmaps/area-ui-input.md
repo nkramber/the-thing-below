@@ -160,7 +160,7 @@ Built by PR-36, on the base of PR-61. Phase file: `phase-2-first-playable.md`.
 
 - The box sits at the bottom, with the portrait, a name plate, and the choices (D-109, D-114, D-223).
 - One line of the box holds 156 characters at the UI scale of 1x, and 76 at 2x, so the limit is 76 (D-635, F-69).
-- The text types out at the chosen speed, in silence, and the box holds its layout as it types (D-223, D-709). OQ-112 holds the speeds.
+- The text types out at the chosen speed, in silence, and the box holds its layout as it types (D-223, D-709). The three speeds and the skip follow D-864.
 - The text speed and the skip are accessibility settings of PR-63 (D-214).
 - A choice in the box becomes an intent, and Core holds its result (D-493, PR-36).
 - `area-story.md` holds the story scene format and the runner that drive the box. Core runs each step, and Game draws it (D-540).
@@ -208,6 +208,7 @@ Built by PR-63. Phase file: `phase-2-first-playable.md`.
 - A key that no version declares fails the load with the file and the key, and no setting takes a silent default (T-2, D-570).
 - Vibration has limits on macOS, and the setting turns it off for any player (F-50).
 - A remap conflict blocks the save and the exit of the screen, and the screen shows each conflict (D-862).
+- The values and the defaults of each setting follow D-864 to D-868, with the dead zone of D-861 and the body size of D-707.
 
 > *In plain English:* one screen holds every choice about the game: the picture, the sound, the buttons, and the pace of battle.
 
@@ -309,7 +310,7 @@ The register is `docs/questions.md` (D-19). These questions block UI PRs, and ea
 - OQ-109: the dead zone of a stick, and its range in the settings. Resolved 2026-09-22 by D-861.
 - OQ-110: the cursor rules of a menu, and the mouse on it. Blocks PR-62.
 - OQ-111: the scale of the dungeon map screen. Blocks PR-62.
-- OQ-112: the text speeds, and the type-out of the dialogue box. Blocks PR-36.
+- OQ-112: the text speeds, and the type-out of the dialogue box. Resolved 2026-09-22 by D-709 and D-864.
 - OQ-113: the notice log, and how many notices it keeps. Blocks PR-62.
 - OQ-89: pixel snap in Game. Resolved 2026-09-20 by D-715.
 - OQ-64: the tick while a menu is open. Resolved 2026-09-18 by D-650.

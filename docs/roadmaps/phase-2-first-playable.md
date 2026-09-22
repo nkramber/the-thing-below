@@ -1348,7 +1348,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 **Scope.**
 
 - The dialogue box at the bottom, with the portrait, a name plate, and the choices (D-109, D-114, D-223).
-- The type-out at the chosen speed, in silence (D-223, OQ-112).
+- The type-out at the chosen speed, in silence (D-223, D-864).
 - The draw of each story scene step: a sprite that moves and faces, from the tick of Core (D-540, F-52).
 - The choice as an intent, whose result Core holds (D-493, D-540).
 - Fixture portraits as 64 by 64 grids, because PR-28 and PR-29 draw the cast (D-234).
@@ -1365,7 +1365,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 1. A fixture scene walks two sprites, shows a line with a portrait, and records a choice.
 2. A screen test captures the box with a portrait and with choices.
 3. A test proves that Game moves a story scene sprite from the tick, never from a timer (G-23, F-52).
-4. The type-out follows the layout rule of OQ-112 at each speed.
+4. The type-out follows the fixed layout of D-709 at each speed of D-864.
 5. The skip follows the rule of OQ-150, and the player never loses a choice.
 6. Each string comes from the string table, and det-lint proves it.
 
@@ -1375,7 +1375,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 - The player speaks the choices of the lead, and the map always follows the lead (D-267, D-292).
 - The box types in silence, and no beep plays (D-223).
 
-**Questions.** OQ-112, OQ-150, and OQ-151.
+**Questions.** OQ-150 and OQ-151. D-864 answers OQ-112.
 
 > *In plain English:* people walk, turn, and speak on the map you already walk on. Their words appear in a box at the bottom, with a face beside them.
 
@@ -2128,7 +2128,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-109 | The dead zone of a stick, resolved by D-861 | PR-63 |
 | OQ-110 | The cursor rules of a menu | PR-62 |
 | OQ-111 | The scale of the dungeon map screen | PR-62 |
-| OQ-112 | The text speeds and the type-out of the dialogue box | PR-36 |
+| OQ-112 | The text speeds and the type-out of the dialogue box, resolved by D-864 | PR-36 |
 | OQ-113 | The notice log | PR-62 |
 | OQ-114 | The rule of sight for the party and a patrol | PR-7 and PR-8 |
 | OQ-115 | How a large enemy holds its tiles and sorts | PR-8 |

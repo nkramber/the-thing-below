@@ -356,6 +356,7 @@ How to file a question (D-19, D-24):
 112. **OQ-112. The text speeds and the type-out of the dialogue box.** The box types its text out at the chosen speed (D-223), and the text speed is an accessibility setting (D-214). Godot types out text in two ways. The box can re-wrap as each letter appears, or it can keep its layout (the external facts of `area-ui-input.md`). What does the box do? Raised 2026-09-16. The layout half closed on 2026-09-19: D-709 takes the fixed layout. The speeds stay open, and they block PR-36.
     - A fixed layout, with three speeds and an instant skip, the recommendation. The words never move once they appear, which reads best at speed. The box needs its full text before it types, which it always has.
     - A re-wrap as each letter appears, which is the Godot default. It needs no setup. A word can jump to the next line as the line fills, which reads poorly.
+    - Resolved 2026-09-22: D-864. Three speeds, slow at 30, normal at 60, and fast at 120 characters a second, and a skip on confirm.
 113. **OQ-113. The notice log.** An important notice also lands in a log in the menu (D-221). Which notices does the log keep, and how many? Raised 2026-09-16. Blocks PR-62.
     - The notices that content marks as important, with the last 50, the recommendation. The log stays short and readable, and the snapshot holds it (D-166). Content must mark each notice.
     - Every notice of the run, with no limit. No notice ever leaves the log. The log grows through a long run, and each entry joins the save.
