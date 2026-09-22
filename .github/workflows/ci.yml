@@ -132,7 +132,7 @@ jobs:
   build-test-format:
     name: build, test, and format (${{ matrix.leg }})
     needs: changed-paths
-    # A job that a condition skips reports Success, so the required check passes (D-595).
+    # The gate job of this job reports the required check (D-595, D-682, D-858).
     if: needs.changed-paths.outputs.documents-alone != 'true'
     runs-on: ${{ matrix.leg }}
     timeout-minutes: 20
@@ -203,7 +203,7 @@ jobs:
           exit 1
 
   coverage:
-    name: coverage report
+    name: coverage report (run)
     needs: changed-paths
     if: needs.changed-paths.outputs.documents-alone != 'true'
     runs-on: ubuntu-24.04
@@ -245,10 +245,48 @@ jobs:
           path: artifacts/coverage-report
           retention-days: 14
 
+  coverage-gate:
+    # A plain job that a condition skips reports the conclusion `skipped`, and the rule of the
+    # previous head reads that as no pass. This job always runs and reports `success` on a
+    # docs-only head, so a second docs-only push can skip too. Branch protection requires this
+    # name, and the job fails when the job it reads fails (D-682, D-858).
+    name: coverage report
+    needs: [changed-paths, coverage]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read the result of the job
+        env:
+          FAMILY: "coverage report"
+          PATHS_RESULT: ${{ needs.changed-paths.result }}
+          JOB_RESULT: ${{ needs.coverage.result }}
+          DOCUMENTS_ALONE: ${{ needs.changed-paths.outputs.documents-alone }}
+        run: |
+          set -euo pipefail
+
+          # A fault in `changed-paths` skips the job too. A skip that no condition asked
+          # for never passes this gate (T-2).
+          if [ "$PATHS_RESULT" != "success" ]; then
+            echo "The changed paths job ended with '$PATHS_RESULT' (T-2)." >&2
+            exit 1
+          fi
+
+          # D-595 and D-856 skip the job on a docs-only PR or a docs-only push.
+          if [ "$JOB_RESULT" = "success" ] ||
+             { [ "$JOB_RESULT" = "skipped" ] && [ "$DOCUMENTS_ALONE" = "true" ]; }; then
+            echo "The $FAMILY job ended with '$JOB_RESULT', and this gate passes."
+            exit 0
+          fi
+
+          echo "The $FAMILY job ended with '$JOB_RESULT' (T-2)." >&2
+          echo "Read the check run of the job for the failure." >&2
+          exit 1
+
   det-lint:
-    name: det-lint
+    name: det-lint (run)
     needs: changed-paths
-    # A job that a condition skips reports Success, so the required check passes (D-595).
+    # The gate job of this job reports the required check (D-595, D-682, D-858).
     if: needs.changed-paths.outputs.documents-alone != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -271,10 +309,48 @@ jobs:
           dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj \
             --configuration Release --no-build -- det-lint --root . --configuration Release
 
+  det-lint-gate:
+    # A plain job that a condition skips reports the conclusion `skipped`, and the rule of the
+    # previous head reads that as no pass. This job always runs and reports `success` on a
+    # docs-only head, so a second docs-only push can skip too. Branch protection requires this
+    # name, and the job fails when the job it reads fails (D-682, D-858).
+    name: det-lint
+    needs: [changed-paths, det-lint]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read the result of the job
+        env:
+          FAMILY: "det-lint"
+          PATHS_RESULT: ${{ needs.changed-paths.result }}
+          JOB_RESULT: ${{ needs.det-lint.result }}
+          DOCUMENTS_ALONE: ${{ needs.changed-paths.outputs.documents-alone }}
+        run: |
+          set -euo pipefail
+
+          # A fault in `changed-paths` skips the job too. A skip that no condition asked
+          # for never passes this gate (T-2).
+          if [ "$PATHS_RESULT" != "success" ]; then
+            echo "The changed paths job ended with '$PATHS_RESULT' (T-2)." >&2
+            exit 1
+          fi
+
+          # D-595 and D-856 skip the job on a docs-only PR or a docs-only push.
+          if [ "$JOB_RESULT" = "success" ] ||
+             { [ "$JOB_RESULT" = "skipped" ] && [ "$DOCUMENTS_ALONE" = "true" ]; }; then
+            echo "The $FAMILY job ended with '$JOB_RESULT', and this gate passes."
+            exit 0
+          fi
+
+          echo "The $FAMILY job ended with '$JOB_RESULT' (T-2)." >&2
+          echo "Read the check run of the job for the failure." >&2
+          exit 1
+
   replay-identity:
     name: replay-identity (${{ matrix.leg }})
     needs: changed-paths
-    # A job that a condition skips reports Success, so the required check passes (D-595).
+    # The gate job of this job reports the required check (D-595, D-682, D-858).
     if: needs.changed-paths.outputs.documents-alone != 'true'
     runs-on: ${{ matrix.leg }}
     timeout-minutes: 20
@@ -524,9 +600,9 @@ jobs:
   # Mesa (F-23, D-729, D-730, D-731). It runs on Linux alone, because one renderer and one
   # driver give one baseline (D-172).
   screen-test:
-    name: screen-test
+    name: screen-test (run)
     needs: changed-paths
-    # A job that a condition skips reports Success, so the required check passes (D-595).
+    # The gate job of this job reports the required check (D-595, D-682, D-858).
     if: needs.changed-paths.outputs.documents-alone != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -721,6 +797,44 @@ jobs:
           name: screen-captures
           path: captures-1
           if-no-files-found: warn
+
+  screen-test-gate:
+    # A plain job that a condition skips reports the conclusion `skipped`, and the rule of the
+    # previous head reads that as no pass. This job always runs and reports `success` on a
+    # docs-only head, so a second docs-only push can skip too. Branch protection requires this
+    # name, and the job fails when the job it reads fails (D-682, D-858).
+    name: screen-test
+    needs: [changed-paths, screen-test]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read the result of the job
+        env:
+          FAMILY: "screen-test"
+          PATHS_RESULT: ${{ needs.changed-paths.result }}
+          JOB_RESULT: ${{ needs.screen-test.result }}
+          DOCUMENTS_ALONE: ${{ needs.changed-paths.outputs.documents-alone }}
+        run: |
+          set -euo pipefail
+
+          # A fault in `changed-paths` skips the job too. A skip that no condition asked
+          # for never passes this gate (T-2).
+          if [ "$PATHS_RESULT" != "success" ]; then
+            echo "The changed paths job ended with '$PATHS_RESULT' (T-2)." >&2
+            exit 1
+          fi
+
+          # D-595 and D-856 skip the job on a docs-only PR or a docs-only push.
+          if [ "$JOB_RESULT" = "success" ] ||
+             { [ "$JOB_RESULT" = "skipped" ] && [ "$DOCUMENTS_ALONE" = "true" ]; }; then
+            echo "The $FAMILY job ended with '$JOB_RESULT', and this gate passes."
+            exit 0
+          fi
+
+          echo "The $FAMILY job ended with '$JOB_RESULT' (T-2)." >&2
+          echo "Read the check run of the job for the failure." >&2
+          exit 1
 
   ste-check:
     name: ste-check

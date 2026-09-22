@@ -30,6 +30,9 @@ public sealed class CiWorkflowGateTests
         { "build-test-format-gate", "build-test-format" },
         { "replay-identity-gate", "replay-identity" },
         { "smoke-gate", "smoke" },
+        { "coverage-gate", "coverage" },
+        { "det-lint-gate", "det-lint" },
+        { "screen-test-gate", "screen-test" },
     };
 
     [Theory]
@@ -117,20 +120,41 @@ public sealed class CiWorkflowGateTests
                 continue;
             }
 
-            string name = NameOf(jobId, lines);
-            if (name.Contains(ExpressionMark, StringComparison.Ordinal))
-            {
-                KeyValuePair<string, IReadOnlyList<string>> gate = jobs.Single(
-                    job => ValueOf(job.Key, job.Value, "needs") == $"[changed-paths, {jobId}]");
-                name = NameOf(gate.Key, gate.Value);
-            }
-
-            skipped.Add(name);
+            KeyValuePair<string, IReadOnlyList<string>> gate = jobs.Single(
+                job => ValueOf(job.Key, job.Value, "needs") == $"[changed-paths, {jobId}]");
+            skipped.Add(NameOf(gate.Key, gate.Value));
         }
 
         Assert.Equal(
             PreviousHeadChecks.SkippedCheckNames.OrderBy(name => name, StringComparer.Ordinal),
             skipped);
+    }
+
+    [Fact]
+    public void EachJobThatADocsOnlyChangeSkipsHasOneGateJob()
+    {
+        // A plain job that a condition skips reports `skipped`, and the rule of the previous
+        // head reads that as no pass. A gate reports `success` on a docs-only head, so two
+        // docs-only pushes in a row can both skip (D-858).
+        IReadOnlyDictionary<string, IReadOnlyList<string>> jobs = ReadJobs(CiWorkflowPath);
+
+        foreach ((string jobId, IReadOnlyList<string> lines) in jobs)
+        {
+            if (ValueOf(jobId, lines, "if") != "needs.changed-paths.outputs.documents-alone != 'true'")
+            {
+                continue;
+            }
+
+            string[] gates = jobs
+                .Where(gate => ValueOf(gate.Key, gate.Value, "needs") == $"[changed-paths, {jobId}]")
+                .Select(gate => gate.Key)
+                .ToArray();
+
+            Assert.True(
+                gates.Length == 1,
+                $"The job '{jobId}' skips on a docs-only change, and {gates.Length} gate jobs read it (D-858).");
+            Assert.Equal("always()", ValueOf(gates[0], jobs[gates[0]], "if"));
+        }
     }
 
     [Fact]
