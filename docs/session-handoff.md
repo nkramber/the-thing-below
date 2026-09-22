@@ -28,7 +28,8 @@ Session: author PR-58. Repository: the-thing-below. Branch: `feat/pr-58-ambient`
 
 ### What is in flight
 
-- The PR needs the baselines of the 14 new captures from the CI artifact, and a new Gitar pass after this push.
+- The PR holds the baselines of the artifact of the run 35774928391, at the head `6e95b39`: 14 new frames and 52 changed frames. The screen-test job matched its two runs on all 72 frames.
+- The PR needs a new Gitar pass after this push, and then the review of the other provider.
 - The baselines of `map-1x`, each battle frame, and each walk frame change too, because the dust and the torch flames draw in them.
 
 ### Traps and gotchas
