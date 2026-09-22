@@ -810,11 +810,11 @@ Area file: `area-effects.md` sections 7.7 and 7.8.
 
 **Review focus.**
 
-- The answer of OQ-98 settles the particle node kind, and the fixed seed of a capture (D-172).
+- D-875 sets `GPUParticles2D`, and each emitter of a capture takes a fixed seed (D-172).
 - The Mobile renderer of CI holds every particle feature of the Deck, so each capture shows the effect that the Deck draws (D-731).
 - A particle color is a palette key, so the screen keeps one palette (D-181).
 
-**Questions.** OQ-98 and OQ-99. D-863 answers OQ-100.
+**Questions.** None. D-875 answers OQ-98, D-876 answers OQ-99, and D-863 answers OQ-100.
 
 > *In plain English:* a burst of sparks is a small data file: how many bits, which colors, and how long. A hit in battle shows blood, sparks, and a jolt, and it passes fast.
 
@@ -2119,8 +2119,8 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-95 | Where a torch light comes from, resolved by D-843 | PR-56 |
 | OQ-96 | Where the shape of a shadow comes from, resolved by D-845 | PR-56 |
 | OQ-97 | The colors of light, resolved by D-846 | PR-56 |
-| OQ-98 | GPU particles or CPU particles | PR-57 |
-| OQ-99 | What a screen shake moves | PR-57 |
+| OQ-98 | GPU particles or CPU particles, resolved by D-875 | PR-57 |
+| OQ-99 | What a screen shake moves, resolved by D-876 | PR-57 |
 | OQ-100 | The reduced form of a flash and a shake, resolved by D-863 | PR-57 and PR-63 |
 | OQ-101 | How fog keeps an enemy visible | PR-58 |
 | OQ-102 | How glow stays off sprites | PR-59 |

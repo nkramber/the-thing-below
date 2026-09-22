@@ -190,7 +190,7 @@ Built by PR-57. Phase file: `phase-2-first-playable.md`.
 - Game builds the Godot particle nodes from each effect file at load, and no Godot resource file holds an effect (D-182, G-6).
 - A particle color is a palette key, and scene light can still change it on screen (D-181, D-182).
 - A particle with no texture draws as a square, so a spark of one color needs no drawing file (the external facts above).
-- OQ-98 holds whether Game uses `GPUParticles2D` or `CPUParticles2D`.
+- Game uses `GPUParticles2D` for each emitter (D-875).
 - In the screen tests, each emitter takes a fixed seed (D-172). `CPUParticles2D` ignores that seed for some emission shapes (the external facts above).
 - The screen tests of CI run the Mobile renderer, which holds particle trails and `emit_particle` (D-731). Thus each capture shows the effect of the Deck.
 - The effect file of an ability, an element, or a place names the content ids that it serves (section 7.1).
@@ -207,7 +207,7 @@ Built by PR-10 and PR-57. Phase file: `phase-2-first-playable.md`.
 - PR-57 adds blood and sparks on a hit, a short screen shake on a heavy blow, and a brief hit-stop (D-186).
 - PR-57 also adds the flash of a spell, with a point light of PR-56 for its length (D-183, D-186).
 - A heavy blow also starts the vibration of D-434, and `area-ui-input.md` holds it.
-- OQ-99 holds what a screen shake moves.
+- A screen shake moves the battle picture alone, by whole pixels of the frame. The UI stays still (D-876).
 - The flash and shake reduction gives each flash and each shake a reduced form (D-214). The screen tests capture each of the three levels: full, reduced, and off (D-863).
 - Core resolves each action and emits its events, and Game plays the effects from them (D-168). `area-battle.md` holds how the battle scene paces the events of a turn under D-522.
 
@@ -370,8 +370,7 @@ The register is `docs/questions.md` (D-19). These questions block effect PRs, an
 
 - OQ-92 and OQ-93 are resolved. D-597 and D-598 hold the answers, and the branch `spike/deck-test` holds the scene.
 - OQ-94 to OQ-97 are resolved. D-842, D-843, D-845, and D-846 hold the answers.
-- OQ-98: GPU particles or CPU particles. Blocks PR-57.
-- OQ-99: what a screen shake moves. Blocks PR-57.
+- OQ-98 and OQ-99 are resolved. D-875 and D-876 hold the answers.
 - OQ-100: the reduced form of a flash and a shake. Resolved 2026-09-22 by D-863.
 - OQ-101: how fog keeps an enemy visible. Blocks PR-58.
 - OQ-102: how glow stays off sprites. Blocks PR-59.
