@@ -271,6 +271,7 @@ The reviewing provider reads the existing PR comments and takes them into its ow
 - Check that the pass is current with the rule "Prove that a review is current" in the `gitar-review` skill. Use the read commands alone. A pass on an older commit is not an answered pass.
 - An automated comment that the author refuted with evidence is not a finding. An automated comment that the author fixed is a fix to verify. An automated comment that stays open without an answer blocks the verdict, because the author's pass is not complete.
 - The automated pass does not make gitar an author. The provider gate reads the providers of the substantive commits alone.
+- While the gitar pause of D-895 holds, the PR has no automated pass. An absent pass does not block the verdict.
 
 ## Scope limits
 

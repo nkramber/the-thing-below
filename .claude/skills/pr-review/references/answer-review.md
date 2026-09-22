@@ -4,6 +4,8 @@ Part of the `pr-review` skill (D-588). Load this file when the session is the au
 
 ## The automated pass
 
+**Gitar pause (D-895).** While the pause holds, skip this section. On a documentation PR that changes no decision row, apply the `review-override` label after the ste-check job is green on the head. On any other PR, tell the owner that the PR is ready for the other provider.
+
 An automated reviewer, gitar, comments on every PR after a push (D-14). This pass comes before the cross-provider review and never replaces it (T-4). A documentation PR answers the pass too (D-66).
 
 After each push, the author loads `.claude/skills/gitar-review/SKILL.md` and follows it. That skill holds the procedure: get a current review of the head, read each finding as a claim, fix or refute it, reply, and resolve. This section does not repeat it.

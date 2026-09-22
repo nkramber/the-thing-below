@@ -1,3 +1,78 @@
+## Session 210: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR #58. Repository: the-thing-below. Branch: `docs/pr-gitar-pause`. PR: #58. Role: reviewer. Base: `871624e`.
+
+### What this session did, and why
+
+- Reviewed the policy change and reversal procedure of PR #58.
+- Confirmed that Claude Code authored the PR and that this review uses the other provider (T-4, D-17).
+- Inspected all 11 changed paths. The effective head is `3239ba1`; the later commit changes only handoff metadata (D-589, D-610).
+- Wrote `docs/reviews/pr-58.md` with no finding and verdict `Ready for owner merge` for effective head `3239ba1`.
+- Corrected the PR Documents line for `docs/reviews/`.
+
+### The state of the build
+
+- The remote head before this review was `ab77727321783167d51915e873733b1f5c6220da`. The review metadata reached `origin` as `47cdd7553406eae34e98eb6a8a5f46929f5cca65`; the effective head is `3239ba1`.
+- `make ste-check` passed with 0 findings. CI passed each applicable check, including review-gate. The docs-only matrix legs skipped as expected.
+
+### What is in flight
+
+- The review record and this entry were pushed. The owner can merge after reading the review record.
+
+### Traps and gotchas
+
+- The pause of D-895 makes a Gitar pass optional. It does not remove the review by the other provider.
+- The Gitar dashboard approved the effective head with no issue. The pause of D-895 does not require a response.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The owner reads the review record and merges PR #58.
+
+## Session 209: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author of the gitar pause, PR #58. Repository: the-thing-below. Branch: docs/pr-gitar-pause. Role: author. Base: `871624e`.
+
+### What this session did, and why
+
+- The owner asked for a pause of the gitar pass, because the gitar subscription expires. The pause must be easy to reverse.
+- Checked the machine rules first. Branch protection on `main` requires eight checks, and none of them is gitar. No workflow and no review-gate rule reads gitar. Thus the pause changes rule text alone.
+- The owner answered three questions. A docs PR takes the label after ste-check is green. The branch name has no number. One PR ends the pause when the owner says that gitar is back.
+- Added D-895, and a note of a revision in part on D-14, D-66, D-67, D-586, D-587, and D-705.
+- Added a pause clause to `CLAUDE.md`, `AGENTS.md`, the PR template, three skills, and the session-context runbook. Each clause cites D-895.
+- The runbook section "The end of the gitar pause" gives the steps that end the pause.
+
+### The state of the build
+
+- ste-check gives 0 findings. The PR changes docs alone, so CI skips the build jobs (D-595).
+- The first push of PR #58 holds this entry. Base `871624e`.
+
+### What is in flight
+
+- PR #58 waits for the review of the other provider, because it adds and revises decision rows (D-401). No label applies.
+- Gitar still ran. Its automatic pass approved `3239ba1` at 22:33:42 UTC with no comment and no thread. The dashboard edit came after the push at 22:32:13 UTC, so the pass is current.
+- CI at `3239ba1`: every required check passes except review-gate. Review-gate faults on RG 3 alone, because the review record does not exist yet.
+
+### Traps and gotchas
+
+- `CLAUDE.md` was 1 byte under its 16 KB limit. The pause paragraph replaces the first paragraph of the review section, and the file is now 16,363 bytes.
+- The end PR must not revert the register, the handoff, or the review records. The runbook steps restore them from `HEAD`.
+- Before the review, the `docs/reviews/` line of the Documents section takes the "No change needed" form. A `Changed:` line gave an RG 7 fault.
+- The PR title holds "pause the gitar pass", because the runbook finds the squash commit by that text.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The other provider reviews PR #58 and writes its review record. The author answers each finding.
+
 ## Session 208: 2026-09-22, Codex
 
 Author: Codex
@@ -295,77 +370,3 @@ None.
 ### The next concrete action
 
 Run the Gitar wait for the push of this round, and prove that the review of the effective head is current.
-
-## Session 200: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-63, round 1. Repository: the-thing-below. Branch: `feat/pr-63-settings`. PR: #55. Role: author. Base: `daeccfe`.
-
-### What this session did, and why
-
-- Asked the owner OQ-100, OQ-106, OQ-108, and OQ-109, and recorded the answers as D-860 to D-863. The first batch did not show the options of `docs/questions.md`, so the session asked OQ-100, OQ-108, and OQ-109 again with both sets of options. OQ-108 took a third answer from the owner: a conflict blocks the save and the exit, and the `ui_*` actions take no remap (D-862).
-- Asked the values of the settings, and recorded D-864 to D-874. D-864 answers OQ-112, and D-872 answers OQ-110. D-870 removes the shape icons, because the 18 icons of PR-10 already differ in shape. D-873 corrects D-866: the session offered example times and did not read the pace of PR-10 first. D-874 stores the body size as auto, small, or large.
-- Built the settings file in Storage: `GameSettings`, `ControlBindings`, `SettingsText`, `SettingsFormat`, and `SettingsStore`, with a fixture of format 1 (D-860, D-869).
-- Built the settings screen in Game: `SettingsMenu` holds the rows and the rules, and `SettingsScreen` draws them. The menu action opens the screen (D-871), and the mouse moves the cursor (D-872).
-- Applied the settings: the input map and the dead zone, the window mode, the fit, the body size, the message speed of the battle screen, the confirm skip, and the remembered cursor (`CommandMemory`).
-- Added three captures of the settings screen, a smoke step, and tests for each new type.
-- Read each settings frame of `make sheet`: `settings-1x`, `settings-fill-1080`, and `settings-conflict-1x`. The first layout overlapped the help line at a body of 32 and cut one button name. The second layout fits at both body sizes.
-
-### The state of the build
-
-- `make verify` passed locally with 1,987 tests outside Smoke, 0 findings of ste-check and det-lint, and the smoke session green.
-- No file of Core changed, so the simulation version stays (G-17).
-- The remote head is the push of this round on `feat/pr-63-settings`.
-
-### What is in flight
-
-- The screen-test job has no baseline for the three settings captures. The author commits the captures of the CI artifact as the baseline after the first run (D-733).
-- The Gitar pass of the first push, then the review of the other provider.
-- The owner reads the text batch of the settings strings in the PR description (D-57).
-
-### Traps and gotchas
-
-- The menu action on the map opens the settings screen until PR-62. In a fight, the menu intent goes to the rules as before.
-- The close intent of the menu goes by its id, because the open intent can still wait in the queue in the same frame.
-- The frame shows through a texture, so the mouse reads its frame pixel from `ScreenFit.ToFrame`.
-- The volumes, the mono toggle, the mute, the vibration, the text speed, and the reduction save and load, and no code reads them yet. PR-36, PR-57 to PR-60, PR-69, and PR-70 read them.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Download the captures of the first screen-test run, commit the three settings baselines, and push. Then run the Gitar wait of `docs/runbooks/session-context.md`.
-
-## Session 199: 2026-09-22, Codex
-
-Author: Codex
-Session: reviewer PR-93, repeat review. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: #54. Role: reviewer. Base: `d1a03f7`.
-
-### What this session did, and why
-
-- Read the response to P1-1 and recomputed the effective head as `c9429c4`. The intervening commits change only review and handoff metadata.
-- Verified the live synchronize-event evidence in run 35680701238. The job logged a non-empty `BEFORE_REF` and returned `documents-alone: true`.
-- Verified runs 35681799485 and 35681880270. Two consecutive docs-only pushes both skipped each build job, and each gate reported success.
-- Updated `docs/reviews/pr-54.md`: P1-1 is withdrawn, the earlier verdict is preserved, and the current verdict is `Ready for owner merge` for effective head `c9429c4`.
-
-### The state of the build
-
-- The effective implementation head is `c9429c4`. The author reports `make verify` passed with 1,924 tests outside Smoke. The live regression runs passed.
-
-### What is in flight
-
-- The repeat-review record and this handoff entry need commit and push.
-
-### Traps and gotchas
-
-- The event payload documentation was incomplete for this field. Live workflow output is the decisive evidence for the trigger.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the repeat-review record and handoff. Verify the review-gate check covers effective head `c9429c4`.
