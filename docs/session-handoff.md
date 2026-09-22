@@ -1,3 +1,35 @@
+## Session 212: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-94, round 2. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
+
+### What this session did, and why
+
+- Committed the new baselines of `map-fog-1x` and `battle-fog-1x` from the artifact of CI run 35796366574 (D-733). The two runs of that job matched on all 72 captures, and only the two fog frames differed from the old baseline.
+- Read the new `map-fog-1x` baseline. The software renderer of CI draws the same shapes as the renderer of this machine, so the integer hash gives one noise on both.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The PR head before this round is `b3d451c`.
+- CI on `b3d451c` passed build, test, and format, smoke, det-lint, replay-identity, and ste-check on every leg. The screen-test job failed on the two fog frames alone, and this round commits their baselines. The review-gate check fails until the review record lands.
+- `screens --captures <artifact> --baseline screens/baseline` gives a match on all 72 captures.
+
+### What is in flight
+
+- The PR waits for the review of the other provider (T-4). The gitar pause of D-895 holds.
+
+### Traps and gotchas
+
+- `make sheet FIXTURE=<name>` deletes `artifacts/captures/` first, so a run of one fixture removes the frames of the others.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The other provider reviews PR #59 and writes `docs/reviews/pr-59.md`.
+
 ## Session 211: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -347,36 +379,3 @@ None.
 ### The next concrete action
 
 Commit and push the repeat review and handoff. Fetch and verify the remote head and review-gate check.
-
-## Session 202: 2026-09-22, Codex
-
-Author: Codex
-Session: reviewer PR-55, initial review. Repository: the-thing-below. Branch: `feat/pr-63-settings`. PR: #55. Role: reviewer. Base: `daeccfe`.
-
-### What this session did, and why
-
-- Reviewed the settings file, input remap, settings screen, runtime application, tests, and screen baselines of PR #55.
-- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Wrote `docs/reviews/pr-55.md` with no finding and the verdict `Ready for owner merge` for effective head `d6b3606`.
-
-### The state of the build
-
-- `make verify` passed at `d6b3606` with 1,987 non-Smoke tests, 0 STE findings, 0 det-lint findings, matching replay identity and content hash, matching atlas, and a green smoke session.
-- CI run 35689788015 passed its build, test, format, det-lint, replay identity, smoke, screen-test, and coverage jobs. Gitar approved the tip with no finding.
-
-### What is in flight
-
-- The review record and this handoff entry need commit and push.
-- The owner can merge after the review-gate check turns green.
-
-### Traps and gotchas
-
-- The review targets effective head `d6b3606`. The later baseline and handoff commits are metadata only.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and handoff. Fetch and verify that the review-gate check covers effective head `d6b3606`.

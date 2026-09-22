@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 202: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-55, initial review. Repository: the-thing-below. Branch: `feat/pr-63-settings`. PR: #55. Role: reviewer. Base: `daeccfe`.
+
+### What this session did, and why
+
+- Reviewed the settings file, input remap, settings screen, runtime application, tests, and screen baselines of PR #55.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Wrote `docs/reviews/pr-55.md` with no finding and the verdict `Ready for owner merge` for effective head `d6b3606`.
+
+### The state of the build
+
+- `make verify` passed at `d6b3606` with 1,987 non-Smoke tests, 0 STE findings, 0 det-lint findings, matching replay identity and content hash, matching atlas, and a green smoke session.
+- CI run 35689788015 passed its build, test, format, det-lint, replay identity, smoke, screen-test, and coverage jobs. Gitar approved the tip with no finding.
+
+### What is in flight
+
+- The review record and this handoff entry need commit and push.
+- The owner can merge after the review-gate check turns green.
+
+### Traps and gotchas
+
+- The review targets effective head `d6b3606`. The later baseline and handoff commits are metadata only.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff. Fetch and verify that the review-gate check covers effective head `d6b3606`.
+
 ## Session 201: 2026-09-22, Claude Code
 
 Author: Claude Code
