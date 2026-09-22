@@ -113,7 +113,7 @@ public static class AmbientMotes
         int fallen = Math.Min(age, stream.FallTicks);
         int x = checked(startX + (stream.DriftPixels * fallen / stream.FallTicks) + SwayAt(stream, phase, fallen));
         int y = checked(startY + (stream.FallPixels * fallen / stream.FallTicks));
-        return new Mote(x, y, stream.Size, stream.ColorOf(mote));
+        return new Mote(x, y, stream.Size, stream.Color);
     }
 
     /// <summary>Gives the sway of one mote at one tick of its fall, in art pixels.</summary>

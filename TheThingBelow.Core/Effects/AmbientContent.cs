@@ -170,11 +170,9 @@ public sealed class AmbientContent
     {
         for (int emitter = 0; emitter < effect.Emitters.Count; emitter += 1)
         {
-            IReadOnlyList<char> colors = effect.Emitters[emitter].Colors;
-            for (int index = 0; index < colors.Count; index += 1)
-            {
-                RefuseAbsentKey(effect, palette, $"emitters[{emitter}].colors[{index}]", colors[index]);
-            }
+            MoteStream stream = effect.Emitters[emitter];
+            RefuseAbsentKey(effect, palette, $"emitters[{emitter}].color", stream.Color);
+            RefuseAbsentKey(effect, palette, $"emitters[{emitter}].dark_color", stream.DarkColor);
         }
 
         for (int fog = 0; fog < effect.Fogs.Count; fog += 1)

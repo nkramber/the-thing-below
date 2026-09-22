@@ -1,11 +1,11 @@
 {
- "comment": "The weather of the first dungeon: dust motes that fall and settle (D-187, D-202, D-893). Each mote falls 24 art pixels over 3 seconds, and the sway pulls it 3 pixels to each side on the way, as a sheet of paper falls. It then lies on the ground for 5 seconds, and it goes out. A mote takes the strength of each light and never its color, so it reads as light gray inside a pool of torchlight and as dark gray outside one (D-183, D-893). Each count is the motes of one cell of 640 by 360 art pixels (D-842). PR-17 gives the first places their own weather (D-520).",
+ "comment": "The weather of the first dungeon: dust motes that fall and settle (D-187, D-202, D-893). Each mote falls 24 art pixels over 3 seconds, and the sway pulls it 3 pixels to each side on the way, as a sheet of paper falls. It then lies on the ground for 5 seconds, and it goes out. A mote holds the steel gray `G` in full light and the iron gray `g` with no light, which are the two grays of the palette nearest the reading of the owner. It takes the strength of each light and never its color, so torchlight never paints it yellow (D-181, D-183, D-893). Each count is the motes of one cell of 640 by 360 art pixels (D-842). PR-17 gives the first places their own weather (D-520).",
  "id": "effect.dust_fixture_dungeon",
  "kind": "dust",
  "maps": ["map.fixture_dungeon"],
  "lit": true,
  "emitters": [
-  { "amount": 40, "lifetime_ticks": 480, "colors": ["L"], "size": 1, "fall_pixels": 24, "fall_ticks": 180, "drift_pixels": 4, "sway_pixels": 3, "sway_ticks": 150 }
+  { "amount": 40, "lifetime_ticks": 480, "color": "G", "dark_color": "g", "size": 1, "fall_pixels": 24, "fall_ticks": 180, "drift_pixels": 4, "sway_pixels": 3, "sway_ticks": 150 }
  ],
  "fogs": []
 }

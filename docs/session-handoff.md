@@ -16,7 +16,7 @@ Session: author PR-58. Repository: the-thing-below. Branch: `feat/pr-58-ambient`
 - Fixed F-98 from a second play session: every torch went out in another room. Godot stops a particle system whose region leaves the screen, and each node stood at the north-west corner of the map with the default region. Each node now takes the region of the whole map and a margin.
 - Found F-100 with a probe of the frames: Godot advances a particle system about one second at a time, so no long stream could hold its motion. The owner answered with D-893, and Game now draws each mote of a weather itself, from a pure function of the tick in integer math.
 - Each mote falls, the sway pulls it from side to side as a sheet of paper falls, it lands, and it lies still for 5 seconds. Ten tests of Core hold that motion.
-- A mote takes the strength of each light and never its color, from `TheThingBelow.Game/shaders/mote_light.gdshader`. It reads as light gray in torchlight and as dark gray outside one (D-825).
+- A mote holds two grays of the palette, from `TheThingBelow.Game/shaders/mote_light.gdshader`: the iron `g` with no light, and the steel `G` in full light (D-825). The shader reads the strength of each light and never its color, and the ambient light never dims a mote. A frame of the sheet holds `#5A5566` and `#7D7788` on the motes.
 - Added the still capture of D-894: four frames of the running screen with the party still, one second apart.
 - Fixed F-99 from a third play session: the light of a torch snapped in a doorway. The light keeps its place now, and the flame alone jumps, as D-891 asks.
 

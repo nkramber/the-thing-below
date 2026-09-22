@@ -26,52 +26,60 @@ public sealed partial class MoteLayer : Node2D
     /// <summary>The path of the shader that gives a mote the strength of a light and never its color (D-825, D-893).</summary>
     public const string LightShaderPath = "res://shaders/mote_light.gdshader";
 
-    private readonly List<MoteStream> streams = [];
-    private readonly List<Color> colors = [];
+    /// <summary>The name of the uniform of the color of a mote with no light.</summary>
+    public const string DarkColorName = "dark_color";
+
+    /// <summary>The name of the uniform of the color of a mote in full light.</summary>
+    public const string LightColorName = "light_color";
+
+    private MoteStream stream = null!;
     private IReadOnlyList<Mote> shown = [];
+    private Color drawn;
 
     /// <summary>The count of motes that this layer drew on the last frame.</summary>
     public int MoteCount => this.shown.Count;
 
-    /// <summary>Builds the layer of one weather under a parent node.</summary>
+    /// <summary>Builds the layer of one stream of a weather under a parent node.</summary>
     /// <param name="effect">The ambient file of the place.</param>
+    /// <param name="stream">The stream of motes that this layer draws.</param>
     /// <param name="palette">The palette, which gives each key its color (D-181).</param>
     /// <param name="zIndex">The Z index of the layer: over each figure.</param>
     /// <param name="parent">The node that takes the layer: the world of the screen.</param>
     /// <returns>The layer.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="ContentException">The palette holds no key of a stream (T-2).</exception>
-    public static MoteLayer Build(AmbientEffect effect, Palette palette, int zIndex, Node2D parent)
+    public static MoteLayer Build(AmbientEffect effect, MoteStream stream, Palette palette, int zIndex, Node2D parent)
     {
         ArgumentNullException.ThrowIfNull(effect);
+        ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(palette);
         ArgumentNullException.ThrowIfNull(parent);
 
         var layer = new MoteLayer
         {
-            Name = $"motes_{effect.Id.Value}",
+            Name = $"motes_{effect.Id.Value}_{stream.Color}",
             ZIndex = zIndex,
+            stream = stream,
         };
 
+        Color lit = ColorOf(effect, palette, stream.Color);
+        Color dark = ColorOf(effect, palette, stream.DarkColor);
         if (effect.Lit)
         {
-            // A lit mote takes the strength of each light and never its color, so torchlight
-            // never paints it yellow (D-183).
-            layer.Material = new ShaderMaterial { Shader = LoadLightShader() };
+            // A lit mote holds its dark gray with no light and its light gray in full light. It
+            // takes the strength of each light and never its color, so torchlight never paints
+            // it yellow, and the energy of a torch never pushes it to white (D-183).
+            var material = new ShaderMaterial { Shader = LoadLightShader() };
+            material.SetShaderParameter(DarkColorName, dark);
+            material.SetShaderParameter(LightColorName, lit);
+            layer.Material = material;
+            layer.drawn = dark;
         }
         else
         {
             // An unlit weather gives its own light, so the dark of the ambient light never dims it (D-183).
             layer.Material = new CanvasItemMaterial { LightMode = CanvasItemMaterial.LightModeEnum.Unshaded };
-        }
-
-        foreach (MoteStream stream in effect.Emitters)
-        {
-            layer.streams.Add(stream);
-            foreach (char key in stream.Colors)
-            {
-                layer.colors.Add(ColorOf(effect, palette, key));
-            }
+            layer.drawn = lit;
         }
 
         parent.AddChild(layer);
@@ -87,13 +95,7 @@ public sealed partial class MoteLayer : Node2D
     {
         ArgumentOutOfRangeException.ThrowIfNegative(tick);
 
-        var motes = new List<Mote>();
-        foreach (MoteStream stream in this.streams)
-        {
-            motes.AddRange(AmbientMotes.InView(stream, viewX, viewY, tick));
-        }
-
-        this.shown = motes;
+        this.shown = AmbientMotes.InView(this.stream, viewX, viewY, tick);
         this.QueueRedraw();
     }
 
@@ -102,10 +104,7 @@ public sealed partial class MoteLayer : Node2D
     {
         foreach (Mote mote in this.shown)
         {
-            this.DrawRect(
-                new Rect2(mote.X, mote.Y, mote.Size, mote.Size),
-                this.ColorFor(mote.Color),
-                filled: true);
+            this.DrawRect(new Rect2(mote.X, mote.Y, mote.Size, mote.Size), this.drawn, filled: true);
         }
     }
 
@@ -127,23 +126,4 @@ public sealed partial class MoteLayer : Node2D
         return Color.Color8((byte)found.Red, (byte)found.Green, (byte)found.Blue);
     }
 
-    /// <summary>Gives the color of one palette key of this layer, in the order that the build read them.</summary>
-    private Color ColorFor(char key)
-    {
-        int at = 0;
-        foreach (MoteStream stream in this.streams)
-        {
-            for (int index = 0; index < stream.Colors.Count; index += 1)
-            {
-                if (stream.Colors[index] == key)
-                {
-                    return this.colors[at + index];
-                }
-            }
-
-            at += stream.Colors.Count;
-        }
-
-        throw new InvalidOperationException($"The weather holds no color for the key '{key}' (T-2, D-181).");
-    }
 }

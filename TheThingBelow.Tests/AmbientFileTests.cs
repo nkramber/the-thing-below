@@ -94,16 +94,15 @@ public sealed class AmbientFileTests
     }
 
     [Fact]
-    public void AStreamGivesEachMoteOneKeyInTurn()
+    public void AStreamHoldsOneColorInLightAndOneWithNoLight()
     {
-        // D-181: each mote draws in one color of the palette, and never a blend of two.
+        // D-181, D-893: a mote reads as light gray in torchlight and as dark gray outside one.
         AmbientEffect effect = Read(AmbientFixtures.Body(
-            emitters: AmbientFixtures.Stream.Replace("[\"k\"]", "[\"k\", \"j\"]", StringComparison.Ordinal)));
+            emitters: AmbientFixtures.Stream.Replace("\"dark_color\": \"k\"", "\"dark_color\": \"j\"", StringComparison.Ordinal)));
         MoteStream stream = Assert.Single(effect.Emitters);
 
-        Assert.Equal('k', stream.ColorOf(0));
-        Assert.Equal('j', stream.ColorOf(1));
-        Assert.Equal('k', stream.ColorOf(2));
+        Assert.Equal('k', stream.Color);
+        Assert.Equal('j', stream.DarkColor);
 
         // The budget counts the motes of the four cells that one view can hold (D-523, D-893).
         Assert.Equal(96, AmbientMotes.ParticlesOf(stream));

@@ -5,7 +5,7 @@
  "maps": ["map.fixture_dungeon"],
  "lit": false,
  "emitters": [
-  { "amount": 30, "lifetime_ticks": 600, "colors": ["l", "G"], "size": 2, "fall_pixels": 20, "fall_ticks": 480, "drift_pixels": 90, "sway_pixels": 6, "sway_ticks": 240 }
+  { "amount": 30, "lifetime_ticks": 600, "color": "l", "dark_color": "G", "size": 2, "fall_pixels": 20, "fall_ticks": 480, "drift_pixels": 90, "sway_pixels": 6, "sway_ticks": 240 }
  ],
  "fogs": [
   {

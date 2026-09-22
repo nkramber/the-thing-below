@@ -21,7 +21,8 @@ namespace TheThingBelow.Core.Effects;
 /// </remarks>
 /// <param name="Amount">The count of motes of one cell of the world (<see cref="AmbientMotes.CellWidth"/>).</param>
 /// <param name="LifetimeTicks">The ticks that each mote lives.</param>
-/// <param name="Colors">The palette keys of the motes, one key for each mote in turn (D-181).</param>
+/// <param name="Color">The palette key of a mote in full light (D-181).</param>
+/// <param name="DarkColor">The palette key of a mote with no light. The ambient light never dims a mote (D-183).</param>
 /// <param name="Size">The side of each mote, in art pixels.</param>
 /// <param name="FallPixels">The pixels that a mote falls down the screen over its fall. A negative value lifts it.</param>
 /// <param name="FallTicks">The ticks of the fall. The mote holds its place from that tick to the end of its life.</param>
@@ -31,7 +32,8 @@ namespace TheThingBelow.Core.Effects;
 public sealed record MoteStream(
     int Amount,
     int LifetimeTicks,
-    IReadOnlyList<char> Colors,
+    char Color,
+    char DarkColor,
     int Size,
     int FallPixels,
     int FallTicks,
@@ -45,8 +47,6 @@ public sealed record MoteStream(
     /// <summary>The longest life of a mote, in ticks: 30 seconds.</summary>
     public const int MostLifetimeTicks = 1800;
 
-    /// <summary>The most palette keys of one stream.</summary>
-    public const int MostColors = 8;
 
     /// <summary>The largest side of a mote, in art pixels.</summary>
     public const int MostSize = 4;
@@ -76,29 +76,22 @@ public sealed record MoteStream(
         return streams;
     }
 
-    /// <summary>Gives the palette key of one mote, which its place in the stream picks (D-181).</summary>
-    /// <param name="mote">The place of the mote in the stream, from 0.</param>
-    /// <returns>The key.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The place is outside the stream (T-2).</exception>
-    public char ColorOf(int mote)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegative(mote);
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(mote, this.Amount);
-
-        return this.Colors[mote % this.Colors.Count];
-    }
-
     private static MoteStream Read(ref ContentReader reader)
     {
         var values = new SortedDictionary<string, int>(StringComparer.Ordinal);
-        List<char>? colors = null;
+        string? color = null;
+        string? dark = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
         {
-            if (string.CompareOrdinal(field, "colors") == 0)
+            if (string.CompareOrdinal(field, "color") == 0)
             {
-                colors = ReadColors(ref reader);
+                color = reader.ReadString();
+            }
+            else if (string.CompareOrdinal(field, "dark_color") == 0)
+            {
+                dark = reader.ReadString();
             }
             else if (IsIntField(field))
             {
@@ -110,18 +103,16 @@ public sealed record MoteStream(
             }
         }
 
-        List<char> keys = reader.Require(colors, depth, "colors");
-        if (keys.Count < 1 || keys.Count > MostColors)
-        {
-            throw reader.RefuseField(depth, "colors", $"the stream names {keys.Count} palette keys, and it takes 1 to {MostColors}");
-        }
+        char lit = OneKey(ref reader, depth, "color", color);
+        char unlit = OneKey(ref reader, depth, "dark_color", dark);
 
         int lifetime = InRange(ref reader, depth, values, "lifetime_ticks", 1, MostLifetimeTicks);
         int fall = InRange(ref reader, depth, values, "fall_ticks", 1, lifetime);
         return new MoteStream(
             InRange(ref reader, depth, values, "amount", 1, MostAmount),
             lifetime,
-            keys,
+            lit,
+            unlit,
             InRange(ref reader, depth, values, "size", 1, MostSize),
             InRange(ref reader, depth, values, "fall_pixels", -MostFall, MostFall),
             fall,
@@ -137,22 +128,15 @@ public sealed record MoteStream(
         _ => false,
     };
 
-    private static List<char> ReadColors(ref ContentReader reader)
+    private static char OneKey(ref ContentReader reader, int depth, string field, string? value)
     {
-        var keys = new List<char>();
-        int depth = reader.ReadArrayStart();
-        while (reader.ReadNextElement(depth, keys.Count))
+        string key = reader.Require(value, depth, field);
+        if (key.Length != 1)
         {
-            string key = reader.ReadString();
-            if (key.Length != 1)
-            {
-                throw reader.Refuse($"the color is '{key}', and a stream names one palette key of one character (D-181)");
-            }
-
-            keys.Add(key[0]);
+            throw reader.RefuseField(depth, field, $"the color is '{key}', and a stream names one palette key of one character (D-181)");
         }
 
-        return keys;
+        return key[0];
     }
 
     private static int InRange(ref ContentReader reader, int depth, SortedDictionary<string, int> values, string field, int least, int most)

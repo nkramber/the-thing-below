@@ -5,8 +5,8 @@
  "maps": ["map.fixture_dungeon"],
  "lit": false,
  "emitters": [
-  { "amount": 45, "lifetime_ticks": 300, "colors": ["X", "j", "A"], "size": 1, "fall_pixels": -160, "fall_ticks": 240, "drift_pixels": 24, "sway_pixels": 5, "sway_ticks": 80 },
-  { "amount": 25, "lifetime_ticks": 420, "colors": ["Q", "H"], "size": 2, "fall_pixels": -90, "fall_ticks": 360, "drift_pixels": 110, "sway_pixels": 6, "sway_ticks": 180 }
+  { "amount": 45, "lifetime_ticks": 300, "color": "A", "dark_color": "X", "size": 1, "fall_pixels": -160, "fall_ticks": 240, "drift_pixels": 24, "sway_pixels": 5, "sway_ticks": 80 },
+  { "amount": 25, "lifetime_ticks": 420, "color": "Q", "dark_color": "H", "size": 2, "fall_pixels": -90, "fall_ticks": 360, "drift_pixels": 110, "sway_pixels": 6, "sway_ticks": 180 }
  ],
  "fogs": []
 }

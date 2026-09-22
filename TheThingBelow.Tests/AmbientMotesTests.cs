@@ -13,7 +13,8 @@ public sealed class AmbientMotesTests
     private static readonly MoteStream Dust = new(
         Amount: 1,
         LifetimeTicks: 420,
-        Colors: ['l'],
+        Color: 'G',
+        DarkColor: 'g',
         Size: 1,
         FallPixels: 24,
         FallTicks: 120,

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Effects;
@@ -26,13 +27,13 @@ public sealed class AmbientLayer
     /// <summary>The Z index of the lowest layer of fog: over the streams.</summary>
     public const int FogZIndex = 4;
 
-    private readonly MoteLayer? motes;
+    private readonly List<MoteLayer> motes = [];
     private readonly FogSheets? fogs;
 
-    private AmbientLayer(AmbientEffect? effect, MoteLayer? motes, FogSheets? fogs)
+    private AmbientLayer(AmbientEffect? effect, IReadOnlyList<MoteLayer> motes, FogSheets? fogs)
     {
         this.Effect = effect;
-        this.motes = motes;
+        this.motes.AddRange(motes);
         this.fogs = fogs;
     }
 
@@ -40,7 +41,19 @@ public sealed class AmbientLayer
     public AmbientEffect? Effect { get; }
 
     /// <summary>The count of motes that the weather drew on the last frame (D-893).</summary>
-    public int NodeCount => this.motes?.MoteCount ?? 0;
+    public int NodeCount
+    {
+        get
+        {
+            int total = 0;
+            foreach (MoteLayer layer in this.motes)
+            {
+                total += layer.MoteCount;
+            }
+
+            return total;
+        }
+    }
 
     /// <summary>The count of layers of fog, which the budget counts as one full-screen pass each (D-523).</summary>
     public int FogCount => this.fogs?.SheetCount ?? 0;
@@ -59,12 +72,18 @@ public sealed class AmbientLayer
 
         if (effect is null)
         {
-            return new AmbientLayer(null, null, null);
+            return new AmbientLayer(null, [], null);
+        }
+
+        var motes = new List<MoteLayer>();
+        foreach (MoteStream stream in effect.Emitters)
+        {
+            motes.Add(MoteLayer.Build(effect, stream, palette, StreamZIndex, parent));
         }
 
         return new AmbientLayer(
             effect,
-            MoteLayer.Build(effect, palette, StreamZIndex, parent),
+            motes,
             FogSheets.Build(effect.Id.Value, effect.Fogs, palette, effect.Lit, FogZIndex, parent));
     }
 
@@ -76,7 +95,11 @@ public sealed class AmbientLayer
     /// <exception cref="ArgumentOutOfRangeException">The tick is below zero, or the view is empty (T-2).</exception>
     public void Show(Vector2 point, int width, int height, long tick)
     {
-        this.motes?.Show((int)point.X, (int)point.Y, tick);
+        foreach (MoteLayer layer in this.motes)
+        {
+            layer.Show((int)point.X, (int)point.Y, tick);
+        }
+
         this.fogs?.Show(point, width, height, tick);
     }
 }
