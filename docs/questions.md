@@ -681,3 +681,19 @@ How to file a question (D-19, D-24):
     - No recommendation yet. The PR-91 session reads the patrol sight rules of PR-8, and it gives the options with a recommendation.
 219. **OQ-219. The paths of the docs-only set of PR-93.** On a docs-only change, CI runs ste-check, review-gate, and Gitar alone (D-856). The owner named skills, roadmaps, runbooks, the session handoff, and review records. D-600 keeps `CLAUDE.md` and `AGENTS.md` out of the skip set, because a test proves that the two files match. Do `CLAUDE.md`, `AGENTS.md`, and `.claude/settings.json` join the set? Raised 2026-09-21. Blocks PR-93.
     - Resolved 2026-09-21: D-857. The two agent files join the set, and the ste-check command reads the rule of D-20. `.claude/settings.json` was already in the set through the `.claude/` path, and it stays.
+220. **OQ-220. The id and the place of the procedural fog.** The owner read the fog of PR-58 in a play session and refused it: the grid repeats over the view. The owner named a procedural fog of several layers as the next work. The roadmap names PR-59, the glow, as the next PR, and it holds no entry for this work. Which id does the work take, and where does it go in the order? Raised 2026-09-22. Blocks PR-94.
+    - PR-94, before PR-59, the recommendation. The fog of PR-58 is fresh, and the glow waits one PR.
+    - PR-94, after PR-60. The grid fog stays in the game until then.
+    - Resolved 2026-09-22: D-896. PR-94, before PR-59.
+221. **OQ-221. The form of the procedural fog.** D-887 takes a text grid of a few shapes, tiled over the view. A procedural fog revises it. G-27 and D-622 keep the palette and hard edges, so the fog quantizes its noise to a few bands. Raised 2026-09-22. Blocks PR-94.
+    - A noise shader in Game, the recommendation. A `.gdshader` file reads the noise at each world pixel, and it cuts the noise into the bands of the content file (D-825). The shader reads the tick that Game gives it, and never `TIME` (F-100).
+    - Noise in C#, into an image. An integer noise makes one large image for each layer at load, and Game tiles the image as it does now.
+    - Resolved 2026-09-22: D-897. A noise shader in Game.
+222. **OQ-222. The count of layers and passes of the fog.** D-523 counts each layer of fog as one full-screen pass. The budget allows 3 (D-617), and the glow, the three passes of PR-92, and the transitions need passes too (D-849). Raised 2026-09-22. Blocks PR-94.
+    - One pass that holds up to 3 layers, the recommendation. The fog then takes one pass of the budget.
+    - One pass for each layer, with 2 layers.
+    - Resolved 2026-09-22: D-898. One pass holds up to 3 layers.
+223. **OQ-223. How the layers of one fog combine.** Where two layers of one fog overlap, the fog draws one strength. The contrast test reads the strongest strength of the fog (D-885, D-886, D-892). Raised 2026-09-22. Blocks PR-94.
+    - The strongest band wins, the recommendation. The strongest band of the file is the strongest band of all the layers, and the fog keeps a few strengths.
+    - The strengths stack. Each overlap is thicker, and the test reads the stacked strength of all the layers.
+    - Resolved 2026-09-22: D-899. The strongest band wins.

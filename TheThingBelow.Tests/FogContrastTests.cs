@@ -99,7 +99,7 @@ public sealed class FogContrastTests
     }
 
     private static FogLayer Fog(int strength) =>
-        new('w', [strength], 0, 0, 1, ["........", "........", "........", "........", "........", "........", "........", "........"]);
+        new('w', [new FogBand(5000, strength)], 32, 1, 0, 0, 0);
 
     private static SortedSet<char> Keys(string keys) => new(keys);
 

@@ -41,7 +41,7 @@ public sealed class EffectBudget
     /// <summary>The most live particles on screen at once, the row of the sweep of 2026-09-17 (D-523, D-617).</summary>
     public int LiveParticles { get; }
 
-    /// <summary>The most full-screen passes of one map or one battle, such as each layer of fog (D-523, D-617).</summary>
+    /// <summary>The most full-screen passes of one map or one battle, such as the fog, whose layers draw in one pass (D-523, D-617, D-898).</summary>
     public int FullScreenPasses { get; }
 
     /// <summary>Reads the budget from the bytes of its file.</summary>

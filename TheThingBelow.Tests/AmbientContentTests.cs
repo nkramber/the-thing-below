@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Effects;
+using TheThingBelow.Core.Light;
 using TheThingBelow.Tools.Content;
 using Xunit;
 
@@ -83,26 +84,31 @@ public sealed class AmbientContentTests
     }
 
     [Fact]
-    public void AWeatherOfFourLayersOfFogPassesThePassRow()
+    public void AFogOfThreeLayersKeepsInsideABudgetOfOnePass()
     {
-        // D-523, D-617: the budget allows 3 full-screen passes, and each layer is one.
-        string fogs = string.Join(", ", AmbientFixtures.Fog, AmbientFixtures.Fog, AmbientFixtures.Fog, AmbientFixtures.Fog);
+        // D-898: the shader draws the three layers of the fog capture in one pass, so the budget
+        // counts one. The count of one pass for each layer refused this checkout.
+        var files = new List<ContentFile>(ContentFolder.Read(RepositoryRoot.Find()));
+        int index = files.FindIndex(file => file.Path == EffectBudget.Path);
+        string budget = Encoding.UTF8.GetString(files[index].Bytes).Replace("\"full_screen_passes\": 3", "\"full_screen_passes\": 1", StringComparison.Ordinal);
+        files[index] = new ContentFile(files[index].Path, Encoding.UTF8.GetBytes(budget));
 
-        ContentException error = Assert.Throws<ContentException>(() => AmbientFixtures.Load(
-            [File(AmbientFixtures.Path, AmbientFixtures.Body(fogs: fogs))]));
+        ContentSet set = ContentSet.Load(files);
 
-        Assert.Equal("fogs", error.Field);
-        Assert.Contains("full_screen_passes", error.Message, StringComparison.Ordinal);
+        Assert.Equal(1, set.Light.Budget.FullScreenPasses);
+        AmbientEffect fog = Assert.Single(set.Effects.Ambient.All, effect => effect.Kind == AmbientKind.Fog);
+        Assert.Equal(3, fog.Fogs.Count);
+        Assert.Equal(1, fog.FullScreenPasses);
     }
 
     [Fact]
     public void AFogThatHidesAnEnemyOfItsMapFails()
     {
         // D-885, D-886, D-892: the fog test reads the checkout, where the map foe stands on the
-        // floor of the dungeon. A fog of 6000 basis points pulls each gap below the floor of 24.
+        // floor of the dungeon. A band of 6000 basis points pulls each gap below the floor of 24.
         var files = new List<ContentFile>(ContentFolder.Read(RepositoryRoot.Find()));
         int index = files.FindIndex(file => file.Path.Contains("fog-fixture-dungeon", StringComparison.Ordinal));
-        string thick = Encoding.UTF8.GetString(files[index].Bytes).Replace("[900, 1800]", "[900, 6000]", StringComparison.Ordinal);
+        string thick = Encoding.UTF8.GetString(files[index].Bytes).Replace("\"strength\": 1800", "\"strength\": 6000", StringComparison.Ordinal);
         files[index] = new ContentFile(files[index].Path, Encoding.UTF8.GetBytes(thick));
 
         ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(files));

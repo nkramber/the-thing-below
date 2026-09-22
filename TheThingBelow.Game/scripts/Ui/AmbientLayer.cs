@@ -7,7 +7,7 @@ using TheThingBelow.Core.Effects;
 namespace TheThingBelow.Game.Ui;
 
 /// <summary>
-/// The weather of one place on screen: the streams of particles and the layers of fog of its
+/// The weather of one place on screen: the streams of particles and the fog of its
 /// ambient file (D-187, D-202). The map screen and the battle screen each build one, so the
 /// weather of a place plays over its backdrop too (D-205).
 /// </summary>
@@ -24,17 +24,17 @@ public sealed class AmbientLayer
     /// <summary>The Z index of the motes of the weather: over each figure (`area-effects.md` section 7.2).</summary>
     public const int StreamZIndex = 3;
 
-    /// <summary>The Z index of the lowest layer of fog: over the streams.</summary>
+    /// <summary>The Z index of the fog: over the streams.</summary>
     public const int FogZIndex = 4;
 
     private readonly List<MoteLayer> motes = [];
-    private readonly FogSheets? fogs;
+    private readonly FogPass? fog;
 
-    private AmbientLayer(AmbientEffect? effect, IReadOnlyList<MoteLayer> motes, FogSheets? fogs)
+    private AmbientLayer(AmbientEffect? effect, IReadOnlyList<MoteLayer> motes, FogPass? fog)
     {
         this.Effect = effect;
         this.motes.AddRange(motes);
-        this.fogs = fogs;
+        this.fog = fog;
     }
 
     /// <summary>The ambient file that this layer draws, or no value for a place with no weather.</summary>
@@ -55,8 +55,8 @@ public sealed class AmbientLayer
         }
     }
 
-    /// <summary>The count of layers of fog, which the budget counts as one full-screen pass each (D-523).</summary>
-    public int FogCount => this.fogs?.SheetCount ?? 0;
+    /// <summary>The count of layers of fog, which one full-screen pass draws (D-523, D-898).</summary>
+    public int FogCount => this.fog?.LayerCount ?? 0;
 
     /// <summary>Builds the weather of one place under a parent node.</summary>
     /// <param name="effect">The ambient file of the place, or no value for a place with no weather.</param>
@@ -81,10 +81,10 @@ public sealed class AmbientLayer
             motes.Add(MoteLayer.Build(effect, stream, palette, StreamZIndex, parent));
         }
 
-        return new AmbientLayer(
-            effect,
-            motes,
-            FogSheets.Build(effect.Id.Value, effect.Fogs, palette, effect.Lit, FogZIndex, parent));
+        FogPass? fog = effect.Fogs.Count == 0
+            ? null
+            : FogPass.Build(effect.Id.Value, effect.Fogs, palette, effect.Lit, FogZIndex, parent);
+        return new AmbientLayer(effect, motes, fog);
     }
 
     /// <summary>Shows the weather over one view at one tick.</summary>
@@ -100,6 +100,6 @@ public sealed class AmbientLayer
             layer.Show((int)point.X, (int)point.Y, tick);
         }
 
-        this.fogs?.Show(point, width, height, tick);
+        this.fog?.Show(point, width, height, tick);
     }
 }

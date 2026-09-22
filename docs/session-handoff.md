@@ -1,3 +1,46 @@
+## Session 211: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-94, round 1. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
+
+### What this session did, and why
+
+- The owner refused the fog of PR-58 in a play session, because the grid repeats over the view (F-101). The owner named a procedural fog of several layers as the next work.
+- Filed OQ-220 to OQ-223, and the owner took each recommendation. D-896: PR-94 comes before PR-59. D-897: a noise shader replaces the text grid, and D-887 has a revision in part. D-898: one pass draws 1 to 3 layers, and the budget counts one pass for each fog. D-899: the strongest band wins where layers overlap.
+- Core: `FogLayer` reads a key, 1 to 3 bands of `from` and `strength`, a scale, a block size, a seed, and a drift. `FogBand` is new. The reader refuses a fourth layer, and `AmbientEffect.FullScreenPasses` counts one pass for a fog.
+- Game: `FogPass` replaces `FogSheets`. One `ColorRect` covers the view, and `fog.gdshader` or `fog_lit.gdshader` draws it. The two shaders include `fog_noise.gdshaderinc`, and they differ in the scene light alone.
+- The shader reads two octaves of value noise at each world pixel, with an integer hash. Game gives each layer the world pixel of the view minus its drift at the tick, so the shader never reads `TIME` (F-100).
+- The capture file of the fog holds three layers now. Tests cover the reader, the pass count, the uniform names, and the rule that no shader reads `TIME`.
+- Raised the simulation version to 13, and wrote the identity file again (G-17, D-504).
+- Updated `area-effects.md`, the PR-94 block of the phase 2 file, the design list and F-101, the budget comment, and the `csharp-conventions` skill.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The branch holds one commit of round 1.
+- `make build`, `make test` (2,173 tests), `make format`, `make lint`, `make atlas`, `make identity`, `make content`, `make smoke`, and `make ste-check` pass on this machine.
+- `make sheet` wrote `map-fog-1x` and `battle-fog-1x` with the new fog, and the session read each frame. The four `still` frames use the shipped dust, which holds no fog, so this PR does not change them.
+
+### What is in flight
+
+- The PR waits for CI. The screen-test job then gives new baselines for `map-fog-1x` and `battle-fog-1x`, and the author commits them from the artifact.
+- Then the PR waits for the review of the other provider (T-4). The gitar pause of D-895 holds.
+
+### Traps and gotchas
+
+- The old grid fog moved west for a positive `drift_x`, because the region of the sprite moved east. The new pass moves the shapes east for a positive value, as `FogLayer` states.
+- A probe gave the shipped dust file the three layers for one `make sheet FIXTURE=still` run, then put the file back. In the four frames, the wisps of `drift_x: -4` moved 24 screen pixels west in 3 seconds, and the lit shader took the torch light.
+- An unlit canvas item needs `render_mode unshaded`, which a uniform cannot switch. That is why two fog shaders exist.
+- PR-57 and PR-58 changed Core readers and kept the simulation version at 12. This PR raised it to 13.
+- The title `# Session handoff` sits below session 207, and not at the top of the file. This entry does not move it.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Take the new fog baselines from the CI artifact of the screen-test job, commit them, and ask the other provider for the review.
+
 ## Session 210: 2026-09-22, Codex
 
 Author: Codex
@@ -337,36 +380,3 @@ None.
 ### The next concrete action
 
 Commit and push the review record and handoff. Fetch and verify that the review-gate check covers effective head `d6b3606`.
-
-## Session 201: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-63, round 2. Repository: the-thing-below. Branch: `feat/pr-63-settings`. PR: #55. Role: author. Base: `daeccfe`.
-
-### What this session did, and why
-
-- Read CI run 35689386604 of head `d6b3606`. Every job passed except screen-test, which named 8 captures: the 3 settings captures with no baseline, and the 5 captures of the `ui` fixture.
-- The `ui` fixture draws the longest plain string of the table (D-241), and that string is now `settings.help`. The author read `ui-1x` and `settings-conflict-1x` of the artifact, and both fit.
-- Committed the 8 captures of the artifact as the baseline (D-733). The `screens` command then matched all 52 captures.
-- The Gitar pass of `d6b3606` approved with no finding. The review-gate fault is RG 3 alone: the review record of the other provider does not exist yet.
-
-### The state of the build
-
-- The baseline commit `c974fe4` and this entry make the push of this round. Every CI job except screen-test passed on `d6b3606`.
-
-### What is in flight
-
-- The Gitar pass of the new effective head, then the Codex review of `docs/reviews/pr-55.md`.
-- The owner reads the text batch of the settings strings in the PR description (D-57).
-
-### Traps and gotchas
-
-- A new plain string that is longer than `settings.help` changes the 5 captures of the `ui` fixture again.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Run the Gitar wait for the push of this round, and prove that the review of the effective head is current.

@@ -70,6 +70,8 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 - The Game loop calls `Core` at a fixed rate. Game draws each step as a slide between tiles, and `Core` positions stay on whole tiles (D-106, D-203).
 - The camera, each shader, the audio, and the input map live in `Game` and never reach `Core`.
 - Each shader is a `.gdshader` file in `TheThingBelow.Game/shaders/`, and the review reads it as code (D-825). Game loads it with `ResourceLoader.Load` and checks the result, because a failed load writes to the log alone (T-2).
+- Code that two shaders share lives in a `.gdshaderinc` file in the same folder, and each shader includes it. The fog shaders share one file, and they differ in the scene light alone (D-183, D-897). The tests read each include file with the shader files.
+- A shader never reads `TIME`. Game gives it the tick, or a value of the tick, so one tick gives one picture in each capture (F-100, D-172).
 - A shader on a sprite, a tile, or a piece never writes `NORMAL_MAP`, and a test reads each shader file for it (D-183). Game sets each uniform by a name constant, and a test reads each name in the file.
 - A shader that fails to compile writes to the log alone. The screen-test job and `make sheet` fail on an error line, so each shader draws in a capture (D-172).
 - No rule waits for an effect. Game counts the ticks of an effect on its fixed-step clock, and it sends a wait intent at the end where the world waits (D-266, D-522).

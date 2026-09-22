@@ -382,6 +382,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-98 | Every torch went out when the party walked to another room, and the weather went out with it. Godot stops a particle system whose region leaves the screen, and the region takes a default of 200 by 200 pixels around the node. The fix of F-97 put each node at the north-west corner of the map, so every node of the map left the screen at the first step away from that corner. The owner found the fault in a play session | 2026-09-22 | ✅ PR-58: each node takes the region of the whole map and a margin of two tiles, and a fight takes its view and a margin. The smoke session walks a run into the room below, and it fails on a node whose region leaves the view, and on a torch with no energy |
 | F-99 | The light of a torch snapped in a doorway. Each step of the fire moved the light by one pixel, and the column of the wall shape beside a doorway is two pixels wide (D-852). A light that crosses that column moves the shadow through the doorway by a whole tile, so the passage flashed on each step. The owner saw it in a play session, and D-891 gives the jump to the flame alone | 2026-09-22 | ✅ PR-58: the light of a torch keeps its place, and the streams of the fire take the jump |
 | F-100 | No capture could hold the motion of the weather, and the dust stood still in play. Godot advances a particle system about one second at a time: a request with no restart moves no particle at all, and a restart with a request of a longer age, or the preprocess of the node, gives the same picture on each tick. A probe of PR-58 wrote a frame every 8 ticks with the party still, and it read the place of each mote: the motes of a stream of 8 seconds held their places to 5 pixels over 192 ticks, and some moved up. The turbulence of the material also pulls a particle in every direction, so no mote could lie still | 2026-09-22 | ✅ PR-58: Game draws each mote of a weather itself, from a pure function of the tick (D-893). The fire of a torch and the burst of a hit stay on the particles of Godot, because each one lives under 2 seconds |
+| F-101 | The owner read the fog of PR-58 in a play session and refused its look. The fog was a text grid of 48 by 24 cells of 4 pixels, and Game tiled it over the view of 640 by 360 pixels, so the same shapes showed more than three times across each view | 2026-09-22 | ✅ PR-94: a noise shader over the world pixels draws the fog, with 1 to 3 layers in one pass (D-896 to D-899) |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -493,44 +494,45 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 17. PR-63: the settings screen, the three accessibility settings, and a versioned settings file (D-214, D-526, D-570, D-870).
 18. PR-57: the effect files, the particles, and the battle effects (D-182, D-186).
 19. PR-58: the four ambient kinds of region one (D-187).
-20. PR-59: the glow on fire, spells, and waystones (D-188).
-21. PR-92: the three passes of the HD-2D look, after a new Deck sweep (D-849).
-22. PR-60: the ten transitions and their table (D-195, D-196).
-23. PR-11: the evaluator, the enemy profiles, and the groups, with the cost of a turn (D-65, D-534, F-53).
-24. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537).
-25. PR-62: the menu windows, the party and status windows, the dungeon map screen, and the notices (D-211, D-558, D-567, D-569).
-26. PR-68: the story scene format and runner, the join step, the flags, and the conditions, before PR-12 (D-541, D-544, D-556, D-563).
-27. PR-50: the screenplay tool, right after PR-68 (D-173, D-545).
-28. PR-12: the lessons, the slots, the forms, and the aptitudes (D-272, D-356, D-539).
-29. PR-13: the six gear slots, the items, and the pack (D-44, D-382).
-30. PR-91: the torch item, right after PR-13 (D-847, D-848).
-31. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
-32. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
-33. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
-34. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).
-35. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
-36. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-37. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
-38. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
-39. PR-35: the region map of nodes and routes (D-113).
-40. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command (D-432, D-438).
-41. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
-42. PR-70: every rule of what plays when (D-413, D-546).
-43. PR-71: the sound room in a development build (D-439, D-546).
-44. PR-51: the PNG import for a hand edit (D-107, D-497).
-45. PR-52: the map preview as a PNG (D-165, D-497).
-46. PR-53: the tile-edge tool and the edge files (D-204, D-501).
-47. PR-72: the music, the themes, and the sounds of the first playable (D-549).
-48. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
-49. M-3: the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
-50. M-4: the turns of each encounter and the party downs of each dungeon, by policy.
-51. M-6: the frame time and the readability on the Deck, at the scale of OQ-183 (D-161, D-621).
-52. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
-53. **← GATE 2 (first playable).**
-54. PR-74: the capture, which replays a record into frames and audio (D-476, D-551).
-55. PR-75: the store text and the checklist of the owner steps (D-452, D-550).
-56. PR-76: the store art and the five screenshots (D-475, D-550).
-57. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
+20. PR-94: the procedural fog, a noise shader of 1 to 3 layers in place of the text grid (D-896 to D-899).
+21. PR-59: the glow on fire, spells, and waystones (D-188).
+22. PR-92: the three passes of the HD-2D look, after a new Deck sweep (D-849).
+23. PR-60: the ten transitions and their table (D-195, D-196).
+24. PR-11: the evaluator, the enemy profiles, and the groups, with the cost of a turn (D-65, D-534, F-53).
+25. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537).
+26. PR-62: the menu windows, the party and status windows, the dungeon map screen, and the notices (D-211, D-558, D-567, D-569).
+27. PR-68: the story scene format and runner, the join step, the flags, and the conditions, before PR-12 (D-541, D-544, D-556, D-563).
+28. PR-50: the screenplay tool, right after PR-68 (D-173, D-545).
+29. PR-12: the lessons, the slots, the forms, and the aptitudes (D-272, D-356, D-539).
+30. PR-13: the six gear slots, the items, and the pack (D-44, D-382).
+31. PR-91: the torch item, right after PR-13 (D-847, D-848).
+32. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
+33. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
+34. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
+35. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).
+36. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
+37. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+38. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
+39. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
+40. PR-35: the region map of nodes and routes (D-113).
+41. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command (D-432, D-438).
+42. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
+43. PR-70: every rule of what plays when (D-413, D-546).
+44. PR-71: the sound room in a development build (D-439, D-546).
+45. PR-51: the PNG import for a hand edit (D-107, D-497).
+46. PR-52: the map preview as a PNG (D-165, D-497).
+47. PR-53: the tile-edge tool and the edge files (D-204, D-501).
+48. PR-72: the music, the themes, and the sounds of the first playable (D-549).
+49. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
+50. M-3: the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
+51. M-4: the turns of each encounter and the party downs of each dungeon, by policy.
+52. M-6: the frame time and the readability on the Deck, at the scale of OQ-183 (D-161, D-621).
+53. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
+54. **← GATE 2 (first playable).**
+55. PR-74: the capture, which replays a record into frames and audio (D-476, D-551).
+56. PR-75: the store text and the checklist of the owner steps (D-452, D-550).
+57. PR-76: the store art and the five screenshots (D-475, D-550).
+58. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 
 PR-37 is retired. The CRT pass of the first plan has no purpose after D-618, and no later item takes the id (G-10).
 
@@ -617,7 +619,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 13. Owner: set the fonts, Terminus TTF and Terminus TTF Bold (D-263, D-264).
 14. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8.
 15. PR-9, PR-89, PR-80, PR-66, PR-55, PR-10.
-16. PR-48, PR-56, PR-93, PR-63, PR-57, PR-58, PR-59, PR-92, PR-60.
+16. PR-48, PR-56, PR-93, PR-63, PR-57, PR-58, PR-94, PR-59, PR-92, PR-60.
 17. PR-11, PR-67, PR-62.
 18. PR-68, PR-50.
 19. PR-12, PR-13, PR-91, PR-14, PR-65.

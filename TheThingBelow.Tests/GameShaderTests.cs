@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
+using TheThingBelow.Core.Effects;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -15,11 +17,8 @@ public sealed class GameShaderTests
     {
         // D-183: Godot corrects the normal of a flipped draw before the shader code, and a
         // write of NORMAL_MAP replaces that correction, so a lit sprite takes a wrong light.
-        string[] files = Directory.GetFiles(Path.Combine(RepositoryRoot.Find(), ShaderFolder), "*.gdshader");
-        Assert.NotEmpty(files);
-
         var failures = new List<string>();
-        foreach (string file in files)
+        foreach (string file in ShaderFiles())
         {
             if (CodeOf(File.ReadAllText(file)).Contains("NORMAL_MAP", StringComparison.Ordinal))
             {
@@ -56,6 +55,75 @@ public sealed class GameShaderTests
             string name = (string)GameAssemblyFile.Type("TheThingBelow.Game.Ui.MoteLayer").GetField(field)!.GetValue(null)!;
             Assert.Matches($@"uniform \w+ {name}\b", code);
         }
+    }
+
+    [Fact]
+    public void NoShaderOfTheGameReadsTheClockOfGodot()
+    {
+        // F-100, D-172: a shader that reads TIME draws another picture at each capture of one
+        // tick. Game gives each shader the tick, or a value of the tick, instead.
+        var failures = new List<string>();
+        foreach (string file in ShaderFiles())
+        {
+            if (Regex.IsMatch(CodeOf(File.ReadAllText(file)), @"\bTIME\b"))
+            {
+                failures.Add(Path.GetFileName(file));
+            }
+        }
+
+        Assert.True(failures.Count == 0, $"these shaders read TIME: {string.Join(", ", failures)} (F-100)");
+    }
+
+    [Fact]
+    public void TheFogPassNamesAnUnlitShaderAndALitShaderThatHoldOneFog()
+    {
+        // D-183, D-897: an unlit fog gives its own light, and a lit fog takes the scene light.
+        // The two shaders include one file of the fog, so the two fogs draw the same shapes.
+        Type pass = GameAssemblyFile.Type("TheThingBelow.Game.Ui.FogPass");
+        Assert.Equal("res://shaders/fog.gdshader", (string)pass.GetField("ShaderPath")!.GetValue(null)!);
+        Assert.Equal("res://shaders/fog_lit.gdshader", (string)pass.GetField("LitShaderPath")!.GetValue(null)!);
+
+        string root = Path.Combine(RepositoryRoot.Find(), ShaderFolder);
+        string unlit = CodeOf(File.ReadAllText(Path.Combine(root, "fog.gdshader")));
+        string lit = CodeOf(File.ReadAllText(Path.Combine(root, "fog_lit.gdshader")));
+        string include = "#include \"res://shaders/fog_noise.gdshaderinc\"";
+        Assert.Contains("render_mode unshaded;", unlit, StringComparison.Ordinal);
+        Assert.DoesNotContain("render_mode", lit, StringComparison.Ordinal);
+        Assert.Contains(include, unlit, StringComparison.Ordinal);
+        Assert.Contains(include, lit, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheFogShaderHoldsEachUniformOfTheFogPassAndTheLimitsOfALayer()
+    {
+        // D-825: Game sets each uniform by a name constant, and the file holds each name. The
+        // arrays of the shader hold the most layers and bands that the reader takes (D-898).
+        string code = CodeOf(File.ReadAllText(Path.Combine(RepositoryRoot.Find(), ShaderFolder, "fog_noise.gdshaderinc")));
+        Type pass = GameAssemblyFile.Type("TheThingBelow.Game.Ui.FogPass");
+        string[] fields =
+        [
+            "LayerCountName", "ColorsName", "OriginXName", "OriginYName", "ScalesName",
+            "CellSizesName", "SeedsName", "BandCountsName", "BandFromName", "BandStrengthName",
+        ];
+        foreach (string field in fields)
+        {
+            string name = (string)pass.GetField(field)!.GetValue(null)!;
+            Assert.Matches($@"uniform \w+ {name}\b", code);
+        }
+
+        Assert.Contains($"const int MOST_LAYERS = {FogLayer.MostLayers};", code, StringComparison.Ordinal);
+        Assert.Contains($"const int MOST_BANDS = {FogLayer.MostBands};", code, StringComparison.Ordinal);
+    }
+
+    /// <summary>Gives each shader file and each include file of the Game project.</summary>
+    private static List<string> ShaderFiles()
+    {
+        string folder = Path.Combine(RepositoryRoot.Find(), ShaderFolder);
+        var files = new List<string>(Directory.GetFiles(folder, "*.gdshader"));
+        files.AddRange(Directory.GetFiles(folder, "*.gdshaderinc"));
+        files.Sort(StringComparer.Ordinal);
+        Assert.NotEmpty(files);
+        return files;
     }
 
     /// <summary>Removes each line comment, so a comment that names the member passes.</summary>

@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 201: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-63, round 2. Repository: the-thing-below. Branch: `feat/pr-63-settings`. PR: #55. Role: author. Base: `daeccfe`.
+
+### What this session did, and why
+
+- Read CI run 35689386604 of head `d6b3606`. Every job passed except screen-test, which named 8 captures: the 3 settings captures with no baseline, and the 5 captures of the `ui` fixture.
+- The `ui` fixture draws the longest plain string of the table (D-241), and that string is now `settings.help`. The author read `ui-1x` and `settings-conflict-1x` of the artifact, and both fit.
+- Committed the 8 captures of the artifact as the baseline (D-733). The `screens` command then matched all 52 captures.
+- The Gitar pass of `d6b3606` approved with no finding. The review-gate fault is RG 3 alone: the review record of the other provider does not exist yet.
+
+### The state of the build
+
+- The baseline commit `c974fe4` and this entry make the push of this round. Every CI job except screen-test passed on `d6b3606`.
+
+### What is in flight
+
+- The Gitar pass of the new effective head, then the Codex review of `docs/reviews/pr-55.md`.
+- The owner reads the text batch of the settings strings in the PR description (D-57).
+
+### Traps and gotchas
+
+- A new plain string that is longer than `settings.help` changes the 5 captures of the `ui` fixture again.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run the Gitar wait for the push of this round, and prove that the review of the effective head is current.
+
 ## Session 200: 2026-09-22, Claude Code
 
 Author: Claude Code
