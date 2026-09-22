@@ -20,12 +20,14 @@ Session: author of the gitar pause, PR #58. Repository: the-thing-below. Branch:
 ### What is in flight
 
 - PR #58 waits for the review of the other provider, because it adds and revises decision rows (D-401). No label applies.
-- A gitar pass can still come while the subscription runs. The author answers each comment of it.
+- Gitar still ran. Its automatic pass approved `3239ba1` at 22:33:42 UTC with no comment and no thread. The dashboard edit came after the push at 22:32:13 UTC, so the pass is current.
+- CI at `3239ba1`: every required check passes except review-gate. Review-gate faults on RG 3 alone, because the review record does not exist yet.
 
 ### Traps and gotchas
 
 - `CLAUDE.md` was 1 byte under its 16 KB limit. The pause paragraph replaces the first paragraph of the review section, and the file is now 16,363 bytes.
 - The end PR must not revert the register, the handoff, or the review records. The runbook steps restore them from `HEAD`.
+- Before the review, the `docs/reviews/` line of the Documents section takes the "No change needed" form. A `Changed:` line gave an RG 7 fault.
 - The PR title holds "pause the gitar pass", because the runbook finds the squash commit by that text.
 
 ### The questions that block progress
