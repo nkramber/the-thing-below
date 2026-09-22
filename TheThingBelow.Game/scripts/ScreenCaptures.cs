@@ -84,6 +84,9 @@ public static class ScreenCaptures
     /// <summary>The running screen with the party in the pit room, which shows the walls beside the doorway at (6, 12) (D-852).</summary>
     public const string PitFixture = "pit";
 
+    /// <summary>The running screen with the party still, which shows the motion of the weather over 4 seconds (D-894).</summary>
+    public const string StillFixture = "still";
+
     /// <summary>The running screen through a step that scrolls the view, which shows that each particle stays on the world (F-97).</summary>
     public const string ScrollFixture = "scroll";
 
@@ -150,6 +153,12 @@ public static class ScreenCaptures
         InputActions.StepSouth, InputActions.StepSouth, InputActions.StepSouth,
     ];
 
+    /// <summary>The ticks of the still fixture that take a frame: one second apart (D-894).</summary>
+    public static IReadOnlyList<int> StillTicks { get; } = [60, 120, 180, 240];
+
+    /// <summary>The action of a frame that runs ticks and sends no intent, which the still fixture takes.</summary>
+    public const string StillAction = "none";
+
     /// <summary>The ticks of the step of the scroll fixture that take a frame: the start, the middle, and the arrival (F-97).</summary>
     /// <remarks>
     /// The view follows the lead in the pit room, so the three frames hold three places of the
@@ -182,7 +191,7 @@ public static class ScreenCaptures
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
     public static IReadOnlyList<string> Fixtures { get; } =
-        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture];
+        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -272,6 +281,19 @@ public static class ScreenCaptures
                     null,
                     weather.Ambient));
             }
+        }
+
+        // The party stands still, and each frame reads the weather one second later (D-894).
+        // A fault in the motion of a mote or of a flame then changes a baseline.
+        foreach (int tick in StillTicks)
+        {
+            captures.Add(new ScreenCapture(
+                StillFixture,
+                $"{tick:D3}",
+                ScreenFit.FrameWidth,
+                ScreenFit.FrameHeight,
+                FitMode.Fill,
+                new WalkTick(StillAction, tick)));
         }
 
         // The pit room draws at 1x. The frame holds the doorway at (6, 12) and the walls beside

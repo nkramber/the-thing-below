@@ -20,48 +20,39 @@ namespace TheThingBelow.Game.Ui;
 /// </remarks>
 public sealed class AmbientLayer
 {
-    /// <summary>The Z index of the streams of the weather: over each figure (`area-effects.md` section 7.2).</summary>
+    /// <summary>The Z index of the motes of the weather: over each figure (`area-effects.md` section 7.2).</summary>
     public const int StreamZIndex = 3;
 
     /// <summary>The Z index of the lowest layer of fog: over the streams.</summary>
     public const int FogZIndex = 4;
 
-    private readonly ParticleStreams? streams;
+    private readonly MoteLayer? motes;
     private readonly FogSheets? fogs;
 
-    private AmbientLayer(AmbientEffect? effect, ParticleStreams? streams, FogSheets? fogs)
+    private AmbientLayer(AmbientEffect? effect, MoteLayer? motes, FogSheets? fogs)
     {
         this.Effect = effect;
-        this.streams = streams;
+        this.motes = motes;
         this.fogs = fogs;
     }
 
     /// <summary>The ambient file that this layer draws, or no value for a place with no weather.</summary>
     public AmbientEffect? Effect { get; }
 
-    /// <summary>The count of particle nodes of the weather.</summary>
-    public int NodeCount => this.streams?.NodeCount ?? 0;
+    /// <summary>The count of motes that the weather drew on the last frame (D-893).</summary>
+    public int NodeCount => this.motes?.MoteCount ?? 0;
 
     /// <summary>The count of layers of fog, which the budget counts as one full-screen pass each (D-523).</summary>
     public int FogCount => this.fogs?.SheetCount ?? 0;
 
-    /// <summary>Tells whether every node of the weather stands still, so each particle stays in the world (F-97).</summary>
-    public bool NodesStandStill => this.streams?.NodesStandStill ?? true;
-
-    /// <summary>Tells whether every node of the weather holds one region of the world, so the weather never stops (F-98).</summary>
-    /// <param name="area">The region that each node must hold, in art pixels of the parent.</param>
-    /// <returns>True when each node holds the region.</returns>
-    public bool NodesHold(Rect2 area) => this.streams?.NodesHold(area) ?? true;
-
     /// <summary>Builds the weather of one place under a parent node.</summary>
     /// <param name="effect">The ambient file of the place, or no value for a place with no weather.</param>
     /// <param name="palette">The palette (D-181).</param>
-    /// <param name="visible">The region of the parent that each node holds, so the weather never stops (F-98).</param>
     /// <param name="parent">The node that takes the nodes of the weather: the world of the screen.</param>
     /// <returns>The layer.</returns>
     /// <exception cref="ArgumentNullException">The palette or the parent is null (T-2).</exception>
     /// <exception cref="ContentException">The palette holds no key of the weather (T-2).</exception>
-    public static AmbientLayer Build(AmbientEffect? effect, Palette palette, Rect2 visible, Node2D parent)
+    public static AmbientLayer Build(AmbientEffect? effect, Palette palette, Node2D parent)
     {
         ArgumentNullException.ThrowIfNull(palette);
         ArgumentNullException.ThrowIfNull(parent);
@@ -71,11 +62,10 @@ public sealed class AmbientLayer
             return new AmbientLayer(null, null, null);
         }
 
-        string name = effect.Id.Value;
         return new AmbientLayer(
             effect,
-            ParticleStreams.Build(name, effect.Emitters, palette, effect.Lit, StreamZIndex, visible, parent),
-            FogSheets.Build(name, effect.Fogs, palette, effect.Lit, FogZIndex, parent));
+            MoteLayer.Build(effect, palette, StreamZIndex, parent),
+            FogSheets.Build(effect.Id.Value, effect.Fogs, palette, effect.Lit, FogZIndex, parent));
     }
 
     /// <summary>Shows the weather over one view at one tick.</summary>
@@ -86,12 +76,7 @@ public sealed class AmbientLayer
     /// <exception cref="ArgumentOutOfRangeException">The tick is below zero, or the view is empty (T-2).</exception>
     public void Show(Vector2 point, int width, int height, long tick)
     {
-        if (this.streams is not null)
-        {
-            this.streams.MoveTo(point);
-            this.streams.Seek(tick);
-        }
-
+        this.motes?.Show((int)point.X, (int)point.Y, tick);
         this.fogs?.Show(point, width, height, tick);
     }
 }

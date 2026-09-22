@@ -70,6 +70,10 @@ public sealed class ScreenCapturesTests
         "map-fire-1x.png",
         "battle-fire-1x.png",
         "pit-1x.png",
+        "still-060.png",
+        "still-120.png",
+        "still-180.png",
+        "still-240.png",
         "scroll-01.png",
         "scroll-09.png",
         "scroll-17.png",
@@ -93,7 +97,7 @@ public sealed class ScreenCapturesTests
         // PR-58 adds one capture of each ambient kind on the map and over a fight, the pit room
         // of the wall shape beside a doorway, and three frames of a step that scrolls the view
         // (D-852, D-889, F-97, exit test 1 of PR-58).
-        Assert.Equal(10 + 34 + 1 + 10 + 3 + 10, FileNames().Count);
+        Assert.Equal(10 + 34 + 1 + 10 + 3 + 14, FileNames().Count);
     }
 
     [Fact]

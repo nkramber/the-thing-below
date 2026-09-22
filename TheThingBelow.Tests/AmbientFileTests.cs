@@ -19,7 +19,7 @@ public sealed class AmbientFileTests
         Assert.Equal(AmbientKind.Dust, effect.Kind);
         Assert.Equal("map.lit", Assert.Single(effect.Maps).Value);
         Assert.True(effect.Lit);
-        Assert.Equal(24, effect.Particles);
+        Assert.Equal(96, effect.Particles);
         FogLayer fog = Assert.Single(effect.Fogs);
         Assert.Equal('k', fog.Key);
         Assert.Equal(8, fog.Width);
@@ -43,10 +43,10 @@ public sealed class AmbientFileTests
     [Theory]
     [InlineData("\"kind\": \"dust\"", "\"kind\": \"rain\"", "'snow', 'fog', 'fire', or 'dust'")]
     [InlineData("\"maps\": [\"map.lit\"]", "\"maps\": []", "serves no map")]
-    [InlineData("\"amount\": 24", "\"amount\": 2049", "1 to 2048")]
-    [InlineData("\"lifetime_ticks\": 240", "\"lifetime_ticks\": 601", "1 to 600")]
-    [InlineData("\"half_width\": 320", "\"half_width\": 321", "0 to 320")]
-    [InlineData("\"slowest_speed\": 2, \"fastest_speed\": 8", "\"slowest_speed\": 9, \"fastest_speed\": 8", "below the slowest speed")]
+    [InlineData("\"amount\": 24", "\"amount\": 513", "1 to 512")]
+    [InlineData("\"lifetime_ticks\": 240", "\"lifetime_ticks\": 1801", "1 to 1800")]
+    [InlineData("\"sway_pixels\": 3", "\"sway_pixels\": 33", "0 to 32")]
+    [InlineData("\"fall_ticks\": 120", "\"fall_ticks\": 241", "1 to 240")]
     public void AnAmbientValueOutsideItsLimitFailsWithTheReason(string from, string to, string reason)
     {
         // T-2: each bad value names the file, the field, and the rule.
@@ -94,17 +94,19 @@ public sealed class AmbientFileTests
     }
 
     [Fact]
-    public void AStreamSplitsItsParticlesOverItsKeys()
+    public void AStreamGivesEachMoteOneKeyInTurn()
     {
-        // D-181: Game draws each key as a node of its own, so each particle keeps one color.
+        // D-181: each mote draws in one color of the palette, and never a blend of two.
         AmbientEffect effect = Read(AmbientFixtures.Body(
-            emitters: AmbientFixtures.Stream.Replace("[\"k\"]", "[\"k\", \"j\", \"k\"]", StringComparison.Ordinal)));
-        StreamEmitter stream = Assert.Single(effect.Emitters);
+            emitters: AmbientFixtures.Stream.Replace("[\"k\"]", "[\"k\", \"j\"]", StringComparison.Ordinal)));
+        MoteStream stream = Assert.Single(effect.Emitters);
 
-        Assert.Equal(8, stream.AmountOf(0));
-        Assert.Equal(8, stream.AmountOf(1));
-        Assert.Equal(8, stream.AmountOf(2));
-        Assert.Equal(24, StreamEmitter.ParticlesOf(new List<StreamEmitter> { stream }));
+        Assert.Equal('k', stream.ColorOf(0));
+        Assert.Equal('j', stream.ColorOf(1));
+        Assert.Equal('k', stream.ColorOf(2));
+
+        // The budget counts the motes of the four cells that one view can hold (D-523, D-893).
+        Assert.Equal(96, AmbientMotes.ParticlesOf(stream));
     }
 
     private static AmbientEffect Read(string body) => AmbientEffect.Read(Bytes(body), AmbientFixtures.Path);

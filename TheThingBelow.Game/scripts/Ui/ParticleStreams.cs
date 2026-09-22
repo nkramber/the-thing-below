@@ -13,10 +13,11 @@ namespace TheThingBelow.Game.Ui;
 /// torch (D-187, D-890). No resource file holds an effect (G-6).
 /// </summary>
 /// <remarks>
-/// Each node runs at speed zero, as a burst does, so no frame time of the engine moves a
-/// particle (<see cref="HitBurst"/>). The build seeks each node one lifetime forward, so the
-/// view is full from the first frame. Each later seek asks for the ticks since the last one, so
-/// one tick shows the same particles on every run and in every capture (D-172, T-7).
+/// A stream runs on the engine in play, because it draws no rule and a frame of play needs no
+/// seek (G-1). A capture of the screen test needs one picture for one tick, so it seeks each
+/// node instead: a restart with the kept seed, then the time of the age of that tick (D-172,
+/// T-7). Godot advances a stream on a request only after a restart, so a request alone holds
+/// every particle still (F-100).
 /// <para>
 /// Each palette key of a stream takes a node of its own with one fixed color, and each particle
 /// draws as a square of its size with hard edges (D-181, G-27).
@@ -26,9 +27,6 @@ public sealed class ParticleStreams
 {
     /// <summary>The seed of the hash of each node name. A new value changes the pattern of every stream.</summary>
     private const ulong NameSeed = 0x73747265616DUL;
-
-    /// <summary>The parts of one step of the sway, so a file can tune it in whole numbers.</summary>
-    private const int SwayParts = 10;
 
     private readonly List<StreamNode> nodes;
     private long shown = -1;
@@ -161,13 +159,17 @@ public sealed class ParticleStreams
         }
     }
 
-    /// <summary>Shows the streams at one tick, and seeks each node to it (D-172).</summary>
+    /// <summary>Seeks each node to one tick, for a capture of the screen test (D-172).</summary>
     /// <param name="tick">The tick of the run, from 0.</param>
     /// <exception cref="ArgumentOutOfRangeException">The tick is below zero (T-2).</exception>
     /// <remarks>
-    /// A step forward of one tick or more, and inside one lifetime, asks the node for that
-    /// time. Any other step, such as the first one or a jump, starts the node again and seeks it
-    /// one lifetime forward, so the picture holds particles of every age.
+    /// Each seek starts the node again with its own seed, and it asks for the time of one
+    /// lifetime and the age of the tick. The picture then holds particles of every age, and one
+    /// tick gives one picture on every run. A request with no restart moves no particle (F-100).
+    /// <para>
+    /// A frame of play never seeks. The engine moves each particle there, and the node holds the
+    /// speed of the engine.
+    /// </para>
     /// </remarks>
     public void Seek(long tick)
     {
@@ -180,18 +182,10 @@ public sealed class ParticleStreams
 
         foreach (StreamNode node in this.nodes)
         {
-            long step = tick - this.shown;
-            bool forward = this.shown >= 0 && step > 0 && step <= node.LifetimeTicks;
-            if (forward)
-            {
-                node.Particles.RequestParticlesProcess(step / (float)HitBurst.StepsPerSecond);
-                continue;
-            }
-
-            // A restart with the kept seed gives the same particles for the same tick (T-7).
-            node.Particles.Restart(keepSeed: true);
+            node.Particles.SpeedScale = 0;
             long warm = node.LifetimeTicks + (tick % node.LifetimeTicks);
-            node.Particles.RequestParticlesProcess(warm / (float)HitBurst.StepsPerSecond);
+            node.Particles.Preprocess = warm / (double)HitBurst.StepsPerSecond;
+            node.Particles.Restart(keepSeed: true);
         }
 
         this.shown = tick;
@@ -227,18 +221,6 @@ public sealed class ParticleStreams
             InitialVelocityMin = emitter.SlowestSpeed,
             InitialVelocityMax = emitter.FastestSpeed,
             Gravity = new Vector3(0, emitter.Gravity, 0),
-            DampingMin = emitter.Damping,
-            DampingMax = emitter.Damping,
-
-            // The sway is a flow that reads the place of each particle, so a mote falls in a
-            // curve, as a sheet of paper falls. The field never scrolls, so the path of one
-            // particle is the same on every run and in every capture (T-7, D-172).
-            TurbulenceEnabled = emitter.Sway > 0,
-            TurbulenceNoiseStrength = emitter.Sway / (float)SwayParts,
-            TurbulenceNoiseScale = emitter.SwayScale,
-            TurbulenceNoiseSpeed = Vector3.Zero,
-            TurbulenceInfluenceMin = 1,
-            TurbulenceInfluenceMax = 1,
             ScaleMin = emitter.Size,
             ScaleMax = emitter.Size,
             Color = color,
@@ -253,7 +235,7 @@ public sealed class ParticleStreams
             Lifetime = emitter.LifetimeTicks / (double)HitBurst.StepsPerSecond,
             OneShot = false,
             Explosiveness = 0,
-            SpeedScale = 0,
+            SpeedScale = 1,
             FixedFps = HitBurst.StepsPerSecond,
             Interpolate = false,
             FractDelta = false,

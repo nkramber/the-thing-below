@@ -144,7 +144,7 @@ public partial class Boot : Node
             if (this.battle is null)
             {
                 this.map?.ShowParty(this.run.Party, this.run.TickPart);
-                this.map?.ShowWeather(this.run.Tick);
+                this.map?.ShowWeather(this.run.Tick, seek: false);
             }
         }
         catch (Exception fault)
@@ -1377,7 +1377,7 @@ public partial class Boot : Node
         drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, session.Party, loaded, loaded.Effects.Ambient.WeatherOf(map.Id));
         drawn.CarriedLightOn = true;
         drawn.ShowParty(session.Party, 0);
-        drawn.ShowWeather(session.Tick);
+        drawn.ShowWeather(session.Tick, seek: false);
 
         CameraPlace view = MapCamera.Of(session.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, 0);
         string ground = drawn.DescribeGround();
@@ -1424,7 +1424,7 @@ public partial class Boot : Node
 
         // The checks of the weather and of each torch run inside this call (F-97, F-98).
         drawn.ShowParty(walked.Party, 0);
-        drawn.ShowWeather(walked.Tick);
+        drawn.ShowWeather(walked.Tick, seek: false);
         string weather = drawn.DescribeWeather();
         CameraPlace view = MapCamera.Of(walked.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, 0);
         return $"in the room below the party stands at {walked.Party.LeadAt} with the view at ({view.X}, {view.Y}), and {weather}";

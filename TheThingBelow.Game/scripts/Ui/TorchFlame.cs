@@ -107,8 +107,9 @@ public sealed class TorchFlame
 
     /// <summary>Shows the torch at one tick: its step, its jump, and its streams (D-891).</summary>
     /// <param name="tick">The tick of the run, from 0.</param>
+    /// <param name="seek">True for a capture, which seeks each stream to the tick (D-172). A frame of play runs the streams on the engine.</param>
     /// <exception cref="ArgumentOutOfRangeException">The tick is below zero (T-2).</exception>
-    public void Show(long tick)
+    public void Show(long tick, bool seek)
     {
         FlickerStep step = this.Fire.StepAt(this.Id, tick);
         float energy = this.baseEnergy * step.Level.Strength / BasisPoints.One;
@@ -125,6 +126,9 @@ public sealed class TorchFlame
         this.figures.TextureScale = scale;
 
         this.streams.MoveTo(new Vector2(this.place.X + step.JumpX, this.place.Y + step.JumpY));
-        this.streams.Seek(tick);
+        if (seek)
+        {
+            this.streams.Seek(tick);
+        }
     }
 }

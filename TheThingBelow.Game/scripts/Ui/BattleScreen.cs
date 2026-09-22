@@ -76,6 +76,9 @@ public sealed class BattleScreen
     private readonly ContentSet content;
     private readonly Node2D world;
     private AmbientLayer weather = null!;
+
+    /// <summary>True for a capture, which seeks each stream to the tick of the frame (D-172).</summary>
+    public bool SeekParticles { get; set; }
     private readonly Control layer;
     private readonly Node2D backdrop;
     private readonly List<CombatantNodes> party = [];
@@ -188,7 +191,6 @@ public sealed class BattleScreen
         screen.weather = AmbientLayer.Build(
             ambient ?? content.Effects.Ambient.WeatherOf(run.Party.Map.Id),
             content.Palette,
-            new Rect2(-BattleWeatherMargin, -BattleWeatherMargin, FrameRoot.WorldWidth + (2 * BattleWeatherMargin), FrameRoot.WorldHeight + (2 * BattleWeatherMargin)),
             screen.world);
         Shader flash = LoadFlashShader();
         foreach (ShownCombatant shown in view.Party)

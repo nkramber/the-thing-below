@@ -22,7 +22,7 @@ internal static class AmbientFixtures
 
     /// <summary>One stream of the tests, with the palette key `k` that every palette of the tests holds.</summary>
     public const string Stream =
-        """{ "amount": 24, "lifetime_ticks": 240, "colors": ["k"], "size": 1, "x": 320, "y": 180, "half_width": 320, "half_height": 180, "direction": 80, "spread": 30, "slowest_speed": 2, "fastest_speed": 8, "gravity": 1, "damping": 0, "sway": 0, "sway_scale": 1 }""";
+        """{ "amount": 24, "lifetime_ticks": 240, "colors": ["k"], "size": 1, "fall_pixels": 24, "fall_ticks": 120, "drift_pixels": 4, "sway_pixels": 3, "sway_ticks": 60 }""";
 
     /// <summary>One layer of fog of the tests, in the key `k`, with a grid of 8 by 8 cells.</summary>
     public const string Fog =

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Content;
-using TheThingBelow.Core.Light;
 
 namespace TheThingBelow.Core.Effects;
 
@@ -49,7 +48,7 @@ public sealed class AmbientEffect
         AmbientKind kind,
         IReadOnlyList<ContentId> maps,
         bool lit,
-        IReadOnlyList<StreamEmitter> emitters,
+        IReadOnlyList<MoteStream> emitters,
         IReadOnlyList<FogLayer> fogs)
     {
         this.File = file;
@@ -76,8 +75,8 @@ public sealed class AmbientEffect
     /// <summary>True when the scene light falls on the particles and the fog, as on a figure (D-183).</summary>
     public bool Lit { get; }
 
-    /// <summary>The streams of the weather, from the north-west corner of the view, in the order of the file.</summary>
-    public IReadOnlyList<StreamEmitter> Emitters { get; }
+    /// <summary>The streams of motes of the weather, in the order of the file (D-893).</summary>
+    public IReadOnlyList<MoteStream> Emitters { get; }
 
     /// <summary>The layers of fog, from the lowest, in the order of the file. Each one is a full-screen pass (D-523).</summary>
     public IReadOnlyList<FogLayer> Fogs { get; }
@@ -85,8 +84,20 @@ public sealed class AmbientEffect
     /// <summary>True when the file lies in the folder of the capture files (D-889).</summary>
     public bool IsCapture => this.File.StartsWith(CaptureFolder, StringComparison.Ordinal);
 
-    /// <summary>The count of live particles of the weather, which the effect budget counts (D-523).</summary>
-    public int Particles => StreamEmitter.ParticlesOf(this.Emitters);
+    /// <summary>The count of motes of the weather in one view, which the effect budget counts (D-523).</summary>
+    public int Particles
+    {
+        get
+        {
+            int total = 0;
+            foreach (MoteStream stream in this.Emitters)
+            {
+                total = checked(total + AmbientMotes.ParticlesOf(stream));
+            }
+
+            return total;
+        }
+    }
 
     /// <summary>Tells whether a content path is an ambient file or a capture file.</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
@@ -132,7 +143,7 @@ public sealed class AmbientEffect
         AmbientKind? kind = null;
         List<ContentId>? maps = null;
         bool? lit = null;
-        List<StreamEmitter>? emitters = null;
+        List<MoteStream>? emitters = null;
         List<FogLayer>? fogs = null;
 
         int depth = reader.ReadObjectStart();
@@ -156,7 +167,7 @@ public sealed class AmbientEffect
                     lit = reader.ReadBoolean();
                     break;
                 case "emitters":
-                    emitters = StreamEmitter.ReadList(ref reader);
+                    emitters = MoteStream.ReadList(ref reader);
                     break;
                 case "fogs":
                     fogs = FogLayer.ReadList(ref reader);
@@ -173,7 +184,7 @@ public sealed class AmbientEffect
             throw reader.RefuseField(depth, "maps", "the effect serves no map, and each weather serves one map or more (D-202)");
         }
 
-        List<StreamEmitter> streams = reader.Require(emitters, depth, "emitters");
+        List<MoteStream> streams = reader.Require(emitters, depth, "emitters");
         List<FogLayer> layers = reader.Require(fogs, depth, "fogs");
         if (streams.Count == 0 && layers.Count == 0)
         {

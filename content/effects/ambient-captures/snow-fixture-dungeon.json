@@ -1,13 +1,12 @@
 {
- "comment": "A capture file: snow and wind over the fixture dungeon, for the screen test alone (D-187, D-889). The shipped build never loads it, and the dungeon keeps the dust of `content/effects/ambient/dust-fixture-dungeon.json`. The flakes start above the view and drift east with the wind.",
+ "comment": "A capture file: snow and wind over the fixture dungeon, for the screen test alone (D-187, D-889). The shipped build never loads it, and the dungeon keeps the dust of `content/effects/ambient/dust-fixture-dungeon.json`. Each flake falls the height of a cell in 6 seconds, the wind carries it east, and the sway rocks it as it falls (D-893).",
  "id": "effect.snow_capture",
  "kind": "snow",
  "maps": ["map.fixture_dungeon"],
  "lit": true,
  "emitters": [
-  { "amount": 420, "lifetime_ticks": 480, "colors": ["e", "E", "w"], "size": 1, "x": 260, "y": -8, "half_width": 320, "half_height": 8, "direction": 68, "spread": 12, "slowest_speed": 36, "fastest_speed": 64, "gravity": 12, "damping": 0, "sway": 0, "sway_scale": 1 },
-  { "amount": 90, "lifetime_ticks": 300, "colors": ["e", "w"], "size": 2, "x": 240, "y": -8, "half_width": 320, "half_height": 8, "direction": 72, "spread": 16, "slowest_speed": 70, "fastest_speed": 110, "gravity": 20, "damping": 0, "sway": 0, "sway_scale": 1 },
-  { "amount": 60, "lifetime_ticks": 120, "colors": ["E", "f"], "size": 1, "x": -8, "y": 180, "half_width": 8, "half_height": 180, "direction": 4, "spread": 8, "slowest_speed": 180, "fastest_speed": 300, "gravity": 0, "damping": 0, "sway": 0, "sway_scale": 1 }
+  { "amount": 150, "lifetime_ticks": 360, "colors": ["e", "E", "w"], "size": 1, "fall_pixels": 380, "fall_ticks": 360, "drift_pixels": 120, "sway_pixels": 4, "sway_ticks": 90 },
+  { "amount": 40, "lifetime_ticks": 240, "colors": ["e", "w"], "size": 2, "fall_pixels": 380, "fall_ticks": 240, "drift_pixels": 90, "sway_pixels": 2, "sway_ticks": 70 }
  ],
  "fogs": []
 }

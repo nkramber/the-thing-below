@@ -90,6 +90,9 @@ public partial class MapScreen : Node2D
     private AmbientLayer weather = null!;
     private Vector2 view;
 
+    /// <summary>True for a capture, which seeks each stream to the tick of the frame (D-172).</summary>
+    public bool SeekParticles { get; set; }
+
     /// <summary>
     /// Builds the tiles of one map, the sprite of the lead, one sprite for each enemy, and
     /// the mark of a sight (D-208, D-738).
@@ -143,7 +146,7 @@ public partial class MapScreen : Node2D
         this.AddChild(this.mark);
 
         this.BuildLight(atlas, party.Map, content);
-        this.weather = AmbientLayer.Build(ambient, content.Palette, WeatherArea(party.Map), this);
+        this.weather = AmbientLayer.Build(ambient, content.Palette, this);
     }
 
     /// <summary>Puts the party where Core put it, and moves the view (D-203, D-717).</summary>
@@ -177,17 +180,18 @@ public partial class MapScreen : Node2D
     /// caller draws the party first, because the weather follows the view (D-187).
     /// </summary>
     /// <param name="tick">The tick of the run, from 0.</param>
+    /// <param name="seek">True for a capture, which seeks each stream to the tick (D-172). A frame of play runs the streams on the engine.</param>
     /// <exception cref="ArgumentOutOfRangeException">The tick is below zero (T-2).</exception>
-    public void ShowWeather(long tick)
+    public void ShowWeather(long tick, bool seek)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(tick);
 
         foreach (TorchFlame torch in this.torches)
         {
-            torch.Show(tick);
+            torch.Show(tick, seek);
         }
 
-        this.carriedFlame.Show(tick);
+        this.carriedFlame.Show(tick, seek);
         this.weather.Show(this.view, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tick);
     }
 
@@ -220,7 +224,7 @@ public partial class MapScreen : Node2D
     }
 
     /// <summary>Describes the weather of the map and the fire of each torch, for the smoke session (D-187, D-890).</summary>
-    /// <returns>The kind of the weather, its particle nodes, its layers of fog, and the nodes of the torches.</returns>
+    /// <returns>The kind of the weather, its motes, its layers of fog, and the nodes of the torches.</returns>
     public string DescribeWeather()
     {
         int flames = this.carriedFlame.NodeCount;
@@ -229,7 +233,7 @@ public partial class MapScreen : Node2D
             flames += torch.NodeCount;
         }
 
-        bool still = this.weather.NodesStandStill && this.carriedFlame.NodesStandStill;
+        bool still = this.carriedFlame.NodesStandStill;
         foreach (TorchFlame torch in this.torches)
         {
             still = still && torch.NodesStandStill;
@@ -244,11 +248,10 @@ public partial class MapScreen : Node2D
         // Godot stops a particle system whose region leaves the screen, so each node holds the
         // whole map. A node with a smaller region goes out as the view moves (F-98).
         var seen = new Rect2(this.view, new Vector2(FrameRoot.WorldWidth, FrameRoot.WorldHeight));
-        bool holds = this.weather.NodesHold(seen) && this.carriedFlame.NodesHold(seen);
+        bool holds = this.carriedFlame.NodesHold(seen);
         float dimmest = this.carriedFlame.Energy;
         foreach (TorchFlame torch in this.torches)
         {
-            still = still && torch.NodesStandStill;
             holds = holds && torch.NodesHold(seen);
             dimmest = Math.Min(dimmest, torch.Energy);
         }
@@ -266,7 +269,7 @@ public partial class MapScreen : Node2D
         }
 
         string kind = this.weather.Effect is null ? "no weather" : AmbientEffect.NameOf(this.weather.Effect.Kind);
-        return $"the weather is {kind} with {this.weather.NodeCount} particle nodes and {this.weather.FogCount} fog layers, "
+        return $"the weather is {kind} with {this.weather.NodeCount} motes and {this.weather.FogCount} fog layers, "
             + $"and {this.torches.Count} torches with {flames} nodes, the dimmest at {dimmest:0.00} energy";
     }
 

@@ -230,7 +230,7 @@ public sealed partial class CaptureSession : Node
         }
 
         GameRun run = this.walkRun!;
-        if (walk.Tick == 1)
+        if (walk.Tick == 1 && string.CompareOrdinal(walk.Action, ScreenCaptures.StillAction) != 0)
         {
             run.Queue(run.IntentOf(walk.Action));
             this.stepTicks = 0;
@@ -261,7 +261,7 @@ public sealed partial class CaptureSession : Node
                 + $"{run.Tick - before} ticks (T-2, D-782).");
         }
 
-        if (walk.Tick == 1 && run.Party.Stepping is null)
+        if (walk.Tick == 1 && string.CompareOrdinal(walk.Action, ScreenCaptures.StillAction) != 0 && run.Party.Stepping is null)
         {
             throw new InvalidOperationException(
                 $"The intent '{walk.Action}' of the capture '{capture.FileName}' started no step from "
@@ -270,7 +270,7 @@ public sealed partial class CaptureSession : Node
 
         // A capture runs whole ticks, so it reads no part of a tick (D-782, D-820).
         this.walkMap!.ShowParty(run.Party, 0);
-        this.walkMap.ShowWeather(run.Tick);
+        this.walkMap.ShowWeather(run.Tick, seek: true);
     }
 
     /// <summary>Gives the ambient file that one capture loads, or no value for the weather of the map (D-889).</summary>
@@ -294,14 +294,14 @@ public sealed partial class CaptureSession : Node
     private void BuildPitRoom(FrameRoot built, UiBase @base)
     {
         GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-        MapScreen drawn = MapFixture.Build(built, @base, open.Party, this.content);
+        MapScreen drawn = MapFixture.Build(built, @base, open.Party, this.content, seekParticles: true);
         foreach (string action in ScreenCaptures.PitRoute)
         {
             this.StepOnce(open, action);
         }
 
         drawn.ShowParty(open.Party, 0);
-        drawn.ShowWeather(open.Tick);
+        drawn.ShowWeather(open.Tick, seek: true);
     }
 
     /// <summary>Runs one whole step of the party, from its intent to the arrival of the lead (D-203).</summary>
@@ -363,13 +363,22 @@ public sealed partial class CaptureSession : Node
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.MapFixture) == 0)
         {
             GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-            MapFixture.Build(built, @base, open.Party, this.content, this.AmbientOf(capture));
+            MapFixture.Build(built, @base, open.Party, this.content, this.AmbientOf(capture), seekParticles: true);
             return;
         }
 
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.PitFixture) == 0)
         {
             this.BuildPitRoom(built, @base);
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.StillFixture) == 0)
+        {
+            GameRun still = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+            this.walkRun = still;
+            this.walkMap = MapFixture.Build(built, @base, still.Party, this.content, seekParticles: true);
+            this.stepTicks = 0;
             return;
         }
 
@@ -380,7 +389,7 @@ public sealed partial class CaptureSession : Node
             // weather and of a torch must stay on the world under it (F-97).
             GameRun scrolled = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             this.walkRun = scrolled;
-            this.walkMap = MapFixture.Build(built, @base, scrolled.Party, this.content);
+            this.walkMap = MapFixture.Build(built, @base, scrolled.Party, this.content, seekParticles: true);
             this.walkMap.CarriedLightOn = true;
             foreach (string action in ScreenCaptures.PitRoute)
             {
@@ -397,7 +406,7 @@ public sealed partial class CaptureSession : Node
             // map, and each later frame of the walk runs one tick of them (D-782).
             GameRun walked = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             this.walkRun = walked;
-            this.walkMap = MapFixture.Build(built, @base, walked.Party, this.content);
+            this.walkMap = MapFixture.Build(built, @base, walked.Party, this.content, seekParticles: true);
 
             // The walk carries the light, so each frame of a step shows the light at the drawn
             // place of the lead, inside the step too (D-847).
@@ -517,6 +526,7 @@ public sealed partial class CaptureSession : Node
             new CommandMemory(FixtureSettings.Battle.RememberCursor),
             ScreenCaptures.LevelOf(capture.Frame),
             this.AmbientOf(capture));
+        screen.SeekParticles = true;
         if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleTargetFrame) == 0
             && screen.Read(InputActions.Confirm) is not null)
         {

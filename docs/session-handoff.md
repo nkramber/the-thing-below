@@ -10,29 +10,32 @@ Session: author PR-58. Repository: the-thing-below. Branch: `feat/pr-58-ambient`
 - Built the ambient files: the four kinds of region one, the weather of each map, the fog above the figures, and the contrast test of the fog (D-187, D-885, D-887).
 - Gave each wall torch and the carried light a flame, embers, smoke, and a light that steps between levels (D-890, D-891).
 - Added the row of full-screen passes to the effect budget, and the checks of the budget for a map and for a fight (D-523, D-617).
-- Added ten captures: each ambient kind on the map and over a fight, the pit room of the doorway fix, and three frames of a step that scrolls the view (D-889, F-97).
+- Added 14 captures: each ambient kind on the map and over a fight, the pit room of the doorway fix, three frames of a step that scrolls the view, and four still frames of the weather (D-889, D-894, F-97).
 - Answered the first Gitar pass: each particle node now takes a seed from its name, so two colors of one stream and two torches of one kind hold their own particles.
 - Fixed F-97 from a play session of the owner: each stream rode the view. A node with `local_coords` off holds each live particle in the space of the viewport. Each node now keeps `local_coords` on and moves its start box alone.
 - Fixed F-98 from a second play session: every torch went out in another room. Godot stops a particle system whose region leaves the screen, and each node stood at the north-west corner of the map with the default region. Each node now takes the region of the whole map and a margin.
-- Tuned the dust to the reading of the owner: 60 motes of the ash key, and no drips. Each mote falls slowly, the sway pulls it from side to side, the damping stops it, and it lies on the ground for 5 seconds.
+- Found F-100 with a probe of the frames: Godot advances a particle system about one second at a time, so no long stream could hold its motion. The owner answered with D-893, and Game now draws each mote of a weather itself, from a pure function of the tick in integer math.
+- Each mote falls, the sway pulls it from side to side as a sheet of paper falls, it lands, and it lies still for 5 seconds. Ten tests of Core hold that motion.
+- Added the still capture of D-894: four frames of the running screen with the party still, one second apart.
 - Fixed F-99 from a third play session: the light of a torch snapped in a doorway. The light keeps its place now, and the flame alone jumps, as D-891 asks.
 
 ### The state of the build
 
 - `make build`, `make test`, `make format`, `make lint`, `make smoke`, and `make ste-check` pass on this machine.
-- 2,142 tests run. The 10 tests of the new baselines fail, because the PNG of each new capture comes from the CI artifact (D-733).
+- 2,160 tests run. The 14 tests of the new baselines fail, because the PNG of each new capture comes from the CI artifact (D-733).
 - The remote head is `435ab55`, and this session pushes the rest.
 
 ### What is in flight
 
-- The PR needs the baselines of the ten new captures from the CI artifact, and a new Gitar pass after this push.
+- The PR needs the baselines of the 14 new captures from the CI artifact, and a new Gitar pass after this push.
 - The baselines of `map-1x`, each battle frame, and each walk frame change too, because the dust and the torch flames draw in them.
 
 ### Traps and gotchas
 
 - A fog over an enemy and over the floor shrinks each luma gap by the same part, so the color of the fog never changes the result of the test (D-892).
 - The fixture map foe holds a gap of 16 on the floor key `K` with no fog, so the test skips that pair and reads the loss of the fog alone (D-892).
-- A stream seeks one lifetime forward at its build, and each later seek asks for the ticks since the last one. A jump of the tick starts the node again (T-7).
+- The fire of a torch and the burst of a hit stay on the particles of Godot, because each one lives under 2 seconds (D-893). A weather never does.
+- A probe that paints each mote in one key and reads the frames found F-97, F-98, and F-100. The still fixture of D-894 holds that ground.
 - The capture session takes 68 captures, and each one waits 8 frames. The `sheet` target of the Makefile holds its own frame limit of 1200, as the screen-test job does.
 - The three frames of the scroll fixture hold the evidence of F-97. A particle that rides the view stands at the same place of each frame.
 - The smoke session walks a run of its own into the room below, and it fails on a node whose region leaves the view, and on a torch with no energy (F-98).
