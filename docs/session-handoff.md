@@ -1,5 +1,36 @@
 # Session handoff
 
+## Session 194: 2026-09-21, Codex
+
+Author: Codex
+Session: reviewer PR-53, repeat review. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: reviewer. Base: `e0cc485`.
+
+### What this session did, and why
+
+- Re-reviewed the complete PR-53 diff through effective head `30868a8`.
+- Verified the wall-face, figure-shadow, paired-light, budget, baseline, and Deck-sweep corrections against their original triggers and boundary tests.
+- Updated `docs/reviews/pr-53.md` with the current verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1,862 non-smoke tests and all local gates. The remote effective head is `30868a8`.
+
+### What is in flight
+
+- The updated review record, this handoff entry, and the archive move need commit and push.
+
+### Traps and gotchas
+
+- Review-gate remains red until this repeat-review record reaches the PR head.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the repeat review and both handoff files. Push, fetch, and verify the remote head and review-gate check.
+
 ## Session 193: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -292,40 +323,3 @@ None.
 ### The next concrete action
 
 Commit the review record and handoff files. Push, fetch, and verify the remote head and the review-gate check.
-
-## Session 184: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-48, round 1. Repository: the-thing-below. Branch: `feat/pr-48-normal-maps`. PR: #52. Role: author. Base: `9e9dc59`.
-
-### What this session did, and why
-
-- Built the normal maps of PR-48 (D-183, D-184, D-502). The `atlas` command writes `sprites/normal-map-<page>.png` beside each page of tiles, map sprites, battle sprites, and pieces, and `--check` compares them by pixel (F-19). Portraits and the UI take none (D-210).
-- Asked the owner four questions and recorded the answers: the height of each palette color (D-838), the override grid (D-839), the rim of 4 pixels (D-840), and the form of the review sheet (D-841).
-- Fixed the second concern that the owner approved in Session 182. `Boot` now checks the run before it reads the held steps, so a key in the capture window writes no InputMap error line. The capture session pushes one stray step key as its regression test.
-- Raised the simulation version to 11, because the content reader refuses new shapes (G-17). The identity file changed with it (D-504).
-
-### The state of the build
-
-- `make verify` passes on this machine. The remote head is the commit of this entry on `feat/pr-48-normal-maps`.
-- The capture of the old `Boot` code failed on "The InputMap action "step_north" doesn't exist". With the fix, `make sheet` passes with no error line.
-- The branch captures match the captures of `main` pixel for pixel, 49 of 49. Six captures of this Mac differ from the committed baselines by one color level on `main` too, so this PR does not cause that difference.
-
-### What is in flight
-
-- The Gitar pass of this push, and the review of the other provider.
-- The owner approval of the normal-map sheets in the PR description (exit test 5, G-25).
-
-### Traps and gotchas
-
-- The row of nine copies of a 64-pixel piece is wider than 1600 pixels. D-841 records the wrong count of the question.
-- The drawing reader refuses a tile that is not 32 by 32, so a small test drawing goes on the `map_sprites` page.
-- A picture or an atlas fixture of a lit page needs its `normal-map-` page, or the content set refuses the set.
-
-### The questions that block progress
-
-None. The owner approval of the sheets is exit test 5.
-
-### The next concrete action
-
-Follow the `gitar-review` skill for this push. Ask the owner to approve the normal-map sheets. Then tell the owner that PR #52 is ready for the other provider.
