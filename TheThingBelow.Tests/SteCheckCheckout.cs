@@ -94,9 +94,18 @@ public sealed class SteCheckCheckout : IDisposable
             "# The fixture instructions",
             string.Empty,
             "This file stands for the instructions of a session. It stays small.",
+            string.Empty,
+            "- Test: `dotnet test -- " + AgentFileRules.ExcludeSmoke + "`",
         ];
         checkout.Write("CLAUDE.md", instructions);
         checkout.Write("AGENTS.md", instructions);
+
+        // Rule AGENTS 2 reads the test command of this skill too (D-857).
+        checkout.Write(
+            ".claude/skills/csharp-conventions/SKILL.md",
+            "# The fixture conventions",
+            string.Empty,
+            "- Test: `dotnet test -- " + AgentFileRules.ExcludeSmoke + "`");
 
         checkout.Write(
             ".claude/skills/ste-writing/SKILL.md",

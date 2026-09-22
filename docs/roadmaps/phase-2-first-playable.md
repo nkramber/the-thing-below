@@ -703,9 +703,11 @@ Area file: `area-ci.md` section 7.1.
 
 **Scope.**
 
-- The docs-only set, from the answer of OQ-219 (D-856).
+- The skip set: the set of D-600, with `CLAUDE.md` and `AGENTS.md` added (D-857). `.claude/settings.json` stays in it through `.claude/`.
+- Rules AGENTS 1 and AGENTS 2 of ste-check. They read the rule of D-20 and the count of the Smoke filter option on every PR (D-857).
 - On a PR that changes docs alone, each job except ste-check, review-gate, and Gitar skips (D-595, D-856).
-- A push that changes docs alone skips each other job when the previous head passed every required check (D-856).
+- A push that changes docs alone skips each other job when each check that it skips passed on the previous head (D-856, D-858).
+- The `changed-paths` command of Tools holds the rule, and the workflow collects the facts from git and the GitHub API (D-859).
 
 **Out of scope.**
 
@@ -713,17 +715,19 @@ Area file: `area-ci.md` section 7.1.
 
 **Exit tests.**
 
-1. A docs-only PR runs ste-check and review-gate alone, and the required checks pass.
-2. A docs-only push after a green head runs the same two jobs alone.
-3. A docs-only push after a red head runs every job.
+1. A docs-only PR runs ste-check and review-gate, and each build job skips. The required checks pass.
+2. A docs-only push after a green head skips the same jobs. A red review-gate on that head does not count (D-858).
+3. A docs-only push after a red head runs every job. So does a head with a check that has no run or did not complete.
 4. A push that changes one code path runs every job.
+5. A change to `CLAUDE.md` alone fails ste-check with rule AGENTS 1.
 
 **Review focus.**
 
 - A skipped job reports `Success`, so a skip never follows a head that failed (T-2).
 - The previous head comes from the push event, and a force push reads the whole PR again.
+- The list of skipped checks in the command matches the jobs of the workflow, and a test holds it.
 
-**Questions.** OQ-219.
+**Questions.** OQ-219, resolved by D-857.
 
 > *In plain English:* a change of the documents alone never waits for the builds and the game tests again. The text check, the review check, and the automated review still run.
 

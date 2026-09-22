@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TheThingBelow.Tools.ChangedPaths;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -99,6 +100,50 @@ public sealed class CiWorkflowGateTests
                 $"The name of the job '{jobId}' holds an expression, and {gates.Length} gate jobs " +
                 $"read it. Such a job reports no stable check name, so it needs one gate (F-85).");
         }
+    }
+
+    [Fact]
+    public void ThePreviousHeadRuleReadsEachCheckThatADocsOnlyChangeSkips()
+    {
+        // A docs-only push skips a job only when that check passed on the previous head
+        // (D-858). A skipped job that the list misses would skip on a red head (T-2).
+        IReadOnlyDictionary<string, IReadOnlyList<string>> jobs = ReadJobs(CiWorkflowPath);
+
+        SortedSet<string> skipped = new SortedSet<string>(StringComparer.Ordinal);
+        foreach ((string jobId, IReadOnlyList<string> lines) in jobs)
+        {
+            if (ValueOf(jobId, lines, "if") != "needs.changed-paths.outputs.documents-alone != 'true'")
+            {
+                continue;
+            }
+
+            string name = NameOf(jobId, lines);
+            if (name.Contains(ExpressionMark, StringComparison.Ordinal))
+            {
+                KeyValuePair<string, IReadOnlyList<string>> gate = jobs.Single(
+                    job => ValueOf(job.Key, job.Value, "needs") == $"[changed-paths, {jobId}]");
+                name = NameOf(gate.Key, gate.Value);
+            }
+
+            skipped.Add(name);
+        }
+
+        Assert.Equal(
+            PreviousHeadChecks.SkippedCheckNames.OrderBy(name => name, StringComparer.Ordinal),
+            skipped);
+    }
+
+    [Fact]
+    public void TheChangedPathsJobRunsTheCommandOfTools()
+    {
+        // D-859: the command of Tools decides, and the workflow collects the facts alone.
+        string text = File.ReadAllText(RepositoryRoot.PathTo(CiWorkflowPath));
+
+        Assert.Contains(
+            $"-- {ChangedPathsCommand.Name} ",
+            text,
+            StringComparison.Ordinal);
+        Assert.Contains("checks: read", string.Join('\n', ReadJobs(CiWorkflowPath)["changed-paths"]), StringComparison.Ordinal);
     }
 
     /// <summary>Reads the `jobs` map of a workflow file as the lines of each job.</summary>

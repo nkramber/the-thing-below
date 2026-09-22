@@ -1,5 +1,38 @@
 # Session handoff archive
 
+## Session 185: 2026-09-21, Codex
+
+Author: Codex
+Session: review PR-48, normal maps. Repository: the-thing-below. Branch: `feat/pr-48-normal-maps`. PR: #52. Role: reviewer. Base: `9e9dc59`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-52 diff from merge base `9e9dc59` through effective head `2f41276`.
+- Verified the opposite-provider gate, normal-map generation, override validation, atlas integration, capture input fix, documents, and tests.
+- Added `docs/reviews/pr-52.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1,839 tests and all local gates.
+- GitHub checks pass at `2f41276` except the review gate, which waits for this review record.
+
+### What is in flight
+
+- This review record and this handoff entry need commit and push.
+
+### Traps and gotchas
+
+- Gitar reports no code issue, but functional validation is disabled.
+- The review-gate failure is expected until this record reaches the PR head.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the review record and handoff files. Push, fetch, and verify the remote head and the review-gate check.
+
 ## Session 184: 2026-09-21, Claude Code
 
 Author: Claude Code

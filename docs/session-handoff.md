@@ -1,5 +1,44 @@
 # Session handoff
 
+## Session 195: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-93, round 1. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: the PR-93 intent, and GitHub gives the number at the open. Role: author. Base: `d1a03f7`.
+
+### What this session did, and why
+
+- Asked OQ-219 and two more questions that the work found. D-857, D-858, and D-859 hold the answers.
+- D-857: `CLAUDE.md` and `AGENTS.md` join the skip set. `.claude/settings.json` was in the set already through `.claude/`.
+- Added rules AGENTS 1 and AGENTS 2 to ste-check. AGENTS 1 reads the rule of D-20. AGENTS 2 reads the count of the Smoke filter option that `TestFilterTests` reads. A docs-only PR skips that test, so ste-check reads the same facts on every PR.
+- D-858: a docs-only push skips the other jobs when each check that it skips passed on the previous head. review-gate and ste-check do not count.
+- D-859: the new `changed-paths` command of Tools decides. The workflow collects the paths and the check runs of the `before` commit, and the job gets `checks: read`.
+- Updated the `ste-writing` and `one-pr-one-session` skills, `area-ci.md` section 7.1, and section 7.15 of the phase 2 file.
+
+### The state of the build
+
+- `make verify` passes with 1,920 tests outside the Smoke category, 0 ste-check findings, and the smoke session.
+- A local run of the two workflow steps against PR #53 gave the expected answer in four cases: a green head, a cancelled head, a force push, and a push to `main`.
+- The remote head is the push of this entry.
+
+### What is in flight
+
+- The Gitar pass, then the review of the other provider. The PR changes `.github/workflows/` and adds decision rows, so no label applies (D-401, D-560).
+
+### Traps and gotchas
+
+- The run of a new push cancels the run of the previous head. A quick docs push after a code push thus runs every job, because the checks of the previous head show `cancelled`.
+- The first CI run of this PR runs every job, because the PR changes code.
+- Branch protection does not require `screen-test`, but the skip rule reads it. The rule is safe, because an absent run fails it.
+- The shell step reads `github.event.before`. That field exists only on the `synchronize` action.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Open the PR. Load the `gitar-review` skill, wait for Gitar, and answer each comment. Then tell the owner that the PR is ready for the other provider.
+
 ## Session 194: 2026-09-21, Codex
 
 Author: Codex
@@ -290,36 +329,3 @@ None for PR-56. OQ-217 records a clash for PR-91: D-566 puts no fog of war on a 
 ### The next concrete action
 
 Download the `screen-captures` artifact of the first CI run, read each frame, and commit the new baseline. Then answer gitar.
-
-## Session 185: 2026-09-21, Codex
-
-Author: Codex
-Session: review PR-48, normal maps. Repository: the-thing-below. Branch: `feat/pr-48-normal-maps`. PR: #52. Role: reviewer. Base: `9e9dc59`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-52 diff from merge base `9e9dc59` through effective head `2f41276`.
-- Verified the opposite-provider gate, normal-map generation, override validation, atlas integration, capture input fix, documents, and tests.
-- Added `docs/reviews/pr-52.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 1,839 tests and all local gates.
-- GitHub checks pass at `2f41276` except the review gate, which waits for this review record.
-
-### What is in flight
-
-- This review record and this handoff entry need commit and push.
-
-### Traps and gotchas
-
-- Gitar reports no code issue, but functional validation is disabled.
-- The review-gate failure is expected until this record reaches the PR head.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit the review record and handoff files. Push, fetch, and verify the remote head and the review-gate check.

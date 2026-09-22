@@ -35,6 +35,10 @@ jobs:
     name: changed paths
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    # The job reads the check runs of the previous head of the PR (D-858).
+    permissions:
+      contents: read
+      checks: read
     outputs:
       documents-alone: ${{ steps.read.outputs.documents-alone }}
     steps:
@@ -43,42 +47,87 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Read the changed paths
-        id: read
+      - name: Install the .NET SDK of global.json
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # This step collects the facts alone, and the command of the next step decides (D-859).
+      # Each value of the event goes through the environment, and never into the script text.
+      - name: Write the facts of the change
         env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_ACTION: ${{ github.event.action }}
           BASE_REF: ${{ github.event.pull_request.base.sha }}
           HEAD_REF: ${{ github.event.pull_request.head.sha }}
+          BEFORE_REF: ${{ github.event.before }}
+          REPOSITORY: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          facts="$RUNNER_TEMP/changed-paths"
+          rm -rf "$facts"
+          mkdir -p "$facts"
 
-          # A push to `main` never skips a job. A path rule can only skip a PR (D-595).
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            echo "documents-alone=false" >> "$GITHUB_OUTPUT"
-            echo "A push to main runs every job."
+          # A push to `main` runs every job, so it needs no fact (D-595).
+          if [ "$EVENT_NAME" != "pull_request" ]; then
+            echo "The event '$EVENT_NAME' needs no path fact."
             exit 0
           fi
 
           # Three points give the paths that the PR changes from the merge base. Two points
           # would compare the two trees, and a branch behind `main` would then read every
           # path that `main` changed since the branch point as a path of the PR.
-          changed=$(git diff --name-only "$BASE_REF...$HEAD_REF")
+          git diff --name-only "$BASE_REF...$HEAD_REF" > "$facts/pr-paths.txt"
           echo "The PR changes these paths:"
-          echo "$changed"
+          cat "$facts/pr-paths.txt"
 
-          # D-600 sets these paths. `CLAUDE.md` and `AGENTS.md` are not in this set,
-          # because a test reads both files and fails when they differ (D-20). A skipped
-          # job reports `Success`, so a skip would pass the PR shape that breaks D-20 most
-          # often. This set and the override set of D-16 are not the same set.
-          documents_alone=true
-          for path in $changed; do
-            case "$path" in
-              docs/*|.claude/*|README.md|LICENSE|.github/pull_request_template.md) ;;
-              *) documents_alone=false; break ;;
-            esac
-          done
+          # The previous head is the `before` commit of a push to the PR (D-856). A new PR and
+          # a reopen give none. After a force push, the commit is absent or is not an ancestor
+          # of the head, and the command then reads the whole PR. Git writes the reason.
+          if [ "$EVENT_ACTION" != "synchronize" ] || [ -z "$BEFORE_REF" ] ||
+             [ "$BEFORE_REF" = "0000000000000000000000000000000000000000" ]; then
+            echo "The event '$EVENT_ACTION' gives no previous head."
+            exit 0
+          fi
 
-          echo "documents-alone=$documents_alone" >> "$GITHUB_OUTPUT"
-          echo "documents alone: $documents_alone"
+          if ! git cat-file -e "$BEFORE_REF^{commit}" ||
+             ! git merge-base --is-ancestor "$BEFORE_REF" "$HEAD_REF"; then
+            echo "The previous head $BEFORE_REF is not an ancestor of $HEAD_REF."
+            exit 0
+          fi
+
+          git diff --name-only "$BEFORE_REF" "$HEAD_REF" > "$facts/push-paths.txt"
+          echo "The push changes these paths from $BEFORE_REF:"
+          cat "$facts/push-paths.txt"
+
+          # The API gives the latest run of each name by default. One JSON object per line.
+          gh api --paginate "repos/$REPOSITORY/commits/$BEFORE_REF/check-runs?per_page=100" \
+            --jq '.check_runs[] | {name, status, conclusion, app: .app.slug}' \
+            > "$facts/previous-checks.jsonl"
+          echo "The previous head has these check runs:"
+          cat "$facts/previous-checks.jsonl"
+
+      - name: Read the changed paths
+        id: read
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          facts="$RUNNER_TEMP/changed-paths"
+          arguments=(--event-name "$EVENT_NAME" --output "$GITHUB_OUTPUT")
+          if [ -f "$facts/pr-paths.txt" ]; then
+            arguments+=(--pr-paths "$facts/pr-paths.txt")
+          fi
+
+          if [ -f "$facts/push-paths.txt" ]; then
+            arguments+=(--push-paths "$facts/push-paths.txt" --previous-checks "$facts/previous-checks.jsonl")
+          fi
+
+          # The command holds the docs-only set of D-600 and D-857, and the rule of the
+          # previous head of D-856 and D-858. A skipped job reports `Success`, so a fault
+          # here fails the job, and each gate job then fails too (T-2).
+          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- changed-paths "${arguments[@]}"
 
   build-test-format:
     name: build, test, and format (${{ matrix.leg }})
@@ -142,7 +191,7 @@ jobs:
             exit 1
           fi
 
-          # D-595 skips the legs on a PR that changes documents alone.
+          # D-595 and D-856 skip the legs on a docs-only PR or a docs-only push.
           if [ "$LEGS_RESULT" = "success" ] ||
              { [ "$LEGS_RESULT" = "skipped" ] && [ "$DOCUMENTS_ALONE" = "true" ]; }; then
             echo "The $FAMILY legs ended with '$LEGS_RESULT', and this gate passes."
@@ -289,7 +338,7 @@ jobs:
             exit 1
           fi
 
-          # D-595 skips the legs on a PR that changes documents alone.
+          # D-595 and D-856 skip the legs on a docs-only PR or a docs-only push.
           if [ "$LEGS_RESULT" = "success" ] ||
              { [ "$LEGS_RESULT" = "skipped" ] && [ "$DOCUMENTS_ALONE" = "true" ]; }; then
             echo "The $FAMILY legs ended with '$LEGS_RESULT', and this gate passes."
@@ -459,7 +508,7 @@ jobs:
             exit 1
           fi
 
-          # D-595 skips the legs on a PR that changes documents alone.
+          # D-595 and D-856 skip the legs on a docs-only PR or a docs-only push.
           if [ "$LEGS_RESULT" = "success" ] ||
              { [ "$LEGS_RESULT" = "skipped" ] && [ "$DOCUMENTS_ALONE" = "true" ]; }; then
             echo "The $FAMILY legs ended with '$LEGS_RESULT', and this gate passes."

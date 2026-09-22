@@ -148,7 +148,7 @@ Process terms:
 | Term | Use for | Do not use |
 |---|---|---|
 | docs-only PR | a PR whose paths are all in the override set: `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/` without `.claude/settings.json`, and the PR template (D-16, D-513, D-700) | documentation PR, when the text means this set |
-| skip set | the paths that skip the build and test jobs of CI: `docs/`, `.claude/`, `README.md`, `LICENSE`, and the PR template (D-600) | docs-only set, which names the override set |
+| skip set | the paths that skip the build and test jobs of CI: `docs/`, `.claude/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `LICENSE`, and the PR template (D-600, D-857) | docs-only set, which names the override set |
 | Documents section | the part of the PR description with one line for each required document (D-577, D-581) | documentation-impact matrix, doc checklist |
 | hand-over point | the end of the work of a session on its PR: the verdict `Ready for owner merge` for the effective head, or the label (D-576, D-582) | handoff, which names the entry in `docs/session-handoff.md` |
 | start set | the files that a session reads in full at the start: `CLAUDE.md` or `AGENTS.md`, the top handoff entry, and the skills of the task (D-583) | read order, when the text means these files |
@@ -187,6 +187,8 @@ Run it in the commit command of `docs/runbooks/session-context.md`, and one time
 | HANDOFF 3 | More than 10 entries in `docs/session-handoff.md` (D-18, D-607) |
 | HANDOFF 4 | A session heading of another level than `## Session` (D-18) |
 | DOCS 1 | The Documents rows of the PR template, of the `one-pr-one-session` skill, and of the review gate differ (D-579, D-581) |
+| AGENTS 1 | A difference between `CLAUDE.md` and `AGENTS.md`. The finding names the first line that differs (D-20, D-857) |
+| AGENTS 2 | A count other than one of the Smoke filter option in `CLAUDE.md`, `AGENTS.md`, or the `csharp-conventions` skill (D-592, D-857) |
 | SIZE 1 | More than 16 KB in `CLAUDE.md` or `AGENTS.md` (D-583, D-611) |
 | SIZE 2 | More than 5 KB in the top entry of `docs/session-handoff.md` (D-583, D-611) |
 | SIZE 3 | More than 36 KB in one `.md` file of `.claude/skills/` (D-583, D-611) |
