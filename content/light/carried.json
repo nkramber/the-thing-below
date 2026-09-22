@@ -1,9 +1,22 @@
 {
- "comment": "The carried light: the light on the lead that follows its drawn place on each frame (D-847). A switch of Game turns it on, and it is off in play until PR-91 makes the torch an item (D-848). The lit screen-test fixture and the `torch` command of the console turn it on (D-851). The x and the y put the light in the hand of the lead, from the west edge and the feet of the lead.",
+ "comment": "The carried light: the light on the lead that follows its drawn place on each frame (D-847). A switch of Game turns it on, and it is off in play until PR-91 makes the torch an item (D-848). The lit screen-test fixture and the `torch` command of the console turn it on (D-851). The x and the y put the light in the hand of the lead, from the west edge and the feet of the lead. The fire is the flame and the embers of the torch in the hand, and the light steps between its levels as a wall torch does (D-890, D-891).",
  "color": "A",
  "strength": 21000,
  "range": 216,
  "height": 24,
  "x": 16,
- "y": -24
+ "y": -24,
+ "fire": {
+  "step_ticks": 4,
+  "levels": [
+   { "strength": 10000, "range": 10000 },
+   { "strength": 9400, "range": 9800 },
+   { "strength": 10500, "range": 10200 }
+  ],
+  "jump": 1,
+  "emitters": [
+   { "amount": 8, "lifetime_ticks": 12, "colors": ["a", "A", "j"], "size": 1, "x": 0, "y": -2, "half_width": 1, "half_height": 0, "direction": -90, "spread": 14, "slowest_speed": 14, "fastest_speed": 24, "gravity": -20 },
+   { "amount": 3, "lifetime_ticks": 40, "colors": ["X", "j"], "size": 1, "x": 0, "y": -4, "half_width": 1, "half_height": 0, "direction": -90, "spread": 35, "slowest_speed": 8, "fastest_speed": 20, "gravity": -6 }
+  ]
+ }
 }

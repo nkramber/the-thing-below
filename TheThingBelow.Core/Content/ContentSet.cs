@@ -264,7 +264,7 @@ public sealed class ContentSet
             readStyle,
             battle,
             light,
-            EffectContent.Load(effectFiles, battle, readPalette, light.Budget),
+            EffectContent.Load(effectFiles, new AmbientWorld(maps, battle, light, drawings, readPalette)),
             ruleEntries,
             maps,
             drawings,

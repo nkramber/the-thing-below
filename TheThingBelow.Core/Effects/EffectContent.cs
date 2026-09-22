@@ -7,8 +7,8 @@ using TheThingBelow.Core.Light;
 namespace TheThingBelow.Core.Effects;
 
 /// <summary>
-/// Every effect file of one build, read and checked across files: the battle file and the hit
-/// files (D-182, D-879, D-883). The effect budget lives beside them, and the light reader reads
+/// Every effect file of one build, read and checked across files: the battle file, the hit
+/// files, and the ambient files (D-182, D-187, D-879, D-883). The effect budget lives beside them, and the light reader reads
 /// it (<see cref="LightContent"/>).
 /// </summary>
 /// <remarks>
@@ -23,14 +23,16 @@ namespace TheThingBelow.Core.Effects;
 /// <item>Each character and each enemy takes exactly one hit file (D-879).</item>
 /// <item>Each color names a key of the palette (D-181).</item>
 /// <item>The particles of one burst keep inside the effect budget (D-523).</item>
+/// <item>The ambient files keep the checks of <see cref="AmbientContent"/> (D-202, D-523, D-886).</item>
 /// </list>
 /// </remarks>
 public sealed class EffectContent
 {
     private readonly SortedDictionary<string, HitEffect> hitOf;
 
-    private EffectContent(BattleEffects battle, IReadOnlyList<HitEffect> hits, SortedDictionary<string, HitEffect> hitOf)
+    private EffectContent(BattleEffects battle, IReadOnlyList<HitEffect> hits, SortedDictionary<string, HitEffect> hitOf, AmbientContent ambient)
     {
+        this.Ambient = ambient;
         this.Battle = battle;
         this.Hits = hits;
         this.hitOf = hitOf;
@@ -42,14 +44,19 @@ public sealed class EffectContent
     /// <summary>Every hit effect, in the order of its path (F-39).</summary>
     public IReadOnlyList<HitEffect> Hits { get; }
 
+    /// <summary>The weather of each map and the capture files of the screen test (D-187, D-889).</summary>
+    public AmbientContent Ambient { get; }
+
     /// <summary>Tells whether a content path is an effect file, which <see cref="Load"/> reads.</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
-    /// <returns>True for the battle file and each hit file. The budget is a light file (<see cref="LightContent.IsLightFile"/>).</returns>
+    /// <returns>True for the battle file, each hit file, and each ambient file. The budget is a light file (<see cref="LightContent.IsLightFile"/>).</returns>
     public static bool IsEffectFile(string path)
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        return string.CompareOrdinal(path, BattleEffects.Path) == 0 || HitEffect.IsHitFile(path);
+        return string.CompareOrdinal(path, BattleEffects.Path) == 0
+            || HitEffect.IsHitFile(path)
+            || AmbientEffect.IsAmbientFile(path);
     }
 
     /// <summary>Gives the hit effect that serves one character or one enemy (D-879).</summary>
@@ -67,17 +74,18 @@ public sealed class EffectContent
 
     /// <summary>Reads every effect file, and checks each one against the fight, the palette, and the budget.</summary>
     /// <param name="files">The effect files of the content set, which <see cref="IsEffectFile"/> picked.</param>
-    /// <param name="battle">The battle content, which holds each character and each enemy.</param>
-    /// <param name="palette">The palette (D-181).</param>
-    /// <param name="budget">The effect budget (D-523).</param>
+    /// <param name="world">The maps, the fight, the light with the effect budget, the drawings, and the palette (D-181, D-523).</param>
     /// <returns>The effect content.</returns>
     /// <exception cref="ContentException">A file breaks a rule of its reader, or a check across files fails (T-2).</exception>
-    public static EffectContent Load(IReadOnlyList<ContentFile> files, BattleContent battle, Palette palette, EffectBudget budget)
+    public static EffectContent Load(IReadOnlyList<ContentFile> files, AmbientWorld world)
     {
         ArgumentNullException.ThrowIfNull(files);
-        ArgumentNullException.ThrowIfNull(battle);
-        ArgumentNullException.ThrowIfNull(palette);
-        ArgumentNullException.ThrowIfNull(budget);
+        ArgumentNullException.ThrowIfNull(world);
+
+        BattleContent battle = world.Battle;
+        Palette palette = world.Palette;
+        EffectBudget budget = world.Light.Budget;
+        var ambientFiles = new List<ContentFile>();
 
         BattleEffects? pace = null;
         var hits = new List<HitEffect>();
@@ -87,6 +95,11 @@ public sealed class EffectContent
             if (string.CompareOrdinal(file.Path, BattleEffects.Path) == 0)
             {
                 pace = BattleEffects.Read(file.Bytes, file.Path);
+            }
+            else if (AmbientEffect.IsAmbientFile(file.Path))
+            {
+                // An ambient file needs the hit files for the budget of a fight, so it reads last.
+                ambientFiles.Add(file);
             }
             else if (HitEffect.IsHitFile(file.Path))
             {
@@ -111,7 +124,8 @@ public sealed class EffectContent
         return new EffectContent(
             pace ?? throw ContentException.ForFile(BattleEffects.Path, "the content set holds no such file"),
             hits,
-            hitOf);
+            hitOf,
+            AmbientContent.Load(ambientFiles, world, hits, ids));
     }
 
     /// <summary>

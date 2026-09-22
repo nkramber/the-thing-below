@@ -1,0 +1,12 @@
+{
+ "comment": "A capture file: fire with embers and smoke over the fixture dungeon, for the screen test alone (D-187, D-889). The embers rise from the floor of the view and go out, and the smoke drifts east under the ceiling. Each torch of the map holds its own fire, which its decor kind gives it (D-888, D-890).",
+ "id": "effect.fire_capture",
+ "kind": "fire",
+ "maps": ["map.fixture_dungeon"],
+ "lit": false,
+ "emitters": [
+  { "amount": 70, "lifetime_ticks": 240, "colors": ["X", "j", "A"], "size": 1, "x": 320, "y": 356, "half_width": 320, "half_height": 4, "direction": -84, "spread": 22, "slowest_speed": 26, "fastest_speed": 60, "gravity": -8 },
+  { "amount": 40, "lifetime_ticks": 300, "colors": ["Q", "H"], "size": 2, "x": 320, "y": 300, "half_width": 320, "half_height": 60, "direction": -20, "spread": 25, "slowest_speed": 10, "fastest_speed": 26, "gravity": -4 }
+ ],
+ "fogs": []
+}

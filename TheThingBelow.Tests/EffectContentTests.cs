@@ -169,14 +169,18 @@ public sealed class EffectContentTests
         }
     }
 
-    private static EffectContent Load(IReadOnlyList<ContentFile> files, int liveParticles = 8192) =>
-        EffectContent.Load(
-            files,
+    private static EffectContent Load(IReadOnlyList<ContentFile> files, int liveParticles = 8192)
+    {
+        string budget = $$"""{ "comment": "a test budget", "lights_in_view": 24, "live_particles": {{liveParticles}}, "full_screen_passes": 3 }""";
+        LightContent light = LightFixtures.Load(LightFixtures.Files(LightFixtures.DecorBody(string.Empty), LightFixtures.SetupBody(), budget));
+        var world = new AmbientWorld(
+            LightFixtures.Maps(),
             TestBattles.Content,
-            LightFixtures.Palette(),
-            EffectBudget.Read(
-                Encoding.UTF8.GetBytes($$"""{ "comment": "a test budget", "lights_in_view": 24, "live_particles": {{liveParticles}} }"""),
-                EffectBudget.Path));
+            light,
+            new SortedDictionary<string, Drawing>(StringComparer.Ordinal),
+            LightFixtures.Palette());
+        return EffectContent.Load(files, world);
+    }
 
     private static ContentId Id(string value) => ContentId.Parse(value, EffectFixtures.HitPath, "serves");
 }

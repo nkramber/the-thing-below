@@ -5,7 +5,7 @@ namespace TheThingBelow.Core.Light;
 
 /// <summary>
 /// The effect budget: the load that the Deck test measured at 60 frames per second (D-523,
-/// D-617). PR-56 writes the light row, PR-57 writes the particle row, and PR-58 to PR-60 and PR-92 add their rows.
+/// D-617). PR-56 writes the light row, PR-57 writes the particle row, and PR-58 writes the row of full-screen passes. PR-59, PR-60, and PR-92 count their passes against it.
 /// </summary>
 /// <remarks>
 /// Each row is a floor, and not the limit of the Deck, because no stage of the sweep missed the
@@ -28,8 +28,9 @@ public sealed class EffectBudget
     /// </summary>
     public const int LightsPerSource = 2;
 
-    private EffectBudget(int lightsInView, int liveParticles)
+    private EffectBudget(int lightsInView, int liveParticles, int fullScreenPasses)
     {
+        this.FullScreenPasses = fullScreenPasses;
         this.LightsInView = lightsInView;
         this.LiveParticles = liveParticles;
     }
@@ -39,6 +40,9 @@ public sealed class EffectBudget
 
     /// <summary>The most live particles on screen at once, the row of the sweep of 2026-09-17 (D-523, D-617).</summary>
     public int LiveParticles { get; }
+
+    /// <summary>The most full-screen passes of one map or one battle, such as each layer of fog (D-523, D-617).</summary>
+    public int FullScreenPasses { get; }
 
     /// <summary>Reads the budget from the bytes of its file.</summary>
     /// <param name="bytes">The bytes of the file, as UTF-8.</param>
@@ -58,6 +62,7 @@ public sealed class EffectBudget
         string? comment = null;
         int? lights = null;
         int? particles = null;
+        int? passes = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -73,6 +78,9 @@ public sealed class EffectBudget
                 case "live_particles":
                     particles = reader.ReadInt();
                     break;
+                case "full_screen_passes":
+                    passes = reader.ReadInt();
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -81,7 +89,8 @@ public sealed class EffectBudget
         _ = reader.Require(comment, depth, "comment");
         return new EffectBudget(
             Row(ref reader, depth, "lights_in_view", lights),
-            Row(ref reader, depth, "live_particles", particles));
+            Row(ref reader, depth, "live_particles", particles),
+            Row(ref reader, depth, "full_screen_passes", passes));
     }
 
     private static int Row(ref ContentReader reader, int depth, string field, int? value)
