@@ -159,6 +159,25 @@ public sealed class EffectFileTests
     }
 
     [Fact]
+    public void TheBudgetReadsItsRowOfFullScreenPasses()
+    {
+        // D-617: the sweep of 2026-09-17 held 3 full-screen passes.
+        EffectBudget budget = EffectBudget.Read(Bytes(LightFixtures.BudgetBody(24)), EffectBudget.Path);
+
+        Assert.Equal(3, budget.FullScreenPasses);
+    }
+
+    [Fact]
+    public void ABudgetWithNoRowOfPassesFails()
+    {
+        ContentException error = Assert.Throws<ContentException>(() => EffectBudget.Read(
+            Bytes("""{ "comment": "a test budget", "lights_in_view": 24, "live_particles": 8192 }"""), EffectBudget.Path));
+
+        Assert.Equal("full_screen_passes", error.Field);
+        Assert.Contains("absent", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ABudgetWithNoRowOfParticlesFails()
     {
         ContentException error = Assert.Throws<ContentException>(() => EffectBudget.Read(

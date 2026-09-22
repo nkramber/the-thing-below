@@ -144,6 +144,7 @@ public partial class Boot : Node
             if (this.battle is null)
             {
                 this.map?.ShowParty(this.run.Party, this.run.TickPart);
+                this.map?.ShowWeather(this.run.Tick);
             }
         }
         catch (Exception fault)
@@ -1373,18 +1374,20 @@ public partial class Boot : Node
         GameMap map = session.Party.Map;
         UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
         var drawn = new MapScreen();
-        drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, session.Party, loaded);
+        drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, session.Party, loaded, loaded.Effects.Ambient.WeatherOf(map.Id));
         drawn.CarriedLightOn = true;
         drawn.ShowParty(session.Party, 0);
+        drawn.ShowWeather(session.Tick);
 
         CameraPlace view = MapCamera.Of(session.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, 0);
         string ground = drawn.DescribeGround();
         string sprites = drawn.DescribeSprites(session.Party);
         string lights = drawn.DescribeLights();
+        string weather = drawn.DescribeWeather();
         drawn.QueueFree();
         return $"'{map.Id.Value}' at {map.Width} by {map.Height} tiles, "
             + $"the party at {session.Party.LeadAt}, the view at ({view.X}, {view.Y}), "
-            + $"{sprites}, {lights}, and {ground}";
+            + $"{sprites}, {lights}, {weather}, and {ground}";
     }
 
     /// <summary>

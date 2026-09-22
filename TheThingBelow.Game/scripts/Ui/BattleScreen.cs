@@ -72,6 +72,7 @@ public sealed class BattleScreen
     private readonly UiBase ui;
     private readonly ContentSet content;
     private readonly Node2D world;
+    private AmbientLayer weather = null!;
     private readonly Control layer;
     private readonly Node2D backdrop;
     private readonly List<CombatantNodes> party = [];
@@ -157,8 +158,16 @@ public sealed class BattleScreen
     /// <returns>The screen, which the caller shows on each frame and frees at the end of the fight.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="InvalidOperationException">The run holds no view of a fight, or the shader failed to load (T-2).</exception>
+    /// <param name="ambient">The weather that the fight draws, or no value for the weather of the map of the fight (D-205, D-889).</param>
     /// <exception cref="ContentException">The atlas holds no drawing of a combatant, an icon, or the pointer (T-2).</exception>
-    public static BattleScreen Build(FrameRoot frame, UiBase ui, ContentSet content, GameRun run, CommandMemory memory, EffectLevel effects)
+    public static BattleScreen Build(
+        FrameRoot frame,
+        UiBase ui,
+        ContentSet content,
+        GameRun run,
+        CommandMemory memory,
+        EffectLevel effects,
+        AmbientEffect? ambient = null)
     {
         ArgumentNullException.ThrowIfNull(frame);
         ArgumentNullException.ThrowIfNull(memory);
@@ -171,6 +180,9 @@ public sealed class BattleScreen
 
         var screen = new BattleScreen(ui, content, frame, memory, effects);
         screen.BuildLight(run.Party.Map);
+
+        // The weather of the place plays over the backdrop of the fight (D-205).
+        screen.weather = AmbientLayer.Build(ambient ?? content.Effects.Ambient.WeatherOf(run.Party.Map.Id), content.Palette, screen.world);
         Shader flash = LoadFlashShader();
         foreach (ShownCombatant shown in view.Party)
         {
@@ -315,6 +327,7 @@ public sealed class BattleScreen
         int picture = playing is null ? ticks : BattleTimes.PictureTicks(this.pace, playing, ticks);
         int shake = playing is null ? 0 : BattleTimes.ShakeAt(this.pace, playing, ticks, this.Effects);
         this.world.Position = new Vector2(shake, 0);
+        this.weather.Show(Vector2.Zero, FrameRoot.WorldWidth, FrameRoot.WorldHeight, run.Tick);
         for (int slot = 0; slot < view.Party.Count; slot += 1)
         {
             this.ShowCombatant(view, view.Party[slot], this.party[slot], playing, picture);

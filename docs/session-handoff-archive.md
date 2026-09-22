@@ -1,5 +1,37 @@
 # Session handoff archive
 
+## Session 197: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-93, initial review. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: #54. Role: reviewer. Base: `d1a03f7`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-54 diff through effective head `c9429c4`.
+- Verified the provider gate, the Gitar correction, the changed-paths tests, the CI gate tests, and `make verify`.
+- Found that `.github/workflows/ci.yml` reads `github.event.before` for a `pull_request` synchronize event. GitHub documents that field for push payloads, so the workflow does not receive the previous PR head and does not perform the advertised consecutive-docs-push skip.
+- Added `docs/reviews/pr-54.md` with finding P1-1 and verdict `Changes required`.
+
+### The state of the build
+
+- `make verify` passes with 1,924 tests outside the Smoke category and 0 ste-check findings. The remote effective head is `c9429c4`.
+
+### What is in flight
+
+- The review record and this handoff entry need commit and push.
+
+### Traps and gotchas
+
+- A local unit test can inject previous-head facts, so it does not prove that the GitHub event supplies `github.event.before`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The author must correct the previous-head source and add an event-shape regression check. Then Codex must repeat the review at the new effective head.
+
 ## Session 196: 2026-09-22, Claude Code
 
 Author: Claude Code

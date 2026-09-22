@@ -1,5 +1,6 @@
 using System;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Game.Ui;
@@ -21,9 +22,10 @@ public static class MapFixture
     /// <param name="base">The atlas and the theme.</param>
     /// <param name="party">The party of the run, which names the map and the places.</param>
     /// <param name="content">The content set, for the decor and the light (D-843).</param>
+    /// <param name="ambient">The weather that the screen draws, or no value for the weather of the map (D-202, D-889).</param>
     /// <returns>The map, which the caller keeps to draw each later frame.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    public static MapScreen Build(FrameRoot frame, UiBase @base, MapState party, ContentSet content)
+    public static MapScreen Build(FrameRoot frame, UiBase @base, MapState party, ContentSet content, AmbientEffect? ambient = null)
     {
         ArgumentNullException.ThrowIfNull(frame);
         ArgumentNullException.ThrowIfNull(@base);
@@ -32,8 +34,9 @@ public static class MapFixture
 
         var drawn = new MapScreen();
         frame.World.AddChild(drawn);
-        drawn.Build(@base.Atlas, @base.Theme, party, content);
+        drawn.Build(@base.Atlas, @base.Theme, party, content, ambient ?? content.Effects.Ambient.WeatherOf(party.Map.Id));
         drawn.ShowParty(party, 0);
+        drawn.ShowWeather(0);
         return drawn;
     }
 }

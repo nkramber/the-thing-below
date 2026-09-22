@@ -84,7 +84,10 @@ The table lists what a frame draws, from the bottom to the top.
 | Backdrop | The large pictures of a battle place, with their drift | Yes | D-205, D-516 |
 | Map | The tiles and the edge tiles of the map | Yes | D-110, D-501 |
 | Figures | The party, the enemies, the NPCs, and objects such as chests | Yes | D-199, D-207 |
-| Particles | Blood, sparks, snow, fog, embers, and dust | As its effect file sets | D-186, D-187 |
+| Flames | The flame, the embers, and the smoke of each torch | No | D-890 |
+| Particles | Blood, sparks, snow, embers, and dust | As its effect file sets | D-186, D-187 |
+| Fog | Each layer of fog of the weather of the place | As its effect file sets | D-885, D-887 |
+| Mark | The mark of a sight over an enemy | No | D-208 |
 | Light | The ambient light of the time of day, the point lights, and the shadows | — | D-183, D-442 |
 | Glow | A soft glow on light sources alone | No | D-188 |
 | UI | Menus, the HUD, text, portraits, and damage numbers | No | D-210, D-213 |
@@ -96,7 +99,9 @@ The table lists what a frame draws, from the bottom to the top.
 - PR-61 draws the world in a `SubViewport` at 1x, and `area-ui-input.md` holds the stretch mode and the fit (F-45, F-48). Otherwise light falls on screen pixels, not on art pixels.
 - The UI sits on a canvas layer above the world, and a light reaches only the canvas layers in its range. So the UI never takes scene light (D-210).
 - A transition is full-screen, so it covers the UI too (D-195, D-210).
-- Fog draws above the figures, and a contrast test keeps each enemy visible (D-187, D-885, D-886).
+- Fog draws above the figures, and a contrast test keeps each enemy visible (D-187, D-885, D-886, D-892).
+- The Z index of each step above the figures follows the table: the flame of a torch 2, and the weather 3.
+- Each layer of fog takes 4 and up, a hit burst takes 5, and the mark of a sight takes 8. Fog never hides the mark (D-208).
 - `area-ui-input.md` builds the frame and the fit. This file holds what draws inside the frame.
 
 > *In plain English:* each frame stacks the same way: the world, then its light, then the menus, then a transition over all of it. Menus never catch the torchlight, and the whole stack scales to the screen at the end.

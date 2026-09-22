@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
 
@@ -71,6 +72,9 @@ public partial class MapScreen : Node2D
     /// <summary>The Z index of the ground layer, below every sprite and below the mark (F-95, D-783).</summary>
     private const int GroundZIndex = -1;
 
+    /// <summary>The Z index of the mark of a sight: above each figure, each flame, and each layer of fog (D-208, D-885).</summary>
+    private const int MarkZIndex = 8;
+
     private TileMapLayer ground = null!;
     private Sprite2D lead = null!;
     private Sprite2D[] enemies = [];
@@ -78,6 +82,10 @@ public partial class MapScreen : Node2D
     private PointLight2D carriedGround = null!;
     private PointLight2D carriedFigures = null!;
     private CarriedLight carriedPlace = null!;
+    private readonly List<TorchFlame> torches = [];
+    private TorchFlame carriedFlame = null!;
+    private AmbientLayer weather = null!;
+    private Vector2 view;
 
     /// <summary>
     /// Builds the tiles of one map, the sprite of the lead, one sprite for each enemy, and
@@ -87,6 +95,7 @@ public partial class MapScreen : Node2D
     /// <param name="theme">The theme, for the color of the mark (D-527).</param>
     /// <param name="party">The party and the enemies on the map (D-528, D-738).</param>
     /// <param name="content">The content set, for the palette, the decor, and the light setup (D-843).</param>
+    /// <param name="ambient">The weather of the map, or no value for a map with no weather (D-202, D-889).</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="ContentException">
     /// The atlas holds no drawing of a tile, of the lead, of an enemy, or of a decor piece, or
@@ -98,7 +107,7 @@ public partial class MapScreen : Node2D
     /// day picks each station at the start of the run (D-743). Thus one sprite serves one
     /// enemy for the whole visit.
     /// </remarks>
-    public void Build(GameAtlas atlas, UiTheme theme, MapState party, ContentSet content)
+    public void Build(GameAtlas atlas, UiTheme theme, MapState party, ContentSet content, AmbientEffect? ambient)
     {
         ArgumentNullException.ThrowIfNull(atlas);
         ArgumentNullException.ThrowIfNull(theme);
@@ -131,6 +140,7 @@ public partial class MapScreen : Node2D
         this.AddChild(this.mark);
 
         this.BuildLight(atlas, party.Map, content);
+        this.weather = AmbientLayer.Build(ambient, content.Palette, this);
     }
 
     /// <summary>Puts the party where Core put it, and moves the view (D-203, D-717).</summary>
@@ -151,10 +161,31 @@ public partial class MapScreen : Node2D
         var carriedAt = new Vector2(leadX + this.carriedPlace.X, FeetOf(leadY, 1) + this.carriedPlace.Y);
         this.carriedGround.Position = carriedAt;
         this.carriedFigures.Position = carriedAt;
+        this.carriedFlame.MoveTo(carriedAt);
         this.ShowEnemies(party, tickPart);
 
         CameraPlace view = MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tickPart);
+        this.view = new Vector2(view.X, view.Y);
         this.Position = new Vector2(-view.X, -view.Y);
+    }
+
+    /// <summary>
+    /// Shows the fire of each torch and the weather of the map at one tick (D-890, D-891). The
+    /// caller draws the party first, because the weather follows the view (D-187).
+    /// </summary>
+    /// <param name="tick">The tick of the run, from 0.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The tick is below zero (T-2).</exception>
+    public void ShowWeather(long tick)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(tick);
+
+        foreach (TorchFlame torch in this.torches)
+        {
+            torch.Show(tick);
+        }
+
+        this.carriedFlame.Show(tick);
+        this.weather.Show(this.view, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tick);
     }
 
     /// <summary>
@@ -168,6 +199,7 @@ public partial class MapScreen : Node2D
         {
             this.carriedGround.Visible = value;
             this.carriedFigures.Visible = value;
+            this.carriedFlame.Visible = value;
         }
     }
 
@@ -182,6 +214,21 @@ public partial class MapScreen : Node2D
         int lights = WorldLights.CheckLights(this);
         string carried = this.CarriedLightOn ? "on" : "off";
         return $"{lights} lights with the carried light {carried}, and {CountOccluders(this)} occluders";
+    }
+
+    /// <summary>Describes the weather of the map and the fire of each torch, for the smoke session (D-187, D-890).</summary>
+    /// <returns>The kind of the weather, its particle nodes, its layers of fog, and the nodes of the torches.</returns>
+    public string DescribeWeather()
+    {
+        int flames = this.carriedFlame.NodeCount;
+        foreach (TorchFlame torch in this.torches)
+        {
+            flames += torch.NodeCount;
+        }
+
+        string kind = this.weather.Effect is null ? "no weather" : AmbientEffect.NameOf(this.weather.Effect.Kind);
+        return $"the weather is {kind} with {this.weather.NodeCount} particle nodes and {this.weather.FogCount} fog layers, "
+            + $"and {this.torches.Count} torches with {flames} nodes";
     }
 
     /// <summary>
@@ -220,6 +267,7 @@ public partial class MapScreen : Node2D
 
         ImageTexture texture = WorldLights.BuildTexture();
         const int EveryShadow = WorldLights.WallShadows | WorldLights.FigureShadows | WorldLights.LeadShadows;
+        DecorFile decor = content.Light.DecorOf(map.Id);
         foreach (MapLight light in content.Light.LightsOf(map.Id, map.Time))
         {
             (PointLight2D ground, PointLight2D figures) = WorldLights.Pair(light.Id.Value, content.Palette, light.Light, texture, EveryShadow);
@@ -227,6 +275,14 @@ public partial class MapScreen : Node2D
             figures.Position = ground.Position;
             this.AddChild(ground);
             this.AddChild(figures);
+
+            // A light of a decor piece is a fire, and an added light of the setup is not (D-843, D-888).
+            if (FireOf(content, decor, light.Id) is TorchFire fire)
+            {
+                TorchFlame flame = TorchFlame.Build(light.Id.Value, fire, (ground, figures), content.Palette, this);
+                flame.MoveTo(ground.Position);
+                this.torches.Add(flame);
+            }
         }
 
         // The lead holds the carried light, so its own feet never shadow it (D-853).
@@ -237,9 +293,29 @@ public partial class MapScreen : Node2D
             this.carriedPlace.Light,
             texture,
             WorldLights.WallShadows | WorldLights.FigureShadows);
-        this.CarriedLightOn = false;
         this.AddChild(this.carriedGround);
         this.AddChild(this.carriedFigures);
+        this.carriedFlame = TorchFlame.Build(
+            CarriedLight.Name,
+            this.carriedPlace.Fire,
+            (this.carriedGround, this.carriedFigures),
+            content.Palette,
+            this);
+        this.CarriedLightOn = false;
+    }
+
+    /// <summary>Gives the fire of the decor kind of one light, or no value for a light that no piece holds.</summary>
+    private static TorchFire? FireOf(ContentSet content, DecorFile decor, ContentId light)
+    {
+        foreach (DecorPiece piece in decor.Pieces)
+        {
+            if (string.CompareOrdinal(piece.Id.Value, light.Value) == 0)
+            {
+                return content.Light.KindOf(piece.Kind).Fire;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>Builds the occluder of one wall from its shape: a rectangle, or an L beside a doorway (D-852).</summary>
@@ -391,8 +467,9 @@ public partial class MapScreen : Node2D
             Visible = false,
 
             // The mark draws above every body of the map, and Godot sorts by the Y value
-            // inside one Z index alone (the external facts of `area-exploration.md`).
-            ZIndex = 1,
+            // inside one Z index alone (the external facts of `area-exploration.md`). It also
+            // draws above the weather, so fog never hides it (D-208, D-885).
+            ZIndex = MarkZIndex,
         };
 
         node.AddChild(new ColorRect

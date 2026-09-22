@@ -1,3 +1,43 @@
+## Session 207: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-58. Repository: the-thing-below. Branch: `feat/pr-58-ambient`. Role: author. Base: `3f9ea43`.
+
+### What this session did, and why
+
+- Fixed the torch light that climbed a passage from a torch on the same wall. A wall beside a doorway now takes an L shape: its band, and a column of 2 pixels down to the south edge of the tile (D-852). The owner approved this second concern, and it takes no decision row.
+- Asked the owner OQ-101 and seven more questions. D-885 to D-892 hold the answers.
+- Built the ambient files: the four kinds of region one, the weather of each map, the fog above the figures, and the contrast test of the fog (D-187, D-885, D-887).
+- Gave each wall torch and the carried light a flame, embers, smoke, and a light that steps between levels (D-890, D-891).
+- Added the row of full-screen passes to the effect budget, and the checks of the budget for a map and for a fight (D-523, D-617).
+- Added seven captures: each ambient kind on the map and over a fight, and the pit room of the doorway fix (D-889).
+
+### The state of the build
+
+- `make build`, `make test`, `make format`, `make lint`, `make smoke`, and `make ste-check` pass on this machine.
+- 2,133 tests run. The 7 tests of the new baselines fail, because the PNG of each new capture comes from the CI artifact (D-733).
+- The remote head is `5757050`, and this session pushes the rest.
+
+### What is in flight
+
+- The PR needs its first push, the gitar pass, and the baselines of the seven new captures from the CI artifact.
+- The baselines of `map-1x`, each battle frame, and each walk frame change too, because the dust and the torch flames draw in them.
+
+### Traps and gotchas
+
+- A fog over an enemy and over the floor shrinks each luma gap by the same part, so the color of the fog never changes the result of the test (D-892).
+- The fixture map foe holds a gap of 16 on the floor key `K` with no fog, so the test skips that pair and reads the loss of the fog alone (D-892).
+- A stream seeks one lifetime forward at its build, and each later seek asks for the ticks since the last one. A jump of the tick starts the node again (T-7).
+- The capture files of `content/effects/ambient-captures/` never reach a map of the shipped build (D-889).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the branch, open the PR, and answer the gitar pass. Then take the new and changed baselines from the CI artifact and commit them.
+
 # Session handoff
 
 ## Session 206: 2026-09-22, Codex
@@ -316,35 +356,3 @@ None.
 ### The next concrete action
 
 The other provider repeats the review at effective head `c9429c4`.
-
-## Session 197: 2026-09-22, Codex
-
-Author: Codex
-Session: reviewer PR-93, initial review. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: #54. Role: reviewer. Base: `d1a03f7`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-54 diff through effective head `c9429c4`.
-- Verified the provider gate, the Gitar correction, the changed-paths tests, the CI gate tests, and `make verify`.
-- Found that `.github/workflows/ci.yml` reads `github.event.before` for a `pull_request` synchronize event. GitHub documents that field for push payloads, so the workflow does not receive the previous PR head and does not perform the advertised consecutive-docs-push skip.
-- Added `docs/reviews/pr-54.md` with finding P1-1 and verdict `Changes required`.
-
-### The state of the build
-
-- `make verify` passes with 1,924 tests outside the Smoke category and 0 ste-check findings. The remote effective head is `c9429c4`.
-
-### What is in flight
-
-- The review record and this handoff entry need commit and push.
-
-### Traps and gotchas
-
-- A local unit test can inject previous-head facts, so it does not prove that the GitHub event supplies `github.event.before`.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The author must correct the previous-head source and add an event-shape regression check. Then Codex must repeat the review at the new effective head.

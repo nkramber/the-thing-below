@@ -4,6 +4,7 @@ using System.IO;
 using Godot;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Game.Ui;
 using TheThingBelow.Storage;
@@ -259,6 +260,64 @@ public sealed partial class CaptureSession : Node
 
         // A capture runs whole ticks, so it reads no part of a tick (D-782, D-820).
         this.walkMap!.ShowParty(run.Party, 0);
+        this.walkMap.ShowWeather(run.Tick);
+    }
+
+    /// <summary>Gives the ambient file that one capture loads, or no value for the weather of the map (D-889).</summary>
+    /// <exception cref="ContentException">No ambient file holds the id of the capture (T-2).</exception>
+    private AmbientEffect? AmbientOf(ScreenCapture capture)
+    {
+        if (capture.Ambient is null)
+        {
+            return null;
+        }
+
+        return this.content.Effects.Ambient.Effect(
+            ContentId.Parse(capture.Ambient, AmbientEffect.CaptureFolder, capture.FileName));
+    }
+
+    /// <summary>
+    /// Builds the running screen with the party in the pit room: the same map fixture, walked
+    /// from the spawn point down the corridor of column 6 (D-852).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A step of the route never ended, or a tick wrote an error (T-2).</exception>
+    private void BuildPitRoom(FrameRoot built, UiBase @base)
+    {
+        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        MapScreen drawn = MapFixture.Build(built, @base, open.Party, this.content);
+        foreach (string action in ScreenCaptures.PitRoute)
+        {
+            this.StepOnce(open, action);
+        }
+
+        drawn.ShowParty(open.Party, 0);
+        drawn.ShowWeather(open.Tick);
+    }
+
+    /// <summary>Runs one whole step of the party, from its intent to the arrival of the lead (D-203).</summary>
+    /// <exception cref="InvalidOperationException">The step never ended, or a tick wrote an error (T-2).</exception>
+    private void StepOnce(GameRun run, string action)
+    {
+        run.Queue(run.IntentOf(action));
+        for (int tick = 0; tick < ScreenCaptures.TicksOfOneStep; tick += 1)
+        {
+            foreach (LogEntry entry in run.Advance(OneTickSeconds))
+            {
+                if (entry.Level == LogLevel.Error)
+                {
+                    throw new InvalidOperationException(
+                        $"The tick {run.Tick} of the route to the pit room wrote an error: {entry.Message} (T-2).");
+                }
+            }
+
+            if (run.Party.Stepping is null && tick > 0)
+            {
+                return;
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"The step '{action}' of the route to the pit room never ended, and the lead stands at {run.Party.LeadAt} (T-2, D-852).");
     }
 
     /// <summary>
@@ -294,7 +353,13 @@ public sealed partial class CaptureSession : Node
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.MapFixture) == 0)
         {
             GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-            MapFixture.Build(built, @base, open.Party, this.content);
+            MapFixture.Build(built, @base, open.Party, this.content, this.AmbientOf(capture));
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.PitFixture) == 0)
+        {
+            this.BuildPitRoom(built, @base);
             return;
         }
 
@@ -422,7 +487,8 @@ public sealed partial class CaptureSession : Node
             this.content,
             fight,
             new CommandMemory(FixtureSettings.Battle.RememberCursor),
-            ScreenCaptures.LevelOf(capture.Frame));
+            ScreenCaptures.LevelOf(capture.Frame),
+            this.AmbientOf(capture));
         if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleTargetFrame) == 0
             && screen.Read(InputActions.Confirm) is not null)
         {
