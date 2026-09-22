@@ -224,6 +224,8 @@ public sealed class ParticleStreams
             InitialVelocityMin = emitter.SlowestSpeed,
             InitialVelocityMax = emitter.FastestSpeed,
             Gravity = new Vector3(0, emitter.Gravity, 0),
+            DampingMin = emitter.Damping,
+            DampingMax = emitter.Damping,
             ScaleMin = emitter.Size,
             ScaleMax = emitter.Size,
             Color = color,

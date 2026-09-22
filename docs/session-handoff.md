@@ -14,7 +14,8 @@ Session: author PR-58. Repository: the-thing-below. Branch: `feat/pr-58-ambient`
 - Answered the first Gitar pass: each particle node now takes a seed from its name, so two colors of one stream and two torches of one kind hold their own particles.
 - Fixed F-97 from a play session of the owner: each stream rode the view. A node with `local_coords` off holds each live particle in the space of the viewport. Each node now keeps `local_coords` on and moves its start box alone.
 - Fixed F-98 from a second play session: every torch went out in another room. Godot stops a particle system whose region leaves the screen, and each node stood at the north-west corner of the map with the default region. Each node now takes the region of the whole map and a margin.
-- Tuned the dust to the reading of the owner: 60 motes of the ash key, a sideways drift, and no drips.
+- Tuned the dust to the reading of the owner: 60 motes of the ash key, and no drips. Each mote falls, the damping stops it, and it lies on the ground for 5 seconds.
+- Fixed F-99 from a third play session: the light of a torch snapped in a doorway. The light keeps its place now, and the flame alone jumps, as D-891 asks.
 
 ### The state of the build
 

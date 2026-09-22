@@ -1,11 +1,11 @@
 {
- "comment": "The weather of the first dungeon: dust motes that hang in the air (D-187, D-202). The motes start across the view, they drift sideways at a crawl, and they never fall. The scene light falls on them, so a mote shows inside a pool of torchlight and stays dark outside one (D-183). The view is 640 by 360 art pixels, and each x and y comes from its north-west corner (D-842). PR-17 gives the first places their own weather (D-520).",
+ "comment": "The weather of the first dungeon: dust motes that fall and settle (D-187, D-202). Each mote starts across the view, it falls a little, and the damping stops it. It then lies on the ground for 5 seconds, and it goes out. The scene light falls on the motes, so a mote shows inside a pool of torchlight and stays dark outside one (D-183). The view is 640 by 360 art pixels, and each x and y comes from its north-west corner (D-842). PR-17 gives the first places their own weather (D-520).",
  "id": "effect.dust_fixture_dungeon",
  "kind": "dust",
  "maps": ["map.fixture_dungeon"],
  "lit": true,
  "emitters": [
-  { "amount": 60, "lifetime_ticks": 420, "colors": ["l"], "size": 1, "x": 320, "y": 180, "half_width": 320, "half_height": 180, "direction": 4, "spread": 60, "slowest_speed": 1, "fastest_speed": 4, "gravity": 0 }
+  { "amount": 60, "lifetime_ticks": 390, "colors": ["l"], "size": 1, "x": 320, "y": 180, "half_width": 320, "half_height": 180, "direction": 90, "spread": 20, "slowest_speed": 20, "fastest_speed": 40, "gravity": 0, "damping": 24 }
  ],
  "fogs": []
 }

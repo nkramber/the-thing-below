@@ -28,6 +28,7 @@ namespace TheThingBelow.Core.Light;
 /// <param name="SlowestSpeed">The lowest start speed, in art pixels in each second of 60 ticks.</param>
 /// <param name="FastestSpeed">The highest start speed, in art pixels in each second of 60 ticks.</param>
 /// <param name="Gravity">The pull down the screen, in art pixels in each second for each second. A negative value pulls up.</param>
+/// <param name="Damping">The speed that a particle loses in each second, in art pixels in each second. A particle that reaches no speed stands still until its life ends.</param>
 public sealed record StreamEmitter(
     int Amount,
     int LifetimeTicks,
@@ -41,7 +42,8 @@ public sealed record StreamEmitter(
     int Spread,
     int SlowestSpeed,
     int FastestSpeed,
-    int Gravity)
+    int Gravity,
+    int Damping)
 {
     /// <summary>The most palette keys of one stream.</summary>
     public const int MostColors = 8;
@@ -57,6 +59,9 @@ public sealed record StreamEmitter(
 
     /// <summary>The strongest pull, up or down, in art pixels in each second for each second.</summary>
     public const int MostGravity = 2000;
+
+    /// <summary>The strongest damping, in art pixels in each second for each second.</summary>
+    public const int MostDamping = 2000;
 
     /// <summary>The most live particles of one stream.</summary>
     public const int MostAmount = 2048;
@@ -175,13 +180,14 @@ public sealed record StreamEmitter(
             InRange(ref reader, depth, values, "spread", 0, MostSpread),
             slow,
             fast,
-            InRange(ref reader, depth, values, "gravity", -MostGravity, MostGravity));
+            InRange(ref reader, depth, values, "gravity", -MostGravity, MostGravity),
+            InRange(ref reader, depth, values, "damping", 0, MostDamping));
     }
 
     private static bool IsIntField(string field) => field switch
     {
         "amount" or "lifetime_ticks" or "size" or "x" or "y" or "half_width" or "half_height"
-            or "direction" or "spread" or "slowest_speed" or "fastest_speed" or "gravity" => true,
+            or "direction" or "spread" or "slowest_speed" or "fastest_speed" or "gravity" or "damping" => true,
         _ => false,
     };
 

@@ -111,18 +111,20 @@ public sealed class TorchFlame
     public void Show(long tick)
     {
         FlickerStep step = this.Fire.StepAt(this.Id, tick);
-        var at = new Vector2(this.place.X + step.JumpX, this.place.Y + step.JumpY);
         float energy = this.baseEnergy * step.Level.Strength / BasisPoints.One;
         float scale = this.baseScale * step.Level.Range / BasisPoints.One;
 
-        this.ground.Position = at;
+        // The light keeps its place, and the flame alone jumps (D-891). A light that jumps by
+        // one pixel crosses the column of the wall shape beside a doorway, which is two pixels
+        // wide, so the shadow through the doorway snapped on each step (D-852, F-99).
+        this.ground.Position = this.place;
         this.ground.Energy = energy;
         this.ground.TextureScale = scale;
-        this.figures.Position = at;
+        this.figures.Position = this.place;
         this.figures.Energy = energy;
         this.figures.TextureScale = scale;
 
-        this.streams.MoveTo(at);
+        this.streams.MoveTo(new Vector2(this.place.X + step.JumpX, this.place.Y + step.JumpY));
         this.streams.Seek(tick);
     }
 }

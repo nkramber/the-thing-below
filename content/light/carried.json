@@ -15,8 +15,8 @@
   ],
   "jump": 1,
   "emitters": [
-   { "amount": 8, "lifetime_ticks": 12, "colors": ["a", "A", "j"], "size": 1, "x": 0, "y": -2, "half_width": 1, "half_height": 0, "direction": -90, "spread": 14, "slowest_speed": 14, "fastest_speed": 24, "gravity": -20 },
-   { "amount": 3, "lifetime_ticks": 40, "colors": ["X", "j"], "size": 1, "x": 0, "y": -4, "half_width": 1, "half_height": 0, "direction": -90, "spread": 35, "slowest_speed": 8, "fastest_speed": 20, "gravity": -6 }
+   { "amount": 8, "lifetime_ticks": 12, "colors": ["a", "A", "j"], "size": 1, "x": 0, "y": -2, "half_width": 1, "half_height": 0, "direction": -90, "spread": 14, "slowest_speed": 14, "fastest_speed": 24, "gravity": -20, "damping": 0 },
+   { "amount": 3, "lifetime_ticks": 40, "colors": ["X", "j"], "size": 1, "x": 0, "y": -4, "half_width": 1, "half_height": 0, "direction": -90, "spread": 35, "slowest_speed": 8, "fastest_speed": 20, "gravity": -6, "damping": 0 }
   ]
  }
 }
