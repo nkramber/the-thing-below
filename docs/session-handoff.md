@@ -1,5 +1,38 @@
 # Session handoff
 
+## Session 203: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-55, repeat review. Repository: the-thing-below. Branch: `feat/pr-63-settings`. PR: #55. Role: reviewer. Base: `daeccfe`.
+
+### What this session did, and why
+
+- Recomputed the effective head. The initial record named `d6b3606`, but `c974fe4` changes eight substantive screen baselines.
+- Verified the original screen-test trigger and the correction. The three settings captures and five `ui` captures now pass the current CI screen-test.
+- Updated `docs/reviews/pr-55.md` with no finding and the verdict `Ready for owner merge` for effective head `c974fe4`.
+
+### The state of the build
+
+- The implementation checks passed at `d6b3606` with 1,987 non-Smoke tests and all local gates.
+- CI run 35691479039 passed the corrected baselines and all current checks. The remote tip is metadata after effective head `c974fe4`.
+
+### What is in flight
+
+- The repeat-review record and this handoff entry need commit and push.
+- The owner can merge after review-gate passes for effective head `c974fe4`.
+
+### Traps and gotchas
+
+- Screen baselines are substantive review paths. Metadata commits after `c974fe4` do not change the effective head.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the repeat review and handoff. Fetch and verify the remote head and review-gate check.
+
 ## Session 202: 2026-09-22, Codex
 
 Author: Codex
@@ -315,35 +348,3 @@ None.
 ### The next concrete action
 
 Commit the repeat review and both handoff files. Push, fetch, and verify the remote head and review-gate check.
-
-## Session 193: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-56, round 7. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
-
-### What this session did, and why
-
-- The owner built the Deck test on the Deck and pushed the reports to `spike/deck-test` (commit `82bd091`). The branch also gained `build-on-deck.sh` and a Linux path in the template script.
-- Each stage held 60 frames per second under both renderers. Under Mobile, `pairs-24` gave 4.17 ms and `full-load-24` 4.55 ms at the 95th percentile, with no frame over 16.667 ms. F-96 records it, and the light row of 24 stands (D-854, G-14).
-- The owner asked whether the Deck test matches the game. It does not: it is the stress scene of the renderer pick, and it lights four times the pixels of the world of the game. The session offered a measure mode inside the game, and the owner has not answered.
-
-### The state of the build
-
-- Docs alone change this round. The remote head is this round.
-
-### What is in flight
-
-- The repeat review of Codex on the code head `f4b071b`.
-
-### Traps and gotchas
-
-- A path in backticks of another branch fails the reference check.
-- The owner pushes from the Deck with SSH through `gh auth login -p ssh`.
-
-### The questions that block progress
-
-None for PR-56. The measure mode inside the game waits for an owner answer.
-
-### The next concrete action
-
-Wait for Gitar on this head, then tell the owner that PR #53 is ready for the repeat review.
