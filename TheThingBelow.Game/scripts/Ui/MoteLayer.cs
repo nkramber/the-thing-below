@@ -23,6 +23,9 @@ namespace TheThingBelow.Game.Ui;
 /// </remarks>
 public sealed partial class MoteLayer : Node2D
 {
+    /// <summary>The path of the shader that gives a mote the strength of a light and never its color (D-825, D-893).</summary>
+    public const string LightShaderPath = "res://shaders/mote_light.gdshader";
+
     private readonly List<MoteStream> streams = [];
     private readonly List<Color> colors = [];
     private IReadOnlyList<Mote> shown = [];
@@ -50,7 +53,13 @@ public sealed partial class MoteLayer : Node2D
             ZIndex = zIndex,
         };
 
-        if (!effect.Lit)
+        if (effect.Lit)
+        {
+            // A lit mote takes the strength of each light and never its color, so torchlight
+            // never paints it yellow (D-183).
+            layer.Material = new ShaderMaterial { Shader = LoadLightShader() };
+        }
+        else
         {
             // An unlit weather gives its own light, so the dark of the ambient light never dims it (D-183).
             layer.Material = new CanvasItemMaterial { LightMode = CanvasItemMaterial.LightModeEnum.Unshaded };
@@ -98,6 +107,14 @@ public sealed partial class MoteLayer : Node2D
                 this.ColorFor(mote.Color),
                 filled: true);
         }
+    }
+
+    private static Shader LoadLightShader()
+    {
+        // The load reports a failure in the log alone, so the result takes a check (T-2).
+        Shader? loaded = ResourceLoader.Load<Shader>(LightShaderPath);
+        return loaded ?? throw new InvalidOperationException(
+            $"Godot loaded no shader from '{LightShaderPath}' (D-825, T-2).");
     }
 
     private static Color ColorOf(AmbientEffect effect, Palette palette, char key)

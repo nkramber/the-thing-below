@@ -30,6 +30,23 @@ public sealed class GameShaderTests
         Assert.True(failures.Count == 0, $"these shaders write NORMAL_MAP: {string.Join(", ", failures)} (D-183)");
     }
 
+    [Fact]
+    public void TheLayerOfTheMotesNamesAShaderThatGivesTheStrengthOfALightAlone()
+    {
+        // D-893: a mote takes the strength of each light and never its color, so torchlight
+        // never paints it yellow. The owner asked for light gray in light and dark gray in dark.
+        string path = (string)GameAssemblyFile.Type("TheThingBelow.Game.Ui.MoteLayer")
+            .GetField("LightShaderPath")!
+            .GetValue(null)!;
+
+        Assert.Equal("res://shaders/mote_light.gdshader", path);
+
+        string file = Path.Combine(RepositoryRoot.Find(), ShaderFolder, "mote_light.gdshader");
+        string code = CodeOf(File.ReadAllText(file));
+        Assert.Contains("void light()", code, StringComparison.Ordinal);
+        Assert.Contains("LIGHT = vec4(COLOR.rgb * strength, COLOR.a);", code, StringComparison.Ordinal);
+    }
+
     /// <summary>Removes each line comment, so a comment that names the member passes.</summary>
     private static string CodeOf(string text)
     {
