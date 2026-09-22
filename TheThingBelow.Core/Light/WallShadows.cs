@@ -5,16 +5,56 @@ using TheThingBelow.Core.Maps;
 
 namespace TheThingBelow.Core.Light;
 
+/// <summary>The side of a wall tile that takes a column down to the south edge of the tile.</summary>
+public enum WallColumn
+{
+    /// <summary>The shape is the rectangle alone.</summary>
+    None,
+
+    /// <summary>A column at the west edge of the rectangle, for a floor to the west and to the south.</summary>
+    West,
+
+    /// <summary>A column at the east edge of the rectangle, for a floor to the east and to the south.</summary>
+    East,
+}
+
 /// <summary>
-/// The shadow shape of one wall tile: a rectangle inside the tile, in art pixels from the
-/// north-west corner of the tile (D-852).
+/// The shadow shape of one wall tile, in art pixels from the north-west corner of the tile
+/// (D-852). The shape is a rectangle, or an L of the rectangle and a column of
+/// <see cref="WallShadows.LeastStrip"/> pixels from its south edge down to the south edge of the tile.
 /// </summary>
 /// <param name="Tile">The wall tile.</param>
-/// <param name="Left">The west edge of the shape, from 0 to the tile size.</param>
-/// <param name="Top">The north edge of the shape.</param>
-/// <param name="Right">The east edge of the shape.</param>
-/// <param name="Bottom">The south edge of the shape.</param>
-public sealed record WallShadow(TilePoint Tile, int Left, int Top, int Right, int Bottom);
+/// <param name="Left">The west edge of the rectangle, from 0 to the tile size.</param>
+/// <param name="Top">The north edge of the rectangle.</param>
+/// <param name="Right">The east edge of the rectangle.</param>
+/// <param name="Bottom">The south edge of the rectangle.</param>
+/// <param name="Column">The side of the column, or no column.</param>
+public sealed record WallShadow(TilePoint Tile, int Left, int Top, int Right, int Bottom, WallColumn Column)
+{
+    /// <summary>Gives the corners of the shape, clockwise from the north-west corner of the rectangle.</summary>
+    /// <returns>Four corners for a rectangle, or six for an L.</returns>
+    /// <exception cref="InvalidOperationException">The column holds a value outside the enum (T-2).</exception>
+    public IReadOnlyList<(int X, int Y)> Outline()
+    {
+        const int Size = AtlasPages.TileSize;
+        const int Strip = WallShadows.LeastStrip;
+        return this.Column switch
+        {
+            WallColumn.None => [(this.Left, this.Top), (this.Right, this.Top), (this.Right, this.Bottom), (this.Left, this.Bottom)],
+            WallColumn.West =>
+            [
+                (this.Left, this.Top), (this.Right, this.Top), (this.Right, this.Bottom),
+                (this.Left + Strip, this.Bottom), (this.Left + Strip, Size), (this.Left, Size),
+            ],
+            WallColumn.East =>
+            [
+                (this.Left, this.Top), (this.Right, this.Top), (this.Right, Size),
+                (this.Right - Strip, Size), (this.Right - Strip, this.Bottom), (this.Left, this.Bottom),
+            ],
+            _ => throw new InvalidOperationException($"The wall at {this.Tile} holds the column value {(int)this.Column}, which is not a side (T-2)."),
+        };
+    }
+}
 
 /// <summary>
 /// Gives the shadow shape of each wall of a map, from its terrain alone (D-845, D-852). Game
@@ -31,6 +71,13 @@ public sealed record WallShadow(TilePoint Tile, int Left, int Top, int Right, in
 /// A wall that touches a walkable tile at a corner alone takes the full tile, so no light
 /// passes the gap between two faces into the wall mass. A wall inside a wall mass takes no
 /// shape, because the faces around it already stop each light.
+/// </para>
+/// <para>
+/// A wall beside a doorway has a floor to its south and to one side. Its rectangle then stops
+/// the light in a band at its top alone, and a light below that band shines past the wall into
+/// the passage behind the doorway. Thus the shape takes a column of <see cref="LeastStrip"/>
+/// pixels at the edge of the rectangle on that side, down to the south edge of the tile. The
+/// front face and the side face stay out of the shape.
 /// </para>
 /// </remarks>
 public static class WallShadows
@@ -92,12 +139,12 @@ public static class WallShadows
         {
             bool corner = Walkable(map, tile, -1, -1) || Walkable(map, tile, 1, -1)
                 || Walkable(map, tile, -1, 1) || Walkable(map, tile, 1, 1);
-            return corner ? new WallShadow(tile, 0, 0, Size, Size) : null;
+            return corner ? new WallShadow(tile, 0, 0, Size, Size, WallColumn.None) : null;
         }
 
         (int left, int right) = Span(west, EdgeDepth, east, EdgeDepth);
         (int top, int bottom) = Span(north, EdgeDepth, south, FrontDepth);
-        return new WallShadow(tile, left, top, right, bottom);
+        return new WallShadow(tile, left, top, right, bottom, ColumnOf(west, east, south));
     }
 
     /// <summary>Gives the edges of the shape along one axis, from the two faces of that axis.</summary>
@@ -112,6 +159,17 @@ public static class WallShadows
         }
 
         return (faceAtStart ? startDepth : 0, faceAtEnd ? Size - endDepth : Size);
+    }
+
+    /// <summary>Gives the side of the column: the one side face of a wall with a floor to its south.</summary>
+    private static WallColumn ColumnOf(bool west, bool east, bool south)
+    {
+        if (!south || west == east)
+        {
+            return WallColumn.None;
+        }
+
+        return west ? WallColumn.West : WallColumn.East;
     }
 
     private static bool Walkable(GameMap map, TilePoint tile, int dx, int dy)

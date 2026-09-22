@@ -242,9 +242,16 @@ public partial class MapScreen : Node2D
         this.AddChild(this.carriedFigures);
     }
 
-    /// <summary>Builds the occluder of one wall from its shape (D-852).</summary>
+    /// <summary>Builds the occluder of one wall from its shape: a rectangle, or an L beside a doorway (D-852).</summary>
     private static LightOccluder2D WallOccluder(WallShadow wall)
     {
+        IReadOnlyList<(int X, int Y)> outline = wall.Outline();
+        var polygon = new Vector2[outline.Count];
+        for (int index = 0; index < outline.Count; index += 1)
+        {
+            polygon[index] = new Vector2(outline[index].X, outline[index].Y);
+        }
+
         return new LightOccluder2D
         {
             Name = $"wall_{wall.Tile.X}_{wall.Tile.Y}",
@@ -252,13 +259,7 @@ public partial class MapScreen : Node2D
             OccluderLightMask = WorldLights.WallShadows,
             Occluder = new OccluderPolygon2D
             {
-                Polygon =
-                [
-                    new Vector2(wall.Left, wall.Top),
-                    new Vector2(wall.Right, wall.Top),
-                    new Vector2(wall.Right, wall.Bottom),
-                    new Vector2(wall.Left, wall.Bottom),
-                ],
+                Polygon = polygon,
                 Closed = true,
             },
         };
