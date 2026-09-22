@@ -1,3 +1,38 @@
+## Session 210: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR #58. Repository: the-thing-below. Branch: `docs/pr-gitar-pause`. PR: #58. Role: reviewer. Base: `871624e`.
+
+### What this session did, and why
+
+- Reviewed the policy change and reversal procedure of PR #58.
+- Confirmed that Claude Code authored the PR and that this review uses the other provider (T-4, D-17).
+- Inspected all 11 changed paths. The effective head is `3239ba1`; the later commit changes only handoff metadata (D-589, D-610).
+- Wrote `docs/reviews/pr-58.md` with no finding and verdict `Ready for owner merge` for effective head `3239ba1`.
+- Corrected the PR Documents line for `docs/reviews/`.
+
+### The state of the build
+
+- The remote head before this review was `ab77727321783167d51915e873733b1f5c6220da`. The effective head is `3239ba1`.
+- `make ste-check` passed with 0 findings. CI passed the applicable checks. Review-gate faulted at RG 3 because the review record did not yet exist.
+
+### What is in flight
+
+- The review record and this entry need commit and push. Review-gate must run again after publication.
+
+### Traps and gotchas
+
+- The pause of D-895 makes a Gitar pass optional. It does not remove the review by the other provider.
+- The Gitar dashboard approved the effective head. Its CI summary reports only the missing review record at RG 3.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff. Verify the remote head and the new review-gate result.
+
 ## Session 209: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -335,45 +370,3 @@ None.
 ### The next concrete action
 
 Run the Gitar wait for the push of this round, and prove that the review of the effective head is current.
-
-## Session 200: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-63, round 1. Repository: the-thing-below. Branch: `feat/pr-63-settings`. PR: #55. Role: author. Base: `daeccfe`.
-
-### What this session did, and why
-
-- Asked the owner OQ-100, OQ-106, OQ-108, and OQ-109, and recorded the answers as D-860 to D-863. The first batch did not show the options of `docs/questions.md`, so the session asked OQ-100, OQ-108, and OQ-109 again with both sets of options. OQ-108 took a third answer from the owner: a conflict blocks the save and the exit, and the `ui_*` actions take no remap (D-862).
-- Asked the values of the settings, and recorded D-864 to D-874. D-864 answers OQ-112, and D-872 answers OQ-110. D-870 removes the shape icons, because the 18 icons of PR-10 already differ in shape. D-873 corrects D-866: the session offered example times and did not read the pace of PR-10 first. D-874 stores the body size as auto, small, or large.
-- Built the settings file in Storage: `GameSettings`, `ControlBindings`, `SettingsText`, `SettingsFormat`, and `SettingsStore`, with a fixture of format 1 (D-860, D-869).
-- Built the settings screen in Game: `SettingsMenu` holds the rows and the rules, and `SettingsScreen` draws them. The menu action opens the screen (D-871), and the mouse moves the cursor (D-872).
-- Applied the settings: the input map and the dead zone, the window mode, the fit, the body size, the message speed of the battle screen, the confirm skip, and the remembered cursor (`CommandMemory`).
-- Added three captures of the settings screen, a smoke step, and tests for each new type.
-- Read each settings frame of `make sheet`: `settings-1x`, `settings-fill-1080`, and `settings-conflict-1x`. The first layout overlapped the help line at a body of 32 and cut one button name. The second layout fits at both body sizes.
-
-### The state of the build
-
-- `make verify` passed locally with 1,987 tests outside Smoke, 0 findings of ste-check and det-lint, and the smoke session green.
-- No file of Core changed, so the simulation version stays (G-17).
-- The remote head is the push of this round on `feat/pr-63-settings`.
-
-### What is in flight
-
-- The screen-test job has no baseline for the three settings captures. The author commits the captures of the CI artifact as the baseline after the first run (D-733).
-- The Gitar pass of the first push, then the review of the other provider.
-- The owner reads the text batch of the settings strings in the PR description (D-57).
-
-### Traps and gotchas
-
-- The menu action on the map opens the settings screen until PR-62. In a fight, the menu intent goes to the rules as before.
-- The close intent of the menu goes by its id, because the open intent can still wait in the queue in the same frame.
-- The frame shows through a texture, so the mouse reads its frame pixel from `ScreenFit.ToFrame`.
-- The volumes, the mono toggle, the mute, the vibration, the text speed, and the reduction save and load, and no code reads them yet. PR-36, PR-57 to PR-60, PR-69, and PR-70 read them.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Download the captures of the first screen-test run, commit the three settings baselines, and push. Then run the Gitar wait of `docs/runbooks/session-context.md`.
