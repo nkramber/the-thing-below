@@ -17,10 +17,10 @@ public sealed class SettingsTextTests
     {
         GameSettings settings = SettingsFixtures.Defaults();
 
-        // D-865, D-232, and D-707.
+        // D-865, D-232, and D-874.
         Assert.Equal(WindowSetting.Borderless, settings.Display.Window);
         Assert.Equal(FitSetting.Fill, settings.Display.Fit);
-        Assert.Equal(GameSettings.LargeBody, settings.Display.Body);
+        Assert.Equal(BodySetting.Auto, settings.Display.Body);
 
         // D-867, D-435, and D-868.
         Assert.Equal(8, settings.Audio.Master);
@@ -49,10 +49,10 @@ public sealed class SettingsTextTests
         // Exit test 1: each setting saves and loads through the settings file.
         GameSettings settings = SettingsFixtures.Defaults() with
         {
-            Display = new DisplaySettings(WindowSetting.Window, FitSetting.WholePixels, GameSettings.SmallBody),
+            Display = new DisplaySettings(WindowSetting.Window, FitSetting.WholePixels, BodySetting.Small),
             Audio = new AudioSettings(10, 0, 3, 7, MuteInBackground: false, Mono: true),
             Controls = new ControlSettings(
-                SettingsFixtures.Bindings().Replace("confirm", 0, InputBinding.OfKey(SettingsFixtures.W + 1)),
+                SettingsFixtures.Bindings().Rebind("confirm", InputBinding.OfKey(SettingsFixtures.Enter), InputBinding.OfKey(SettingsFixtures.W + 1)),
                 80,
                 Vibration: false),
             Battle = new BattleSettings(MessageSpeed.Fast, RememberCursor: true),
@@ -102,7 +102,7 @@ public sealed class SettingsTextTests
     [InlineData("\"master\": 8", "\"master\": 11", "audio.master")]
     [InlineData("\"deadZone\": 50", "\"deadZone\": 15", "controls.deadZone")]
     [InlineData("\"deadZone\": 50", "\"deadZone\": 52", "controls.deadZone")]
-    [InlineData("\"body\": 32", "\"body\": 28", "display.body")]
+    [InlineData("\"body\": \"auto\"", "\"body\": \"huge\"", "display.body")]
     public void AValueOutsideItsRangeFails(string from, string to, string field)
     {
         string text = SettingsText.Write(SettingsFixtures.Defaults()).Replace(from, to, StringComparison.Ordinal);

@@ -196,8 +196,8 @@ PR-61 built the prompts, and PR-55 removed them. Phase file: `phase-2-first-play
 
 Built by PR-63. Phase file: `phase-2-first-playable.md`.
 
-- PR-63 lands right before PR-57, the first PR that needs a setting (D-526).
-- The screen holds four groups: display, audio, controls, and battle (D-226).
+- PR-63 lands right before PR-57, the first PR that needs a setting (D-526). Until PR-62, the menu action opens the screen, and the world pauses (D-871).
+- The screen holds five groups: display, audio, controls, battle, and accessibility (D-214, D-226). D-226 names the four groups beyond accessibility.
 - Display holds the window mode, the scale of D-232, and the body size of D-707 (D-226, D-232, D-618).
 - The body size takes two values, 24 and 32 frame pixels (D-707, G-28). A frame fit of 1x takes 32 by default, and a fit above 1x takes 24.
 - Audio holds the master, music, effects, and ambience volumes, the mute in the background, and the mono toggle (D-435).

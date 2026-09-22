@@ -55,7 +55,7 @@ public sealed class SettingsStoreTests : IDisposable
         // Exit test 2: Godot saves no remap, so the settings file holds it (F-50).
         GameSettings settings = SettingsFixtures.Defaults();
         ControlBindings remapped = settings.Controls.Bindings
-            .Replace("confirm", 0, InputBinding.OfKey(SettingsFixtures.W + 1));
+            .Rebind("confirm", InputBinding.OfKey(SettingsFixtures.Enter), InputBinding.OfKey(SettingsFixtures.W + 1));
         this.store.Write(settings with { Controls = settings.Controls with { Bindings = remapped } });
 
         GameSettings read = new SettingsStore(this.folder).Read();
@@ -70,7 +70,7 @@ public sealed class SettingsStoreTests : IDisposable
         GameSettings settings = SettingsFixtures.Defaults();
         this.store.Write(settings);
         ControlBindings clash = settings.Controls.Bindings
-            .Replace("cancel", 1, InputBinding.OfButton(SettingsFixtures.ButtonA));
+            .Rebind("cancel", InputBinding.OfButton(SettingsFixtures.ButtonB), InputBinding.OfButton(SettingsFixtures.ButtonA));
 
         InvalidOperationException error = Assert.Throws<InvalidOperationException>(
             () => this.store.Write(settings with { Controls = settings.Controls with { Bindings = clash } }));

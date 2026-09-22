@@ -15,11 +15,11 @@ public sealed class ControlBindingsTests
     }
 
     [Fact]
-    public void AReplaceCanPutOneButtonOnTwoActions()
+    public void ARebindCanPutOneButtonOnTwoActions()
     {
         // D-862: the remap screen accepts one button on two actions and names each conflict.
         ControlBindings bindings = SettingsFixtures.Bindings()
-            .Replace("cancel", 1, InputBinding.OfButton(SettingsFixtures.ButtonA));
+            .Rebind("cancel", InputBinding.OfButton(SettingsFixtures.ButtonB), InputBinding.OfButton(SettingsFixtures.ButtonA));
 
         BindingConflict conflict = Assert.Single(bindings.FindConflicts());
         Assert.Equal(InputBinding.OfButton(SettingsFixtures.ButtonA), conflict.Binding);
@@ -27,21 +27,21 @@ public sealed class ControlBindingsTests
     }
 
     [Fact]
-    public void AReplaceLeavesTheOldBindingsAsTheyAre()
+    public void ARebindLeavesTheOldBindingsAsTheyAre()
     {
         ControlBindings old = SettingsFixtures.Bindings();
 
-        old.Replace("cancel", 0, InputBinding.OfKey(SettingsFixtures.W));
+        old.Rebind("cancel", InputBinding.OfKey(SettingsFixtures.Escape), InputBinding.OfKey(SettingsFixtures.W));
 
         Assert.Equal(InputBinding.OfKey(SettingsFixtures.Escape), old.Of("cancel")[0]);
     }
 
     [Fact]
-    public void ASecondReplaceClearsTheConflict()
+    public void ASecondRebindClearsTheConflict()
     {
         ControlBindings bindings = SettingsFixtures.Bindings()
-            .Replace("cancel", 1, InputBinding.OfButton(SettingsFixtures.ButtonA))
-            .Replace("confirm", 1, InputBinding.OfButton(SettingsFixtures.ButtonB));
+            .Rebind("cancel", InputBinding.OfButton(SettingsFixtures.ButtonB), InputBinding.OfButton(SettingsFixtures.ButtonA))
+            .Rebind("confirm", InputBinding.OfButton(SettingsFixtures.ButtonA), InputBinding.OfButton(SettingsFixtures.ButtonB));
 
         Assert.Empty(bindings.FindConflicts());
     }
@@ -72,10 +72,40 @@ public sealed class ControlBindingsTests
     [Fact]
     public void OneActionCannotHoldOneBindingTwice()
     {
-        ArgumentException error = Assert.Throws<ArgumentException>(() => SettingsFixtures.Bindings()
-            .Replace("confirm", 1, InputBinding.OfKey(SettingsFixtures.Enter)));
+        ArgumentException error = Assert.Throws<ArgumentException>(() => new ControlBindings(
+            new SortedDictionary<string, IReadOnlyList<InputBinding>>
+            {
+                ["confirm"] = [InputBinding.OfKey(SettingsFixtures.Enter), InputBinding.OfKey(SettingsFixtures.Enter)],
+            }));
 
         Assert.Contains("places 0 and 1", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ARebindToABindingOfTheSameActionKeepsOneCopy()
+    {
+        ControlBindings bindings = SettingsFixtures.Bindings()
+            .Rebind("confirm", InputBinding.OfButton(SettingsFixtures.ButtonA), InputBinding.OfKey(SettingsFixtures.Enter));
+
+        Assert.Equal([InputBinding.OfKey(SettingsFixtures.Enter)], bindings.Of("confirm"));
+    }
+
+    [Fact]
+    public void ARebindWithNoOldBindingAddsTheNewOneAtTheEnd()
+    {
+        ControlBindings bindings = SettingsFixtures.Bindings()
+            .Rebind("confirm", null, InputBinding.OfKey(SettingsFixtures.W + 1));
+
+        Assert.Equal(InputBinding.OfKey(SettingsFixtures.W + 1), bindings.Of("confirm")[2]);
+    }
+
+    [Fact]
+    public void ARebindOfABindingThatTheActionLacksFails()
+    {
+        ArgumentException error = Assert.Throws<ArgumentException>(() => SettingsFixtures.Bindings()
+            .Rebind("confirm", InputBinding.OfKey(SettingsFixtures.W), InputBinding.OfKey(SettingsFixtures.Enter)));
+
+        Assert.Contains("does not hold", error.Message, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -103,6 +133,6 @@ public sealed class ControlBindingsTests
         Assert.Equal(SettingsFixtures.Bindings(), SettingsFixtures.Bindings());
         Assert.NotEqual(
             SettingsFixtures.Bindings(),
-            SettingsFixtures.Bindings().Replace("confirm", 0, InputBinding.OfKey(SettingsFixtures.W + 1)));
+            SettingsFixtures.Bindings().Rebind("confirm", InputBinding.OfKey(SettingsFixtures.Enter), InputBinding.OfKey(SettingsFixtures.W + 1)));
     }
 }

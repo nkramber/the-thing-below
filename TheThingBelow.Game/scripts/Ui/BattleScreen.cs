@@ -82,14 +82,16 @@ public sealed class BattleScreen
     private readonly List<StatusLine> statusLines = [];
     private readonly Color chosenColor;
     private readonly Color dimColor;
+    private readonly CommandMemory memory;
     private BattleEvent? shownEvent;
     private BattleCommands? commands;
     private bool sentCommand;
     private string shownCommands = string.Empty;
 
-    private BattleScreen(UiBase ui, ContentSet content, FrameRoot frame)
+    private BattleScreen(UiBase ui, ContentSet content, FrameRoot frame, CommandMemory memory)
     {
         this.ui = ui;
+        this.memory = memory;
         this.content = content;
         this.chosenColor = ui.Theme.ColorOf("text_chosen");
         this.dimColor = ui.Theme.ColorOf("text_dim");
@@ -144,13 +146,15 @@ public sealed class BattleScreen
     /// <param name="ui">The atlas, the theme, and the text helper.</param>
     /// <param name="content">The content set, for the pictures and the strings.</param>
     /// <param name="run">The run, whose view of the fight the screen draws.</param>
+    /// <param name="memory">The remembered cursor of the command menu, which lasts the session (D-226).</param>
     /// <returns>The screen, which the caller shows on each frame and frees at the end of the fight.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="InvalidOperationException">The run holds no view of a fight, or the shader failed to load (T-2).</exception>
     /// <exception cref="ContentException">The atlas holds no drawing of a combatant, an icon, or the pointer (T-2).</exception>
-    public static BattleScreen Build(FrameRoot frame, UiBase ui, ContentSet content, GameRun run)
+    public static BattleScreen Build(FrameRoot frame, UiBase ui, ContentSet content, GameRun run, CommandMemory memory)
     {
         ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(memory);
         ArgumentNullException.ThrowIfNull(ui);
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(run);
@@ -158,7 +162,7 @@ public sealed class BattleScreen
         BattleView view = run.BattleView ?? throw new InvalidOperationException(
             $"The battle screen builds at tick {run.Tick}, and the run holds no view of a fight (D-532, T-2).");
 
-        var screen = new BattleScreen(ui, content, frame);
+        var screen = new BattleScreen(ui, content, frame, memory);
         screen.BuildLight(run.Party.Map);
         Shader flash = LoadFlashShader();
         foreach (ShownCombatant shown in view.Party)
@@ -289,6 +293,8 @@ public sealed class BattleScreen
                 Intent? made = open.Confirm();
                 if (made is not null)
                 {
+                    this.memory.Keep(open.Actor, open.Action);
+
                     // The intent reaches the rules on the next tick, and the gate of D-532
                     // stays open until then. A second menu would send a second intent (T-2).
                     this.commands = null;
@@ -493,7 +499,7 @@ public sealed class BattleScreen
 
         if (this.commands is null && !this.sentCommand)
         {
-            this.commands = BattleCommands.Open(run.State);
+            this.commands = BattleCommands.Open(run.State, this.memory);
         }
     }
 

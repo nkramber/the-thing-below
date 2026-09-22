@@ -3,7 +3,7 @@
   "display": {
     "window": "borderless",
     "fit": "fill",
-    "body": 32
+    "body": "auto"
   },
   "audio": {
     "master": 8,

@@ -140,24 +140,42 @@ public sealed class ControlBindings
         return bindings;
     }
 
-    /// <summary>Gives new bindings with one binding of one action replaced (D-862).</summary>
+    /// <summary>Gives new bindings with one binding of one action changed by the remap (D-862).</summary>
     /// <param name="action">The name of the action.</param>
-    /// <param name="index">The place of the binding in the list of the action.</param>
-    /// <param name="binding">The new binding. It can sit on another action too.</param>
-    /// <returns>The new bindings. This object does not change.</returns>
+    /// <param name="old">The binding that the remap replaces, or null to add the new one at the end.</param>
+    /// <param name="replacement">The new binding. It can sit on another action too.</param>
+    /// <returns>
+    /// The new bindings. When the action already holds the replacement at another place, that
+    /// copy goes, so the action never holds one binding twice. This object does not change.
+    /// </returns>
     /// <exception cref="KeyNotFoundException">The bindings hold no such action (T-2).</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside the list (T-2).</exception>
-    /// <exception cref="ArgumentException">The action already holds the binding at another place (T-2).</exception>
-    public ControlBindings Replace(string action, int index, InputBinding binding)
+    /// <exception cref="ArgumentException">The action does not hold the old binding (T-2).</exception>
+    public ControlBindings Rebind(string action, InputBinding? old, InputBinding replacement)
     {
-        ArgumentNullException.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(replacement);
 
-        IReadOnlyList<InputBinding> old = this.Of(action);
-        ArgumentOutOfRangeException.ThrowIfNegative(index);
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, old.Count);
+        List<InputBinding> changed = new(this.Of(action));
+        if (old is not null && !changed.Contains(old))
+        {
+            throw new ArgumentException(
+                $"The action '{action}' does not hold the binding {old}, so the remap cannot replace it (T-2).", nameof(old));
+        }
 
-        List<InputBinding> changed = new(old);
-        changed[index] = binding;
+        if (old == replacement)
+        {
+            return this;
+        }
+
+        changed.Remove(replacement);
+        int place = old is null ? -1 : changed.IndexOf(old);
+        if (place < 0)
+        {
+            changed.Add(replacement);
+        }
+        else
+        {
+            changed[place] = replacement;
+        }
 
         SortedDictionary<string, IReadOnlyList<InputBinding>> next = new(this.actions, StringComparer.Ordinal);
         next[action] = changed;

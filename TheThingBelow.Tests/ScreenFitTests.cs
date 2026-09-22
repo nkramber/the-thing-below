@@ -140,6 +140,26 @@ public sealed class ScreenFitTests
         Assert.IsType<ArgumentOutOfRangeException>(thrown.InnerException);
     }
 
+    [Theory]
+    [InlineData(false, 1280, 800, 0, 40, 0, 0)]
+    [InlineData(false, 1280, 800, 1279, 759, 1279, 719)]
+    [InlineData(false, 1920, 1080, 960, 540, 640, 360)]
+    [InlineData(true, 1920, 1080, 320, 180, 0, 0)]
+    public void APointOnTheFrameGivesItsFramePixel(bool wholePixels, int screenWidth, int screenHeight, int x, int y, int frameX, int frameY)
+    {
+        // D-872. The mouse on a menu reads a device pixel, and the menu needs the frame pixel.
+        Assert.Equal((frameX, frameY), Fit.Of(wholePixels, screenWidth, screenHeight).ToFrame(x, y));
+    }
+
+    [Theory]
+    [InlineData(false, 1280, 800, 640, 39)]
+    [InlineData(false, 1280, 800, 640, 760)]
+    [InlineData(true, 1920, 1080, 319, 540)]
+    public void APointOnABarGivesNoFramePixel(bool wholePixels, int screenWidth, int screenHeight, int x, int y)
+    {
+        Assert.Null(Fit.Of(wholePixels, screenWidth, screenHeight).ToFrame(x, y));
+    }
+
     private static int Constant(string name) =>
         (int)GameAssemblyFile.Type(FitTypeName).GetField(name)!.GetValue(null)!;
 
@@ -167,6 +187,9 @@ public sealed class ScreenFitTests
         public bool NeedsSmoothStep => this.Read<bool>(nameof(this.NeedsSmoothStep));
 
         public bool IsOneToOne => this.Read<bool>(nameof(this.IsOneToOne));
+
+        public (int X, int Y)? ToFrame(int screenX, int screenY) =>
+            ((int X, int Y)?)this.value.GetType().GetMethod("ToFrame")!.Invoke(this.value, [screenX, screenY]);
 
         public static Fit Of(bool wholePixels, int screenWidth, int screenHeight)
         {

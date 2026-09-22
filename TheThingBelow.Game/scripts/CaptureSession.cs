@@ -5,6 +5,7 @@ using Godot;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Game.Ui;
+using TheThingBelow.Storage;
 
 namespace TheThingBelow.Game;
 
@@ -30,6 +31,9 @@ namespace TheThingBelow.Game;
 /// </remarks>
 public sealed partial class CaptureSession : Node
 {
+    /// <summary>The settings of every capture: the defaults, and never the file of the person (D-860).</summary>
+    private static readonly GameSettings FixtureSettings = GameSettings.Defaults(GameInputMap.DefaultBindings());
+
     /// <summary>The line that a session writes when it wrote every capture (T-2).</summary>
     public const string SuccessLine = "capture: the session wrote every frame.";
 
@@ -288,7 +292,7 @@ public sealed partial class CaptureSession : Node
 
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.MapFixture) == 0)
         {
-            GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers());
+            GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             MapFixture.Build(built, @base, open.Party, this.content);
             return;
         }
@@ -297,7 +301,7 @@ public sealed partial class CaptureSession : Node
         {
             // The same running screen as the map fixture. The session keeps the run and the
             // map, and each later frame of the walk runs one tick of them (D-782).
-            GameRun walked = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers());
+            GameRun walked = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             this.walkRun = walked;
             this.walkMap = MapFixture.Build(built, @base, walked.Party, this.content);
 
@@ -321,6 +325,12 @@ public sealed partial class CaptureSession : Node
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.BattleFixture) == 0)
         {
             this.BuildBattle(built, @base, capture);
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.SettingsFixture) == 0)
+        {
+            this.BuildSettings(built, @base, capture);
             return;
         }
 
@@ -352,16 +362,47 @@ public sealed partial class CaptureSession : Node
     /// frames show the first command of the fight. The target frame presses confirm on the
     /// attack, and the blow frame plays a hit of a character to <see cref="ScreenCaptures.BlowFrameTicks"/>.
     /// </remarks>
+    /// <summary>
+    /// Builds the settings screen over the paused map, with the default settings and never the
+    /// file of the person (D-860, D-871). The conflict frame remaps the gamepad slot of the
+    /// back action to the button of confirm, so the screen shows the conflict line (D-862).
+    /// </summary>
+    private void BuildSettings(FrameRoot built, UiBase @base, ScreenCapture capture)
+    {
+        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        MapFixture.Build(built, @base, open.Party, this.content);
+
+        int autoBody = BodySize.DefaultFor(built.Fit.Height, this.content.Style.SmallBody, this.content.Style.LargeBody);
+        SettingsScreen screen = SettingsScreen.Build(built, @base, this.content.Strings, FixtureSettings, autoBody);
+        if (string.CompareOrdinal(capture.Frame, ScreenCaptures.SettingsConflictFrame) != 0)
+        {
+            return;
+        }
+
+        int row = SettingsMenu.RowOf(InputActions.Cancel);
+        screen.Menu.Point(row, BindingSlot.Gamepad);
+        screen.Menu.Choose();
+        screen.Menu.Capture(InputBinding.OfButton((int)JoyButton.A));
+        if (screen.Menu.CanClose)
+        {
+            throw new InvalidOperationException(
+                $"The capture '{capture.FileName}' put the button of confirm on the back action, and the menu found no conflict (D-862, T-2).");
+        }
+
+        screen.Show();
+    }
+
     private void BuildBattle(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
-        GameRun fight = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers());
+        GameRun fight = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
         BattleWalk.ToFirstCommand(fight);
         if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleBlowFrame) == 0)
         {
             BattleWalk.ToBlowOfCharacter(fight, ScreenCaptures.BlowFrameTicks);
         }
 
-        BattleScreen screen = BattleScreen.Build(built, @base, this.content, fight);
+        BattleScreen screen = BattleScreen.Build(
+            built, @base, this.content, fight, new CommandMemory(FixtureSettings.Battle.RememberCursor));
         if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleTargetFrame) == 0
             && screen.Read(InputActions.Confirm) is not null)
         {

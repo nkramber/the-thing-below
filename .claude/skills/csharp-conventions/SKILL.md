@@ -14,7 +14,7 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 - `Tools` holds the gate tools: the STE checker, the review gate, det-lint, the identity check, and the content hash. It also holds the PNG code and the atlas command (D-496). PR-49 adds the night gate, and PR-15 adds the headless runner. The other content tools are the normal maps, the PNG import, and the audio synthesizer. The map preview, the tile-edge tool, and the screenplay tool complete the set (D-497).
 - A tool whose output a test compares on every CI leg uses integer math, as `Core` does (D-502).
 - `Tests` holds the xUnit tests for `Core`, `Storage`, and `Tools`, and the smoke test that starts the Game headless.
-- `Storage` is the fifth project. It holds the file code for saves, run records, crash files, and log files. Game and Tools reference it, and `Core` never does (D-494).
+- `Storage` is the fifth project. It holds the file code for saves, run records, crash files, log files, and the settings file (D-860). Game and Tools reference it, and `Core` never does (D-494).
 - `TheThingBelow.Debug` is the sixth project, and only development builds reference it (D-260). PR-45 built it.
 - Game references it in every configuration except `ExportRelease`, and Game names no type of it. `DebugSeam` of Game loads it by name and reads each entry member of `DebugAssembly` as a delegate (D-723).
 - A new member of that entry needs its name in `DebugSeam` and a test of that name. The seam is text, and no compiler reads it (D-723).

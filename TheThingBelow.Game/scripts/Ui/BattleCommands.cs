@@ -30,8 +30,8 @@ public enum CommandStage
 /// the item action with an empty pack, stays on the menu and refuses the confirm.
 /// <para>
 /// This type holds no Godot value, so a test reads it from the built Game assembly with no
-/// engine (D-614). PR-62 fits the cursor rules of OQ-110 to this menu, and PR-63 adds the
-/// remembered cursor of D-226.
+/// engine (D-614). PR-62 fits the cursor rules of D-872 to this menu. The remembered cursor
+/// of D-226 comes from <see cref="CommandMemory"/>.
 /// </para>
 /// </remarks>
 public sealed class BattleCommands
@@ -52,11 +52,18 @@ public sealed class BattleCommands
     private BattleAction action = BattleAction.Attack;
     private ContentId? item;
 
-    private BattleCommands(RunState state, BattleRow actorRow)
+    private BattleCommands(RunState state, Combatant actor)
     {
         this.state = state;
-        this.ActorRow = actorRow;
+        this.Actor = actor.Id;
+        this.ActorRow = actor.Row;
     }
+
+    /// <summary>The content id of the character whose turn it is, which the remembered cursor keys on (D-226).</summary>
+    public ContentId Actor { get; }
+
+    /// <summary>The action of the choice that the menu builds now.</summary>
+    public BattleAction Action => this.action;
 
     /// <summary>The row of the character whose turn it is, which names the step on the menu (D-836).</summary>
     public BattleRow ActorRow { get; }
@@ -86,12 +93,14 @@ public sealed class BattleCommands
 
     /// <summary>Opens the menu for the character whose turn it is.</summary>
     /// <param name="state">The run, whose battle waits for the command of a character (D-532).</param>
-    /// <returns>The menu, with the cursor on the attack.</returns>
-    /// <exception cref="ArgumentNullException">The state is null (T-2).</exception>
+    /// <param name="memory">The remembered cursor, which can give the first action (D-226).</param>
+    /// <returns>The menu, with the cursor on the remembered action or on the attack.</returns>
+    /// <exception cref="ArgumentNullException">The state or the memory is null (T-2).</exception>
     /// <exception cref="InvalidOperationException">No fight runs, or no character has the turn (T-2).</exception>
-    public static BattleCommands Open(RunState state)
+    public static BattleCommands Open(RunState state, CommandMemory memory)
     {
         ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(memory);
 
         if (state.Battle is not Battle battle
             || battle.Outcome != BattleOutcome.Running
@@ -102,7 +111,14 @@ public sealed class BattleCommands
                 $"The command menu opened at tick {state.Tick}, and no fight runs with a character to command (D-532, T-2).");
         }
 
-        return new BattleCommands(state, next.Row);
+        BattleCommands opened = new(state, next);
+        if (memory.StartOf(next.Id) is BattleAction start)
+        {
+            opened.action = start;
+            opened.Cursor = IndexOf(start);
+        }
+
+        return opened;
     }
 
     /// <summary>Tells whether the action takes at least one choice that the rules allow now.</summary>

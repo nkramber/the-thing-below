@@ -9,7 +9,7 @@ namespace TheThingBelow.Game.Ui;
 /// </summary>
 /// <remarks>
 /// The body size sets the theme, so a change of the setting of D-707 builds a new
-/// <see cref="UiBase"/> and every screen takes the new theme. PR-63 adds that setting.
+/// <see cref="UiBase"/> and every screen takes the new theme. The body size setting of D-874 sets it.
 /// </remarks>
 public sealed class UiBase
 {

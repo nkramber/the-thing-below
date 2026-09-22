@@ -98,6 +98,10 @@ public partial class Boot : Node
     private FrameRoot? frame;
     private MapScreen? map;
     private BattleScreen? battle;
+    private SettingsScreen? settingsScreen;
+    private SettingsStore? settingsStore;
+    private GameSettings? settings;
+    private CommandMemory? memory;
     private Control? console;
     private readonly HeldSteps held = new();
     private bool crashed;
@@ -210,11 +214,16 @@ public partial class Boot : Node
 
         ContentSet loaded = LoadContent();
         this.content = loaded;
-        this.run = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers());
-        GameInputMap.Build();
-        EnterBorderlessFullscreen();
+        SettingsStore store = SettingsStore.OfThisSystem();
+        this.settingsStore = store;
+        GameSettings chosen = this.LoadSettings(store);
+        this.settings = chosen;
+        this.memory = new CommandMemory(chosen.Battle.RememberCursor);
+        this.run = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers(), chosen.Battle.Messages);
+        GameInputMap.Build(chosen.Controls);
+        ApplyWindow(chosen.Display.Window);
         this.BuildScreen(loaded);
-        this.ReportWindowMode();
+        this.ReportWindowMode(chosen.Display.Window);
         this.GetWindow().SizeChanged += this.OnWindowSizeChanged;
     }
 
@@ -273,8 +282,8 @@ public partial class Boot : Node
     /// The map draws in the world viewport at 1x, and the frame shows that viewport at 2x
     /// (D-633, D-634). The game shows no button prompt, so no row draws on the frame (D-815).
     /// <para>
-    /// The body size comes from the fit of the frame on this screen, and no setting exists
-    /// yet. PR-63 adds the display setting that changes it (D-707).
+    /// The fit and the body size come from the display settings. Auto takes the body size of
+    /// the fit of the frame on this screen (D-707, D-874).
     /// </para>
     /// </remarks>
     private void BuildScreen(ContentSet loaded)
@@ -283,8 +292,10 @@ public partial class Boot : Node
         this.AddChild(built);
         this.frame = built;
 
-        UiStyle style = loaded.Style;
-        int body = BodySize.DefaultFor(built.Fit.Height, style.SmallBody, style.LargeBody);
+        GameSettings chosen = this.settings ?? throw new InvalidOperationException(
+            "The screen built before the session read its settings (T-2).");
+        built.SetMode(FitModeOf(chosen.Display.Fit));
+        int body = BodyOf(chosen.Display.Body, built.Fit.Height, loaded.Style);
         UiBase built_ui = UiBase.Load(loaded, body);
         this.ui = built_ui;
         this.builtBody = body;
@@ -308,7 +319,9 @@ public partial class Boot : Node
         ContentSet loaded = this.content ?? throw new InvalidOperationException(
             "A wipe reloads the run, and the session loaded no content (T-2).");
 
-        GameRun reloaded = ReloadRun(loaded);
+        GameSettings chosen = this.settings ?? throw new InvalidOperationException(
+            "A wipe reloads the run, and the session read no settings (T-2).");
+        GameRun reloaded = ReloadRun(loaded, chosen.Battle.Messages);
         this.run = reloaded;
         this.RebuildScreen(loaded);
         this.WriteLog([new LogEntry(
@@ -358,8 +371,11 @@ public partial class Boot : Node
             ContentSet loaded = this.content ?? throw new InvalidOperationException(
                 $"A fight started at tick {open.Tick}, and the session loaded no content (T-2).");
 
+            CommandMemory remembered = this.memory ?? throw new InvalidOperationException(
+                $"A fight started at tick {open.Tick}, and the session made no command memory (T-2).");
+
             this.map?.Hide();
-            this.battle = BattleScreen.Build(built, shown, loaded, open);
+            this.battle = BattleScreen.Build(built, shown, loaded, open, remembered);
             return;
         }
 
@@ -379,7 +395,8 @@ public partial class Boot : Node
     }
 
     /// <summary>
-    /// Builds the screen again when a new window size gives another default body size (D-707).
+    /// Builds the screen again when a new window size gives another default body size, while the
+    /// body size setting is auto (D-707, D-874).
     /// </summary>
     /// <remarks>
     /// The window opens in borderless fullscreen, and on some systems it reaches the size of
@@ -397,7 +414,7 @@ public partial class Boot : Node
         {
             ContentSet? loaded = this.content;
             FrameRoot? built = this.frame;
-            if (loaded is null || built is null)
+            if (loaded is null || built is null || this.settings?.Display.Body != BodySetting.Auto)
             {
                 return;
             }
@@ -431,10 +448,11 @@ public partial class Boot : Node
     }
 
     /// <summary>
-    /// Puts the window of the play session in borderless fullscreen: a window with no border
-    /// that covers the screen, and not the exclusive mode. Every build takes it, the
-    /// development build included.
+    /// Puts the window of the play session in the mode of the display settings: borderless
+    /// fullscreen, which is a window with no border that covers the screen, or a window. The
+    /// game has no exclusive mode (D-865).
     /// </summary>
+    /// <param name="window">The window mode of the settings.</param>
     /// <remarks>
     /// The play session sets the mode, and the project keeps the windowed default. The capture
     /// session sets the exact window size of each capture, and Godot ignores its `--windowed`
@@ -444,25 +462,62 @@ public partial class Boot : Node
     /// <see cref="OnWindowSizeChanged"/> builds the screen again when the body size moves.
     /// </para>
     /// </remarks>
-    private static void EnterBorderlessFullscreen()
+    private static void ApplyWindow(WindowSetting window)
     {
-        DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
+        DisplayServer.WindowSetMode(WindowModeOf(window));
     }
+
+    /// <summary>Gives the Godot window mode of one window setting (D-865).</summary>
+    /// <param name="window">The window mode of the settings.</param>
+    /// <returns>The borderless fullscreen mode of Godot, or the windowed mode.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The setting has no mode (T-2).</exception>
+    private static DisplayServer.WindowMode WindowModeOf(WindowSetting window) => window switch
+    {
+        WindowSetting.Borderless => DisplayServer.WindowMode.Fullscreen,
+        WindowSetting.Window => DisplayServer.WindowMode.Windowed,
+        _ => throw new ArgumentOutOfRangeException(nameof(window), window, "The window setting has no mode (D-865, T-2)."),
+    };
+
+    /// <summary>Gives the fit of the frame of one fit setting (D-232).</summary>
+    /// <param name="fit">The fit of the settings.</param>
+    /// <returns>The fit mode of the frame.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The setting has no fit (T-2).</exception>
+    private static FitMode FitModeOf(FitSetting fit) => fit switch
+    {
+        FitSetting.Fill => FitMode.Fill,
+        FitSetting.WholePixels => FitMode.WholePixels,
+        _ => throw new ArgumentOutOfRangeException(nameof(fit), fit, "The fit setting has no mode (D-232, T-2)."),
+    };
+
+    /// <summary>Gives the body size of one body setting on one fit (D-707, D-874).</summary>
+    /// <param name="body">The body size setting.</param>
+    /// <param name="drawnHeight">The height of the drawn frame, which auto reads.</param>
+    /// <param name="style">The UI style file, which holds the two sizes.</param>
+    /// <returns>The body size in frame pixels.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The setting has no size (T-2).</exception>
+    private static int BodyOf(BodySetting body, int drawnHeight, UiStyle style) => body switch
+    {
+        BodySetting.Auto => BodySize.DefaultFor(drawnHeight, style.SmallBody, style.LargeBody),
+        BodySetting.Small => style.SmallBody,
+        BodySetting.Large => style.LargeBody,
+        _ => throw new ArgumentOutOfRangeException(nameof(body), body, "The body size setting has no size (D-874, T-2)."),
+    };
 
     /// <summary>
     /// Writes the window mode and the window size of the start to the log. A mode other than
-    /// borderless fullscreen is an error line, because the project asks for that mode (T-2).
+    /// the mode of the settings is an error line (T-2, D-865).
     /// </summary>
-    private void ReportWindowMode()
+    /// <param name="window">The window mode of the settings.</param>
+    private void ReportWindowMode(WindowSetting window)
     {
         DisplayServer.WindowMode mode = DisplayServer.WindowGetMode();
         Vector2I screen = this.GetWindow().Size;
-        bool fullscreen = mode == DisplayServer.WindowMode.Fullscreen;
+        bool asked = mode == WindowModeOf(window);
         this.WriteLog([new LogEntry(
-            fullscreen ? LogLevel.Info : LogLevel.Error,
-            fullscreen
-                ? "the window opened in borderless fullscreen"
-                : "the window opened in another mode than borderless fullscreen, which the project asks for",
+            asked ? LogLevel.Info : LogLevel.Error,
+            asked
+                ? "the window opened in the mode of the settings"
+                : "the window opened in another mode than the mode of the settings",
             0,
             LogSubsystems.Game,
             [
@@ -474,13 +529,14 @@ public partial class Boot : Node
 
     /// <summary>Gives the run after a wipe: the newer save, or a new run when no save exists (D-231, D-776).</summary>
     /// <param name="loaded">The content set of this build.</param>
+    /// <param name="messageSpeed">The message speed of the settings (D-866).</param>
     /// <returns>The run.</returns>
-    private static GameRun ReloadRun(ContentSet loaded)
+    private static GameRun ReloadRun(ContentSet loaded, MessageSpeed messageSpeed)
     {
         SaveStore saves = SaveStore.OfThisSystem();
         SaveDocument? slot = saves.Exists(SaveKind.Slot) ? saves.Read(SaveKind.Slot) : null;
         SaveDocument? autosave = saves.Exists(SaveKind.Autosave) ? saves.Read(SaveKind.Autosave) : null;
-        return GameRun.Reload(loaded, slot, autosave, FixtureSeed, DebugSeam.Handlers());
+        return GameRun.Reload(loaded, slot, autosave, FixtureSeed, DebugSeam.Handlers(), messageSpeed);
     }
 
     /// <summary>
@@ -678,6 +734,14 @@ public partial class Boot : Node
             return;
         }
 
+        // The settings screen takes every event while it is open, the mouse included, and the
+        // world stays paused under it (D-162, D-871, D-872).
+        if (this.settingsScreen is SettingsScreen open)
+        {
+            this.ReadSettings(run, open, signal);
+            return;
+        }
+
         // The party walks while a direction is down, so the map needs the press and the
         // release of each step action, and never a poll (D-716, F-50).
         this.held.Read(signal);
@@ -690,6 +754,13 @@ public partial class Boot : Node
             return;
         }
 
+        // A press of confirm shows the next battle message. The skip changes no state of the run,
+        // so the record holds only the command that the player makes after it (D-866).
+        if (this.battle is not null && signal.IsActionPressed(InputActions.Confirm) && run.SkipPlayingEvent())
+        {
+            return;
+        }
+
         foreach (string action in InputActions.Names)
         {
             // A step action moves the party while the player holds it, so `HeldStepIntent`
@@ -699,10 +770,15 @@ public partial class Boot : Node
                 continue;
             }
 
-            // The run holds the menu state, so the menu action opens the menu and closes it
-            // (D-162, D-650).
+            // The run holds the menu state. Until PR-62, the menu action on the map opens the
+            // settings screen, and the screen closes the menu (D-162, D-650, D-871). In a fight
+            // the intent goes to the rules as before.
             Intent made = run.IntentOf(action);
-            if (string.CompareOrdinal(action, InputActions.Menu) == 0)
+            if (string.CompareOrdinal(action, InputActions.Menu) == 0 && !run.InBattle)
+            {
+                this.OpenSettings(run, made);
+            }
+            else if (string.CompareOrdinal(action, InputActions.Menu) == 0)
             {
                 run.Queue(made);
             }
@@ -720,6 +796,112 @@ public partial class Boot : Node
             }
 
             return;
+        }
+    }
+
+    /// <summary>Opens the menu of the run and the settings screen over it (D-162, D-871).</summary>
+    /// <param name="run">The run, whose world pauses.</param>
+    /// <param name="open">The intent that opens the menu.</param>
+    /// <exception cref="InvalidOperationException">The session built no frame, no UI base, or no settings (T-2).</exception>
+    private void OpenSettings(GameRun run, Intent open)
+    {
+        FrameRoot built = this.frame ?? throw new InvalidOperationException(
+            $"The menu opened at tick {run.Tick}, and the session built no frame (T-2).");
+        UiBase shown = this.ui ?? throw new InvalidOperationException(
+            $"The menu opened at tick {run.Tick}, and the session built no UI base (T-2).");
+        ContentSet loaded = this.content ?? throw new InvalidOperationException(
+            $"The menu opened at tick {run.Tick}, and the session loaded no content (T-2).");
+        GameSettings chosen = this.settings ?? throw new InvalidOperationException(
+            $"The menu opened at tick {run.Tick}, and the session read no settings (T-2).");
+
+        run.Queue(open);
+
+        // The screen takes every input while it is open, so no release of a held direction
+        // reaches the map. A party that kept the direction would walk on after the close (T-2).
+        this.held.Clear();
+        int autoBody = BodySize.DefaultFor(built.Fit.Height, loaded.Style.SmallBody, loaded.Style.LargeBody);
+        this.settingsScreen = SettingsScreen.Build(built, shown, loaded.Strings, chosen, autoBody);
+        this.WriteLog([new LogEntry(LogLevel.Info, "the settings screen opened", run.Tick, LogSubsystems.Game, [])]);
+    }
+
+    /// <summary>Gives one event to the settings screen, and closes it when the player leaves (D-862).</summary>
+    /// <param name="run">The run, whose menu the close ends.</param>
+    /// <param name="open">The settings screen.</param>
+    /// <param name="signal">The event of this frame.</param>
+    /// <exception cref="InvalidOperationException">The session built no frame (T-2).</exception>
+    private void ReadSettings(GameRun run, SettingsScreen open, InputEvent signal)
+    {
+        FrameRoot built = this.frame ?? throw new InvalidOperationException(
+            $"The settings screen read an event at tick {run.Tick}, and the session built no frame (T-2).");
+        if (open.Read(signal, built.Fit, InputActions.Menu) == SettingsOutcome.Close)
+        {
+            this.CloseSettings(run, open);
+        }
+    }
+
+    /// <summary>
+    /// Closes the settings screen, writes and applies each change, and closes the menu of the
+    /// run (D-860, D-871).
+    /// </summary>
+    /// <param name="run">The run, whose menu closes.</param>
+    /// <param name="open">The settings screen, which holds no conflict (D-862).</param>
+    /// <exception cref="InvalidOperationException">The session read no settings (T-2).</exception>
+    /// <exception cref="StorageException">The system refused the write (T-2).</exception>
+    private void CloseSettings(GameRun run, SettingsScreen open)
+    {
+        GameSettings before = this.settings ?? throw new InvalidOperationException(
+            $"The settings screen closed at tick {run.Tick}, and the session read no settings (T-2).");
+        SettingsStore store = this.settingsStore ?? throw new InvalidOperationException(
+            $"The settings screen closed at tick {run.Tick}, and the session made no settings store (T-2).");
+        GameSettings after = open.Menu.Settings;
+
+        open.Free();
+        this.settingsScreen = null;
+        if (!after.Equals(before))
+        {
+            store.Write(after);
+            this.settings = after;
+            this.ApplySettings(run, before, after);
+        }
+
+        // The close intent goes by its own id. The open intent can still wait in the queue when
+        // one frame opens and closes the screen, and the menu action would then open it twice.
+        run.Queue(Intent.OfPlayer(IntentIds.CloseMenu));
+        this.WriteLog([new LogEntry(
+            LogLevel.Info,
+            after.Equals(before) ? "the settings screen closed with no change" : "the settings screen closed and wrote the settings file",
+            run.Tick,
+            LogSubsystems.Game,
+            [new LogField("path", store.Path)])]);
+    }
+
+    /// <summary>Applies each setting that the game reads now (D-226).</summary>
+    /// <param name="run">The run, which reads the message speed.</param>
+    /// <param name="before">The settings before the screen opened.</param>
+    /// <param name="after">The settings of the screen.</param>
+    /// <remarks>
+    /// The audio of PR-69 and PR-70, the effects of PR-57 to PR-60, the vibration of D-434, and
+    /// the type-out of PR-36 read their settings from <see cref="settings"/> when they land. A
+    /// change of the fit or the body size builds the screen again (D-707).
+    /// </remarks>
+    private void ApplySettings(GameRun run, GameSettings before, GameSettings after)
+    {
+        GameInputMap.Build(after.Controls);
+        run.MessageSpeed = after.Battle.Messages;
+        CommandMemory remembered = this.memory ?? throw new InvalidOperationException(
+            $"The settings applied at tick {run.Tick}, and the session made no command memory (T-2).");
+        remembered.Enabled = after.Battle.RememberCursor;
+
+        if (after.Display.Window != before.Display.Window)
+        {
+            ApplyWindow(after.Display.Window);
+        }
+
+        if (after.Display.Fit != before.Display.Fit || after.Display.Body != before.Display.Body)
+        {
+            ContentSet loaded = this.content ?? throw new InvalidOperationException(
+                $"The settings applied at tick {run.Tick}, and the session loaded no content (T-2).");
+            this.RebuildScreen(loaded);
         }
     }
 
@@ -904,7 +1086,7 @@ public partial class Boot : Node
         ContentSet content = ContentSet.Load(files);
         GD.Print($"smoke: the content is {files.Count} files with the hash {content.Hash}.");
 
-        GameRun session = GameRun.Start(content, FixtureSeed, DebugSeam.Handlers());
+        GameRun session = GameRun.Start(content, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
         GD.Print($"smoke: the run is {this.DescribeRun(session)}.");
         GD.Print($"smoke: the log is {this.DescribeLog()}.");
         GD.Print($"smoke: the crash file is {DescribeCrashFile(session)}.");
@@ -913,8 +1095,43 @@ public partial class Boot : Node
         GD.Print($"smoke: the picture is {DescribePicture(content)}.");
         GD.Print($"smoke: the console is {this.DescribeConsole(session)}.");
         GD.Print($"smoke: the battle is {this.DescribeBattle(content, session)}.");
+        GD.Print($"smoke: the settings screen is {this.DescribeSettings(content)}.");
         GD.Print("smoke: the session ends with no error.");
         GetTree().Quit(SuccessExitCode);
+    }
+
+    /// <summary>Gives the settings of the smoke session: the defaults, and never the file of the person (D-860).</summary>
+    /// <returns>The default settings, with the default bindings of the game.</returns>
+    /// <remarks>A CI machine holds no settings file, and a check never writes to the folder of the person.</remarks>
+    private static GameSettings SmokeSettings() => GameSettings.Defaults(GameInputMap.DefaultBindings());
+
+    /// <summary>
+    /// Reads the settings file, or writes the defaults when no file exists, which is the first
+    /// start (D-860, D-868).
+    /// </summary>
+    /// <param name="store">The store of the settings file of the person.</param>
+    /// <returns>The settings of this session.</returns>
+    /// <exception cref="StorageException">The file breaks a rule, or the system refused it (T-2).</exception>
+    /// <remarks>
+    /// A file that breaks a rule stops the start with the path and the field, and it never falls
+    /// back to the defaults in silence, because the player would lose each choice (T-2, D-570).
+    /// </remarks>
+    private GameSettings LoadSettings(SettingsStore store)
+    {
+        if (store.Exists())
+        {
+            return store.Read();
+        }
+
+        GameSettings defaults = GameSettings.Defaults(GameInputMap.DefaultBindings());
+        store.Write(defaults);
+        this.WriteLog([new LogEntry(
+            LogLevel.Info,
+            "the session found no settings file and wrote the defaults",
+            0,
+            LogSubsystems.Game,
+            [new LogField("path", store.Path)])]);
+        return defaults;
     }
 
     /// <summary>
@@ -1067,6 +1284,45 @@ public partial class Boot : Node
         }
 
         return $"{string.Join(", ", built)}, and the six font settings of D-710 read back";
+    }
+
+    /// <summary>
+    /// Builds the settings screen over a frame with the default settings, and walks the cursor
+    /// over every row with the `ui_*` actions, as a player does (D-862, D-871). Each row reads
+    /// its strings and its value, so a string id that the table lacks fails every CI leg (T-2).
+    /// </summary>
+    /// <param name="loaded">The content set of this build.</param>
+    /// <returns>The count of rows, and the row of the cursor after one lap.</returns>
+    /// <exception cref="InvalidOperationException">The lap ended on another row than the first (T-2).</exception>
+    private string DescribeSettings(ContentSet loaded)
+    {
+        var built = new FrameRoot();
+        this.AddChild(built);
+        UiBase shownBase = UiBase.Load(loaded, loaded.Style.SmallBody);
+        GameSettings defaults = SmokeSettings();
+        SettingsScreen screen = SettingsScreen.Build(built, shownBase, loaded.Strings, defaults, loaded.Style.SmallBody);
+
+        var down = new InputEventAction { Action = "ui_down", Pressed = true };
+        int rows = SettingsMenu.Rows.Count;
+        for (int step = 0; step < rows; step += 1)
+        {
+            if (screen.Read(down, built.Fit, InputActions.Menu) != SettingsOutcome.Stay)
+            {
+                throw new InvalidOperationException($"The settings screen closed on a move of its cursor at row {step} (T-2).");
+            }
+        }
+
+        int cursor = screen.Menu.Cursor;
+        screen.Free();
+        this.RemoveChild(built);
+        built.QueueFree();
+        if (cursor != 0)
+        {
+            throw new InvalidOperationException(
+                $"The cursor of the settings screen moved {rows} rows and stood on row {cursor}, and one lap ends on row 0 (T-2).");
+        }
+
+        return $"{rows} rows, and one lap of the cursor ends on the first row";
     }
 
     /// <summary>
@@ -1234,7 +1490,7 @@ public partial class Boot : Node
     private int TypeInConsole(GameRun session)
     {
         // A key that the console does not take goes on to the input map, as in a play session.
-        GameInputMap.Build();
+        GameInputMap.Build(SmokeSettings().Controls);
         var built = new FrameRoot();
         this.AddChild(built);
         this.frame = built;
@@ -1332,7 +1588,7 @@ public partial class Boot : Node
 
             if (open.WipeReady)
             {
-                open = ReloadRun(loaded);
+                open = ReloadRun(loaded, open.MessageSpeed);
                 break;
             }
 
@@ -1340,7 +1596,7 @@ public partial class Boot : Node
             {
                 if (screen is null)
                 {
-                    screen = BattleScreen.Build(built, shownBase, loaded, open);
+                    screen = BattleScreen.Build(built, shownBase, loaded, open, new CommandMemory(SmokeSettings().Battle.RememberCursor));
                     nodes = $"{screen.CombatantCount} combatants over {screen.BackdropCopies} backdrop copies in {screen.CheckLights()} key light";
                 }
 

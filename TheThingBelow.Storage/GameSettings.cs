@@ -25,6 +25,19 @@ public enum FitSetting
     WholePixels,
 }
 
+/// <summary>The three values of the body size setting (D-707, D-874).</summary>
+public enum BodySetting
+{
+    /// <summary>The default. The rule of D-707 on each screen: the larger size at a fit of 1x, and the smaller size above it.</summary>
+    Auto,
+
+    /// <summary>The smaller body size of the style file, 24 frame pixels.</summary>
+    Small,
+
+    /// <summary>The larger body size of the style file, 32 frame pixels.</summary>
+    Large,
+}
+
 /// <summary>The three speeds of the type-out of a prose box (D-864).</summary>
 public enum TextSpeed
 {
@@ -67,8 +80,8 @@ public enum EffectLevel
 /// <summary>The display group: the window mode, the fit, and the body size (D-226, D-618).</summary>
 /// <param name="Window">The window mode (D-865).</param>
 /// <param name="Fit">The fit of the frame (D-232).</param>
-/// <param name="Body">The body size of the text, in frame pixels: 24 or 32 (D-707).</param>
-public sealed record DisplaySettings(WindowSetting Window, FitSetting Fit, int Body);
+/// <param name="Body">The body size of the text (D-707, D-874).</param>
+public sealed record DisplaySettings(WindowSetting Window, FitSetting Fit, BodySetting Body);
 
 /// <summary>The audio group (D-435).</summary>
 /// <param name="Master">The master volume, 0 to 10 (D-867).</param>
@@ -119,12 +132,6 @@ public sealed record GameSettings(
     BattleSettings Battle,
     AccessSettings Access)
 {
-    /// <summary>The smaller body size, in frame pixels (D-707).</summary>
-    public const int SmallBody = 24;
-
-    /// <summary>The larger body size, in frame pixels (D-707).</summary>
-    public const int LargeBody = 32;
-
     /// <summary>The lowest step of a volume, which is silent (D-867).</summary>
     public const int LowestVolume = 0;
 
@@ -148,20 +155,14 @@ public sealed record GameSettings(
 
     /// <summary>Makes the settings of a first start, with no settings file (D-861, D-864 to D-868).</summary>
     /// <param name="bindings">The default buttons of each action, which Game holds.</param>
-    /// <param name="body">The default body size of this screen, which Game gives (D-707).</param>
     /// <returns>The settings, which pass <see cref="Check"/>.</returns>
     /// <exception cref="ArgumentNullException">The bindings are null (T-2).</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The body size is not 24 or 32 (T-2).</exception>
-    /// <remarks>
-    /// The body size depends on the screen, and Storage cannot see the screen. Thus Game gives
-    /// it, and the first write puts it in the file, so no later read takes a default (T-2).
-    /// </remarks>
-    public static GameSettings Defaults(ControlBindings bindings, int body)
+    public static GameSettings Defaults(ControlBindings bindings)
     {
         ArgumentNullException.ThrowIfNull(bindings);
 
         GameSettings settings = new(
-            new DisplaySettings(WindowSetting.Borderless, FitSetting.Fill, body),
+            new DisplaySettings(WindowSetting.Borderless, FitSetting.Fill, BodySetting.Auto),
             new AudioSettings(DefaultVolume, DefaultVolume, DefaultVolume, DefaultVolume, MuteInBackground: true, Mono: false),
             new ControlSettings(bindings, DefaultDeadZone, Vibration: true),
             new BattleSettings(MessageSpeed.Normal, RememberCursor: false),
@@ -186,11 +187,7 @@ public sealed record GameSettings(
 
         CheckNamed(this.Display.Window, "display.window");
         CheckNamed(this.Display.Fit, "display.fit");
-        if (this.Display.Body is not (SmallBody or LargeBody))
-        {
-            throw new ArgumentOutOfRangeException(
-                "display.body", this.Display.Body, $"The body size is {SmallBody} or {LargeBody} frame pixels (D-707).");
-        }
+        CheckNamed(this.Display.Body, "display.body");
 
         CheckVolume(this.Audio.Master, "audio.master");
         CheckVolume(this.Audio.Music, "audio.music");

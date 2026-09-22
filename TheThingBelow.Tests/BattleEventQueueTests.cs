@@ -8,6 +8,7 @@ using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Saves;
+using TheThingBelow.Storage;
 using TheThingBelow.Tools.Content;
 using Xunit;
 
@@ -113,6 +114,31 @@ public sealed class BattleEventQueueTests
         Assert.True(played, "Game played no battle event (D-532).");
         Assert.True(!run.InBattle || run.WipeReady, $"The battle reached no end in {FrameLimit} frames (T-2).");
         Assert.Equal(0, run.WaitingEvents);
+    }
+
+    [Fact]
+    public void AConfirmSkipEndsTheHoldOfTheEventThatPlays()
+    {
+        // D-866: a press of confirm shows the next battle message. The skip changes no state
+        // of the rules, so the tick and the record stay as they are.
+        GameRunView run = GameRunView.Start();
+        int frame = 0;
+        for (; frame < FrameLimit && (run.PlayingEvent is null || run.PlayingTicks > 0); frame += 1)
+        {
+            if (!run.InBattle)
+            {
+                run.Queue(Intent.OfPlayer(WalkOf(run.Party)));
+            }
+
+            run.Advance(OneTick);
+        }
+
+        Assert.NotNull(run.PlayingEvent);
+        long tick = run.Tick;
+
+        Assert.True(run.SkipPlayingEvent());
+        Assert.False(run.SkipPlayingEvent());
+        Assert.Equal(tick, run.Tick);
     }
 
     [Fact]
@@ -265,6 +291,8 @@ public sealed class BattleEventQueueTests
 
         public long Tick => (long)this.Read("Tick");
 
+        public bool SkipPlayingEvent() => (bool)this.type.GetMethod("SkipPlayingEvent")!.Invoke(this.instance, null)!;
+
         public bool InBattle => (bool)this.Read("InBattle");
 
         public bool TakesBattleCommand => (bool)this.Read("TakesBattleCommand");
@@ -286,17 +314,17 @@ public sealed class BattleEventQueueTests
         public static GameRunView Start()
         {
             Type type = GameAssemblyFile.Type("TheThingBelow.Game.GameRun");
-            MethodInfo start = type.GetMethod("Start", [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers)])
+            MethodInfo start = type.GetMethod("Start", [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])
                 ?? throw new InvalidOperationException("The run holds no 'Start' method (T-2).");
-            return new GameRunView(type, start.Invoke(null, [Content.Value, Seed, DebugIntentHandlers.None])!);
+            return new GameRunView(type, start.Invoke(null, [Content.Value, Seed, DebugIntentHandlers.None, MessageSpeed.Normal])!);
         }
 
         public static GameRunView Reload(SaveDocument? slot, SaveDocument? autosave)
         {
             Type type = GameAssemblyFile.Type("TheThingBelow.Game.GameRun");
-            MethodInfo reload = type.GetMethod("Reload", [typeof(ContentSet), typeof(SaveDocument), typeof(SaveDocument), typeof(ulong), typeof(DebugIntentHandlers)])
+            MethodInfo reload = type.GetMethod("Reload", [typeof(ContentSet), typeof(SaveDocument), typeof(SaveDocument), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])
                 ?? throw new InvalidOperationException("The run holds no 'Reload' method (T-2).");
-            return new GameRunView(type, reload.Invoke(null, [Content.Value, slot, autosave, Seed, DebugIntentHandlers.None])!);
+            return new GameRunView(type, reload.Invoke(null, [Content.Value, slot, autosave, Seed, DebugIntentHandlers.None, MessageSpeed.Normal])!);
         }
 
         public void Queue(Intent intent)

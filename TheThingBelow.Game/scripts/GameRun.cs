@@ -8,6 +8,7 @@ using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Saves;
 using TheThingBelow.Game.Ui;
+using TheThingBelow.Storage;
 
 namespace TheThingBelow.Game;
 
@@ -41,11 +42,19 @@ public sealed class GameRun
     private BattleEvent? playing;
     private long playingSince;
 
-    private GameRun(Simulation simulation, RunRecorder recorder)
+    private GameRun(Simulation simulation, RunRecorder recorder, MessageSpeed messageSpeed)
     {
         this.simulation = simulation;
         this.recorder = recorder;
+        this.MessageSpeed = messageSpeed;
     }
+
+    /// <summary>The message speed of the battle group, which the settings screen changes (D-866, D-873).</summary>
+    /// <remarks>
+    /// The speed sets when the input gate of a fight opens, and the record holds the intent
+    /// that the player then makes. Thus a replay needs no setting (T-7).
+    /// </remarks>
+    public MessageSpeed MessageSpeed { get; set; }
 
     /// <summary>The count of ticks since the start of the run (D-164).</summary>
     public long Tick => this.simulation.Tick;
@@ -128,6 +137,23 @@ public sealed class GameRun
     /// <summary>The ticks since the screen started <see cref="PlayingEvent"/> (D-829).</summary>
     public int PlayingTicks => this.playing is null ? 0 : (int)Math.Min(int.MaxValue, this.simulation.Tick - this.playingSince);
 
+    /// <summary>Ends the hold of the event that the screen plays, so the next one plays on the next tick (D-866).</summary>
+    /// <remarks>
+    /// A press of confirm skips a message. The skip moves the start of the hold back and changes
+    /// no state of the run, so the record holds only the command that the player makes after it.
+    /// </remarks>
+    /// <returns>True when an event played and its hold ended, and false when no event holds.</returns>
+    public bool SkipPlayingEvent()
+    {
+        if (this.playing is null || this.PlayedOut)
+        {
+            return false;
+        }
+
+        this.playingSince = this.simulation.Tick - BattleTimes.HoldTicksOf(this.playing.Kind, this.MessageSpeed);
+        return true;
+    }
+
     /// <summary>
     /// True when the screen has played every event and a character has the turn. Game takes
     /// the next command of the player only then, so this is the input gate of a battle (D-532).
@@ -151,7 +177,7 @@ public sealed class GameRun
     /// <summary>True when no event plays, or the one that plays reached its end (D-829).</summary>
     private bool PlayedOut =>
         this.playing is null
-        || this.simulation.Tick - this.playingSince >= BattleTimes.TicksOf(this.playing.Kind);
+        || this.simulation.Tick - this.playingSince >= BattleTimes.HoldTicksOf(this.playing.Kind, this.MessageSpeed);
 
     /// <summary>Starts a run over a content set.</summary>
     /// <param name="content">The content of this build, which gives the content hash (D-648).</param>
@@ -161,17 +187,18 @@ public sealed class GameRun
     /// A development build passes the handlers of the console, and a release build passes
     /// <see cref="DebugIntentHandlers.None"/> (D-260, D-492).
     /// </param>
+    /// <param name="messageSpeed">The message speed of the settings (D-866).</param>
     /// <returns>The run, at tick zero, on the first map (D-528).</returns>
     /// <exception cref="ArgumentNullException">The content set or the handler set is null (T-2).</exception>
     /// <exception cref="ContentException">This build holds no first map (T-2).</exception>
-    public static GameRun Start(ContentSet content, ulong seed, DebugIntentHandlers debugHandlers)
+    public static GameRun Start(ContentSet content, ulong seed, DebugIntentHandlers debugHandlers, MessageSpeed messageSpeed)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
         RunHeader header = RunHeader.ForThisBuild(content.Hash, seed);
         Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), content.Battle, debugHandlers);
-        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()));
+        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), messageSpeed);
     }
 
     /// <summary>
@@ -183,6 +210,7 @@ public sealed class GameRun
     /// <param name="autosave">The autosave, or no value.</param>
     /// <param name="seed">The seed of a new run, when no save exists.</param>
     /// <param name="debugHandlers">The debug handlers of the host (D-260).</param>
+    /// <param name="messageSpeed">The message speed of the settings (D-866).</param>
     /// <returns>The run, with a new record that starts at its first tick.</returns>
     /// <exception cref="ArgumentNullException">The content or the handlers are null (T-2).</exception>
     public static GameRun Reload(
@@ -190,14 +218,15 @@ public sealed class GameRun
         SaveDocument? slot,
         SaveDocument? autosave,
         ulong seed,
-        DebugIntentHandlers debugHandlers)
+        DebugIntentHandlers debugHandlers,
+        MessageSpeed messageSpeed)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
         if (SavePick.NewerOf(slot, autosave) is not SaveDocument save)
         {
-            return Start(content, seed, debugHandlers);
+            return Start(content, seed, debugHandlers, messageSpeed);
         }
 
         RunSnapshot snapshot = save.Snapshot;
@@ -208,7 +237,7 @@ public sealed class GameRun
             content.Battle,
             debugHandlers);
         RunHeader header = RunHeader.ForThisBuild(content.Hash, save.Header.Seed);
-        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()));
+        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), messageSpeed);
     }
 
     /// <summary>

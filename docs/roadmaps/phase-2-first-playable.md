@@ -737,7 +737,7 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 
 **Scope.**
 
-- The settings screen with four groups: display, audio, controls, and battle (D-226).
+- The settings screen with five groups: display, audio, controls, battle, and accessibility (D-214, D-226).
 - Display: the window mode, the scale of D-232, and the body size of D-707 (D-232, D-618, D-865).
 - Audio: the master, music, effects, and ambience volumes, the mute in the background, and the mono toggle (D-435).
 - Controls: the remap, the stick dead zone, and the vibration setting (D-214, D-434).
@@ -747,11 +747,14 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 - The settings file outside the save files, which never enters a run record (D-494, D-860, T-7). It is `settings.json` at the root of the folder of D-465.
 - The format version of the settings file, and one migration step with a fixture file for each new setting (D-570).
 - The mouse moves the cursor of the screen, and a click chooses (D-872).
+- The battle screen reads the message speed and the remembered cursor, and a press of confirm shows the next message (D-866, D-873).
 
 **Out of scope.**
 
 - The effects that the reduction turns down, which PR-57 to PR-60 add.
 - The audio that the volumes control (PR-69, PR-70).
+- The vibration, which PR-70 plays (D-434).
+- The type-out of the dialogue box, which reads the text speed (PR-36, D-864).
 - The title screen and its settings entry (PR-33).
 
 **Exit tests.**

@@ -47,14 +47,14 @@ public sealed class GameFrameSettingsTests
     }
 
     [Fact]
-    public void ThePlaySessionEntersBorderlessFullscreen()
+    public void TheBorderlessSettingEntersBorderlessFullscreen()
     {
         // The fullscreen mode of Godot is a window with no border that covers the screen, and
-        // the exclusive mode is another value. The play session of every build, the
-        // development build included, takes the borderless one.
+        // the exclusive mode is another value. The borderless setting, the default, takes the
+        // borderless one, and the game has no exclusive mode (D-865).
         string boot = System.IO.File.ReadAllText(RepositoryRoot.PathTo("TheThingBelow.Game/scripts/Boot.cs"));
 
-        Assert.Contains("DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);", boot, StringComparison.Ordinal);
+        Assert.Contains("WindowSetting.Borderless => DisplayServer.WindowMode.Fullscreen,", boot, StringComparison.Ordinal);
         Assert.DoesNotContain("WindowMode.ExclusiveFullscreen", boot, StringComparison.Ordinal);
     }
 

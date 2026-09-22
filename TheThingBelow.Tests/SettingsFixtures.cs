@@ -27,7 +27,27 @@ internal static class SettingsFixtures
         ["step_north"] = [InputBinding.OfKey(W), InputBinding.OfStick(LeftY, -1)],
     });
 
-    /// <summary>The defaults of a first start on a screen at a fit of 1x (D-707).</summary>
+    /// <summary>
+    /// The default bindings of the seven actions of the game, with the numbers of the Godot
+    /// values: the letter keys, the arrow keys, the pad, and the left stick (D-84).
+    /// </summary>
+    /// <returns>The bindings that `GameInputMap.DefaultBindings` gives.</returns>
+    public static ControlBindings GameBindings() => new(new SortedDictionary<string, IReadOnlyList<InputBinding>>
+    {
+        ["cancel"] = [InputBinding.OfKey(Escape), InputBinding.OfKey(4194308), InputBinding.OfButton(ButtonB)],
+        ["confirm"] = [InputBinding.OfKey(Enter), InputBinding.OfKey(32), InputBinding.OfButton(ButtonA)],
+        ["menu"] = [InputBinding.OfKey(4194306), InputBinding.OfButton(6)],
+        ["step_east"] = [InputBinding.OfKey(68), InputBinding.OfKey(4194321), InputBinding.OfButton(14), InputBinding.OfStick(0, 1)],
+        ["step_north"] = [InputBinding.OfKey(W), InputBinding.OfKey(4194320), InputBinding.OfButton(11), InputBinding.OfStick(LeftY, -1)],
+        ["step_south"] = [InputBinding.OfKey(83), InputBinding.OfKey(4194322), InputBinding.OfButton(12), InputBinding.OfStick(LeftY, 1)],
+        ["step_west"] = [InputBinding.OfKey(65), InputBinding.OfKey(4194319), InputBinding.OfButton(13), InputBinding.OfStick(0, -1)],
+    });
+
+    /// <summary>The defaults of a first start with the bindings of the seven actions of the game.</summary>
     /// <returns>The settings.</returns>
-    public static GameSettings Defaults() => GameSettings.Defaults(Bindings(), GameSettings.LargeBody);
+    public static GameSettings DefaultsOfTheGame() => GameSettings.Defaults(GameBindings());
+
+    /// <summary>The defaults of a first start (D-861, D-864 to D-868, D-874).</summary>
+    /// <returns>The settings.</returns>
+    public static GameSettings Defaults() => GameSettings.Defaults(Bindings());
 }

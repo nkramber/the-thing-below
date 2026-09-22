@@ -63,7 +63,7 @@ public partial class FrameRoot : Node
         this.OnScreenChanged();
     }
 
-    /// <summary>Changes the fit of the frame, which the display setting of PR-63 sets (D-232).</summary>
+    /// <summary>Changes the fit of the frame, which the fit of the display settings sets (D-232, D-860).</summary>
     /// <param name="mode">The fit to take from now on.</param>
     public void SetMode(FitMode mode)
     {

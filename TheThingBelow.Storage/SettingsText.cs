@@ -100,6 +100,14 @@ public static class SettingsText
         _ => throw new ArgumentOutOfRangeException(nameof(value), value, "The value has no name (T-2)."),
     };
 
+    private static string NameOf(BodySetting value) => value switch
+    {
+        BodySetting.Auto => "auto",
+        BodySetting.Small => "small",
+        BodySetting.Large => "large",
+        _ => throw new ArgumentOutOfRangeException(nameof(value), value, "The value has no name (T-2)."),
+    };
+
     private static string NameOf(TextSpeed value) => value switch
     {
         TextSpeed.Slow => "slow",
@@ -137,7 +145,7 @@ public static class SettingsText
         writer.WriteStartObject("display");
         writer.WriteString("window", NameOf(display.Window));
         writer.WriteString("fit", NameOf(display.Fit));
-        writer.WriteNumber("body", display.Body);
+        writer.WriteString("body", NameOf(display.Body));
         writer.WriteEndObject();
     }
 
@@ -269,7 +277,7 @@ public static class SettingsText
     {
         WindowSetting? window = null;
         FitSetting? fit = null;
-        int? body = null;
+        BodySetting? body = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -283,7 +291,7 @@ public static class SettingsText
                     fit = ReadName(ref reader, Enum.GetValues<FitSetting>(), NameOf);
                     break;
                 case "body":
-                    body = reader.ReadInt();
+                    body = ReadName(ref reader, Enum.GetValues<BodySetting>(), NameOf);
                     break;
                 default:
                     throw reader.UnknownField(field);
@@ -293,7 +301,7 @@ public static class SettingsText
         return new DisplaySettings(
             reader.RequireValue(window, depth, "window"),
             reader.RequireValue(fit, depth, "fit"),
-            reader.RequireInt(body, depth, "body"));
+            reader.RequireValue(body, depth, "body"));
     }
 
     private static AudioSettings ReadAudio(ref ContentReader reader)
