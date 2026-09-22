@@ -134,7 +134,7 @@ Built by PR-62. Phase file: `phase-2-first-playable.md`.
 - Each window stacks over the last, back closes it, and the map stays visible behind (D-211).
 - A menu pauses the world (D-162). The tick rises while a menu is open, and the world systems skip their work (D-650).
 - A menu action is an intent, and the record holds no cursor move (D-493).
-- The mouse works on menus alone, and a mouse action on a menu makes the same intent as a key (D-219, D-493). OQ-110 holds the rules of the cursor.
+- The mouse works on menus alone, and a mouse action on a menu makes the same intent as a key (D-219, D-493). The mouse moves the cursor, and a click chooses the item under the pointer (D-872).
 - The dungeon map screen draws each tile that the party walked, with the doors, the save points, and the exits on those tiles (D-567). OQ-111 holds its scale.
 - The party window sets the starting row of each character, and the snapshot keeps the row (D-377, D-558).
 - The status window shows the level, the MP, and the stats of each character (D-569).
@@ -216,12 +216,11 @@ Built by PR-63. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-63. Phase file: `phase-2-first-playable.md`.
 
-- Four accessibility settings come with the screen (D-214). They are the flash and shake reduction, the text speed and skip, the shape icons, and the button remap. The remap covers the actions of the game, and the `ui_*` actions keep their default buttons (D-862).
+- Three accessibility settings come with the screen (D-214, D-870). They are the flash and shake reduction, the text speed and skip, and the button remap. D-870 removed the shape icons. The remap covers the actions of the game, and the `ui_*` actions keep their default buttons (D-862).
 - The reduction covers the shake and the flash of D-186, and the color split of D-195 (D-214, D-618). It has three levels: full, reduced, and off, and no level flashes more than three times in one second (D-863).
-- Shape icons give each element and status a shape as well as a color, in 18 drawings of 16 by 16 (D-74, D-75, D-214).
 - The screen tests capture each effect at each of the three levels of the reduction (D-172, D-863, `area-effects.md` section 7.13).
 
-> *In plain English:* a player who needs calm can turn off the flashes and the shakes. They can also slow the text and read each element by its shape.
+> *In plain English:* a player who needs calm can turn off the flashes and the shakes. They can also slow the text and remap the buttons.
 
 ### 7.13 UI in the tests
 
@@ -244,7 +243,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | PR-7 | The map scene, the camera, and the map HUD | D-106, D-212, D-306 |
 | PR-10 | The battle screen: the timeline strip, the command menu with its keyboard and gamepad input, the pointer of a target, the status, the health bars, and the damage numbers | D-111, D-213, D-826, D-827, D-833 |
 | PR-62 | The window stack, the party window with the starting row, the status window, the notices, the notice log, and the dungeon map screen | D-211, D-218, D-221, D-525, D-558, D-567, D-569 |
-| PR-63 | The settings screen, the settings file, and the four accessibility settings | D-214, D-226, D-526 |
+| PR-63 | The settings screen, the settings file, and the three accessibility settings | D-214, D-226, D-526, D-870 |
 | PR-12 to PR-16 | The lesson, gear, item, status, and save screens, one for each system | D-211 |
 | PR-36 | The dialogue box, the name plate, and the choices | D-114, D-223 |
 | PR-35 | The region map screen | D-113 |
@@ -308,7 +307,7 @@ The register is `docs/questions.md` (D-19). These questions block UI PRs, and ea
 - OQ-107: how Game knows the last device of the player. Resolved 2026-09-20 by D-711, which D-815 superseded on 2026-09-21.
 - OQ-108: where a remap lives, and what a conflict does. Resolved 2026-09-22 by D-862.
 - OQ-109: the dead zone of a stick, and its range in the settings. Resolved 2026-09-22 by D-861.
-- OQ-110: the cursor rules of a menu, and the mouse on it. Blocks PR-62.
+- OQ-110: the cursor rules of a menu, and the mouse on it. Resolved 2026-09-22 by D-872.
 - OQ-111: the scale of the dungeon map screen. Blocks PR-62.
 - OQ-112: the text speeds, and the type-out of the dialogue box. Resolved 2026-09-22 by D-709 and D-864.
 - OQ-113: the notice log, and how many notices it keeps. Blocks PR-62.

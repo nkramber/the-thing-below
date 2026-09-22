@@ -38,10 +38,9 @@ public sealed class SettingsTextTests
         Assert.Equal(MessageSpeed.Normal, settings.Battle.Messages);
         Assert.False(settings.Battle.RememberCursor);
 
-        // D-863, D-864, and D-868.
+        // D-863, D-864, and D-868. D-870 removed the shape icons.
         Assert.Equal(EffectLevel.Full, settings.Access.Effects);
         Assert.Equal(TextSpeed.Normal, settings.Access.Text);
-        Assert.True(settings.Access.ShapeIcons);
     }
 
     [Fact]
@@ -57,7 +56,7 @@ public sealed class SettingsTextTests
                 80,
                 Vibration: false),
             Battle = new BattleSettings(MessageSpeed.Fast, RememberCursor: true),
-            Access = new AccessSettings(EffectLevel.Reduced, TextSpeed.Slow, ShapeIcons: false),
+            Access = new AccessSettings(EffectLevel.Reduced, TextSpeed.Slow),
         };
 
         Assert.Equal(settings, SettingsText.Read(SettingsText.Write(settings), File));

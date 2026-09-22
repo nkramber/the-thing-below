@@ -191,7 +191,6 @@ public static class SettingsText
         writer.WriteStartObject("access");
         writer.WriteString("effects", NameOf(access.Effects));
         writer.WriteString("text", NameOf(access.Text));
-        writer.WriteBoolean("shapeIcons", access.ShapeIcons);
         writer.WriteEndObject();
     }
 
@@ -457,7 +456,6 @@ public static class SettingsText
     {
         EffectLevel? effects = null;
         TextSpeed? text = null;
-        bool? shapeIcons = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -470,9 +468,6 @@ public static class SettingsText
                 case "text":
                     text = ReadName(ref reader, Enum.GetValues<TextSpeed>(), NameOf);
                     break;
-                case "shapeIcons":
-                    shapeIcons = reader.ReadBoolean();
-                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -480,8 +475,7 @@ public static class SettingsText
 
         return new AccessSettings(
             reader.RequireValue(effects, depth, "effects"),
-            reader.RequireValue(text, depth, "text"),
-            reader.RequireValue(shapeIcons, depth, "shapeIcons"));
+            reader.RequireValue(text, depth, "text"));
     }
 
     /// <summary>Reads a text, and gives the one value whose name it is.</summary>

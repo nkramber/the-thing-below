@@ -480,7 +480,7 @@ Area file: `area-battle.md` section 7.4.
 - The element table of gear (PR-13, D-790).
 - The bonus of an aptitude and of a side aptitude (PR-12, D-791).
 - What poison, blind, and silence do on the map (PR-64, D-393, D-792).
-- The icons of the elements and the statuses (PR-10, D-811), and their shape variants (PR-63, D-214).
+- The icons of the elements and the statuses (PR-10, D-811). D-870 removed the shape variants.
 - A lesson that gives an element or a status in play, and the refusal of a rite of a silenced holder (PR-12, D-793, D-806).
 - The cure rites, which PR-12 gives to Mend (D-394).
 
@@ -738,15 +738,15 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 **Scope.**
 
 - The settings screen with four groups: display, audio, controls, and battle (D-226).
-- Display: the window mode and the scale of D-232 (D-232, D-618).
+- Display: the window mode, the scale of D-232, and the body size of D-707 (D-232, D-618, D-865).
 - Audio: the master, music, effects, and ambience volumes, the mute in the background, and the mono toggle (D-435).
 - Controls: the remap, the stick dead zone, and the vibration setting (D-214, D-434).
 - Battle: the message speed and the remembered cursor (D-226).
-- The four accessibility settings: the flash and shake reduction, the text speed and skip, the shape icons, and the remap (D-214).
-- The 18 shape drawings of 16 by 16, one for each element and each status (D-74, D-75).
+- The three accessibility settings: the flash and shake reduction, the text speed and skip, and the remap (D-214, D-870).
+- The menu action opens the settings screen until PR-62, and the world pauses (D-871).
 - The settings file outside the save files, which never enters a run record (D-494, D-860, T-7). It is `settings.json` at the root of the folder of D-465.
 - The format version of the settings file, and one migration step with a fixture file for each new setting (D-570).
-- The review sheets of the 18 shape drawings (D-514, G-25).
+- The mouse moves the cursor of the screen, and a click chooses (D-872).
 
 **Out of scope.**
 
@@ -764,17 +764,17 @@ Area file: `area-ui-input.md` sections 7.11 and 7.12.
 6. No setting reaches a run record, and a test proves it (T-7).
 7. The stick dead zone is 0.5 for every action by default, and the slider goes from 0.2 to 0.8 (D-861, F-50).
 8. A screen test captures the settings screen.
-9. The review sheets of the 18 shape drawings reach the PR description (D-514).
-10. The owner approves that art batch (G-25).
+9. The menu action opens the settings screen, and the cancel action closes it when no conflict stays (D-862, D-871).
+10. The mouse moves the cursor, and a click chooses the item under the pointer (D-872).
 
 **Review focus.**
 
 - The settings file follows D-860.
 - The default `ui_*` actions keep their events and take no remap, because Godot cannot remove one and the menus must stay reachable (D-862, F-50).
 - Vibration turns off for any player, and it has limits on macOS (F-50).
-- The shape icons cover all eight elements and all ten statuses (D-214).
+- The screen closes only when no binding conflict stays (D-862).
 
-**Questions.** None. D-860 to D-863 answer OQ-106, OQ-109, OQ-108, and OQ-100.
+**Questions.** None. D-860 to D-863 answer OQ-106, OQ-109, OQ-108, and OQ-100. D-864 answers OQ-112, and D-872 answers OQ-110. D-865 to D-871 set the other values.
 
 > *In plain English:* one screen holds every choice about the game: the picture, the sound, the buttons, and the pace of battle. A player who needs calm can turn the flashes and the shakes down.
 
@@ -1031,11 +1031,12 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 **Scope.**
 
 - The main list, which opens one window for each task: party, lessons, gear, items, status, and save (D-211).
+- The settings entry of the main list, which opens the settings screen of PR-63. The menu action then opens the main list (D-871).
 - The party window, which sets the starting row of each character, and the snapshot that keeps the row (D-377, D-558).
 - The status window, which reads the state of PR-9, PR-12, and PR-67 (D-569).
 - The window stack, where back closes one window and the map stays visible behind (D-211).
 - The pause of the world while a menu is open (D-162, D-650).
-- The mouse on menus alone, which makes the same intent as a key or a button (D-219, D-493, OQ-110).
+- The mouse on menus alone, which makes the same intent as a key or a button (D-219, D-493). The mouse moves the cursor, and a click chooses (D-872).
 - The dungeon map screen, which draws each tile that the party walked (D-567, OQ-111).
 - The notice that slides in at the top edge, and the notice log in the menu (D-221, OQ-113).
 
@@ -1058,11 +1059,11 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
 **Review focus.**
 
-- The answer of OQ-110 sets the cursor rules, and OQ-111 the scale of the map screen.
+- D-872 sets the cursor rules, and OQ-111 holds the scale of the map screen.
 - The answer of OQ-113 sets which notices the log keeps, and how many.
 - Each later system PR adds one window to this stack (D-525).
 
-**Questions.** OQ-110, OQ-111, and OQ-113. D-650 resolved OQ-64.
+**Questions.** OQ-111 and OQ-113. D-872 resolved OQ-110. D-650 resolved OQ-64.
 
 > *In plain English:* menus are windows that stack on each other, and the world stops while one is open. A second screen draws each tile of the dungeon that the party walked.
 
@@ -2126,7 +2127,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-107 | How Game knows the last device of the player | PR-61 |
 | OQ-108 | Where a remap lives, and what a conflict does, resolved by D-862 | PR-63 |
 | OQ-109 | The dead zone of a stick, resolved by D-861 | PR-63 |
-| OQ-110 | The cursor rules of a menu | PR-62 |
+| OQ-110 | The cursor rules of a menu, resolved by D-872 | PR-62 |
 | OQ-111 | The scale of the dungeon map screen | PR-62 |
 | OQ-112 | The text speeds and the type-out of the dialogue box, resolved by D-864 | PR-36 |
 | OQ-113 | The notice log | PR-62 |

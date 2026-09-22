@@ -90,11 +90,10 @@ public sealed record ControlSettings(ControlBindings Bindings, int DeadZone, boo
 /// <param name="RememberCursor">True when the command menu opens on the last command of each member.</param>
 public sealed record BattleSettings(MessageSpeed Messages, bool RememberCursor);
 
-/// <summary>The accessibility settings, apart from the remap of the controls group (D-214).</summary>
+/// <summary>The accessibility settings, apart from the remap of the controls group (D-214, D-870).</summary>
 /// <param name="Effects">The level of the flash and shake reduction (D-863).</param>
 /// <param name="Text">The speed of the type-out (D-864).</param>
-/// <param name="ShapeIcons">True when each element and each status shows its shape (D-74, D-75).</param>
-public sealed record AccessSettings(EffectLevel Effects, TextSpeed Text, bool ShapeIcons);
+public sealed record AccessSettings(EffectLevel Effects, TextSpeed Text);
 
 /// <summary>
 /// Every choice of the settings screen, which the settings file holds (D-226, D-860).
@@ -166,7 +165,7 @@ public sealed record GameSettings(
             new AudioSettings(DefaultVolume, DefaultVolume, DefaultVolume, DefaultVolume, MuteInBackground: true, Mono: false),
             new ControlSettings(bindings, DefaultDeadZone, Vibration: true),
             new BattleSettings(MessageSpeed.Normal, RememberCursor: false),
-            new AccessSettings(EffectLevel.Full, TextSpeed.Normal, ShapeIcons: true));
+            new AccessSettings(EffectLevel.Full, TextSpeed.Normal));
         settings.Check();
         return settings;
     }

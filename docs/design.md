@@ -484,7 +484,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 14. PR-48: the normal maps and their review sheet, right before PR-56 (D-184, D-521).
 15. PR-56: the light setups, the decor files, the carried light, the shadows, and the effect budget (D-183, D-520, D-523, D-842 to D-855).
 16. PR-93: CI on a docs-only change, right after PR-56 (D-856).
-17. PR-63: the settings screen, the four accessibility settings, and a versioned settings file (D-214, D-526, D-570).
+17. PR-63: the settings screen, the three accessibility settings, and a versioned settings file (D-214, D-526, D-570, D-870).
 18. PR-57: the effect files, the particles, and the battle effects (D-182, D-186).
 19. PR-58: the four ambient kinds of region one (D-187).
 20. PR-59: the glow on fire, spells, and waystones (D-188).

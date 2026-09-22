@@ -350,6 +350,7 @@ How to file a question (D-19, D-24):
 110. **OQ-110. The cursor rules of a menu.** The mouse works on menus alone (D-219), and a menu action is an intent (D-493). Does the mouse move the cursor of the menu, and does a click choose? Raised 2026-09-16. Blocks PR-62.
     - The mouse moves the cursor, and a click chooses the item under it, the recommendation. The three devices drive one cursor, and the record holds the choice alone. A move of the mouse over a list changes the cursor under the hand of a keyboard player.
     - The mouse chooses with a click alone, and it never moves the cursor. The cursor follows the keyboard and the gamepad alone. A mouse player sees no mark under the pointer before a click.
+    - Resolved 2026-09-22: D-872. The mouse moves the cursor, and a click chooses the item under the pointer.
 111. **OQ-111. The scale of the dungeon map screen.** The map screen draws each tile that the party walked (D-567). A dungeon is larger than the frame. At what scale does it draw? Raised 2026-09-16. Blocks PR-62.
     - One pixel for each tile, with the screen centered on the party, the recommendation. A large dungeon fits in the frame, and the shape reads at a glance. A door or a save point needs a mark of more than one pixel.
     - Eight pixels for each tile, with a scroll. Each room reads clearly, with its doors and chests. The player scrolls a large dungeon, which needs its own input rules.

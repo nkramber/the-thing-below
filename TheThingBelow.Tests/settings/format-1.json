@@ -61,7 +61,6 @@
   },
   "access": {
     "effects": "full",
-    "text": "normal",
-    "shapeIcons": true
+    "text": "normal"
   }
 }
