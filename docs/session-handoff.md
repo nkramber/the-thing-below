@@ -20,7 +20,8 @@ Session: author PR-93, round 2. Repository: the-thing-below. Branch: `chore/pr-9
 
 ### What is in flight
 
-- The Gitar pass of this push, then the review of the other provider (D-401, D-560).
+- The Gitar pass approved `c9429c4` at 2026-09-22T02:45:51Z, with 1 finding closed and no new finding. The Gitar check of that head passed.
+- The review of the other provider (D-401, D-560). The next push holds this entry alone, so it is the first live docs-only push after a green head.
 
 ### Traps and gotchas
 
@@ -34,7 +35,7 @@ None.
 
 ### The next concrete action
 
-Wait for Gitar on the new head, and answer each comment. Then tell the owner that PR #54 is ready for the other provider.
+Read the `changed paths` log of the push of this entry: the build jobs skip, and each gate reports `success`. Then the other provider reviews PR #54 at effective head `c9429c4`.
 
 ## Session 195: 2026-09-22, Claude Code
 
