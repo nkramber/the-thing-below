@@ -1,5 +1,36 @@
 # Session handoff archive
 
+## Session 191: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-56, round 5. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
+
+### What this session did, and why
+
+- CI run 35668891800 of `d31b896` passed each job except screen-test and review-gate. The screen-test job failed on 43 lit captures, because the wall faces and the figure shadows change each frame.
+- The author read the map, walk, and battle frames of its `screen-captures` artifact. They match the local sheet, and this round commits them as the baseline (D-733).
+
+### The state of the build
+
+- `make verify` and `make smoke` pass. The remote head is this round.
+
+### What is in flight
+
+- Gitar on this head, and the repeat review of Codex. The review of `6095f70` is stale.
+- The owner runs the Deck test of D-854.
+
+### Traps and gotchas
+
+- The review-gate check fails until the repeat review names the effective head.
+
+### The questions that block progress
+
+The Deck result of D-854.
+
+### The next concrete action
+
+Prove that the Gitar review of this head is current. Then tell the owner that PR #53 is ready for the repeat review.
+
 ## Session 190: 2026-09-21, Claude Code
 
 Author: Claude Code
