@@ -48,14 +48,20 @@ public sealed class AmbientLayer
     /// <summary>Tells whether every node of the weather stands still, so each particle stays in the world (F-97).</summary>
     public bool NodesStandStill => this.streams?.NodesStandStill ?? true;
 
+    /// <summary>Tells whether every node of the weather holds one region of the world, so the weather never stops (F-98).</summary>
+    /// <param name="area">The region that each node must hold, in art pixels of the parent.</param>
+    /// <returns>True when each node holds the region.</returns>
+    public bool NodesHold(Rect2 area) => this.streams?.NodesHold(area) ?? true;
+
     /// <summary>Builds the weather of one place under a parent node.</summary>
     /// <param name="effect">The ambient file of the place, or no value for a place with no weather.</param>
     /// <param name="palette">The palette (D-181).</param>
+    /// <param name="visible">The region of the parent that each node holds, so the weather never stops (F-98).</param>
     /// <param name="parent">The node that takes the nodes of the weather: the world of the screen.</param>
     /// <returns>The layer.</returns>
     /// <exception cref="ArgumentNullException">The palette or the parent is null (T-2).</exception>
     /// <exception cref="ContentException">The palette holds no key of the weather (T-2).</exception>
-    public static AmbientLayer Build(AmbientEffect? effect, Palette palette, Node2D parent)
+    public static AmbientLayer Build(AmbientEffect? effect, Palette palette, Rect2 visible, Node2D parent)
     {
         ArgumentNullException.ThrowIfNull(palette);
         ArgumentNullException.ThrowIfNull(parent);
@@ -68,7 +74,7 @@ public sealed class AmbientLayer
         string name = effect.Id.Value;
         return new AmbientLayer(
             effect,
-            ParticleStreams.Build(name, effect.Emitters, palette, effect.Lit, StreamZIndex, parent),
+            ParticleStreams.Build(name, effect.Emitters, palette, effect.Lit, StreamZIndex, visible, parent),
             FogSheets.Build(name, effect.Fogs, palette, effect.Lit, FogZIndex, parent));
     }
 

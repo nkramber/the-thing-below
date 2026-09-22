@@ -13,6 +13,7 @@ Session: author PR-58. Repository: the-thing-below. Branch: `feat/pr-58-ambient`
 - Added ten captures: each ambient kind on the map and over a fight, the pit room of the doorway fix, and three frames of a step that scrolls the view (D-889, F-97).
 - Answered the first Gitar pass: each particle node now takes a seed from its name, so two colors of one stream and two torches of one kind hold their own particles.
 - Fixed F-97 from a play session of the owner: each stream rode the view. A node with `local_coords` off holds each live particle in the space of the viewport. Each node now keeps `local_coords` on and moves its start box alone.
+- Fixed F-98 from a second play session: every torch went out in another room. Godot stops a particle system whose region leaves the screen, and each node stood at the north-west corner of the map with the default region. Each node now takes the region of the whole map and a margin.
 - Tuned the dust to the reading of the owner: 60 motes of the ash key, a sideways drift, and no drips.
 
 ### The state of the build
@@ -33,6 +34,7 @@ Session: author PR-58. Repository: the-thing-below. Branch: `feat/pr-58-ambient`
 - A stream seeks one lifetime forward at its build, and each later seek asks for the ticks since the last one. A jump of the tick starts the node again (T-7).
 - The capture session takes 68 captures, and each one waits 8 frames. The `sheet` target of the Makefile holds its own frame limit of 1200, as the screen-test job does.
 - The three frames of the scroll fixture hold the evidence of F-97. A particle that rides the view stands at the same place of each frame.
+- The smoke session walks a run of its own into the room below, and it fails on a node whose region leaves the view, and on a torch with no energy (F-98).
 - The capture files of `content/effects/ambient-captures/` never reach a map of the shipped build (D-889).
 
 ### The questions that block progress

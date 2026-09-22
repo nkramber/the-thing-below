@@ -56,6 +56,14 @@ public sealed class TorchFlame
     /// <summary>Tells whether every node of this fire stands still, so each ember stays in the world (F-97).</summary>
     public bool NodesStandStill => this.streams.NodesStandStill;
 
+    /// <summary>The energy of the light of this torch now, which each step of its fire changes (D-891).</summary>
+    public float Energy => this.ground.Energy;
+
+    /// <summary>Tells whether every node of this fire holds one region of the world, so the flame never stops (F-98).</summary>
+    /// <param name="area">The region that each node must hold, in art pixels of the parent.</param>
+    /// <returns>True when each node holds the region.</returns>
+    public bool NodesHold(Rect2 area) => this.streams.NodesHold(area);
+
     /// <summary>Shows or hides the streams of this fire, as the switch of the carried light does (D-847).</summary>
     public bool Visible
     {
@@ -67,6 +75,7 @@ public sealed class TorchFlame
     /// <param name="fire">The fire of the file of the torch.</param>
     /// <param name="lights">The pair of Godot lights of the torch (D-853).</param>
     /// <param name="palette">The palette (D-181).</param>
+    /// <param name="visible">The region of the parent that each node holds, so the flame never stops (F-98).</param>
     /// <param name="parent">The node that takes the particle nodes: the world of the screen.</param>
     /// <returns>The fire on screen.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
@@ -76,6 +85,7 @@ public sealed class TorchFlame
         TorchFire fire,
         (PointLight2D Ground, PointLight2D Figures) lights,
         Palette palette,
+        Rect2 visible,
         Node2D parent)
     {
         ArgumentException.ThrowIfNullOrEmpty(id);
@@ -88,7 +98,7 @@ public sealed class TorchFlame
             fire,
             lights.Ground,
             lights.Figures,
-            ParticleStreams.Build(id, fire.Emitters, palette, lit: false, FlameZIndex, parent));
+            ParticleStreams.Build(id, fire.Emitters, palette, lit: false, FlameZIndex, visible, parent));
     }
 
     /// <summary>Puts the torch at one place, in art pixels of the parent: the place of its light with no jump.</summary>

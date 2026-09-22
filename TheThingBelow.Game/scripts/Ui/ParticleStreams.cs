@@ -55,6 +55,25 @@ public sealed class ParticleStreams
         }
     }
 
+    /// <summary>
+    /// Tells whether every node holds one region of the world, so no stream stops when the view
+    /// moves away from the parent (F-98).
+    /// </summary>
+    /// <param name="area">The region that each node must hold, in art pixels of the parent.</param>
+    /// <returns>True when each node holds the region.</returns>
+    public bool NodesHold(Rect2 area)
+    {
+        foreach (StreamNode node in this.nodes)
+        {
+            if (!node.Particles.VisibilityRect.Encloses(area))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /// <summary>Shows or hides every node of the streams, as the switch of the carried light does (D-847).</summary>
     public bool Visible
     {
@@ -73,6 +92,11 @@ public sealed class ParticleStreams
     /// <param name="palette">The palette, which gives each key its color (D-181).</param>
     /// <param name="lit">True when the scene light falls on the particles (D-183).</param>
     /// <param name="zIndex">The Z index of each node.</param>
+    /// <param name="visible">
+    /// The region of the parent that each node holds, in art pixels. Godot stops a particle
+    /// system whose region leaves the screen, so this rect holds every place that the start box
+    /// of a stream can reach (F-98).
+    /// </param>
     /// <param name="parent">The node that takes the particle nodes.</param>
     /// <returns>The streams.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
@@ -83,6 +107,7 @@ public sealed class ParticleStreams
         Palette palette,
         bool lit,
         int zIndex,
+        Rect2 visible,
         Node2D parent)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
@@ -108,7 +133,8 @@ public sealed class ParticleStreams
                     ColorOf(name, palette, emitter.Colors[key]),
                     amount,
                     lit,
-                    zIndex);
+                    zIndex,
+                    visible);
                 parent.AddChild(node.Particles);
                 nodes.Add(node);
             }
@@ -182,7 +208,14 @@ public sealed class ParticleStreams
         return seed == 0 ? 1 : seed;
     }
 
-    private static StreamNode BuildNode(string name, StreamEmitter emitter, Color color, int amount, bool lit, int zIndex)
+    private static StreamNode BuildNode(
+        string name,
+        StreamEmitter emitter,
+        Color color,
+        int amount,
+        bool lit,
+        int zIndex,
+        Rect2 visible)
     {
         var process = new ParticleProcessMaterial
         {
@@ -218,6 +251,11 @@ public sealed class ParticleStreams
             LocalCoords = true,
             ProcessMaterial = process,
             ZIndex = zIndex,
+
+            // Godot stops a particle system whose region leaves the screen. The node stands at
+            // its parent, so the default region of 200 by 200 pixels leaves the screen as soon
+            // as the view moves, and every stream of the map goes out (F-98).
+            VisibilityRect = visible,
         };
 
         if (!lit)

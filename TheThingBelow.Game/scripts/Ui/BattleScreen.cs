@@ -63,6 +63,9 @@ public sealed class BattleScreen
     /// <summary>The Z index of the backdrop, below every sprite (D-205).</summary>
     private const int BackdropZIndex = -10;
 
+    /// <summary>The margin around the world of a fight that each particle node holds, in art pixels (F-98).</summary>
+    private const int BattleWeatherMargin = 64;
+
     /// <summary>The Z index of the health bars and the pointer, above every sprite.</summary>
     private const int MarkZIndex = 10;
 
@@ -182,7 +185,11 @@ public sealed class BattleScreen
         screen.BuildLight(run.Party.Map);
 
         // The weather of the place plays over the backdrop of the fight (D-205).
-        screen.weather = AmbientLayer.Build(ambient ?? content.Effects.Ambient.WeatherOf(run.Party.Map.Id), content.Palette, screen.world);
+        screen.weather = AmbientLayer.Build(
+            ambient ?? content.Effects.Ambient.WeatherOf(run.Party.Map.Id),
+            content.Palette,
+            new Rect2(-BattleWeatherMargin, -BattleWeatherMargin, FrameRoot.WorldWidth + (2 * BattleWeatherMargin), FrameRoot.WorldHeight + (2 * BattleWeatherMargin)),
+            screen.world);
         Shader flash = LoadFlashShader();
         foreach (ShownCombatant shown in view.Party)
         {

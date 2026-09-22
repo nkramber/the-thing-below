@@ -75,6 +75,9 @@ public partial class MapScreen : Node2D
     /// <summary>The Z index of the mark of a sight: above each figure, each flame, and each layer of fog (D-208, D-885).</summary>
     private const int MarkZIndex = 8;
 
+    /// <summary>The margin around the map that each particle node holds, in art pixels: two tiles (F-98).</summary>
+    private const int WeatherMargin = 2 * MapCamera.TilePixels;
+
     private TileMapLayer ground = null!;
     private Sprite2D lead = null!;
     private Sprite2D[] enemies = [];
@@ -140,7 +143,7 @@ public partial class MapScreen : Node2D
         this.AddChild(this.mark);
 
         this.BuildLight(atlas, party.Map, content);
-        this.weather = AmbientLayer.Build(ambient, content.Palette, this);
+        this.weather = AmbientLayer.Build(ambient, content.Palette, WeatherArea(party.Map), this);
     }
 
     /// <summary>Puts the party where Core put it, and moves the view (D-203, D-717).</summary>
@@ -238,9 +241,33 @@ public partial class MapScreen : Node2D
                 "A particle node of the map moved from its parent, and each live particle then rides the view (T-2, F-97).");
         }
 
+        // Godot stops a particle system whose region leaves the screen, so each node holds the
+        // whole map. A node with a smaller region goes out as the view moves (F-98).
+        var seen = new Rect2(this.view, new Vector2(FrameRoot.WorldWidth, FrameRoot.WorldHeight));
+        bool holds = this.weather.NodesHold(seen) && this.carriedFlame.NodesHold(seen);
+        float dimmest = this.carriedFlame.Energy;
+        foreach (TorchFlame torch in this.torches)
+        {
+            still = still && torch.NodesStandStill;
+            holds = holds && torch.NodesHold(seen);
+            dimmest = Math.Min(dimmest, torch.Energy);
+        }
+
+        if (!holds)
+        {
+            throw new InvalidOperationException(
+                $"A particle node of the map holds a region that leaves the view {seen}, and Godot then stops it (T-2, F-98).");
+        }
+
+        if (dimmest <= 0f)
+        {
+            throw new InvalidOperationException(
+                $"A torch of the map gives the energy {dimmest}, and every torch burns at each tick (T-2, D-891).");
+        }
+
         string kind = this.weather.Effect is null ? "no weather" : AmbientEffect.NameOf(this.weather.Effect.Kind);
         return $"the weather is {kind} with {this.weather.NodeCount} particle nodes and {this.weather.FogCount} fog layers, "
-            + $"and {this.torches.Count} torches with {flames} nodes";
+            + $"and {this.torches.Count} torches with {flames} nodes, the dimmest at {dimmest:0.00} energy";
     }
 
     /// <summary>
@@ -291,7 +318,7 @@ public partial class MapScreen : Node2D
             // A light of a decor piece is a fire, and an added light of the setup is not (D-843, D-888).
             if (FireOf(content, decor, light.Id) is TorchFire fire)
             {
-                TorchFlame flame = TorchFlame.Build(light.Id.Value, fire, (ground, figures), content.Palette, this);
+                TorchFlame flame = TorchFlame.Build(light.Id.Value, fire, (ground, figures), content.Palette, WeatherArea(map), this);
                 flame.MoveTo(ground.Position);
                 this.torches.Add(flame);
             }
@@ -312,9 +339,21 @@ public partial class MapScreen : Node2D
             this.carriedPlace.Fire,
             (this.carriedGround, this.carriedFigures),
             content.Palette,
+            WeatherArea(map),
             this);
         this.CarriedLightOn = false;
     }
+
+    /// <summary>
+    /// Gives the region that each particle node of the map holds: the whole map and a margin
+    /// (F-98). Godot stops a particle system whose region leaves the screen, and each node of
+    /// the map stands at the north-west corner of the map, so the region holds every tile.
+    /// </summary>
+    private static Rect2 WeatherArea(GameMap map) => new(
+        -WeatherMargin,
+        -WeatherMargin,
+        (map.Width * MapCamera.TilePixels) + (2 * WeatherMargin),
+        (map.Height * MapCamera.TilePixels) + (2 * WeatherMargin));
 
     /// <summary>Gives the fire of the decor kind of one light, or no value for a light that no piece holds.</summary>
     private static TorchFire? FireOf(ContentSet content, DecorFile decor, ContentId light)
