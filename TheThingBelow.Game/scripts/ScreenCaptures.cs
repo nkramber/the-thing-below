@@ -40,7 +40,7 @@ public sealed record WalkTick(string Action, int Tick);
 /// fits give the same picture, and the pair proves that rule of D-568.
 /// <para>
 /// This type holds no Godot value, so a test reads the list from the built Game assembly
-/// with no engine (D-614). Every later screen of PR-62 and PR-63 adds its fixture here.
+/// with no engine (D-614). Every later screen of PR-62 adds its fixture here, as the settings screen did (D-871).
 /// </para>
 /// </remarks>
 public static class ScreenCaptures
@@ -65,6 +65,12 @@ public static class ScreenCaptures
     /// a blow of a character with its flash and its number (D-172, D-827).
     /// </summary>
     public const string BattleFixture = "battle";
+
+    /// <summary>The settings screen over the paused map (D-226, D-871).</summary>
+    public const string SettingsFixture = "settings";
+
+    /// <summary>The frame of the settings screen with a binding conflict and its line (D-862).</summary>
+    public const string SettingsConflictFrame = "conflict-1x";
 
     /// <summary>The frame of the battle fixture that shows the pointer on the first target (D-833).</summary>
     public const string BattleTargetFrame = "target-1x";
@@ -107,7 +113,7 @@ public static class ScreenCaptures
     public static IReadOnlyList<ScreenCapture> All { get; } = Build();
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
-    public static IReadOnlyList<string> Fixtures { get; } = [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture];
+    public static IReadOnlyList<string> Fixtures { get; } = [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -168,6 +174,14 @@ public static class ScreenCaptures
             BattleFixture, BattleTargetFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         captures.Add(new ScreenCapture(
             BattleFixture, BattleBlowFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+
+        // The settings screen draws at both body sizes: 32 at 1x, and 24 at 1080 rows (D-707).
+        // The conflict line draws at 1x, the floor of the Steam Deck (D-862).
+        captures.Add(new ScreenCapture(
+            SettingsFixture, "1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(SettingsFixture, "fill-1080", DesktopWidth, 1080, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(
+            SettingsFixture, SettingsConflictFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         return captures;
     }
 

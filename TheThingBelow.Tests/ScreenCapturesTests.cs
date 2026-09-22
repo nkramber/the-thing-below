@@ -54,13 +54,14 @@ public sealed class ScreenCapturesTests
     public static TheoryData<string> ExpectedNames { get; } = BuildExpectedNames();
 
     [Fact]
-    public void TheListHoldsFiveCapturesOfEachStillFixtureOneForEachTickOfTheWalkAndFourOfTheBattle()
+    public void TheListHoldsFiveCapturesOfEachStillFixtureOneForEachTickOfTheWalkFourOfTheBattleAndThreeOfTheSettings()
     {
         // D-734. Two still fixtures, and five captures of each one: the frame at 1x, and both
         // fit modes at 1080 and 1440 screen rows (D-232, D-568). D-782 adds the walk: 17 ticks
         // of one step north and 17 of one step south (D-821). D-819 adds the picture at 1x.
-        // D-827 adds the battle: the menu at both body sizes, the pointer, and a blow.
-        Assert.Equal(10 + 34 + 1 + 4, FileNames().Count);
+        // D-827 adds the battle: the menu at both body sizes, the pointer, and a blow. PR-63
+        // adds the settings screen at both body sizes, and its conflict line (D-862, D-871).
+        Assert.Equal(10 + 34 + 1 + 4 + 3, FileNames().Count);
     }
 
     [Fact]

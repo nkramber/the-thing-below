@@ -208,7 +208,7 @@ Built by PR-10 and PR-57. Phase file: `phase-2-first-playable.md`.
 - PR-57 also adds the flash of a spell, with a point light of PR-56 for its length (D-183, D-186).
 - A heavy blow also starts the vibration of D-434, and `area-ui-input.md` holds it.
 - OQ-99 holds what a screen shake moves.
-- The flash and shake reduction gives each flash and each shake a reduced form, and the screen tests capture both forms (D-214). OQ-100 holds what the reduced form does.
+- The flash and shake reduction gives each flash and each shake a reduced form (D-214). The screen tests capture each of the three levels: full, reduced, and off (D-863).
 - Core resolves each action and emits its events, and Game plays the effects from them (D-168). `area-battle.md` holds how the battle scene paces the events of a turn under D-522.
 
 > *In plain English:* a hit in battle shows blood, sparks, and a jolt, and it passes fast so the fight keeps its pace. A player who needs calm can turn the flashes and the shakes down.
@@ -372,7 +372,7 @@ The register is `docs/questions.md` (D-19). These questions block effect PRs, an
 - OQ-94 to OQ-97 are resolved. D-842, D-843, D-845, and D-846 hold the answers.
 - OQ-98: GPU particles or CPU particles. Blocks PR-57.
 - OQ-99: what a screen shake moves. Blocks PR-57.
-- OQ-100: the reduced form of a flash and a shake. Blocks PR-57.
+- OQ-100: the reduced form of a flash and a shake. Resolved 2026-09-22 by D-863.
 - OQ-101: how fog keeps an enemy visible. Blocks PR-58.
 - OQ-102: how glow stays off sprites. Blocks PR-59.
 - OQ-103: where shader code lives. Resolved by D-825.

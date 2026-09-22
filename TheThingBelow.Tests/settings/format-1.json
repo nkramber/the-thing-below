@@ -1,0 +1,66 @@
+{
+  "format": 1,
+  "display": {
+    "window": "borderless",
+    "fit": "fill",
+    "body": "auto"
+  },
+  "audio": {
+    "master": 8,
+    "music": 8,
+    "effects": 8,
+    "ambience": 8,
+    "muteInBackground": true,
+    "mono": false
+  },
+  "controls": {
+    "deadZone": 50,
+    "vibration": true,
+    "bindings": {
+      "cancel": [
+        {
+          "kind": "key",
+          "code": 4194305,
+          "direction": 0
+        },
+        {
+          "kind": "button",
+          "code": 1,
+          "direction": 0
+        }
+      ],
+      "confirm": [
+        {
+          "kind": "key",
+          "code": 4194309,
+          "direction": 0
+        },
+        {
+          "kind": "button",
+          "code": 0,
+          "direction": 0
+        }
+      ],
+      "step_north": [
+        {
+          "kind": "key",
+          "code": 87,
+          "direction": 0
+        },
+        {
+          "kind": "stick",
+          "code": 1,
+          "direction": -1
+        }
+      ]
+    }
+  },
+  "battle": {
+    "messages": "normal",
+    "rememberCursor": false
+  },
+  "access": {
+    "effects": "full",
+    "text": "normal"
+  }
+}

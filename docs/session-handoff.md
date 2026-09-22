@@ -1,5 +1,146 @@
 # Session handoff
 
+## Session 203: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-55, repeat review. Repository: the-thing-below. Branch: `feat/pr-63-settings`. PR: #55. Role: reviewer. Base: `daeccfe`.
+
+### What this session did, and why
+
+- Recomputed the effective head. The initial record named `d6b3606`, but `c974fe4` changes eight substantive screen baselines.
+- Verified the original screen-test trigger and the correction. The three settings captures and five `ui` captures now pass the current CI screen-test.
+- Updated `docs/reviews/pr-55.md` with no finding and the verdict `Ready for owner merge` for effective head `c974fe4`.
+
+### The state of the build
+
+- The implementation checks passed at `d6b3606` with 1,987 non-Smoke tests and all local gates.
+- CI run 35691479039 passed the corrected baselines and all current checks. The remote tip is metadata after effective head `c974fe4`.
+
+### What is in flight
+
+- The repeat-review record and this handoff entry need commit and push.
+- The owner can merge after review-gate passes for effective head `c974fe4`.
+
+### Traps and gotchas
+
+- Screen baselines are substantive review paths. Metadata commits after `c974fe4` do not change the effective head.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the repeat review and handoff. Fetch and verify the remote head and review-gate check.
+
+## Session 202: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-55, initial review. Repository: the-thing-below. Branch: `feat/pr-63-settings`. PR: #55. Role: reviewer. Base: `daeccfe`.
+
+### What this session did, and why
+
+- Reviewed the settings file, input remap, settings screen, runtime application, tests, and screen baselines of PR #55.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Wrote `docs/reviews/pr-55.md` with no finding and the verdict `Ready for owner merge` for effective head `d6b3606`.
+
+### The state of the build
+
+- `make verify` passed at `d6b3606` with 1,987 non-Smoke tests, 0 STE findings, 0 det-lint findings, matching replay identity and content hash, matching atlas, and a green smoke session.
+- CI run 35689788015 passed its build, test, format, det-lint, replay identity, smoke, screen-test, and coverage jobs. Gitar approved the tip with no finding.
+
+### What is in flight
+
+- The review record and this handoff entry need commit and push.
+- The owner can merge after the review-gate check turns green.
+
+### Traps and gotchas
+
+- The review targets effective head `d6b3606`. The later baseline and handoff commits are metadata only.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff. Fetch and verify that the review-gate check covers effective head `d6b3606`.
+
+## Session 201: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-63, round 2. Repository: the-thing-below. Branch: `feat/pr-63-settings`. PR: #55. Role: author. Base: `daeccfe`.
+
+### What this session did, and why
+
+- Read CI run 35689386604 of head `d6b3606`. Every job passed except screen-test, which named 8 captures: the 3 settings captures with no baseline, and the 5 captures of the `ui` fixture.
+- The `ui` fixture draws the longest plain string of the table (D-241), and that string is now `settings.help`. The author read `ui-1x` and `settings-conflict-1x` of the artifact, and both fit.
+- Committed the 8 captures of the artifact as the baseline (D-733). The `screens` command then matched all 52 captures.
+- The Gitar pass of `d6b3606` approved with no finding. The review-gate fault is RG 3 alone: the review record of the other provider does not exist yet.
+
+### The state of the build
+
+- The baseline commit `c974fe4` and this entry make the push of this round. Every CI job except screen-test passed on `d6b3606`.
+
+### What is in flight
+
+- The Gitar pass of the new effective head, then the Codex review of `docs/reviews/pr-55.md`.
+- The owner reads the text batch of the settings strings in the PR description (D-57).
+
+### Traps and gotchas
+
+- A new plain string that is longer than `settings.help` changes the 5 captures of the `ui` fixture again.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run the Gitar wait for the push of this round, and prove that the review of the effective head is current.
+
+## Session 200: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-63, round 1. Repository: the-thing-below. Branch: `feat/pr-63-settings`. PR: #55. Role: author. Base: `daeccfe`.
+
+### What this session did, and why
+
+- Asked the owner OQ-100, OQ-106, OQ-108, and OQ-109, and recorded the answers as D-860 to D-863. The first batch did not show the options of `docs/questions.md`, so the session asked OQ-100, OQ-108, and OQ-109 again with both sets of options. OQ-108 took a third answer from the owner: a conflict blocks the save and the exit, and the `ui_*` actions take no remap (D-862).
+- Asked the values of the settings, and recorded D-864 to D-874. D-864 answers OQ-112, and D-872 answers OQ-110. D-870 removes the shape icons, because the 18 icons of PR-10 already differ in shape. D-873 corrects D-866: the session offered example times and did not read the pace of PR-10 first. D-874 stores the body size as auto, small, or large.
+- Built the settings file in Storage: `GameSettings`, `ControlBindings`, `SettingsText`, `SettingsFormat`, and `SettingsStore`, with a fixture of format 1 (D-860, D-869).
+- Built the settings screen in Game: `SettingsMenu` holds the rows and the rules, and `SettingsScreen` draws them. The menu action opens the screen (D-871), and the mouse moves the cursor (D-872).
+- Applied the settings: the input map and the dead zone, the window mode, the fit, the body size, the message speed of the battle screen, the confirm skip, and the remembered cursor (`CommandMemory`).
+- Added three captures of the settings screen, a smoke step, and tests for each new type.
+- Read each settings frame of `make sheet`: `settings-1x`, `settings-fill-1080`, and `settings-conflict-1x`. The first layout overlapped the help line at a body of 32 and cut one button name. The second layout fits at both body sizes.
+
+### The state of the build
+
+- `make verify` passed locally with 1,987 tests outside Smoke, 0 findings of ste-check and det-lint, and the smoke session green.
+- No file of Core changed, so the simulation version stays (G-17).
+- The remote head is the push of this round on `feat/pr-63-settings`.
+
+### What is in flight
+
+- The screen-test job has no baseline for the three settings captures. The author commits the captures of the CI artifact as the baseline after the first run (D-733).
+- The Gitar pass of the first push, then the review of the other provider.
+- The owner reads the text batch of the settings strings in the PR description (D-57).
+
+### Traps and gotchas
+
+- The menu action on the map opens the settings screen until PR-62. In a fight, the menu intent goes to the rules as before.
+- The close intent of the menu goes by its id, because the open intent can still wait in the queue in the same frame.
+- The frame shows through a texture, so the mouse reads its frame pixel from `ScreenFit.ToFrame`.
+- The volumes, the mono toggle, the mute, the vibration, the text speed, and the reduction save and load, and no code reads them yet. PR-36, PR-57 to PR-60, PR-69, and PR-70 read them.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Download the captures of the first screen-test run, commit the three settings baselines, and push. Then run the Gitar wait of `docs/runbooks/session-context.md`.
+
 ## Session 199: 2026-09-22, Codex
 
 Author: Codex
@@ -207,132 +348,3 @@ None.
 ### The next concrete action
 
 Commit the repeat review and both handoff files. Push, fetch, and verify the remote head and review-gate check.
-
-## Session 193: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-56, round 7. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
-
-### What this session did, and why
-
-- The owner built the Deck test on the Deck and pushed the reports to `spike/deck-test` (commit `82bd091`). The branch also gained `build-on-deck.sh` and a Linux path in the template script.
-- Each stage held 60 frames per second under both renderers. Under Mobile, `pairs-24` gave 4.17 ms and `full-load-24` 4.55 ms at the 95th percentile, with no frame over 16.667 ms. F-96 records it, and the light row of 24 stands (D-854, G-14).
-- The owner asked whether the Deck test matches the game. It does not: it is the stress scene of the renderer pick, and it lights four times the pixels of the world of the game. The session offered a measure mode inside the game, and the owner has not answered.
-
-### The state of the build
-
-- Docs alone change this round. The remote head is this round.
-
-### What is in flight
-
-- The repeat review of Codex on the code head `f4b071b`.
-
-### Traps and gotchas
-
-- A path in backticks of another branch fails the reference check.
-- The owner pushes from the Deck with SSH through `gh auth login -p ssh`.
-
-### The questions that block progress
-
-None for PR-56. The measure mode inside the game waits for an owner answer.
-
-### The next concrete action
-
-Wait for Gitar on this head, then tell the owner that PR #53 is ready for the repeat review.
-
-## Session 192: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-56, round 6. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
-
-### What this session did, and why
-
-- Gitar reviewed `45e8464` with the verdict "Approved with suggestions" and one finding: the doc comment of `FeetShadow` named its six-point polygon an octagon. The finding holds, and this round names it a hexagon.
-- Each CI job of `45e8464` passed except review-gate, which waits for the repeat review.
-
-### The state of the build
-
-- The change is one word of a comment. The remote head is this round.
-
-### What is in flight
-
-- The repeat review of Codex, and the Deck test of D-854.
-
-### Traps and gotchas
-
-None new.
-
-### The questions that block progress
-
-The Deck result of D-854.
-
-### The next concrete action
-
-Reply on the Gitar thread with this commit, prove that the review of this head is current, and tell the owner that PR #53 is ready for the repeat review.
-
-## Session 191: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-56, round 5. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
-
-### What this session did, and why
-
-- CI run 35668891800 of `d31b896` passed each job except screen-test and review-gate. The screen-test job failed on 43 lit captures, because the wall faces and the figure shadows change each frame.
-- The author read the map, walk, and battle frames of its `screen-captures` artifact. They match the local sheet, and this round commits them as the baseline (D-733).
-
-### The state of the build
-
-- `make verify` and `make smoke` pass. The remote head is this round.
-
-### What is in flight
-
-- Gitar on this head, and the repeat review of Codex. The review of `6095f70` is stale.
-- The owner runs the Deck test of D-854.
-
-### Traps and gotchas
-
-- The review-gate check fails until the repeat review names the effective head.
-
-### The questions that block progress
-
-The Deck result of D-854.
-
-### The next concrete action
-
-Prove that the Gitar review of this head is current. Then tell the owner that PR #53 is ready for the repeat review.
-
-## Session 190: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-56, round 4. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
-
-### What this session did, and why
-
-- The owner read the lit map and asked for lit walls with no light behind a wall of one tile, for figures that cast shadows, and for 50% more light. D-852 to D-855 record the answers.
-- Core gives the shape of each wall from the terrain: a south face of 24 pixels, other faces of 8, a strip of 2 in a wall of one tile, and a full tile at a corner.
-- Each source is a pair of Godot lights, and each figure blocks light at its feet. The light row is 24, and each source counts two.
-- The Deck test on `spike/deck-test` (commit `3f9fdda`) gains the stages `pairs-4` to `pairs-24` and `full-load-24`. A run on the Mac proved that each stage runs.
-- The owner asked for CI to skip docs-only changes. D-856 and PR-93 hold it, and OQ-219 blocks it.
-
-### The state of the build
-
-- `make verify` passes with 1,862 tests, and `make smoke` passes. The remote head is this round.
-
-### What is in flight
-
-- The owner runs the Deck test. PR-56 merges only when `pairs-24` and `full-load-24` hold 60 frames per second under Mobile (D-854, G-14).
-- The Codex review of `6095f70` gave `Ready for owner merge`, and this round moves the effective head, so the review repeats.
-- The screen-test job fails on this push, because the walls and the shadows change each lit frame. The next round commits the new baseline.
-
-### Traps and gotchas
-
-- One Godot light cannot light a figure and keep the shadow of that figure off it. The pair and the light masks of `WorldLights` solve it.
-- macOS has no `timeout` command.
-
-### The questions that block progress
-
-The Deck result of D-854.
-
-### The next concrete action
-
-Commit the baseline from the `screen-captures` artifact, then answer Gitar.

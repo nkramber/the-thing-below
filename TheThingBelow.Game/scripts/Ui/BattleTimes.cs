@@ -1,5 +1,6 @@
 using System;
 using TheThingBelow.Core.Battles;
+using TheThingBelow.Storage;
 
 namespace TheThingBelow.Game.Ui;
 
@@ -86,6 +87,27 @@ public static class BattleTimes
         _ => throw new ArgumentOutOfRangeException(
             nameof(kind), kind, $"The battle event '{kind}' has no timing on the screen (D-829, T-2)."),
     };
+
+    /// <summary>Gives the ticks that the screen holds one event at a message speed (D-866, D-873).</summary>
+    /// <param name="kind">The kind of the event.</param>
+    /// <param name="speed">The message speed of the battle group.</param>
+    /// <returns>
+    /// The ticks of <see cref="TicksOf"/> at normal, 1.5 times as many at slow, and half as many
+    /// at fast. The pose, the blow, and the flash inside a strike keep their own ticks.
+    /// </returns>
+    /// <exception cref="ArgumentOutOfRangeException">The kind has no timing, or the speed has no name (T-2).</exception>
+    public static int HoldTicksOf(BattleEventKind kind, MessageSpeed speed)
+    {
+        int normal = TicksOf(kind);
+        return speed switch
+        {
+            MessageSpeed.Slow => normal * 3 / 2,
+            MessageSpeed.Normal => normal,
+            MessageSpeed.Fast => normal / 2,
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(speed), speed, $"The message speed '{speed}' has no timing (D-866, T-2)."),
+        };
+    }
 
     /// <summary>Tells whether an event of this kind is a strike, which plays the pose and the blow.</summary>
     /// <param name="kind">The kind of the event.</param>

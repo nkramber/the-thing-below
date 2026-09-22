@@ -85,6 +85,26 @@ public sealed record ScreenFit(int Width, int Height, int Left, int Top, int Who
             : FillFit(screenWidth, screenHeight);
     }
 
+    /// <summary>Gives the frame pixel under one device pixel of the screen, for the mouse on a menu (D-872).</summary>
+    /// <param name="screenX">The device pixel column of the pointer.</param>
+    /// <param name="screenY">The device pixel row of the pointer.</param>
+    /// <returns>The column and the row of the frame, or null when the pointer is on a bar.</returns>
+    /// <remarks>
+    /// The screen shows the frame through a texture, so a mouse event of the window carries a
+    /// device pixel and never a frame pixel. The menu reads the frame pixel from here.
+    /// </remarks>
+    public (int X, int Y)? ToFrame(int screenX, int screenY)
+    {
+        int insideX = screenX - this.Left;
+        int insideY = screenY - this.Top;
+        if (insideX < 0 || insideY < 0 || insideX >= this.Width || insideY >= this.Height)
+        {
+            return null;
+        }
+
+        return ((int)((long)insideX * FrameWidth / this.Width), (int)((long)insideY * FrameHeight / this.Height));
+    }
+
     /// <summary>
     /// The default fit. The frame keeps its 16 to 9 shape and grows until one side of it
     /// reaches the screen, so the other side gains bars (D-568).

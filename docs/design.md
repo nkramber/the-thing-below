@@ -192,7 +192,7 @@ From the roadmap interview of 2026-09-12:
 | Story flags, story scenes, and quests | Core | story scene content, conditions, choices | flags, story scene state, quest state, hub state | High. Branches multiply (D-40, D-59, D-329). Core runs each scene and holds its step index, and one condition form serves every reader (D-540, D-542, D-543) |
 | Hub services and the region map | Core | hub content, route content, gold | party, saves, position | Medium (D-59, D-113) |
 | Debug assembly | Debug assembly | debug intents, the typed line of the console | Core state, through the seam of D-260. The console reads the state and sends each change as an intent (D-724) | High. A release build never loads it (D-260). Game loads it by name outside the release configuration, and it names no type of it (D-723) |
-| Save, record, crash, and log files | Storage | record bytes, snapshot bytes, crash context, log entries | save files, record files, crash files, log files | High. A torn write loses a save (D-178, D-494) |
+| Save, record, crash, log, and settings files | Storage | record bytes, snapshot bytes, crash context, log entries, the settings | save files, record files, crash files, log files, the settings file (D-860) | High. A torn write loses a save (D-178, D-494) |
 | Map scene, battle scene, hub scene, scene runner | Game | Core state, content from the Game assembly, the atlas and its index, large pictures, edge files, string table | screen, intents | Medium. Cosmetic by design (D-106, D-111, D-114, D-501). Player text reaches the screen through the text helper (D-499). The content bytes come from the Game assembly (D-508). Art draws with the Nearest filter, and an art file names the content ids that it draws (D-519, F-45) |
 | Dialogue box and portraits | Game | Core story scene state, string table | screen, wait intents, choice intents | Medium (D-109). Game draws each story scene step and sends a wait intent when it ends (D-540) |
 | The frame and the fit | Game | settings | screen | Medium. The Deck floor, the one 16:9 frame, and the fit at 1920 by 1080 (D-228, D-568). The game draws no CRT pass (D-618). OQ-183 holds the scale of the frame on a screen |
@@ -484,7 +484,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 14. PR-48: the normal maps and their review sheet, right before PR-56 (D-184, D-521).
 15. PR-56: the light setups, the decor files, the carried light, the shadows, and the effect budget (D-183, D-520, D-523, D-842 to D-855).
 16. PR-93: CI on a docs-only change, right after PR-56 (D-856).
-17. PR-63: the settings screen, the four accessibility settings, and a versioned settings file (D-214, D-526, D-570).
+17. PR-63: the settings screen, the three accessibility settings, and a versioned settings file (D-214, D-526, D-570, D-870).
 18. PR-57: the effect files, the particles, and the battle effects (D-182, D-186).
 19. PR-58: the four ambient kinds of region one (D-187).
 20. PR-59: the glow on fire, spells, and waystones (D-188).

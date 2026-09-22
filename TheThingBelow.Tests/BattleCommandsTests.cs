@@ -32,6 +32,34 @@ public sealed class BattleCommandsTests
     }
 
     [Fact]
+    public void TheRememberedCursorOpensOnTheLastActionOfTheCharacter()
+    {
+        // D-226: with the setting on, the menu opens on the last action of the character.
+        Simulation run = OnFirstCommand();
+        object first = Open(run);
+        object memory = Memory(enabled: true);
+        memory.GetType().GetMethod("Keep")!.Invoke(memory, [Read(first, "Actor"), BattleAction.Defend]);
+
+        object menu = Type().GetMethod("Open")!.Invoke(null, [run.State, memory])!;
+
+        Assert.Equal(1, (int)Read(menu, "Cursor"));
+        Assert.Equal(BattleAction.Defend, (BattleAction)Read(menu, "Action"));
+    }
+
+    [Fact]
+    public void WithTheSettingOffTheMenuOpensOnTheAttack()
+    {
+        // D-868: the remembered cursor starts off, and the memory keeps the action for a later switch.
+        Simulation run = OnFirstCommand();
+        object memory = Memory(enabled: false);
+        memory.GetType().GetMethod("Keep")!.Invoke(memory, [Read(Open(run), "Actor"), BattleAction.Flee]);
+
+        object menu = Type().GetMethod("Open")!.Invoke(null, [run.State, memory])!;
+
+        Assert.Equal(0, (int)Read(menu, "Cursor"));
+    }
+
+    [Fact]
     public void AMoveOfTheCursorMakesNoIntent()
     {
         // D-493: the record holds the choice alone. The move methods give nothing back, and a
@@ -183,7 +211,11 @@ public sealed class BattleCommandsTests
     }
 
     private static object Open(Simulation run) =>
-        Type().GetMethod("Open")!.Invoke(null, [run.State])!;
+        Type().GetMethod("Open")!.Invoke(null, [run.State, Memory(enabled: false)])!;
+
+    /// <summary>Makes a remembered cursor of the built Game assembly (D-226).</summary>
+    private static object Memory(bool enabled) =>
+        Activator.CreateInstance(GameAssemblyFile.Type("TheThingBelow.Game.Ui.CommandMemory"), [enabled])!;
 
     private static void Move(object menu, int step) => Type().GetMethod("Move")!.Invoke(menu, [step]);
 

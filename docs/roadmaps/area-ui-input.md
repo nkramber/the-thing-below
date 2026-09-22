@@ -134,7 +134,7 @@ Built by PR-62. Phase file: `phase-2-first-playable.md`.
 - Each window stacks over the last, back closes it, and the map stays visible behind (D-211).
 - A menu pauses the world (D-162). The tick rises while a menu is open, and the world systems skip their work (D-650).
 - A menu action is an intent, and the record holds no cursor move (D-493).
-- The mouse works on menus alone, and a mouse action on a menu makes the same intent as a key (D-219, D-493). OQ-110 holds the rules of the cursor.
+- The mouse works on menus alone, and a mouse action on a menu makes the same intent as a key (D-219, D-493). The mouse moves the cursor, and a click chooses the item under the pointer (D-872).
 - The dungeon map screen draws each tile that the party walked, with the doors, the save points, and the exits on those tiles (D-567). OQ-111 holds its scale.
 - The party window sets the starting row of each character, and the snapshot keeps the row (D-377, D-558).
 - The status window shows the level, the MP, and the stats of each character (D-569).
@@ -160,7 +160,7 @@ Built by PR-36, on the base of PR-61. Phase file: `phase-2-first-playable.md`.
 
 - The box sits at the bottom, with the portrait, a name plate, and the choices (D-109, D-114, D-223).
 - One line of the box holds 156 characters at the UI scale of 1x, and 76 at 2x, so the limit is 76 (D-635, F-69).
-- The text types out at the chosen speed, in silence, and the box holds its layout as it types (D-223, D-709). OQ-112 holds the speeds.
+- The text types out at the chosen speed, in silence, and the box holds its layout as it types (D-223, D-709). The three speeds and the skip follow D-864.
 - The text speed and the skip are accessibility settings of PR-63 (D-214).
 - A choice in the box becomes an intent, and Core holds its result (D-493, PR-36).
 - `area-story.md` holds the story scene format and the runner that drive the box. Core runs each step, and Game draws it (D-540).
@@ -196,17 +196,19 @@ PR-61 built the prompts, and PR-55 removed them. Phase file: `phase-2-first-play
 
 Built by PR-63. Phase file: `phase-2-first-playable.md`.
 
-- PR-63 lands right before PR-57, the first PR that needs a setting (D-526).
-- The screen holds four groups: display, audio, controls, and battle (D-226).
+- PR-63 lands right before PR-57, the first PR that needs a setting (D-526). Until PR-62, the menu action opens the screen, and the world pauses (D-871).
+- The screen holds five groups: display, audio, controls, battle, and accessibility (D-214, D-226). D-226 names the four groups beyond accessibility.
 - Display holds the window mode, the scale of D-232, and the body size of D-707 (D-226, D-232, D-618).
 - The body size takes two values, 24 and 32 frame pixels (D-707, G-28). A frame fit of 1x takes 32 by default, and a fit above 1x takes 24.
 - Audio holds the master, music, effects, and ambience volumes, the mute in the background, and the mono toggle (D-435).
-- Controls hold the remap, the stick dead zone, and the vibration setting (D-214, D-226, D-434).
+- Controls hold the remap, the stick dead zone, and the vibration setting (D-214, D-226, D-434). The dead zone is 0.5 for every action by default, with a slider from 0.2 to 0.8 (D-861).
 - Battle holds the message speed and the remembered cursor (D-226).
-- The settings file lives outside the save files and never enters a run record (T-7, D-494). OQ-106 holds its place and its form.
-- The settings file carries a format version, and each new setting ships with a migration step and a fixture file (D-570).
+- The settings file lives outside the save files and never enters a run record (T-7, D-494). It is `settings.json` at the root of the folder of D-465, and Storage writes it (D-860).
+- The settings file carries a format version, and each new setting ships with a migration step and a fixture file (D-570). PR-63 writes format 1, with no step yet (D-869).
 - A key that no version declares fails the load with the file and the key, and no setting takes a silent default (T-2, D-570).
 - Vibration has limits on macOS, and the setting turns it off for any player (F-50).
+- A remap conflict blocks the save and the exit of the screen, and the screen shows each conflict (D-862).
+- The values and the defaults of each setting follow D-864 to D-868, with the dead zone of D-861 and the body size of D-707.
 
 > *In plain English:* one screen holds every choice about the game: the picture, the sound, the buttons, and the pace of battle.
 
@@ -214,12 +216,11 @@ Built by PR-63. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-63. Phase file: `phase-2-first-playable.md`.
 
-- Four accessibility settings come with the screen (D-214). They are the flash and shake reduction, the text speed and skip, the shape icons, and the button remap.
-- The reduction covers the shake and the flash of D-186, and the color split of D-195 (D-214, D-618). OQ-100 holds what it does.
-- Shape icons give each element and status a shape as well as a color, in 18 drawings of 16 by 16 (D-74, D-75, D-214).
-- The screen tests capture each effect with the reduction on and off (D-172, `area-effects.md` section 7.13).
+- Three accessibility settings come with the screen (D-214, D-870). They are the flash and shake reduction, the text speed and skip, and the button remap. D-870 removed the shape icons. The remap covers the actions of the game, and the `ui_*` actions keep their default buttons (D-862).
+- The reduction covers the shake and the flash of D-186, and the color split of D-195 (D-214, D-618). It has three levels: full, reduced, and off, and no level flashes more than three times in one second (D-863).
+- The screen tests capture each effect at each of the three levels of the reduction (D-172, D-863, `area-effects.md` section 7.13).
 
-> *In plain English:* a player who needs calm can turn off the flashes and the shakes. They can also slow the text and read each element by its shape.
+> *In plain English:* a player who needs calm can turn off the flashes and the shakes. They can also slow the text and remap the buttons.
 
 ### 7.13 UI in the tests
 
@@ -242,7 +243,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | PR-7 | The map scene, the camera, and the map HUD | D-106, D-212, D-306 |
 | PR-10 | The battle screen: the timeline strip, the command menu with its keyboard and gamepad input, the pointer of a target, the status, the health bars, and the damage numbers | D-111, D-213, D-826, D-827, D-833 |
 | PR-62 | The window stack, the party window with the starting row, the status window, the notices, the notice log, and the dungeon map screen | D-211, D-218, D-221, D-525, D-558, D-567, D-569 |
-| PR-63 | The settings screen, the settings file, and the four accessibility settings | D-214, D-226, D-526 |
+| PR-63 | The settings screen, the settings file, and the three accessibility settings | D-214, D-226, D-526, D-870 |
 | PR-12 to PR-16 | The lesson, gear, item, status, and save screens, one for each system | D-211 |
 | PR-36 | The dialogue box, the name plate, and the choices | D-114, D-223 |
 | PR-35 | The region map screen | D-113 |
@@ -302,13 +303,13 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 The register is `docs/questions.md` (D-19). These questions block UI PRs, and each PR asks its questions when it starts (D-487):
 
 - OQ-104: the font settings and the load from bytes. Blocks PR-61.
-- OQ-106: where the settings file lives, and its form. Blocks PR-63.
+- OQ-106: where the settings file lives, and its form. Resolved 2026-09-22 by D-860.
 - OQ-107: how Game knows the last device of the player. Resolved 2026-09-20 by D-711, which D-815 superseded on 2026-09-21.
-- OQ-108: where a remap lives, and what a conflict does. Blocks PR-63.
-- OQ-109: the dead zone of a stick, and its range in the settings. Blocks PR-63.
-- OQ-110: the cursor rules of a menu, and the mouse on it. Blocks PR-62.
+- OQ-108: where a remap lives, and what a conflict does. Resolved 2026-09-22 by D-862.
+- OQ-109: the dead zone of a stick, and its range in the settings. Resolved 2026-09-22 by D-861.
+- OQ-110: the cursor rules of a menu, and the mouse on it. Resolved 2026-09-22 by D-872.
 - OQ-111: the scale of the dungeon map screen. Blocks PR-62.
-- OQ-112: the text speeds, and the type-out of the dialogue box. Blocks PR-36.
+- OQ-112: the text speeds, and the type-out of the dialogue box. Resolved 2026-09-22 by D-709 and D-864.
 - OQ-113: the notice log, and how many notices it keeps. Blocks PR-62.
 - OQ-89: pixel snap in Game. Resolved 2026-09-20 by D-715.
 - OQ-64: the tick while a menu is open. Resolved 2026-09-18 by D-650.

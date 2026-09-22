@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using TheThingBelow.Core.Battles;
+using TheThingBelow.Storage;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -98,6 +99,26 @@ public sealed class BattleTimesTests
     private static int Const(string name) =>
         (int)(GameAssemblyFile.Type(TimesTypeName).GetField(name)?.GetValue(null)
             ?? throw new InvalidOperationException($"The battle times hold no constant '{name}' (T-2)."));
+
+    [Fact]
+    public void TheMessageSpeedScalesTheHoldOfEachEvent()
+    {
+        // D-873: normal keeps the pace of PR-10, slow is 1.5 times as long, and fast is half.
+        foreach (BattleEventKind kind in Enum.GetValues<BattleEventKind>())
+        {
+            int normal = (int)Method("TicksOf").Invoke(null, [kind])!;
+
+            Assert.Equal(normal * 3 / 2, HoldTicks(kind, MessageSpeed.Slow));
+            Assert.Equal(normal, HoldTicks(kind, MessageSpeed.Normal));
+            Assert.Equal(normal / 2, HoldTicks(kind, MessageSpeed.Fast));
+        }
+
+        Assert.Equal(48, HoldTicks(BattleEventKind.Defend, MessageSpeed.Slow));
+        Assert.Equal(22, HoldTicks(BattleEventKind.Hit, MessageSpeed.Fast));
+    }
+
+    private static int HoldTicks(BattleEventKind kind, MessageSpeed speed) =>
+        (int)Method("HoldTicksOf").Invoke(null, [kind, speed])!;
 
     private static MethodInfo Method(string name) =>
         GameAssemblyFile.Type(TimesTypeName).GetMethod(name, BindingFlags.Public | BindingFlags.Static)

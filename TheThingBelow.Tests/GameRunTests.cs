@@ -5,6 +5,7 @@ using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Storage;
 using TheThingBelow.Tools.Content;
 using Xunit;
 
@@ -246,12 +247,12 @@ public sealed class GameRunTests
             Type type = GameAssemblyFile.Type(RunTypeName);
             MethodInfo start = type.GetMethod(
                 "Start",
-                [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers)])
+                [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])
                 ?? throw new InvalidOperationException("The run holds no 'Start' method (T-2).");
 
             // A test run passes no debug handler, as a release build does. The tests of the
             // console pass the handlers of the debug assembly (D-260, D-492).
-            object instance = start.Invoke(null, [Content.Value, Seed, DebugIntentHandlers.None])
+            object instance = start.Invoke(null, [Content.Value, Seed, DebugIntentHandlers.None, MessageSpeed.Normal])
                 ?? throw new InvalidOperationException("The 'Start' method gave no run (T-2).");
             return new Run(type, instance);
         }

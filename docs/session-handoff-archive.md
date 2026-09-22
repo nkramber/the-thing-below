@@ -1,5 +1,134 @@
 # Session handoff archive
 
+## Session 193: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-56, round 7. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
+
+### What this session did, and why
+
+- The owner built the Deck test on the Deck and pushed the reports to `spike/deck-test` (commit `82bd091`). The branch also gained `build-on-deck.sh` and a Linux path in the template script.
+- Each stage held 60 frames per second under both renderers. Under Mobile, `pairs-24` gave 4.17 ms and `full-load-24` 4.55 ms at the 95th percentile, with no frame over 16.667 ms. F-96 records it, and the light row of 24 stands (D-854, G-14).
+- The owner asked whether the Deck test matches the game. It does not: it is the stress scene of the renderer pick, and it lights four times the pixels of the world of the game. The session offered a measure mode inside the game, and the owner has not answered.
+
+### The state of the build
+
+- Docs alone change this round. The remote head is this round.
+
+### What is in flight
+
+- The repeat review of Codex on the code head `f4b071b`.
+
+### Traps and gotchas
+
+- A path in backticks of another branch fails the reference check.
+- The owner pushes from the Deck with SSH through `gh auth login -p ssh`.
+
+### The questions that block progress
+
+None for PR-56. The measure mode inside the game waits for an owner answer.
+
+### The next concrete action
+
+Wait for Gitar on this head, then tell the owner that PR #53 is ready for the repeat review.
+
+## Session 192: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-56, round 6. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
+
+### What this session did, and why
+
+- Gitar reviewed `45e8464` with the verdict "Approved with suggestions" and one finding: the doc comment of `FeetShadow` named its six-point polygon an octagon. The finding holds, and this round names it a hexagon.
+- Each CI job of `45e8464` passed except review-gate, which waits for the repeat review.
+
+### The state of the build
+
+- The change is one word of a comment. The remote head is this round.
+
+### What is in flight
+
+- The repeat review of Codex, and the Deck test of D-854.
+
+### Traps and gotchas
+
+None new.
+
+### The questions that block progress
+
+The Deck result of D-854.
+
+### The next concrete action
+
+Reply on the Gitar thread with this commit, prove that the review of this head is current, and tell the owner that PR #53 is ready for the repeat review.
+
+## Session 191: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-56, round 5. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
+
+### What this session did, and why
+
+- CI run 35668891800 of `d31b896` passed each job except screen-test and review-gate. The screen-test job failed on 43 lit captures, because the wall faces and the figure shadows change each frame.
+- The author read the map, walk, and battle frames of its `screen-captures` artifact. They match the local sheet, and this round commits them as the baseline (D-733).
+
+### The state of the build
+
+- `make verify` and `make smoke` pass. The remote head is this round.
+
+### What is in flight
+
+- Gitar on this head, and the repeat review of Codex. The review of `6095f70` is stale.
+- The owner runs the Deck test of D-854.
+
+### Traps and gotchas
+
+- The review-gate check fails until the repeat review names the effective head.
+
+### The questions that block progress
+
+The Deck result of D-854.
+
+### The next concrete action
+
+Prove that the Gitar review of this head is current. Then tell the owner that PR #53 is ready for the repeat review.
+
+## Session 190: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-56, round 4. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
+
+### What this session did, and why
+
+- The owner read the lit map and asked for lit walls with no light behind a wall of one tile, for figures that cast shadows, and for 50% more light. D-852 to D-855 record the answers.
+- Core gives the shape of each wall from the terrain: a south face of 24 pixels, other faces of 8, a strip of 2 in a wall of one tile, and a full tile at a corner.
+- Each source is a pair of Godot lights, and each figure blocks light at its feet. The light row is 24, and each source counts two.
+- The Deck test on `spike/deck-test` (commit `3f9fdda`) gains the stages `pairs-4` to `pairs-24` and `full-load-24`. A run on the Mac proved that each stage runs.
+- The owner asked for CI to skip docs-only changes. D-856 and PR-93 hold it, and OQ-219 blocks it.
+
+### The state of the build
+
+- `make verify` passes with 1,862 tests, and `make smoke` passes. The remote head is this round.
+
+### What is in flight
+
+- The owner runs the Deck test. PR-56 merges only when `pairs-24` and `full-load-24` hold 60 frames per second under Mobile (D-854, G-14).
+- The Codex review of `6095f70` gave `Ready for owner merge`, and this round moves the effective head, so the review repeats.
+- The screen-test job fails on this push, because the walls and the shadows change each lit frame. The next round commits the new baseline.
+
+### Traps and gotchas
+
+- One Godot light cannot light a figure and keep the shadow of that figure off it. The pair and the light masks of `WorldLights` solve it.
+- macOS has no `timeout` command.
+
+### The questions that block progress
+
+The Deck result of D-854.
+
+### The next concrete action
+
+Commit the baseline from the `screen-captures` artifact, then answer Gitar.
+
 ## Session 189: 2026-09-21, Codex
 
 Author: Codex

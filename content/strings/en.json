@@ -1,5 +1,5 @@
 {
- "comment": "The English string table (D-167, G-7). Every string the player reads lives here, and no C# file holds one. The first entries are the labels of the fixture rules of PR-5 (D-649). The crash entries carry the message of a crash and the address of D-473. The address is a placeholder in the reserved .invalid domain until the owner names the studio (D-712, OQ-57). The map label is the name of the first dungeon, which PR-7 ships (D-528). The battle entries are the lines, the commands, and the names of the battle screen of PR-10 (D-213, D-827). A name entry is `name.` and the name part of a content id.",
+ "comment": "The English string table (D-167, G-7). Every string the player reads lives here, and no C# file holds one. The first entries are the labels of the fixture rules of PR-5 (D-649). The crash entries carry the message of a crash and the address of D-473. The address is a placeholder in the reserved .invalid domain until the owner names the studio (D-712, OQ-57). The map label is the name of the first dungeon, which PR-7 ships (D-528). The battle entries are the lines, the commands, and the names of the battle screen of PR-10 (D-213, D-827). A name entry is `name.` and the name part of a content id. The settings entries are the labels and the values of the settings screen of PR-63 (D-226, D-872).",
  "strings": [
   {
    "id": "battle.absorb",
@@ -212,6 +212,338 @@
   {
    "id": "name.marrek",
    "text": "Marrek"
+  },
+  {
+   "id": "settings.action_cancel",
+   "text": "Back"
+  },
+  {
+   "id": "settings.action_confirm",
+   "text": "Confirm"
+  },
+  {
+   "id": "settings.action_menu",
+   "text": "Menu"
+  },
+  {
+   "id": "settings.action_step_east",
+   "text": "Walk east"
+  },
+  {
+   "id": "settings.action_step_north",
+   "text": "Walk north"
+  },
+  {
+   "id": "settings.action_step_south",
+   "text": "Walk south"
+  },
+  {
+   "id": "settings.action_step_west",
+   "text": "Walk west"
+  },
+  {
+   "id": "settings.ambience",
+   "text": "Ambience"
+  },
+  {
+   "id": "settings.binding_key",
+   "text": "{key}"
+  },
+  {
+   "id": "settings.binding_none",
+   "text": "None"
+  },
+  {
+   "id": "settings.body",
+   "text": "Text size"
+  },
+  {
+   "id": "settings.body_auto",
+   "text": "Auto ({size})"
+  },
+  {
+   "id": "settings.body_large",
+   "text": "Large"
+  },
+  {
+   "id": "settings.body_small",
+   "text": "Small"
+  },
+  {
+   "id": "settings.button_0",
+   "text": "Bottom button"
+  },
+  {
+   "id": "settings.button_1",
+   "text": "Right button"
+  },
+  {
+   "id": "settings.button_10",
+   "text": "R shoulder"
+  },
+  {
+   "id": "settings.button_11",
+   "text": "Pad up"
+  },
+  {
+   "id": "settings.button_12",
+   "text": "Pad down"
+  },
+  {
+   "id": "settings.button_13",
+   "text": "Pad left"
+  },
+  {
+   "id": "settings.button_14",
+   "text": "Pad right"
+  },
+  {
+   "id": "settings.button_15",
+   "text": "Share"
+  },
+  {
+   "id": "settings.button_16",
+   "text": "Paddle 1"
+  },
+  {
+   "id": "settings.button_17",
+   "text": "Paddle 2"
+  },
+  {
+   "id": "settings.button_18",
+   "text": "Paddle 3"
+  },
+  {
+   "id": "settings.button_19",
+   "text": "Paddle 4"
+  },
+  {
+   "id": "settings.button_2",
+   "text": "Left button"
+  },
+  {
+   "id": "settings.button_20",
+   "text": "Touchpad"
+  },
+  {
+   "id": "settings.button_3",
+   "text": "Top button"
+  },
+  {
+   "id": "settings.button_4",
+   "text": "Back"
+  },
+  {
+   "id": "settings.button_5",
+   "text": "Guide"
+  },
+  {
+   "id": "settings.button_6",
+   "text": "Start"
+  },
+  {
+   "id": "settings.button_7",
+   "text": "L stick press"
+  },
+  {
+   "id": "settings.button_8",
+   "text": "R stick press"
+  },
+  {
+   "id": "settings.button_9",
+   "text": "L shoulder"
+  },
+  {
+   "id": "settings.button_other",
+   "text": "Button {code}"
+  },
+  {
+   "id": "settings.capture",
+   "text": "Waiting."
+  },
+  {
+   "id": "settings.conflict",
+   "text": "{input} is on {first} and {second}. Move one."
+  },
+  {
+   "id": "settings.dead_zone",
+   "text": "Stick dead zone"
+  },
+  {
+   "id": "settings.dead_zone_value",
+   "text": "{value}%"
+  },
+  {
+   "id": "settings.effect_level",
+   "text": "Flash and shake"
+  },
+  {
+   "id": "settings.effects",
+   "text": "Effects"
+  },
+  {
+   "id": "settings.fit",
+   "text": "Scale"
+  },
+  {
+   "id": "settings.fit_fill",
+   "text": "Fill"
+  },
+  {
+   "id": "settings.fit_whole",
+   "text": "Whole pixels"
+  },
+  {
+   "id": "settings.group_access",
+   "text": "Access"
+  },
+  {
+   "id": "settings.group_audio",
+   "text": "Sound"
+  },
+  {
+   "id": "settings.group_battle",
+   "text": "Battle"
+  },
+  {
+   "id": "settings.group_controls",
+   "text": "Controls"
+  },
+  {
+   "id": "settings.group_display",
+   "text": "Display"
+  },
+  {
+   "id": "settings.help",
+   "text": "Left and right change. Confirm remaps."
+  },
+  {
+   "id": "settings.level_full",
+   "text": "Full"
+  },
+  {
+   "id": "settings.level_off",
+   "text": "None"
+  },
+  {
+   "id": "settings.level_reduced",
+   "text": "Reduced"
+  },
+  {
+   "id": "settings.master",
+   "text": "Master"
+  },
+  {
+   "id": "settings.messages",
+   "text": "Battle pace"
+  },
+  {
+   "id": "settings.mono",
+   "text": "Mono"
+  },
+  {
+   "id": "settings.music",
+   "text": "Music"
+  },
+  {
+   "id": "settings.mute_background",
+   "text": "Mute unfocused"
+  },
+  {
+   "id": "settings.number",
+   "text": "{value}"
+  },
+  {
+   "id": "settings.off",
+   "text": "Off"
+  },
+  {
+   "id": "settings.on",
+   "text": "On"
+  },
+  {
+   "id": "settings.remember_cursor",
+   "text": "Recall command"
+  },
+  {
+   "id": "settings.speed_fast",
+   "text": "Fast"
+  },
+  {
+   "id": "settings.speed_normal",
+   "text": "Normal"
+  },
+  {
+   "id": "settings.speed_slow",
+   "text": "Slow"
+  },
+  {
+   "id": "settings.stick_0_neg",
+   "text": "L stick left"
+  },
+  {
+   "id": "settings.stick_0_pos",
+   "text": "L stick right"
+  },
+  {
+   "id": "settings.stick_1_neg",
+   "text": "L stick up"
+  },
+  {
+   "id": "settings.stick_1_pos",
+   "text": "L stick down"
+  },
+  {
+   "id": "settings.stick_2_neg",
+   "text": "R stick left"
+  },
+  {
+   "id": "settings.stick_2_pos",
+   "text": "R stick right"
+  },
+  {
+   "id": "settings.stick_3_neg",
+   "text": "R stick up"
+  },
+  {
+   "id": "settings.stick_3_pos",
+   "text": "R stick down"
+  },
+  {
+   "id": "settings.stick_4_pos",
+   "text": "L trigger"
+  },
+  {
+   "id": "settings.stick_5_pos",
+   "text": "R trigger"
+  },
+  {
+   "id": "settings.stick_other",
+   "text": "Axis {code} {sign}"
+  },
+  {
+   "id": "settings.text_speed",
+   "text": "Text speed"
+  },
+  {
+   "id": "settings.title",
+   "text": "Settings"
+  },
+  {
+   "id": "settings.vibration",
+   "text": "Vibration"
+  },
+  {
+   "id": "settings.window",
+   "text": "Window"
+  },
+  {
+   "id": "settings.window_borderless",
+   "text": "Full screen"
+  },
+  {
+   "id": "settings.window_window",
+   "text": "Window"
   },
   {
    "id": "status.bleed",
