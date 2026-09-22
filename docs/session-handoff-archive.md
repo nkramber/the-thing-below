@@ -1,5 +1,36 @@
 # Session handoff archive
 
+## Session 189: 2026-09-21, Codex
+
+Author: Codex
+Session: reviewer PR-53, round 1. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: reviewer. Base: `e0cc485`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-53 diff from merge base `e0cc485` through effective head `6095f70`.
+- Verified the opposite-provider gate, light content and budget contracts, normal-map atlas wiring, map and battle lighting, documents, tests, CI results, and changed screen baselines.
+- Added `docs/reviews/pr-53.md` with the verdict `Ready for owner merge`.
+
+### The state of the build
+
+- `make verify` passes with 1,856 non-smoke tests and all local gates. The remote implementation head is `6095f70`.
+
+### What is in flight
+
+- The review record and this handoff entry need commit and push.
+
+### Traps and gotchas
+
+- The review-gate check remains red until the metadata commit reaches the PR head.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the review record and both handoff files. Push, fetch, and verify the remote head and the review-gate check.
+
 ## Session 188: 2026-09-21, Claude Code
 
 Author: Claude Code

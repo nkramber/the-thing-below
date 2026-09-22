@@ -1,5 +1,37 @@
 # Session handoff
 
+## Session 199: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-93, repeat review. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: #54. Role: reviewer. Base: `d1a03f7`.
+
+### What this session did, and why
+
+- Read the response to P1-1 and recomputed the effective head as `c9429c4`. The intervening commits change only review and handoff metadata.
+- Verified the live synchronize-event evidence in run 35680701238. The job logged a non-empty `BEFORE_REF` and returned `documents-alone: true`.
+- Verified runs 35681799485 and 35681880270. Two consecutive docs-only pushes both skipped each build job, and each gate reported success.
+- Updated `docs/reviews/pr-54.md`: P1-1 is withdrawn, the earlier verdict is preserved, and the current verdict is `Ready for owner merge` for effective head `c9429c4`.
+
+### The state of the build
+
+- The effective implementation head is `c9429c4`. The author reports `make verify` passed with 1,924 tests outside Smoke. The live regression runs passed.
+
+### What is in flight
+
+- The repeat-review record and this handoff entry need commit and push.
+
+### Traps and gotchas
+
+- The event payload documentation was incomplete for this field. Live workflow output is the decisive evidence for the trigger.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the repeat-review record and handoff. Verify the review-gate check covers effective head `c9429c4`.
+
 ## Session 198: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -304,34 +336,3 @@ The Deck result of D-854.
 ### The next concrete action
 
 Commit the baseline from the `screen-captures` artifact, then answer Gitar.
-
-## Session 189: 2026-09-21, Codex
-
-Author: Codex
-Session: reviewer PR-53, round 1. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: reviewer. Base: `e0cc485`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-53 diff from merge base `e0cc485` through effective head `6095f70`.
-- Verified the opposite-provider gate, light content and budget contracts, normal-map atlas wiring, map and battle lighting, documents, tests, CI results, and changed screen baselines.
-- Added `docs/reviews/pr-53.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 1,856 non-smoke tests and all local gates. The remote implementation head is `6095f70`.
-
-### What is in flight
-
-- The review record and this handoff entry need commit and push.
-
-### Traps and gotchas
-
-- The review-gate check remains red until the metadata commit reaches the PR head.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit the review record and both handoff files. Push, fetch, and verify the remote head and the review-gate check.
