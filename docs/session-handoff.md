@@ -1,5 +1,37 @@
 # Session handoff
 
+## Session 197: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-93, initial review. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: #54. Role: reviewer. Base: `d1a03f7`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-54 diff through effective head `c9429c4`.
+- Verified the provider gate, the Gitar correction, the changed-paths tests, the CI gate tests, and `make verify`.
+- Found that `.github/workflows/ci.yml` reads `github.event.before` for a `pull_request` synchronize event. GitHub documents that field for push payloads, so the workflow does not receive the previous PR head and does not perform the advertised consecutive-docs-push skip.
+- Added `docs/reviews/pr-54.md` with finding P1-1 and verdict `Changes required`.
+
+### The state of the build
+
+- `make verify` passes with 1,924 tests outside the Smoke category and 0 ste-check findings. The remote effective head is `c9429c4`.
+
+### What is in flight
+
+- The review record and this handoff entry need commit and push.
+
+### Traps and gotchas
+
+- A local unit test can inject previous-head facts, so it does not prove that the GitHub event supplies `github.event.before`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The author must correct the previous-head source and add an event-shape regression check. Then Codex must repeat the review at the new effective head.
+
 ## Session 196: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -297,34 +329,3 @@ None.
 ### The next concrete action
 
 Prove that the Gitar review of this head is current, then tell the owner that PR #53 is ready for the Codex review.
-
-## Session 187: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-56, round 2. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
-
-### What this session did, and why
-
-- The first CI run passed each build, smoke, det-lint, identity, and STE job on every leg. The screen-test job failed on 43 captures, because the light changes every map, walk, and battle frame.
-- The author read the map, walk, and battle frames of the `screen-captures` artifact of run 35664815392. They match the local sheet, and this round commits them as the baseline (D-733).
-- The UI and picture captures match the old baseline, because they take no scene light (D-210).
-
-### The state of the build
-
-- `make verify` and `make smoke` pass. The remote head is this round.
-
-### What is in flight
-
-- Gitar reviews this head, and the Codex review of `docs/reviews/pr-53.md` follows.
-
-### Traps and gotchas
-
-- The `review-gate` check fails until the review record lands.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for Gitar with the push wait, prove that the review is current, and answer each finding.

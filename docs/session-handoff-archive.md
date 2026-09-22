@@ -1,5 +1,36 @@
 # Session handoff archive
 
+## Session 187: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-56, round 2. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
+
+### What this session did, and why
+
+- The first CI run passed each build, smoke, det-lint, identity, and STE job on every leg. The screen-test job failed on 43 captures, because the light changes every map, walk, and battle frame.
+- The author read the map, walk, and battle frames of the `screen-captures` artifact of run 35664815392. They match the local sheet, and this round commits them as the baseline (D-733).
+- The UI and picture captures match the old baseline, because they take no scene light (D-210).
+
+### The state of the build
+
+- `make verify` and `make smoke` pass. The remote head is this round.
+
+### What is in flight
+
+- Gitar reviews this head, and the Codex review of `docs/reviews/pr-53.md` follows.
+
+### Traps and gotchas
+
+- The `review-gate` check fails until the review record lands.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for Gitar with the push wait, prove that the review is current, and answer each finding.
+
 ## Session 186: 2026-09-21, Claude Code
 
 Author: Claude Code
