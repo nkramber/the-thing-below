@@ -1384,11 +1384,36 @@ public partial class Boot : Node
         string sprites = drawn.DescribeSprites(session.Party);
         string lights = drawn.DescribeLights();
         string weather = drawn.DescribeWeather();
+        string lights2 = DescribeTorchLights(drawn);
         string room = DescribeAnotherRoom(loaded, drawn);
         drawn.QueueFree();
         return $"'{map.Id.Value}' at {map.Width} by {map.Height} tiles, "
             + $"the party at {session.Party.LeadAt}, the view at ({view.X}, {view.Y}), "
-            + $"{sprites}, {lights}, {weather}, {room}, and {ground}";
+            + $"{sprites}, {lights}, {weather}, {lights2}, {room}, and {ground}";
+    }
+
+    /// <summary>
+    /// Reads the light of each torch over 120 ticks, and fails on a light that moves (F-99). The
+    /// flame of a torch jumps on each step of its fire, and the light of it never does (D-891).
+    /// </summary>
+    /// <param name="drawn">The map on screen, which this check steps and reads.</param>
+    /// <returns>The ticks that it read, and the count of torches that held their place.</returns>
+    /// <exception cref="InvalidOperationException">A light moved from its place (T-2, F-99).</exception>
+    private static string DescribeTorchLights(MapScreen drawn)
+    {
+        const int Ticks = 120;
+        for (int tick = 0; tick < Ticks; tick += 1)
+        {
+            drawn.ShowWeather(tick, seek: false);
+            if (!drawn.TorchLightsHoldTheirPlaces)
+            {
+                throw new InvalidOperationException(
+                    $"A torch of the map moved its light on tick {tick}, and a light that moves inside a doorway "
+                    + "moves the shadow of the passage by a whole tile (T-2, D-891, F-99).");
+            }
+        }
+
+        return $"each torch held its light over {Ticks} ticks";
     }
 
     /// <summary>

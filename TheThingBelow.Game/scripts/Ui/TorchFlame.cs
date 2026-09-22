@@ -59,6 +59,13 @@ public sealed class TorchFlame
     /// <summary>The energy of the light of this torch now, which each step of its fire changes (D-891).</summary>
     public float Energy => this.ground.Energy;
 
+    /// <summary>
+    /// Tells whether the light of this torch stands at its place. The flame jumps and the light
+    /// never does, because a light that crosses the column of a wall shape beside a doorway
+    /// moves the shadow through the doorway by a whole tile (D-852, D-891, F-99).
+    /// </summary>
+    public bool LightHoldsItsPlace => this.ground.Position == this.place && this.figures.Position == this.place;
+
     /// <summary>Tells whether every node of this fire holds one region of the world, so the flame never stops (F-98).</summary>
     /// <param name="area">The region that each node must hold, in art pixels of the parent.</param>
     /// <returns>True when each node holds the region.</returns>

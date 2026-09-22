@@ -75,7 +75,7 @@ public partial class MapScreen : Node2D
     /// <summary>The Z index of the mark of a sight: above each figure, each flame, and each layer of fog (D-208, D-885).</summary>
     private const int MarkZIndex = 8;
 
-    /// <summary>The margin around the map that each particle node holds, in art pixels: two tiles (F-98).</summary>
+    /// <summary>The margin around the map and the view that each particle node holds, in art pixels: two tiles (F-98).</summary>
     private const int WeatherMargin = 2 * MapCamera.TilePixels;
 
     private TileMapLayer ground = null!;
@@ -223,6 +223,21 @@ public partial class MapScreen : Node2D
         return $"{lights} lights with the carried light {carried}, and {CountOccluders(this)} occluders";
     }
 
+    /// <summary>Tells whether every torch of the map holds its light at its place (D-891, F-99).</summary>
+    public bool TorchLightsHoldTheirPlaces
+    {
+        get
+        {
+            bool held = this.carriedFlame.LightHoldsItsPlace;
+            foreach (TorchFlame torch in this.torches)
+            {
+                held = held && torch.LightHoldsItsPlace;
+            }
+
+            return held;
+        }
+    }
+
     /// <summary>Describes the weather of the map and the fire of each torch, for the smoke session (D-187, D-890).</summary>
     /// <returns>The kind of the weather, its motes, its layers of fog, and the nodes of the torches.</returns>
     public string DescribeWeather()
@@ -348,15 +363,25 @@ public partial class MapScreen : Node2D
     }
 
     /// <summary>
-    /// Gives the region that each particle node of the map holds: the whole map and a margin
-    /// (F-98). Godot stops a particle system whose region leaves the screen, and each node of
-    /// the map stands at the north-west corner of the map, so the region holds every tile.
+    /// Gives the region that each particle node of the map holds: the whole map, one view on
+    /// each side, and a margin (F-98). Godot stops a particle system whose region leaves the
+    /// screen, and each node stands at the north-west corner of the map.
     /// </summary>
-    private static Rect2 WeatherArea(GameMap map) => new(
-        -WeatherMargin,
-        -WeatherMargin,
-        (map.Width * MapCamera.TilePixels) + (2 * WeatherMargin),
-        (map.Height * MapCamera.TilePixels) + (2 * WeatherMargin));
+    /// <remarks>
+    /// A map smaller than the view sits in the middle of it, so the view starts at a negative
+    /// pixel (<see cref="MapCamera.AxisOf"/>). The region holds one view on each side, so it
+    /// holds the view of every map, however small.
+    /// </remarks>
+    private static Rect2 WeatherArea(GameMap map)
+    {
+        int wide = FrameRoot.WorldWidth + WeatherMargin;
+        int tall = FrameRoot.WorldHeight + WeatherMargin;
+        return new Rect2(
+            -wide,
+            -tall,
+            (map.Width * MapCamera.TilePixels) + (2 * wide),
+            (map.Height * MapCamera.TilePixels) + (2 * tall));
+    }
 
     /// <summary>Gives the fire of the decor kind of one light, or no value for a light that no piece holds.</summary>
     private static TorchFire? FireOf(ContentSet content, DecorFile decor, ContentId light)

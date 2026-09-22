@@ -91,6 +91,23 @@ public sealed class TorchFireTests
         Assert.Equal(fire.Levels.Count, seen.Count);
     }
 
+    [Fact]
+    public void TheFlameOfATorchJumpsOnSomeStep()
+    {
+        // D-891, F-99: the flame jumps, and the light of the torch never does. A fire with a
+        // jump of 0 pixels on every tick would hold no motion at all.
+        TorchFire fire = Fire();
+        var jumps = new SortedSet<(int X, int Y)>();
+        for (int tick = 0; tick < 600; tick += 1)
+        {
+            FlickerStep step = fire.StepAt("piece.one", tick);
+            jumps.Add((step.JumpX, step.JumpY));
+        }
+
+        Assert.Contains((0, 0), jumps);
+        Assert.True(jumps.Count > 1, "the flame of the torch never jumped from its place (D-891)");
+    }
+
     [Theory]
     [InlineData("\"step_ticks\": 4", "\"step_ticks\": 61", "1 to 60")]
     [InlineData("\"jump\": 1", "\"jump\": 3", "0 to 2")]
