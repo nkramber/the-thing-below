@@ -55,6 +55,7 @@ public sealed partial class CaptureSession : Node
     private FrameRoot? frame;
     private GameRun? walkRun;
     private MapScreen? walkMap;
+    private int stepTicks;
     private int next;
     private int waited;
     private bool stopped;
@@ -232,22 +233,31 @@ public sealed partial class CaptureSession : Node
         if (walk.Tick == 1)
         {
             run.Queue(run.IntentOf(walk.Action));
+            this.stepTicks = 0;
         }
 
+        // The walk fixture names every tick of its step, and the scroll fixture names three of
+        // them (D-782, F-97). Thus this capture runs the ticks from the last frame to its own.
         long before = run.Tick;
-        foreach (LogEntry entry in run.Advance(OneTickSeconds))
+        long asked = walk.Tick - this.stepTicks;
+        while (this.stepTicks < walk.Tick)
         {
-            if (entry.Level == LogLevel.Error)
+            foreach (LogEntry entry in run.Advance(OneTickSeconds))
             {
-                throw new InvalidOperationException(
-                    $"The tick {run.Tick} of the capture '{capture.FileName}' wrote an error: {entry.Message} (T-2).");
+                if (entry.Level == LogLevel.Error)
+                {
+                    throw new InvalidOperationException(
+                        $"The tick {run.Tick} of the capture '{capture.FileName}' wrote an error: {entry.Message} (T-2).");
+                }
             }
+
+            this.stepTicks += 1;
         }
 
-        if (run.Tick != before + 1)
+        if (run.Tick != before + asked)
         {
             throw new InvalidOperationException(
-                $"The capture '{capture.FileName}' gave the run the time of one tick, and the loop ran "
+                $"The capture '{capture.FileName}' gave the run the time of {asked} ticks, and the loop ran "
                 + $"{run.Tick - before} ticks (T-2, D-782).");
         }
 
@@ -360,6 +370,24 @@ public sealed partial class CaptureSession : Node
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.PitFixture) == 0)
         {
             this.BuildPitRoom(built, @base);
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.ScrollFixture) == 0)
+        {
+            // The same map, walked to the pit room, where the view follows the lead. The frames
+            // of this fixture then hold a step that scrolls the view, and each particle of the
+            // weather and of a torch must stay on the world under it (F-97).
+            GameRun scrolled = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+            this.walkRun = scrolled;
+            this.walkMap = MapFixture.Build(built, @base, scrolled.Party, this.content);
+            this.walkMap.CarriedLightOn = true;
+            foreach (string action in ScreenCaptures.PitRoute)
+            {
+                this.StepOnce(scrolled, action);
+            }
+
+            this.stepTicks = 0;
             return;
         }
 

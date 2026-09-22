@@ -226,6 +226,18 @@ public partial class MapScreen : Node2D
             flames += torch.NodeCount;
         }
 
+        bool still = this.weather.NodesStandStill && this.carriedFlame.NodesStandStill;
+        foreach (TorchFlame torch in this.torches)
+        {
+            still = still && torch.NodesStandStill;
+        }
+
+        if (!still)
+        {
+            throw new InvalidOperationException(
+                "A particle node of the map moved from its parent, and each live particle then rides the view (T-2, F-97).");
+        }
+
         string kind = this.weather.Effect is null ? "no weather" : AmbientEffect.NameOf(this.weather.Effect.Kind);
         return $"the weather is {kind} with {this.weather.NodeCount} particle nodes and {this.weather.FogCount} fog layers, "
             + $"and {this.torches.Count} torches with {flames} nodes";

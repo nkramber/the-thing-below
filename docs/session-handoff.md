@@ -10,17 +10,20 @@ Session: author PR-58. Repository: the-thing-below. Branch: `feat/pr-58-ambient`
 - Built the ambient files: the four kinds of region one, the weather of each map, the fog above the figures, and the contrast test of the fog (D-187, D-885, D-887).
 - Gave each wall torch and the carried light a flame, embers, smoke, and a light that steps between levels (D-890, D-891).
 - Added the row of full-screen passes to the effect budget, and the checks of the budget for a map and for a fight (D-523, D-617).
-- Added seven captures: each ambient kind on the map and over a fight, and the pit room of the doorway fix (D-889).
+- Added ten captures: each ambient kind on the map and over a fight, the pit room of the doorway fix, and three frames of a step that scrolls the view (D-889, F-97).
+- Answered the first Gitar pass: each particle node now takes a seed from its name, so two colors of one stream and two torches of one kind hold their own particles.
+- Fixed F-97 from a play session of the owner: each stream rode the view. A node with `local_coords` off holds each live particle in the space of the viewport. Each node now keeps `local_coords` on and moves its start box alone.
+- Tuned the dust to the reading of the owner: 60 motes of the ash key, a sideways drift, and no drips.
 
 ### The state of the build
 
 - `make build`, `make test`, `make format`, `make lint`, `make smoke`, and `make ste-check` pass on this machine.
-- 2,133 tests run. The 7 tests of the new baselines fail, because the PNG of each new capture comes from the CI artifact (D-733).
-- The remote head is `5757050`, and this session pushes the rest.
+- 2,142 tests run. The 10 tests of the new baselines fail, because the PNG of each new capture comes from the CI artifact (D-733).
+- The remote head is `435ab55`, and this session pushes the rest.
 
 ### What is in flight
 
-- The PR needs its first push, the gitar pass, and the baselines of the seven new captures from the CI artifact.
+- The PR needs the baselines of the ten new captures from the CI artifact, and a new Gitar pass after this push.
 - The baselines of `map-1x`, each battle frame, and each walk frame change too, because the dust and the torch flames draw in them.
 
 ### Traps and gotchas
@@ -28,6 +31,8 @@ Session: author PR-58. Repository: the-thing-below. Branch: `feat/pr-58-ambient`
 - A fog over an enemy and over the floor shrinks each luma gap by the same part, so the color of the fog never changes the result of the test (D-892).
 - The fixture map foe holds a gap of 16 on the floor key `K` with no fog, so the test skips that pair and reads the loss of the fog alone (D-892).
 - A stream seeks one lifetime forward at its build, and each later seek asks for the ticks since the last one. A jump of the tick starts the node again (T-7).
+- The capture session takes 68 captures, and each one waits 8 frames. The `sheet` target of the Makefile holds its own frame limit of 1200, as the screen-test job does.
+- The three frames of the scroll fixture hold the evidence of F-97. A particle that rides the view stands at the same place of each frame.
 - The capture files of `content/effects/ambient-captures/` never reach a map of the shipped build (D-889).
 
 ### The questions that block progress

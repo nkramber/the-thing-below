@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Godot;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Light;
 
 namespace TheThingBelow.Game.Ui;
@@ -22,6 +24,9 @@ namespace TheThingBelow.Game.Ui;
 /// </remarks>
 public sealed class ParticleStreams
 {
+    /// <summary>The seed of the hash of each node name. A new value changes the pattern of every stream.</summary>
+    private const ulong NameSeed = 0x73747265616DUL;
+
     private readonly List<StreamNode> nodes;
     private long shown = -1;
 
@@ -29,6 +34,26 @@ public sealed class ParticleStreams
 
     /// <summary>The count of particle nodes: one for each palette key of each stream.</summary>
     public int NodeCount => this.nodes.Count;
+
+    /// <summary>
+    /// Tells whether every node stands at the place of its parent (F-97). A node that moves
+    /// carries each live particle with it, and the weather then rides the view.
+    /// </summary>
+    public bool NodesStandStill
+    {
+        get
+        {
+            foreach (StreamNode node in this.nodes)
+            {
+                if (node.Particles.Position != Vector2.Zero)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
 
     /// <summary>Shows or hides every node of the streams, as the switch of the carried light does (D-847).</summary>
     public bool Visible
@@ -94,11 +119,16 @@ public sealed class ParticleStreams
 
     /// <summary>Puts the start box of each stream at one point, in art pixels of the parent.</summary>
     /// <param name="point">The anchor of the streams: the north-west corner of the view, or the place of a light.</param>
+    /// <remarks>
+    /// The node itself never moves. The start box moves inside it, so each particle that lives
+    /// already stays where the world put it, and the view moves past it (F-97).
+    /// </remarks>
     public void MoveTo(Vector2 point)
     {
         foreach (StreamNode node in this.nodes)
         {
-            node.Particles.Position = point + node.Offset;
+            Vector2 at = point + node.Offset;
+            node.Process.EmissionShapeOffset = new Vector3(at.X, at.Y, 0);
         }
     }
 
@@ -138,6 +168,20 @@ public sealed class ParticleStreams
         this.shown = tick;
     }
 
+    /// <summary>
+    /// Gives the seed of one particle node, from its name. Godot gives every node the seed 0
+    /// under a fixed seed, so two nodes of one stream would hold the same particles, and two
+    /// torches of one kind would hold the same flame.
+    /// </summary>
+    /// <param name="name">The name of the node, which holds the id of the effect, the emitter, and the key.</param>
+    /// <returns>The seed, which is never 0, because Godot reads 0 as no seed.</returns>
+    private static uint SeedOf(string name)
+    {
+        ulong hash = XxHash64.Compute(Encoding.UTF8.GetBytes(name), NameSeed);
+        uint seed = (uint)(hash & uint.MaxValue);
+        return seed == 0 ? 1 : seed;
+    }
+
     private static StreamNode BuildNode(string name, StreamEmitter emitter, Color color, int amount, bool lit, int zIndex)
     {
         var process = new ParticleProcessMaterial
@@ -166,10 +210,12 @@ public sealed class ParticleStreams
             Interpolate = false,
             FractDelta = false,
             UseFixedSeed = true,
+            Seed = SeedOf(name),
 
-            // The particles of a stream stay where the world put them, so the view moves past
-            // them and never carries them (D-187).
-            LocalCoords = false,
+            // Each particle sits in the world of the parent node, so the view moves past it and
+            // never carries it (F-97). The start box moves inside the node, and the node stands
+            // still, so a particle that lives already never moves with the view.
+            LocalCoords = true,
             ProcessMaterial = process,
             ZIndex = zIndex,
         };
@@ -180,7 +226,7 @@ public sealed class ParticleStreams
             particles.Material = new CanvasItemMaterial { LightMode = CanvasItemMaterial.LightModeEnum.Unshaded };
         }
 
-        return new StreamNode(particles, new Vector2(emitter.X, emitter.Y), emitter.LifetimeTicks);
+        return new StreamNode(particles, process, new Vector2(emitter.X, emitter.Y), emitter.LifetimeTicks);
     }
 
     private static Color ColorOf(string name, Palette palette, char key)
@@ -200,6 +246,6 @@ public sealed class ParticleStreams
         return new Vector3(Mathf.Cos(radians), Mathf.Sin(radians), 0);
     }
 
-    /// <summary>One particle node, with the offset of its start box and the life of its particles.</summary>
-    private sealed record StreamNode(GpuParticles2D Particles, Vector2 Offset, int LifetimeTicks);
+    /// <summary>One particle node, with its process material, the offset of its start box, and the life of its particles.</summary>
+    private sealed record StreamNode(GpuParticles2D Particles, ParticleProcessMaterial Process, Vector2 Offset, int LifetimeTicks);
 }

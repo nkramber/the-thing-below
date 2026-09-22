@@ -97,8 +97,10 @@ public sealed class FogSheets
             // The drift is art pixels in each second of 60 ticks, and whole pixels alone (D-230).
             long driftX = sheet.DriftX * tick / HitBurst.StepsPerSecond;
             long driftY = sheet.DriftY * tick / HitBurst.StepsPerSecond;
+            // The region moves with the view, so the shapes of the fog stay over the world and
+            // never ride the view (F-97).
             sheet.Sprite.Position = point;
-            sheet.Sprite.RegionRect = new Rect2(driftX, driftY, width, height);
+            sheet.Sprite.RegionRect = new Rect2(driftX + point.X, driftY + point.Y, width, height);
         }
     }
 

@@ -53,6 +53,9 @@ public sealed class TorchFlame
     /// <summary>The count of particle nodes of this fire.</summary>
     public int NodeCount => this.streams.NodeCount;
 
+    /// <summary>Tells whether every node of this fire stands still, so each ember stays in the world (F-97).</summary>
+    public bool NodesStandStill => this.streams.NodesStandStill;
+
     /// <summary>Shows or hides the streams of this fire, as the switch of the carried light does (D-847).</summary>
     public bool Visible
     {

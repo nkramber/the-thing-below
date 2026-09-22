@@ -70,6 +70,9 @@ public sealed class ScreenCapturesTests
         "map-fire-1x.png",
         "battle-fire-1x.png",
         "pit-1x.png",
+        "scroll-01.png",
+        "scroll-09.png",
+        "scroll-17.png",
     ];
 
     // This property stays below `StillNames`, because its build reads that array, and a static
@@ -87,9 +90,10 @@ public sealed class ScreenCapturesTests
         // adds the settings screen at both body sizes, and its conflict line (D-862, D-871).
         // PR-57 adds the blood, the sparks, the stop of a heavy blow, and the heavy blow at each
         // level of the flash and shake reduction (D-863, exit test 1 of PR-57).
-        // PR-58 adds one capture of each ambient kind on the map and over a fight, and the pit
-        // room of the wall shape beside a doorway (D-852, D-889, exit test 1 of PR-58).
-        Assert.Equal(10 + 34 + 1 + 10 + 3 + 7, FileNames().Count);
+        // PR-58 adds one capture of each ambient kind on the map and over a fight, the pit room
+        // of the wall shape beside a doorway, and three frames of a step that scrolls the view
+        // (D-852, D-889, F-97, exit test 1 of PR-58).
+        Assert.Equal(10 + 34 + 1 + 10 + 3 + 10, FileNames().Count);
     }
 
     [Fact]

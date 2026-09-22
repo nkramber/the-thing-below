@@ -84,6 +84,9 @@ public static class ScreenCaptures
     /// <summary>The running screen with the party in the pit room, which shows the walls beside the doorway at (6, 12) (D-852).</summary>
     public const string PitFixture = "pit";
 
+    /// <summary>The running screen through a step that scrolls the view, which shows that each particle stays on the world (F-97).</summary>
+    public const string ScrollFixture = "scroll";
+
     /// <summary>The frame of the settings screen with a binding conflict and its line (D-862).</summary>
     public const string SettingsConflictFrame = "conflict-1x";
 
@@ -147,6 +150,14 @@ public static class ScreenCaptures
         InputActions.StepSouth, InputActions.StepSouth, InputActions.StepSouth,
     ];
 
+    /// <summary>The ticks of the step of the scroll fixture that take a frame: the start, the middle, and the arrival (F-97).</summary>
+    /// <remarks>
+    /// The view follows the lead in the pit room, so the three frames hold three places of the
+    /// view. A particle that rides the view stands at the same place of each frame, and a
+    /// particle of the world moves with the tiles under it.
+    /// </remarks>
+    public static IReadOnlyList<int> ScrollTicks { get; } = [1, 9, TicksOfOneStep];
+
     /// <summary>The ambient file of each capture of a weather: one for each kind of D-187, which the screen test alone loads (D-889).</summary>
     /// <remarks>The dust of the map shows in every other capture of the map and of a fight, because the fixture dungeon ships with it (D-202).</remarks>
     public static IReadOnlyList<WeatherFrame> WeatherFrames { get; } =
@@ -170,7 +181,8 @@ public static class ScreenCaptures
     public static IReadOnlyList<ScreenCapture> All { get; } = Build();
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
-    public static IReadOnlyList<string> Fixtures { get; } = [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture];
+    public static IReadOnlyList<string> Fixtures { get; } =
+        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -266,6 +278,19 @@ public static class ScreenCaptures
         // it, whose shape stops the light of a torch on the same wall (D-852).
         captures.Add(new ScreenCapture(
             PitFixture, "1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+
+        // The scroll fixture draws at 1x. Each frame holds one tick of a step south in the pit
+        // room, where the view follows the lead (F-97).
+        foreach (int tick in ScrollTicks)
+        {
+            captures.Add(new ScreenCapture(
+                ScrollFixture,
+                $"{tick:D2}",
+                ScreenFit.FrameWidth,
+                ScreenFit.FrameHeight,
+                FitMode.Fill,
+                new WalkTick(InputActions.StepSouth, tick)));
+        }
 
         // The settings screen draws at both body sizes: 32 at 1x, and 24 at 1080 rows (D-707).
         // The conflict line draws at 1x, the floor of the Steam Deck (D-862).

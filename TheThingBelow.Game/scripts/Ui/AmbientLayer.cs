@@ -45,6 +45,9 @@ public sealed class AmbientLayer
     /// <summary>The count of layers of fog, which the budget counts as one full-screen pass each (D-523).</summary>
     public int FogCount => this.fogs?.SheetCount ?? 0;
 
+    /// <summary>Tells whether every node of the weather stands still, so each particle stays in the world (F-97).</summary>
+    public bool NodesStandStill => this.streams?.NodesStandStill ?? true;
+
     /// <summary>Builds the weather of one place under a parent node.</summary>
     /// <param name="effect">The ambient file of the place, or no value for a place with no weather.</param>
     /// <param name="palette">The palette (D-181).</param>
