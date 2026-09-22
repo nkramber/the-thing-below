@@ -1,0 +1,54 @@
+The Thing Below: the Deck test of D-160 and D-523.
+renderer          forward_plus
+frame             1280 by 720 (D-568)
+target            60 frames each second, 16.667 ms each frame (D-161)
+engine            4.7.2-stable (official)
+machine           
+system            Linux SteamOS
+processor         AMD Custom APU 0932
+adapter           AMD Custom GPU 0932 (RADV VANGOGH) (AMD)
+driver api        1.4.330
+screen            (1280, 800) at 89.9 Hz
+frames each stage 60 warm-up, 300 measured
+vsync             Disabled
+
+stage                  lights  particles  passes  avg ms  p50 ms  p95 ms  worst ms  over  holds
+world-only                  0          0       0    1.67    1.67    1.85      2.89     0    yes
+pass-crt                    0          0       1    1.77    1.79    1.85      2.17     0    yes
+pass-crt-glow               0          0       2    2.25    2.08    2.78      3.97     0    yes
+pass-crt-glow-fog           0          0       3    2.22    2.17    2.38      3.65     0    yes
+lights-1                    1          0       3    2.33    2.38    2.38      2.45     0    yes
+lights-2                    2          0       3    2.40    2.38    2.42      2.78     0    yes
+lights-4                    4          0       3    2.62    2.58    2.78      2.78     0    yes
+lights-6                    6          0       3    2.90    2.78    3.33      7.24     0    yes
+lights-8                    8          0       3    3.07    3.03    3.33      3.44     0    yes
+lights-10                  10          0       3    3.34    3.33    3.33      3.46     0    yes
+lights-12                  12          0       3    3.50    3.50    3.70      4.17     0    yes
+lights-15                  15          0       3    4.01    4.00    4.17      7.10     0    yes
+particles-512               0        512       3    2.20    2.16    2.38      2.59     0    yes
+particles-1024              0       1024       3    2.20    2.17    2.38      2.73     0    yes
+particles-2048              0       2048       3    2.23    2.23    2.38      2.38     0    yes
+particles-4096              0       4096       3    2.33    2.38    2.38      2.42     0    yes
+particles-8192              0       8192       3    2.47    2.38    2.78      5.81     0    yes
+full-load                   8       2048       3    3.28    3.33    3.33      3.33     0    yes
+full-load-transition        8       2048       4    3.32    3.33    3.70      3.70     0    yes
+worst-case                 15       8192       4    5.15    5.12    5.45      5.74     0    yes
+pairs-4                     4          0       2    2.37    2.38    2.38      2.65     0    yes
+pairs-8                     8          0       2    2.84    2.78    3.03      3.73     0    yes
+pairs-12                   12          0       2    3.14    3.04    3.33      3.89     0    yes
+pairs-16                   16          0       2    3.49    3.47    3.70      5.08     0    yes
+pairs-20                   20          0       2    3.91    3.95    4.17      4.17     0    yes
+pairs-24                   24          0       2    4.27    4.17    4.55      6.55     0    yes
+full-load-24               24       2048       3    4.78    4.76    5.00     10.72     0    yes
+
+The effect budget of this run (D-523). Each row is the largest load that held the target.
+  lights with shadows   lights-15
+  paired lights         pairs-24 (the row of D-854 asks for 24)
+  live particles        particles-8192
+  full-screen passes    pass-crt-glow-fog
+  the load of D-160 held the target: yes (p95 3.33 ms)
+  24 paired lights with particles and a transition held the target: yes (p95 5.00 ms)
+
+Run the other renderer, then compare. The renderer with more room wins (D-160).
+If neither renderer holds the target, the owner decides then (D-261).
+
