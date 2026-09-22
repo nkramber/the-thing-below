@@ -1,5 +1,36 @@
 # Session handoff archive
 
+## Session 188: 2026-09-21, Claude Code
+
+Author: Claude Code
+Session: author PR-56, round 3. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
+
+### What this session did, and why
+
+- Gitar approved the code of `96298b7` with no thread. Its CI note named a real failure: `CaptureColorsTests` read each pixel of the lit map and walk baselines as a palette color.
+- Light blends to any color (D-181), so a lit capture holds colors outside the palette. The test now reads the unlit world capture, `picture-1x.png`, alone. That capture still guards the sRGB conversion of PR-55 and the Nearest filter.
+- The old test fails on the new baseline, which proves the change.
+
+### The state of the build
+
+- 1,856 tests pass locally against the new baseline. The remote head is this round.
+
+### What is in flight
+
+- The push wait of Gitar on this head, then the Codex review of `docs/reviews/pr-53.md`.
+
+### Traps and gotchas
+
+- Run the tests after a new baseline lands. `make verify` read the old baseline and passed.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Prove that the Gitar review of this head is current, then tell the owner that PR #53 is ready for the Codex review.
+
 ## Session 187: 2026-09-21, Claude Code
 
 Author: Claude Code

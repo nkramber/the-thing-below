@@ -1,5 +1,38 @@
 # Session handoff
 
+## Session 198: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-93, round 3. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: #54. Role: author. Base: `d1a03f7`.
+
+### What this session did, and why
+
+- Answered the review of session 197 in `docs/reviews/pr-54-response.md`.
+- P1-1 has no merit. CI run 35680701238, on `43c2edc` with the event `pull_request` and the action `synchronize`, read `BEFORE_REF: c9429c4…` from `github.event.before`. It wrote the push facts and gave `documents-alone: true`.
+- The push of this entry is the second docs-only push in a row after the green head `c9429c4`. The review asked for that run as its regression check.
+
+### The state of the build
+
+- No code change. The effective head stays `c9429c4`, and `make verify` passed there with 1,924 tests.
+- Gitar approved `c9429c4`. The remote head is the push of this entry.
+
+### What is in flight
+
+- The CI run of this push. Its `changed paths` job must give `documents-alone: true` from the previous head `43c2edc`.
+- The repeat review of the other provider.
+
+### Traps and gotchas
+
+- The previous head `43c2edc` skipped each build job. Thus its required checks come from the gate jobs of `c9429c4`, and this run proves the fix of round 2 live.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the `changed paths` log of this push, and tell the owner the result. Then the other provider repeats the review at effective head `c9429c4`.
+
 ## Session 197: 2026-09-22, Codex
 
 Author: Codex
@@ -298,34 +331,3 @@ None.
 ### The next concrete action
 
 Commit the review record and both handoff files. Push, fetch, and verify the remote head and the review-gate check.
-
-## Session 188: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-56, round 3. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
-
-### What this session did, and why
-
-- Gitar approved the code of `96298b7` with no thread. Its CI note named a real failure: `CaptureColorsTests` read each pixel of the lit map and walk baselines as a palette color.
-- Light blends to any color (D-181), so a lit capture holds colors outside the palette. The test now reads the unlit world capture, `picture-1x.png`, alone. That capture still guards the sRGB conversion of PR-55 and the Nearest filter.
-- The old test fails on the new baseline, which proves the change.
-
-### The state of the build
-
-- 1,856 tests pass locally against the new baseline. The remote head is this round.
-
-### What is in flight
-
-- The push wait of Gitar on this head, then the Codex review of `docs/reviews/pr-53.md`.
-
-### Traps and gotchas
-
-- Run the tests after a new baseline lands. `make verify` read the old baseline and passed.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Prove that the Gitar review of this head is current, then tell the owner that PR #53 is ready for the Codex review.
