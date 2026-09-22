@@ -1,4 +1,40 @@
 # Session handoff archive
+## Session 198: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-93, round 3. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: #54. Role: author. Base: `d1a03f7`.
+
+### What this session did, and why
+
+- Answered the review of session 197 in `docs/reviews/pr-54-response.md`.
+- P1-1 has no merit. CI run 35680701238, on `43c2edc` with the event `pull_request` and the action `synchronize`, read `BEFORE_REF: c9429c4…` from `github.event.before`. It wrote the push facts and gave `documents-alone: true`.
+- The push of this entry is the second docs-only push in a row after the green head `c9429c4`. The review asked for that run as its regression check.
+
+### The state of the build
+
+- No code change. The effective head stays `c9429c4`, and `make verify` passed there with 1,924 tests.
+- Gitar approved `c9429c4`. The remote head is the push of this entry.
+
+### What is in flight
+
+- The CI run of this push. Its `changed paths` job must give `documents-alone: true` from the previous head `43c2edc`.
+- The repeat review of the other provider.
+
+### Traps and gotchas
+
+- The previous head `43c2edc` skipped each build job. Thus its required checks come from the gate jobs of `c9429c4`, and this run proves the fix of round 2 live.
+- That did not happen. The reviewer pushed `3ba4dad` at 02:58:18Z, and the push of `38cface` at 02:59:44Z cancelled its run. Each gate of `3ba4dad` then showed `failure`, so run 35681498346 of `38cface` ran every job, as D-858 requires. Every job passed.
+- Two spaced metadata pushes follow: A after the green `38cface`, and B after A skips. B is the live check of two docs-only pushes in a row. Each push waits until the run before it completes.
+- Push A, `54e8c5c`: run 35681799485 gave `documents-alone: true`, each build job skipped, and each gate reported `success`. Push B holds this line, and its previous head is A.
+- Push B, `bed989b`: run 35681880270 read `BEFORE_REF: 54e8c5c…` and gave `documents-alone: true`. Two docs-only pushes in a row both skip. `docs/reviews/pr-54-response.md` records both runs.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The other provider repeats the review at effective head `c9429c4`.
 
 ## Session 197: 2026-09-22, Codex
 
