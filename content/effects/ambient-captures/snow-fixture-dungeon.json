@@ -5,9 +5,9 @@
  "maps": ["map.fixture_dungeon"],
  "lit": true,
  "emitters": [
-  { "amount": 420, "lifetime_ticks": 480, "colors": ["e", "E", "w"], "size": 1, "x": 260, "y": -8, "half_width": 320, "half_height": 8, "direction": 68, "spread": 12, "slowest_speed": 36, "fastest_speed": 64, "gravity": 12, "damping": 0 },
-  { "amount": 90, "lifetime_ticks": 300, "colors": ["e", "w"], "size": 2, "x": 240, "y": -8, "half_width": 320, "half_height": 8, "direction": 72, "spread": 16, "slowest_speed": 70, "fastest_speed": 110, "gravity": 20, "damping": 0 },
-  { "amount": 60, "lifetime_ticks": 120, "colors": ["E", "f"], "size": 1, "x": -8, "y": 180, "half_width": 8, "half_height": 180, "direction": 4, "spread": 8, "slowest_speed": 180, "fastest_speed": 300, "gravity": 0, "damping": 0 }
+  { "amount": 420, "lifetime_ticks": 480, "colors": ["e", "E", "w"], "size": 1, "x": 260, "y": -8, "half_width": 320, "half_height": 8, "direction": 68, "spread": 12, "slowest_speed": 36, "fastest_speed": 64, "gravity": 12, "damping": 0, "sway": 0, "sway_scale": 1 },
+  { "amount": 90, "lifetime_ticks": 300, "colors": ["e", "w"], "size": 2, "x": 240, "y": -8, "half_width": 320, "half_height": 8, "direction": 72, "spread": 16, "slowest_speed": 70, "fastest_speed": 110, "gravity": 20, "damping": 0, "sway": 0, "sway_scale": 1 },
+  { "amount": 60, "lifetime_ticks": 120, "colors": ["E", "f"], "size": 1, "x": -8, "y": 180, "half_width": 8, "half_height": 180, "direction": 4, "spread": 8, "slowest_speed": 180, "fastest_speed": 300, "gravity": 0, "damping": 0, "sway": 0, "sway_scale": 1 }
  ],
  "fogs": []
 }

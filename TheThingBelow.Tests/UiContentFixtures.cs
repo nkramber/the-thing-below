@@ -52,7 +52,7 @@ public static class UiContentFixtures
 
     /// <summary>The fire of a test torch: two levels and one stream of ink, which every test palette holds (D-890, D-891).</summary>
     public const string FireBody =
-        """{ "step_ticks": 4, "levels": [ { "strength": 10000, "range": 10000 }, { "strength": 9000, "range": 9500 } ], "jump": 1, "emitters": [ { "amount": 6, "lifetime_ticks": 12, "colors": ["k"], "size": 1, "x": 0, "y": -2, "half_width": 1, "half_height": 0, "direction": -90, "spread": 10, "slowest_speed": 10, "fastest_speed": 20, "gravity": -10, "damping": 0 } ] }""";
+        """{ "step_ticks": 4, "levels": [ { "strength": 10000, "range": 10000 }, { "strength": 9000, "range": 9500 } ], "jump": 1, "emitters": [ { "amount": 6, "lifetime_ticks": 12, "colors": ["k"], "size": 1, "x": 0, "y": -2, "half_width": 1, "half_height": 0, "direction": -90, "spread": 10, "slowest_speed": 10, "fastest_speed": 20, "gravity": -10, "damping": 0, "sway": 0, "sway_scale": 1 } ] }""";
 
     /// <summary>The body of the fixture carried light (D-847).</summary>
     public const string CarriedBody =

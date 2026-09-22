@@ -12,9 +12,9 @@
   ],
   "jump": 1,
   "emitters": [
-   { "amount": 10, "lifetime_ticks": 14, "colors": ["a", "A", "j"], "size": 1, "x": 0, "y": -26, "half_width": 1, "half_height": 0, "direction": -90, "spread": 12, "slowest_speed": 14, "fastest_speed": 26, "gravity": -20, "damping": 0 },
-   { "amount": 4, "lifetime_ticks": 50, "colors": ["X", "j"], "size": 1, "x": 0, "y": -28, "half_width": 1, "half_height": 0, "direction": -90, "spread": 30, "slowest_speed": 10, "fastest_speed": 24, "gravity": -6, "damping": 0 },
-   { "amount": 6, "lifetime_ticks": 70, "colors": ["Q"], "size": 1, "x": 0, "y": -30, "half_width": 1, "half_height": 0, "direction": -90, "spread": 10, "slowest_speed": 6, "fastest_speed": 12, "gravity": 0, "damping": 0 }
+   { "amount": 10, "lifetime_ticks": 14, "colors": ["a", "A", "j"], "size": 1, "x": 0, "y": -26, "half_width": 1, "half_height": 0, "direction": -90, "spread": 12, "slowest_speed": 14, "fastest_speed": 26, "gravity": -20, "damping": 0, "sway": 0, "sway_scale": 1 },
+   { "amount": 4, "lifetime_ticks": 50, "colors": ["X", "j"], "size": 1, "x": 0, "y": -28, "half_width": 1, "half_height": 0, "direction": -90, "spread": 30, "slowest_speed": 10, "fastest_speed": 24, "gravity": -6, "damping": 0, "sway": 0, "sway_scale": 1 },
+   { "amount": 6, "lifetime_ticks": 70, "colors": ["Q"], "size": 1, "x": 0, "y": -30, "half_width": 1, "half_height": 0, "direction": -90, "spread": 10, "slowest_speed": 6, "fastest_speed": 12, "gravity": 0, "damping": 0, "sway": 0, "sway_scale": 1 }
   ]
  }
 }

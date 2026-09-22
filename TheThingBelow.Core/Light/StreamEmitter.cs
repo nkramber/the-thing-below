@@ -29,6 +29,8 @@ namespace TheThingBelow.Core.Light;
 /// <param name="FastestSpeed">The highest start speed, in art pixels in each second of 60 ticks.</param>
 /// <param name="Gravity">The pull down the screen, in art pixels in each second for each second. A negative value pulls up.</param>
 /// <param name="Damping">The speed that a particle loses in each second, in art pixels in each second. A particle that reaches no speed stands still until its life ends.</param>
+/// <param name="Sway">The strength of the sway: the flow that pulls a particle from side to side as it falls, as a sheet of paper falls. Zero holds a straight path.</param>
+/// <param name="SwayScale">The scale of the pattern of the sway. A low value gives long curves, and a high value gives short ones.</param>
 public sealed record StreamEmitter(
     int Amount,
     int LifetimeTicks,
@@ -43,7 +45,9 @@ public sealed record StreamEmitter(
     int SlowestSpeed,
     int FastestSpeed,
     int Gravity,
-    int Damping)
+    int Damping,
+    int Sway,
+    int SwayScale)
 {
     /// <summary>The most palette keys of one stream.</summary>
     public const int MostColors = 8;
@@ -62,6 +66,12 @@ public sealed record StreamEmitter(
 
     /// <summary>The strongest damping, in art pixels in each second for each second.</summary>
     public const int MostDamping = 2000;
+
+    /// <summary>The strongest sway.</summary>
+    public const int MostSway = 200;
+
+    /// <summary>The largest scale of the pattern of the sway.</summary>
+    public const int MostSwayScale = 64;
 
     /// <summary>The most live particles of one stream.</summary>
     public const int MostAmount = 2048;
@@ -181,13 +191,15 @@ public sealed record StreamEmitter(
             slow,
             fast,
             InRange(ref reader, depth, values, "gravity", -MostGravity, MostGravity),
-            InRange(ref reader, depth, values, "damping", 0, MostDamping));
+            InRange(ref reader, depth, values, "damping", 0, MostDamping),
+            InRange(ref reader, depth, values, "sway", 0, MostSway),
+            InRange(ref reader, depth, values, "sway_scale", 1, MostSwayScale));
     }
 
     private static bool IsIntField(string field) => field switch
     {
         "amount" or "lifetime_ticks" or "size" or "x" or "y" or "half_width" or "half_height"
-            or "direction" or "spread" or "slowest_speed" or "fastest_speed" or "gravity" or "damping" => true,
+            or "direction" or "spread" or "slowest_speed" or "fastest_speed" or "gravity" or "damping" or "sway" or "sway_scale" => true,
         _ => false,
     };
 

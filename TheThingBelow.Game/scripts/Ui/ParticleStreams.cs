@@ -27,6 +27,9 @@ public sealed class ParticleStreams
     /// <summary>The seed of the hash of each node name. A new value changes the pattern of every stream.</summary>
     private const ulong NameSeed = 0x73747265616DUL;
 
+    /// <summary>The parts of one step of the sway, so a file can tune it in whole numbers.</summary>
+    private const int SwayParts = 10;
+
     private readonly List<StreamNode> nodes;
     private long shown = -1;
 
@@ -226,6 +229,16 @@ public sealed class ParticleStreams
             Gravity = new Vector3(0, emitter.Gravity, 0),
             DampingMin = emitter.Damping,
             DampingMax = emitter.Damping,
+
+            // The sway is a flow that reads the place of each particle, so a mote falls in a
+            // curve, as a sheet of paper falls. The field never scrolls, so the path of one
+            // particle is the same on every run and in every capture (T-7, D-172).
+            TurbulenceEnabled = emitter.Sway > 0,
+            TurbulenceNoiseStrength = emitter.Sway / (float)SwayParts,
+            TurbulenceNoiseScale = emitter.SwayScale,
+            TurbulenceNoiseSpeed = Vector3.Zero,
+            TurbulenceInfluenceMin = 1,
+            TurbulenceInfluenceMax = 1,
             ScaleMin = emitter.Size,
             ScaleMax = emitter.Size,
             Color = color,
