@@ -81,8 +81,8 @@ Built by PR-1. Phase file: `phase-1-foundations.md`.
 - Each job sets a time limit below the 6 hours of GitHub, so a hung Godot process fails fast with a clear status (T-2).
 - A new push to a PR stops the older runs of its workflows, so no leg spends time on a stale head.
 - A first job reads the changed paths of the PR. Each build and test job reads that result in a condition, and it skips on a docs PR (D-595). No path filter goes on a workflow, because a check that stays "Pending" stops the merge (F-41).
-- The skip set holds `docs/`, `.claude/`, `README.md`, `LICENSE`, and `.github/pull_request_template.md` (D-600). `CLAUDE.md` and `AGENTS.md` stay out of it, because a test reads both files and fails when they differ (D-20). The skip set and the override set of D-16 are not the same set.
-- PR-93 runs ste-check, review-gate, and Gitar alone on a docs-only PR, and on a docs-only push after a green head (D-856). OQ-219 holds whether `CLAUDE.md`, `AGENTS.md`, and `.claude/settings.json` join the set.
+- The skip set holds `docs/`, `.claude/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `LICENSE`, and `.github/pull_request_template.md` (D-600, D-857). Rule AGENTS 1 of the ste-check job reads the rule of D-20 on every PR, so the two instructions files can skip. The skip set and the override set of D-16 are not the same set.
+- PR-93 runs ste-check, review-gate, and Gitar alone on a docs-only PR, and on a docs-only push after a green head (D-856). A green head passed each check that the push skips (D-858). The `changed-paths` command of Tools holds the rule, and the workflow collects the facts (D-859).
 
 > *In plain English:* every change runs its checks on three kinds of computer, the same three that the game supports. Each check has a time limit, so a stuck test fails in minutes, not hours.
 
@@ -350,11 +350,15 @@ A required status check matches by name. A job that a condition skips reports Su
 | `build-test-format` | `build, test, and format (<leg>)` | `build, test, and format` |
 | `replay-identity` | `replay-identity (<leg>)` | `replay-identity` |
 | `smoke` | `smoke (<leg>)` | `smoke` |
+| `coverage` | `coverage report (run)` | `coverage report` |
+| `det-lint` | `det-lint (run)` | `det-lint` |
+| `screen-test` | `screen-test (run)` | `screen-test` |
 
 - Each gate job reads `always()`, so the check reports on a run that a fault or a cancel stopped (T-2).
-- Each gate job needs `changed-paths` and its matrix job. It passes on `success`, and on `skipped` when the PR changes documents alone (D-595).
+- Each gate job needs `changed-paths` and its matrix job. It passes on `success`, and on `skipped` when the change holds documents alone (D-595, D-856).
 - A skip that no condition asked for fails the gate, because a fault in `changed-paths` skips the legs too.
 - The condition of D-595 stays on each matrix job, so a docs-only PR starts no runner for a leg.
+- PR-93 gives a gate job to each of the three jobs with no matrix too. A skipped job reports the conclusion `skipped`, and the rule of the previous head reads that as no pass. The gate reports `success` on a docs-only head, so two docs-only pushes in a row can both skip (D-858).
 
 > *In plain English:* the merge rules match a check by its name, and the names of the three-machine jobs changed with the kind of change. One small job for each family reports one name that never changes.
 
@@ -399,6 +403,6 @@ The register is `docs/questions.md` (D-19). These questions block CI PRs, and ea
 - OQ-197: the unstable check names of the matrix jobs. Resolved by D-682 and D-683, and PR-88 builds them.
 - OQ-198: the third-party notices of the engine in an export. Blocks PR-31.
 - OQ-199: the artifact retention of a private repository. Blocks the move of D-456 in Phase 6.
-- OQ-219: the paths of the docs-only set. Blocks PR-93.
+- OQ-219: the paths of the skip set. Resolved by D-857, and PR-93 builds it.
 
 No open question blocks this file.

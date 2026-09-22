@@ -66,6 +66,8 @@ public static class SteCheckCommand
         findings.AddRange(SessionNumberRules.Check(documents));
         findings.AddRange(SizeRules.Check(documents));
         findings.AddRange(DocumentRowRules.Check(documents));
+        findings.AddRange(AgentFileRules.Check(documents));
+        findings.AddRange(AgentFileRules.CheckTestCommand(documents));
 
         findings.Sort(CompareFindings);
         foreach (Finding finding in findings)

@@ -1,5 +1,182 @@
 # Session handoff
 
+## Session 199: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-93, repeat review. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: #54. Role: reviewer. Base: `d1a03f7`.
+
+### What this session did, and why
+
+- Read the response to P1-1 and recomputed the effective head as `c9429c4`. The intervening commits change only review and handoff metadata.
+- Verified the live synchronize-event evidence in run 35680701238. The job logged a non-empty `BEFORE_REF` and returned `documents-alone: true`.
+- Verified runs 35681799485 and 35681880270. Two consecutive docs-only pushes both skipped each build job, and each gate reported success.
+- Updated `docs/reviews/pr-54.md`: P1-1 is withdrawn, the earlier verdict is preserved, and the current verdict is `Ready for owner merge` for effective head `c9429c4`.
+
+### The state of the build
+
+- The effective implementation head is `c9429c4`. The author reports `make verify` passed with 1,924 tests outside Smoke. The live regression runs passed.
+
+### What is in flight
+
+- The repeat-review record and this handoff entry need commit and push.
+
+### Traps and gotchas
+
+- The event payload documentation was incomplete for this field. Live workflow output is the decisive evidence for the trigger.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the repeat-review record and handoff. Verify the review-gate check covers effective head `c9429c4`.
+
+## Session 198: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-93, round 3. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: #54. Role: author. Base: `d1a03f7`.
+
+### What this session did, and why
+
+- Answered the review of session 197 in `docs/reviews/pr-54-response.md`.
+- P1-1 has no merit. CI run 35680701238, on `43c2edc` with the event `pull_request` and the action `synchronize`, read `BEFORE_REF: c9429c4…` from `github.event.before`. It wrote the push facts and gave `documents-alone: true`.
+- The push of this entry is the second docs-only push in a row after the green head `c9429c4`. The review asked for that run as its regression check.
+
+### The state of the build
+
+- No code change. The effective head stays `c9429c4`, and `make verify` passed there with 1,924 tests.
+- Gitar approved `c9429c4`. The remote head is the push of this entry.
+
+### What is in flight
+
+- The CI run of this push. Its `changed paths` job must give `documents-alone: true` from the previous head `43c2edc`.
+- The repeat review of the other provider.
+
+### Traps and gotchas
+
+- The previous head `43c2edc` skipped each build job. Thus its required checks come from the gate jobs of `c9429c4`, and this run proves the fix of round 2 live.
+- That did not happen. The reviewer pushed `3ba4dad` at 02:58:18Z, and the push of `38cface` at 02:59:44Z cancelled its run. Each gate of `3ba4dad` then showed `failure`, so run 35681498346 of `38cface` ran every job, as D-858 requires. Every job passed.
+- Two spaced metadata pushes follow: A after the green `38cface`, and B after A skips. B is the live check of two docs-only pushes in a row. Each push waits until the run before it completes.
+- Push A, `54e8c5c`: run 35681799485 gave `documents-alone: true`, each build job skipped, and each gate reported `success`. Push B holds this line, and its previous head is A.
+- Push B, `bed989b`: run 35681880270 read `BEFORE_REF: 54e8c5c…` and gave `documents-alone: true`. Two docs-only pushes in a row both skip. `docs/reviews/pr-54-response.md` records both runs.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The other provider repeats the review at effective head `c9429c4`.
+
+## Session 197: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-93, initial review. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: #54. Role: reviewer. Base: `d1a03f7`.
+
+### What this session did, and why
+
+- Reviewed the complete PR-54 diff through effective head `c9429c4`.
+- Verified the provider gate, the Gitar correction, the changed-paths tests, the CI gate tests, and `make verify`.
+- Found that `.github/workflows/ci.yml` reads `github.event.before` for a `pull_request` synchronize event. GitHub documents that field for push payloads, so the workflow does not receive the previous PR head and does not perform the advertised consecutive-docs-push skip.
+- Added `docs/reviews/pr-54.md` with finding P1-1 and verdict `Changes required`.
+
+### The state of the build
+
+- `make verify` passes with 1,924 tests outside the Smoke category and 0 ste-check findings. The remote effective head is `c9429c4`.
+
+### What is in flight
+
+- The review record and this handoff entry need commit and push.
+
+### Traps and gotchas
+
+- A local unit test can inject previous-head facts, so it does not prove that the GitHub event supplies `github.event.before`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The author must correct the previous-head source and add an event-shape regression check. Then Codex must repeat the review at the new effective head.
+
+## Session 196: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-93, round 2. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: #54. Role: author. Base: `d1a03f7`.
+
+### What this session did, and why
+
+- Answered the two Gitar items of round 1.
+- The RG 7 fault: the `docs/reviews/` row of the description named no path. The edit of the description fixed it, and review-gate now fails on RG 3 alone.
+- The finding: a plain job that its condition skips reports the conclusion `skipped`, not `success`. Thus after one docs-only push, the rule of D-858 read `coverage report`, `det-lint`, and `screen-test` as no pass, and the next docs-only push ran every job. Full merit.
+- The fix: a gate job with `always()` for each of the three jobs, as the matrix families have (D-682). Each gate takes the required name, and each job takes the name `<name> (run)`. D-858 stays true as written.
+- The regression test `EachJobThatADocsOnlyChangeSkipsHasOneGateJob` fails on the workflow of `d0ca1bc` and passes now. `area-ci.md` section 7.19 lists the three new gates.
+
+### The state of the build
+
+- `make verify` passes with 1,924 tests outside the Smoke category, 0 ste-check findings, and the smoke session.
+- The CI run of `d0ca1bc` passed every job on every leg. The remote head is the push of this entry.
+
+### What is in flight
+
+- The Gitar pass approved `c9429c4` at 2026-09-22T02:45:51Z, with 1 finding closed and no new finding. The Gitar check of that head passed.
+- The review of the other provider (D-401, D-560). The next push holds this entry alone, so it is the first live docs-only push after a green head.
+
+### Traps and gotchas
+
+- Branch protection requires `coverage report` and `det-lint` by name. The gate jobs keep those names, so the protection needs no change. The old job names move to `<name> (run)`.
+- A fault in `changed-paths` skips each plain job. Each new gate now fails in that case, where the old check showed `skipped` (T-2).
+- Session 195 said that a skip on a skip holds. That was wrong for the three plain jobs before this round.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the `changed paths` log of the push of this entry: the build jobs skip, and each gate reports `success`. Then the other provider reviews PR #54 at effective head `c9429c4`.
+
+## Session 195: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-93, round 1. Repository: the-thing-below. Branch: `chore/pr-93-docs-only-ci`. PR: the PR-93 intent, and GitHub gives the number at the open. Role: author. Base: `d1a03f7`.
+
+### What this session did, and why
+
+- Asked OQ-219 and two more questions that the work found. D-857, D-858, and D-859 hold the answers.
+- D-857: `CLAUDE.md` and `AGENTS.md` join the skip set. `.claude/settings.json` was in the set already through `.claude/`.
+- Added rules AGENTS 1 and AGENTS 2 to ste-check. AGENTS 1 reads the rule of D-20. AGENTS 2 reads the count of the Smoke filter option that `TestFilterTests` reads. A docs-only PR skips that test, so ste-check reads the same facts on every PR.
+- D-858: a docs-only push skips the other jobs when each check that it skips passed on the previous head. review-gate and ste-check do not count.
+- D-859: the new `changed-paths` command of Tools decides. The workflow collects the paths and the check runs of the `before` commit, and the job gets `checks: read`.
+- Updated the `ste-writing` and `one-pr-one-session` skills, `area-ci.md` section 7.1, and section 7.15 of the phase 2 file.
+
+### The state of the build
+
+- `make verify` passes with 1,920 tests outside the Smoke category, 0 ste-check findings, and the smoke session.
+- A local run of the two workflow steps against PR #53 gave the expected answer in four cases: a green head, a cancelled head, a force push, and a push to `main`.
+- The remote head is the push of this entry.
+
+### What is in flight
+
+- The Gitar pass, then the review of the other provider. The PR changes `.github/workflows/` and adds decision rows, so no label applies (D-401, D-560).
+
+### Traps and gotchas
+
+- The run of a new push cancels the run of the previous head. A quick docs push after a code push thus runs every job, because the checks of the previous head show `cancelled`.
+- The first CI run of this PR runs every job, because the PR changes code.
+- Branch protection does not require `screen-test`, but the skip rule reads it. The rule is safe, because an absent run fails it.
+- The shell step reads `github.event.before`. That field exists only on the `synchronize` action.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Open the PR. Load the `gitar-review` skill, wait for Gitar, and answer each comment. Then tell the owner that the PR is ready for the other provider.
+
 ## Session 194: 2026-09-21, Codex
 
 Author: Codex
@@ -159,167 +336,3 @@ The Deck result of D-854.
 ### The next concrete action
 
 Commit the baseline from the `screen-captures` artifact, then answer Gitar.
-
-## Session 189: 2026-09-21, Codex
-
-Author: Codex
-Session: reviewer PR-53, round 1. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: reviewer. Base: `e0cc485`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-53 diff from merge base `e0cc485` through effective head `6095f70`.
-- Verified the opposite-provider gate, light content and budget contracts, normal-map atlas wiring, map and battle lighting, documents, tests, CI results, and changed screen baselines.
-- Added `docs/reviews/pr-53.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 1,856 non-smoke tests and all local gates. The remote implementation head is `6095f70`.
-
-### What is in flight
-
-- The review record and this handoff entry need commit and push.
-
-### Traps and gotchas
-
-- The review-gate check remains red until the metadata commit reaches the PR head.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit the review record and both handoff files. Push, fetch, and verify the remote head and the review-gate check.
-
-## Session 188: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-56, round 3. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
-
-### What this session did, and why
-
-- Gitar approved the code of `96298b7` with no thread. Its CI note named a real failure: `CaptureColorsTests` read each pixel of the lit map and walk baselines as a palette color.
-- Light blends to any color (D-181), so a lit capture holds colors outside the palette. The test now reads the unlit world capture, `picture-1x.png`, alone. That capture still guards the sRGB conversion of PR-55 and the Nearest filter.
-- The old test fails on the new baseline, which proves the change.
-
-### The state of the build
-
-- 1,856 tests pass locally against the new baseline. The remote head is this round.
-
-### What is in flight
-
-- The push wait of Gitar on this head, then the Codex review of `docs/reviews/pr-53.md`.
-
-### Traps and gotchas
-
-- Run the tests after a new baseline lands. `make verify` read the old baseline and passed.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Prove that the Gitar review of this head is current, then tell the owner that PR #53 is ready for the Codex review.
-
-## Session 187: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-56, round 2. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
-
-### What this session did, and why
-
-- The first CI run passed each build, smoke, det-lint, identity, and STE job on every leg. The screen-test job failed on 43 captures, because the light changes every map, walk, and battle frame.
-- The author read the map, walk, and battle frames of the `screen-captures` artifact of run 35664815392. They match the local sheet, and this round commits them as the baseline (D-733).
-- The UI and picture captures match the old baseline, because they take no scene light (D-210).
-
-### The state of the build
-
-- `make verify` and `make smoke` pass. The remote head is this round.
-
-### What is in flight
-
-- Gitar reviews this head, and the Codex review of `docs/reviews/pr-53.md` follows.
-
-### Traps and gotchas
-
-- The `review-gate` check fails until the review record lands.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for Gitar with the push wait, prove that the review is current, and answer each finding.
-
-## Session 186: 2026-09-21, Claude Code
-
-Author: Claude Code
-Session: author PR-56, the light and the shadows. Repository: the-thing-below. Branch: `feat/pr-56-light-and-shadows`. PR: #53. Role: author. Base: `e0cc485`.
-
-### What this session did, and why
-
-- The owner answered OQ-94 to OQ-97 and added two requests: the party carries a torch, and the art target is the HD-2D look. D-842 to D-851 record each answer.
-- PR-91 (the torch item, after PR-13) and PR-92 (three HD-2D passes, after PR-59) join the roadmaps. OQ-217 and OQ-218 block PR-91.
-- Core reads the decor kinds, the decor files, the light setups, the carried light, and the effect budget. The load checks each file against the maps and the palette. It also checks the worst view of the Deck and the 15 lights of one canvas item.
-- The simulation version is 12, and the identity file is new (G-17).
-- Game draws the lit atlas pages, the full-tile wall shadows, the torches, the carried light, and the key light of a battle. The `torch` command of the console switches the carried light with no intent.
-
-### The state of the build
-
-- `make verify` passes with 1,891 tests. `make smoke` passes. `make sheet` shows the lit map, walk, and battle frames.
-- The remote head is the first push of this branch.
-
-### What is in flight
-
-- The screen-test job fails on the first push, because every map, walk, and battle frame changes. The next round commits the baseline from the `screen-captures` artifact (D-733).
-- Gitar and the Codex review wait for the PR.
-
-### Traps and gotchas
-
-- Do not send the output of `make smoke` to `artifacts/smoke.log`. The target writes that file and then `cat`s it, so the file grows with no end.
-- `OccluderPolygon2D.CullMode` Clockwise keeps each wall dark. CounterClockwise lights the wall tile of each torch alone, as a flat block.
-- The collection expression `[0, last]` in Core pulls in `System.Runtime.InteropServices`, and the Core reference test fails.
-- zsh arrays count from 1.
-
-### The questions that block progress
-
-None for PR-56. OQ-217 records a clash for PR-91: D-566 puts no fog of war on a map, and D-848 makes the torch needed to see in the dark.
-
-### The next concrete action
-
-Download the `screen-captures` artifact of the first CI run, read each frame, and commit the new baseline. Then answer gitar.
-
-## Session 185: 2026-09-21, Codex
-
-Author: Codex
-Session: review PR-48, normal maps. Repository: the-thing-below. Branch: `feat/pr-48-normal-maps`. PR: #52. Role: reviewer. Base: `9e9dc59`.
-
-### What this session did, and why
-
-- Reviewed the complete PR-52 diff from merge base `9e9dc59` through effective head `2f41276`.
-- Verified the opposite-provider gate, normal-map generation, override validation, atlas integration, capture input fix, documents, and tests.
-- Added `docs/reviews/pr-52.md` with the verdict `Ready for owner merge`.
-
-### The state of the build
-
-- `make verify` passes with 1,839 tests and all local gates.
-- GitHub checks pass at `2f41276` except the review gate, which waits for this review record.
-
-### What is in flight
-
-- This review record and this handoff entry need commit and push.
-
-### Traps and gotchas
-
-- Gitar reports no code issue, but functional validation is disabled.
-- The review-gate failure is expected until this record reaches the PR head.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit the review record and handoff files. Push, fetch, and verify the remote head and the review-gate check.

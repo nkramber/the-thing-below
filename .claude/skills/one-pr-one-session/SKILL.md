@@ -168,7 +168,7 @@ The session ends with this prompt. It makes no branch and no change for the next
 |---|---|
 | The handoff changes, each row has a line, each line reads true against the diff, and no line defers a document or a record of the PR | Machine: the `review-gate` check (D-15, D-579) |
 | The review record and the effective head | Machine: the `review-gate` check (D-15). The record lives in the metadata set, so the gate reads the record and never its author, and the reviewer session reads the record on the effective head before the owner merges (D-610) |
-| `CLAUDE.md` and `AGENTS.md` stay identical | Machine: a test of Tests, which the build and test job runs on every PR that changes either file (D-20, D-600) |
+| `CLAUDE.md` and `AGENTS.md` stay identical | Machine: rule AGENTS 1 of the ste-check job on every PR, and a test of Tests (D-20, D-857) |
 | The binding, the start gate, and the completion gate | Agent |
 | One PR in each session, and a clean session for each PR | Owner. No check can see the conversation |
 | The merge | Owner (D-8) |
