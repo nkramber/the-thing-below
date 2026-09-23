@@ -373,7 +373,8 @@ The review of the other provider starts from one command, and a PR merges itself
 - `make codex-review PR=<n>` runs the `codex-review` command of Tools. It installs the newest CLI with npm, probes the model, and refuses a run that has no complete Gitar pass (D-926, D-927).
 - The review runs in a separate worktree at the head of the PR. The reviewer pushes its record and its handoff entry in one metadata commit (D-928, D-610).
 - The command reads the record on origin, and it gives one exit code for each outcome. A finding open in a third round gives the three-strike stop (D-929).
-- The author session turns on the auto-merge after an approval of the effective head. The protection of `main` then holds the merge until each required check passes (D-930).
+- Each Codex process runs with no API key in its environment, and the command refuses a CLI with no ChatGPT login (D-932).
+- The author session turns on the auto-merge after an approval of the effective head and the confirmation of the owner (D-933). The protection of `main` then holds the merge until each required check passes (D-930).
 - The protection requires nine checks: the eight of D-681 and D-685, and `screen-test`. Conversation resolution holds each review thread of Gitar (D-931).
 - `docs/runbooks/branch-protection.json` records the settings, and the runbook compares the record with the live settings (D-931).
 - Each required check reports on a docs-only head and on a code head, because each gate job runs with `always()`. The `export` workflow has a path filter, so it stays out of the required set (D-692).
@@ -400,7 +401,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 14. PR-7: the first merge that exports a walkable build.
 15. PR-41: the screen-test job, after PR-45 (D-492).
 16. PR-93: ste-check, review-gate, and Gitar alone on a docs-only change, right after PR-56 (D-856).
-17. PR-95: the automated review, the three-strike stop, and the gated auto-merge, right after PR-92 (D-926 to D-931).
+17. PR-95: the automated review, the three-strike stop, and the gated auto-merge, right after PR-92 (D-926 to D-933).
 18. PR-15: the bot runs on every leg (D-505).
 19. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
 20. Owner: require the bot and `night-gate` checks on `main` after their first runs.

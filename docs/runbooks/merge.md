@@ -1,6 +1,6 @@
 # The review and the merge
 
-Status: active runbook. Written in ASD-STE100. Decisions: D-926 to D-931.
+Status: active runbook. Written in ASD-STE100. Decisions: D-926 to D-933.
 
 This runbook gives the loop of the author from a push to the merge. It also gives the review command, the three-strike stop, the auto-merge, and the merge settings of the repository. The `one-pr-one-session`, `gitar-review`, and `pr-review` skills hold the rules, and this runbook holds the commands.
 
@@ -10,7 +10,7 @@ This runbook gives the loop of the author from a push to the merge. It also give
 2. Get a complete Gitar pass of the head with the `gitar-review` skill, and answer each comment (D-14).
 3. Start `make codex-review PR=<n>` in the background, and wait for the notice at its end.
 4. Read the last line of the output: `codex-review: outcome <name> (exit <code>)`.
-5. On `approve`, go to "The auto-merge".
+5. On `approve`, go to "The confirmation and the auto-merge".
 6. On `changes-required`, answer each finding with the `pr-review` skill, then go to step 1.
 7. On `three-strike-stop`, go to "The three-strike stop".
 8. On `fault` or `refused`, read the reason lines, correct the cause, then go to step 3.
@@ -20,19 +20,24 @@ This runbook gives the loop of the author from a push to the merge. It also give
 The `codex-review` command of Tools holds the logic, and the Makefile target runs it (D-926). A run does these steps:
 
 1. Install the newest `@openai/codex` with npm, and refuse a version older than the minimum (D-927).
-2. Probe the model `gpt-6-luna` at the effort `medium`.
-3. Refuse a PR that is not open, a checkout that differs from origin, and a working tree with changes.
-4. Refuse a Gitar pass that is not complete for the effective head.
-5. Make a worktree at the head of the PR in the temporary folder, on the local branch `review/pr-<n>`.
-6. Run the review with the prompt `Review PR #<n>.` and the instructions of the skill and the push.
-7. Fetch, read the record on origin, and compare its head field with the effective head (D-610).
-8. Print the verdict, the open finding ids, the three-strike ids, and the path of the transcript.
+2. Refuse a CLI with no ChatGPT login (D-932).
+3. Probe the model `gpt-6-luna` at the effort `medium`.
+4. Refuse a PR that is not open, a checkout that differs from origin, and a working tree with changes.
+5. Refuse a Gitar pass that is not complete for the effective head.
+6. Make a worktree at the head of the PR in the temporary folder, on the local branch `review/pr-<n>`.
+7. Run the review with the prompt `Review PR #<n>.` and the instructions of the skill and the push.
+8. Fetch, read the record on origin, and compare its head field with the effective head (D-610).
+9. Print the verdict, the open finding ids, the three-strike ids, and the path of the transcript.
+
+The command removes `OPENAI_API_KEY` and `CODEX_API_KEY` from each Codex process that it starts, so no review runs at API prices (D-932). The removal changes the environment of that process alone. The shell and each other process keep their keys.
+
+CAUTION: Do not pass `forced_login_method` to the CLI. A forced method that differs from the login makes the CLI log out. Each Codex process of the machine then fails until the owner logs in again.
 
 The transcript, the error log, and the last message of the reviewer go to the folder artifacts/codex-review, which git ignores. The command removes the worktree after each outcome except a fault. The next run removes a worktree that a fault kept.
 
 | Outcome | Exit code of the command | What the author does |
 |---|---|---|
-| `approve` | 0 | Go to "The auto-merge". |
+| `approve` | 0 | Go to "The confirmation and the auto-merge". |
 | `changes-required` | 2 | Answer each finding, then push the next round. |
 | `three-strike-stop` | 3 | Go to "The three-strike stop". |
 | `fault` or `refused` | 1 | Read the reason, correct the cause, and run the command again. |
@@ -57,13 +62,14 @@ The command exits with code 3 when an open finding lists three effective heads o
 4. Record the answer of the owner in `docs/reviews/pr-<n>-response.md`.
 5. Record the answer as a decision too when it sets a rule.
 
-## The auto-merge
+## The confirmation and the auto-merge
 
-Turn on the auto-merge only when each of these conditions holds (D-930):
+Turn on the auto-merge only when each of these conditions holds (D-930, D-933):
 
 - The last metadata commit is on origin. It holds the review record and the handoff entry of the author.
 - The Gitar pass is complete for the effective head under the `gitar-review` skill.
 - The record gives `Ready for owner merge` for the effective head.
+- The owner confirmed the merge after a summary of one paragraph. Post the summary, and ask the owner with `AskUserQuestion`.
 
 Then run these commands. Run the wait in the background.
 
@@ -75,7 +81,7 @@ gh pr view <n> --json state,mergedAt,mergeCommit
 
 When the state is `MERGED`, write the transitional prompt of step 6 of the `one-pr-one-session` skill at once. When a check fails, the PR stays open and the auto-merge stays on. Correct the cause, and start the loop again at step 1. A push of code moves the effective head, so the `review-gate` check fails until a new review approves the new head.
 
-The owner merges PR #63 by hand, and the first auto-merge comes on the next PR (D-931).
+The owner merges PR #63 by hand, and the first auto-merge comes on the next PR (D-931). The session posts the summary of PR #63 before the hand-over (D-933).
 
 ## The merge settings
 

@@ -1,3 +1,39 @@
+# Session handoff archive
+## Session 224: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #60, round 3. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: reviewer. Base: `a20d32f`.
+
+### What this session did, and why
+
+- Re-reviewed PR #60 at effective head `bff8622`.
+- The owner’s later instruction in the feedback says to keep the dated records. D-909 records this override and ends the pause.
+- Verified that the PR #58 and PR #59 review records, and the PR #59 handoff entries, match `origin/main`. Sessions 209 and 210 remain in the archive.
+- Marked P2-1 fixed and changed the current verdict to `Ready for owner merge`.
+
+### The state of the build
+
+- The remote head of `main` is `a20d32f`. The effective head of PR #60 is `bff8622`.
+- `make ste-check` passed with 0 findings. CI passed all applicable implementation checks, and Gitar approved the head. Review-gate failed RG 4 and RG 5 because the review record still named the prior verdict and head.
+- The updated review and this handoff need commit and push. A fresh review-gate result must be checked.
+
+### What is in flight
+
+- PR #60 waits for the review-gate result on the updated review record.
+
+### Traps and gotchas
+
+- The initial owner choice removed the dated records. The later choice kept them, and D-909 records that resolution.
+- The effective head includes the restored decision and history files. Metadata commits do not change it.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the repeat review. Then verify the branch head and fresh review-gate result.
+
 ## Session 223: 2026-09-23, Claude Code
 
 Author: Claude Code

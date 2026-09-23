@@ -986,8 +986,9 @@ Area file: `area-ci.md` section 7.20.
 
 - `make codex-review PR=<n>` and the `codex-review` command of Tools (D-926, D-927). The command installs the CLI, probes the model, checks the start, and runs the review in a worktree.
 - A handoff entry for each review run (D-928).
+- No API key in the environment of a Codex process, and a ChatGPT login before each run (D-932).
 - The `Open at:` line of each finding, and the three-strike stop (D-929).
-- The gated auto-merge that the author session turns on (D-930).
+- The gated auto-merge that the author session turns on after the confirmation of the owner (D-930, D-933).
 - The merge settings of the repository and their record: the auto-merge, the conversation resolution, and `screen-test` as a required context (D-931).
 - The documents of the new loop: `CLAUDE.md`, `AGENTS.md`, the skills, the PR template, and `docs/runbooks/merge.md`.
 
@@ -1006,6 +1007,7 @@ Area file: `area-ci.md` section 7.20.
 5. The review arguments pass the model, the effort, and the sandbox on the command line (D-926).
 6. The first live run reviews this PR, and the record gives its verdict for the effective head.
 7. The live settings match `docs/runbooks/branch-protection.json` before the merge (D-931).
+8. A Codex process gets no API key variable, and a CLI with no ChatGPT login refuses the run (D-932).
 
 **Review focus.**
 
@@ -1013,7 +1015,7 @@ Area file: `area-ci.md` section 7.20.
 - The command never takes the effort from the configuration file of the CLI (D-926).
 - The worktree leaves the author checkout as it was, and each external command fails with its context (T-2).
 
-**Questions.** None. D-926 to D-931 hold the answers of 2026-09-23.
+**Questions.** None. D-926 to D-933 hold the answers of 2026-09-23.
 
 > *In plain English:* one command now starts the review of the other provider and reads its verdict. A finding that comes back three times stops the loop for the owner. A PR merges itself only when each check is green, the review approves it, and each automated comment has its answer.
 

@@ -47,8 +47,8 @@ public static class FindingRounds
     /// <param name="text">The text of the record.</param>
     /// <returns>Each finding in the order of the record. The text "No finding." gives none.</returns>
     /// <exception cref="InvalidOperationException">
-    /// The record has no Findings section, a heading of that section is no finding id, or a finding
-    /// has no status line or no `Open at:` line with a hash (T-2).
+    /// The record has no Findings section, a heading of that section is no finding id, an id comes
+    /// two times, or a finding has no status line or no `Open at:` line with a hash (T-2).
     /// </exception>
     public static IReadOnlyList<ReviewFinding> Read(string path, string text)
     {
@@ -154,6 +154,17 @@ public static class FindingRounds
         {
             throw new InvalidOperationException(
                 $"`{path}`: {id} has no `{OpenAtLabel}` line. The line lists each effective head at which the finding was open (D-929).");
+        }
+
+        // Two sections of one id would split its rounds, and each part could stay under the
+        // limit. One id is one finding for the life of the PR (D-17, D-929).
+        foreach (ReviewFinding earlier in findings)
+        {
+            if (string.Equals(earlier.Id, id, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException(
+                    $"`{path}`: the Findings section holds {id} two times. One id is one finding, with one `{OpenAtLabel}` line (D-929).");
+            }
         }
 
         findings.Add(new ReviewFinding(id, OpenStatus.IsMatch(status), ReadHeads(path, id, openAt)));

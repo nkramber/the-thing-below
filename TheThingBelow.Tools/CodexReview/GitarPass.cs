@@ -133,6 +133,71 @@ public static class GitarPass
         return reasons;
     }
 
+    /// <summary>Gives the `gh` arguments that list each issue comment of the pull request, on every page.</summary>
+    /// <param name="repo">The owner and the name, such as `nkramber/the-thing-below`.</param>
+    /// <param name="number">The GitHub number of the pull request.</param>
+    /// <returns>The arguments. The output has one JSON object on each line.</returns>
+    public static IReadOnlyList<string> CommentArguments(string repo, string number)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(repo);
+        ArgumentException.ThrowIfNullOrEmpty(number);
+        return
+        [
+            "api", "--paginate", $"repos/{repo}/issues/{number}/comments?per_page=100", "--jq",
+            ".[] | {login: .user.login, created: .created_at, updated: .updated_at, " +
+            "dashboard: (.body | test(\"<b>Code Review</b>\")), request: (.body | test(\"^\\\\s*gitar review\\\\s*$\"; \"i\"))}",
+        ];
+    }
+
+    /// <summary>
+    /// Gives the `gh` arguments that list each review thread of the pull request. The query reads
+    /// every page through `$endCursor`, so a thread after the first 100 counts too.
+    /// </summary>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="name">The name of the repository.</param>
+    /// <param name="number">The GitHub number of the pull request.</param>
+    /// <returns>The arguments. The output has one JSON object on each line.</returns>
+    public static IReadOnlyList<string> ThreadArguments(string owner, string name, string number)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(owner);
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        ArgumentException.ThrowIfNullOrEmpty(number);
+        return
+        [
+            "api", "graphql", "--paginate", "-F", $"owner={owner}", "-F", $"name={name}", "-F", $"number={number}", "-f",
+            "query=query($owner: String!, $name: String!, $number: Int!, $endCursor: String) { repository(owner: $owner, name: $name) { " +
+            "pullRequest(number: $number) { reviewThreads(first: 100, after: $endCursor) { " +
+            "nodes { isResolved comments(first: 1) { nodes { author { login } } } } pageInfo { hasNextPage endCursor } } } } }",
+            "--jq", ".data.repository.pullRequest.reviewThreads.nodes[] | {resolved: .isResolved, author: (.comments.nodes[0].author.login // \"\")}",
+        ];
+    }
+
+    /// <summary>Gives the `gh` arguments that list the status of each Gitar check run of one commit, on every page.</summary>
+    /// <param name="repo">The owner and the name of the repository.</param>
+    /// <param name="sha">The commit.</param>
+    /// <returns>The arguments. The output has one status on each line.</returns>
+    public static IReadOnlyList<string> CheckRunArguments(string repo, string sha)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(repo);
+        ArgumentException.ThrowIfNullOrEmpty(sha);
+        return
+        [
+            "api", "--paginate", $"repos/{repo}/commits/{sha}/check-runs?per_page=100", "--jq",
+            $".check_runs[] | select(.app.slug == \"{GraphLogin}\") | .status",
+        ];
+    }
+
+    /// <summary>Gives the `gh` arguments that list the creation time of each check suite of one commit, on every page.</summary>
+    /// <param name="repo">The owner and the name of the repository.</param>
+    /// <param name="sha">The commit.</param>
+    /// <returns>The arguments. The output has one time on each line.</returns>
+    public static IReadOnlyList<string> CheckSuiteArguments(string repo, string sha)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(repo);
+        ArgumentException.ThrowIfNullOrEmpty(sha);
+        return ["api", "--paginate", $"repos/{repo}/commits/{sha}/check-suites?per_page=100", "--jq", ".check_suites[].created_at"];
+    }
+
     /// <summary>
     /// Reads the comments that the command gets from `gh api`, one JSON object on each line, with
     /// the fields `login`, `created`, `updated`, `dashboard`, and `request`.

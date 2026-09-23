@@ -74,6 +74,8 @@ public static class CodexReviewCommand
     {
         output.WriteLine($"{Name}: install the newest `{CodexCli.Package}` with npm (D-927).");
         string codex = InstallCli(root);
+        output.WriteLine($"{Name}: check the ChatGPT login of the CLI, with no API key in its environment (D-932).");
+        CheckLogin(codex, root);
         output.WriteLine($"{Name}: probe the model `{CodexCli.Model}` at the effort `{CodexCli.ReasoningEffort}` (D-926).");
         ProbeModel(codex);
 
@@ -107,7 +109,7 @@ public static class CodexReviewCommand
         output.WriteLine($"{Name}: the review runs in '{worktree}'. The transcript is '{transcript}'.");
 
         string prompt = CodexCli.ReviewPrompt(number, checkout.Branch, localBranch);
-        ProgramResult run = ExternalProgram.Run(codex, CodexCli.ReviewArguments(worktree, lastMessage, prompt), worktree, transcript);
+        ProgramResult run = RunCodex(codex, CodexCli.ReviewArguments(worktree, lastMessage, prompt), worktree, transcript);
         File.WriteAllText(errorLog, run.Error);
 
         ExternalProgram.RunChecked("git", ["fetch", "--quiet", "origin"], root);
@@ -140,7 +142,14 @@ public static class CodexReviewCommand
                 $"npm installed `{CodexCli.Package}`, and '{codex}' does not exist. Read `npm prefix --global` (D-927).");
         }
 
-        CodexVersion version = CodexCli.ParseVersion(ExternalProgram.RunChecked(codex, ["--version"], root));
+        ProgramResult versionRun = RunCodex(codex, ["--version"], root, null);
+        if (versionRun.ExitCode != 0)
+        {
+            throw new InvalidOperationException(
+                $"`{codex} --version` gave the exit code {versionRun.ExitCode} (D-927). {Tail(versionRun.Error)}");
+        }
+
+        CodexVersion version = CodexCli.ParseVersion(versionRun.Output);
         if (!version.IsAtLeast(CodexCli.MinimumVersion))
         {
             throw new InvalidOperationException(
@@ -148,6 +157,23 @@ public static class CodexReviewCommand
         }
 
         return codex;
+    }
+
+    private static void CheckLogin(string codex, string root)
+    {
+        ProgramResult status = RunCodex(codex, CodexCli.LoginStatusArguments, root, null);
+        if (!CodexCli.IsChatGptLogin(status))
+        {
+            throw new InvalidOperationException(
+                $"the CLI has no ChatGPT login, so a review can run at API prices. Run `codex login` in a terminal (D-932). " +
+                $"`codex login status` gave the exit code {status.ExitCode}: {Tail(status.Output + '\n' + status.Error)}");
+        }
+    }
+
+    /// <summary>Runs the Codex CLI with no API key in its environment. Each Codex call of the command goes through here (D-932).</summary>
+    private static ProgramResult RunCodex(string codex, IReadOnlyList<string> arguments, string folder, string? outputFile)
+    {
+        return ExternalProgram.Run(codex, arguments, folder, outputFile, CodexCli.ApiKeyVariables);
     }
 
     private static void ProbeModel(string codex)
@@ -160,7 +186,7 @@ public static class CodexReviewCommand
 
         Directory.CreateDirectory(folder);
         string answerFile = Path.Combine(folder, "answer.txt");
-        ProgramResult probe = ExternalProgram.Run(codex, CodexCli.ProbeArguments(folder, answerFile), folder, null);
+        ProgramResult probe = RunCodex(codex, CodexCli.ProbeArguments(folder, answerFile), folder, null);
         if (probe.ExitCode != 0)
         {
             throw new InvalidOperationException(
@@ -217,30 +243,11 @@ public static class CodexReviewCommand
             throw new InvalidOperationException($"`gh repo view` gave '{repo}', which is no owner and name (T-2).");
         }
 
-        string comments = ExternalProgram.RunChecked(
-            "gh",
-            [
-                "api", "--paginate", $"repos/{repo}/issues/{numberText}/comments", "--jq",
-                ".[] | {login: .user.login, created: .created_at, updated: .updated_at, " +
-                "dashboard: (.body | test(\"<b>Code Review</b>\")), request: (.body | test(\"^\\\\s*gitar review\\\\s*$\"; \"i\"))}",
-            ],
-            root);
+        string comments = ExternalProgram.RunChecked("gh", GitarPass.CommentArguments(repo, numberText), root);
 
         string tip = ExternalProgram.RunChecked("git", ["rev-parse", $"origin/{branch}"], root);
-        string statuses = ExternalProgram.RunChecked(
-            "gh",
-            ["api", $"repos/{repo}/commits/{tip}/check-runs", "--jq", $".check_runs[] | select(.app.slug == \"{GitarPass.GraphLogin}\") | .status"],
-            root);
-
-        string threads = ExternalProgram.RunChecked(
-            "gh",
-            [
-                "api", "graphql", "-F", $"owner={parts[0]}", "-F", $"name={parts[1]}", "-F", $"number={numberText}", "-f",
-                "query=query($owner: String!, $name: String!, $number: Int!) { repository(owner: $owner, name: $name) { " +
-                "pullRequest(number: $number) { reviewThreads(first: 100) { nodes { isResolved comments(first: 1) { nodes { author { login } } } } } } } }",
-                "--jq", ".data.repository.pullRequest.reviewThreads.nodes[] | {resolved: .isResolved, author: (.comments.nodes[0].author.login // \"\")}",
-            ],
-            root);
+        string statuses = ExternalProgram.RunChecked("gh", GitarPass.CheckRunArguments(repo, tip), root);
+        string threads = ExternalProgram.RunChecked("gh", GitarPass.ThreadArguments(parts[0], parts[1], numberText), root);
 
         // The push that brought the effective head made the first check suite of a commit from
         // that head to the tip. A later push of metadata alone makes later suites (D-603).
@@ -256,7 +263,7 @@ public static class CodexReviewCommand
             {
                 suiteTimes.Add(ExternalProgram.RunChecked(
                     "gh",
-                    ["api", $"repos/{repo}/commits/{commit.Sha}/check-suites", "--jq", ".check_suites[].created_at"],
+                    GitarPass.CheckSuiteArguments(repo, commit.Sha),
                     root));
             }
         }

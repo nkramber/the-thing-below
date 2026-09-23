@@ -88,7 +88,7 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-22 effects pass: Game draws each particle with `GPUParticles2D`, and a shake moves the battle picture alone (D-875, D-876). A heavy blow is a hit on a weakness, and it alone takes the shake and the hit-stop (D-877, D-880). Each hit plays the blood or the sparks of its target, and one battle file holds the pace of every fight (D-879, D-882, D-883). The plan held a spell flash in PR-57, and no spell exists before PR-12, so PR-12 builds it (D-878). The hurt flinch waits for PR-17 (D-884).
 
-2026-09-23 review automation pass: `make codex-review PR=<n>` starts the review of the other provider, and it reads the verdict from the record (D-926 to D-928). Each finding records its open rounds, and a third open round stops the fix loop for the owner (D-929). A PR merges itself when the green light holds, and G-15 names the auto-merge (D-930, D-931).
+2026-09-23 review automation pass: `make codex-review PR=<n>` starts the review of the other provider, and it reads the verdict from the record (D-926 to D-928). Each finding records its open rounds, and a third open round stops the fix loop for the owner (D-929). A PR merges itself when the green light holds and the owner confirms it, and G-15 names the auto-merge (D-930, D-931, D-933). No review runs at API prices (D-932).
 
 External facts, each with the date of its check:
 
@@ -422,7 +422,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 12. **G-12.** Every document follows ASD-STE100. The `ste-check` job runs the checker in the PR gate (D-10).
 13. **G-13.** Every dependency has a decision entry that justifies it.
 14. **G-14.** Every optimization has a profile before it and a measurement after it.
-15. **G-15.** Squash merge from a short branch, with a conventional commit subject (D-8). The gated auto-merge merges a PR, and the owner can merge too (D-930, D-931).
+15. **G-15.** Squash merge from a short branch, with a conventional commit subject (D-8). The gated auto-merge merges a PR after the owner confirms it, and the owner can merge too (D-930, D-931, D-933).
 16. **G-16.** A PR that creates a check passes that check. A PR names any check that does not exist yet, with the PR that creates it (L-11). A check on `pull_request_target` or `schedule` cannot run on the PR that creates it (F-37). That PR proves its command in Tests, and the live check first runs after the merge (D-500).
 17. **G-17.** Every `core` behavior change bumps the simulation version constant, and the review confirms it.
 18. **G-18.** No empty `catch` and no silent default. Every error carries its context (T-2).
@@ -505,7 +505,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 20. PR-94: the procedural fog, a soft noise shader of 1 to 3 layers in place of the text grid (D-896 to D-908).
 21. PR-59: the glow on the fire of each wall torch, and the fog above the glow (D-188, D-910 to D-916).
 22. PR-92: the three passes of the HD-2D look, after a new Deck sweep (D-849).
-23. PR-95: the automated review of the other provider, the three-strike stop, and the gated auto-merge (D-926 to D-931).
+23. PR-95: the automated review of the other provider, the three-strike stop, and the gated auto-merge (D-926 to D-933).
 24. PR-60: the ten transitions and their table (D-195, D-196).
 25. PR-11: the evaluator, the enemy profiles, and the groups, with the cost of a turn (D-65, D-534, F-53).
 26. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537).

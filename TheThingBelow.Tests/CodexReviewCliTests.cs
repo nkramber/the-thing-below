@@ -21,6 +21,36 @@ public sealed class CodexReviewCliTests
     }
 
     [Fact]
+    public void EachApiKeyVariableLeavesTheCodexProcesses()
+    {
+        Assert.Equal(["OPENAI_API_KEY", "CODEX_API_KEY"], CodexCli.ApiKeyVariables);
+        Assert.Equal(["login", "status"], CodexCli.LoginStatusArguments);
+    }
+
+    /// <summary>CLI 0.156.1 writes the login to the error stream, so the check reads both streams (D-932).</summary>
+    [Theory]
+    [InlineData(0, "", "Logged in using ChatGPT", true)]
+    [InlineData(0, "Logged in using ChatGPT\n", "", true)]
+    [InlineData(0, "", "Logged in using an API key - sk-proj-***", false)]
+    [InlineData(1, "", "Not logged in", false)]
+    [InlineData(1, "", "Logged in using ChatGPT", false)]
+    public void OnlyAChatGptLoginPasses(int exitCode, string output, string error, bool accepted)
+    {
+        Assert.Equal(accepted, CodexCli.IsChatGptLogin(new ProgramResult(exitCode, output, error)));
+    }
+
+    [Fact]
+    public void NoArgumentsChangeTheLogin()
+    {
+        IReadOnlyList<string> review = CodexCli.ReviewArguments("/tmp/review", "/tmp/last.md", "Review PR #63.");
+        IReadOnlyList<string> probe = CodexCli.ProbeArguments("/tmp/probe", "/tmp/probe/answer.txt");
+
+        // A forced login method that differs from the login makes the CLI log out (D-932).
+        Assert.DoesNotContain(review, argument => argument.Contains("forced_login_method", StringComparison.Ordinal));
+        Assert.DoesNotContain(probe, argument => argument.Contains("forced_login_method", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void TheReviewArgumentsPassEachValueOnTheCommandLine()
     {
         IReadOnlyList<string> arguments = CodexCli.ReviewArguments("/tmp/review", "/tmp/last.md", "Review PR #63.");

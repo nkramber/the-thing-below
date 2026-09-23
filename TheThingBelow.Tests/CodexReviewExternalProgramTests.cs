@@ -35,6 +35,31 @@ public sealed class CodexReviewExternalProgramTests
         }
     }
 
+    /// <summary>
+    /// A removed variable leaves the environment of the program alone. This process keeps it, so
+    /// no other process, such as a run of another repository, loses a key (D-932).
+    /// </summary>
+    [Fact]
+    public void ARemovedVariableLeavesTheProgramAlone()
+    {
+        string name = $"THE_THING_BELOW_TEST_KEY_{Guid.NewGuid():N}";
+        Environment.SetEnvironmentVariable(name, "a-test-value");
+        try
+        {
+            ProgramResult kept = ExternalProgram.Run("printenv", [name], Path.GetTempPath(), null);
+            ProgramResult removed = ExternalProgram.Run("printenv", [name], Path.GetTempPath(), null, [name]);
+
+            Assert.Equal("a-test-value", kept.Output.Trim());
+            Assert.Equal(string.Empty, removed.Output.Trim());
+            Assert.NotEqual(0, removed.ExitCode);
+            Assert.Equal("a-test-value", Environment.GetEnvironmentVariable(name));
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(name, null);
+        }
+    }
+
     [Fact]
     public void ACheckedRunThatFailsNamesTheCommandAndTheCode()
     {

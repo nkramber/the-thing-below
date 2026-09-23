@@ -150,6 +150,21 @@ public sealed class CodexReviewFindingRoundsTests
         Assert.Contains("names no finding id", fault.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Regression of P2-2 of the review of PR #63 on `ca9dd85`. Two sections of one id each
+    /// held fewer than three heads, and the count missed their three rounds together (D-929).
+    /// </summary>
+    [Fact]
+    public void AnIdThatComesTwoTimesIsAFault()
+    {
+        string record = Record(
+            Finding("P1-1", "open", Round1, Round3) + "\n\n" + Finding("P1-1", "open", Round2, Round3));
+
+        InvalidOperationException fault = Assert.Throws<InvalidOperationException>(() => FindingRounds.Read(Path, record));
+
+        Assert.Contains("holds P1-1 two times", fault.Message, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void ARecordWithNoFindingsSectionIsAFault()
     {

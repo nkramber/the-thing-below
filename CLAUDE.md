@@ -119,7 +119,7 @@ An automated reviewer, gitar, comments on every PR after a push (D-14). After ea
 
 - The author answers every comment before the hand-over to the other provider, or before the session applies the `review-override` label (D-67).
 - Wait for gitar with the one command of `docs/runbooks/session-context.md`, not a call for each poll (D-586).
-- When the pass is complete, run `make codex-review PR=<n>` in the background, or apply the label below (D-926). `docs/runbooks/merge.md` gives the rest (D-929, D-930).
+- When the pass is complete, run `make codex-review PR=<n>` in the background, or apply the label below (D-926). `docs/runbooks/merge.md` gives the rest. The owner confirms each merge (D-929, D-930, D-933).
 - A reply names no provider, harness, or model as the source of work (T-6).
 - The reviewing provider reads the existing PR comments into its review and never addresses gitar. The `pr-review` skill holds the procedure of the reviewer.
 - Every PR answers the pass, a documentation PR included (D-66). The `review-override` label exempts a documentation PR from the Codex review alone, and only when the PR changes no row of `docs/decisions.md` (D-401).

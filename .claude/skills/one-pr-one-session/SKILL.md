@@ -82,9 +82,9 @@ Each line starts with the row name and a colon, as the PR template does. Then it
 - `No change needed because <reason that names the path>`, for a document that the PR can affect and does not.
 - `Not applicable because <specific reason>`, for a category that the PR cannot reach.
 
-The `docs/session-handoff.md` line is always `Changed`. Before the review, the author line for `docs/reviews/` names the review that the PR waits for. The reviewer corrects the line when the record lands (the `pr-review` skill).
+The `docs/session-handoff.md` line is always `Changed`. Before the review, the author line for `docs/reviews/` takes the form `No change needed because`, and it names the review that the PR waits for. A `Changed:` line with no record in the diff fails RG 7. The reviewer corrects the line when the record lands (the `pr-review` skill).
 
-Each line also reads true against the diff (D-577). A `Changed:` line names a row whose path the diff changes, and a changed path of a row takes a `Changed:` line. The `docs/reviews/` row is the exception, because the reviewer adds the record after the author wrote the description. The `review-gate` command reads both rules under RG 7.
+Each line also reads true against the diff (D-577). A `Changed:` line names a row whose path the diff changes, and a changed path of a row takes a `Changed:` line. The `docs/reviews/` row is the exception to the second rule alone, because the reviewer adds the record after the author wrote the description. The `review-gate` command reads both rules under RG 7.
 
 Correct the PR when a line or a record holds one of these:
 
@@ -137,13 +137,13 @@ The author loop reaches the hand-over point. `docs/runbooks/merge.md` holds its 
 3. Run `make codex-review PR=<n>` in the background, and read its outcome line (D-926).
 4. On `changes-required`, answer each finding with the `pr-review` skill, then go to step 1.
 5. On `three-strike-stop`, turn off the auto-merge, stop the loop, and ask the owner (D-929).
-6. On `approve`, the hand-over point holds.
+6. On `approve`, the hand-over point holds. The owner confirms the merge before the auto-merge (D-933).
 
 At the hand-over point, the reviewer writes this result and stops:
 
 `This session is bound to PR #N and is complete. End this session. Start a new clean session before beginning another PR.`
 
-At the hand-over point, the author turns on the auto-merge under `docs/runbooks/merge.md` (D-930). Then it waits for the checks one time, and it reads the state of the PR. When the PR merged, the author writes the transitional prompt of step 6 at once. When the owner merges the PR by hand, the author writes the result above and waits for `Merged PR #x` (D-931).
+At the hand-over point, the author posts a summary of one paragraph and waits for the confirmation of the owner (D-933). Then it turns on the auto-merge under `docs/runbooks/merge.md` (D-930), waits for the checks one time, and it reads the state of the PR. When the PR merged, the author writes the transitional prompt of step 6 at once. When the owner merges the PR by hand, the author writes the result above and waits for `Merged PR #x` (D-931).
 
 Do not offer to start the next PR. After the merge, write the transitional prompt of step 6.
 

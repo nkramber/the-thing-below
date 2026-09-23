@@ -75,6 +75,18 @@ public static class CodexCli
     public const string ProbeAnswer = "OK";
 
     /// <summary>
+    /// The variables that give the CLI an API key. The command removes each one from every
+    /// Codex process that it starts, so no review runs at API prices (D-932).
+    /// </summary>
+    public static readonly IReadOnlyList<string> ApiKeyVariables = ["OPENAI_API_KEY", "CODEX_API_KEY"];
+
+    /// <summary>The arguments that read the login of the CLI. The command changes no login (D-932).</summary>
+    public static readonly IReadOnlyList<string> LoginStatusArguments = ["login", "status"];
+
+    /// <summary>The words of `codex login status` for a login through ChatGPT. CLI 0.156.1 writes them to the error stream.</summary>
+    public const string ChatGptLoginText = "Logged in using ChatGPT";
+
+    /// <summary>
     /// The oldest version that ran the model probe on 2026-09-23. The Homebrew formula stays at
     /// 0.39.0, which knows no current model (D-927).
     /// </summary>
@@ -107,6 +119,16 @@ public static class CodexCli
         }
 
         return new CodexVersion(major, minor, patch, dash >= 0);
+    }
+
+    /// <summary>Tells whether the output of `codex login status` names a login through ChatGPT (D-932).</summary>
+    /// <param name="result">The result of the command. The check reads both streams.</param>
+    /// <returns>True for an exit code of 0 and the words of a ChatGPT login. An API key login gives false.</returns>
+    public static bool IsChatGptLogin(ProgramResult result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+        string text = result.Output + "\n" + result.Error;
+        return result.ExitCode == 0 && text.Contains(ChatGptLoginText, StringComparison.Ordinal);
     }
 
     /// <summary>Gives the arguments of the model probe.</summary>

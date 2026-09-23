@@ -21,7 +21,7 @@ public sealed record ProgramResult(int ExitCode, string Output, string Error);
 /// </summary>
 public static class ExternalProgram
 {
-    /// <summary>Runs one program to its end.</summary>
+    /// <summary>Runs one program to its end, with the environment of this process.</summary>
     /// <param name="program">The program name or its full path.</param>
     /// <param name="arguments">Each argument, with no shell between them.</param>
     /// <param name="workingDirectory">The folder in which the program runs.</param>
@@ -37,6 +37,32 @@ public static class ExternalProgram
         string workingDirectory,
         string? outputFile)
     {
+        return Run(program, arguments, workingDirectory, outputFile, []);
+    }
+
+    /// <summary>
+    /// Runs one program to its end, with each named variable removed from its environment. The
+    /// removal changes the copy of the environment that the program gets alone. This process,
+    /// the shell, and each other process keep their variables (D-932).
+    /// </summary>
+    /// <param name="program">The program name or its full path.</param>
+    /// <param name="arguments">Each argument, with no shell between them.</param>
+    /// <param name="workingDirectory">The folder in which the program runs.</param>
+    /// <param name="outputFile">
+    /// The file that takes the standard output as the program writes it, or null to keep the
+    /// output in the result.
+    /// </param>
+    /// <param name="removedVariables">The name of each variable that the program does not get.</param>
+    /// <returns>The exit code and the text of the two streams.</returns>
+    /// <exception cref="InvalidOperationException">The program did not start (T-2).</exception>
+    public static ProgramResult Run(
+        string program,
+        IReadOnlyList<string> arguments,
+        string workingDirectory,
+        string? outputFile,
+        IReadOnlyList<string> removedVariables)
+    {
+        ArgumentNullException.ThrowIfNull(removedVariables);
         ArgumentException.ThrowIfNullOrEmpty(program);
         ArgumentNullException.ThrowIfNull(arguments);
         ArgumentException.ThrowIfNullOrEmpty(workingDirectory);
@@ -55,6 +81,11 @@ public static class ExternalProgram
         foreach (string argument in arguments)
         {
             start.ArgumentList.Add(argument);
+        }
+
+        foreach (string name in removedVariables)
+        {
+            start.Environment.Remove(name);
         }
 
         using Process process = Start(start, program, workingDirectory);

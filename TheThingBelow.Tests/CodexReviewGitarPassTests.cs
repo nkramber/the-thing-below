@@ -90,6 +90,54 @@ public sealed class CodexReviewGitarPassTests
         Assert.Contains(GitarPass.Check(facts), reason => reason.Contains("1 review thread(s)", StringComparison.Ordinal));
     }
 
+    /// <summary>
+    /// Regression of P2-1 of the review of PR #63 on `ca9dd85`. The query read the first 100
+    /// threads alone, so an open thread on a later page passed.
+    /// </summary>
+    [Fact]
+    public void AnOpenThreadAfterTheFirstHundredIsNotComplete()
+    {
+        List<GitarThread> threads = [];
+        for (int index = 0; index < 100; index++)
+        {
+            threads.Add(new GitarThread(true, GitarPass.GraphLogin));
+        }
+
+        threads.Add(new GitarThread(false, GitarPass.GraphLogin));
+        GitarFacts facts = Facts([Dashboard(AfterPush)], [], threads);
+
+        Assert.Contains(GitarPass.Check(facts), reason => reason.Contains("1 review thread(s)", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void TheThreadQueryReadsEveryPage()
+    {
+        IReadOnlyList<string> arguments = GitarPass.ThreadArguments("nkramber", "the-thing-below", "63");
+        string query = Assert.Single(arguments, argument => argument.StartsWith("query=", StringComparison.Ordinal));
+
+        Assert.Contains("--paginate", arguments);
+        Assert.Contains("$endCursor: String", query, StringComparison.Ordinal);
+        Assert.Contains("after: $endCursor", query, StringComparison.Ordinal);
+        Assert.Contains("pageInfo { hasNextPage endCursor }", query, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void EachRestReadTakesEveryPage()
+    {
+        IReadOnlyList<string>[] reads =
+        [
+            GitarPass.CommentArguments("nkramber/the-thing-below", "63"),
+            GitarPass.CheckRunArguments("nkramber/the-thing-below", "ca9dd85"),
+            GitarPass.CheckSuiteArguments("nkramber/the-thing-below", "ca9dd85"),
+        ];
+
+        foreach (IReadOnlyList<string> arguments in reads)
+        {
+            Assert.Contains("--paginate", arguments);
+            Assert.Contains(arguments, argument => argument.EndsWith("?per_page=100", StringComparison.Ordinal));
+        }
+    }
+
     [Fact]
     public void AnUnknownPushTimeIsNotComplete()
     {
