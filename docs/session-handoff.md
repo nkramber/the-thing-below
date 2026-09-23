@@ -14,17 +14,19 @@ Session: author PR-92, round 2. Repository: the-thing-below. Branch: `feat/pr-92
 
 - `main` is `05dcc3d`. The tests, format, lint, identity, content, atlas, and smoke pass on this machine. The author read `make sheet` for the map fixture.
 - CI run 35821954258 on `efbf7dd`: the two capture runs matched on all 74 captures. The 48 baselines that the window changed come from its artifact (D-733).
-- Gitar approved `efbf7dd` with no finding.
+- Gitar approved `efbf7dd` with no finding. CI and gitar passed on `8b299b3`, with review-gate waiting for the review record.
+- The owner turned on SSH on the Deck, and this session ran the sweep of `spike/deck-test` there at the owner's request. The results are `a6f9f0b` on that branch, and they hold the pass row of 6 (F-106).
 
 ### What is in flight
 
-- The owner runs the Deck sweep of `spike/deck-test`. The pass row of 6 stands only when `full-load-24-look` and `budget-rows` hold 60 frames per second (G-14).
 - The PR waits for CI on the baseline commit and the review of the other provider.
 
 ### Traps and gotchas
 
 - The window sits on the brick face of the wall tile, rows 16 to 27. The cap above the face is rows 0 to 15.
 - A shaft sprite draws unshaded, as a torch does, so the opening stays bright in the dark.
+- Over SSH, the Deck takes no `.bashrc`, so set `DOTNET_ROOT`, `PATH`, and `GODOT` by hand, and `DISPLAY=:0` for the sweep. Godot then falls back to Wayland.
+- The owner should stop SSH on the Deck after this PR: `sudo systemctl stop sshd`.
 
 ### The questions that block progress
 
@@ -32,7 +34,7 @@ None. OQ-241 blocks no PR yet.
 
 ### The next concrete action
 
-Read the Deck reports, and record the numbers in the PR.
+The other provider reviews PR #62.
 
 ## Session 227: 2026-09-23, Claude Code
 

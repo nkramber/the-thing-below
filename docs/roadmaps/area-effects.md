@@ -151,7 +151,7 @@ Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-94, PR-59, PR-
 - The light row rises to 24 after a new Deck sweep with 24 paired lights, before PR-56 merges (D-854). Each light source counts two lights (D-853). The sweep of 2026-09-21 held, with 4.55 ms at the 95th percentile for the full load (F-96).
 - Each row is a floor, and not the ceiling of the Deck, because no stage of the sweep missed the target (F-66).
 - The sweep measured those 3 passes with the CRT on, and D-618 later removed that pass, so the shipped stack carries one pass less.
-- The pass row rises to 6 after the Deck sweep of PR-92 (D-922, D-923). The 6 passes are the fog, the glow, the three passes of PR-92, and a transition. The row stands only when that sweep holds 60 frames per second (G-14).
+- The pass row rises to 6 after the Deck sweep of PR-92 (D-922, D-923). The 6 passes are the fog, the glow, the three passes of PR-92, and a transition. The row stands only when that sweep holds 60 frames per second (G-14). The sweep of 2026-09-23 held, with 6.67 ms at the 95th percentile for every row at once (F-106).
 - M-6 measures the first playable on the Deck against the budget (D-161). A miss changes the budget or the content in a PR with a measurement (G-14).
 
 > *In plain English:* the Deck test finds how much the Deck can draw at full speed, and that number goes into a file. A test then refuses any place that asks for more, before the engine can drop a light in silence.
