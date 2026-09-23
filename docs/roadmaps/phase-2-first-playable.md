@@ -1250,15 +1250,16 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
 **Scope.**
 
-- The main list, which opens one window for each task: party, lessons, gear, items, status, and save (D-211).
+- The main list, in the order party, lessons, gear, items, status, log, save, and settings (D-211, D-992). Each entry opens one window. The lessons, gear, items, and save entries show dim, and the cursor skips them (D-988).
 - The settings entry of the main list, which opens the settings screen of PR-63. The menu action then opens the main list (D-871).
 - The party window, which sets the starting row of each character, and the snapshot that keeps the row (D-377, D-558).
-- The status window, which reads the state of PR-9, PR-12, and PR-67 (D-569).
+- The status window, which shows the full sheet of each character from the state of PR-9, PR-12, and PR-67 (D-569, D-991).
 - The window stack, where back closes one window and the map stays visible behind (D-211).
 - The pause of the world while a menu is open (D-162, D-650).
 - The mouse on menus alone, which makes the same intent as a key or a button (D-219, D-493). The mouse moves the cursor, and a click chooses (D-872).
-- The dungeon map screen, which draws each tile that the party walked at 16 pixels (D-567, D-982).
-- The notice that slides in at the top edge, and the notice log in the menu (D-221). The log keeps the 30 newest marked notices in the snapshot (D-983 to D-985).
+- The dungeon map screen, which draws each tile that the party walked at 16 pixels (D-567, D-982). A new map action opens it from the walk, with the M key and the Back button (D-986, D-990).
+- The notice that slides in at the top edge, and the log window of the main list (D-221, D-987). The log keeps the 30 newest marked notices in the snapshot (D-983 to D-985).
+- A fixture notice file with one notice that logs and one that does not (D-989). A Core rule posts a notice, and a debug command posts one.
 
 **Out of scope.**
 
@@ -1274,8 +1275,10 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 5. A test proves that the world does not run while a menu is open, and that the tick rises (D-162, D-650).
 6. The dungeon map screen shows each walked tile, with the doors, the save points, and the exits on it (D-567).
 7. The party window sets the row of a character, and a fight starts with that row (D-377, D-558).
-8. The row survives a save and a load, through a snapshot format bump and its migration (D-166, D-558).
-9. The status window shows the level, the MP, and the stats of each character (D-569).
+8. The row and the notice log survive a save and a load. The log takes a snapshot format bump and its migration (D-166, D-558, D-985).
+9. The status window shows the full sheet of each character (D-569, D-991).
+10. A marked notice lands in the log, and an unmarked notice stays out. The log keeps the 30 newest (D-983, D-984).
+11. The map action opens the map screen. A settings file of format 1 gains its defaults (D-570, D-986, D-990).
 
 **Review focus.**
 
