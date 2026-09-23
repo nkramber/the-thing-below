@@ -62,7 +62,7 @@ public static class UiContentFixtures
     public const string BudgetBody = """{ "comment": "a test budget", "lights_in_view": 15, "live_particles": 8192, "full_screen_passes": 3 }""";
 
     /// <summary>The body of the fixture glow, with the threshold of the checkout (D-910).</summary>
-    public const string GlowBody = """{ "comment": "a test glow", "intensity": 60000, "steps": 0, "cell_size": 2, "pulse_ticks": 90, "pulse_depth": 2500 }""";
+    public const string GlowBody = """{ "comment": "a test glow", "threshold": 70000, "knee": 20000, "intensity": 8000, "strength": 10000, "levels": [0, 0, 10000, 0, 10000, 0, 0], "pulse_ticks": 90, "pulse_depth": 2500 }""";
 
     /// <summary>The page record that the fixture atlas index holds.</summary>
     public const string AtlasPageRecord = """{ "kind": "ui", "number": 1, "width": 1, "height": 1 }""";

@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 215: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-94, round 5. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
+
+### What this session did, and why
+
+- The owner read the fog of round 4 and approved it: "Fog looks good" (D-622, D-623).
+- Committed the baselines of `map-fog-1x` and `battle-fog-1x` from the artifact of CI run 35800692949 (D-733). The two runs of that job matched on all 72 captures, and only the two fog frames differed from the old baseline.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The PR head before this round is `5b4ee61`, and the effective head is the commit of this round.
+- CI on `5b4ee61` passed each check except screen-test, on the two fog frames alone, and review-gate, which waits for the review record.
+- `screens --captures <artifact> --baseline screens/baseline` gives a match on all 72 captures.
+
+### What is in flight
+
+- The PR waits for the review of the other provider (T-4). The gitar pause of D-895 holds.
+
+### Traps and gotchas
+
+- None new. The entries of sessions 211 to 214 hold the traps of this PR.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The other provider reviews PR #59 and writes `docs/reviews/pr-59.md`.
+
+# Session handoff
+
 ## Session 214: 2026-09-22, Claude Code
 
 Author: Claude Code

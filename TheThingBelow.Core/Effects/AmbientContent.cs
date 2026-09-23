@@ -17,7 +17,7 @@ namespace TheThingBelow.Core.Effects;
 /// <item>Each map that a file serves exists, and a map takes one shipped weather or none (D-202).</item>
 /// <item>Each color names a key of the palette (D-181).</item>
 /// <item>The particles of a map, with its weather, its torches, and the carried light, keep inside the effect budget. So do the particles of a fight on the map, with its largest hit burst (D-523).</item>
-/// <item>The fog of a weather keeps inside the row of full-screen passes with the glow, as one pass for all its layers (D-523, D-898, D-913).</item>
+/// <item>The fog of a weather keeps inside the row of full-screen passes with the glow, as one pass for all its layers (D-523, D-898, D-910).</item>
 /// <item>The full strength of each layer of fog keeps each enemy of each map that it serves visible (D-885, D-886).</item>
 /// </list>
 /// </remarks>
@@ -208,14 +208,14 @@ public sealed class AmbientContent
                 $"the map '{map.Id.Value}' shows {live} live particles with this weather, and the row `live_particles` of `{EffectBudget.Path}` allows {budget.LiveParticles} (D-523)");
         }
 
-        // The glow draws on every map and every fight, so each weather shares the row with it (D-523, D-913).
+        // The glow draws on every map and every fight, so each weather shares the row with it (D-523, D-910).
         int passes = checked(effect.FullScreenPasses + Glow.FullScreenPasses);
         if (passes > budget.FullScreenPasses)
         {
             throw ContentException.ForField(
                 effect.File,
                 "fogs",
-                $"the weather and the glow draw {passes} full-screen passes, and the row `full_screen_passes` of `{EffectBudget.Path}` allows {budget.FullScreenPasses} (D-523, D-898, D-913)");
+                $"the weather and the glow draw {passes} full-screen passes, and the row `full_screen_passes` of `{EffectBudget.Path}` allows {budget.FullScreenPasses} (D-523, D-898, D-910)");
         }
     }
 

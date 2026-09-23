@@ -38,7 +38,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-44 | A full-screen grid holds over a million palette keys | PR-55: a large picture places drawn pieces (D-516) |
 | F-45 | Three Godot defaults fight the pixel art | PR-7: the Nearest filter, and a check after each such call |
 | F-46 | Godot 2D light fails in silence in three ways | PR-56: a texture check, a height on each light, and the budget test |
-| F-47 | Glow can reach a lit sprite in both HDR and SDR | PR-59: the glow pass of our own reads the light sources alone (D-913) |
+| F-47 | Glow can reach a lit sprite in both HDR and SDR | PR-59: a threshold above the brightest lit art, which the load holds (D-910, D-915) |
 | F-48 | Godot has no stretch mode that upscales in whole steps, then fits | PR-61: a `SubViewport` at 1x, and both steps in Game (D-232) |
 | F-49 | Three font defaults of Godot fight a pixel font | PR-61: the load from bytes and the font settings, with a test |
 | F-50 | Five input facts of Godot meet the plan | PR-61, PR-62, and PR-63: intents from events and a saved remap |
@@ -900,10 +900,10 @@ Area file: `area-effects.md` section 7.10.
 **Scope.**
 
 - A soft glow on light sources alone, first on the fire of each wall torch (D-188, D-912).
-- Two glows to compare, and the owner picks one (OQ-232). Round 1 draws the world in HDR 2D with a threshold above the brightest lit art (D-910). Round 2 is the glow pass of our own (D-913).
-- In round 2, a glow rectangle on each fire, a mask view, a quarter view of blur, and the pass over the world (D-913).
-- A smooth mode, and a stepped mode as the fog takes (D-911, D-914).
-- A pulse of each glow on a slow wave of the tick, in place of a flicker (D-913).
+- HDR 2D in the world view, with the glow of Godot and a threshold above the brightest lit art (D-910, D-915).
+- A glow rectangle over each flame that pulses on a wave of the tick, in place of a flicker (D-913, D-915).
+- A smooth bloom, the second exception to G-27 after the fog (D-911).
+- The fog, the hit bursts, and the marks in an overlay view above the glow, so the fog never glows (D-916).
 - The rule that sprites, tiles, and the UI never glow (D-188, D-210, F-47).
 - One glow pass in the row of full-screen passes, on every map and every fight (D-523).
 
@@ -911,6 +911,7 @@ Area file: `area-effects.md` section 7.10.
 
 - The glow of spells, waystones, and the thing below, which the PRs of their content add (D-912).
 - The glow of the carried torch, which waits for the torch in the hand of PR-91 (D-912).
+- A fog that takes the scene light, which the reader refuses until a PR needs one (D-916).
 - The transitions (PR-60).
 
 **Exit tests.**
@@ -919,17 +920,20 @@ Area file: `area-effects.md` section 7.10.
 2. A bright light on a pale sprite never makes that sprite glow (F-47).
 3. The budget test counts the glow pass (D-523).
 4. The captures show the glow of the Deck, because CI runs the Mobile renderer too (D-731).
-5. The pulse of each glow stays inside its depth, moves with no jump, and differs from torch to torch (D-913).
+5. A seed loop proves that the bound of the lit art holds the light of Godot on each pixel (D-910).
+6. The pulse of each glow stays inside its depth, moves with no jump, and differs from torch to torch (D-913).
+7. A screen test captures the fog of the fixture as PR-94 drew it, above the glow (D-916).
 
 **Review focus.**
 
-- No sprite, tile, or UI node draws on the glow layer, and the world view never draws it (F-47, F-105).
-- The world stays in SDR, so the light of PR-56, the fog of PR-94, and the fog test keep their approved look (F-104).
-- No shader reads `TIME`, and the pulse comes from the tick (F-100, T-7).
+- The bound of the lit art never falls below the light of Godot, so a sprite or a tile never glows (F-47).
+- The threshold of the glow file is 70000 basis points of linear light, and the bound of the fixture dungeon is below it (F-47).
+- The view of the world turns linear light into sRGB, and each glow rectangle reaches Godot as sRGB (F-103).
+- No node above the glow draws in the world view, and each parent takes the layer too (F-105, D-916).
 
-**Questions.** OQ-232, the glow that stays. D-910 to D-914 resolved OQ-102.
+**Questions.** None. D-910 to D-916 resolved OQ-102 and OQ-232.
 
-> *In plain English:* flames give off a soft haze of light that swells and fades, and the people and walls that they light stay crisp. The owner compares two ways to draw that haze and keeps one.
+> *In plain English:* flames give off a soft haze of light that swells and fades, and the people and walls that they light stay crisp. The fog drifts over the haze, as it did before, and never glows.
 
 ### 7.21 PR-92: the HD-2D passes
 
@@ -2173,7 +2177,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-99 | What a screen shake moves, resolved by D-876 | PR-57 |
 | OQ-100 | The reduced form of a flash and a shake, resolved by D-863 | PR-57 and PR-63 |
 | OQ-101 | How fog keeps an enemy visible, resolved by D-885 | PR-58 |
-| OQ-102 | How glow stays off sprites, resolved by D-910 and D-913 | PR-59 |
+| OQ-102 | How glow stays off sprites, resolved by D-910 | PR-59 |
 | OQ-103 | Where shader code lives, resolved by D-825 | PR-10 and PR-60 |
 | OQ-104 | The font settings and the load from bytes | PR-61 |
 | OQ-106 | Where the settings file lives, and its form, resolved by D-860 | PR-63 |
@@ -2239,6 +2243,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-173 | The sizes of the store images | PR-76 |
 | OQ-174 | Which five screenshots | PR-76 |
 | OQ-220 to OQ-231 | The place, the form, the passes, the overlap, the edges, the resolution, the spread, the color, the test floor, the strength, and the coverage of the procedural fog, resolved by D-896 to D-906 and D-908 | PR-94 |
-| OQ-232 | The glow that stays: HDR 2D, or the glow pass of our own, smooth or stepped | PR-59 |
+| OQ-232 | The glow that stays, resolved by D-915 | PR-59 |
 
 No open question blocks this file.

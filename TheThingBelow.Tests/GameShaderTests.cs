@@ -58,29 +58,21 @@ public sealed class GameShaderTests
     }
 
     [Fact]
-    public void TheGlowPassNamesABlurShaderAndAnAddShaderThatHoldEachUniform()
+    public void TheViewOfTheWorldNamesAShaderThatTurnsLinearLightIntoSrgb()
     {
-        // D-913: the blur reads the exact mean of each cell of the mask, and the pass adds the blur
-        // over the world. D-914: the pass cuts the glow into steps over blocks when the file asks.
-        Type pass = GameAssemblyFile.Type("TheThingBelow.Game.Ui.GlowPass");
-        Assert.Equal("res://shaders/glow_blur.gdshader", (string)pass.GetField("BlurShaderPath")!.GetValue(null)!);
-        Assert.Equal("res://shaders/glow_add.gdshader", (string)pass.GetField("AddShaderPath")!.GetValue(null)!);
+        // F-103: the world draws in HDR 2D, and Godot gives its linear light to the frame with no
+        // conversion, so the world drew too dark. The shader turns each pixel into sRGB, with a
+        // clamp at full white, so the light of a glowing source never wraps (D-910).
+        string path = (string)GameAssemblyFile.Type("TheThingBelow.Game.Ui.GlowPass")
+            .GetField("ViewShaderPath")!
+            .GetValue(null)!;
 
-        string root = Path.Combine(RepositoryRoot.Find(), ShaderFolder);
-        string blur = CodeOf(File.ReadAllText(Path.Combine(root, "glow_blur.gdshader")));
-        string add = CodeOf(File.ReadAllText(Path.Combine(root, "glow_add.gdshader")));
+        Assert.Equal("res://shaders/world_view.gdshader", path);
 
-        // Each cell of the blur is 4 art pixels, the quarter view of the pass.
-        Assert.Contains($"const float CELL = {(int)pass.GetField("BlurCell")!.GetValue(null)!}.0;", blur, StringComparison.Ordinal);
-        Assert.Contains("render_mode blend_add, unshaded;", add, StringComparison.Ordinal);
-        Assert.Contains("floor(level * float(steps)) / float(steps)", add, StringComparison.Ordinal);
-
-        // Game sets each uniform by a name constant, and the file holds each name (D-825).
-        foreach (string field in new[] { "IntensityName", "StepsName", "CellSizeName" })
-        {
-            string name = (string)pass.GetField(field)!.GetValue(null)!;
-            Assert.Matches($@"uniform \w+ {name}\b", add);
-        }
+        string code = CodeOf(File.ReadAllText(Path.Combine(RepositoryRoot.Find(), ShaderFolder, "world_view.gdshader")));
+        Assert.Contains("shader_type canvas_item;", code, StringComparison.Ordinal);
+        Assert.Contains("COLOR = vec4(srgb_of(clamp(world.rgb, 0.0, 1.0)), world.a);", code, StringComparison.Ordinal);
+        Assert.Contains("pow(linear_light, vec3(1.0 / 2.4))", code, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -101,22 +93,19 @@ public sealed class GameShaderTests
     }
 
     [Fact]
-    public void TheFogPassNamesAnUnlitShaderAndALitShaderThatHoldOneFog()
+    public void TheFogPassNamesAnUnlitShaderThatHoldsTheFog()
     {
-        // D-183, D-897: an unlit fog gives its own light, and a lit fog takes the scene light.
-        // The two shaders include one file of the fog, so the two fogs draw the same shapes.
+        // D-183, D-897: the fog gives its own light. D-916: the fog draws above the glow, where no
+        // scene light reaches, so the lit fog left, and the shader includes the one file of the fog.
         Type pass = GameAssemblyFile.Type("TheThingBelow.Game.Ui.FogPass");
         Assert.Equal("res://shaders/fog.gdshader", (string)pass.GetField("ShaderPath")!.GetValue(null)!);
-        Assert.Equal("res://shaders/fog_lit.gdshader", (string)pass.GetField("LitShaderPath")!.GetValue(null)!);
+        Assert.Null(pass.GetField("LitShaderPath"));
 
         string root = Path.Combine(RepositoryRoot.Find(), ShaderFolder);
         string unlit = CodeOf(File.ReadAllText(Path.Combine(root, "fog.gdshader")));
-        string lit = CodeOf(File.ReadAllText(Path.Combine(root, "fog_lit.gdshader")));
-        string include = "#include \"res://shaders/fog_noise.gdshaderinc\"";
         Assert.Contains("render_mode unshaded;", unlit, StringComparison.Ordinal);
-        Assert.DoesNotContain("render_mode", lit, StringComparison.Ordinal);
-        Assert.Contains(include, unlit, StringComparison.Ordinal);
-        Assert.Contains(include, lit, StringComparison.Ordinal);
+        Assert.Contains("#include \"res://shaders/fog_noise.gdshaderinc\"", unlit, StringComparison.Ordinal);
+        Assert.False(File.Exists(Path.Combine(root, "fog_lit.gdshader")), "the lit fog shader left with D-916");
     }
 
     [Fact]

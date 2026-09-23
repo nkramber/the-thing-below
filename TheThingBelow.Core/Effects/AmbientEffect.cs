@@ -72,7 +72,7 @@ public sealed class AmbientEffect
     /// <summary>The maps that this weather serves, in the order of the file.</summary>
     public IReadOnlyList<ContentId> Maps { get; }
 
-    /// <summary>True when the scene light falls on the particles and the fog, as on a figure (D-183).</summary>
+    /// <summary>True when the scene light falls on the particles, as on a figure (D-183). A weather with a fog takes false, because the fog draws above the glow (D-916).</summary>
     public bool Lit { get; }
 
     /// <summary>The streams of motes of the weather, in the order of the file (D-893).</summary>
@@ -194,12 +194,20 @@ public sealed class AmbientEffect
             throw reader.RefuseField(depth, "emitters", "the effect holds no emitter and no fog, and a weather shows one or more");
         }
 
+        // The fog draws above the glow, where no scene light reaches, so a weather with a fog gives
+        // its own light (D-916).
+        bool takesLight = reader.RequireValue(lit, depth, "lit");
+        if (takesLight && layers.Count > 0)
+        {
+            throw reader.RefuseField(depth, "lit", "the weather holds a fog and takes the scene light, and a fog draws above the glow, where no scene light reaches (D-916)");
+        }
+
         return new AmbientEffect(
             reader.File,
             reader.Require(id, depth, "id"),
             reader.RequireValue(kind, depth, "kind"),
             served,
-            reader.RequireValue(lit, depth, "lit"),
+            takesLight,
             streams,
             layers);
     }

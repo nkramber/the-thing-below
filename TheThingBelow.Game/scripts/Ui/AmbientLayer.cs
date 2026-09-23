@@ -83,7 +83,7 @@ public sealed class AmbientLayer
 
         FogPass? fog = effect.Fogs.Count == 0
             ? null
-            : FogPass.Build(effect.Id.Value, effect.Fogs, palette, effect.Lit, FogZIndex, parent);
+            : FogPass.Build(effect.Id.Value, effect.Fogs, palette, FogZIndex, parent);
         return new AmbientLayer(effect, motes, fog);
     }
 

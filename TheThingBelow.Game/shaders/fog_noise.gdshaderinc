@@ -1,5 +1,6 @@
-// The procedural fog of a weather (D-897 to D-900). The fog shaders `fog.gdshader` and
-// `fog_lit.gdshader` include this file, and they differ in the scene light alone (D-183).
+// The procedural fog of a weather (D-897 to D-900). The fog shader `fog.gdshader` includes this
+// file. The lit fog left with D-916, because the fog draws above the glow, where no scene light
+// reaches. A later lit fog can include this file again.
 //
 // One rectangle covers the view, and the shader draws every layer of the fog in one
 // full-screen pass (D-898). Each layer reads a fractal noise at each block of its world pixels.

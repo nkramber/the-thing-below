@@ -1,6 +1,5 @@
 using System;
 using Godot;
-using TheThingBelow.Core.Light;
 
 namespace TheThingBelow.Game.Ui;
 
@@ -23,9 +22,9 @@ namespace TheThingBelow.Game.Ui;
 /// pixels (D-230, D-634, F-48).
 /// </para>
 /// <para>
-/// The glow of each light source draws on a layer that the world view never draws. A mask view
-/// shares the world and draws that layer alone, a quarter view blurs the mask, and the frame adds
-/// the blur over the world, under the UI (D-188, D-210, D-913, <see cref="GlowPass"/>).
+/// The world draws in HDR 2D with the glow of Godot, and its view turns linear light into sRGB
+/// (D-910, F-103). An overlay view with no HDR 2D shares the world, and it draws the fog, the hit
+/// bursts, and the marks above the glow and under the UI, so the fog never glows (D-916).
 /// </para>
 /// </remarks>
 public partial class FrameRoot : Node
@@ -41,10 +40,7 @@ public partial class FrameRoot : Node
 
     private SubViewport worldViewport = null!;
     private SubViewport frameViewport = null!;
-    private SubViewport maskViewport = null!;
-    private SubViewport blurViewport = null!;
-    private TextureRect glowView = null!;
-    private ShaderMaterial glowMaterial = null!;
+    private SubViewport overlayViewport = null!;
     private SubViewport? stepViewport;
     private TextureRect screenView = null!;
     private ColorRect bars = null!;
@@ -65,7 +61,7 @@ public partial class FrameRoot : Node
     public override void _Ready()
     {
         this.BuildWorld();
-        this.BuildGlow();
+        this.BuildOverlay();
         this.BuildFrame();
         this.BuildScreenView();
 
@@ -74,22 +70,21 @@ public partial class FrameRoot : Node
         this.OnScreenChanged();
     }
 
-    /// <summary>Shows the glow pass over the world with the values of the glow file, on a map or in a fight (D-913).</summary>
+    /// <summary>Gives the world the glow of the file, on a map or in a fight (D-910).</summary>
     /// <param name="glow">The glow file.</param>
     /// <exception cref="ArgumentNullException">The glow is null (T-2).</exception>
-    /// <exception cref="InvalidOperationException">The frame is not in the tree yet, so it holds no glow pass (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The frame is not in the tree yet, so it holds no world (T-2).</exception>
     /// <remarks>Each screen of the world calls this method with the same file, so a second call changes nothing.</remarks>
-    public void ShowGlow(Glow glow)
+    public void ShowGlow(TheThingBelow.Core.Light.Glow glow)
     {
         ArgumentNullException.ThrowIfNull(glow);
 
-        if (this.glowView is null)
+        if (this.worldViewport is null)
         {
-            throw new InvalidOperationException("The frame holds no glow pass before it enters the tree (T-2).");
+            throw new InvalidOperationException("The frame holds no world before it enters the tree, so it can show no glow (T-2).");
         }
 
-        GlowPass.SetValues(this.glowMaterial, glow);
-        this.glowView.Visible = true;
+        this.worldViewport.World3D.Environment = GlowPass.EnvironmentOf(glow);
     }
 
     /// <summary>Changes the fit of the frame, which the fit of the display settings sets (D-232, D-860).</summary>
@@ -144,47 +139,37 @@ public partial class FrameRoot : Node
             // loses the bitmap strike of the pixel font (D-710, F-49).
             Oversampling = false,
 
-            // The world never draws the glow of a source, which the glow pass alone reads (D-913).
+            // The world keeps linear light above full white, so a light source can glow and the
+            // lit art stays below the threshold (D-910, F-47).
+            UseHdr2D = true,
+
+            // The world holds the environment of the glow. A world of its own keeps that glow off
+            // the frame and the window, which share the world of the root (D-210).
+            World3D = new World3D(),
+
+            // The fog, the hit bursts, and each mark draw in the overlay alone, above the glow (D-916).
             CanvasCullMask = GlowPass.WorldLayers,
         };
 
         this.AddChild(this.worldViewport);
     }
 
-    private void BuildGlow()
+    private void BuildOverlay()
     {
-        // The mask shares the world, so each glow stands at its place in the view with no copy.
-        this.maskViewport = new SubViewport
+        // The overlay shares the world, so each node stands at its place in the view with no copy.
+        // It has no HDR 2D, so the fog blends as it did before the glow, and it never glows
+        // (D-916, F-104).
+        this.overlayViewport = new SubViewport
         {
             Size = new Vector2I(WorldWidth, WorldHeight),
             RenderTargetUpdateMode = SubViewport.UpdateMode.Always,
             TransparentBg = true,
+            Oversampling = false,
             World2D = this.worldViewport.World2D,
-            CanvasCullMask = GlowPass.GlowLayer,
+            CanvasCullMask = GlowPass.AboveGlowLayer,
         };
 
-        this.blurViewport = new SubViewport
-        {
-            Size = new Vector2I(WorldWidth / GlowPass.BlurCell, WorldHeight / GlowPass.BlurCell),
-            RenderTargetUpdateMode = SubViewport.UpdateMode.Always,
-        };
-
-        // The blur reads the mask with the linear filter, so four reads give the mean of 4 by 4 art
-        // pixels. The expand mode comes before the size: the default mode holds the rect at the size
-        // of its texture, and the blur then read a quarter of the mask at 1 to 1.
-        this.blurViewport.AddChild(new TextureRect
-        {
-            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-            Texture = this.maskViewport.GetTexture(),
-            Position = Vector2.Zero,
-            Size = new Vector2(WorldWidth / GlowPass.BlurCell, WorldHeight / GlowPass.BlurCell),
-            StretchMode = TextureRect.StretchModeEnum.Scale,
-            TextureFilter = CanvasItem.TextureFilterEnum.Linear,
-            Material = GlowPass.BlurMaterial(),
-        });
-
-        this.AddChild(this.maskViewport);
-        this.AddChild(this.blurViewport);
+        this.AddChild(this.overlayViewport);
     }
 
     private void BuildFrame()
@@ -205,21 +190,10 @@ public partial class FrameRoot : Node
             Size = new Vector2(WorldWidth * WorldScale, WorldHeight * WorldScale),
             StretchMode = TextureRect.StretchModeEnum.Scale,
             TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
-        };
 
-        // The glow adds over the world and under the UI (D-210). It shows once a screen gives it
-        // the glow file, so a screen with no world draws no pass.
-        this.glowMaterial = GlowPass.AddMaterial();
-        this.glowView = new TextureRect
-        {
-            Texture = this.blurViewport.GetTexture(),
-            Position = Vector2.Zero,
-            Size = new Vector2(WorldWidth * WorldScale, WorldHeight * WorldScale),
-            StretchMode = TextureRect.StretchModeEnum.Scale,
-            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-            TextureFilter = CanvasItem.TextureFilterEnum.Linear,
-            Material = this.glowMaterial,
-            Visible = false,
+            // The world holds linear light, and the frame has no HDR 2D, so the view turns each
+            // pixel into sRGB (F-103).
+            Material = GlowPass.ViewMaterial(),
         };
 
         this.Layer = new Control
@@ -230,7 +204,19 @@ public partial class FrameRoot : Node
         };
 
         this.frameViewport.AddChild(worldView);
-        this.frameViewport.AddChild(this.glowView);
+        this.frameViewport.AddChild(new TextureRect
+        {
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            Texture = this.overlayViewport.GetTexture(),
+            Position = Vector2.Zero,
+            Size = new Vector2(WorldWidth * WorldScale, WorldHeight * WorldScale),
+            StretchMode = TextureRect.StretchModeEnum.Scale,
+            TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
+
+            // A transparent view holds its color times its alpha, so it draws with the blend of
+            // premultiplied alpha, and the fog keeps its strength over the world.
+            Material = new CanvasItemMaterial { BlendMode = CanvasItemMaterial.BlendModeEnum.PremultAlpha },
+        });
         this.frameViewport.AddChild(this.Layer);
         this.AddChild(this.frameViewport);
     }

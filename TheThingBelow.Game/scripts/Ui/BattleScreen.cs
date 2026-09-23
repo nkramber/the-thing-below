@@ -130,6 +130,7 @@ public sealed class BattleScreen
             Visible = false,
         };
         this.world.AddChild(this.pointer);
+        GlowPass.LiftAboveGlow(this.pointer);
 
         this.BuildStrip();
         this.message = this.BuildLinePanel(BattleLayout.Message);
@@ -529,6 +530,9 @@ public sealed class BattleScreen
         border.AddChild(empty);
         border.AddChild(fill);
         this.world.AddChild(border);
+
+        // The bar draws above the fog and the glow, as the mark does (D-208, D-916).
+        GlowPass.LiftAboveGlow(border);
         return new HealthBar(border, fill);
     }
 

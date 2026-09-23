@@ -731,7 +731,8 @@ How to file a question (D-19, D-24):
     - The coverage as it is, or more coverage.
     - The first answer, D-907, asked for more of the pixel look of the art, and it named no coverage. The review of PR-94 found that gap (P2-1 of `docs/reviews/pr-59.md`).
     - Resolved 2026-09-22: D-908. A little less coverage.
-232. **OQ-232. The glow that stays.** PR-59 holds two glows to compare. Round 1 draws the world in HDR 2D with the glow of Godot (D-910). Round 2 keeps the world in SDR (D-913). A glow pass of our own spreads a glow rectangle of each fire. Each takes a smooth mode, and round 2 also takes a stepped mode (D-911, D-914). Which glow stays? Raised 2026-09-23. Blocks PR-59.
+232. **OQ-232. The glow that stays.** PR-59 holds two glows to compare. Round 1 draws the world in HDR 2D with the glow of Godot (D-910). Round 2 keeps the world in SDR (D-913). A glow pass of our own spreads a glow rectangle of each fire. Each takes a smooth mode, and round 2 also takes a stepped mode (D-911, D-914). Which glow stays? Raised 2026-09-23. Blocked PR-59.
     - The glow pass of our own, smooth, the recommendation. The light, the fog, and the fog test stay as the owner approved them, and no lit art can enter the glow.
     - The glow pass of our own, stepped. The glow keeps the pixel look of the fog.
     - HDR 2D, smooth. The glow of Godot, with the side effects of F-104 on the light and the fog.
+    - Resolved 2026-09-23: D-915. HDR 2D, smooth, with half its intensity and the pulse of D-913. D-916 puts the fog above the glow.

@@ -16,6 +16,6 @@
    { "amount": 4, "lifetime_ticks": 50, "colors": ["X", "j"], "size": 1, "x": 0, "y": -28, "half_width": 1, "half_height": 0, "direction": -90, "spread": 30, "slowest_speed": 10, "fastest_speed": 24, "gravity": -6 },
    { "amount": 6, "lifetime_ticks": 70, "colors": ["Q"], "size": 1, "x": 0, "y": -30, "half_width": 1, "half_height": 0, "direction": -90, "spread": 10, "slowest_speed": 6, "fastest_speed": 12, "gravity": 0 }
   ],
-  "glow": { "color": "j", "strength": 10000, "width": 6, "height": 8, "x": 0, "y": -21 }
+  "glow": { "color": "j", "strength": 160000, "width": 8, "height": 8, "x": 0, "y": -22 }
  }
 }

@@ -145,6 +145,9 @@ public partial class MapScreen : Node2D
         this.mark = BuildMark(theme);
         this.AddChild(this.mark);
 
+        // The mark draws above the fog and the glow, so fog never hides it (D-208, D-916).
+        GlowPass.LiftAboveGlow(this.mark);
+
         this.BuildLight(atlas, party.Map, content);
         this.weather = AmbientLayer.Build(ambient, content.Palette, this);
     }

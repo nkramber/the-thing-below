@@ -8,7 +8,8 @@ namespace TheThingBelow.Game.Ui;
 
 /// <summary>
 /// The fog of a weather: one rectangle over the view, whose shader draws every layer of the fog
-/// in one full-screen pass (D-897, D-898). The fog draws above the figures (D-885).
+/// in one full-screen pass (D-897, D-898). The fog draws above the figures (D-885), and above the
+/// glow, in the overlay view with no HDR 2D, so it blends as before the glow and never glows (D-916).
 /// </summary>
 /// <remarks>
 /// The shader reads a fractal noise at each world pixel, and each layer fades smoothly from clear
@@ -22,11 +23,8 @@ namespace TheThingBelow.Game.Ui;
 /// </remarks>
 public sealed class FogPass
 {
-    /// <summary>The path of the shader of a fog that gives its own light (D-183, D-825).</summary>
+    /// <summary>The path of the shader of the fog, which gives its own light (D-183, D-825, D-916).</summary>
     public const string ShaderPath = "res://shaders/fog.gdshader";
-
-    /// <summary>The path of the shader of a fog that takes the scene light (D-183, D-825).</summary>
-    public const string LitShaderPath = "res://shaders/fog_lit.gdshader";
 
     /// <summary>The name of the uniform of the count of layers.</summary>
     public const string LayerCountName = "layer_count";
@@ -79,7 +77,6 @@ public sealed class FogPass
     /// <param name="name">The name of the node, which every error names (T-2).</param>
     /// <param name="fogs">The layers of the fog: 1 to <see cref="FogLayer.MostLayers"/>.</param>
     /// <param name="palette">The palette, which gives the key of each layer its color (D-181).</param>
-    /// <param name="lit">True when the scene light falls on the fog (D-183).</param>
     /// <param name="zIndex">The Z index of the fog: over the streams.</param>
     /// <param name="parent">The node that takes the pass.</param>
     /// <returns>The pass.</returns>
@@ -91,7 +88,6 @@ public sealed class FogPass
         string name,
         IReadOnlyList<FogLayer> fogs,
         Palette palette,
-        bool lit,
         int zIndex,
         Node2D parent)
     {
@@ -102,7 +98,7 @@ public sealed class FogPass
         ArgumentOutOfRangeException.ThrowIfZero(fogs.Count);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(fogs.Count, FogLayer.MostLayers);
 
-        var material = new ShaderMaterial { Shader = LoadShader(lit ? LitShaderPath : ShaderPath) };
+        var material = new ShaderMaterial { Shader = LoadShader(ShaderPath) };
         SetLayers(material, name, fogs, palette);
 
         var rect = new ColorRect
@@ -114,6 +110,7 @@ public sealed class FogPass
         };
 
         parent.AddChild(rect);
+        GlowPass.LiftAboveGlow(rect);
         return new FogPass(rect, material, fogs);
     }
 

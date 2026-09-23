@@ -18,18 +18,21 @@ public sealed record FlickerLevel(int Strength, int Range);
 public sealed record FlickerStep(FlickerLevel Level, int JumpX, int JumpY);
 
 /// <summary>
-/// The glow of a fire: a small rectangle of one palette color at the place of the light, which
-/// the glow pass alone draws and spreads (D-913). The world never draws it, so a sprite or a tile
-/// never glows (D-188).
+/// The glow of a fire: a small rectangle of one palette color over the flame, which draws above
+/// the glow threshold and pulses on a slow wave of the tick (D-913, D-915). It draws in the world,
+/// and no sprite or tile draws that bright, so light alone glows (D-188, F-47).
 /// </summary>
 /// <param name="Key">The palette key of the glow (D-181).</param>
-/// <param name="Strength">The strength in basis points of the palette color, or 0 for a fire that never glows (D-912).</param>
+/// <param name="Strength">The linear light of the rectangle, in basis points of its palette color, or 0 for a fire that never glows (D-912).</param>
 /// <param name="Width">The width of the rectangle, in art pixels.</param>
 /// <param name="Height">The height of the rectangle, in art pixels.</param>
 /// <param name="X">The column of the middle of the rectangle, in art pixels from the place of the light.</param>
 /// <param name="Y">The row of the middle of the rectangle, in art pixels from the place of the light.</param>
 public sealed record GlowSeed(char Key, int Strength, int Width, int Height, int X, int Y)
 {
+    /// <summary>The highest strength, in basis points: 16 times the palette color. Godot caps the light that the glow reads at 12.</summary>
+    public const int MostStrength = 16 * BasisPoints.One;
+
     /// <summary>The largest side of the rectangle, in art pixels.</summary>
     public const int MostSide = 16;
 
@@ -216,7 +219,7 @@ public sealed record TorchFire(int StepTicks, IReadOnlyList<FlickerLevel> Levels
 
         return new GlowSeed(
             text[0],
-            GlowValue(ref reader, depth, values, "strength", 0, BasisPoints.One),
+            GlowValue(ref reader, depth, values, "strength", 0, GlowSeed.MostStrength),
             GlowValue(ref reader, depth, values, "width", 1, GlowSeed.MostSide),
             GlowValue(ref reader, depth, values, "height", 1, GlowSeed.MostSide),
             GlowValue(ref reader, depth, values, "x", -GlowSeed.MostOffset, GlowSeed.MostOffset),

@@ -1,3 +1,40 @@
+## Session 225: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-59, rounds 1 to 3. Repository: the-thing-below. Branch: `feat/pr-59-glow`. PR: #61. Role: author. Base: `430c8e9`.
+
+### What this session did, and why
+
+- Asked OQ-102, and the owner chose HDR 2D with a threshold and a smooth bloom, fire first (D-910 to D-912).
+- Round 1 built HDR 2D, the bound of the lit art below the threshold, and a seed loop against the light curve of Game (F-103, F-104).
+- The owner asked for the glow pass of our own, a stepped mode, and a pulse in place of the flicker. Round 2 built them (D-913, D-914, F-105).
+- The owner compared both and kept HDR 2D at half intensity (D-915, OQ-232). The pulse stays on a glow rectangle of 8 by 8 over each wall torch flame.
+- The owner said the fog must not glow. The fog, the hit bursts, and the marks now draw in an overlay view with no HDR 2D, above the glow (D-916). The reader refuses a lit fog.
+
+### The state of the build
+
+- `main` is `430c8e9`. The branch holds rounds 1 to 3. `make verify` passes on this machine, and `make sheet` wrote every capture with no error line.
+- The screen-test baselines change on almost every world capture, because HDR 2D moves the world to linear light. The new baselines come from the CI artifact (D-733).
+
+### What is in flight
+
+- PR #61 waits for CI, the new baselines, gitar, and the review of the other provider.
+
+### Traps and gotchas
+
+- The glow of Godot averages its first step over about 8 by 8 art pixels. A smaller or dimmer source gives no glow.
+- A view draws an item only when each parent shares its layer (F-105). `GlowPass.LiftAboveGlow` sets the layer on the node, its children, and its parents.
+- An object initializer of a texture rect sets `ExpandMode` before `Size`.
+- Do not redirect `make smoke` output into `artifacts/smoke.log`. The target writes that file itself, and the loop filled 20 GB.
+
+### The questions that block progress
+
+None. OQ-102 and OQ-232 are resolved.
+
+### The next concrete action
+
+Commit the CI baselines, then answer gitar and the review of PR #61.
+
 ## Session 224: 2026-09-23, Codex
 
 Author: Codex
@@ -317,37 +354,3 @@ OQ-231 asks whether fog coverage should decrease, stay the same, or increase. D-
 ### The next concrete action
 
 The owner answers OQ-231. The author records the answer and updates the fog content if needed.
-
-## Session 215: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-94, round 5. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
-
-### What this session did, and why
-
-- The owner read the fog of round 4 and approved it: "Fog looks good" (D-622, D-623).
-- Committed the baselines of `map-fog-1x` and `battle-fog-1x` from the artifact of CI run 35800692949 (D-733). The two runs of that job matched on all 72 captures, and only the two fog frames differed from the old baseline.
-
-### The state of the build
-
-- The remote head of `main` is `8d98c46`. The PR head before this round is `5b4ee61`, and the effective head is the commit of this round.
-- CI on `5b4ee61` passed each check except screen-test, on the two fog frames alone, and review-gate, which waits for the review record.
-- `screens --captures <artifact> --baseline screens/baseline` gives a match on all 72 captures.
-
-### What is in flight
-
-- The PR waits for the review of the other provider (T-4). The gitar pause of D-895 holds.
-
-### Traps and gotchas
-
-- None new. The entries of sessions 211 to 214 hold the traps of this PR.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The other provider reviews PR #59 and writes `docs/reviews/pr-59.md`.
-
-# Session handoff

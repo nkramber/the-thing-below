@@ -125,7 +125,7 @@ public sealed class TorchFlame
             lights.Ground,
             lights.Figures,
             ParticleStreams.Build(id, fire.Emitters, palette, lit: false, FlameZIndex, visible, parent),
-            GlowPass.BuildSeed(id, fire.Glow, palette, parent),
+            GlowPass.BuildSeed(id, fire.Glow, palette, FlameZIndex + 1, parent),
             glow);
     }
 

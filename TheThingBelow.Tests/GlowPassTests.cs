@@ -6,7 +6,7 @@ using Xunit;
 
 namespace TheThingBelow.Tests;
 
-/// <summary>The pulse of each glow, and the glow layer of the pass (D-913).</summary>
+/// <summary>The pulse of each glow, and the layer above the glow (D-913, D-916).</summary>
 public sealed class GlowPassTests
 {
     private static readonly Glow Pulsing = Glow.Read(Encoding.UTF8.GetBytes(UiContentFixtures.GlowBody), Glow.Path);
@@ -63,15 +63,16 @@ public sealed class GlowPassTests
     }
 
     [Fact]
-    public void TheWorldNeverDrawsTheGlowLayerAndTheMaskDrawsItAlone()
+    public void TheWorldNeverDrawsTheLayerAboveTheGlow()
     {
-        // D-188, F-47: no sprite or tile draws on the glow layer, and the world view never draws it.
+        // D-916: the fog, the hit bursts, and each mark draw on one layer, which the world view with
+        // the glow never draws. Every other node keeps the first layer, which the world draws.
         Type pass = GameAssemblyFile.Type("TheThingBelow.Game.Ui.GlowPass");
-        uint glow = (uint)pass.GetField("GlowLayer")!.GetValue(null)!;
+        uint above = (uint)pass.GetField("AboveGlowLayer")!.GetValue(null)!;
         uint world = (uint)pass.GetField("WorldLayers")!.GetValue(null)!;
 
-        Assert.Equal(1, System.Numerics.BitOperations.PopCount(glow));
-        Assert.Equal(0u, world & glow);
+        Assert.Equal(1, System.Numerics.BitOperations.PopCount(above));
+        Assert.Equal(0u, world & above);
         Assert.NotEqual(0u, world & 1u);
     }
 
