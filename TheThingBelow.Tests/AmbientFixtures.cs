@@ -24,14 +24,15 @@ internal static class AmbientFixtures
     public const string Stream =
         """{ "amount": 24, "lifetime_ticks": 240, "color": "k", "dark_color": "k", "size": 1, "fall_pixels": 24, "fall_ticks": 120, "drift_pixels": 4, "sway_pixels": 3, "sway_ticks": 60 }""";
 
-    /// <summary>One layer of fog of the tests, in the key `k`, with two bands.</summary>
+    /// <summary>One layer of fog of the tests, in the key `k`, which fades in from 5000 to 6000.</summary>
     public const string Fog =
         """
         {
          "key": "k",
-         "bands": [ { "from": 5000, "strength": 1000 }, { "from": 6000, "strength": 2000 } ],
+         "from": 5000,
+         "to": 6000,
+         "strength": 2000,
          "scale": 32,
-         "cell_size": 2,
          "seed": 7,
          "drift_x": 4,
          "drift_y": 0

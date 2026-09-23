@@ -105,10 +105,10 @@ public sealed class AmbientContentTests
     public void AFogThatHidesAnEnemyOfItsMapFails()
     {
         // D-885, D-886, D-892: the fog test reads the checkout, where the map foe stands on the
-        // floor of the dungeon. A band of 6000 basis points pulls each gap below the floor of 24.
+        // floor of the dungeon. A layer of 8000 basis points pulls each gap below the floor of 17 (D-906).
         var files = new List<ContentFile>(ContentFolder.Read(RepositoryRoot.Find()));
         int index = files.FindIndex(file => file.Path.Contains("fog-fixture-dungeon", StringComparison.Ordinal));
-        string thick = Encoding.UTF8.GetString(files[index].Bytes).Replace("\"strength\": 1800", "\"strength\": 6000", StringComparison.Ordinal);
+        string thick = Encoding.UTF8.GetString(files[index].Bytes).Replace("\"strength\": 4500", "\"strength\": 8000", StringComparison.Ordinal);
         files[index] = new ContentFile(files[index].Path, Encoding.UTF8.GetBytes(thick));
 
         ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(files));

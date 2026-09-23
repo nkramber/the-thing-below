@@ -1,5 +1,5 @@
 {
- "comment": "A capture file: fog and mist over the fixture dungeon, for the screen test alone (D-187, D-889). The fog is a noise of three layers in one palette key, which the fog shader of Game cuts into hard bands and draws in one pass (D-897, D-898). A wide, faint sheet drifts east, a band of thicker banks drifts east faster, and thin wisps drift west. Where layers overlap, the strongest band wins (D-899). The fog draws above the figures, and its strongest band keeps each enemy of the map visible (D-885, D-886, D-892). The mist under it is a slow stream of pale motes.",
+ "comment": "A capture file: fog and mist over the fixture dungeon, for the screen test alone (D-187, D-889). The fog is a fractal noise of three layers in the pale gray key `L`, which the fog shader of Game fades smoothly from clear to the strength of each layer, at the pixel size of the art, in one pass (D-897, D-898, D-900, D-901, D-903). Wide banks drift east, smaller clouds drift east faster, and thin wisps drift west. The density is even over the view, and the thickest part is 45 percent (D-902, D-905). Where layers overlap, the strongest layer wins (D-899). The fog draws above the figures, and its full strength keeps each enemy of the map visible (D-885, D-886, D-892, D-906). The mist under it is a slow stream of pale motes.",
  "id": "effect.fog_capture",
  "kind": "fog",
  "maps": ["map.fixture_dungeon"],
@@ -8,8 +8,8 @@
   { "amount": 30, "lifetime_ticks": 600, "color": "l", "dark_color": "G", "size": 2, "fall_pixels": 20, "fall_ticks": 480, "drift_pixels": 90, "sway_pixels": 6, "sway_ticks": 240 }
  ],
  "fogs": [
-  { "key": "l", "bands": [ { "from": 4600, "strength": 500 } ], "scale": 160, "cell_size": 4, "seed": 11, "drift_x": 3, "drift_y": 0 },
-  { "key": "l", "bands": [ { "from": 5600, "strength": 1000 }, { "from": 6400, "strength": 1800 } ], "scale": 96, "cell_size": 4, "seed": 23, "drift_x": 6, "drift_y": 1 },
-  { "key": "l", "bands": [ { "from": 6800, "strength": 1300 } ], "scale": 32, "cell_size": 2, "seed": 37, "drift_x": -4, "drift_y": 0 }
+  { "key": "L", "from": 4300, "to": 6300, "strength": 4500, "scale": 160, "seed": 11, "drift_x": 4, "drift_y": 0 },
+  { "key": "L", "from": 5000, "to": 6800, "strength": 3500, "scale": 80, "seed": 23, "drift_x": 7, "drift_y": 1 },
+  { "key": "L", "from": 5600, "to": 7200, "strength": 2500, "scale": 40, "seed": 37, "drift_x": -3, "drift_y": 0 }
  ]
 }

@@ -383,6 +383,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-99 | The light of a torch snapped in a doorway. Each step of the fire moved the light by one pixel, and the column of the wall shape beside a doorway is two pixels wide (D-852). A light that crosses that column moves the shadow through the doorway by a whole tile, so the passage flashed on each step. The owner saw it in a play session, and D-891 gives the jump to the flame alone | 2026-09-22 | ✅ PR-58: the light of a torch keeps its place, and the streams of the fire take the jump |
 | F-100 | No capture could hold the motion of the weather, and the dust stood still in play. Godot advances a particle system about one second at a time: a request with no restart moves no particle at all, and a restart with a request of a longer age, or the preprocess of the node, gives the same picture on each tick. A probe of PR-58 wrote a frame every 8 ticks with the party still, and it read the place of each mote: the motes of a stream of 8 seconds held their places to 5 pixels over 192 ticks, and some moved up. The turbulence of the material also pulls a particle in every direction, so no mote could lie still | 2026-09-22 | ✅ PR-58: Game draws each mote of a weather itself, from a pure function of the tick (D-893). The fire of a torch and the burst of a hit stay on the particles of Godot, because each one lives under 2 seconds |
 | F-101 | The owner read the fog of PR-58 in a play session and refused its look. The fog was a text grid of 48 by 24 cells of 4 pixels, and Game tiled it over the view of 640 by 360 pixels, so the same shapes showed more than three times across each view | 2026-09-22 | ✅ PR-94: a noise shader over the world pixels draws the fog, with 1 to 3 layers in one pass (D-896 to D-899) |
+| F-102 | The owner read the fog of PR-94 round 1 and refused it, with a reference picture of soft mist. The fog of round 1 cut its noise into hard bands of blocks of 2 to 4 pixels, with a dark key at 18 percent at most. The reference fades smoothly from clear to a pale gray of about 45 percent | 2026-09-22 | ✅ PR-94: the fog fades smoothly at the pixel size of the art, in the pale key `L`, with a fractal noise and a floor of 17 for the fog test (D-900 to D-906) |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -426,7 +427,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 24. **G-24.** Every sprite, tile, and portrait is a text grid in content. The atlas tool renders the PNG, and a test proves the committed atlas matches (D-107). A normal map comes from the grid, and its atlas gets the same test (D-184). A drawing file is JSON with its rows as strings, and a large picture places drawn pieces (D-515, D-516).
 25. **G-25.** Every content batch the owner approves, sprites and text alike, appears in its PR description in full (D-57, D-107). A tool renders each art batch as review sheets, and the session attaches them with `gh` (D-514).
 26. **G-26.** One session works on one PR, and the PR holds its tests, its documents, its review records, and its handoff. No later PR carries them, and no PR only records a merge (D-576 to D-578).
-27. **G-27.** Every effect draws with the palette of 64 colors and hard edges, and no smooth gradient. The rule covers each particle, the fog, the glow, and each transition (D-181, D-622). The owner reads each new effect as its PR lands (D-623).
+27. **G-27.** Every effect draws with the palette of 64 colors and hard edges, and no smooth gradient. The rule covers each particle, the glow, and each transition (D-181, D-622). The fog alone fades smoothly, in one palette key for each layer, at the pixel size of the art (D-900, D-901). The owner reads each new effect as its PR lands (D-623).
 28. **G-28.** A display setting gives the player two body sizes, 24 and 32 frame pixels (D-707). The default is 32 at a frame fit of 1x, and 24 above that fit. The title is twice the body, and no setting changes it. Each UI layout holds at both body sizes, on every screen shape (D-640). A screen test captures each screen at both sizes (D-172).
 
 ## 7. Roadmap
@@ -494,7 +495,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 17. PR-63: the settings screen, the three accessibility settings, and a versioned settings file (D-214, D-526, D-570, D-870).
 18. PR-57: the effect files, the particles, and the battle effects (D-182, D-186).
 19. PR-58: the four ambient kinds of region one (D-187).
-20. PR-94: the procedural fog, a noise shader of 1 to 3 layers in place of the text grid (D-896 to D-899).
+20. PR-94: the procedural fog, a soft noise shader of 1 to 3 layers in place of the text grid (D-896 to D-906).
 21. PR-59: the glow on fire, spells, and waystones (D-188).
 22. PR-92: the three passes of the HD-2D look, after a new Deck sweep (D-849).
 23. PR-60: the ten transitions and their table (D-195, D-196).

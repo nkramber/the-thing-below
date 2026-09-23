@@ -94,16 +94,16 @@ public sealed class GameShaderTests
     }
 
     [Fact]
-    public void TheFogShaderHoldsEachUniformOfTheFogPassAndTheLimitsOfALayer()
+    public void TheFogShaderHoldsEachUniformOfTheFogPassAndTheMostLayers()
     {
         // D-825: Game sets each uniform by a name constant, and the file holds each name. The
-        // arrays of the shader hold the most layers and bands that the reader takes (D-898).
+        // arrays of the shader hold the most layers that the reader takes (D-898).
         string code = CodeOf(File.ReadAllText(Path.Combine(RepositoryRoot.Find(), ShaderFolder, "fog_noise.gdshaderinc")));
         Type pass = GameAssemblyFile.Type("TheThingBelow.Game.Ui.FogPass");
         string[] fields =
         [
             "LayerCountName", "ColorsName", "OriginXName", "OriginYName", "ScalesName",
-            "CellSizesName", "SeedsName", "BandCountsName", "BandFromName", "BandStrengthName",
+            "SeedsName", "FadeFromName", "FadeToName", "StrengthsName",
         ];
         foreach (string field in fields)
         {
@@ -112,7 +112,6 @@ public sealed class GameShaderTests
         }
 
         Assert.Contains($"const int MOST_LAYERS = {FogLayer.MostLayers};", code, StringComparison.Ordinal);
-        Assert.Contains($"const int MOST_BANDS = {FogLayer.MostBands};", code, StringComparison.Ordinal);
     }
 
     /// <summary>Gives each shader file and each include file of the Game project.</summary>

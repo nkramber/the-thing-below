@@ -11,9 +11,9 @@ namespace TheThingBelow.Game.Ui;
 /// in one full-screen pass (D-897, D-898). The fog draws above the figures (D-885).
 /// </summary>
 /// <remarks>
-/// The shader reads a value noise at each world pixel and cuts it into the bands of each layer,
-/// with one palette key and hard edges (G-27, D-181). Where layers overlap, the strongest band
-/// wins (D-899).
+/// The shader reads a fractal noise at each world pixel, and each layer fades smoothly from clear
+/// to its full strength in one palette key, at the pixel size of the art (D-900, D-901, D-181).
+/// Where layers overlap, the strongest layer wins (D-899).
 /// <para>
 /// The shader never reads the clock of Godot. At each tick, this class gives each layer the
 /// world pixel of the view with the drift of that layer, in whole art pixels, so one tick gives
@@ -43,20 +43,17 @@ public sealed class FogPass
     /// <summary>The name of the uniform of the noise scale of each layer.</summary>
     public const string ScalesName = "scales";
 
-    /// <summary>The name of the uniform of the block size of each layer.</summary>
-    public const string CellSizesName = "cell_sizes";
-
     /// <summary>The name of the uniform of the seed of each layer.</summary>
     public const string SeedsName = "seeds";
 
-    /// <summary>The name of the uniform of the count of bands of each layer.</summary>
-    public const string BandCountsName = "band_counts";
+    /// <summary>The name of the uniform of the noise level where each layer starts to show.</summary>
+    public const string FadeFromName = "fade_from";
 
-    /// <summary>The name of the uniform of the noise level where each band starts.</summary>
-    public const string BandFromName = "band_from";
+    /// <summary>The name of the uniform of the noise level where each layer is full.</summary>
+    public const string FadeToName = "fade_to";
 
-    /// <summary>The name of the uniform of the strength of each band.</summary>
-    public const string BandStrengthName = "band_strength";
+    /// <summary>The name of the uniform of the full strength of each layer.</summary>
+    public const string StrengthsName = "strengths";
 
     private readonly ColorRect rect;
     private readonly ShaderMaterial material;
@@ -149,39 +146,33 @@ public sealed class FogPass
         this.material.SetShaderParameter(OriginYName, originY);
     }
 
-    /// <summary>Gives the shader the values of each layer that never change: the color, the noise, and the bands.</summary>
+    /// <summary>Gives the shader the values of each layer that never change: the color, the noise, and the fade.</summary>
     private static void SetLayers(ShaderMaterial material, string name, IReadOnlyList<FogLayer> fogs, Palette palette)
     {
         var colors = new Color[FogLayer.MostLayers];
         int[] scales = new int[FogLayer.MostLayers];
-        int[] cellSizes = new int[FogLayer.MostLayers];
         int[] seeds = new int[FogLayer.MostLayers];
-        int[] bandCounts = new int[FogLayer.MostLayers];
-        int[] bandFrom = new int[FogLayer.MostLayers * FogLayer.MostBands];
-        int[] bandStrength = new int[FogLayer.MostLayers * FogLayer.MostBands];
+        int[] fadeFrom = new int[FogLayer.MostLayers];
+        int[] fadeTo = new int[FogLayer.MostLayers];
+        int[] strengths = new int[FogLayer.MostLayers];
         for (int index = 0; index < fogs.Count; index += 1)
         {
             FogLayer layer = fogs[index];
             colors[index] = ColorOf(name, layer.Key, palette);
             scales[index] = layer.Scale;
-            cellSizes[index] = layer.CellSize;
             seeds[index] = layer.Seed;
-            bandCounts[index] = layer.Bands.Count;
-            for (int band = 0; band < layer.Bands.Count; band += 1)
-            {
-                bandFrom[(index * FogLayer.MostBands) + band] = layer.Bands[band].From;
-                bandStrength[(index * FogLayer.MostBands) + band] = layer.Bands[band].Strength;
-            }
+            fadeFrom[index] = layer.From;
+            fadeTo[index] = layer.To;
+            strengths[index] = layer.Strength;
         }
 
         material.SetShaderParameter(LayerCountName, fogs.Count);
         material.SetShaderParameter(ColorsName, colors);
         material.SetShaderParameter(ScalesName, scales);
-        material.SetShaderParameter(CellSizesName, cellSizes);
         material.SetShaderParameter(SeedsName, seeds);
-        material.SetShaderParameter(BandCountsName, bandCounts);
-        material.SetShaderParameter(BandFromName, bandFrom);
-        material.SetShaderParameter(BandStrengthName, bandStrength);
+        material.SetShaderParameter(FadeFromName, fadeFrom);
+        material.SetShaderParameter(FadeToName, fadeTo);
+        material.SetShaderParameter(StrengthsName, strengths);
     }
 
     private static Color ColorOf(string name, char key, Palette palette)

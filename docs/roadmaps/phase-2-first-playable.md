@@ -865,7 +865,9 @@ Area file: `area-effects.md` section 7.9.
 
 - A noise shader of 1 to 3 layers in place of the text grid of D-887 (D-897). The owner refused the grid, because it repeats over the view (F-101).
 - One full-screen pass for all the layers of a fog, and the budget count of one pass for each fog (D-898).
-- The strongest band of the layers wins where they overlap (D-899).
+- A smooth fade from clear to the strength of each layer, at the pixel size of the art, in the pale key `L` (D-900, D-901, D-903). The owner refused the hard bands of round 1 (F-102).
+- An even density over the view, about 45 percent at the thickest, and a floor of 17 for the fog test (D-902, D-905, D-906).
+- The strongest layer wins where layers overlap (D-899).
 - A new fog capture file of three layers for the fixture dungeon (D-889).
 
 **Out of scope.**
@@ -875,20 +877,20 @@ Area file: `area-effects.md` section 7.9.
 
 **Exit tests.**
 
-1. The reader takes the noise, the bands, and the drift of each layer. It refuses each value outside its limits (T-2).
+1. The reader takes the noise, the fade, the strength, and the drift of each layer. It refuses each value outside its limits (T-2).
 2. A fog of three layers keeps inside a budget of one pass (D-898).
-3. The contrast test reads the strongest band of each layer (D-885, D-886, D-892, D-899).
+3. The contrast test reads the full strength of each layer against a floor of 17 (D-885, D-892, D-899, D-906).
 4. No shader reads `TIME`, and each uniform of the fog pass has its name in the shader (F-100, D-825).
 5. The screen test captures the fog on the map and in a fight (D-172, D-889).
 
 **Review focus.**
 
-- The fog keeps the palette and hard edges (G-27, D-622).
+- The fog keeps one palette key for each layer, and it alone fades smoothly (G-27, D-900).
 - The shader reads the drift that Game gives it, so one tick gives one picture (F-100, T-7).
 
-**Questions.** None. D-896 to D-899 resolved OQ-220 to OQ-223.
+**Questions.** None. D-896 to D-906 resolved OQ-220 to OQ-230.
 
-> *In plain English:* the fog of PR-58 was one small picture, repeated over the screen, and the repeat showed. The new fog grows from a noise over the whole world, so it never repeats.
+> *In plain English:* the fog of PR-58 was one small picture, repeated over the screen, and the repeat showed. The new fog grows from a soft noise over the whole world. It never repeats, and its edges fade like mist.
 
 ### 7.20 PR-59: the glow
 
@@ -2228,6 +2230,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-172 | The output format of the capture | PR-74 |
 | OQ-173 | The sizes of the store images | PR-76 |
 | OQ-174 | Which five screenshots | PR-76 |
-| OQ-220 to OQ-223 | The place, the form, the passes, and the overlap of the procedural fog, resolved by D-896 to D-899 | PR-94 |
+| OQ-220 to OQ-230 | The place, the form, the passes, the overlap, the edges, the resolution, the spread, the color, the test floor, and the strength of the procedural fog, resolved by D-896 to D-906 | PR-94 |
 
 No open question blocks this file.

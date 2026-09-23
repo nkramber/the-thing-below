@@ -86,7 +86,7 @@ The table lists what a frame draws, from the bottom to the top.
 | Figures | The party, the enemies, the NPCs, and objects such as chests | Yes | D-199, D-207 |
 | Flames | The flame, the embers, and the smoke of each torch | No | D-890 |
 | Particles | Blood, sparks, snow, embers, and dust | As its effect file sets | D-186, D-187 |
-| Fog | The fog of the weather of the place: 1 to 3 layers in one pass | As its effect file sets | D-885, D-897, D-898 |
+| Fog | The fog of the weather of the place: 1 to 3 layers in one pass | As its effect file sets | D-885, D-897, D-898, D-900 |
 | Mark | The mark of a sight over an enemy | No | D-208 |
 | Light | The ambient light of the time of day, the point lights, and the shadows | — | D-183, D-442 |
 | Glow | A soft glow on light sources alone | No | D-188 |
@@ -236,7 +236,7 @@ Built by PR-58. Phase file: `phase-2-first-playable.md`.
 - A fire is a decor kind, and it carries a point light of PR-56 (D-183, D-888).
 - Each wall torch and the carried light take a flame, embers, and a light that changes in steps from the tick (D-890, D-891).
 - Fog never hides an enemy that the player must see (D-187). Fog draws above the figures, and the luma test of D-886 caps its strength (D-885).
-- Fog is a noise shader of 1 to 3 layers in one pass. Each layer cuts its noise into hard bands of one palette key and drifts slowly, and the strongest band wins where layers overlap (D-897 to D-899). PR-94 replaced the text grid of D-887, because the grid repeats over the view (F-101).
+- Fog is a noise shader of 1 to 3 layers in one pass. Each layer fades smoothly from clear to its strength, in one palette key at the pixel size of the art, and drifts slowly (D-897, D-900, D-901). The strongest layer wins where layers overlap, and the density is even over the view (D-899, D-902). PR-94 replaced the text grid of D-887, because the grid repeats over the view (F-101).
 - The test content holds one ambient file of each kind for the fixture dungeon, and the shipped dungeon takes dust and drips (D-889).
 - Fog and each other full-screen ambient effect count against the effect budget (D-523). A fog counts as one pass, whatever its count of layers (D-898).
 - The ambience of each map matches its ambient effects, and `area-audio.md` holds the sound (D-424).
@@ -275,7 +275,7 @@ Built by PR-60. Phase file: `phase-2-first-playable.md`.
 
 Built by every effect PR, and kept by the screen tests. Phase file: `phase-2-first-playable.md`.
 
-- Every effect draws with the palette of 64 colors and hard edges, and no smooth gradient (G-27, D-181, D-622).
+- Every effect draws with the palette of 64 colors and hard edges, and no smooth gradient (G-27, D-181, D-622). The fog alone fades smoothly (D-900).
 - The rule covers each particle, the fog, the glow, and each transition (D-187, D-188, D-195).
 - A full-screen pass draws at the pixel size of the frame, so an effect pixel matches an art pixel (D-230, F-67).
 - The owner reads each new effect on the Mac as its PR lands, and not on the Deck (D-622, D-623).
@@ -310,7 +310,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | PR-57 | Effect files, particles, the shake, and the hit-stop | D-182, D-186, D-877 to D-883 |
 | PR-12 | The flash of a spell | D-186, D-878 |
 | PR-58 | The four ambient kinds | D-187, D-202 |
-| PR-94 | The procedural fog: a noise shader of 1 to 3 layers in one pass | D-896 to D-899 |
+| PR-94 | The procedural fog: a soft noise shader of 1 to 3 layers in one pass | D-896 to D-906 |
 | PR-59 | Glow | D-188 |
 | PR-92 | The tilt-shift blur, the vignette, and the light shafts of the HD-2D look | D-849 |
 | PR-60 | The ten transitions and the table of kinds | D-195, D-196 |
@@ -394,7 +394,7 @@ The register is `docs/questions.md` (D-19). These questions block effect PRs, an
 - OQ-101: how fog keeps an enemy visible. Resolved 2026-09-22 by D-885.
 - OQ-102: how glow stays off sprites. Blocks PR-59.
 - OQ-103: where shader code lives. Resolved by D-825.
-- OQ-220 to OQ-223: the place, the form, the passes, and the overlap of the procedural fog. Resolved 2026-09-22 by D-896 to D-899.
+- OQ-220 to OQ-230: the place, the form, the passes, the overlap, the edges, the resolution, the spread, the color, the test floor, and the strength of the procedural fog. Resolved 2026-09-22 by D-896 to D-906.
 - OQ-79: how the screen-test job pins Mesa. Closed 2026-09-20 by D-729, and D-730 holds the pin.
 - OQ-89: pixel snap in Game. Blocks PR-7.
 - OQ-183: the scale of the frame on a screen. Blocks PR-7 and PR-34, and the probe of D-621 answers it.

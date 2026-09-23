@@ -11,7 +11,7 @@ namespace TheThingBelow.Core.Effects;
 public sealed record FogFault(char Outline, char Floor, int Gap);
 
 /// <summary>
-/// The contrast test of the fog (D-885, D-886, D-892): the strongest band of a fog over each
+/// The contrast test of the fog (D-885, D-886, D-892, D-906): the full strength of a fog over each
 /// outline color of an enemy, and over each floor color of the map. For each floor color, the
 /// outline key with the largest luma gap must keep a gap of <see cref="LeastGap"/> under the
 /// fog, so fog never hides an enemy that the player must see (D-37, D-187).
@@ -30,8 +30,8 @@ public sealed record FogFault(char Outline, char Floor, int Gap);
 /// </remarks>
 public static class FogContrast
 {
-    /// <summary>The least luma gap of an outline color and a floor color under a fog: the first floor of D-886, which the owner reads on the Deck.</summary>
-    public const int LeastGap = 24;
+    /// <summary>The least luma gap of an outline color and a floor color under a fog: the floor of D-906, which the owner reads on the Deck.</summary>
+    public const int LeastGap = 17;
 
     /// <summary>Gives the Rec. 601 luma of a color, from 0 to 255, rounded to the nearest whole number.</summary>
     /// <param name="red">The red part, from 0 to 255.</param>
@@ -120,7 +120,7 @@ public static class FogContrast
     }
 
     /// <summary>Gives the first floor key that the fog pulls below <see cref="LeastGap"/> (D-892).</summary>
-    /// <param name="fog">The layer of fog, at its strongest band.</param>
+    /// <param name="fog">The layer of fog, at its full strength.</param>
     /// <param name="outline">The outline keys of the enemy.</param>
     /// <param name="floor">The keys of the floor.</param>
     /// <param name="palette">The palette (D-181).</param>
@@ -139,7 +139,7 @@ public static class FogContrast
         ArgumentNullException.ThrowIfNull(palette);
 
         PaletteColor fogColor = ColorOf(palette, fog.Key);
-        int strength = fog.Strongest;
+        int strength = fog.Strength;
         foreach (char ground in floor)
         {
             PaletteColor groundColor = ColorOf(palette, ground);

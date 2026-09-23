@@ -8,7 +8,7 @@ using Xunit;
 
 namespace TheThingBelow.Tests;
 
-/// <summary>The strict readers of an ambient file: its kind, its maps, its streams, and its fog (D-187, D-897).</summary>
+/// <summary>The strict readers of an ambient file: its kind, its maps, its streams, and its fog (D-187, D-897, D-900).</summary>
 public sealed class AmbientFileTests
 {
     [Fact]
@@ -22,13 +22,13 @@ public sealed class AmbientFileTests
         Assert.Equal(96, effect.Particles);
         FogLayer fog = Assert.Single(effect.Fogs);
         Assert.Equal('k', fog.Key);
-        Assert.Equal([new FogBand(5000, 1000), new FogBand(6000, 2000)], fog.Bands);
+        Assert.Equal(5000, fog.From);
+        Assert.Equal(6000, fog.To);
+        Assert.Equal(2000, fog.Strength);
         Assert.Equal(32, fog.Scale);
-        Assert.Equal(2, fog.CellSize);
         Assert.Equal(7, fog.Seed);
         Assert.Equal(4, fog.DriftX);
         Assert.Equal(0, fog.DriftY);
-        Assert.Equal(2000, fog.Strongest);
         Assert.Equal(1, effect.FullScreenPasses);
     }
 
@@ -80,19 +80,17 @@ public sealed class AmbientFileTests
     }
 
     [Theory]
-    [InlineData("{ \"from\": 6000, \"strength\": 2000 } ]", "{ \"from\": 6000, \"strength\": 2000 }, { \"from\": 7000, \"strength\": 3000 }, { \"from\": 8000, \"strength\": 4000 } ]", "1 to 3")]
     [InlineData("\"strength\": 2000", "\"strength\": 8001", "1 to 8000")]
-    [InlineData("\"from\": 6000", "\"from\": 10000", "1 to 9999")]
-    [InlineData("\"from\": 6000", "\"from\": 5000", "starts higher")]
-    [InlineData("\"strength\": 2000", "\"strength\": 1000", "draws stronger")]
-    [InlineData("\"cell_size\": 2", "\"cell_size\": 9", "1 to 8")]
+    [InlineData("\"strength\": 2000", "\"strength\": 0", "1 to 8000")]
+    [InlineData("\"from\": 5000", "\"from\": 10000", "0 to 9999")]
+    [InlineData("\"to\": 6000", "\"to\": 10001", "1 to 10000")]
+    [InlineData("\"to\": 6000", "\"to\": 5000", "is full above the level where it starts")]
     [InlineData("\"drift_x\": 4", "\"drift_x\": 61", "-60 to 60")]
-    [InlineData("\"scale\": 32", "\"scale\": 6", "8 to 256")]
-    [InlineData("\"scale\": 32", "\"scale\": 258", "8 to 256")]
-    [InlineData("\"scale\": 32", "\"scale\": 33", "an even value")]
+    [InlineData("\"scale\": 32", "\"scale\": 7", "8 to 256")]
+    [InlineData("\"scale\": 32", "\"scale\": 257", "8 to 256")]
     [InlineData("\"seed\": 7", "\"seed\": -1", "0 to 65535")]
     [InlineData("\"scale\": 32,", "", "the field is absent")]
-    [InlineData("\"seed\": 7,", "\"seed\": 7, \"rows\": [],", "an unknown field")]
+    [InlineData("\"seed\": 7,", "\"seed\": 7, \"cell_size\": 2,", "an unknown field")]
     public void AFogValueOutsideItsLimitFailsWithTheReason(string from, string to, string reason)
     {
         string body = AmbientFixtures.Body(fogs: AmbientFixtures.Fog).Replace(from, to, StringComparison.Ordinal);

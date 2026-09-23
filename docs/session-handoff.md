@@ -1,3 +1,41 @@
+## Session 213: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-94, round 3. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
+
+### What this session did, and why
+
+- The owner refused the fog of round 1 and sent a reference picture of soft mist (F-102). The owner answered OQ-224 to OQ-230 (D-900 to D-906).
+- D-900: the fog fades smoothly, and it alone leaves the hard-edge rule of G-27 and D-622. D-901: the fog draws at the pixel size of the art. D-902: the density is even. D-903: the fixture fog takes the pale key `L`. D-905: the thickest part is about 45 percent.
+- D-904 set the floor of the fog test to 16. At 16, the pair of the fixture enemy with a gap of exactly 16 on `K` entered the test, and every fog failed. The session reported the fault, and D-906 supersedes D-904 with a floor of 17. A probe measured 45 percent as a pass and 47 percent as a fail.
+- Core: `FogLayer` takes `from`, `to`, and `strength` in place of the bands, and it has no `cell_size`. `FogBand` is gone. `FogContrast.LeastGap` is 17.
+- The shader reads a value noise of 5 octaves with a quintic curve, and a `smoothstep` fades each layer from `from` to `to`. The strongest layer wins at each pixel (D-899).
+- The capture fog holds three layers of `L`: wide banks at 45 percent, smaller clouds at 35 percent, and wisps at 25 percent.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The PR head before this round is `0a5a8c2`.
+- `make test` (2,171 tests), `make format`, `make lint`, `make identity`, `make content`, `make smoke`, and `make ste-check` pass on this machine.
+- The session read `map-fog-1x` and `battle-fog-1x` from `make sheet`. The fog shows soft pale clouds with no repeat and no hard band. The four `still` frames use the shipped dust, which holds no fog.
+
+### What is in flight
+
+- The screen-test job gives new baselines for the two fog frames again, and the author commits them from the artifact.
+- The owner reads the new fog. The coverage of the three layers is a value of the content file, and the owner can ask for a change.
+
+### Traps and gotchas
+
+- The fog test skips a pair whose gap is below the floor with no fog (D-892). A floor at or below the gap of an art pair brings that pair into the test, and then any fog fails.
+- The simulation version stays at 13, because this PR raised it already. The state hashes do not read the fog, so the identity file does not change.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the fog baselines from the CI artifact. Then the owner reads the fog, and the other provider reviews PR #59.
+
 ## Session 212: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -346,36 +384,3 @@ None.
 ### The next concrete action
 
 Push, open the PR, and wait for CI. Read and commit the baselines from the artifact, then follow the `gitar-review` skill.
-
-## Session 203: 2026-09-22, Codex
-
-Author: Codex
-Session: reviewer PR-55, repeat review. Repository: the-thing-below. Branch: `feat/pr-63-settings`. PR: #55. Role: reviewer. Base: `daeccfe`.
-
-### What this session did, and why
-
-- Recomputed the effective head. The initial record named `d6b3606`, but `c974fe4` changes eight substantive screen baselines.
-- Verified the original screen-test trigger and the correction. The three settings captures and five `ui` captures now pass the current CI screen-test.
-- Updated `docs/reviews/pr-55.md` with no finding and the verdict `Ready for owner merge` for effective head `c974fe4`.
-
-### The state of the build
-
-- The implementation checks passed at `d6b3606` with 1,987 non-Smoke tests and all local gates.
-- CI run 35691479039 passed the corrected baselines and all current checks. The remote tip is metadata after effective head `c974fe4`.
-
-### What is in flight
-
-- The repeat-review record and this handoff entry need commit and push.
-- The owner can merge after review-gate passes for effective head `c974fe4`.
-
-### Traps and gotchas
-
-- Screen baselines are substantive review paths. Metadata commits after `c974fe4` do not change the effective head.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the repeat review and handoff. Fetch and verify the remote head and review-gate check.
