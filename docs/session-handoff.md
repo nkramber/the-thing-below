@@ -1,3 +1,36 @@
+## Session 242: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-96, hand-over. Repository: the-thing-below. Branch: `docs/pr-96-review-loop-rules`. PR: #65. Role: author. Base: `e6eb27a`.
+
+### What this session did, and why
+
+- Read the review record of Session 241: `Ready for owner merge` for the effective head `aba8774`, with no finding.
+- Read the checks of the metadata tip `6cf9e9b`. Each check passed or skipped by the path rules, and `review-gate` passed.
+- Read the merge conditions of `docs/runbooks/merge.md`. Each one holds except the confirmation of the owner (D-933, D-942).
+
+### The state of the build
+
+- `main` is `e6eb27a`. The effective head is `aba8774`, and `git diff --stat aba8774..6cf9e9b` lists `docs/reviews/pr-65.md`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md` alone.
+- CI run 35889338283 passed each job on `aba8774`.
+
+### What is in flight
+
+- The confirmation of the owner, then the auto-merge of PR #65 (D-930).
+- After the merge, the transitional prompt of step 6.
+
+### Traps and gotchas
+
+- A push outside the skip set after the confirmation moves the effective head, and the loop starts again (D-943).
+
+### The questions that block progress
+
+None. OQ-242 waits for the owner and blocks nothing.
+
+### The next concrete action
+
+Post the summary in four sections inside the merge question, and turn on the auto-merge after the confirmation of the owner.
+
 ## Session 241: 2026-09-23, Codex
 
 Author: Codex
@@ -346,45 +379,3 @@ None. The PR-95 roadmap lists no open question.
 ### The next concrete action
 
 The author fixes both findings and requests a repeat review of PR #63.
-
-
-
-## Session 232: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR #63, round 1. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: author. Base: `097ea32`.
-
-### What this session did, and why
-
-- Checked the precondition: PR #62 merged as `097ea32`. `docs/reviews/pr-62-response.md` is on `main` through PR #62, so no untracked file of PR #62 stayed in the checkout.
-- Asked the owner six questions, and recorded the direction and the answers as D-926 to D-931. The effect columns of D-8, D-576, D-578, D-582, and D-601 name each revision.
-- Built `make codex-review PR=<n>` and the `codex-review` command of Tools, with 79 tests. It covers the install and the version of the CLI, the model probe, the start checks, the Gitar pass, the worktree, the outcome codes, and the three-strike count.
-- Added the `Open at:` line to the record format, and the loop to `CLAUDE.md`, `AGENTS.md`, the skills, the PR template, `docs/runbooks/merge.md`, and `docs/runbooks/branch-protection.json`.
-- Added PR-95 to section 8 of `docs/design.md`, to the phase-2 file as section 7.22, and to `area-ci.md` as section 7.20. G-15 names the auto-merge.
-
-### The state of the build
-
-- `main` is `097ea32`. The branch holds one commit on it, and this entry is in that commit.
-- `make verify` passed on this machine before the commit.
-- A run of `make codex-review PR=62` installed CLI 0.156.1, passed the probe, and refused PR #62 with four reasons, as the command must.
-
-### What is in flight
-
-- The Gitar pass of PR #63, then the first live run `make codex-review PR=63`, then the answers.
-- The three settings of D-931 wait for the approval of the owner, before the hand-over. The owner merges PR #63 by hand.
-
-### Traps and gotchas
-
-- Make gives exit 2 for each failed target. Read the last line of the command: `codex-review: outcome <name> (exit <code>)`.
-- The pre-commit hook refuses a checkout with no branch. Thus the worktree takes the local branch `review/pr-<n>`, and the reviewer pushes with `HEAD:<branch>`.
-- `CLAUDE.md` holds 16,333 bytes of the limit of 16,384.
-- The record of this PR needs an `Open at:` line in each finding, because the command reads it.
-- This PR changes no workflow file. The review applies because Tools and the Makefile are outside the override set.
-
-### The questions that block progress
-
-None. D-926 to D-931 hold the answers of 2026-09-23.
-
-### The next concrete action
-
-Answer the Gitar pass of PR #63. Then run `make codex-review PR=63` in the background.
