@@ -71,7 +71,10 @@ public sealed record ReviewOutcome(
             return Fault($"origin holds no review record at `{path}` after the review (D-17).");
         }
 
-        GateCheck head = ReviewRecordRules.CheckHead(path, recordText, effectiveHead);
+        GateCheck head = ReviewRecordRules.CheckHead(
+            path,
+            recordText,
+            effectiveHead is null ? [] : [effectiveHead]);
         if (head.Result != GateResult.Pass || effectiveHead is null)
         {
             return Fault(head.Detail);

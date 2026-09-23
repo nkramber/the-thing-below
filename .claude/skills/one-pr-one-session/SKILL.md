@@ -113,6 +113,8 @@ No PR exists only to record the merge, the handoff, the review record, or the do
 
 A commit that changes only the metadata set never moves the effective head. That set holds the two review files of this PR and the two handoff files (D-610).
 
+After an approval, a commit that changes paths of the skip set alone keeps the approval, and the PR needs no new review (D-943). That commit still gets its Gitar pass, and the author answers each comment and each claim of the pass (D-944). `docs/runbooks/merge.md` gives the steps.
+
 ## 5. Completion gate
 
 The PR reaches its hand-over point only when each line holds:
@@ -137,13 +139,13 @@ The author loop reaches the hand-over point. `docs/runbooks/merge.md` holds its 
 3. Run `make codex-review PR=<n>` in the background, and read its outcome line (D-926).
 4. On `changes-required`, answer each finding with the `pr-review` skill, then go to step 1.
 5. On `three-strike-stop`, turn off the auto-merge, stop the loop, and ask the owner (D-929).
-6. On `approve`, the hand-over point holds. The owner confirms the merge before the auto-merge (D-933).
+6. On `approve`, the hand-over point holds. The owner confirms the merge before the auto-merge (D-933, D-942).
 
 At the hand-over point, the reviewer writes this result and stops:
 
 `This session is bound to PR #N and is complete. End this session. Start a new clean session before beginning another PR.`
 
-At the hand-over point, the author posts a summary of one paragraph and waits for the confirmation of the owner (D-933). Then it turns on the auto-merge under `docs/runbooks/merge.md` (D-930), waits for the checks one time, and it reads the state of the PR. When the PR merged, the author writes the transitional prompt of step 6 at once. When the owner merges the PR by hand, the author writes the result above and waits for `Merged PR #x` (D-931).
+At the hand-over point, the author asks the owner to confirm the merge (D-933). The question block of `AskUserQuestion` holds a summary in four sections: What, How, CI, and Codex review (D-942). `docs/runbooks/merge.md` gives the content of each section. Then it turns on the auto-merge under `docs/runbooks/merge.md` (D-930), waits for the checks one time, and it reads the state of the PR. When the PR merged, the author writes the transitional prompt of step 6 at once. When the owner merges the PR by hand, the author writes the result above and waits for `Merged PR #x` (D-931).
 
 Do not offer to start the next PR. After the merge, write the transitional prompt of step 6.
 
@@ -178,7 +180,7 @@ The session ends with this prompt. It makes no branch and no change for the next
 | Rule | Enforced by |
 |---|---|
 | The handoff changes, each row has a line, each line reads true against the diff, and no line defers a document or a record of the PR | Machine: the `review-gate` check (D-15, D-579) |
-| The review record and the effective head | Machine: the `review-gate` check (D-15). The record lives in the metadata set, so the gate reads the record and never its author, and the reviewer session reads the record on the effective head before the owner merges (D-610) |
+| The review record and the effective head | Machine: the `review-gate` check (D-15). The record lives in the metadata set, so the gate reads the record and never its author, and the reviewer session reads the record on the effective head before the owner merges (D-610). RG 5 also accepts an earlier approved head when each later commit changes the skip set alone (D-943) |
 | `CLAUDE.md` and `AGENTS.md` stay identical | Machine: rule AGENTS 1 of the ste-check job on every PR, and a test of Tests (D-20, D-857) |
 | The binding, the start gate, and the completion gate | Agent |
 | One PR in each session, and a clean session for each PR | Owner. No check can see the conversation |

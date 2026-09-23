@@ -86,6 +86,8 @@ When one condition is false, the review is stale. When you cannot check one cond
 
 A metadata commit does not make a pass stale (D-603). The record of a Gitar pass goes in the handoff, which is in the metadata set. A rule that reads the branch tip alone makes each pass stale at the moment of its record, and the gate then never passes. Prove the effective head with `git diff --stat <reviewed head>..<tip>`, and list each path of the result in the record.
 
+A commit of documents alone outside the metadata set moves the effective head, so it makes the pass stale (D-944). Get a new pass of that head, and answer each comment and each claim of the dashboard. The commit needs no new review of the other provider when it follows an approval (D-943). The Gitar pass stays.
+
 ## Rules for each reply
 
 - State the evidence: the command, the test, the decision id, or the commit.

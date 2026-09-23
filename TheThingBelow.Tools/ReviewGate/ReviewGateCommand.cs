@@ -88,7 +88,7 @@ public static class ReviewGateCommand
             checks.AddRange(ReviewRecordRules.Check(
                 facts,
                 headFilesRoot,
-                EffectiveHead.Find(facts.Commits, facts.Number)));
+                EffectiveHead.ReviewableHeads(facts.Commits, facts.Number)));
         }
 
         checks.Add(DocumentRules.CheckHandoff(facts));

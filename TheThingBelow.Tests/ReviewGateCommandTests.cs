@@ -47,6 +47,52 @@ public sealed class ReviewGateCommandTests
         Assert.Contains(ReviewGateFixture.HeadSha, report, StringComparison.Ordinal);
     }
 
+    // Regression of D-943: a commit of documents alone after the approval moved the effective
+    // head, and the gate failed until a new review of the other provider.
+    [Fact]
+    public void ACommitOfDocumentsAloneAfterTheApprovalKeepsTheGateGreen()
+    {
+        using ReviewGateFixture fixture = ReviewGateFixture.Build();
+        fixture.WriteFacts(ReviewGateFixture.PassingFacts() with
+        {
+            Commits =
+            [
+                new CommitFacts(ReviewGateFixture.OlderSha, ["TheThingBelow.Core/Rules.cs"]),
+                new CommitFacts(ReviewGateFixture.MetadataSha, ["docs/reviews/pr-21.md", "docs/session-handoff.md"]),
+                new CommitFacts(ReviewGateFixture.HeadSha, ["docs/design.md", "docs/decisions.md", ".claude/settings.json"]),
+            ],
+        });
+        fixture.WriteRecord(ReviewGateFixture.Record(ReviewGateFixture.OlderSha, "Ready for owner merge"));
+
+        (int exitCode, string report) = Run(fixture);
+
+        Assert.Equal(0, exitCode);
+        Assert.Contains("RG 5 pass", report, StringComparison.Ordinal);
+        Assert.Contains("documents alone (D-943)", report, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ACommitOfCodeAfterACommitOfDocumentsNeedsANewReview()
+    {
+        using ReviewGateFixture fixture = ReviewGateFixture.Build();
+        fixture.WriteFacts(ReviewGateFixture.PassingFacts() with
+        {
+            Commits =
+            [
+                new CommitFacts(ReviewGateFixture.OlderSha, ["TheThingBelow.Core/Rules.cs"]),
+                new CommitFacts(ReviewGateFixture.MetadataSha, ["docs/design.md"]),
+                new CommitFacts(ReviewGateFixture.HeadSha, ["TheThingBelow.Core/Rules.cs"]),
+            ],
+        });
+        fixture.WriteRecord(ReviewGateFixture.Record(ReviewGateFixture.OlderSha, "Ready for owner merge"));
+
+        (int exitCode, string report) = Run(fixture);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains("RG 5 fault", report, StringComparison.Ordinal);
+        Assert.Contains(ReviewGateFixture.HeadSha, report, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void ARecordWithNoApprovedVerdictFails()
     {
