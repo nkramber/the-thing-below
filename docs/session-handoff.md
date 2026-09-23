@@ -1,3 +1,39 @@
+## Session 223: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR #60, round 2. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: author. Base: `a20d32f`.
+
+### What this session did, and why
+
+- Answered P2-1 of `docs/reviews/pr-60.md` in `docs/reviews/pr-60-response.md`, with full merit.
+- P2-1 conflicted with the first answer of the owner, so the session asked again. The owner chose to keep the dated records (D-19, D-24).
+- Restored `docs/reviews/pr-58.md`, `docs/reviews/pr-59.md`, and each handoff entry to their text on `main`.
+- Added D-909, which ends the pause. D-895 reads `Superseded by D-909`, and the six revised rows name D-909.
+- Moved sessions 213 to 210 to the archive, to keep the 10 newest entries.
+- Answered the gitar comment about RG 4.
+
+### The state of the build
+
+- The remote head of `main` is `a20d32f`. The PR head before this round is `1c6b4c7`, and the commit of this round is the effective head.
+- `make ste-check` gives 0 findings. The rule files stay the same as at `8d98c46~1`.
+
+### What is in flight
+
+- PR #60 waits for the gitar pass on the new head and for the repeat review of the other provider.
+
+### Traps and gotchas
+
+- The text of session 220 names the removal of the records. Round 2 put them back, and the entry of session 220 stays as history.
+- The finding cites D-10 for the dated-record rule. The rule is in the `ste-writing` skill and in `docs/runbooks/rename-and-move.md`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Follow the `gitar-review` skill on the new head. Then the other provider repeats the review of PR #60.
+
 ## Session 222: 2026-09-23, Codex
 
 Author: Codex
@@ -131,7 +167,7 @@ Session: reviewer PR-94, round 2. Repository: the-thing-below. Branch: `feat/pr-
 
 ### Traps and gotchas
 
-- The Gitar check passed, and the current Gitar comment reports the stale review-gate fields.
+- D-895 pauses Gitar replies. The Gitar check passed, and the current Gitar comment reports the stale review-gate fields.
 - Bot and night-gate checks do not exist yet; PR-15 and PR-49 create them (G-16).
 
 ### The questions that block progress
@@ -236,7 +272,7 @@ Session: reviewer PR-94, round 1. Repository: the-thing-below. Branch: `feat/pr-
 
 ### Traps and gotchas
 
-- The Gitar comment repeats the OQ-231 mismatch.
+- The Gitar comment repeats the OQ-231 mismatch. D-895 pauses Gitar answers.
 - The review commit changes only metadata paths, so the effective head stays `8011192`.
 
 ### The questions that block progress
@@ -265,7 +301,7 @@ Session: author PR-94, round 5. Repository: the-thing-below. Branch: `feat/pr-94
 
 ### What is in flight
 
-- The PR waits for the review of the other provider (T-4).
+- The PR waits for the review of the other provider (T-4). The gitar pause of D-895 holds.
 
 ### Traps and gotchas
 
@@ -314,40 +350,4 @@ None.
 
 Commit the fog baselines from the CI artifact. Then the owner reads the fog, and the other provider reviews PR #59.
 
-## Session 213: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-94, round 3. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
-
-### What this session did, and why
-
-- The owner refused the fog of round 1 and sent a reference picture of soft mist (F-102). The owner answered OQ-224 to OQ-230 (D-900 to D-906).
-- D-900: the fog fades smoothly, and it alone leaves the hard-edge rule of G-27 and D-622. D-901: the fog draws at the pixel size of the art. D-902: the density is even. D-903: the fixture fog takes the pale key `L`. D-905: the thickest part is about 45 percent.
-- D-904 set the floor of the fog test to 16. At 16, the pair of the fixture enemy with a gap of exactly 16 on `K` entered the test, and every fog failed. The session reported the fault, and D-906 supersedes D-904 with a floor of 17. A probe measured 45 percent as a pass and 47 percent as a fail.
-- Core: `FogLayer` takes `from`, `to`, and `strength` in place of the bands, and it has no `cell_size`. `FogBand` is gone. `FogContrast.LeastGap` is 17.
-- The shader reads a value noise of 5 octaves with a quintic curve, and a `smoothstep` fades each layer from `from` to `to`. The strongest layer wins at each pixel (D-899).
-- The capture fog holds three layers of `L`: wide banks at 45 percent, smaller clouds at 35 percent, and wisps at 25 percent.
-
-### The state of the build
-
-- The remote head of `main` is `8d98c46`. The PR head before this round is `0a5a8c2`.
-- `make test` (2,171 tests), `make format`, `make lint`, `make identity`, `make content`, `make smoke`, and `make ste-check` pass on this machine.
-- The session read `map-fog-1x` and `battle-fog-1x` from `make sheet`. The fog shows soft pale clouds with no repeat and no hard band. The four `still` frames use the shipped dust, which holds no fog.
-
-### What is in flight
-
-- The screen-test job gives new baselines for the two fog frames again, and the author commits them from the artifact.
-- The owner reads the new fog. The coverage of the three layers is a value of the content file, and the owner can ask for a change.
-
-### Traps and gotchas
-
-- The fog test skips a pair whose gap is below the floor with no fog (D-892). A floor at or below the gap of an art pair brings that pair into the test, and then any fog fails.
-- The simulation version stays at 13, because this PR raised it already. The state hashes do not read the fog, so the identity file does not change.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit the fog baselines from the CI artifact. Then the owner reads the fog, and the other provider reviews PR #59.
+# Session handoff

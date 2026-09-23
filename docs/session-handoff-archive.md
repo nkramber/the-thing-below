@@ -1,4 +1,42 @@
 # Session handoff archive
+## Session 213: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-94, round 3. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
+
+### What this session did, and why
+
+- The owner refused the fog of round 1 and sent a reference picture of soft mist (F-102). The owner answered OQ-224 to OQ-230 (D-900 to D-906).
+- D-900: the fog fades smoothly, and it alone leaves the hard-edge rule of G-27 and D-622. D-901: the fog draws at the pixel size of the art. D-902: the density is even. D-903: the fixture fog takes the pale key `L`. D-905: the thickest part is about 45 percent.
+- D-904 set the floor of the fog test to 16. At 16, the pair of the fixture enemy with a gap of exactly 16 on `K` entered the test, and every fog failed. The session reported the fault, and D-906 supersedes D-904 with a floor of 17. A probe measured 45 percent as a pass and 47 percent as a fail.
+- Core: `FogLayer` takes `from`, `to`, and `strength` in place of the bands, and it has no `cell_size`. `FogBand` is gone. `FogContrast.LeastGap` is 17.
+- The shader reads a value noise of 5 octaves with a quintic curve, and a `smoothstep` fades each layer from `from` to `to`. The strongest layer wins at each pixel (D-899).
+- The capture fog holds three layers of `L`: wide banks at 45 percent, smaller clouds at 35 percent, and wisps at 25 percent.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The PR head before this round is `0a5a8c2`.
+- `make test` (2,171 tests), `make format`, `make lint`, `make identity`, `make content`, `make smoke`, and `make ste-check` pass on this machine.
+- The session read `map-fog-1x` and `battle-fog-1x` from `make sheet`. The fog shows soft pale clouds with no repeat and no hard band. The four `still` frames use the shipped dust, which holds no fog.
+
+### What is in flight
+
+- The screen-test job gives new baselines for the two fog frames again, and the author commits them from the artifact.
+- The owner reads the new fog. The coverage of the three layers is a value of the content file, and the owner can ask for a change.
+
+### Traps and gotchas
+
+- The fog test skips a pair whose gap is below the floor with no fog (D-892). A floor at or below the gap of an art pair brings that pair into the test, and then any fog fails.
+- The simulation version stays at 13, because this PR raised it already. The state hashes do not read the fog, so the identity file does not change.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the fog baselines from the CI artifact. Then the owner reads the fog, and the other provider reviews PR #59.
+
 ## Session 212: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -17,7 +55,7 @@ Session: author PR-94, round 2. Repository: the-thing-below. Branch: `feat/pr-94
 
 ### What is in flight
 
-- The PR waits for the review of the other provider (T-4).
+- The PR waits for the review of the other provider (T-4). The gitar pause of D-895 holds.
 
 ### Traps and gotchas
 
@@ -31,7 +69,6 @@ None.
 
 The other provider reviews PR #59 and writes `docs/reviews/pr-59.md`.
 
-# Session handoff
 ## Session 211: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -57,7 +94,7 @@ Session: author PR-94, round 1. Repository: the-thing-below. Branch: `feat/pr-94
 ### What is in flight
 
 - The PR waits for CI. The screen-test job then gives new baselines for `map-fog-1x` and `battle-fog-1x`, and the author commits them from the artifact.
-- Then the PR waits for the review of the other provider (T-4).
+- Then the PR waits for the review of the other provider (T-4). The gitar pause of D-895 holds.
 
 ### Traps and gotchas
 
@@ -74,6 +111,81 @@ None.
 ### The next concrete action
 
 Take the new fog baselines from the CI artifact of the screen-test job, commit them, and ask the other provider for the review.
+
+## Session 210: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR #58. Repository: the-thing-below. Branch: `docs/pr-gitar-pause`. PR: #58. Role: reviewer. Base: `871624e`.
+
+### What this session did, and why
+
+- Reviewed the policy change and reversal procedure of PR #58.
+- Confirmed that Claude Code authored the PR and that this review uses the other provider (T-4, D-17).
+- Inspected all 11 changed paths. The effective head is `3239ba1`; the later commit changes only handoff metadata (D-589, D-610).
+- Wrote `docs/reviews/pr-58.md` with no finding and verdict `Ready for owner merge` for effective head `3239ba1`.
+- Corrected the PR Documents line for `docs/reviews/`.
+
+### The state of the build
+
+- The remote head before this review was `ab77727321783167d51915e873733b1f5c6220da`. The review metadata reached `origin` as `47cdd7553406eae34e98eb6a8a5f46929f5cca65`; the effective head is `3239ba1`.
+- `make ste-check` passed with 0 findings. CI passed each applicable check, including review-gate. The docs-only matrix legs skipped as expected.
+
+### What is in flight
+
+- The review record and this entry were pushed. The owner can merge after reading the review record.
+
+### Traps and gotchas
+
+- The pause of D-895 makes a Gitar pass optional. It does not remove the review by the other provider.
+- The Gitar dashboard approved the effective head with no issue. The pause of D-895 does not require a response.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The owner reads the review record and merges PR #58.
+
+## Session 209: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author of the gitar pause, PR #58. Repository: the-thing-below. Branch: docs/pr-gitar-pause. Role: author. Base: `871624e`.
+
+### What this session did, and why
+
+- The owner asked for a pause of the gitar pass, because the gitar subscription expires. The pause must be easy to reverse.
+- Checked the machine rules first. Branch protection on `main` requires eight checks, and none of them is gitar. No workflow and no review-gate rule reads gitar. Thus the pause changes rule text alone.
+- The owner answered three questions. A docs PR takes the label after ste-check is green. The branch name has no number. One PR ends the pause when the owner says that gitar is back.
+- Added D-895, and a note of a revision in part on D-14, D-66, D-67, D-586, D-587, and D-705.
+- Added a pause clause to `CLAUDE.md`, `AGENTS.md`, the PR template, three skills, and the session-context runbook. Each clause cites D-895.
+- The runbook section "The end of the gitar pause" gives the steps that end the pause.
+
+### The state of the build
+
+- ste-check gives 0 findings. The PR changes docs alone, so CI skips the build jobs (D-595).
+- The first push of PR #58 holds this entry. Base `871624e`.
+
+### What is in flight
+
+- PR #58 waits for the review of the other provider, because it adds and revises decision rows (D-401). No label applies.
+- Gitar still ran. Its automatic pass approved `3239ba1` at 22:33:42 UTC with no comment and no thread. The dashboard edit came after the push at 22:32:13 UTC, so the pass is current.
+- CI at `3239ba1`: every required check passes except review-gate. Review-gate faults on RG 3 alone, because the review record does not exist yet.
+
+### Traps and gotchas
+
+- `CLAUDE.md` was 1 byte under its 16 KB limit. The pause paragraph replaces the first paragraph of the review section, and the file is now 16,363 bytes.
+- The end PR must not revert the register, the handoff, or the review records. The runbook steps restore them from `HEAD`.
+- Before the review, the `docs/reviews/` line of the Documents section takes the "No change needed" form. A `Changed:` line gave an RG 7 fault.
+- The PR title holds "pause the gitar pass", because the runbook finds the squash commit by that text.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The other provider reviews PR #58 and writes its review record. The author answers each finding.
 
 ## Session 208: 2026-09-22, Codex
 
