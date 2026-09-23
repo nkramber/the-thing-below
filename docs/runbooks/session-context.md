@@ -65,8 +65,6 @@ The checker reads each tracked file from the working tree, so it can name a faul
 
 ## The Gitar wait
 
-**Gitar pause (D-895).** While the pause holds, no session runs this wait. The section "The end of the gitar pause" gives the steps that end it.
-
 Wait for Gitar with one command (D-586). The command stops when a Gitar comment has an edit time after the recorded time, or when five minutes pass. It reads each Gitar comment, and the reply to a request is a Gitar comment. Then run command B of the `gitar-review` skill one time. When command B shows the "On it" reply and no new dashboard edit, run the wait again with `since` set to the reply time.
 
 In Claude Code, run the command in the background, and the harness calls the session again when the command ends. In Codex, run it as one command.
@@ -82,24 +80,6 @@ while [ -z "$found" ] && [ "$(date +%s)" -lt "$end" ]; do
   if [ -n "$last" ] && [[ "$last" > "$since" ]]; then found=$last; else sleep 20; fi
 done
 echo "gitar comment after $since: ${found:-none in 300 s}"
-```
-
-## The end of the gitar pause
-
-The pause of D-895 ends when the owner says that gitar is back. One PR ends it. That PR removes the pause text from each rule file, and it keeps the dated records and the register.
-
-1. Make a branch from `main` for the PR.
-2. Find the squash commit of the pause with the first command below.
-3. Revert that commit with no commit, and restore the dated records and the register from `HEAD`.
-4. Add a decision row that ends the pause, and write `Superseded by` that row in the Effect column of D-895.
-5. Run the last command below. It must show no line.
-6. Run the gitar pass on the new PR. The PR changes a decision row, so it also takes the review of the other provider (D-401).
-
-```bash
-git log --format="%h %s" --grep="pause the gitar pass" origin/main
-git revert --no-commit <sha>
-git checkout HEAD -- docs/decisions.md docs/session-handoff.md docs/session-handoff-archive.md docs/reviews/
-git grep -n "D-895" -- . ":!docs/decisions.md" ":!docs/session-handoff.md" ":!docs/session-handoff-archive.md" ":!docs/reviews/"
 ```
 
 ## Evidence for a review
