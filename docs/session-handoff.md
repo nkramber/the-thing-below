@@ -1,3 +1,41 @@
+## Session 253: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #68, round 1. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: #68. Role: reviewer. Base: `3223bcf`.
+
+### What this session did, and why
+
+- Reviewed PR #68 from base `3223bcf` through effective head `caaea8f`.
+- Verified Claude Code authored the changes and Codex passes the provider gate (T-4, D-17).
+- Checked the load limit, the screen layout, the step-in order, the target menu, the simulation version, and the replay identity.
+- Ran `make verify`, checked CI, and read all 15 affected battle frames of the screen-test artifact.
+- Found no code defect. The existing Gitar status comment has no author answer. The review is Blocked until the author answers it.
+- Corrected the Documents row of the PR description and added `docs/reviews/pr-68.md`.
+
+### The state of the build
+
+- `main` and the PR base are `3223bcf`. The effective head is `caaea8f`.
+- `make verify` passed on macOS arm64 with 2,522 tests. CI run 35920519185 passed the implementation checks on each platform.
+- The `review-gate` check failed because this record did not exist yet. A fresh result after the metadata push is required.
+
+### What is in flight
+
+- The review record and this handoff entry need one metadata commit and a push to `feat/pr-98-waiting-enemies`.
+- The author needs to answer the existing Gitar status comment.
+
+### Traps and gotchas
+
+- The Gitar comment says “Gitar is working.” It has no thread or finding, but the user requires an answer to each existing Gitar comment.
+- The Gitar pass itself is not a review condition under D-945 and D-946.
+
+### The questions that block progress
+
+OQ-243 is resolved by D-963. The unanswered Gitar status comment blocks approval.
+
+### The next concrete action
+
+Push the review record and handoff entry. The author answers the Gitar status comment, then reads the fresh review-gate result.
+
 ## Session 252: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -323,38 +361,3 @@ None.
 ### The next concrete action
 
 The owner can review the verdict and merge PR #66.
-
-## Session 243: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-97, round 1. Repository: the-thing-below. Branch: `feat/pr-97-gitar-pause`. PR: PR-97. Role: author. Base: `919547b`.
-
-### What this session did, and why
-
-- The owner paused the Gitar requirement, and asked for a flag that skips the Gitar check of `make codex-review` (D-945, D-946).
-- The owner chose the form `make codex-review PR=<n> -- --skip-gitar-review`, the read at each gate, threads and findings alone as feedback, and the label with no Gitar approval.
-- The `codex-review` command takes `--skip-gitar-review`. With it, the command reads no Gitar fact, and the prompt of the reviewer says that no Gitar pass is a condition.
-- Each pause text is one whole line with the marker `Gitar pause (D-945)`. The section "The end of the Gitar pause" of `docs/runbooks/merge.md` gives the steps that remove the pause.
-- PR-97 is in the roadmaps and in `docs/design.md`, after PR-96.
-
-### The state of the build
-
-- `main` is `919547b`. `make build`, `make test`, `make format`, and the STE check pass on this machine.
-
-### What is in flight
-
-- The CI run of the first push, then one read of the Gitar output, then `make codex-review PR=<n> -- --skip-gitar-review`.
-
-### Traps and gotchas
-
-- A Gitar review thread or a finding of the dashboard stops the session at once. Tell the owner before any other step (D-945).
-- `make codex-review PR=<n> --skip-gitar-review` with no `--` fails, because make reads the flag as its own option.
-- `CLAUDE.md` is near the 16 KB limit of SIZE 1. Two sentences left it in this PR.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for CI, read the Gitar output one time, and start `make codex-review PR=<n> -- --skip-gitar-review` in the background.
