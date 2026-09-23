@@ -1,3 +1,39 @@
+## Session 222: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #60, round 2. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: reviewer. Base: `a20d32f`.
+
+### What this session did, and why
+
+- Read the checks and Gitar dashboard after review metadata head `503094f`.
+- Confirmed RG 3 and RG 5 to RG 8 pass. RG 4 fails because the review verdict is `Changes required`.
+- Updated `docs/reviews/pr-60.md` with the metadata-run result and current Gitar status.
+
+### The state of the build
+
+- The remote head of `main` is `a20d32f`. The effective head of PR #60 remains `aa1a10f`.
+- CI passed each applicable check except review-gate RG 4. Gitar approved the code review. The latest dashboard reports RG 4, and the author has not answered that comment.
+- The updated review and this handoff need commit and push.
+
+### What is in flight
+
+- PR #60 needs the author to restore the historical records and follow the end-of-pause decision procedure from the base runbook.
+- The author also needs to answer the latest Gitar comment about RG 4.
+
+### Traps and gotchas
+
+- D-10 calls dated records history. Do not rewrite them to remove a decision that later changed.
+- The PR #58 review and sessions 209 and 210 belong in the live records.
+- RG 4 stays red while the review verdict is `Changes required`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The author corrects P2-1 and answers the Gitar comment. Then this reviewer reassesses PR #60.
+
 ## Session 221: 2026-09-23, Codex
 
 Author: Codex
@@ -315,37 +351,3 @@ None.
 ### The next concrete action
 
 Commit the fog baselines from the CI artifact. Then the owner reads the fog, and the other provider reviews PR #59.
-
-## Session 212: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-94, round 2. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
-
-### What this session did, and why
-
-- Committed the new baselines of `map-fog-1x` and `battle-fog-1x` from the artifact of CI run 35796366574 (D-733). The two runs of that job matched on all 72 captures, and only the two fog frames differed from the old baseline.
-- Read the new `map-fog-1x` baseline. The software renderer of CI draws the same shapes as the renderer of this machine, so the integer hash gives one noise on both.
-
-### The state of the build
-
-- The remote head of `main` is `8d98c46`. The PR head before this round is `b3d451c`.
-- CI on `b3d451c` passed build, test, and format, smoke, det-lint, replay-identity, and ste-check on every leg. The screen-test job failed on the two fog frames alone, and this round commits their baselines. The review-gate check fails until the review record lands.
-- `screens --captures <artifact> --baseline screens/baseline` gives a match on all 72 captures.
-
-### What is in flight
-
-- The PR waits for the review of the other provider (T-4).
-
-### Traps and gotchas
-
-- `make sheet FIXTURE=<name>` deletes `artifacts/captures/` first, so a run of one fixture removes the frames of the others.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The other provider reviews PR #59 and writes `docs/reviews/pr-59.md`.
-
-# Session handoff

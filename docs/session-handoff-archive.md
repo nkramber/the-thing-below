@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 212: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-94, round 2. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
+
+### What this session did, and why
+
+- Committed the new baselines of `map-fog-1x` and `battle-fog-1x` from the artifact of CI run 35796366574 (D-733). The two runs of that job matched on all 72 captures, and only the two fog frames differed from the old baseline.
+- Read the new `map-fog-1x` baseline. The software renderer of CI draws the same shapes as the renderer of this machine, so the integer hash gives one noise on both.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The PR head before this round is `b3d451c`.
+- CI on `b3d451c` passed build, test, and format, smoke, det-lint, replay-identity, and ste-check on every leg. The screen-test job failed on the two fog frames alone, and this round commits their baselines. The review-gate check fails until the review record lands.
+- `screens --captures <artifact> --baseline screens/baseline` gives a match on all 72 captures.
+
+### What is in flight
+
+- The PR waits for the review of the other provider (T-4).
+
+### Traps and gotchas
+
+- `make sheet FIXTURE=<name>` deletes `artifacts/captures/` first, so a run of one fixture removes the frames of the others.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The other provider reviews PR #59 and writes `docs/reviews/pr-59.md`.
+
+# Session handoff
 ## Session 211: 2026-09-22, Claude Code
 
 Author: Claude Code
