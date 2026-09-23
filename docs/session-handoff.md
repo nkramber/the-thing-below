@@ -13,6 +13,7 @@ Session: author PR-60, rounds 1 to 3. Repository: the-thing-below. Branch: `feat
 - Added eleven captures: each look halfway through, and the color split at the reduced level, where the fade takes its place (D-863). The author read each frame of `make sheet FIXTURE=transition`, and reworked the snow whiteout, which read as static.
 - Committed 25 baselines from the artifact of CI run 35878686156 (D-733): the 11 transition captures and the 14 battle captures. The fixture fight now reaches its first command 80 ticks later, after the transition and the fade, so the drift of the backdrop and the fog moved. The author read the old and new frames, and no other part changed. The whole artifact of 85 captures matches the committed baseline.
 - Answered the Gitar pass on `f2ac63d`: one finding and one CI claim. The finding had full merit: a fight that starts on the tick after the wait intent, in the same frame, met the phase `Waiting` and threw. The run now leaves the fight inside the tick loop, and `AFightOnTheTickAfterTheWaitIntentStartsItsTransition` fails on the old code. The CI claim named the review-gate fault of the absent review record, which `make codex-review PR=64` writes (D-926), and a PR comment answers it.
+- The Gitar pass on `875fe53` approved the head, with the one finding closed and its thread resolved. Its CI analysis named the same `review-gate` fault of the absent record, and a second PR comment answers it. Every other job of `875fe53` passed.
 - The owner asked how a player sees the count of the enemies of a fight. The battle screen draws no waiting enemy and no count (D-758, D-778). OQ-242 holds the question, at the request of the owner.
 
 ### The state of the build
@@ -22,7 +23,7 @@ Session: author PR-60, rounds 1 to 3. Repository: the-thing-below. Branch: `feat
 
 ### What is in flight
 
-- The Gitar pass, then `make codex-review PR=64`.
+- `make codex-review PR=64` on the effective head `875fe53`.
 - The owner set the one concern of the next PR, the rules of the review and merge loop, with two rules. First, before the question of a merge, the author posts a summary in four sections, What, How, CI, and Codex review. CI says green or not, and Codex review gives the verdict: `Ready for owner merge`, `Blocked`, or `Changes required`. The summary sits inside the question block of the merge question, so the owner sees it with the question. The rule revises D-933 in part, the one paragraph, and the transitional prompt of PR-60 names it. Second, when `review-gate` is green and a new commit changes documents alone, `review-gate` stays green, and the PR needs no new review of the other provider. That rule widens the metadata set of D-603 and D-610. The owner chose one PR for both rules.
 
 ### Traps and gotchas
@@ -38,7 +39,7 @@ None. OQ-242 waits for the owner and blocks nothing in PR-60.
 
 ### The next concrete action
 
-Get a current Gitar pass on the fix of round 3 and answer it, then run `make codex-review PR=64`.
+Run `make codex-review PR=64` on the effective head `875fe53`, and answer its outcome.
 
 ## Session 236: 2026-09-23, Claude Code
 
