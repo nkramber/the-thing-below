@@ -105,6 +105,9 @@ public static class WorldLights
         {
             Name = "Ambient",
             Color = new Color(full.R * strength, full.G * strength, full.B * strength),
+
+            // The overlay above the glow draws the same world, so the ambient light reaches it too (D-916).
+            VisibilityLayer = 1u | GlowPass.AboveGlowLayer,
         };
     }
 
@@ -137,6 +140,9 @@ public static class WorldLights
 
             // Hard shadows from walls (D-183).
             ShadowFilter = Light2D.ShadowFilterEnum.None,
+
+            // The overlay above the glow draws the same world, so a lit burst or mark takes the light (D-916).
+            VisibilityLayer = 1u | GlowPass.AboveGlowLayer,
         };
     }
 

@@ -320,7 +320,7 @@ How to file a question (D-19, D-24):
     - Fog draws below the figures: the party, the enemies, and the NPCs, the recommendation. The order of the layers keeps the rule on every map, and a test reads that order. A figure in fog looks sharp over a soft ground.
     - Fog draws above the figures, with a highest strength in its effect file, and a load test fails a stronger fog. The fog looks thick around figures. The limit needs tuning on the Deck, and a dark enemy in thin fog can still read poorly.
     - Fog draws above the figures, and an enemy in fog gets an outline. Every figure reads in any fog. Each enemy needs an outline shader, and an outline adds a new look to the art (D-201).
-102. **OQ-102. How glow stays off sprites.** Sprites and tiles never glow (D-188). F-47 found that a bright light on a pale sprite can pass the glow threshold. How does PR-59 keep glow on light alone? Raised 2026-09-15. Blocks PR-59.
+102. **OQ-102. How glow stays off sprites.** Sprites and tiles never glow (D-188). F-47 found that a bright light on a pale sprite can pass the glow threshold. How does PR-59 keep glow on light alone? Raised 2026-09-15. Blocked PR-59. Resolved 2026-09-23: D-910 tries the first option, with the smooth bloom of D-911. The third option replaces it if the owner refuses the look. D-913 builds the third option to compare with the first. D-914 adds steps to compare with the smooth bloom, and OQ-232 holds the pick.
     - HDR 2D with a threshold above the brightest lit art, the recommendation. A light source draws with a strength above the threshold. A load test fails a light setup whose lights can push a lit pixel past it. The test needs a rule for lights that overlap, and the CI captures show another glow (F-47).
     - Glow drawn as soft pieces of art around each light source, with no glow pass. The glow looks the same on each renderer, so the CI captures match the Deck. Each light source needs its glow drawn and placed, and the glow never spreads over the frame.
     - A glow pass of our own. Light sources draw into a second viewport, which Game blurs and adds over the frame. Only light sources glow, and every renderer gives the same glow. Game holds the blur code, and a second viewport costs frame time on the Deck (D-523).
@@ -731,3 +731,8 @@ How to file a question (D-19, D-24):
     - The coverage as it is, or more coverage.
     - The first answer, D-907, asked for more of the pixel look of the art, and it named no coverage. The review of PR-94 found that gap (P2-1 of `docs/reviews/pr-59.md`).
     - Resolved 2026-09-22: D-908. A little less coverage.
+232. **OQ-232. The glow that stays.** PR-59 holds two glows to compare. Round 1 draws the world in HDR 2D with the glow of Godot (D-910). Round 2 keeps the world in SDR (D-913). A glow pass of our own spreads a glow rectangle of each fire. Each takes a smooth mode, and round 2 also takes a stepped mode (D-911, D-914). Which glow stays? Raised 2026-09-23. Blocked PR-59.
+    - The glow pass of our own, smooth, the recommendation. The light, the fog, and the fog test stay as the owner approved them, and no lit art can enter the glow.
+    - The glow pass of our own, stepped. The glow keeps the pixel look of the fog.
+    - HDR 2D, smooth. The glow of Godot, with the side effects of F-104 on the light and the fog.
+    - Resolved 2026-09-23: D-915. HDR 2D, smooth, with half its intensity and the pulse of D-913. D-916 puts the fog above the glow.

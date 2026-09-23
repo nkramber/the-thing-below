@@ -39,6 +39,7 @@ public static class MapFixture
         ArgumentNullException.ThrowIfNull(party);
         ArgumentNullException.ThrowIfNull(content);
 
+        frame.ShowGlow(content.Light.Glow);
         var drawn = new MapScreen();
         frame.World.AddChild(drawn);
         drawn.Build(@base.Atlas, @base.Theme, party, content, ambient ?? content.Effects.Ambient.WeatherOf(party.Map.Id));

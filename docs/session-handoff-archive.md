@@ -1,4 +1,77 @@
 # Session handoff archive
+## Session 216: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-94, round 1. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: reviewer. Base: `8d98c46`.
+
+### What this session did, and why
+
+- Reviewed the full diff from `8d98c46` to effective head `8011192`.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Checked the fog reader, render path, shader, budget, contrast checks, tests, project records, CI, and screen captures.
+- Wrote `docs/reviews/pr-59.md` with one P2 finding about OQ-231.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The remote PR head is `c40c559`, and the effective head is `8011192`.
+- `make verify` passed with 2,174 tests. All other local checks passed.
+- CI run 35801129146 passed each implementation check on every leg. The review gate waits for the review record.
+- All 72 screen captures match the committed baselines.
+- Metadata CI run 35802108533 passed its applicable checks. It skipped the implementation matrix legs.
+- Metadata review-gate run 35802107959 passed RG 1 to RG 3 and RG 5 to RG 8. RG 4 failed because this review has the required `Blocked` verdict.
+
+### What is in flight
+
+- OQ-231 needs the owner's coverage choice. The PR cannot close this question until the decision enters the records.
+- The owner must answer OQ-231 before the review can approve the PR.
+
+### Traps and gotchas
+
+- The Gitar comment repeats the OQ-231 mismatch. D-895 pauses Gitar answers.
+- The review commit changes only metadata paths, so the effective head stays `8011192`.
+
+### The questions that block progress
+
+OQ-231 asks whether fog coverage should decrease, stay the same, or increase. D-907 does not answer it.
+
+### The next concrete action
+
+The owner answers OQ-231. The author records the answer and updates the fog content if needed.
+
+## Session 215: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-94, round 5. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
+
+### What this session did, and why
+
+- The owner read the fog of round 4 and approved it: "Fog looks good" (D-622, D-623).
+- Committed the baselines of `map-fog-1x` and `battle-fog-1x` from the artifact of CI run 35800692949 (D-733). The two runs of that job matched on all 72 captures, and only the two fog frames differed from the old baseline.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The PR head before this round is `5b4ee61`, and the effective head is the commit of this round.
+- CI on `5b4ee61` passed each check except screen-test, on the two fog frames alone, and review-gate, which waits for the review record.
+- `screens --captures <artifact> --baseline screens/baseline` gives a match on all 72 captures.
+
+### What is in flight
+
+- The PR waits for the review of the other provider (T-4). The gitar pause of D-895 holds.
+
+### Traps and gotchas
+
+- None new. The entries of sessions 211 to 214 hold the traps of this PR.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The other provider reviews PR #59 and writes `docs/reviews/pr-59.md`.
+
+# Session handoff
+
 ## Session 214: 2026-09-22, Claude Code
 
 Author: Claude Code

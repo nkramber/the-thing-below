@@ -1,3 +1,76 @@
+## Session 226: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #61, round 1. Repository: the-thing-below. Branch: `feat/pr-59-glow`. PR: #61. Role: reviewer. Base: `430c8e9`.
+
+### What this session did, and why
+
+- Reviewed the complete diff from `430c8e9` to effective head `0d55d93`.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Checked the glow reader, light bound, rendering path, overlay, budget, tests, decisions, and captures.
+- Added `docs/reviews/pr-61.md` with no finding, and published the review record.
+
+### The state of the build
+
+- The remote head of `main` is `430c8e9`. Metadata commit `89a606a` reached the branch, and the effective head stays `0d55d93`.
+- `make verify` passed with 2,221 tests. `make sheet` wrote all 72 captures.
+- CI run 35815610824 passed every applicable implementation check on every leg. Gitar approved the effective head.
+- Metadata run 35816940918 and review-gate run 35816940027 passed. The fresh gate passed RG 1 to RG 8.
+
+### What is in flight
+
+- PR #61 is ready for owner merge.
+
+### Traps and gotchas
+
+- The first review-gate run failed because this review record was not in the diff yet. The metadata run passed after the record reached the branch.
+- The fog, hit bursts, and marks use the overlay view above the glow (D-916).
+
+### The questions that block progress
+
+None. OQ-102 and OQ-232 are resolved by D-910 and D-915.
+
+### The next concrete action
+
+The owner merges PR #61.
+
+## Session 225: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-59, rounds 1 to 3. Repository: the-thing-below. Branch: `feat/pr-59-glow`. PR: #61. Role: author. Base: `430c8e9`.
+
+### What this session did, and why
+
+- Asked OQ-102, and the owner chose HDR 2D with a threshold and a smooth bloom, fire first (D-910 to D-912).
+- Round 1 built HDR 2D, the bound of the lit art below the threshold, and a seed loop against the light curve of Game (F-103, F-104).
+- The owner asked for the glow pass of our own, a stepped mode, and a pulse in place of the flicker. Round 2 built them (D-913, D-914, F-105).
+- The owner compared both and kept HDR 2D at half intensity (D-915, OQ-232). The pulse stays on a glow rectangle of 8 by 8 over each wall torch flame.
+- The owner said the fog must not glow. The fog, the hit bursts, and the marks now draw in an overlay view with no HDR 2D, above the glow (D-916). The reader refuses a lit fog.
+
+### The state of the build
+
+- `main` is `430c8e9`. The branch holds rounds 1 to 3. `make verify` passes on this machine, and `make sheet` wrote every capture with no error line.
+- CI run 35815275241 on `6b612f2` passed every job but the baseline step of screen-test. Its two runs matched on all 72 captures. The 66 world baselines that changed come from its artifact (D-733).
+
+### What is in flight
+
+- PR #61 waits for CI on the baseline commit, gitar, and the review of the other provider.
+
+### Traps and gotchas
+
+- The glow of Godot averages its first step over about 8 by 8 art pixels. A smaller or dimmer source gives no glow.
+- A view draws an item only when each parent shares its layer (F-105). `GlowPass.LiftAboveGlow` sets the layer on the node, its children, and its parents.
+- An object initializer of a texture rect sets `ExpandMode` before `Size`.
+- Do not redirect `make smoke` output into `artifacts/smoke.log`. The target writes that file itself, and the loop filled 20 GB.
+
+### The questions that block progress
+
+None. OQ-102 and OQ-232 are resolved.
+
+### The next concrete action
+
+Answer each gitar finding on PR #61, then hand the PR to the other provider.
+
 ## Session 224: 2026-09-23, Codex
 
 Author: Codex
@@ -278,76 +351,3 @@ None.
 ### The next concrete action
 
 Commit the fog baselines from the CI artifact. Then the other provider reviews the correction.
-
-## Session 216: 2026-09-22, Codex
-
-Author: Codex
-Session: reviewer PR-94, round 1. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: reviewer. Base: `8d98c46`.
-
-### What this session did, and why
-
-- Reviewed the full diff from `8d98c46` to effective head `8011192`.
-- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Checked the fog reader, render path, shader, budget, contrast checks, tests, project records, CI, and screen captures.
-- Wrote `docs/reviews/pr-59.md` with one P2 finding about OQ-231.
-
-### The state of the build
-
-- The remote head of `main` is `8d98c46`. The remote PR head is `c40c559`, and the effective head is `8011192`.
-- `make verify` passed with 2,174 tests. All other local checks passed.
-- CI run 35801129146 passed each implementation check on every leg. The review gate waits for the review record.
-- All 72 screen captures match the committed baselines.
-- Metadata CI run 35802108533 passed its applicable checks. It skipped the implementation matrix legs.
-- Metadata review-gate run 35802107959 passed RG 1 to RG 3 and RG 5 to RG 8. RG 4 failed because this review has the required `Blocked` verdict.
-
-### What is in flight
-
-- OQ-231 needs the owner's coverage choice. The PR cannot close this question until the decision enters the records.
-- The owner must answer OQ-231 before the review can approve the PR.
-
-### Traps and gotchas
-
-- The Gitar comment repeats the OQ-231 mismatch. D-895 pauses Gitar answers.
-- The review commit changes only metadata paths, so the effective head stays `8011192`.
-
-### The questions that block progress
-
-OQ-231 asks whether fog coverage should decrease, stay the same, or increase. D-907 does not answer it.
-
-### The next concrete action
-
-The owner answers OQ-231. The author records the answer and updates the fog content if needed.
-
-## Session 215: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-94, round 5. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
-
-### What this session did, and why
-
-- The owner read the fog of round 4 and approved it: "Fog looks good" (D-622, D-623).
-- Committed the baselines of `map-fog-1x` and `battle-fog-1x` from the artifact of CI run 35800692949 (D-733). The two runs of that job matched on all 72 captures, and only the two fog frames differed from the old baseline.
-
-### The state of the build
-
-- The remote head of `main` is `8d98c46`. The PR head before this round is `5b4ee61`, and the effective head is the commit of this round.
-- CI on `5b4ee61` passed each check except screen-test, on the two fog frames alone, and review-gate, which waits for the review record.
-- `screens --captures <artifact> --baseline screens/baseline` gives a match on all 72 captures.
-
-### What is in flight
-
-- The PR waits for the review of the other provider (T-4). The gitar pause of D-895 holds.
-
-### Traps and gotchas
-
-- None new. The entries of sessions 211 to 214 hold the traps of this PR.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The other provider reviews PR #59 and writes `docs/reviews/pr-59.md`.
-
-# Session handoff

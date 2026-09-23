@@ -70,6 +70,9 @@ public sealed class HitBurst
 
                 BurstNode node = BuildNode(effect, emitter, ColorOf(effect, palette, emitter.Colors[key]), amount);
                 parent.AddChild(node.Particles);
+
+                // A burst draws above the fog and the glow (D-916).
+                GlowPass.LiftAboveGlow(node.Particles);
                 nodes.Add(node);
             }
         }

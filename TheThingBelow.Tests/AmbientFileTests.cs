@@ -14,11 +14,11 @@ public sealed class AmbientFileTests
     [Fact]
     public void AnAmbientFileReadsItsKindItsMapsItsStreamAndItsFog()
     {
-        AmbientEffect effect = Read(AmbientFixtures.Body(fogs: AmbientFixtures.Fog));
+        AmbientEffect effect = Read(AmbientFixtures.Body(fogs: AmbientFixtures.Fog, lit: false));
 
         Assert.Equal(AmbientKind.Dust, effect.Kind);
         Assert.Equal("map.lit", Assert.Single(effect.Maps).Value);
-        Assert.True(effect.Lit);
+        Assert.False(effect.Lit);
         Assert.Equal(96, effect.Particles);
         FogLayer fog = Assert.Single(effect.Fogs);
         Assert.Equal('k', fog.Key);
@@ -32,6 +32,19 @@ public sealed class AmbientFileTests
         Assert.Equal(4, fog.DriftX);
         Assert.Equal(0, fog.DriftY);
         Assert.Equal(1, effect.FullScreenPasses);
+    }
+
+    [Fact]
+    public void AWeatherWithAFogThatTakesTheSceneLightFails()
+    {
+        // D-916: the fog draws above the glow, where no scene light reaches. A lit dust with no fog
+        // still reads.
+        Assert.True(Read(AmbientFixtures.Body()).Lit);
+
+        ContentException error = Assert.Throws<ContentException>(() => Read(AmbientFixtures.Body(fogs: AmbientFixtures.Fog)));
+
+        Assert.Equal("lit", error.Field);
+        Assert.Contains("above the glow", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -122,7 +135,7 @@ public sealed class AmbientFileTests
         // D-898: the shader draws every layer of a fog in one pass, and a weather with no fog draws none.
         string fogs = string.Join(", ", AmbientFixtures.Fog, AmbientFixtures.Fog, AmbientFixtures.Fog);
 
-        Assert.Equal(1, Read(AmbientFixtures.Body(fogs: fogs)).FullScreenPasses);
+        Assert.Equal(1, Read(AmbientFixtures.Body(fogs: fogs, lit: false)).FullScreenPasses);
         Assert.Equal(0, Read(AmbientFixtures.Body()).FullScreenPasses);
     }
 

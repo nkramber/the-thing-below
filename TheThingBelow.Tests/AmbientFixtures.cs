@@ -47,20 +47,22 @@ internal static class AmbientFixtures
     /// <param name="kind">The ambient kind.</param>
     /// <param name="emitters">The streams, as JSON objects.</param>
     /// <param name="fogs">The layers of fog, as JSON objects.</param>
+    /// <param name="lit">True when the scene light falls on the weather. A weather with a fog takes false (D-916).</param>
     /// <returns>The body.</returns>
     public static string Body(
         string id = "effect.test_dust",
         string maps = "\"map.lit\"",
         string kind = "dust",
         string emitters = Stream,
-        string fogs = "") =>
+        string fogs = "",
+        bool lit = true) =>
         $$"""
         {
          "comment": "a test weather",
          "id": "{{id}}",
          "kind": "{{kind}}",
          "maps": [{{maps}}],
-         "lit": true,
+         "lit": {{(lit ? "true" : "false")}},
          "emitters": [{{emitters}}],
          "fogs": [{{fogs}}]
         }

@@ -7,8 +7,8 @@ using TheThingBelow.Core.Light;
 namespace TheThingBelow.Game.Ui;
 
 /// <summary>
-/// The fire of one torch on screen: its flame, its embers, its smoke, and the light that steps
-/// between the levels of its file (D-888, D-890, D-891).
+/// The fire of one torch on screen: its flame, its embers, its smoke, the light that steps
+/// between the levels of its file, and its glow (D-888, D-890, D-891, D-913).
 /// </summary>
 /// <remarks>
 /// The light of a torch is a pair of Godot lights (D-853). Each step changes the energy and the
@@ -24,6 +24,8 @@ public sealed class TorchFlame
     private readonly PointLight2D ground;
     private readonly PointLight2D figures;
     private readonly ParticleStreams streams;
+    private readonly ColorRect? glowSeed;
+    private readonly Glow glow;
     private readonly float baseEnergy;
     private readonly float baseScale;
     private Vector2 place;
@@ -33,13 +35,17 @@ public sealed class TorchFlame
         TorchFire fire,
         PointLight2D ground,
         PointLight2D figures,
-        ParticleStreams streams)
+        ParticleStreams streams,
+        ColorRect? glowSeed,
+        Glow glow)
     {
         this.Id = id;
         this.Fire = fire;
         this.ground = ground;
         this.figures = figures;
         this.streams = streams;
+        this.glowSeed = glowSeed;
+        this.glow = glow;
         this.baseEnergy = ground.Energy;
         this.baseScale = ground.TextureScale;
     }
@@ -71,10 +77,20 @@ public sealed class TorchFlame
     /// <returns>True when each node holds the region.</returns>
     public bool NodesHold(Rect2 area) => this.streams.NodesHold(area);
 
-    /// <summary>Shows or hides the streams of this fire, as the switch of the carried light does (D-847).</summary>
+    /// <summary>Tells whether this fire draws a glow (D-912).</summary>
+    public bool Glows => this.glowSeed is not null;
+
+    /// <summary>Shows or hides the streams and the glow of this fire, as the switch of the carried light does (D-847).</summary>
     public bool Visible
     {
-        set => this.streams.Visible = value;
+        set
+        {
+            this.streams.Visible = value;
+            if (this.glowSeed is not null)
+            {
+                this.glowSeed.Visible = value;
+            }
+        }
     }
 
     /// <summary>Builds the fire of one torch over the pair of lights of that torch.</summary>
@@ -82,6 +98,7 @@ public sealed class TorchFlame
     /// <param name="fire">The fire of the file of the torch.</param>
     /// <param name="lights">The pair of Godot lights of the torch (D-853).</param>
     /// <param name="palette">The palette (D-181).</param>
+    /// <param name="glow">The glow file, which holds the pulse of the glow (D-913).</param>
     /// <param name="visible">The region of the parent that each node holds, so the flame never stops (F-98).</param>
     /// <param name="parent">The node that takes the particle nodes: the world of the screen.</param>
     /// <returns>The fire on screen.</returns>
@@ -92,6 +109,7 @@ public sealed class TorchFlame
         TorchFire fire,
         (PointLight2D Ground, PointLight2D Figures) lights,
         Palette palette,
+        Glow glow,
         Rect2 visible,
         Node2D parent)
     {
@@ -99,20 +117,23 @@ public sealed class TorchFlame
         ArgumentNullException.ThrowIfNull(fire);
         ArgumentNullException.ThrowIfNull(lights.Ground);
         ArgumentNullException.ThrowIfNull(lights.Figures);
+        ArgumentNullException.ThrowIfNull(glow);
 
         return new TorchFlame(
             id,
             fire,
             lights.Ground,
             lights.Figures,
-            ParticleStreams.Build(id, fire.Emitters, palette, lit: false, FlameZIndex, visible, parent));
+            ParticleStreams.Build(id, fire.Emitters, palette, lit: false, FlameZIndex, visible, parent),
+            GlowPass.BuildSeed(id, fire.Glow, palette, FlameZIndex + 1, parent),
+            glow);
     }
 
     /// <summary>Puts the torch at one place, in art pixels of the parent: the place of its light with no jump.</summary>
     /// <param name="point">The place of the light.</param>
     public void MoveTo(Vector2 point) => this.place = point;
 
-    /// <summary>Shows the torch at one tick: its step, its jump, and its streams (D-891).</summary>
+    /// <summary>Shows the torch at one tick: its step, its jump, its streams, and the pulse of its glow (D-891, D-913).</summary>
     /// <param name="tick">The tick of the run, from 0.</param>
     /// <param name="seek">True for a capture, which seeks each stream to the tick (D-172). A frame of play runs the streams on the engine.</param>
     /// <exception cref="ArgumentOutOfRangeException">The tick is below zero (T-2).</exception>
@@ -133,6 +154,14 @@ public sealed class TorchFlame
         this.figures.TextureScale = scale;
 
         this.streams.MoveTo(new Vector2(this.place.X + step.JumpX, this.place.Y + step.JumpY));
+
+        // The glow keeps the place of the light, so it never jumps with the flame, and it pulses
+        // where the light steps (D-913).
+        if (this.glowSeed is not null)
+        {
+            GlowPass.ShowSeed(this.glowSeed, this.Fire.Glow, this.glow, this.Id, this.place, tick);
+        }
+
         if (seek)
         {
             this.streams.Seek(tick);

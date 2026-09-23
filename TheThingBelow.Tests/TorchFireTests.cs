@@ -153,6 +153,60 @@ public sealed class TorchFireTests
         Assert.True(carried.Levels.Count > 1, "the carried light steps between two levels or more (D-891)");
     }
 
+    [Fact]
+    public void AFireReadsItsGlow()
+    {
+        // D-912, D-913: the fixture fire holds a glow of strength 0, so it never glows.
+        GlowSeed glow = Fire().Glow;
+
+        Assert.Equal(new GlowSeed('k', 0, 1, 1, 0, 0), glow);
+    }
+
+    [Theory]
+    [InlineData("\"strength\": 0, \"width\"", "\"strength\": 160001, \"width\"", "0 to 160000")]
+    [InlineData("\"width\": 1", "\"width\": 0", "1 to 16")]
+    [InlineData("\"height\": 1", "\"height\": 17", "1 to 16")]
+    [InlineData("\"height\": 1, \"x\": 0", "\"height\": 1, \"x\": 65", "-64 to 64")]
+    [InlineData("\"glow\": { \"color\": \"k\"", "\"glow\": { \"color\": \"kk\"", "one palette key")]
+    public void AGlowValueOutsideItsLimitFailsWithTheReason(string from, string to, string reason)
+    {
+        // T-2: each bad value names the file, the field, and the rule.
+        string body = LightFixtures.KindBody.Replace(from, to, StringComparison.Ordinal);
+        Assert.NotEqual(LightFixtures.KindBody, body);
+
+        ContentException error = Assert.Throws<ContentException>(
+            () => DecorKind.Read(Encoding.UTF8.GetBytes(body), LightFixtures.KindPath));
+
+        Assert.Equal(LightFixtures.KindPath, error.File);
+        Assert.Contains(reason, error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AFireWithNoGlowFails()
+    {
+        // T-2: an absent value is an error, and a fire that never glows says so with a strength of 0.
+        string body = LightFixtures.KindBody.Replace(", \"glow\": { \"color\": \"k\", \"strength\": 0, \"width\": 1, \"height\": 1, \"x\": 0, \"y\": 0 }", string.Empty, StringComparison.Ordinal);
+        Assert.NotEqual(LightFixtures.KindBody, body);
+
+        ContentException error = Assert.Throws<ContentException>(
+            () => DecorKind.Read(Encoding.UTF8.GetBytes(body), LightFixtures.KindPath));
+
+        Assert.Equal("fire.glow", error.Field);
+        Assert.Contains("absent", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheWallTorchGlowsAndTheCarriedTorchDoesNot()
+    {
+        // D-912: the fire of each wall torch glows. The flame of the carried torch draws over the
+        // lead, so its glow would read as a sprite that glows (D-188), and it keeps a strength of 0.
+        ContentSet set = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
+        TorchFire wall = set.Light.KindOf(ContentId.Parse("decor.wall_torch", "test", "id")).Fire;
+
+        Assert.True(wall.Glow.Strength > 0, "the wall torch holds no glow (D-912)");
+        Assert.Equal(0, set.Light.Carried.Fire.Glow.Strength);
+    }
+
     private static TorchFire Fire() => DecorKind
         .Read(Encoding.UTF8.GetBytes(LightFixtures.KindBody), LightFixtures.KindPath)
         .Fire;

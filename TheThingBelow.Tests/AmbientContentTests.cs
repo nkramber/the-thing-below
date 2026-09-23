@@ -84,21 +84,39 @@ public sealed class AmbientContentTests
     }
 
     [Fact]
-    public void AFogOfThreeLayersKeepsInsideABudgetOfOnePass()
+    public void AFogOfThreeLayersAndTheGlowKeepInsideABudgetOfTwoPasses()
     {
         // D-898: the shader draws the three layers of the fog capture in one pass, so the budget
-        // counts one. The count of one pass for each layer refused this checkout.
+        // counts one. The count of one pass for each layer refused this checkout. The glow takes
+        // one more pass on every map (D-910).
+        var files = new List<ContentFile>(ContentFolder.Read(RepositoryRoot.Find()));
+        int index = files.FindIndex(file => file.Path == EffectBudget.Path);
+        string budget = Encoding.UTF8.GetString(files[index].Bytes).Replace("\"full_screen_passes\": 3", "\"full_screen_passes\": 2", StringComparison.Ordinal);
+        files[index] = new ContentFile(files[index].Path, Encoding.UTF8.GetBytes(budget));
+
+        ContentSet set = ContentSet.Load(files);
+
+        Assert.Equal(2, set.Light.Budget.FullScreenPasses);
+        AmbientEffect fog = Assert.Single(set.Effects.Ambient.All, effect => effect.Kind == AmbientKind.Fog);
+        Assert.Equal(3, fog.Fogs.Count);
+        Assert.Equal(1, fog.FullScreenPasses);
+    }
+
+    [Fact]
+    public void TheBudgetCountsTheGlowPassWithTheFog()
+    {
+        // D-523, D-910: the glow is one full-screen pass on every map, so a budget of one pass
+        // holds no fog. The count with no glow pass took this budget.
         var files = new List<ContentFile>(ContentFolder.Read(RepositoryRoot.Find()));
         int index = files.FindIndex(file => file.Path == EffectBudget.Path);
         string budget = Encoding.UTF8.GetString(files[index].Bytes).Replace("\"full_screen_passes\": 3", "\"full_screen_passes\": 1", StringComparison.Ordinal);
         files[index] = new ContentFile(files[index].Path, Encoding.UTF8.GetBytes(budget));
 
-        ContentSet set = ContentSet.Load(files);
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(files));
 
-        Assert.Equal(1, set.Light.Budget.FullScreenPasses);
-        AmbientEffect fog = Assert.Single(set.Effects.Ambient.All, effect => effect.Kind == AmbientKind.Fog);
-        Assert.Equal(3, fog.Fogs.Count);
-        Assert.Equal(1, fog.FullScreenPasses);
+        Assert.Equal("fogs", error.Field);
+        Assert.Contains("the weather and the glow draw 2 full-screen passes", error.Message, StringComparison.Ordinal);
+        Assert.Contains("allows 1", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]

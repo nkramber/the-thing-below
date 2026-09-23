@@ -145,6 +145,9 @@ public partial class MapScreen : Node2D
         this.mark = BuildMark(theme);
         this.AddChild(this.mark);
 
+        // The mark draws above the fog and the glow, so fog never hides it (D-208, D-916).
+        GlowPass.LiftAboveGlow(this.mark);
+
         this.BuildLight(atlas, party.Map, content);
         this.weather = AmbientLayer.Build(ambient, content.Palette, this);
     }
@@ -312,7 +315,8 @@ public partial class MapScreen : Node2D
                 Offset = new Vector2(0, -entry.Height),
 
                 // A flame gives light and takes none, so the dark of the ambient light never
-                // dims it. Glow stays with PR-59 (D-188).
+                // dims it. The piece is a sprite, so it never glows, and the fire of the torch
+                // glows instead (D-188, D-912).
                 Material = new CanvasItemMaterial { LightMode = CanvasItemMaterial.LightModeEnum.Unshaded },
             });
         }
@@ -336,7 +340,7 @@ public partial class MapScreen : Node2D
             // A light of a decor piece is a fire, and an added light of the setup is not (D-843, D-888).
             if (FireOf(content, decor, light.Id) is TorchFire fire)
             {
-                TorchFlame flame = TorchFlame.Build(light.Id.Value, fire, (ground, figures), content.Palette, WeatherArea(map), this);
+                TorchFlame flame = TorchFlame.Build(light.Id.Value, fire, (ground, figures), content.Palette, content.Light.Glow, WeatherArea(map), this);
                 flame.MoveTo(ground.Position);
                 this.torches.Add(flame);
             }
@@ -357,6 +361,7 @@ public partial class MapScreen : Node2D
             this.carriedPlace.Fire,
             (this.carriedGround, this.carriedFigures),
             content.Palette,
+            content.Light.Glow,
             WeatherArea(map),
             this);
         this.CarriedLightOn = false;

@@ -18,6 +18,29 @@ public sealed record FlickerLevel(int Strength, int Range);
 public sealed record FlickerStep(FlickerLevel Level, int JumpX, int JumpY);
 
 /// <summary>
+/// The glow of a fire: a small rectangle of one palette color over the flame, which draws above
+/// the glow threshold and pulses on a slow wave of the tick (D-913, D-915). It draws in the world,
+/// and no sprite or tile draws that bright, so light alone glows (D-188, F-47).
+/// </summary>
+/// <param name="Key">The palette key of the glow (D-181).</param>
+/// <param name="Strength">The linear light of the rectangle, in basis points of its palette color, or 0 for a fire that never glows (D-912).</param>
+/// <param name="Width">The width of the rectangle, in art pixels.</param>
+/// <param name="Height">The height of the rectangle, in art pixels.</param>
+/// <param name="X">The column of the middle of the rectangle, in art pixels from the place of the light.</param>
+/// <param name="Y">The row of the middle of the rectangle, in art pixels from the place of the light.</param>
+public sealed record GlowSeed(char Key, int Strength, int Width, int Height, int X, int Y)
+{
+    /// <summary>The highest strength, in basis points: 16 times the palette color. Godot caps the light that the glow reads at 12.</summary>
+    public const int MostStrength = 16 * BasisPoints.One;
+
+    /// <summary>The largest side of the rectangle, in art pixels.</summary>
+    public const int MostSide = 16;
+
+    /// <summary>The farthest middle of the rectangle from the place of the light, in art pixels: two tiles.</summary>
+    public const int MostOffset = 64;
+}
+
+/// <summary>
 /// The fire of a torch: the flame, the embers, and the smoke as streams, and the light that
 /// steps between a few levels (D-888, D-890, D-891). A wall torch and the carried light each
 /// hold one.
@@ -31,7 +54,8 @@ public sealed record FlickerStep(FlickerLevel Level, int JumpX, int JumpY);
 /// <param name="Levels">The levels that the light steps between.</param>
 /// <param name="Jump">The farthest jump of the flame and the light from its place, in art pixels, to each side.</param>
 /// <param name="Emitters">The streams of the fire, from the place of the light.</param>
-public sealed record TorchFire(int StepTicks, IReadOnlyList<FlickerLevel> Levels, int Jump, IReadOnlyList<StreamEmitter> Emitters)
+/// <param name="Glow">The glow of the fire (D-912, D-913).</param>
+public sealed record TorchFire(int StepTicks, IReadOnlyList<FlickerLevel> Levels, int Jump, IReadOnlyList<StreamEmitter> Emitters, GlowSeed Glow)
 {
     /// <summary>The longest step, in ticks: one second.</summary>
     public const int MostStepTicks = 60;
@@ -89,6 +113,7 @@ public sealed record TorchFire(int StepTicks, IReadOnlyList<FlickerLevel> Levels
         List<FlickerLevel>? levels = null;
         int? jump = null;
         List<StreamEmitter>? emitters = null;
+        GlowSeed? glow = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -106,6 +131,9 @@ public sealed record TorchFire(int StepTicks, IReadOnlyList<FlickerLevel> Levels
                     break;
                 case "emitters":
                     emitters = StreamEmitter.ReadList(ref reader);
+                    break;
+                case "glow":
+                    glow = ReadGlow(ref reader);
                     break;
                 default:
                     throw reader.UnknownField(field);
@@ -130,7 +158,7 @@ public sealed record TorchFire(int StepTicks, IReadOnlyList<FlickerLevel> Levels
             throw reader.RefuseField(depth, "jump", $"the jump is {most} pixels, and it takes 0 to {MostJump}");
         }
 
-        return new TorchFire(ticks, read, most, reader.Require(emitters, depth, "emitters"));
+        return new TorchFire(ticks, read, most, reader.Require(emitters, depth, "emitters"), reader.Require(glow, depth, "glow"));
     }
 
     private static List<FlickerLevel> ReadLevels(ref ContentReader reader)
@@ -161,6 +189,53 @@ public sealed record TorchFire(int StepTicks, IReadOnlyList<FlickerLevel> Levels
         }
 
         return levels;
+    }
+
+    private static GlowSeed ReadGlow(ref ContentReader reader)
+    {
+        string? key = null;
+        var values = new SortedDictionary<string, int>(StringComparer.Ordinal);
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "color":
+                    key = reader.ReadString();
+                    break;
+                case "strength" or "width" or "height" or "x" or "y":
+                    values[field] = reader.ReadInt();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        string text = reader.Require(key, depth, "color");
+        if (text.Length != 1)
+        {
+            throw reader.RefuseField(depth, "color", $"the color is '{text}', and a glow names one palette key of one character (D-181)");
+        }
+
+        return new GlowSeed(
+            text[0],
+            GlowValue(ref reader, depth, values, "strength", 0, GlowSeed.MostStrength),
+            GlowValue(ref reader, depth, values, "width", 1, GlowSeed.MostSide),
+            GlowValue(ref reader, depth, values, "height", 1, GlowSeed.MostSide),
+            GlowValue(ref reader, depth, values, "x", -GlowSeed.MostOffset, GlowSeed.MostOffset),
+            GlowValue(ref reader, depth, values, "y", -GlowSeed.MostOffset, GlowSeed.MostOffset));
+    }
+
+    private static int GlowValue(ref ContentReader reader, int depth, SortedDictionary<string, int> values, string field, int least, int most)
+    {
+        int? value = values.TryGetValue(field, out int found) ? found : null;
+        int read = reader.RequireInt(value, depth, field);
+        if (read < least || read > most)
+        {
+            throw reader.RefuseField(depth, field, $"the glow value is {read}, and it takes {least} to {most}");
+        }
+
+        return read;
     }
 
     private static int Part(ref ContentReader reader, int depth, string field, int? value)

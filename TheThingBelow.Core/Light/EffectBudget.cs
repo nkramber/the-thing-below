@@ -5,7 +5,7 @@ namespace TheThingBelow.Core.Light;
 
 /// <summary>
 /// The effect budget: the load that the Deck test measured at 60 frames per second (D-523,
-/// D-617). PR-56 writes the light row, PR-57 writes the particle row, and PR-58 writes the row of full-screen passes. PR-59, PR-60, and PR-92 count their passes against it.
+/// D-617). PR-56 writes the light row, PR-57 writes the particle row, and PR-58 writes the row of full-screen passes. PR-94 counts one pass for each fog, and PR-59 counts one pass for the glow on every map and every fight. PR-60 and PR-92 count their passes against it.
 /// </summary>
 /// <remarks>
 /// Each row is a floor, and not the limit of the Deck, because no stage of the sweep missed the

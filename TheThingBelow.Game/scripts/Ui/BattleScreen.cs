@@ -111,6 +111,7 @@ public sealed class BattleScreen
 
         this.world = new Node2D { YSortEnabled = true };
         frame.World.AddChild(this.world);
+        frame.ShowGlow(content.Light.Glow);
         this.layer = new Control
         {
             Position = Vector2.Zero,
@@ -129,6 +130,7 @@ public sealed class BattleScreen
             Visible = false,
         };
         this.world.AddChild(this.pointer);
+        GlowPass.LiftAboveGlow(this.pointer);
 
         this.BuildStrip();
         this.message = this.BuildLinePanel(BattleLayout.Message);
@@ -528,6 +530,9 @@ public sealed class BattleScreen
         border.AddChild(empty);
         border.AddChild(fill);
         this.world.AddChild(border);
+
+        // The bar draws above the fog and the glow, as the mark does (D-208, D-916).
+        GlowPass.LiftAboveGlow(border);
         return new HealthBar(border, fill);
     }
 
