@@ -1,4 +1,41 @@
 # Session handoff archive
+## Session 219: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR-94, round 2. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: reviewer. Base: `8d98c46`.
+
+### What this session did, and why
+
+- Re-reviewed the correction to P2-1 at effective head `2842f0e`.
+- Verified that D-908 records the owner's coverage choice, resolves OQ-231, and matches the fixture and roadmap updates.
+- Ran `make verify`, checked the 72 screen captures, and read the current map and battle fog frames.
+- Updated `docs/reviews/pr-59.md` with the fixed finding, earlier verdict, current verdict, and repeat-review evidence.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`; the remote PR head and effective head are `2842f0e`.
+- `make verify` passed with 2,174 tests. The build, format, det-lint, ste-check, replay identity, content hash, atlas, and smoke checks passed.
+- CI run 35803716443 passed the implementation checks, including screen-test, on the configured legs.
+- Review-gate at `2842f0e` failed RG 4 and RG 5 because the review record still named its prior `Blocked` verdict and head `8011192`. This session updates both fields.
+
+### What is in flight
+
+- The updated review record and handoff entry need commit and push.
+- The fresh review-gate result needs verification after the push.
+
+### Traps and gotchas
+
+- D-895 pauses Gitar replies. The Gitar check passed, and the current Gitar comment reports the stale review-gate fields.
+- Bot and night-gate checks do not exist yet; PR-15 and PR-49 create them (G-16).
+
+### The questions that block progress
+
+None. D-908 resolves OQ-231.
+
+### The next concrete action
+
+Run `make where`, commit the review record and this handoff, push, then fetch and verify the remote head and review-gate.
+
 ## Session 218: 2026-09-22, Claude Code
 
 Author: Claude Code
