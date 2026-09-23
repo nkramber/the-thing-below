@@ -1,4 +1,39 @@
 # Session handoff archive
+## Session 206: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-56. Repository: the-thing-below. Branch: `feat/pr-57-effects`. PR: #56. Role: reviewer. Base: `8aaf0f6`.
+
+### What this session did, and why
+
+- Reviewed the complete diff from `8aaf0f6` to effective head `f1b42b5`.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Traced effect loading, cross-file validation, particle construction and seeking, battle timing, hit-stop, shake, settings updates, and screen capture coverage.
+- Wrote `docs/reviews/pr-56.md` with no finding and the verdict `Ready for owner merge` for effective head `f1b42b5`.
+
+### The state of the build
+
+- `make verify` passed with 2,069 non-Smoke tests, 0 STE findings, matching replay identity and content hash, matching atlas, and a green smoke session.
+- CI run 35742614648 passed the implementation checks, screen-test, and smoke on all current legs. Gitar approved the head. The review-gate check failed only because the review record did not yet exist.
+- The remote head before this review commit is `f1b42b5`.
+
+### What is in flight
+
+- The review record and this handoff entry need commit and push.
+
+### Traps and gotchas
+
+- The review targets effective head `f1b42b5`. The review commit changes only the metadata set and does not move that head.
+- The screen baselines come from the CI artifact, while the Mac uses another renderer path.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Fetch and verify the remote head and review-gate check.
+
 ## Session 205: 2026-09-22, Claude Code
 
 Author: Claude Code

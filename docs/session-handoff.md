@@ -1,3 +1,40 @@
+## Session 216: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-94, round 1. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: reviewer. Base: `8d98c46`.
+
+### What this session did, and why
+
+- Reviewed the full diff from `8d98c46` to effective head `8011192`.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Checked the fog reader, render path, shader, budget, contrast checks, tests, project records, CI, and screen captures.
+- Wrote `docs/reviews/pr-59.md` with one P2 finding about OQ-231.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The effective head of PR #59 is `8011192`.
+- `make verify` passed with 2,174 tests. All other local checks passed.
+- CI run 35801129146 passed each implementation check on every leg. The review gate waits for the review record.
+- All 72 screen captures match the committed baselines.
+
+### What is in flight
+
+- The review record and this entry need commit and push.
+- OQ-231 needs the owner's coverage choice. The PR cannot close this question until the decision enters the records.
+
+### Traps and gotchas
+
+- The Gitar comment repeats the OQ-231 mismatch. D-895 pauses Gitar answers.
+- The review commit changes only metadata paths, so the effective head stays `8011192`.
+
+### The questions that block progress
+
+OQ-231 asks whether fog coverage should decrease, stay the same, or increase. D-907 does not answer it.
+
+### The next concrete action
+
+Commit and push the review record and this handoff entry. Then verify the remote head.
+
 ## Session 215: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -344,38 +381,3 @@ None.
 Push the branch, open the PR, and answer the gitar pass. Then take the new and changed baselines from the CI artifact and commit them.
 
 # Session handoff
-
-## Session 206: 2026-09-22, Codex
-
-Author: Codex
-Session: reviewer PR-56. Repository: the-thing-below. Branch: `feat/pr-57-effects`. PR: #56. Role: reviewer. Base: `8aaf0f6`.
-
-### What this session did, and why
-
-- Reviewed the complete diff from `8aaf0f6` to effective head `f1b42b5`.
-- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Traced effect loading, cross-file validation, particle construction and seeking, battle timing, hit-stop, shake, settings updates, and screen capture coverage.
-- Wrote `docs/reviews/pr-56.md` with no finding and the verdict `Ready for owner merge` for effective head `f1b42b5`.
-
-### The state of the build
-
-- `make verify` passed with 2,069 non-Smoke tests, 0 STE findings, matching replay identity and content hash, matching atlas, and a green smoke session.
-- CI run 35742614648 passed the implementation checks, screen-test, and smoke on all current legs. Gitar approved the head. The review-gate check failed only because the review record did not yet exist.
-- The remote head before this review commit is `f1b42b5`.
-
-### What is in flight
-
-- The review record and this handoff entry need commit and push.
-
-### Traps and gotchas
-
-- The review targets effective head `f1b42b5`. The review commit changes only the metadata set and does not move that head.
-- The screen baselines come from the CI artifact, while the Mac uses another renderer path.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and this handoff entry. Fetch and verify the remote head and review-gate check.
