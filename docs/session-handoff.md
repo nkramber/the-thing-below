@@ -1,3 +1,41 @@
+## Session 235: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #63, round 2. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: reviewer. Base: `097ea32`.
+
+### What this session did, and why
+
+- Re-read the round 1 findings and the response file, then reviewed PR #63 at effective head `a7902e7`.
+- Verified P2-1: the Gitar reads now paginate comments, check runs, check suites, and review threads. The regression tests pass.
+- Verified P2-2: a repeated finding id now gives a fault. The regression test passes.
+- Reviewed the API-key removal, ChatGPT login check, owner confirmation, and the updates to D-932 and D-933.
+- Updated `docs/reviews/pr-63.md`. Both findings are fixed, and the verdict is `Ready for owner merge`.
+
+### The state of the build
+
+- `main` is `097ea32`. Before this commit, the remote PR head was `a7902e7`.
+- `make build`, `make test` (2,371 tests), `make format`, `make ste-check`, and `make lint` passed locally.
+- CI run 35834375973 passed implementation checks on `a7902e7`. Gitar passed. The review-gate failure read the old verdict and head, before this review commit.
+
+### What is in flight
+
+- This review record and entry need one metadata commit and a push to `feat/pr-95-codex-review`.
+- Fresh review-gate and metadata checks must pass after publication.
+
+### Traps and gotchas
+
+- Metadata commits do not change the effective head (D-610).
+- Review-gate run 35834379314 failed only because the record still named `Changes required` and `ca9dd85`.
+- Keep each Codex process free of `OPENAI_API_KEY` and `CODEX_API_KEY` (D-932).
+
+### The questions that block progress
+
+None. D-926 to D-933 record the owner answers.
+
+### The next concrete action
+
+Commit this entry with the review record, push once, then verify the remote head and the fresh review-gate result.
+
 ## Session 234: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -334,40 +372,3 @@ None. OQ-102 and OQ-232 are resolved by D-910 and D-915.
 ### The next concrete action
 
 The owner merges PR #61.
-
-## Session 225: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-59, rounds 1 to 3. Repository: the-thing-below. Branch: `feat/pr-59-glow`. PR: #61. Role: author. Base: `430c8e9`.
-
-### What this session did, and why
-
-- Asked OQ-102, and the owner chose HDR 2D with a threshold and a smooth bloom, fire first (D-910 to D-912).
-- Round 1 built HDR 2D, the bound of the lit art below the threshold, and a seed loop against the light curve of Game (F-103, F-104).
-- The owner asked for the glow pass of our own, a stepped mode, and a pulse in place of the flicker. Round 2 built them (D-913, D-914, F-105).
-- The owner compared both and kept HDR 2D at half intensity (D-915, OQ-232). The pulse stays on a glow rectangle of 8 by 8 over each wall torch flame.
-- The owner said the fog must not glow. The fog, the hit bursts, and the marks now draw in an overlay view with no HDR 2D, above the glow (D-916). The reader refuses a lit fog.
-
-### The state of the build
-
-- `main` is `430c8e9`. The branch holds rounds 1 to 3. `make verify` passes on this machine, and `make sheet` wrote every capture with no error line.
-- CI run 35815275241 on `6b612f2` passed every job but the baseline step of screen-test. Its two runs matched on all 72 captures. The 66 world baselines that changed come from its artifact (D-733).
-
-### What is in flight
-
-- PR #61 waits for CI on the baseline commit, gitar, and the review of the other provider.
-
-### Traps and gotchas
-
-- The glow of Godot averages its first step over about 8 by 8 art pixels. A smaller or dimmer source gives no glow.
-- A view draws an item only when each parent shares its layer (F-105). `GlowPass.LiftAboveGlow` sets the layer on the node, its children, and its parents.
-- An object initializer of a texture rect sets `ExpandMode` before `Size`.
-- Do not redirect `make smoke` output into `artifacts/smoke.log`. The target writes that file itself, and the loop filled 20 GB.
-
-### The questions that block progress
-
-None. OQ-102 and OQ-232 are resolved.
-
-### The next concrete action
-
-Answer each gitar finding on PR #61, then hand the PR to the other provider.
