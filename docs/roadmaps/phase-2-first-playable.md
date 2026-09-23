@@ -943,13 +943,18 @@ Area file: `area-effects.md` section 7.17.
 
 - A tilt-shift blur at the top and the bottom of the frame (D-849).
 - A vignette at the edges of the frame (D-849).
-- Light shafts in the world (D-849).
-- Three rows of full-screen passes in the effect budget, from a new Deck sweep (D-523, D-617, G-14).
+- Light shafts in the world: a shaft kind on a wall, under a drawing of its opening (D-849, D-918, D-924).
+- A smooth mode and a stepped mode of the three passes, which the owner compares (D-917).
+- A still shaft from a barred window on the fixture dungeon, in both modes (D-924, D-925).
+- The blur and the vignette on every map and every fight (D-920).
+- The shafts in the overlay above the fog, and the blur and the vignette over that picture. The marks draw in a mark view above them (D-919).
+- The pass row of the effect budget from 3 to 6, from a new Deck sweep on the branch `spike/deck-test` (D-523, D-922, D-923, G-14).
 
 **Out of scope.**
 
 - The glow (PR-59), and the transitions (PR-60).
 - A 3D scene, which D-849 keeps out of the plan.
+- Light shafts from the ceiling onto a floor tile, which a later PR adds (D-924, OQ-241).
 
 **Exit tests.**
 
@@ -957,13 +962,19 @@ Area file: `area-effects.md` section 7.17.
 2. The budget test counts each pass (D-523).
 3. The UI stays sharp, with no blur, no vignette, and no shaft (D-210).
 4. The PR holds the Deck sweep of the heavier stack, before and after the passes (G-14).
+5. The screen test captures the map and a fight in the stepped mode too (D-917).
+6. The budget counts a map with no weather, and a shaft pass only on a map with a shaft (D-918, D-920).
+7. The load refuses a shaft off a wall, a shaft of no kind, and a ninth shaft (D-918, T-2).
 
 **Review focus.**
 
 - The budget rows match the new sweep (D-617, G-14).
-- Each pass draws the world alone (D-210).
+- Each pass draws the world alone, and the marks and the UI stay sharp (D-208, D-210, D-919).
+- No shader reads `TIME`, and each shaft stands still (F-100, D-925).
+- The load refuses a shaft kind that no drawing draws, so no beam comes out of a bare wall (D-924).
+- Each node of the mark view, and each parent of it, takes the layer of the marks (F-105, D-919).
 
-**Questions.** None yet. The session asks its questions when it starts (D-487).
+**Questions.** None. D-917 to D-925 resolved OQ-233 to OQ-240. OQ-241 names the PR of the ceiling shafts, and it blocks nothing here.
 
 > *In plain English:* the edges of the view blur a little, the corners fall dark, and shafts of light cut through the dark. The Deck proves it can hold this before the change lands.
 

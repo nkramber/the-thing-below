@@ -88,6 +88,7 @@ public partial class MapScreen : Node2D
     private readonly List<TorchFlame> torches = [];
     private TorchFlame carriedFlame = null!;
     private AmbientLayer weather = null!;
+    private ShaftPass? shafts;
     private Vector2 view;
 
     /// <summary>True for a capture, which seeks each stream to the tick of the frame (D-172).</summary>
@@ -102,6 +103,7 @@ public partial class MapScreen : Node2D
     /// <param name="party">The party and the enemies on the map (D-528, D-738).</param>
     /// <param name="content">The content set, for the palette, the decor, and the light setup (D-843).</param>
     /// <param name="ambient">The weather of the map, or no value for a map with no weather (D-202, D-889).</param>
+    /// <param name="passes">The passes of the HD-2D look, in the mode that the screen shows, for the mode of the light shafts (D-917).</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="ContentException">
     /// The atlas holds no drawing of a tile, of the lead, of an enemy, or of a decor piece, or
@@ -113,12 +115,13 @@ public partial class MapScreen : Node2D
     /// day picks each station at the start of the run (D-743). Thus one sprite serves one
     /// enemy for the whole visit.
     /// </remarks>
-    public void Build(GameAtlas atlas, UiTheme theme, MapState party, ContentSet content, AmbientEffect? ambient)
+    public void Build(GameAtlas atlas, UiTheme theme, MapState party, ContentSet content, AmbientEffect? ambient, Hd2dPasses passes)
     {
         ArgumentNullException.ThrowIfNull(atlas);
         ArgumentNullException.ThrowIfNull(theme);
         ArgumentNullException.ThrowIfNull(party);
         ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(passes);
 
         // Godot sorts each canvas item by one Y value, so a character draws in front of what
         // stands behind it (D-206, the external facts of `area-exploration.md`).
@@ -145,11 +148,14 @@ public partial class MapScreen : Node2D
         this.mark = BuildMark(theme);
         this.AddChild(this.mark);
 
-        // The mark draws above the fog and the glow, so fog never hides it (D-208, D-916).
-        GlowPass.LiftAboveGlow(this.mark);
+        // The mark draws above the fog, the glow, and the passes, so fog never hides it and it stays sharp (D-208, D-916, D-919).
+        GlowPass.LiftToMarks(this.mark);
 
         this.BuildLight(atlas, party.Map, content);
         this.weather = AmbientLayer.Build(ambient, content.Palette, this);
+
+        // A map with no light shaft draws no shaft pass, so the budget counts none (D-523, D-918).
+        this.shafts = ShaftPass.Build(content.Light.DecorOf(party.Map.Id), content.Light, content.Palette, passes, this);
     }
 
     /// <summary>Puts the party where Core put it, and moves the view (D-203, D-717).</summary>
@@ -196,6 +202,10 @@ public partial class MapScreen : Node2D
 
         this.carriedFlame.Show(tick, seek);
         this.weather.Show(this.view, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tick);
+        if (this.shafts is not null)
+        {
+            this.shafts.Show(this.view, FrameRoot.WorldWidth, FrameRoot.WorldHeight);
+        }
     }
 
     /// <summary>
@@ -300,25 +310,16 @@ public partial class MapScreen : Node2D
         LightSetup setup = content.Light.SetupOf(map.Id, map.Time);
         this.AddChild(WorldLights.Ambient(content.Palette, setup.Ambient));
 
-        foreach (DecorPiece piece in content.Light.DecorOf(map.Id).Pieces)
+        DecorFile pieces = content.Light.DecorOf(map.Id);
+        foreach (DecorPiece piece in pieces.Pieces)
         {
-            AtlasEntry entry = atlas.Index.Entry(piece.Kind, LightContent.MapUse);
+            this.AddChild(PieceSprite(atlas, piece));
+        }
 
-            // A piece sorts by the south edge of its wall, as a map sprite sorts by its feet
-            // (F-94, D-737). A figure in front of the wall then draws over it.
-            this.AddChild(new Sprite2D
-            {
-                Name = piece.Id.Value,
-                Texture = atlas.Frame(entry.Id, 0),
-                Centered = false,
-                Position = new Vector2(piece.Tile.X * MapCamera.TilePixels, FeetOf(piece.Tile.Y * MapCamera.TilePixels, 1)),
-                Offset = new Vector2(0, -entry.Height),
-
-                // A flame gives light and takes none, so the dark of the ambient light never
-                // dims it. The piece is a sprite, so it never glows, and the fire of the torch
-                // glows instead (D-188, D-912).
-                Material = new CanvasItemMaterial { LightMode = CanvasItemMaterial.LightModeEnum.Unshaded },
-            });
+        // Each light shaft falls from an opening on its wall, so the map draws the opening too (D-924).
+        foreach (DecorPiece shaft in pieces.Shafts)
+        {
+            this.AddChild(PieceSprite(atlas, shaft));
         }
 
         foreach (WallShadow wall in WallShadows.Of(map))
@@ -386,6 +387,28 @@ public partial class MapScreen : Node2D
             -tall,
             (map.Width * MapCamera.TilePixels) + (2 * wide),
             (map.Height * MapCamera.TilePixels) + (2 * tall));
+    }
+
+    /// <summary>Builds the sprite of one decor piece or of the opening of one light shaft, on its wall (D-844, D-924).</summary>
+    private static Sprite2D PieceSprite(GameAtlas atlas, DecorPiece piece)
+    {
+        AtlasEntry entry = atlas.Index.Entry(piece.Kind, LightContent.MapUse);
+
+        // A piece sorts by the south edge of its wall, as a map sprite sorts by its feet
+        // (F-94, D-737). A figure in front of the wall then draws over it.
+        return new Sprite2D
+        {
+            Name = piece.Id.Value,
+            Texture = atlas.Frame(entry.Id, 0),
+            Centered = false,
+            Position = new Vector2(piece.Tile.X * MapCamera.TilePixels, FeetOf(piece.Tile.Y * MapCamera.TilePixels, 1)),
+            Offset = new Vector2(0, -entry.Height),
+
+            // A flame and the opening of a shaft give light and take none, so the dark of the
+            // ambient light never dims them. The piece is a sprite, so it never glows, and the
+            // fire of a torch glows instead (D-188, D-912).
+            Material = new CanvasItemMaterial { LightMode = CanvasItemMaterial.LightModeEnum.Unshaded },
+        };
     }
 
     /// <summary>Gives the fire of the decor kind of one light, or no value for a light that no piece holds.</summary>

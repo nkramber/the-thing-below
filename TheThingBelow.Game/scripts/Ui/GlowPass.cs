@@ -20,10 +20,11 @@ namespace TheThingBelow.Game.Ui;
 /// above the threshold, and it pulses on a slow wave of the tick, so the glow never flickers
 /// (D-913).
 /// <para>
-/// The fog, the hit bursts, and each mark draw on a layer that the world view never draws. An
-/// overlay view with no HDR 2D shares the world and draws that layer alone, above the glow. So
-/// the fog blends as it did before HDR 2D, and it never glows (D-916, F-104). The UI draws in the
-/// frame, above both views, so it never glows (D-210).
+/// The fog, the hit bursts, and the light shafts draw on a layer that the world view never draws.
+/// An overlay view with no HDR 2D shares the world and draws that layer alone, above the glow. So
+/// the fog blends as it did before HDR 2D, and it never glows (D-916, F-104). Each mark draws on a
+/// layer of its own, which a mark view draws above the tilt-shift blur and the vignette (D-919).
+/// The UI draws in the frame, above every view, so it never glows (D-210).
 /// </para>
 /// </remarks>
 public static class GlowPass
@@ -34,8 +35,14 @@ public static class GlowPass
     /// <summary>The visibility layer of the nodes above the glow: layer 20, which no other node takes (D-916).</summary>
     public const uint AboveGlowLayer = 1u << 19;
 
-    /// <summary>The canvas layers that the world view draws: every layer but the layer above the glow.</summary>
-    public const uint WorldLayers = uint.MaxValue & ~AboveGlowLayer;
+    /// <summary>
+    /// The visibility layer of the marks: layer 21, which no other node takes. The mark view draws
+    /// it above the tilt-shift blur and the vignette, so each mark stays sharp (D-208, D-919).
+    /// </summary>
+    public const uint MarkLayer = 1u << 20;
+
+    /// <summary>The canvas layers that the world view draws: every layer but the layer above the glow and the layer of the marks.</summary>
+    public const uint WorldLayers = uint.MaxValue & ~AboveGlowLayer & ~MarkLayer;
 
     /// <summary>The cap of the linear light that the glow reads: above the strongest glow rectangle of 16 (D-913).</summary>
     public const float LuminanceCap = 32f;
@@ -102,21 +109,17 @@ public static class GlowPass
     /// <param name="item">The node, which the caller has added to the world of its screen.</param>
     /// <exception cref="ArgumentNullException">The node is null (T-2).</exception>
     /// <exception cref="InvalidOperationException">The node has no parent yet, so no parent takes the layer (T-2).</exception>
-    public static void LiftAboveGlow(CanvasItem item)
-    {
-        ArgumentNullException.ThrowIfNull(item);
+    public static void LiftAboveGlow(CanvasItem item) => Lift(item, AboveGlowLayer);
 
-        if (item.GetParent() is not CanvasItem)
-        {
-            throw new InvalidOperationException($"The node '{item.Name}' has no parent in the world, so it cannot draw above the glow (T-2, F-105).");
-        }
-
-        SetLayer(item);
-        for (Node? parent = item.GetParent(); parent is CanvasItem above; parent = above.GetParent())
-        {
-            above.VisibilityLayer |= AboveGlowLayer;
-        }
-    }
+    /// <summary>
+    /// Puts a mark and each node under it on the layer of the marks alone, and adds that layer to
+    /// each parent (D-208, D-919, F-105). The mark view draws it above the tilt-shift blur and the
+    /// vignette, and above the glow, so each mark stays sharp and never glows.
+    /// </summary>
+    /// <param name="item">The node, which the caller has added to the world of its screen.</param>
+    /// <exception cref="ArgumentNullException">The node is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The node has no parent yet, so no parent takes the layer (T-2).</exception>
+    public static void LiftToMarks(CanvasItem item) => Lift(item, MarkLayer);
 
     /// <summary>Builds the glow rectangle of one fire, or nothing for a glow of strength 0 (D-912, D-913).</summary>
     /// <param name="id">The id of the source, which names the node (T-2).</param>
@@ -200,14 +203,30 @@ public static class GlowPass
         return 1f - (glow.PulseDepth / (float)BasisPoints.One * wave);
     }
 
-    private static void SetLayer(CanvasItem item)
+    private static void Lift(CanvasItem item, uint layer)
     {
-        item.VisibilityLayer = AboveGlowLayer;
+        ArgumentNullException.ThrowIfNull(item);
+
+        if (item.GetParent() is not CanvasItem)
+        {
+            throw new InvalidOperationException($"The node '{item.Name}' has no parent in the world, so it cannot draw in a view above the glow (T-2, F-105).");
+        }
+
+        SetLayer(item, layer);
+        for (Node? parent = item.GetParent(); parent is CanvasItem above; parent = above.GetParent())
+        {
+            above.VisibilityLayer |= layer;
+        }
+    }
+
+    private static void SetLayer(CanvasItem item, uint layer)
+    {
+        item.VisibilityLayer = layer;
         foreach (Node child in item.GetChildren())
         {
             if (child is CanvasItem below)
             {
-                SetLayer(below);
+                SetLayer(below, layer);
             }
         }
     }

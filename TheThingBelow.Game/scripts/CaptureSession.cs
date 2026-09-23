@@ -5,6 +5,7 @@ using Godot;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Effects;
+using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Game.Ui;
 using TheThingBelow.Storage;
@@ -363,7 +364,7 @@ public sealed partial class CaptureSession : Node
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.MapFixture) == 0)
         {
             GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-            MapFixture.Build(built, @base, open.Party, this.content, this.AmbientOf(capture), seekParticles: true);
+            MapFixture.Build(built, @base, open.Party, this.content, this.AmbientOf(capture), seekParticles: true, mode: capture.Mode);
             return;
         }
 
@@ -527,6 +528,12 @@ public sealed partial class CaptureSession : Node
             ScreenCaptures.LevelOf(capture.Frame),
             this.AmbientOf(capture));
         screen.SeekParticles = true;
+
+        // A fight draws no light shaft, so the mode of the capture reaches the blur and the vignette alone (D-917, D-920).
+        if (capture.Mode is PassMode mode)
+        {
+            built.ShowPasses(this.content.Light.Passes.WithMode(mode), this.content.Palette);
+        }
         if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleTargetFrame) == 0
             && screen.Read(InputActions.Confirm) is not null)
         {

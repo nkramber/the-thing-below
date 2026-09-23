@@ -59,16 +59,19 @@ public static class UiContentFixtures
         """{ "comment": "a test carried light", "color": "k", "strength": 10000, "range": 64, "height": 16, "x": 16, "y": -16, "fire": """ + FireBody + " }";
 
     /// <summary>The body of the fixture effect budget (D-523).</summary>
-    public const string BudgetBody = """{ "comment": "a test budget", "lights_in_view": 15, "live_particles": 8192, "full_screen_passes": 3 }""";
+    public const string BudgetBody = """{ "comment": "a test budget", "lights_in_view": 15, "live_particles": 8192, "full_screen_passes": 6 }""";
 
     /// <summary>The body of the fixture glow, with the threshold of the checkout (D-910).</summary>
     public const string GlowBody = """{ "comment": "a test glow", "threshold": 70000, "knee": 20000, "intensity": 8000, "strength": 10000, "levels": [0, 0, 10000, 0, 10000, 0, 0], "pulse_ticks": 90, "pulse_depth": 2500 }""";
+
+    /// <summary>The body of the fixture passes of the HD-2D look, with the values of the checkout (D-917).</summary>
+    public const string PassesBody = """{ "comment": "test passes", "mode": "smooth", "steps": 4, "cell_size": 2, "blur_band": 72, "blur_radius": 3, "vignette_color": "k", "vignette_strength": 5000, "vignette_start": 4000 }""";
 
     /// <summary>The page record that the fixture atlas index holds.</summary>
     public const string AtlasPageRecord = """{ "kind": "ui", "number": 1, "width": 1, "height": 1 }""";
 
     /// <summary>Every file of the UI base, for a content set that tests another rule.</summary>
-    /// <returns>The style file, both fonts, the drawing, the page file, the carried light, the budget, and the glow.</returns>
+    /// <returns>The style file, both fonts, the drawing, the page file, the carried light, the budget, the glow, and the passes.</returns>
     public static IReadOnlyList<ContentFile> Files() =>
     [
         Of(UiStyle.Path, StyleBody),
@@ -81,6 +84,7 @@ public static class UiContentFixtures
         Of(CarriedLight.Path, CarriedBody),
         Of(EffectBudget.Path, BudgetBody),
         Of(Glow.Path, GlowBody),
+        Of(Hd2dPasses.Path, PassesBody),
     ];
 
     /// <summary>
@@ -93,7 +97,7 @@ public static class UiContentFixtures
     /// <returns>The decor file and the light setup.</returns>
     public static IReadOnlyList<ContentFile> LightFilesOf(string stem, string map, string time) =>
     [
-        Of($"{DecorFile.Folder}{stem}.json", $$"""{ "comment": "a test decor file", "map": "{{map}}", "pieces": [] }"""),
+        Of($"{DecorFile.Folder}{stem}.json", $$"""{ "comment": "a test decor file", "map": "{{map}}", "pieces": [], "shafts": [] }"""),
         Of(
             $"{LightSetup.Folder}{stem}-{time}.json",
             $$"""

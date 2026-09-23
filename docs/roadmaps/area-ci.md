@@ -234,6 +234,7 @@ Built by PR-41. Phase file: `phase-2-first-playable.md`.
 - PR-89 adds the `walk` fixture: one frame at 1x after each tick of one step north and one step south (D-782). The frames inside a step are the regression test of F-95.
 - PR-55 adds the `picture` fixture: the fixture large picture at 1x (D-819). Each capture turns the linear colors of HDR 2D into the sRGB colors of the screen (D-188). A test finds a palette color in each pixel of each 1x baseline of the world.
 - PR-10 adds the `battle` fixture: the command menu at 1x and at 1080 rows, and the pointer on the first target (D-827, D-833). One more frame shows a blow of a character with its flash and its number. The run walks into the fixture fight one tick at a time, so each capture shows the same tick.
+- PR-92 adds the map and a fight in the stepped mode of the passes of the HD-2D look (D-917).
 - The `--fixture <name>` argument takes one fixture alone, and `make walk` runs the walk on the machine of the owner (D-782). The author reads each frame before the hand-over (D-784).
 - The `screens` command of Tools compares decoded pixels with the committed baseline of `screens/baseline` (F-19, D-736, `area-tools.md` section 7.14). One changed pixel fails the job.
 - Two runs give the same frames, because the fixture seed is fixed (T-7). The walk gives the run the time of exactly one tick for each frame (D-782). The job takes the captures two times and compares them.

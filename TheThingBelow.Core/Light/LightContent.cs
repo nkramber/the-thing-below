@@ -6,9 +6,9 @@ using TheThingBelow.Core.Maps;
 namespace TheThingBelow.Core.Light;
 
 /// <summary>
-/// Every light file of one build, read and checked across files: the decor kinds, the decor
-/// files, the light setups, the carried light, the effect budget, and the glow (D-523, D-843,
-/// D-844, D-847, D-910).
+/// Every light file of one build, read and checked across files: the decor kinds, the shaft
+/// kinds, the decor files, the light setups, the carried light, the effect budget, the glow, and
+/// the passes of the HD-2D look (D-523, D-843, D-844, D-847, D-910, D-917, D-918).
 /// </summary>
 /// <remarks>
 /// No rule reads a light file, so none lies in the rule folder and none reaches the content
@@ -20,9 +20,10 @@ namespace TheThingBelow.Core.Light;
 /// <item>Each map has one decor file and one light setup for its own time of day (D-442).</item>
 /// <item>Each decor file and each light setup names a map that exists.</item>
 /// <item>Each piece names a kind that exists, and a drawing draws that kind (D-519).</item>
-/// <item>Each piece hangs on a wall with a floor or a doorway to its south (D-844).</item>
+/// <item>Each light shaft names a shaft kind that exists, and a drawing draws the opening of that kind (D-918, D-924).</item>
+/// <item>Each piece and each light shaft hangs on a wall with a floor or a doorway to its south (D-844, D-918).</item>
 /// <item>Each change names a piece of its map, and each added light lies on its map (D-843).</item>
-/// <item>Each color names a key of the palette, the color of each glow included (D-846).</item>
+/// <item>Each color names a key of the palette, the color of each glow, each shaft, and the vignette included (D-846, D-181).</item>
 /// <item>Each map keeps inside the effect budget and the limit of Godot (D-842, F-46).</item>
 /// <item>The brightest lit art of each map and each fight stays below the glow threshold, so light alone glows (D-910, F-47).</item>
 /// <item>Each glow rectangle passes the glow threshold at the low of its pulse (D-912, D-913, T-2).</item>
@@ -34,23 +35,28 @@ public sealed class LightContent
     public const string MapUse = "map";
 
     private readonly SortedDictionary<string, DecorKind> kinds;
+    private readonly SortedDictionary<string, ShaftKind> shaftKinds;
     private readonly SortedDictionary<string, DecorFile> decor;
     private readonly SortedDictionary<string, LightSetup> setups;
 
     private LightContent(
         SortedDictionary<string, DecorKind> kinds,
+        SortedDictionary<string, ShaftKind> shaftKinds,
         SortedDictionary<string, DecorFile> decor,
         SortedDictionary<string, LightSetup> setups,
         CarriedLight carried,
         EffectBudget budget,
-        Glow glow)
+        Glow glow,
+        Hd2dPasses passes)
     {
         this.kinds = kinds;
+        this.shaftKinds = shaftKinds;
         this.decor = decor;
         this.setups = setups;
         this.Carried = carried;
         this.Budget = budget;
         this.Glow = glow;
+        this.Passes = passes;
     }
 
     /// <summary>The carried light (D-847).</summary>
@@ -62,22 +68,27 @@ public sealed class LightContent
     /// <summary>The glow of the world view (D-910).</summary>
     public Glow Glow { get; }
 
+    /// <summary>The tilt-shift blur and the vignette, and the mode of the passes of the HD-2D look (D-917, D-920).</summary>
+    public Hd2dPasses Passes { get; }
+
     /// <summary>Every decor kind, in the order of its id.</summary>
     public IEnumerable<DecorKind> Kinds => this.kinds.Values;
 
     /// <summary>Tells whether a content path is a light file, which <see cref="Load"/> reads.</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
-    /// <returns>True for a decor kind, a decor file, a light setup, the carried light, the budget, or the glow.</returns>
+    /// <returns>True for a decor kind, a shaft kind, a decor file, a light setup, the carried light, the budget, the glow, or the passes.</returns>
     public static bool IsLightFile(string path)
     {
         ArgumentNullException.ThrowIfNull(path);
 
         return DecorKind.IsKindFile(path)
+            || ShaftKind.IsShaftFile(path)
             || DecorFile.IsDecorFile(path)
             || LightSetup.IsSetupFile(path)
             || string.CompareOrdinal(path, CarriedLight.Path) == 0
             || string.CompareOrdinal(path, EffectBudget.Path) == 0
-            || string.CompareOrdinal(path, Glow.Path) == 0;
+            || string.CompareOrdinal(path, Glow.Path) == 0
+            || string.CompareOrdinal(path, Hd2dPasses.Path) == 0;
     }
 
     /// <summary>Gives the decor file of one map.</summary>
@@ -105,6 +116,25 @@ public sealed class LightContent
             ? found
             : throw ContentException.ForFile(DecorKind.Folder, $"no kind file holds the decor kind '{kind.Value}' (D-844)");
     }
+
+    /// <summary>Gives one shaft kind.</summary>
+    /// <param name="kind">The id of the kind.</param>
+    /// <returns>The kind.</returns>
+    /// <exception cref="ContentException">No shaft file holds the id (T-2).</exception>
+    public ShaftKind ShaftOf(ContentId kind)
+    {
+        ArgumentNullException.ThrowIfNull(kind);
+
+        return this.shaftKinds.TryGetValue(kind.Value, out ShaftKind? found)
+            ? found
+            : throw ContentException.ForFile(ShaftKind.Folder, $"no shaft file holds the shaft kind '{kind.Value}' (D-918)");
+    }
+
+    /// <summary>Gives the full-screen passes of the light shafts of one map: one for a map with a shaft, and none for a map with no shaft (D-523, D-918).</summary>
+    /// <param name="map">The id of the map.</param>
+    /// <returns>The count of passes.</returns>
+    /// <exception cref="ContentException">No decor file names the map (T-2).</exception>
+    public int ShaftPassesOf(ContentId map) => this.DecorOf(map).Shafts.Count == 0 ? 0 : ShaftKind.FullScreenPasses;
 
     /// <summary>Gives the light setup of one map at one time of day.</summary>
     /// <param name="map">The id of the map.</param>
@@ -149,11 +179,13 @@ public sealed class LightContent
         ArgumentNullException.ThrowIfNull(atlas);
 
         var kinds = new SortedDictionary<string, DecorKind>(StringComparer.Ordinal);
+        var shaftKinds = new SortedDictionary<string, ShaftKind>(StringComparer.Ordinal);
         var decor = new SortedDictionary<string, DecorFile>(StringComparer.Ordinal);
         var setups = new SortedDictionary<string, LightSetup>(StringComparer.Ordinal);
         CarriedLight? carried = null;
         EffectBudget? budget = null;
         Glow? glow = null;
+        Hd2dPasses? passes = null;
 
         foreach (ContentFile file in files)
         {
@@ -161,6 +193,11 @@ public sealed class LightContent
             {
                 DecorKind kind = DecorKind.Read(file.Bytes, file.Path);
                 AddOnce(kinds, kind.Id.Value, kind, file.Path, "id", "a second file holds this decor kind");
+            }
+            else if (ShaftKind.IsShaftFile(file.Path))
+            {
+                ShaftKind kind = ShaftKind.Read(file.Bytes, file.Path);
+                AddOnce(shaftKinds, kind.Id.Value, kind, file.Path, "id", "a second file holds this shaft kind");
             }
             else if (DecorFile.IsDecorFile(file.Path))
             {
@@ -184,6 +221,10 @@ public sealed class LightContent
             {
                 glow = Glow.Read(file.Bytes, file.Path);
             }
+            else if (string.CompareOrdinal(file.Path, Hd2dPasses.Path) == 0)
+            {
+                passes = Hd2dPasses.Read(file.Bytes, file.Path);
+            }
             else
             {
                 throw ContentException.ForFile(file.Path, "the file is not a light file, and the content set gave it to the light reader");
@@ -192,11 +233,13 @@ public sealed class LightContent
 
         var content = new LightContent(
             kinds,
+            shaftKinds,
             decor,
             setups,
             carried ?? throw ContentException.ForFile(CarriedLight.Path, "the content set holds no such file"),
             budget ?? throw ContentException.ForFile(EffectBudget.Path, "the content set holds no such file"),
-            glow ?? throw ContentException.ForFile(Glow.Path, "the content set holds no such file"));
+            glow ?? throw ContentException.ForFile(Glow.Path, "the content set holds no such file"),
+            passes ?? throw ContentException.ForFile(Hd2dPasses.Path, "the content set holds no such file"));
 
         content.RefuseWrongKind(atlas);
         content.RefuseWrongDecor(maps);
@@ -231,6 +274,18 @@ public sealed class LightContent
                     $"no drawing draws '{kind.Id.Value}' for the use '{MapUse}', and Game draws each decor piece (D-519)");
             }
         }
+
+        foreach (ShaftKind kind in this.shaftKinds.Values)
+        {
+            // A beam falls from an opening that a drawing shows, and never from a bare wall (D-924).
+            if (!atlas.Draws(kind.Id, MapUse))
+            {
+                throw ContentException.ForField(
+                    kind.File,
+                    "id",
+                    $"no drawing draws '{kind.Id.Value}' for the use '{MapUse}', and a light shaft falls from an opening that a drawing shows (D-924)");
+            }
+        }
     }
 
     private void RefuseWrongDecor(SortedDictionary<string, GameMap> maps)
@@ -255,15 +310,21 @@ public sealed class LightContent
                         $"no file of `{DecorKind.Folder}` holds the decor kind '{piece.Kind.Value}' (D-843)");
                 }
 
-                // A light setup names a piece by its id alone, so one id names one piece in the
-                // whole build (D-166, D-843).
-                if (!pieceIds.TryAdd(piece.Id.Value, file.File))
+                RefuseSecondFile(pieceIds, piece, file.File, $"pieces[{index}].id");
+            }
+
+            for (int index = 0; index < file.Shafts.Count; index += 1)
+            {
+                DecorPiece shaft = file.Shafts[index];
+                if (!this.shaftKinds.ContainsKey(shaft.Kind.Value))
                 {
                     throw ContentException.ForField(
                         file.File,
-                        $"pieces[{index}].id",
-                        $"the file '{pieceIds[piece.Id.Value]}' holds the piece '{piece.Id.Value}' too, and one id names one piece (D-166)");
+                        $"shafts[{index}].kind",
+                        $"no file of `{ShaftKind.Folder}` holds the shaft kind '{shaft.Kind.Value}' (D-918)");
                 }
+
+                RefuseSecondFile(pieceIds, shaft, file.File, $"shafts[{index}].id");
             }
         }
 
@@ -273,6 +334,21 @@ public sealed class LightContent
             {
                 throw ContentException.ForFile(map.File, $"no file of `{DecorFile.Folder}` names the map '{map.Id.Value}', and each map has one (D-844)");
             }
+        }
+    }
+
+    /// <summary>
+    /// Refuses a piece or a shaft whose id another decor file holds too. A light setup names a
+    /// piece by its id alone, so one id names one piece in the whole build (D-166, D-843).
+    /// </summary>
+    private static void RefuseSecondFile(SortedDictionary<string, string> pieceIds, DecorPiece piece, string file, string field)
+    {
+        if (!pieceIds.TryAdd(piece.Id.Value, file))
+        {
+            throw ContentException.ForField(
+                file,
+                field,
+                $"the file '{pieceIds[piece.Id.Value]}' holds the piece '{piece.Id.Value}' too, and one id names one piece (D-166)");
         }
     }
 
@@ -356,6 +432,13 @@ public sealed class LightContent
 
         RefuseAbsentKey(palette, this.Carried.Light.Color, CarriedLight.Path, "color");
         RefuseAbsentKey(palette, new LightColor(this.Carried.Fire.Glow.Key, 0), CarriedLight.Path, "fire.glow.color");
+
+        foreach (ShaftKind kind in this.shaftKinds.Values)
+        {
+            RefuseAbsentKey(palette, new LightColor(kind.Key, 0), kind.File, "color");
+        }
+
+        RefuseAbsentKey(palette, new LightColor(this.Passes.VignetteKey, 0), Hd2dPasses.Path, "vignette_color");
     }
 
     private static void RefuseAbsentKey(Palette palette, LightColor color, string file, string field)

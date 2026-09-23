@@ -161,10 +161,10 @@ public sealed class EffectFileTests
     [Fact]
     public void TheBudgetReadsItsRowOfFullScreenPasses()
     {
-        // D-617: the sweep of 2026-09-17 held 3 full-screen passes.
+        // D-923: the Deck sweep of PR-92 held 6 full-screen passes, which the pass row takes.
         EffectBudget budget = EffectBudget.Read(Bytes(LightFixtures.BudgetBody(24)), EffectBudget.Path);
 
-        Assert.Equal(3, budget.FullScreenPasses);
+        Assert.Equal(6, budget.FullScreenPasses);
     }
 
     [Fact]

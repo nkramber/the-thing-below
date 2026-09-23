@@ -65,7 +65,7 @@ public sealed class GlowPassTests
     [Fact]
     public void TheWorldNeverDrawsTheLayerAboveTheGlow()
     {
-        // D-916: the fog, the hit bursts, and each mark draw on one layer, which the world view with
+        // D-916: the fog, the hit bursts, and the light shafts draw on one layer, which the world view with
         // the glow never draws. Every other node keeps the first layer, which the world draws.
         Type pass = GameAssemblyFile.Type("TheThingBelow.Game.Ui.GlowPass");
         uint above = (uint)pass.GetField("AboveGlowLayer")!.GetValue(null)!;
@@ -74,6 +74,22 @@ public sealed class GlowPassTests
         Assert.Equal(1, System.Numerics.BitOperations.PopCount(above));
         Assert.Equal(0u, world & above);
         Assert.NotEqual(0u, world & 1u);
+    }
+
+    [Fact]
+    public void NoViewButTheMarkViewDrawsTheLayerOfTheMarks()
+    {
+        // D-919: the marks draw in a view of their own, above the tilt-shift blur and the vignette,
+        // so neither the world with its glow nor the overlay under the passes draws them.
+        Type pass = GameAssemblyFile.Type("TheThingBelow.Game.Ui.GlowPass");
+        uint above = (uint)pass.GetField("AboveGlowLayer")!.GetValue(null)!;
+        uint marks = (uint)pass.GetField("MarkLayer")!.GetValue(null)!;
+        uint world = (uint)pass.GetField("WorldLayers")!.GetValue(null)!;
+
+        Assert.Equal(1, System.Numerics.BitOperations.PopCount(marks));
+        Assert.Equal(0u, marks & above);
+        Assert.Equal(0u, world & marks);
+        Assert.Equal(0u, marks & 1u);
     }
 
     private static float PulseOf(Glow glow, string id, long tick)

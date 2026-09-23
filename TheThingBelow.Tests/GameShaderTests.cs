@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using TheThingBelow.Core.Effects;
+using TheThingBelow.Core.Light;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -127,6 +128,80 @@ public sealed class GameShaderTests
         }
 
         Assert.Contains($"const int MOST_LAYERS = {FogLayer.MostLayers};", code, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void EachPassOfTheLookNamesItsShaderAndTheFileOfTheModes()
+    {
+        // D-917: the tilt-shift blur, the vignette, and the light shafts share the smooth mode and
+        // the stepped mode, so each shader includes the one file of the modes.
+        Type look = GameAssemblyFile.Type("TheThingBelow.Game.Ui.LookPasses");
+        Type shafts = GameAssemblyFile.Type("TheThingBelow.Game.Ui.ShaftPass");
+        Assert.Equal("res://shaders/tilt_shift.gdshader", (string)look.GetField("BlurShaderPath")!.GetValue(null)!);
+        Assert.Equal("res://shaders/vignette.gdshader", (string)look.GetField("VignetteShaderPath")!.GetValue(null)!);
+        Assert.Equal("res://shaders/light_shafts.gdshader", (string)shafts.GetField("ShaderPath")!.GetValue(null)!);
+
+        string root = Path.Combine(RepositoryRoot.Find(), ShaderFolder);
+        foreach (string file in new[] { "tilt_shift.gdshader", "vignette.gdshader", "light_shafts.gdshader" })
+        {
+            string code = CodeOf(File.ReadAllText(Path.Combine(root, file)));
+            Assert.Contains("#include \"res://shaders/look_steps.gdshaderinc\"", code, StringComparison.Ordinal);
+            Assert.Contains("render_mode unshaded", code, StringComparison.Ordinal);
+        }
+
+        string steps = CodeOf(File.ReadAllText(Path.Combine(root, "look_steps.gdshaderinc")));
+        foreach (string field in new[] { "SteppedName", "StepsName", "CellSizeName" })
+        {
+            string name = (string)look.GetField(field)!.GetValue(null)!;
+            Assert.Matches($@"uniform \w+ {name}\b", steps);
+        }
+    }
+
+    [Fact]
+    public void TheBlurAndTheVignetteHoldEachUniformOfTheirPasses()
+    {
+        // D-825: Game sets each uniform by a name constant, and the file holds each name.
+        Type look = GameAssemblyFile.Type("TheThingBelow.Game.Ui.LookPasses");
+        string root = Path.Combine(RepositoryRoot.Find(), ShaderFolder);
+        string blur = CodeOf(File.ReadAllText(Path.Combine(root, "tilt_shift.gdshader")));
+        string vignette = CodeOf(File.ReadAllText(Path.Combine(root, "vignette.gdshader")));
+
+        foreach (string field in new[] { "BandName", "RadiusName" })
+        {
+            Assert.Matches($@"uniform \w+ {(string)look.GetField(field)!.GetValue(null)!}\b", blur);
+        }
+
+        foreach (string field in new[] { "ColorName", "StrengthName", "StartName" })
+        {
+            Assert.Matches($@"uniform \w+ {(string)look.GetField(field)!.GetValue(null)!}\b", vignette);
+        }
+
+        // A sharp pixel reads the middle of its own art pixel, so the middle of the view keeps
+        // each pixel of the art under the linear filter of the view (D-919).
+        Assert.Contains("COLOR = texture(TEXTURE, (art + 0.5) / SCENE);", blur, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheShaftShaderAddsLightAndHoldsTheMostShaftsOfAMap()
+    {
+        // D-918: the arrays of the shader hold the most shafts that the reader takes. The shader
+        // writes its light with an alpha of 0 and the blend of premultiplied alpha, so a beam adds
+        // light and dims nothing under it (D-919).
+        Type pass = GameAssemblyFile.Type("TheThingBelow.Game.Ui.ShaftPass");
+        string code = CodeOf(File.ReadAllText(Path.Combine(RepositoryRoot.Find(), ShaderFolder, "light_shafts.gdshader")));
+        string[] fields =
+        [
+            "ShaftCountName", "OriginXName", "OriginYName", "TopXName", "TopYName",
+            "SlantsName", "LengthsName", "WidthsName", "ColorsName", "StrengthsName",
+        ];
+        foreach (string field in fields)
+        {
+            Assert.Matches($@"uniform \w+ {(string)pass.GetField(field)!.GetValue(null)!}\b", code);
+        }
+
+        Assert.Contains($"const int MOST_SHAFTS = {ShaftKind.MostShaftsOnMap};", code, StringComparison.Ordinal);
+        Assert.Contains("render_mode unshaded, blend_premul_alpha;", code, StringComparison.Ordinal);
+        Assert.Contains("COLOR = vec4(light, 0.0);", code, StringComparison.Ordinal);
     }
 
     /// <summary>Gives each shader file and each include file of the Game project.</summary>

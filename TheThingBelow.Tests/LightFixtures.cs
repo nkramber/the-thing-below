@@ -47,6 +47,16 @@ public static class LightFixtures
         "####################",
     ];
 
+    /// <summary>The id of the test shaft kind (D-918).</summary>
+    public const string ShaftKindId = "shaft.beam";
+
+    /// <summary>The path of the test shaft kind.</summary>
+    public const string ShaftKindPath = "decor/shafts/beam.json";
+
+    /// <summary>The body of the test shaft kind: a still beam from an opening in the middle of its wall (D-924, D-925).</summary>
+    public const string ShaftKindBody =
+        """{ "comment": "a test beam", "id": "shaft.beam", "color": "j", "strength": 3000, "width": 12, "length": 96, "slant": 16, "x": 16, "y": 8 }""";
+
     /// <summary>The body of the test decor kind: a torch with the light 4 pixels over the tile to its south.</summary>
     public const string KindBody =
         """
@@ -60,9 +70,18 @@ public static class LightFixtures
     /// <summary>Makes the body of a decor file of the test map.</summary>
     /// <param name="pieces">The JSON of each piece, joined with commas.</param>
     /// <param name="map">The id of the map that the file names.</param>
+    /// <param name="shafts">The JSON of each light shaft, joined with commas (D-918).</param>
     /// <returns>The body.</returns>
-    public static string DecorBody(string pieces, string map = MapId) =>
-        $$"""{ "comment": "a test decor file", "map": "{{map}}", "pieces": [ {{pieces}} ] }""";
+    public static string DecorBody(string pieces, string map = MapId, string shafts = "") =>
+        $$"""{ "comment": "a test decor file", "map": "{{map}}", "pieces": [ {{pieces}} ], "shafts": [ {{shafts}} ] }""";
+
+    /// <summary>Makes the JSON of one light shaft of the test shaft kind (D-918).</summary>
+    /// <param name="name">The name part of the id of the piece.</param>
+    /// <param name="x">The column of the tile.</param>
+    /// <param name="y">The row of the tile.</param>
+    /// <returns>The JSON of the shaft.</returns>
+    public static string Shaft(string name, int x, int y) =>
+        $$"""{ "id": "piece.{{name}}", "kind": "{{ShaftKindId}}", "x": {{x}}, "y": {{y}} }""";
 
     /// <summary>Makes the JSON of one torch piece.</summary>
     /// <param name="name">The name part of the id of the piece.</param>
@@ -104,9 +123,9 @@ public static class LightFixtures
     /// <param name="lightsInView">The light row.</param>
     /// <returns>The body.</returns>
     public static string BudgetBody(int lightsInView) =>
-        $$"""{ "comment": "a test budget", "lights_in_view": {{lightsInView}}, "live_particles": 8192, "full_screen_passes": 3 }""";
+        $$"""{ "comment": "a test budget", "lights_in_view": {{lightsInView}}, "live_particles": 8192, "full_screen_passes": 6 }""";
 
-    /// <summary>Makes the light files of the test place: the kind, the decor file, the setup, the carried light, the budget, and the glow.</summary>
+    /// <summary>Makes the light files of the test place: the kind, the shaft kind, the decor file, the setup, the carried light, the budget, the glow, and the passes.</summary>
     /// <param name="decor">The body of the decor file.</param>
     /// <param name="setup">The body of the light setup.</param>
     /// <param name="budget">The body of the effect budget.</param>
@@ -115,11 +134,13 @@ public static class LightFixtures
     public static List<ContentFile> Files(string decor, string setup, string? budget = null, string? glow = null) =>
     [
         File(KindPath, KindBody),
+        File(ShaftKindPath, ShaftKindBody),
         File(DecorPath, decor),
         File(SetupPath, setup),
         File(CarriedLight.Path, UiContentFixtures.CarriedBody),
         File(EffectBudget.Path, budget ?? BudgetBody(15)),
         File(Glow.Path, glow ?? UiContentFixtures.GlowBody),
+        File(Hd2dPasses.Path, UiContentFixtures.PassesBody),
     ];
 
     /// <summary>Reads the test map, with the terrain that the test gives.</summary>
@@ -159,10 +180,11 @@ public static class LightFixtures
             """),
         Core.Content.Palette.Path);
 
-    /// <summary>The atlas index of the test, with one drawing of the decor kind (D-519).</summary>
-    /// <param name="draws">The content id that the drawing draws.</param>
+    /// <summary>The atlas index of the test, with one drawing of the decor kind and of the opening of the shaft kind (D-519, D-924).</summary>
+    /// <param name="draws">The content id of the decor kind that the drawing draws.</param>
+    /// <param name="shaft">The content id of the shaft kind that the drawing draws.</param>
     /// <returns>The index.</returns>
-    public static AtlasIndex Atlas(string draws = KindId) => AtlasIndex.Read(
+    public static AtlasIndex Atlas(string draws = KindId, string shaft = ShaftKindId) => AtlasIndex.Read(
         Encoding.UTF8.GetBytes(
             $$"""
             {
@@ -174,7 +196,7 @@ public static class LightFixtures
                "page": "map_sprites",
                "width": 32,
                "height": 32,
-               "draws": [ { "content": "{{draws}}", "use": "map" } ],
+               "draws": [ { "content": "{{draws}}", "use": "map" }, { "content": "{{shaft}}", "use": "map" } ],
                "frames": [ { "x": 0, "y": 0, "ticks": 0 } ]
               }
              ]

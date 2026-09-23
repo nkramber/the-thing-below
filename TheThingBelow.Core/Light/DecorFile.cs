@@ -7,14 +7,14 @@ namespace TheThingBelow.Core.Light;
 
 /// <summary>One decor piece of a map: its id, its kind, and its tile (D-844).</summary>
 /// <param name="Id">The id of the piece, such as `piece.fixture_dungeon_hall_torch`. A light setup names it (D-843).</param>
-/// <param name="Kind">The id of the decor kind, such as `decor.wall_torch`.</param>
+/// <param name="Kind">The id of the decor kind, such as `decor.wall_torch`, or of the kind of a light shaft, such as `shaft.fixture_crack` (D-918).</param>
 /// <param name="Tile">The tile that holds the piece.</param>
 public sealed record DecorPiece(ContentId Id, ContentId Kind, TilePoint Tile);
 
 /// <summary>
-/// The decor file of one map: each decor piece at its tile (D-844). No rule reads a piece, so
-/// the file lies outside the rule folder, and a new or moved torch never changes the content
-/// hash (D-495).
+/// The decor file of one map: each decor piece and each light shaft at its tile (D-844, D-918).
+/// No rule reads a piece, so the file lies outside the rule folder, and a new or moved torch
+/// never changes the content hash (D-495).
 /// </summary>
 /// <remarks>
 /// The file points at the tiles of its map, as the edge file of D-501 does. The load checks
@@ -28,11 +28,12 @@ public sealed class DecorFile
     /// <summary>The kind of the id of each decor piece (D-646).</summary>
     public const string PieceKind = "piece";
 
-    private DecorFile(string file, ContentId map, IReadOnlyList<DecorPiece> pieces)
+    private DecorFile(string file, ContentId map, IReadOnlyList<DecorPiece> pieces, IReadOnlyList<DecorPiece> shafts)
     {
         this.File = file;
         this.Map = map;
         this.Pieces = pieces;
+        this.Shafts = shafts;
     }
 
     /// <summary>The path of the file, under `content/`, which every error names (T-2).</summary>
@@ -43,6 +44,12 @@ public sealed class DecorFile
 
     /// <summary>Every piece of the map, in the order of the file.</summary>
     public IReadOnlyList<DecorPiece> Pieces { get; }
+
+    /// <summary>
+    /// Every light shaft of the map, in the order of the file: 0 to <see cref="ShaftKind.MostShaftsOnMap"/>.
+    /// Each names a shaft kind, and each hangs on a wall as a piece does (D-918).
+    /// </summary>
+    public IReadOnlyList<DecorPiece> Shafts { get; }
 
     /// <summary>Tells whether a content path is a decor file.</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
@@ -70,8 +77,8 @@ public sealed class DecorFile
     }
 
     /// <summary>
-    /// Refuses a piece that its map cannot hold: a tile outside the map, a tile that is not a
-    /// wall, or a wall with no floor or doorway to its south (D-844).
+    /// Refuses a piece or a shaft that its map cannot hold: a tile outside the map, a tile that is
+    /// not a wall, or a wall with no floor or doorway to its south (D-844, D-918).
     /// </summary>
     /// <param name="map">The map that <see cref="Map"/> names.</param>
     /// <exception cref="ContentException">A piece does not fit the map (T-2).</exception>
@@ -83,12 +90,18 @@ public sealed class DecorFile
     {
         ArgumentNullException.ThrowIfNull(map);
 
-        for (int index = 0; index < this.Pieces.Count; index += 1)
+        this.RefuseWrongTile(map, this.Pieces, "pieces");
+        this.RefuseWrongTile(map, this.Shafts, "shafts");
+    }
+
+    private void RefuseWrongTile(GameMap map, IReadOnlyList<DecorPiece> pieces, string list)
+    {
+        for (int index = 0; index < pieces.Count; index += 1)
         {
-            DecorPiece piece = this.Pieces[index];
+            DecorPiece piece = pieces[index];
             TilePoint tile = piece.Tile;
             TilePoint south = tile.Step(StepDirection.South);
-            string field = $"pieces[{index}]";
+            string field = $"{list}[{index}]";
 
             if (!map.Holds(tile))
             {
@@ -121,6 +134,7 @@ public sealed class DecorFile
         string? comment = null;
         ContentId? map = null;
         List<DecorPiece>? pieces = null;
+        List<DecorPiece>? shafts = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -134,7 +148,10 @@ public sealed class DecorFile
                     map = reader.ReadContentId(GameMap.IdKind);
                     break;
                 case "pieces":
-                    pieces = ReadPieces(ref reader);
+                    pieces = ReadPieces(ref reader, DecorKind.IdKind);
+                    break;
+                case "shafts":
+                    shafts = ReadPieces(ref reader, ShaftKind.IdKind);
                     break;
                 default:
                     throw reader.UnknownField(field);
@@ -143,23 +160,34 @@ public sealed class DecorFile
 
         _ = reader.Require(comment, depth, "comment");
         List<DecorPiece> read = reader.Require(pieces, depth, "pieces");
-        RefuseRepeatedId(ref reader, depth, read);
-        return new DecorFile(reader.File, reader.Require(map, depth, "map"), read);
+        List<DecorPiece> readShafts = reader.Require(shafts, depth, "shafts");
+
+        // The shaft shader holds the shafts of one map in arrays of a fixed size (D-918, T-2).
+        if (readShafts.Count > ShaftKind.MostShaftsOnMap)
+        {
+            throw reader.RefuseField(
+                depth,
+                "shafts",
+                $"the file holds {readShafts.Count} light shafts, and a map holds {ShaftKind.MostShaftsOnMap} at most, the size of the arrays of the shaft shader (D-918)");
+        }
+
+        RefuseRepeatedId(ref reader, depth, read, readShafts);
+        return new DecorFile(reader.File, reader.Require(map, depth, "map"), read, readShafts);
     }
 
-    private static List<DecorPiece> ReadPieces(ref ContentReader reader)
+    private static List<DecorPiece> ReadPieces(ref ContentReader reader, string kindOfKind)
     {
         var pieces = new List<DecorPiece>();
         int depth = reader.ReadArrayStart();
         while (reader.ReadNextElement(depth, pieces.Count))
         {
-            pieces.Add(ReadPiece(ref reader));
+            pieces.Add(ReadPiece(ref reader, kindOfKind));
         }
 
         return pieces;
     }
 
-    private static DecorPiece ReadPiece(ref ContentReader reader)
+    private static DecorPiece ReadPiece(ref ContentReader reader, string kindOfKind)
     {
         ContentId? id = null;
         ContentId? kind = null;
@@ -175,7 +203,7 @@ public sealed class DecorFile
                     id = reader.ReadContentId(PieceKind);
                     break;
                 case "kind":
-                    kind = reader.ReadContentId(DecorKind.IdKind);
+                    kind = reader.ReadContentId(kindOfKind);
                     break;
                 case "x":
                     x = reader.ReadInt();
@@ -194,16 +222,22 @@ public sealed class DecorFile
             new TilePoint(reader.RequireInt(x, depth, "x"), reader.RequireInt(y, depth, "y")));
     }
 
-    private static void RefuseRepeatedId(ref ContentReader reader, int depth, List<DecorPiece> pieces)
+    private static void RefuseRepeatedId(ref ContentReader reader, int depth, List<DecorPiece> pieces, List<DecorPiece> shafts)
     {
         var seen = new SortedSet<string>(StringComparer.Ordinal);
+        RefuseRepeatedId(ref reader, depth, pieces, "pieces", seen);
+        RefuseRepeatedId(ref reader, depth, shafts, "shafts", seen);
+    }
+
+    private static void RefuseRepeatedId(ref ContentReader reader, int depth, List<DecorPiece> pieces, string list, SortedSet<string> seen)
+    {
         for (int index = 0; index < pieces.Count; index += 1)
         {
             if (!seen.Add(pieces[index].Id.Value))
             {
                 throw reader.RefuseField(
                     depth,
-                    $"pieces[{index}].id",
+                    $"{list}[{index}].id",
                     $"the id '{pieces[index].Id.Value}' names two pieces, and one id names one piece (D-166, D-843)");
             }
         }

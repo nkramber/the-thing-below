@@ -152,7 +152,13 @@ Effects terms from the roadmaps PR of 2026-09-15:
 | full-screen pass | an effect that redraws the whole frame, such as fog, glow, or a transition (D-523) | post-process, when the text means these |
 | glow threshold | the linear light, in basis points of full white, where a pixel of the world view starts to glow (D-910) | bloom threshold, glow cutoff |
 | glow rectangle | the small rectangle of one palette key over a flame, which draws above the glow threshold and pulses (D-913, D-915) | glow seed in prose, emission, bloom source |
-| overlay | the view with no HDR 2D that shares the world and draws the fog, the hit bursts, and the marks above the glow (D-916) | top layer, foreground view |
+| overlay | the view with no HDR 2D that shares the world and draws the fog, the hit bursts, and the light shafts above the glow (D-916, D-919) | top layer, foreground view |
+| mark view | the view that shares the world and draws the marks, the battle pointer, and the health bars above the passes of PR-92 (D-919) | mark layer in prose, top view |
+| scene view | the view of 640 by 360 that joins the world and the overlay, which the tilt-shift blur reads (D-919) | composite, back buffer |
+| tilt-shift blur | the blur of a band at the top and the bottom of the view (D-849) | depth of field, DOF, bokeh |
+| vignette | the dark at the edges and the corners of the view (D-849) | edge shade, falloff |
+| light shaft | a still beam of light from an opening in a wall, such as a window, into the room to its south, which a shaft kind holds (D-918, D-924, D-925) | god ray, sunbeam, light ray |
+| smooth mode, stepped mode | the two modes of the three passes of PR-92: no steps, or steps over blocks of art pixels (D-917) | soft mode, pixel mode |
 | pulse | the slow wave of the tick that swells and fades each glow (D-913) | flicker, which names the steps of a torch light (D-891), and throb |
 | wait intent | the intent that Game sends when an effect that the world waits for ends (D-522) | continue intent, done signal |
 | transition | one of the full-screen effects of D-195 that start a battle (D-191, D-196) | wipe, which names a party wipe (D-36), and screen change |

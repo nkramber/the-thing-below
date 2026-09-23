@@ -736,3 +736,43 @@ How to file a question (D-19, D-24):
     - The glow pass of our own, stepped. The glow keeps the pixel look of the fog.
     - HDR 2D, smooth. The glow of Godot, with the side effects of F-104 on the light and the fog.
     - Resolved 2026-09-23: D-915. HDR 2D, smooth, with half its intensity and the pulse of D-913. D-916 puts the fog above the glow.
+233. **OQ-233. The look of the blur and the vignette.** G-27 keeps each effect to the palette and hard edges, with two exceptions: the fog and the glow. How do the tilt-shift blur and the vignette of PR-92 look? Raised 2026-09-23. Blocked PR-92.
+    - Smooth, at the art pixel, the recommendation. Both passes read the grid of 640 by 360 art pixels and fade smoothly, and their colors leave the palette.
+    - Stepped, as the fog. Each pass fades in 2 to 8 steps over blocks of art pixels (D-907).
+    - Both modes, to compare. The effect file holds the mode, as the glow of PR-59 did (D-914).
+    - Resolved 2026-09-23: D-917. Both modes, to compare, and the light shafts take them too.
+234. **OQ-234. The source of a light shaft.** D-849 adds light shafts to the world. What puts a shaft on a map? Raised 2026-09-23. Blocked PR-92.
+    - A decor kind, the recommendation. The decor file of a map places each shaft, as it places each fire (D-888).
+    - Rays from each light source. A pass pulls rays out of each bright source.
+    - One set of beams for each map. The ambient file of a map sets a direction and a color, and a noise draws the beams over the view.
+    - Resolved 2026-09-23: D-918. A decor kind.
+235. **OQ-235. The place of the passes in the frame.** The frame draws the world with its glow, then the overlay, then the UI. The overlay holds the fog, the hit bursts, and the marks (D-916). Where do the three passes draw? Raised 2026-09-23. Blocked PR-92.
+    - Above the fog and under the marks, the recommendation. The marks move to a view of their own, above the passes.
+    - In the world view alone, under the overlay.
+    - Above the full overlay, with the marks.
+    - Resolved 2026-09-23: D-919. Above the fog and under the marks.
+236. **OQ-236. The screens of the passes.** Which screens draw the tilt-shift blur, the vignette, and the light shafts? Raised 2026-09-23. Blocked PR-92.
+    - Every map and every fight, the recommendation. One effect file holds the blur and the vignette, and each shaft draws where the decor places it.
+    - Maps alone. A fight stays sharp.
+    - Each place in its content. The ambient file of each map and each battle place turns each pass on.
+    - Resolved 2026-09-23: D-920. Every map and every fight.
+237. **OQ-237. The motion of a light shaft.** Does a light shaft stand still, or does it shimmer? Raised 2026-09-23. Blocked PR-92.
+    - A still beam in both modes, the recommendation.
+    - A slow shimmer in both modes. The strength of each beam swells and fades on a wave of the tick, as the glow does (D-913).
+    - A still beam in the smooth mode alone.
+    - Resolved 2026-09-23: D-921. Both the still beam and the shimmer, each in both modes, to compare. D-925 keeps the still beam.
+238. **OQ-238. The Deck sweep of the heavier stack.** D-849 needs a new Deck sweep before PR-92 merges (G-14). How does the sweep measure the stack? Raised 2026-09-23. Blocked PR-92.
+    - New stages on the branch `spike/deck-test`, the recommendation. The stage `full-load-24` is the measurement before, and the same load with the three passes is the measurement after.
+    - A frame meter in the debug build of the game, on the fixture map, with the passes off and on.
+    - Resolved 2026-09-23: D-922. New stages on the spike branch.
+239. **OQ-239. The pass row after the sweep.** The budget holds 3 full-screen passes (D-617), and the fog and the glow take 2 of them. What does the row become? Raised 2026-09-23. Blocked PR-92.
+    - 6, the recommendation. The sweep measures the fog, the glow, the three passes, and a transition, so PR-60 needs no new sweep.
+    - 5. The row holds the passes of PR-92 alone, and PR-60 needs a new sweep.
+    - 8. The sweep adds passes that the game does not hold yet, for room.
+    - Resolved 2026-09-23: D-923. 6.
+240. **OQ-240. The light of a wall shaft.** The owner read the fixture shafts and said that a beam from a bare wall makes no sense. Where does a shaft come from? Raised 2026-09-23. Blocked PR-92.
+    - From the ceiling onto a floor tile, the recommendation. The beam starts at the top of the view and falls onto the tile.
+    - From the top edge of the view, at one angle for the map.
+    - From a wall, only where a drawing shows an opening, such as a window.
+    - Resolved 2026-09-23: D-924. From a wall with an opening. The owner also wants shafts from the ceiling later (OQ-241).
+241. **OQ-241. The PR of the ceiling shafts.** The owner wants light shafts from the ceiling at some point (D-924). Which PR adds them, and where does it sit in the sequence? Raised 2026-09-23. Blocks nothing yet.

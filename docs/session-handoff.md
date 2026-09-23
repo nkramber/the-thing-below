@@ -1,3 +1,186 @@
+## Session 231: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #62, round 2. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: reviewer. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- Recomputed the effective head. The PR tip is `3c3de99`, and its changes since `238bafe` are review and handoff metadata only.
+- Read the author's answers to each claim of the Gitar CI analysis and checked their cited commits and job results.
+- Rechecked the prior review, the complete implementation scope, and the current Gitar pass. The code review approves the implementation, and there are no open review threads.
+- Ran `make verify`: 2,277 tests passed; format, det-lint, ste-check, replay identity, content hash, atlas, and smoke passed.
+- Updated `docs/reviews/pr-62.md`, retained the earlier `Blocked` verdict, and gave `Ready for owner merge` for effective head `238bafe`.
+
+### The state of the build
+
+- `main` is `05dcc3d`. Before this review commit, the remote PR head was `3c3de99` and the effective head was `238bafe`.
+- CI run 35823669111 passed the implementation checks on `238bafe`. Metadata run 35826831792 passed applicable checks, with implementation legs skipped. Review-gate run 35826840307 failed only RG 4 because the previous record still said `Blocked`.
+- Review-gate run 35828245270 passed RG 1 to RG 8 after publication at `d366f7e`. Metadata run 35828245787 and Gitar passed on that head; the Gitar review approves the code.
+
+### What is in flight
+
+- The review is ready for the owner to merge.
+
+### Traps and gotchas
+
+- Metadata-only pushes skip platform build, replay identity, and screen-test legs. The implementation evidence remains run 35823669111 on `238bafe`.
+- The Gitar analysis on `3c3de99` approves the code. Its reported CI fault is RG 4 reading the prior review verdict.
+
+### The questions that block progress
+
+None. OQ-241 asks which later PR adds ceiling shafts and blocks no progress here (D-924).
+
+### The next concrete action
+
+The owner merges PR #62.
+
+## Session 230: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-92, round 3. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- The review of session 229 gave `Blocked` for `238bafe`, with no finding in the code. The author had handed over with the CI analysis of the Gitar dashboard unanswered (D-14, D-67).
+- Answered each claim of that analysis in a PR comment, and wrote `docs/reviews/pr-62-response.md`.
+- The Gitar pass on this PR: 6 claims of the CI analysis over 4 heads, and no review thread. 3 claims had merit: the absent baselines (`5747c01`, `8b299b3`), the RG 7 line (PR description), and RG 4 (this answer). RG 6, RG 3, and the coverage failure had no merit for the author.
+- Every code review of the pass approved, from `2d67459` to `26405dd`.
+
+### The state of the build
+
+- `main` is `05dcc3d`. The effective head is `238bafe`, and this commit is in the metadata set (D-610).
+- CI passes every implementation check on `238bafe`. Review-gate passes all but RG 4, which reads the `Blocked` verdict.
+
+### What is in flight
+
+- The other provider repeats the review of `238bafe` with this response.
+
+### Traps and gotchas
+
+- The CI analysis in the Gitar dashboard is a comment of the pass, also when the code review approves. Answer each claim on the PR before the hand-over, and record the counts here.
+
+### The questions that block progress
+
+None. OQ-241 blocks no progress on PR #62.
+
+### The next concrete action
+
+The other provider repeats the review of PR #62.
+
+## Session 229: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #62, round 1. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: reviewer. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- Reviewed the full diff from `05dcc3d` through effective head `238bafe`.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Checked the readers, render path, shaders, effect budget, decisions, tests, CI, and all 74 screen captures.
+- Added `docs/reviews/pr-62.md`. The verdict is blocked because the author has not answered the current Gitar comment.
+
+### The state of the build
+
+- `main` is `05dcc3d`. The remote PR head is `09f2281`, and the effective head is `238bafe`.
+- The focused tests pass with 230 tests. CI run 35823669111 passes each implementation check on the configured legs.
+- Metadata CI run 35825994991 passes its applicable checks. Review-gate run 35825994798 passes RG 1 to RG 3 and RG 5 to RG 8. RG 4 reads the required `Blocked` verdict.
+- Gitar passes on `09f2281`; its dashboard still reports the RG 4 failure. The author has not replied.
+
+### What is in flight
+
+- The PR waits for the author to answer the Gitar comment, and for the next review of the response.
+
+### Traps and gotchas
+
+- The first Gitar pass flagged the absent review path. The latest pass reports the `Blocked` verdict under RG 4.
+- OQ-241 asks which later PR adds ceiling shafts, and blocks nothing here.
+
+### The questions that block progress
+
+None. OQ-241 blocks no progress on PR #62.
+
+### The next concrete action
+
+The author answers the Gitar comment, then the other provider reviews the response.
+
+## Session 228: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-92, round 2. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- The owner read the fixture shafts and said that a beam from a bare wall makes no sense. D-924 keeps wall shafts only under an opening, such as a window (OQ-240).
+- The owner kept the still beam. D-925 removes the shimmer, its fields, the shimmer shaft, and the stepped still captures, and `LightWave` went back into `GlowPass`.
+- A shaft kind now needs a drawing, and the map draws it on the wall. The fixture dungeon holds one barred window at (6, 1), with `drawing.decor_fixture_window` in the atlas.
+- The owner wants ceiling shafts later. OQ-241 asks which PR adds them.
+
+### The state of the build
+
+- `main` is `05dcc3d`. The tests, format, lint, identity, content, atlas, and smoke pass on this machine. The author read `make sheet` for the map fixture.
+- CI run 35821954258 on `efbf7dd`: the two capture runs matched on all 74 captures. The 48 baselines that the window changed come from its artifact (D-733).
+- Gitar approved `efbf7dd` with no finding. CI and gitar passed on `8b299b3`, with review-gate waiting for the review record.
+- The owner turned on SSH on the Deck, and this session ran the sweep of `spike/deck-test` there at the owner's request. The results are `a6f9f0b` on that branch, and they hold the pass row of 6 (F-106).
+
+### What is in flight
+
+- The PR waits for CI on the baseline commit and the review of the other provider.
+
+### Traps and gotchas
+
+- The window sits on the brick face of the wall tile, rows 16 to 27. The cap above the face is rows 0 to 15.
+- A shaft sprite draws unshaded, as a torch does, so the opening stays bright in the dark.
+- Over SSH, the Deck takes no `.bashrc`, so set `DOTNET_ROOT`, `PATH`, and `GODOT` by hand, and `DISPLAY=:0` for the sweep. Godot then falls back to Wayland.
+- The owner should stop SSH on the Deck after this PR: `sudo systemctl stop sshd`.
+
+### The questions that block progress
+
+None. OQ-241 blocks no PR yet.
+
+### The next concrete action
+
+The other provider reviews PR #62.
+
+## Session 227: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-92, round 1. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- Asked the questions of PR-92 and recorded OQ-233 to OQ-239 and D-917 to D-923. D-917, D-919, and D-923 revise D-622, D-916, and D-617 in part.
+- Built the tilt-shift blur, the vignette, and the light shafts, each in a smooth mode and a stepped mode (D-917). `content/effects/hd2d.json` holds the mode.
+- A shaft is a shaft kind in `content/decor/shafts/`, and a decor file places it on a wall (D-918). The fixture dungeon holds a still shaft and a shaft that shimmers (D-921).
+- The shafts draw in the overlay. A scene view joins the world and the overlay, and the frame draws it with the blur and the vignette. The marks moved to a mark view above them (D-919).
+- The budget counts the passes of each map, a map with no weather included, and the pass row is 6 (D-920, D-923). The simulation version is 15.
+- Added the stages `pass-look`, `full-load-24-look`, and `budget-rows` to `spike/deck-test` as `6bb1595` (D-922).
+- Added stepped captures of the map, a fight, and the still fixture. The author read the frames of `make sheet`.
+
+### The state of the build
+
+- `main` is `05dcc3d`. `make verify` passed on this machine except the 6 new baselines.
+- CI run 35820532779 on `2d67459`: the two capture runs matched on all 78 captures. The 72 baselines that changed come from its artifact (D-733). The 5 ui captures and the picture capture did not change.
+- Gitar approved `2d67459` with no finding.
+
+### What is in flight
+
+- The owner runs the Deck sweep of `spike/deck-test`. The pass row of 6 stands only when `full-load-24-look` and `budget-rows` hold 60 frames per second (G-14).
+- The PR waits for CI on the baseline commit and the review of the other provider.
+
+### Traps and gotchas
+
+- Godot takes no default value for a uniform array. The spike copy of the shaft shader uses constants.
+- Two walk fixtures can follow each other in the capture list, so the session rebuilds the run when the fixture changes.
+- The view of the scene reads with a linear filter. The blur shader reads each sharp pixel at the middle of its art pixel.
+
+### The questions that block progress
+
+None. The Deck sweep is a measurement, not a question.
+
+### The next concrete action
+
+Read the Deck reports, commit them to `spike/deck-test`, and record the numbers in the PR. Then commit the baselines from the CI artifact.
+
 ## Session 226: 2026-09-23, Codex
 
 Author: Codex
@@ -177,177 +360,3 @@ None.
 ### The next concrete action
 
 The author corrects P2-1 and answers the Gitar comment. Then this reviewer reassesses PR #60.
-
-## Session 221: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #60. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: reviewer. Base: `a20d32f`.
-
-### What this session did, and why
-
-- Reviewed the reversion of the Gitar pause at effective head `aa1a10f`.
-- Found that PR #60 deletes the PR #58 review and sessions 209 and 210. It also edits dated PR #59 records. D-10 says that a rewrite falsifies a dated record.
-- Added `docs/reviews/pr-60.md` with finding P2-1 and verdict `Changes required`.
-
-### The state of the build
-
-- The remote head of `main` is `a20d32f`.
-- At `aa1a10f`, `make ste-check` passed with 0 findings. Changed-path CI passed its listed checks, and the Gitar check passed. Review-gate failed RG 3 because the review record did not yet exist.
-- The review and this handoff need commit and push. The effective head remains `aa1a10f`.
-
-### What is in flight
-
-- PR #60 needs the author to restore the historical records and follow the end-of-pause decision procedure from the base runbook.
-
-### Traps and gotchas
-
-- D-10 calls dated records history. Do not rewrite them to remove a decision that later changed.
-- The PR #58 review and sessions 209 and 210 belong in the live records.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The author corrects P2-1. Then this reviewer reassesses PR #60.
-
-## Session 220: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR #60. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: author. Base: `a20d32f`.
-
-### What this session did, and why
-
-- The owner told the session to undo PR #58, the pause of the gitar pass, and to put each file back as it was.
-- Reverted the squash commit `8d98c46`. The four skills, `CLAUDE.md`, `AGENTS.md`, the PR template, and the runbook are the same as at `8d98c46~1`.
-- Restored D-14, D-66, D-67, D-586, D-587, and D-705 to their text at `8d98c46~1`. Removed the pause row, its heading, and the review record of PR #58.
-- Removed the handoff entries of sessions 209 and 210. Removed each citation of the pause row from the records of PR #59.
-- Kept D-896 to D-908 of PR #59. They now continue the table of D-894.
-- The owner chose to remove the records too, and not to add a row that ends the pause. Thus no decision row records this revert.
-
-### The state of the build
-
-- The remote head of `main` is `a20d32f`, the merge of PR #59.
-- PR #58 changed no workflow and no branch protection rule. The eight required checks of `main` read no gitar result. Thus this PR changes no CI.
-
-### What is in flight
-
-- PR #60 waits for the gitar pass and for the review of the other provider. It changes decision rows, so the label of D-401 does not apply.
-
-### Traps and gotchas
-
-- The rules of D-14 and D-66 hold again. Each PR, this PR included, waits for the gitar pass and answers it.
-- The session numbers 209 and 210 are now absent from both handoff files.
-- Sessions 199 to 208 stay in the archive. The limit of 10 entries keeps them there.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Follow the `gitar-review` skill on PR #60. Then the other provider reviews PR #60.
-
-## Session 219: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR-94, round 2. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: reviewer. Base: `8d98c46`.
-
-### What this session did, and why
-
-- Re-reviewed the correction to P2-1 at effective head `2842f0e`.
-- Verified that D-908 records the owner's coverage choice, resolves OQ-231, and matches the fixture and roadmap updates.
-- Ran `make verify`, checked the 72 screen captures, and read the current map and battle fog frames.
-- Updated `docs/reviews/pr-59.md` with the fixed finding, earlier verdict, current verdict, and repeat-review evidence.
-
-### The state of the build
-
-- The remote head of `main` is `8d98c46`; the remote PR head and effective head are `2842f0e`.
-- `make verify` passed with 2,174 tests. The build, format, det-lint, ste-check, replay identity, content hash, atlas, and smoke checks passed.
-- CI run 35803716443 passed the implementation checks, including screen-test, on the configured legs.
-- Review-gate at `2842f0e` failed RG 4 and RG 5 because the review record still named its prior `Blocked` verdict and head `8011192`. This session updates both fields.
-
-### What is in flight
-
-- The updated review record and handoff entry need commit and push.
-- The fresh review-gate result needs verification after the push.
-
-### Traps and gotchas
-
-- D-895 pauses Gitar replies. The Gitar check passed, and the current Gitar comment reports the stale review-gate fields.
-- Bot and night-gate checks do not exist yet; PR-15 and PR-49 create them (G-16).
-
-### The questions that block progress
-
-None. D-908 resolves OQ-231.
-
-### The next concrete action
-
-Run `make where`, commit the review record and this handoff, push, then fetch and verify the remote head and review-gate.
-
-## Session 218: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-94, round 7. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
-
-### What this session did, and why
-
-- Committed the baselines of `map-fog-1x` and `battle-fog-1x` from the artifact of CI run 35803303503 at `205a8ee` (D-733). The two runs of that job matched on all 72 captures, and only the two fog frames differed from the old baseline.
-- The final head of `docs/reviews/pr-59-response.md` names this commit.
-
-### The state of the build
-
-- The remote head of `main` is `8d98c46`. The PR head before this round is `205a8ee`, and the commit of this round is the effective head.
-- CI on `205a8ee` passed each check except screen-test, on the two fog frames alone, and review-gate, which reads the `Blocked` verdict of `8011192`.
-
-### What is in flight
-
-- The PR waits for the repeat review of the other provider on the answer to P2-1 (T-4).
-
-### Traps and gotchas
-
-- None new.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The other provider reviews the answer to P2-1, and updates `docs/reviews/pr-59.md`.
-
-## Session 217: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-94, round 6, the answer to the review. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
-
-### What this session did, and why
-
-- Answered the review of session 216, which gave `Blocked` for head `8011192`. P2-1 has full merit: D-907 closed OQ-231, and it named no coverage (D-19).
-- Asked the owner the coverage question again. The owner chose a little less coverage, and D-908 records it and resolves OQ-231. D-907 now answers no question.
-- The wide banks of the fixture fog start at 4800 in place of 4300, and the smaller clouds start at 5400 in place of 5000.
-- The author read `map-fog-1x` and `battle-fog-1x` from `make sheet`. Each frame shows more clear ground between the banks (D-784).
-- Wrote `docs/reviews/pr-59-response.md`.
-
-### The state of the build
-
-- The remote head of `main` is `8d98c46`. The PR head before this round is `cd20431`, the metadata commit of the review.
-- `make test` (2,174 tests), `make format`, `make lint`, `make identity`, `make content`, `make smoke`, and `make ste-check` pass on this machine.
-
-### What is in flight
-
-- The screen-test job gives new baselines for the two fog frames, and the author commits them from the artifact.
-- Then the other provider reviews the correction again (T-4).
-
-### Traps and gotchas
-
-- An answer of the owner that names another subject than the question does not resolve the question. Ask the question again (D-19).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit the fog baselines from the CI artifact. Then the other provider reviews the correction.
