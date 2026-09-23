@@ -86,7 +86,7 @@ The table lists what a frame draws, from the bottom to the top.
 | Figures | The party, the enemies, the NPCs, and objects such as chests | Yes | D-199, D-207 |
 | Flames | The flame, the embers, and the smoke of each torch | No | D-890 |
 | Particles | Blood, sparks, snow, embers, and dust | As its effect file sets | D-186, D-187 |
-| Fog | Each layer of fog of the weather of the place | As its effect file sets | D-885, D-887 |
+| Fog | The fog of the weather of the place: 1 to 3 layers in one pass | As its effect file sets | D-885, D-897, D-898, D-900 |
 | Mark | The mark of a sight over an enemy | No | D-208 |
 | Light | The ambient light of the time of day, the point lights, and the shadows | — | D-183, D-442 |
 | Glow | A soft glow on light sources alone | No | D-188 |
@@ -101,7 +101,7 @@ The table lists what a frame draws, from the bottom to the top.
 - A transition is full-screen, so it covers the UI too (D-195, D-210).
 - Fog draws above the figures, and a contrast test keeps each enemy visible (D-187, D-885, D-886, D-892).
 - The Z index of each step above the figures follows the table: the flame of a torch 2, and the weather 3.
-- Each layer of fog takes 4 and up, a hit burst takes 5, and the mark of a sight takes 8. Fog never hides the mark (D-208).
+- The fog takes 4, a hit burst takes 5, and the mark of a sight takes 8. Fog never hides the mark (D-208).
 - `area-ui-input.md` builds the frame and the fit. This file holds what draws inside the frame.
 
 > *In plain English:* each frame stacks the same way: the world, then its light, then the menus, then a transition over all of it. Menus never catch the torchlight, and the whole stack scales to the screen at the end.
@@ -127,7 +127,7 @@ Built by the owner and a session, before PR-1. Phase file: `phase-1-foundations.
 
 ### 7.4 The effect budget
 
-Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-59, and PR-60. Phase file: `phase-2-first-playable.md`.
+Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-94, PR-59, and PR-60. Phase file: `phase-2-first-playable.md`.
 
 - The effect budget holds the load that the Deck test measured: lights with shadows on screen, live particles, and full-screen passes (D-523).
 - The budget is a content file with integer limits (D-517). A change to it cites a Deck measurement before and after (G-14).
@@ -135,7 +135,7 @@ Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-59, and PR-60.
 - The test moves a window of 640 by 360 art pixels over the map. It takes the highest count of lights whose range reaches the window (D-842).
 - Godot drops each light past 15 on one canvas item with no message (F-46). A map layer draws a group of 256 tiles as one canvas item.
 - So the budget test also fails more than 15 lights on one canvas item, whatever the Deck test measures (T-2).
-- PR-56 adds the budget file and its test with the rows for light. PR-57 adds the particle row, and PR-58, PR-59, and PR-60 add their full-screen passes.
+- PR-56 adds the budget file and its test with the rows for light. PR-57 adds the particle row, and PR-58, PR-59, and PR-60 add their full-screen passes. PR-94 counts one pass for each fog (D-898).
 - The particle row holds the 8192 live particles of the sweep of 2026-09-17 (D-617). The screen plays one hit at a time, so the test counts the largest burst of a hit (D-879).
 - The first rows of the budget come from the run of 2026-09-17: 15 lights with shadows, 8192 live particles, and 3 full-screen passes (D-617).
 - The light row rises to 24 after a new Deck sweep with 24 paired lights, before PR-56 merges (D-854). Each light source counts two lights (D-853). The sweep of 2026-09-21 held, with 4.55 ms at the 95th percentile for the full load (F-96).
@@ -236,9 +236,9 @@ Built by PR-58. Phase file: `phase-2-first-playable.md`.
 - A fire is a decor kind, and it carries a point light of PR-56 (D-183, D-888).
 - Each wall torch and the carried light take a flame, embers, and a light that changes in steps from the tick (D-890, D-891).
 - Fog never hides an enemy that the player must see (D-187). Fog draws above the figures, and the luma test of D-886 caps its strength (D-885).
-- Fog is a text grid of a few shapes in one palette key, which drift over the view (D-887).
+- Fog is a noise shader of 1 to 3 layers in one pass. Each layer fades from clear to its strength in a few steps, over blocks of art pixels, in one palette key, and drifts slowly (D-897, D-900, D-907). The strongest layer wins where layers overlap, and the density is even over the view (D-899, D-902). PR-94 replaced the text grid of D-887, because the grid repeats over the view (F-101).
 - The test content holds one ambient file of each kind for the fixture dungeon, and the shipped dungeon takes dust and drips (D-889).
-- Fog and each other full-screen ambient effect count against the effect budget (D-523).
+- Fog and each other full-screen ambient effect count against the effect budget (D-523). A fog counts as one pass, whatever its count of layers (D-898).
 - The ambience of each map matches its ambient effects, and `area-audio.md` holds the sound (D-424).
 - PR-17 adds the ambient effects of the village, the land near it, the mining town, and the hanging cells (D-362, D-369, D-520).
 
@@ -275,7 +275,7 @@ Built by PR-60. Phase file: `phase-2-first-playable.md`.
 
 Built by every effect PR, and kept by the screen tests. Phase file: `phase-2-first-playable.md`.
 
-- Every effect draws with the palette of 64 colors and hard edges, and no smooth gradient (G-27, D-181, D-622).
+- Every effect draws with the palette of 64 colors and hard edges, and no smooth gradient (G-27, D-181, D-622). The fog alone fades, in steps over blocks of art pixels (D-900, D-907).
 - The rule covers each particle, the fog, the glow, and each transition (D-187, D-188, D-195).
 - A full-screen pass draws at the pixel size of the frame, so an effect pixel matches an art pixel (D-230, F-67).
 - The owner reads each new effect on the Mac as its PR lands, and not on the Deck (D-622, D-623).
@@ -310,6 +310,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | PR-57 | Effect files, particles, the shake, and the hit-stop | D-182, D-186, D-877 to D-883 |
 | PR-12 | The flash of a spell | D-186, D-878 |
 | PR-58 | The four ambient kinds | D-187, D-202 |
+| PR-94 | The procedural fog: a soft noise shader of 1 to 3 layers in one pass | D-896 to D-908 |
 | PR-59 | Glow | D-188 |
 | PR-92 | The tilt-shift blur, the vignette, and the light shafts of the HD-2D look | D-849 |
 | PR-60 | The ten transitions and the table of kinds | D-195, D-196 |
@@ -374,12 +375,13 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 9. PR-56: light, shadows, and the budget test, the first PR that draws light (D-520, D-523).
 10. PR-57: effect files, particles, and the battle effects.
 11. PR-58: the ambient effects.
-12. PR-59: glow.
-13. PR-92: the three passes of the HD-2D look, after a new Deck sweep (D-849).
-14. PR-60: the transitions.
-15. PR-17: the first places with their light and effects.
-16. M-6: the Deck against the effect budget.
-17. **← GATE 2 (first playable).** The owner plays every effect on the Deck (D-161).
+12. PR-94: the procedural fog (D-896).
+13. PR-59: glow.
+14. PR-92: the three passes of the HD-2D look, after a new Deck sweep (D-849).
+15. PR-60: the transitions.
+16. PR-17: the first places with their light and effects.
+17. M-6: the Deck against the effect budget.
+18. **← GATE 2 (first playable).** The owner plays every effect on the Deck (D-161).
 
 ## 9. Open questions
 
@@ -392,6 +394,7 @@ The register is `docs/questions.md` (D-19). These questions block effect PRs, an
 - OQ-101: how fog keeps an enemy visible. Resolved 2026-09-22 by D-885.
 - OQ-102: how glow stays off sprites. Blocks PR-59.
 - OQ-103: where shader code lives. Resolved by D-825.
+- OQ-220 to OQ-231: the place, the form, the passes, the overlap, the edges, the resolution, the spread, the color, the test floor, the strength, and the coverage of the procedural fog. Resolved 2026-09-22 by D-896 to D-908.
 - OQ-79: how the screen-test job pins Mesa. Closed 2026-09-20 by D-729, and D-730 holds the pin.
 - OQ-89: pixel snap in Game. Blocks PR-7.
 - OQ-183: the scale of the frame on a screen. Blocks PR-7 and PR-34, and the probe of D-621 answers it.

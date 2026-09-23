@@ -17,8 +17,8 @@ namespace TheThingBelow.Core.Effects;
 /// <item>Each map that a file serves exists, and a map takes one shipped weather or none (D-202).</item>
 /// <item>Each color names a key of the palette (D-181).</item>
 /// <item>The particles of a map, with its weather, its torches, and the carried light, keep inside the effect budget. So do the particles of a fight on the map, with its largest hit burst (D-523).</item>
-/// <item>The layers of fog of a weather keep inside the row of full-screen passes (D-523).</item>
-/// <item>The strongest band of each fog keeps each enemy of each map that it serves visible (D-885, D-886).</item>
+/// <item>The fog of a weather keeps inside the row of full-screen passes, as one pass for all its layers (D-523, D-898).</item>
+/// <item>The full strength of each layer of fog keeps each enemy of each map that it serves visible (D-885, D-886).</item>
 /// </list>
 /// </remarks>
 public sealed class AmbientContent
@@ -208,16 +208,16 @@ public sealed class AmbientContent
                 $"the map '{map.Id.Value}' shows {live} live particles with this weather, and the row `live_particles` of `{EffectBudget.Path}` allows {budget.LiveParticles} (D-523)");
         }
 
-        if (effect.Fogs.Count > budget.FullScreenPasses)
+        if (effect.FullScreenPasses > budget.FullScreenPasses)
         {
             throw ContentException.ForField(
                 effect.File,
                 "fogs",
-                $"the weather draws {effect.Fogs.Count} full-screen passes, and the row `full_screen_passes` of `{EffectBudget.Path}` allows {budget.FullScreenPasses} (D-523)");
+                $"the weather draws {effect.FullScreenPasses} full-screen passes, and the row `full_screen_passes` of `{EffectBudget.Path}` allows {budget.FullScreenPasses} (D-523, D-898)");
         }
     }
 
-    /// <summary>Refuses a fog whose strongest band makes an enemy of the map too faint on its floor (D-885, D-886, T-2).</summary>
+    /// <summary>Refuses a fog whose full strength makes an enemy of the map too faint on its floor (D-885, D-886, T-2).</summary>
     private static void RefuseFaintEnemy(AmbientEffect effect, GameMap map, AmbientWorld world)
     {
         if (effect.Fogs.Count == 0)
@@ -235,9 +235,9 @@ public sealed class AmbientContent
                 {
                     throw ContentException.ForField(
                         effect.File,
-                        $"fogs[{index}].bands",
+                        $"fogs[{index}].strength",
                         $"on the map '{map.Id.Value}', the outline key '{fault.Outline}' of '{enemy.Id.Value}' and the floor key '{fault.Floor}' "
-                        + $"keep a luma gap of {fault.Gap} under the strongest band, and the fog test needs {FogContrast.LeastGap} with no fog and under it (D-886, D-892)");
+                        + $"keep a luma gap of {fault.Gap} under the full strength of the layer, and the fog test needs {FogContrast.LeastGap} with no fog and under it (D-886, D-892, D-906)");
                 }
             }
         }

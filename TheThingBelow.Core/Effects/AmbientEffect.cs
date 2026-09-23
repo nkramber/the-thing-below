@@ -21,8 +21,8 @@ public enum AmbientKind
 }
 
 /// <summary>
-/// The weather of one or more maps: streams of particles over the view, and layers of fog
-/// above the figures (D-187, D-202, D-885). The same weather plays over the battle backdrop of
+/// The weather of one or more maps: streams of particles over the view, and a fog of 1 to 3
+/// layers above the figures (D-187, D-202, D-885). The same weather plays over the battle backdrop of
 /// the map (D-205).
 /// </summary>
 /// <remarks>
@@ -78,8 +78,11 @@ public sealed class AmbientEffect
     /// <summary>The streams of motes of the weather, in the order of the file (D-893).</summary>
     public IReadOnlyList<MoteStream> Emitters { get; }
 
-    /// <summary>The layers of fog, from the lowest, in the order of the file. Each one is a full-screen pass (D-523).</summary>
+    /// <summary>The layers of fog, in the order of the file: none, or 1 to 3, which one pass draws (D-898).</summary>
     public IReadOnlyList<FogLayer> Fogs { get; }
+
+    /// <summary>The count of full-screen passes of the weather, which the effect budget counts: one for a fog of any count of layers, and none with no fog (D-523, D-898).</summary>
+    public int FullScreenPasses => this.Fogs.Count == 0 ? 0 : 1;
 
     /// <summary>True when the file lies in the folder of the capture files (D-889).</summary>
     public bool IsCapture => this.File.StartsWith(CaptureFolder, StringComparison.Ordinal);

@@ -26,7 +26,9 @@ public static class SimulationVersion
     /// the content reader refuses the device table that the button prompts read, and the
     /// sight of the party leaves Core (D-814, D-815). PR-48 raised it to 11: the reader of the
     /// normal-map pages and the override grids (D-839). PR-56 raised it to 12: the reader of
-    /// the light files, the decor files, and the effect budget (D-842 to D-847).
+    /// the light files, the decor files, and the effect budget (D-842 to D-847). PR-94 raised it
+    /// to 13: the reader of a layer of fog takes the noise and its bands in place of a text grid,
+    /// and the budget counts one pass for each fog (D-897, D-898).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -34,5 +36,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 12;
+    public const int Current = 13;
 }

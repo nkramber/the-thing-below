@@ -8,7 +8,7 @@ using Xunit;
 
 namespace TheThingBelow.Tests;
 
-/// <summary>The strict readers of an ambient file: its kind, its maps, its streams, and its fog (D-187, D-887).</summary>
+/// <summary>The strict readers of an ambient file: its kind, its maps, its streams, and its fog (D-187, D-897, D-900).</summary>
 public sealed class AmbientFileTests
 {
     [Fact]
@@ -22,11 +22,16 @@ public sealed class AmbientFileTests
         Assert.Equal(96, effect.Particles);
         FogLayer fog = Assert.Single(effect.Fogs);
         Assert.Equal('k', fog.Key);
-        Assert.Equal(8, fog.Width);
-        Assert.Equal(8, fog.Height);
-        Assert.Equal(2000, fog.Strongest);
-        Assert.Equal(0, fog.BandAt(0, 0));
-        Assert.Equal(2, fog.BandAt(4, 3));
+        Assert.Equal(5000, fog.From);
+        Assert.Equal(6000, fog.To);
+        Assert.Equal(2000, fog.Strength);
+        Assert.Equal(4, fog.Steps);
+        Assert.Equal(2, fog.CellSize);
+        Assert.Equal(32, fog.Scale);
+        Assert.Equal(7, fog.Seed);
+        Assert.Equal(4, fog.DriftX);
+        Assert.Equal(0, fog.DriftY);
+        Assert.Equal(1, effect.FullScreenPasses);
     }
 
     [Fact]
@@ -77,13 +82,20 @@ public sealed class AmbientFileTests
     }
 
     [Theory]
-    [InlineData("\"bands\": [1000, 2000]", "\"bands\": [1000, 2000, 3000, 4000]", "1 to 3")]
-    [InlineData("\"bands\": [1000, 2000]", "\"bands\": [1000, 8001]", "1 to 8000")]
-    [InlineData("\"cell_size\": 2", "\"cell_size\": 9", "1 to 8")]
+    [InlineData("\"strength\": 2000", "\"strength\": 8001", "1 to 8000")]
+    [InlineData("\"strength\": 2000", "\"strength\": 0", "1 to 8000")]
+    [InlineData("\"from\": 5000", "\"from\": 10000", "0 to 9999")]
+    [InlineData("\"to\": 6000", "\"to\": 10001", "1 to 10000")]
+    [InlineData("\"to\": 6000", "\"to\": 5000", "is full above the level where it starts")]
     [InlineData("\"drift_x\": 4", "\"drift_x\": 61", "-60 to 60")]
-    [InlineData("\"..1111..\", ", "", "7 rows")]
-    [InlineData("\"11222211\", \"12222221\"", "\"1122221\", \"12222221\"", "7 cells")]
-    [InlineData("\"12222221\", \"12222221\"", "\"12222223\", \"12222221\"", "'3'")]
+    [InlineData("\"scale\": 32", "\"scale\": 7", "8 to 256")]
+    [InlineData("\"scale\": 32", "\"scale\": 257", "8 to 256")]
+    [InlineData("\"seed\": 7", "\"seed\": -1", "0 to 65535")]
+    [InlineData("\"scale\": 32,", "", "the field is absent")]
+    [InlineData("\"steps\": 4", "\"steps\": 1", "2 to 8")]
+    [InlineData("\"steps\": 4", "\"steps\": 9", "2 to 8")]
+    [InlineData("\"cell_size\": 2", "\"cell_size\": 9", "1 to 8")]
+    [InlineData("\"seed\": 7,", "\"seed\": 7, \"rows\": [],", "an unknown field")]
     public void AFogValueOutsideItsLimitFailsWithTheReason(string from, string to, string reason)
     {
         string body = AmbientFixtures.Body(fogs: AmbientFixtures.Fog).Replace(from, to, StringComparison.Ordinal);
@@ -91,6 +103,27 @@ public sealed class AmbientFileTests
         ContentException error = Assert.Throws<ContentException>(() => Read(body));
 
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AFogOfFourLayersFails()
+    {
+        // D-898: the shader draws 1 to 3 layers in one pass.
+        string fogs = string.Join(", ", AmbientFixtures.Fog, AmbientFixtures.Fog, AmbientFixtures.Fog, AmbientFixtures.Fog);
+
+        ContentException error = Assert.Throws<ContentException>(() => Read(AmbientFixtures.Body(fogs: fogs)));
+
+        Assert.Contains("more than 3 layers", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AFogOfThreeLayersIsOneFullScreenPass()
+    {
+        // D-898: the shader draws every layer of a fog in one pass, and a weather with no fog draws none.
+        string fogs = string.Join(", ", AmbientFixtures.Fog, AmbientFixtures.Fog, AmbientFixtures.Fog);
+
+        Assert.Equal(1, Read(AmbientFixtures.Body(fogs: fogs)).FullScreenPasses);
+        Assert.Equal(0, Read(AmbientFixtures.Body()).FullScreenPasses);
     }
 
     [Fact]

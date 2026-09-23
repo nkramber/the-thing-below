@@ -24,16 +24,20 @@ internal static class AmbientFixtures
     public const string Stream =
         """{ "amount": 24, "lifetime_ticks": 240, "color": "k", "dark_color": "k", "size": 1, "fall_pixels": 24, "fall_ticks": 120, "drift_pixels": 4, "sway_pixels": 3, "sway_ticks": 60 }""";
 
-    /// <summary>One layer of fog of the tests, in the key `k`, with a grid of 8 by 8 cells.</summary>
+    /// <summary>One layer of fog of the tests, in the key `k`, which fades in from 5000 to 6000.</summary>
     public const string Fog =
         """
         {
          "key": "k",
-         "bands": [1000, 2000],
-         "drift_x": 4,
-         "drift_y": 0,
+         "from": 5000,
+         "to": 6000,
+         "strength": 2000,
+         "steps": 4,
          "cell_size": 2,
-         "rows": [ "..1111..", ".112211.", "11222211", "12222221", "12222221", "11222211", ".112211.", "..1111.." ]
+         "scale": 32,
+         "seed": 7,
+         "drift_x": 4,
+         "drift_y": 0
         }
         """;
 
@@ -66,26 +70,29 @@ internal static class AmbientFixtures
     /// <param name="ambient">The ambient files, as content files.</param>
     /// <param name="terrain">The terrain of the test map, or the room when no value is given.</param>
     /// <param name="liveParticles">The particle row of the effect budget (D-523).</param>
+    /// <param name="fullScreenPasses">The pass row of the effect budget (D-523).</param>
     /// <returns>The effect content.</returns>
     /// <exception cref="ContentException">A file breaks a rule, or a check across files fails (T-2).</exception>
-    public static EffectContent Load(IReadOnlyList<ContentFile> ambient, string[]? terrain = null, int liveParticles = 8192)
+    public static EffectContent Load(IReadOnlyList<ContentFile> ambient, string[]? terrain = null, int liveParticles = 8192, int fullScreenPasses = 3)
     {
         var files = new List<ContentFile>(EffectFixtures.Files());
         files.AddRange(ambient);
-        return EffectContent.Load(files, World(terrain, liveParticles));
+        return EffectContent.Load(files, World(terrain, liveParticles, fullScreenPasses: fullScreenPasses));
     }
 
     /// <summary>Makes the world of the checks: the test map, the fight, the light, no drawing, and the test palette.</summary>
     /// <param name="terrain">The terrain of the test map, or the room when no value is given.</param>
     /// <param name="liveParticles">The particle row of the effect budget (D-523).</param>
     /// <param name="drawings">The drawings that the fog test reads, or none.</param>
+    /// <param name="fullScreenPasses">The pass row of the effect budget (D-523).</param>
     /// <returns>The world.</returns>
     public static AmbientWorld World(
         string[]? terrain = null,
         int liveParticles = 8192,
-        SortedDictionary<string, Drawing>? drawings = null)
+        SortedDictionary<string, Drawing>? drawings = null,
+        int fullScreenPasses = 3)
     {
-        string budget = $$"""{ "comment": "a test budget", "lights_in_view": 24, "live_particles": {{liveParticles}}, "full_screen_passes": 3 }""";
+        string budget = $$"""{ "comment": "a test budget", "lights_in_view": 24, "live_particles": {{liveParticles}}, "full_screen_passes": {{fullScreenPasses}} }""";
         LightContent light = LightFixtures.Load(
             LightFixtures.Files(LightFixtures.DecorBody(string.Empty), LightFixtures.SetupBody(), budget),
             terrain);

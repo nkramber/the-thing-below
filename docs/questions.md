@@ -681,3 +681,53 @@ How to file a question (D-19, D-24):
     - No recommendation yet. The PR-91 session reads the patrol sight rules of PR-8, and it gives the options with a recommendation.
 219. **OQ-219. The paths of the docs-only set of PR-93.** On a docs-only change, CI runs ste-check, review-gate, and Gitar alone (D-856). The owner named skills, roadmaps, runbooks, the session handoff, and review records. D-600 keeps `CLAUDE.md` and `AGENTS.md` out of the skip set, because a test proves that the two files match. Do `CLAUDE.md`, `AGENTS.md`, and `.claude/settings.json` join the set? Raised 2026-09-21. Blocks PR-93.
     - Resolved 2026-09-21: D-857. The two agent files join the set, and the ste-check command reads the rule of D-20. `.claude/settings.json` was already in the set through the `.claude/` path, and it stays.
+220. **OQ-220. The id and the place of the procedural fog.** The owner read the fog of PR-58 in a play session and refused it: the grid repeats over the view. The owner named a procedural fog of several layers as the next work. The roadmap names PR-59, the glow, as the next PR, and it holds no entry for this work. Which id does the work take, and where does it go in the order? Raised 2026-09-22. Blocks PR-94.
+    - PR-94, before PR-59, the recommendation. The fog of PR-58 is fresh, and the glow waits one PR.
+    - PR-94, after PR-60. The grid fog stays in the game until then.
+    - Resolved 2026-09-22: D-896. PR-94, before PR-59.
+221. **OQ-221. The form of the procedural fog.** D-887 takes a text grid of a few shapes, tiled over the view. A procedural fog revises it. G-27 and D-622 keep the palette and hard edges, so the fog quantizes its noise to a few bands. Raised 2026-09-22. Blocks PR-94.
+    - A noise shader in Game, the recommendation. A `.gdshader` file reads the noise at each world pixel, and it cuts the noise into the bands of the content file (D-825). The shader reads the tick that Game gives it, and never `TIME` (F-100).
+    - Noise in C#, into an image. An integer noise makes one large image for each layer at load, and Game tiles the image as it does now.
+    - Resolved 2026-09-22: D-897. A noise shader in Game.
+222. **OQ-222. The count of layers and passes of the fog.** D-523 counts each layer of fog as one full-screen pass. The budget allows 3 (D-617), and the glow, the three passes of PR-92, and the transitions need passes too (D-849). Raised 2026-09-22. Blocks PR-94.
+    - One pass that holds up to 3 layers, the recommendation. The fog then takes one pass of the budget.
+    - One pass for each layer, with 2 layers.
+    - Resolved 2026-09-22: D-898. One pass holds up to 3 layers.
+223. **OQ-223. How the layers of one fog combine.** Where two layers of one fog overlap, the fog draws one strength. The contrast test reads the strongest strength of the fog (D-885, D-886, D-892). Raised 2026-09-22. Blocks PR-94.
+    - The strongest band wins, the recommendation. The strongest band of the file is the strongest band of all the layers, and the fog keeps a few strengths.
+    - The strengths stack. Each overlap is thicker, and the test reads the stacked strength of all the layers.
+    - Resolved 2026-09-22: D-899. The strongest band wins.
+224. **OQ-224. The edges of the fog.** The owner read the fog of PR-94 and refused it, with a reference picture of soft mist. The reference fades smoothly, and G-27 and D-622 keep every effect to hard edges. Raised 2026-09-22. Blocks PR-94.
+    - Soft fog, the recommendation. The fog alone fades smoothly, with one palette tint and a noise of more octaves.
+    - Steps with a dither. The fog keeps the rule, with 6 to 8 steps of strength.
+    - Resolved 2026-09-22: D-900. Soft fog, at the pixel size of the art.
+225. **OQ-225. The resolution of the soft fog.** Raised 2026-09-22. Blocks PR-94.
+    - Screen resolution, the recommendation. The edges are fully smooth.
+    - Art pixels. The fog stays in the world viewport, and a fade shows a small step at 2x.
+    - Resolved 2026-09-22: D-901. Art pixels.
+226. **OQ-226. The spread of the fog over the view.** The reference is thick at the edges of the screen and thin near the player. Raised 2026-09-22. Blocks PR-94.
+    - A clear center, the recommendation. The fog thickens toward the edges of the screen.
+    - An even density over the view.
+    - Resolved 2026-09-22: D-902. An even density.
+227. **OQ-227. The color of the fog.** Raised 2026-09-22. Blocks PR-94.
+    - A pale gray key, the recommendation, as the reference shows.
+    - The key `l`, ash, as now.
+    - Resolved 2026-09-22: D-903. A pale gray key.
+228. **OQ-228. The fog test with a thicker fog.** The floor of 24 of D-886 caps the fog of the fixture dungeon at about 22 percent (D-892). The owner asked for no such cap. Raised 2026-09-22. Blocks PR-94.
+    - A floor of 16, the recommendation. The test stays, and a fog of about 45 percent passes.
+    - No fog test.
+    - Resolved 2026-09-22: D-904, which D-906 supersedes. A floor of 16.
+229. **OQ-229. The highest strength of the fog.** The thickest parts of the reference are about 40 to 50 percent. Raised 2026-09-22. Blocks PR-94.
+    - About 45 percent, the recommendation.
+    - About 35 percent, or about 60 percent.
+    - Resolved 2026-09-22: D-905. About 45 percent.
+230. **OQ-230. The floor of the fog test, after D-904, which D-906 supersedes.** With no fog, the fixture enemy holds a gap of 16 on the floor key `K`. A floor of 16 then tests that pair, and any fog fails it. Raised 2026-09-22. Blocks PR-94.
+    - A floor of 17, the recommendation. The pair stays out of the test as a limit of the art (D-892), and a fog of 45 percent passes.
+    - A floor of 16, and the test skips a pair at the floor or below.
+    - No fog test.
+    - Resolved 2026-09-22: D-906. A floor of 17.
+231. **OQ-231. The coverage of the soft fog.** The fog of round 3 covers about two thirds of the map view, and the reference leaves more clear ground. Raised 2026-09-22. Blocks PR-94.
+    - A little less coverage, the recommendation.
+    - The coverage as it is, or more coverage.
+    - The first answer, D-907, asked for more of the pixel look of the art, and it named no coverage. The review of PR-94 found that gap (P2-1 of `docs/reviews/pr-59.md`).
+    - Resolved 2026-09-22: D-908. A little less coverage.
