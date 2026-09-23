@@ -1,3 +1,39 @@
+## Session 241: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #65, round 1. Repository: the-thing-below. Branch: `docs/pr-96-review-loop-rules`. Role: reviewer. Base: `e6eb27a`.
+
+### What this session did, and why
+
+- Reviewed PR #65 from base `e6eb27a` through effective head `aba8774`, across 19 changed paths.
+- Confirmed Claude Code authored the substantive changes, and Codex passes the provider gate (T-4, D-17).
+- Verified the RG 5 reviewable-head walk, the regression tests, the review outcome check, and the docs and decision updates (D-857, D-942 to D-944).
+- Added `docs/reviews/pr-65.md` with no findings and `Ready for owner merge` for `aba8774`. The owner authorized this review to proceed without Gitar feedback or replies.
+
+### The state of the build
+
+- `main` is `e6eb27a`. The remote PR head is `aba8774` before this review record is published.
+- `make verify` passed on this machine: 2,446 tests and every local gate passed.
+- CI run 35889338283 passed every implementation job, including all legs of build, smoke, and replay identity, plus screen-test and STE.
+- The Gitar status passed. No Gitar dashboard or actionable feedback appeared. Review-gate run 35889338357 failed because the review record was absent.
+
+### What is in flight
+
+- Publish the review record and this handoff entry together.
+- Verify the remote head and the fresh review-gate result.
+
+### Traps and gotchas
+
+- The owner’s exception applies to this review only. D-944 remains the project rule for later commits.
+- The `make codex-review` Gitar precheck needs a dashboard comment, which this PR does not hold.
+
+### The questions that block progress
+
+None. OQ-242 does not affect PR-96.
+
+### The next concrete action
+
+Commit the review record and handoff entry. Push, fetch, and verify the remote head and review-gate result.
 ## Session 240: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -352,41 +388,3 @@ None. D-926 to D-931 hold the answers of 2026-09-23.
 ### The next concrete action
 
 Answer the Gitar pass of PR #63. Then run `make codex-review PR=63` in the background.
-
-
-
-## Session 231: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #62, round 2. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: reviewer. Base: `05dcc3d`.
-
-### What this session did, and why
-
-- Recomputed the effective head. The PR tip is `3c3de99`, and its changes since `238bafe` are review and handoff metadata only.
-- Read the author's answers to each claim of the Gitar CI analysis and checked their cited commits and job results.
-- Rechecked the prior review, the complete implementation scope, and the current Gitar pass. The code review approves the implementation, and there are no open review threads.
-- Ran `make verify`: 2,277 tests passed; format, det-lint, ste-check, replay identity, content hash, atlas, and smoke passed.
-- Updated `docs/reviews/pr-62.md`, retained the earlier `Blocked` verdict, and gave `Ready for owner merge` for effective head `238bafe`.
-
-### The state of the build
-
-- `main` is `05dcc3d`. Before this review commit, the remote PR head was `3c3de99` and the effective head was `238bafe`.
-- CI run 35823669111 passed the implementation checks on `238bafe`. Metadata run 35826831792 passed applicable checks, with implementation legs skipped. Review-gate run 35826840307 failed only RG 4 because the previous record still said `Blocked`.
-- Review-gate run 35828245270 passed RG 1 to RG 8 after publication at `d366f7e`. Metadata run 35828245787 and Gitar passed on that head; the Gitar review approves the code.
-
-### What is in flight
-
-- The review is ready for the owner to merge.
-
-### Traps and gotchas
-
-- Metadata-only pushes skip platform build, replay identity, and screen-test legs. The implementation evidence remains run 35823669111 on `238bafe`.
-- The Gitar analysis on `3c3de99` approves the code. Its reported CI fault is RG 4 reading the prior review verdict.
-
-### The questions that block progress
-
-None. OQ-241 asks which later PR adds ceiling shafts and blocks no progress here (D-924).
-
-### The next concrete action
-
-The owner merges PR #62.

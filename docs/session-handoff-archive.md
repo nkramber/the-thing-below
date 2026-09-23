@@ -1,4 +1,39 @@
 # Session handoff archive
+## Session 231: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #62, round 2. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: reviewer. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- Recomputed the effective head. The PR tip is `3c3de99`, and its changes since `238bafe` are review and handoff metadata only.
+- Read the author's answers to each claim of the Gitar CI analysis and checked their cited commits and job results.
+- Rechecked the prior review, the complete implementation scope, and the current Gitar pass. The code review approves the implementation, and there are no open review threads.
+- Ran `make verify`: 2,277 tests passed; format, det-lint, ste-check, replay identity, content hash, atlas, and smoke passed.
+- Updated `docs/reviews/pr-62.md`, retained the earlier `Blocked` verdict, and gave `Ready for owner merge` for effective head `238bafe`.
+
+### The state of the build
+
+- `main` is `05dcc3d`. Before this review commit, the remote PR head was `3c3de99` and the effective head was `238bafe`.
+- CI run 35823669111 passed the implementation checks on `238bafe`. Metadata run 35826831792 passed applicable checks, with implementation legs skipped. Review-gate run 35826840307 failed only RG 4 because the previous record still said `Blocked`.
+- Review-gate run 35828245270 passed RG 1 to RG 8 after publication at `d366f7e`. Metadata run 35828245787 and Gitar passed on that head; the Gitar review approves the code.
+
+### What is in flight
+
+- The review is ready for the owner to merge.
+
+### Traps and gotchas
+
+- Metadata-only pushes skip platform build, replay identity, and screen-test legs. The implementation evidence remains run 35823669111 on `238bafe`.
+- The Gitar analysis on `3c3de99` approves the code. Its reported CI fault is RG 4 reading the prior review verdict.
+
+### The questions that block progress
+
+None. OQ-241 asks which later PR adds ceiling shafts and blocks no progress here (D-924).
+
+### The next concrete action
+
+The owner merges PR #62.
 ## Session 230: 2026-09-23, Claude Code
 
 Author: Claude Code
