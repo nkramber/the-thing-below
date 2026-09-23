@@ -119,7 +119,7 @@ The prompt is one fenced block that the owner pastes into the next session. Step
 
 An automated reviewer, gitar, comments on every PR after a push (D-14). After each push, the author loads the `gitar-review` skill and follows it. The rules below add to the skill, and a rule of this repo wins over it.
 
-- The author answers every comment before the hand-over to the other provider, or before the session applies the `review-override` label (D-67).
+- The author answers each Gitar item before the hand-over to the other provider, or before the session applies the `review-override` label (D-67, D-964).
 - Wait for gitar with the one command of `docs/runbooks/session-context.md`, not a call for each poll (D-586).
 - When the pass is complete, run `make codex-review PR=<n>` in the background, or apply the label below (D-926). `docs/runbooks/merge.md` gives the rest. The owner confirms each merge after a summary (D-933, D-942).
 - A reply names no provider, harness, or model as the source of work (T-6).
@@ -165,7 +165,7 @@ A PR merges only when every line holds:
 - [ ] The bot job is green on every CI leg: the bot runs end with no crash and no softlock (D-64, D-505). PR-15 creates it.
 - [ ] The `night-gate` job is green: a success record from a night inside 48 hours (G-22). PR-49 creates it (D-496). A docs-only PR passes it (D-513).
 - [ ] The `ste-check` job is green: the writing, reference, session number, size, and Documents row rules (G-12, D-605, D-607, D-611, D-696).
-- [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14). The review is current under the `gitar-review` skill.
+- [ ] The automated pass of gitar approved the head, or each item of the pass has its answer (D-14). The review is current under the `gitar-review` skill.
 - [ ] The other provider reviewed it through `make codex-review`, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17, D-943). The label of D-401 exempts a PR of the override set that changes no decision row.
 - [ ] The `review-gate` check is green (D-15, D-500, F-37).
 - [ ] `docs/decisions.md` has every new decision.

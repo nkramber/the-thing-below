@@ -46,7 +46,7 @@ The `codex-review` command of Tools holds the logic, and the Makefile target run
 8. Fetch, read the record on origin, and compare its head field with the effective head (D-610).
 9. Print the verdict, the open finding ids, the three-strike ids, and the path of the transcript.
 
-The flag `--skip-gitar-review` skips step 5, and the command then reads no Gitar fact (D-946). The prompt of the reviewer then says that no complete Gitar pass is a condition of the review. It also says that each Gitar comment still needs its answer. Make reads a word after `--` as a goal, so the form of the target is `make codex-review PR=<n> -- --skip-gitar-review`. The target refuses each other extra goal, and the goal of the flag fails without the `codex-review` goal.
+The flag `--skip-gitar-review` skips step 5, and the command then reads no Gitar fact (D-946). The prompt of the reviewer then says that no complete Gitar pass is a condition of the review. Each review prompt also says that each Gitar item still needs its answer, and that the reviewer ignores a Gitar comment with no item (D-964). Make reads a word after `--` as a goal, so the form of the target is `make codex-review PR=<n> -- --skip-gitar-review`. The target refuses each other extra goal, and the goal of the flag fails without the `codex-review` goal.
 
 The command removes `OPENAI_API_KEY` and `CODEX_API_KEY` from each Codex process that it starts, so no review runs at API prices (D-932). The removal changes the environment of that process alone. The shell and each other process keep their keys.
 

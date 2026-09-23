@@ -98,6 +98,8 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-23 waiting column pass: four elite bodies fit in the waiting column, and not six. A group whose waiting column is taller than the field fails the load (D-963). PR-98 holds the check.
 
+2026-09-23 Gitar item pass: a Gitar comment with no thread, no finding, and no claim needs no answer. The reviewer ignores it, and the prompt of `make codex-review` says so (D-964). PR-98 holds the rule by an exception to G-8 (D-965).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.

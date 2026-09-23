@@ -1,3 +1,39 @@
+## Session 256: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-98, round 3. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: #68. Role: author. Base: `3223bcf`.
+
+### What this session did, and why
+
+- Read the record of Session 255: `Ready for owner merge` for `caaea8f`. The owner stopped the merge first, because the review of round 1 blocked on a Gitar status notice alone.
+- Asked the owner two questions. The owner put a new Gitar rule in PR-98, an exception to G-8 (D-965). The owner chose that neither side acts on a Gitar comment with no item (D-964).
+- D-964: a Gitar item is a review thread, a finding of the dashboard, or a claim of the CI analysis. A comment with no item needs no answer, and the reviewer ignores it. D-14, D-66, D-67, D-944, and D-946 are revised in part.
+- Tools: every prompt of `make codex-review` now holds the D-964 line, with the flag of D-946 or without it. A test reads both forms.
+- Rules: `CLAUDE.md`, `AGENTS.md`, the `pr-review`, `gitar-review`, `one-pr-one-session`, and `ste-writing` skills, `docs/runbooks/merge.md`, the PR template, and `docs/design.md`.
+
+### The state of the build
+
+- `main` is `3223bcf`. The effective head moves with the change of Tools, so the approval of `caaea8f` no longer covers the head.
+- `make build`, `make test` (2524 tests), `make format`, and `make ste-check` passed on macOS arm64.
+
+### What is in flight
+
+- The CI run of this push, then `make codex-review PR=68 -- --skip-gitar-review`.
+- After an approval, the merge question to the owner in four sections (D-942).
+
+### Traps and gotchas
+
+- `CLAUDE.md` and `AGENTS.md` are 16382 bytes, 2 bytes under the limit of 16 KB. A later rule line needs a cut elsewhere.
+- The stopped review of round 2 pushed its approval before the stop. The new head needs a new review.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for CI on the head, read the Gitar output one time, then run `make codex-review PR=68 -- --skip-gitar-review`.
+
 ## Session 255: 2026-09-23, Codex
 
 Author: Codex
@@ -319,43 +355,3 @@ OQ-243 blocks PR-98 alone (D-951 to D-954). No open question changes PR-11.
 ### The next concrete action
 
 Correct the timed operation and its test, answer the existing Gitar status comment, and run the cost command on the Steam Deck.
-
-## Session 246: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-11, round 1. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: #67. Role: author. Base: `d429d03`.
-
-### What this session did, and why
-
-- Asked the owner OQ-127, OQ-128, OQ-129, and OQ-242, and six more questions of the shape of the PR. D-947 to D-962 record each answer.
-- Built the evaluator of D-65 and D-534: the legal actions of an enemy, the expected score of D-959, the reply of D-960, and the tie draw from the new stream of D-947.
-- Gave an enemy ability its effect (D-955), and moved the groups and the profiles to their own files (D-956, D-957). Each map names its region.
-- Added save format 6 with the stream of the evaluator, and simulation version 17 (G-17).
-- Added the `evaluator-cost` command and `make evaluator-cost` (D-961). The Mac gave 43 us at the 95th percentile, with 15 legal actions at most.
-- Added PR-98 to the roadmap for the waiting enemies on screen (D-951 to D-954), and filed OQ-243.
-- Opened PR #67. CI run 35906133812 passed each check except `screen-test` and `review-gate`. Seven battle captures took new numbers and a new strip, and the baseline took them from the artifact (D-733).
-- Read the Gitar output one time: the notice of the free plan alone, with no thread and no finding (D-945).
-
-### The state of the build
-
-- `main` is `d429d03`. The PR branch holds the decisions commit `8953836` and the code commit of this round.
-- `make verify` passed on the Mac. The fixture pair wins 300 of 300 fights, and the fixture elite 101 of 300, with the attack alone.
-
-### What is in flight
-
-- CI on the baseline commit, then `make codex-review PR=67 -- --skip-gitar-review`.
-- The owner run of `make evaluator-cost` on the Deck, before the merge (D-961).
-
-### Traps and gotchas
-
-- The screen tests can differ, because the enemy turns changed. The baseline comes from the CI artifact alone (D-733).
-- `CLAUDE.md` is 7 bytes under the SIZE 1 limit, so the new target lives in `docs/runbooks/dev-machine.md` alone.
-- The test helper `BattleRuns.Map` names the region of the group from the test content.
-
-### The questions that block progress
-
-None for PR-11. OQ-243 blocks PR-98.
-
-### The next concrete action
-
-Read CI on the baseline commit, read the Gitar output one time, then run `make codex-review PR=67 -- --skip-gitar-review`.

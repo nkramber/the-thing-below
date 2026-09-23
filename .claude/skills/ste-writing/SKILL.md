@@ -1,3 +1,4 @@
+| Gitar item | a review thread, a finding of the dashboard, or a claim of the CI analysis of Gitar, which needs an answer (D-964) | Gitar feedback, when the text means a status notice or a clean approval |
 ---
 name: ste-writing
 description: Write and review text in ASD-STE100 Simplified Technical English. Load before you write any .md, skill, or agent file in this repo. Holds the process glossary. Its reference file holds the glossary of the project areas, one term per concept.

@@ -166,8 +166,9 @@ public static class CodexCli
 
     /// <summary>
     /// Gives the prompt of the review. It is the request that the owner typed in the desktop
-    /// app, and two lines that tell the reviewer the skill and the push (D-926). A run with the
-    /// flag of D-946 adds a line that tells the reviewer that no complete Gitar pass is a condition.
+    /// app, and the lines that tell the reviewer the skill, the Gitar comments with no item, and the
+    /// push (D-926, D-964). A run with the flag of D-946 adds a line that tells the reviewer that no
+    /// complete Gitar pass is a condition.
     /// </summary>
     /// <param name="number">The GitHub number of the pull request.</param>
     /// <param name="branch">The branch of the pull request on GitHub.</param>
@@ -186,17 +187,25 @@ public static class CodexCli
             "Load and follow `.claude/skills/pr-review/SKILL.md`. " +
             $"The `codex-review` command started this review in a separate worktree, on the local branch `{localBranch}`, which tracks `origin/{branch}`.\n\n" +
             gitar +
+            ItemlessGitarLine +
             "Commit the review record and your handoff entry as one metadata commit. " +
             $"Push it with `git push origin HEAD:{branch}`.";
     }
 
     /// <summary>
-    /// The prompt line of a run with `--skip-gitar-review` (D-946). A Gitar comment that exists
-    /// still needs its answer, so the line lifts the condition of a complete pass alone.
+    /// The prompt line of a run with `--skip-gitar-review` (D-946). It lifts the condition of a
+    /// complete pass alone, and each Gitar item still needs its answer (D-964).
     /// </summary>
     public const string SkippedGitarLine =
-        "The author started this review with `--skip-gitar-review` (D-946). A complete or current Gitar pass is not a condition of this review. " +
-        "Each Gitar comment that exists still needs its answer.\n\n";
+        "The author started this review with `--skip-gitar-review` (D-946). A complete or current Gitar pass is not a condition of this review.\n\n";
+
+    /// <summary>
+    /// The prompt line of every run: a Gitar comment with no item needs no answer, and it never
+    /// blocks the verdict (D-964). The owner set it after a review blocked PR #68 on a status notice.
+    /// </summary>
+    public const string ItemlessGitarLine =
+        "A Gitar item is a review thread, a finding of the dashboard, or a claim of the CI analysis, and each Gitar item needs its answer. " +
+        "Ignore a Gitar comment with no item, such as a status notice or a clean approval. It needs no answer, and it never blocks the verdict (D-964).\n\n";
 
     private static List<string> ExecArguments(string sandbox, string folder, string lastMessageFile)
     {
