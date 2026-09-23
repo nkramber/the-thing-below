@@ -14,11 +14,11 @@ Session: author PR-59, rounds 1 to 3. Repository: the-thing-below. Branch: `feat
 ### The state of the build
 
 - `main` is `430c8e9`. The branch holds rounds 1 to 3. `make verify` passes on this machine, and `make sheet` wrote every capture with no error line.
-- The screen-test baselines change on almost every world capture, because HDR 2D moves the world to linear light. The new baselines come from the CI artifact (D-733).
+- CI run 35815275241 on `6b612f2` passed every job but the baseline step of screen-test. Its two runs matched on all 72 captures. The 66 world baselines that changed come from its artifact (D-733).
 
 ### What is in flight
 
-- PR #61 waits for CI, the new baselines, gitar, and the review of the other provider.
+- PR #61 waits for CI on the baseline commit, gitar, and the review of the other provider.
 
 ### Traps and gotchas
 
@@ -33,7 +33,7 @@ None. OQ-102 and OQ-232 are resolved.
 
 ### The next concrete action
 
-Commit the CI baselines, then answer gitar and the review of PR #61.
+Answer each gitar finding on PR #61, then hand the PR to the other provider.
 
 ## Session 224: 2026-09-23, Codex
 
