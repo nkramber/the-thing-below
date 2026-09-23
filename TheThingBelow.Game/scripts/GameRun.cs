@@ -322,6 +322,14 @@ public sealed class GameRun
 
             this.recorder.Step(this.simulation.Tick + 1, intents);
             log.AddRange(this.simulation.Step(intents));
+
+            // The wait intent ends a fight inside this tick, and the next tick of the same frame can
+            // start another one. So the screen leaves the fight here, and not once for each frame (T-2).
+            if (this.simulation.State.Battle is null)
+            {
+                this.LeaveFight();
+            }
+
             IReadOnlyList<BattleEvent> taken = this.simulation.TakeBattleEvents();
             if (StartsFight(taken))
             {
@@ -440,9 +448,7 @@ public sealed class GameRun
     {
         if (this.simulation.State.Battle is not Battle battle)
         {
-            this.view = null;
-            this.playing = null;
-            this.handOff.End(this.simulation.Tick);
+            this.LeaveFight();
             return;
         }
 
@@ -450,6 +456,14 @@ public sealed class GameRun
         {
             this.view = BattleView.Of(battle);
         }
+    }
+
+    /// <summary>Drops the view of a fight that left the run, and ends the hand-off, so a new fight starts clean (D-522, D-939).</summary>
+    private void LeaveFight()
+    {
+        this.view = null;
+        this.playing = null;
+        this.handOff.End(this.simulation.Tick);
     }
 
     /// <summary>Tells whether the events of one tick start a fight, which a transition leads into (D-939).</summary>

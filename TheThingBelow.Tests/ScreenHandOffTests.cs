@@ -6,7 +6,9 @@ using System.Text.RegularExpressions;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Effects;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Core.Saves;
 using TheThingBelow.Storage;
 using TheThingBelow.Tools.Content;
 using Xunit;
@@ -151,6 +153,46 @@ public sealed class ScreenHandOffTests
         Assert.Equal(run.StateHash(), replayed.StateHash());
     }
 
+    [Fact]
+    public void AFightOnTheTickAfterTheWaitIntentStartsItsTransition()
+    {
+        // A regression test of the finding of the Gitar pass of round 2. The hand-off ended once for
+        // each frame, after every tick of it. In a frame of two ticks, the first tick took the wait
+        // intent, and a step into the patrol beside the party started a fight on the second. The start
+        // of the transition then met the phase `Waiting` and threw (T-2). The fixture fight starts by
+        // sight, so a save of it moves the lead to the tile east of the patrol, which steps west, and
+        // the step west after the wait intent steps into that patrol.
+        GameRunProbe first = GameRunProbe.Start();
+        first.WalkToFight();
+        RunSnapshot snapshot = first.State.Snapshot();
+        TilePoint patrol = first.PatrolOfEncounter().At;
+        MapSnapshot map = snapshot.Map ?? throw new InvalidOperationException("The snapshot holds no map (T-2).");
+        // The walked tiles hold the tile of the lead (D-567), so the moved lead takes the mark of a walked tile.
+        var walked = new List<string>(map.Walked);
+        char[] row = walked[patrol.Y].ToCharArray();
+        row[patrol.X + 1] = map.Walked[map.LeadY][map.LeadX];
+        walked[patrol.Y] = new string(row);
+        RunSnapshot beside = snapshot with { Map = map with { LeadX = patrol.X + 1, LeadY = patrol.Y, Stepping = null, StepTicks = 0, Walked = walked } };
+        GameRunProbe run = GameRunProbe.Reload(new SaveDocument(SaveHeader.ForThisBuild(Content.Value.Hash, Seed), beside));
+
+        // A frame builds the view of a fight that a load resumed, before the screen takes a command (D-531).
+        run.Advance(0.0);
+        run.FightToFadeBack();
+        while (run.HandOff.Phase != "Waiting")
+        {
+            run.OneTick();
+        }
+
+        int calls = 0;
+        run.Advance(2.0 / 60.0, () => (calls++ == 0) ? null : Intent.OfPlayer(IntentIds.MoveWest));
+
+        Assert.Equal(2, calls);
+        Assert.NotNull(run.State.Battle);
+        Assert.Equal("Into", run.HandOff.Phase);
+        Assert.Equal(run.Tick, run.HandOff.Since);
+        Assert.False(run.ShowsBattle, "the view of the fight before shows during the transition of the next one");
+    }
+
     /// <summary>The hand-off of the Game assembly, read by reflection (D-614).</summary>
     private sealed class HandOff(object instance)
     {
@@ -202,6 +244,16 @@ public sealed class ScreenHandOffTests
         public RunState State => (RunState)this.Get("State");
 
         public HandOff HandOff => new(this.Get("HandOff"));
+
+        public static GameRunProbe Reload(SaveDocument save)
+        {
+            MethodInfo reload = GameAssemblyFile.Type(RunTypeName).GetMethod(
+                "Reload",
+                [typeof(ContentSet), typeof(SaveDocument), typeof(SaveDocument), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])
+                ?? throw new InvalidOperationException("The run holds no 'Reload' method (T-2).");
+            return new(reload.Invoke(null, [Content.Value, save, null, Seed, DebugIntentHandlers.None, MessageSpeed.Normal])
+                ?? throw new InvalidOperationException("The 'Reload' method gave no run (T-2)."));
+        }
 
         public static GameRunProbe Start()
         {
@@ -260,10 +312,26 @@ public sealed class ScreenHandOffTests
             throw new InvalidOperationException("The fight reached no fade back in 12000 ticks (T-2).");
         }
 
+        /// <summary>Gives the patrol of the encounter that runs.</summary>
+        public PatrolState PatrolOfEncounter()
+        {
+            MapEncounter encounter = this.State.Party.Patrols.Encounter
+                ?? throw new InvalidOperationException("The map holds no encounter (T-2).");
+            foreach (PatrolState patrol in this.State.Party.Patrols.All)
+            {
+                if (string.CompareOrdinal(patrol.Patrol.Id.Value, encounter.Enemy.Value) == 0)
+                {
+                    return patrol;
+                }
+            }
+
+            throw new InvalidOperationException("No patrol holds the id of the encounter (T-2).");
+        }
+
         public void OneTick() => this.walk.GetMethod("OneTick")!.Invoke(null, [instance]);
 
-        public void Advance(double seconds) =>
-            this.type.GetMethod("Advance", [typeof(double), typeof(Func<Intent>)])!.Invoke(instance, [seconds, null]);
+        public void Advance(double seconds, Func<Intent?>? heldStep = null) =>
+            this.type.GetMethod("Advance", [typeof(double), typeof(Func<Intent>)])!.Invoke(instance, [seconds, heldStep]);
 
         public RunRecord Record() => (RunRecord)this.type.GetMethod("Record", Type.EmptyTypes)!.Invoke(instance, null)!;
 

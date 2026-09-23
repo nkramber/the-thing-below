@@ -1,7 +1,7 @@
 ## Session 237: 2026-09-23, Claude Code
 
 Author: Claude Code
-Session: author PR-60, rounds 1 and 2. Repository: the-thing-below. Branch: `feat/pr-60-transitions`. PR: #64. Role: author. Base: `ca8c549`.
+Session: author PR-60, rounds 1 to 3. Repository: the-thing-below. Branch: `feat/pr-60-transitions`. PR: #64. Role: author. Base: `ca8c549`.
 
 ### What this session did, and why
 
@@ -12,12 +12,13 @@ Session: author PR-60, rounds 1 and 2. Repository: the-thing-below. Branch: `fea
 - The pass of the hand-off draws last in the frame, above the UI. The budget counts one transition pass on every map (D-523, D-923).
 - Added eleven captures: each look halfway through, and the color split at the reduced level, where the fade takes its place (D-863). The author read each frame of `make sheet FIXTURE=transition`, and reworked the snow whiteout, which read as static.
 - Committed 25 baselines from the artifact of CI run 35878686156 (D-733): the 11 transition captures and the 14 battle captures. The fixture fight now reaches its first command 80 ticks later, after the transition and the fade, so the drift of the backdrop and the fog moved. The author read the old and new frames, and no other part changed. The whole artifact of 85 captures matches the committed baseline.
+- Answered the Gitar pass on `f2ac63d`: one finding and one CI claim. The finding had full merit: a fight that starts on the tick after the wait intent, in the same frame, met the phase `Waiting` and threw. The run now leaves the fight inside the tick loop, and `AFightOnTheTickAfterTheWaitIntentStartsItsTransition` fails on the old code. The CI claim named the review-gate fault of the absent review record, which `make codex-review PR=64` writes (D-926), and a PR comment answers it.
 - The owner asked how a player sees the count of the enemies of a fight. The battle screen draws no waiting enemy and no count (D-758, D-778). OQ-242 holds the question, at the request of the owner.
 
 ### The state of the build
 
-- `main` is `ca8c549`. Round 1 pushed `479bd36`, and CI run 35878686156 failed on the missing baselines alone. Round 2 adds OQ-242 and the baselines.
-- `make build`, `make test` with 2440 tests, `make format`, `make lint`, `make smoke`, and the STE check pass on this machine.
+- `main` is `ca8c549`. Round 1 pushed `479bd36`, and CI run 35878686156 failed on the missing baselines alone. Round 2 added OQ-242 and the baselines. Round 3 fixes the finding of the Gitar pass on `f2ac63d`.
+- `make build`, `make test` with 2441 tests, `make format`, `make lint`, `make smoke`, and the STE check pass on this machine.
 
 ### What is in flight
 
@@ -37,7 +38,7 @@ None. OQ-242 waits for the owner and blocks nothing in PR-60.
 
 ### The next concrete action
 
-Answer the Gitar pass of round 2, then run `make codex-review PR=64`.
+Get a current Gitar pass on the fix of round 3 and answer it, then run `make codex-review PR=64`.
 
 ## Session 236: 2026-09-23, Claude Code
 
