@@ -89,6 +89,25 @@ public sealed class BattleCommandsTests
     }
 
     [Fact]
+    public void TheTargetsOfAnAttackHoldNoWaitingEnemy()
+    {
+        // Exit test 4 of PR-98: a waiting enemy stands in the column, and it is not a target (D-954).
+        Simulation run = BattleRuns.IntoBattle(11, "group.fixture_elite");
+        run.TakeBattleEvents();
+        Battle battle = BattleRuns.BattleOf(run);
+        Assert.Equal(BattleSide.Party, battle.Next()?.Side);
+        Assert.Contains(battle.Enemies, enemy => enemy.Place == CombatantPlace.Waiting);
+        object menu = Open(run);
+        Confirm(menu);
+
+        Assert.NotEmpty(Targets(menu));
+        foreach (object target in Targets(menu))
+        {
+            Assert.Equal(CombatantPlace.Field, battle.Enemies[((BattleTarget)target).Slot].Place);
+        }
+    }
+
+    [Fact]
     public void ACancelOnTheTargetsGoesBackToTheAttack()
     {
         object menu = Open(OnFirstCommand());

@@ -53,6 +53,7 @@ public sealed class ScreenCapturesTests
         "battle-menu-fill-1080.png",
         "battle-target-1x.png",
         "battle-blow-1x.png",
+        "battle-waiting-1x.png",
         "battle-blood-1x.png",
         "battle-sparks-1x.png",
         "battle-heavy-stop-1x.png",
@@ -109,7 +110,7 @@ public sealed class ScreenCapturesTests
     public static TheoryData<string> ExpectedNames { get; } = BuildExpectedNames();
 
     [Fact]
-    public void TheListHoldsFiveCapturesOfEachStillFixtureOneForEachTickOfTheWalkTenOfTheBattleAndThreeOfTheSettings()
+    public void TheListHoldsFiveCapturesOfEachStillFixtureOneForEachTickOfTheWalkElevenOfTheBattleAndThreeOfTheSettings()
     {
         // D-734. Two still fixtures, and five captures of each one: the frame at 1x, and both
         // fit modes at 1080 and 1440 screen rows (D-232, D-568). D-782 adds the walk: 17 ticks
@@ -122,8 +123,9 @@ public sealed class ScreenCapturesTests
         // of the wall shape beside a doorway, and three frames of a step that scrolls the view
         // (D-852, D-889, F-97, exit test 1 of PR-58). PR-92 adds the map and a fight in the
         // stepped mode of the passes (D-917). PR-60 adds each of the ten transitions, and the color
-        // split at the reduced level (D-195, D-863, exit tests 1 and 2 of PR-60).
-        Assert.Equal(10 + 34 + 1 + 10 + 3 + 14 + 2 + 11, FileNames().Count);
+        // split at the reduced level (D-195, D-863, exit tests 1 and 2 of PR-60). PR-98 adds the
+        // fight of the deep room with its waiting column (D-953, exit test 1 of PR-98).
+        Assert.Equal(10 + 34 + 1 + 11 + 3 + 14 + 2 + 11, FileNames().Count);
     }
 
     [Fact]
@@ -250,6 +252,7 @@ public sealed class ScreenCapturesTests
     [Theory]
     [InlineData("menu-1x", null)]
     [InlineData("target-1x", null)]
+    [InlineData("waiting-1x", null)]
     [InlineData("blow-1x", 2)]
     [InlineData("heavy-stop-1x", 3)]
     [InlineData("blood-1x", 8)]

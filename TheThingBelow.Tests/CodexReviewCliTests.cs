@@ -89,6 +89,20 @@ public sealed class CodexReviewCliTests
         Assert.Contains("git push origin HEAD:feat/pr-95-codex-review", prompt, StringComparison.Ordinal);
         Assert.Contains("one metadata commit", prompt, StringComparison.Ordinal);
         Assert.DoesNotContain("--skip-gitar-review", prompt, StringComparison.Ordinal);
+        Assert.Contains(CodexCli.ItemlessGitarLine, prompt, StringComparison.Ordinal);
+    }
+
+    /// <summary>Every run tells the reviewer to ignore a Gitar comment with no item, with the flag or without it (D-964).</summary>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void EveryPromptIgnoresAGitarCommentWithNoItem(bool skipGitarReview)
+    {
+        string prompt = CodexCli.ReviewPrompt(68, "feat/pr-98-waiting-enemies", "review/pr-68", skipGitarReview);
+
+        Assert.Contains("Ignore a Gitar comment with no item", prompt, StringComparison.Ordinal);
+        Assert.Contains("never blocks the verdict (D-964)", prompt, StringComparison.Ordinal);
+        Assert.DoesNotContain("Each Gitar comment that exists still needs its answer", prompt, StringComparison.Ordinal);
     }
 
     /// <summary>A run with the flag tells the reviewer that no complete Gitar pass is a condition (D-946).</summary>
@@ -99,7 +113,7 @@ public sealed class CodexReviewCliTests
 
         Assert.Contains(CodexCli.SkippedGitarLine, prompt, StringComparison.Ordinal);
         Assert.Contains("`--skip-gitar-review` (D-946)", prompt, StringComparison.Ordinal);
-        Assert.Contains("still needs its answer", prompt, StringComparison.Ordinal);
+        Assert.Contains("each Gitar item needs its answer", prompt, StringComparison.Ordinal);
         Assert.EndsWith("git push origin HEAD:feat/pr-97-gitar-pause`.", prompt, StringComparison.Ordinal);
     }
 

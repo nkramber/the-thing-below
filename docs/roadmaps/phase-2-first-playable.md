@@ -1185,9 +1185,9 @@ Area files: `area-battle.md` sections 7.7 and 7.10.
 
 1. A screen test renders a fixture fight with waiting enemies, and the baseline holds the column (D-172).
 2. The column shows the waiting enemies in the order of the group (D-760).
-3. After an enemy falls, the top enemy of the column steps into its row, and the column moves up (D-778).
+3. After an enemy falls, the top enemy of the column steps into its row (D-778). The next waiting enemy takes the top (D-953).
 4. The target menu offers no waiting enemy (D-954).
-5. A column taller than the field follows the answer of OQ-243, and a test proves it.
+5. A waiting column taller than the field fails the load (D-963). The error names the group, the height, and the limit. A Game test proves that the layout gives the column that room.
 
 **Review focus.**
 
@@ -1195,7 +1195,7 @@ Area files: `area-battle.md` sections 7.7 and 7.10.
 - The column reads on the Steam Deck at 1x (D-92, G-19).
 - Game reads the waiting enemies from the state of the rules alone, and no timer of Godot starts a step (D-100, D-532).
 
-**Questions.** OQ-243.
+**Questions.** None. D-963 resolved OQ-243.
 
 > *In plain English:* today an enemy can step into a fight with no warning, and a plan that the player made goes wrong. This change shows each enemy that waits, dimmed at the left edge, so the player plans for the whole group.
 
@@ -2404,6 +2404,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-220 to OQ-231 | The place, the form, the passes, the overlap, the edges, the resolution, the spread, the color, the test floor, the strength, and the coverage of the procedural fog, resolved by D-896 to D-906 and D-908 | PR-94 |
 | OQ-232 | The glow that stays, resolved by D-915 | PR-59 |
 | OQ-242 | The waiting enemies of a fight. Resolved by D-951 | PR-98 |
-| OQ-243 | A column of the waiting enemies, taller than the field | PR-98 |
+| OQ-243 | A column of the waiting enemies, taller than the field. Resolved by D-963 | PR-98 |
 
 No open question blocks this file.

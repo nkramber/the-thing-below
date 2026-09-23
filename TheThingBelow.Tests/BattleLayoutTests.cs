@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Runs;
 using TheThingBelow.Tools.Content;
 using Xunit;
 
@@ -16,6 +18,8 @@ namespace TheThingBelow.Tests;
 public sealed class BattleLayoutTests
 {
     private const string LayoutTypeName = "TheThingBelow.Game.Ui.BattleLayout";
+
+    private const string ViewTypeName = "TheThingBelow.Game.Ui.BattleView";
 
     /// <summary>The width of a common sprite, in art pixels (D-236).</summary>
     private const int SpriteSize = 32;
@@ -167,6 +171,134 @@ public sealed class BattleLayoutTests
 
         Assert.IsType<ArgumentOutOfRangeException>(thrown.InnerException);
     }
+
+    [Fact]
+    public void TheRoomOfTheWaitingColumnIsTheLimitOfTheLoad()
+    {
+        // D-963: Core refuses a column taller than this room, and the room ends at the top of
+        // the message line.
+        int top = Const("WaitingTop");
+        int bottom = (int)GameAssemblyFile.Type(LayoutTypeName).GetProperty("WaitingBottom")!.GetValue(null)!;
+
+        Assert.Equal(BattleFixture.MostWaitingHeight, bottom - top);
+        Assert.Equal(Box("Message").Y, bottom * 2);
+        Assert.Equal(Const("WaitingX") - (Const("LargestBody") / 2), top);
+    }
+
+    [Fact]
+    public void NoWaitingBodyMeetsABossInTheBackRow()
+    {
+        // D-953: the column stands behind the back row. The widest waiting body and the widest
+        // body of the outer lane of the back row never meet.
+        int columnRight = Const("WaitingX") + (Const("LargestBody") / 2);
+        foreach ((int x, int _) in PlacesOf(BattleSide.Enemy, BattleRow.Back, 6))
+        {
+            Assert.True(x - (Const("LargestBody") / 2) >= columnRight, $"A boss of the back row at column {x} meets the waiting column, which ends at {columnRight}.");
+        }
+    }
+
+    [Fact]
+    public void AColumnStandsOnTheBottomOfItsRoomAndAFullColumnFillsIt()
+    {
+        // D-953: a short column stands on the ground, and the next enemy stands at its top.
+        int top = Const("WaitingTop");
+        List<(int X, int Feet)> one = WaitingPlaces([32]);
+        List<(int X, int Feet)> full = WaitingPlaces([96, 96, 96]);
+
+        Assert.Equal([(Const("WaitingX"), top + BattleFixture.MostWaitingHeight)], one);
+        Assert.Equal([(Const("WaitingX"), top + 96), (Const("WaitingX"), top + 192), (Const("WaitingX"), top + 288)], full);
+    }
+
+    [Fact]
+    public void AColumnTallerThanItsRoomIsAnError()
+    {
+        // D-963: the load refuses such a group, so the screen never guesses a place (T-2).
+        TargetInvocationException thrown = Assert.Throws<TargetInvocationException>(
+            () => Method("WaitingPlaces").Invoke(null, [new List<int> { 64, 64, 64, 64, 64 }]));
+
+        Assert.IsType<ArgumentOutOfRangeException>(thrown.InnerException);
+        Assert.Contains("D-963", thrown.InnerException.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AfterAFallTheTopOfTheColumnStepsInAndTheNextEnemyTakesTheTop()
+    {
+        // Exit tests 2 and 3 of PR-98: the column holds the waiting enemies in the order of the
+        // group, and the top one steps in after a fall. The others keep their places on the
+        // bottom of the room, and the next one takes the top (D-760, D-778, D-953). The wave holds
+        // grunts alone, because the patrol of the test map takes the size of a common enemy.
+        BattleContent content = TestBattles.OfGroups(TestBattles.WaveGroupsFile(["enemy.fixture_grunt", "enemy.fixture_grunt", "enemy.fixture_grunt"]));
+        Simulation run = BattleRuns.IntoBattle(3, "group.wave", content);
+        object view = GameAssemblyFile.Type(ViewTypeName).GetMethod("AtStart")!.Invoke(null, [run.State])!;
+        Assert.Equal([1, 2, 3], WaitingSlots(view));
+
+        for (int turn = 0; turn < BattleRuns.TickLimit; turn += 1)
+        {
+            foreach (BattleEvent played in run.TakeBattleEvents())
+            {
+                if (played.Kind != BattleEventKind.StepIn)
+                {
+                    Apply(view, played);
+                    continue;
+                }
+
+                List<int> before = WaitingSlots(view);
+                List<(int X, int Feet)> placesBefore = ColumnOf(view);
+                Apply(view, played);
+                List<(int X, int Feet)> placesAfter = ColumnOf(view);
+
+                Assert.Equal(before[0], played.Actor.Slot);
+                Assert.Equal(before[1..], WaitingSlots(view));
+                Assert.Equal(placesBefore[1..], placesAfter);
+
+                return;
+            }
+
+            Assert.Equal(BattleOutcome.Running, BattleRuns.BattleOf(run).Outcome);
+            run.Step([BattleRuns.AttackFirst(run)]);
+        }
+
+        Assert.Fail($"No enemy stepped in within {BattleRuns.TickLimit} turns.");
+    }
+
+    /// <summary>Gives the slots of the waiting column of a view, from the top.</summary>
+    private static List<int> WaitingSlots(object view)
+    {
+        var slots = new List<int>();
+        foreach (object shown in (IEnumerable)Method("WaitingOf").Invoke(null, [view])!)
+        {
+            slots.Add(((BattleTarget)shown.GetType().GetProperty("Target")!.GetValue(shown)!).Slot);
+        }
+
+        return slots;
+    }
+
+    /// <summary>Gives the places of the waiting column of a view, with the height of a grunt and of a brute (D-828).</summary>
+    private static List<(int X, int Feet)> ColumnOf(object view)
+    {
+        var heights = new List<int>();
+        foreach (object shown in (IEnumerable)Method("WaitingOf").Invoke(null, [view])!)
+        {
+            string id = ((ContentId)shown.GetType().GetProperty("Id")!.GetValue(shown)!).Value;
+            heights.Add(string.CompareOrdinal(id, "enemy.fixture_brute") == 0 ? 64 : SpriteSize);
+        }
+
+        return WaitingPlaces(heights);
+    }
+
+    private static List<(int X, int Feet)> WaitingPlaces(List<int> heights)
+    {
+        var places = new List<(int X, int Feet)>();
+        foreach (object place in (IEnumerable)Method("WaitingPlaces").Invoke(null, [heights])!)
+        {
+            places.Add(((int)place.GetType().GetProperty("X")!.GetValue(place)!, (int)place.GetType().GetProperty("Feet")!.GetValue(place)!));
+        }
+
+        return places;
+    }
+
+    private static void Apply(object view, BattleEvent played) =>
+        view.GetType().GetMethod("Apply")!.Invoke(view, [played]);
 
     private static List<(int X, int Feet)> PlacesOf(BattleSide side, BattleRow row, int count)
     {

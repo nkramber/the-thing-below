@@ -60,6 +60,8 @@ Do these steps after each push.
 25. Stop when a current review approves, or when a current review adds no finding and each finding has its answer.
 26. Start the next step of the repo. In this repo, that step is `make codex-review PR=<n>` (D-926).
 
+A Gitar item is a review thread, a finding of the dashboard, or a claim of the CI analysis. Answer each Gitar item. A Gitar comment with no item, such as a status notice or a clean approval, needs no answer, and the reviewer ignores it (D-964).
+
 ## Find an automatic review
 
 The owner permits a `Gitar review` comment only after the push wait, and only when no automatic review started (D-705).

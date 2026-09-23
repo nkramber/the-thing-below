@@ -12,7 +12,7 @@ After each push, the author loads `.claude/skills/gitar-review/SKILL.md` and fol
 
 These rules of this repo add to the `gitar-review` skill, and they win over it:
 
-- The author answers every comment before the hand-over to the other provider, or before the session applies the `review-override` label (D-67).
+- The author answers each Gitar item before the hand-over to the other provider, or before the session applies the `review-override` label (D-67). A Gitar item is a review thread, a finding of the dashboard, or a claim of the CI analysis. A Gitar comment with no item, such as a status notice or a clean approval, needs no answer (D-964).
 - When the pass is complete, run `make codex-review PR=<n>` in the background (D-926). On a documentation PR that changes no row of `docs/decisions.md`, apply the `review-override` label yourself at this point instead (D-67, D-401).
 - A reply names no provider, harness, or model as the source of the work (T-6, D-22).
 - Record the pass in the handoff entry: the count of comments, the count with merit, and the commit that answered each one.

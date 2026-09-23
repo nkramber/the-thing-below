@@ -782,7 +782,7 @@ How to file a question (D-19, D-24):
     - The start of the fight names the whole group in the message line, and the screen shows nothing more after that.
     - No group holds a waiting enemy, and the wave of D-758 leaves the plan. Each fight then holds six enemies at most, and D-762 changes.
     - A surprise stays for one kind of group alone, such as the wrong things, and each other group shows its waiting enemies.
-243. **OQ-243. A column of the waiting enemies, taller than the field.** The waiting enemies stand in one column at full size (D-953, D-954). Six elite bodies of 64 pixels fit. A boss body takes 96 pixels (D-206). A group with large waiting bodies can need more height than the field holds. What happens then? Raised 2026-09-23. Blocks PR-98.
+243. **OQ-243. A column of the waiting enemies, taller than the field.** The waiting enemies stand in one column at full size (D-953, D-954). Four elite bodies of 64 pixels fit, and not six (D-963). A boss body takes 96 pixels (D-206). A group with large waiting bodies can need more height than the field holds. What happens then? Raised 2026-09-23. Blocked PR-98. Resolved 2026-09-23: D-963 takes the first option.
     - The load fails a group whose waiting column is taller than the field, and the error names the group and the height, the recommendation. A bad group never reaches a player (T-2). Content must split a large wave.
     - The column wraps into a second column to its right. Each group loads. The second column takes more width from the field.
     - A waiting body larger than an elite shows at elite size. Each group loads, and the column keeps one width. A boss then shows smaller than its true size until it steps in.

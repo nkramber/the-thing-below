@@ -38,7 +38,8 @@ public static class SimulationVersion
     /// transition pass of each map in the budget (D-934 to D-941). PR-11 raised it to 17: the
     /// evaluator chooses the turn of each enemy, with its own stream for a tie, an enemy can strike
     /// with an ability, heal, defend, and step, and the groups and the profiles live in their own
-    /// files (D-947, D-955 to D-960).
+    /// files (D-947, D-955 to D-960). PR-98 raised it to 18: the load refuses a group whose waiting
+    /// column is taller than the field (D-963).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -46,5 +47,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 17;
+    public const int Current = 18;
 }

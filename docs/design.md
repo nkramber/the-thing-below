@@ -96,6 +96,10 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-23 evaluator pass: on a tie, the evaluator draws from its own stream (D-947). A check fight finds a profile with no legal action (D-948). Each profile gives a base chance of a steal, and PR-13 builds the steal action (D-949, D-950). PR-98 draws the waiting enemies at full size in a column at the left edge (D-951 to D-954). An enemy ability gets its effect in PR-11, and each profile and each region group file has its own file (D-955 to D-958). The evaluator scores the expected outcome against the next character, in 1 ms on the Steam Deck (D-959 to D-961).
 
+2026-09-23 waiting column pass: four elite bodies fit in the waiting column, and not six. A group whose waiting column is taller than the field fails the load (D-963). PR-98 holds the check.
+
+2026-09-23 Gitar item pass: a Gitar comment with no thread, no finding, and no claim needs no answer. The reviewer ignores it, and the prompt of `make codex-review` says so (D-964). PR-98 holds the rule by an exception to G-8 (D-965).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -516,7 +520,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 25. PR-96: the summary before a merge, the approval that a commit of documents alone keeps, and its Gitar pass (D-942 to D-944).
 26. PR-97: the Gitar pause and the flag that skips the Gitar check (D-945, D-946).
 27. PR-11: the evaluator, the enemy profiles, and the groups, with the cost of a turn (D-65, D-534, F-53).
-28. PR-98: the waiting enemies at the left edge of the field, right after PR-11 (D-951 to D-954).
+28. PR-98: the waiting enemies at the left edge of the field, right after PR-11 (D-951 to D-954, D-963).
 29. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537).
 30. PR-62: the menu windows, the party and status windows, the dungeon map screen, and the notices (D-211, D-558, D-567, D-569).
 31. PR-68: the story scene format and runner, the join step, the flags, and the conditions, before PR-12 (D-541, D-544, D-556, D-563).

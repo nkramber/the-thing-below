@@ -127,7 +127,7 @@ The PR reaches its hand-over point only when each line holds:
 4. The Documents section has a line for each row of step 3.
 5. The handoff entry of this session is on the PR branch.
 6. Each review record and each response file is on the PR branch.
-7. The checks of `CLAUDE.md` pass, and each gitar comment has its answer.
+7. The checks of `CLAUDE.md` pass, and each Gitar item has its answer. A Gitar comment with no item needs no answer (D-964).
 8. No document, handoff entry, review record, or merge record of this PR waits for another PR. A line that names the PR of independent roadmap work holds this line.
 
 A reviewer checks lines 1 to 4, 7, and 8 in the review, and it does not make them hold. The reviewer reaches the hand-over point when its review record gives `Ready for owner merge` for the effective head, or when the owner ends the review.

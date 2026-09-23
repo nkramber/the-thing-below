@@ -281,7 +281,8 @@ The reviewing provider reads the existing PR comments and takes them into its ow
 - An author reply is evidence, and the review checks it: the trigger, the contract, and the commit it names.
 - Check that the pass is current with the rule "Prove that a review is current" in the `gitar-review` skill. Use the read commands alone. A pass on an older commit is not an answered pass.
 - **Gitar pause (D-945).** An absent or stale Gitar pass is not a finding, and it does not block the verdict. Each other rule of this section stands.
-- An automated comment that the author refuted with evidence is not a finding. An automated comment that the author fixed is a fix to verify. An automated comment that stays open without an answer blocks the verdict, because the author's pass is not complete.
+- An automated comment that the author refuted with evidence is not a finding. An automated comment that the author fixed is a fix to verify. A Gitar item that stays open without an answer blocks the verdict, because the author's pass is not complete.
+- A Gitar item is a review thread, a finding of the dashboard, or a claim of the CI analysis. Ignore a Gitar comment with no item, such as a status notice or a clean approval. It needs no answer, and it never blocks the verdict. Do not list it as an open requirement (D-964).
 - The automated pass does not make gitar an author. The provider gate reads the providers of the substantive commits alone.
 
 ## Scope limits

@@ -99,6 +99,35 @@ public sealed class GroupFileTests
         Assert.Contains("a second group file takes the region 'region.big'", error.Message, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData(4, 1)]
+    [InlineData(0, 9)]
+    [InlineData(3, 3)]
+    public void AWaitingColumnThatTheFieldHoldsLoads(int elites, int commons)
+    {
+        // D-963: the column holds 288 art pixels, so four elites and one common fit exactly.
+        BattleContent content = TestBattles.OfGroups(WaveFile(elites, commons));
+
+        Assert.Equal(1 + elites + commons, content.Group(ContentId.Parse("group.wave", Path, "id")).Entries.Count);
+    }
+
+    [Theory]
+    [InlineData(5, 0, 320)]
+    [InlineData(0, 10, 320)]
+    [InlineData(4, 2, 320)]
+    public void AWaitingColumnTallerThanTheFieldFailsWithTheGroupAndTheHeight(int elites, int commons, int height)
+    {
+        // D-963: four elite bodies fit, and not six. The error names the group, the height,
+        // and the limit (T-2).
+        ContentException error = Assert.Throws<ContentException>(() => TestBattles.OfGroups(WaveFile(elites, commons)));
+
+        Assert.Equal(TestBattles.GroupsPath, error.File);
+        Assert.Contains("group.wave", error.Message, StringComparison.Ordinal);
+        Assert.Contains($"a column of {height} art pixels", error.Message, StringComparison.Ordinal);
+        Assert.Contains($"{BattleFixture.MostWaitingHeight} at most", error.Message, StringComparison.Ordinal);
+        Assert.Contains("D-963", error.Message, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void AGroupFileIsAJsonFileOfTheGroupFolder()
     {
@@ -116,6 +145,18 @@ public sealed class GroupFileTests
          "groups": [{ "id": "group.big", "boss": false, "enemies": [{{entries}}] }]
         }
         """;
+
+    /// <summary>Gives a group file of the test region with one wave: the waiting brutes, then the waiting grunts.</summary>
+    private static string WaveFile(int elites, int commons)
+    {
+        List<string> waiting = [];
+        for (int index = 0; index < elites + commons; index += 1)
+        {
+            waiting.Add(index < elites ? "enemy.fixture_brute" : "enemy.fixture_grunt");
+        }
+
+        return TestBattles.WaveGroupsFile(waiting);
+    }
 
     private static string Entries(int standing, int waiting)
     {
