@@ -9,6 +9,8 @@ The GitHub app `gitar-bot` reviews pull requests. This skill gets a Gitar review
 
 Each repo that uses Gitar keeps a copy of this file. A rule of the repo wins over this skill. For example, a repo can ask for a second review, or it can limit who replies to Gitar.
 
+**Gitar pause (D-945).** In the-thing-below, no step waits for a Gitar review or asks for one, and the procedure below does not apply. Read the Gitar output with command B and then command C, one time before each `make codex-review` run and one time before the merge question. On a Gitar review thread or a finding of the dashboard, stop at once, and tell the owner before any other step. After the owner saw it, answer it with "Rules for each reply". Answer a claim of the CI analysis alone with those rules, and do not stop.
+
 ## Terms
 
 - **Head**: the newest commit of the pull request branch on GitHub.

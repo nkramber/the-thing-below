@@ -1,4 +1,42 @@
 # Session handoff archive
+## Session 233: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #63, round 1. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: reviewer. Base: `097ea32`.
+
+### What this session did, and why
+
+- Reviewed all 37 changed paths from base `097ea32` through effective head `ca9dd85`.
+- Confirmed Claude Code authored the PR, and the Codex reviewer passes the provider gate (T-4, D-17).
+- Found that the Gitar pass check reads only 100 review threads, and that duplicate finding IDs split the three-strike count (D-14, D-929).
+- Ran `make verify`: 2,359 tests passed, and each local check passed.
+- Read the live CI checks. Each implementation check passed. Review-gate failed RG 3 because the review record was absent.
+- Added `docs/reviews/pr-63.md` with two open findings and the verdict `Changes required`.
+
+### The state of the build
+
+- The base and merge base are `097ea32`. The effective code head is `ca9dd85`.
+- Local verification passed. Live build, test, format, coverage, lint, identity, screen-test, smoke, and STE checks passed on their CI legs.
+- The Gitar check passed on `ca9dd85`. The live merge settings match `docs/runbooks/branch-protection.json` (D-931).
+
+### What is in flight
+
+- The author needs to fix P2-1 and P2-2 in `docs/reviews/pr-63.md`, then request a repeat review.
+- This metadata commit publishes the review record and this entry. The `docs/reviews/` Documents row needs correction after publication.
+
+### Traps and gotchas
+
+- Metadata commits do not change effective head `ca9dd85` (D-610).
+- The pre-publication review-gate failure is RG 3 because the review record is absent. RG 4 and RG 5 skip until the record lands.
+
+### The questions that block progress
+
+None. The PR-95 roadmap lists no open question.
+
+### The next concrete action
+
+The author fixes both findings and requests a repeat review of PR #63.
+
 ## Session 232: 2026-09-23, Claude Code
 
 Author: Claude Code

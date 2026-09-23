@@ -28,6 +28,12 @@ public static class CodexReviewCommand
     /// <summary>The option that gives the GitHub number of the pull request.</summary>
     public const string PullRequestOption = "--pull-request";
 
+    /// <summary>
+    /// The flag that skips the check of the Gitar pass before the review (D-946). The flag is
+    /// permanent, and the rules of the review loop say when the author passes it.
+    /// </summary>
+    public const string SkipGitarReviewOption = "--skip-gitar-review";
+
     /// <summary>The folder under the root that takes each transcript. Git ignores `artifacts/`.</summary>
     public const string TranscriptFolder = "artifacts/codex-review";
 
@@ -42,7 +48,7 @@ public static class CodexReviewCommand
         ArgumentNullException.ThrowIfNull(output);
         ArgumentNullException.ThrowIfNull(errors);
 
-        OptionParser? options = OptionParser.Read(Name, args, [RootOption, PullRequestOption], [], errors);
+        OptionParser? options = OptionParser.Read(Name, args, [RootOption, PullRequestOption], [SkipGitarReviewOption], errors);
         if (options is null)
         {
             return Program.FaultExitCode;
@@ -61,7 +67,7 @@ public static class CodexReviewCommand
         string root = Path.GetFullPath(options.ValueOr(RootOption, "."));
         try
         {
-            return Review(root, number, output, errors);
+            return Review(root, number, options.Holds(SkipGitarReviewOption), output, errors);
         }
         catch (Exception fault) when (fault is InvalidOperationException or IOException or UnauthorizedAccessException or JsonException)
         {
@@ -70,7 +76,29 @@ public static class CodexReviewCommand
         }
     }
 
-    private static int Review(string root, int number, TextWriter output, TextWriter errors)
+    /// <summary>
+    /// Gives each reason of the Gitar pass that refuses the review. With the flag of D-946, the
+    /// command reads no Gitar fact, writes that it skips the check, and gives no reason.
+    /// </summary>
+    /// <param name="skipGitarReview">True when the command line holds `--skip-gitar-review`.</param>
+    /// <param name="readFacts">Reads the Gitar facts of the PR. The skip never calls it.</param>
+    /// <param name="output">The writer that takes the line of the skip.</param>
+    /// <returns>Each reason of <see cref="GitarPass.Check"/>, or none for the skip.</returns>
+    public static IReadOnlyList<string> GitarReasons(bool skipGitarReview, Func<GitarFacts> readFacts, TextWriter output)
+    {
+        ArgumentNullException.ThrowIfNull(readFacts);
+        ArgumentNullException.ThrowIfNull(output);
+
+        if (skipGitarReview)
+        {
+            output.WriteLine($"{Name}: {SkipGitarReviewOption} skips the check of the Gitar pass (D-946).");
+            return [];
+        }
+
+        return GitarPass.Check(readFacts());
+    }
+
+    private static int Review(string root, int number, bool skipGitarReview, TextWriter output, TextWriter errors)
     {
         output.WriteLine($"{Name}: install the newest `{CodexCli.Package}` with npm (D-927).");
         string codex = InstallCli(root);
@@ -89,7 +117,10 @@ public static class CodexReviewCommand
         }
         else
         {
-            reasons.AddRange(GitarPass.Check(ReadGitarFacts(root, number, checkout.Branch, baseBranch, head)));
+            reasons.AddRange(GitarReasons(
+                skipGitarReview,
+                () => ReadGitarFacts(root, number, checkout.Branch, baseBranch, head),
+                output));
         }
 
         if (reasons.Count > 0 || head is null)
@@ -108,7 +139,7 @@ public static class CodexReviewCommand
         (string transcript, string errorLog, string lastMessage) = TranscriptPaths(root, number, head.Sha);
         output.WriteLine($"{Name}: the review runs in '{worktree}'. The transcript is '{transcript}'.");
 
-        string prompt = CodexCli.ReviewPrompt(number, checkout.Branch, localBranch);
+        string prompt = CodexCli.ReviewPrompt(number, checkout.Branch, localBranch, skipGitarReview);
         ProgramResult run = RunCodex(codex, CodexCli.ReviewArguments(worktree, lastMessage, prompt), worktree, transcript);
         File.WriteAllText(errorLog, run.Error);
 

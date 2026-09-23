@@ -1,3 +1,38 @@
+## Session 243: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-97, round 1. Repository: the-thing-below. Branch: `feat/pr-97-gitar-pause`. PR: PR-97. Role: author. Base: `919547b`.
+
+### What this session did, and why
+
+- The owner paused the Gitar requirement, and asked for a flag that skips the Gitar check of `make codex-review` (D-945, D-946).
+- The owner chose the form `make codex-review PR=<n> -- --skip-gitar-review`, the read at each gate, threads and findings alone as feedback, and the label with no Gitar approval.
+- The `codex-review` command takes `--skip-gitar-review`. With it, the command reads no Gitar fact, and the prompt of the reviewer says that no Gitar pass is a condition.
+- Each pause text is one whole line with the marker `Gitar pause (D-945)`. The section "The end of the Gitar pause" of `docs/runbooks/merge.md` gives the steps that remove the pause.
+- PR-97 is in the roadmaps and in `docs/design.md`, after PR-96.
+
+### The state of the build
+
+- `main` is `919547b`. `make build`, `make test`, `make format`, and the STE check pass on this machine.
+
+### What is in flight
+
+- The CI run of the first push, then one read of the Gitar output, then `make codex-review PR=<n> -- --skip-gitar-review`.
+
+### Traps and gotchas
+
+- A Gitar review thread or a finding of the dashboard stops the session at once. Tell the owner before any other step (D-945).
+- `make codex-review PR=<n> --skip-gitar-review` with no `--` fails, because make reads the flag as its own option.
+- `CLAUDE.md` is near the 16 KB limit of SIZE 1. Two sentences left it in this PR.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for CI, read the Gitar output one time, and start `make codex-review PR=<n> -- --skip-gitar-review` in the background.
+
 ## Session 242: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -339,43 +374,3 @@ None. D-926 to D-933 hold the answers of 2026-09-23.
 ### The next concrete action
 
 Answer the Gitar pass of the new head. Then run `make codex-review PR=63` in the background.
-
-
-
-## Session 233: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #63, round 1. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: reviewer. Base: `097ea32`.
-
-### What this session did, and why
-
-- Reviewed all 37 changed paths from base `097ea32` through effective head `ca9dd85`.
-- Confirmed Claude Code authored the PR, and the Codex reviewer passes the provider gate (T-4, D-17).
-- Found that the Gitar pass check reads only 100 review threads, and that duplicate finding IDs split the three-strike count (D-14, D-929).
-- Ran `make verify`: 2,359 tests passed, and each local check passed.
-- Read the live CI checks. Each implementation check passed. Review-gate failed RG 3 because the review record was absent.
-- Added `docs/reviews/pr-63.md` with two open findings and the verdict `Changes required`.
-
-### The state of the build
-
-- The base and merge base are `097ea32`. The effective code head is `ca9dd85`.
-- Local verification passed. Live build, test, format, coverage, lint, identity, screen-test, smoke, and STE checks passed on their CI legs.
-- The Gitar check passed on `ca9dd85`. The live merge settings match `docs/runbooks/branch-protection.json` (D-931).
-
-### What is in flight
-
-- The author needs to fix P2-1 and P2-2 in `docs/reviews/pr-63.md`, then request a repeat review.
-- This metadata commit publishes the review record and this entry. The `docs/reviews/` Documents row needs correction after publication.
-
-### Traps and gotchas
-
-- Metadata commits do not change effective head `ca9dd85` (D-610).
-- The pre-publication review-gate failure is RG 3 because the review record is absent. RG 4 and RG 5 skip until the record lands.
-
-### The questions that block progress
-
-None. The PR-95 roadmap lists no open question.
-
-### The next concrete action
-
-The author fixes both findings and requests a repeat review of PR #63.

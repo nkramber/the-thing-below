@@ -392,6 +392,17 @@ Built by PR-96. Phase file: `phase-2-first-playable.md` section 7.24.
 
 > *In plain English:* a fix of the documents after the review keeps the green light, and Gitar still reads it.
 
+### 7.22 The Gitar pause
+
+Built by PR-97. Phase file: `phase-2-first-playable.md` section 7.25.
+
+- No step waits for a Gitar pass while the pause holds. The author reads the Gitar output one time before each review run and before the merge question (D-945).
+- A Gitar review thread or finding stops the session, and the owner sees it before any other step (D-945).
+- `make codex-review PR=<n> -- --skip-gitar-review` skips the Gitar check of the command. The flag stays after the pause (D-946).
+- Each line of the pause holds one marker, and `docs/runbooks/merge.md` gives the steps that end the pause (D-945).
+
+> *In plain English:* no PR waits for Gitar for now, and Gitar feedback goes to the owner first.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The CI work keeps this order inside it:
@@ -414,10 +425,11 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 16. PR-93: ste-check, review-gate, and Gitar alone on a docs-only change, right after PR-56 (D-856).
 17. PR-95: the automated review, the three-strike stop, and the gated auto-merge, right after PR-92 (D-926 to D-933).
 18. PR-96: the rules of the review loop, right after PR-60 (D-942 to D-944).
-19. PR-15: the bot runs on every leg (D-505).
-20. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
-21. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-22. **← GATE 2 (first playable).**
+19. PR-97: the Gitar pause and the flag that skips the Gitar check, right after PR-96 (D-945, D-946).
+20. PR-15: the bot runs on every leg (D-505).
+21. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
+22. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+23. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 

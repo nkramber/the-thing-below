@@ -115,6 +115,8 @@ A commit that changes only the metadata set never moves the effective head. That
 
 After an approval, a commit that changes paths of the skip set alone keeps the approval, and the PR needs no new review (D-943). That commit still gets its Gitar pass, and the author answers each comment and each claim of the pass (D-944). `docs/runbooks/merge.md` gives the steps.
 
+**Gitar pause (D-945).** That commit waits for no Gitar pass. The read of step 5 still comes before the merge question.
+
 ## 5. Completion gate
 
 The PR reaches its hand-over point only when each line holds:
@@ -140,6 +142,8 @@ The author loop reaches the hand-over point. `docs/runbooks/merge.md` holds its 
 4. On `changes-required`, answer each finding with the `pr-review` skill, then go to step 1.
 5. On `three-strike-stop`, turn off the auto-merge, stop the loop, and ask the owner (D-929).
 6. On `approve`, the hand-over point holds. The owner confirms the merge before the auto-merge (D-933, D-942).
+
+**Gitar pause (D-945).** Step 2 is one read of the Gitar output with the `gitar-review` skill, and no wait for a pass. Step 3 runs `make codex-review PR=<n> -- --skip-gitar-review` (D-946). On a Gitar thread or finding, stop at once and tell the owner.
 
 At the hand-over point, the reviewer writes this result and stops:
 
@@ -186,3 +190,4 @@ The session ends with this prompt. It makes no branch and no change for the next
 | One PR in each session, and a clean session for each PR | Owner. No check can see the conversation |
 | The merge | Machine: the protection of `main` and the auto-merge that the author turns on (D-930, D-931). The owner can merge too (D-8) |
 | The Gitar pass before the review, and the three-strike stop | Machine: the `codex-review` command refuses a run and gives exit code 3 (D-926, D-929) |
+| Gitar pause (D-945): the stop on a Gitar thread or finding | Agent. The flag `--skip-gitar-review` skips the Gitar check of the command (D-946) |
