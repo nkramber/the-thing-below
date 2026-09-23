@@ -28,7 +28,9 @@ public static class SimulationVersion
     /// normal-map pages and the override grids (D-839). PR-56 raised it to 12: the reader of
     /// the light files, the decor files, and the effect budget (D-842 to D-847). PR-94 raised it
     /// to 13: the reader of a layer of fog takes the noise and its bands in place of a text grid,
-    /// and the budget counts one pass for each fog (D-897, D-898).
+    /// and the budget counts one pass for each fog (D-897, D-898). PR-59 raised it to 14:
+    /// the reader of the glow file and of the glow of each stream, the bound of the lit art below
+    /// the glow threshold, and the count of the glow pass in the budget (D-910 to D-912).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -36,5 +38,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 13;
+    public const int Current = 14;
 }

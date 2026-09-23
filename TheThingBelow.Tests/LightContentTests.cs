@@ -239,6 +239,77 @@ public sealed class LightContentTests
     }
 
     [Fact]
+    public void TwoTorchesSideBySideCanLightArtToTheThresholdAndFail()
+    {
+        // D-910, F-47: Godot adds the light of each torch with no clamp. One torch of 12000 lights
+        // white art below a threshold of 20000, and a second torch one tile away pushes it past.
+        string threshold = UiContentFixtures.GlowBody.Replace("\"threshold\": 70000", "\"threshold\": 20000", StringComparison.Ordinal);
+        LightFixtures.Load(LightFixtures.Files(
+            LightFixtures.DecorBody(LightFixtures.Piece("west", 2, 0)),
+            LightFixtures.SetupBody(),
+            glow: threshold));
+
+        ContentException error = Assert.Throws<ContentException>(() => LightFixtures.Load(LightFixtures.Files(
+            LightFixtures.DecorBody($"{LightFixtures.Piece("west", 2, 0)}, {LightFixtures.Piece("east", 3, 0)}"),
+            LightFixtures.SetupBody(),
+            glow: threshold)));
+
+        Assert.Equal(LightFixtures.SetupPath, error.File);
+        Assert.Contains("of the map 'map.lit'", error.Message, StringComparison.Ordinal);
+        Assert.Contains("the threshold of `effects/glow.json` is 20000, so that art would glow", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AFightWhoseKeyLightCanLightArtToTheThresholdFails()
+    {
+        // D-850, D-910: the fight takes the ambient light and the key light of the setup. The
+        // key light of 10000 in the flame of 251 of 255 and the ambient light of ink give 10139.
+        string threshold = UiContentFixtures.GlowBody.Replace("\"threshold\": 70000", "\"threshold\": 10100", StringComparison.Ordinal);
+
+        ContentException error = Assert.Throws<ContentException>(() => LightFixtures.Load(LightFixtures.Files(
+            LightFixtures.DecorBody(string.Empty),
+            LightFixtures.SetupBody(),
+            glow: threshold)));
+
+        Assert.Equal(LightFixtures.SetupPath, error.File);
+        Assert.Equal("battle", error.Field);
+        Assert.Contains("10139 basis points in a fight", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AnEmitterTooDarkToPassTheThresholdFails()
+    {
+        // D-912, T-2: an emitter of ink at 16 times its color stays far below the threshold, and it
+        // would give no glow in silence. The same glow on the flame color passes.
+        string dark = LightFixtures.KindBody.Replace("\"glow\": 0", "\"glow\": 160000", StringComparison.Ordinal);
+        string bright = dark.Replace("\"colors\": [\"k\"]", "\"colors\": [\"j\"]", StringComparison.Ordinal);
+        List<ContentFile> files = LightFixtures.Files(LightFixtures.DecorBody(string.Empty), LightFixtures.SetupBody());
+
+        files[0] = LightFixtures.File(LightFixtures.KindPath, bright);
+        LightContent light = LightFixtures.Load(files);
+        Assert.Equal(160000, light.KindOf(ContentId.Parse(LightFixtures.KindId, "test", "id")).Fire.Emitters[0].Glow);
+
+        files[0] = LightFixtures.File(LightFixtures.KindPath, dark);
+        ContentException error = Assert.Throws<ContentException>(() => LightFixtures.Load(files));
+
+        Assert.Equal(LightFixtures.KindPath, error.File);
+        Assert.Equal("fire.emitters[0].glow", error.Field);
+        Assert.Contains("might never glow", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ALightSetWithNoGlowFileFails()
+    {
+        // T-2: the glow is one file of every build, and its absence is an error.
+        List<ContentFile> files = LightFixtures.Files(LightFixtures.DecorBody(string.Empty), LightFixtures.SetupBody());
+        files.RemoveAll(file => file.Path == Glow.Path);
+
+        ContentException error = Assert.Throws<ContentException>(() => LightFixtures.Load(files));
+
+        Assert.Equal(Glow.Path, error.File);
+    }
+
+    [Fact]
     public void TheCheckoutFixtureDungeonHoldsItsTorchesAndItsChange()
     {
         ContentSet set = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));

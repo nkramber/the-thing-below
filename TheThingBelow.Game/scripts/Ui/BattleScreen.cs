@@ -111,6 +111,7 @@ public sealed class BattleScreen
 
         this.world = new Node2D { YSortEnabled = true };
         frame.World.AddChild(this.world);
+        frame.ShowGlow(content.Light.Glow);
         this.layer = new Control
         {
             Position = Vector2.Zero,

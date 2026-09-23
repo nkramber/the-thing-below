@@ -1,0 +1,8 @@
+{
+ "comment": "The glow of the world view (D-188, D-910, D-911). The world draws in HDR 2D, and a pixel glows when its brightest channel passes the threshold, in basis points of linear light, where 10000 is full white. The load keeps the brightest lit art of every light setup below the threshold, so a sprite or a tile never glows (F-47). The knee is the span above the threshold where the glow grows to full. The intensity, the strength, and the seven levels, from the sharpest blur to the widest, go to the glow of Godot. The glow is a smooth bloom, the one effect outside the palette with the fog (D-911).",
+ "threshold": 70000,
+ "knee": 5000,
+ "intensity": 12000,
+ "strength": 10000,
+ "levels": [0, 5000, 10000, 5000, 0, 0, 0]
+}

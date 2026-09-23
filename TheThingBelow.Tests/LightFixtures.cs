@@ -106,18 +106,20 @@ public static class LightFixtures
     public static string BudgetBody(int lightsInView) =>
         $$"""{ "comment": "a test budget", "lights_in_view": {{lightsInView}}, "live_particles": 8192, "full_screen_passes": 3 }""";
 
-    /// <summary>Makes the light files of the test place: the kind, the decor file, the setup, the carried light, and the budget.</summary>
+    /// <summary>Makes the light files of the test place: the kind, the decor file, the setup, the carried light, the budget, and the glow.</summary>
     /// <param name="decor">The body of the decor file.</param>
     /// <param name="setup">The body of the light setup.</param>
     /// <param name="budget">The body of the effect budget.</param>
+    /// <param name="glow">The body of the glow file.</param>
     /// <returns>The files.</returns>
-    public static List<ContentFile> Files(string decor, string setup, string? budget = null) =>
+    public static List<ContentFile> Files(string decor, string setup, string? budget = null, string? glow = null) =>
     [
         File(KindPath, KindBody),
         File(DecorPath, decor),
         File(SetupPath, setup),
         File(CarriedLight.Path, UiContentFixtures.CarriedBody),
         File(EffectBudget.Path, budget ?? BudgetBody(15)),
+        File(Glow.Path, glow ?? UiContentFixtures.GlowBody),
     ];
 
     /// <summary>Reads the test map, with the terrain that the test gives.</summary>

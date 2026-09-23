@@ -78,6 +78,7 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 - `Core` runs each story scene and holds its step index. Game draws each step, and it sends the same wait intent when the step ends (D-540).
 - Each effect file is JSON with integer values, and a test fails a map or a battle that passes the effect budget (D-517, D-523).
 - Game draws the world in a `SubViewport` at 1x, and it builds both steps of the fit itself (D-232, F-48).
+- The world view draws in HDR 2D, in linear light (D-910). Godot reads each modulate and each color uniform with `source_color` as sRGB, and it turns them into linear light. Thus each color uniform takes `source_color`, and a modulate above full white goes to Godot as sRGB (F-103).
 - Game builds its `Theme` in code from the UI style file, and no `.tres` theme file exists (D-527, G-6).
 - Game loads each font from the bytes of its own assembly into `FontFile.Data`, because Godot 4.7.2 has no byte-array load method (D-508, F-49).
 - Game makes each audio stream from the rendered bytes of its own assembly, and it checks every return (D-547, F-56).

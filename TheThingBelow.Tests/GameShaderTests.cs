@@ -58,6 +58,24 @@ public sealed class GameShaderTests
     }
 
     [Fact]
+    public void TheViewOfTheWorldNamesAShaderThatTurnsLinearLightIntoSrgb()
+    {
+        // F-103: the world draws in HDR 2D, and Godot gives its linear light to the frame with no
+        // conversion, so the world drew too dark. The shader turns each pixel into sRGB, with a
+        // clamp at full white, so the light of a glowing source never wraps (D-910).
+        string path = (string)GameAssemblyFile.Type("TheThingBelow.Game.Ui.GlowPass")
+            .GetField("ViewShaderPath")!
+            .GetValue(null)!;
+
+        Assert.Equal("res://shaders/world_view.gdshader", path);
+
+        string code = CodeOf(File.ReadAllText(Path.Combine(RepositoryRoot.Find(), ShaderFolder, "world_view.gdshader")));
+        Assert.Contains("shader_type canvas_item;", code, StringComparison.Ordinal);
+        Assert.Contains("COLOR = vec4(srgb_of(clamp(world.rgb, 0.0, 1.0)), world.a);", code, StringComparison.Ordinal);
+        Assert.Contains("pow(linear_light, vec3(1.0 / 2.4))", code, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void NoShaderOfTheGameReadsTheClockOfGodot()
     {
         // F-100, D-172: a shader that reads TIME draws another picture at each capture of one

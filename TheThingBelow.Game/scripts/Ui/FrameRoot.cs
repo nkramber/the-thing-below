@@ -63,6 +63,23 @@ public partial class FrameRoot : Node
         this.OnScreenChanged();
     }
 
+    /// <summary>Gives the world the glow of the file, on a map or in a fight (D-910).</summary>
+    /// <param name="glow">The glow file.</param>
+    /// <exception cref="ArgumentNullException">The glow is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The frame is not in the tree yet, so it holds no world (T-2).</exception>
+    /// <remarks>Each screen of the world calls this method with the same file, so a second call changes nothing.</remarks>
+    public void ShowGlow(TheThingBelow.Core.Light.Glow glow)
+    {
+        ArgumentNullException.ThrowIfNull(glow);
+
+        if (this.worldViewport is null)
+        {
+            throw new InvalidOperationException("The frame holds no world before it enters the tree, so it can show no glow (T-2).");
+        }
+
+        this.worldViewport.World3D.Environment = GlowPass.EnvironmentOf(glow);
+    }
+
     /// <summary>Changes the fit of the frame, which the fit of the display settings sets (D-232, D-860).</summary>
     /// <param name="mode">The fit to take from now on.</param>
     public void SetMode(FitMode mode)
@@ -114,6 +131,14 @@ public partial class FrameRoot : Node
             // Font oversampling re-draws a glyph at the size of the scaled frame, which
             // loses the bitmap strike of the pixel font (D-710, F-49).
             Oversampling = false,
+
+            // The world keeps linear light above full white, so a light source can glow and the
+            // lit art stays below the threshold (D-910, F-47).
+            UseHdr2D = true,
+
+            // The world holds the environment of the glow. A world of its own keeps that glow off
+            // the frame and the window, which share the world of the root (D-210).
+            World3D = new World3D(),
         };
 
         this.AddChild(this.worldViewport);
@@ -137,6 +162,10 @@ public partial class FrameRoot : Node
             Size = new Vector2(WorldWidth * WorldScale, WorldHeight * WorldScale),
             StretchMode = TextureRect.StretchModeEnum.Scale,
             TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
+
+            // The world holds linear light, and the frame has no HDR 2D, so the view turns each
+            // pixel into sRGB (F-103).
+            Material = GlowPass.ViewMaterial(),
         };
 
         this.Layer = new Control

@@ -261,6 +261,13 @@ public sealed class ParticleStreams
             particles.Material = new CanvasItemMaterial { LightMode = CanvasItemMaterial.LightModeEnum.Unshaded };
         }
 
+        if (emitter.Glow > 0)
+        {
+            // The stream draws its palette color times its glow, above the glow threshold, so it
+            // glows (D-910, D-912).
+            particles.SelfModulate = GlowPass.ModulateOf(emitter.Glow);
+        }
+
         return new StreamNode(particles, process, new Vector2(emitter.X, emitter.Y), emitter.LifetimeTicks);
     }
 

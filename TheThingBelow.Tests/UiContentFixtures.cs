@@ -52,7 +52,7 @@ public static class UiContentFixtures
 
     /// <summary>The fire of a test torch: two levels and one stream of ink, which every test palette holds (D-890, D-891).</summary>
     public const string FireBody =
-        """{ "step_ticks": 4, "levels": [ { "strength": 10000, "range": 10000 }, { "strength": 9000, "range": 9500 } ], "jump": 1, "emitters": [ { "amount": 6, "lifetime_ticks": 12, "colors": ["k"], "size": 1, "x": 0, "y": -2, "half_width": 1, "half_height": 0, "direction": -90, "spread": 10, "slowest_speed": 10, "fastest_speed": 20, "gravity": -10 } ] }""";
+        """{ "step_ticks": 4, "levels": [ { "strength": 10000, "range": 10000 }, { "strength": 9000, "range": 9500 } ], "jump": 1, "emitters": [ { "amount": 6, "lifetime_ticks": 12, "colors": ["k"], "size": 1, "x": 0, "y": -2, "half_width": 1, "half_height": 0, "direction": -90, "spread": 10, "slowest_speed": 10, "fastest_speed": 20, "gravity": -10, "glow": 0 } ] }""";
 
     /// <summary>The body of the fixture carried light (D-847).</summary>
     public const string CarriedBody =
@@ -61,11 +61,14 @@ public static class UiContentFixtures
     /// <summary>The body of the fixture effect budget (D-523).</summary>
     public const string BudgetBody = """{ "comment": "a test budget", "lights_in_view": 15, "live_particles": 8192, "full_screen_passes": 3 }""";
 
+    /// <summary>The body of the fixture glow, with the threshold of the checkout (D-910).</summary>
+    public const string GlowBody = """{ "comment": "a test glow", "threshold": 70000, "knee": 20000, "intensity": 8000, "strength": 10000, "levels": [0, 0, 10000, 0, 10000, 0, 0] }""";
+
     /// <summary>The page record that the fixture atlas index holds.</summary>
     public const string AtlasPageRecord = """{ "kind": "ui", "number": 1, "width": 1, "height": 1 }""";
 
     /// <summary>Every file of the UI base, for a content set that tests another rule.</summary>
-    /// <returns>The style file, both fonts, the drawing, the page file, the carried light, and the budget.</returns>
+    /// <returns>The style file, both fonts, the drawing, the page file, the carried light, the budget, and the glow.</returns>
     public static IReadOnlyList<ContentFile> Files() =>
     [
         Of(UiStyle.Path, StyleBody),
@@ -77,6 +80,7 @@ public static class UiContentFixtures
         new ContentFile(PageFile, [0]),
         Of(CarriedLight.Path, CarriedBody),
         Of(EffectBudget.Path, BudgetBody),
+        Of(Glow.Path, GlowBody),
     ];
 
     /// <summary>

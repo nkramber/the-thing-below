@@ -312,7 +312,8 @@ public partial class MapScreen : Node2D
                 Offset = new Vector2(0, -entry.Height),
 
                 // A flame gives light and takes none, so the dark of the ambient light never
-                // dims it. Glow stays with PR-59 (D-188).
+                // dims it. The piece is a sprite, so it never glows, and the fire of the torch
+                // glows instead (D-188, D-912).
                 Material = new CanvasItemMaterial { LightMode = CanvasItemMaterial.LightModeEnum.Unshaded },
             });
         }

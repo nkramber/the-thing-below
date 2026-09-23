@@ -7,8 +7,8 @@ namespace TheThingBelow.Core.Light;
 
 /// <summary>
 /// Every light file of one build, read and checked across files: the decor kinds, the decor
-/// files, the light setups, the carried light, and the effect budget (D-523, D-843, D-844,
-/// D-847).
+/// files, the light setups, the carried light, the effect budget, and the glow (D-523, D-843,
+/// D-844, D-847, D-910).
 /// </summary>
 /// <remarks>
 /// No rule reads a light file, so none lies in the rule folder and none reaches the content
@@ -24,6 +24,8 @@ namespace TheThingBelow.Core.Light;
 /// <item>Each change names a piece of its map, and each added light lies on its map (D-843).</item>
 /// <item>Each color names a key of the palette (D-846).</item>
 /// <item>Each map keeps inside the effect budget and the limit of Godot (D-842, F-46).</item>
+/// <item>The brightest lit art of each map and each fight stays below the glow threshold, so light alone glows (D-910, F-47).</item>
+/// <item>Each emitter that glows can pass the glow threshold with its brightest color (D-912, T-2).</item>
 /// </list>
 /// </remarks>
 public sealed class LightContent
@@ -40,13 +42,15 @@ public sealed class LightContent
         SortedDictionary<string, DecorFile> decor,
         SortedDictionary<string, LightSetup> setups,
         CarriedLight carried,
-        EffectBudget budget)
+        EffectBudget budget,
+        Glow glow)
     {
         this.kinds = kinds;
         this.decor = decor;
         this.setups = setups;
         this.Carried = carried;
         this.Budget = budget;
+        this.Glow = glow;
     }
 
     /// <summary>The carried light (D-847).</summary>
@@ -55,12 +59,15 @@ public sealed class LightContent
     /// <summary>The effect budget (D-523).</summary>
     public EffectBudget Budget { get; }
 
+    /// <summary>The glow of the world view (D-910).</summary>
+    public Glow Glow { get; }
+
     /// <summary>Every decor kind, in the order of its id.</summary>
     public IEnumerable<DecorKind> Kinds => this.kinds.Values;
 
     /// <summary>Tells whether a content path is a light file, which <see cref="Load"/> reads.</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
-    /// <returns>True for a decor kind, a decor file, a light setup, the carried light, or the budget.</returns>
+    /// <returns>True for a decor kind, a decor file, a light setup, the carried light, the budget, or the glow.</returns>
     public static bool IsLightFile(string path)
     {
         ArgumentNullException.ThrowIfNull(path);
@@ -69,7 +76,8 @@ public sealed class LightContent
             || DecorFile.IsDecorFile(path)
             || LightSetup.IsSetupFile(path)
             || string.CompareOrdinal(path, CarriedLight.Path) == 0
-            || string.CompareOrdinal(path, EffectBudget.Path) == 0;
+            || string.CompareOrdinal(path, EffectBudget.Path) == 0
+            || string.CompareOrdinal(path, Glow.Path) == 0;
     }
 
     /// <summary>Gives the decor file of one map.</summary>
@@ -145,6 +153,7 @@ public sealed class LightContent
         var setups = new SortedDictionary<string, LightSetup>(StringComparer.Ordinal);
         CarriedLight? carried = null;
         EffectBudget? budget = null;
+        Glow? glow = null;
 
         foreach (ContentFile file in files)
         {
@@ -171,6 +180,10 @@ public sealed class LightContent
             {
                 budget = EffectBudget.Read(file.Bytes, file.Path);
             }
+            else if (string.CompareOrdinal(file.Path, Glow.Path) == 0)
+            {
+                glow = Glow.Read(file.Bytes, file.Path);
+            }
             else
             {
                 throw ContentException.ForFile(file.Path, "the file is not a light file, and the content set gave it to the light reader");
@@ -182,13 +195,16 @@ public sealed class LightContent
             decor,
             setups,
             carried ?? throw ContentException.ForFile(CarriedLight.Path, "the content set holds no such file"),
-            budget ?? throw ContentException.ForFile(EffectBudget.Path, "the content set holds no such file"));
+            budget ?? throw ContentException.ForFile(EffectBudget.Path, "the content set holds no such file"),
+            glow ?? throw ContentException.ForFile(Glow.Path, "the content set holds no such file"));
 
         content.RefuseWrongKind(atlas);
         content.RefuseWrongDecor(maps);
         content.RefuseWrongSetup(maps);
         content.RefuseAbsentColor(palette);
         content.RefuseOverBudget(maps);
+        content.RefuseGlowOnArt(maps, palette);
+        content.RefuseDarkGlow(palette);
         return content;
     }
 
@@ -346,6 +362,106 @@ public sealed class LightContent
         {
             throw ContentException.ForField(file, field, $"the palette holds no key '{color.Key}', and a light names a palette key (D-846, L-10)");
         }
+    }
+
+    /// <summary>
+    /// Refuses a light setup whose lights can push lit art to the glow threshold, because that
+    /// art would glow (D-910, F-47). The bound of <see cref="BrightestLight"/> reads full white art.
+    /// </summary>
+    private void RefuseGlowOnArt(SortedDictionary<string, GameMap> maps, Palette palette)
+    {
+        FlickerLevel brightest = this.BrightestFlicker();
+        foreach (LightSetup setup in this.setups.Values)
+        {
+            GameMap map = maps[setup.Map.Value];
+            IReadOnlyList<MapLight> lights = this.LightsOf(setup.Map, setup.Time);
+            LitPeak peak = BrightestLight.OnMap(lights, setup.Ambient, this.Carried.Light, brightest, palette, map.Width, map.Height);
+            if (peak.Level >= this.Glow.Threshold)
+            {
+                throw ContentException.ForFile(
+                    setup.File,
+                    $"the light at the tile ({peak.Column}, {peak.Row}) of the map '{setup.Map.Value}' can light white art to {peak.Level} basis points, the carried light included, and the threshold of `{Glow.Path}` is {this.Glow.Threshold}, so that art would glow (D-910, F-47)");
+            }
+
+            int fight = BrightestLight.InFight(setup.Ambient, setup.Battle, palette);
+            if (fight >= this.Glow.Threshold)
+            {
+                throw ContentException.ForField(
+                    setup.File,
+                    "battle",
+                    $"the ambient light and the key light can light white art to {fight} basis points in a fight, and the threshold of `{Glow.Path}` is {this.Glow.Threshold}, so that art would glow (D-910, F-47)");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Refuses an emitter whose glow is too weak to pass the threshold with its brightest color,
+    /// because it would give no glow, in silence (D-912, T-2).
+    /// </summary>
+    private void RefuseDarkGlow(Palette palette)
+    {
+        foreach (DecorKind kind in this.kinds.Values)
+        {
+            this.RefuseDarkEmitters(kind.Fire.Emitters, palette, kind.File, "fire.emitters");
+        }
+
+        this.RefuseDarkEmitters(this.Carried.Fire.Emitters, palette, CarriedLight.Path, "fire.emitters");
+    }
+
+    /// <remarks>
+    /// The linear value of an sRGB channel is never below its cube, so the check reads the cube
+    /// of the brightest channel, and a glow that passes it passes on screen too.
+    /// </remarks>
+    private void RefuseDarkEmitters(IReadOnlyList<StreamEmitter> emitters, Palette palette, string file, string field)
+    {
+        const long FullCube = (long)BrightestLight.FullChannel * BrightestLight.FullChannel * BrightestLight.FullChannel;
+        for (int index = 0; index < emitters.Count; index += 1)
+        {
+            StreamEmitter emitter = emitters[index];
+            if (emitter.Glow == 0)
+            {
+                continue;
+            }
+
+            int channel = 0;
+            foreach (char key in emitter.Colors)
+            {
+                channel = Math.Max(channel, BrightestLight.BrightestChannelOf(key, palette));
+            }
+
+            long least = checked((long)emitter.Glow * channel * channel * channel / FullCube);
+            if (least <= this.Glow.Threshold)
+            {
+                throw ContentException.ForField(
+                    file,
+                    $"{field}[{index}].glow",
+                    $"the glow {emitter.Glow} gives the brightest color of the emitter at least {least} basis points, and the threshold of `{Glow.Path}` is {this.Glow.Threshold}, so the emitter might never glow (D-912, T-2)");
+            }
+        }
+    }
+
+    /// <summary>Gives the strongest strength and the widest range of every fire of the build, which each light of the bound takes (D-891).</summary>
+    private FlickerLevel BrightestFlicker()
+    {
+        int strength = 0;
+        int range = 0;
+        var fires = new List<TorchFire>();
+        foreach (DecorKind kind in this.kinds.Values)
+        {
+            fires.Add(kind.Fire);
+        }
+
+        fires.Add(this.Carried.Fire);
+        foreach (TorchFire fire in fires)
+        {
+            foreach (FlickerLevel level in fire.Levels)
+            {
+                strength = Math.Max(strength, level.Strength);
+                range = Math.Max(range, level.Range);
+            }
+        }
+
+        return new FlickerLevel(strength, range);
     }
 
     private void RefuseOverBudget(SortedDictionary<string, GameMap> maps)

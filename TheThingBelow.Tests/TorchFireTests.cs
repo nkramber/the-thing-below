@@ -112,6 +112,8 @@ public sealed class TorchFireTests
     [InlineData("\"step_ticks\": 4", "\"step_ticks\": 61", "1 to 60")]
     [InlineData("\"jump\": 1", "\"jump\": 3", "0 to 2")]
     [InlineData("\"strength\": 10000", "\"strength\": 4000", "5000 to 12000")]
+    [InlineData("\"glow\": 0", "\"glow\": -1", "0 to 160000")]
+    [InlineData("\"glow\": 0", "\"glow\": 160001", "0 to 160000")]
     public void AFireValueOutsideItsLimitFailsWithTheReason(string from, string to, string reason)
     {
         // T-2: each bad value names the file, the field, and the rule.
@@ -147,10 +149,26 @@ public sealed class TorchFireTests
         TorchFire wall = set.Light.KindOf(torch).Fire;
         TorchFire carried = set.Light.Carried.Fire;
 
-        Assert.Equal(3, wall.Emitters.Count);
+        Assert.Equal(4, wall.Emitters.Count);
         Assert.Equal(2, carried.Emitters.Count);
         Assert.True(wall.Levels.Count > 1, "a wall torch steps between two levels or more (D-891)");
         Assert.True(carried.Levels.Count > 1, "the carried light steps between two levels or more (D-891)");
+    }
+
+    [Fact]
+    public void TheCoreOfTheWallTorchAloneGlows()
+    {
+        // D-912: the core of the flame glows. A particle of one art pixel gives too little light
+        // to the half size of the first blur of the glow, so the flame, the embers, and the smoke
+        // keep a glow of 0 and draw their palette colors. The carried torch keeps no glow, because
+        // its flame draws over the lead (D-188).
+        ContentSet set = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
+        TorchFire wall = set.Light.KindOf(ContentId.Parse("decor.wall_torch", "test", "id")).Fire;
+
+        StreamEmitter core = Assert.Single(wall.Emitters, emitter => emitter.Glow > 0);
+        Assert.True(core.Glow > set.Light.Glow.Threshold, $"the core glows at {core.Glow}, at or below the threshold {set.Light.Glow.Threshold}");
+        Assert.Equal(StreamEmitter.MostSize, core.Size);
+        Assert.All(set.Light.Carried.Fire.Emitters, emitter => Assert.Equal(0, emitter.Glow));
     }
 
     private static TorchFire Fire() => DecorKind

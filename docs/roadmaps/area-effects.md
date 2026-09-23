@@ -49,7 +49,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 | F-38 | Double math can differ by platform | PR-48: integer math for normal maps (D-502) |
 | F-45 | Three Godot defaults meet the pixel art | PR-56: the normal-map atlas takes the Nearest filter too |
 | F-46 | Godot 2D light fails in silence in three ways | PR-56 and D-523: a check on each light texture, a limit of 15 lights on one canvas item, and a height on each light |
-| F-47 | A bright light on a pale sprite can pass the glow threshold | PR-59: OQ-102 keeps glow on light alone (D-188) |
+| F-47 | A bright light on a pale sprite can pass the glow threshold | PR-59: the load keeps the brightest lit art below the threshold (D-910) |
 
 ## 7. Roadmap
 
@@ -89,12 +89,13 @@ The table lists what a frame draws, from the bottom to the top.
 | Fog | The fog of the weather of the place: 1 to 3 layers in one pass | As its effect file sets | D-885, D-897, D-898, D-900 |
 | Mark | The mark of a sight over an enemy | No | D-208 |
 | Light | The ambient light of the time of day, the point lights, and the shadows | — | D-183, D-442 |
-| Glow | A soft glow on light sources alone | No | D-188 |
+| Glow | A soft glow on light sources alone, in the world view | No | D-188, D-910 |
 | UI | Menus, the HUD, text, portraits, and damage numbers | No | D-210, D-213 |
 | Transition | The full-screen effect that starts a battle | No | D-191, D-195 |
 | Fit | The scale to the screen, with black bars | No | D-232, D-568 |
 
 - Game draws the world, the UI, and the transition into the frame at 1x, 1280 by 720 (D-230, D-568). The game draws no CRT pass (D-618). The fit to the screen comes last (D-232). The world draws at 2x, from a `SubViewport` of 640 by 360 (D-633, D-634).
+- The world view draws in HDR 2D, so it holds linear light above full white. Its view in the frame turns that light into sRGB (D-910, F-103).
 - Godot computes 2D light at the pixel size of the viewport, and the Nearest filter does not change that (the external facts above). So the frame at 1x gives light and shadows the pixel size of the art.
 - PR-61 draws the world in a `SubViewport` at 1x, and `area-ui-input.md` holds the stretch mode and the fit (F-45, F-48). Otherwise light falls on screen pixels, not on art pixels.
 - The UI sits on a canvas layer above the world, and a light reaches only the canvas layers in its range. So the UI never takes scene light (D-210).
@@ -135,7 +136,7 @@ Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-94, PR-59, and
 - The test moves a window of 640 by 360 art pixels over the map. It takes the highest count of lights whose range reaches the window (D-842).
 - Godot drops each light past 15 on one canvas item with no message (F-46). A map layer draws a group of 256 tiles as one canvas item.
 - So the budget test also fails more than 15 lights on one canvas item, whatever the Deck test measures (T-2).
-- PR-56 adds the budget file and its test with the rows for light. PR-57 adds the particle row, and PR-58, PR-59, and PR-60 add their full-screen passes. PR-94 counts one pass for each fog (D-898).
+- PR-56 adds the budget file and its test with the rows for light. PR-57 adds the particle row, and PR-58, PR-59, and PR-60 add their full-screen passes. PR-94 counts one pass for each fog (D-898). PR-59 counts one glow pass on every map and every fight (D-910).
 - The particle row holds the 8192 live particles of the sweep of 2026-09-17 (D-617). The screen plays one hit at a time, so the test counts the largest burst of a hit (D-879).
 - The first rows of the budget come from the run of 2026-09-17: 15 lights with shadows, 8192 live particles, and 3 full-screen passes (D-617).
 - The light row rises to 24 after a new Deck sweep with 24 paired lights, before PR-56 merges (D-854). Each light source counts two lights (D-853). The sweep of 2026-09-21 held, with 4.55 ms at the 95th percentile for the full load (F-96).
@@ -248,14 +249,23 @@ Built by PR-58. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-59. Phase file: `phase-2-first-playable.md`.
 
-- Fire, spells, waystones, and the thing below glow a little, and sprites and tiles never glow (D-188).
-- UI never glows (D-210).
-- Glow is a full-screen pass, so it counts against the effect budget (D-523).
+- Fire, spells, waystones, and the thing below glow a little, and sprites and tiles never glow (D-188). PR-59 gives the glow to the fire of each wall torch, and each later source takes a glow strength in its content (D-912).
+- UI never glows (D-210). The UI draws in the frame view, outside the world, and the glow lives in the world view alone.
+- The world view draws in HDR 2D, with the glow of Godot (D-910). It has a world of its own, so the glow never reaches the frame.
+- The glow file holds the threshold, the knee, the intensity, the strength, and the seven levels of the blur, in basis points (D-517, D-910).
+- A pixel glows when its brightest channel of linear light passes the threshold. The threshold is above full white, so no art with no light glows.
+- Godot adds light to a pixel with no upper clamp, so a bright light on a pale sprite can pass the threshold (F-47). The load reads an upper bound of the lit art of each map and each fight. It refuses a light setup that reaches the threshold (D-910).
+- The bound reads full white art and the brightest channel of each light. It takes the strongest level of every fire, and the carried light on every tile. A seed loop proves that it holds the light curve of Game on each pixel.
+- A source glows through the glow strength of its emitter: the palette color times that strength, in linear light (D-912). The load refuses a glow that cannot pass the threshold with the brightest color of its emitter (T-2).
+- The first step of the glow of Godot reads the picture at half size. A particle of one art pixel then gives too little light. The wall torch thus holds a core of particles of 4 art pixels, which alone glows.
+- A source above full white draws clipped to full white in each channel, so the core of a flame shows a pale yellow.
+- The frame has no HDR 2D, so the view of the world turns each pixel into sRGB in a shader (F-103). Godot reads a modulate as sRGB, so Game gives each glow strength as sRGB.
+- The glow is a smooth bloom, and its colors can leave the palette (D-911).
 - HDR 2D works on Forward+ and Mobile, and the screen tests of CI run the Mobile renderer (D-731, the external facts above). So a CI capture of glow shows the glow of the Deck.
-- Godot adds light to a pixel with no upper clamp, so a bright light on a pale sprite can pass the glow threshold (F-47).
-- OQ-102 holds how glow stays off sprites and tiles.
+- Glow is a full-screen pass on every map and every fight, so the effect budget counts it with the fog (D-523, D-910).
+- If the owner refuses the look, a glow pass of our own replaces HDR 2D (D-910). The glow then takes the steps of the fog (D-911).
 
-> *In plain English:* flames and magic give off a soft haze of light, and the people and walls that they light stay crisp.
+> *In plain English:* flames give off a soft haze of light, and the people and walls that they light stay crisp. The game checks each place of light, and it refuses a place where a lit wall or figure can get bright enough to glow.
 
 ### 7.11 Transitions
 
@@ -275,15 +285,15 @@ Built by PR-60. Phase file: `phase-2-first-playable.md`.
 
 Built by every effect PR, and kept by the screen tests. Phase file: `phase-2-first-playable.md`.
 
-- Every effect draws with the palette of 64 colors and hard edges, and no smooth gradient (G-27, D-181, D-622). The fog alone fades, in steps over blocks of art pixels (D-900, D-907).
-- The rule covers each particle, the fog, the glow, and each transition (D-187, D-188, D-195).
+- Every effect draws with the palette of 64 colors and hard edges, and no smooth gradient (G-27, D-181, D-622). The fog fades in steps over blocks of art pixels (D-900, D-907), and the glow blooms smoothly (D-911).
+- The rule covers each particle and each transition. The fog and the glow keep their own rules (D-187, D-195, D-907, D-911).
 - A full-screen pass draws at the pixel size of the frame, so an effect pixel matches an art pixel (D-230, F-67).
 - The owner reads each new effect on the Mac as its PR lands, and not on the Deck (D-622, D-623).
 - The screen tests of PR-41 capture each effect, so a change of style fails the job (D-172).
-- The glow of D-188 blooms by design, and OQ-102 holds how it stays off sprites and tiles (F-47).
-- The fog of the Deck test drew a smooth gradient with colors outside the palette, and no shipped effect draws that way (D-622).
+- The glow of D-188 blooms by design, outside the palette (D-911). A threshold above the brightest lit art keeps it off sprites and tiles (D-910, F-47).
+- The fog of the Deck test drew a smooth gradient with colors outside the palette. The glow alone draws that way (D-622, D-911).
 
-> *In plain English:* every effect uses the same colors as the art and keeps hard pixel edges. Smoke, fog, and light look drawn, and never like a modern filter over a drawing.
+> *In plain English:* every effect uses the same colors as the art and keeps hard pixel edges. Smoke and fog look drawn. The glow of a flame alone is a soft modern haze, and the owner reads it before it stays.
 
 ### 7.13 Effects in the tests
 
@@ -311,7 +321,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | PR-12 | The flash of a spell | D-186, D-878 |
 | PR-58 | The four ambient kinds | D-187, D-202 |
 | PR-94 | The procedural fog: a soft noise shader of 1 to 3 layers in one pass | D-896 to D-908 |
-| PR-59 | Glow | D-188 |
+| PR-59 | The glow on light sources alone, with HDR 2D and a threshold | D-188, D-910 to D-912 |
 | PR-92 | The tilt-shift blur, the vignette, and the light shafts of the HD-2D look | D-849 |
 | PR-60 | The ten transitions and the table of kinds | D-195, D-196 |
 | PR-17 | The light setups, the ambient effects, and the effect files of the first places | D-362, D-520 |
@@ -353,7 +363,7 @@ Built by PR-56 and PR-92. Phase file: `phase-2-first-playable.md`.
 
 - The art target is the look of Octopath Traveler, in 2D (D-849). The game stays a flat 2D view, with no 3D scene.
 - PR-56 gives the base of the look: a dark ambient light, warm pools of torch light, normal-mapped sprites, and hard shadows (D-183, D-843).
-- PR-59 gives the glow on light alone (D-188).
+- PR-59 gives the glow on light alone, as a smooth bloom (D-188, D-910, D-911).
 - PR-92 adds three full-screen passes: a tilt-shift blur at the top and the bottom of the frame, a vignette, and light shafts (D-849).
 - Each pass of PR-92 counts against the effect budget (D-523). The budget of D-617 holds 3 passes, so a new Deck sweep measures the heavier stack before PR-92 merges (G-14).
 - The passes draw the world alone, and the UI above it stays sharp and unlit (D-210).
@@ -392,7 +402,7 @@ The register is `docs/questions.md` (D-19). These questions block effect PRs, an
 - OQ-98 and OQ-99 are resolved. D-875 and D-876 hold the answers.
 - OQ-100: the reduced form of a flash and a shake. Resolved 2026-09-22 by D-863.
 - OQ-101: how fog keeps an enemy visible. Resolved 2026-09-22 by D-885.
-- OQ-102: how glow stays off sprites. Blocks PR-59.
+- OQ-102: how glow stays off sprites. Resolved 2026-09-23 by D-910, with D-911 and D-912.
 - OQ-103: where shader code lives. Resolved by D-825.
 - OQ-220 to OQ-231: the place, the form, the passes, the overlap, the edges, the resolution, the spread, the color, the test floor, the strength, and the coverage of the procedural fog. Resolved 2026-09-22 by D-896 to D-908.
 - OQ-79: how the screen-test job pins Mesa. Closed 2026-09-20 by D-729, and D-730 holds the pin.

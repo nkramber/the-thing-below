@@ -28,6 +28,11 @@ namespace TheThingBelow.Core.Light;
 /// <param name="SlowestSpeed">The lowest start speed, in art pixels in each second of 60 ticks.</param>
 /// <param name="FastestSpeed">The highest start speed, in art pixels in each second of 60 ticks.</param>
 /// <param name="Gravity">The pull down the screen, in art pixels in each second for each second. A negative value pulls up.</param>
+/// <param name="Glow">
+/// The linear light of each particle, in basis points of its palette color, or 0 for a particle
+/// that draws its palette color and never glows. A value above the glow threshold makes the
+/// particle glow (D-910, D-912).
+/// </param>
 public sealed record StreamEmitter(
     int Amount,
     int LifetimeTicks,
@@ -41,7 +46,8 @@ public sealed record StreamEmitter(
     int Spread,
     int SlowestSpeed,
     int FastestSpeed,
-    int Gravity)
+    int Gravity,
+    int Glow)
 {
     /// <summary>The most palette keys of one stream.</summary>
     public const int MostColors = 8;
@@ -58,6 +64,8 @@ public sealed record StreamEmitter(
     /// <summary>The strongest pull, up or down, in art pixels in each second for each second.</summary>
     public const int MostGravity = 2000;
 
+    /// <summary>The highest glow of a particle, in basis points: 16 times its palette color (D-912).</summary>
+    public const int MostGlow = 16 * BasisPoints.One;
 
     /// <summary>The most live particles of one stream.</summary>
     public const int MostAmount = 2048;
@@ -176,13 +184,14 @@ public sealed record StreamEmitter(
             InRange(ref reader, depth, values, "spread", 0, MostSpread),
             slow,
             fast,
-            InRange(ref reader, depth, values, "gravity", -MostGravity, MostGravity));
+            InRange(ref reader, depth, values, "gravity", -MostGravity, MostGravity),
+            InRange(ref reader, depth, values, "glow", 0, MostGlow));
     }
 
     private static bool IsIntField(string field) => field switch
     {
         "amount" or "lifetime_ticks" or "size" or "x" or "y" or "half_width" or "half_height"
-            or "direction" or "spread" or "slowest_speed" or "fastest_speed" or "gravity" => true,
+            or "direction" or "spread" or "slowest_speed" or "fastest_speed" or "gravity" or "glow" => true,
         _ => false,
     };
 
