@@ -1,4 +1,39 @@
 # Session handoff archive
+## Session 214: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-94, round 4. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
+
+### What this session did, and why
+
+- The owner read the soft fog of round 3 and asked for more of the pixel look of the art, between the soft fog and the bands of round 1. OQ-231 and D-907 record it, and D-900 and D-901 have a revision in part.
+- `FogLayer` takes `steps` (2 to 8) and `cell_size` (1 to 8). The shader reads the noise at the north-west pixel of each block, and it rounds the fade down to its step, so a block below the first step stays clear.
+- The capture fog takes 4 steps and blocks of 2 art pixels in each layer.
+- The session read `map-fog-1x` and `battle-fog-1x` from `make sheet`. The fog keeps the cloud shapes of round 3, in blocks of 2 pixels and 4 hard steps of strength.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The PR head before this round is `374aae8`.
+- CI on `374aae8` passed each check except screen-test, on the two fog frames alone, and review-gate, which waits for the review record.
+- `make test` (2,174 tests), `make format`, `make lint`, `make identity`, `make content`, `make smoke`, and `make ste-check` pass on this machine.
+
+### What is in flight
+
+- The screen-test job gives new baselines for the two fog frames, and the author commits them from the artifact.
+- The owner reads the new fog. The steps, the block size, and the coverage are values of the content file.
+
+### Traps and gotchas
+
+- A change of a content file after the last build fails `TheEmbeddedSetMatchesTheFolderByBytes` until the next build (D-508).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the fog baselines from the CI artifact. Then the owner reads the fog, and the other provider reviews PR #59.
+
 ## Session 213: 2026-09-22, Claude Code
 
 Author: Claude Code

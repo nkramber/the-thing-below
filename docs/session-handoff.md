@@ -1,3 +1,38 @@
+## Session 224: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #60, round 3. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: reviewer. Base: `a20d32f`.
+
+### What this session did, and why
+
+- Re-reviewed PR #60 at effective head `bff8622`.
+- The owner’s later instruction in the feedback says to keep the dated records. D-909 records this override and ends the pause.
+- Verified that the PR #58 and PR #59 review records, and the PR #59 handoff entries, match `origin/main`. Sessions 209 and 210 remain in the archive.
+- Marked P2-1 fixed and changed the current verdict to `Ready for owner merge`.
+
+### The state of the build
+
+- The remote head of `main` is `a20d32f`. The effective head of PR #60 is `bff8622`.
+- `make ste-check` passed with 0 findings. CI passed all applicable implementation checks, and Gitar approved the head. Review-gate failed RG 4 and RG 5 because the review record still named the prior verdict and head.
+- The updated review and this handoff need commit and push. A fresh review-gate result must be checked.
+
+### What is in flight
+
+- PR #60 waits for the review-gate result on the updated review record.
+
+### Traps and gotchas
+
+- The initial owner choice removed the dated records. The later choice kept them, and D-909 records that resolution.
+- The effective head includes the restored decision and history files. Metadata commits do not change it.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the repeat review. Then verify the branch head and fresh review-gate result.
+
 ## Session 223: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -314,40 +349,5 @@ None.
 ### The next concrete action
 
 The other provider reviews PR #59 and writes `docs/reviews/pr-59.md`.
-
-## Session 214: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-94, round 4. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
-
-### What this session did, and why
-
-- The owner read the soft fog of round 3 and asked for more of the pixel look of the art, between the soft fog and the bands of round 1. OQ-231 and D-907 record it, and D-900 and D-901 have a revision in part.
-- `FogLayer` takes `steps` (2 to 8) and `cell_size` (1 to 8). The shader reads the noise at the north-west pixel of each block, and it rounds the fade down to its step, so a block below the first step stays clear.
-- The capture fog takes 4 steps and blocks of 2 art pixels in each layer.
-- The session read `map-fog-1x` and `battle-fog-1x` from `make sheet`. The fog keeps the cloud shapes of round 3, in blocks of 2 pixels and 4 hard steps of strength.
-
-### The state of the build
-
-- The remote head of `main` is `8d98c46`. The PR head before this round is `374aae8`.
-- CI on `374aae8` passed each check except screen-test, on the two fog frames alone, and review-gate, which waits for the review record.
-- `make test` (2,174 tests), `make format`, `make lint`, `make identity`, `make content`, `make smoke`, and `make ste-check` pass on this machine.
-
-### What is in flight
-
-- The screen-test job gives new baselines for the two fog frames, and the author commits them from the artifact.
-- The owner reads the new fog. The steps, the block size, and the coverage are values of the content file.
-
-### Traps and gotchas
-
-- A change of a content file after the last build fails `TheEmbeddedSetMatchesTheFolderByBytes` until the next build (D-508).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit the fog baselines from the CI artifact. Then the owner reads the fog, and the other provider reviews PR #59.
 
 # Session handoff
