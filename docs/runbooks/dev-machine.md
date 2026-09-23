@@ -67,11 +67,12 @@ The battle screen lands in PR-10. Until then, the console takes the turn of a ch
 
 PR-11 added the `evaluator-cost` command of Tools. It times one enemy turn of the worst fight: six enemies against three characters (D-961, F-53).
 
-1. On the Deck, check out the branch of the PR, as for the `build` alias of the Deck.
-2. Run `make evaluator-cost` from the root of the checkout. The target builds Tools in Release first.
-3. Read the line of the 95th percentile. The limit is 1000 us, and the command fails a miss (D-961).
-4. Give the owner the four lines of the report. The PR description records them.
-5. A miss changes the depth or the profiles in the same PR (G-14).
+1. Open a shell on the Deck: `ssh deck@10.0.0.46` from the Mac, with the key of the Mac. The Deck takes no password.
+2. In `~/the-thing-below`, fetch and check out the branch of the PR.
+3. The Deck has no `make`. Run `dotnet run -c Release --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- evaluator-cost --root .` with `~/.dotnet` on the path.
+4. Read the line of the 95th percentile. The limit is 1000 us, and the command fails a miss (D-961).
+5. Give the owner the four lines of the report. The PR description records them.
+6. A miss changes the depth or the profiles in the same PR (G-14).
 
 ## Where a test runs
 

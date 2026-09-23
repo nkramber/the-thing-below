@@ -1,3 +1,37 @@
+## Session 250: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-11, round 3. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: #67. Role: author. Base: `d429d03`.
+
+### What this session did, and why
+
+- Read the record of Session 249: `Blocked` for `ad83e20`, with P2-1 fixed and no open finding.
+- Answered the Gitar status comment in a PR comment. It held no thread, no finding, and no claim (D-945, D-946).
+- Ran `evaluator-cost` on the Steam Deck over SSH, at the request of the owner. Two Release runs gave 74 us and 103 us at the 95th percentile, inside the limit of D-961.
+- Recorded the numbers in F-53 and the response file, and wrote the SSH steps into `docs/runbooks/dev-machine.md`.
+
+### The state of the build
+
+- `main` is `d429d03`. The effective head `ad83e20` holds the code. The commit of this round changes documents alone (D-943).
+
+### What is in flight
+
+- A new `make codex-review PR=67 -- --skip-gitar-review` on the record of this round.
+- After an approval, the merge question to the owner in four sections (D-942).
+
+### Traps and gotchas
+
+- The command sandbox blocks the local network. An SSH call to the Deck at `10.0.0.46` runs outside the sandbox.
+- The Deck has no `make`, so the Deck runs the `dotnet run` form of each target.
+
+### The questions that block progress
+
+None for PR-11. OQ-243 blocks PR-98.
+
+### The next concrete action
+
+Run `make codex-review PR=67 -- --skip-gitar-review`, and read its outcome.
+
 ## Session 249: 2026-09-23, Codex
 
 Author: Codex
@@ -319,39 +353,3 @@ None. OQ-242 does not affect PR-96.
 ### The next concrete action
 
 The owner reviews the verdict and merges the PR.
-## Session 240: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-96, round 1. Repository: the-thing-below. Branch: `docs/pr-96-review-loop-rules`. PR: #65. Role: author. Base: `e6eb27a`.
-
-### What this session did, and why
-
-- Asked the owner the two questions of rule 2 and the text of a labeled PR, and recorded D-942 to D-944. The owner chose the skip set of D-857 and no new review for a change of a decision row. The session recommended the override set and a new review for a decision row.
-- D-942: the summary before a merge has four sections, What, How, CI, and Codex review, inside the question block of `AskUserQuestion`. Revises D-933 in part.
-- D-943: after an approval, a commit of the skip set alone keeps the approval. `EffectiveHead.ReviewableHeads` gives the effective head and each earlier head after which each commit is in the skip set, and RG 5 accepts each one. The metadata set and the effective head of D-610 stay, because the Gitar pass reads them (D-944). The `codex-review` command still compares the record with the effective head alone. Revises D-610, D-401, and D-700 in part.
-- D-944: a commit of documents alone still gets its Gitar pass, and the author answers each comment and each claim.
-- Documents: `docs/runbooks/merge.md` (a new section for a commit of documents alone, and the summary), the `one-pr-one-session`, `gitar-review`, and `pr-review` skills, `CLAUDE.md`, `AGENTS.md`, the PR template, `docs/design.md`, and a new PR-96 block in the phase 2 file and in `area-ci.md`.
-- Five new tests. `ACommitOfDocumentsAloneAfterTheApprovalKeepsTheGateGreen` fails on the old code, because the old RG 5 read the effective head alone.
-
-### The state of the build
-
-- `main` is `e6eb27a`. This round pushes the first commit of the PR.
-- `make build`, `make test`, `make lint`, `make format`, and the STE check pass on this machine.
-
-### What is in flight
-
-- The Gitar pass of round 1, then `make codex-review PR=65`. The PR changes Tools code and decision rows, so it takes the review (D-401).
-
-### Traps and gotchas
-
-- `CLAUDE.md` is 16380 bytes, 4 bytes under SIZE 1. The next rule for sessions needs a cut first.
-- Two sets stay apart: the override set of the label (D-16, D-700) and the skip set of D-943 (D-857).
-- A commit of documents alone after the auto-merge is on: turn off the auto-merge first, because the Gitar pass of the new head must come before the merge (D-930, D-944).
-
-### The questions that block progress
-
-None. OQ-242 waits for the owner and blocks nothing.
-
-### The next concrete action
-
-Wait for the Gitar pass of round 1, answer each comment, then run `make codex-review PR=65` in the background.
