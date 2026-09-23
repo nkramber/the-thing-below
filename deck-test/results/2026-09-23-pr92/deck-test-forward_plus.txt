@@ -1,0 +1,59 @@
+The Thing Below: the Deck test of D-160 and D-523.
+renderer          forward_plus
+frame             1280 by 720 (D-568)
+target            60 frames each second, 16.667 ms each frame (D-161)
+engine            4.7.2-stable (official)
+machine           
+system            Linux SteamOS
+processor         AMD Custom APU 0932
+adapter           AMD Custom GPU 0932 (RADV VANGOGH) (AMD)
+driver api        1.4.330
+screen            (800, 1280) at 90.0 Hz
+frames each stage 60 warm-up, 300 measured
+vsync             Disabled
+
+stage                  lights  particles  passes  avg ms  p50 ms  p95 ms  worst ms  over  holds
+world-only                  0          0       0    1.40    1.39    1.52      1.52     0    yes
+pass-crt                    0          0       1    1.64    1.67    1.85      2.14     0    yes
+pass-crt-glow               0          0       2    2.09    2.08    2.38      2.78     0    yes
+pass-crt-glow-fog           0          0       3    2.16    2.08    2.38      5.27     0    yes
+lights-1                    1          0       3    2.28    2.27    2.38      2.38     0    yes
+lights-2                    2          0       3    2.36    2.38    2.38      2.45     0    yes
+lights-4                    4          0       3    2.62    2.52    3.33     10.75     0    yes
+lights-6                    6          0       3    2.88    2.78    3.33      8.08     0    yes
+lights-8                    8          0       3    3.04    3.03    3.03      6.74     0    yes
+lights-10                  10          0       3    3.35    3.33    3.33      3.70     0    yes
+lights-12                  12          0       3    3.53    3.51    3.70      3.92     0    yes
+lights-15                  15          0       3    3.96    3.94    4.17      4.27     0    yes
+particles-512               0        512       3    2.16    2.11    2.38      2.38     0    yes
+particles-1024              0       1024       3    2.16    2.14    2.38      2.72     0    yes
+particles-2048              0       2048       3    2.21    2.19    2.38      2.38     0    yes
+particles-4096              0       4096       3    2.31    2.33    2.38      2.38     0    yes
+particles-8192              0       8192       3    2.46    2.38    2.78      5.51     0    yes
+full-load                   8       2048       3    3.27    3.30    3.33      3.33     0    yes
+full-load-transition        8       2048       4    3.32    3.33    3.33      3.61     0    yes
+worst-case                 15       8192       4    5.21    5.20    5.56      5.56     0    yes
+pairs-4                     4          0       2    2.32    2.38    2.38      2.38     0    yes
+pairs-8                     8          0       2    2.75    2.78    2.78      4.26     0    yes
+pairs-12                   12          0       2    3.07    3.03    3.33      3.33     0    yes
+pairs-16                   16          0       2    3.50    3.49    3.70      3.70     0    yes
+pairs-20                   20          0       2    3.86    3.85    4.17      4.17     0    yes
+pairs-24                   24          0       2    4.26    4.17    4.55      8.07     0    yes
+full-load-24               24       2048       3    4.81    4.76    5.00     12.30     0    yes
+pass-look                   0          0       5    2.37    2.38    2.54      2.75     0    yes
+full-load-24-look          24       2048       6    5.28    5.29    5.56      5.56     0    yes
+budget-rows                24       8192       6    6.61    6.67    6.69      9.29     0    yes
+
+The effect budget of this run (D-523). Each row is the largest load that held the target.
+  lights with shadows   lights-15
+  paired lights         pairs-24 (the row of D-854 asks for 24)
+  live particles        particles-8192
+  full-screen passes    pass-look
+  the load of D-160 held the target: yes (p95 3.33 ms)
+  24 paired lights with particles and a transition held the target: yes (p95 5.00 ms)
+  the same load with the three passes of PR-92 held the target: yes (p95 5.56 ms, 6 passes)
+  every row at once, 24 paired lights, 8192 particles, 6 passes, held the target: yes (p95 6.69 ms, 6 passes). The pass row of D-923 asks for 6.
+
+Run the other renderer, then compare. The renderer with more room wins (D-160).
+If neither renderer holds the target, the owner decides then (D-261).
+
