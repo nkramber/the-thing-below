@@ -571,7 +571,7 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 - The fixture backdrop of PR-55 behind every fight, with its sway (D-205, D-831).
 - The hit flash as a `.gdshader` file of the Game project, which never uses the normal map member (D-183, D-825, the external facts of `area-effects.md`).
 - The pace of the screen: each event plays for a count of ticks, and each timing is a constant of Game (D-829).
-- A win shows no line of its own, and the summary of PR-67 follows the fight (D-835). The step reads "Back up" or "Step forward" from the row of the actor (D-836).
+- A win shows no line of its own, and the summary of PR-67 rises above each head (D-835, D-975). The step reads "Back up" or "Step forward" from the row of the actor (D-836).
 - The fixture art: Marrek with an idle frame and an attack pose, the grunt, and the brute (D-828).
 - The 18 icons of the elements and the statuses, and a check of the palette color of each (D-214, D-811). The icon of each status shows beside the health of its holder (D-830).
 
@@ -1205,7 +1205,7 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
 **Scope.**
 
-- The character level from experience, with one table of experience for each level (D-34, D-971, D-972). A character in reserve earns half, and a downed character earns none (D-73, D-974). No reserve exists before the join step of PR-68, so the share of the reserve is a rule with its unit test.
+- The character level from experience, with one table of experience for each level (D-34, D-971, D-972). A character in reserve earns half, and a downed character earns none (D-73, D-974). No reserve exists before the join step of PR-68, so the half of the reserve is a rule with its unit test.
 - The shrink of the experience of an enemy: a cut for each level above the enemy, and zero past a gap (D-388, D-968, D-969).
 - The join level of each character in content (D-363). The join step of PR-68 reads it.
 - MP from the curve of each character. A rule of the party fills MP at a save point, and a rule fills health and MP at a hub (D-967, D-970).
@@ -1219,7 +1219,7 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
 - The lessons, the slots, the aptitudes, and each rite that spends MP (PR-12).
 - The wire of the save point to its place, and the rest at a hub (PR-16, PR-14, D-970).
-- The scarce items that restore MP, and the loot lines of the summary (PR-13, PR-65).
+- The scarce items that restore MP, and the loot lines after the summary (PR-13, PR-65).
 - The curves of Bergit and Dagvar (PR-17).
 - The balance of the eight curves (PR-30, D-299).
 
@@ -1424,7 +1424,7 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 - The pack, with a small fixed number of each item (D-382, OQ-142).
 - The item use on a turn, which restores less in a fight than outside one (D-382).
 - The steal action: the roll, the Theft term, the clamp, the failure that costs the turn, and the stolen entry in the pack (D-949, D-950).
-- The items that a fight gives, on the summary after the fight of PR-67 (D-835).
+- The items that a fight gives, as message lines after the summary of PR-67 (D-835, D-975).
 - The find over the stack limit, which stays in its chest and which the save records (D-385).
 - The gear window and the item window in the stack of PR-62.
 
@@ -1535,7 +1535,7 @@ Area file: `area-exploration.md` section 7.12.
 **Scope.**
 
 - The gold economy: gold from enemies and from treasure, which buys gear, items, and rest (D-60).
-- The gold that a fight gives, on the summary after the fight of PR-67 (D-835).
+- The gold that a fight gives, as a message line after the summary of PR-67 (D-835, D-975).
 - The shop screen in the window stack of PR-62.
 - The shop stock in content, with its prices and its buy-back rule (D-60, OQ-121).
 - A shop that sells a lesson too (D-365).

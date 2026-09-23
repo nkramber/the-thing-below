@@ -99,17 +99,17 @@ public sealed class Combatant
     /// <summary>The id of the character or the enemy record.</summary>
     public ContentId Id { get; }
 
-    /// <summary>The full health of the record.</summary>
-    public int FullHealth { get; }
+    /// <summary>The full health of the record, or of the level of a character (D-966).</summary>
+    public int FullHealth { get; private set; }
 
     /// <summary>The attack (D-771).</summary>
-    public int Attack { get; }
+    public int Attack { get; private set; }
 
     /// <summary>The defense (D-771).</summary>
-    public int Defense { get; }
+    public int Defense { get; private set; }
 
     /// <summary>The speed (D-768, D-769).</summary>
-    public int Speed { get; }
+    public int Speed { get; private set; }
 
     /// <summary>The health now.</summary>
     public int Health { get; internal set; }
@@ -140,6 +140,21 @@ public sealed class Combatant
 
     /// <summary>The target of this combatant.</summary>
     public BattleTarget Target => new(this.Side, this.Slot);
+
+    /// <summary>
+    /// Gives a character the stats of a new level, with full health, after a battle won (D-973).
+    /// The fight is over, so the new stats reach no turn, and the battle and the party then agree
+    /// until the map runs again.
+    /// </summary>
+    /// <param name="stats">The stats of the new level.</param>
+    internal void Raise(StatRow stats)
+    {
+        this.FullHealth = stats.Health;
+        this.Attack = stats.Attack;
+        this.Defense = stats.Defense;
+        this.Speed = stats.Speed;
+        this.Health = stats.Health;
+    }
 }
 
 /// <summary>
@@ -209,8 +224,8 @@ public sealed class Battle
         for (int slot = 0; slot < partyState.Members.Count; slot += 1)
         {
             PartyMember member = partyState.Members[slot];
-            CharacterRecord record = member.Record;
-            Combatant combatant = new(BattleSide.Party, slot, record.Id, record.Health, record.Attack, record.Defense, record.Speed, ElementTable.AllNormal, [])
+            StatRow stats = member.Stats;
+            Combatant combatant = new(BattleSide.Party, slot, member.Record.Id, stats.Health, stats.Attack, stats.Defense, stats.Speed, ElementTable.AllNormal, [])
             {
                 Health = member.Health,
                 Row = member.Row,
@@ -265,9 +280,10 @@ public sealed class Battle
     internal static Battle CheckFight(GroupRecord group, GroupEntry entry, EnemyRecord enemy, CharacterRecord character)
     {
         var single = new GroupRecord(group.Id, group.Boss, new List<GroupEntry> { entry with { Waits = false } });
-        Combatant member = new(BattleSide.Party, 0, character.Id, character.Health, character.Attack, character.Defense, character.Speed, ElementTable.AllNormal, [])
+        StatRow stats = character.At(character.JoinLevel);
+        Combatant member = new(BattleSide.Party, 0, character.Id, stats.Health, stats.Attack, stats.Defense, stats.Speed, ElementTable.AllNormal, [])
         {
-            Health = character.Health,
+            Health = stats.Health,
             Row = character.Row,
             Place = CombatantPlace.Field,
         };
@@ -283,14 +299,16 @@ public sealed class Battle
     /// <summary>Puts a battle back from the values of a snapshot (D-166, D-531).</summary>
     /// <param name="content">The battle content of this build.</param>
     /// <param name="values">The stored values.</param>
+    /// <param name="partyState">The party of the snapshot, whose levels give the stats of each character (D-966).</param>
     /// <param name="source">What the values came from, such as `the save`, for an error (T-2).</param>
     /// <returns>The battle.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no battle of this content (T-2).</exception>
-    public static Battle Resume(BattleContent content, BattleValues values, string source)
+    public static Battle Resume(BattleContent content, BattleValues values, PartyState partyState, string source)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(partyState);
         ArgumentException.ThrowIfNullOrEmpty(source);
 
         GroupRecord group = content.Group(values.Group);
@@ -301,7 +319,7 @@ public sealed class Battle
             ArgumentNullException.ThrowIfNull(stored);
             List<Combatant> side = stored.Side == BattleSide.Party ? party : enemies;
             Refuse(stored.Slot != side.Count, source, $"the combatant '{stored.Id.Value}' holds the slot {stored.Slot}, and the next slot of its side is {side.Count}");
-            Combatant combatant = RecordOf(content, group, stored, source);
+            Combatant combatant = RecordOf(content, group, partyState, stored, source);
             Refuse(
                 stored.Health < 0 || stored.Health > combatant.FullHealth,
                 source,
@@ -586,12 +604,22 @@ public sealed class Battle
         return first.Slot < second.Slot;
     }
 
-    private static Combatant RecordOf(BattleContent content, GroupRecord group, CombatantValues stored, string source)
+    private static Combatant RecordOf(BattleContent content, GroupRecord group, PartyState partyState, CombatantValues stored, string source)
     {
         if (stored.Side == BattleSide.Party)
         {
-            CharacterRecord character = content.Character(stored.Id);
-            return new Combatant(BattleSide.Party, stored.Slot, character.Id, character.Health, character.Attack, character.Defense, character.Speed, ElementTable.AllNormal, []);
+            // The stats of a character follow its level, which the party holds (D-966).
+            Refuse(
+                stored.Slot >= partyState.Members.Count,
+                source,
+                $"the party slot {stored.Slot} is past the {partyState.Members.Count} characters of the party");
+            PartyMember member = partyState.Members[stored.Slot];
+            Refuse(
+                string.CompareOrdinal(member.Record.Id.Value, stored.Id.Value) != 0,
+                source,
+                $"the party slot {stored.Slot} holds '{stored.Id.Value}', and the party holds '{member.Record.Id.Value}' there");
+            StatRow stats = member.Stats;
+            return new Combatant(BattleSide.Party, stored.Slot, member.Record.Id, stats.Health, stats.Attack, stats.Defense, stats.Speed, ElementTable.AllNormal, []);
         }
 
         Refuse(stored.Slot >= group.Entries.Count, source, $"the enemy slot {stored.Slot} is past the group '{group.Id.Value}'");

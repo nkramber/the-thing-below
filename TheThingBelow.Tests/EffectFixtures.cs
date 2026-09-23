@@ -36,7 +36,8 @@ internal static class EffectFixtures
      "drift_pixels": 2,
      "drift_step_ticks": 45,
      "hit_stop_ticks": 6,
-     "shake": { "ticks": 12, "step_ticks": 2, "full": 4, "reduced": 1, "off": 0 }
+     "shake": { "ticks": 12, "step_ticks": 2, "full": 4, "reduced": 1, "off": 0 },
+     "summary": { "experience_ticks": 60, "level_up_ticks": 120, "line_ticks": 8, "rise_ticks": 10, "rise_pixels": 12, "bounce_pixels": 3, "fill_ticks": 40 }
     }
     """;
 

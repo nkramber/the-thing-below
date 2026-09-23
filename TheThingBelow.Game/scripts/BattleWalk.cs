@@ -166,6 +166,44 @@ public static class BattleWalk
             $"The fight reached no blow of a character in {TickLimit} ticks (D-96, T-2).");
     }
 
+    /// <summary>
+    /// Attacks the first enemy that melee reaches on each turn of a character, until the fight
+    /// is won and the experience of the first character has played the given ticks (D-975).
+    /// </summary>
+    /// <param name="run">The run, at a command of a character.</param>
+    /// <param name="ticksIntoExperience">The ticks of the experience event that the run plays before it stops.</param>
+    /// <exception cref="ArgumentNullException">The run is null (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The ticks are outside the experience event (T-2).</exception>
+    /// <exception cref="InvalidOperationException">No such event came inside the limit (T-2).</exception>
+    public static void ToExperienceOfCharacter(GameRun run, int ticksIntoExperience)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentOutOfRangeException.ThrowIfNegative(ticksIntoExperience);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(ticksIntoExperience, run.Pace.Summary.ExperienceTicks);
+
+        for (int tick = 0; tick < TickLimit; tick += 1)
+        {
+            if (run.PlayingEvent is BattleEvent playing
+                && playing.Kind == BattleEventKind.Experience
+                && playing.Actor.Slot == 0
+                && run.PlayingTicks == ticksIntoExperience)
+            {
+                return;
+            }
+
+            if (run.TakesBattleCommand && run.State.Battle is Battle battle)
+            {
+                BattleTarget target = battle.MeleeTargets(BattleSide.Enemy)[0].Target;
+                run.Queue(Intent.OfPlayer(IntentIds.BattleAttack, target, null));
+            }
+
+            OneTick(run);
+        }
+
+        throw new InvalidOperationException(
+            $"The fight reached no experience of the first character in {TickLimit} ticks (D-975, T-2).");
+    }
+
     /// <summary>Gives the run the time of one tick, and fails on a log line of an error (T-2).</summary>
     /// <param name="run">The run.</param>
     /// <exception cref="InvalidOperationException">The loop ran another count of ticks, or a tick wrote an error (T-2).</exception>

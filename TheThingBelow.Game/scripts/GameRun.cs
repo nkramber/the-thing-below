@@ -446,7 +446,7 @@ public sealed class GameRun
     /// </summary>
     private void FollowBattle()
     {
-        if (this.simulation.State.Battle is not Battle battle)
+        if (this.simulation.State.Battle is null)
         {
             this.LeaveFight();
             return;
@@ -454,7 +454,7 @@ public sealed class GameRun
 
         if (this.view is null && this.events.Empty)
         {
-            this.view = BattleView.Of(battle);
+            this.view = BattleView.Of(this.simulation.State);
         }
     }
 

@@ -243,6 +243,16 @@ public static class RunSnapshotText
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
     public static RunSnapshot ReadFormatFive(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 5, seed);
 
+    /// <summary>
+    /// Reads a snapshot of save format 6, which holds no level, no experience, and no MP (D-966).
+    /// The resume starts each character at its join level with full MP (D-363).
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <returns>The snapshot, with no level of a character.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatSix(ref ContentReader reader) => ReadLine(ref reader, 6, null);
+
     private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {
         long? tick = null;

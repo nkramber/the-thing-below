@@ -16,11 +16,11 @@ Short sentences. Physical detail. No purple prose. Dry understatement. The world
 1. Prefer a concrete noun to an adjective. "The blade is notched" beats "the ancient, terrible blade".
 2. One sentence, one image. Cut the second image.
 3. Understate. A dead soldier "did not get up". Do not write "his life was cruelly torn away".
-4. No exclamation marks outside a shout in dialogue.
+4. No exclamation marks outside a shout in dialogue. The one exception is the level-up line "Level up!" (D-978).
 5. No modern idiom, no slang, no wink at the player.
 6. Humor is dry and rare. It comes from a character, never from the narrator.
 7. Dialogue sounds like a person under strain. Short lines. People interrupt, deflect, and lie.
-8. Battle messages state the fact and the number. "Vess takes 41." "The wolf falls."
+8. Battle messages state the fact and the number. "Vess takes 41." "The wolf falls." A battle screen names a stat in three characters at most: HP, MP, ATK, DEF, and SPD (D-979).
 9. Item text gives what the item does in one line, and one line of flavor at most.
 10. The player finds lore. Nobody tells it. A page, a carving, a corpse. Never a narrator lecture.
 11. Names are short and pronounceable. One or two syllables for people, and up to three for a foreign person (D-300). Places can take three.

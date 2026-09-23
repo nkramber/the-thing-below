@@ -60,6 +60,8 @@ public static class BattleTimes
             BattleEventKind.Won => pace.EndTicks,
             BattleEventKind.Fled => pace.EndTicks,
             BattleEventKind.Wiped => pace.EndTicks,
+            BattleEventKind.Experience => pace.Summary.ExperienceTicks,
+            BattleEventKind.LevelUp => pace.Summary.LevelUpTicks,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(kind), kind, $"The battle event '{kind}' has no timing on the screen (D-829, T-2)."),
         };
@@ -179,6 +181,57 @@ public static class BattleTimes
 
         int top = pace.NumberRiseTicks * pace.NumberRisePixels;
         return top - ((since - pace.NumberRiseTicks) / pace.NumberFallTicks);
+    }
+
+    /// <summary>
+    /// Gives the art pixels that a line of the summary stands above its start, at one tick of
+    /// the line (D-975). The line slides up past its place by the bounce, and then it settles
+    /// back to its place.
+    /// </summary>
+    /// <param name="summary">The pace of the summary.</param>
+    /// <param name="ticks">The ticks since the line started, which is below zero before its start.</param>
+    /// <returns>The height above the start, or null before the line starts, when it shows nothing.</returns>
+    /// <exception cref="ArgumentNullException">The pace is null (T-2).</exception>
+    public static int? SummaryRise(SummaryValues summary, int ticks)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+
+        if (ticks < 0)
+        {
+            return null;
+        }
+
+        int top = summary.RisePixels + summary.BouncePixels;
+        int up = Math.Max(1, summary.RiseTicks * 2 / 3);
+        if (ticks < up)
+        {
+            return ticks * top / up;
+        }
+
+        if (ticks < summary.RiseTicks)
+        {
+            return top - ((ticks - up) * summary.BouncePixels / (summary.RiseTicks - up));
+        }
+
+        return summary.RisePixels;
+    }
+
+    /// <summary>
+    /// Gives the value that a bar shows at one tick of a level-up, as it fills from its value
+    /// before the level-up to the full value (D-975).
+    /// </summary>
+    /// <param name="summary">The pace of the summary.</param>
+    /// <param name="ticks">The ticks since the level-up started.</param>
+    /// <param name="before">The value before the level-up.</param>
+    /// <param name="full">The full value of the new level.</param>
+    /// <returns>The value, from the value before to the full value.</returns>
+    /// <exception cref="ArgumentNullException">The pace is null (T-2).</exception>
+    public static int FillAt(SummaryValues summary, int ticks, int before, int full)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+
+        int passed = Math.Clamp(ticks, 0, summary.FillTicks);
+        return before + ((full - before) * passed / summary.FillTicks);
     }
 
     /// <summary>

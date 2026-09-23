@@ -1,4 +1,39 @@
 # Session handoff archive
+## Session 248: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-11, round 2. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: #67. Role: author. Base: `d429d03`.
+
+### What this session did, and why
+
+- Read CI on `f92eb3e`: each check passed except `review-gate`, which waited for the record.
+- Read the Gitar output one time: a notice alone, with no thread and no finding (D-945).
+- Ran `make codex-review PR=67 -- --skip-gitar-review`. The outcome was `changes-required` with P2-1.
+- Answered P2-1 with full merit in `docs/reviews/pr-67-response.md`. The cost command now times the whole enemy turn on a copy of the run, through the new `BattleTurns.EnemyAct`.
+- The Mac gives 52 us at the 95th percentile for a whole enemy turn.
+
+### The state of the build
+
+- `main` is `d429d03`. The record of Session 247 gives `Changes required` for `f92eb3e`. The correction commit of this round follows it.
+
+### What is in flight
+
+- CI on the correction, one Gitar read, and a new `make codex-review PR=67 -- --skip-gitar-review`.
+- The owner run of `make evaluator-cost` on the Deck, before the merge (D-961).
+
+### Traps and gotchas
+
+- `BattleTurns.EnemyAct` plays one enemy action for any enemy on the field. The rules call the private turn for the enemy whose turn begins.
+- The slowest sample of the command can pass 1 ms on the Mac. The limit reads the 95th percentile alone (D-961).
+
+### The questions that block progress
+
+None for PR-11. OQ-243 blocks PR-98.
+
+### The next concrete action
+
+Read CI on the correction commit, read the Gitar output one time, then run `make codex-review PR=67 -- --skip-gitar-review`.
+
 ## Session 247: 2026-09-23, Codex
 
 Author: Codex

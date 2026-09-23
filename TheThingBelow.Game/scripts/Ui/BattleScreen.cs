@@ -87,6 +87,7 @@ public sealed class BattleScreen
     private readonly Sprite2D pointer;
     private readonly Label message;
     private readonly Label number;
+    private readonly Label[] summaryLabels = new Label[BattleEffects.SummaryLines];
     private readonly HBoxContainer commandRow;
     private readonly List<StatusLine> statusLines = [];
     private readonly Color chosenColor;
@@ -148,6 +149,18 @@ public sealed class BattleScreen
             Visible = false,
         };
         this.layer.AddChild(this.number);
+
+        // One label for each line of a level-up: the level and the five stats (D-975).
+        for (int index = 0; index < this.summaryLabels.Length; index += 1)
+        {
+            this.summaryLabels[index] = new Label
+            {
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Size = new Vector2(NumberWidth, ui.Theme.BodySize),
+                Visible = false,
+            };
+            this.layer.AddChild(this.summaryLabels[index]);
+        }
     }
 
     /// <summary>The count of sprites of combatants that the screen built.</summary>
@@ -345,7 +358,7 @@ public sealed class BattleScreen
         for (int slot = 0; slot < view.Party.Count; slot += 1)
         {
             this.ShowCombatant(view, view.Party[slot], this.party[slot], playing, picture);
-            this.ShowStatusLine(view.Party[slot], this.statusLines[slot]);
+            this.ShowStatusLine(view.Party[slot], this.statusLines[slot], playing, picture);
         }
 
         for (int slot = 0; slot < view.Enemies.Count; slot += 1)
@@ -358,6 +371,7 @@ public sealed class BattleScreen
         this.ShowBurst(view, playing, picture, run.Tick - ticks);
         this.ShowMessage(view, playing);
         this.ShowNumber(view, playing, picture);
+        this.ShowSummary(view, playing, picture);
         this.ShowStrip(run);
         this.ShowCommands(view);
     }
@@ -499,10 +513,19 @@ public sealed class BattleScreen
         };
         this.world.AddChild(sprite);
 
-        var nodes = new CombatantNodes(sprite, material, idle, pose, width, height);
-        if (shown.Target.Side == BattleSide.Enemy)
+        var nodes = new CombatantNodes(sprite, material, idle, pose, width, height)
         {
-            nodes.Bar = this.BuildBar();
+            Bar = this.BuildBar(BattleLayout.BarHeight, "bar_fill"),
+        };
+
+        // A character shows a health bar and an MP bar with no numbers, and the bottom line
+        // holds the numbers and the status icons (D-976, D-980).
+        if (shown.Target.Side == BattleSide.Party)
+        {
+            nodes.MpBar = this.BuildBar(BattleLayout.MpBarHeight, "bar_mp");
+        }
+        else
+        {
             nodes.Icons = new HBoxContainer();
             nodes.Icons.AddThemeConstantOverride("separation", 0);
             this.layer.AddChild(nodes.Icons);
@@ -511,25 +534,25 @@ public sealed class BattleScreen
         return nodes;
     }
 
-    private HealthBar BuildBar()
+    private HealthBar BuildBar(int height, string fillRole)
     {
         var border = new ColorRect
         {
             Color = this.ui.Theme.ColorOf("bar_border"),
-            Size = new Vector2(BattleLayout.BarWidth, BattleLayout.BarHeight),
+            Size = new Vector2(BattleLayout.BarWidth, height),
             ZIndex = MarkZIndex,
         };
         var empty = new ColorRect
         {
             Color = this.ui.Theme.ColorOf("bar_empty"),
             Position = Vector2.One,
-            Size = new Vector2(BattleLayout.BarWidth - 2, BattleLayout.BarHeight - 2),
+            Size = new Vector2(BattleLayout.BarWidth - 2, height - 2),
         };
         var fill = new ColorRect
         {
-            Color = this.ui.Theme.ColorOf("bar_fill"),
+            Color = this.ui.Theme.ColorOf(fillRole),
             Position = Vector2.One,
-            Size = new Vector2(BattleLayout.BarWidth - 2, BattleLayout.BarHeight - 2),
+            Size = new Vector2(BattleLayout.BarWidth - 2, height - 2),
         };
 
         border.AddChild(empty);
@@ -608,12 +631,14 @@ public sealed class BattleScreen
         row.AddThemeConstantOverride("separation", this.ui.Theme.BodySize / 2);
         var name = new Label();
         var health = new Label();
+        var mp = new Label();
         var icons = new HBoxContainer();
         icons.AddThemeConstantOverride("separation", 0);
         row.AddChild(name);
         row.AddChild(health);
+        row.AddChild(mp);
         row.AddChild(icons);
-        return new StatusLine(row, name, health, icons);
+        return new StatusLine(row, name, health, mp, icons);
     }
 
     private void PlaceStatusLines()
@@ -655,6 +680,11 @@ public sealed class BattleScreen
             hidden.Border.Visible = visible;
         }
 
+        if (nodes.MpBar is HealthBar hiddenMp)
+        {
+            hiddenMp.Border.Visible = visible;
+        }
+
         if (nodes.Icons is HBoxContainer hiddenIcons)
         {
             hiddenIcons.Visible = visible;
@@ -681,7 +711,16 @@ public sealed class BattleScreen
         if (nodes.Bar is HealthBar bar)
         {
             bar.Border.Position = new Vector2(place.X - (BattleLayout.BarWidth / 2), place.Feet + BattleLayout.BarGap);
-            bar.Fill.Size = new Vector2(BattleLayout.BarFill(shown.Health, shown.FullHealth), BattleLayout.BarHeight - 2);
+            bar.Fill.Size = new Vector2(BattleLayout.BarFill(this.HealthAt(shown, playing, ticks), shown.FullHealth), BattleLayout.BarHeight - 2);
+        }
+
+        if (nodes.MpBar is HealthBar mpBar)
+        {
+            int mp = this.MpAt(shown, playing, ticks);
+            int mpTop = place.Feet + BattleLayout.BarGap + BattleLayout.BarHeight - 1;
+            mpBar.Border.Position = new Vector2(place.X - (BattleLayout.BarWidth / 2), mpTop);
+            int mpFill = shown.FullMp == 0 ? 0 : BattleLayout.BarFill(mp, shown.FullMp);
+            mpBar.Fill.Size = new Vector2(mpFill, BattleLayout.MpBarHeight - 2);
         }
 
         if (nodes.Icons is HBoxContainer icons)
@@ -719,10 +758,27 @@ public sealed class BattleScreen
         }
     }
 
-    private void ShowStatusLine(ShownCombatant shown, StatusLine line)
+    /// <summary>Gives the health that a bar and the bottom line show: the fill of a level-up that plays, or the health of the view (D-975).</summary>
+    private int HealthAt(ShownCombatant shown, BattleEvent? playing, int ticks) =>
+        FillsNow(shown, playing)
+            ? BattleTimes.FillAt(this.pace.Summary, ticks, shown.HealthBefore, shown.Health)
+            : shown.Health;
+
+    /// <summary>Gives the MP that a bar and the bottom line show: the fill of a level-up that plays, or the MP of the view (D-975).</summary>
+    private int MpAt(ShownCombatant shown, BattleEvent? playing, int ticks) =>
+        FillsNow(shown, playing)
+            ? BattleTimes.FillAt(this.pace.Summary, ticks, shown.MpBefore, shown.Mp)
+            : shown.Mp;
+
+    private static bool FillsNow(ShownCombatant shown, BattleEvent? playing) =>
+        playing is not null && playing.Kind == BattleEventKind.LevelUp && playing.Actor == shown.Target;
+
+    private void ShowStatusLine(ShownCombatant shown, StatusLine line, BattleEvent? playing, int ticks)
     {
         this.FillIcons(line.Icons, shown.Statuses, line);
-        string key = $"{shown.Health}/{shown.FullHealth}/{shown.Place}";
+        int health = this.HealthAt(shown, playing, ticks);
+        int mp = this.MpAt(shown, playing, ticks);
+        string key = $"{health}/{shown.FullHealth}/{mp}/{shown.FullMp}/{shown.Place}";
         if (string.CompareOrdinal(key, line.ShownText) == 0)
         {
             return;
@@ -731,8 +787,11 @@ public sealed class BattleScreen
         line.ShownText = key;
         this.ui.Text.Put(line.Name, BattleMessages.NameIdOf(shown.Id));
         this.ui.Text.Put(line.Health, ContentId.Parse("battle.health", StringTable.Path, "battle screen"), Values(
-            ("health", shown.Health.ToString(CultureInfo.InvariantCulture)),
+            ("health", health.ToString(CultureInfo.InvariantCulture)),
             ("full", shown.FullHealth.ToString(CultureInfo.InvariantCulture))));
+        this.ui.Text.Put(line.Mp, ContentId.Parse("battle.mp", StringTable.Path, "battle screen"), Values(
+            ("mp", mp.ToString(CultureInfo.InvariantCulture)),
+            ("full", shown.FullMp.ToString(CultureInfo.InvariantCulture))));
         line.Name.Modulate = shown.Place == CombatantPlace.Down ? this.dimColor : Colors.White;
     }
 
@@ -801,6 +860,44 @@ public sealed class BattleScreen
             (place.X * FrameRoot.WorldScale) - (NumberWidth / 2),
             headTop - this.ui.Theme.BodySize - height);
         this.number.Visible = true;
+    }
+
+    /// <summary>
+    /// Shows the lines of the summary above the head of the character of the event that plays:
+    /// the experience, or the level and each stat that rose (D-975). Each line starts after the
+    /// one above it, and it slides up with a bounce. Every other event hides the lines.
+    /// </summary>
+    private void ShowSummary(BattleView view, BattleEvent? playing, int ticks)
+    {
+        IReadOnlyList<BattleLine> lines = playing is null
+            ? []
+            : SummaryLines.Of(playing, view.At(playing.Actor), this.content.Strings);
+        SummaryValues summary = this.pace.Summary;
+        for (int index = 0; index < this.summaryLabels.Length; index += 1)
+        {
+            Label label = this.summaryLabels[index];
+            int? rise = index < lines.Count ? BattleTimes.SummaryRise(summary, ticks - (index * summary.LineTicks)) : null;
+            if (playing is null || rise is not int height)
+            {
+                label.Visible = false;
+                continue;
+            }
+
+            ShownCombatant shown = view.At(playing.Actor);
+            CombatantNodes nodes = this.party[playing.Actor.Slot];
+            FieldPlace place = BattleLayout.PlaceOf(view, shown);
+            BattleLine line = lines[index];
+            this.ui.Text.Put(label, line.Id, line.Values);
+
+            // The level line takes the color of a choice, so it reads apart from the stats.
+            label.Modulate = string.CompareOrdinal(line.Id.Value, "battle.level_up") == 0 ? this.chosenColor : Colors.White;
+            int headTop = (place.Feet - nodes.Height) * FrameRoot.WorldScale;
+            int rest = headTop - ((lines.Count - index) * this.ui.Theme.BodySize);
+            label.Position = new Vector2(
+                (place.X * FrameRoot.WorldScale) - (NumberWidth / 2),
+                rest + ((summary.RisePixels - height) * FrameRoot.WorldScale));
+            label.Visible = true;
+        }
     }
 
     /// <summary>Gives the combatant that a number of this event stands over, or no value (D-213).</summary>
@@ -969,18 +1066,22 @@ public sealed class BattleScreen
 
         public HealthBar? Bar { get; set; }
 
+        public HealthBar? MpBar { get; set; }
+
         public HBoxContainer? Icons { get; set; }
     }
 
     private sealed record HealthBar(ColorRect Border, ColorRect Fill);
 
-    private sealed class StatusLine(HBoxContainer row, Label name, Label health, HBoxContainer icons) : IconHolder
+    private sealed class StatusLine(HBoxContainer row, Label name, Label health, Label mp, HBoxContainer icons) : IconHolder
     {
         public HBoxContainer Row { get; } = row;
 
         public Label Name { get; } = name;
 
         public Label Health { get; } = health;
+
+        public Label Mp { get; } = mp;
 
         public HBoxContainer Icons { get; } = icons;
 

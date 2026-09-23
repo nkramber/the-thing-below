@@ -86,6 +86,9 @@ public static class BattleLayout
     /// <summary>The height of the health bar of an enemy, in art pixels, with its border.</summary>
     public const int BarHeight = 4;
 
+    /// <summary>The height of the MP bar under a character, in art pixels, with its border (D-976). It shares its top border with the health bar above it.</summary>
+    public const int MpBarHeight = 3;
+
     /// <summary>The rows between the feet of an enemy and the top of its bar.</summary>
     public const int BarGap = 3;
 

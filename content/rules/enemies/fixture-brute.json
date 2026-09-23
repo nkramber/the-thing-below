@@ -1,7 +1,9 @@
 {
- "comment": "The fixture brute, with the stats of D-777 and D-781, and the size of D-789 (D-557, D-786). It names the fixture bash, a heavy melee strike (D-955). PR-17 writes the enemies of the first playable.",
+ "comment": "The fixture brute, with the stats of D-777 and D-781, and the size of D-789 (D-557, D-786). The level and the experience follow D-977. It names the fixture bash, a heavy melee strike (D-955). PR-17 writes the enemies of the first playable.",
  "id": "enemy.fixture_brute",
  "size": "elite",
+ "level": 3,
+ "experience": 20,
  "health": 80,
  "attack": 14,
  "defense": 6,

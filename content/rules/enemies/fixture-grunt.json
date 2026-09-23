@@ -1,7 +1,9 @@
 {
- "comment": "The fixture grunt, with the stats of D-777 and the size of D-789 (D-557, D-786). It names the fixture mend, so it can bind a hurt ally (D-955). PR-17 writes the enemies of the first playable.",
+ "comment": "The fixture grunt, with the stats of D-777 and the size of D-789 (D-557, D-786). The level and the experience follow D-977. It names the fixture mend, so it can bind a hurt ally (D-955). PR-17 writes the enemies of the first playable.",
  "id": "enemy.fixture_grunt",
  "size": "common",
+ "level": 1,
+ "experience": 6,
  "health": 30,
  "attack": 8,
  "defense": 2,

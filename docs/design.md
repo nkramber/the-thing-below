@@ -98,6 +98,8 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-23 waiting column pass: four elite bodies fit in the waiting column, and not six. A group whose waiting column is taller than the field fails the load (D-963). PR-98 holds the check.
 
+2026-09-23 character level pass: a stat curve holds one row for each of 40 levels, and one experience table serves every character (D-966, D-971, D-972). The experience of an enemy falls by a cut for each level that a character stands above it, and ends past a gap (D-968, D-969). A downed character earns no experience, and D-974 supersedes D-387. A level-up fills the health and the MP (D-973). A rest at a hub and a save point fill MP, and PR-16 and PR-14 wire them (D-967, D-970). The summary rises above each head on the battle screen, and each character shows a health bar and an MP bar (D-975, D-976, D-978 to D-981).
+
 2026-09-23 Gitar item pass: a Gitar comment with no thread, no finding, and no claim needs no answer. The reviewer ignores it, and the prompt of `make codex-review` says so (D-964). PR-98 holds the rule by an exception to G-8 (D-965).
 
 External facts, each with the date of its check:
@@ -521,7 +523,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 26. PR-97: the Gitar pause and the flag that skips the Gitar check (D-945, D-946).
 27. PR-11: the evaluator, the enemy profiles, and the groups, with the cost of a turn (D-65, D-534, F-53).
 28. PR-98: the waiting enemies at the left edge of the field, right after PR-11 (D-951 to D-954, D-963).
-29. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537).
+29. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537, D-966 to D-981).
 30. PR-62: the menu windows, the party and status windows, the dungeon map screen, and the notices (D-211, D-558, D-567, D-569).
 31. PR-68: the story scene format and runner, the join step, the flags, and the conditions, before PR-12 (D-541, D-544, D-556, D-563).
 32. PR-50: the screenplay tool, right after PR-68 (D-173, D-545).

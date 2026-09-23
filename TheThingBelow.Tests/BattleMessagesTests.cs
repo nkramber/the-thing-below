@@ -26,15 +26,15 @@ public sealed class BattleMessagesTests
         new(() => ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find())));
 
     [Fact]
-    public void EveryKindOfEventGivesALineFromTheTableOrNoneForATurnOrAWin()
+    public void EveryKindOfEventGivesALineFromTheTableOrNoneForATurnAWinOrTheSummary()
     {
         // Exit test 3 of PR-10. det-lint proves that Game shows no inline string (DL 8), and
-        // this test proves that each event names an id of the table. A win shows no line, and
-        // the summary of the loot and the level-ups follows it in a later PR (D-835).
+        // this test proves that each event names an id of the table. A win shows no line, and the
+        // experience and the level-ups rise above each head instead of a line (D-835, D-975).
         foreach (BattleEvent played in EveryEvent())
         {
             object? line = LineOf(played, EnemyNamedFirst());
-            if (played.Kind == BattleEventKind.Turn || played.Kind == BattleEventKind.Won)
+            if (played.Kind is BattleEventKind.Turn or BattleEventKind.Won or BattleEventKind.Experience or BattleEventKind.LevelUp)
             {
                 Assert.Null(line);
                 continue;

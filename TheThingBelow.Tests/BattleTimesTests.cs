@@ -227,6 +227,65 @@ public sealed class BattleTimesTests
         }
     }
 
+    [Fact]
+    public void ALineOfTheSummarySlidesUpPastItsPlaceAndSettlesBack()
+    {
+        // D-975: the line shows nothing before its start, rises above its place by the bounce,
+        // and then stands at its place until its event ends.
+        SummaryValues summary = Pace.Value.Summary;
+        Assert.Null(SummaryRise(summary, -1));
+        Assert.Equal(0, SummaryRise(summary, 0));
+
+        int highest = 0;
+        int before = 0;
+        bool fell = false;
+        for (int tick = 1; tick < summary.RiseTicks; tick += 1)
+        {
+            int rise = SummaryRise(summary, tick) ?? throw new InvalidOperationException($"Tick {tick} shows no line.");
+            fell |= rise < before;
+            Assert.False(fell && rise > before, $"Tick {tick}: the line rose again after it fell.");
+            highest = Math.Max(highest, rise);
+            before = rise;
+        }
+
+        Assert.Equal(summary.RisePixels + summary.BouncePixels, highest);
+        Assert.Equal(summary.RisePixels, SummaryRise(summary, summary.RiseTicks));
+        Assert.Equal(summary.RisePixels, SummaryRise(summary, summary.LevelUpTicks));
+    }
+
+    [Fact]
+    public void ABarFillsFromItsValueBeforeTheLevelUpToFullAndNeverFalls()
+    {
+        // D-975: the health bar and the MP bar fill toward full over the fill ticks.
+        SummaryValues summary = Pace.Value.Summary;
+        Assert.Equal(12, FillAt(summary, 0, 12, 66));
+        Assert.Equal(66, FillAt(summary, summary.FillTicks, 12, 66));
+        Assert.Equal(66, FillAt(summary, summary.LevelUpTicks, 12, 66));
+        int before = 12;
+        for (int tick = 0; tick <= summary.FillTicks; tick += 1)
+        {
+            int value = FillAt(summary, tick, 12, 66);
+            Assert.InRange(value, before, 66);
+            before = value;
+        }
+    }
+
+    [Fact]
+    public void TheSummaryEndsInsideItsHoldAtTheFastMessageSpeed()
+    {
+        // D-873, D-975: six lines start one after another, and each one settles before the fast
+        // hold of a level-up ends. The fill ends inside it too.
+        SummaryValues summary = Pace.Value.Summary;
+        int fastLevelUp = HoldTicks(BattleEventKind.LevelUp, MessageSpeed.Fast);
+        Assert.True((summary.LineTicks * (BattleEffects.SummaryLines - 1)) + summary.RiseTicks <= fastLevelUp);
+        Assert.True(summary.FillTicks <= fastLevelUp);
+        Assert.True(summary.RiseTicks <= HoldTicks(BattleEventKind.Experience, MessageSpeed.Fast));
+    }
+
+    private static int? SummaryRise(SummaryValues summary, int ticks) => (int?)Invoke("SummaryRise", summary, ticks);
+
+    private static int FillAt(SummaryValues summary, int ticks, int before, int full) => (int)Invoke("FillAt", summary, ticks, before, full)!;
+
     private static BattleEvent EventOf(BattleEventKind kind, Affinity affinity) =>
         new(kind, new BattleTarget(BattleSide.Party, 0), new BattleTarget(BattleSide.Enemy, 0), 9, null, affinity);
 

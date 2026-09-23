@@ -52,7 +52,10 @@ internal static class TestBattles
      "stun_ticks": 50,
      "shell_cut": 5000,
      "shell_ticks": 400,
-     "blind_miss": 3000
+     "blind_miss": 3000,
+     "experience_cut": 1500,
+     "experience_gap": 4,
+     "level_experience": [0, 20, 60, 120, 200, 300, 420, 560, 720, 900, 1100, 1320, 1560, 1820, 2100, 2400, 2720, 3060, 3420, 3800, 4200, 4620, 5060, 5520, 6000, 6500, 7020, 7560, 8120, 8700, 9300, 9920, 10560, 11220, 11900, 12600, 13320, 14060, 14820, 15600]
     }
     """;
 
@@ -60,13 +63,13 @@ internal static class TestBattles
     /// The fixture of the tests. It holds three characters, and the party starts with Marrek
     /// alone. The groups live in <see cref="GroupsFile"/> (D-957).
     /// </summary>
-    public const string FixtureFile = """
+    public static readonly string FixtureFile = $$"""
     {
      "comment": "The battle fixture of the tests.",
      "characters": [
-      { "id": "character.marrek", "health": 60, "attack": 12, "defense": 4, "speed": 100, "row": "front" },
-      { "id": "character.test_second", "health": 50, "attack": 10, "defense": 3, "speed": 110, "row": "front" },
-      { "id": "character.test_third", "health": 40, "attack": 8, "defense": 2, "speed": 120, "row": "back" }
+      { "id": "character.marrek", "row": "front", "join_level": 1, "curve": {{MarrekCurve()}} },
+      { "id": "character.test_second", "row": "front", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(50, 12, 10, 3, 110))}} },
+      { "id": "character.test_third", "row": "back", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(40, 16, 8, 2, 120))}} }
      ],
      "items": [
       { "id": "item.fixture_draught", "heal": 30, "delay": 100 }
@@ -185,6 +188,8 @@ internal static class TestBattles
      "comment": "The grunt of the tests.",
      "id": "enemy.fixture_grunt",
      "size": "common",
+     "level": 1,
+     "experience": 6,
      "health": 30,
      "attack": 8,
      "defense": 2,
@@ -201,6 +206,8 @@ internal static class TestBattles
      "comment": "The brute of the tests.",
      "id": "enemy.fixture_brute",
      "size": "elite",
+     "level": 3,
+     "experience": 20,
      "health": 80,
      "attack": 14,
      "defense": 6,
@@ -306,6 +313,32 @@ internal static class TestBattles
     /// <param name="size">The count of characters: 1, 2, or 3 (D-336).</param>
     /// <returns>The battle content.</returns>
     public static BattleContent WithParty(int size) => Of(FixtureWithParty(size));
+
+    /// <summary>
+    /// Gives the stats of Marrek at one level, with the numbers of D-977. Level 1 holds the
+    /// stats of D-777, so each fight test of level 1 keeps its numbers.
+    /// </summary>
+    /// <param name="level">The level, from 1 to 40.</param>
+    /// <returns>The row.</returns>
+    public static StatRow MarrekAt(int level) =>
+        new(60 + (6 * (level - 1)), 8 + (2 * (level - 1)), 12 + (level - 1), 4 + (level / 2), 100 + (level / 4));
+
+    /// <summary>Gives the total experience of one level in the rules of the tests: 10 x n x (n - 1) (D-977).</summary>
+    /// <param name="level">The level, from 1 to 40.</param>
+    /// <returns>The total.</returns>
+    public static int TotalOf(int level) => 10 * level * (level - 1);
+
+    private static string MarrekCurve()
+    {
+        List<string> rows = [];
+        for (int level = 1; level <= StatCurve.HighestLevel; level += 1)
+        {
+            StatRow row = MarrekAt(level);
+            rows.Add($"{{ \"level\": {level}, \"health\": {row.Health}, \"mp\": {row.Mp}, \"attack\": {row.Attack}, \"defense\": {row.Defense}, \"speed\": {row.Speed} }}");
+        }
+
+        return $"[{string.Join(", ", rows)}]";
+    }
 
     private static string FixtureWithParty(int size)
     {

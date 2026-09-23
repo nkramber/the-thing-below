@@ -27,6 +27,9 @@ public sealed class BattleLayoutTests
     /// <summary>The count of icons that a status line holds beside the name and the health (D-830).</summary>
     private const int StatusIcons = 4;
 
+    /// <summary>The longest name of a character on the bottom line of a battle (D-981).</summary>
+    private const int StatusNameLimit = 8;
+
     /// <summary>The longest name of a menu label, from the `game-text-style` skill (D-241).</summary>
     private const int LabelLimit = 16;
 
@@ -112,12 +115,26 @@ public sealed class BattleLayoutTests
     }
 
     [Fact]
+    public void EveryCharacterNameFitsTheBottomLine()
+    {
+        // D-981: the bottom line of a battle holds a name of 8 characters beside the numbers.
+        ContentSet content = Content.Value;
+        foreach (CharacterRecord character in content.Battle.Fixture.Characters)
+        {
+            string name = content.Strings.Text(ContentId.Parse($"name.{character.Id.Name}", StringTable.Path, character.Id.Value));
+            Assert.True(
+                name.Length <= StatusNameLimit,
+                $"The name '{name}' of '{character.Id.Value}' holds {name.Length} characters, and the bottom line holds {StatusNameLimit} (D-981).");
+        }
+    }
+
+    [Fact]
     public void EachPanelHoldsItsLongestStringAtBothBodySizes()
     {
         // Exit test 4 of PR-10 (D-241, D-708). The message line holds a battle message of 40
-        // characters. The command menu holds the five labels with a body between each. The
-        // status holds a name of 16 characters, the health of the largest stat, and four icons,
-        // with half a body between the parts.
+        // characters. The command menu holds the five labels with a body between each. The status
+        // holds a name of 8 characters, the health and the MP of the largest pool, and four icons,
+        // with half a body between the parts (D-980, D-981).
         StringTable strings = Content.Value.Strings;
         int labels = 0;
         foreach (string id in new[] { "battle.command_attack", "battle.command_defend", "battle.command_step_forward", "battle.command_item", "battle.command_flee" })
@@ -125,9 +142,13 @@ public sealed class BattleLayoutTests
             labels += strings.Text(ContentId.Parse(id, StringTable.Path, "id")).Length;
         }
 
-        string most = BattleFixture.MostStat.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        string most = StatCurve.MostPool.ToString(System.Globalization.CultureInfo.InvariantCulture);
         int health = strings.Text(ContentId.Parse("battle.health", StringTable.Path, "id"))
             .Replace("{health}", most, StringComparison.Ordinal)
+            .Replace("{full}", most, StringComparison.Ordinal)
+            .Length;
+        int mp = strings.Text(ContentId.Parse("battle.mp", StringTable.Path, "id"))
+            .Replace("{mp}", most, StringComparison.Ordinal)
             .Replace("{full}", most, StringComparison.Ordinal)
             .Length;
 
@@ -136,7 +157,7 @@ public sealed class BattleLayoutTests
             int advance = body / 2;
             Assert.True(advance * MessageLimit <= Inside(Box("Message")), $"At a body of {body}, the message line holds no message of {MessageLimit} characters.");
             Assert.True((advance * labels) + (body * 4) <= Inside(Box("Commands")), $"At a body of {body}, the command menu holds no five labels.");
-            int status = (advance * (LabelLimit + health)) + (advance * 2) + (Const("IconSize") * StatusIcons);
+            int status = (advance * (StatusNameLimit + health + mp)) + (advance * 3) + (Const("IconSize") * StatusIcons);
             Assert.True(status <= Inside(Box("Status")), $"At a body of {body}, the status needs {status} pixels, and it holds {Inside(Box("Status"))}.");
             Assert.True(body + (Const("PanelEdge") * 2) <= Box("Message").Height, $"At a body of {body}, a line panel holds no line.");
         }
