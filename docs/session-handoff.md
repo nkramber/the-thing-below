@@ -1,3 +1,34 @@
+## Session 218: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-94, round 7. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
+
+### What this session did, and why
+
+- Committed the baselines of `map-fog-1x` and `battle-fog-1x` from the artifact of CI run 35803303503 at `205a8ee` (D-733). The two runs of that job matched on all 72 captures, and only the two fog frames differed from the old baseline.
+- The final head of `docs/reviews/pr-59-response.md` names this commit.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The PR head before this round is `205a8ee`, and the commit of this round is the effective head.
+- CI on `205a8ee` passed each check except screen-test, on the two fog frames alone, and review-gate, which reads the `Blocked` verdict of `8011192`.
+
+### What is in flight
+
+- The PR waits for the repeat review of the other provider on the answer to P2-1 (T-4).
+
+### Traps and gotchas
+
+- None new.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The other provider reviews the answer to P2-1, and updates `docs/reviews/pr-59.md`.
+
 ## Session 217: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -326,44 +357,5 @@ None.
 ### The next concrete action
 
 The other provider reviews PR #58 and writes its review record. The author answers each finding.
-
-## Session 208: 2026-09-22, Codex
-
-Author: Codex
-Session: reviewer PR-58, PR #57. Repository: the-thing-below. Branch: `feat/pr-58-ambient`. Role: reviewer. Base: `3f9ea43`.
-
-### What this session did, and why
-
-- Reviewed the full diff from `3f9ea43` to effective head `9d57dc0` (D-589).
-- Verified the cross-provider gate. Session 207 names Claude Code as author, and this session reviews as Codex (T-4, D-17).
-- Traced ambient content, fog contrast, weather motion, particle nodes, torch light, capture timing, wall shadows, and their tests (D-187, D-852, D-885 to D-894, F-97 to F-100).
-- Viewed the 72-frame CI screen-test artifact. No visual fault was found (D-784).
-- Wrote `docs/reviews/pr-57.md` with no finding and verdict `Ready for owner merge` for effective head `9d57dc0`.
-
-### The state of the build
-
-- `make verify` passed with 2,162 tests and no failure.
-- CI run 35776490164 passed every implementation check at `9d57dc0`. The review-gate run failed only because the review record did not exist yet.
-- The remote head before the review commit is `9d57dc0`.
-
-### What is in flight
-
-- The review record and this handoff entry need commit and push.
-- The PR description needs the corrected Documents line for `docs/reviews/`.
-- Fetch and verify the remote head and the new review-gate result.
-
-### Traps and gotchas
-
-- PR #57 is roadmap PR-58, on branch `feat/pr-58-ambient`.
-- The two absent jobs, bot and night-gate, have creator lines under G-16 in the PR description.
-- The review record uses the effective head. The metadata commit does not move it (D-610).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and this handoff entry. Correct the PR Documents line, then fetch and verify the remote head and review-gate check.
 
 # Session handoff

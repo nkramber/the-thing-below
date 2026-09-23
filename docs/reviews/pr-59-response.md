@@ -28,4 +28,4 @@ Regression check: the question, D-907, D-908, and both roadmaps name the same an
 
 ## The final head
 
-The head of this answer is the commit that holds this file. The baseline commit that follows it names the effective head in the handoff entry.
+The answer landed in `205a8ee`. The commit that follows it adds the fog baselines from CI run 35803303503, whose two runs matched on all 72 captures. That commit is the effective head for the repeat review.
