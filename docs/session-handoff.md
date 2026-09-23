@@ -1,3 +1,40 @@
+## Session 247: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #67, round 1. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: #67. Role: reviewer. Base: `d429d03`.
+
+### What this session did, and why
+
+- Reviewed PR #67 from merge base `d429d03` through effective head `f92eb3e`, across 75 changed paths.
+- Confirmed Claude Code authored the substantive changes, so the Codex reviewer passes the provider gate (T-4, D-17).
+- Inspected the evaluator, content readers, save migration, identity run, UI changes, cost tool, all changed paths, and the seven changed battle frames.
+- Found that `evaluator-cost` times `BattleEvaluator.Choose` alone, although D-961 limits a complete enemy turn. Recorded P2-1.
+- The existing Gitar status comment has no author answer. The Deck cost run also remains pending (D-961).
+- Added `docs/reviews/pr-67.md` with `Changes required` for `f92eb3e`.
+
+### The state of the build
+
+- `main` and the merge base are `d429d03`. The remote PR head before this metadata commit is `f92eb3e`.
+- `make verify` passed on macOS arm64 with 2,506 tests. CI run 35907108806 passed the implementation checks and screen-test on `f92eb3e`.
+
+### What is in flight
+
+- The author must correct P2-1, answer the Gitar status comment, and provide the Deck measurement before the merge.
+- The PR needs another Codex review after a substantive correction.
+
+### Traps and gotchas
+
+- D-945 and D-946 remove the Gitar pass as a review condition. An existing Gitar comment still needs an answer.
+- The cost tool measures action selection alone, so its current number is not a full enemy-turn measurement.
+
+### The questions that block progress
+
+OQ-243 blocks PR-98 alone (D-951 to D-954). No open question changes PR-11.
+
+### The next concrete action
+
+Correct the timed operation and its test, answer the existing Gitar status comment, and run the cost command on the Steam Deck.
+
 ## Session 246: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -320,46 +357,3 @@ OQ-242 does not affect PR-60. It asks how the screen shows the count of waiting 
 ### The next concrete action
 
 Commit the review record and handoff entry together. Push, fetch, and verify the remote head.
-
-## Session 237: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-60, rounds 1 to 3. Repository: the-thing-below. Branch: `feat/pr-60-transitions`. PR: #64. Role: author. Base: `ca8c549`.
-
-### What this session did, and why
-
-- Asked the questions of PR-60 in two batches and recorded D-934 to D-941. D-934 revises D-196 in part: a pool of each region takes the place of the default of each region, for common encounters alone.
-- Built the ten transitions as effect files, each 60 ticks long, and the transition table with the fixed kinds, the pool of region one, and the fade (D-195, D-934, D-936, D-940, D-941).
-- Core reads the kind of an encounter in the order of D-937, and it picks from the pool with a hash of the seed and the start tick, with no repeat of the last pick (D-935). The simulation version is 16.
-- Game holds the events of the fight for the 60 ticks of the transition. The fight then fades in from the cover color, and after a win or a flee the map fades back in before the wait intent (D-522, D-938, D-939).
-- The pass of the hand-off draws last in the frame, above the UI. The budget counts one transition pass on every map (D-523, D-923).
-- Added eleven captures: each look halfway through, and the color split at the reduced level, where the fade takes its place (D-863). The author read each frame of `make sheet FIXTURE=transition`, and reworked the snow whiteout, which read as static.
-- Committed 25 baselines from the artifact of CI run 35878686156 (D-733): the 11 transition captures and the 14 battle captures. The fixture fight now reaches its first command 80 ticks later, after the transition and the fade, so the drift of the backdrop and the fog moved. The author read the old and new frames, and no other part changed. The whole artifact of 85 captures matches the committed baseline.
-- Answered the Gitar pass on `f2ac63d`: one finding and one CI claim. The finding had full merit: a fight that starts on the tick after the wait intent, in the same frame, met the phase `Waiting` and threw. The run now leaves the fight inside the tick loop, and `AFightOnTheTickAfterTheWaitIntentStartsItsTransition` fails on the old code. The CI claim named the review-gate fault of the absent review record, which `make codex-review PR=64` writes (D-926), and a PR comment answers it.
-- The Gitar pass on `875fe53` approved the head, with the one finding closed and its thread resolved. Its CI analysis named the same `review-gate` fault of the absent record, and a second PR comment answers it. Every other job of `875fe53` passed.
-- The owner asked how a player sees the count of the enemies of a fight. The battle screen draws no waiting enemy and no count (D-758, D-778). OQ-242 holds the question, at the request of the owner.
-
-### The state of the build
-
-- `main` is `ca8c549`. Round 1 pushed `479bd36`, and CI run 35878686156 failed on the missing baselines alone. Round 2 added OQ-242 and the baselines. Round 3 fixes the finding of the Gitar pass on `f2ac63d`.
-- `make build`, `make test` with 2441 tests, `make format`, `make lint`, `make smoke`, and the STE check pass on this machine.
-
-### What is in flight
-
-- `make codex-review PR=64` on the effective head `875fe53`.
-- The owner set the one concern of the next PR, the rules of the review and merge loop, with two rules. First, before the question of a merge, the author posts a summary in four sections, What, How, CI, and Codex review. CI says green or not, and Codex review gives the verdict: `Ready for owner merge`, `Blocked`, or `Changes required`. The summary sits inside the question block of the merge question, so the owner sees it with the question. The rule revises D-933 in part, the one paragraph, and the transitional prompt of PR-60 names it. Second, when `review-gate` is green and a new commit changes documents alone, `review-gate` stays green, and the PR needs no new review of the other provider. That rule widens the metadata set of D-603 and D-610. The owner chose one PR for both rules.
-
-### Traps and gotchas
-
-- The transition shaders read the frame under them with `hint_screen_texture`, so the pass must stay the last child of the frame viewport.
-- A test set with its own maps needs `EffectFixtures.WithMapsOf`, because each map of the rules belongs to one region (D-936).
-- The party loses the hall fight at the fixture seed, so the test of exit test 4 flees.
-- A change of the length of a transition or of the fade moves every battle capture, because the fixture fight starts later.
-
-### The questions that block progress
-
-None. OQ-242 waits for the owner and blocks nothing in PR-60.
-
-### The next concrete action
-
-Run `make codex-review PR=64` on the effective head `875fe53`, and answer its outcome.
