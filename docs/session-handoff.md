@@ -17,7 +17,7 @@ Session: author PR-60, hand-over. Repository: the-thing-below. Branch: `feat/pr-
 ### What is in flight
 
 - The confirmation of the owner, then the auto-merge of PR #64 (D-930, D-933).
-- After the merge, the transitional prompt of step 6. It names the next PR: the rules of the review and merge loop of Session 237.
+- After the merge, the transitional prompt of step 6. It names the next PR: the rules of the review and merge loop of Session 237. The owner added a third rule to that PR: a PR or a commit of documents alone still gets its Gitar pass, and the author answers each comment and each claim of the pass (D-14, D-66, D-67). Only the review of the other provider is exempt.
 
 ### Traps and gotchas
 
