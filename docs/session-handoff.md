@@ -17,7 +17,7 @@ Session: reviewer PR #67, round 2. Repository: the-thing-below. Branch: `feat/pr
 
 ### What is in flight
 
-- Commit this review record and handoff entry together. Push the metadata commit to `feat/pr-11-evaluator`.
+- The review record and handoff entry are on the PR branch in commit `d0eca6a`. The fresh review-gate check is pending.
 - The owner needs the Steam Deck measurement from `make evaluator-cost` (D-961). The author needs to answer the existing Gitar comment.
 
 ### Traps and gotchas
@@ -31,7 +31,7 @@ OQ-243 applies to PR-98 alone (D-951 to D-954). The Steam Deck measurement and t
 
 ### The next concrete action
 
-Commit and push the record with this entry. Then verify the remote head and the review-gate result.
+Read the fresh review-gate result. The owner needs to supply the Deck measurement and the author needs to answer the Gitar comment.
 
 ## Session 248: 2026-09-23, Claude Code
 
