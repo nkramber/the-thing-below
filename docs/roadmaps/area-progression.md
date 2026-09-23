@@ -20,7 +20,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 
 | # | Finding | Binds |
 |---|---|---|
-| F-7 | A fallen character stays down until a hub, and three fight | PR-67: half experience for the reserve and the downed (D-73, D-387) |
+| F-7 | A fallen character stays down until a hub, and three fight | PR-67: half experience for the reserve, and none for the downed (D-73, D-974) |
 | F-8 | A caster with empty MP had no action | PR-67: MP and its recovery, with the basic attack of D-359 |
 | F-54 | The end of the job system left the stats with no source | PR-67: a stat curve for each character (D-537) |
 
@@ -32,15 +32,15 @@ Each part below says how one part of the build works, which decisions set it, an
 
 Built by PR-67. Phase file: `phase-2-first-playable.md`.
 
-- A character gains experience from each battle won, and the character level follows it (D-34).
-- A character in reserve earns half, and a downed character earns half (D-73, D-387).
-- The experience from an enemy shrinks as the party outlevels it, which is a soft cap for each region (D-388). OQ-136 holds the numbers.
+- A character gains experience from each battle won, and the character level follows it (D-34). One table in the rules file gives the experience of each of the 40 levels (D-971, D-972).
+- A character in reserve earns half, and a downed character earns none (D-73, D-974).
+- The experience from an enemy shrinks as a character outlevels it, which is a soft cap for each region (D-388). A cut for each level ends in zero past a gap (D-968), and the shrink reads the level of each character (D-969).
 - A character who joins late starts at a set level in content (D-363).
 - The level raises the stats through the curve of section 7.3, and it raises the lesson slots of section 7.4 (D-356).
-- A level up plays its sting (D-422).
-- A property test proves that the experience from one enemy falls as the level of the party rises (D-388, the exit tests of PR-67). OQ-136 holds whether a floor or a gap ends the fall.
+- A level-up fills the health and the MP (D-973), and it plays its sting (D-422).
+- A property test proves that the experience from one enemy falls as the level of a character rises, to zero past the gap (D-388, D-968, the exit tests of PR-67).
 
-> *In plain English:* a fight makes each character stronger, and the people who wait or fall behind still learn a little. The same weak enemies soon give almost nothing.
+> *In plain English:* a fight makes each character stronger, and the people who wait still learn a little. A fallen character learns nothing from that fight. The same weak enemies soon give nothing.
 
 ### 7.2 MP and its recovery
 
@@ -51,7 +51,7 @@ Built by PR-67. Phase file: `phase-2-first-playable.md`.
 - A save point restores no health, so health stays the scarce resource inside a dungeon (D-389).
 - Every character can attack with the weapon in hand, so an empty MP pool never leaves a dead turn (D-359, F-8).
 - A fresh character from the reserve brings its own MP at a save point, and the balance of D-35 must hold with it (D-356).
-- OQ-135 holds how much MP a save point and a rest restore.
+- A rest at a hub fills health and MP, and a save point fills MP alone (D-967). PR-67 adds the two rules, and PR-16 and PR-14 wire them (D-970).
 
 > *In plain English:* spells run on MP, and MP is scarce until you reach a town. A caster with an empty pool can still swing a weapon.
 
@@ -64,7 +64,7 @@ Built by PR-67. Phase file: `phase-2-first-playable.md`.
 - The cast reads as people before any gear, so one character is tough and another is frail (D-33, D-537).
 - The death of Elio costs a shape that no other character holds, and the replacement brings a curve of its own (D-270, D-321).
 - Every number in a curve is an integer, and content writes each rate in basis points (D-169, G-2).
-- OQ-134 holds the shape of a curve.
+- A curve holds one row for each of the 40 levels (D-966, D-972).
 - PR-30 balances the eight curves against the M-4 band and the bands of PR-90 (G-14, D-299, D-822).
 
 > *In plain English:* each person in the cast grows on their own line: some take blows, some cast, some move first. That difference exists before anybody equips anything.
@@ -241,9 +241,9 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 
 The register is `docs/questions.md` (D-19). These questions block progression PRs, and each PR asks its questions when it starts (D-487):
 
-- OQ-134: the shape of a stat curve. Blocks PR-67.
-- OQ-135: the MP that a save point and a rest restore. Blocks PR-67.
-- OQ-136: the shrink of the experience of an enemy. Blocks PR-67.
+- OQ-134: the shape of a stat curve. Resolved by D-966.
+- OQ-135: the MP that a save point and a rest restore. Resolved by D-967.
+- OQ-136: the shrink of the experience of an enemy. Resolved by D-968 and D-969.
 - OQ-137: the lesson slots at each level. Blocks PR-12.
 - OQ-138: the points that a lesson gains from a battle. Blocks PR-12.
 - OQ-139: two copies of one lesson in one party. Blocks PR-12.

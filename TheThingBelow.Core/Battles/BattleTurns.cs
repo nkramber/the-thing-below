@@ -390,7 +390,7 @@ public static class BattleTurns
 
         if (actor.Place != CombatantPlace.Field)
         {
-            CheckEnd(state, battle, log);
+            CheckEnd(state, battle, context, log);
             return false;
         }
 
@@ -632,7 +632,7 @@ public static class BattleTurns
         }
 
         PushBack(attacker, move.Delay, context);
-        CheckEnd(state, battle, log);
+        CheckEnd(state, battle, context, log);
     }
 
     /// <summary>
@@ -761,7 +761,7 @@ public static class BattleTurns
         }
     }
 
-    private static void CheckEnd(RunState state, Battle battle, List<LogEntry> log)
+    private static void CheckEnd(RunState state, Battle battle, RunContext context, List<LogEntry> log)
     {
         if (battle.Outcome != BattleOutcome.Running)
         {
@@ -772,6 +772,9 @@ public static class BattleTurns
         {
             End(state, battle, BattleOutcome.Won, log);
             state.AddEvent(new BattleEvent(BattleEventKind.Won, new BattleTarget(BattleSide.Party, 0), null, 0));
+
+            // The experience follows the win, so the victory sting plays before a level-up (D-422, D-975).
+            Experience.Award(state, battle, context);
         }
         else if (!AnyStands(battle.Party, false))
         {

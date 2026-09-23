@@ -135,6 +135,24 @@ public static class ScreenCaptures
     /// <summary>The frame of the battle fixture that stages a heavy blow inside its hit-stop, at the full level (D-877, D-880).</summary>
     public const string BattleStopFrame = "heavy-stop-1x";
 
+    /// <summary>The frame of the battle fixture that shows the experience of the win above the head of the character (D-975).</summary>
+    public const string BattleExperienceFrame = "experience-1x";
+
+    /// <summary>The frame of the battle fixture that stages a level-up halfway: the lines rise, and the bars fill (D-975).</summary>
+    public const string BattleLevelUpRiseFrame = "level-up-rise-1x";
+
+    /// <summary>The frame of the battle fixture that stages a level-up after each line settled and the bars filled (D-975).</summary>
+    public const string BattleLevelUpFrame = "level-up-1x";
+
+    /// <summary>The ticks of the experience event that the experience frame shows: its line has settled (D-975).</summary>
+    public const int ExperienceFrameTicks = 14;
+
+    /// <summary>The ticks of the experience event at which the rise frame stages the level-up: three lines show, and the bars fill.</summary>
+    public const int LevelUpRiseTicks = 20;
+
+    /// <summary>The ticks of the experience event at which the settled frame stages the level-up: every line and each bar stand still.</summary>
+    public const int LevelUpSettledTicks = 50;
+
     /// <summary>The ticks after the blow that the blood, the sparks, and each heavy frame show: the burst has spread (D-879).</summary>
     public const int BurstTicksAfterBlow = 8;
 
@@ -294,6 +312,13 @@ public static class ScreenCaptures
             captures.Add(new ScreenCapture(BattleFixture, heavy.Frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         }
 
+        // The summary after the win draws at 1x: the experience, and a staged level-up halfway
+        // and settled (D-975, exit test 8 of PR-67).
+        foreach (string frame in new[] { BattleExperienceFrame, BattleLevelUpRiseFrame, BattleLevelUpFrame })
+        {
+            captures.Add(new ScreenCapture(BattleFixture, frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        }
+
         // Each ambient kind draws on the map and over the backdrop of a fight, at 1x (D-187,
         // D-205, exit test 1 of PR-58). The dust of the fixture dungeon draws in every other
         // capture of the map and of a fight (D-889).
@@ -388,6 +413,39 @@ public static class ScreenCaptures
 
         bool burst = string.CompareOrdinal(frame, BattleBloodFrame) == 0 || string.CompareOrdinal(frame, BattleSparksFrame) == 0;
         return burst || HeavyLevelOf(frame) is not null ? BurstTicksAfterBlow : null;
+    }
+
+    /// <summary>Gives the ticks of the experience event that a frame of the battle fixture shows (D-975).</summary>
+    /// <param name="frame">The name of the frame, such as `experience-1x`.</param>
+    /// <returns>The ticks, or no value for a frame that shows no summary.</returns>
+    public static int? ExperienceTicksOf(string frame)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(frame);
+
+        if (string.CompareOrdinal(frame, BattleExperienceFrame) == 0)
+        {
+            return ExperienceFrameTicks;
+        }
+
+        if (string.CompareOrdinal(frame, BattleLevelUpRiseFrame) == 0)
+        {
+            return LevelUpRiseTicks;
+        }
+
+        return string.CompareOrdinal(frame, BattleLevelUpFrame) == 0 ? LevelUpSettledTicks : null;
+    }
+
+    /// <summary>
+    /// Tells whether a frame of the battle fixture stages a level-up in place of the experience
+    /// that plays. The fixture fight gives 12 experience, below the 20 of level 2 (D-977).
+    /// </summary>
+    /// <param name="frame">The name of the frame.</param>
+    /// <returns>True for the two level-up frames.</returns>
+    public static bool StagesLevelUp(string frame)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(frame);
+
+        return string.CompareOrdinal(frame, BattleLevelUpRiseFrame) == 0 || string.CompareOrdinal(frame, BattleLevelUpFrame) == 0;
     }
 
     /// <summary>Tells whether a frame of the battle fixture stages a heavy blow in place of the blow of the fight (D-877).</summary>

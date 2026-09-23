@@ -60,6 +60,8 @@ public sealed class EnemyRecordTests
     [InlineData("comment")]
     [InlineData("id")]
     [InlineData("size")]
+    [InlineData("level")]
+    [InlineData("experience")]
     [InlineData("health")]
     [InlineData("attack")]
     [InlineData("defense")]
@@ -116,6 +118,9 @@ public sealed class EnemyRecordTests
     [InlineData("[\"ability.fixture_bash\"]", "[\"ability.fixture_bash\", \"ability.fixture_bash\"]", "two times")]
     [InlineData("\"speed\": 80,", "\"speed\": 80, \"magic\": 3,", "magic")]
     [InlineData("\"size\": \"elite\"", "\"size\": \"giant\"", "giant")]
+    [InlineData("\"level\": 3", "\"level\": 0", "outside 1 to 40")]
+    [InlineData("\"level\": 3", "\"level\": 41", "outside 1 to 40")]
+    [InlineData("\"experience\": 20", "\"experience\": -1", "outside 0 to")]
     public void ARecordThatBreaksARuleFailsWithTheFile(string from, string to, string reason)
     {
         string text = TestBattles.BruteFile.Replace(from, to, StringComparison.Ordinal);

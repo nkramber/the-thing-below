@@ -56,6 +56,11 @@ Game terms from the roadmap interview of 2026-09-12:
 | item | a thing in the inventory that is not gear (D-45) | consumable, object |
 | gold | the currency (D-60) | money, coins, gil |
 | character level | the level from experience (D-34) | level, alone |
+| stat curve | the table of the health, the MP, the attack, the defense, and the speed of one character, one row for each level (D-537, D-966) | growth table, stat table |
+| join level | the character level at which a character joins the party (D-363) | start level, recruit level |
+| experience table | the total experience of each character level, one table for every character (D-971) | level table, exp curve |
+| shrink | the cut of the experience of an enemy for each level that a character stands above it (D-388, D-968) | penalty, falloff, share |
+| summary | the text above each head after a won fight: the experience, the level-up, and the stat lines (D-975) | results screen, victory screen |
 | profile | an enemy's personality data (D-65) | personality, brain |
 | enemy record | the content file of one enemy: its body size, its stats, and the ids of its abilities (D-557, D-754, D-786) | enemy definition, monster file, stat block |
 | ability file | the content file that holds each ability id (D-785) | ability table, move list |

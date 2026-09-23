@@ -35,6 +35,10 @@ public static class SaveFormat
     /// older format gains that stream at its first value, from the seed of the header, because
     /// no build before PR-11 drew from it.
     /// </para>
+    /// <para>
+    /// PR-67 raised it to 7. Each character gained its level, its experience, and its MP (D-966).
+    /// A save of an older format starts each character at its join level with full MP (D-363).
+    /// </para>
     /// </remarks>
-    public const int Current = 6;
+    public const int Current = 7;
 }

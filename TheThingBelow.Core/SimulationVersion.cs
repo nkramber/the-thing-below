@@ -39,7 +39,9 @@ public static class SimulationVersion
     /// evaluator chooses the turn of each enemy, with its own stream for a tie, an enemy can strike
     /// with an ability, heal, defend, and step, and the groups and the profiles live in their own
     /// files (D-947, D-955 to D-960). PR-98 raised it to 18: the load refuses a group whose waiting
-    /// column is taller than the field (D-963).
+    /// column is taller than the field (D-963). PR-67 raised it to 19: the stats of a character follow the curve of its
+    /// level, a battle won gives experience with the shrink of each enemy, a level-up fills the health and the MP, and
+    /// the party holds the level, the experience, and the MP (D-966 to D-974).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -47,5 +49,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 18;
+    public const int Current = 19;
 }

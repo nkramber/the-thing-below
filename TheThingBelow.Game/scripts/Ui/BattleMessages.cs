@@ -46,13 +46,13 @@ public static class BattleMessages
     public const string StatusPlace = "status";
 
     /// <summary>
-    /// Gives the line of one event, or no value for a turn or a win. A turn changes only who
-    /// acts, and a win keeps the line of the last event on screen (D-835).
+    /// Gives the line of one event, or no value for a turn, a win, or the summary. A turn changes only who
+    /// acts, a win keeps the line of the last event on screen, and the summary shows above each head (D-835, D-975).
     /// </summary>
     /// <param name="played">The event.</param>
     /// <param name="view">The view, which gives the row of a step after the event.</param>
     /// <param name="strings">The string table, which gives each name.</param>
-    /// <returns>The line, or no value for a turn or a win.</returns>
+    /// <returns>The line, or no value for a turn, a win, or the summary.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="ContentException">The table holds no name of a combatant or of a status (T-2).</exception>
     public static BattleLine? Of(BattleEvent played, BattleView view, StringTable strings)
@@ -65,9 +65,11 @@ public static class BattleMessages
         {
             BattleEventKind.Turn => null,
 
-            // A win shows no line of its own. The last line of the fight stands, and the
-            // summary of the loot and the level-ups of PR-67, PR-13, and PR-65 follows (D-835).
+            // A win shows no line of its own. The last line of the fight stands, and the text of
+            // the summary rises above each head. PR-13 and PR-65 add the loot as lines (D-835, D-975).
             BattleEventKind.Won => null,
+            BattleEventKind.Experience => null,
+            BattleEventKind.LevelUp => null,
             BattleEventKind.Started => Line("battle.started"),
             BattleEventKind.Hit => Line(HitIdOf(played.Affinity), Target(played, view, strings), Amount(played)),
             BattleEventKind.Miss => Line("battle.miss", Actor(played, view, strings)),

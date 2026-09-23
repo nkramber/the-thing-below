@@ -30,7 +30,8 @@ namespace TheThingBelow.Tests;
 /// party, and its migration starts the party of the fixture at full health (D-765). Format 4
 /// predates the statuses, and its migration gives each character and each combatant none (D-792).
 /// Format 5 and older predate the stream of the evaluator, and the migration opens it at its
-/// first value from the seed of the header (D-947).
+/// first value from the seed of the header (D-947). Format 6 and older predate the level, and the
+/// migration starts each character at its join level with full MP (D-363, D-966).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
@@ -207,7 +208,9 @@ public sealed class SaveFixtureTests
 
         PartyMember marrek = Assert.Single(run.State.Characters.Members);
         Assert.Equal("character.marrek", marrek.Record.Id.Value);
-        Assert.Equal(marrek.Record.Health, marrek.Health);
+        Assert.Equal(marrek.Stats.Health, marrek.Health);
+        Assert.Equal(1, marrek.Level);
+        Assert.Equal(marrek.Stats.Mp, marrek.Mp);
         Assert.Equal(3, run.State.Characters.CountOf(ContentId.Parse("item.fixture_draught", "test", "item")));
     }
 
@@ -285,15 +288,55 @@ public sealed class SaveFixtureTests
     }
 
     [Fact]
-    public void TheStoredSaveOfFormatSixReadsTheSameSnapshotAsItsMigratedFormatFive()
+    public void TheStoredSaveOfFormatSixReadsTheSameRunAsItsMigratedFormatFive()
     {
-        // PR-11 wrote format 6 from the migrated snapshot of format 5, so the two read alike.
+        // PR-11 wrote format 6 from the migrated snapshot of format 5, so the two resume alike.
         SaveDocument five = ReadFormat(5);
         SaveDocument six = ReadFormat(6);
 
-        Assert.Equal(RunSnapshotText.Write(five.Snapshot), RunSnapshotText.Write(six.Snapshot));
+        Assert.Equal(RunSnapshotText.Write(ResumeInBattle(five).Snapshot()), RunSnapshotText.Write(ResumeInBattle(six).Snapshot()));
         Assert.Equal(17, six.Header.SimulationVersion);
     }
+
+    [Fact]
+    public void TheStoredSaveOfFormatSixStartsEachCharacterAtItsJoinLevelWithFullMp()
+    {
+        // D-363, D-966: format 6 predates the level, so the migration gives the join level,
+        // the total of that level, and full MP. The health of the save stays.
+        SaveDocument save = ReadFormat(6);
+        CharacterValues stored = Assert.Single(save.Snapshot.Characters!.Characters);
+        Assert.Null(stored.Growth);
+
+        PartyMember marrek = Assert.Single(ResumeInBattle(save).State.Characters.Members);
+
+        Assert.Equal(1, marrek.Level);
+        Assert.Equal(0, marrek.Experience);
+        Assert.Equal(8, marrek.Mp);
+        Assert.Equal(stored.Health, marrek.Health);
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatSevenHoldsTheLevelTheExperienceAndTheMp()
+    {
+        // Exit test 6 of PR-67: the snapshot holds the level, the experience, and the MP.
+        SaveDocument save = ReadFormat(7);
+        Simulation run = ResumeInBattle(save);
+
+        PartyMember marrek = Assert.Single(run.State.Characters.Members);
+        Assert.Equal(2, marrek.Level);
+        Assert.Equal(25, marrek.Experience);
+        Assert.Equal(5, marrek.Mp);
+
+        // The fight that runs reads the stats of level 2 (D-966).
+        Combatant fighter = BattleRuns.BattleOf(run).Party[0];
+        Assert.Equal(TestBattles.MarrekAt(2).Health, fighter.FullHealth);
+        Assert.Equal(TestBattles.MarrekAt(2).Attack, fighter.Attack);
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    private static Simulation ResumeInBattle(SaveDocument save) =>
+        Simulation.Resume(save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, DebugIntentHandlers.None);
+
 
     private static StreamPosition EvaluatorAtFirstValue(ulong seed)
     {

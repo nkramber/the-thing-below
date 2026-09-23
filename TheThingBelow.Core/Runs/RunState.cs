@@ -141,6 +141,7 @@ public sealed class RunState
         }
 
         MapState party = ResumeMap(snapshot, map);
+        PartyState characters = ResumeCharacters(snapshot, battleContent);
         return new RunState(
             seed,
             streams,
@@ -149,8 +150,8 @@ public sealed class RunState
             snapshot.WorldTick,
             party,
             battleContent,
-            ResumeCharacters(snapshot, battleContent),
-            ResumeBattle(snapshot, party, battleContent));
+            characters,
+            ResumeBattle(snapshot, party, characters, battleContent));
     }
 
     private static MapState ResumeMap(RunSnapshot snapshot, GameMap map)
@@ -199,7 +200,7 @@ public sealed class RunState
     }
 
     /// <summary>Gives the battle of a snapshot, which must match the encounter of its map (D-531, T-2).</summary>
-    private static Battle? ResumeBattle(RunSnapshot snapshot, MapState party, BattleContent battleContent)
+    private static Battle? ResumeBattle(RunSnapshot snapshot, MapState party, PartyState characters, BattleContent battleContent)
     {
         if (snapshot.Battle is not BattleValues stored)
         {
@@ -215,7 +216,7 @@ public sealed class RunState
                 nameof(snapshot));
         }
 
-        return Battle.Resume(battleContent, stored, "this run");
+        return Battle.Resume(battleContent, stored, characters, "this run");
     }
 
     /// <summary>Gives the stream of one subsystem (G-4).</summary>

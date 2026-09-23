@@ -59,7 +59,7 @@ public sealed class BattleViewTests
         // D-531: a run that loads a save inside a fight has no event to play.
         Simulation run = BattleRuns.IntoBattle(7, "group.fixture_pair");
         run.TakeBattleEvents();
-        object view = Of(BattleRuns.BattleOf(run));
+        object view = Of(run.State);
 
         AssertMatches(view, run, 7, 0);
     }
@@ -219,8 +219,8 @@ public sealed class BattleViewTests
     private static object AtStart(RunState state) =>
         GameAssemblyFile.Type(ViewTypeName).GetMethod("AtStart")!.Invoke(null, [state])!;
 
-    private static object Of(Battle battle) =>
-        GameAssemblyFile.Type(ViewTypeName).GetMethod("Of")!.Invoke(null, [battle])!;
+    private static object Of(RunState state) =>
+        GameAssemblyFile.Type(ViewTypeName).GetMethod("Of")!.Invoke(null, [state])!;
 
     private static void Apply(object view, BattleEvent played) =>
         view.GetType().GetMethod("Apply")!.Invoke(view, [played]);

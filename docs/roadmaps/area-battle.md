@@ -103,7 +103,7 @@ Built by PR-66. Phase file: `phase-2-first-playable.md`.
 Built by PR-9. Phase file: `phase-2-first-playable.md`.
 
 - A fallen character stays down until a hub or a rare item (D-36). A down is a battle fact, and no story line names it (D-135).
-- A downed character earns half experience, as a character in reserve does (D-73, D-387).
+- A downed character earns no experience, and a character in reserve earns half (D-73, D-974).
 - When every character who fights goes down, the party wipes, even with a healthy reserve (D-336, D-397).
 - A wipe reloads the newer of the slot save and the autosave (D-231). With no save, the run starts again from its start (D-776).
 - The wipe screen drains to dark and shows one terse line, and a press reloads (D-225).

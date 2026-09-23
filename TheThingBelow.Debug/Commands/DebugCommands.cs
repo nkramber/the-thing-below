@@ -25,8 +25,8 @@ namespace TheThingBelow.Debug.Commands;
 /// flee of the battle rules (D-378, D-767).
 /// </para>
 /// <para>
-/// Each later PR that gives the rules a new value adds its own commands here, such as the
-/// health of a character in PR-67 and the story flags of PR-68.
+/// Each later PR that gives the rules a new value can add its own commands here, such as the
+/// story flags of PR-68. PR-67 added the level, the experience, and the MP, and no command.
 /// </para>
 /// </remarks>
 public static class DebugCommands

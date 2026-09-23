@@ -19,13 +19,13 @@ public static class CostFight
     /// <summary>The group of the worst fight.</summary>
     public const string Group = "group.cost_worst";
 
-    private const string FixtureText = """
+    private static readonly string FixtureText = $$"""
     {
      "comment": "The party of the cost fight: three characters.",
      "characters": [
-      { "id": "character.cost_first", "health": 90, "attack": 12, "defense": 4, "speed": 100, "row": "front" },
-      { "id": "character.cost_second", "health": 80, "attack": 10, "defense": 3, "speed": 110, "row": "front" },
-      { "id": "character.cost_third", "health": 70, "attack": 8, "defense": 2, "speed": 120, "row": "back" }
+      { "id": "character.cost_first", "row": "front", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(90, 20, 12, 4, 100))}} },
+      { "id": "character.cost_second", "row": "front", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(80, 20, 10, 3, 110))}} },
+      { "id": "character.cost_third", "row": "back", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(70, 20, 8, 2, 120))}} }
      ],
      "items": [{ "id": "item.cost_draught", "heal": 30, "delay": 100 }],
      "start_party": ["character.cost_first", "character.cost_second", "character.cost_third"],
@@ -38,6 +38,8 @@ public static class CostFight
      "comment": "The enemy of the cost fight, with one move of each kind.",
      "id": "enemy.cost_raider",
      "size": "common",
+     "level": 1,
+     "experience": 10,
      "health": 40,
      "attack": 8,
      "defense": 2,

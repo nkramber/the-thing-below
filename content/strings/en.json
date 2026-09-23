@@ -59,7 +59,7 @@
   },
   {
    "id": "battle.health",
-   "text": "{health}/{full}"
+   "text": "HP {health}/{full}"
   },
   {
    "id": "battle.hit",
@@ -86,8 +86,16 @@
    "text": "{item} x{count}"
   },
   {
+   "id": "battle.level_up",
+   "text": "Level up!"
+  },
+  {
    "id": "battle.miss",
    "text": "{actor} misses."
+  },
+  {
+   "id": "battle.mp",
+   "text": "MP {mp}/{full}"
   },
   {
    "id": "battle.number",
@@ -138,6 +146,26 @@
    "text": "Weapons out."
   },
   {
+   "id": "battle.stat_atk",
+   "text": "ATK"
+  },
+  {
+   "id": "battle.stat_def",
+   "text": "DEF"
+  },
+  {
+   "id": "battle.stat_hp",
+   "text": "HP"
+  },
+  {
+   "id": "battle.stat_mp",
+   "text": "MP"
+  },
+  {
+   "id": "battle.stat_spd",
+   "text": "SPD"
+  },
+  {
    "id": "battle.status_heal",
    "text": "{actor} mends. {amount} back."
   },
@@ -160,6 +188,14 @@
   {
    "id": "battle.step_in",
    "text": "{actor} steps in."
+  },
+  {
+   "id": "battle.summary_experience",
+   "text": "+{amount} XP"
+  },
+  {
+   "id": "battle.summary_gain",
+   "text": "+{amount} {stat}"
   },
   {
    "id": "battle.wiped",

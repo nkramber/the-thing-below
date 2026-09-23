@@ -18,6 +18,16 @@ namespace TheThingBelow.Core.Effects;
 /// </remarks>
 public sealed record ShakeValues(int Ticks, int StepTicks, int Full, int Reduced, int Off);
 
+/// <summary>The pace of the summary after a won fight: the text above each head and the fill of the bars (D-975, D-976).</summary>
+/// <param name="ExperienceTicks">The ticks that the experience of one character holds.</param>
+/// <param name="LevelUpTicks">The ticks that the level-up of one character holds.</param>
+/// <param name="LineTicks">The ticks between the start of one line of a level-up and the next.</param>
+/// <param name="RiseTicks">The ticks that a line takes to slide up and settle.</param>
+/// <param name="RisePixels">The art pixels that a line slides up.</param>
+/// <param name="BouncePixels">The art pixels that a line passes its place before it settles back, the bounce.</param>
+/// <param name="FillTicks">The ticks that the health bar and the MP bar take to fill at a level-up (D-973).</param>
+public sealed record SummaryValues(int ExperienceTicks, int LevelUpTicks, int LineTicks, int RiseTicks, int RisePixels, int BouncePixels, int FillTicks);
+
 /// <summary>
 /// The pace of every fight on screen: the timings and the motions of PR-10, the shake, and the
 /// hit-stop, in ticks and art pixels (D-266, D-829, D-883). No rule reads this file, so it lies
@@ -47,6 +57,9 @@ public sealed class BattleEffects
     /// <summary>The share of the full distance that the reduced level plays: a quarter (D-863).</summary>
     public const int ReducedShare = 4;
 
+    /// <summary>The most lines above a head at a level-up: the level, and one line for each of the five stats (D-975, D-979).</summary>
+    public const int SummaryLines = 6;
+
     private BattleEffects(ReadValues values)
     {
         this.StartTicks = values.Start;
@@ -64,6 +77,7 @@ public sealed class BattleEffects
         this.DriftStepTicks = values.DriftStep;
         this.HitStopTicks = values.HitStop;
         this.Shake = values.Shake;
+        this.Summary = values.Summary;
     }
 
     /// <summary>The ticks that the first line of a fight stands before the next event.</summary>
@@ -111,6 +125,9 @@ public sealed class BattleEffects
     /// <summary>The shake of a heavy blow (D-876, D-877).</summary>
     public ShakeValues Shake { get; }
 
+    /// <summary>The pace of the summary after a won fight (D-975).</summary>
+    public SummaryValues Summary { get; }
+
     /// <summary>Reads the battle file from its bytes.</summary>
     /// <param name="bytes">The bytes of the file, as UTF-8.</param>
     /// <param name="file">The path of the file, under `content/`, for each error (T-2).</param>
@@ -129,6 +146,7 @@ public sealed class BattleEffects
         var fields = new ReadFields();
         string? comment = null;
         ShakeValues? shake = null;
+        SummaryValues? summary = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -137,6 +155,9 @@ public sealed class BattleEffects
             {
                 case "comment":
                     comment = reader.ReadString();
+                    break;
+                case "summary":
+                    summary = ReadSummary(ref reader);
                     break;
                 case "shake":
                     shake = ReadShake(ref reader);
@@ -152,7 +173,7 @@ public sealed class BattleEffects
         }
 
         _ = reader.Require(comment, depth, "comment");
-        ReadValues values = fields.Build(ref reader, depth, reader.Require(shake, depth, "shake"));
+        ReadValues values = fields.Build(ref reader, depth, reader.Require(shake, depth, "shake"), reader.Require(summary, depth, "summary"));
         RefuseLateMoment(ref reader, depth, values);
         return new BattleEffects(values);
     }
@@ -177,7 +198,7 @@ public sealed class BattleEffects
             throw reader.RefuseField(
                 depth,
                 field,
-                $"the moment ends at tick {end} of a strike, after the {fastHold} ticks that a strike holds at the fast message speed (D-873)");
+                $"the moment ends at tick {end} of its event, after the {fastHold} ticks that the event holds at the fast message speed (D-873)");
         }
     }
 
@@ -235,6 +256,66 @@ public sealed class BattleEffects
         return new ShakeValues(length, hold, fullPixels, reducedPixels, offPixels);
     }
 
+    /// <summary>
+    /// Reads the summary, and refuses a motion that ends after the hold of its event at the fast
+    /// message speed, half the hold (D-873, D-975). A level-up shows six lines at most: the
+    /// level and one line for each of the five stats (D-979).
+    /// </summary>
+    private static SummaryValues ReadSummary(ref ContentReader reader)
+    {
+        int? experience = null;
+        int? levelUp = null;
+        int? line = null;
+        int? rise = null;
+        int? risePixels = null;
+        int? bounce = null;
+        int? fill = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "experience_ticks":
+                    experience = reader.ReadInt();
+                    break;
+                case "level_up_ticks":
+                    levelUp = reader.ReadInt();
+                    break;
+                case "line_ticks":
+                    line = reader.ReadInt();
+                    break;
+                case "rise_ticks":
+                    rise = reader.ReadInt();
+                    break;
+                case "rise_pixels":
+                    risePixels = reader.ReadInt();
+                    break;
+                case "bounce_pixels":
+                    bounce = reader.ReadInt();
+                    break;
+                case "fill_ticks":
+                    fill = reader.ReadInt();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        var values = new SummaryValues(
+            InRange(ref reader, depth, "experience_ticks", experience, 2, MostTicks),
+            InRange(ref reader, depth, "level_up_ticks", levelUp, 2, MostTicks),
+            InRange(ref reader, depth, "line_ticks", line, 1, MostTicks),
+            InRange(ref reader, depth, "rise_ticks", rise, 2, MostTicks),
+            InRange(ref reader, depth, "rise_pixels", risePixels, 1, MostPixels),
+            InRange(ref reader, depth, "bounce_pixels", bounce, 0, MostPixels),
+            InRange(ref reader, depth, "fill_ticks", fill, 1, MostTicks));
+        RefuseAfter(ref reader, depth, "rise_ticks", values.RiseTicks, values.ExperienceTicks / 2);
+        RefuseAfter(ref reader, depth, "line_ticks", checked((values.LineTicks * (SummaryLines - 1)) + values.RiseTicks), values.LevelUpTicks / 2);
+        RefuseAfter(ref reader, depth, "fill_ticks", values.FillTicks, values.LevelUpTicks / 2);
+        return values;
+    }
+
     private static int InRange(ref ContentReader reader, int depth, string field, int? value, int least, int most)
     {
         int read = reader.RequireInt(value, depth, field);
@@ -262,7 +343,8 @@ public sealed class BattleEffects
         int Drift,
         int DriftStep,
         int HitStop,
-        ShakeValues Shake);
+        ShakeValues Shake,
+        SummaryValues Summary);
 
     /// <summary>The whole-number fields of the file, which the read fills one at a time.</summary>
     private sealed class ReadFields
@@ -333,7 +415,7 @@ public sealed class BattleEffects
             }
         }
 
-        public ReadValues Build(ref ContentReader reader, int depth, ShakeValues shake) => new(
+        public ReadValues Build(ref ContentReader reader, int depth, ShakeValues shake, SummaryValues summary) => new(
             InRange(ref reader, depth, "start_ticks", this.start, 1, MostTicks),
             InRange(ref reader, depth, "strike_ticks", this.strike, 2, MostTicks),
             InRange(ref reader, depth, "line_ticks", this.line, 1, MostTicks),
@@ -348,6 +430,7 @@ public sealed class BattleEffects
             InRange(ref reader, depth, "drift_pixels", this.drift, 1, MostPixels),
             InRange(ref reader, depth, "drift_step_ticks", this.driftStep, 1, MostTicks),
             InRange(ref reader, depth, "hit_stop_ticks", this.hitStop, 0, MostTicks),
-            shake);
+            shake,
+            summary);
     }
 }

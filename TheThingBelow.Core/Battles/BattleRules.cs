@@ -64,9 +64,11 @@ public sealed class BattleRules
         "shell_cut",
         "shell_ticks",
         "blind_miss",
+        "experience_cut",
+        "experience_gap",
     ];
 
-    private BattleRules(SortedDictionary<string, int> numbers)
+    private BattleRules(SortedDictionary<string, int> numbers, IReadOnlyList<int> levelExperience)
     {
         this.AttackDelay = numbers["attack_delay"];
         this.AttackPower = numbers["attack_power"];
@@ -104,6 +106,9 @@ public sealed class BattleRules
         this.ShellCut = numbers["shell_cut"];
         this.ShellTicks = numbers["shell_ticks"];
         this.BlindMiss = numbers["blind_miss"];
+        this.ExperienceCut = numbers["experience_cut"];
+        this.ExperienceGap = numbers["experience_gap"];
+        this.LevelExperience = levelExperience;
     }
 
     /// <summary>The delay of the basic attack, in ticks at speed 100 (D-359, D-757).</summary>
@@ -214,6 +219,18 @@ public sealed class BattleRules
     /// <summary>The miss chance that blind adds after the clamp (D-806).</summary>
     public int BlindMiss { get; }
 
+    /// <summary>The part of the experience of an enemy that each level of a character above the enemy cuts (D-968).</summary>
+    public int ExperienceCut { get; }
+
+    /// <summary>The most levels that a character can stand above an enemy and still earn from it (D-968).</summary>
+    public int ExperienceGap { get; }
+
+    /// <summary>
+    /// The total experience of each character level, from level 1 to <see cref="StatCurve.HighestLevel"/>
+    /// (D-971, D-972). Level 1 takes zero, and each level takes more than the level before it.
+    /// </summary>
+    public IReadOnlyList<int> LevelExperience { get; }
+
     /// <summary>Reads the rules file, and checks every number (T-2).</summary>
     /// <param name="bytes">The bytes of the file.</param>
     /// <param name="file">The path of the file, for an error.</param>
@@ -224,6 +241,7 @@ public sealed class BattleRules
         var reader = new ContentReader(bytes, file);
         var numbers = new SortedDictionary<string, int>(StringComparer.Ordinal);
         string? comment = null;
+        List<int>? levelExperience = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -231,6 +249,10 @@ public sealed class BattleRules
             if (string.CompareOrdinal(field, "comment") == 0)
             {
                 comment = reader.ReadString();
+            }
+            else if (string.CompareOrdinal(field, "level_experience") == 0)
+            {
+                levelExperience = ReadLevelExperience(ref reader);
             }
             else if (Array.IndexOf(Fields, field) >= 0)
             {
@@ -251,9 +273,43 @@ public sealed class BattleRules
             }
         }
 
+        List<int> table = reader.Require(levelExperience, depth, "level_experience");
         reader.ReadFileEnd();
         CheckRanges(numbers, file);
-        return new BattleRules(numbers);
+        return new BattleRules(numbers, table);
+    }
+
+    /// <summary>
+    /// Reads the experience table: one total for each level, from zero at level 1, each total
+    /// above the one before it (D-971, D-972).
+    /// </summary>
+    private static List<int> ReadLevelExperience(ref ContentReader reader)
+    {
+        List<int> totals = [];
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, totals.Count))
+        {
+            int total = reader.ReadInt();
+            int level = totals.Count + 1;
+            if (level == 1 && total != 0)
+            {
+                throw reader.Refuse($"level 1 takes the total {total}, and a character at level 1 holds no experience (D-971)");
+            }
+
+            if (level > 1 && (total <= totals[^1] || total > BattleFixture.MostStat))
+            {
+                throw reader.Refuse($"level {level} takes the total {total}, and each total is above the total of the level before it ({totals[^1]}) and at most {BattleFixture.MostStat} (D-971)");
+            }
+
+            totals.Add(total);
+        }
+
+        if (totals.Count != StatCurve.HighestLevel)
+        {
+            throw reader.Refuse($"the table holds {totals.Count} totals, and it holds one total for each level from 1 to {StatCurve.HighestLevel} (D-971, D-972)");
+        }
+
+        return totals;
     }
 
     private static void CheckRanges(SortedDictionary<string, int> numbers, string file)
@@ -294,6 +350,8 @@ public sealed class BattleRules
         CheckRange(numbers, file, "shell_cut", 0, BasisPoints.One);
         CheckRange(numbers, file, "shell_ticks", 1, MostTicks);
         CheckRange(numbers, file, "blind_miss", 0, BasisPoints.One);
+        CheckRange(numbers, file, "experience_cut", 0, BasisPoints.One);
+        CheckRange(numbers, file, "experience_gap", 0, StatCurve.HighestLevel - 1);
     }
 
     private static void CheckRange(SortedDictionary<string, int> numbers, string file, string field, int lowest, int highest)

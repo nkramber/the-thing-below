@@ -571,7 +571,7 @@ Area files: `area-battle.md` section 7.10, `area-ui-input.md` sections 7.1 and 7
 - The fixture backdrop of PR-55 behind every fight, with its sway (D-205, D-831).
 - The hit flash as a `.gdshader` file of the Game project, which never uses the normal map member (D-183, D-825, the external facts of `area-effects.md`).
 - The pace of the screen: each event plays for a count of ticks, and each timing is a constant of Game (D-829).
-- A win shows no line of its own, and the summary of PR-67 follows the fight (D-835). The step reads "Back up" or "Step forward" from the row of the actor (D-836).
+- A win shows no line of its own, and the summary of PR-67 rises above each head (D-835, D-975). The step reads "Back up" or "Step forward" from the row of the actor (D-836).
 - The fixture art: Marrek with an idle frame and an attack pose, the grunt, and the brute (D-828).
 - The 18 icons of the elements and the statuses, and a check of the palette color of each (D-214, D-811). The icon of each status shows beside the health of its holder (D-830).
 
@@ -1205,37 +1205,44 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
 **Scope.**
 
-- The character level from experience, and half experience for the reserve and for a downed character (D-34, D-73, D-387).
-- The shrink of the experience of an enemy as the party outlevels it (D-388, OQ-136).
-- The start level of a character who joins late, from content (D-363).
-- MP, and its recovery at a hub, at a save point once for the place, and from scarce items (D-42, D-389, D-555).
-- The stat curve of each character in content: the health, the MP, the attack, the defense, and the speed at each level (D-537, F-54).
+- The character level from experience, with one table of experience for each level (D-34, D-971, D-972). A character in reserve earns half, and a downed character earns none (D-73, D-974). No reserve exists before the join step of PR-68, so the half of the reserve is a rule with its unit test.
+- The shrink of the experience of an enemy: a cut for each level above the enemy, and zero past a gap (D-388, D-968, D-969).
+- The join level of each character in content (D-363). The join step of PR-68 reads it.
+- MP from the curve of each character. A rule of the party fills MP at a save point, and a rule fills health and MP at a hub (D-967, D-970).
+- The stat curve of Marrek in content, with one row for each of the 40 levels (D-537, D-966, D-972, D-977, F-54).
+- A level-up, which fills the health and the MP of the character (D-973).
 - The level-up sting event, which PR-70 plays (D-422).
-- The summary after a fight: the experience and each level-up. PR-13 and PR-65 add their loot to it (D-835).
+- The summary after a won fight, as text above each character on the battle screen (D-835, D-975).
+- The health bar and the MP bar under each character (D-976).
 
 **Out of scope.**
 
-- The lessons, the slots, and the aptitudes (PR-12).
+- The lessons, the slots, the aptitudes, and each rite that spends MP (PR-12).
+- The wire of the save point to its place, and the rest at a hub (PR-16, PR-14, D-970).
+- The scarce items that restore MP, and the loot lines after the summary (PR-13, PR-65).
+- The curves of Bergit and Dagvar (PR-17).
 - The balance of the eight curves (PR-30, D-299).
 
 **Exit tests.**
 
-1. A property test proves that the experience from one enemy falls as the level of the party rises (D-388).
-2. A character in reserve and a downed character each earn half (D-73, D-387).
-3. A save point restores MP once for the place, and no health (D-389, D-555).
-4. A curve with a number that is not an integer fails the load (G-2, D-169).
+1. A property test proves that the experience of an enemy falls to zero as a character rises (D-388, D-968).
+2. A character in reserve earns half, and a downed character earns none (D-73, D-974).
+3. The rule of a save point fills MP and no health, and the rule of a rest fills both (D-967, D-970).
+4. A curve fails the load with a fraction, a missing level, or a falling stat (G-2, D-169, D-966).
 5. A character who joins late starts at the level that content names (D-363).
 6. The snapshot holds the level, the experience, and the MP of each character.
+7. A level-up fills the health and the MP, and it raises the sting event (D-422, D-973).
+8. A screen-test fixture shows the text above a head and the bars of the party (D-975, D-976, F-23).
 
 **Review focus.**
 
-- The answer of OQ-134 sets the shape of a curve, and each rate stays in basis points (D-169).
-- The answer of OQ-135 sets the MP that a save point and a rest restore.
-- The curves differ from each other, so the cast reads as people before any gear (D-33, D-537).
+- The content holds each number of D-977, and each rate stays in basis points (D-169).
+- The simulation version rises, and the save format reads each older format (G-17, D-166).
+- The author read each frame of the summary with `make sheet` (D-784).
 
-**Questions.** OQ-134, OQ-135, and OQ-136.
+**Questions.** OQ-134, OQ-135, OQ-136, and OQ-244, resolved by D-966 to D-969.
 
-> *In plain English:* a fight makes each character stronger, and the people who wait or fall behind still learn a little. Each person grows on their own line.
+> *In plain English:* a fight makes each character stronger, and the people who wait still learn a little. A fallen character learns nothing from that fight. The numbers of the new experience and each gain rise above each head after a win.
 
 ### 7.29 PR-62: the menu windows and the dungeon map screen
 
@@ -1417,7 +1424,7 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 - The pack, with a small fixed number of each item (D-382, OQ-142).
 - The item use on a turn, which restores less in a fight than outside one (D-382).
 - The steal action: the roll, the Theft term, the clamp, the failure that costs the turn, and the stolen entry in the pack (D-949, D-950).
-- The items that a fight gives, on the summary after the fight of PR-67 (D-835).
+- The items that a fight gives, as message lines after the summary of PR-67 (D-835, D-975).
 - The find over the stack limit, which stays in its chest and which the save records (D-385).
 - The gear window and the item window in the stack of PR-62.
 
@@ -1528,7 +1535,7 @@ Area file: `area-exploration.md` section 7.12.
 **Scope.**
 
 - The gold economy: gold from enemies and from treasure, which buys gear, items, and rest (D-60).
-- The gold that a fight gives, on the summary after the fight of PR-67 (D-835).
+- The gold that a fight gives, as a message line after the summary of PR-67 (D-835, D-975).
 - The shop screen in the window stack of PR-62.
 - The shop stock in content, with its prices and its buy-back rule (D-60, OQ-121).
 - A shop that sells a lesson too (D-365).
@@ -2364,9 +2371,9 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-131 | How the screen shows the health of an enemy, resolved by D-826 | PR-10 |
 | OQ-132 | A group larger than its rows. Resolved by D-758 | PR-9 and PR-11 |
 | OQ-133 | The flee chance and the grace time. Resolved by D-748 and D-763 | PR-9 |
-| OQ-134 | The shape of a stat curve | PR-67 |
-| OQ-135 | The MP that a save point and a rest restore | PR-67 |
-| OQ-136 | The shrink of the experience of an enemy | PR-67 |
+| OQ-134 | The shape of a stat curve. Resolved by D-966 | PR-67 |
+| OQ-135 | The MP that a save point and a rest restore. Resolved by D-967 | PR-67 |
+| OQ-136 | The shrink of the experience of an enemy. Resolved by D-968 and D-969 | PR-67 |
 | OQ-137 | The lesson slots at each level | PR-12 |
 | OQ-138 | The points that a lesson gains from a battle | PR-12 |
 | OQ-139 | Two copies of one lesson in one party | PR-12 |

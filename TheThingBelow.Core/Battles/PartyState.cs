@@ -10,29 +10,51 @@ namespace TheThingBelow.Core.Battles;
 /// <param name="Health">The health now. Zero is a down (D-36).</param>
 /// <param name="Row">The row now (D-558).</param>
 /// <param name="Statuses">Poison, blind, and silence, in the order of D-75, which last past a fight (D-390, D-792).</param>
-public sealed record CharacterValues(ContentId Character, int Health, BattleRow Row, IReadOnlyList<StatusKind> Statuses);
+/// <param name="Growth">The level, the experience, and the MP, from save format 7 (D-966). Null in a snapshot of an older format, and the resume then starts the character at its join level with full MP (D-166, D-363).</param>
+public sealed record CharacterValues(ContentId Character, int Health, BattleRow Row, IReadOnlyList<StatusKind> Statuses, GrowthValues? Growth);
+
+/// <summary>The stored level, experience, and MP of one character (D-34, D-42, D-966).</summary>
+/// <param name="Level">The character level, from 1 to 40 (D-972).</param>
+/// <param name="Experience">The total experience, which gives the level through the table of the rules (D-971).</param>
+/// <param name="Mp">The MP now, from zero to the full MP of the level (D-42).</param>
+public sealed record GrowthValues(int Level, int Experience, int Mp);
 
 /// <summary>The stored count of one item of the pack (D-775).</summary>
 /// <param name="Item">The id of the item.</param>
 /// <param name="Count">The count now.</param>
 public sealed record PackValues(ContentId Item, int Count);
 
-/// <summary>One character of the party, with the health and the row that last between battles (D-36, D-765).</summary>
+/// <summary>One character of the party, with the level, the health, the MP, and the row that last between battles (D-34, D-36, D-42, D-765).</summary>
 public sealed class PartyMember
 {
-    internal PartyMember(CharacterRecord record, int health, BattleRow row, IReadOnlyList<StatusKind> statuses)
+    internal PartyMember(CharacterRecord record, GrowthValues growth, int health, BattleRow row, IReadOnlyList<StatusKind> statuses)
     {
         this.Record = record;
+        this.Level = growth.Level;
+        this.Experience = growth.Experience;
+        this.Mp = growth.Mp;
         this.Health = health;
         this.Row = row;
         this.Statuses = statuses;
     }
 
-    /// <summary>The fixed stats of the character (D-765).</summary>
+    /// <summary>The join level and the stat curve of the character (D-363, D-966).</summary>
     public CharacterRecord Record { get; }
 
-    /// <summary>The health now, from zero to the full health of the record.</summary>
+    /// <summary>The character level, from 1 to 40 (D-34, D-972).</summary>
+    public int Level { get; private set; }
+
+    /// <summary>The total experience, which gives the level (D-971).</summary>
+    public int Experience { get; private set; }
+
+    /// <summary>The stats of the level now (D-966).</summary>
+    public StatRow Stats => this.Record.At(this.Level);
+
+    /// <summary>The health now, from zero to the full health of the level.</summary>
     public int Health { get; internal set; }
+
+    /// <summary>The MP now, from zero to the full MP of the level (D-42). PR-12 gives the rites that spend it.</summary>
+    public int Mp { get; internal set; }
 
     /// <summary>The row now, which the next battle starts from (D-558).</summary>
     public BattleRow Row { get; internal set; }
@@ -42,11 +64,54 @@ public sealed class PartyMember
 
     /// <summary>True while the character is down, which lasts until a hub or a rare item (D-36).</summary>
     public bool Down => this.Health == 0;
+
+    /// <summary>Gives the start values of a character who joins: the join level, the total of that level, and full MP (D-363, D-971).</summary>
+    /// <param name="record">The character.</param>
+    /// <param name="rules">The rules, which hold the experience table.</param>
+    /// <returns>The values.</returns>
+    internal static GrowthValues JoinValues(CharacterRecord record, BattleRules rules) =>
+        new(record.JoinLevel, rules.LevelExperience[record.JoinLevel - 1], record.At(record.JoinLevel).Mp);
+
+    /// <summary>
+    /// Adds experience, to the total of the highest level at most (D-972). A new level fills the
+    /// health and the MP (D-973).
+    /// </summary>
+    /// <param name="earned">The experience of the battle, above zero.</param>
+    /// <param name="rules">The rules, which hold the experience table.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <returns>The experience added, which is less than the earned experience at the top of the table.</returns>
+    /// <exception cref="SimulationException">The character is down, which earns no experience (D-974, T-2).</exception>
+    internal int Gain(int earned, BattleRules rules, RunContext context)
+    {
+        if (this.Down)
+        {
+            throw new SimulationException($"the down character '{this.Record.Id.Value}' gains {earned} experience, and a down earns none (D-974)", context);
+        }
+
+        int most = rules.LevelExperience[^1];
+        int before = this.Experience;
+        this.Experience = (int)Math.Min((long)this.Experience + earned, most);
+        int level = Battles.Experience.LevelOf(this.Experience, rules);
+        if (level > this.Level)
+        {
+            this.Level = level;
+            this.Fill();
+        }
+
+        return this.Experience - before;
+    }
+
+    /// <summary>Fills the health and the MP to the full values of the level (D-967, D-973).</summary>
+    internal void Fill()
+    {
+        this.Health = this.Stats.Health;
+        this.Mp = this.Stats.Mp;
+    }
 }
 
 /// <summary>
 /// The characters of the party and their pack, which last between battles (D-36, D-765,
-/// D-775). The snapshot holds them from save format 4, and the statuses that last from save format 5 (D-792).
+/// D-775). The snapshot holds them from save format 4, the statuses that last from save format 5 (D-792), and the level, the experience, and the MP from save format 7 (D-966).
 /// </summary>
 public sealed class PartyState
 {
@@ -77,7 +142,7 @@ public sealed class PartyState
         foreach (ContentId id in content.Fixture.StartParty)
         {
             CharacterRecord record = content.Character(id);
-            members.Add(new PartyMember(record, record.Health, record.Row, []));
+            members.Add(new PartyMember(record, PartyMember.JoinValues(record, content.Rules), record.At(record.JoinLevel).Health, record.Row, []));
         }
 
         List<PackValues> pack = [];
@@ -118,10 +183,13 @@ public sealed class PartyState
         {
             ArgumentNullException.ThrowIfNull(stored);
             CharacterRecord record = content.Character(stored.Character);
+            GrowthValues growth = stored.Growth ?? PartyMember.JoinValues(record, content.Rules);
+            CheckGrowth(record, growth, content.Rules, source);
+            StatRow full = record.At(growth.Level);
             Refuse(
-                stored.Health < 0 || stored.Health > record.Health,
+                stored.Health < 0 || stored.Health > full.Health,
                 source,
-                $"the character '{record.Id.Value}' holds the health {stored.Health}, and the range is 0 to {record.Health}");
+                $"the character '{record.Id.Value}' holds the health {stored.Health}, and the range at level {growth.Level} is 0 to {full.Health}");
             foreach (PartyMember earlier in members)
             {
                 Refuse(
@@ -131,7 +199,7 @@ public sealed class PartyState
             }
 
             CheckStatuses(stored, source);
-            members.Add(new PartyMember(record, stored.Health, stored.Row, stored.Statuses));
+            members.Add(new PartyMember(record, growth, stored.Health, stored.Row, stored.Statuses));
         }
 
         List<PackValues> items = [];
@@ -171,7 +239,7 @@ public sealed class PartyState
         List<CharacterValues> values = [];
         foreach (PartyMember member in this.members)
         {
-            values.Add(new CharacterValues(member.Record.Id, member.Health, member.Row, member.Statuses));
+            values.Add(new CharacterValues(member.Record.Id, member.Health, member.Row, member.Statuses, new GrowthValues(member.Level, member.Experience, member.Mp)));
         }
 
         return values;
@@ -205,7 +273,10 @@ public sealed class PartyState
         foreach (PartyMember member in this.members)
         {
             hasher.AddText(member.Record.Id.Value);
+            hasher.AddInt32(member.Level);
+            hasher.AddInt32(member.Experience);
             hasher.AddInt32(member.Health);
+            hasher.AddInt32(member.Mp);
             hasher.AddInt32((int)member.Row);
             hasher.AddInt32(member.Statuses.Count);
             foreach (StatusKind status in member.Statuses)
@@ -219,6 +290,31 @@ public sealed class PartyState
         {
             hasher.AddText(entry.Item.Value);
             hasher.AddInt32(entry.Count);
+        }
+    }
+
+    /// <summary>
+    /// The restore of a save point: each character gets full MP, and no health (D-389, D-967).
+    /// PR-16 calls it once for each place, until a story event reopens the place (D-555, D-970).
+    /// </summary>
+    public void RestoreAtSavePoint()
+    {
+        foreach (PartyMember member in this.members)
+        {
+            member.Mp = member.Stats.Mp;
+        }
+    }
+
+    /// <summary>
+    /// The rest at a hub: each character gets full health and full MP, a down character stands
+    /// again, and poison, blind, and silence end (D-36, D-390, D-967). PR-14 calls it (D-970).
+    /// </summary>
+    public void RestAtHub()
+    {
+        foreach (PartyMember member in this.members)
+        {
+            member.Fill();
+            member.Statuses = [];
         }
     }
 
@@ -262,6 +358,31 @@ public sealed class PartyState
             Refuse((int)status <= last, source, $"the statuses of '{who}' repeat or leave the order of D-75");
             last = (int)status;
         }
+    }
+
+    /// <summary>Refuses a stored level that no run can make: a level outside the curve, an experience outside the table or of another level, or MP outside the range of the level (D-363, D-971, D-972).</summary>
+    private static void CheckGrowth(CharacterRecord record, GrowthValues growth, BattleRules rules, string source)
+    {
+        string who = record.Id.Value;
+        int most = rules.LevelExperience[^1];
+        Refuse(
+            growth.Level < 1 || growth.Level > StatCurve.HighestLevel,
+            source,
+            $"the character '{who}' holds level {growth.Level}, and the range is 1 to {StatCurve.HighestLevel} (D-972)");
+        Refuse(
+            growth.Experience < 0 || growth.Experience > most,
+            source,
+            $"the character '{who}' holds the experience {growth.Experience}, and the range is 0 to {most} (D-972)");
+        int level = Experience.LevelOf(growth.Experience, rules);
+        Refuse(
+            level != growth.Level,
+            source,
+            $"the character '{who}' holds level {growth.Level} with the experience {growth.Experience}, which gives level {level} (D-971)");
+        int fullMp = record.At(growth.Level).Mp;
+        Refuse(
+            growth.Mp < 0 || growth.Mp > fullMp,
+            source,
+            $"the character '{who}' holds the MP {growth.Mp}, and the range at level {growth.Level} is 0 to {fullMp}");
     }
 
     private static void Refuse(bool broken, string source, string reason)

@@ -1,5 +1,5 @@
 {
- "comment": "The pace of every fight on screen, in ticks of 60 to a second and in art pixels (D-266, D-829, D-883). The timings of PR-10 keep their values. A strike holds 44 ticks at normal, 66 at slow, and 22 at fast, and the blow, the hit-stop, the flash, and the shake keep their own ticks at each speed, so each one ends inside 22 ticks (D-873). A heavy blow, a hit on a weakness, freezes the picture at the blow and shakes the battle picture from side to side (D-876, D-877, D-880). The reduced level shakes a quarter of the full distance, the off level plays no shake, and the hit-stop plays at each level (D-863).",
+ "comment": "The pace of every fight on screen, in ticks of 60 to a second and in art pixels (D-266, D-829, D-883). The timings of PR-10 keep their values. A strike holds 44 ticks at normal, 66 at slow, and 22 at fast, and the blow, the hit-stop, the flash, and the shake keep their own ticks at each speed, so each one ends inside 22 ticks (D-873). A heavy blow, a hit on a weakness, freezes the picture at the blow and shakes the battle picture from side to side (D-876, D-877, D-880). The reduced level shakes a quarter of the full distance, the off level plays no shake, and the hit-stop plays at each level (D-863). After a won fight, the text of the summary slides up above each head with a bounce, one line after another, and the bars of a level-up fill (D-975, D-976).",
  "start_ticks": 40,
  "strike_ticks": 44,
  "line_ticks": 32,
@@ -14,5 +14,6 @@
  "drift_pixels": 2,
  "drift_step_ticks": 45,
  "hit_stop_ticks": 6,
- "shake": { "ticks": 12, "step_ticks": 2, "full": 4, "reduced": 1, "off": 0 }
+ "shake": { "ticks": 12, "step_ticks": 2, "full": 4, "reduced": 1, "off": 0 },
+ "summary": { "experience_ticks": 60, "level_up_ticks": 120, "line_ticks": 8, "rise_ticks": 10, "rise_pixels": 12, "bounce_pixels": 3, "fill_ticks": 40 }
 }

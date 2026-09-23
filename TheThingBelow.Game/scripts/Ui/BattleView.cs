@@ -39,8 +39,8 @@ public sealed class ShownCombatant
     /// <summary>The content id of the character or of the enemy, such as `enemy.fixture_grunt`.</summary>
     public ContentId Id { get; }
 
-    /// <summary>The full health of the combatant.</summary>
-    public int FullHealth { get; }
+    /// <summary>The full health of the combatant, which a level-up raises (D-973).</summary>
+    public int FullHealth { get; internal set; }
 
     /// <summary>The health that the screen shows.</summary>
     public int Health { get; internal set; }
@@ -54,6 +54,27 @@ public sealed class ShownCombatant
     /// <summary>The statuses that the screen shows, in the order of <see cref="Core.Battles.Statuses.All"/>.</summary>
     public IReadOnlyList<StatusKind> Statuses => this.statuses;
 
+    /// <summary>The join level and the curve of a character, and no value for an enemy (D-966).</summary>
+    public CharacterRecord? Record { get; private set; }
+
+    /// <summary>The level of a character, and zero for an enemy (D-34).</summary>
+    public int Level { get; private set; }
+
+    /// <summary>The MP of a character, and zero for an enemy (D-42).</summary>
+    public int Mp { get; internal set; }
+
+    /// <summary>The full MP of a character, and zero for an enemy (D-42).</summary>
+    public int FullMp { get; private set; }
+
+    /// <summary>The level before the last level-up, which the stat lines of the summary read (D-975).</summary>
+    public int LevelBefore { get; private set; }
+
+    /// <summary>The health before the last level-up, where the fill of the bar starts (D-975).</summary>
+    public int HealthBefore { get; private set; }
+
+    /// <summary>The MP before the last level-up, where the fill of the bar starts (D-975).</summary>
+    public int MpBefore { get; private set; }
+
     internal void Put(StatusKind status)
     {
         if (!this.statuses.Contains(status))
@@ -66,6 +87,32 @@ public sealed class ShownCombatant
     internal void Remove(StatusKind status) => this.statuses.Remove(status);
 
     internal void RemoveAll() => this.statuses.Clear();
+
+    /// <summary>Gives the combatant the level and the MP of a character (D-966).</summary>
+    internal void Grow(CharacterRecord record, int level, int mp)
+    {
+        this.Record = record;
+        this.Level = level;
+        this.LevelBefore = level;
+        this.Mp = mp;
+        this.FullMp = record.At(level).Mp;
+    }
+
+    /// <summary>Raises the character to a new level, and fills its health and its MP (D-973).</summary>
+    internal void LevelUp(int level)
+    {
+        CharacterRecord record = this.Record ?? throw new InvalidOperationException(
+            $"The battle screen raises '{this.Id.Value}' to level {level}, and only a character holds a level (D-34, T-2).");
+        StatRow stats = record.At(level);
+        this.LevelBefore = this.Level;
+        this.HealthBefore = this.Health;
+        this.MpBefore = this.Mp;
+        this.Level = level;
+        this.FullHealth = stats.Health;
+        this.FullMp = stats.Mp;
+        this.Health = stats.Health;
+        this.Mp = stats.Mp;
+    }
 }
 
 /// <summary>
@@ -132,6 +179,7 @@ public sealed class BattleView
                 member.Row,
                 member.Down ? CombatantPlace.Down : CombatantPlace.Field,
                 member.Statuses);
+            shownParty[slot].Grow(member.Record, member.Level, member.Mp);
         }
 
         var shownEnemies = new ShownCombatant[battle.Enemies.Count];
@@ -156,14 +204,24 @@ public sealed class BattleView
     /// Builds the view of a fight as it stands now. A run that loads a save inside a fight
     /// has no event to play, so the state is the view (D-531).
     /// </summary>
-    /// <param name="battle">The battle.</param>
+    /// <param name="state">The run, with the battle and the party.</param>
     /// <returns>The view of the battle.</returns>
-    /// <exception cref="ArgumentNullException">The battle is null (T-2).</exception>
-    public static BattleView Of(Battle battle)
+    /// <exception cref="ArgumentNullException">The state is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">No battle runs (T-2).</exception>
+    public static BattleView Of(RunState state)
     {
-        ArgumentNullException.ThrowIfNull(battle);
+        ArgumentNullException.ThrowIfNull(state);
 
-        return new BattleView(ShownOf(battle.Party), ShownOf(battle.Enemies));
+        Battle battle = state.Battle ?? throw new InvalidOperationException(
+            $"The battle screen builds the view of a fight at tick {state.Tick}, and no battle runs (T-2).");
+        ShownCombatant[] party = ShownOf(battle.Party);
+        for (int slot = 0; slot < party.Length; slot += 1)
+        {
+            PartyMember member = state.Characters.Members[slot];
+            party[slot].Grow(member.Record, member.Level, member.Mp);
+        }
+
+        return new BattleView(party, ShownOf(battle.Enemies));
     }
 
     /// <summary>Gives the combatant at one side and one slot.</summary>
@@ -231,9 +289,12 @@ public sealed class BattleView
             case BattleEventKind.StatusOff:
                 actor.Remove(StatusOf(played));
                 return;
+            case BattleEventKind.LevelUp:
+                actor.LevelUp(played.Amount);
+                return;
             default:
                 // A start, a turn, a miss, a defend, a failed flee, an immune status, a sleep,
-                // and the three ends change no value that the screen shows.
+                // the three ends, and the experience change no value that the screen shows.
                 return;
         }
     }

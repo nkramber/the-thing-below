@@ -67,6 +67,12 @@ public enum BattleEventKind
 
     /// <summary>An enemy healed an ally with a move. The amount is the health restored (D-955).</summary>
     Heal,
+
+    /// <summary>A character earned experience from a battle won. The amount is the experience (D-34, D-975).</summary>
+    Experience,
+
+    /// <summary>A character reached a new level, which filled its health and its MP. The amount is the new level. PR-70 plays the sting (D-422, D-973).</summary>
+    LevelUp,
 }
 
 /// <summary>One event of a battle (D-168, D-532).</summary>
@@ -120,6 +126,8 @@ public static class BattleEvents
         BattleEventKind.StatusHeal => "status heal",
         BattleEventKind.Asleep => "asleep",
         BattleEventKind.Heal => "heal",
+        BattleEventKind.Experience => "experience",
+        BattleEventKind.LevelUp => "level up",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no battle event (D-532)"),
     };
 }

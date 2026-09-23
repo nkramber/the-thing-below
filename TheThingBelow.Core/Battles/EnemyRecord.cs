@@ -21,11 +21,13 @@ public sealed class EnemyRecord
     /// <summary>The kind of an enemy id (D-646).</summary>
     public const string Kind = "enemy";
 
-    private EnemyRecord(string file, ContentId id, EnemySize size, int health, int attack, int defense, int speed, IReadOnlyList<ContentId> abilities, ElementTable elements, IReadOnlyList<StatusKind> immune)
+    private EnemyRecord(string file, ContentId id, EnemySize size, int level, int experience, int health, int attack, int defense, int speed, IReadOnlyList<ContentId> abilities, ElementTable elements, IReadOnlyList<StatusKind> immune)
     {
         this.File = file;
         this.Id = id;
         this.Size = size;
+        this.Level = level;
+        this.Experience = experience;
         this.Health = health;
         this.Attack = attack;
         this.Defense = defense;
@@ -43,6 +45,12 @@ public sealed class EnemyRecord
 
     /// <summary>The size of the body, which each map patrol of a group of this enemy agrees with (D-754, D-788).</summary>
     public EnemySize Size { get; }
+
+    /// <summary>The level, which the shrink of the experience reads (D-968).</summary>
+    public int Level { get; }
+
+    /// <summary>The base experience, which a character at the level of the enemy or below it earns in full (D-968).</summary>
+    public int Experience { get; }
 
     /// <summary>The full health.</summary>
     public int Health { get; }
@@ -88,6 +96,8 @@ public sealed class EnemyRecord
         string? comment = null;
         ContentId? id = null;
         EnemySize? size = null;
+        int? level = null;
+        int? experience = null;
         int? health = null;
         int? attack = null;
         int? defense = null;
@@ -109,6 +119,12 @@ public sealed class EnemyRecord
                     break;
                 case "size":
                     size = ReadSize(ref reader);
+                    break;
+                case "level":
+                    level = BattleFixture.ReadLevel(ref reader);
+                    break;
+                case "experience":
+                    experience = BattleFixture.ReadStat(ref reader, 0);
                     break;
                 case "health":
                     health = BattleFixture.ReadStat(ref reader, 1);
@@ -141,6 +157,8 @@ public sealed class EnemyRecord
             file,
             reader.Require(id, depth, "id"),
             reader.RequireValue(size, depth, "size"),
+            reader.RequireInt(level, depth, "level"),
+            reader.RequireInt(experience, depth, "experience"),
             reader.RequireInt(health, depth, "health"),
             reader.RequireInt(attack, depth, "attack"),
             reader.RequireInt(defense, depth, "defense"),

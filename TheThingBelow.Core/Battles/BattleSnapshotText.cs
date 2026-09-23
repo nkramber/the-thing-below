@@ -35,6 +35,10 @@ public static class BattleSnapshotText
             writer.WriteStartObject();
             writer.WriteString("id", character.Character.Value);
             writer.WriteNumber("health", character.Health);
+            GrowthValues growth = character.Growth ?? throw new ArgumentException($"The character '{character.Character.Value}' holds no level, and a snapshot of this build writes the level of each character (D-966).", nameof(party));
+            writer.WriteNumber("level", growth.Level);
+            writer.WriteNumber("experience", growth.Experience);
+            writer.WriteNumber("mp", growth.Mp);
             writer.WriteString("row", BattleSides.NameOf(character.Row));
             writer.WriteStartArray("statuses");
             foreach (StatusKind status in character.Statuses)
@@ -206,6 +210,9 @@ public static class BattleSnapshotText
         int? health = null;
         BattleRow? row = null;
         IReadOnlyList<StatusKind>? statuses = null;
+        int? level = null;
+        int? experience = null;
+        int? mp = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -221,6 +228,15 @@ public static class BattleSnapshotText
                 case "row":
                     row = ReadRow(ref reader);
                     break;
+                case "level" when format >= 7:
+                    level = reader.ReadInt();
+                    break;
+                case "experience" when format >= 7:
+                    experience = reader.ReadInt();
+                    break;
+                case "mp" when format >= 7:
+                    mp = reader.ReadInt();
+                    break;
                 case "statuses" when format >= 5:
                     statuses = Statuses.ReadList(ref reader);
                     break;
@@ -233,8 +249,17 @@ public static class BattleSnapshotText
             reader.Require(id, depth, "id"),
             reader.RequireInt(health, depth, "health"),
             reader.RequireValue(row, depth, "row"),
-            format >= 5 ? reader.Require(statuses, depth, "statuses") : []);
+            format >= 5 ? reader.Require(statuses, depth, "statuses") : [],
+            format >= 7 ? ReadGrowth(ref reader, depth, level, experience, mp) : null);
     }
+
+    // Save format 7 adds the level, the experience, and the MP (D-966). An older snapshot
+    // holds none, and the resume starts the character at its join level (D-166, D-363).
+    private static GrowthValues ReadGrowth(ref ContentReader reader, int depth, int? level, int? experience, int? mp) =>
+        new(
+            reader.RequireInt(level, depth, "level"),
+            reader.RequireInt(experience, depth, "experience"),
+            reader.RequireInt(mp, depth, "mp"));
 
     private static PackValues ReadPackEntry(ref ContentReader reader)
     {

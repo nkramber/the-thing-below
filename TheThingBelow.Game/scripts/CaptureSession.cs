@@ -529,6 +529,8 @@ public sealed partial class CaptureSession : Node
     /// <para>
     /// The sparks frame walks to the deep room, where the character hits the brute (D-882). The
     /// waiting frame walks there too, because the grunt of that group waits in the column (D-953).
+    /// The experience frame fights to the win, and each level-up frame stages a level-up at the
+    /// ticks of that experience, because the fixture fight gives no level-up (D-975, D-977).
     /// The stop frame and each heavy frame stage the same hit on a weakness, because no move of
     /// the fixture fight carries an element before PR-12 (D-877).
     /// </para>
@@ -549,6 +551,11 @@ public sealed partial class CaptureSession : Node
         if (ScreenCaptures.TicksAfterBlowOf(capture.Frame) is int afterBlow)
         {
             BattleWalk.ToBlowOfCharacter(fight, fight.Pace.BlowTick + afterBlow);
+        }
+
+        if (ScreenCaptures.ExperienceTicksOf(capture.Frame) is int intoExperience)
+        {
+            BattleWalk.ToExperienceOfCharacter(fight, intoExperience);
         }
 
         BattleScreen screen = BattleScreen.Build(
@@ -578,6 +585,18 @@ public sealed partial class CaptureSession : Node
             BattleEvent blow = fight.PlayingEvent ?? throw new InvalidOperationException(
                 $"The capture '{capture.FileName}' stages a heavy blow, and the fight plays no event (D-877, T-2).");
             screen.ShowStaged(fight, blow with { Affinity = Affinity.Weak });
+            return;
+        }
+
+        if (ScreenCaptures.StagesLevelUp(capture.Frame))
+        {
+            // The staged level-up takes the first character from level 1 to 2 on the view alone,
+            // at the ticks of the experience that plays (D-975, D-977).
+            BattleView view = fight.BattleView ?? throw new InvalidOperationException(
+                $"The capture '{capture.FileName}' stages a level-up, and the run holds no view of a fight (D-975, T-2).");
+            var levelUp = new BattleEvent(BattleEventKind.LevelUp, new BattleTarget(BattleSide.Party, 0), null, view.Party[0].Level + 1);
+            view.Apply(levelUp);
+            screen.ShowStaged(fight, levelUp);
             return;
         }
 

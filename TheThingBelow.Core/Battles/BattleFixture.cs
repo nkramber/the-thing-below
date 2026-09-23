@@ -4,15 +4,6 @@ using TheThingBelow.Core.Content;
 
 namespace TheThingBelow.Core.Battles;
 
-/// <summary>The fixed stats of one character, until the stat curves of PR-67 (D-765).</summary>
-/// <param name="Id">The id, of the kind `character`.</param>
-/// <param name="Health">The full health.</param>
-/// <param name="Attack">The attack, which the damage reads (D-771).</param>
-/// <param name="Defense">The defense, which the damage reads (D-771).</param>
-/// <param name="Speed">The speed, which each push and each tie reads (D-768, D-769).</param>
-/// <param name="Row">The row at the start of a run (D-558).</param>
-public sealed record CharacterRecord(ContentId Id, int Health, int Attack, int Defense, int Speed, BattleRow Row);
-
 /// <summary>One item that a character can use in battle, until the items of PR-13 (D-775).</summary>
 /// <param name="Id">The id, of the kind `item`.</param>
 /// <param name="Heal">The health that the item restores outside a battle (D-382).</param>
@@ -29,8 +20,8 @@ public sealed record PackEntry(ContentId Item, int Count);
 /// (D-765, D-775). The groups live in the group file of each region (D-957). The file is `content/rules/fixtures/battle.json`.
 /// </summary>
 /// <remarks>
-/// PR-67 replaces the characters with the stat curves, and PR-13 the items with the pack
-/// (D-765, D-775). Each id stays. PR-11 moved the groups to the group file of each region
+/// PR-67 gave each character a join level and a stat curve in place of its fixed stats
+/// (D-363, D-966). PR-13 replaces the items with the pack (D-775). Each id stays. PR-11 moved the groups to the group file of each region
 /// with the same ids (D-766, D-957).
 /// PR-80 moved the enemies to the enemy record, and the battle content checks that each
 /// group names a record (D-557, D-786).
@@ -175,11 +166,9 @@ public sealed class BattleFixture
     private static CharacterRecord ReadCharacter(ref ContentReader reader)
     {
         ContentId? id = null;
-        int? health = null;
-        int? attack = null;
-        int? defense = null;
-        int? speed = null;
         BattleRow? row = null;
+        int? joinLevel = null;
+        List<StatRow>? curve = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -189,20 +178,14 @@ public sealed class BattleFixture
                 case "id":
                     id = reader.ReadContentId(CharacterKind);
                     break;
-                case "health":
-                    health = ReadStat(ref reader, 1);
-                    break;
-                case "attack":
-                    attack = ReadStat(ref reader, 0);
-                    break;
-                case "defense":
-                    defense = ReadStat(ref reader, 0);
-                    break;
-                case "speed":
-                    speed = ReadStat(ref reader, 1);
-                    break;
                 case "row":
                     row = ReadRow(ref reader);
+                    break;
+                case "join_level":
+                    joinLevel = ReadLevel(ref reader);
+                    break;
+                case "curve":
+                    curve = StatCurve.Read(ref reader);
                     break;
                 default:
                     throw reader.UnknownField(field);
@@ -211,11 +194,9 @@ public sealed class BattleFixture
 
         return new CharacterRecord(
             reader.Require(id, depth, "id"),
-            reader.RequireInt(health, depth, "health"),
-            reader.RequireInt(attack, depth, "attack"),
-            reader.RequireInt(defense, depth, "defense"),
-            reader.RequireInt(speed, depth, "speed"),
-            reader.RequireValue(row, depth, "row"));
+            reader.RequireValue(row, depth, "row"),
+            reader.RequireInt(joinLevel, depth, "join_level"),
+            reader.Require(curve, depth, "curve"));
     }
 
     private static ItemRecord ReadItem(ref ContentReader reader)
@@ -286,6 +267,21 @@ public sealed class BattleFixture
         if (value < lowest || value > MostStat)
         {
             throw reader.Refuse($"the value {value} is outside {lowest} to {MostStat} (T-2)");
+        }
+
+        return value;
+    }
+
+    /// <summary>Reads a character level, and refuses a value outside 1 to <see cref="StatCurve.HighestLevel"/> (D-972).</summary>
+    /// <param name="reader">The reader, at the value.</param>
+    /// <returns>The level.</returns>
+    /// <remarks>The enemy record reads its level with this rule too (D-968).</remarks>
+    internal static int ReadLevel(ref ContentReader reader)
+    {
+        int value = reader.ReadInt();
+        if (value < 1 || value > StatCurve.HighestLevel)
+        {
+            throw reader.Refuse($"the level {value} is outside 1 to {StatCurve.HighestLevel} (D-972)");
         }
 
         return value;

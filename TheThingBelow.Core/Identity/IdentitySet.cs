@@ -269,6 +269,8 @@ public static class IdentitySet
      "comment": "The mender of the identity set. It never changes.",
      "id": "enemy.identity_mender",
      "size": "common",
+     "level": 1,
+     "experience": 8,
      "health": 30,
      "attack": 5,
      "defense": 3,
@@ -359,6 +361,8 @@ public static class IdentitySet
      "comment": "The grunt of the identity set. It never changes.",
      "id": "enemy.identity_grunt",
      "size": "common",
+     "level": 1,
+     "experience": 6,
      "health": 20,
      "attack": 6,
      "defense": 2,
@@ -375,6 +379,8 @@ public static class IdentitySet
      "comment": "The brute of the identity set. It never changes.",
      "id": "enemy.identity_brute",
      "size": "common",
+     "level": 2,
+     "experience": 15,
      "health": 45,
      "attack": 11,
      "defense": 5,
@@ -435,7 +441,10 @@ public static class IdentitySet
      "stun_ticks": 50,
      "shell_cut": 5000,
      "shell_ticks": 400,
-     "blind_miss": 3000
+     "blind_miss": 3000,
+     "experience_cut": 1500,
+     "experience_gap": 4,
+     "level_experience": [0, 20, 60, 120, 200, 300, 420, 560, 720, 900, 1100, 1320, 1560, 1820, 2100, 2400, 2720, 3060, 3420, 3800, 4200, 4620, 5060, 5520, 6000, 6500, 7020, 7560, 8120, 8700, 9300, 9920, 10560, 11220, 11900, 12600, 13320, 14060, 14820, 15600]
     }
     """;
 
@@ -443,11 +452,11 @@ public static class IdentitySet
     /// The battle fixture of this set: the character, the item, and the start of a run. PR-11
     /// moved its groups to the group file of this set (D-957).
     /// </summary>
-    private const string BattleFixtureFile = """
+    private static readonly string BattleFixtureFile = $$"""
     {
      "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, and PR-11 moved its groups to the group file.",
      "characters": [
-      { "id": "character.identity_hero", "health": 90, "attack": 14, "defense": 4, "speed": 100, "row": "front" }
+      { "id": "character.identity_hero", "row": "front", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(90, 20, 14, 4, 100))}} }
      ],
      "items": [
       { "id": "item.identity_draught", "heal": 30, "delay": 100 }
