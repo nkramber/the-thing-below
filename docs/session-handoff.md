@@ -8,22 +8,22 @@ Session: reviewer PR #61, round 1. Repository: the-thing-below. Branch: `feat/pr
 - Reviewed the complete diff from `430c8e9` to effective head `0d55d93`.
 - Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
 - Checked the glow reader, light bound, rendering path, overlay, budget, tests, decisions, and captures.
-- Added `docs/reviews/pr-61.md` with no finding.
+- Added `docs/reviews/pr-61.md` with no finding, and published the review record.
 
 ### The state of the build
 
-- The remote head of `main` is `430c8e9`. The remote PR head is `0d55d93`, and the effective head stays `0d55d93` after this metadata push.
+- The remote head of `main` is `430c8e9`. Metadata commit `89a606a` reached the branch, and the effective head stays `0d55d93`.
 - `make verify` passed with 2,221 tests. `make sheet` wrote all 72 captures.
-- CI run 35815610824 passed every applicable implementation check on every leg. The Gitar check approved the effective head.
-- Review-gate needs a fresh run after this review record reaches the branch.
+- CI run 35815610824 passed every applicable implementation check on every leg. Gitar approved the effective head.
+- Metadata run 35816940918 and review-gate run 35816940027 passed. The fresh gate passed RG 1 to RG 8.
 
 ### What is in flight
 
-- The PR waits for a green review-gate result on the metadata head.
+- PR #61 is ready for owner merge.
 
 ### Traps and gotchas
 
-- The first review-gate run failed because this review record was not in the diff yet. The metadata push adds it.
+- The first review-gate run failed because this review record was not in the diff yet. The metadata run passed after the record reached the branch.
 - The fog, hit bursts, and marks use the overlay view above the glow (D-916).
 
 ### The questions that block progress
@@ -32,7 +32,7 @@ None. OQ-102 and OQ-232 are resolved by D-910 and D-915.
 
 ### The next concrete action
 
-Verify the metadata head and the fresh review-gate result. Then update the push evidence.
+The owner merges PR #61.
 
 ## Session 225: 2026-09-23, Claude Code
 
