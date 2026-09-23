@@ -1,7 +1,7 @@
 ## Session 252: 2026-09-23, Claude Code
 
 Author: Claude Code
-Session: author PR-98, round 1. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: PR-98, and the GitHub number comes with the first push. Role: author. Base: `3223bcf`.
+Session: author PR-98, round 1. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: #68. Role: author. Base: `3223bcf`.
 
 ### What this session did, and why
 
@@ -16,10 +16,12 @@ Session: author PR-98, round 1. Repository: the-thing-below. Branch: `feat/pr-98
 
 - `main` is `3223bcf`. The branch holds the code, the tests, and the documents of PR-98.
 - `make verify` passed on macOS arm64, except the baseline of `battle-waiting-1x.png`, which only the CI artifact gives (D-733).
+- CI run 35919855654 passed smoke, replay-identity, det-lint, and ste-check on each leg. The build legs and screen-test failed on the new battle frames alone. The 15 battle frames of its `screen-captures` artifact are the new baseline, and the author read each one (D-784).
 
 ### What is in flight
 
-- The `screen-test` job fails on each battle frame, because the rows moved. The new baseline comes from the `screen-captures` artifact of that run.
+- The CI run on the baseline commit.
+- The Codex review: `make codex-review PR=68 -- --skip-gitar-review` (D-946).
 
 ### Traps and gotchas
 
@@ -33,7 +35,7 @@ None.
 
 ### The next concrete action
 
-Download the `screen-captures` artifact, read each battle frame, commit the new baseline, and push.
+Read the CI result of the baseline commit, read the Gitar output one time, then run `make codex-review PR=68 -- --skip-gitar-review` in the background (D-945, D-946).
 
 ## Session 251: 2026-09-23, Codex
 
