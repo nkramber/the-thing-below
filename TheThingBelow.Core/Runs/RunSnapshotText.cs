@@ -196,7 +196,7 @@ public static class RunSnapshotText
     /// The check runs here, inside the read of the line, so the caller names the line and
     /// the file of every fault of a snapshot. A check after the read loses both (T-2).
     /// </remarks>
-    public static RunSnapshot Read(ref ContentReader reader) => ReadLine(ref reader, SaveFormat.Current);
+    public static RunSnapshot Read(ref ContentReader reader) => ReadLine(ref reader, SaveFormat.Current, null);
 
     /// <summary>
     /// Reads a snapshot of save format 2, which holds no enemy (D-654, D-750). The migration
@@ -204,32 +204,46 @@ public static class RunSnapshotText
     /// station.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the stream of the evaluator (D-947).</param>
     /// <returns>The snapshot, with no enemy list.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatTwo(ref ContentReader reader) => ReadLine(ref reader, 2);
+    public static RunSnapshot ReadFormatTwo(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 2, seed);
 
     /// <summary>
     /// Reads a snapshot of save format 3, which holds no party and no battle (D-765). The
     /// migration runs in `RunState.Resume`, which starts the party of the fixture at full health.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the stream of the evaluator (D-947).</param>
     /// <returns>The snapshot, with no party and no battle.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatThree(ref ContentReader reader) => ReadLine(ref reader, 3);
+    public static RunSnapshot ReadFormatThree(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 3, seed);
 
     /// <summary>
     /// Reads a snapshot of save format 4, which holds no status and holds a push rate for each
     /// combatant (D-792). Each character and each combatant then holds no status.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the stream of the evaluator (D-947).</param>
     /// <returns>The snapshot, with no status.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed, or a push rate names haste or slow (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatFour(ref ContentReader reader) => ReadLine(ref reader, 4);
+    public static RunSnapshot ReadFormatFour(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 4, seed);
 
-    private static RunSnapshot ReadLine(ref ContentReader reader, int format)
+    /// <summary>
+    /// Reads a snapshot of save format 5, which holds no stream of the evaluator (D-947). The
+    /// snapshot gains that stream at its first value, because no build before PR-11 drew from it.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the stream of the evaluator (D-947).</param>
+    /// <returns>The snapshot, with every stream of this build.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatFive(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 5, seed);
+
+    private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {
         long? tick = null;
         bool? menu = null;
@@ -294,7 +308,7 @@ public static class RunSnapshotText
             reader.Require(map, depth, "map"),
             party,
             battle,
-            reader.Require(streams, depth, "streams"));
+            StreamsOf(reader.Require(streams, depth, "streams"), format, seed));
 
         snapshot.Check(reader.File);
         return snapshot;
@@ -306,10 +320,11 @@ public static class RunSnapshotText
     /// spawn point of the first map.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the stream of the evaluator (D-947).</param>
     /// <returns>The snapshot, with no map.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatOne(ref ContentReader reader)
+    public static RunSnapshot ReadFormatOne(ref ContentReader reader, ulong seed)
     {
         long? tick = null;
         bool? menu = null;
@@ -359,7 +374,7 @@ public static class RunSnapshotText
             null,
             null,
             null,
-            reader.Require(streams, depth, "streams"));
+            StreamsOf(reader.Require(streams, depth, "streams"), 1, seed));
 
         snapshot.Check(reader.File);
         return snapshot;
@@ -608,6 +623,26 @@ public static class RunSnapshotText
         }
 
         return rows;
+    }
+
+    /// <summary>
+    /// Gives the streams of a snapshot of this build. Save format 5 and older predate the stream
+    /// of the evaluator, so that stream joins at its first value, from the seed of the header
+    /// (D-947). A snapshot of this build holds every stream, and the check of the snapshot
+    /// refuses a count other than that of <see cref="RandomStreams.All"/> (T-2).
+    /// </summary>
+    private static IReadOnlyList<StreamPosition> StreamsOf(List<StreamPosition> streams, int format, ulong? seed)
+    {
+        if (format >= 6)
+        {
+            return streams;
+        }
+
+        ulong headerSeed = seed ?? throw new ArgumentException($"A snapshot of save format {format} needs the seed of its header to open the stream of the evaluator (D-947).", nameof(seed));
+        RandomStream evaluator = RandomStreams.Open(headerSeed, StreamId.Evaluator);
+        var migrated = new List<StreamPosition>(streams);
+        migrated.Add(new StreamPosition(evaluator.Stream, evaluator.Generator.State, evaluator.Generator.Increment));
+        return migrated;
     }
 
     private static List<StreamPosition> ReadStreams(ref ContentReader reader)

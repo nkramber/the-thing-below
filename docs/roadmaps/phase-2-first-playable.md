@@ -437,7 +437,7 @@ Area file: `area-battle.md` section 7.7.
 - The element table of each enemy, which PR-66 adds to the record (D-533).
 - The profile, the steal list, and the group file (PR-11, D-65, D-535).
 - The enemies of the first playable, which PR-17 writes.
-- An action that reads an ability id. PR-11 picks the action, and PR-12 gives an ability its effect (D-787).
+- An action that reads an ability id. PR-11 gives an enemy ability its effect, and PR-12 gives a lesson its effect (D-787, D-955).
 
 **Exit tests.**
 
@@ -1132,12 +1132,13 @@ Area file: `area-battle.md` sections 7.6 and 7.7.
 **Scope.**
 
 - The evaluator that scores every legal action by its simulated outcome (D-65, D-377).
-- The depth of D-534: each legal action, and the strongest answer of the other side.
-- The profile content format with its term weights and its traits, and its validator (D-65, G-21).
+- The depth of D-534: each legal action, and the best reply of the next character on the timeline (D-960). Each score takes the expected outcome (D-959).
+- The profile file with its term weights, one file for each profile, and its validator (D-65, D-956, D-958, G-21).
+- The fields of an enemy move in the ability file, and the defend and the step of an enemy (D-955).
 - The steal list of items and gold, and the base chance of a steal, on each profile (D-383, D-949).
-- The group file of each region, which holds each enemy group with its rows and its profiles (D-535).
+- The group file of each region, with the rows and the profile of each enemy, and the region field of a map (D-535, D-957).
 - The fixture profiles that prove the evaluator. PR-17 writes the profiles of the first playable.
-- The measurement of the cost of a turn, before Gate 2 (F-53, G-14).
+- The Tools command that times an enemy turn, with a limit of 1 ms at the 95th percentile on the Steam Deck (D-961, F-53).
 
 **Out of scope.**
 
@@ -1147,19 +1148,19 @@ Area file: `area-battle.md` sections 7.6 and 7.7.
 **Exit tests.**
 
 1. A fixture enemy with a protector profile heals its ally before it attacks.
-2. A profile with no legal action fails the load, from the check fight of D-948.
+2. A check fight runs for each entry of each group, and an empty list of actions fails the load (D-948, D-962).
 3. A map that names a group absent from the region file fails with the map and the id (D-535, D-766).
 4. A property test over one thousand seeds proves that the evaluator never stalls a turn.
 5. On a tie of two scores, the evaluator draws from its own stream, and a seed loop locks it (D-947).
-6. The PR reports the count of legal actions and the time of a turn (F-53).
+6. The PR reports the count of legal actions, and the turn time on the desktop and the Deck (D-961).
 
 **Review focus.**
 
-- The cost of a turn holds on the Deck at 60 frames each second (D-161, F-53).
+- The cost of an enemy turn holds the limit of D-961 on the Steam Deck (D-161, F-53).
 - A miss of that target changes the depth or the profiles in this PR (G-14).
 - The evaluator draws from one seeded stream, and its order of work never changes (G-4, T-7).
 
-**Questions.** None. D-947 to D-950 answer OQ-127, OQ-128, and OQ-129.
+**Questions.** None. D-947 to D-950 answer OQ-127, OQ-128, and OQ-129, and D-955 to D-961 set the shape of the PR.
 
 > *In plain English:* each enemy tries every move it can make, imagines your best answer, and picks the move that leaves it best off. That is what makes the fights hard.
 

@@ -21,7 +21,7 @@ SKIP_GITAR_REVIEW := --skip-gitar-review
 CODEX_REVIEW_FLAGS := $(filter $(SKIP_GITAR_REVIEW),$(MAKECMDGOALS))
 
 
-.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke sheet walk run clean codex-review $(SKIP_GITAR_REVIEW)
+.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke sheet walk run clean codex-review evaluator-cost $(SKIP_GITAR_REVIEW)
 
 ## verify: every check that this machine can run.
 verify: build test format lint ste-check identity content atlas smoke
@@ -193,6 +193,13 @@ codex-review:
 
 $(SKIP_GITAR_REVIEW):
 	@test -n "$(filter codex-review,$(MAKECMDGOALS))" || { echo "codex-review: $(SKIP_GITAR_REVIEW) needs the codex-review goal, such as make codex-review PR=63 -- $(SKIP_GITAR_REVIEW) (T-2)." >&2; exit 1; }
+
+## evaluator-cost: time one enemy turn of the worst fight, from a Release build (D-961, F-53).
+#
+# Six enemies stand against three characters. The limit is 1 ms at the 95th percentile on the
+# Steam Deck, and the command fails a miss. A Debug build is slower, so the target builds Release.
+evaluator-cost:
+	dotnet run -c Release --project $(TOOLS_PROJECT) -- evaluator-cost --root .
 
 ## where: the branch, the tree, and the PR state.
 where:

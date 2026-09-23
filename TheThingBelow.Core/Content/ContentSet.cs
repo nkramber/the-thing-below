@@ -126,6 +126,8 @@ public sealed class ContentSet
         BattleFixture? battleFixture = null;
         AbilityList? abilities = null;
         List<EnemyRecord> enemies = [];
+        List<GroupFile> groups = [];
+        List<ProfileRecord> profiles = [];
         var fonts = new SortedDictionary<string, FontStrikes>(StringComparer.Ordinal);
         var ruleEntries = new SortedDictionary<string, RuleFixtureEntry>(StringComparer.Ordinal);
         var maps = new SortedDictionary<string, GameMap>(StringComparer.Ordinal);
@@ -186,6 +188,22 @@ public sealed class ContentSet
                 EnemyRecord enemy = EnemyRecord.Read(file.Bytes, file.Path);
                 AddIds(file.Path, [enemy.Id], sources);
                 enemies.Add(enemy);
+            }
+            else if (GroupFile.IsGroupFile(file.Path))
+            {
+                // A group file lies under the rule folder, so this branch comes before the
+                // branch of the rule fixtures below (D-957).
+                GroupFile groupFile = GroupFile.Read(file.Bytes, file.Path);
+                AddIds(file.Path, groupFile.DefinedIds(), sources);
+                groups.Add(groupFile);
+            }
+            else if (ProfileRecord.IsProfileFile(file.Path))
+            {
+                // A profile file lies under the rule folder, so this branch comes before the
+                // branch of the rule fixtures below (D-956).
+                ProfileRecord profile = ProfileRecord.Read(file.Bytes, file.Path);
+                AddIds(file.Path, [profile.Id], sources);
+                profiles.Add(profile);
             }
             else if (ContentPaths.IsFontFile(file.Path))
             {
@@ -255,7 +273,17 @@ public sealed class ContentSet
             battleRules ?? throw AbsentFile(BattleRules.Path),
             battleFixture ?? throw AbsentFile(BattleFixture.Path),
             enemies,
-            abilities ?? throw AbsentFile(AbilityList.Path));
+            abilities ?? throw AbsentFile(AbilityList.Path),
+            groups,
+            profiles);
+
+        // Each map names a group of its region. The check runs before the effect files, whose
+        // ambient check reads the enemies of each group that a map names (D-957).
+        foreach (GameMap map in maps.Values)
+        {
+            battle.RequireGroupsOf(map);
+        }
+
         LightContent light = LightContent.Load(lightFiles, maps, readPalette, readAtlas);
         var set = new ContentSet(
             readPalette,
@@ -280,7 +308,6 @@ public sealed class ContentSet
         set.RefuseAbsentFont();
         set.RefuseAbsentStyleDrawing();
         set.RefuseWrongPiece();
-        set.RefuseAbsentGroup();
         return set;
     }
 
@@ -449,15 +476,6 @@ public sealed class ContentSet
         {
             RefuseTakenId(path, id, sources);
             sources.Add(id.Value, path);
-        }
-    }
-
-    /// <summary>Refuses a map that names a group which the battle fixture does not hold (D-753, D-766).</summary>
-    private void RefuseAbsentGroup()
-    {
-        foreach (GameMap map in this.maps.Values)
-        {
-            this.Battle.RequireGroupsOf(map);
         }
     }
 

@@ -13,18 +13,6 @@ namespace TheThingBelow.Core.Battles;
 /// <param name="Row">The row at the start of a run (D-558).</param>
 public sealed record CharacterRecord(ContentId Id, int Health, int Attack, int Defense, int Speed, BattleRow Row);
 
-/// <summary>One enemy of a group (D-535, D-760).</summary>
-/// <param name="Enemy">The id of the enemy record (D-786).</param>
-/// <param name="Row">The row that the enemy stands in, or steps into (D-760).</param>
-/// <param name="Waits">True when the enemy waits off the field for a fall (D-778).</param>
-public sealed record GroupEntry(ContentId Enemy, BattleRow Row, bool Waits);
-
-/// <summary>One enemy group, until the group file of PR-11 (D-766).</summary>
-/// <param name="Id">The id, of the kind `group`, which a map names (D-753).</param>
-/// <param name="Boss">True for a boss group, which no party flees (D-378).</param>
-/// <param name="Entries">The enemies, in the order of the file (D-760).</param>
-public sealed record GroupRecord(ContentId Id, bool Boss, IReadOnlyList<GroupEntry> Entries);
-
 /// <summary>One item that a character can use in battle, until the items of PR-13 (D-775).</summary>
 /// <param name="Id">The id, of the kind `item`.</param>
 /// <param name="Heal">The health that the item restores outside a battle (D-382).</param>
@@ -37,12 +25,13 @@ public sealed record ItemRecord(ContentId Id, int Heal, int Delay);
 public sealed record PackEntry(ContentId Item, int Count);
 
 /// <summary>
-/// The fixture file of the battle core: the characters, the groups, the items, and the
-/// start of a run (D-765, D-766, D-775). The file is `content/rules/fixtures/battle.json`.
+/// The fixture file of the battle core: the characters, the items, and the start of a run
+/// (D-765, D-775). The groups live in the group file of each region (D-957). The file is `content/rules/fixtures/battle.json`.
 /// </summary>
 /// <remarks>
-/// PR-67 replaces the characters with the stat curves, PR-11 the groups with the group file
-/// of each region, and PR-13 the items with the pack (D-765, D-766, D-775). Each id stays.
+/// PR-67 replaces the characters with the stat curves, and PR-13 the items with the pack
+/// (D-765, D-775). Each id stays. PR-11 moved the groups to the group file of each region
+/// with the same ids (D-766, D-957).
 /// PR-80 moved the enemies to the enemy record, and the battle content checks that each
 /// group names a record (D-557, D-786).
 /// </remarks>
@@ -60,7 +49,7 @@ public sealed class BattleFixture
     /// <summary>The most characters in the party (D-31, D-336).</summary>
     public const int MostCharacters = 3;
 
-    /// <summary>The most enemies on the field (D-31, D-759).</summary>
+    /// <summary>The most enemies on the field (D-31, D-759). The group file reads it (D-957).</summary>
     public const int MostOnField = 6;
 
     /// <summary>The most enemies in a group, the waiting ones included (D-762).</summary>
@@ -71,13 +60,11 @@ public sealed class BattleFixture
 
     private BattleFixture(
         IReadOnlyList<CharacterRecord> characters,
-        IReadOnlyList<GroupRecord> groups,
         IReadOnlyList<ItemRecord> items,
         IReadOnlyList<ContentId> startParty,
         IReadOnlyList<PackEntry> pack)
     {
         this.Characters = characters;
-        this.Groups = groups;
         this.Items = items;
         this.StartParty = startParty;
         this.Pack = pack;
@@ -85,9 +72,6 @@ public sealed class BattleFixture
 
     /// <summary>Every character, in the order of the file.</summary>
     public IReadOnlyList<CharacterRecord> Characters { get; }
-
-    /// <summary>Every group, in the order of the file.</summary>
-    public IReadOnlyList<GroupRecord> Groups { get; }
 
     /// <summary>Every item, in the order of the file.</summary>
     public IReadOnlyList<ItemRecord> Items { get; }
@@ -108,7 +92,6 @@ public sealed class BattleFixture
         var reader = new ContentReader(bytes, file);
         string? comment = null;
         List<CharacterRecord>? characters = null;
-        List<GroupRecord>? groups = null;
         List<ItemRecord>? items = null;
         List<ContentId>? startParty = null;
         List<PackEntry>? pack = null;
@@ -123,9 +106,6 @@ public sealed class BattleFixture
                     break;
                 case "characters":
                     characters = ReadList(ref reader, ReadCharacter);
-                    break;
-                case "groups":
-                    groups = ReadList(ref reader, ReadGroup);
                     break;
                 case "items":
                     items = ReadList(ref reader, ReadItem);
@@ -144,7 +124,6 @@ public sealed class BattleFixture
         _ = reader.Require(comment, depth, "comment");
         var fixture = new BattleFixture(
             reader.Require(characters, depth, "characters"),
-            reader.Require(groups, depth, "groups"),
             reader.Require(items, depth, "items"),
             reader.Require(startParty, depth, "start_party"),
             reader.Require(pack, depth, "pack"));
@@ -155,18 +134,13 @@ public sealed class BattleFixture
     }
 
     /// <summary>Gives every content id that the file defines, in the order of the file (D-166).</summary>
-    /// <returns>The ids of the characters, the groups, and the items.</returns>
+    /// <returns>The ids of the characters and the items.</returns>
     public IReadOnlyList<ContentId> DefinedIds()
     {
         List<ContentId> ids = [];
         foreach (CharacterRecord character in this.Characters)
         {
             ids.Add(character.Id);
-        }
-
-        foreach (GroupRecord group in this.Groups)
-        {
-            ids.Add(group.Id);
         }
 
         foreach (ItemRecord item in this.Items)
@@ -235,99 +209,6 @@ public sealed class BattleFixture
             reader.RequireInt(defense, depth, "defense"),
             reader.RequireInt(speed, depth, "speed"),
             reader.RequireValue(row, depth, "row"));
-    }
-
-    private static GroupRecord ReadGroup(ref ContentReader reader)
-    {
-        ContentId? id = null;
-        bool? boss = null;
-        List<GroupEntry>? entries = null;
-
-        int depth = reader.ReadObjectStart();
-        while (reader.ReadNextField(depth, out string field))
-        {
-            switch (field)
-            {
-                case "id":
-                    id = reader.ReadContentId(Maps.Patrol.GroupKind);
-                    break;
-                case "boss":
-                    boss = reader.ReadBoolean();
-                    break;
-                case "enemies":
-                    entries = ReadList(ref reader, ReadGroupEntry);
-                    break;
-                default:
-                    throw reader.UnknownField(field);
-            }
-        }
-
-        var group = new GroupRecord(
-            reader.Require(id, depth, "id"),
-            reader.RequireValue(boss, depth, "boss"),
-            reader.Require(entries, depth, "enemies"));
-        CheckGroupSize(ref reader, depth, group);
-        return group;
-    }
-
-    /// <summary>
-    /// Refuses a group that no encounter can hold: no enemy on the field at the start, more
-    /// than six there, or more than twelve in all (D-758, D-759, D-762).
-    /// </summary>
-    private static void CheckGroupSize(ref ContentReader reader, int depth, GroupRecord group)
-    {
-        int standing = 0;
-        foreach (GroupEntry entry in group.Entries)
-        {
-            standing += entry.Waits ? 0 : 1;
-        }
-
-        if (group.Entries.Count > MostInGroup)
-        {
-            throw reader.RefuseField(
-                depth,
-                "enemies",
-                $"the group '{group.Id.Value}' holds {group.Entries.Count} enemies, and a group holds at most {MostInGroup} (D-762)");
-        }
-
-        if (standing == 0 || standing > MostOnField)
-        {
-            throw reader.RefuseField(
-                depth,
-                "enemies",
-                $"the group '{group.Id.Value}' starts {standing} enemies on the field, and the field holds 1 to {MostOnField} (D-759, D-778)");
-        }
-    }
-
-    private static GroupEntry ReadGroupEntry(ref ContentReader reader)
-    {
-        ContentId? enemy = null;
-        BattleRow? row = null;
-        bool? waits = null;
-
-        int depth = reader.ReadObjectStart();
-        while (reader.ReadNextField(depth, out string field))
-        {
-            switch (field)
-            {
-                case "enemy":
-                    enemy = reader.ReadContentId(EnemyRecord.Kind);
-                    break;
-                case "row":
-                    row = ReadRow(ref reader);
-                    break;
-                case "waits":
-                    waits = reader.ReadBoolean();
-                    break;
-                default:
-                    throw reader.UnknownField(field);
-            }
-        }
-
-        return new GroupEntry(
-            reader.Require(enemy, depth, "enemy"),
-            reader.RequireValue(row, depth, "row"),
-            reader.RequireValue(waits, depth, "waits"));
     }
 
     private static ItemRecord ReadItem(ref ContentReader reader)
@@ -403,7 +284,10 @@ public sealed class BattleFixture
         return value;
     }
 
-    private static BattleRow ReadRow(ref ContentReader reader)
+    /// <summary>Reads a row by its name (D-377). The group file reads each row with this rule too (D-957).</summary>
+    /// <param name="reader">The reader, at the value.</param>
+    /// <returns>The row.</returns>
+    internal static BattleRow ReadRow(ref ContentReader reader)
     {
         string name = reader.ReadString();
         if (!BattleSides.TryRowOf(name, out BattleRow row))

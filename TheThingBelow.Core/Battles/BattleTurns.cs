@@ -76,17 +76,13 @@ public static class BattleTurns
         switch (choice.Action)
         {
             case BattleAction.Attack:
-                Strike(state, battle, actor, BattleMove.BasicAttack(rules), TargetOf(choice, context), context, log);
+                Strike(state, battle, actor, BattleMove.BasicAttack(rules), TargetOf(choice, context), AbilityReach.Melee, context, log);
                 break;
             case BattleAction.Defend:
-                actor.Defending = true;
-                state.AddEvent(new BattleEvent(BattleEventKind.Defend, actor.Target, null, 0));
-                PushBack(actor, rules.DefendDelay, context);
+                Defend(state, actor, context);
                 break;
             case BattleAction.Step:
-                actor.Row = BattleSides.Other(actor.Row);
-                state.AddEvent(new BattleEvent(BattleEventKind.Step, actor.Target, null, 0));
-                PushBack(actor, rules.StepDelay, context);
+                Step(state, actor, context);
                 break;
             case BattleAction.Item:
                 UseItem(state, battle, actor, choice, context);
@@ -154,7 +150,7 @@ public static class BattleTurns
 
         Battle battle = RunningBattle(state, context);
         Combatant actor = ActorOf(battle, BattleSide.Party, context);
-        Strike(state, battle, actor, move, target, context, log);
+        Strike(state, battle, actor, move, target, AbilityReach.Melee, context, log);
         RunUntilCharacter(state, battle, log);
     }
 
@@ -475,54 +471,121 @@ public static class BattleTurns
         _ => throw new SimulationException($"the ticks of the status '{Statuses.NameOf(status)}', which lasts until a cure (D-390)", context),
     };
 
-    /// <summary>A basic attack on a legal target that the battle stream draws (D-774). The evaluator of PR-11 replaces the draw.</summary>
+    /// <summary>
+    /// The turn of an enemy: the action that the evaluator chooses (D-65, D-534, D-947). The
+    /// evaluator draws a tie from its own stream, and each roll of the action draws from the
+    /// battle stream (G-4).
+    /// </summary>
     private static void EnemyTurn(RunState state, Battle battle, Combatant enemy, RunContext context, List<LogEntry> log)
     {
-        IReadOnlyList<Combatant> targets = battle.MeleeTargets(BattleSide.Party);
-        Combatant target = targets[state.Stream(StreamId.Battle).NextInt(targets.Count, context)];
-        Strike(state, battle, enemy, BattleMove.BasicAttack(state.BattleContent.Rules), target.Target, context, log);
+        BattleContent content = state.BattleContent;
+        EnemyAction action = BattleEvaluator.Choose(battle, enemy, content, state.Stream(StreamId.Evaluator), context);
+        switch (action.Kind)
+        {
+            case EnemyActionKind.Attack:
+                Strike(state, battle, enemy, BattleMove.BasicAttack(content.Rules), EnemyTargetOf(action, context), AbilityReach.Melee, context, log);
+                break;
+            case EnemyActionKind.Ability when action.Ability is StrikeAbility strike:
+                BattleMove move = new(strike.Delay, strike.Power, strike.Element, null);
+                Strike(state, battle, enemy, move, EnemyTargetOf(action, context), strike.Reach, context, log);
+                break;
+            case EnemyActionKind.Ability when action.Ability is HealAbility heal:
+                Heal(state, battle, enemy, heal, EnemyTargetOf(action, context), context);
+                break;
+            case EnemyActionKind.Defend:
+                Defend(state, enemy, context);
+                break;
+            case EnemyActionKind.Step:
+                Step(state, enemy, context);
+                break;
+            default:
+                throw new SimulationException($"the enemy action {action.Describe()}, which names no rule (T-2)", context);
+        }
     }
 
+    /// <summary>A defend, which cuts damage until the next turn of the actor (D-755).</summary>
+    private static void Defend(RunState state, Combatant actor, RunContext context)
+    {
+        actor.Defending = true;
+        state.AddEvent(new BattleEvent(BattleEventKind.Defend, actor.Target, null, 0));
+        PushBack(actor, state.BattleContent.Rules.DefendDelay, context);
+    }
+
+    /// <summary>A step to the other row (D-380).</summary>
+    private static void Step(RunState state, Combatant actor, RunContext context)
+    {
+        actor.Row = BattleSides.Other(actor.Row);
+        state.AddEvent(new BattleEvent(BattleEventKind.Step, actor.Target, null, 0));
+        PushBack(actor, state.BattleContent.Rules.StepDelay, context);
+    }
+
+    /// <summary>A heal of an ally on the field, up to its full health. A heal never misses (D-955).</summary>
+    private static void Heal(RunState state, Battle battle, Combatant healer, HealAbility heal, BattleTarget aimed, RunContext context)
+    {
+        Combatant target = battle.At(aimed, context);
+        if (aimed.Side != healer.Side || target.Place != CombatantPlace.Field)
+        {
+            throw new SimulationException(
+                $"a heal of {healer.Target.Describe()} on {aimed.Describe()}, and a heal reaches an ally on the field (D-955)",
+                context);
+        }
+
+        int restored = Math.Min(heal.Heal, target.FullHealth - target.Health);
+        target.Health += restored;
+        state.AddEvent(new BattleEvent(BattleEventKind.Heal, healer.Target, target.Target, restored));
+        PushBack(healer, heal.Delay, context);
+    }
+
+    private static BattleTarget EnemyTargetOf(EnemyAction action, RunContext context) =>
+        action.Target ?? throw new SimulationException($"the enemy action {action.Describe()} names no target (D-764)", context);
+
+    /// <summary>
+    /// Resolves one strike (D-376). A melee strike reaches the targets of D-377, and a strike
+    /// of any reach reaches each combatant of the other side on the field (D-955).
+    /// </summary>
     private static void Strike(
         RunState state,
         Battle battle,
         Combatant attacker,
         BattleMove move,
         BattleTarget aimed,
+        AbilityReach reach,
         RunContext context,
         List<LogEntry> log)
     {
         BattleRules rules = state.BattleContent.Rules;
         BattleSide other = attacker.Side == BattleSide.Party ? BattleSide.Enemy : BattleSide.Party;
         Combatant target = battle.At(aimed, context);
-        if (aimed.Side != other || !Reaches(battle.MeleeTargets(other), target))
+        bool melee = reach == AbilityReach.Melee;
+        bool reached = melee ? Reaches(battle.MeleeTargets(other), target) : target.Place == CombatantPlace.Field;
+        if (aimed.Side != other || !reached)
         {
             throw new SimulationException(
-                $"a melee strike of {attacker.Target.Describe()} at {aimed.Describe()}, which melee does not reach (D-377)",
+                $"a strike of {attacker.Target.Describe()} at {aimed.Describe()}, which a strike of the reach '{(melee ? "melee" : "any")}' does not reach (D-377, D-955)",
                 context);
         }
 
         RandomStream stream = state.Stream(StreamId.Battle);
-        if (stream.NextChance(MissChance(rules, attacker, target), context))
+        if (stream.NextChance(BattleMath.MissChance(rules, attacker, target), context))
         {
             state.AddEvent(new BattleEvent(BattleEventKind.Miss, attacker.Target, target.Target, 0));
         }
         else
         {
             int factor = stream.NextInt(rules.HitLow, rules.HitHigh, context);
-            long hit = Hit(attacker, target, move.Power, factor);
+            long hit = BattleMath.Hit(attacker, target, move.Power, factor);
             Affinity affinity = move.Element is Element element ? target.Elements.Of(element) : Affinity.Normal;
             if (affinity == Affinity.Absorb)
             {
                 // D-795 and D-809: an absorb heals the hit times the absorb rate, and no cut applies.
-                int heal = ToHealth(hit * rules.AbsorbRate / BasisPoints.One, context);
+                int heal = BattleMath.ToHealth(hit * rules.AbsorbRate / BasisPoints.One, context);
                 int restored = Math.Min(heal, target.FullHealth - target.Health);
                 target.Health += restored;
                 state.AddEvent(new BattleEvent(BattleEventKind.Absorb, attacker.Target, target.Target, restored, null, affinity));
             }
             else
             {
-                int damage = Damage(rules, attacker, target, hit, affinity, move.Element is not null, context);
+                int damage = BattleMath.Damage(rules, attacker, target, hit, affinity, move.Element is not null, melee, target.Defending, context);
                 target.Health = Math.Max(0, target.Health - damage);
                 state.AddEvent(new BattleEvent(BattleEventKind.Hit, attacker.Target, target.Target, damage, null, affinity));
                 if (target.Health == 0)
@@ -567,83 +630,11 @@ public static class BattleTurns
         }
     }
 
-    /// <summary>
-    /// Gives the hit of D-771 and D-772: the attack times the power, times 100 over 100 plus
-    /// the defense, times the hit factor, with no rate and no floor yet.
-    /// </summary>
-    private static long Hit(Combatant attacker, Combatant target, int power, int factor)
-    {
-        // Each factor is at most 100000, so the product stays inside a `long` (T-2).
-        long numerator = checked((long)attacker.Attack * power * 100 * factor);
-        long denominator = checked((long)BasisPoints.One * (100 + target.Defense) * BasisPoints.One);
-        return numerator / denominator;
-    }
-
-    /// <summary>
-    /// Gives the damage of one hit, in the order of D-809: the hit, times the rate of the
-    /// affinity, then the back row rate of a melee attack from the back row (D-779), the
-    /// defend cut (D-755), and the shell cut of a move with an element (D-804). The result is
-    /// at least 1.
-    /// </summary>
-    private static int Damage(BattleRules rules, Combatant attacker, Combatant target, long hit, Affinity affinity, bool elemental, RunContext context)
-    {
-        long damage = affinity switch
-        {
-            Affinity.Normal => hit,
-            Affinity.Weak => checked(hit * rules.WeakRate) / BasisPoints.One,
-            Affinity.Resist => checked(hit * rules.ResistRate) / BasisPoints.One,
-            _ => throw new SimulationException($"the damage of a hit on the affinity '{Elements.NameOf(affinity)}', which heals (D-795)", context),
-        };
-
-        if (attacker.Row == BattleRow.Back)
-        {
-            damage = damage * rules.BackRowRate / BasisPoints.One;
-        }
-
-        if (target.Defending)
-        {
-            damage = damage * (BasisPoints.One - rules.DefendCut) / BasisPoints.One;
-        }
-
-        if (elemental && target.Statuses.Holds(StatusKind.Shell))
-        {
-            damage = damage * (BasisPoints.One - rules.ShellCut) / BasisPoints.One;
-        }
-
-        return damage < 1 ? 1 : ToHealth(damage, context);
-    }
-
-    private static int ToHealth(long amount, RunContext context)
-    {
-        if (amount > int.MaxValue)
-        {
-            throw new SimulationException($"a hit of {amount}, which no `int` holds", context);
-        }
-
-        return (int)amount;
-    }
-
-    /// <summary>
-    /// The miss chance of D-773: the base, plus the rate for each point that the target is
-    /// faster, clamped. Blind then adds its rate after the clamp, up to 10000 (D-806).
-    /// </summary>
-    private static int MissChance(BattleRules rules, Combatant attacker, Combatant target)
-    {
-        long gap = (long)target.Speed - attacker.Speed;
-        int chance = Clamp(rules.MissBase + (gap * rules.MissPerSpeed), rules.MissFloor, rules.MissCeiling);
-        if (attacker.Statuses.Holds(StatusKind.Blind))
-        {
-            chance = Math.Min(BasisPoints.One, chance + rules.BlindMiss);
-        }
-
-        return chance;
-    }
-
     /// <summary>The flee chance of D-763: the base, plus the rate for each point of the average speed of the party over the field, clamped.</summary>
     private static int FleeChance(BattleRules rules, Battle battle)
     {
         long gap = AverageSpeed(battle.Party) - AverageSpeed(battle.Enemies);
-        return Clamp(rules.FleeBase + (gap * rules.FleePerSpeed), rules.FleeFloor, rules.FleeCeiling);
+        return BattleMath.Clamp(rules.FleeBase + (gap * rules.FleePerSpeed), rules.FleeFloor, rules.FleeCeiling);
     }
 
     private static long AverageSpeed(IReadOnlyList<Combatant> side)
@@ -660,16 +651,6 @@ public static class BattleTurns
         }
 
         return count == 0 ? 0 : sum / count;
-    }
-
-    private static int Clamp(long value, int floor, int ceiling)
-    {
-        if (value < floor)
-        {
-            return floor;
-        }
-
-        return value > ceiling ? ceiling : (int)value;
     }
 
     private static void UseItem(RunState state, Battle battle, Combatant actor, BattleChoice choice, RunContext context)

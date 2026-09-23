@@ -22,4 +22,7 @@ public enum StreamId
 
     /// <summary>The scenes and their variations (`area-story.md`).</summary>
     Story = 4,
+
+    /// <summary>The tie of two equal scores of the evaluator (D-947). No other roll of a fight draws from it.</summary>
+    Evaluator = 5,
 }

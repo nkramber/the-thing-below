@@ -75,7 +75,7 @@ public static class SaveText
 
         return new SaveDocument(
             header.Header,
-            ReadSnapshotLine(lines[1], header.Header.FormatVersion, file));
+            ReadSnapshotLine(lines[1], header.Header.FormatVersion, header.Header.Seed, file));
     }
 
     /// <summary>Gives the checksum that the header of a save carries (D-178).</summary>
@@ -153,14 +153,15 @@ public static class SaveText
     /// leaves (D-166, D-654).
     /// </para>
     /// </remarks>
-    private static RunSnapshot ReadSnapshotLine(string line, int format, string file) =>
+    private static RunSnapshot ReadSnapshotLine(string line, int format, ulong seed, string file) =>
         format switch
         {
-            1 => ReadLine(line, file, RunSnapshotText.ReadFormatOne),
-            2 => ReadLine(line, file, RunSnapshotText.ReadFormatTwo),
-            3 => ReadLine(line, file, RunSnapshotText.ReadFormatThree),
-            4 => ReadLine(line, file, RunSnapshotText.ReadFormatFour),
-            5 => ReadLine(line, file, RunSnapshotText.Read),
+            1 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatOne(ref reader, seed)),
+            2 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatTwo(ref reader, seed)),
+            3 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatThree(ref reader, seed)),
+            4 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatFour(ref reader, seed)),
+            5 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatFive(ref reader, seed)),
+            6 => ReadLine(line, file, RunSnapshotText.Read),
 
             // `CheckFormat` passed, so this build named the version and wrote no reader for
             // it. The message thus names a fault of the build and never a fault of the file (T-2).

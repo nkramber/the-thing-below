@@ -1,6 +1,7 @@
 {
  "comment": "The first dungeon of the game (D-528). The terrain rows hold the ground, and the things hold everything that a rule reads: the spawn point, the save point, the chest, the trap, the doors, the lock, and the marker (D-386). PR-7 ships it so that the party has a place to walk, and PR-8 adds the enemies of the `enemies` array (D-738). Later content PRs replace it with the dungeons of region one.",
  "id": "map.fixture_dungeon",
+ "region": "region.fixture",
  "label": "label.fixture_dungeon",
  "time": "night",
  "terrain": [

@@ -253,6 +253,33 @@ public sealed class Battle
         return battle;
     }
 
+    /// <summary>
+    /// Makes the check fight of D-948: one enemy of a group on the field in its row, against
+    /// one character of the fixture. The load builds the legal actions of the enemy in it.
+    /// </summary>
+    /// <param name="group">The group of the entry.</param>
+    /// <param name="entry">The entry, which the check puts on the field even when it waits.</param>
+    /// <param name="enemy">The enemy record of the entry.</param>
+    /// <param name="character">The character of the fixture.</param>
+    /// <returns>The fight, before its first turn.</returns>
+    internal static Battle CheckFight(GroupRecord group, GroupEntry entry, EnemyRecord enemy, CharacterRecord character)
+    {
+        var single = new GroupRecord(group.Id, group.Boss, new List<GroupEntry> { entry with { Waits = false } });
+        Combatant member = new(BattleSide.Party, 0, character.Id, character.Health, character.Attack, character.Defense, character.Speed, ElementTable.AllNormal, [])
+        {
+            Health = character.Health,
+            Row = character.Row,
+            Place = CombatantPlace.Field,
+        };
+        Combatant foe = new(BattleSide.Enemy, 0, enemy.Id, enemy.Health, enemy.Attack, enemy.Defense, enemy.Speed, enemy.Elements, enemy.Immune)
+        {
+            Health = enemy.Health,
+            Row = entry.Row,
+            Place = CombatantPlace.Field,
+        };
+        return new Battle(entry.Enemy, single, [member], [foe]);
+    }
+
     /// <summary>Puts a battle back from the values of a snapshot (D-166, D-531).</summary>
     /// <param name="content">The battle content of this build.</param>
     /// <param name="values">The stored values.</param>

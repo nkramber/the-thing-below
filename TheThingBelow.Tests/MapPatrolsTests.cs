@@ -727,6 +727,7 @@ public sealed class MapPatrolsTests
         {
          "comment": "two rooms with a solid wall between them, for the property tests of PR-8",
          "id": "map.two_rooms",
+         "region": "region.test",
          "label": "label.two_rooms",
          "time": "day",
          "terrain": [

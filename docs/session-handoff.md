@@ -1,3 +1,41 @@
+## Session 246: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-11, round 1. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: the PR-11 intent, before GitHub gives a number. Role: author. Base: `d429d03`.
+
+### What this session did, and why
+
+- Asked the owner OQ-127, OQ-128, OQ-129, and OQ-242, and six more questions of the shape of the PR. D-947 to D-962 record each answer.
+- Built the evaluator of D-65 and D-534: the legal actions of an enemy, the expected score of D-959, the reply of D-960, and the tie draw from the new stream of D-947.
+- Gave an enemy ability its effect (D-955), and moved the groups and the profiles to their own files (D-956, D-957). Each map names its region.
+- Added save format 6 with the stream of the evaluator, and simulation version 17 (G-17).
+- Added the `evaluator-cost` command and `make evaluator-cost` (D-961). The Mac gave 43 us at the 95th percentile, with 15 legal actions at most.
+- Added PR-98 to the roadmap for the waiting enemies on screen (D-951 to D-954), and filed OQ-243.
+
+### The state of the build
+
+- `main` is `d429d03`. The PR branch holds the decisions commit `8953836` and the code commit of this round.
+- `make verify` passed on the Mac. The fixture pair wins 300 of 300 fights, and the fixture elite 101 of 300, with the attack alone.
+
+### What is in flight
+
+- The first push of PR-11, CI, the Gitar read of D-945, and `make codex-review PR=<n> -- --skip-gitar-review`.
+- The owner run of `make evaluator-cost` on the Deck, before the merge (D-961).
+
+### Traps and gotchas
+
+- The screen tests can differ, because the enemy turns changed. The baseline comes from the CI artifact alone (D-733).
+- `CLAUDE.md` is 7 bytes under the SIZE 1 limit, so the new target lives in `docs/runbooks/dev-machine.md` alone.
+- The test helper `BattleRuns.Map` names the region of the group from the test content.
+
+### The questions that block progress
+
+None for PR-11. OQ-243 blocks PR-98.
+
+### The next concrete action
+
+Push the branch, open the PR, read CI and the Gitar output one time, then run the Codex review.
+
 ## Session 245: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -323,42 +361,3 @@ None. OQ-242 waits for the owner and blocks nothing in PR-60.
 ### The next concrete action
 
 Run `make codex-review PR=64` on the effective head `875fe53`, and answer its outcome.
-
-
-
-## Session 236: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR #63, hand-over. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: author. Base: `097ea32`.
-
-### What this session did, and why
-
-- Ran round 2 of `make codex-review PR=63` on `a7902e7`. The run checked the ChatGPT login, removed the API key variables, and gave `approve`. The reviewer pushed `50e5664`, with `Ready for owner merge` for `a7902e7` and P2-1 and P2-2 fixed.
-- Answered the Gitar pass on `a7902e7`: the code review approved with no thread. Its CI claim named RG 4 and RG 5 of the round 1 record, and a PR comment answers it. The two faults cleared with the round 2 record.
-- Read the live merge settings again. The compare command of `docs/runbooks/merge.md` matched `docs/runbooks/branch-protection.json`.
-
-### The state of the build
-
-- `main` is `097ea32`. Before this commit, the remote head was `50e5664`, and the effective head is `a7902e7`.
-- CI run 35834375973 passed each job on `a7902e7`. Run 35835364953 passed on `50e5664`, and `review-gate` passed there with RG 1 to RG 8.
-- The Gitar pass approves `a7902e7`, and no thread is open. Two PR comments answer its two CI claims.
-- The PR waits for the owner merge (D-931). The summary of one paragraph goes to the owner before the merge (D-933).
-
-### What is in flight
-
-- The confirmation of the owner, then the owner merge of PR #63.
-- After the merge, the transitional prompt of step 6.
-
-### Traps and gotchas
-
-- The first auto-merge comes on the next PR. Before `gh pr merge <n> --auto --squash`, post the summary and get the confirmation of the owner (D-933).
-- Never pass `forced_login_method` to the CLI. A mismatch logs the CLI out (D-932).
-- Make gives exit 2 for each failed target. Read the outcome line of the command.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The owner confirms the summary and merges PR #63.

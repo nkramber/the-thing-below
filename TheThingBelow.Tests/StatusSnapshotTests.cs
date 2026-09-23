@@ -175,6 +175,6 @@ public sealed class StatusSnapshotTests
     private static RunSnapshot ReadFormatFour(string line)
     {
         var reader = new ContentReader(Encoding.UTF8.GetBytes(line), "the save");
-        return RunSnapshotText.ReadFormatFour(ref reader);
+        return RunSnapshotText.ReadFormatFour(ref reader, 20260923);
     }
 }

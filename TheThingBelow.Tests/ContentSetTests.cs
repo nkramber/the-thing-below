@@ -577,6 +577,7 @@ public sealed class ContentSetTests
             {
              "comment": "a note",
              "id": "{{id}}",
+             "region": "region.test",
              "label": "{{label}}",
              "time": "day",
              "terrain": [ "###", "#.#", "###" ],

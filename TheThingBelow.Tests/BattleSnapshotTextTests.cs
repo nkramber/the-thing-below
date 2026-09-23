@@ -187,7 +187,7 @@ public sealed class BattleSnapshotTextTests
     private static RunSnapshot ReadFormatThree(string line)
     {
         var reader = new ContentReader(Encoding.UTF8.GetBytes(line), "the save");
-        return RunSnapshotText.ReadFormatThree(ref reader);
+        return RunSnapshotText.ReadFormatThree(ref reader, 20260923);
     }
 
     /// <summary>Removes the named objects of the top level of one snapshot line.</summary>

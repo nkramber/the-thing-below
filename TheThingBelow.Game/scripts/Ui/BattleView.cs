@@ -205,6 +205,7 @@ public sealed class BattleView
                 return;
             case BattleEventKind.Absorb:
             case BattleEventKind.Item:
+            case BattleEventKind.Heal:
                 ShownCombatant healed = this.At(TargetOf(played));
                 healed.Health = checked(healed.Health + played.Amount);
                 return;

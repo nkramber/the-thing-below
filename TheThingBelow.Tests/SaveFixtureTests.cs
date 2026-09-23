@@ -29,6 +29,8 @@ namespace TheThingBelow.Tests;
 /// puts each enemy of the map on the start tile of its station (D-750). Format 3 predates the
 /// party, and its migration starts the party of the fixture at full health (D-765). Format 4
 /// predates the statuses, and its migration gives each character and each combatant none (D-792).
+/// Format 5 and older predate the stream of the evaluator, and the migration opens it at its
+/// first value from the seed of the header (D-947).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
@@ -78,6 +80,7 @@ public sealed class SaveFixtureTests
                 new(StreamId.Battle, 0x9ed29fecf890e3fb, 0x0000000000000005),
                 new(StreamId.Progression, 0xd9107d3e42db0c22, 0x0000000000000007),
                 new(StreamId.Story, 0x9881a20135b0f29e, 0x0000000000000009),
+                EvaluatorAtFirstValue(save.Header.Seed),
             },
             save.Snapshot.Streams);
     }
@@ -267,6 +270,35 @@ public sealed class SaveFixtureTests
         run.Step([]);
 
         Assert.Equal(SaveRuns.FixtureTicks + 1, run.Tick);
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatFiveGainsTheStreamOfTheEvaluatorAtItsFirstValue()
+    {
+        // D-947: no build before PR-11 drew from the stream of the evaluator, so the migration
+        // opens it from the seed of the header, and each older stream keeps its position.
+        SaveDocument save = ReadFormat(5);
+
+        Assert.Equal(RandomStreams.All.Count, save.Snapshot.Streams.Count);
+        Assert.Equal(EvaluatorAtFirstValue(save.Header.Seed), save.Snapshot.Streams[^1]);
+        Assert.Equal(new StreamPosition(StreamId.Battle, 0xc4ea2e33f9109a59, 0x0000000000000005), save.Snapshot.Streams[1]);
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatSixReadsTheSameSnapshotAsItsMigratedFormatFive()
+    {
+        // PR-11 wrote format 6 from the migrated snapshot of format 5, so the two read alike.
+        SaveDocument five = ReadFormat(5);
+        SaveDocument six = ReadFormat(6);
+
+        Assert.Equal(RunSnapshotText.Write(five.Snapshot), RunSnapshotText.Write(six.Snapshot));
+        Assert.Equal(17, six.Header.SimulationVersion);
+    }
+
+    private static StreamPosition EvaluatorAtFirstValue(ulong seed)
+    {
+        RandomStream evaluator = RandomStreams.Open(seed, StreamId.Evaluator);
+        return new StreamPosition(StreamId.Evaluator, evaluator.Generator.State, evaluator.Generator.Increment);
     }
 
     private static SaveDocument ReadFormat(int version)

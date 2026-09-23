@@ -1,4 +1,41 @@
 # Session handoff archive
+## Session 236: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR #63, hand-over. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: author. Base: `097ea32`.
+
+### What this session did, and why
+
+- Ran round 2 of `make codex-review PR=63` on `a7902e7`. The run checked the ChatGPT login, removed the API key variables, and gave `approve`. The reviewer pushed `50e5664`, with `Ready for owner merge` for `a7902e7` and P2-1 and P2-2 fixed.
+- Answered the Gitar pass on `a7902e7`: the code review approved with no thread. Its CI claim named RG 4 and RG 5 of the round 1 record, and a PR comment answers it. The two faults cleared with the round 2 record.
+- Read the live merge settings again. The compare command of `docs/runbooks/merge.md` matched `docs/runbooks/branch-protection.json`.
+
+### The state of the build
+
+- `main` is `097ea32`. Before this commit, the remote head was `50e5664`, and the effective head is `a7902e7`.
+- CI run 35834375973 passed each job on `a7902e7`. Run 35835364953 passed on `50e5664`, and `review-gate` passed there with RG 1 to RG 8.
+- The Gitar pass approves `a7902e7`, and no thread is open. Two PR comments answer its two CI claims.
+- The PR waits for the owner merge (D-931). The summary of one paragraph goes to the owner before the merge (D-933).
+
+### What is in flight
+
+- The confirmation of the owner, then the owner merge of PR #63.
+- After the merge, the transitional prompt of step 6.
+
+### Traps and gotchas
+
+- The first auto-merge comes on the next PR. Before `gh pr merge <n> --auto --squash`, post the summary and get the confirmation of the owner (D-933).
+- Never pass `forced_login_method` to the CLI. A mismatch logs the CLI out (D-932).
+- Make gives exit 2 for each failed target. Read the outcome line of the command.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The owner confirms the summary and merges PR #63.
+
 ## Session 235: 2026-09-23, Codex
 
 Author: Codex

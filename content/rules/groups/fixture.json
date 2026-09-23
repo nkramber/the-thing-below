@@ -1,0 +1,22 @@
+{
+ "comment": "The groups of the fixture region (D-957). PR-9 put them in the battle fixture, and PR-11 moved them here with the same ids and gave each enemy a profile (D-766, D-956). The elite group holds a wave (D-778). PR-17 writes the groups of the first playable.",
+ "region": "region.fixture",
+ "groups": [
+  {
+   "id": "group.fixture_pair",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.fixture_grunt" },
+    { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.fixture_grunt" }
+   ]
+  },
+  {
+   "id": "group.fixture_elite",
+   "boss": false,
+   "enemies": [
+    { "enemy": "enemy.fixture_brute", "row": "front", "waits": false, "profile": "profile.fixture_brute" },
+    { "enemy": "enemy.fixture_grunt", "row": "front", "waits": true, "profile": "profile.fixture_grunt" }
+   ]
+  }
+ ]
+}

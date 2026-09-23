@@ -118,9 +118,13 @@ Built by PR-11. Phase file: `phase-2-first-playable.md`.
 
 - The evaluator scores every legal action of an enemy by its simulated outcome: damage, kills, threat, healing, timeline shift, and row placement (D-65, D-377).
 - It simulates each legal action and the strongest answer of the other side, one action ahead with one reply (D-534).
-- The cost grows with the count of legal actions times the answers, and no measurement exists (F-53). PR-11 reports the cost of a turn before Gate 2 (G-14).
+- The reply is the best action of the next character on the timeline (D-960). Each score takes the expected outcome, and no roll (D-959).
+- The score adds each weight times its term (D-958). The damage term is the expected health that the action takes, and the kill term counts the expected kills in basis points.
+- The heal term is the health that a heal restores. The threat term is the expected health that the reply takes, and the score subtracts it (D-960).
+- The timeline term is the push of the action in ticks, and the score subtracts it. The row term counts the change of the enemies that melee cannot reach.
+- The cost grows with the count of legal actions times the answers (F-53). One enemy turn takes at most 1 ms at the 95th percentile on the Steam Deck (D-961, G-14).
 - The evaluator uses one seeded stream, and its order of work never changes (G-4, T-7). On a tie of two scores, the evaluator draws one action from its own stream (D-947).
-- A profile reweights the terms of the score and adds traits (D-65).
+- A profile reweights the terms of the score (D-65). PR-11 ships the weights alone, and the first trait comes with the first enemy that needs one (D-958).
 - The evaluator lives in Core, and it never reads a screen, a clock, or an effect (G-1, G-3).
 - M-3, M-4, and M-6 measure the cost in a night, in an encounter, and on the Deck (D-507, D-161).
 
@@ -130,14 +134,14 @@ Built by PR-11. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-11 and PR-9. Phase file: `phase-2-first-playable.md`.
 
-- Each enemy carries a personality profile in content: the weights of the score terms and its traits (D-65).
+- Each entry of a group names a personality profile: the weights of the score terms (D-65, D-958). Each profile has one file under `content/rules/profiles/` (D-956).
 - Every profile validates at load, and a profile that can never act fails that load (G-21, T-2). A check fight against one fixture party member finds a profile with no legal action (D-948).
 - Each profile carries a steal list of items and some gold, and a human enemy carries what a person carries (D-383). Each profile gives the base chance of a steal, and PR-13 builds the steal action with the Theft term (D-949, D-950).
-- A group file for each region holds each enemy group: its enemies, their rows, and their profiles (D-535).
+- A group file for each region holds each enemy group: its enemies, their rows, and their profiles (D-535). Each map names its region, and the group files live under `content/rules/groups/` (D-957).
 - A map names a group by its id, and a test proves that each named group exists (D-528, D-535). PR-9 holds that test on its fixture group file, and PR-11 grows the file (D-766).
 - PR-11 proves the evaluator on fixture profiles, and PR-17 writes the profiles of the first playable.
 - PR-80 holds the enemy record: the stats of each enemy and the ids of its abilities. PR-66 adds the element table to it (D-557).
-- Each enemy has one record file, and each ability id of a record names an entry of the ability file (D-785, D-786). The fight reads no ability id before PR-11 and PR-12 (D-787).
+- Each enemy has one record file, and each ability id of a record names an entry of the ability file (D-785, D-786). PR-11 gives an enemy ability its effect: a strike or a heal, with a delay, an element, and a reach (D-955).
 - Each record gives the size of the body. The size of a map patrol equals the largest enemy of its group, and the load fails another size (D-754, D-788).
 - A group holds up to twelve enemies. Up to six stand on the field, in any split of the two rows. An entry that waits steps in when an enemy falls (D-758 to D-762, D-778).
 

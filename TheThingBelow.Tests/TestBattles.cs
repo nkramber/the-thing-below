@@ -7,8 +7,8 @@ using TheThingBelow.Core.Content;
 namespace TheThingBelow.Tests;
 
 /// <summary>
-/// The battle content of the tests: the rules of D-777 and a fixture that holds every group
-/// that a test map names (D-766). The tests hold their own copy, so a balance change of PR-30
+/// The battle content of the tests: the rules of D-777, a fixture, and a group file of the
+/// test region that holds every group that a test map names (D-766, D-957). The tests hold their own copy, so a balance change of PR-30
 /// in `content/` moves no test (D-757).
 /// </summary>
 internal static class TestBattles
@@ -58,8 +58,7 @@ internal static class TestBattles
 
     /// <summary>
     /// The fixture of the tests. It holds three characters, and the party starts with Marrek
-    /// alone. Each group of a test map is a grunt or two. The boss group, the wave group, and the
-    /// full group serve the battle tests.
+    /// alone. The groups live in <see cref="GroupsFile"/> (D-957).
     /// </summary>
     public const string FixtureFile = """
     {
@@ -69,61 +68,6 @@ internal static class TestBattles
       { "id": "character.test_second", "health": 50, "attack": 10, "defense": 3, "speed": 110, "row": "front" },
       { "id": "character.test_third", "health": 40, "attack": 8, "defense": 2, "speed": 120, "row": "back" }
      ],
-     "groups": [
-      { "id": "group.one", "boss": false, "enemies": [{ "enemy": "enemy.fixture_grunt", "row": "front", "waits": false }] },
-      { "id": "group.other", "boss": false, "enemies": [{ "enemy": "enemy.fixture_grunt", "row": "front", "waits": false }] },
-      { "id": "group.ring", "boss": false, "enemies": [{ "enemy": "enemy.fixture_grunt", "row": "front", "waits": false }] },
-      {
-       "id": "group.test_pair",
-       "boss": false,
-       "enemies": [
-        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false },
-        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false }
-       ]
-      },
-      {
-       "id": "group.test_elite",
-       "boss": false,
-       "enemies": [
-        { "enemy": "enemy.fixture_brute", "row": "front", "waits": false },
-        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false }
-       ]
-      },
-      {
-       "id": "group.fixture_pair",
-       "boss": false,
-       "enemies": [
-        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false },
-        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false }
-       ]
-      },
-      {
-       "id": "group.fixture_elite",
-       "boss": false,
-       "enemies": [
-        { "enemy": "enemy.fixture_brute", "row": "front", "waits": false },
-        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false },
-        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false },
-        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": true },
-        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": true }
-       ]
-      },
-      { "id": "group.test_boss", "boss": true, "enemies": [{ "enemy": "enemy.fixture_brute", "row": "front", "waits": false }] },
-      {
-       "id": "group.test_full",
-       "boss": false,
-       "enemies": [
-        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false },
-        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false },
-        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false },
-        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false },
-        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false },
-        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false },
-        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": true },
-        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": true }
-       ]
-      }
-     ],
      "items": [
       { "id": "item.fixture_draught", "heal": 30, "delay": 100 }
      ],
@@ -131,6 +75,109 @@ internal static class TestBattles
      "pack": [{ "item": "item.fixture_draught", "count": 3 }]
     }
     """;
+
+    /// <summary>
+    /// The group file of the test region (D-957). Each group of a test map is a grunt or two.
+    /// The boss group, the wave group, and the full group serve the battle tests. Each enemy
+    /// takes the attacker profile, so an enemy of a test attacks on each turn (D-956).
+    /// </summary>
+    public const string GroupsFile = """
+    {
+     "comment": "The groups of the tests.",
+     "region": "region.test",
+     "groups": [
+      { "id": "group.one", "boss": false, "enemies": [{ "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.test_attacker" }] },
+      { "id": "group.other", "boss": false, "enemies": [{ "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.test_attacker" }] },
+      { "id": "group.ring", "boss": false, "enemies": [{ "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.test_attacker" }] },
+      {
+       "id": "group.test_pair",
+       "boss": false,
+       "enemies": [
+        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.test_attacker" }
+       ]
+      },
+      {
+       "id": "group.test_elite",
+       "boss": false,
+       "enemies": [
+        { "enemy": "enemy.fixture_brute", "row": "front", "waits": false, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false, "profile": "profile.test_attacker" }
+       ]
+      },
+      { "id": "group.test_boss", "boss": true, "enemies": [{ "enemy": "enemy.fixture_brute", "row": "front", "waits": false, "profile": "profile.test_attacker" }] },
+      {
+       "id": "group.test_full",
+       "boss": false,
+       "enemies": [
+        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": true, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": true, "profile": "profile.test_attacker" }
+       ]
+      }
+     ]
+    }
+    """;
+
+    /// <summary>The path of the group file of the test region (D-957).</summary>
+    public const string GroupsPath = "rules/groups/test.json";
+
+    /// <summary>
+    /// The group file of the fixture region of the tests (D-957). It holds the test copy of the
+    /// two groups of the fixture map, so a test of the checkout map finds its region.
+    /// </summary>
+    public const string FixtureGroupsFile = """
+    {
+     "comment": "The fixture groups of the tests.",
+     "region": "region.fixture",
+     "groups": [
+      {
+       "id": "group.fixture_pair",
+       "boss": false,
+       "enemies": [
+        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.test_attacker" }
+       ]
+      },
+      {
+       "id": "group.fixture_elite",
+       "boss": false,
+       "enemies": [
+        { "enemy": "enemy.fixture_brute", "row": "front", "waits": false, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "back", "waits": false, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": true, "profile": "profile.test_attacker" },
+        { "enemy": "enemy.fixture_grunt", "row": "front", "waits": true, "profile": "profile.test_attacker" }
+       ]
+      }
+     ]
+    }
+    """;
+
+    /// <summary>The path of the group file of the fixture region (D-957).</summary>
+    public const string FixtureGroupsPath = "rules/groups/fixture.json";
+
+    /// <summary>
+    /// The profile of each enemy of the tests: damage alone (D-956, D-958). The basic attack
+    /// then wins each turn, so a test of a rule reads the same fight as before the evaluator.
+    /// </summary>
+    public const string AttackerProfileFile = """
+    {
+     "comment": "The attacker profile of the tests.",
+     "id": "profile.test_attacker",
+     "weights": { "damage": 100, "kills": 0, "threat": 0, "healing": 0, "timeline": 0, "row": 0 },
+     "steal_chance": 3000,
+     "steal": [{ "item": "item.fixture_draught" }, { "gold": 5 }]
+    }
+    """;
+
+    /// <summary>The path of the attacker profile of the tests (D-956).</summary>
+    public const string AttackerProfilePath = "rules/profiles/test-attacker.json";
 
     /// <summary>The grunt record of the tests, with the stats of D-777 and no ability (D-786, D-787).</summary>
     public const string GruntFile = """
@@ -164,11 +211,19 @@ internal static class TestBattles
     }
     """;
 
-    /// <summary>The ability file of the tests (D-785).</summary>
+    /// <summary>
+    /// The ability file of the tests (D-785, D-955). The bash of the brute strikes weaker than
+    /// the basic attack, so the attacker profile keeps the basic attack. The mend and the shot
+    /// serve the tests of the evaluator.
+    /// </summary>
     public const string AbilitiesFile = """
     {
      "comment": "The ability file of the tests.",
-     "abilities": [{ "id": "ability.fixture_bash" }]
+     "abilities": [
+      { "id": "ability.fixture_bash", "kind": "strike", "delay": 100, "power": 5000, "element": "none", "reach": "melee" },
+      { "id": "ability.test_mend", "kind": "heal", "delay": 100, "heal": 20 },
+      { "id": "ability.test_shot", "kind": "strike", "delay": 100, "power": 15000, "element": "none", "reach": "any" }
+     ]
     }
     """;
 
@@ -179,7 +234,7 @@ internal static class TestBattles
     public const string BrutePath = "rules/enemies/fixture-brute.json";
 
     /// <summary>Gives the battle files of a content set, with the text of the tests (D-757, D-766, D-785, D-786).</summary>
-    /// <returns>The rules file, the fixture file, the ability file, the two enemy records, and the effect files that serve those combatants (D-879).</returns>
+    /// <returns>The rules file, the fixture file, the ability file, the two enemy records, the group file, the profile, and the effect files that serve those combatants (D-879).</returns>
     public static IReadOnlyList<ContentFile> Files() =>
     [
         new ContentFile(BattleRules.Path, Encoding.UTF8.GetBytes(RulesFile)),
@@ -187,6 +242,9 @@ internal static class TestBattles
         new ContentFile(AbilityList.Path, Encoding.UTF8.GetBytes(AbilitiesFile)),
         new ContentFile(BrutePath, Encoding.UTF8.GetBytes(BruteFile)),
         new ContentFile(GruntPath, Encoding.UTF8.GetBytes(GruntFile)),
+        new ContentFile(FixtureGroupsPath, Encoding.UTF8.GetBytes(FixtureGroupsFile)),
+        new ContentFile(GroupsPath, Encoding.UTF8.GetBytes(GroupsFile)),
+        new ContentFile(AttackerProfilePath, Encoding.UTF8.GetBytes(AttackerProfileFile)),
         .. EffectFixtures.Files(),
     ];
 
@@ -256,7 +314,29 @@ internal static class TestBattles
         return FixtureFile.Replace("\"start_party\": [\"character.marrek\"]", $"\"start_party\": [{party}]", System.StringComparison.Ordinal);
     }
 
-    private static BattleContent Build(string fixture, (string Field, int Value)[] changes, string? grunt = null)
+    /// <summary>Reads the content of the tests with one group file of the test region in place of <see cref="GroupsFile"/>.</summary>
+    /// <param name="groups">The text of the group file of the test region.</param>
+    /// <returns>The battle content.</returns>
+    public static BattleContent OfGroups(string groups) => Build(FixtureFile, [], null, groups);
+
+    /// <summary>
+    /// Reads the content of the tests for a test of the evaluator: one grunt, one group file of
+    /// the test region, and more profiles beside the attacker (D-955, D-956).
+    /// </summary>
+    /// <param name="grunt">The text of the grunt record.</param>
+    /// <param name="groups">The text of the group file of the test region.</param>
+    /// <param name="exact">True for the rolls of <see cref="Exact"/>.</param>
+    /// <param name="profiles">The text of each more profile.</param>
+    /// <returns>The battle content.</returns>
+    public static BattleContent ForEvaluator(string grunt, string groups, bool exact, params string[] profiles)
+    {
+        (string Field, int Value)[] changes = exact
+            ? [("hit_low", 10000), ("hit_high", 10000), ("miss_base", 0), ("miss_ceiling", 0)]
+            : [];
+        return Build(FixtureWithParty(3), changes, grunt, groups, profiles);
+    }
+
+    private static BattleContent Build(string fixture, (string Field, int Value)[] changes, string? grunt = null, string? groups = null, string[]? profiles = null)
     {
         string rules = RulesFile;
         foreach ((string field, int value) in changes)
@@ -274,6 +354,22 @@ internal static class TestBattles
                 EnemyRecord.Read(Encoding.UTF8.GetBytes(BruteFile), BrutePath),
                 EnemyRecord.Read(Encoding.UTF8.GetBytes(grunt ?? GruntFile), GruntPath),
             ],
-            AbilityList.Read(Encoding.UTF8.GetBytes(AbilitiesFile), AbilityList.Path));
+            AbilityList.Read(Encoding.UTF8.GetBytes(AbilitiesFile), AbilityList.Path),
+            [
+                GroupFile.Read(Encoding.UTF8.GetBytes(FixtureGroupsFile), FixtureGroupsPath),
+                GroupFile.Read(Encoding.UTF8.GetBytes(groups ?? GroupsFile), GroupsPath),
+            ],
+            ProfilesOf(profiles ?? []));
+    }
+
+    private static List<ProfileRecord> ProfilesOf(string[] more)
+    {
+        List<ProfileRecord> profiles = [ProfileRecord.Read(Encoding.UTF8.GetBytes(AttackerProfileFile), AttackerProfilePath)];
+        for (int index = 0; index < more.Length; index += 1)
+        {
+            profiles.Add(ProfileRecord.Read(Encoding.UTF8.GetBytes(more[index]), $"rules/profiles/test-{index}.json"));
+        }
+
+        return profiles;
     }
 }

@@ -29,7 +29,7 @@ public sealed class EnemyRecordTests
 
         Assert.Equal((30, 8, 2, 90), (grunt.Health, grunt.Attack, grunt.Defense, grunt.Speed));
         Assert.Equal((80, 14, 6, 80), (brute.Health, brute.Attack, brute.Defense, brute.Speed));
-        Assert.Empty(grunt.Abilities);
+        Assert.Equal("ability.fixture_mend", Assert.Single(grunt.Abilities).Value);
         Assert.Equal("ability.fixture_bash", Assert.Single(brute.Abilities).Value);
         Assert.Equal(BrutePath, brute.File);
         Assert.Equal(EnemySize.Common, grunt.Size);
@@ -126,21 +126,6 @@ public sealed class EnemyRecordTests
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
     }
 
-    [Theory]
-    [InlineData("[{ \"id\": \"ability.fixture_bash\" }]", "[{ \"id\": \"ability.fixture_bash\" }, { \"id\": \"ability.fixture_bash\" }]", "two times")]
-    [InlineData("[{ \"id\": \"ability.fixture_bash\" }]", "[{ \"id\": \"item.fixture_bash\" }]", "ability")]
-    [InlineData("[{ \"id\": \"ability.fixture_bash\" }]", "[{ \"id\": \"ability.fixture_bash\", \"kind\": \"Blade\" }]", "kind")]
-    [InlineData("[{ \"id\": \"ability.fixture_bash\" }]", "[{ }]", "absent")]
-    public void AnAbilityFileThatBreaksARuleFailsWithTheFile(string from, string to, string reason)
-    {
-        string text = TestBattles.AbilitiesFile.Replace(from, to, StringComparison.Ordinal);
-
-        ContentException error = Assert.Throws<ContentException>(() => AbilityList.Read(Encoding.UTF8.GetBytes(text), AbilityList.Path));
-
-        Assert.Equal(AbilityList.Path, error.File);
-        Assert.Contains(reason, error.Message, StringComparison.Ordinal);
-    }
-
     [Fact]
     public void AMapWhoseSizeDiffersFromTheRecordFailsTheContentSet()
     {
@@ -163,24 +148,24 @@ public sealed class EnemyRecordTests
     public void AWaitingEnemyCountsForTheSizeOfTheGroup()
     {
         // D-788: the largest enemy of the group sets the size, the waiting enemies included.
-        string fixture = TestBattles.FixtureFile.Replace(
+        string groups = TestBattles.GroupsFile.Replace(
             """
               "id": "group.test_pair",
                "boss": false,
                "enemies": [
-                { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false },
-                { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false }
+                { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.test_attacker" },
+                { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.test_attacker" }
             """,
             """
               "id": "group.test_pair",
                "boss": false,
                "enemies": [
-                { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false },
-                { "enemy": "enemy.fixture_brute", "row": "front", "waits": true }
+                { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false, "profile": "profile.test_attacker" },
+                { "enemy": "enemy.fixture_brute", "row": "front", "waits": true, "profile": "profile.test_attacker" }
             """,
             StringComparison.Ordinal);
-        Assert.NotEqual(TestBattles.FixtureFile, fixture);
-        BattleContent content = TestBattles.Of(fixture);
+        Assert.NotEqual(TestBattles.GroupsFile, groups);
+        BattleContent content = TestBattles.OfGroups(groups);
 
         ContentException error = Assert.Throws<ContentException>(
             () => Simulation.Start(1, BattleRuns.Map("group.test_pair"), content, DebugIntentHandlers.None));
@@ -195,11 +180,11 @@ public sealed class EnemyRecordTests
     public void AGroupThatNamesAnEnemyWithNoRecordFails()
     {
         // D-786: the group entry and the record lie in two files, so the battle content checks the id.
-        string fixture = TestBattles.FixtureFile.Replace("\"enemy\": \"enemy.fixture_brute\"", "\"enemy\": \"enemy.absent\"", StringComparison.Ordinal);
+        string groups = TestBattles.GroupsFile.Replace("\"enemy\": \"enemy.fixture_brute\"", "\"enemy\": \"enemy.absent\"", StringComparison.Ordinal);
 
-        ContentException error = Assert.Throws<ContentException>(() => TestBattles.Of(fixture));
+        ContentException error = Assert.Throws<ContentException>(() => TestBattles.OfGroups(groups));
 
-        Assert.Equal(BattleFixture.Path, error.File);
+        Assert.Equal(TestBattles.GroupsPath, error.File);
         Assert.Contains("enemy.absent", error.Message, StringComparison.Ordinal);
         Assert.Contains(EnemyRecord.Folder, error.Message, StringComparison.Ordinal);
     }

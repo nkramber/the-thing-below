@@ -331,6 +331,7 @@ public sealed class PatrolTests
             {
              "comment": "a map with no enemies field",
              "id": "map.no_enemies",
+             "region": "region.test",
              "label": "label.no_enemies",
              "time": "day",
              "terrain": [ "###", "#.#", "###" ],

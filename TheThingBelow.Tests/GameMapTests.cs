@@ -289,6 +289,7 @@ public sealed class GameMapTests
         {
          "comment": "a map for one test",
          "id": "map.bad",
+         "region": "region.test",
          "label": "label.bad",
          "time": "{{time}}",
          "terrain": [

@@ -54,6 +54,10 @@
    "text": "No way out."
   },
   {
+   "id": "battle.heal",
+   "text": "{actor} binds {target}. {amount} back."
+  },
+  {
    "id": "battle.health",
    "text": "{health}/{full}"
   },

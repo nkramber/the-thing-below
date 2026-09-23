@@ -38,6 +38,7 @@ public sealed class GameMap
     private GameMap(
         string file,
         ContentId id,
+        ContentId region,
         ContentId label,
         TimeOfDay time,
         int width,
@@ -49,6 +50,7 @@ public sealed class GameMap
     {
         this.File = file;
         this.Id = id;
+        this.Region = region;
         this.Label = label;
         this.Time = time;
         this.Width = width;
@@ -64,6 +66,9 @@ public sealed class GameMap
 
     /// <summary>The permanent content id of the map (D-166, D-646).</summary>
     public ContentId Id { get; }
+
+    /// <summary>The region of the map, whose group file holds each group that the map names (D-957).</summary>
+    public ContentId Region { get; }
 
     /// <summary>The string id of the name that the player reads for this map (G-7).</summary>
     public ContentId Label { get; }
@@ -159,6 +164,7 @@ public sealed class GameMap
     {
         string? comment = null;
         ContentId? id = null;
+        ContentId? region = null;
         ContentId? label = null;
         string? time = null;
         List<string>? terrain = null;
@@ -175,6 +181,9 @@ public sealed class GameMap
                     break;
                 case "id":
                     id = reader.ReadContentId(IdKind);
+                    break;
+                case "region":
+                    region = reader.ReadContentId(Battles.GroupFile.RegionKind);
                     break;
                 case "label":
                     // A string id names where the player reads the text, so it takes the
@@ -202,6 +211,7 @@ public sealed class GameMap
         return Build(
             ref reader,
             reader.Require(id, depth, "id"),
+            reader.Require(region, depth, "region"),
             reader.Require(label, depth, "label"),
             reader.Require(time, depth, "time"),
             reader.Require(terrain, depth, "terrain"),
@@ -277,6 +287,7 @@ public sealed class GameMap
     private static GameMap Build(
         ref ContentReader reader,
         ContentId id,
+        ContentId region,
         ContentId label,
         string time,
         List<string> rows,
@@ -292,7 +303,7 @@ public sealed class GameMap
         TileKind[] tiles = ReadTerrain(ref reader, rows, out int width, out int height);
         MapThing[] things = BuildThings(ref reader, lines, tiles, width, height);
         TilePoint spawn = OneSpawn(ref reader, things);
-        var map = new GameMap(reader.File, id, label, parsed, width, height, tiles, things, [.. patrols], spawn);
+        var map = new GameMap(reader.File, id, region, label, parsed, width, height, tiles, things, [.. patrols], spawn);
 
         // The map is complete here, so each check of a patrol reads the terrain and the
         // spawn point through the map itself and never through a second copy of them (T-1).
