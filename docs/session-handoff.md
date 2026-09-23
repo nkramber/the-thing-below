@@ -1,3 +1,37 @@
+## Session 221: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #60. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: reviewer. Base: `a20d32f`.
+
+### What this session did, and why
+
+- Reviewed the reversion of the Gitar pause at effective head `aa1a10f`.
+- Found that PR #60 deletes the PR #58 review and sessions 209 and 210. It also edits dated PR #59 records. D-10 says that a rewrite falsifies a dated record.
+- Added `docs/reviews/pr-60.md` with finding P2-1 and verdict `Changes required`.
+
+### The state of the build
+
+- The remote head of `main` is `a20d32f`.
+- At `aa1a10f`, `make ste-check` passed with 0 findings. Changed-path CI passed its listed checks, and the Gitar check passed. Review-gate failed RG 3 because the review record did not yet exist.
+- The review and this handoff need commit and push. The effective head remains `aa1a10f`.
+
+### What is in flight
+
+- PR #60 needs the author to restore the historical records and follow the end-of-pause decision procedure from the base runbook.
+
+### Traps and gotchas
+
+- D-10 calls dated records history. Do not rewrite them to remove a decision that later changed.
+- The PR #58 review and sessions 209 and 210 belong in the live records.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The author corrects P2-1. Then this reviewer reassesses PR #60.
+
 ## Session 220: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -313,48 +347,5 @@ None.
 ### The next concrete action
 
 The other provider reviews PR #59 and writes `docs/reviews/pr-59.md`.
-
-## Session 211: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-94, round 1. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
-
-### What this session did, and why
-
-- The owner refused the fog of PR-58 in a play session, because the grid repeats over the view (F-101). The owner named a procedural fog of several layers as the next work.
-- Filed OQ-220 to OQ-223, and the owner took each recommendation. D-896: PR-94 comes before PR-59. D-897: a noise shader replaces the text grid, and D-887 has a revision in part. D-898: one pass draws 1 to 3 layers, and the budget counts one pass for each fog. D-899: the strongest band wins where layers overlap.
-- Core: `FogLayer` reads a key, 1 to 3 bands of `from` and `strength`, a scale, a block size, a seed, and a drift. `FogBand` is new. The reader refuses a fourth layer, and `AmbientEffect.FullScreenPasses` counts one pass for a fog.
-- Game: `FogPass` replaces `FogSheets`. One `ColorRect` covers the view, and `fog.gdshader` or `fog_lit.gdshader` draws it. The two shaders include `fog_noise.gdshaderinc`, and they differ in the scene light alone.
-- The shader reads two octaves of value noise at each world pixel, with an integer hash. Game gives each layer the world pixel of the view minus its drift at the tick, so the shader never reads `TIME` (F-100).
-- The capture file of the fog holds three layers now. Tests cover the reader, the pass count, the uniform names, and the rule that no shader reads `TIME`.
-- Raised the simulation version to 13, and wrote the identity file again (G-17, D-504).
-- Updated `area-effects.md`, the PR-94 block of the phase 2 file, the design list and F-101, the budget comment, and the `csharp-conventions` skill.
-
-### The state of the build
-
-- The remote head of `main` is `8d98c46`. The branch holds one commit of round 1.
-- `make build`, `make test` (2,173 tests), `make format`, `make lint`, `make atlas`, `make identity`, `make content`, `make smoke`, and `make ste-check` pass on this machine.
-- `make sheet` wrote `map-fog-1x` and `battle-fog-1x` with the new fog, and the session read each frame. The four `still` frames use the shipped dust, which holds no fog, so this PR does not change them.
-
-### What is in flight
-
-- The PR waits for CI. The screen-test job then gives new baselines for `map-fog-1x` and `battle-fog-1x`, and the author commits them from the artifact.
-- Then the PR waits for the review of the other provider (T-4).
-
-### Traps and gotchas
-
-- The old grid fog moved west for a positive `drift_x`, because the region of the sprite moved east. The new pass moves the shapes east for a positive value, as `FogLayer` states.
-- A probe gave the shipped dust file the three layers for one `make sheet FIXTURE=still` run, then put the file back. In the four frames, the wisps of `drift_x: -4` moved 24 screen pixels west in 3 seconds, and the lit shader took the torch light.
-- An unlit canvas item needs `render_mode unshaded`, which a uniform cannot switch. That is why two fog shaders exist.
-- PR-57 and PR-58 changed Core readers and kept the simulation version at 12. This PR raised it to 13.
-- The title `# Session handoff` sits below session 207, and not at the top of the file. This entry does not move it.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Take the new fog baselines from the CI artifact of the screen-test job, commit them, and ask the other provider for the review.
 
 # Session handoff
