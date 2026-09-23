@@ -1257,8 +1257,8 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 - The window stack, where back closes one window and the map stays visible behind (D-211).
 - The pause of the world while a menu is open (D-162, D-650).
 - The mouse on menus alone, which makes the same intent as a key or a button (D-219, D-493). The mouse moves the cursor, and a click chooses (D-872).
-- The dungeon map screen, which draws each tile that the party walked (D-567, OQ-111).
-- The notice that slides in at the top edge, and the notice log in the menu (D-221, OQ-113).
+- The dungeon map screen, which draws each tile that the party walked at 16 pixels (D-567, D-982).
+- The notice that slides in at the top edge, and the notice log in the menu (D-221). The log keeps the 30 newest marked notices in the snapshot (D-983 to D-985).
 
 **Out of scope.**
 
@@ -1279,11 +1279,11 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
 **Review focus.**
 
-- D-872 sets the cursor rules, and OQ-111 holds the scale of the map screen.
-- The answer of OQ-113 sets which notices the log keeps, and how many.
+- D-872 sets the cursor rules, and D-982 sets the scale of the map screen.
+- D-983 to D-985 set which notices the log keeps, how many, and the save of the log.
 - Each later system PR adds one window to this stack (D-525).
 
-**Questions.** OQ-111 and OQ-113. D-872 resolved OQ-110. D-650 resolved OQ-64.
+**Questions.** None. D-982 resolved OQ-111, and D-983 to D-985 resolved OQ-113. D-872 resolved OQ-110. D-650 resolved OQ-64.
 
 > *In plain English:* menus are windows that stack on each other, and the world stops while one is open. A second screen draws each tile of the dungeon that the party walked.
 
@@ -2351,9 +2351,9 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-108 | Where a remap lives, and what a conflict does, resolved by D-862 | PR-63 |
 | OQ-109 | The dead zone of a stick, resolved by D-861 | PR-63 |
 | OQ-110 | The cursor rules of a menu, resolved by D-872 | PR-62 |
-| OQ-111 | The scale of the dungeon map screen | PR-62 |
+| OQ-111 | The scale of the dungeon map screen, resolved by D-982 | PR-62 |
 | OQ-112 | The text speeds and the type-out of the dialogue box, resolved by D-864 | PR-36 |
-| OQ-113 | The notice log | PR-62 |
+| OQ-113 | The notice log, resolved by D-983 to D-985 | PR-62 |
 | OQ-114 | The rule of sight for the party and a patrol | PR-7 and PR-8 |
 | OQ-115 | How a large enemy holds its tiles and sorts | PR-8 |
 | OQ-117 | A diagonal step on the map | PR-7 |
