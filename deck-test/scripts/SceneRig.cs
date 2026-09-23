@@ -49,6 +49,9 @@ public sealed class SceneRig
 
     private readonly CanvasModulate _ambient;
     private readonly ColorRect _fog;
+    private readonly ColorRect _shafts;
+    private readonly ColorRect _blur;
+    private readonly ColorRect _vignette;
     private readonly ColorRect _crt;
     private readonly ColorRect _transition;
     private readonly WorldEnvironment _environment;
@@ -79,6 +82,12 @@ public sealed class SceneRig
         root.AddChild(passes);
 
         _fog = AddFullScreenPass(passes, "Fog", "res://shaders/fog.gdshader");
+
+        // The three passes of PR-92, in the order of the game: the shafts above the fog, then
+        // the blur of the whole picture, then the vignette (D-919, D-922).
+        _shafts = AddFullScreenPass(passes, "Shafts", "res://shaders/light_shafts.gdshader");
+        _blur = AddFullScreenPass(passes, "Blur", "res://shaders/tilt_shift.gdshader");
+        _vignette = AddFullScreenPass(passes, "Vignette", "res://shaders/vignette.gdshader");
         _crt = AddFullScreenPass(passes, "Crt", "res://shaders/crt.gdshader");
         _transition = AddFullScreenPass(passes, "Transition", "res://shaders/transition.gdshader");
         _transitionMaterial = (ShaderMaterial)_transition.Material;
@@ -87,6 +96,7 @@ public sealed class SceneRig
         SetPairCount(0);
         SetEmitterCount(0);
         SetPasses(crt: false, glow: false, fog: false);
+        SetLookPasses(false);
         SetTransition(-1f);
     }
 
@@ -142,6 +152,14 @@ public sealed class SceneRig
         _environment.Environment.GlowEnabled = glow;
     }
 
+    /// <summary>Turns the three passes of the HD-2D look of PR-92 on or off together (D-849, D-922).</summary>
+    public void SetLookPasses(bool on)
+    {
+        _shafts.Visible = on;
+        _blur.Visible = on;
+        _vignette.Visible = on;
+    }
+
     /// <summary>Sets the wipe. A value below zero hides the pass, so it costs nothing.</summary>
     public void SetTransition(float progress)
     {
@@ -167,6 +185,14 @@ public sealed class SceneRig
         if (_fog.Visible)
         {
             count++;
+        }
+
+        foreach (ColorRect pass in new[] { _shafts, _blur, _vignette })
+        {
+            if (pass.Visible)
+            {
+                count++;
+            }
         }
 
         if (_environment.Environment.GlowEnabled)

@@ -103,6 +103,15 @@ public partial class Main : Node2D
         }
 
         _stages.Add(new Stage("full-load-24", 0, 4, Crt: false, Glow: true, Fog: true, Transition: true, Pairs: SceneRig.MaxPairs));
+
+        // The heavier stack of PR-92 (D-849, D-922). The stage `full-load-24` above is the
+        // measurement before the passes. `pass-look` gives the fixed cost of the five passes of
+        // a map. `full-load-24-look` is the same load as `full-load-24` with the tilt-shift blur,
+        // the vignette, and the light shafts: 6 passes with the transition. `budget-rows` holds
+        // every row of the budget at once: 24 paired lights, 8192 particles, and 6 passes (D-923).
+        _stages.Add(new Stage("pass-look", 0, 0, Crt: false, Glow: true, Fog: true, Transition: false, Look: true));
+        _stages.Add(new Stage("full-load-24-look", 0, 4, Crt: false, Glow: true, Fog: true, Transition: true, Pairs: SceneRig.MaxPairs, Look: true));
+        _stages.Add(new Stage("budget-rows", 0, SceneRig.MaxEmitters, Crt: false, Glow: true, Fog: true, Transition: true, Pairs: SceneRig.MaxPairs, Look: true));
     }
 
     private void StartNextStage()
@@ -121,6 +130,7 @@ public partial class Main : Node2D
         _rig.SetPairCount(stage.Pairs);
         _rig.SetEmitterCount(stage.Emitters);
         _rig.SetPasses(stage.Crt, stage.Glow, stage.Fog);
+        _rig.SetLookPasses(stage.Look);
         _rig.SetTransition(stage.Transition ? 0f : -1f);
         _stageClock = 0.0;
         _meter.Start(WarmupFrames, MeasureFrames);
@@ -234,6 +244,22 @@ public partial class Main : Node2D
                 $"(p95 {paired.Value.P95Ms.ToString("F2", culture)} ms)");
         }
 
+        StageResult? look = Find("full-load-24-look");
+        if (look is not null)
+        {
+            text.AppendLine(
+                $"  the same load with the three passes of PR-92 held the target: {(look.Value.HoldsTarget ? "yes" : "no")} " +
+                $"(p95 {look.Value.P95Ms.ToString("F2", culture)} ms, {look.Value.Passes} passes)");
+        }
+
+        StageResult? rows = Find("budget-rows");
+        if (rows is not null)
+        {
+            text.AppendLine(
+                $"  every row at once, 24 paired lights, 8192 particles, 6 passes, held the target: {(rows.Value.HoldsTarget ? "yes" : "no")} " +
+                $"(p95 {rows.Value.P95Ms.ToString("F2", culture)} ms, {rows.Value.Passes} passes). The pass row of D-923 asks for 6.");
+        }
+
         text.AppendLine();
         text.AppendLine("Run the other renderer, then compare. The renderer with more room wins (D-160).");
         text.AppendLine("If neither renderer holds the target, the owner decides then (D-261).");
@@ -345,5 +371,6 @@ public partial class Main : Node2D
         bool Glow,
         bool Fog,
         bool Transition,
-        int Pairs = 0);
+        int Pairs = 0,
+        bool Look = false);
 }

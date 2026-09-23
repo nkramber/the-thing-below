@@ -53,6 +53,25 @@ left the plan (D-618), so these stages run the glow and the fog alone. The repor
 row `paired lights` and the line of `full-load-24`. The row of D-854 stands when `pairs-24`
 and `full-load-24` both hold the target under the Mobile renderer (D-616).
 
+### The sweep of the heavier stack of PR-92
+
+PR-92 adds three full-screen passes of the HD-2D look: a tilt-shift blur, a vignette, and light
+shafts (D-849). The owner raised the pass row from 3 to 6, and this sweep measures that stack
+before PR-92 merges (D-922, D-923, G-14).
+
+| Stage | What it gives |
+|---|---|
+| `full-load-24` | The measurement before the passes: 24 paired lights, 2048 particles, the glow, the fog, and a transition |
+| `pass-look` | The fixed cost of the five passes of a map: the glow, the fog, and the three passes |
+| `full-load-24-look` | The measurement after the passes: the load of `full-load-24` with the three passes, 6 passes in all |
+| `budget-rows` | Every row of the budget at once: 24 paired lights, 8192 particles, and 6 passes |
+
+The three shaders in `shaders/` are copies of the shaders of the game, with two changes that
+make each measurement safe. The blur reads a copy of the screen, and the shafts draw 8 beams at
+1280 by 720, four times the pixels of the overlay of the game. The pass row of D-923 stands
+when `full-load-24-look` and `budget-rows` both hold the target under the Mobile renderer
+(D-616).
+
 ## How to run it on the Deck
 
 1. Export the native Linux build on the Mac (D-458):
