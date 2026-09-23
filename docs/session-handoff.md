@@ -12,9 +12,10 @@ Session: reviewer PR #62, round 1. Repository: the-thing-below. Branch: `feat/pr
 
 ### The state of the build
 
-- `main` is `05dcc3d`. The remote PR head and effective head are `238bafe`.
+- `main` is `05dcc3d`. The remote PR head is `09f2281`, and the effective head is `238bafe`.
 - The focused tests pass with 230 tests. CI run 35823669111 passes each implementation check on the configured legs.
-- The current `review-gate` fails on the absent review path. The author lists PR-15 and PR-49 for the bot and night-gate jobs that do not exist yet.
+- Metadata CI run 35825994991 passes its applicable checks. Review-gate run 35825994798 passes RG 1 to RG 3 and RG 5 to RG 8. RG 4 reads the required `Blocked` verdict.
+- Gitar passes on `09f2281`; its dashboard still reports the RG 4 failure. The author has not replied.
 
 ### What is in flight
 
@@ -22,7 +23,7 @@ Session: reviewer PR #62, round 1. Repository: the-thing-below. Branch: `feat/pr
 
 ### Traps and gotchas
 
-- The Gitar comment names `docs/reviews/pr-62.md`. The review adds this path, but the author still needs to answer the comment.
+- The first Gitar pass flagged the absent review path. The latest pass reports the `Blocked` verdict under RG 4.
 - OQ-241 asks which later PR adds ceiling shafts, and blocks nothing here.
 
 ### The questions that block progress
