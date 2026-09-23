@@ -1,3 +1,39 @@
+## Session 259: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #69, round 1. Repository: the-thing-below. Branch: `feat/pr-67-character-level`. PR: #69. Role: reviewer. Base: `5b56d3d`.
+
+### What this session did, and why
+
+- Reviewed PR #69 from merge base `5b56d3d` through effective head `9604e8f`.
+- Confirmed Claude Code authored the change, so Codex passes the provider gate (T-4, D-17).
+- Traced experience, levels, MP, save migration, replay state, battle events, and the battle view. Inspected all 81 changed paths.
+- Read all 18 changed battle frames from the screen-test artifact. No visual fault was found (D-733, D-784).
+- Added `docs/reviews/pr-69.md` with `Ready for owner merge` for `9604e8f`.
+
+### The state of the build
+
+- `main` and the PR base are `5b56d3d`. The remote PR head before this metadata commit is `9604e8f`.
+- Focused tests passed, 89 of 89, after `make build` created the Game assembly.
+- CI run 35931706529 passed the implementation checks on every platform. Review-gate failed because the review record was absent.
+
+### What is in flight
+
+- This metadata commit holds the review record and this handoff entry. The push must make the new review-gate check pass.
+
+### Traps and gotchas
+
+- Gitar's only comment is a status notice without an item. D-964 says it needs no answer and does not block the verdict.
+- Focused tests that read the Game assembly need `make build` first.
+
+### The questions that block progress
+
+None for PR-69.
+
+### The next concrete action
+
+Commit and push the review record and handoff together. Fetch, verify the remote head, and confirm the fresh review-gate result.
+
 ## Session 258: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -318,38 +354,3 @@ None for PR-11. OQ-243 blocks PR-98.
 ### The next concrete action
 
 Run `make codex-review PR=67 -- --skip-gitar-review`, and read its outcome.
-
-## Session 249: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #67, round 2. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: #67. Role: reviewer. Base: `d429d03`.
-
-### What this session did, and why
-
-- Re-reviewed PR #67 from merge base `d429d03` through effective head `ad83e20`.
-- Verified that `BattleTurns.EnemyAct` measures the whole enemy action on a copy of the run, and that the regression test checks the copy boundary.
-- Closed P2-1 as fixed in `ad83e20`. The Deck measurement and the answer to the existing Gitar comment remain outstanding.
-- Updated `docs/reviews/pr-67.md` with a blocked verdict for the unresolved merge requirements.
-
-### The state of the build
-
-- `main` and the PR base are `d429d03`. The remote PR head before this metadata commit is `ad83e20`.
-- `make verify` passed on macOS arm64 with 2,507 tests. CI run 35908764586 passed the implementation checks on every platform. The old review record caused `review-gate` to fail.
-
-### What is in flight
-
-- The review record and handoff entry are on the PR branch in commit `d0eca6a`. The fresh review-gate check is pending.
-- The owner needs the Steam Deck measurement from `make evaluator-cost` (D-961). The author needs to answer the existing Gitar comment.
-
-### Traps and gotchas
-
-- The correction fixes the timed work. The test proves that the timer call changes only its copy of the run.
-- The `review-gate` failure reads the old record. The next run must read this record on the metadata tip.
-
-### The questions that block progress
-
-OQ-243 applies to PR-98 alone (D-951 to D-954). The Steam Deck measurement and the answer to the Gitar comment remain required for PR-67.
-
-### The next concrete action
-
-Read the fresh review-gate result. The owner needs to supply the Deck measurement and the author needs to answer the Gitar comment.
