@@ -310,7 +310,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | PR-57 | Effect files, particles, the shake, and the hit-stop | D-182, D-186, D-877 to D-883 |
 | PR-12 | The flash of a spell | D-186, D-878 |
 | PR-58 | The four ambient kinds | D-187, D-202 |
-| PR-94 | The procedural fog: a soft noise shader of 1 to 3 layers in one pass | D-896 to D-907 |
+| PR-94 | The procedural fog: a soft noise shader of 1 to 3 layers in one pass | D-896 to D-908 |
 | PR-59 | Glow | D-188 |
 | PR-92 | The tilt-shift blur, the vignette, and the light shafts of the HD-2D look | D-849 |
 | PR-60 | The ten transitions and the table of kinds | D-195, D-196 |
@@ -394,7 +394,7 @@ The register is `docs/questions.md` (D-19). These questions block effect PRs, an
 - OQ-101: how fog keeps an enemy visible. Resolved 2026-09-22 by D-885.
 - OQ-102: how glow stays off sprites. Blocks PR-59.
 - OQ-103: where shader code lives. Resolved by D-825.
-- OQ-220 to OQ-231: the place, the form, the passes, the overlap, the edges, the resolution, the spread, the color, the test floor, the strength, and the pixel look of the procedural fog. Resolved 2026-09-22 by D-896 to D-907.
+- OQ-220 to OQ-231: the place, the form, the passes, the overlap, the edges, the resolution, the spread, the color, the test floor, the strength, and the coverage of the procedural fog. Resolved 2026-09-22 by D-896 to D-908.
 - OQ-79: how the screen-test job pins Mesa. Closed 2026-09-20 by D-729, and D-730 holds the pin.
 - OQ-89: pixel snap in Game. Blocks PR-7.
 - OQ-183: the scale of the frame on a screen. Blocks PR-7 and PR-34, and the probe of D-621 answers it.

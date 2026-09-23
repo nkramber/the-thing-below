@@ -729,4 +729,5 @@ How to file a question (D-19, D-24):
 231. **OQ-231. The coverage of the soft fog.** The fog of round 3 covers about two thirds of the map view, and the reference leaves more clear ground. Raised 2026-09-22. Blocks PR-94.
     - A little less coverage, the recommendation.
     - The coverage as it is, or more coverage.
-    - Resolved 2026-09-22: D-907. The owner asked for more of the pixel look of the art, between the soft fog and the bands of round 1.
+    - The first answer, D-907, asked for more of the pixel look of the art, and it named no coverage. The review of PR-94 found that gap (P2-1 of `docs/reviews/pr-59.md`).
+    - Resolved 2026-09-22: D-908. A little less coverage.

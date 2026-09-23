@@ -1,4 +1,55 @@
 # Session handoff archive
+## Session 207: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-58. Repository: the-thing-below. Branch: `feat/pr-58-ambient`. Role: author. Base: `3f9ea43`.
+
+### What this session did, and why
+
+- Fixed the torch light that climbed a passage. A wall beside a doorway takes an L shape now: its band, and a column of 2 pixels to the south edge of the tile (D-852). The owner approved this second concern, and it takes no decision row.
+- Asked the owner OQ-101 and seven more questions. D-885 to D-892 hold the answers.
+- Built the ambient files: the four kinds, the weather of each map, the fog above the figures, and its contrast test (D-187, D-885, D-887).
+- Gave each wall torch and the carried light a flame, embers, smoke, and a light of steps (D-890, D-891).
+- Added the row of full-screen passes to the effect budget, with its checks (D-523, D-617).
+- Added 14 captures: each kind on the map and over a fight, the pit room, three frames of a step that scrolls the view, and four still frames (D-889, D-894, F-97).
+- Answered each Gitar pass. A node takes its seed from its name, and the region of a node holds one view on each side.
+- Fixed four faults of the play sessions of the owner. F-97: a stream rode the view, and each node keeps `local_coords` on now and moves its start box alone.
+- F-98: every torch went out in another room, because Godot stops a system whose region leaves the screen. A node holds the map, one view on each side, and a margin now.
+- F-99: the light of a torch snapped in a doorway. The light keeps its place now, and the flame alone jumps (D-891).
+- F-100: Godot advances a particle system about one second at a time, so no long stream could hold its motion. A probe of the frames found it. D-893 answers it: Game draws each mote of a weather itself, from a pure function of the tick in integer math.
+- Each mote falls, sways as a sheet of paper falls, lands, and lies still for 5 seconds. Ten tests of Core hold that motion.
+- A mote holds two grays, from `TheThingBelow.Game/shaders/mote_light.gdshader`: the iron `g` with no light, and the steel `G` in full light (D-825). The shader reads the strength of a light and never its color, and a frame holds `#5A5566` and `#7D7788`.
+
+### The state of the build
+
+- `make verify` and `make smoke` pass on this machine, with 2,162 tests and no failure.
+- The smoke session reads the light of each torch over 120 ticks, and it walks a run into the room below (F-98, F-99).
+
+### What is in flight
+
+- The PR holds the baselines of the artifact of the run 35774928391, at the head `6e95b39`: 14 new frames and 52 changed frames. The CI run of the head `fff1d19` passed every job: the three legs of build and test, det-lint, replay-identity, smoke, screen-test, and ste-check.
+- The Gitar pass of the head `fff1d19` approved with two open findings. This session answered both: the region of a particle node now holds one view on each side, and the smoke session reads the light of each torch over 120 ticks (F-99).
+- The PR needs a new Gitar pass after this push, and then the review of the other provider.
+
+### Traps and gotchas
+
+- A fog over an enemy and over the floor shrinks each luma gap by the same part, so the color of the fog never changes the result of the test (D-892).
+- The fixture map foe holds a gap of 16 on the floor key `K` with no fog, so the test skips that pair and reads the loss of the fog alone (D-892).
+- The fire of a torch and the burst of a hit stay on the particles of Godot, because each one lives under 2 seconds (D-893). A weather never does.
+- A probe that paints each mote in one key and reads the frames found F-97, F-98, and F-100. The still fixture of D-894 holds that ground.
+- The capture session takes 68 captures, and each one waits 8 frames. The `sheet` target of the Makefile holds its own frame limit of 1200, as the screen-test job does.
+- The three frames of the scroll fixture hold the evidence of F-97. A particle that rides the view stands at the same place of each frame.
+- The smoke session walks a run of its own into the room below, and it fails on a node whose region leaves the view, and on a torch with no energy (F-98).
+- The capture files of `content/effects/ambient-captures/` never reach a map of the shipped build (D-889).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push the branch, open the PR, and answer the gitar pass. Then take the new and changed baselines from the CI artifact and commit them.
+
 ## Session 206: 2026-09-22, Codex
 
 Author: Codex

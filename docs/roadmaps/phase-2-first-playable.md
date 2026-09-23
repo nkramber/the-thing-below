@@ -867,6 +867,7 @@ Area file: `area-effects.md` section 7.9.
 - One full-screen pass for all the layers of a fog, and the budget count of one pass for each fog (D-898).
 - A fade from clear to full in 2 to 8 steps, over blocks of art pixels, in the pale key `L` (D-900, D-903, D-907). The owner refused the hard bands of round 1 (F-102).
 - An even density over the view, about 45 percent at the thickest, and a floor of 17 for the fog test (D-902, D-905, D-906).
+- Clear ground between the banks of the fixture fog (D-908).
 - The strongest layer wins where layers overlap (D-899).
 - A new fog capture file of three layers for the fixture dungeon (D-889).
 
@@ -888,7 +889,7 @@ Area file: `area-effects.md` section 7.9.
 - The fog keeps one palette key for each layer, and its steps and blocks keep the pixel look of the art (G-27, D-907).
 - The shader reads the drift that Game gives it, so one tick gives one picture (F-100, T-7).
 
-**Questions.** None. D-896 to D-907 resolved OQ-220 to OQ-231.
+**Questions.** None. D-896 to D-906 and D-908 resolved OQ-220 to OQ-231.
 
 > *In plain English:* the fog of PR-58 was one small picture, repeated over the screen, and the repeat showed. The new fog grows from a soft noise over the whole world. It never repeats, and its edges fade like mist, in the steps and blocks of the pixel art.
 
@@ -2230,6 +2231,6 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-172 | The output format of the capture | PR-74 |
 | OQ-173 | The sizes of the store images | PR-76 |
 | OQ-174 | Which five screenshots | PR-76 |
-| OQ-220 to OQ-231 | The place, the form, the passes, the overlap, the edges, the resolution, the spread, the color, the test floor, the strength, and the pixel look of the procedural fog, resolved by D-896 to D-907 | PR-94 |
+| OQ-220 to OQ-231 | The place, the form, the passes, the overlap, the edges, the resolution, the spread, the color, the test floor, the strength, and the coverage of the procedural fog, resolved by D-896 to D-906 and D-908 | PR-94 |
 
 No open question blocks this file.
