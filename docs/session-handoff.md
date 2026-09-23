@@ -1,7 +1,7 @@
 ## Session 237: 2026-09-23, Claude Code
 
 Author: Claude Code
-Session: author PR-60, round 1. Repository: the-thing-below. Branch: `feat/pr-60-transitions`. PR: #64. Role: author. Base: `ca8c549`.
+Session: author PR-60, rounds 1 and 2. Repository: the-thing-below. Branch: `feat/pr-60-transitions`. PR: #64. Role: author. Base: `ca8c549`.
 
 ### What this session did, and why
 
@@ -11,16 +11,16 @@ Session: author PR-60, round 1. Repository: the-thing-below. Branch: `feat/pr-60
 - Game holds the events of the fight for the 60 ticks of the transition. The fight then fades in from the cover color, and after a win or a flee the map fades back in before the wait intent (D-522, D-938, D-939).
 - The pass of the hand-off draws last in the frame, above the UI. The budget counts one transition pass on every map (D-523, D-923).
 - Added eleven captures: each look halfway through, and the color split at the reduced level, where the fade takes its place (D-863). The author read each frame of `make sheet FIXTURE=transition`, and reworked the snow whiteout, which read as static.
+- Committed 25 baselines from the artifact of CI run 35878686156 (D-733): the 11 transition captures and the 14 battle captures. The fixture fight now reaches its first command 80 ticks later, after the transition and the fade, so the drift of the backdrop and the fog moved. The author read the old and new frames, and no other part changed. The whole artifact of 85 captures matches the committed baseline.
 - The owner asked how a player sees the count of the enemies of a fight. The battle screen draws no waiting enemy and no count (D-758, D-778). OQ-242 holds the question, at the request of the owner.
 
 ### The state of the build
 
-- `main` is `ca8c549`. This commit is the first push of the branch.
-- `make build`, `make format`, `make lint`, `make smoke`, and the STE check pass on this machine. `make test` passes except the eleven new captures, which have no baseline yet.
+- `main` is `ca8c549`. Round 1 pushed `479bd36`, and CI run 35878686156 failed on the missing baselines alone. Round 2 adds OQ-242 and the baselines.
+- `make build`, `make test` with 2440 tests, `make format`, `make lint`, `make smoke`, and the STE check pass on this machine.
 
 ### What is in flight
 
-- The screen-test job of the first push gives the eleven baselines, and the author commits them from its artifact (D-733).
 - The Gitar pass, then `make codex-review PR=64`.
 - The owner set the only concern of the next PR: before the question of a merge, the author posts a summary in four sections, What, How, CI, and Codex review. CI says green or not, and Codex review gives the verdict: `Ready for owner merge`, `Blocked`, or `Changes required`. The rule revises D-933 in part, the one paragraph, and the transitional prompt of PR-60 names it.
 
@@ -29,6 +29,7 @@ Session: author PR-60, round 1. Repository: the-thing-below. Branch: `feat/pr-60
 - The transition shaders read the frame under them with `hint_screen_texture`, so the pass must stay the last child of the frame viewport.
 - A test set with its own maps needs `EffectFixtures.WithMapsOf`, because each map of the rules belongs to one region (D-936).
 - The party loses the hall fight at the fixture seed, so the test of exit test 4 flees.
+- A change of the length of a transition or of the fade moves every battle capture, because the fixture fight starts later.
 
 ### The questions that block progress
 
@@ -36,7 +37,7 @@ None. OQ-242 waits for the owner and blocks nothing in PR-60.
 
 ### The next concrete action
 
-Read the screen-test artifact of the first push, commit the eleven baselines, and answer the Gitar pass.
+Answer the Gitar pass of round 2, then run `make codex-review PR=64`.
 
 ## Session 236: 2026-09-23, Claude Code
 
