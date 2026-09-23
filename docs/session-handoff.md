@@ -1,7 +1,7 @@
 ## Session 227: 2026-09-23, Claude Code
 
 Author: Claude Code
-Session: author PR-92, round 1. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: the PR of PR-92. Role: author. Base: `05dcc3d`.
+Session: author PR-92, round 1. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
 
 ### What this session did, and why
 
@@ -15,12 +15,14 @@ Session: author PR-92, round 1. Repository: the-thing-below. Branch: `feat/pr-92
 
 ### The state of the build
 
-- `main` is `05dcc3d`. Every check of `make verify` passes on this machine except the 6 new baselines, which come from the CI artifact (D-733).
+- `main` is `05dcc3d`. `make verify` passed on this machine except the 6 new baselines.
+- CI run 35820532779 on `2d67459`: the two capture runs matched on all 78 captures. The 72 baselines that changed come from its artifact (D-733). The 5 ui captures and the picture capture did not change.
+- Gitar approved `2d67459` with no finding.
 
 ### What is in flight
 
 - The owner runs the Deck sweep of `spike/deck-test`. The pass row of 6 stands only when `full-load-24-look` and `budget-rows` hold 60 frames per second (G-14).
-- The PR waits for CI, the new baselines, gitar, and the review of the other provider.
+- The PR waits for CI on the baseline commit and the review of the other provider.
 
 ### Traps and gotchas
 
