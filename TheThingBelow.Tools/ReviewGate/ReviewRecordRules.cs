@@ -78,24 +78,10 @@ public static class ReviewRecordRules
     public static GateCheck CheckVerdict(string path, string text)
     {
         ArgumentNullException.ThrowIfNull(text);
-        IReadOnlyList<string>? section = MarkdownSection.ReadLines(text, "## Verdict");
-        if (section is null)
+        IReadOnlyList<string>? bold = ReadBoldNames(text);
+        if (bold is null)
         {
             return new GateCheck("RG 4", GateResult.Fault, $"`{path}` holds no `## Verdict` section (D-17).");
-        }
-
-        // The section gives one bold name, and that name is the verdict. A search of the whole
-        // section passes a record that refuses the merge, such as one with
-        // `**Not Ready for owner merge.**`. A read of the first bold name alone passes a record
-        // that holds a second verdict after the first one. A count of the verdict names alone
-        // passes a record that holds a bold negation beside the approved name (T-2).
-        List<string> bold = [];
-        foreach (string line in section)
-        {
-            foreach (Match match in BoldSpan.Matches(line))
-            {
-                bold.Add(match.Groups[1].Value.Trim().TrimEnd('.').Trim());
-            }
         }
 
         if (bold.Count == 0)
@@ -133,6 +119,52 @@ public static class ReviewRecordRules
         }
 
         return new GateCheck("RG 4", GateResult.Pass, $"the verdict of `{path}` is `{ApprovedVerdict}`.");
+    }
+
+    /// <summary>Reads each bold name of the `## Verdict` section, with the end period removed.</summary>
+    /// <param name="text">The text of the record.</param>
+    /// <returns>Each bold name in the order of the section, or null when the record holds no such section.</returns>
+    public static IReadOnlyList<string>? ReadBoldNames(string text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+        IReadOnlyList<string>? section = MarkdownSection.ReadLines(text, "## Verdict");
+        if (section is null)
+        {
+            return null;
+        }
+
+        // The section gives one bold name, and that name is the verdict. A search of the whole
+        // section passes a record that refuses the merge, such as one with
+        // `**Not Ready for owner merge.**`. A read of the first bold name alone passes a record
+        // that holds a second verdict after the first one. A count of the verdict names alone
+        // passes a record that holds a bold negation beside the approved name (T-2).
+        List<string> bold = [];
+        foreach (string line in section)
+        {
+            foreach (Match match in BoldSpan.Matches(line))
+            {
+                bold.Add(match.Groups[1].Value.Trim().TrimEnd('.').Trim());
+            }
+        }
+
+        return bold;
+    }
+
+    /// <summary>Tells whether a name is one of the three verdict names of the `pr-review` skill.</summary>
+    /// <param name="verdict">The bold name of the verdict line.</param>
+    /// <returns>True for `Ready for owner merge`, `Changes required`, and `Blocked`.</returns>
+    public static bool IsVerdictName(string verdict)
+    {
+        ArgumentNullException.ThrowIfNull(verdict);
+        foreach (string name in VerdictNames)
+        {
+            if (string.Equals(verdict, name, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>RG 5: the head field of the record names the effective head (D-610).</summary>
@@ -198,18 +230,5 @@ public static class ReviewRecordRules
             "RG 5",
             GateResult.Pass,
             $"the head field of `{path}` names the effective head `{effectiveHead.Sha}`.");
-    }
-
-    private static bool IsVerdictName(string verdict)
-    {
-        foreach (string name in VerdictNames)
-        {
-            if (string.Equals(verdict, name, StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

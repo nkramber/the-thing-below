@@ -307,6 +307,7 @@ The table maps each check of the PR gate in `CLAUDE.md` to its job. PR #11 broug
 - After PR-3 merges, the owner requires the checks that exist then (OQ-3). The owner adds each later check after its first run, because GitHub lists a check as a choice only after it runs once.
 - The protection went live on `main` on 2026-09-19 with five checks: `changed paths`, `ste-check`, `review-gate`, `det-lint`, and `coverage report` (D-681). The three leg families join it after PR-88, because each one reports a stable name then (D-682, D-685).
 - A required check matches by name, so no required check reads the name of a matrix job. Section 7.19 holds the gate job of each family.
+- PR-95 adds `screen-test` to the required checks, and it turns on conversation resolution and the auto-merge (D-931).
 - Each check that does not exist yet has a line in the PR gate that names its PR (G-16).
 
 > *In plain English:* each line of the merge checklist has one job behind it, and each job names the change that creates it. The owner makes each check a hard rule after its first run.
@@ -363,6 +364,22 @@ A required status check matches by name. A job that a condition skips reports Su
 
 > *In plain English:* the merge rules match a check by its name, and the names of the three-machine jobs changed with the kind of change. One small job for each family reports one name that never changes.
 
+### 7.20 The automated review and the auto-merge
+
+Built by PR-95. Phase file: `phase-2-first-playable.md` section 7.22.
+
+The review of the other provider starts from one command, and a PR merges itself when the green light holds (D-926, D-930). `docs/runbooks/merge.md` holds the commands.
+
+- `make codex-review PR=<n>` runs the `codex-review` command of Tools. It installs the newest CLI with npm, probes the model, and refuses a run that has no complete Gitar pass (D-926, D-927).
+- The review runs in a separate worktree at the head of the PR. The reviewer pushes its record and its handoff entry in one metadata commit (D-928, D-610).
+- The command reads the record on origin, and it gives one exit code for each outcome. A finding open in a third round gives the three-strike stop (D-929).
+- The author session turns on the auto-merge after an approval of the effective head. The protection of `main` then holds the merge until each required check passes (D-930).
+- The protection requires nine checks: the eight of D-681 and D-685, and `screen-test`. Conversation resolution holds each review thread of Gitar (D-931).
+- `docs/runbooks/branch-protection.json` records the settings, and the runbook compares the record with the live settings (D-931).
+- Each required check reports on a docs-only head and on a code head, because each gate job runs with `always()`. The `export` workflow has a path filter, so it stays out of the required set (D-692).
+
+> *In plain English:* one command starts the review by the other provider and reads the verdict. When the review approves and every check is green, GitHub merges the PR with no wait for a person.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The CI work keeps this order inside it:
@@ -383,10 +400,11 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 14. PR-7: the first merge that exports a walkable build.
 15. PR-41: the screen-test job, after PR-45 (D-492).
 16. PR-93: ste-check, review-gate, and Gitar alone on a docs-only change, right after PR-56 (D-856).
-17. PR-15: the bot runs on every leg (D-505).
-18. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
-19. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-20. **← GATE 2 (first playable).**
+17. PR-95: the automated review, the three-strike stop, and the gated auto-merge, right after PR-92 (D-926 to D-931).
+18. PR-15: the bot runs on every leg (D-505).
+19. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
+20. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+21. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 

@@ -1,4 +1,40 @@
 # Session handoff archive
+## Session 222: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #60, round 2. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: reviewer. Base: `a20d32f`.
+
+### What this session did, and why
+
+- Read the checks and Gitar dashboard after review metadata head `503094f`.
+- Confirmed RG 3 and RG 5 to RG 8 pass. RG 4 fails because the review verdict is `Changes required`.
+- Updated `docs/reviews/pr-60.md` with the metadata-run result and current Gitar status.
+
+### The state of the build
+
+- The remote head of `main` is `a20d32f`. The effective head of PR #60 remains `aa1a10f`.
+- CI passed each applicable check except review-gate RG 4. Gitar approved the code review. The latest dashboard reports RG 4, and the author has not answered that comment.
+- The updated review and this handoff need commit and push.
+
+### What is in flight
+
+- PR #60 needs the author to restore the historical records and follow the end-of-pause decision procedure from the base runbook.
+- The author also needs to answer the latest Gitar comment about RG 4.
+
+### Traps and gotchas
+
+- D-10 calls dated records history. Do not rewrite them to remove a decision that later changed.
+- The PR #58 review and sessions 209 and 210 belong in the live records.
+- RG 4 stays red while the review verdict is `Changes required`.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The author corrects P2-1 and answers the Gitar comment. Then this reviewer reassesses PR #60.
+
 ## Session 221: 2026-09-23, Codex
 
 Author: Codex

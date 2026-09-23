@@ -190,6 +190,16 @@ With each condition, the verdict can be `Ready for owner merge`. The record says
 
 A session with no network cannot commit or push. The author of the PR then commits the review record and the handoff entry of that session, with no change to their text.
 
+## A review that the command starts
+
+The `codex-review` command of Tools starts a review with the prompt `Review PR #<n>.` (D-926). That session is a clean reviewer session, and each rule of this skill applies to it.
+
+- The session runs in a separate worktree at the head of the PR, on the local branch `review/pr-<n>`. That branch tracks the PR branch.
+- Push with `git push origin HEAD:<branch>`, with the PR branch that the prompt names. A push of the local branch by its name pushes no review.
+- The session adds its own handoff entry, and it commits the entry with the record in one metadata commit (D-928).
+- Each finding of the record has its `Open at:` line (D-929). The command gives a fault for a finding with no such line.
+- The session ends after its push. The command then reads the verdict from the record on origin, and it compares the head field with the effective head.
+
 ## Precise findings
 
 Investigate each suspected defect before it becomes a finding.
@@ -242,7 +252,8 @@ Quote both statements when owner decisions conflict. File the question in `docs/
 A line under `## Out of scope` never gives the verdict `Changes required`.
 No findings does not mean no risk. State material limits without a claim of zero regressions.
 Approval applies only to the recorded revision. A new base or head requires assessment of the changed scope and evidence.
-The owner alone merges the PR (D-8).
+
+The reviewer never merges a PR, and it never turns on the auto-merge. After an approval, the author turns on the auto-merge, and the owner can merge too (D-8, D-930). The verdict name stays, because `review-gate` reads it (D-612).
 
 When the review record enters the PR, retain the assessed implementation head in that file.
 Check any later metadata commit before the final verdict.

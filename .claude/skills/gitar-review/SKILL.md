@@ -56,7 +56,7 @@ Do these steps after each push.
 23. For partial merit, fix the part with merit. Refute the rest in the same reply.
 24. When you have commits, go to step 1. After the push, reply on each thread with the commit that fixes it.
 25. Stop when a current review approves, or when a current review adds no finding and each finding has its answer.
-26. Tell the owner that the pull request is ready to merge.
+26. Start the next step of the repo. In this repo, that step is `make codex-review PR=<n>` (D-926).
 
 ## Find an automatic review
 

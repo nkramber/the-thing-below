@@ -72,7 +72,7 @@ Commit the entry of a round before the push of that round. While the PR waits fo
 
 ### The transitional prompt
 
-After the hand-over point, the owner says `Merged PR #x`. The session then writes one transitional prompt for the next clean session, and it does no other work (D-601). The session writes the prompt for its own PR alone.
+After the merge, the session writes one transitional prompt for the next clean session, and it does no other work (D-601, D-930). An owner merge waits for `Merged PR #x`. The session writes the prompt for its own PR alone.
 
 The prompt is one fenced block that the owner pastes into the next session. Step 6 of the `one-pr-one-session` skill holds the template and the fields.
 
@@ -107,7 +107,7 @@ The prompt is one fenced block that the owner pastes into the next session. Step
 
 ## Git rules
 
-- Trunk is `main`. Every change starts on a short branch named `<prefix>/pr-<n>-<slug>`, for example `feat/pr-3-review-gate`. The owner squash-merges (D-8).
+- Trunk is `main`. Every change starts on a short branch named `<prefix>/pr-<n>-<slug>`, for example `feat/pr-3-review-gate`. A PR squash-merges through the gated auto-merge, or by the owner (D-8, D-930).
 - Never commit on `main` (D-25). `make hooks` installs the pre-commit hook that refuses one.
 - Commit subjects use a conventional prefix: `feat`, `fix`, `docs`, `test`, `chore`.
 - One concern per PR (G-8).
@@ -119,7 +119,7 @@ An automated reviewer, gitar, comments on every PR after a push (D-14). After ea
 
 - The author answers every comment before the hand-over to the other provider, or before the session applies the `review-override` label (D-67).
 - Wait for gitar with the one command of `docs/runbooks/session-context.md`, not a call for each poll (D-586).
-- When the pass is complete, tell the owner that the PR is ready for the other provider, or apply the label below.
+- When the pass is complete, run `make codex-review PR=<n>` in the background, or apply the label below (D-926). `docs/runbooks/merge.md` gives the rest (D-929, D-930).
 - A reply names no provider, harness, or model as the source of work (T-6).
 - The reviewing provider reads the existing PR comments into its review and never addresses gitar. The `pr-review` skill holds the procedure of the reviewer.
 - Every PR answers the pass, a documentation PR included (D-66). The `review-override` label exempts a documentation PR from the Codex review alone, and only when the PR changes no row of `docs/decisions.md` (D-401).
@@ -142,10 +142,11 @@ The solution and the project names follow D-217. Run each command from the check
 - A Tools command with its options: `dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- atlas --root . --check`
 - Review gate: the same form, with `review-gate --pull-request <file> --head-files <folder>`
 - Play session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --path TheThingBelow.Game`
+- Cross-provider review: `make codex-review PR=<n>` (D-926).
 
-Every option of the test application comes after `--` (D-592). The coverage command writes a Cobertura file, and the CI job makes a Markdown summary (D-593). The content-hash command takes `--write` after an intended change of a rule file (D-648). The atlas command writes each page and the atlas index, and `--check` compares the committed atlas (D-666). The `--sheets <folder>` option writes the review sheets, and no sheet enters git (D-514).
+Every option of the test application comes after `--` (D-592). The coverage command writes a Cobertura file, and the CI job makes a Markdown summary (D-593). The content-hash command takes `--write` after an intended change of a rule file (D-648). The `--sheets <folder>` option of `atlas` writes the review sheets, and no sheet enters git (D-514).
 
-The name `Godot` is not on the command path of this machine. The play session needs the full path above, and the `smoke` target holds the same path. The STE check reads every live document that git tracks and takes no file list (D-608, D-702). It also runs the reference check, the session number check, the size rules, and the Documents rows check (D-605, D-607, D-611, D-696). The `ste-writing` skill holds each rule and each exempt path. Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585).
+The name `Godot` is not on the command path, so the play session and `make smoke` use the full path. The STE check reads every live document that git tracks and takes no file list (D-608, D-702). The `ste-writing` skill holds each of its rules and each exempt path (D-605, D-607, D-611, D-696). Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585).
 
 ## PR gate
 
@@ -163,7 +164,7 @@ A PR merges only when every line holds:
 - [ ] The `night-gate` job is green: a success record from a night inside 48 hours (G-22). PR-49 creates it (D-496). A docs-only PR passes it (D-513).
 - [ ] The `ste-check` job is green: the writing, reference, session number, size, and Documents row rules (G-12, D-605, D-607, D-611, D-696).
 - [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14). The review is current under the `gitar-review` skill.
-- [ ] The other provider reviewed it, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). The label of D-401 exempts a PR of the override set that changes no decision row.
+- [ ] The other provider reviewed it through `make codex-review`, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). The label of D-401 exempts a PR of the override set that changes no decision row.
 - [ ] The `review-gate` check is green (D-15, D-500, F-37).
 - [ ] `docs/decisions.md` has every new decision.
 - [ ] `docs/questions.md` has every new question.

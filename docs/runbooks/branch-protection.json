@@ -1,0 +1,31 @@
+{
+  "main": {
+    "allow_deletions": false,
+    "allow_force_pushes": false,
+    "enforce_admins": true,
+    "required_approving_review_count": 0,
+    "required_conversation_resolution": true,
+    "required_linear_history": true,
+    "required_status_checks": {
+      "contexts": [
+        "build, test, and format",
+        "changed paths",
+        "coverage report",
+        "det-lint",
+        "replay-identity",
+        "review-gate",
+        "screen-test",
+        "smoke",
+        "ste-check"
+      ],
+      "strict": false
+    }
+  },
+  "repository": {
+    "allow_auto_merge": true,
+    "allow_merge_commit": false,
+    "allow_rebase_merge": false,
+    "allow_squash_merge": true,
+    "delete_branch_on_merge": true
+  }
+}

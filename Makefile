@@ -16,7 +16,7 @@ SMOKE_FRAME_LIMIT := 600
 SHEET_FRAME_LIMIT := 1200
 
 
-.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke sheet walk run clean
+.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke sheet walk run clean codex-review
 
 ## verify: every check that this machine can run.
 verify: build test format lint ste-check identity content atlas smoke
@@ -165,6 +165,20 @@ walk:
 ## run: the play session of this machine (D-3).
 run:
 	"$(GODOT)" --path $(GAME_DIR)
+
+## codex-review: the cross-provider review of one PR through the Codex CLI (D-926 to D-929).
+#
+# `PR=<n>` names the GitHub number of the PR. The command of Tools installs the newest CLI, probes
+# the model, refuses a run on a closed PR, a checkout that differs from origin, a working tree
+# with changes, or a Gitar pass that is not complete. It then runs the review in a separate
+# worktree, and it reads the verdict from the record on origin.
+#
+# The command gives 0 for an approval, 2 for `Changes required` or `Blocked`, 3 for the
+# three-strike stop, and 1 for a fault or a refusal. Make gives 2 for each code other than 0, so
+# read the last line of the output: `codex-review: outcome <name> (exit <code>)`.
+codex-review:
+	@test -n "$(PR)" || { echo "codex-review: set PR=<number>, such as make codex-review PR=63 (T-2)." >&2; exit 1; }
+	dotnet run --project $(TOOLS_PROJECT) -- codex-review --root . --pull-request $(PR)
 
 ## where: the branch, the tree, and the PR state.
 where:

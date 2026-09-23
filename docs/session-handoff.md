@@ -1,3 +1,43 @@
+## Session 232: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR #63, round 1. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: author. Base: `097ea32`.
+
+### What this session did, and why
+
+- Checked the precondition: PR #62 merged as `097ea32`. `docs/reviews/pr-62-response.md` is on `main` through PR #62, so no untracked file of PR #62 stayed in the checkout.
+- Asked the owner six questions, and recorded the direction and the answers as D-926 to D-931. The effect columns of D-8, D-576, D-578, D-582, and D-601 name each revision.
+- Built `make codex-review PR=<n>` and the `codex-review` command of Tools, with 79 tests. It covers the install and the version of the CLI, the model probe, the start checks, the Gitar pass, the worktree, the outcome codes, and the three-strike count.
+- Added the `Open at:` line to the record format, and the loop to `CLAUDE.md`, `AGENTS.md`, the skills, the PR template, `docs/runbooks/merge.md`, and `docs/runbooks/branch-protection.json`.
+- Added PR-95 to section 8 of `docs/design.md`, to the phase-2 file as section 7.22, and to `area-ci.md` as section 7.20. G-15 names the auto-merge.
+
+### The state of the build
+
+- `main` is `097ea32`. The branch holds one commit on it, and this entry is in that commit.
+- `make verify` passed on this machine before the commit.
+- A run of `make codex-review PR=62` installed CLI 0.156.1, passed the probe, and refused PR #62 with four reasons, as the command must.
+
+### What is in flight
+
+- The Gitar pass of PR #63, then the first live run `make codex-review PR=63`, then the answers.
+- The three settings of D-931 wait for the approval of the owner, before the hand-over. The owner merges PR #63 by hand.
+
+### Traps and gotchas
+
+- Make gives exit 2 for each failed target. Read the last line of the command: `codex-review: outcome <name> (exit <code>)`.
+- The pre-commit hook refuses a checkout with no branch. Thus the worktree takes the local branch `review/pr-<n>`, and the reviewer pushes with `HEAD:<branch>`.
+- `CLAUDE.md` holds 16,333 bytes of the limit of 16,384.
+- The record of this PR needs an `Open at:` line in each finding, because the command reads it.
+- This PR changes no workflow file. The review applies because Tools and the Makefile are outside the override set.
+
+### The questions that block progress
+
+None. D-926 to D-931 hold the answers of 2026-09-23.
+
+### The next concrete action
+
+Answer the Gitar pass of PR #63. Then run `make codex-review PR=63` in the background.
+
 ## Session 231: 2026-09-23, Codex
 
 Author: Codex
@@ -324,39 +364,3 @@ None.
 ### The next concrete action
 
 Follow the `gitar-review` skill on the new head. Then the other provider repeats the review of PR #60.
-
-## Session 222: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #60, round 2. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: reviewer. Base: `a20d32f`.
-
-### What this session did, and why
-
-- Read the checks and Gitar dashboard after review metadata head `503094f`.
-- Confirmed RG 3 and RG 5 to RG 8 pass. RG 4 fails because the review verdict is `Changes required`.
-- Updated `docs/reviews/pr-60.md` with the metadata-run result and current Gitar status.
-
-### The state of the build
-
-- The remote head of `main` is `a20d32f`. The effective head of PR #60 remains `aa1a10f`.
-- CI passed each applicable check except review-gate RG 4. Gitar approved the code review. The latest dashboard reports RG 4, and the author has not answered that comment.
-- The updated review and this handoff need commit and push.
-
-### What is in flight
-
-- PR #60 needs the author to restore the historical records and follow the end-of-pause decision procedure from the base runbook.
-- The author also needs to answer the latest Gitar comment about RG 4.
-
-### Traps and gotchas
-
-- D-10 calls dated records history. Do not rewrite them to remove a decision that later changed.
-- The PR #58 review and sessions 209 and 210 belong in the live records.
-- RG 4 stays red while the review verdict is `Changes required`.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The author corrects P2-1 and answers the Gitar comment. Then this reviewer reassesses PR #60.
