@@ -33,7 +33,7 @@ Stop with this result, and do no other work, when one of the conditions below ho
 `Blocked: start a new clean session for this PR.`
 
 - The conversation holds substantive work on another PR or another repository. Substantive work is a change, a commit, a push, a review record, or a PR comment. A file read alone is not.
-- The conversation holds a PR that the owner merged or closed. The transitional prompt of step 6, for the bound PR of the session, is the one exception (D-601).
+- The conversation holds a PR that merged or closed. The transitional prompt of step 6, for the bound PR of the session, is the one exception (D-601).
 - The request asks for a second PR or the next PR.
 - The session is a fork, a subagent, a context compaction, or a summary of a session that worked on another PR.
 
@@ -82,9 +82,9 @@ Each line starts with the row name and a colon, as the PR template does. Then it
 - `No change needed because <reason that names the path>`, for a document that the PR can affect and does not.
 - `Not applicable because <specific reason>`, for a category that the PR cannot reach.
 
-The `docs/session-handoff.md` line is always `Changed`. Before the review, the author line for `docs/reviews/` names the review that the PR waits for. The reviewer corrects the line when the record lands (the `pr-review` skill).
+The `docs/session-handoff.md` line is always `Changed`. Before the review, the author line for `docs/reviews/` takes the form `No change needed because`, and it names the review that the PR waits for. A `Changed:` line with no record in the diff fails RG 7. The reviewer corrects the line when the record lands (the `pr-review` skill).
 
-Each line also reads true against the diff (D-577). A `Changed:` line names a row whose path the diff changes, and a changed path of a row takes a `Changed:` line. The `docs/reviews/` row is the exception, because the reviewer adds the record after the author wrote the description. The `review-gate` command reads both rules under RG 7.
+Each line also reads true against the diff (D-577). A `Changed:` line names a row whose path the diff changes, and a changed path of a row takes a `Changed:` line. The `docs/reviews/` row is the exception to the second rule alone, because the reviewer adds the record after the author wrote the description. The `review-gate` command reads both rules under RG 7.
 
 Correct the PR when a line or a record holds one of these:
 
@@ -103,9 +103,9 @@ A PR cannot hold its own squash commit or its merge time. Before the merge, the 
 - the complete state of the PR and its effective head (the `pr-review` skill).
 - the checks that ran, and their results.
 - the review verdict, or the label of D-401.
-- the words "waits for the owner merge".
+- the words "waits for the auto-merge", or "waits for the owner merge" when the owner merges the PR (D-930, D-931).
 
-Git and GitHub hold the merge commit and the merge time (D-578). The next PR reads its base from git, and its documents gate corrects any state text that the merge made old. A docs PR with its own concern, such as a critic pass, is a PR of its own (D-580).
+Git and GitHub hold the merge commit and the merge time (D-578, D-930). The next PR reads its base from git, and its documents gate corrects any state text that the merge made old. A docs PR with its own concern, such as a critic pass, is a PR of its own (D-580).
 
 No PR exists only to record the merge, the handoff, the review record, or the documents of an earlier PR. A new concern that edits a file of a merged PR is a PR of its own. Refuse such a request with this result, and start no PR:
 
@@ -130,15 +130,26 @@ A reviewer checks lines 1 to 4, 7, and 8 in the review, and it does not make the
 
 The author reaches the hand-over point when a review record gives `Ready for owner merge` for the effective head, or the label is on. While the PR waits for gitar or the other provider, the author session stays bound to the PR and answers each finding (D-582). A message that the PR is ready for the other provider is not the hand-over point.
 
-At the hand-over point, each role writes this result and stops:
+The author loop reaches the hand-over point. `docs/runbooks/merge.md` holds its commands:
+
+1. Push the round, with its handoff entry.
+2. Get a complete Gitar pass with the `gitar-review` skill, and answer each comment (D-14).
+3. Run `make codex-review PR=<n>` in the background, and read its outcome line (D-926).
+4. On `changes-required`, answer each finding with the `pr-review` skill, then go to step 1.
+5. On `three-strike-stop`, turn off the auto-merge, stop the loop, and ask the owner (D-929).
+6. On `approve`, the hand-over point holds. The owner confirms the merge before the auto-merge (D-933).
+
+At the hand-over point, the reviewer writes this result and stops:
 
 `This session is bound to PR #N and is complete. End this session. Start a new clean session before beginning another PR.`
 
-Do not offer to start the next PR. After the owner merges the PR, write the transitional prompt of step 6.
+At the hand-over point, the author posts a summary of one paragraph and waits for the confirmation of the owner (D-933). Then it turns on the auto-merge under `docs/runbooks/merge.md` (D-930), waits for the checks one time, and it reads the state of the PR. When the PR merged, the author writes the transitional prompt of step 6 at once. When the owner merges the PR by hand, the author writes the result above and waits for `Merged PR #x` (D-931).
+
+Do not offer to start the next PR. After the merge, write the transitional prompt of step 6.
 
 ## 6. The transitional prompt
 
-After the hand-over point, the owner merges the PR and says `Merged PR #x`. The session then writes one transitional prompt, and it does no other work (D-601). Write the prompt for the PR of the session alone. A merge message for another PR gets the blocked result of step 1.
+After the hand-over point, the PR merges. The session then writes one transitional prompt, and it does no other work (D-601). After the auto-merge, the session writes the prompt as soon as it reads the merge (D-930). After an owner merge, the owner says `Merged PR #x`, and the session writes the prompt then. Write the prompt for the PR of the session alone. A merge message for another PR gets the blocked result of step 1.
 
 Get the merge commit from git first:
 
@@ -171,4 +182,5 @@ The session ends with this prompt. It makes no branch and no change for the next
 | `CLAUDE.md` and `AGENTS.md` stay identical | Machine: rule AGENTS 1 of the ste-check job on every PR, and a test of Tests (D-20, D-857) |
 | The binding, the start gate, and the completion gate | Agent |
 | One PR in each session, and a clean session for each PR | Owner. No check can see the conversation |
-| The merge | Owner (D-8) |
+| The merge | Machine: the protection of `main` and the auto-merge that the author turns on (D-930, D-931). The owner can merge too (D-8) |
+| The Gitar pass before the review, and the three-strike stop | Machine: the `codex-review` command refuses a run and gives exit code 3 (D-926, D-929) |

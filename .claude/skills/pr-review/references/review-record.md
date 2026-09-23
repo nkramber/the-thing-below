@@ -9,13 +9,14 @@ For a new record, use `docs/reviews/pr-<number>.md` with the actual PR number, n
 Record provider names only in the permitted review record and handoff author fields (D-22).
 Omit those names from any PR description or GitHub comment.
 
-The `review-gate` job reads this file (D-15). Three parts of it are machine-read. Keep their format exact:
+The `review-gate` job reads this file (D-15), and so does the `codex-review` command (D-926). Four parts of it are machine-read. Keep their format exact:
 
 | Part | Exact form | Rule |
 |---|---|---|
 | The file name | `docs/reviews/pr-<number>.md` | The number is the GitHub PR number, not the roadmap id. |
 | The head field | `- Head: ` and the hash in backticks, in the `## Identity` list | The hash is the effective head. A short hash is permitted. The rule reads that list alone. |
 | The verdict | The verdict line of the `## Verdict` section, such as `**Ready for owner merge.**` | The line starts with one of the three names in bold. Write the name exactly, and add no word to it. The section gives one bold span, and that span is the name (D-612). |
+| The rounds of a finding | The line `Open at: ` in each finding, with each effective head in backticks | The `codex-review` command reads it for the three-strike stop (D-929). The `review-gate` check does not read it. |
 
 The effective head is the newest commit that changes a path outside the metadata set.
 The metadata set holds four paths of this pull request (D-610):
@@ -109,6 +110,8 @@ Keep the id for the life of the PR. Never renumber a finding on a repeat review.
 
 Status: <open | fixed in `<sha>` | accepted risk, D-# | withdrawn>.
 
+Open at: `<sha>`, `<sha>`.
+
 File: `<path>:<line range>`, or Commit: `<sha>`.
 
 Trigger: the input or state that produces the defect.
@@ -125,6 +128,8 @@ Regression check: the command or test that establishes the fix, and the result t
 ```
 
 A withdrawn finding stays in the file with the evidence that refuted it. Never delete a finding.
+
+The `Open at:` line lists the effective head of each round in which the finding is open, oldest first (D-929). In each round, add the head of the round to each finding that is open in that round. Never remove a head. A finding that is not open in a round does not get the head of that round. The `codex-review` command gives a fault when an open finding does not list the effective head, or when a closed finding lists it.
 
 ## Correct the PR description
 
@@ -167,7 +172,7 @@ The check has three states. Read the color before you start:
 |---|---|---|
 | Grey | No review record exists for this PR. The job line reads red. | Write one. This is the normal state before a review. |
 | Red | A review record exists, and it does not approve this head. | Read the findings. The author corrects them. |
-| Green | An approved review covers the effective head. | The owner may merge (D-8). |
+| Green | An approved review covers the effective head. | The author may turn on the auto-merge, and the owner may merge (D-8, D-930). |
 
 Rule 3 fails when the author pushes code after the approval. That result is correct.
 Reassess the new diff, then update the head field and the verdict together.

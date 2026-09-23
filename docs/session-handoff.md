@@ -1,3 +1,196 @@
+## Session 236: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR #63, hand-over. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: author. Base: `097ea32`.
+
+### What this session did, and why
+
+- Ran round 2 of `make codex-review PR=63` on `a7902e7`. The run checked the ChatGPT login, removed the API key variables, and gave `approve`. The reviewer pushed `50e5664`, with `Ready for owner merge` for `a7902e7` and P2-1 and P2-2 fixed.
+- Answered the Gitar pass on `a7902e7`: the code review approved with no thread. Its CI claim named RG 4 and RG 5 of the round 1 record, and a PR comment answers it. The two faults cleared with the round 2 record.
+- Read the live merge settings again. The compare command of `docs/runbooks/merge.md` matched `docs/runbooks/branch-protection.json`.
+
+### The state of the build
+
+- `main` is `097ea32`. Before this commit, the remote head was `50e5664`, and the effective head is `a7902e7`.
+- CI run 35834375973 passed each job on `a7902e7`. Run 35835364953 passed on `50e5664`, and `review-gate` passed there with RG 1 to RG 8.
+- The Gitar pass approves `a7902e7`, and no thread is open. Two PR comments answer its two CI claims.
+- The PR waits for the owner merge (D-931). The summary of one paragraph goes to the owner before the merge (D-933).
+
+### What is in flight
+
+- The confirmation of the owner, then the owner merge of PR #63.
+- After the merge, the transitional prompt of step 6.
+
+### Traps and gotchas
+
+- The first auto-merge comes on the next PR. Before `gh pr merge <n> --auto --squash`, post the summary and get the confirmation of the owner (D-933).
+- Never pass `forced_login_method` to the CLI. A mismatch logs the CLI out (D-932).
+- Make gives exit 2 for each failed target. Read the outcome line of the command.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The owner confirms the summary and merges PR #63.
+
+## Session 235: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #63, round 2. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: reviewer. Base: `097ea32`.
+
+### What this session did, and why
+
+- Re-read the round 1 findings and the response file, then reviewed PR #63 at effective head `a7902e7`.
+- Verified P2-1: the Gitar reads now paginate comments, check runs, check suites, and review threads. The regression tests pass.
+- Verified P2-2: a repeated finding id now gives a fault. The regression test passes.
+- Reviewed the API-key removal, ChatGPT login check, owner confirmation, and the updates to D-932 and D-933.
+- Updated `docs/reviews/pr-63.md`. Both findings are fixed, and the verdict is `Ready for owner merge`.
+
+### The state of the build
+
+- `main` is `097ea32`. Before this commit, the remote PR head was `a7902e7`.
+- `make build`, `make test` (2,371 tests), `make format`, `make ste-check`, and `make lint` passed locally.
+- CI run 35834375973 passed implementation checks on `a7902e7`. Gitar passed. The review-gate failure read the old verdict and head, before this review commit.
+
+### What is in flight
+
+- This review record and entry need one metadata commit and a push to `feat/pr-95-codex-review`.
+- Fresh review-gate and metadata checks must pass after publication.
+
+### Traps and gotchas
+
+- Metadata commits do not change the effective head (D-610).
+- Review-gate run 35834379314 failed only because the record still named `Changes required` and `ca9dd85`.
+- Keep each Codex process free of `OPENAI_API_KEY` and `CODEX_API_KEY` (D-932).
+
+### The questions that block progress
+
+None. D-926 to D-933 record the owner answers.
+
+### The next concrete action
+
+Commit this entry with the review record, push once, then verify the remote head and the fresh review-gate result.
+
+## Session 234: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR #63, round 2. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: author. Base: `097ea32`.
+
+### What this session did, and why
+
+- Ran the first live `make codex-review PR=63` on `ca9dd85`. The reviewer pushed `49480f1`, and the command gave `changes-required` with P2-1 and P2-2 open.
+- Fixed P2-1: every GitHub read of the command now takes every page. Fixed P2-2: an id that comes two times in a record is a fault. `docs/reviews/pr-63-response.md` answers both.
+- Recorded two owner directions. D-932: no API key in a Codex process, and a ChatGPT login before each run. D-933: the owner confirms each merge after a summary of one paragraph.
+- Applied the three settings of D-931 after the approval of the owner. The compare command of `docs/runbooks/merge.md` matched the record.
+- Answered the Gitar pass on `ca9dd85`: the code review approved with no thread, and one CI claim (RG 7) had merit. The description line changed, and a PR comment answers it.
+
+### The state of the build
+
+- `main` is `097ea32`. Before this commit, the remote head was `49480f1`, the review commit.
+- CI passed each job on `ca9dd85`. The Codex tests pass locally: 91 of them.
+
+### What is in flight
+
+- The Gitar pass of the new head, then `make codex-review PR=63` for round 2.
+- After an approval: the summary of one paragraph and the confirmation of the owner. The owner merges PR #63 by hand (D-931, D-933).
+
+### Traps and gotchas
+
+- A test of `-c forced_login_method="api"` logged the CLI out, and each Codex process of the machine failed until the owner logged in again. Never pass that option (D-932).
+- `codex login status` writes to the error stream. The command reads both streams.
+- Make gives exit 2 for each failed target. Read the outcome line of the command.
+- `CLAUDE.md` holds 16,371 bytes of the limit of 16,384.
+- The `docs/reviews/` line of the description takes the form `No change needed because` until a record lands. A `Changed:` line fails RG 7.
+- The review commit `49480f1` removed the title line of `docs/session-handoff-archive.md`. This round restored it.
+
+### The questions that block progress
+
+None. D-926 to D-933 hold the answers of 2026-09-23.
+
+### The next concrete action
+
+Answer the Gitar pass of the new head. Then run `make codex-review PR=63` in the background.
+
+## Session 233: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #63, round 1. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: reviewer. Base: `097ea32`.
+
+### What this session did, and why
+
+- Reviewed all 37 changed paths from base `097ea32` through effective head `ca9dd85`.
+- Confirmed Claude Code authored the PR, and the Codex reviewer passes the provider gate (T-4, D-17).
+- Found that the Gitar pass check reads only 100 review threads, and that duplicate finding IDs split the three-strike count (D-14, D-929).
+- Ran `make verify`: 2,359 tests passed, and each local check passed.
+- Read the live CI checks. Each implementation check passed. Review-gate failed RG 3 because the review record was absent.
+- Added `docs/reviews/pr-63.md` with two open findings and the verdict `Changes required`.
+
+### The state of the build
+
+- The base and merge base are `097ea32`. The effective code head is `ca9dd85`.
+- Local verification passed. Live build, test, format, coverage, lint, identity, screen-test, smoke, and STE checks passed on their CI legs.
+- The Gitar check passed on `ca9dd85`. The live merge settings match `docs/runbooks/branch-protection.json` (D-931).
+
+### What is in flight
+
+- The author needs to fix P2-1 and P2-2 in `docs/reviews/pr-63.md`, then request a repeat review.
+- This metadata commit publishes the review record and this entry. The `docs/reviews/` Documents row needs correction after publication.
+
+### Traps and gotchas
+
+- Metadata commits do not change effective head `ca9dd85` (D-610).
+- The pre-publication review-gate failure is RG 3 because the review record is absent. RG 4 and RG 5 skip until the record lands.
+
+### The questions that block progress
+
+None. The PR-95 roadmap lists no open question.
+
+### The next concrete action
+
+The author fixes both findings and requests a repeat review of PR #63.
+
+## Session 232: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR #63, round 1. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: author. Base: `097ea32`.
+
+### What this session did, and why
+
+- Checked the precondition: PR #62 merged as `097ea32`. `docs/reviews/pr-62-response.md` is on `main` through PR #62, so no untracked file of PR #62 stayed in the checkout.
+- Asked the owner six questions, and recorded the direction and the answers as D-926 to D-931. The effect columns of D-8, D-576, D-578, D-582, and D-601 name each revision.
+- Built `make codex-review PR=<n>` and the `codex-review` command of Tools, with 79 tests. It covers the install and the version of the CLI, the model probe, the start checks, the Gitar pass, the worktree, the outcome codes, and the three-strike count.
+- Added the `Open at:` line to the record format, and the loop to `CLAUDE.md`, `AGENTS.md`, the skills, the PR template, `docs/runbooks/merge.md`, and `docs/runbooks/branch-protection.json`.
+- Added PR-95 to section 8 of `docs/design.md`, to the phase-2 file as section 7.22, and to `area-ci.md` as section 7.20. G-15 names the auto-merge.
+
+### The state of the build
+
+- `main` is `097ea32`. The branch holds one commit on it, and this entry is in that commit.
+- `make verify` passed on this machine before the commit.
+- A run of `make codex-review PR=62` installed CLI 0.156.1, passed the probe, and refused PR #62 with four reasons, as the command must.
+
+### What is in flight
+
+- The Gitar pass of PR #63, then the first live run `make codex-review PR=63`, then the answers.
+- The three settings of D-931 wait for the approval of the owner, before the hand-over. The owner merges PR #63 by hand.
+
+### Traps and gotchas
+
+- Make gives exit 2 for each failed target. Read the last line of the command: `codex-review: outcome <name> (exit <code>)`.
+- The pre-commit hook refuses a checkout with no branch. Thus the worktree takes the local branch `review/pr-<n>`, and the reviewer pushes with `HEAD:<branch>`.
+- `CLAUDE.md` holds 16,333 bytes of the limit of 16,384.
+- The record of this PR needs an `Open at:` line in each finding, because the command reads it.
+- This PR changes no workflow file. The review applies because Tools and the Makefile are outside the override set.
+
+### The questions that block progress
+
+None. D-926 to D-931 hold the answers of 2026-09-23.
+
+### The next concrete action
+
+Answer the Gitar pass of PR #63. Then run `make codex-review PR=63` in the background.
+
 ## Session 231: 2026-09-23, Codex
 
 Author: Codex
@@ -180,183 +373,3 @@ None. The Deck sweep is a measurement, not a question.
 ### The next concrete action
 
 Read the Deck reports, commit them to `spike/deck-test`, and record the numbers in the PR. Then commit the baselines from the CI artifact.
-
-## Session 226: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #61, round 1. Repository: the-thing-below. Branch: `feat/pr-59-glow`. PR: #61. Role: reviewer. Base: `430c8e9`.
-
-### What this session did, and why
-
-- Reviewed the complete diff from `430c8e9` to effective head `0d55d93`.
-- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Checked the glow reader, light bound, rendering path, overlay, budget, tests, decisions, and captures.
-- Added `docs/reviews/pr-61.md` with no finding, and published the review record.
-
-### The state of the build
-
-- The remote head of `main` is `430c8e9`. Metadata commit `89a606a` reached the branch, and the effective head stays `0d55d93`.
-- `make verify` passed with 2,221 tests. `make sheet` wrote all 72 captures.
-- CI run 35815610824 passed every applicable implementation check on every leg. Gitar approved the effective head.
-- Metadata run 35816940918 and review-gate run 35816940027 passed. The fresh gate passed RG 1 to RG 8.
-
-### What is in flight
-
-- PR #61 is ready for owner merge.
-
-### Traps and gotchas
-
-- The first review-gate run failed because this review record was not in the diff yet. The metadata run passed after the record reached the branch.
-- The fog, hit bursts, and marks use the overlay view above the glow (D-916).
-
-### The questions that block progress
-
-None. OQ-102 and OQ-232 are resolved by D-910 and D-915.
-
-### The next concrete action
-
-The owner merges PR #61.
-
-## Session 225: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-59, rounds 1 to 3. Repository: the-thing-below. Branch: `feat/pr-59-glow`. PR: #61. Role: author. Base: `430c8e9`.
-
-### What this session did, and why
-
-- Asked OQ-102, and the owner chose HDR 2D with a threshold and a smooth bloom, fire first (D-910 to D-912).
-- Round 1 built HDR 2D, the bound of the lit art below the threshold, and a seed loop against the light curve of Game (F-103, F-104).
-- The owner asked for the glow pass of our own, a stepped mode, and a pulse in place of the flicker. Round 2 built them (D-913, D-914, F-105).
-- The owner compared both and kept HDR 2D at half intensity (D-915, OQ-232). The pulse stays on a glow rectangle of 8 by 8 over each wall torch flame.
-- The owner said the fog must not glow. The fog, the hit bursts, and the marks now draw in an overlay view with no HDR 2D, above the glow (D-916). The reader refuses a lit fog.
-
-### The state of the build
-
-- `main` is `430c8e9`. The branch holds rounds 1 to 3. `make verify` passes on this machine, and `make sheet` wrote every capture with no error line.
-- CI run 35815275241 on `6b612f2` passed every job but the baseline step of screen-test. Its two runs matched on all 72 captures. The 66 world baselines that changed come from its artifact (D-733).
-
-### What is in flight
-
-- PR #61 waits for CI on the baseline commit, gitar, and the review of the other provider.
-
-### Traps and gotchas
-
-- The glow of Godot averages its first step over about 8 by 8 art pixels. A smaller or dimmer source gives no glow.
-- A view draws an item only when each parent shares its layer (F-105). `GlowPass.LiftAboveGlow` sets the layer on the node, its children, and its parents.
-- An object initializer of a texture rect sets `ExpandMode` before `Size`.
-- Do not redirect `make smoke` output into `artifacts/smoke.log`. The target writes that file itself, and the loop filled 20 GB.
-
-### The questions that block progress
-
-None. OQ-102 and OQ-232 are resolved.
-
-### The next concrete action
-
-Answer each gitar finding on PR #61, then hand the PR to the other provider.
-
-## Session 224: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #60, round 3. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: reviewer. Base: `a20d32f`.
-
-### What this session did, and why
-
-- Re-reviewed PR #60 at effective head `bff8622`.
-- The owner’s later instruction in the feedback says to keep the dated records. D-909 records this override and ends the pause.
-- Verified that the PR #58 and PR #59 review records, and the PR #59 handoff entries, match `origin/main`. Sessions 209 and 210 remain in the archive.
-- Marked P2-1 fixed and changed the current verdict to `Ready for owner merge`.
-
-### The state of the build
-
-- The remote head of `main` is `a20d32f`. The effective head of PR #60 is `bff8622`.
-- `make ste-check` passed with 0 findings. CI passed all applicable implementation checks, and Gitar approved the head. Review-gate failed RG 4 and RG 5 because the review record still named the prior verdict and head.
-- The updated review and this handoff need commit and push. A fresh review-gate result must be checked.
-
-### What is in flight
-
-- PR #60 waits for the review-gate result on the updated review record.
-
-### Traps and gotchas
-
-- The initial owner choice removed the dated records. The later choice kept them, and D-909 records that resolution.
-- The effective head includes the restored decision and history files. Metadata commits do not change it.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the repeat review. Then verify the branch head and fresh review-gate result.
-
-## Session 223: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR #60, round 2. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: author. Base: `a20d32f`.
-
-### What this session did, and why
-
-- Answered P2-1 of `docs/reviews/pr-60.md` in `docs/reviews/pr-60-response.md`, with full merit.
-- P2-1 conflicted with the first answer of the owner, so the session asked again. The owner chose to keep the dated records (D-19, D-24).
-- Restored `docs/reviews/pr-58.md`, `docs/reviews/pr-59.md`, and each handoff entry to their text on `main`.
-- Added D-909, which ends the pause. D-895 reads `Superseded by D-909`, and the six revised rows name D-909.
-- Moved sessions 213 to 210 to the archive, to keep the 10 newest entries.
-- Answered the gitar comment about RG 4.
-
-### The state of the build
-
-- The remote head of `main` is `a20d32f`. The PR head before this round is `1c6b4c7`, and the commit of this round is the effective head.
-- `make ste-check` gives 0 findings. The rule files stay the same as at `8d98c46~1`.
-
-### What is in flight
-
-- PR #60 waits for the gitar pass on the new head and for the repeat review of the other provider.
-
-### Traps and gotchas
-
-- The text of session 220 names the removal of the records. Round 2 put them back, and the entry of session 220 stays as history.
-- The finding cites D-10 for the dated-record rule. The rule is in the `ste-writing` skill and in `docs/runbooks/rename-and-move.md`.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Follow the `gitar-review` skill on the new head. Then the other provider repeats the review of PR #60.
-
-## Session 222: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #60, round 2. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: reviewer. Base: `a20d32f`.
-
-### What this session did, and why
-
-- Read the checks and Gitar dashboard after review metadata head `503094f`.
-- Confirmed RG 3 and RG 5 to RG 8 pass. RG 4 fails because the review verdict is `Changes required`.
-- Updated `docs/reviews/pr-60.md` with the metadata-run result and current Gitar status.
-
-### The state of the build
-
-- The remote head of `main` is `a20d32f`. The effective head of PR #60 remains `aa1a10f`.
-- CI passed each applicable check except review-gate RG 4. Gitar approved the code review. The latest dashboard reports RG 4, and the author has not answered that comment.
-- The updated review and this handoff need commit and push.
-
-### What is in flight
-
-- PR #60 needs the author to restore the historical records and follow the end-of-pause decision procedure from the base runbook.
-- The author also needs to answer the latest Gitar comment about RG 4.
-
-### Traps and gotchas
-
-- D-10 calls dated records history. Do not rewrite them to remove a decision that later changed.
-- The PR #58 review and sessions 209 and 210 belong in the live records.
-- RG 4 stays red while the review verdict is `Changes required`.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The author corrects P2-1 and answers the Gitar comment. Then this reviewer reassesses PR #60.

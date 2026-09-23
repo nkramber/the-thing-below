@@ -11,7 +11,7 @@ After each push, the author loads `.claude/skills/gitar-review/SKILL.md` and fol
 These rules of this repo add to the `gitar-review` skill, and they win over it:
 
 - The author answers every comment before the hand-over to the other provider, or before the session applies the `review-override` label (D-67).
-- When the pass is complete, tell the owner that the PR is ready for the other provider. On a documentation PR that changes no row of `docs/decisions.md`, apply the `review-override` label yourself at this point instead (D-67, D-401).
+- When the pass is complete, run `make codex-review PR=<n>` in the background (D-926). On a documentation PR that changes no row of `docs/decisions.md`, apply the `review-override` label yourself at this point instead (D-67, D-401).
 - A reply names no provider, harness, or model as the source of the work (T-6, D-22).
 - Record the pass in the handoff entry: the count of comments, the count with merit, and the commit that answered each one.
 
@@ -42,7 +42,7 @@ Push back when the evidence supports it. State the reason and show the proof:
 | The finding states a style preference. | Name the contract that the code does not break. |
 | The finding repeats a risk that a decision already accepted. | Quote the D-# id and its accepted risk. |
 | The finding asks for work outside the PR scope. | Quote the roadmap entry and the exit tests. Name the PR that holds the work. |
-| The finding reopens one id for the third time. | Name the three triggers and ask the owner to settle the scope (D-19). |
+| The `codex-review` command gives the three-strike stop for one id. | Follow the three-strike stop of `docs/runbooks/merge.md`. Name the three rounds, and ask the owner (D-19, D-929). |
 
 A disagreement belongs in the response file, with the evidence. Never delete a finding from the review record.
 The reviewer sets a refuted finding to `withdrawn` and keeps the evidence that refuted it.

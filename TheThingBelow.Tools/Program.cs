@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using TheThingBelow.Tools.Atlas;
 using TheThingBelow.Tools.ChangedPaths;
+using TheThingBelow.Tools.CodexReview;
 using TheThingBelow.Tools.Content;
 using TheThingBelow.Tools.DetLint;
 using TheThingBelow.Tools.Identity;
@@ -98,6 +99,11 @@ public static class Program
             return ChangedPathsCommand.Run(args[1..], output, errors);
         }
 
+        if (command == CodexReviewCommand.Name)
+        {
+            return CodexReviewCommand.Run(args[1..], output, errors);
+        }
+
         if (PlannedCommands.TryGetValue(command, out string? pullRequest))
         {
             errors.WriteLine(
@@ -122,6 +128,7 @@ public static class Program
         errors.WriteLine($"  {ScreensCommand.Name}: ready");
         errors.WriteLine($"  {PictureCommand.Name}: ready");
         errors.WriteLine($"  {ChangedPathsCommand.Name}: ready");
+        errors.WriteLine($"  {CodexReviewCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {

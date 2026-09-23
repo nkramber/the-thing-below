@@ -12,7 +12,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 Phase 2 turns the machine of Phase 1 into a game that the owner plays. It ends at Gate 2. There the owner walks the village, one hub, and one dungeon on the desktop and on the Deck. Then the owner signs off on feel (D-51, D-92, D-362).
 
-Phase 2 is the largest phase of the plan. It holds 50 PRs, and 47 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
+Phase 2 is the largest phase of the plan. It holds 51 PRs, and 48 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
 
 Four lines of work run through the phase. The walk comes first: the frame, the map, the camera, and the enemies on it (PR-61, PR-7, PR-8). The fight follows, with the enemy record and the screen (PR-9, PR-80, PR-66, PR-10). The light and the effects then land, each right after the first map scene or battle scene that it needs (PR-48 to PR-60, D-520). The build, the story, and the audio close the phase, and PR-17 writes the content that the owner plays.
 
@@ -978,7 +978,48 @@ Area file: `area-effects.md` section 7.17.
 
 > *In plain English:* the edges of the view blur a little, the corners fall dark, and shafts of light cut through the dark. The Deck proves it can hold this before the change lands.
 
-### 7.22 PR-60: the transitions
+### 7.22 PR-95: the automated review and the gated auto-merge
+
+Area file: `area-ci.md` section 7.20.
+
+**Scope.**
+
+- `make codex-review PR=<n>` and the `codex-review` command of Tools (D-926, D-927). The command installs the CLI, probes the model, checks the start, and runs the review in a worktree.
+- A handoff entry for each review run (D-928).
+- No API key in the environment of a Codex process, and a ChatGPT login before each run (D-932).
+- The `Open at:` line of each finding, and the three-strike stop (D-929).
+- The gated auto-merge that the author session turns on after the confirmation of the owner (D-930, D-933).
+- The merge settings of the repository and their record: the auto-merge, the conversation resolution, and `screen-test` as a required context (D-931).
+- The documents of the new loop: `CLAUDE.md`, `AGENTS.md`, the skills, the PR template, and `docs/runbooks/merge.md`.
+
+**Out of scope.**
+
+- A change of the depth of the review, or of the parts of the record that `review-gate` reads (D-612).
+- A change of a workflow file.
+- The first auto-merge, which comes on the next PR (D-931).
+
+**Exit tests.**
+
+1. Each refusal of the command gives the fault code and names its cause (T-2).
+2. A finding open in rounds 1 and 2 passes, and a finding open in round 3 stops (D-929).
+3. A finding that a fix closed and a later round opened again keeps its count (D-929).
+4. A stale record, an absent record, and an error of the CLI each give the fault code (D-610).
+5. The review arguments pass the model, the effort, and the sandbox on the command line (D-926).
+6. The first live run reviews this PR, and the record gives its verdict for the effective head.
+7. The live settings match `docs/runbooks/branch-protection.json` before the merge (D-931).
+8. A Codex process gets no API key variable, and a CLI with no ChatGPT login refuses the run (D-932).
+
+**Review focus.**
+
+- No approval of an older head gives the approval code (D-610).
+- The command never takes the effort from the configuration file of the CLI (D-926).
+- The worktree leaves the author checkout as it was, and each external command fails with its context (T-2).
+
+**Questions.** None. D-926 to D-933 hold the answers of 2026-09-23.
+
+> *In plain English:* one command now starts the review of the other provider and reads its verdict. A finding that comes back three times stops the loop for the owner. A PR merges itself only when each check is green, the review approves it, and each automated comment has its answer.
+
+### 7.23 PR-60: the transitions
 
 Area file: `area-effects.md` section 7.11.
 
@@ -1014,7 +1055,7 @@ Area file: `area-effects.md` section 7.11.
 
 > *In plain English:* each fight starts with a screen effect, such as shattered glass or a whiteout of snow. The kind of fight picks the effect, so a boss always looks different.
 
-### 7.23 PR-11: the evaluator, the profiles, and the groups
+### 7.24 PR-11: the evaluator, the profiles, and the groups
 
 Area file: `area-battle.md` sections 7.6 and 7.7.
 
@@ -1052,7 +1093,7 @@ Area file: `area-battle.md` sections 7.6 and 7.7.
 
 > *In plain English:* each enemy tries every move it can make, imagines your best answer, and picks the move that leaves it best off. That is what makes the fights hard.
 
-### 7.24 PR-67: the character level, the experience, MP, and the stat curves
+### 7.25 PR-67: the character level, the experience, MP, and the stat curves
 
 Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
@@ -1090,7 +1131,7 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
 > *In plain English:* a fight makes each character stronger, and the people who wait or fall behind still learn a little. Each person grows on their own line.
 
-### 7.25 PR-62: the menu windows and the dungeon map screen
+### 7.26 PR-62: the menu windows and the dungeon map screen
 
 Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
@@ -1133,7 +1174,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
 > *In plain English:* menus are windows that stack on each other, and the world stops while one is open. A second screen draws each tile of the dungeon that the party walked.
 
-### 7.26 PR-68: the story scene format, the story scene runner, the flags, and the conditions
+### 7.27 PR-68: the story scene format, the story scene runner, the flags, and the conditions
 
 Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
@@ -1179,7 +1220,7 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
 > *In plain English:* a story scene is a list of simple steps in a data file: walk here, say this line, ask this question. The rules run it, so a robot can play it and a replay always matches.
 
-### 7.27 PR-50: the screenplay tool
+### 7.28 PR-50: the screenplay tool
 
 Area files: `area-tools.md` section 7.10, `area-story.md` section 7.8.
 
@@ -1210,7 +1251,7 @@ Area files: `area-tools.md` section 7.10, `area-story.md` section 7.8.
 
 > *In plain English:* a tool prints each story scene in the shape of a film script. The owner reads the story as a story before anybody builds it.
 
-### 7.28 PR-12: the lessons, the slots, and the aptitudes
+### 7.29 PR-12: the lessons, the slots, and the aptitudes
 
 Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 
@@ -1257,7 +1298,7 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 
 > *In plain English:* abilities come from rites and drills that anybody can carry. Use one long enough and it opens a stronger form, and that progress belongs to the person who carried it.
 
-### 7.29 PR-13: the gear, the items, and the inventory
+### 7.30 PR-13: the gear, the items, and the inventory
 
 Area file: `area-progression.md` sections 7.8 and 7.9.
 
@@ -1298,7 +1339,7 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 
 > *In plain English:* six slots, and anyone can wear anything. What you find is what the author placed, so a good weapon is a real event.
 
-### 7.30 PR-91: the torch item
+### 7.31 PR-91: the torch item
 
 Area file: `area-exploration.md` section 7.17.
 
@@ -1332,7 +1373,7 @@ Area file: `area-exploration.md` section 7.17.
 
 > *In plain English:* the torch becomes a real item. Dark places need it, and guards see it from far away, so the player chooses between light and stealth.
 
-### 7.31 PR-14: the hub map, the NPCs, and the services
+### 7.32 PR-14: the hub map, the NPCs, and the services
 
 Area file: `area-exploration.md` section 7.11.
 
@@ -1373,7 +1414,7 @@ Area file: `area-exploration.md` section 7.11.
 
 > *In plain English:* the hub is a place you walk through, where the party recovers and reshapes itself before the next dungeon. Every hub has a different shape.
 
-### 7.32 PR-65: the shop and the gold
+### 7.33 PR-65: the shop and the gold
 
 Area file: `area-exploration.md` section 7.12.
 
@@ -1409,7 +1450,7 @@ Area file: `area-exploration.md` section 7.12.
 
 > *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
 
-### 7.33 PR-36: the dialogue box, the portraits, and the story scene on screen
+### 7.34 PR-36: the dialogue box, the portraits, and the story scene on screen
 
 Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
@@ -1447,7 +1488,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 > *In plain English:* people walk, turn, and speak on the map you already walk on. Their words appear in a box at the bottom, with a face beside them.
 
-### 7.34 PR-15: the headless runner and the bots
+### 7.35 PR-15: the headless runner and the bots
 
 Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
@@ -1485,7 +1526,7 @@ Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
 > *In plain English:* simple robots play the game with no screen. They make the same choices a player makes, and every crash they find comes with the seed that repeats it.
 
-### 7.35 PR-49: the night job and the night gate
+### 7.36 PR-49: the night job and the night gate
 
 Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
@@ -1523,7 +1564,7 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
 > *In plain English:* every night the robots play thousands of runs on all three systems. No change merges unless a recent night ended with no crash and no dead end.
 
-### 7.36 PR-16: the dungeon parts, the death, and the save points
+### 7.37 PR-16: the dungeon parts, the death, and the save points
 
 Area file: `area-exploration.md` section 7.8.
 
@@ -1565,7 +1606,7 @@ Area file: `area-exploration.md` section 7.8.
 
 > *In plain English:* the dungeon gains its chests, doors, keys, and resting stones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
-### 7.37 PR-64: the traps, the hazards, and the statuses on the map
+### 7.38 PR-64: the traps, the hazards, and the statuses on the map
 
 Area file: `area-exploration.md` section 7.9.
 
@@ -1605,7 +1646,7 @@ Area file: `area-exploration.md` section 7.9.
 
 > *In plain English:* the dungeon itself can hurt you. Poison still hurts while you walk, and a party can go down between fights.
 
-### 7.38 PR-35: the region map
+### 7.39 PR-35: the region map
 
 Area file: `area-exploration.md` section 7.13.
 
@@ -1641,11 +1682,11 @@ Area file: `area-exploration.md` section 7.13.
 
 > *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
 
-### 7.39 PR-37: retired
+### 7.40 PR-37: retired
 
 PR-37 held the CRT shader and its toggle, which have no purpose after D-618. No later item takes the id (G-10). This entry exists so that a reader of the sequence finds the gap and its reason.
 
-### 7.40 PR-38: the audio synthesizer and the first sounds
+### 7.41 PR-38: the audio synthesizer and the first sounds
 
 Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
@@ -1684,7 +1725,7 @@ Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
 > *In plain English:* music and sound start as rows of numbers in a text file. A tool of ours turns those rows into sound, the same way on every computer.
 
-### 7.41 PR-69: the audio player base
+### 7.42 PR-69: the audio player base
 
 Area file: `area-audio.md` sections 7.2 and 7.3.
 
@@ -1720,7 +1761,7 @@ Area file: `area-audio.md` sections 7.2 and 7.3.
 
 > *In plain English:* this part makes sound come out. It sets the volumes, and it mutes the game when the window loses focus.
 
-### 7.42 PR-70: the rules of what plays when
+### 7.43 PR-70: the rules of what plays when
 
 Area file: `area-audio.md` sections 7.4 to 7.10.
 
@@ -1765,7 +1806,7 @@ Area file: `area-audio.md` sections 7.4 to 7.10.
 
 > *In plain English:* every place has its own music, a low bed of wind or fire under it, and its own footsteps. The music changes when the story turns the day to night.
 
-### 7.43 PR-71: the sound room
+### 7.44 PR-71: the sound room
 
 Area file: `area-audio.md` section 7.11.
 
@@ -1795,7 +1836,7 @@ Area file: `area-audio.md` section 7.11.
 
 > *In plain English:* the owner listens to every piece of music before it ships. One tool plays a batch on the desk, and this one plays it inside the game.
 
-### 7.44 PR-51: the PNG import
+### 7.45 PR-51: the PNG import
 
 Area file: `area-tools.md` section 7.11.
 
@@ -1837,7 +1878,7 @@ Area file: `area-tools.md` section 7.11.
 
 > *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
 
-### 7.45 PR-52: the map preview
+### 7.46 PR-52: the map preview
 
 Area file: `area-tools.md` section 7.12.
 
@@ -1867,7 +1908,7 @@ Area file: `area-tools.md` section 7.12.
 
 > *In plain English:* maps are text files too. This tool draws a map as a picture, so the owner can see and approve a place before anyone walks it.
 
-### 7.46 PR-53: the tile-edge tool
+### 7.47 PR-53: the tile-edge tool
 
 Area file: `area-tools.md` section 7.13.
 
@@ -1900,7 +1941,7 @@ Area file: `area-tools.md` section 7.13.
 
 > *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own.
 
-### 7.47 PR-72: the music and the sounds of the first playable
+### 7.48 PR-72: the music and the sounds of the first playable
 
 Area file: `area-audio.md` section 7.12.
 
@@ -1935,7 +1976,7 @@ Area file: `area-audio.md` section 7.12.
 
 > *In plain English:* the music arrives in two batches. This is the first: enough for the first thing that the owner plays.
 
-### 7.48 PR-17: the village, the first hub, and the first dungeon
+### 7.49 PR-17: the village, the first hub, and the first dungeon
 
 Area files: every area file. The content PR touches each area.
 
@@ -1982,7 +2023,7 @@ Area files: every area file. The content PR touches each area.
 
 > *In plain English:* the first real place to play. Everything before this was machinery.
 
-### 7.49 M-3, M-4, and M-6: the measurements of the phase
+### 7.50 M-3, M-4, and M-6: the measurements of the phase
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
@@ -2011,7 +2052,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* three sets of numbers close the phase. They are the cost of the robots each night, the length of a fight, and the speed on the handheld.
 
-### 7.50 Gate 2: the first playable
+### 7.51 Gate 2: the first playable
 
 **The gate.** Gate 2 passes when every line holds:
 
@@ -2029,7 +2070,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* at this point the game is a game. The owner walks a village, fights in a mine, and says whether it feels right.
 
-### 7.51 PR-74: the capture
+### 7.52 PR-74: the capture
 
 Area file: `area-release.md` section 7.6.
 
@@ -2063,7 +2104,7 @@ Area file: `area-release.md` section 7.6.
 
 > *In plain English:* the game can replay a recorded run and write every frame to disk. That gives the same picture each time, so a screenshot or a trailer shot is repeatable.
 
-### 7.52 PR-75: the store text and the owner steps
+### 7.53 PR-75: the store text and the owner steps
 
 Area file: `area-release.md` section 7.7.
 
@@ -2100,7 +2141,7 @@ Area file: `area-release.md` section 7.7.
 
 > *In plain English:* the shop page words get written and approved like any other text in the game. The owner pays the fee and answers the questions that only Valve asks.
 
-### 7.53 PR-76: the store art and the screenshots
+### 7.54 PR-76: the store art and the screenshots
 
 Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
@@ -2141,7 +2182,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 1. The owner sets the fonts: Terminus TTF and Terminus TTF Bold (D-263, D-264).
 2. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8: the export job, the frame, the map, and the enemies.
 3. PR-9, PR-89, PR-80, PR-66, PR-55, PR-10: the fight, the walk fault, the enemy record, and the screen (D-557, D-782).
-4. PR-48, PR-56, PR-93, PR-63, PR-57, PR-58, PR-94, PR-59, PR-92, PR-60: the normal maps, the light, the settings, and the effects.
+4. PR-48, PR-56, PR-93, PR-63, PR-57, PR-58, PR-94, PR-59, PR-92, PR-95, PR-60: the normal maps, the light, the settings, the effects, and the automated review.
 5. PR-11, PR-67, PR-62: the enemies that think, the character level, and the menu windows.
 6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
 7. PR-12, PR-13, PR-91, PR-14, PR-65: the build of a party, the torch, the hub, and the shop.
@@ -2155,7 +2196,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 15. PR-17: the village, the mining town, and the hanging cells.
 16. M-3, M-4, M-6: the night numbers, the encounter numbers, and the Deck.
 17. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
-18. **← GATE 2 (first playable).** Section 7.50 holds each line.
+18. **← GATE 2 (first playable).** Section 7.51 holds each line.
 19. PR-74, PR-75, PR-76: the capture, the store text, and the store art.
 20. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 

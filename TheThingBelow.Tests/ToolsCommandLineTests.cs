@@ -29,6 +29,8 @@ public sealed class ToolsCommandLineTests
     [InlineData("atlas", "--sheets")]
     [InlineData("review-gate", "--pull-request")]
     [InlineData("review-gate", "--head-files")]
+    [InlineData("codex-review", "--root")]
+    [InlineData("codex-review", "--pull-request")]
     public void AnEmptyOptionValueGivesTheFaultCodeAndNamesTheOption(string command, string option)
     {
         using StringWriter output = new StringWriter();
@@ -51,6 +53,7 @@ public sealed class ToolsCommandLineTests
     [InlineData("content-hash", "--root")]
     [InlineData("atlas", "--root")]
     [InlineData("review-gate", "--pull-request")]
+    [InlineData("codex-review", "--pull-request")]
     public void ARepeatedOptionGivesTheFaultCodeAndNamesTheOption(string command, string option)
     {
         using StringWriter output = new StringWriter();
@@ -77,6 +80,7 @@ public sealed class ToolsCommandLineTests
         Assert.Contains("det-lint: ready", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("replay-identity: ready", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("content-hash: ready", errors.ToString(), StringComparison.Ordinal);
+        Assert.Contains("codex-review: ready", errors.ToString(), StringComparison.Ordinal);
     }
 
     [Fact]
