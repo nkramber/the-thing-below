@@ -13,12 +13,13 @@ Session: author PR-92, round 2. Repository: the-thing-below. Branch: `feat/pr-92
 ### The state of the build
 
 - `main` is `05dcc3d`. The tests, format, lint, identity, content, atlas, and smoke pass on this machine. The author read `make sheet` for the map fixture.
-- The map and pit baselines change with the window, and they come from the CI artifact of this round (D-733).
+- CI run 35821954258 on `efbf7dd`: the two capture runs matched on all 74 captures. The 48 baselines that the window changed come from its artifact (D-733).
+- Gitar approved `efbf7dd` with no finding.
 
 ### What is in flight
 
 - The owner runs the Deck sweep of `spike/deck-test`. The pass row of 6 stands only when `full-load-24-look` and `budget-rows` hold 60 frames per second (G-14).
-- The PR waits for CI, the new baselines, gitar, and the review of the other provider.
+- The PR waits for CI on the baseline commit and the review of the other provider.
 
 ### Traps and gotchas
 
@@ -31,7 +32,7 @@ None. OQ-241 blocks no PR yet.
 
 ### The next concrete action
 
-Commit the baselines from the CI artifact. Then read the Deck reports, and record the numbers in the PR.
+Read the Deck reports, and record the numbers in the PR.
 
 ## Session 227: 2026-09-23, Claude Code
 
