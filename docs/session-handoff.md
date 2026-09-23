@@ -1,7 +1,7 @@
 ## Session 258: 2026-09-23, Claude Code
 
 Author: Claude Code
-Session: author PR-67, round 1. Repository: the-thing-below. Branch: `feat/pr-67-character-level`. PR: PR-67, with no GitHub number before the push. Role: author. Base: `5b56d3d`.
+Session: author PR-67, round 1. Repository: the-thing-below. Branch: `feat/pr-67-character-level`. PR: #69. Role: author. Base: `5b56d3d`.
 
 ### What this session did, and why
 
@@ -12,12 +12,12 @@ Session: author PR-67, round 1. Repository: the-thing-below. Branch: `feat/pr-67
 
 ### The state of the build
 
-- `main` is `5b56d3d`. The branch holds the decision commit and the round commit.
-- `make test`: 2583 of 2586 pass. The three failures are the new frames, which need the baselines of the screen-test artifact (D-733). Format, det-lint, STE, identity, content, atlas, and smoke pass.
+- `main` is `5b56d3d`. PR #69 holds the decision commit, the round commit `b03ef23`, and the baseline commit.
+- CI run 35931067896 failed on the three new frames and 15 changed battle frames alone. The baseline commit holds those 18 files from its `screen-captures` artifact (D-733). Format, det-lint, STE, identity, content, atlas, and smoke pass.
 
 ### What is in flight
 
-- Open the PR, let CI run, and copy each changed `battle-*` baseline and the three new ones from the `screen-captures` artifact (D-733). The party bars move every battle frame.
+- CI on the baseline commit. Then one read of Gitar, and the Codex review.
 
 ### Traps and gotchas
 
@@ -32,7 +32,7 @@ None.
 
 ### The next concrete action
 
-Push, open the PR, and copy the baselines of the screen-test artifact. Read Gitar once under D-945, then run `make codex-review PR=<n> -- --skip-gitar-review`.
+Wait for CI on the baseline commit to finish green except `review-gate`. Read Gitar once under D-945, then run `make codex-review PR=69 -- --skip-gitar-review`.
 
 ## Session 257: 2026-09-23, Codex
 
