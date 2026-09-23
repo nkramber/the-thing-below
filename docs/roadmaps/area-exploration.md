@@ -151,8 +151,8 @@ Built by PR-8, PR-9, and PR-60. Phase file: `phase-2-first-playable.md`.
 - A test proves that no map system moves during a battle (D-531, T-3).
 - PR-8 holds the encounter in the map state, and one console command ends it as a flee until PR-9 builds the fight (D-749).
 - The snapshot holds each enemy, the mark, and the encounter, at save format 3 (D-750).
-- The transition of PR-60 plays over the hand-off, and the kind of the encounter picks it (D-196).
-- After the battle, the map waits for the screen, and a wait intent ends the wait (D-522).
+- The transition of PR-60 plays over the hand-off, and the kind of the encounter picks it (D-196, D-934, D-937).
+- After the battle, the map fades back in, and a wait intent ends the wait (D-522, D-938).
 - A killed enemy stays dead until a story event reopens the place, and the exit does not bring it back (D-555).
 - A party wipe reloads the newer of the slot save and the autosave (D-231).
 

@@ -6,6 +6,7 @@ using System.Reflection;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Storage;
 using TheThingBelow.Tools.Content;
@@ -86,6 +87,22 @@ public sealed class ScreenCapturesTests
         "battle-stepped-1x.png",
     ];
 
+    /// <summary>The captures of the ten transitions, and the color split at the reduced level (D-195, D-863).</summary>
+    private static readonly string[] TransitionNames =
+    [
+        "transition-shatter-1x.png",
+        "transition-swirl-1x.png",
+        "transition-pixel-dissolve-1x.png",
+        "transition-mosaic-1x.png",
+        "transition-crt-power-off-1x.png",
+        "transition-snow-whiteout-1x.png",
+        "transition-blinds-1x.png",
+        "transition-ripple-1x.png",
+        "transition-scanline-sweep-1x.png",
+        "transition-color-split-1x.png",
+        "transition-color-split-reduced-1x.png",
+    ];
+
     // This property stays below `StillNames`, because its build reads that array, and a static
     // member takes its value in the order of the file (T-2).
     /// <summary>Every file that one run of the capture session writes, in the order of the list.</summary>
@@ -104,8 +121,9 @@ public sealed class ScreenCapturesTests
         // PR-58 adds one capture of each ambient kind on the map and over a fight, the pit room
         // of the wall shape beside a doorway, and three frames of a step that scrolls the view
         // (D-852, D-889, F-97, exit test 1 of PR-58). PR-92 adds the map and a fight in the
-        // stepped mode of the passes (D-917).
-        Assert.Equal(10 + 34 + 1 + 10 + 3 + 14 + 2, FileNames().Count);
+        // stepped mode of the passes (D-917). PR-60 adds each of the ten transitions, and the color
+        // split at the reduced level (D-195, D-863, exit tests 1 and 2 of PR-60).
+        Assert.Equal(10 + 34 + 1 + 10 + 3 + 14 + 2 + 11, FileNames().Count);
     }
 
     [Fact]
@@ -142,7 +160,7 @@ public sealed class ScreenCapturesTests
     {
         // D-782, T-7. The map, ui, and picture captures show the run at tick 0, so no walk tick
         // reaches them.
-        foreach (string fixture in new[] { "map", "ui", "picture", "pit" })
+        foreach (string fixture in new[] { "map", "ui", "picture", "pit", "transition" })
         {
             foreach (object capture in OfFixture(fixture))
             {
@@ -247,6 +265,35 @@ public sealed class ScreenCapturesTests
     }
 
     [Fact]
+    public void EachTransitionFrameDrawsItsLookAndTheColorSplitDrawsAtBothLevels()
+    {
+        // Exit tests 1 and 2 of PR-60: the screen test captures each of the ten looks, and the color
+        // split at the full level and at the reduced level, where the fade takes its place (D-863).
+        MethodInfo frameOf = GameAssemblyFile.Type(CapturesTypeName).GetMethod("TransitionFrameOf")!;
+        var looks = new SortedSet<string>(StringComparer.Ordinal);
+        var splitLevels = new List<EffectLevel>();
+        foreach (object capture in OfFixture("transition"))
+        {
+            object frame = frameOf.Invoke(null, [Read<string>(capture, "Frame")])!;
+            var look = Read<TransitionLook>(frame, "Look");
+            var level = Read<EffectLevel>(frame, "Level");
+            looks.Add(Transition.NameOf(look));
+            if (look == TransitionLook.ColorSplit)
+            {
+                splitLevels.Add(level);
+            }
+            else
+            {
+                Assert.Equal(EffectLevel.Full, level);
+            }
+        }
+
+        Assert.Equal(Transition.AllLooks.Length, looks.Count);
+        Assert.Equal([EffectLevel.Full, EffectLevel.Reduced], splitLevels);
+        Assert.Equal(30, (int)GameAssemblyFile.Type(CapturesTypeName).GetField("TransitionTick")!.GetValue(null)!);
+    }
+
+    [Fact]
     public void TheWalkToTheDeepRoomMeetsTheBrute()
     {
         // D-882: the sparks frame needs a real fight with the brute, so the walk must meet the
@@ -313,6 +360,11 @@ public sealed class ScreenCapturesTests
         }
 
         foreach (string name in SteppedNames)
+        {
+            names.Add(name);
+        }
+
+        foreach (string name in TransitionNames)
         {
             names.Add(name);
         }

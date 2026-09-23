@@ -40,15 +40,20 @@ public sealed class GameRun
     private readonly Simulation simulation;
     private readonly RunRecorder recorder;
     private readonly BattleEffects pace;
+    private readonly TransitionContent transitions;
+    private readonly ScreenHandOff handOff;
+    private ContentId? lastCommon;
     private BattleView? view;
     private BattleEvent? playing;
     private long playingSince;
 
-    private GameRun(Simulation simulation, RunRecorder recorder, BattleEffects pace, MessageSpeed messageSpeed)
+    private GameRun(Simulation simulation, RunRecorder recorder, EffectContent effects, MessageSpeed messageSpeed)
     {
         this.simulation = simulation;
         this.recorder = recorder;
-        this.pace = pace;
+        this.pace = effects.Battle;
+        this.transitions = effects.Transitions;
+        this.handOff = new ScreenHandOff(effects.Transitions.Table.FadeTicks);
         this.MessageSpeed = messageSpeed;
     }
 
@@ -61,6 +66,18 @@ public sealed class GameRun
 
     /// <summary>The pace of the fights on screen, from the battle file of the content set (D-829, D-883).</summary>
     public BattleEffects Pace => this.pace;
+
+    /// <summary>The transition into a fight, the fade into it, and the fade back to the map (D-938, D-939).</summary>
+    public ScreenHandOff HandOff => this.handOff;
+
+    /// <summary>The transitions and their table, which the screen reads to draw a phase of the hand-off (D-195).</summary>
+    public TransitionContent Transitions => this.transitions;
+
+    /// <summary>
+    /// True while the screen shows the fight: from the end of the transition into it to the start of
+    /// the fade back to the map (D-938, D-939).
+    /// </summary>
+    public bool ShowsBattle => this.view is not null && !this.handOff.ShowsMapAgain;
 
     /// <summary>The count of ticks since the start of the run (D-164).</summary>
     public long Tick => this.simulation.Tick;
@@ -204,7 +221,7 @@ public sealed class GameRun
 
         RunHeader header = RunHeader.ForThisBuild(content.Hash, seed);
         Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), content.Battle, debugHandlers);
-        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content.Effects.Battle, messageSpeed);
+        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content.Effects, messageSpeed);
     }
 
     /// <summary>
@@ -243,7 +260,7 @@ public sealed class GameRun
             content.Battle,
             debugHandlers);
         RunHeader header = RunHeader.ForThisBuild(content.Hash, save.Header.Seed);
-        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content.Effects.Battle, messageSpeed);
+        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content.Effects, messageSpeed);
     }
 
     /// <summary>
@@ -305,7 +322,13 @@ public sealed class GameRun
 
             this.recorder.Step(this.simulation.Tick + 1, intents);
             log.AddRange(this.simulation.Step(intents));
-            this.events.Add(this.simulation.TakeBattleEvents());
+            IReadOnlyList<BattleEvent> taken = this.simulation.TakeBattleEvents();
+            if (StartsFight(taken))
+            {
+                log.Add(this.StartTransition());
+            }
+
+            this.events.Add(taken);
         }
 
         if (ticks > 0)
@@ -333,17 +356,23 @@ public sealed class GameRun
     /// Starts each battle event whose turn came: the next event starts when the one before
     /// played all its ticks, and an event of no ticks lets the next one start at once (D-532,
     /// D-829). Each start applies the event to the view of the screen and writes one log line.
-    /// When the queue drains after a win or a flee, the run takes the wait intent, and the map
-    /// runs again on the next tick (D-522).
+    /// No event plays while the transition into the fight runs (D-939). When the queue drains after
+    /// a win or a flee, the map fades back in, and the run then takes the wait intent, so the map
+    /// runs again on the next tick (D-522, D-938).
     /// </summary>
     /// <remarks>
-    /// The pace counts ticks of the run and never the frames of the host, so a faster screen
-    /// plays a fight in the same time (D-266). The rules never read the pace: a command of the
-    /// player waits for it, and each command is an intent of the record (D-522, T-7).
+    /// The pace and the hand-off count ticks of the run and never the frames of the host, so a
+    /// faster screen plays a fight in the same time (D-266). The rules never read the pace: a
+    /// command of the player waits for it, and each command is an intent of the record (D-522, T-7).
     /// </remarks>
     private void PlayBattleEvents(List<LogEntry> log)
     {
         this.FollowBattle();
+        this.handOff.Follow(this.simulation.Tick);
+        if (this.handOff.HoldsEvents)
+        {
+            return;
+        }
 
         while (this.PlayedOut && !this.events.Empty)
         {
@@ -376,6 +405,20 @@ public sealed class GameRun
             return;
         }
 
+        // The map fades back in before the world runs again, so the wait intent goes out when the
+        // fade ends (D-522, D-938). A fight that a load resumed had no transition, so it fades back too.
+        if (this.handOff.Phase == HandOffPhase.None)
+        {
+            this.handOff.StartBack(this.simulation.Tick);
+            log.Add(this.HandOffEntry("the screen started the fade back to the map", LogEntry.NoFields));
+            return;
+        }
+
+        if (this.handOff.Phase != HandOffPhase.Waiting)
+        {
+            return;
+        }
+
         // A frame can run no tick, and the queue then still holds the wait intent of an
         // earlier frame. A second one in one tick meets the refusal of the rules (T-2).
         foreach (Intent waiting in this.queued)
@@ -399,6 +442,7 @@ public sealed class GameRun
         {
             this.view = null;
             this.playing = null;
+            this.handOff.End(this.simulation.Tick);
             return;
         }
 
@@ -407,6 +451,68 @@ public sealed class GameRun
             this.view = BattleView.Of(battle);
         }
     }
+
+    /// <summary>Tells whether the events of one tick start a fight, which a transition leads into (D-939).</summary>
+    private static bool StartsFight(IReadOnlyList<BattleEvent> events)
+    {
+        foreach (BattleEvent taken in events)
+        {
+            if (taken.Kind == BattleEventKind.Started)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Picks the transition of the fight that started on this tick, and starts it (D-934, D-935,
+    /// D-937). The kind comes from the boss flag of the group, the side of the encounter, and the
+    /// size of its patrol.
+    /// </summary>
+    /// <returns>The log entry of the start, with the kind and the transition.</returns>
+    /// <exception cref="InvalidOperationException">The run holds no fight or no encounter, or no patrol has the id of the encounter (T-2).</exception>
+    private LogEntry StartTransition()
+    {
+        RunState state = this.simulation.State;
+        long tick = this.simulation.Tick;
+        Battle battle = state.Battle ?? throw new InvalidOperationException(
+            $"A start event came at tick {tick}, and the run holds no fight (D-532, T-2).");
+        MapEncounter encounter = state.Party.Patrols.Encounter ?? throw new InvalidOperationException(
+            $"The fight of the group '{battle.Group.Id.Value}' started at tick {tick}, and the map holds no encounter (D-531, T-2).");
+
+        EncounterKind kind = EncounterKinds.Of(battle.Group.Boss, encounter.Behind, SizeOf(state.Party.Patrols, encounter, tick));
+        Transition picked = this.transitions.Pick(kind, state.Party.Map.Id, state.Seed, tick, this.lastCommon);
+        if (kind == EncounterKind.Common)
+        {
+            this.lastCommon = picked.Id;
+        }
+
+        this.handOff.StartInto(picked, tick);
+        return this.HandOffEntry(
+            "the screen started the transition into a fight",
+            [new LogField("kind", EncounterKinds.NameOf(kind)), new LogField("transition", picked.Id.Value)]);
+    }
+
+    /// <summary>Gives the size of the patrol of an encounter, which the kind of the encounter reads (D-937).</summary>
+    private static EnemySize SizeOf(MapPatrols patrols, MapEncounter encounter, long tick)
+    {
+        foreach (PatrolState patrol in patrols.All)
+        {
+            if (string.CompareOrdinal(patrol.Patrol.Id.Value, encounter.Enemy.Value) == 0)
+            {
+                return patrol.Patrol.Size;
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"The encounter at tick {tick} names the patrol '{encounter.Enemy.Value}', and the map holds no such patrol (D-752, T-2).");
+    }
+
+    /// <summary>Gives the log entry of a phase of the hand-off (D-179).</summary>
+    private LogEntry HandOffEntry(string message, IReadOnlyList<LogField> fields) =>
+        new(LogLevel.Info, message, this.simulation.Tick, LogSubsystems.Game, fields);
 
     /// <summary>Gives the record of the run as it stands now (G-5, D-651).</summary>
     /// <returns>The record, which the crash file of D-170 carries.</returns>

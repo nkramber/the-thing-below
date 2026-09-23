@@ -1,0 +1,25 @@
+{
+ "comment": "The table that gives each fight its transition (D-196, D-934, D-936). The kind of an encounter comes in the order boss, wrong thing, ambush, elite, common (D-937). Each fixed kind takes one transition for the whole game, so the player learns to read it (D-940). A common fight takes one from the pool of its region: a hash of the run seed and the tick that starts the fight picks it, and the pick skips the last one (D-935). A pool holds no transition of a fixed kind. Each map of the rules belongs to one region. The fade takes the fight in from the cover color of the transition, and it takes the map back in from the back cover, ink, after a win or a flee, before the wait intent (D-522, D-938, D-939).",
+ "fade_ticks": 20,
+ "back_cover": "k",
+ "kinds": {
+  "ambush": "transition.color_split",
+  "elite": "transition.swirl",
+  "boss": "transition.shatter",
+  "wrong_thing": "transition.ripple"
+ },
+ "regions": [
+  {
+   "region": "region.one",
+   "maps": ["map.fixture_dungeon"],
+   "pool": [
+    "transition.pixel_dissolve",
+    "transition.mosaic",
+    "transition.crt_power_off",
+    "transition.snow_whiteout",
+    "transition.blinds",
+    "transition.scanline_sweep"
+   ]
+  }
+ ]
+}

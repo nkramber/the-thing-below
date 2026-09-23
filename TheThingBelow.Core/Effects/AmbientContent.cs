@@ -229,7 +229,8 @@ public sealed class AmbientContent
     /// Every map and every fight draws the glow, the tilt-shift blur, and the vignette (D-910,
     /// D-920). A map with a light shaft draws one shaft pass, and a weather with fog draws one fog
     /// pass for all its layers (D-898, D-918). A fight on the map draws its weather and no shaft,
-    /// so the count of the map is never below the count of a fight.
+    /// so the count of the map is never below the count of a fight. The transition into a fight draws
+    /// one pass over the map, so every map counts it too (D-523, D-939).
     /// </remarks>
     public static int PassesOf(GameMap map, AmbientEffect? weather, LightContent light)
     {
@@ -238,7 +239,7 @@ public sealed class AmbientContent
 
         // A map with no weather draws no fog, so its weather adds no pass (D-202).
         int fog = weather is null ? 0 : weather.FullScreenPasses;
-        return checked(Glow.FullScreenPasses + Hd2dPasses.FullScreenPasses + light.ShaftPassesOf(map.Id) + fog);
+        return checked(Glow.FullScreenPasses + Hd2dPasses.FullScreenPasses + light.ShaftPassesOf(map.Id) + fog + TransitionContent.FullScreenPasses);
     }
 
     /// <summary>Refuses a map whose passes, with its weather, pass the row of full-screen passes (D-523, T-2).</summary>
@@ -251,7 +252,7 @@ public sealed class AmbientContent
             throw ContentException.ForField(
                 EffectBudget.Path,
                 "full_screen_passes",
-                $"the map '{map.Id.Value}' draws {passes} full-screen passes: the glow, the tilt-shift blur, the vignette, {light.ShaftPassesOf(map.Id)} for its light shafts, and {fog}. The row allows {light.Budget.FullScreenPasses} (D-523, D-898, D-918, D-920)");
+                $"the map '{map.Id.Value}' draws {passes} full-screen passes: the glow, the tilt-shift blur, the vignette, {light.ShaftPassesOf(map.Id)} for its light shafts, {fog}, and the transition into a fight. The row allows {light.Budget.FullScreenPasses} (D-523, D-898, D-918, D-920, D-939)");
         }
     }
 

@@ -1,3 +1,42 @@
+## Session 237: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-60, round 1. Repository: the-thing-below. Branch: `feat/pr-60-transitions`. PR: #64. Role: author. Base: `ca8c549`.
+
+### What this session did, and why
+
+- Asked the questions of PR-60 in two batches and recorded D-934 to D-941. D-934 revises D-196 in part: a pool of each region takes the place of the default of each region, for common encounters alone.
+- Built the ten transitions as effect files, each 60 ticks long, and the transition table with the fixed kinds, the pool of region one, and the fade (D-195, D-934, D-936, D-940, D-941).
+- Core reads the kind of an encounter in the order of D-937, and it picks from the pool with a hash of the seed and the start tick, with no repeat of the last pick (D-935). The simulation version is 16.
+- Game holds the events of the fight for the 60 ticks of the transition. The fight then fades in from the cover color, and after a win or a flee the map fades back in before the wait intent (D-522, D-938, D-939).
+- The pass of the hand-off draws last in the frame, above the UI. The budget counts one transition pass on every map (D-523, D-923).
+- Added eleven captures: each look halfway through, and the color split at the reduced level, where the fade takes its place (D-863). The author read each frame of `make sheet FIXTURE=transition`, and reworked the snow whiteout, which read as static.
+- The owner asked how a player sees the count of the enemies of a fight. The battle screen draws no waiting enemy and no count (D-758, D-778). No decision says whether the wave is a surprise. That question belongs to the battle screen, and it waits for the answer of the owner.
+
+### The state of the build
+
+- `main` is `ca8c549`. This commit is the first push of the branch.
+- `make build`, `make format`, `make lint`, `make smoke`, and the STE check pass on this machine. `make test` passes except the eleven new captures, which have no baseline yet.
+
+### What is in flight
+
+- The screen-test job of the first push gives the eleven baselines, and the author commits them from its artifact (D-733).
+- The Gitar pass, then `make codex-review PR=64`.
+
+### Traps and gotchas
+
+- The transition shaders read the frame under them with `hint_screen_texture`, so the pass must stay the last child of the frame viewport.
+- A test set with its own maps needs `EffectFixtures.WithMapsOf`, because each map of the rules belongs to one region (D-936).
+- The party loses the hall fight at the fixture seed, so the test of exit test 4 flees.
+
+### The questions that block progress
+
+None. The question of the enemy count waits for the owner and blocks nothing in PR-60.
+
+### The next concrete action
+
+Read the screen-test artifact of the first push, commit the eleven baselines, and answer the Gitar pass.
+
 ## Session 236: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -333,43 +372,3 @@ None. OQ-241 blocks no PR yet.
 ### The next concrete action
 
 The other provider reviews PR #62.
-
-## Session 227: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-92, round 1. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
-
-### What this session did, and why
-
-- Asked the questions of PR-92 and recorded OQ-233 to OQ-239 and D-917 to D-923. D-917, D-919, and D-923 revise D-622, D-916, and D-617 in part.
-- Built the tilt-shift blur, the vignette, and the light shafts, each in a smooth mode and a stepped mode (D-917). `content/effects/hd2d.json` holds the mode.
-- A shaft is a shaft kind in `content/decor/shafts/`, and a decor file places it on a wall (D-918). The fixture dungeon holds a still shaft and a shaft that shimmers (D-921).
-- The shafts draw in the overlay. A scene view joins the world and the overlay, and the frame draws it with the blur and the vignette. The marks moved to a mark view above them (D-919).
-- The budget counts the passes of each map, a map with no weather included, and the pass row is 6 (D-920, D-923). The simulation version is 15.
-- Added the stages `pass-look`, `full-load-24-look`, and `budget-rows` to `spike/deck-test` as `6bb1595` (D-922).
-- Added stepped captures of the map, a fight, and the still fixture. The author read the frames of `make sheet`.
-
-### The state of the build
-
-- `main` is `05dcc3d`. `make verify` passed on this machine except the 6 new baselines.
-- CI run 35820532779 on `2d67459`: the two capture runs matched on all 78 captures. The 72 baselines that changed come from its artifact (D-733). The 5 ui captures and the picture capture did not change.
-- Gitar approved `2d67459` with no finding.
-
-### What is in flight
-
-- The owner runs the Deck sweep of `spike/deck-test`. The pass row of 6 stands only when `full-load-24-look` and `budget-rows` hold 60 frames per second (G-14).
-- The PR waits for CI on the baseline commit and the review of the other provider.
-
-### Traps and gotchas
-
-- Godot takes no default value for a uniform array. The spike copy of the shaft shader uses constants.
-- Two walk fixtures can follow each other in the capture list, so the session rebuilds the run when the fixture changes.
-- The view of the scene reads with a linear filter. The blur shader reads each sharp pixel at the middle of its art pixel.
-
-### The questions that block progress
-
-None. The Deck sweep is a measurement, not a question.
-
-### The next concrete action
-
-Read the Deck reports, commit them to `spike/deck-test`, and record the numbers in the PR. Then commit the baselines from the CI artifact.

@@ -1,0 +1,7 @@
+{
+ "comment": "A transition of the pool of common fights (D-195, D-934). Ink bands close down over the map, as blinds do, each band a little after the one above it. The length is one second (D-941).",
+ "id": "transition.blinds",
+ "look": "blinds",
+ "ticks": 60,
+ "cover": "k"
+}

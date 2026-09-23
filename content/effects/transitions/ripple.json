@@ -1,0 +1,7 @@
+{
+ "comment": "The transition of the wrong things (D-195, D-940). Rings of waves spread from the middle and bend the map, and ink closes over it in a dither. The length is one second (D-941).",
+ "id": "transition.ripple",
+ "look": "ripple",
+ "ticks": 60,
+ "cover": "k"
+}

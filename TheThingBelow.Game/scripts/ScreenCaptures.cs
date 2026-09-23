@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Game.Ui;
@@ -38,6 +39,12 @@ public sealed record WalkTick(string Action, int Tick);
 /// <param name="Frame">The name of the frame, such as `snow-1x`.</param>
 /// <param name="Ambient">The id of the ambient file that the frame loads.</param>
 public sealed record WeatherFrame(string Frame, string Ambient);
+
+/// <summary>One frame of the transition fixture: one look at one level of the flash and shake reduction (D-195, D-863).</summary>
+/// <param name="Frame">The name of the frame, such as `color-split-reduced-1x`.</param>
+/// <param name="Look">The look that the frame draws over the map.</param>
+/// <param name="Level">The level of the reduction, which turns the color split into the fade (D-863).</param>
+public sealed record TransitionFrame(string Frame, TransitionLook Look, EffectLevel Level);
 
 /// <summary>One frame of the battle fixture at one level of the flash and shake reduction (D-863).</summary>
 /// <param name="Frame">The name of the frame, such as `heavy-reduced-1x`.</param>
@@ -91,6 +98,12 @@ public static class ScreenCaptures
 
     /// <summary>The running screen through a step that scrolls the view, which shows that each particle stays on the world (F-97).</summary>
     public const string ScrollFixture = "scroll";
+
+    /// <summary>The running screen under a transition into a fight, halfway through it (D-195, exit tests 1 and 2 of PR-60).</summary>
+    public const string TransitionFixture = "transition";
+
+    /// <summary>The tick of each transition that its frame shows, halfway through the 60 ticks of D-941.</summary>
+    public const int TransitionTick = 30;
 
     /// <summary>The frame of the map fixture and of the battle fixture in the stepped mode of the passes (D-917).</summary>
     public const string SteppedFrame = "stepped-1x";
@@ -189,6 +202,12 @@ public static class ScreenCaptures
         new("heavy-off-1x", EffectLevel.Off),
     ];
 
+    /// <summary>
+    /// The frames of the transition fixture: each of the ten looks at the full level, and the color
+    /// split at the reduced level, where the fade takes its place (D-195, D-863, exit tests 1 and 2 of PR-60).
+    /// </summary>
+    public static IReadOnlyList<TransitionFrame> TransitionFrames { get; } = BuildTransitionFrames();
+
     // These lists stay above `All`, because the build of `All` reads them, and a static
     // property takes its value in the order of the file (T-2).
     /// <summary>Every capture that one session of the job takes, in a fixed order.</summary>
@@ -196,7 +215,7 @@ public static class ScreenCaptures
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
     public static IReadOnlyList<string> Fixtures { get; } =
-        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture];
+        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, TransitionFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -327,6 +346,14 @@ public static class ScreenCaptures
                 new WalkTick(InputActions.StepSouth, tick)));
         }
 
+        // Each transition draws at 1x over the map, halfway through, and the color split draws at the
+        // reduced level too, where the fade takes its place (D-195, D-863).
+        foreach (TransitionFrame transition in TransitionFrames)
+        {
+            captures.Add(new ScreenCapture(
+                TransitionFixture, transition.Frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        }
+
         // The settings screen draws at both body sizes: 32 at 1x, and 24 at 1080 rows (D-707).
         // The conflict line draws at 1x, the floor of the Steam Deck (D-862).
         captures.Add(new ScreenCapture(
@@ -367,6 +394,39 @@ public static class ScreenCaptures
 
         return string.CompareOrdinal(frame, BattleStopFrame) == 0 || HeavyLevelOf(frame) is not null;
     }
+
+    /// <summary>Gives the frame of the transition fixture of one frame name.</summary>
+    /// <param name="frame">The name of the frame, such as `shatter-1x`.</param>
+    /// <returns>The frame.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">No frame of the transition fixture has the name (T-2).</exception>
+    public static TransitionFrame TransitionFrameOf(string frame)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(frame);
+
+        foreach (TransitionFrame transition in TransitionFrames)
+        {
+            if (string.CompareOrdinal(transition.Frame, frame) == 0)
+            {
+                return transition;
+            }
+        }
+
+        throw new ArgumentOutOfRangeException(nameof(frame), frame, $"No frame of the transition fixture has the name '{frame}' (T-2).");
+    }
+
+    private static IReadOnlyList<TransitionFrame> BuildTransitionFrames()
+    {
+        var frames = new List<TransitionFrame>(Transition.AllLooks.Length + 1);
+        foreach (TransitionLook look in Transition.AllLooks)
+        {
+            frames.Add(new TransitionFrame($"{FrameNameOf(look)}-1x", look, EffectLevel.Full));
+        }
+
+        frames.Add(new TransitionFrame($"{FrameNameOf(TransitionLook.ColorSplit)}-reduced-1x", TransitionLook.ColorSplit, EffectLevel.Reduced));
+        return frames;
+    }
+
+    private static string FrameNameOf(TransitionLook look) => Transition.NameOf(look).Replace('_', '-');
 
     /// <summary>Gives the level of the flash and shake reduction of a frame of the battle fixture (D-863).</summary>
     /// <param name="frame">The name of the frame.</param>

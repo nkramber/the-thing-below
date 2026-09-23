@@ -599,6 +599,6 @@ public sealed class ContentSetTests
         files.AddRange(UiContentFixtures.Files());
         files.AddRange(TestBattles.Files());
         files.AddRange(rules);
-        return files;
+        return EffectFixtures.WithMapsOf(files);
     }
 }

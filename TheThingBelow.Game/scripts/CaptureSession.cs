@@ -331,6 +331,23 @@ public sealed partial class CaptureSession : Node
             $"The step '{action}' of the route to the pit room never ended, and the lead stands at {run.Party.LeadAt} (T-2, D-852).");
     }
 
+    /// <summary>Gives the transition of one look from the content of the session (D-195).</summary>
+    /// <param name="look">The look.</param>
+    /// <returns>The transition.</returns>
+    /// <exception cref="InvalidOperationException">No transition has the look (T-2).</exception>
+    private Transition TransitionOf(TransitionLook look)
+    {
+        foreach (Transition transition in this.content.Effects.Transitions.Transitions)
+        {
+            if (transition.Look == look)
+            {
+                return transition;
+            }
+        }
+
+        throw new InvalidOperationException($"The content holds no transition of the look '{Transition.NameOf(look)}' (D-195, T-2).");
+    }
+
     /// <summary>
     /// Removes the frame that drew before, and builds the frame and the nodes of one fixture
     /// (D-734).
@@ -365,6 +382,19 @@ public sealed partial class CaptureSession : Node
         {
             GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             MapFixture.Build(built, @base, open.Party, this.content, this.AmbientOf(capture), seekParticles: true, mode: capture.Mode);
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.TransitionFixture) == 0)
+        {
+            // The map of the map fixture, with one transition over it at a fixed tick, so one frame
+            // gives one picture (D-172, exit tests 1 and 2 of PR-60).
+            GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+            MapFixture.Build(built, @base, open.Party, this.content, seekParticles: true);
+            TransitionFrame shown = ScreenCaptures.TransitionFrameOf(capture.Frame);
+            Transition transition = this.TransitionOf(shown.Look);
+            int progress = ScreenCaptures.TransitionTick * ScreenHandOff.ProgressScale / transition.Ticks;
+            built.HandOffPass.ShowAt(transition, progress, shown.Level, this.content.Palette);
             return;
         }
 

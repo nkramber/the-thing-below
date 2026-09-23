@@ -33,7 +33,9 @@ public static class SimulationVersion
     /// glow threshold, the count of the glow pass in the budget, and the refusal of a lit fog
     /// (D-910, D-912, D-913, D-916). PR-92 raised it to 15: the reader of the shaft kinds, the shafts of
     /// a decor file, and the file of the passes of the HD-2D look, and the count of the passes of each
-    /// map in the budget (D-917, D-918, D-920).
+    /// map in the budget (D-917, D-918, D-920). PR-60 raised it to 16: the reader of the transition files and
+    /// the transition table, the kind of an encounter, the pick of a transition, and the count of the
+    /// transition pass of each map in the budget (D-934 to D-941).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -41,5 +43,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 15;
+    public const int Current = 16;
 }

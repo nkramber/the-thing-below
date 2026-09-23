@@ -1,4 +1,44 @@
 # Session handoff archive
+## Session 227: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-92, round 1. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- Asked the questions of PR-92 and recorded OQ-233 to OQ-239 and D-917 to D-923. D-917, D-919, and D-923 revise D-622, D-916, and D-617 in part.
+- Built the tilt-shift blur, the vignette, and the light shafts, each in a smooth mode and a stepped mode (D-917). `content/effects/hd2d.json` holds the mode.
+- A shaft is a shaft kind in `content/decor/shafts/`, and a decor file places it on a wall (D-918). The fixture dungeon holds a still shaft and a shaft that shimmers (D-921).
+- The shafts draw in the overlay. A scene view joins the world and the overlay, and the frame draws it with the blur and the vignette. The marks moved to a mark view above them (D-919).
+- The budget counts the passes of each map, a map with no weather included, and the pass row is 6 (D-920, D-923). The simulation version is 15.
+- Added the stages `pass-look`, `full-load-24-look`, and `budget-rows` to `spike/deck-test` as `6bb1595` (D-922).
+- Added stepped captures of the map, a fight, and the still fixture. The author read the frames of `make sheet`.
+
+### The state of the build
+
+- `main` is `05dcc3d`. `make verify` passed on this machine except the 6 new baselines.
+- CI run 35820532779 on `2d67459`: the two capture runs matched on all 78 captures. The 72 baselines that changed come from its artifact (D-733). The 5 ui captures and the picture capture did not change.
+- Gitar approved `2d67459` with no finding.
+
+### What is in flight
+
+- The owner runs the Deck sweep of `spike/deck-test`. The pass row of 6 stands only when `full-load-24-look` and `budget-rows` hold 60 frames per second (G-14).
+- The PR waits for CI on the baseline commit and the review of the other provider.
+
+### Traps and gotchas
+
+- Godot takes no default value for a uniform array. The spike copy of the shaft shader uses constants.
+- Two walk fixtures can follow each other in the capture list, so the session rebuilds the run when the fixture changes.
+- The view of the scene reads with a linear filter. The blur shader reads each sharp pixel at the middle of its art pixel.
+
+### The questions that block progress
+
+None. The Deck sweep is a measurement, not a question.
+
+### The next concrete action
+
+Read the Deck reports, commit them to `spike/deck-test`, and record the numbers in the PR. Then commit the baselines from the CI artifact.
+
 ## Session 226: 2026-09-23, Codex
 
 Author: Codex

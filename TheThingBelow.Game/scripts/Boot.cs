@@ -146,6 +146,8 @@ public partial class Boot : Node
                 this.map?.ShowParty(this.run.Party, this.run.TickPart);
                 this.map?.ShowWeather(this.run.Tick, seek: false);
             }
+
+            this.ShowHandOff(this.run);
         }
         catch (Exception fault)
         {
@@ -338,9 +340,9 @@ public partial class Boot : Node
     /// when the fight ends, so the map shows again (D-111, D-532).
     /// </summary>
     /// <remarks>
-    /// The screen follows the view of the run, which exists from the first event of a fight
-    /// to the end of it. An encounter before the fight keeps the map on screen, and PR-60
-    /// adds the transition between the two (D-531).
+    /// The screen follows the run: the fight shows from the end of the transition into it to the
+    /// start of the fade back to the map. An encounter before the fight keeps the map on screen,
+    /// and the transition plays over it (D-531, D-938, D-939).
     /// </remarks>
     /// <exception cref="InvalidOperationException">A fight runs, and the session built no frame or UI base (T-2).</exception>
     private void FollowBattleScreen()
@@ -351,7 +353,7 @@ public partial class Boot : Node
             return;
         }
 
-        if (open.BattleView is null)
+        if (!open.ShowsBattle)
         {
             if (this.battle is not null)
             {
@@ -383,6 +385,21 @@ public partial class Boot : Node
         }
 
         this.battle.Show(open);
+    }
+
+    /// <summary>Draws the phase of the hand-off of the run over the whole frame (D-938, D-939).</summary>
+    /// <param name="open">The run.</param>
+    /// <exception cref="InvalidOperationException">The session built no frame, loaded no content, or read no settings (T-2).</exception>
+    private void ShowHandOff(GameRun open)
+    {
+        FrameRoot built = this.frame ?? throw new InvalidOperationException(
+            $"The hand-off draws at tick {open.Tick}, and the session built no frame (T-2).");
+        ContentSet loaded = this.content ?? throw new InvalidOperationException(
+            $"The hand-off draws at tick {open.Tick}, and the session loaded no content (T-2).");
+        GameSettings chosen = this.settings ?? throw new InvalidOperationException(
+            $"The hand-off draws at tick {open.Tick}, and the session read no settings (T-2).");
+
+        built.HandOffPass.Show(open.HandOff, open.Transitions, open.Tick, chosen.Access.Effects, loaded.Palette);
     }
 
     /// <summary>Removes the frame and its nodes, and builds the screen again over the current run.</summary>

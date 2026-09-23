@@ -84,34 +84,34 @@ public sealed class AmbientContentTests
     }
 
     [Fact]
-    public void AFogOfThreeLayersAndEveryOtherPassKeepInsideABudgetOfFivePasses()
+    public void AFogOfThreeLayersAndEveryOtherPassKeepInsideTheBudgetOfSixPasses()
     {
         // D-898: the shader draws the three layers of the fog capture in one pass, so the budget
         // counts one. The count of one pass for each layer refused this checkout. The glow, the
-        // tilt-shift blur, the vignette, and the light shafts of the fixture dungeon take four more
-        // (D-910, D-918, D-920).
-        ContentSet set = ContentSet.Load(CheckoutWithPassRow(5));
+        // tilt-shift blur, the vignette, the light shafts of the fixture dungeon, and the transition
+        // into a fight take five more (D-910, D-918, D-920, D-923, D-939).
+        ContentSet set = ContentSet.Load(CheckoutWithPassRow(6));
 
-        Assert.Equal(5, set.Light.Budget.FullScreenPasses);
+        Assert.Equal(6, set.Light.Budget.FullScreenPasses);
         AmbientEffect fog = Assert.Single(set.Effects.Ambient.All, effect => effect.Kind == AmbientKind.Fog);
         Assert.Equal(3, fog.Fogs.Count);
         Assert.Equal(1, fog.FullScreenPasses);
-        Assert.Equal(5, AmbientContent.PassesOf(set.Map(fog.Maps[0]), fog, set.Light));
+        Assert.Equal(6, AmbientContent.PassesOf(set.Map(fog.Maps[0]), fog, set.Light));
     }
 
     [Fact]
     public void TheBudgetCountsEveryPassOfAMapWithItsFog()
     {
-        // D-523, D-920: the glow, the tilt-shift blur, and the vignette draw on every map, and the
-        // fixture dungeon draws its light shafts, so a budget of four passes holds no fog. The count
-        // of the glow alone with the fog took this budget.
-        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(CheckoutWithPassRow(4)));
+        // D-523, D-920, D-939: the glow, the tilt-shift blur, the vignette, and the transition draw on
+        // every map, and the fixture dungeon draws its light shafts, so a budget of five passes holds
+        // no fog. The count of the glow alone with the fog took this budget.
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(CheckoutWithPassRow(5)));
 
         Assert.Equal(EffectBudget.Path, error.File);
         Assert.Equal("full_screen_passes", error.Field);
-        Assert.Contains("the map 'map.fixture_dungeon' draws 5 full-screen passes", error.Message, StringComparison.Ordinal);
-        Assert.Contains("the weather 'effect.fog_capture'", error.Message, StringComparison.Ordinal);
-        Assert.Contains("The row allows 4", error.Message, StringComparison.Ordinal);
+        Assert.Contains("the map 'map.fixture_dungeon' draws 6 full-screen passes", error.Message, StringComparison.Ordinal);
+        Assert.Contains("the weather 'effect.fog_capture', and the transition into a fight", error.Message, StringComparison.Ordinal);
+        Assert.Contains("The row allows 5", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -119,14 +119,30 @@ public sealed class AmbientContentTests
     {
         // D-920: a map with no weather draws the glow, the blur, the vignette, and its light
         // shafts. The count ran on each weather alone, so a map with no weather took no check.
-        List<ContentFile> files = CheckoutWithPassRow(3);
+        List<ContentFile> files = CheckoutWithPassRow(4);
         files.RemoveAll(file => AmbientEffect.IsAmbientFile(file.Path));
 
         ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(files));
 
         Assert.Equal("full_screen_passes", error.Field);
-        Assert.Contains("draws 4 full-screen passes", error.Message, StringComparison.Ordinal);
-        Assert.Contains("1 for its light shafts, and no weather", error.Message, StringComparison.Ordinal);
+        Assert.Contains("draws 5 full-screen passes", error.Message, StringComparison.Ordinal);
+        Assert.Contains("1 for its light shafts, no weather, and the transition into a fight", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheBudgetCountsTheTransitionPassOnEveryMap()
+    {
+        // D-523, D-939, exit test 5 of PR-60: the transition into a fight draws one pass over the
+        // map, so a map with no weather and no shaft draws four passes. The count with no
+        // transition held this map inside a row of three.
+        ContentException error = Assert.Throws<ContentException>(() => AmbientFixtures.Load([], fullScreenPasses: 3));
+
+        Assert.Equal(EffectBudget.Path, error.File);
+        Assert.Equal("full_screen_passes", error.Field);
+        Assert.Contains("the map 'map.lit' draws 4 full-screen passes", error.Message, StringComparison.Ordinal);
+        Assert.Contains("0 for its light shafts, no weather, and the transition into a fight", error.Message, StringComparison.Ordinal);
+        Assert.Equal(1, TransitionContent.FullScreenPasses);
+        Assert.Equal(4, AmbientContent.PassesOf(AmbientFixtures.World().Maps[LightFixtures.MapId], null, AmbientFixtures.World().Light));
     }
 
     [Fact]

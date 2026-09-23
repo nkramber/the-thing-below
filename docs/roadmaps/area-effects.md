@@ -95,7 +95,7 @@ The table lists what a frame draws, from the bottom to the top.
 | Vignette | The dark at the edges of the scene | No | D-849, D-919 |
 | Mark | The mark of a sight, the battle pointer, and the health bars, in the mark view | No | D-208, D-919 |
 | UI | Menus, the HUD, text, portraits, and damage numbers | No | D-210, D-213 |
-| Transition | The full-screen effect that starts a battle | No | D-191, D-195 |
+| Transition | The full-screen effect that starts a battle, and the fades of the hand-off | No | D-191, D-195, D-938, D-939 |
 | Fit | The scale to the screen, with black bars | No | D-232, D-568 |
 
 - Game draws the world, the UI, and the transition into the frame at 1x, 1280 by 720 (D-230, D-568). The game draws no CRT pass (D-618). The fit to the screen comes last (D-232). The world draws at 2x, from a `SubViewport` of 640 by 360 (D-633, D-634).
@@ -144,7 +144,7 @@ Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-94, PR-59, PR-
 - The test moves a window of 640 by 360 art pixels over the map. It takes the highest count of lights whose range reaches the window (D-842).
 - Godot drops each light past 15 on one canvas item with no message (F-46). A map layer draws a group of 256 tiles as one canvas item.
 - So the budget test also fails more than 15 lights on one canvas item, whatever the Deck test measures (T-2).
-- PR-56 adds the budget file and its test with the rows for light. PR-57 adds the particle row, and PR-58, PR-59, and PR-60 add their full-screen passes. PR-94 counts one pass for each fog (D-898). PR-59 counts one glow pass on every map and every fight (D-915). PR-92 counts the blur and the vignette on every map and every fight (D-920). It counts one shaft pass on a map with a light shaft (D-918).
+- PR-56 adds the budget file and its test with the rows for light. PR-57 adds the particle row, and PR-58, PR-59, and PR-60 add their full-screen passes. PR-94 counts one pass for each fog (D-898). PR-59 counts one glow pass on every map and every fight (D-915). PR-92 counts the blur and the vignette on every map and every fight (D-920). It counts one shaft pass on a map with a light shaft (D-918). PR-60 counts one transition pass on every map (D-939).
 - The test counts the passes of each map, a map with no weather included. A fight draws its weather and no shaft, so the count of its map is never below it (D-920).
 - The particle row holds the 8192 live particles of the sweep of 2026-09-17 (D-617). The screen plays one hit at a time, so the test counts the largest burst of a hit (D-879).
 - The first rows of the budget come from the run of 2026-09-17: 15 lights with shadows, 8192 live particles, and 3 full-screen passes (D-617).
@@ -283,15 +283,20 @@ Built by PR-59. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-60. Phase file: `phase-2-first-playable.md`.
 
-- The library holds ten transitions (D-195).
-- Content assigns a transition to each kind of encounter, with a default for each region (D-196). The table names encounter kinds and region ids (section 7.1).
+- The library holds ten transitions, and each one lasts 60 ticks (D-195, D-941).
+- The transition table names encounter kinds and region ids (section 7.1). Ambush, elite, boss, and wrong things each take one transition for the whole game (D-934, D-940).
+- A common encounter takes a transition from the pool of its region. A hash of the run seed and the start tick picks it, and the pick skips the last one (D-934, D-935).
+- No pool holds the transition of a fixed kind, so a special kind reads the same in each region (D-934).
+- The table names the maps of each region, and each map of the rules belongs to one region (D-936).
+- The kind of an encounter comes in the order boss, wrong thing, ambush, elite, common (D-937). The PR of the wrong things adds their mark.
 - A transition is an effect file with its shader in a `.gdshader` file of Game (D-182, D-191, D-825).
-- A transition is a full-screen pass, so it counts against the effect budget (D-523).
-- Color split meets the flash and shake reduction (D-195, D-214).
+- A transition is a full-screen pass, so the budget counts one on every map (D-523, D-923).
+- The transition breaks up the map until the view holds its cover color. The fight then fades in from that color (D-939).
+- Color split meets the flash and shake reduction: the fade takes its place at the reduced level and at off (D-195, D-214, D-863).
 - Snow whiteout fits region one, and each later region adds transitions of its own (D-194).
-- After a battle, the map waits for the screen to change back, and a wait intent ends the wait (D-522).
+- After a win or a flee, the map fades in from black, and a wait intent ends the wait (D-522, D-938).
 
-> *In plain English:* each fight starts with a screen effect, such as shattered glass or a whiteout of snow. The kind of fight picks the effect, so a boss always looks different from a common fight.
+> *In plain English:* each fight starts with a screen effect, such as shattered glass or a whiteout of snow. A boss always looks different from a common fight, and common fights vary.
 
 ### 7.12 The style of an effect
 
@@ -335,7 +340,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | PR-94 | The procedural fog: a soft noise shader of 1 to 3 layers in one pass | D-896 to D-908 |
 | PR-59 | The glow on light sources alone, and the fog above the glow | D-188, D-910 to D-916 |
 | PR-92 | The tilt-shift blur, the vignette, and the light shafts of the HD-2D look | D-849 |
-| PR-60 | The ten transitions and the table of kinds | D-195, D-196 |
+| PR-60 | The ten transitions, the table of kinds and pools, and the fades of the hand-off | D-195, D-196, D-934 to D-941 |
 | PR-17 | The light setups, the ambient effects, and the effect files of the first places | D-362, D-520 |
 | PR-21 | The light of the puzzles of light and dark | D-41 |
 | PR-23 to PR-27 and PR-81 | The light setups and the effects of each later place, the sealed gallery included | D-313, D-575 |
