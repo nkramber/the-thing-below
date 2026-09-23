@@ -40,12 +40,12 @@ public static class ReviewRecordRules
     /// <summary>Runs RG 3, RG 4, and RG 5 against the files of the head.</summary>
     /// <param name="facts">The facts of the pull request.</param>
     /// <param name="headFilesRoot">The folder that holds the files of the head, as data alone.</param>
-    /// <param name="effectiveHead">The effective head, or null when every commit is metadata.</param>
+    /// <param name="reviewableHeads">The commits that the record can name, with the effective head first (D-943).</param>
     /// <returns>The result of each of the three rules, in rule order.</returns>
     public static IReadOnlyList<GateCheck> Check(
         PullRequestFacts facts,
         string headFilesRoot,
-        CommitFacts? effectiveHead)
+        IReadOnlyList<CommitFacts> reviewableHeads)
     {
         ArgumentNullException.ThrowIfNull(facts);
         ArgumentException.ThrowIfNullOrEmpty(headFilesRoot);
@@ -67,7 +67,7 @@ public static class ReviewRecordRules
         [
             new GateCheck("RG 3", GateResult.Pass, $"the head holds the review record at `{path}`."),
             CheckVerdict(path, text),
-            CheckHead(path, text, effectiveHead),
+            CheckHead(path, text, reviewableHeads),
         ];
     }
 
@@ -167,15 +167,23 @@ public static class ReviewRecordRules
         return false;
     }
 
-    /// <summary>RG 5: the head field of the record names the effective head (D-610).</summary>
+    /// <summary>
+    /// RG 5: the head field of the record names the effective head (D-610), or an earlier commit
+    /// that each later commit of documents alone keeps approved (D-943).
+    /// </summary>
     /// <param name="path">The path of the record, for the message.</param>
     /// <param name="text">The text of the record.</param>
-    /// <param name="effectiveHead">The effective head, or null when every commit is metadata.</param>
+    /// <param name="reviewableHeads">
+    /// The commits that the record can name, newest first, with the effective head first. It is
+    /// empty when every commit is metadata. The `codex-review` command gives the effective head
+    /// alone, because a new review names the head that it read.
+    /// </param>
     /// <returns>The result of the rule.</returns>
-    public static GateCheck CheckHead(string path, string text, CommitFacts? effectiveHead)
+    public static GateCheck CheckHead(string path, string text, IReadOnlyList<CommitFacts> reviewableHeads)
     {
         ArgumentNullException.ThrowIfNull(text);
-        if (effectiveHead is null)
+        ArgumentNullException.ThrowIfNull(reviewableHeads);
+        if (reviewableHeads.Count == 0)
         {
             return new GateCheck(
                 "RG 5",
@@ -218,17 +226,29 @@ public static class ReviewRecordRules
                 $"the head field of `{path}` is `{recorded}`, which is shorter than {ShortestHash} letters.");
         }
 
-        if (!effectiveHead.Sha.StartsWith(recorded, StringComparison.OrdinalIgnoreCase))
+        CommitFacts effectiveHead = reviewableHeads[0];
+        if (effectiveHead.Sha.StartsWith(recorded, StringComparison.OrdinalIgnoreCase))
         {
             return new GateCheck(
                 "RG 5",
-                GateResult.Fault,
-                $"the head field of `{path}` is `{recorded}`, and the effective head is `{effectiveHead.Sha}` (D-610).");
+                GateResult.Pass,
+                $"the head field of `{path}` names the effective head `{effectiveHead.Sha}`.");
+        }
+
+        for (int index = 1; index < reviewableHeads.Count; index++)
+        {
+            if (reviewableHeads[index].Sha.StartsWith(recorded, StringComparison.OrdinalIgnoreCase))
+            {
+                return new GateCheck(
+                    "RG 5",
+                    GateResult.Pass,
+                    $"the head field of `{path}` names `{reviewableHeads[index].Sha}`, and each later commit changes documents alone (D-943).");
+            }
         }
 
         return new GateCheck(
             "RG 5",
-            GateResult.Pass,
-            $"the head field of `{path}` names the effective head `{effectiveHead.Sha}`.");
+            GateResult.Fault,
+            $"the head field of `{path}` is `{recorded}`, and the effective head is `{effectiveHead.Sha}` (D-610, D-943).");
     }
 }

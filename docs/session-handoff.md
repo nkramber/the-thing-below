@@ -1,3 +1,109 @@
+## Session 242: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-96, hand-over. Repository: the-thing-below. Branch: `docs/pr-96-review-loop-rules`. PR: #65. Role: author. Base: `e6eb27a`.
+
+### What this session did, and why
+
+- Read the review record of Session 241: `Ready for owner merge` for the effective head `aba8774`, with no finding.
+- Read the checks of the metadata tip `6cf9e9b`. Each check passed or skipped by the path rules, and `review-gate` passed.
+- Read the merge conditions of `docs/runbooks/merge.md`. Each one holds except the confirmation of the owner (D-933, D-942).
+
+### The state of the build
+
+- `main` is `e6eb27a`. The effective head is `aba8774`, and `git diff --stat aba8774..6cf9e9b` lists `docs/reviews/pr-65.md`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md` alone.
+- CI run 35889338283 passed each job on `aba8774`.
+
+### What is in flight
+
+- The confirmation of the owner, then the auto-merge of PR #65 (D-930).
+- After the merge, the transitional prompt of step 6.
+
+### Traps and gotchas
+
+- A push outside the skip set after the confirmation moves the effective head, and the loop starts again (D-943).
+
+### The questions that block progress
+
+None. OQ-242 waits for the owner and blocks nothing.
+
+### The next concrete action
+
+Post the summary in four sections inside the merge question, and turn on the auto-merge after the confirmation of the owner.
+
+## Session 241: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #65, round 1. Repository: the-thing-below. Branch: `docs/pr-96-review-loop-rules`. Role: reviewer. Base: `e6eb27a`.
+
+### What this session did, and why
+
+- Reviewed PR #65 from base `e6eb27a` through effective head `aba8774`, across 19 changed paths.
+- Confirmed Claude Code authored the substantive changes, and Codex passes the provider gate (T-4, D-17).
+- Verified the RG 5 reviewable-head walk, the regression tests, the review outcome check, and the docs and decision updates (D-857, D-942 to D-944).
+- Added `docs/reviews/pr-65.md` with no findings and `Ready for owner merge` for `aba8774`. The owner authorized this review to proceed without Gitar feedback or replies.
+
+### The state of the build
+
+- `main` is `e6eb27a`. The remote PR head is `aba8774` before this review record is published.
+- `make verify` passed on this machine: 2,446 tests and every local gate passed.
+- CI run 35889338283 passed every implementation job, including all legs of build, smoke, and replay identity, plus screen-test and STE.
+- The Gitar status passed. No Gitar dashboard or actionable feedback appeared. Review-gate run 35889338357 failed because the review record was absent.
+- Published metadata commit `3410c6a`; fresh review-gate run 35890585889 passed. The effective head stays `aba8774`.
+
+### What is in flight
+
+The owner can review the verdict and merge the PR.
+
+### Traps and gotchas
+
+- The owner’s exception applies to this review only. D-944 remains the project rule for later commits.
+- The `make codex-review` Gitar precheck needs a dashboard comment, which this PR does not hold.
+
+### The questions that block progress
+
+None. OQ-242 does not affect PR-96.
+
+### The next concrete action
+
+The owner reviews the verdict and merges the PR.
+## Session 240: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-96, round 1. Repository: the-thing-below. Branch: `docs/pr-96-review-loop-rules`. PR: #65. Role: author. Base: `e6eb27a`.
+
+### What this session did, and why
+
+- Asked the owner the two questions of rule 2 and the text of a labeled PR, and recorded D-942 to D-944. The owner chose the skip set of D-857 and no new review for a change of a decision row. The session recommended the override set and a new review for a decision row.
+- D-942: the summary before a merge has four sections, What, How, CI, and Codex review, inside the question block of `AskUserQuestion`. Revises D-933 in part.
+- D-943: after an approval, a commit of the skip set alone keeps the approval. `EffectiveHead.ReviewableHeads` gives the effective head and each earlier head after which each commit is in the skip set, and RG 5 accepts each one. The metadata set and the effective head of D-610 stay, because the Gitar pass reads them (D-944). The `codex-review` command still compares the record with the effective head alone. Revises D-610, D-401, and D-700 in part.
+- D-944: a commit of documents alone still gets its Gitar pass, and the author answers each comment and each claim.
+- Documents: `docs/runbooks/merge.md` (a new section for a commit of documents alone, and the summary), the `one-pr-one-session`, `gitar-review`, and `pr-review` skills, `CLAUDE.md`, `AGENTS.md`, the PR template, `docs/design.md`, and a new PR-96 block in the phase 2 file and in `area-ci.md`.
+- Five new tests. `ACommitOfDocumentsAloneAfterTheApprovalKeepsTheGateGreen` fails on the old code, because the old RG 5 read the effective head alone.
+
+### The state of the build
+
+- `main` is `e6eb27a`. This round pushes the first commit of the PR.
+- `make build`, `make test`, `make lint`, `make format`, and the STE check pass on this machine.
+
+### What is in flight
+
+- The Gitar pass of round 1, then `make codex-review PR=65`. The PR changes Tools code and decision rows, so it takes the review (D-401).
+
+### Traps and gotchas
+
+- `CLAUDE.md` is 16380 bytes, 4 bytes under SIZE 1. The next rule for sessions needs a cut first.
+- Two sets stay apart: the override set of the label (D-16, D-700) and the skip set of D-943 (D-857).
+- A commit of documents alone after the auto-merge is on: turn off the auto-merge first, because the Gitar pass of the new head must come before the merge (D-930, D-944).
+
+### The questions that block progress
+
+None. OQ-242 waits for the owner and blocks nothing.
+
+### The next concrete action
+
+Wait for the Gitar pass of round 1, answer each comment, then run `make codex-review PR=65` in the background.
+
 ## Session 239: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -273,118 +379,3 @@ None. The PR-95 roadmap lists no open question.
 ### The next concrete action
 
 The author fixes both findings and requests a repeat review of PR #63.
-
-
-
-## Session 232: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR #63, round 1. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: author. Base: `097ea32`.
-
-### What this session did, and why
-
-- Checked the precondition: PR #62 merged as `097ea32`. `docs/reviews/pr-62-response.md` is on `main` through PR #62, so no untracked file of PR #62 stayed in the checkout.
-- Asked the owner six questions, and recorded the direction and the answers as D-926 to D-931. The effect columns of D-8, D-576, D-578, D-582, and D-601 name each revision.
-- Built `make codex-review PR=<n>` and the `codex-review` command of Tools, with 79 tests. It covers the install and the version of the CLI, the model probe, the start checks, the Gitar pass, the worktree, the outcome codes, and the three-strike count.
-- Added the `Open at:` line to the record format, and the loop to `CLAUDE.md`, `AGENTS.md`, the skills, the PR template, `docs/runbooks/merge.md`, and `docs/runbooks/branch-protection.json`.
-- Added PR-95 to section 8 of `docs/design.md`, to the phase-2 file as section 7.22, and to `area-ci.md` as section 7.20. G-15 names the auto-merge.
-
-### The state of the build
-
-- `main` is `097ea32`. The branch holds one commit on it, and this entry is in that commit.
-- `make verify` passed on this machine before the commit.
-- A run of `make codex-review PR=62` installed CLI 0.156.1, passed the probe, and refused PR #62 with four reasons, as the command must.
-
-### What is in flight
-
-- The Gitar pass of PR #63, then the first live run `make codex-review PR=63`, then the answers.
-- The three settings of D-931 wait for the approval of the owner, before the hand-over. The owner merges PR #63 by hand.
-
-### Traps and gotchas
-
-- Make gives exit 2 for each failed target. Read the last line of the command: `codex-review: outcome <name> (exit <code>)`.
-- The pre-commit hook refuses a checkout with no branch. Thus the worktree takes the local branch `review/pr-<n>`, and the reviewer pushes with `HEAD:<branch>`.
-- `CLAUDE.md` holds 16,333 bytes of the limit of 16,384.
-- The record of this PR needs an `Open at:` line in each finding, because the command reads it.
-- This PR changes no workflow file. The review applies because Tools and the Makefile are outside the override set.
-
-### The questions that block progress
-
-None. D-926 to D-931 hold the answers of 2026-09-23.
-
-### The next concrete action
-
-Answer the Gitar pass of PR #63. Then run `make codex-review PR=63` in the background.
-
-
-
-## Session 231: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #62, round 2. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: reviewer. Base: `05dcc3d`.
-
-### What this session did, and why
-
-- Recomputed the effective head. The PR tip is `3c3de99`, and its changes since `238bafe` are review and handoff metadata only.
-- Read the author's answers to each claim of the Gitar CI analysis and checked their cited commits and job results.
-- Rechecked the prior review, the complete implementation scope, and the current Gitar pass. The code review approves the implementation, and there are no open review threads.
-- Ran `make verify`: 2,277 tests passed; format, det-lint, ste-check, replay identity, content hash, atlas, and smoke passed.
-- Updated `docs/reviews/pr-62.md`, retained the earlier `Blocked` verdict, and gave `Ready for owner merge` for effective head `238bafe`.
-
-### The state of the build
-
-- `main` is `05dcc3d`. Before this review commit, the remote PR head was `3c3de99` and the effective head was `238bafe`.
-- CI run 35823669111 passed the implementation checks on `238bafe`. Metadata run 35826831792 passed applicable checks, with implementation legs skipped. Review-gate run 35826840307 failed only RG 4 because the previous record still said `Blocked`.
-- Review-gate run 35828245270 passed RG 1 to RG 8 after publication at `d366f7e`. Metadata run 35828245787 and Gitar passed on that head; the Gitar review approves the code.
-
-### What is in flight
-
-- The review is ready for the owner to merge.
-
-### Traps and gotchas
-
-- Metadata-only pushes skip platform build, replay identity, and screen-test legs. The implementation evidence remains run 35823669111 on `238bafe`.
-- The Gitar analysis on `3c3de99` approves the code. Its reported CI fault is RG 4 reading the prior review verdict.
-
-### The questions that block progress
-
-None. OQ-241 asks which later PR adds ceiling shafts and blocks no progress here (D-924).
-
-### The next concrete action
-
-The owner merges PR #62.
-
-
-
-## Session 230: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-92, round 3. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
-
-### What this session did, and why
-
-- The review of session 229 gave `Blocked` for `238bafe`, with no finding in the code. The author had handed over with the CI analysis of the Gitar dashboard unanswered (D-14, D-67).
-- Answered each claim of that analysis in a PR comment, and wrote `docs/reviews/pr-62-response.md`.
-- The Gitar pass on this PR: 6 claims of the CI analysis over 4 heads, and no review thread. 3 claims had merit: the absent baselines (`5747c01`, `8b299b3`), the RG 7 line (PR description), and RG 4 (this answer). RG 6, RG 3, and the coverage failure had no merit for the author.
-- Every code review of the pass approved, from `2d67459` to `26405dd`.
-
-### The state of the build
-
-- `main` is `05dcc3d`. The effective head is `238bafe`, and this commit is in the metadata set (D-610).
-- CI passes every implementation check on `238bafe`. Review-gate passes all but RG 4, which reads the `Blocked` verdict.
-
-### What is in flight
-
-- The other provider repeats the review of `238bafe` with this response.
-
-### Traps and gotchas
-
-- The CI analysis in the Gitar dashboard is a comment of the pass, also when the code review approves. Answer each claim on the PR before the hand-over, and record the counts here.
-
-### The questions that block progress
-
-None. OQ-241 blocks no progress on PR #62.
-
-### The next concrete action
-
-The other provider repeats the review of PR #62.

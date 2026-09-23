@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using TheThingBelow.Tools.ReviewGate;
 using Xunit;
 
@@ -48,6 +49,47 @@ public sealed class ReviewGateHeadTests
         Assert.Equal(
             ["docs/reviews/pr-21.md", "docs/reviews/pr-21-response.md", "docs/session-handoff.md", "docs/session-handoff-archive.md"],
             paths);
+    }
+
+    [Fact]
+    public void ACommitOfDocumentsAloneKeepsTheEarlierHeadsReviewable()
+    {
+        const string Documents = "3333333333333333333333333333333333333333";
+        List<CommitFacts> commits =
+        [
+            new CommitFacts(Code, ["TheThingBelow.Core/Rules.cs"]),
+            new CommitFacts(Metadata, ["docs/reviews/pr-21.md", "docs/session-handoff.md"]),
+            new CommitFacts(Documents, ["docs/decisions.md", ".claude/settings.json", "LICENSE"]),
+        ];
+
+        IReadOnlyList<CommitFacts> heads = EffectiveHead.ReviewableHeads(commits, 21);
+
+        Assert.Equal([Documents, Code], heads.Select(head => head.Sha));
+    }
+
+    [Fact]
+    public void ACommitOutsideTheSkipSetEndsTheReviewableHeads()
+    {
+        const string Documents = "3333333333333333333333333333333333333333";
+        const string Workflow = "4444444444444444444444444444444444444444";
+        List<CommitFacts> commits =
+        [
+            new CommitFacts(Code, ["TheThingBelow.Core/Rules.cs"]),
+            new CommitFacts(Workflow, [".github/workflows/ci.yml"]),
+            new CommitFacts(Documents, ["docs/design.md"]),
+        ];
+
+        IReadOnlyList<CommitFacts> heads = EffectiveHead.ReviewableHeads(commits, 21);
+
+        Assert.Equal([Documents, Workflow], heads.Select(head => head.Sha));
+    }
+
+    [Fact]
+    public void APullRequestOfMetadataAloneHasNoReviewableHead()
+    {
+        List<CommitFacts> commits = [new CommitFacts(Metadata, ["docs/session-handoff.md"])];
+
+        Assert.Empty(EffectiveHead.ReviewableHeads(commits, 21));
     }
 
     [Fact]
@@ -307,7 +349,7 @@ public sealed class ReviewGateRecordRuleTests
         GateCheck check = ReviewRecordRules.CheckHead(
             "docs/reviews/pr-21.md",
             text,
-            new CommitFacts(Head, ["docs/design.md"]));
+            [new CommitFacts(Head, ["docs/design.md"])]);
 
         Assert.Equal(GateResult.Fault, check.Result);
         Assert.Contains("holds no head field", check.Detail, StringComparison.Ordinal);
@@ -319,7 +361,7 @@ public sealed class ReviewGateRecordRuleTests
         GateCheck check = ReviewRecordRules.CheckHead(
             "docs/reviews/pr-21.md",
             $"# PR-21 review\n\n- Head: `{Head}`\n",
-            new CommitFacts(Head, ["docs/design.md"]));
+            [new CommitFacts(Head, ["docs/design.md"])]);
 
         Assert.Equal(GateResult.Fault, check.Result);
         Assert.Contains("no `## Identity` section", check.Detail, StringComparison.Ordinal);
@@ -333,7 +375,7 @@ public sealed class ReviewGateRecordRuleTests
         GateCheck check = ReviewRecordRules.CheckHead(
             "docs/reviews/pr-21.md",
             text,
-            new CommitFacts(Head, ["docs/design.md"]));
+            [new CommitFacts(Head, ["docs/design.md"])]);
 
         Assert.Equal(GateResult.Pass, check.Result);
     }
@@ -346,7 +388,7 @@ public sealed class ReviewGateRecordRuleTests
         GateCheck check = ReviewRecordRules.CheckHead(
             "docs/reviews/pr-21.md",
             text,
-            new CommitFacts(Head, ["docs/design.md"]));
+            [new CommitFacts(Head, ["docs/design.md"])]);
 
         Assert.Equal(GateResult.Fault, check.Result);
         Assert.Contains("shorter than 7", check.Detail, StringComparison.Ordinal);
@@ -358,7 +400,7 @@ public sealed class ReviewGateRecordRuleTests
         GateCheck check = ReviewRecordRules.CheckHead(
             "docs/reviews/pr-21.md",
             "## Identity\n\n- PR: 21\n",
-            new CommitFacts(Head, ["docs/design.md"]));
+            [new CommitFacts(Head, ["docs/design.md"])]);
 
         Assert.Equal(GateResult.Fault, check.Result);
         Assert.Contains("holds no head field", check.Detail, StringComparison.Ordinal);
@@ -367,7 +409,7 @@ public sealed class ReviewGateRecordRuleTests
     [Fact]
     public void APullRequestOfMetadataAloneFailsTheHeadRule()
     {
-        GateCheck check = ReviewRecordRules.CheckHead("docs/reviews/pr-21.md", "## Identity\n", null);
+        GateCheck check = ReviewRecordRules.CheckHead("docs/reviews/pr-21.md", "## Identity\n", []);
 
         Assert.Equal(GateResult.Fault, check.Result);
         Assert.Contains("no effective head", check.Detail, StringComparison.Ordinal);

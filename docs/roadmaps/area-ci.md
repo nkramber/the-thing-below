@@ -381,6 +381,17 @@ The review of the other provider starts from one command, and a PR merges itself
 
 > *In plain English:* one command starts the review by the other provider and reads the verdict. When the review approves and every check is green, GitHub merges the PR with no wait for a person.
 
+### 7.21 The rules of the review loop
+
+Built by PR-96. Phase file: `phase-2-first-playable.md` section 7.24.
+
+- Before the merge question, the author session posts a summary in four sections inside the question block (D-942).
+- After an approval, a commit that changes paths of the skip set alone keeps the `review-gate` check green (D-857, D-943).
+- RG 5 accepts each earlier head after which each commit changes the skip set alone. A new review still names the effective head (D-610).
+- Each commit of documents alone gets its Gitar pass, and the author answers each comment and each claim (D-944).
+
+> *In plain English:* a fix of the documents after the review keeps the green light, and Gitar still reads it.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The CI work keeps this order inside it:
@@ -402,10 +413,11 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 15. PR-41: the screen-test job, after PR-45 (D-492).
 16. PR-93: ste-check, review-gate, and Gitar alone on a docs-only change, right after PR-56 (D-856).
 17. PR-95: the automated review, the three-strike stop, and the gated auto-merge, right after PR-92 (D-926 to D-933).
-18. PR-15: the bot runs on every leg (D-505).
-19. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
-20. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-21. **← GATE 2 (first playable).**
+18. PR-96: the rules of the review loop, right after PR-60 (D-942 to D-944).
+19. PR-15: the bot runs on every leg (D-505).
+20. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
+21. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+22. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 

@@ -162,7 +162,7 @@ The `review-gate` check applies eight rules, RG 1 to RG 8 (D-15, D-579). RG 1 an
 
 1. RG 3: `docs/reviews/pr-<number>.md` exists for the PR number.
 2. RG 4: the verdict is `Ready for owner merge`.
-3. RG 5: the head in the Identity list is the effective head.
+3. RG 5: the head in the Identity list is the effective head, or an earlier head that D-943 keeps approved.
 
 The check also passes a PR in the override set that has the `review-override` label and changes no decision row (D-16, D-401). A PR that changes `.github/workflows/` never passes on the label, because each gate lives in a workflow file (D-560). A PR that changes `.claude/settings.json` never passes on it too, because that file can hold a hook that runs a command (D-700).
 
@@ -177,5 +177,7 @@ The check has three states. Read the color before you start:
 Rule 3 fails when the author pushes code after the approval. That result is correct.
 Reassess the new diff, then update the head field and the verdict together.
 Rule 3 does not fail when the last commit changes only the metadata paths.
+Rule 3 does not fail when each commit after the approved head changes only paths of the skip set (D-857, D-943).
+A new review still names the effective head, because it reads that head.
 
 The check cannot run on the PR that creates it or changes it, because GitHub starts `pull_request_target` only from `main` (F-37). Such a PR proves the command in Tests, and the live check reads the new rules on the next PR (D-500).

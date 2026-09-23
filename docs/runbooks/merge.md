@@ -1,6 +1,6 @@
 # The review and the merge
 
-Status: active runbook. Written in ASD-STE100. Decisions: D-926 to D-933.
+Status: active runbook. Written in ASD-STE100. Decisions: D-926 to D-933, and D-942 to D-944.
 
 This runbook gives the loop of the author from a push to the merge. It also gives the review command, the three-strike stop, the auto-merge, and the merge settings of the repository. The `one-pr-one-session`, `gitar-review`, and `pr-review` skills hold the rules, and this runbook holds the commands.
 
@@ -14,6 +14,19 @@ This runbook gives the loop of the author from a push to the merge. It also give
 6. On `changes-required`, answer each finding with the `pr-review` skill, then go to step 1.
 7. On `three-strike-stop`, go to "The three-strike stop".
 8. On `fault` or `refused`, read the reason lines, correct the cause, then go to step 3.
+
+## A commit of documents alone
+
+After an approval, a commit that changes paths of the skip set alone keeps the approval (D-943). The skip set holds `docs/`, all of `.claude/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `LICENSE`, and the PR template (D-857). The `review-gate` check stays green, and the PR needs no new run of `make codex-review`. A change of a decision row keeps the approval too.
+
+Such a commit still gets its Gitar pass, and the author answers each comment and each claim of the pass (D-944). Do these steps for a commit of documents alone after the approval:
+
+1. Turn off the auto-merge with `gh pr merge <n> --disable-auto` when it is on.
+2. Push the commit, with its handoff entry.
+3. Get a complete Gitar pass of the new head with the `gitar-review` skill, and answer each comment.
+4. Go to "The confirmation and the auto-merge".
+
+A commit that changes a path outside the skip set needs a new review. Go to step 1 of the author loop.
 
 ## The review command
 
@@ -64,12 +77,19 @@ The command exits with code 3 when an open finding lists three effective heads o
 
 ## The confirmation and the auto-merge
 
-Turn on the auto-merge only when each of these conditions holds (D-930, D-933):
+Turn on the auto-merge only when each of these conditions holds (D-930, D-933, D-942):
 
 - The last metadata commit is on origin. It holds the review record and the handoff entry of the author.
 - The Gitar pass is complete for the effective head under the `gitar-review` skill.
-- The record gives `Ready for owner merge` for the effective head.
-- The owner confirmed the merge after a summary of one paragraph. Post the summary, and ask the owner with `AskUserQuestion`.
+- The record gives `Ready for owner merge` for the effective head, or for an earlier head that D-943 keeps approved.
+- The owner confirmed the merge after the summary in four sections.
+
+The summary goes inside the question block of `AskUserQuestion`, so the owner reads it with the question. Text above a question card does not show. Each section has a few sentences:
+
+- What: the concern of the PR, and what it changes.
+- How: the approach, and the main files.
+- CI: whether each check is green, with the run id.
+- Codex review: the verdict of the record, `Ready for owner merge`, `Blocked`, or `Changes required`, with its head. For a PR under the `review-override` label, write "Not applicable: the `review-override` label covers this PR (D-401)."
 
 Then run these commands. Run the wait in the background.
 
@@ -79,7 +99,7 @@ gh pr checks <n> --watch --required --interval 60
 gh pr view <n> --json state,mergedAt,mergeCommit
 ```
 
-When the state is `MERGED`, write the transitional prompt of step 6 of the `one-pr-one-session` skill at once. When a check fails, the PR stays open and the auto-merge stays on. Correct the cause, and start the loop again at step 1. A push of code moves the effective head, so the `review-gate` check fails until a new review approves the new head.
+When the state is `MERGED`, write the transitional prompt of step 6 of the `one-pr-one-session` skill at once. When a check fails, the PR stays open and the auto-merge stays on. Correct the cause, and start the loop again at step 1. A push outside the skip set moves the effective head, so the `review-gate` check fails until a new review approves the new head. A push of documents alone keeps the approval (D-943).
 
 The owner merges PR #63 by hand, and the first auto-merge comes on the next PR (D-931). The session posts the summary of PR #63 before the hand-over (D-933).
 

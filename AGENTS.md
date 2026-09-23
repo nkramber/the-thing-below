@@ -119,12 +119,12 @@ An automated reviewer, gitar, comments on every PR after a push (D-14). After ea
 
 - The author answers every comment before the hand-over to the other provider, or before the session applies the `review-override` label (D-67).
 - Wait for gitar with the one command of `docs/runbooks/session-context.md`, not a call for each poll (D-586).
-- When the pass is complete, run `make codex-review PR=<n>` in the background, or apply the label below (D-926). `docs/runbooks/merge.md` gives the rest. The owner confirms each merge (D-929, D-930, D-933).
+- When the pass is complete, run `make codex-review PR=<n>` in the background, or apply the label below (D-926). `docs/runbooks/merge.md` gives the rest. The owner confirms each merge after a summary (D-933, D-942).
 - A reply names no provider, harness, or model as the source of work (T-6).
 - The reviewing provider reads the existing PR comments into its review and never addresses gitar. The `pr-review` skill holds the procedure of the reviewer.
-- Every PR answers the pass, a documentation PR included (D-66). The `review-override` label exempts a documentation PR from the Codex review alone, and only when the PR changes no row of `docs/decisions.md` (D-401).
+- Every PR and every commit answer the pass (D-66, D-944). A commit of the skip set after an approval takes no new review (D-943). The `review-override` label exempts a documentation PR from the Codex review alone, and only when the PR changes no row of `docs/decisions.md` (D-401).
 - The override set holds `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/` without `.claude/settings.json`, and `.github/pull_request_template.md` (D-16, D-71, D-239, D-700). Every other path takes the review, `.github/workflows/` and `content/` included (D-185, D-560).
-- On a documentation PR that changes no decision row, the session applies the `review-override` label itself, only after the pass approves the head (D-67, D-401). A change to a decision row is a change to a line of a decision table (D-609). A later push needs a new approval before the label applies. A PR that adds or revises a decision goes to the other provider instead.
+- On a documentation PR that changes no decision row, the session applies the `review-override` label itself, only after the pass approves the head (D-67, D-401). A change to a decision row is a change to a line of a decision table (D-609). A later push needs a new approval before the label applies.
 - Before you open a documentation PR, ask the owner every open question that the PR can settle (D-68). Ask in batches, and record the answers in the PR.
 
 ## Build and test commands
@@ -164,7 +164,7 @@ A PR merges only when every line holds:
 - [ ] The `night-gate` job is green: a success record from a night inside 48 hours (G-22). PR-49 creates it (D-496). A docs-only PR passes it (D-513).
 - [ ] The `ste-check` job is green: the writing, reference, session number, size, and Documents row rules (G-12, D-605, D-607, D-611, D-696).
 - [ ] The automated pass of gitar approved the head, or every comment of the pass has its answer (D-14). The review is current under the `gitar-review` skill.
-- [ ] The other provider reviewed it through `make codex-review`, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17). The label of D-401 exempts a PR of the override set that changes no decision row.
+- [ ] The other provider reviewed it through `make codex-review`, and `docs/reviews/pr-<number>.md` has the verdict `Ready for owner merge` for the effective head (T-4, D-17, D-943). The label of D-401 exempts a PR of the override set that changes no decision row.
 - [ ] The `review-gate` check is green (D-15, D-500, F-37).
 - [ ] `docs/decisions.md` has every new decision.
 - [ ] `docs/questions.md` has every new question.

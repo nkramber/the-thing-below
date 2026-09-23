@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using TheThingBelow.Tools.ChangedPaths;
 
 namespace TheThingBelow.Tools.ReviewGate;
 
@@ -44,15 +45,61 @@ public static class EffectiveHead
         HashSet<string> metadata = new HashSet<string>(MetadataPaths(number), StringComparer.Ordinal);
         for (int index = commits.Count - 1; index >= 0; index--)
         {
-            foreach (string file in commits[index].Files)
+            if (ChangesOutside(commits[index], metadata))
             {
-                if (!metadata.Contains(file))
-                {
-                    return commits[index];
-                }
+                return commits[index];
             }
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Finds each commit that an approved review record can name for the `review-gate` check
+    /// (D-943). The effective head is always one of them. An earlier commit outside the metadata
+    /// set is one of them too when each commit after it changes paths of the skip set alone
+    /// (D-857). Thus a commit of documents alone after an approval keeps the approval.
+    /// </summary>
+    /// <param name="commits">Each commit from the merge base to the head, oldest first.</param>
+    /// <param name="number">The GitHub number of the pull request.</param>
+    /// <returns>
+    /// The commits newest first, with the effective head first. The list is empty when every
+    /// commit changes the metadata set alone.
+    /// </returns>
+    public static IReadOnlyList<CommitFacts> ReviewableHeads(IReadOnlyList<CommitFacts> commits, int number)
+    {
+        ArgumentNullException.ThrowIfNull(commits);
+        HashSet<string> metadata = new HashSet<string>(MetadataPaths(number), StringComparer.Ordinal);
+        List<CommitFacts> heads = [];
+        for (int index = commits.Count - 1; index >= 0; index--)
+        {
+            CommitFacts commit = commits[index];
+            if (ChangesOutside(commit, metadata))
+            {
+                heads.Add(commit);
+            }
+
+            // A commit outside the skip set ends the walk. A review of an earlier commit never
+            // read it, so no earlier commit can keep an approval.
+            if (DocumentsAlonePaths.FirstPathOutside(commit.Files) is not null)
+            {
+                break;
+            }
+        }
+
+        return heads;
+    }
+
+    private static bool ChangesOutside(CommitFacts commit, HashSet<string> metadata)
+    {
+        foreach (string file in commit.Files)
+        {
+            if (!metadata.Contains(file))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
