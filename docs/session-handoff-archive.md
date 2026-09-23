@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 239: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-60, hand-over. Repository: the-thing-below. Branch: `feat/pr-60-transitions`. PR: #64. Role: author. Base: `ca8c549`.
+
+### What this session did, and why
+
+- Ran `make codex-review PR=64` on the effective head `875fe53`. The outcome was `approve`, and the reviewer pushed `044d77c` with `Ready for owner merge` for `875fe53` and no finding.
+- Read the whole Gitar dashboard of `875fe53`: the code review approved, and its one finding is closed. Two PR comments answer the two CI claims, both the `review-gate` fault of the absent record.
+- Read the merge conditions of `docs/runbooks/merge.md`. Each one holds except the confirmation of the owner.
+
+### The state of the build
+
+- `main` is `ca8c549`. The effective head is `875fe53`, and `git diff --stat 875fe53..044d77c` lists `docs/reviews/pr-64.md`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md` alone.
+- CI run 35884251448 passed each job on `875fe53`. On `044d77c`, `review-gate` passed, and the jobs of code skipped on the metadata commit.
+
+### What is in flight
+
+- The confirmation of the owner, then the auto-merge of PR #64 (D-930, D-933).
+- After the merge, the transitional prompt of step 6. It names the next PR: the rules of the review and merge loop of Session 237. The owner added a third rule to that PR: a PR or a commit of documents alone still gets its Gitar pass, and the author answers each comment and each claim of the pass (D-14, D-66, D-67). Only the review of the other provider is exempt.
+
+### Traps and gotchas
+
+- A push of code after the confirmation moves the effective head, and the loop starts again at the Gitar pass.
+
+### The questions that block progress
+
+None. OQ-242 waits for the owner and blocks nothing.
+
+### The next concrete action
+
+Post the summary in four sections inside the merge question, and turn on the auto-merge after the confirmation of the owner.
+
 ## Session 238: 2026-09-23, Codex
 
 Author: Codex
