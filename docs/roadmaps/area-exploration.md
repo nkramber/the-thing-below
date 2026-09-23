@@ -136,7 +136,7 @@ Built by PR-8. Phase file: `phase-2-first-playable.md`.
 - A step of the party into a body starts the encounter at once (D-747).
 - Whoever reaches the other from behind acts first in the fight. The facings at the start of the encounter decide it (D-265, D-746).
 - After a flee, the group returns to its route, and no battle with it starts for 300 ticks (D-381, D-748).
-- The record names its group, and PR-9 adds the test that each named group exists (D-535, D-753, D-766).
+- The record names its group, and PR-9 adds the test that each named group exists (D-535, D-753, D-766). PR-11 gives each map a region, and its groups come from the group file of that region (D-957).
 - Property tests over one thousand seeds prove that a patrol never leaves its route and never sees through a wall (the exit tests of PR-8).
 
 > *In plain English:* you see every enemy before it sees you. Sneak past it, take it from behind for the first blow, or walk away and it goes back to its rounds.

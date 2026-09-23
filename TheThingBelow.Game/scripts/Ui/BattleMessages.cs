@@ -75,6 +75,7 @@ public static class BattleMessages
             BattleEventKind.Defend => Line("battle.defend", Actor(played, view, strings)),
             BattleEventKind.Step => Line(StepIdOf(view.At(played.Actor).Row), Actor(played, view, strings)),
             BattleEventKind.Item => Line("battle.item", Target(played, view, strings), Amount(played)),
+            BattleEventKind.Heal => Line("battle.heal", Actor(played, view, strings), Target(played, view, strings), Amount(played)),
             BattleEventKind.FleeFailed => Line("battle.flee_failed"),
             BattleEventKind.Down => Line(DownIdOf(played.Actor.Side), Actor(played, view, strings)),
             BattleEventKind.StepIn => Line("battle.step_in", Actor(played, view, strings)),

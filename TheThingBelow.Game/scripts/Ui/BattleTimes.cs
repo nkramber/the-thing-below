@@ -47,6 +47,7 @@ public static class BattleTimes
             BattleEventKind.Defend => pace.LineTicks,
             BattleEventKind.Step => pace.LineTicks,
             BattleEventKind.Item => pace.LineTicks,
+            BattleEventKind.Heal => pace.LineTicks,
             BattleEventKind.FleeFailed => pace.LineTicks,
             BattleEventKind.Down => pace.LineTicks,
             BattleEventKind.StepIn => pace.LineTicks,

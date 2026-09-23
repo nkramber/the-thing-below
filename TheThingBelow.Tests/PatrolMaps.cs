@@ -68,6 +68,7 @@ public static class PatrolMaps
         {
          "comment": "a room with a wall block and the enemies of one test",
          "id": "map.patrol_test",
+         "region": "region.test",
          "label": "label.patrol_test",
          "time": "{{time}}",
          "terrain": [

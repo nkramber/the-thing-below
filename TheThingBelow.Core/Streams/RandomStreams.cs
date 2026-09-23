@@ -26,6 +26,7 @@ public static class RandomStreams
         StreamId.Battle,
         StreamId.Progression,
         StreamId.Story,
+        StreamId.Evaluator,
     ];
 
     /// <summary>The seed of the hash that makes each stream seed. It never changes.</summary>
@@ -88,7 +89,8 @@ public static class RandomStreams
         bool known = stream switch
         {
             StreamId.Exploration or StreamId.Battle or
-            StreamId.Progression or StreamId.Story => true,
+            StreamId.Progression or StreamId.Story or
+            StreamId.Evaluator => true,
             _ => false,
         };
 

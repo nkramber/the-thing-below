@@ -10,7 +10,7 @@ namespace TheThingBelow.Tests;
 
 /// <summary>
 /// The reader of the battle rules file and the battle fixture file, and the check of each
-/// group that a map names (D-757, D-762, D-766, D-778). Each error names the file and the
+/// group that a map names (D-757, D-766, D-957). `GroupFileTests` reads the group file. Each error names the file and the
 /// field (T-2).
 /// </summary>
 public sealed class BattleFixtureTests
@@ -54,35 +54,6 @@ public sealed class BattleFixtureTests
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
     }
 
-    [Fact]
-    public void AGroupOfThirteenEnemiesFailsTheLoad()
-    {
-        // D-762: twelve at most, the waiting ones included.
-        ContentException error = Assert.Throws<ContentException>(() => ReadGroup(Entries(6, 7)));
-
-        Assert.Contains("13 enemies", error.Message, StringComparison.Ordinal);
-        Assert.Contains("D-762", error.Message, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void AGroupOfTwelveLoads()
-    {
-        BattleFixture fixture = ReadGroup(Entries(6, 6));
-
-        Assert.Equal(12, fixture.Groups[0].Entries.Count);
-    }
-
-    [Theory]
-    [InlineData(7, 0, "starts 7 enemies")]
-    [InlineData(0, 2, "starts 0 enemies")]
-    public void AGroupThatNoFieldHoldsFailsTheLoad(int standing, int waiting, string reason)
-    {
-        // D-759, D-778: the field holds one to six at the start.
-        ContentException error = Assert.Throws<ContentException>(() => ReadGroup(Entries(standing, waiting)));
-
-        Assert.Contains(reason, error.Message, StringComparison.Ordinal);
-    }
-
     [Theory]
     [InlineData("\"start_party\": [\"character.marrek\"]", "\"start_party\": []", "start_party")]
     [InlineData("\"start_party\": [\"character.marrek\"]", "\"start_party\": [\"character.marrek\", \"character.marrek\"]", "two times")]
@@ -101,7 +72,7 @@ public sealed class BattleFixtureTests
     [Fact]
     public void AnIdThatTheFixtureDefinesTwoTimesFails()
     {
-        string text = ReplaceFirst(TestBattles.FixtureFile, "\"id\": \"group.other\"", "\"id\": \"group.one\"");
+        string text = ReplaceFirst(TestBattles.FixtureFile, "\"id\": \"character.test_second\"", "\"id\": \"character.marrek\"");
 
         ContentException error = Assert.Throws<ContentException>(() => BattleFixture.Read(Encoding.UTF8.GetBytes(text), "fixture.json"));
 
@@ -111,16 +82,19 @@ public sealed class BattleFixtureTests
     [Fact]
     public void AMapThatNamesAnAbsentGroupFailsTheContentSet()
     {
-        // D-766: the test of D-753 lands in PR-9.
+        // D-766 and D-957: exit test 3 of PR-11. The group file of the region of the map holds
+        // each group that the map names.
         List<ContentFile> files = [.. ContentFolder.Read(RepositoryRoot.Find())];
-        int index = files.FindIndex(file => string.CompareOrdinal(file.Path, BattleFixture.Path) == 0);
-        string fixture = Encoding.UTF8.GetString(files[index].Bytes).Replace("group.fixture_pair", "group.renamed", StringComparison.Ordinal);
-        files[index] = new ContentFile(BattleFixture.Path, Encoding.UTF8.GetBytes(fixture));
+        string path = $"{GroupFile.Folder}fixture.json";
+        int index = files.FindIndex(file => string.CompareOrdinal(file.Path, path) == 0);
+        string groups = Encoding.UTF8.GetString(files[index].Bytes).Replace("group.fixture_pair", "group.renamed", StringComparison.Ordinal);
+        files[index] = new ContentFile(path, Encoding.UTF8.GetBytes(groups));
 
         ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(files));
 
         Assert.Contains("group.fixture_pair", error.Message, StringComparison.Ordinal);
-        Assert.Contains("D-766", error.Message, StringComparison.Ordinal);
+        Assert.Equal("rules/maps/fixture-dungeon.json", error.File);
+        Assert.Contains("D-957", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -132,33 +106,6 @@ public sealed class BattleFixtureTests
         ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(files));
 
         Assert.Equal(BattleRules.Path, error.File);
-    }
-
-    private static BattleFixture ReadGroup(string entries)
-    {
-        string text = $$"""
-        {
-         "comment": "A fixture with one group.",
-         "characters": [{ "id": "character.marrek", "health": 60, "attack": 12, "defense": 4, "speed": 100, "row": "front" }],
-         "groups": [{ "id": "group.big", "boss": false, "enemies": [{{entries}}] }],
-         "items": [],
-         "start_party": ["character.marrek"],
-         "pack": []
-        }
-        """;
-        return BattleFixture.Read(Encoding.UTF8.GetBytes(text), "fixture.json");
-    }
-
-    private static string Entries(int standing, int waiting)
-    {
-        List<string> entries = [];
-        for (int index = 0; index < standing + waiting; index += 1)
-        {
-            string waits = index < standing ? "false" : "true";
-            entries.Add($"{{ \"enemy\": \"enemy.fixture_grunt\", \"row\": \"front\", \"waits\": {waits} }}");
-        }
-
-        return string.Join(", ", entries);
     }
 
     private static string ReplaceFirst(string text, string from, string to)

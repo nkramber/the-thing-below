@@ -80,17 +80,11 @@ public sealed record AmbientWorld(
         {
             shown.Add(patrol.Id.Value);
 
-            // A patrol that names no group fails the check of D-766, which names the map and
-            // the group. This test reads the enemies of the groups that the fight holds.
-            foreach (GroupRecord group in this.Battle.Fixture.Groups)
+            // A patrol that names no group fails the check of D-957 at load, which names the
+            // map and the group, so the group of each patrol exists here.
+            foreach (GroupEntry entry in this.Battle.Group(patrol.Group).Entries)
             {
-                if (string.CompareOrdinal(group.Id.Value, patrol.Group.Value) == 0)
-                {
-                    foreach (GroupEntry entry in group.Entries)
-                    {
-                        shown.Add(entry.Enemy.Value);
-                    }
-                }
+                shown.Add(entry.Enemy.Value);
             }
         }
 

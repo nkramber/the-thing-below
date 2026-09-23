@@ -1,6 +1,6 @@
 # Runbook: the development machine
 
-Status: procedure, written 2026-09-12 for the owner's Mac, and revised the same day for D-99. Revised on 2026-09-14 for the new repository name (D-410), and on 2026-09-20 for the audit (D-696). Revised again on 2026-09-14 for the move to the external SSD (D-400), for the release block (D-449, D-456, D-458, D-465), and for the review of art batches (D-514). Written in ASD-STE100.
+Status: procedure, written 2026-09-12 for the owner's Mac, and revised the same day for D-99. Revised on 2026-09-14 for the new repository name (D-410), and on 2026-09-20 for the audit (D-696). Revised again on 2026-09-14 for the move to the external SSD (D-400), for the release block (D-449, D-456, D-458, D-465), and for the review of art batches (D-514). Revised on 2026-09-23 for the cost of an enemy turn (D-961). Written in ASD-STE100.
 
 Facts checked on 2026-09-12:
 
@@ -62,6 +62,17 @@ The battle screen lands in PR-10. Until then, the console takes the turn of a ch
 9. The script runs both renderers and puts each report in a `reports` folder beside it (D-598).
 10. A report with the warning of a capped frame rate gives no budget, and the run needs a repeat (T-2).
 11. Run the screen scale probe before PR-7 and PR-34, on the four screens of M-8 (D-621, D-638).
+
+### The cost of an enemy turn
+
+PR-11 added the `evaluator-cost` command of Tools. It times one enemy turn of the worst fight: six enemies against three characters (D-961, F-53).
+
+1. Open a shell on the Deck: `ssh deck@10.0.0.46` from the Mac, with the key of the Mac. The Deck takes no password.
+2. In `~/the-thing-below`, fetch and check out the branch of the PR.
+3. The Deck has no `make`. Run `dotnet run -c Release --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- evaluator-cost --root .` with `~/.dotnet` on the path.
+4. Read the line of the 95th percentile. The limit is 1000 us, and the command fails a miss (D-961).
+5. Give the owner the four lines of the report. The PR description records them.
+6. A miss changes the depth or the profiles in the same PR (G-14).
 
 ## Where a test runs
 

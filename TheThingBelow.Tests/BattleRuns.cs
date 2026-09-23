@@ -35,6 +35,7 @@ internal static class BattleRuns
         {
          "comment": "A room with one guard beside the spawn point.",
          "id": "map.test_guarded",
+         "region": "{{RegionOf(group)}}",
          "label": "label.test_guarded",
          "time": "day",
          "terrain": [
@@ -74,6 +75,7 @@ internal static class BattleRuns
         {
          "comment": "A room with one guard beside the spawn point and one walker on the south row.",
          "id": "map.test_guarded_walker",
+         "region": "{{RegionOf(group)}}",
          "label": "label.test_guarded_walker",
          "time": "day",
          "terrain": [
@@ -115,21 +117,44 @@ internal static class BattleRuns
         return GameMap.Read(Encoding.UTF8.GetBytes(text), "tests-guarded-walker.json");
     }
 
+    /// <summary>
+    /// Gives the region whose group file of the tests holds a group, or the test region for a
+    /// group that the tests lack, so a test of an absent group reads its own error (D-957).
+    /// </summary>
+    private static string RegionOf(string group)
+    {
+        foreach (GroupFile file in TestBattles.Content.GroupFiles)
+        {
+            foreach (GroupRecord record in file.Groups)
+            {
+                if (string.CompareOrdinal(record.Id.Value, group) == 0)
+                {
+                    return file.Region.Value;
+                }
+            }
+        }
+
+        return "region.test";
+    }
+
     /// <summary>Gives the size of the largest enemy of a group of the tests, or common for a group that the tests lack (D-788).</summary>
     private static EnemySize GuardSize(string group)
     {
         EnemySize largest = EnemySize.Common;
-        foreach (GroupRecord record in TestBattles.Content.Fixture.Groups)
+        foreach (GroupFile file in TestBattles.Content.GroupFiles)
         {
-            if (string.CompareOrdinal(record.Id.Value, group) != 0)
+            foreach (GroupRecord record in file.Groups)
             {
-                continue;
-            }
+                if (string.CompareOrdinal(record.Id.Value, group) != 0)
+                {
+                    continue;
+                }
 
-            foreach (GroupEntry entry in record.Entries)
-            {
-                EnemySize size = TestBattles.Content.Enemy(entry.Enemy).Size;
-                largest = size > largest ? size : largest;
+                foreach (GroupEntry entry in record.Entries)
+                {
+                    EnemySize size = TestBattles.Content.Enemy(entry.Enemy).Size;
+                    largest = size > largest ? size : largest;
+                }
             }
         }
 

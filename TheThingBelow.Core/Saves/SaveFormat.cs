@@ -30,6 +30,11 @@ public static class SaveFormat
     /// each combatant gained its statuses with their ends in place of its push rate (D-792,
     /// D-798).
     /// </para>
+    /// <para>
+    /// PR-11 raised it to 6. The streams gained the stream of the evaluator (D-947). A save of an
+    /// older format gains that stream at its first value, from the seed of the header, because
+    /// no build before PR-11 drew from it.
+    /// </para>
     /// </remarks>
-    public const int Current = 5;
+    public const int Current = 6;
 }

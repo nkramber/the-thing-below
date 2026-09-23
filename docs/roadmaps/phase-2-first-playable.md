@@ -12,7 +12,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 Phase 2 turns the machine of Phase 1 into a game that the owner plays. It ends at Gate 2. There the owner walks the village, one hub, and one dungeon on the desktop and on the Deck. Then the owner signs off on feel (D-51, D-92, D-362).
 
-Phase 2 is the largest phase of the plan. It holds 53 PRs, and 50 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
+Phase 2 is the largest phase of the plan. It holds 54 PRs, and 51 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
 
 Four lines of work run through the phase. The walk comes first: the frame, the map, the camera, and the enemies on it (PR-61, PR-7, PR-8). The fight follows, with the enemy record and the screen (PR-9, PR-80, PR-66, PR-10). The light and the effects then land, each right after the first map scene or battle scene that it needs (PR-48 to PR-60, D-520). The build, the story, and the audio close the phase, and PR-17 writes the content that the owner plays.
 
@@ -437,7 +437,7 @@ Area file: `area-battle.md` section 7.7.
 - The element table of each enemy, which PR-66 adds to the record (D-533).
 - The profile, the steal list, and the group file (PR-11, D-65, D-535).
 - The enemies of the first playable, which PR-17 writes.
-- An action that reads an ability id. PR-11 picks the action, and PR-12 gives an ability its effect (D-787).
+- An action that reads an ability id. PR-11 gives an enemy ability its effect, and PR-12 gives a lesson its effect (D-787, D-955).
 
 **Exit tests.**
 
@@ -1132,12 +1132,13 @@ Area file: `area-battle.md` sections 7.6 and 7.7.
 **Scope.**
 
 - The evaluator that scores every legal action by its simulated outcome (D-65, D-377).
-- The depth of D-534: each legal action, and the strongest answer of the other side.
-- The profile content format with its term weights and its traits, and its validator (D-65, G-21).
-- The steal list of items and gold on each profile (D-383).
-- The group file of each region, which holds each enemy group with its rows and its profiles (D-535).
+- The depth of D-534: each legal action, and the best reply of the next character on the timeline (D-960). Each score takes the expected outcome (D-959).
+- The profile file with its term weights, one file for each profile, and its validator (D-65, D-956, D-958, G-21).
+- The fields of an enemy move in the ability file, and the defend and the step of an enemy (D-955).
+- The steal list of items and gold, and the base chance of a steal, on each profile (D-383, D-949).
+- The group file of each region, with the rows and the profile of each enemy, and the region field of a map (D-535, D-957).
 - The fixture profiles that prove the evaluator. PR-17 writes the profiles of the first playable.
-- The measurement of the cost of a turn, before Gate 2 (F-53, G-14).
+- The Tools command that times an enemy turn, with a limit of 1 ms at the 95th percentile on the Steam Deck (D-961, F-53).
 
 **Out of scope.**
 
@@ -1147,23 +1148,58 @@ Area file: `area-battle.md` sections 7.6 and 7.7.
 **Exit tests.**
 
 1. A fixture enemy with a protector profile heals its ally before it attacks.
-2. A profile with no legal action fails the load, by the rule of OQ-128.
+2. A check fight runs for each entry of each group, and an empty list of actions fails the load (D-948, D-962).
 3. A map that names a group absent from the region file fails with the map and the id (D-535, D-766).
 4. A property test over one thousand seeds proves that the evaluator never stalls a turn.
-5. The tie-break of two equal scores follows OQ-127, and a test locks it.
-6. The PR reports the count of legal actions and the time of a turn (F-53).
+5. On a tie of two scores, the evaluator draws from its own stream, and a seed loop locks it (D-947).
+6. The PR reports the count of legal actions, and the turn time on the desktop and the Deck (D-961).
 
 **Review focus.**
 
-- The cost of a turn holds on the Deck at 60 frames each second (D-161, F-53).
+- The cost of an enemy turn holds the limit of D-961 on the Steam Deck (D-161, F-53).
 - A miss of that target changes the depth or the profiles in this PR (G-14).
 - The evaluator draws from one seeded stream, and its order of work never changes (G-4, T-7).
 
-**Questions.** OQ-127, OQ-128, and OQ-129.
+**Questions.** None. D-947 to D-950 answer OQ-127, OQ-128, and OQ-129, and D-955 to D-961 set the shape of the PR.
 
 > *In plain English:* each enemy tries every move it can make, imagines your best answer, and picks the move that leaves it best off. That is what makes the fights hard.
 
-### 7.27 PR-67: the character level, the experience, MP, and the stat curves
+### 7.27 PR-98: the waiting enemies at the edge of the field
+
+Area files: `area-battle.md` sections 7.7 and 7.10.
+
+**Scope.**
+
+- Each waiting enemy of the fight, in one column at the left edge, behind the back row of the enemies (D-951, D-953).
+- The order of the column: the top holds the next enemy that steps in (D-760, D-778, D-953).
+- Each waiting enemy at full size, in a darker shade of the palette (D-954, G-27).
+- The two rows of the enemies move a little to the right, to give the column its place (D-953, D-568).
+- The step of a waiting enemy from the column into its row, when an enemy on the field falls (D-761, D-778).
+
+**Out of scope.**
+
+- A change to the rules of the wave. PR-9 holds the wave, and Core does not change (D-758 to D-762).
+- A waiting enemy as a target. The menu of PR-10 never offers one (D-954).
+
+**Exit tests.**
+
+1. A screen test renders a fixture fight with waiting enemies, and the baseline holds the column (D-172).
+2. The column shows the waiting enemies in the order of the group (D-760).
+3. After an enemy falls, the top enemy of the column steps into its row, and the column moves up (D-778).
+4. The target menu offers no waiting enemy (D-954).
+5. A column taller than the field follows the answer of OQ-243, and a test proves it.
+
+**Review focus.**
+
+- The author reads each frame of `make sheet` and confirms that each waiting enemy reads as not yet in the fight (D-784).
+- The column reads on the Steam Deck at 1x (D-92, G-19).
+- Game reads the waiting enemies from the state of the rules alone, and no timer of Godot starts a step (D-100, D-532).
+
+**Questions.** OQ-243.
+
+> *In plain English:* today an enemy can step into a fight with no warning, and a plan that the player made goes wrong. This change shows each enemy that waits, dimmed at the left edge, so the player plans for the whole group.
+
+### 7.28 PR-67: the character level, the experience, MP, and the stat curves
 
 Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
@@ -1201,7 +1237,7 @@ Area file: `area-progression.md` sections 7.1, 7.2, and 7.3.
 
 > *In plain English:* a fight makes each character stronger, and the people who wait or fall behind still learn a little. Each person grows on their own line.
 
-### 7.28 PR-62: the menu windows and the dungeon map screen
+### 7.29 PR-62: the menu windows and the dungeon map screen
 
 Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
@@ -1244,7 +1280,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
 > *In plain English:* menus are windows that stack on each other, and the world stops while one is open. A second screen draws each tile of the dungeon that the party walked.
 
-### 7.29 PR-68: the story scene format, the story scene runner, the flags, and the conditions
+### 7.30 PR-68: the story scene format, the story scene runner, the flags, and the conditions
 
 Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
@@ -1290,7 +1326,7 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
 > *In plain English:* a story scene is a list of simple steps in a data file: walk here, say this line, ask this question. The rules run it, so a robot can play it and a replay always matches.
 
-### 7.30 PR-50: the screenplay tool
+### 7.31 PR-50: the screenplay tool
 
 Area files: `area-tools.md` section 7.10, `area-story.md` section 7.8.
 
@@ -1321,7 +1357,7 @@ Area files: `area-tools.md` section 7.10, `area-story.md` section 7.8.
 
 > *In plain English:* a tool prints each story scene in the shape of a film script. The owner reads the story as a story before anybody builds it.
 
-### 7.31 PR-12: the lessons, the slots, and the aptitudes
+### 7.32 PR-12: the lessons, the slots, and the aptitudes
 
 Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 
@@ -1368,7 +1404,7 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 
 > *In plain English:* abilities come from rites and drills that anybody can carry. Use one long enough and it opens a stronger form, and that progress belongs to the person who carried it.
 
-### 7.32 PR-13: the gear, the items, and the inventory
+### 7.33 PR-13: the gear, the items, and the inventory
 
 Area file: `area-progression.md` sections 7.8 and 7.9.
 
@@ -1380,6 +1416,7 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 - Fixed, hand-authored gear with a few rarity tiers, and no random affix and no crafting (D-45, OQ-143).
 - The pack, with a small fixed number of each item (D-382, OQ-142).
 - The item use on a turn, which restores less in a fight than outside one (D-382).
+- The steal action: the roll, the Theft term, the clamp, the failure that costs the turn, and the stolen entry in the pack (D-949, D-950).
 - The items that a fight gives, on the summary after the fight of PR-67 (D-835).
 - The find over the stack limit, which stays in its chest and which the save records (D-385).
 - The gear window and the item window in the stack of PR-62.
@@ -1403,13 +1440,13 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 
 - The answer of OQ-140 sets what a piece of gear changes, and OQ-143 what a rarity tier changes.
 - The gear of Elio leaves the game with him, and content marks it (D-364).
-- A steal takes one entry from the list of an enemy, which PR-11 holds (D-383).
+- A steal takes one entry from the list of an enemy, which PR-11 holds (D-383). The chance adds the Theft term to the base chance of the profile (D-949).
 
 **Questions.** OQ-140, OQ-141, OQ-142, and OQ-143.
 
 > *In plain English:* six slots, and anyone can wear anything. What you find is what the author placed, so a good weapon is a real event.
 
-### 7.33 PR-91: the torch item
+### 7.34 PR-91: the torch item
 
 Area file: `area-exploration.md` section 7.17.
 
@@ -1443,7 +1480,7 @@ Area file: `area-exploration.md` section 7.17.
 
 > *In plain English:* the torch becomes a real item. Dark places need it, and guards see it from far away, so the player chooses between light and stealth.
 
-### 7.34 PR-14: the hub map, the NPCs, and the services
+### 7.35 PR-14: the hub map, the NPCs, and the services
 
 Area file: `area-exploration.md` section 7.11.
 
@@ -1484,7 +1521,7 @@ Area file: `area-exploration.md` section 7.11.
 
 > *In plain English:* the hub is a place you walk through, where the party recovers and reshapes itself before the next dungeon. Every hub has a different shape.
 
-### 7.35 PR-65: the shop and the gold
+### 7.36 PR-65: the shop and the gold
 
 Area file: `area-exploration.md` section 7.12.
 
@@ -1520,7 +1557,7 @@ Area file: `area-exploration.md` section 7.12.
 
 > *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
 
-### 7.36 PR-36: the dialogue box, the portraits, and the story scene on screen
+### 7.37 PR-36: the dialogue box, the portraits, and the story scene on screen
 
 Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
@@ -1558,7 +1595,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 > *In plain English:* people walk, turn, and speak on the map you already walk on. Their words appear in a box at the bottom, with a face beside them.
 
-### 7.37 PR-15: the headless runner and the bots
+### 7.38 PR-15: the headless runner and the bots
 
 Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
@@ -1596,7 +1633,7 @@ Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
 > *In plain English:* simple robots play the game with no screen. They make the same choices a player makes, and every crash they find comes with the seed that repeats it.
 
-### 7.38 PR-49: the night job and the night gate
+### 7.39 PR-49: the night job and the night gate
 
 Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
@@ -1634,7 +1671,7 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
 > *In plain English:* every night the robots play thousands of runs on all three systems. No change merges unless a recent night ended with no crash and no dead end.
 
-### 7.39 PR-16: the dungeon parts, the death, and the save points
+### 7.40 PR-16: the dungeon parts, the death, and the save points
 
 Area file: `area-exploration.md` section 7.8.
 
@@ -1676,7 +1713,7 @@ Area file: `area-exploration.md` section 7.8.
 
 > *In plain English:* the dungeon gains its chests, doors, keys, and resting stones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
-### 7.40 PR-64: the traps, the hazards, and the statuses on the map
+### 7.41 PR-64: the traps, the hazards, and the statuses on the map
 
 Area file: `area-exploration.md` section 7.9.
 
@@ -1716,7 +1753,7 @@ Area file: `area-exploration.md` section 7.9.
 
 > *In plain English:* the dungeon itself can hurt you. Poison still hurts while you walk, and a party can go down between fights.
 
-### 7.41 PR-35: the region map
+### 7.42 PR-35: the region map
 
 Area file: `area-exploration.md` section 7.13.
 
@@ -1752,11 +1789,11 @@ Area file: `area-exploration.md` section 7.13.
 
 > *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
 
-### 7.42 PR-37: retired
+### 7.43 PR-37: retired
 
 PR-37 held the CRT shader and its toggle, which have no purpose after D-618. No later item takes the id (G-10). This entry exists so that a reader of the sequence finds the gap and its reason.
 
-### 7.43 PR-38: the audio synthesizer and the first sounds
+### 7.44 PR-38: the audio synthesizer and the first sounds
 
 Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
@@ -1795,7 +1832,7 @@ Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
 > *In plain English:* music and sound start as rows of numbers in a text file. A tool of ours turns those rows into sound, the same way on every computer.
 
-### 7.44 PR-69: the audio player base
+### 7.45 PR-69: the audio player base
 
 Area file: `area-audio.md` sections 7.2 and 7.3.
 
@@ -1831,7 +1868,7 @@ Area file: `area-audio.md` sections 7.2 and 7.3.
 
 > *In plain English:* this part makes sound come out. It sets the volumes, and it mutes the game when the window loses focus.
 
-### 7.45 PR-70: the rules of what plays when
+### 7.46 PR-70: the rules of what plays when
 
 Area file: `area-audio.md` sections 7.4 to 7.10.
 
@@ -1876,7 +1913,7 @@ Area file: `area-audio.md` sections 7.4 to 7.10.
 
 > *In plain English:* every place has its own music, a low bed of wind or fire under it, and its own footsteps. The music changes when the story turns the day to night.
 
-### 7.46 PR-71: the sound room
+### 7.47 PR-71: the sound room
 
 Area file: `area-audio.md` section 7.11.
 
@@ -1906,7 +1943,7 @@ Area file: `area-audio.md` section 7.11.
 
 > *In plain English:* the owner listens to every piece of music before it ships. One tool plays a batch on the desk, and this one plays it inside the game.
 
-### 7.47 PR-51: the PNG import
+### 7.48 PR-51: the PNG import
 
 Area file: `area-tools.md` section 7.11.
 
@@ -1948,7 +1985,7 @@ Area file: `area-tools.md` section 7.11.
 
 > *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
 
-### 7.48 PR-52: the map preview
+### 7.49 PR-52: the map preview
 
 Area file: `area-tools.md` section 7.12.
 
@@ -1978,7 +2015,7 @@ Area file: `area-tools.md` section 7.12.
 
 > *In plain English:* maps are text files too. This tool draws a map as a picture, so the owner can see and approve a place before anyone walks it.
 
-### 7.49 PR-53: the tile-edge tool
+### 7.50 PR-53: the tile-edge tool
 
 Area file: `area-tools.md` section 7.13.
 
@@ -2011,7 +2048,7 @@ Area file: `area-tools.md` section 7.13.
 
 > *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own.
 
-### 7.50 PR-72: the music and the sounds of the first playable
+### 7.51 PR-72: the music and the sounds of the first playable
 
 Area file: `area-audio.md` section 7.12.
 
@@ -2046,7 +2083,7 @@ Area file: `area-audio.md` section 7.12.
 
 > *In plain English:* the music arrives in two batches. This is the first: enough for the first thing that the owner plays.
 
-### 7.51 PR-17: the village, the first hub, and the first dungeon
+### 7.52 PR-17: the village, the first hub, and the first dungeon
 
 Area files: every area file. The content PR touches each area.
 
@@ -2093,7 +2130,7 @@ Area files: every area file. The content PR touches each area.
 
 > *In plain English:* the first real place to play. Everything before this was machinery.
 
-### 7.52 M-3, M-4, and M-6: the measurements of the phase
+### 7.53 M-3, M-4, and M-6: the measurements of the phase
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
@@ -2122,7 +2159,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* three sets of numbers close the phase. They are the cost of the robots each night, the length of a fight, and the speed on the handheld.
 
-### 7.53 Gate 2: the first playable
+### 7.54 Gate 2: the first playable
 
 **The gate.** Gate 2 passes when every line holds:
 
@@ -2140,7 +2177,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* at this point the game is a game. The owner walks a village, fights in a mine, and says whether it feels right.
 
-### 7.54 PR-74: the capture
+### 7.55 PR-74: the capture
 
 Area file: `area-release.md` section 7.6.
 
@@ -2174,7 +2211,7 @@ Area file: `area-release.md` section 7.6.
 
 > *In plain English:* the game can replay a recorded run and write every frame to disk. That gives the same picture each time, so a screenshot or a trailer shot is repeatable.
 
-### 7.55 PR-75: the store text and the owner steps
+### 7.56 PR-75: the store text and the owner steps
 
 Area file: `area-release.md` section 7.7.
 
@@ -2211,7 +2248,7 @@ Area file: `area-release.md` section 7.7.
 
 > *In plain English:* the shop page words get written and approved like any other text in the game. The owner pays the fee and answers the questions that only Valve asks.
 
-### 7.56 PR-76: the store art and the screenshots
+### 7.57 PR-76: the store art and the screenshots
 
 Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
@@ -2253,7 +2290,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 2. PR-54, PR-61, PR-7, PR-45, PR-41, PR-8: the export job, the frame, the map, and the enemies.
 3. PR-9, PR-89, PR-80, PR-66, PR-55, PR-10: the fight, the walk fault, the enemy record, and the screen (D-557, D-782).
 4. PR-48, PR-56, PR-93, PR-63, PR-57, PR-58, PR-94, PR-59, PR-92, PR-95, PR-60, PR-96, PR-97: the normal maps, the light, the settings, the effects, and the automated review.
-5. PR-11, PR-67, PR-62: the enemies that think, the character level, and the menu windows.
+5. PR-11, PR-98, PR-67, PR-62: the enemies that think, the waiting enemies on screen, the character level, and the menu windows.
 6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
 7. PR-12, PR-13, PR-91, PR-14, PR-65: the build of a party, the torch, the hub, and the shop.
 8. PR-36: the dialogue box.
@@ -2266,7 +2303,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 15. PR-17: the village, the mining town, and the hanging cells.
 16. M-3, M-4, M-6: the night numbers, the encounter numbers, and the Deck.
 17. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
-18. **← GATE 2 (first playable).** Section 7.53 holds each line.
+18. **← GATE 2 (first playable).** Section 7.54 holds each line.
 19. PR-74, PR-75, PR-76: the capture, the store text, and the store art.
 20. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 
@@ -2321,9 +2358,9 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-124 | A defend action. Resolved by D-755 | PR-9 |
 | OQ-125 | How many turns the timeline strip shows. Resolved by D-756 | PR-9 and PR-10 |
 | OQ-126 | Where the delay of each action lives. Resolved by D-757 | PR-9 |
-| OQ-127 | The tie-break of two equal scores | PR-11 |
-| OQ-128 | What makes a profile unable to act | PR-11 |
-| OQ-129 | The chance of a steal, and the cost of a failure | PR-11 |
+| OQ-127 | The tie-break of two equal scores. Resolved by D-947 | PR-11 |
+| OQ-128 | What makes a profile unable to act. Resolved by D-948 | PR-11 |
+| OQ-129 | The chance of a steal, and the cost of a failure. Resolved by D-949 and D-950 | PR-11 and PR-13 |
 | OQ-131 | How the screen shows the health of an enemy, resolved by D-826 | PR-10 |
 | OQ-132 | A group larger than its rows. Resolved by D-758 | PR-9 and PR-11 |
 | OQ-133 | The flee chance and the grace time. Resolved by D-748 and D-763 | PR-9 |
@@ -2366,5 +2403,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-174 | Which five screenshots | PR-76 |
 | OQ-220 to OQ-231 | The place, the form, the passes, the overlap, the edges, the resolution, the spread, the color, the test floor, the strength, and the coverage of the procedural fog, resolved by D-896 to D-906 and D-908 | PR-94 |
 | OQ-232 | The glow that stays, resolved by D-915 | PR-59 |
+| OQ-242 | The waiting enemies of a fight. Resolved by D-951 | PR-98 |
+| OQ-243 | A column of the waiting enemies, taller than the field | PR-98 |
 
 No open question blocks this file.

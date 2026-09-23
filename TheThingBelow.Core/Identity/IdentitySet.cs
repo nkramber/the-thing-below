@@ -68,6 +68,7 @@ public static class IdentitySet
     {
      "comment": "The map of the replay run of the identity set. One enemy walks a route and one paces an area, so the run reads the walk of a patrol and a draw of the exploration stream too (D-504, D-739, D-741). Each sight range is zero, so the party of the script never starts an encounter and every later tick of the run still does work. PR-8 added the enemies, and the map never changes again.",
      "id": "map.identity_run",
+     "region": "region.identity",
      "label": "label.identity_run",
      "time": "day",
      "terrain": [
@@ -109,6 +110,9 @@ public static class IdentitySet
     }
     """;
 
+    /// <summary>The run of the evaluator: a fight against a brute and a mender (D-504, D-955).</summary>
+    public const string EvaluatorRun = "evaluator";
+
     /// <summary>The count of ticks that the battle run steps.</summary>
     private const int BattleTickCount = 240;
 
@@ -120,6 +124,7 @@ public static class IdentitySet
     {
      "comment": "The map of the battle run of the identity set. PR-9 added it, and the map never changes again.",
      "id": "map.identity_battle",
+     "region": "region.identity",
      "label": "label.identity_battle",
      "time": "day",
      "terrain": [
@@ -156,6 +161,7 @@ public static class IdentitySet
     {
      "comment": "The map of the enemy-record run of the identity set. PR-80 added it, and the map never changes again.",
      "id": "map.identity_record",
+     "region": "region.identity",
      "label": "label.identity_record",
      "time": "day",
      "terrain": [
@@ -192,6 +198,7 @@ public static class IdentitySet
     {
      "comment": "The map of the statuses run of the identity set. PR-66 added it, and the map never changes again.",
      "id": "map.identity_status",
+     "region": "region.identity",
      "label": "label.identity_status",
      "time": "day",
      "terrain": [
@@ -216,6 +223,133 @@ public static class IdentitySet
        ]
       }
      ]
+    }
+    """;
+
+    /// <summary>
+    /// The map of the evaluator run: the battle map, with a guard of the evaluator group. The
+    /// mender of that group heals, and the brute strikes with its ability, so the run reads each
+    /// kind of move and each term of a score (D-955, D-959).
+    /// </summary>
+    private const string EvaluatorMapFile = """
+    {
+     "comment": "The map of the evaluator run of the identity set. PR-11 added it, and the map never changes again.",
+     "id": "map.identity_evaluator",
+     "region": "region.identity",
+     "label": "label.identity_evaluator",
+     "time": "day",
+     "terrain": [
+      "#########",
+      "#.......#",
+      "#.......#",
+      "#########"
+     ],
+     "things": [
+      { "id": "spawn_point.identity_evaluator_start", "kind": "spawn_point", "x": 1, "y": 1 }
+     ],
+     "enemies": [
+      {
+       "id": "patrol.identity_evaluator_guard",
+       "group": "group.identity_evaluator",
+       "size": "common",
+       "facing": "east",
+       "step_ticks": 16,
+       "sight_range": 0,
+       "routes": [
+        { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 3, "y": 1 }] }
+       ]
+      }
+     ]
+    }
+    """;
+
+    /// <summary>The mender record of this set, which heals (D-955). PR-11 added it, and it never changes.</summary>
+    private const string MenderRecordFile = """
+    {
+     "comment": "The mender of the identity set. It never changes.",
+     "id": "enemy.identity_mender",
+     "size": "common",
+     "health": 30,
+     "attack": 5,
+     "defense": 3,
+     "speed": 95,
+     "abilities": ["ability.identity_mend"],
+     "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
+     "immune": []
+    }
+    """;
+
+    /// <summary>
+    /// The group file of this set (D-957). The guard group holds a wave, so the run reads the
+    /// step of a waiting enemy too (D-778). PR-11 moved the groups here from the fixture, and
+    /// the file never changes again.
+    /// </summary>
+    private const string GroupFileText = """
+    {
+     "comment": "The groups of the identity set. PR-9 added them to the fixture, and PR-11 moved them to this file with a profile for each enemy.",
+     "region": "region.identity",
+     "groups": [
+      {
+       "id": "group.identity_run",
+       "boss": false,
+       "enemies": [{ "enemy": "enemy.identity_grunt", "row": "front", "waits": false, "profile": "profile.identity_brute" }]
+      },
+      {
+       "id": "group.identity_record",
+       "boss": false,
+       "enemies": [
+        { "enemy": "enemy.identity_brute", "row": "front", "waits": false, "profile": "profile.identity_brute" },
+        { "enemy": "enemy.identity_grunt", "row": "back", "waits": false, "profile": "profile.identity_brute" }
+       ]
+      },
+      {
+       "id": "group.identity_status",
+       "boss": false,
+       "enemies": [
+        { "enemy": "enemy.identity_brute", "row": "front", "waits": false, "profile": "profile.identity_brute" },
+        { "enemy": "enemy.identity_grunt", "row": "front", "waits": false, "profile": "profile.identity_brute" }
+       ]
+      },
+      {
+       "id": "group.identity_battle",
+       "boss": false,
+       "enemies": [
+        { "enemy": "enemy.identity_grunt", "row": "front", "waits": false, "profile": "profile.identity_brute" },
+        { "enemy": "enemy.identity_grunt", "row": "back", "waits": false, "profile": "profile.identity_brute" },
+        { "enemy": "enemy.identity_grunt", "row": "front", "waits": true, "profile": "profile.identity_brute" }
+       ]
+      },
+      {
+       "id": "group.identity_evaluator",
+       "boss": false,
+       "enemies": [
+        { "enemy": "enemy.identity_brute", "row": "front", "waits": false, "profile": "profile.identity_brute" },
+        { "enemy": "enemy.identity_mender", "row": "back", "waits": false, "profile": "profile.identity_mender" }
+       ]
+      }
+     ]
+    }
+    """;
+
+    /// <summary>The profile of each brute and grunt of this set (D-956). PR-11 added it, and it never changes.</summary>
+    private const string BruteProfileFile = """
+    {
+     "comment": "The profile of the brutes of the identity set. It never changes.",
+     "id": "profile.identity_brute",
+     "weights": { "damage": 100, "kills": 3, "threat": 60, "healing": 50, "timeline": 1, "row": 200 },
+     "steal_chance": 2500,
+     "steal": [{ "item": "item.identity_draught" }, { "gold": 12 }]
+    }
+    """;
+
+    /// <summary>The profile of the mender of this set (D-956). PR-11 added it, and it never changes.</summary>
+    private const string MenderProfileFile = """
+    {
+     "comment": "The profile of the mender of the identity set. It never changes.",
+     "id": "profile.identity_mender",
+     "weights": { "damage": 40, "kills": 1, "threat": 80, "healing": 300, "timeline": 1, "row": 400 },
+     "steal_chance": 0,
+     "steal": []
     }
     """;
 
@@ -254,8 +388,11 @@ public static class IdentitySet
     /// <summary>The ability file of this set (D-785). PR-80 added it, and it never changes.</summary>
     private const string AbilityFile = """
     {
-     "comment": "The ability file of the identity set. It never changes.",
-     "abilities": [{ "id": "ability.identity_strike" }]
+     "comment": "The ability file of the identity set. PR-11 gave each ability its effect and added the mend, and it never changes again.",
+     "abilities": [
+      { "id": "ability.identity_strike", "kind": "strike", "delay": 120, "power": 14000, "element": "fire", "reach": "any" },
+      { "id": "ability.identity_mend", "kind": "heal", "delay": 100, "heal": 18 }
+     ]
     }
     """;
 
@@ -303,46 +440,14 @@ public static class IdentitySet
     """;
 
     /// <summary>
-    /// The battle fixture of this set. The guard group holds a wave, so the run reads the
-    /// step of a waiting enemy too (D-778). It never changes.
+    /// The battle fixture of this set: the character, the item, and the start of a run. PR-11
+    /// moved its groups to the group file of this set (D-957).
     /// </summary>
     private const string BattleFixtureFile = """
     {
-     "comment": "The battle fixture of the identity set. PR-9 added it, and PR-80 moved its enemies to the enemy records and added the record group.",
+     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, and PR-11 moved its groups to the group file.",
      "characters": [
       { "id": "character.identity_hero", "health": 90, "attack": 14, "defense": 4, "speed": 100, "row": "front" }
-     ],
-     "groups": [
-      {
-       "id": "group.identity_run",
-       "boss": false,
-       "enemies": [{ "enemy": "enemy.identity_grunt", "row": "front", "waits": false }]
-      },
-      {
-       "id": "group.identity_record",
-       "boss": false,
-       "enemies": [
-        { "enemy": "enemy.identity_brute", "row": "front", "waits": false },
-        { "enemy": "enemy.identity_grunt", "row": "back", "waits": false }
-       ]
-      },
-      {
-       "id": "group.identity_status",
-       "boss": false,
-       "enemies": [
-        { "enemy": "enemy.identity_brute", "row": "front", "waits": false },
-        { "enemy": "enemy.identity_grunt", "row": "front", "waits": false }
-       ]
-      },
-      {
-       "id": "group.identity_battle",
-       "boss": false,
-       "enemies": [
-        { "enemy": "enemy.identity_grunt", "row": "front", "waits": false },
-        { "enemy": "enemy.identity_grunt", "row": "back", "waits": false },
-        { "enemy": "enemy.identity_grunt", "row": "front", "waits": true }
-       ]
-      }
      ],
      "items": [
       { "id": "item.identity_draught", "heal": 30, "delay": 100 }
@@ -359,6 +464,7 @@ public static class IdentitySet
         BasisPointsRun,
         BattleRun,
         EnemyRecordRun,
+        EvaluatorRun,
         RandomDrawsRun,
         ReplayRun,
         StateHashRun,
@@ -379,6 +485,7 @@ public static class IdentitySet
             BasisPointsRun => ComputeBasisPoints(),
             BattleRun => ComputeBattle(BattleMapFile),
             EnemyRecordRun => ComputeBattle(RecordMapFile),
+            EvaluatorRun => ComputeBattle(EvaluatorMapFile),
             RandomDrawsRun => ComputeRandomDraws(),
             ReplayRun => ComputeReplay(),
             StateHashRun => ComputeStateHash(),
@@ -560,14 +667,21 @@ public static class IdentitySet
             [
                 EnemyRecord.Read(Encoding.UTF8.GetBytes(BruteRecordFile), "identity-set-brute.json"),
                 EnemyRecord.Read(Encoding.UTF8.GetBytes(GruntRecordFile), "identity-set-grunt.json"),
+                EnemyRecord.Read(Encoding.UTF8.GetBytes(MenderRecordFile), "identity-set-mender.json"),
             ],
-            AbilityList.Read(Encoding.UTF8.GetBytes(AbilityFile), "identity-set-abilities.json"));
+            AbilityList.Read(Encoding.UTF8.GetBytes(AbilityFile), "identity-set-abilities.json"),
+            [GroupFile.Read(Encoding.UTF8.GetBytes(GroupFileText), $"{GroupFile.Folder}identity.json")],
+            [
+                ProfileRecord.Read(Encoding.UTF8.GetBytes(BruteProfileFile), "identity-set-brute-profile.json"),
+                ProfileRecord.Read(Encoding.UTF8.GetBytes(MenderProfileFile), "identity-set-mender-profile.json"),
+            ]);
 
     /// <summary>
     /// Runs a scripted battle, writes the record, reads the text of it again, and replays it
     /// (exit test 7 of PR-9). The party steps into the guard, fights with every action, saves
     /// in the middle of the battle, and walks on after the wait intent (D-522, D-531, D-532).
-    /// The battle run and the enemy-record run each give one map (exit test 5 of PR-80).
+    /// The battle run, the enemy-record run, and the evaluator run each give one map (exit
+    /// test 5 of PR-80, D-504).
     /// </summary>
     private static ulong ComputeBattle(string mapFile)
     {

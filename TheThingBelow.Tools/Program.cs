@@ -6,6 +6,7 @@ using TheThingBelow.Tools.ChangedPaths;
 using TheThingBelow.Tools.CodexReview;
 using TheThingBelow.Tools.Content;
 using TheThingBelow.Tools.DetLint;
+using TheThingBelow.Tools.Evaluator;
 using TheThingBelow.Tools.Identity;
 using TheThingBelow.Tools.Pictures;
 using TheThingBelow.Tools.ReviewGate;
@@ -74,6 +75,11 @@ public static class Program
             return ReplayIdentityCommand.Run(args[1..], output, errors);
         }
 
+        if (command == EvaluatorCostCommand.Name)
+        {
+            return EvaluatorCostCommand.Run(args[1..], output, errors);
+        }
+
         if (command == ContentHashCommand.Name)
         {
             return ContentHashCommand.Run(args[1..], output, errors);
@@ -129,6 +135,7 @@ public static class Program
         errors.WriteLine($"  {PictureCommand.Name}: ready");
         errors.WriteLine($"  {ChangedPathsCommand.Name}: ready");
         errors.WriteLine($"  {CodexReviewCommand.Name}: ready");
+        errors.WriteLine($"  {EvaluatorCostCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {

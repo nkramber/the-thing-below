@@ -776,7 +776,7 @@ public sealed class BattleScreen
     /// <summary>Gives the combatant that a number of this event stands over, or no value (D-213).</summary>
     private static BattleTarget? NumberTargetOf(BattleEvent playing) => playing.Kind switch
     {
-        BattleEventKind.Hit or BattleEventKind.Absorb or BattleEventKind.Item => playing.Target,
+        BattleEventKind.Hit or BattleEventKind.Absorb or BattleEventKind.Item or BattleEventKind.Heal => playing.Target,
         BattleEventKind.StatusHurt or BattleEventKind.StatusHeal => playing.Actor,
         _ => null,
     };

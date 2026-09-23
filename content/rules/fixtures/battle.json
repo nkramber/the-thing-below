@@ -1,5 +1,5 @@
 {
- "comment": "The fixture of the battle core (D-765, D-766, D-775, D-777, D-781). PR-67, PR-11, and PR-13 replace each part, and each id stays. The enemies live in the enemy records of `rules/enemies/` (D-786).",
+ "comment": "The fixture of the battle core (D-765, D-775, D-777, D-781). PR-67 and PR-13 replace each part, and each id stays. The enemies live in the enemy records of `rules/enemies/` (D-786), and the groups in the group file of each region of `rules/groups/` (D-957).",
  "characters": [
   {
    "id": "character.marrek",
@@ -8,24 +8,6 @@
    "defense": 4,
    "speed": 100,
    "row": "front"
-  }
- ],
- "groups": [
-  {
-   "id": "group.fixture_pair",
-   "boss": false,
-   "enemies": [
-    { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false },
-    { "enemy": "enemy.fixture_grunt", "row": "front", "waits": false }
-   ]
-  },
-  {
-   "id": "group.fixture_elite",
-   "boss": false,
-   "enemies": [
-    { "enemy": "enemy.fixture_brute", "row": "front", "waits": false },
-    { "enemy": "enemy.fixture_grunt", "row": "front", "waits": true }
-   ]
   }
  ],
  "items": [

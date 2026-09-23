@@ -1,12 +1,12 @@
 {
- "comment": "The fixture grunt, with the stats of D-777 and the size of D-789 (D-557, D-786). It names no ability, so it fights with the basic attack alone (D-787). PR-17 writes the enemies of the first playable.",
+ "comment": "The fixture grunt, with the stats of D-777 and the size of D-789 (D-557, D-786). It names the fixture mend, so it can bind a hurt ally (D-955). PR-17 writes the enemies of the first playable.",
  "id": "enemy.fixture_grunt",
  "size": "common",
  "health": 30,
  "attack": 8,
  "defense": 2,
  "speed": 90,
- "abilities": [],
+ "abilities": ["ability.fixture_mend"],
  "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
  "immune": []
 }

@@ -154,6 +154,7 @@ public static class LightFixtures
             {
              "comment": "a test map",
              "id": "map.lit",
+             "region": "region.test",
              "label": "label.lit",
              "time": "night",
              "terrain": [ {{rows}} ],

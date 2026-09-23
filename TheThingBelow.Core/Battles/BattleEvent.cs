@@ -64,6 +64,9 @@ public enum BattleEventKind
 
     /// <summary>A turn of a sleeper passed with no action (D-802).</summary>
     Asleep,
+
+    /// <summary>An enemy healed an ally with a move. The amount is the health restored (D-955).</summary>
+    Heal,
 }
 
 /// <summary>One event of a battle (D-168, D-532).</summary>
@@ -116,6 +119,7 @@ public static class BattleEvents
         BattleEventKind.StatusHurt => "status hurt",
         BattleEventKind.StatusHeal => "status heal",
         BattleEventKind.Asleep => "asleep",
+        BattleEventKind.Heal => "heal",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no battle event (D-532)"),
     };
 }

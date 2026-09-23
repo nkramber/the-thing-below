@@ -25,6 +25,7 @@ public static class TestMaps
         {
          "comment": "A room with a pillar, for the tests of the step rule and the sight rule.",
          "id": "map.test_room",
+         "region": "region.test",
          "label": "label.test_room",
          "time": "day",
          "terrain": [
@@ -57,6 +58,7 @@ public static class TestMaps
         {
          "comment": "A room with three enemies, for the tests of the walk rule and the sight rule.",
          "id": "map.test_patrolled",
+         "region": "region.test",
          "label": "label.test_patrolled",
          "time": "day",
          "terrain": [
@@ -140,7 +142,7 @@ public static class TestMaps
     {
         var text = new StringBuilder();
         text.Append("{\n \"comment\": \"An open map for the tests of the camera.\",\n");
-        text.Append($" \"id\": \"{id}\",\n \"label\": \"{label}\",\n \"time\": \"day\",\n \"terrain\": [\n");
+        text.Append($" \"id\": \"{id}\",\n \"region\": \"region.test\",\n \"label\": \"{label}\",\n \"time\": \"day\",\n \"terrain\": [\n");
         for (int row = 0; row < height; row += 1)
         {
             bool edge = row == 0 || row == height - 1;
