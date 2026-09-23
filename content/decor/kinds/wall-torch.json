@@ -1,5 +1,5 @@
 {
- "comment": "A torch that hangs on a wall and faces the tile to its south (D-843, D-844). Its light is the default of every wall torch, and a light setup can change the light of one torch by the id of its piece. The light hangs over the tile south of the wall, because each wall casts the shadow of its full tile (D-845). The color is a palette key with a strength in basis points (D-846), and the height keeps a flat pixel of a normal map lit (F-46). The fire is a flame, embers, and a thin smoke from the place of the light, and the light steps between its levels on a pattern of the tick and the id of the piece (D-888, D-890, D-891).",
+ "comment": "A torch that hangs on a wall and faces the tile to its south (D-843, D-844). Its light is the default of every wall torch, and a light setup can change the light of one torch by the id of its piece. The light hangs over the tile south of the wall, because each wall casts the shadow of its full tile (D-845). The color is a palette key with a strength in basis points (D-846), and the height keeps a flat pixel of a normal map lit (F-46). The fire is a flame, embers, and a thin smoke from the place of the light, and the light steps between its levels on a pattern of the tick and the id of the piece (D-888, D-890, D-891). The glow is a small rectangle over the flame, which the glow pass alone draws and spreads, and it pulses on a slow wave (D-912, D-913).",
  "id": "decor.wall_torch",
  "light": { "color": "j", "strength": 24000, "range": 240, "height": 40, "x": 16, "y": 34 },
  "fire": {
@@ -12,10 +12,10 @@
   ],
   "jump": 1,
   "emitters": [
-   { "amount": 10, "lifetime_ticks": 14, "colors": ["a", "A", "j"], "size": 1, "x": 0, "y": -26, "half_width": 1, "half_height": 0, "direction": -90, "spread": 12, "slowest_speed": 14, "fastest_speed": 26, "gravity": -20, "glow": 0 },
-   { "amount": 4, "lifetime_ticks": 50, "colors": ["X", "j"], "size": 1, "x": 0, "y": -28, "half_width": 1, "half_height": 0, "direction": -90, "spread": 30, "slowest_speed": 10, "fastest_speed": 24, "gravity": -6, "glow": 0 },
-   { "amount": 4, "lifetime_ticks": 20, "colors": ["j"], "size": 4, "x": 0, "y": -22, "half_width": 1, "half_height": 1, "direction": -90, "spread": 10, "slowest_speed": 0, "fastest_speed": 2, "gravity": 0, "glow": 160000 },
-   { "amount": 6, "lifetime_ticks": 70, "colors": ["Q"], "size": 1, "x": 0, "y": -30, "half_width": 1, "half_height": 0, "direction": -90, "spread": 10, "slowest_speed": 6, "fastest_speed": 12, "gravity": 0, "glow": 0 }
-  ]
+   { "amount": 10, "lifetime_ticks": 14, "colors": ["a", "A", "j"], "size": 1, "x": 0, "y": -26, "half_width": 1, "half_height": 0, "direction": -90, "spread": 12, "slowest_speed": 14, "fastest_speed": 26, "gravity": -20 },
+   { "amount": 4, "lifetime_ticks": 50, "colors": ["X", "j"], "size": 1, "x": 0, "y": -28, "half_width": 1, "half_height": 0, "direction": -90, "spread": 30, "slowest_speed": 10, "fastest_speed": 24, "gravity": -6 },
+   { "amount": 6, "lifetime_ticks": 70, "colors": ["Q"], "size": 1, "x": 0, "y": -30, "half_width": 1, "half_height": 0, "direction": -90, "spread": 10, "slowest_speed": 6, "fastest_speed": 12, "gravity": 0 }
+  ],
+  "glow": { "color": "j", "strength": 10000, "width": 6, "height": 8, "x": 0, "y": -21 }
  }
 }

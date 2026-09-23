@@ -337,7 +337,7 @@ public partial class MapScreen : Node2D
             // A light of a decor piece is a fire, and an added light of the setup is not (D-843, D-888).
             if (FireOf(content, decor, light.Id) is TorchFire fire)
             {
-                TorchFlame flame = TorchFlame.Build(light.Id.Value, fire, (ground, figures), content.Palette, WeatherArea(map), this);
+                TorchFlame flame = TorchFlame.Build(light.Id.Value, fire, (ground, figures), content.Palette, content.Light.Glow, WeatherArea(map), this);
                 flame.MoveTo(ground.Position);
                 this.torches.Add(flame);
             }
@@ -358,6 +358,7 @@ public partial class MapScreen : Node2D
             this.carriedPlace.Fire,
             (this.carriedGround, this.carriedFigures),
             content.Palette,
+            content.Light.Glow,
             WeatherArea(map),
             this);
         this.CarriedLightOn = false;

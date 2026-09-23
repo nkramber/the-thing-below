@@ -150,9 +150,9 @@ Effects terms from the roadmaps PR of 2026-09-15:
 | effect file | the JSON file of one effect: its emitters, its palette colors, and its timings in ticks (D-182, D-266) | effect resource, particle file |
 | effect budget | the committed limits of lights with shadows, live particles, and full-screen passes that hold 60 frames per second on the Deck (D-523) | frame budget, perf budget |
 | full-screen pass | an effect that redraws the whole frame, such as fog, glow, or a transition (D-523) | post-process, when the text means these |
-| glow threshold | the linear light, in basis points of full white, where a pixel of the world view starts to glow (D-910) | bloom threshold, glow cutoff |
-| glow strength | the linear light of a particle that glows, in basis points of its palette color, from its emitter (D-912) | emission, HDR multiplier |
-| lit art bound | the upper bound of the light on art of a map or a fight, which the load keeps below the glow threshold (D-910, F-47) | brightest pixel, max brightness |
+| glow rectangle | the small rectangle of one palette key at a light source, which the glow pass alone draws (D-913) | glow seed in prose, emission, bloom source |
+| glow layer | the canvas layer that the glow rectangles draw on, which the world view never draws (D-913, F-105) | bloom layer, glow mask layer |
+| pulse | the slow wave of the tick that swells and fades each glow (D-913) | flicker, which names the steps of a torch light (D-891), and throb |
 | wait intent | the intent that Game sends when an effect that the world waits for ends (D-522) | continue intent, done signal |
 | transition | one of the full-screen effects of D-195 that start a battle (D-191, D-196) | wipe, which names a party wipe (D-36), and screen change |
 | hit-stop | the brief freeze of the battle picture on a heavy blow (D-186) | freeze frame, hitlag |

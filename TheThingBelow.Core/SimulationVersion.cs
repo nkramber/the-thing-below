@@ -29,8 +29,8 @@ public static class SimulationVersion
     /// the light files, the decor files, and the effect budget (D-842 to D-847). PR-94 raised it
     /// to 13: the reader of a layer of fog takes the noise and its bands in place of a text grid,
     /// and the budget counts one pass for each fog (D-897, D-898). PR-59 raised it to 14:
-    /// the reader of the glow file and of the glow of each stream, the bound of the lit art below
-    /// the glow threshold, and the count of the glow pass in the budget (D-910 to D-912).
+    /// the reader of the glow file and of the glow of each fire, and the count of the glow pass in
+    /// the budget (D-912, D-913).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
