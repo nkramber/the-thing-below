@@ -1,0 +1,7 @@
+{
+ "comment": "A transition of the pool of common fights (D-195, D-619, D-934). A line sweeps down the view and closes every other row with ink, and a second line sweeps up and closes the rest. The length is one second (D-941).",
+ "id": "transition.scanline_sweep",
+ "look": "scanline_sweep",
+ "ticks": 60,
+ "cover": "k"
+}

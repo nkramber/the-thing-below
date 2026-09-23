@@ -506,7 +506,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 21. PR-59: the glow on the fire of each wall torch, and the fog above the glow (D-188, D-910 to D-916).
 22. PR-92: the three passes of the HD-2D look, after a new Deck sweep (D-849).
 23. PR-95: the automated review of the other provider, the three-strike stop, and the gated auto-merge (D-926 to D-933).
-24. PR-60: the ten transitions and their table (D-195, D-196).
+24. PR-60: the ten transitions, their table, and the fades of the hand-off (D-195, D-196, D-934 to D-941).
 25. PR-11: the evaluator, the enemy profiles, and the groups, with the cost of a turn (D-65, D-534, F-53).
 26. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537).
 27. PR-62: the menu windows, the party and status windows, the dungeon map screen, and the notices (D-211, D-558, D-567, D-569).

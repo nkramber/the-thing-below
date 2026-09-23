@@ -1,4 +1,119 @@
 # Session handoff archive
+## Session 229: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #62, round 1. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: reviewer. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- Reviewed the full diff from `05dcc3d` through effective head `238bafe`.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Checked the readers, render path, shaders, effect budget, decisions, tests, CI, and all 74 screen captures.
+- Added `docs/reviews/pr-62.md`. The verdict is blocked because the author has not answered the current Gitar comment.
+
+### The state of the build
+
+- `main` is `05dcc3d`. The remote PR head is `09f2281`, and the effective head is `238bafe`.
+- The focused tests pass with 230 tests. CI run 35823669111 passes each implementation check on the configured legs.
+- Metadata CI run 35825994991 passes its applicable checks. Review-gate run 35825994798 passes RG 1 to RG 3 and RG 5 to RG 8. RG 4 reads the required `Blocked` verdict.
+- Gitar passes on `09f2281`; its dashboard still reports the RG 4 failure. The author has not replied.
+
+### What is in flight
+
+- The PR waits for the author to answer the Gitar comment, and for the next review of the response.
+
+### Traps and gotchas
+
+- The first Gitar pass flagged the absent review path. The latest pass reports the `Blocked` verdict under RG 4.
+- OQ-241 asks which later PR adds ceiling shafts, and blocks nothing here.
+
+### The questions that block progress
+
+None. OQ-241 blocks no progress on PR #62.
+
+### The next concrete action
+
+The author answers the Gitar comment, then the other provider reviews the response.
+
+## Session 228: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-92, round 2. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- The owner read the fixture shafts and said that a beam from a bare wall makes no sense. D-924 keeps wall shafts only under an opening, such as a window (OQ-240).
+- The owner kept the still beam. D-925 removes the shimmer, its fields, the shimmer shaft, and the stepped still captures, and `LightWave` went back into `GlowPass`.
+- A shaft kind now needs a drawing, and the map draws it on the wall. The fixture dungeon holds one barred window at (6, 1), with `drawing.decor_fixture_window` in the atlas.
+- The owner wants ceiling shafts later. OQ-241 asks which PR adds them.
+
+### The state of the build
+
+- `main` is `05dcc3d`. The tests, format, lint, identity, content, atlas, and smoke pass on this machine. The author read `make sheet` for the map fixture.
+- CI run 35821954258 on `efbf7dd`: the two capture runs matched on all 74 captures. The 48 baselines that the window changed come from its artifact (D-733).
+- Gitar approved `efbf7dd` with no finding. CI and gitar passed on `8b299b3`, with review-gate waiting for the review record.
+- The owner turned on SSH on the Deck, and this session ran the sweep of `spike/deck-test` there at the owner's request. The results are `a6f9f0b` on that branch, and they hold the pass row of 6 (F-106).
+
+### What is in flight
+
+- The PR waits for CI on the baseline commit and the review of the other provider.
+
+### Traps and gotchas
+
+- The window sits on the brick face of the wall tile, rows 16 to 27. The cap above the face is rows 0 to 15.
+- A shaft sprite draws unshaded, as a torch does, so the opening stays bright in the dark.
+- Over SSH, the Deck takes no `.bashrc`, so set `DOTNET_ROOT`, `PATH`, and `GODOT` by hand, and `DISPLAY=:0` for the sweep. Godot then falls back to Wayland.
+- The owner should stop SSH on the Deck after this PR: `sudo systemctl stop sshd`.
+
+### The questions that block progress
+
+None. OQ-241 blocks no PR yet.
+
+### The next concrete action
+
+The other provider reviews PR #62.
+
+
+## Session 227: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-92, round 1. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- Asked the questions of PR-92 and recorded OQ-233 to OQ-239 and D-917 to D-923. D-917, D-919, and D-923 revise D-622, D-916, and D-617 in part.
+- Built the tilt-shift blur, the vignette, and the light shafts, each in a smooth mode and a stepped mode (D-917). `content/effects/hd2d.json` holds the mode.
+- A shaft is a shaft kind in `content/decor/shafts/`, and a decor file places it on a wall (D-918). The fixture dungeon holds a still shaft and a shaft that shimmers (D-921).
+- The shafts draw in the overlay. A scene view joins the world and the overlay, and the frame draws it with the blur and the vignette. The marks moved to a mark view above them (D-919).
+- The budget counts the passes of each map, a map with no weather included, and the pass row is 6 (D-920, D-923). The simulation version is 15.
+- Added the stages `pass-look`, `full-load-24-look`, and `budget-rows` to `spike/deck-test` as `6bb1595` (D-922).
+- Added stepped captures of the map, a fight, and the still fixture. The author read the frames of `make sheet`.
+
+### The state of the build
+
+- `main` is `05dcc3d`. `make verify` passed on this machine except the 6 new baselines.
+- CI run 35820532779 on `2d67459`: the two capture runs matched on all 78 captures. The 72 baselines that changed come from its artifact (D-733). The 5 ui captures and the picture capture did not change.
+- Gitar approved `2d67459` with no finding.
+
+### What is in flight
+
+- The owner runs the Deck sweep of `spike/deck-test`. The pass row of 6 stands only when `full-load-24-look` and `budget-rows` hold 60 frames per second (G-14).
+- The PR waits for CI on the baseline commit and the review of the other provider.
+
+### Traps and gotchas
+
+- Godot takes no default value for a uniform array. The spike copy of the shaft shader uses constants.
+- Two walk fixtures can follow each other in the capture list, so the session rebuilds the run when the fixture changes.
+- The view of the scene reads with a linear filter. The blur shader reads each sharp pixel at the middle of its art pixel.
+
+### The questions that block progress
+
+None. The Deck sweep is a measurement, not a question.
+
+### The next concrete action
+
+Read the Deck reports, commit them to `spike/deck-test`, and record the numbers in the PR. Then commit the baselines from the CI artifact.
+
 ## Session 226: 2026-09-23, Codex
 
 Author: Codex

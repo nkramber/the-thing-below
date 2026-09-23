@@ -1,3 +1,120 @@
+## Session 239: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-60, hand-over. Repository: the-thing-below. Branch: `feat/pr-60-transitions`. PR: #64. Role: author. Base: `ca8c549`.
+
+### What this session did, and why
+
+- Ran `make codex-review PR=64` on the effective head `875fe53`. The outcome was `approve`, and the reviewer pushed `044d77c` with `Ready for owner merge` for `875fe53` and no finding.
+- Read the whole Gitar dashboard of `875fe53`: the code review approved, and its one finding is closed. Two PR comments answer the two CI claims, both the `review-gate` fault of the absent record.
+- Read the merge conditions of `docs/runbooks/merge.md`. Each one holds except the confirmation of the owner.
+
+### The state of the build
+
+- `main` is `ca8c549`. The effective head is `875fe53`, and `git diff --stat 875fe53..044d77c` lists `docs/reviews/pr-64.md`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md` alone.
+- CI run 35884251448 passed each job on `875fe53`. On `044d77c`, `review-gate` passed, and the jobs of code skipped on the metadata commit.
+
+### What is in flight
+
+- The confirmation of the owner, then the auto-merge of PR #64 (D-930, D-933).
+- After the merge, the transitional prompt of step 6. It names the next PR: the rules of the review and merge loop of Session 237. The owner added a third rule to that PR: a PR or a commit of documents alone still gets its Gitar pass, and the author answers each comment and each claim of the pass (D-14, D-66, D-67). Only the review of the other provider is exempt.
+
+### Traps and gotchas
+
+- A push of code after the confirmation moves the effective head, and the loop starts again at the Gitar pass.
+
+### The questions that block progress
+
+None. OQ-242 waits for the owner and blocks nothing.
+
+### The next concrete action
+
+Post the summary in four sections inside the merge question, and turn on the auto-merge after the confirmation of the owner.
+
+
+## Session 238: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #64, round 1. Repository: the-thing-below. Branch: `feat/pr-60-transitions`. PR: #64. Role: reviewer. Base: `ca8c549`.
+
+### What this session did, and why
+
+- Reviewed PR #64 from base `ca8c549` through effective head `875fe53`, across 99 changed paths.
+- Confirmed Claude Code authored the substantive changes, and the Codex reviewer passes the provider gate (T-4, D-17).
+- Verified the tick-after-wait crash fix and its regression test. Reviewed the transition content, deterministic pick, hand-off phases, shaders, budget, captures, and roadmap tests.
+- Read the current CI run and inspected its screen artifact. Every implementation check passed, including all platform legs, screen-test, and Gitar.
+- Added `docs/reviews/pr-64.md` with no findings and `Ready for owner merge` for `875fe53`.
+
+### The state of the build
+
+- `main` and the PR base are `ca8c549`. The effective head is `875fe53`. The remote branch tip before publication is `f3b4855`.
+- `make verify` passed locally: 2,441 tests and every local gate passed.
+- CI run 35884251448 passed build, test, format, smoke, replay identity, coverage, det-lint, STE, changed paths, and screen-test. Gitar passed. The pre-publication review-gate failure awaits its normal rerun after the record lands.
+- The review record and this entry need one metadata commit and a push to `feat/pr-60-transitions`.
+
+### What is in flight
+
+- Publish the review record and this handoff entry together.
+- Verify the remote branch head and the fresh review-gate result.
+
+### Traps and gotchas
+
+- The effective head is `875fe53`; later commits change handoff metadata alone.
+- Push with `git push origin HEAD:feat/pr-60-transitions`.
+
+### The questions that block progress
+
+OQ-242 does not affect PR-60. It asks how the screen shows the count of waiting enemies.
+
+### The next concrete action
+
+Commit the review record and handoff entry together. Push, fetch, and verify the remote head.
+
+## Session 237: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-60, rounds 1 to 3. Repository: the-thing-below. Branch: `feat/pr-60-transitions`. PR: #64. Role: author. Base: `ca8c549`.
+
+### What this session did, and why
+
+- Asked the questions of PR-60 in two batches and recorded D-934 to D-941. D-934 revises D-196 in part: a pool of each region takes the place of the default of each region, for common encounters alone.
+- Built the ten transitions as effect files, each 60 ticks long, and the transition table with the fixed kinds, the pool of region one, and the fade (D-195, D-934, D-936, D-940, D-941).
+- Core reads the kind of an encounter in the order of D-937, and it picks from the pool with a hash of the seed and the start tick, with no repeat of the last pick (D-935). The simulation version is 16.
+- Game holds the events of the fight for the 60 ticks of the transition. The fight then fades in from the cover color, and after a win or a flee the map fades back in before the wait intent (D-522, D-938, D-939).
+- The pass of the hand-off draws last in the frame, above the UI. The budget counts one transition pass on every map (D-523, D-923).
+- Added eleven captures: each look halfway through, and the color split at the reduced level, where the fade takes its place (D-863). The author read each frame of `make sheet FIXTURE=transition`, and reworked the snow whiteout, which read as static.
+- Committed 25 baselines from the artifact of CI run 35878686156 (D-733): the 11 transition captures and the 14 battle captures. The fixture fight now reaches its first command 80 ticks later, after the transition and the fade, so the drift of the backdrop and the fog moved. The author read the old and new frames, and no other part changed. The whole artifact of 85 captures matches the committed baseline.
+- Answered the Gitar pass on `f2ac63d`: one finding and one CI claim. The finding had full merit: a fight that starts on the tick after the wait intent, in the same frame, met the phase `Waiting` and threw. The run now leaves the fight inside the tick loop, and `AFightOnTheTickAfterTheWaitIntentStartsItsTransition` fails on the old code. The CI claim named the review-gate fault of the absent review record, which `make codex-review PR=64` writes (D-926), and a PR comment answers it.
+- The Gitar pass on `875fe53` approved the head, with the one finding closed and its thread resolved. Its CI analysis named the same `review-gate` fault of the absent record, and a second PR comment answers it. Every other job of `875fe53` passed.
+- The owner asked how a player sees the count of the enemies of a fight. The battle screen draws no waiting enemy and no count (D-758, D-778). OQ-242 holds the question, at the request of the owner.
+
+### The state of the build
+
+- `main` is `ca8c549`. Round 1 pushed `479bd36`, and CI run 35878686156 failed on the missing baselines alone. Round 2 added OQ-242 and the baselines. Round 3 fixes the finding of the Gitar pass on `f2ac63d`.
+- `make build`, `make test` with 2441 tests, `make format`, `make lint`, `make smoke`, and the STE check pass on this machine.
+
+### What is in flight
+
+- `make codex-review PR=64` on the effective head `875fe53`.
+- The owner set the one concern of the next PR, the rules of the review and merge loop, with two rules. First, before the question of a merge, the author posts a summary in four sections, What, How, CI, and Codex review. CI says green or not, and Codex review gives the verdict: `Ready for owner merge`, `Blocked`, or `Changes required`. The summary sits inside the question block of the merge question, so the owner sees it with the question. The rule revises D-933 in part, the one paragraph, and the transitional prompt of PR-60 names it. Second, when `review-gate` is green and a new commit changes documents alone, `review-gate` stays green, and the PR needs no new review of the other provider. That rule widens the metadata set of D-603 and D-610. The owner chose one PR for both rules.
+
+### Traps and gotchas
+
+- The transition shaders read the frame under them with `hint_screen_texture`, so the pass must stay the last child of the frame viewport.
+- A test set with its own maps needs `EffectFixtures.WithMapsOf`, because each map of the rules belongs to one region (D-936).
+- The party loses the hall fight at the fixture seed, so the test of exit test 4 flees.
+- A change of the length of a transition or of the fade moves every battle capture, because the fixture fight starts later.
+
+### The questions that block progress
+
+None. OQ-242 waits for the owner and blocks nothing in PR-60.
+
+### The next concrete action
+
+Run `make codex-review PR=64` on the effective head `875fe53`, and answer its outcome.
+
+
+
 ## Session 236: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -34,6 +151,8 @@ None.
 ### The next concrete action
 
 The owner confirms the summary and merges PR #63.
+
+
 
 ## Session 235: 2026-09-23, Codex
 
@@ -72,6 +191,8 @@ None. D-926 to D-933 record the owner answers.
 ### The next concrete action
 
 Commit this entry with the review record, push once, then verify the remote head and the fresh review-gate result.
+
+
 
 ## Session 234: 2026-09-23, Claude Code
 
@@ -113,6 +234,8 @@ None. D-926 to D-933 hold the answers of 2026-09-23.
 
 Answer the Gitar pass of the new head. Then run `make codex-review PR=63` in the background.
 
+
+
 ## Session 233: 2026-09-23, Codex
 
 Author: Codex
@@ -150,6 +273,8 @@ None. The PR-95 roadmap lists no open question.
 ### The next concrete action
 
 The author fixes both findings and requests a repeat review of PR #63.
+
+
 
 ## Session 232: 2026-09-23, Claude Code
 
@@ -191,6 +316,8 @@ None. D-926 to D-931 hold the answers of 2026-09-23.
 
 Answer the Gitar pass of PR #63. Then run `make codex-review PR=63` in the background.
 
+
+
 ## Session 231: 2026-09-23, Codex
 
 Author: Codex
@@ -227,6 +354,8 @@ None. OQ-241 asks which later PR adds ceiling shafts and blocks no progress here
 
 The owner merges PR #62.
 
+
+
 ## Session 230: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -259,117 +388,3 @@ None. OQ-241 blocks no progress on PR #62.
 ### The next concrete action
 
 The other provider repeats the review of PR #62.
-
-## Session 229: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #62, round 1. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: reviewer. Base: `05dcc3d`.
-
-### What this session did, and why
-
-- Reviewed the full diff from `05dcc3d` through effective head `238bafe`.
-- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Checked the readers, render path, shaders, effect budget, decisions, tests, CI, and all 74 screen captures.
-- Added `docs/reviews/pr-62.md`. The verdict is blocked because the author has not answered the current Gitar comment.
-
-### The state of the build
-
-- `main` is `05dcc3d`. The remote PR head is `09f2281`, and the effective head is `238bafe`.
-- The focused tests pass with 230 tests. CI run 35823669111 passes each implementation check on the configured legs.
-- Metadata CI run 35825994991 passes its applicable checks. Review-gate run 35825994798 passes RG 1 to RG 3 and RG 5 to RG 8. RG 4 reads the required `Blocked` verdict.
-- Gitar passes on `09f2281`; its dashboard still reports the RG 4 failure. The author has not replied.
-
-### What is in flight
-
-- The PR waits for the author to answer the Gitar comment, and for the next review of the response.
-
-### Traps and gotchas
-
-- The first Gitar pass flagged the absent review path. The latest pass reports the `Blocked` verdict under RG 4.
-- OQ-241 asks which later PR adds ceiling shafts, and blocks nothing here.
-
-### The questions that block progress
-
-None. OQ-241 blocks no progress on PR #62.
-
-### The next concrete action
-
-The author answers the Gitar comment, then the other provider reviews the response.
-
-## Session 228: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-92, round 2. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
-
-### What this session did, and why
-
-- The owner read the fixture shafts and said that a beam from a bare wall makes no sense. D-924 keeps wall shafts only under an opening, such as a window (OQ-240).
-- The owner kept the still beam. D-925 removes the shimmer, its fields, the shimmer shaft, and the stepped still captures, and `LightWave` went back into `GlowPass`.
-- A shaft kind now needs a drawing, and the map draws it on the wall. The fixture dungeon holds one barred window at (6, 1), with `drawing.decor_fixture_window` in the atlas.
-- The owner wants ceiling shafts later. OQ-241 asks which PR adds them.
-
-### The state of the build
-
-- `main` is `05dcc3d`. The tests, format, lint, identity, content, atlas, and smoke pass on this machine. The author read `make sheet` for the map fixture.
-- CI run 35821954258 on `efbf7dd`: the two capture runs matched on all 74 captures. The 48 baselines that the window changed come from its artifact (D-733).
-- Gitar approved `efbf7dd` with no finding. CI and gitar passed on `8b299b3`, with review-gate waiting for the review record.
-- The owner turned on SSH on the Deck, and this session ran the sweep of `spike/deck-test` there at the owner's request. The results are `a6f9f0b` on that branch, and they hold the pass row of 6 (F-106).
-
-### What is in flight
-
-- The PR waits for CI on the baseline commit and the review of the other provider.
-
-### Traps and gotchas
-
-- The window sits on the brick face of the wall tile, rows 16 to 27. The cap above the face is rows 0 to 15.
-- A shaft sprite draws unshaded, as a torch does, so the opening stays bright in the dark.
-- Over SSH, the Deck takes no `.bashrc`, so set `DOTNET_ROOT`, `PATH`, and `GODOT` by hand, and `DISPLAY=:0` for the sweep. Godot then falls back to Wayland.
-- The owner should stop SSH on the Deck after this PR: `sudo systemctl stop sshd`.
-
-### The questions that block progress
-
-None. OQ-241 blocks no PR yet.
-
-### The next concrete action
-
-The other provider reviews PR #62.
-
-## Session 227: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-92, round 1. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
-
-### What this session did, and why
-
-- Asked the questions of PR-92 and recorded OQ-233 to OQ-239 and D-917 to D-923. D-917, D-919, and D-923 revise D-622, D-916, and D-617 in part.
-- Built the tilt-shift blur, the vignette, and the light shafts, each in a smooth mode and a stepped mode (D-917). `content/effects/hd2d.json` holds the mode.
-- A shaft is a shaft kind in `content/decor/shafts/`, and a decor file places it on a wall (D-918). The fixture dungeon holds a still shaft and a shaft that shimmers (D-921).
-- The shafts draw in the overlay. A scene view joins the world and the overlay, and the frame draws it with the blur and the vignette. The marks moved to a mark view above them (D-919).
-- The budget counts the passes of each map, a map with no weather included, and the pass row is 6 (D-920, D-923). The simulation version is 15.
-- Added the stages `pass-look`, `full-load-24-look`, and `budget-rows` to `spike/deck-test` as `6bb1595` (D-922).
-- Added stepped captures of the map, a fight, and the still fixture. The author read the frames of `make sheet`.
-
-### The state of the build
-
-- `main` is `05dcc3d`. `make verify` passed on this machine except the 6 new baselines.
-- CI run 35820532779 on `2d67459`: the two capture runs matched on all 78 captures. The 72 baselines that changed come from its artifact (D-733). The 5 ui captures and the picture capture did not change.
-- Gitar approved `2d67459` with no finding.
-
-### What is in flight
-
-- The owner runs the Deck sweep of `spike/deck-test`. The pass row of 6 stands only when `full-load-24-look` and `budget-rows` hold 60 frames per second (G-14).
-- The PR waits for CI on the baseline commit and the review of the other provider.
-
-### Traps and gotchas
-
-- Godot takes no default value for a uniform array. The spike copy of the shaft shader uses constants.
-- Two walk fixtures can follow each other in the capture list, so the session rebuilds the run when the fixture changes.
-- The view of the scene reads with a linear filter. The blur shader reads each sharp pixel at the middle of its art pixel.
-
-### The questions that block progress
-
-None. The Deck sweep is a measurement, not a question.
-
-### The next concrete action
-
-Read the Deck reports, commit them to `spike/deck-test`, and record the numbers in the PR. Then commit the baselines from the CI artifact.

@@ -1,0 +1,7 @@
+{
+ "comment": "A transition of the pool of common fights (D-195, D-934). The map goes out to ink one block of art pixels at a time, in a fixed scatter. The length is one second (D-941).",
+ "id": "transition.pixel_dissolve",
+ "look": "pixel_dissolve",
+ "ticks": 60,
+ "cover": "k"
+}

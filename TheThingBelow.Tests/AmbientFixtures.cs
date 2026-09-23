@@ -75,9 +75,9 @@ internal static class AmbientFixtures
     /// <param name="fullScreenPasses">The pass row of the effect budget (D-523).</param>
     /// <returns>The effect content.</returns>
     /// <exception cref="ContentException">A file breaks a rule, or a check across files fails (T-2).</exception>
-    public static EffectContent Load(IReadOnlyList<ContentFile> ambient, string[]? terrain = null, int liveParticles = 8192, int fullScreenPasses = 3)
+    public static EffectContent Load(IReadOnlyList<ContentFile> ambient, string[]? terrain = null, int liveParticles = 8192, int fullScreenPasses = 4)
     {
-        var files = new List<ContentFile>(EffectFixtures.Files());
+        var files = new List<ContentFile>(EffectFixtures.Files($"\"{LightFixtures.MapId}\""));
         files.AddRange(ambient);
         return EffectContent.Load(files, World(terrain, liveParticles, fullScreenPasses: fullScreenPasses));
     }
@@ -92,7 +92,7 @@ internal static class AmbientFixtures
         string[]? terrain = null,
         int liveParticles = 8192,
         SortedDictionary<string, Drawing>? drawings = null,
-        int fullScreenPasses = 3)
+        int fullScreenPasses = 4)
     {
         string budget = $$"""{ "comment": "a test budget", "lights_in_view": 24, "live_particles": {{liveParticles}}, "full_screen_passes": {{fullScreenPasses}} }""";
         LightContent light = LightFixtures.Load(

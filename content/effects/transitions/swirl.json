@@ -1,0 +1,7 @@
+{
+ "comment": "The transition of an elite fight (D-195, D-940). The map turns around the middle of the view, faster near the middle, and ink closes over it in a dither. The length is one second (D-941).",
+ "id": "transition.swirl",
+ "look": "swirl",
+ "ticks": 60,
+ "cover": "k"
+}

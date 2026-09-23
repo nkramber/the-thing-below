@@ -1,0 +1,7 @@
+{
+ "comment": "A transition of the pool of common fights, the snow of region one (D-194, D-934). Snow falls over the map in more and more flakes until the view is the snow color, and the fight fades in from that color (D-939). The length is one second (D-941).",
+ "id": "transition.snow_whiteout",
+ "look": "snow_whiteout",
+ "ticks": 60,
+ "cover": "e"
+}

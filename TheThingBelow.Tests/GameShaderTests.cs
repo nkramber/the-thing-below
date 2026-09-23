@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
+using TheThingBelow.Storage;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -202,6 +204,73 @@ public sealed class GameShaderTests
         Assert.Contains($"const int MOST_SHAFTS = {ShaftKind.MostShaftsOnMap};", code, StringComparison.Ordinal);
         Assert.Contains("render_mode unshaded, blend_premul_alpha;", code, StringComparison.Ordinal);
         Assert.Contains("COLOR = vec4(light, 0.0);", code, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void EachLookOfTheLibraryHasAShaderFileThatReadsTheFrameUnderIt()
+    {
+        // D-195, D-825: each of the ten looks has its shader file, and the fade has one. Each one
+        // includes the shared file, which reads the frame under the pass and holds the uniforms that
+        // Game sets (D-939). A look with no file would fail at the first fight of that kind (T-2).
+        Type pass = GameAssemblyFile.Type("TheThingBelow.Game.Ui.TransitionPass");
+        MethodInfo pathOf = pass.GetMethod("ShaderPathOf")!;
+        string root = Path.Combine(RepositoryRoot.Find(), ShaderFolder);
+        var paths = new List<string> { (string)pass.GetField("FadeShaderPath")!.GetValue(null)! };
+        foreach (TransitionLook look in Transition.AllLooks)
+        {
+            paths.Add((string)pathOf.Invoke(null, [look])!);
+        }
+
+        Assert.Equal("res://shaders/transition_fade.gdshader", paths[0]);
+        Assert.Equal("res://shaders/transition_snow_whiteout.gdshader", (string)pathOf.Invoke(null, [TransitionLook.SnowWhiteout])!);
+        foreach (string path in paths)
+        {
+            string file = Path.Combine(root, path["res://shaders/".Length..]);
+            Assert.True(File.Exists(file), $"no shader file '{path}' (D-825)");
+            string code = CodeOf(File.ReadAllText(file));
+            Assert.Contains("#include \"res://shaders/transition_common.gdshaderinc\"", code, StringComparison.Ordinal);
+            Assert.Contains("render_mode unshaded;", code, StringComparison.Ordinal);
+            Assert.Contains("COLOR = vec4(", code, StringComparison.Ordinal);
+        }
+
+        string common = CodeOf(File.ReadAllText(Path.Combine(root, "transition_common.gdshaderinc")));
+        Assert.Contains("hint_screen_texture, filter_nearest", common, StringComparison.Ordinal);
+        foreach (string field in new[] { "ProgressName", "CoverName" })
+        {
+            Assert.Matches($@"uniform \w+ {(string)pass.GetField(field)!.GetValue(null)!}\b", common);
+        }
+    }
+
+    [Fact]
+    public void TheColorSplitTakesEachColorOfThePalette()
+    {
+        // G-27: the color split pulls the red and the blue apart, so each pixel takes the nearest
+        // palette color. The shader holds the size of the palette of D-181.
+        Type pass = GameAssemblyFile.Type("TheThingBelow.Game.Ui.TransitionPass");
+        string code = CodeOf(File.ReadAllText(Path.Combine(RepositoryRoot.Find(), ShaderFolder, "transition_color_split.gdshader")));
+        int most = (int)pass.GetField("MostPaletteColors")!.GetValue(null)!;
+
+        Assert.Equal(64, most);
+        Assert.Contains($"uniform vec4 {(string)pass.GetField("PaletteName")!.GetValue(null)!}[{most}];", code, StringComparison.Ordinal);
+        Assert.Matches($@"uniform int {(string)pass.GetField("PaletteCountName")!.GetValue(null)!}\b", code);
+        Assert.Contains($"const int MOST_COLORS = {most};", code, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheFadeTakesThePlaceOfTheColorSplitAtTheReducedLevelAndAtOff()
+    {
+        // D-863, exit test 2 of PR-60: the fade takes the place of the color split at the reduced
+        // level and at off, and every other look draws at each level.
+        MethodInfo drawn = GameAssemblyFile.Type("TheThingBelow.Game.Ui.TransitionPass").GetMethod("DrawnLookOf")!;
+        foreach (TransitionLook look in Transition.AllLooks)
+        {
+            foreach (EffectLevel level in new[] { EffectLevel.Full, EffectLevel.Reduced, EffectLevel.Off })
+            {
+                object? found = drawn.Invoke(null, [look, level]);
+                bool fade = look == TransitionLook.ColorSplit && level != EffectLevel.Full;
+                Assert.Equal(fade ? null : look, (TransitionLook?)found);
+            }
+        }
     }
 
     /// <summary>Gives each shader file and each include file of the Game project.</summary>

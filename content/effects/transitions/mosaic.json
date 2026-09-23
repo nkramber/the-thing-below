@@ -1,0 +1,7 @@
+{
+ "comment": "A transition of the pool of common fights (D-195, D-934). The blocks of the map grow from one art pixel to large squares, and ink closes over them in a dither. The length is one second (D-941).",
+ "id": "transition.mosaic",
+ "look": "mosaic",
+ "ticks": 60,
+ "cover": "k"
+}

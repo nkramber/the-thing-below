@@ -82,6 +82,7 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 - The world view draws in HDR 2D, in linear light (D-910). Godot reads each modulate and each color uniform with `source_color` as sRGB, so a modulate above full white goes to Godot as sRGB (F-103).
 - A node that must never glow, such as the fog, a hit burst, or a light shaft, draws in the overlay above the glow. `GlowPass.LiftAboveGlow` puts it there (D-916).
 - A mark, the battle pointer, and a health bar draw in the mark view, above the tilt-shift blur and the vignette. `GlowPass.LiftToMarks` puts each one there (D-919).
+- The pass of the hand-off draws last in the frame, above the UI. Each shader of a transition includes `transition_common.gdshaderinc` and reads the frame under it, and `ScreenHandOff` counts the ticks of the run (D-522, D-938, D-939).
 - Game builds its `Theme` in code from the UI style file, and no `.tres` theme file exists (D-527, G-6).
 - Game loads each font from the bytes of its own assembly into `FontFile.Data`, because Godot 4.7.2 has no byte-array load method (D-508, F-49).
 - Game makes each audio stream from the rendered bytes of its own assembly, and it checks every return (D-547, F-56).

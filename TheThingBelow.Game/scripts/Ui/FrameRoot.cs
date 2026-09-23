@@ -32,7 +32,8 @@ namespace TheThingBelow.Game.Ui;
 /// A scene view of 640 by 360 joins the world and the overlay. The frame draws the scene with the
 /// tilt-shift blur, and the vignette over it (D-849, D-919). A mark view shares the world too, and
 /// it draws the marks above the passes, so each mark stays sharp. The UI draws above every view
-/// (D-208, D-210).
+/// (D-208, D-210). The pass of the hand-off draws above the UI, so a transition covers the
+/// whole frame (D-195, D-939).
 /// </para>
 /// </remarks>
 public partial class FrameRoot : Node
@@ -68,6 +69,9 @@ public partial class FrameRoot : Node
 
     /// <summary>The place of every UI node, at the 1280 by 720 pixels of the frame (D-568).</summary>
     public Control Layer { get; private set; } = null!;
+
+    /// <summary>The pass of the hand-off, above the UI, which covers the whole frame (D-195, D-210, D-939).</summary>
+    public TransitionPass HandOffPass { get; private set; } = null!;
 
     /// <summary>Builds the frame, the world viewport, and the view on the screen.</summary>
     public override void _Ready()
@@ -295,6 +299,9 @@ public partial class FrameRoot : Node
         this.frameViewport.AddChild(dark);
         this.frameViewport.AddChild(ViewOf(this.markViewport, WorldWidth * WorldScale, WorldHeight * WorldScale));
         this.frameViewport.AddChild(this.Layer);
+
+        // The transition covers the whole frame, the UI included, so it draws last (D-195, D-210).
+        this.HandOffPass = TransitionPass.Build(this.frameViewport);
         this.AddChild(this.frameViewport);
     }
 

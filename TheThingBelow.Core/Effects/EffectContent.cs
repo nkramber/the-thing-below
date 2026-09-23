@@ -8,7 +8,7 @@ namespace TheThingBelow.Core.Effects;
 
 /// <summary>
 /// Every effect file of one build, read and checked across files: the battle file, the hit
-/// files, and the ambient files (D-182, D-187, D-879, D-883). The effect budget lives beside them, and the light reader reads
+/// files, the ambient files, and the transitions (D-182, D-187, D-195, D-879, D-883). The effect budget lives beside them, and the light reader reads
 /// it (<see cref="LightContent"/>).
 /// </summary>
 /// <remarks>
@@ -24,15 +24,22 @@ namespace TheThingBelow.Core.Effects;
 /// <item>Each color names a key of the palette (D-181).</item>
 /// <item>The particles of one burst keep inside the effect budget (D-523).</item>
 /// <item>The ambient files keep the checks of <see cref="AmbientContent"/> (D-202, D-523, D-886).</item>
+/// <item>The transitions keep the checks of <see cref="TransitionContent"/> (D-195, D-934, D-936).</item>
 /// </list>
 /// </remarks>
 public sealed class EffectContent
 {
     private readonly SortedDictionary<string, HitEffect> hitOf;
 
-    private EffectContent(BattleEffects battle, IReadOnlyList<HitEffect> hits, SortedDictionary<string, HitEffect> hitOf, AmbientContent ambient)
+    private EffectContent(
+        BattleEffects battle,
+        IReadOnlyList<HitEffect> hits,
+        SortedDictionary<string, HitEffect> hitOf,
+        AmbientContent ambient,
+        TransitionContent transitions)
     {
         this.Ambient = ambient;
+        this.Transitions = transitions;
         this.Battle = battle;
         this.Hits = hits;
         this.hitOf = hitOf;
@@ -47,16 +54,20 @@ public sealed class EffectContent
     /// <summary>The weather of each map and the capture files of the screen test (D-187, D-889).</summary>
     public AmbientContent Ambient { get; }
 
+    /// <summary>The ten transitions and the table that gives each fight one (D-195, D-934).</summary>
+    public TransitionContent Transitions { get; }
+
     /// <summary>Tells whether a content path is an effect file, which <see cref="Load"/> reads.</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
-    /// <returns>True for the battle file, each hit file, and each ambient file. The budget is a light file (<see cref="LightContent.IsLightFile"/>).</returns>
+    /// <returns>True for the battle file, each hit file, each ambient file, each transition file, and the transition table. The budget is a light file (<see cref="LightContent.IsLightFile"/>).</returns>
     public static bool IsEffectFile(string path)
     {
         ArgumentNullException.ThrowIfNull(path);
 
         return string.CompareOrdinal(path, BattleEffects.Path) == 0
             || HitEffect.IsHitFile(path)
-            || AmbientEffect.IsAmbientFile(path);
+            || AmbientEffect.IsAmbientFile(path)
+            || TransitionContent.IsTransitionContent(path);
     }
 
     /// <summary>Gives the hit effect that serves one character or one enemy (D-879).</summary>
@@ -86,6 +97,7 @@ public sealed class EffectContent
         Palette palette = world.Palette;
         EffectBudget budget = world.Light.Budget;
         var ambientFiles = new List<ContentFile>();
+        var transitionFiles = new List<ContentFile>();
 
         BattleEffects? pace = null;
         var hits = new List<HitEffect>();
@@ -100,6 +112,11 @@ public sealed class EffectContent
             {
                 // An ambient file needs the hit files for the budget of a fight, so it reads last.
                 ambientFiles.Add(file);
+            }
+            else if (TransitionContent.IsTransitionContent(file.Path))
+            {
+                // The transitions need the ids of the hit files, so they read after the loop (D-166).
+                transitionFiles.Add(file);
             }
             else if (HitEffect.IsHitFile(file.Path))
             {
@@ -125,7 +142,8 @@ public sealed class EffectContent
             pace ?? throw ContentException.ForFile(BattleEffects.Path, "the content set holds no such file"),
             hits,
             hitOf,
-            AmbientContent.Load(ambientFiles, world, hits, ids));
+            AmbientContent.Load(ambientFiles, world, hits, ids),
+            TransitionContent.Load(transitionFiles, world.Maps, palette, ids));
     }
 
     /// <summary>

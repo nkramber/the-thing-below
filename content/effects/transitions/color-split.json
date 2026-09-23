@@ -1,0 +1,7 @@
+{
+ "comment": "The transition of an ambush (D-195, D-940). The red and the blue of the map pull apart to the sides, each pixel takes the nearest palette color, and ink closes over it in a dither. At the reduced level and at off, a fade to ink takes its place (D-863). The length is one second (D-941).",
+ "id": "transition.color_split",
+ "look": "color_split",
+ "ticks": 60,
+ "cover": "k"
+}

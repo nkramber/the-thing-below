@@ -1,0 +1,7 @@
+{
+ "comment": "The transition of a boss fight (D-195, D-940). The map breaks into shards along cracks, and the shards fall away and leave ink. The length is one second (D-941).",
+ "id": "transition.shatter",
+ "look": "shatter",
+ "ticks": 60,
+ "cover": "k"
+}

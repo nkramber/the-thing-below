@@ -162,6 +162,12 @@ Effects terms from the roadmaps PR of 2026-09-15:
 | pulse | the slow wave of the tick that swells and fades each glow (D-913) | flicker, which names the steps of a torch light (D-891), and throb |
 | wait intent | the intent that Game sends when an effect that the world waits for ends (D-522) | continue intent, done signal |
 | transition | one of the full-screen effects of D-195 that start a battle (D-191, D-196) | wipe, which names a party wipe (D-36), and screen change |
+| transition table | the effect file `effects/transition-table.json` that gives each encounter kind and each region its transitions (D-934, D-936) | pick table, transition map |
+| encounter kind | common, ambush, elite, boss, or wrong thing: the kind of an encounter that picks its transition (D-196, D-937) | encounter type, battle type |
+| pool | the transitions of the common encounters of one region, which a seeded pick draws from (D-934, D-935) | set, deck, bag |
+| cover | the one palette color that covers the view at the end of a transition, and before the fade back (D-938, D-939) | fill color, backdrop, which names the pictures of a battle place |
+| fade | the dither from a cover to the frame, into a fight and back to the map (D-938, D-939) | crossfade, blend, dissolve, which names a transition |
+| hand-off | the move from the map to a fight and back, with its transition and its fades (D-531, D-938, D-939) | scene change, cut |
 | hit-stop | the brief freeze of the battle picture on a heavy blow (D-186) | freeze frame, hitlag |
 | heavy blow | a hit on an element that the target is weak to, which shakes the battle picture and takes the hit-stop (D-877) | critical hit, big hit |
 | battle file | the effect file `effects/battle.json` that holds the pace of every fight on screen: the timings of PR-10, the shake, and the hit-stop (D-883) | battle timings file, pace file |

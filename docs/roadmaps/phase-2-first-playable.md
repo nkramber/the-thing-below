@@ -1025,17 +1025,22 @@ Area file: `area-effects.md` section 7.11.
 
 **Scope.**
 
-- The library of ten transitions (D-195).
-- The content table that assigns a transition to each kind of encounter, with a default for each region (D-196).
+- The library of ten transitions, each 60 ticks long (D-195, D-941).
+- The transition table: one transition for each fixed kind, and a pool of each region for its common encounters (D-196, D-934, D-940).
+- The pick from the pool, with a hash of the seed and the tick, and no repeat of the last pick (D-935).
+- The regions of the table, which name their maps (D-936).
+- The kind of an encounter, in the order boss, wrong thing, ambush, elite, common (D-937).
 - The transition as an effect file with its shader in a `.gdshader` file of Game (D-182, D-191, D-825).
-- The color split under the flash and shake reduction (D-195, D-214).
-- The wait at the end of a battle, which a wait intent ends (D-522).
-- The full-screen row of the effect budget for a transition (D-523).
+- The fade into the fight from the cover color, and the fade back to the map (D-938, D-939).
+- The color split under the flash and shake reduction (D-195, D-214, D-863).
+- The wait at the end of a battle, which a wait intent ends after the fade back (D-522, D-938).
+- The full-screen row of the effect budget for a transition (D-523, D-923).
 
 **Out of scope.**
 
 - The transitions of later regions (D-194).
 - Every effect of the frame, with the style of G-27 (PR-56 to PR-60).
+- The mark of a wrong thing, which the PR of the wrong things adds (D-937).
 
 **Exit tests.**
 
@@ -1049,11 +1054,12 @@ Area file: `area-effects.md` section 7.11.
 
 - Shader code lives in a `.gdshader` file (D-825).
 - A replay never waits, because the wait intent sits in the record (D-493, D-522).
-- Snow whiteout fits region one, and the table names its default (D-194, D-196).
+- Snow whiteout fits region one, and the pool of region one holds it (D-194, D-934).
+- No pool holds the transition of a fixed kind, and each map of the rules belongs to one region (D-934, D-936).
 
-**Questions.** None. D-825 resolved OQ-103.
+**Questions.** None. D-825 resolved OQ-103. D-934 to D-941 hold the answers of 2026-09-23.
 
-> *In plain English:* each fight starts with a screen effect, such as shattered glass or a whiteout of snow. The kind of fight picks the effect, so a boss always looks different.
+> *In plain English:* each fight starts with a screen effect, such as shattered glass or a whiteout of snow. A boss, an elite, an ambush, and a wrong thing each have their own effect. Common fights draw a new effect from the set of the region each time.
 
 ### 7.24 PR-11: the evaluator, the profiles, and the groups
 

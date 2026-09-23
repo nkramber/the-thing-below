@@ -17,10 +17,13 @@ namespace TheThingBelow.Tests;
 /// </summary>
 public sealed class EffectContentTests
 {
+    /// <summary>The map of the light fixtures, in quotes, which the region of the transition table holds (D-936).</summary>
+    private const string LitMap = "\"" + LightFixtures.MapId + "\"";
+
     [Fact]
     public void EachCombatantTakesTheHitFileThatServesIt()
     {
-        EffectContent effects = Load(EffectFixtures.Files());
+        EffectContent effects = Load(EffectFixtures.Files(LitMap));
 
         foreach (string id in new[] { "character.marrek", "enemy.fixture_grunt", "enemy.fixture_brute" })
         {
@@ -171,7 +174,7 @@ public sealed class EffectContentTests
 
     private static EffectContent Load(IReadOnlyList<ContentFile> files, int liveParticles = 8192)
     {
-        string budget = $$"""{ "comment": "a test budget", "lights_in_view": 24, "live_particles": {{liveParticles}}, "full_screen_passes": 3 }""";
+        string budget = $$"""{ "comment": "a test budget", "lights_in_view": 24, "live_particles": {{liveParticles}}, "full_screen_passes": 4 }""";
         LightContent light = LightFixtures.Load(LightFixtures.Files(LightFixtures.DecorBody(string.Empty), LightFixtures.SetupBody(), budget));
         var world = new AmbientWorld(
             LightFixtures.Maps(),
