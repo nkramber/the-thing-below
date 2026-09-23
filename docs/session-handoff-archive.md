@@ -1,4 +1,39 @@
 # Session handoff archive
+## Session 229: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #62, round 1. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: reviewer. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- Reviewed the full diff from `05dcc3d` through effective head `238bafe`.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Checked the readers, render path, shaders, effect budget, decisions, tests, CI, and all 74 screen captures.
+- Added `docs/reviews/pr-62.md`. The verdict is blocked because the author has not answered the current Gitar comment.
+
+### The state of the build
+
+- `main` is `05dcc3d`. The remote PR head is `09f2281`, and the effective head is `238bafe`.
+- The focused tests pass with 230 tests. CI run 35823669111 passes each implementation check on the configured legs.
+- Metadata CI run 35825994991 passes its applicable checks. Review-gate run 35825994798 passes RG 1 to RG 3 and RG 5 to RG 8. RG 4 reads the required `Blocked` verdict.
+- Gitar passes on `09f2281`; its dashboard still reports the RG 4 failure. The author has not replied.
+
+### What is in flight
+
+- The PR waits for the author to answer the Gitar comment, and for the next review of the response.
+
+### Traps and gotchas
+
+- The first Gitar pass flagged the absent review path. The latest pass reports the `Blocked` verdict under RG 4.
+- OQ-241 asks which later PR adds ceiling shafts, and blocks nothing here.
+
+### The questions that block progress
+
+None. OQ-241 blocks no progress on PR #62.
+
+### The next concrete action
+
+The author answers the Gitar comment, then the other provider reviews the response.
 
 ## Session 228: 2026-09-23, Claude Code
 

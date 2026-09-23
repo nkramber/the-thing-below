@@ -1,3 +1,36 @@
+## Session 239: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-60, hand-over. Repository: the-thing-below. Branch: `feat/pr-60-transitions`. PR: #64. Role: author. Base: `ca8c549`.
+
+### What this session did, and why
+
+- Ran `make codex-review PR=64` on the effective head `875fe53`. The outcome was `approve`, and the reviewer pushed `044d77c` with `Ready for owner merge` for `875fe53` and no finding.
+- Read the whole Gitar dashboard of `875fe53`: the code review approved, and its one finding is closed. Two PR comments answer the two CI claims, both the `review-gate` fault of the absent record.
+- Read the merge conditions of `docs/runbooks/merge.md`. Each one holds except the confirmation of the owner.
+
+### The state of the build
+
+- `main` is `ca8c549`. The effective head is `875fe53`, and `git diff --stat 875fe53..044d77c` lists `docs/reviews/pr-64.md`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md` alone.
+- CI run 35884251448 passed each job on `875fe53`. On `044d77c`, `review-gate` passed, and the jobs of code skipped on the metadata commit.
+
+### What is in flight
+
+- The confirmation of the owner, then the auto-merge of PR #64 (D-930, D-933).
+- After the merge, the transitional prompt of step 6. It names the next PR: the rules of the review and merge loop of Session 237.
+
+### Traps and gotchas
+
+- A push of code after the confirmation moves the effective head, and the loop starts again at the Gitar pass.
+
+### The questions that block progress
+
+None. OQ-242 waits for the owner and blocks nothing.
+
+### The next concrete action
+
+Post the summary in four sections inside the merge question, and turn on the auto-merge after the confirmation of the owner.
+
 
 ## Session 238: 2026-09-23, Codex
 
@@ -355,41 +388,3 @@ None. OQ-241 blocks no progress on PR #62.
 ### The next concrete action
 
 The other provider repeats the review of PR #62.
-
-
-
-## Session 229: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #62, round 1. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: reviewer. Base: `05dcc3d`.
-
-### What this session did, and why
-
-- Reviewed the full diff from `05dcc3d` through effective head `238bafe`.
-- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Checked the readers, render path, shaders, effect budget, decisions, tests, CI, and all 74 screen captures.
-- Added `docs/reviews/pr-62.md`. The verdict is blocked because the author has not answered the current Gitar comment.
-
-### The state of the build
-
-- `main` is `05dcc3d`. The remote PR head is `09f2281`, and the effective head is `238bafe`.
-- The focused tests pass with 230 tests. CI run 35823669111 passes each implementation check on the configured legs.
-- Metadata CI run 35825994991 passes its applicable checks. Review-gate run 35825994798 passes RG 1 to RG 3 and RG 5 to RG 8. RG 4 reads the required `Blocked` verdict.
-- Gitar passes on `09f2281`; its dashboard still reports the RG 4 failure. The author has not replied.
-
-### What is in flight
-
-- The PR waits for the author to answer the Gitar comment, and for the next review of the response.
-
-### Traps and gotchas
-
-- The first Gitar pass flagged the absent review path. The latest pass reports the `Blocked` verdict under RG 4.
-- OQ-241 asks which later PR adds ceiling shafts, and blocks nothing here.
-
-### The questions that block progress
-
-None. OQ-241 blocks no progress on PR #62.
-
-### The next concrete action
-
-The author answers the Gitar comment, then the other provider reviews the response.
