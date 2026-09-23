@@ -1,4 +1,41 @@
 # Session handoff archive
+## Session 247: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #67, round 1. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: #67. Role: reviewer. Base: `d429d03`.
+
+### What this session did, and why
+
+- Reviewed PR #67 from merge base `d429d03` through effective head `f92eb3e`, across 75 changed paths.
+- Confirmed Claude Code authored the substantive changes, so the Codex reviewer passes the provider gate (T-4, D-17).
+- Inspected the evaluator, content readers, save migration, identity run, UI changes, cost tool, all changed paths, and the seven changed battle frames.
+- Found that `evaluator-cost` times `BattleEvaluator.Choose` alone, although D-961 limits a complete enemy turn. Recorded P2-1.
+- The existing Gitar status comment has no author answer. The Deck cost run also remains pending (D-961).
+- Added `docs/reviews/pr-67.md` with `Changes required` for `f92eb3e`.
+
+### The state of the build
+
+- `main` and the merge base are `d429d03`. The remote PR head before this metadata commit is `f92eb3e`.
+- `make verify` passed on macOS arm64 with 2,506 tests. CI run 35907108806 passed the implementation checks and screen-test on `f92eb3e`.
+
+### What is in flight
+
+- The author must correct P2-1, answer the Gitar status comment, and provide the Deck measurement before the merge.
+- The PR needs another Codex review after a substantive correction.
+
+### Traps and gotchas
+
+- D-945 and D-946 remove the Gitar pass as a review condition. An existing Gitar comment still needs an answer.
+- The cost tool measures action selection alone, so its current number is not a full enemy-turn measurement.
+
+### The questions that block progress
+
+OQ-243 blocks PR-98 alone (D-951 to D-954). No open question changes PR-11.
+
+### The next concrete action
+
+Correct the timed operation and its test, answer the existing Gitar status comment, and run the cost command on the Steam Deck.
+
 ## Session 246: 2026-09-23, Claude Code
 
 Author: Claude Code

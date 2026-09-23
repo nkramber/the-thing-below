@@ -1,3 +1,37 @@
+## Session 257: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #68, round 3. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: #68. Role: reviewer. Base: `3223bcf`.
+
+### What this session did, and why
+
+- Re-reviewed PR #68 at effective head `146f605`. The author added D-964, which says that a Gitar comment with no item needs no answer.
+- Confirmed Claude Code authored the substantive changes. Codex passes the provider gate (T-4, D-17).
+- Read the PR comments. The only Gitar comment is a status notice with no item, so it does not block the verdict (D-964).
+- Ran `make verify`; all 2,524 tests and the local checks passed. CI implementation checks passed. Updated `docs/reviews/pr-68.md` to `Ready for owner merge`.
+
+### The state of the build
+
+- `main` and the PR base are `3223bcf`. The effective head and remote head before this metadata commit are `146f605`.
+- CI run 35923363333 passed the implementation checks. CI run 35923364396 failed RG 5 because the review record named `caaea8f`, not the new effective head `146f605`.
+
+### What is in flight
+
+- This metadata commit holds the review record and this handoff entry. A fresh `review-gate` result must pass after publication.
+
+### Traps and gotchas
+
+- The Gitar status notice has no item and needs no answer under D-964.
+- A new prompt and test change made `146f605` the effective head. The older approval covers only `caaea8f`.
+
+### The questions that block progress
+
+None. OQ-243 is resolved by D-963.
+
+### The next concrete action
+
+Commit and push the review record and handoff together. Fetch, then verify the remote head and the new `review-gate` result.
+
 ## Session 256: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -318,40 +352,3 @@ None for PR-11. OQ-243 blocks PR-98.
 ### The next concrete action
 
 Read CI on the correction commit, read the Gitar output one time, then run `make codex-review PR=67 -- --skip-gitar-review`.
-
-## Session 247: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #67, round 1. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: #67. Role: reviewer. Base: `d429d03`.
-
-### What this session did, and why
-
-- Reviewed PR #67 from merge base `d429d03` through effective head `f92eb3e`, across 75 changed paths.
-- Confirmed Claude Code authored the substantive changes, so the Codex reviewer passes the provider gate (T-4, D-17).
-- Inspected the evaluator, content readers, save migration, identity run, UI changes, cost tool, all changed paths, and the seven changed battle frames.
-- Found that `evaluator-cost` times `BattleEvaluator.Choose` alone, although D-961 limits a complete enemy turn. Recorded P2-1.
-- The existing Gitar status comment has no author answer. The Deck cost run also remains pending (D-961).
-- Added `docs/reviews/pr-67.md` with `Changes required` for `f92eb3e`.
-
-### The state of the build
-
-- `main` and the merge base are `d429d03`. The remote PR head before this metadata commit is `f92eb3e`.
-- `make verify` passed on macOS arm64 with 2,506 tests. CI run 35907108806 passed the implementation checks and screen-test on `f92eb3e`.
-
-### What is in flight
-
-- The author must correct P2-1, answer the Gitar status comment, and provide the Deck measurement before the merge.
-- The PR needs another Codex review after a substantive correction.
-
-### Traps and gotchas
-
-- D-945 and D-946 remove the Gitar pass as a review condition. An existing Gitar comment still needs an answer.
-- The cost tool measures action selection alone, so its current number is not a full enemy-turn measurement.
-
-### The questions that block progress
-
-OQ-243 blocks PR-98 alone (D-951 to D-954). No open question changes PR-11.
-
-### The next concrete action
-
-Correct the timed operation and its test, answer the existing Gitar status comment, and run the cost command on the Steam Deck.
