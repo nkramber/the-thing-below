@@ -22,7 +22,7 @@ Session: author PR-60, rounds 1 and 2. Repository: the-thing-below. Branch: `fea
 ### What is in flight
 
 - The Gitar pass, then `make codex-review PR=64`.
-- The owner set the only concern of the next PR: before the question of a merge, the author posts a summary in four sections, What, How, CI, and Codex review. CI says green or not, and Codex review gives the verdict: `Ready for owner merge`, `Blocked`, or `Changes required`. The rule revises D-933 in part, the one paragraph, and the transitional prompt of PR-60 names it.
+- The owner set the only concern of the next PR: before the question of a merge, the author posts a summary in four sections, What, How, CI, and Codex review. CI says green or not, and Codex review gives the verdict: `Ready for owner merge`, `Blocked`, or `Changes required`. The summary sits inside the question block of the merge question, so the owner sees it with the question. The rule revises D-933 in part, the one paragraph, and the transitional prompt of PR-60 names it.
 
 ### Traps and gotchas
 
