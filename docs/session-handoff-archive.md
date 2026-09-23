@@ -1,4 +1,41 @@
 # Session handoff archive
+## Session 241: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #65, round 1. Repository: the-thing-below. Branch: `docs/pr-96-review-loop-rules`. Role: reviewer. Base: `e6eb27a`.
+
+### What this session did, and why
+
+- Reviewed PR #65 from base `e6eb27a` through effective head `aba8774`, across 19 changed paths.
+- Confirmed Claude Code authored the substantive changes, and Codex passes the provider gate (T-4, D-17).
+- Verified the RG 5 reviewable-head walk, the regression tests, the review outcome check, and the docs and decision updates (D-857, D-942 to D-944).
+- Added `docs/reviews/pr-65.md` with no findings and `Ready for owner merge` for `aba8774`. The owner authorized this review to proceed without Gitar feedback or replies.
+
+### The state of the build
+
+- `main` is `e6eb27a`. The remote PR head is `aba8774` before this review record is published.
+- `make verify` passed on this machine: 2,446 tests and every local gate passed.
+- CI run 35889338283 passed every implementation job, including all legs of build, smoke, and replay identity, plus screen-test and STE.
+- The Gitar status passed. No Gitar dashboard or actionable feedback appeared. Review-gate run 35889338357 failed because the review record was absent.
+- Published metadata commit `3410c6a`; fresh review-gate run 35890585889 passed. The effective head stays `aba8774`.
+
+### What is in flight
+
+The owner can review the verdict and merge the PR.
+
+### Traps and gotchas
+
+- The owner’s exception applies to this review only. D-944 remains the project rule for later commits.
+- The `make codex-review` Gitar precheck needs a dashboard comment, which this PR does not hold.
+
+### The questions that block progress
+
+None. OQ-242 does not affect PR-96.
+
+### The next concrete action
+
+The owner reviews the verdict and merges the PR.
+
 ## Session 240: 2026-09-23, Claude Code
 
 Author: Claude Code
