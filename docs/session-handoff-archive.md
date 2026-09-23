@@ -1,4 +1,39 @@
 # Session handoff archive
+## Session 217: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-94, round 6, the answer to the review. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
+
+### What this session did, and why
+
+- Answered the review of session 216, which gave `Blocked` for head `8011192`. P2-1 has full merit: D-907 closed OQ-231, and it named no coverage (D-19).
+- Asked the owner the coverage question again. The owner chose a little less coverage, and D-908 records it and resolves OQ-231. D-907 now answers no question.
+- The wide banks of the fixture fog start at 4800 in place of 4300, and the smaller clouds start at 5400 in place of 5000.
+- The author read `map-fog-1x` and `battle-fog-1x` from `make sheet`. Each frame shows more clear ground between the banks (D-784).
+- Wrote `docs/reviews/pr-59-response.md`.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The PR head before this round is `cd20431`, the metadata commit of the review.
+- `make test` (2,174 tests), `make format`, `make lint`, `make identity`, `make content`, `make smoke`, and `make ste-check` pass on this machine.
+
+### What is in flight
+
+- The screen-test job gives new baselines for the two fog frames, and the author commits them from the artifact.
+- Then the other provider reviews the correction again (T-4).
+
+### Traps and gotchas
+
+- An answer of the owner that names another subject than the question does not resolve the question. Ask the question again (D-19).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the fog baselines from the CI artifact. Then the other provider reviews the correction.
+
 ## Session 216: 2026-09-22, Codex
 
 Author: Codex

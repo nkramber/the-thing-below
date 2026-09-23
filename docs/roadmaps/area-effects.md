@@ -75,7 +75,7 @@ Built by PR-6 and every effect PR. Phase files: `phase-1-foundations.md` and `ph
 
 ### 7.2 The order of a frame
 
-Built by PR-7, PR-10, PR-56, PR-59, and PR-60, inside the frame of `area-ui-input.md`. Phase file: `phase-2-first-playable.md`.
+Built by PR-7, PR-10, PR-56, PR-59, PR-92, and PR-60, inside the frame of `area-ui-input.md`. Phase file: `phase-2-first-playable.md`.
 
 The table lists what a frame draws, from the bottom to the top.
 
@@ -90,7 +90,10 @@ The table lists what a frame draws, from the bottom to the top.
 | Glow | A soft glow on light sources alone, in the world view | No | D-188, D-910, D-915 |
 | Fog | The fog of the weather of the place: 1 to 3 layers in one pass, in the overlay | No | D-885, D-897, D-898, D-900, D-916 |
 | Bursts | Blood and sparks, in the overlay | As its effect file sets | D-186, D-916 |
-| Mark | The mark of a sight, the battle pointer, and the health bars, in the overlay | No | D-208, D-916 |
+| Shafts | The light shafts of the map in one pass, in the overlay | No | D-918, D-919 |
+| Blur | The tilt-shift blur of the scene: the world and the overlay | No | D-849, D-919 |
+| Vignette | The dark at the edges of the scene | No | D-849, D-919 |
+| Mark | The mark of a sight, the battle pointer, and the health bars, in the mark view | No | D-208, D-919 |
 | UI | Menus, the HUD, text, portraits, and damage numbers | No | D-210, D-213 |
 | Transition | The full-screen effect that starts a battle | No | D-191, D-195 |
 | Fit | The scale to the screen, with black bars | No | D-232, D-568 |
@@ -104,7 +107,10 @@ The table lists what a frame draws, from the bottom to the top.
 - The Z index of each step above the figures follows the table: the flame of a torch 2, and the weather 3.
 - The fog takes 4, a hit burst takes 5, and the mark of a sight takes 8. Fog never hides the mark (D-208).
 - The world view draws in HDR 2D, and its view in the frame turns linear light into sRGB (D-910, F-103).
-- The fog, the bursts, and the marks draw in an overlay view with no HDR 2D, which shares the world. The overlay draws above the glow and under the UI (D-916).
+- The fog, the bursts, and the light shafts draw in an overlay view with no HDR 2D, which shares the world. The overlay draws above the glow (D-916, D-919).
+- A scene view of 640 by 360 joins the world and the overlay. The frame draws the scene with the tilt-shift blur, and the vignette over it (D-919).
+- The marks draw in a mark view that shares the world, above the blur and the vignette and under the UI. So each mark stays sharp (D-208, D-919).
+- The shafts take the Z index 6, above the fog and the bursts (D-919).
 - `area-ui-input.md` builds the frame and the fit. This file holds what draws inside the frame.
 
 > *In plain English:* each frame stacks the same way: the world, then its light, then the menus, then a transition over all of it. Menus never catch the torchlight, and the whole stack scales to the screen at the end.
@@ -130,7 +136,7 @@ Built by the owner and a session, before PR-1. Phase file: `phase-1-foundations.
 
 ### 7.4 The effect budget
 
-Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-94, PR-59, and PR-60. Phase file: `phase-2-first-playable.md`.
+Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-94, PR-59, PR-92, and PR-60. Phase file: `phase-2-first-playable.md`.
 
 - The effect budget holds the load that the Deck test measured: lights with shadows on screen, live particles, and full-screen passes (D-523).
 - The budget is a content file with integer limits (D-517). A change to it cites a Deck measurement before and after (G-14).
@@ -138,12 +144,14 @@ Built by the Deck test and PR-56, with rows from PR-57, PR-58, PR-94, PR-59, and
 - The test moves a window of 640 by 360 art pixels over the map. It takes the highest count of lights whose range reaches the window (D-842).
 - Godot drops each light past 15 on one canvas item with no message (F-46). A map layer draws a group of 256 tiles as one canvas item.
 - So the budget test also fails more than 15 lights on one canvas item, whatever the Deck test measures (T-2).
-- PR-56 adds the budget file and its test with the rows for light. PR-57 adds the particle row, and PR-58, PR-59, and PR-60 add their full-screen passes. PR-94 counts one pass for each fog (D-898). PR-59 counts one glow pass on every map and every fight (D-915).
+- PR-56 adds the budget file and its test with the rows for light. PR-57 adds the particle row, and PR-58, PR-59, and PR-60 add their full-screen passes. PR-94 counts one pass for each fog (D-898). PR-59 counts one glow pass on every map and every fight (D-915). PR-92 counts the blur and the vignette on every map and every fight (D-920). It counts one shaft pass on a map with a light shaft (D-918).
+- The test counts the passes of each map, a map with no weather included. A fight draws its weather and no shaft, so the count of its map is never below it (D-920).
 - The particle row holds the 8192 live particles of the sweep of 2026-09-17 (D-617). The screen plays one hit at a time, so the test counts the largest burst of a hit (D-879).
 - The first rows of the budget come from the run of 2026-09-17: 15 lights with shadows, 8192 live particles, and 3 full-screen passes (D-617).
 - The light row rises to 24 after a new Deck sweep with 24 paired lights, before PR-56 merges (D-854). Each light source counts two lights (D-853). The sweep of 2026-09-21 held, with 4.55 ms at the 95th percentile for the full load (F-96).
 - Each row is a floor, and not the ceiling of the Deck, because no stage of the sweep missed the target (F-66).
 - The sweep measured those 3 passes with the CRT on, and D-618 later removed that pass, so the shipped stack carries one pass less.
+- The pass row rises to 6 after the Deck sweep of PR-92 (D-922, D-923). The 6 passes are the fog, the glow, the three passes of PR-92, and a transition. The row stands only when that sweep holds 60 frames per second (G-14).
 - M-6 measures the first playable on the Deck against the budget (D-161). A miss changes the budget or the content in a PR with a measurement (G-14).
 
 > *In plain English:* the Deck test finds how much the Deck can draw at full speed, and that number goes into a file. A test then refuses any place that asks for more, before the engine can drop a light in silence.
@@ -264,7 +272,7 @@ Built by PR-59. Phase file: `phase-2-first-playable.md`.
 - The load refuses a rectangle that falls to the threshold at the low of its pulse (T-2).
 - A source above full white draws clipped to full white in each channel, so the core of a flame shows a pale yellow.
 - The frame has no HDR 2D, so the view of the world turns each pixel into sRGB in a shader (F-103).
-- The fog, the hit bursts, and each mark draw in an overlay view with no HDR 2D, above the glow (D-916). The fog thus blends as in PR-94, and it never glows.
+- The fog and the hit bursts draw in an overlay view with no HDR 2D, above the glow (D-916). The fog thus blends as in PR-94, and it never glows. Each mark draws in the mark view of D-919.
 - A view draws an item only when each parent shares a layer with the view (F-105). Thus the world of a screen takes the layer of the overlay too.
 - The glow is a smooth bloom, and its colors can leave the palette (D-911).
 - Glow is a full-screen pass on every map and every fight, so the effect budget counts it with the fog (D-523).
@@ -369,8 +377,14 @@ Built by PR-56 and PR-92. Phase file: `phase-2-first-playable.md`.
 - PR-56 gives the base of the look: a dark ambient light, warm pools of torch light, normal-mapped sprites, and hard shadows (D-183, D-843).
 - PR-59 gives the glow on light alone, as a smooth bloom (D-188, D-911, D-915).
 - PR-92 adds three full-screen passes: a tilt-shift blur at the top and the bottom of the frame, a vignette, and light shafts (D-849).
-- Each pass of PR-92 counts against the effect budget (D-523). The budget of D-617 holds 3 passes, so a new Deck sweep measures the heavier stack before PR-92 merges (G-14).
-- The passes draw the world alone, and the UI above it stays sharp and unlit (D-210).
+- Each pass takes a smooth mode and a stepped mode, and the owner reads both and picks one (D-917). The file `content/effects/hd2d.json` holds the mode, the blur, and the vignette.
+- The stepped mode fades in 2 to 8 steps over blocks of 1 to 8 art pixels, as the fog does. The smooth mode fades with no steps, and its colors can leave the palette.
+- A light shaft is a shaft kind in `content/decor/shafts/`, and the decor file of a map places each shaft on a wall (D-918). A map holds 8 shafts at most, the size of the arrays of the shader.
+- A shaft can shimmer on a slow wave of the tick, as the glow pulses. A depth of 0 gives a still beam, and the fixture dungeon holds one of each (D-921).
+- The blur and the vignette draw on every map and every fight. A shaft draws where a decor file places it (D-920).
+- The shafts draw in the overlay, above the fog. The blur and the vignette draw over the world and the overlay, and the marks and the UI stay sharp above them (D-210, D-919).
+- Each pass of PR-92 counts against the effect budget (D-523). The budget of D-617 holds 3 passes, so a new Deck sweep measures the heavier stack before PR-92 merges (G-14). The pass row then rises to 6 (D-922, D-923).
+- The screen test captures the map, a fight, and the still fixture in the stepped mode too, so the owner reads both modes (D-917).
 
 > *In plain English:* the goal is a storybook diorama: dark places, warm pools of light, and a soft blur at the edges. The light comes first, and the blur and the shafts come later, after a test on the Deck.
 

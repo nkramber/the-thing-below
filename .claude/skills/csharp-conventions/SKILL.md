@@ -80,7 +80,8 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 - Game draws the world in a `SubViewport` at 1x, and it builds both steps of the fit itself (D-232, F-48).
 - A view draws a canvas item only when the item and each parent share a layer with the cull mask of the view. A texture rect sets its expand mode before its size, and a shader reads `TEXTURE` inside `fragment()` alone (F-105).
 - The world view draws in HDR 2D, in linear light (D-910). Godot reads each modulate and each color uniform with `source_color` as sRGB, so a modulate above full white goes to Godot as sRGB (F-103).
-- A node that must never glow, such as the fog, a hit burst, or a mark, draws in the overlay view above the glow. `GlowPass.LiftAboveGlow` puts it there (D-916).
+- A node that must never glow, such as the fog, a hit burst, or a light shaft, draws in the overlay above the glow. `GlowPass.LiftAboveGlow` puts it there (D-916).
+- A mark, the battle pointer, and a health bar draw in the mark view, above the tilt-shift blur and the vignette. `GlowPass.LiftToMarks` puts each one there (D-919).
 - Game builds its `Theme` in code from the UI style file, and no `.tres` theme file exists (D-527, G-6).
 - Game loads each font from the bytes of its own assembly into `FontFile.Data`, because Godot 4.7.2 has no byte-array load method (D-508, F-49).
 - Game makes each audio stream from the rendered bytes of its own assembly, and it checks every return (D-547, F-56).

@@ -1,3 +1,41 @@
+## Session 227: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-92, round 1. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: the PR of PR-92. Role: author. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- Asked the questions of PR-92 and recorded OQ-233 to OQ-239 and D-917 to D-923. D-917, D-919, and D-923 revise D-622, D-916, and D-617 in part.
+- Built the tilt-shift blur, the vignette, and the light shafts, each in a smooth mode and a stepped mode (D-917). `content/effects/hd2d.json` holds the mode.
+- A shaft is a shaft kind in `content/decor/shafts/`, and a decor file places it on a wall (D-918). The fixture dungeon holds a still shaft and a shaft that shimmers (D-921).
+- The shafts draw in the overlay. A scene view joins the world and the overlay, and the frame draws it with the blur and the vignette. The marks moved to a mark view above them (D-919).
+- The budget counts the passes of each map, a map with no weather included, and the pass row is 6 (D-920, D-923). The simulation version is 15.
+- Added the stages `pass-look`, `full-load-24-look`, and `budget-rows` to `spike/deck-test` as `6bb1595` (D-922).
+- Added stepped captures of the map, a fight, and the still fixture. The author read the frames of `make sheet`.
+
+### The state of the build
+
+- `main` is `05dcc3d`. Every check of `make verify` passes on this machine except the 6 new baselines, which come from the CI artifact (D-733).
+
+### What is in flight
+
+- The owner runs the Deck sweep of `spike/deck-test`. The pass row of 6 stands only when `full-load-24-look` and `budget-rows` hold 60 frames per second (G-14).
+- The PR waits for CI, the new baselines, gitar, and the review of the other provider.
+
+### Traps and gotchas
+
+- Godot takes no default value for a uniform array. The spike copy of the shaft shader uses constants.
+- Two walk fixtures can follow each other in the capture list, so the session rebuilds the run when the fixture changes.
+- The view of the scene reads with a linear filter. The blur shader reads each sharp pixel at the middle of its art pixel.
+
+### The questions that block progress
+
+None. The Deck sweep is a measurement, not a question.
+
+### The next concrete action
+
+Read the Deck reports, commit them to `spike/deck-test`, and record the numbers in the PR. Then commit the baselines from the CI artifact.
+
 ## Session 226: 2026-09-23, Codex
 
 Author: Codex
@@ -316,38 +354,3 @@ None.
 ### The next concrete action
 
 The other provider reviews the answer to P2-1, and updates `docs/reviews/pr-59.md`.
-
-## Session 217: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-94, round 6, the answer to the review. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
-
-### What this session did, and why
-
-- Answered the review of session 216, which gave `Blocked` for head `8011192`. P2-1 has full merit: D-907 closed OQ-231, and it named no coverage (D-19).
-- Asked the owner the coverage question again. The owner chose a little less coverage, and D-908 records it and resolves OQ-231. D-907 now answers no question.
-- The wide banks of the fixture fog start at 4800 in place of 4300, and the smaller clouds start at 5400 in place of 5000.
-- The author read `map-fog-1x` and `battle-fog-1x` from `make sheet`. Each frame shows more clear ground between the banks (D-784).
-- Wrote `docs/reviews/pr-59-response.md`.
-
-### The state of the build
-
-- The remote head of `main` is `8d98c46`. The PR head before this round is `cd20431`, the metadata commit of the review.
-- `make test` (2,174 tests), `make format`, `make lint`, `make identity`, `make content`, `make smoke`, and `make ste-check` pass on this machine.
-
-### What is in flight
-
-- The screen-test job gives new baselines for the two fog frames, and the author commits them from the artifact.
-- Then the other provider reviews the correction again (T-4).
-
-### Traps and gotchas
-
-- An answer of the owner that names another subject than the question does not resolve the question. Ask the question again (D-19).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit the fog baselines from the CI artifact. Then the other provider reviews the correction.
