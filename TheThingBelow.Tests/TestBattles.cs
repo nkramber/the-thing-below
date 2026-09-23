@@ -314,6 +314,29 @@ internal static class TestBattles
         return FixtureFile.Replace("\"start_party\": [\"character.marrek\"]", $"\"start_party\": [{party}]", System.StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Gives a group file of the test region with one group, `group.wave`: a grunt on the field,
+    /// then each waiting enemy in the back row, in the order of the list (D-778, D-963).
+    /// </summary>
+    /// <param name="waiting">The enemy id of each waiting entry.</param>
+    /// <returns>The text of the group file.</returns>
+    public static string WaveGroupsFile(IReadOnlyList<string> waiting)
+    {
+        List<string> entries = ["{ \"enemy\": \"enemy.fixture_grunt\", \"row\": \"front\", \"waits\": false, \"profile\": \"profile.test_attacker\" }"];
+        foreach (string enemy in waiting)
+        {
+            entries.Add($"{{ \"enemy\": \"{enemy}\", \"row\": \"back\", \"waits\": true, \"profile\": \"profile.test_attacker\" }}");
+        }
+
+        return $$"""
+            {
+             "comment": "A group file of the test region with one wave.",
+             "region": "region.test",
+             "groups": [{ "id": "group.wave", "boss": false, "enemies": [{{string.Join(", ", entries)}}] }]
+            }
+            """;
+    }
+
     /// <summary>Reads the content of the tests with one group file of the test region in place of <see cref="GroupsFile"/>.</summary>
     /// <param name="groups">The text of the group file of the test region.</param>
     /// <returns>The battle content.</returns>

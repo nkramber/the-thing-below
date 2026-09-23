@@ -353,6 +353,8 @@ public sealed class BattleScreen
             this.ShowCombatant(view, view.Enemies[slot], this.enemies[slot], playing, picture);
         }
 
+        this.ShowWaitingColumn(view);
+
         this.ShowBurst(view, playing, picture, run.Tick - ticks);
         this.ShowMessage(view, playing);
         this.ShowNumber(view, playing, picture);
@@ -644,7 +646,8 @@ public sealed class BattleScreen
 
     private void ShowCombatant(BattleView view, ShownCombatant shown, CombatantNodes nodes, BattleEvent? playing, int ticks)
     {
-        // A waiting enemy and an enemy that went down hold no place, and they draw nothing (D-758).
+        // An enemy that went down holds no place, and it draws nothing (D-758). A waiting enemy
+        // holds no place in a row, and `ShowWaitingColumn` draws it in the column (D-953).
         bool visible = BattleLayout.HoldsPlace(shown);
         nodes.Sprite.Visible = visible;
         if (nodes.Bar is HealthBar hidden)
@@ -686,6 +689,33 @@ public sealed class BattleScreen
             this.FillIcons(icons, shown.Statuses, nodes);
             int top = (place.Feet + BattleLayout.BarGap + BattleLayout.BarHeight + 1) * FrameRoot.WorldScale;
             icons.Position = new Vector2((place.X * FrameRoot.WorldScale) - (shown.Statuses.Count * BattleLayout.IconSize / 2), top);
+        }
+    }
+
+    /// <summary>
+    /// Draws each waiting enemy in the column at the left edge, the next to step in at the top
+    /// (D-953). A waiting enemy draws at full size in the dim color, with no bar and no icon,
+    /// because it is not a target (D-954).
+    /// </summary>
+    /// <param name="view">The view of the fight.</param>
+    private void ShowWaitingColumn(BattleView view)
+    {
+        IReadOnlyList<ShownCombatant> waiting = BattleLayout.WaitingOf(view);
+        var heights = new List<int>(waiting.Count);
+        foreach (ShownCombatant enemy in waiting)
+        {
+            heights.Add(this.enemies[enemy.Target.Slot].Height);
+        }
+
+        IReadOnlyList<FieldPlace> places = BattleLayout.WaitingPlaces(heights);
+        for (int index = 0; index < waiting.Count; index += 1)
+        {
+            CombatantNodes nodes = this.enemies[waiting[index].Target.Slot];
+            nodes.Sprite.Visible = true;
+            nodes.Sprite.Position = new Vector2(places[index].X, places[index].Feet);
+            nodes.Sprite.Texture = nodes.Idle;
+            nodes.Material.SetShaderParameter(FlashAmount, 0.0f);
+            nodes.Sprite.Modulate = this.dimColor;
         }
     }
 

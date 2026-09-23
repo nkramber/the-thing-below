@@ -52,6 +52,13 @@ public sealed class BattleFixture
     /// <summary>The most enemies on the field (D-31, D-759). The group file reads it (D-957).</summary>
     public const int MostOnField = 6;
 
+    /// <summary>
+    /// The most height of the column of the waiting enemies, in art pixels (D-953, D-963). It
+    /// is the room at the left edge of the field, between the top margin of the frame and the
+    /// message line. A test of Game proves that the layout gives the column this room.
+    /// </summary>
+    public const int MostWaitingHeight = 288;
+
     /// <summary>The most enemies in a group, the waiting ones included (D-762).</summary>
     public const int MostInGroup = 12;
 

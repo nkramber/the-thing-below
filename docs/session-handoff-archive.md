@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 242: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-96, hand-over. Repository: the-thing-below. Branch: `docs/pr-96-review-loop-rules`. PR: #65. Role: author. Base: `e6eb27a`.
+
+### What this session did, and why
+
+- Read the review record of Session 241: `Ready for owner merge` for the effective head `aba8774`, with no finding.
+- Read the checks of the metadata tip `6cf9e9b`. Each check passed or skipped by the path rules, and `review-gate` passed.
+- Read the merge conditions of `docs/runbooks/merge.md`. Each one holds except the confirmation of the owner (D-933, D-942).
+
+### The state of the build
+
+- `main` is `e6eb27a`. The effective head is `aba8774`, and `git diff --stat aba8774..6cf9e9b` lists `docs/reviews/pr-65.md`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md` alone.
+- CI run 35889338283 passed each job on `aba8774`.
+
+### What is in flight
+
+- The confirmation of the owner, then the auto-merge of PR #65 (D-930).
+- After the merge, the transitional prompt of step 6.
+
+### Traps and gotchas
+
+- A push outside the skip set after the confirmation moves the effective head, and the loop starts again (D-943).
+
+### The questions that block progress
+
+None. OQ-242 waits for the owner and blocks nothing.
+
+### The next concrete action
+
+Post the summary in four sections inside the merge question, and turn on the auto-merge after the confirmation of the owner.
+
 ## Session 241: 2026-09-23, Codex
 
 Author: Codex

@@ -21,8 +21,9 @@ public sealed class BattleContent
     /// <param name="profiles">The profiles, one for each file, in the order of the paths (D-956).</param>
     /// <exception cref="ContentException">
     /// Two records take one id, two files take one region, a record names an absent ability,
-    /// a group names an absent enemy or profile, a steal list names an absent item, or an enemy
-    /// of a group has no legal action. The error names the file and the id (T-2, D-166, D-948).
+    /// a group names an absent enemy or profile, the waiting column of a group is taller than the
+    /// field, a steal list names an absent item, or an enemy of a group has no legal action. The
+    /// error names the file and the id (T-2, D-166, D-948, D-963).
     /// </exception>
     public BattleContent(
         BattleRules rules,
@@ -51,6 +52,7 @@ public sealed class BattleContent
         this.RefuseRepeatedRegionOrGroup();
         this.RefuseRepeatedProfile();
         this.RefuseAbsentEnemyOrProfile();
+        this.RefuseTallWaitingColumn();
         this.RefuseAbsentStealItem();
         this.RequireEveryEntryActs();
     }
@@ -380,6 +382,38 @@ public sealed class BattleContent
                             entry.Profile.Value,
                             $"the group '{group.Id.Value}' names this profile for '{entry.Enemy.Value}', and no file of '{ProfileRecord.Folder}' holds it (T-2, D-956)");
                     }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Refuses a group whose waiting enemies stand in a column taller than the room at the
+    /// left edge of the field (D-953, D-963). Each waiting body takes the height of its size:
+    /// 32 art pixels for a common enemy, 64 for an elite, and 96 for a boss (D-206).
+    /// </summary>
+    private void RefuseTallWaitingColumn()
+    {
+        foreach (GroupFile file in this.GroupFiles)
+        {
+            foreach (GroupRecord group in file.Groups)
+            {
+                int height = 0;
+                foreach (GroupEntry entry in group.Entries)
+                {
+                    if (entry.Waits)
+                    {
+                        EnemyRecord enemy = this.Enemy(entry.Enemy);
+                        height = checked(height + (EnemySizes.SideOf(enemy.Size) * AtlasPages.TileSize));
+                    }
+                }
+
+                if (height > BattleFixture.MostWaitingHeight)
+                {
+                    throw ContentException.ForField(
+                        file.File,
+                        group.Id.Value,
+                        $"the waiting enemies of the group stand in a column of {height} art pixels, and the field holds a column of {BattleFixture.MostWaitingHeight} at most. Split the wave (D-963, T-2)");
                 }
             }
         }

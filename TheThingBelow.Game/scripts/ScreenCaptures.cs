@@ -129,6 +129,9 @@ public static class ScreenCaptures
     /// <summary>The frame of the battle fixture that shows the sparks of a hit on the brute of the deep room (D-879, D-882).</summary>
     public const string BattleSparksFrame = "sparks-1x";
 
+    /// <summary>The frame of the battle fixture that shows the first command of the fight of the deep room, whose grunt waits in the column (D-953, exit test 1 of PR-98).</summary>
+    public const string BattleWaitingFrame = "waiting-1x";
+
     /// <summary>The frame of the battle fixture that stages a heavy blow inside its hit-stop, at the full level (D-877, D-880).</summary>
     public const string BattleStopFrame = "heavy-stop-1x";
 
@@ -276,6 +279,8 @@ public static class ScreenCaptures
             BattleFixture, BattleTargetFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         captures.Add(new ScreenCapture(
             BattleFixture, BattleBlowFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(
+            BattleFixture, BattleWaitingFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
 
         // Each battle effect draws at 1x, and the heavy blow draws at each level of the flash
         // and shake reduction (D-214, D-863, exit test 1 of PR-57).

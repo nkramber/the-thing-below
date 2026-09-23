@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Effects;
 
 namespace TheThingBelow.Game.Ui;
@@ -31,8 +32,9 @@ public readonly record struct FrameBox(int X, int Y, int Width, int Height);
 /// A place in a row comes from the combatants of that row that stand on the field, in slot
 /// order. A character who went down keeps the place, because the character stays on the
 /// field. An enemy that went down leaves its row, and the others of the row close up, so a
-/// wave never puts more than six in one row. A waiting enemy takes a place when it steps in
-/// (D-758, D-759).
+/// wave never puts more than six in one row. A waiting enemy stands in the waiting column at
+/// the left edge, behind the back row, and it takes a place in its row when it steps in
+/// (D-758, D-759, D-953).
 /// </para>
 /// <para>
 /// This type holds no Godot value, so a test reads it from the built Game assembly with no
@@ -42,10 +44,23 @@ public readonly record struct FrameBox(int X, int Y, int Width, int Height);
 public static class BattleLayout
 {
     /// <summary>The column of the middle of the front row of the enemies.</summary>
-    public const int EnemyFrontX = 232;
+    /// <remarks>The rows of the enemies stand 40 columns to the right, to give the waiting column its place (D-953).</remarks>
+    public const int EnemyFrontX = 272;
 
     /// <summary>The column of the middle of the back row of the enemies.</summary>
-    public const int EnemyBackX = 150;
+    public const int EnemyBackX = 190;
+
+    /// <summary>
+    /// The column of the middle of the column of the waiting enemies (D-953). A boss of 96
+    /// columns then starts at the edge margin of the frame.
+    /// </summary>
+    public const int WaitingX = WaitingTop + (LargestBody / 2);
+
+    /// <summary>The top row of the room of the waiting column: the edge margin of the frame (D-963).</summary>
+    public const int WaitingTop = UiMetrics.EdgePixels / FrameRoot.WorldScale;
+
+    /// <summary>The side of the largest body, a boss of three tiles, in art pixels (D-206).</summary>
+    public const int LargestBody = 3 * AtlasPages.TileSize;
 
     /// <summary>The column of the middle of the front row of the party.</summary>
     public const int PartyFrontX = 408;
@@ -123,6 +138,70 @@ public static class BattleLayout
 
     /// <summary>The status of the party, at the bottom right of the frame (D-111).</summary>
     public static FrameBox Status { get; } = StatusBox();
+
+    /// <summary>The bottom row of the room of the waiting column: the top of the message line (D-963).</summary>
+    public static int WaitingBottom { get; } = Message.Y / FrameRoot.WorldScale;
+
+    /// <summary>Gives the waiting enemies, in the order of the column: the top holds the next enemy that steps in (D-760, D-953).</summary>
+    /// <param name="view">The view of the fight.</param>
+    /// <returns>Each enemy that waits, in slot order, which is the order of the group.</returns>
+    /// <exception cref="ArgumentNullException">The view is null (T-2).</exception>
+    public static IReadOnlyList<ShownCombatant> WaitingOf(BattleView view)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+
+        var waiting = new List<ShownCombatant>();
+        foreach (ShownCombatant enemy in view.Enemies)
+        {
+            if (enemy.Place == CombatantPlace.Waiting)
+            {
+                waiting.Add(enemy);
+            }
+        }
+
+        return waiting;
+    }
+
+    /// <summary>
+    /// Gives the place of each body of the waiting column, from the top (D-953, D-963). The
+    /// column stands on the bottom of its room, so a short column stands on the ground, and
+    /// each body stands on the top of the next.
+    /// </summary>
+    /// <param name="heights">The height of each body, in art pixels, in the order of the column.</param>
+    /// <returns>The place of each body, in the same order.</returns>
+    /// <exception cref="ArgumentNullException">The list is null (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">A height is not above zero, or the column is taller than its room (T-2).</exception>
+    /// <remarks>The load refuses a group whose column is taller than the room, so the error here is a fault of the screen (D-963).</remarks>
+    public static IReadOnlyList<FieldPlace> WaitingPlaces(IReadOnlyList<int> heights)
+    {
+        ArgumentNullException.ThrowIfNull(heights);
+
+        int total = 0;
+        foreach (int height in heights)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(height, 1, nameof(heights));
+            total = checked(total + height);
+        }
+
+        int room = WaitingBottom - WaitingTop;
+        if (total > room)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(heights),
+                total,
+                $"The waiting column takes {total} rows, and its room holds {room} (D-963, T-2).");
+        }
+
+        var places = new List<FieldPlace>(heights.Count);
+        int feet = WaitingBottom - total;
+        foreach (int height in heights)
+        {
+            feet += height;
+            places.Add(new FieldPlace(WaitingX, feet));
+        }
+
+        return places;
+    }
 
     /// <summary>Gives the place of one combatant on the field.</summary>
     /// <param name="view">The view of the fight.</param>

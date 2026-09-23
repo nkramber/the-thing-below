@@ -528,14 +528,16 @@ public sealed partial class CaptureSession : Node
     /// <see cref="ScreenCaptures.TicksAfterBlowOf"/> gives.
     /// <para>
     /// The sparks frame walks to the deep room, where the character hits the brute (D-882). The
-    /// stop frame and each heavy frame stage the same hit on a weakness, because no move of the
-    /// fixture fight carries an element before PR-12 (D-877).
+    /// waiting frame walks there too, because the grunt of that group waits in the column (D-953).
+    /// The stop frame and each heavy frame stage the same hit on a weakness, because no move of
+    /// the fixture fight carries an element before PR-12 (D-877).
     /// </para>
     /// </remarks>
     private void BuildBattle(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
         GameRun fight = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-        if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleSparksFrame) == 0)
+        if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleSparksFrame) == 0
+            || string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleWaitingFrame) == 0)
         {
             BattleWalk.ToFirstCommandOfElite(fight);
         }
