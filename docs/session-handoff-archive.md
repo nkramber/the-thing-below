@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 205: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-57, the baseline round. Repository: the-thing-below. Branch: `feat/pr-57-effects`. PR: #56. Role: author. Base: `8aaf0f6`.
+
+### What this session did, and why
+
+- CI run 35741921184 on `f3f2e1f` failed as planned. Each leg failed the six baseline tests alone, and the screen-test job found the six new captures and 132 changed pixels in `battle-blow-1x.png`.
+- The two capture runs on lavapipe matched each other, so the seek of a burst gives one picture on CI too.
+- Read each of the seven frames of the `screen-captures` artifact, and committed them to `screens/baseline/` (D-733, D-784). The heavy frames move the picture by -4, 4, 1, and 0 art pixels, and the number stays still.
+
+### The state of the build
+
+- The remote head before this round is `f3f2e1f`. This round adds the seven baselines and this entry.
+- The review-gate check fails on RG 3 alone: no review record at `docs/reviews/pr-56.md` yet.
+
+### What is in flight
+
+- The CI run of this push, and the gitar pass on it.
+- The Codex review in `docs/reviews/pr-56.md`.
+
+### Traps and gotchas
+
+- The baselines come from the CI artifact alone. The Mac draws other pixels with the same renderer.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Follow the `gitar-review` skill on this push, and answer each comment. Then tell the owner that the PR is ready for Codex.
+
 ## Session 204: 2026-09-22, Claude Code
 
 Author: Claude Code

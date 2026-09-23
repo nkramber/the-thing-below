@@ -1,3 +1,35 @@
+## Session 215: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-94, round 5. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
+
+### What this session did, and why
+
+- The owner read the fog of round 4 and approved it: "Fog looks good" (D-622, D-623).
+- Committed the baselines of `map-fog-1x` and `battle-fog-1x` from the artifact of CI run 35800692949 (D-733). The two runs of that job matched on all 72 captures, and only the two fog frames differed from the old baseline.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The PR head before this round is `5b4ee61`, and the effective head is the commit of this round.
+- CI on `5b4ee61` passed each check except screen-test, on the two fog frames alone, and review-gate, which waits for the review record.
+- `screens --captures <artifact> --baseline screens/baseline` gives a match on all 72 captures.
+
+### What is in flight
+
+- The PR waits for the review of the other provider (T-4). The gitar pause of D-895 holds.
+
+### Traps and gotchas
+
+- None new. The entries of sessions 211 to 214 hold the traps of this PR.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The other provider reviews PR #59 and writes `docs/reviews/pr-59.md`.
+
 ## Session 214: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -347,36 +379,3 @@ None.
 ### The next concrete action
 
 Commit and push the review record and this handoff entry. Fetch and verify the remote head and review-gate check.
-
-## Session 205: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-57, the baseline round. Repository: the-thing-below. Branch: `feat/pr-57-effects`. PR: #56. Role: author. Base: `8aaf0f6`.
-
-### What this session did, and why
-
-- CI run 35741921184 on `f3f2e1f` failed as planned. Each leg failed the six baseline tests alone, and the screen-test job found the six new captures and 132 changed pixels in `battle-blow-1x.png`.
-- The two capture runs on lavapipe matched each other, so the seek of a burst gives one picture on CI too.
-- Read each of the seven frames of the `screen-captures` artifact, and committed them to `screens/baseline/` (D-733, D-784). The heavy frames move the picture by -4, 4, 1, and 0 art pixels, and the number stays still.
-
-### The state of the build
-
-- The remote head before this round is `f3f2e1f`. This round adds the seven baselines and this entry.
-- The review-gate check fails on RG 3 alone: no review record at `docs/reviews/pr-56.md` yet.
-
-### What is in flight
-
-- The CI run of this push, and the gitar pass on it.
-- The Codex review in `docs/reviews/pr-56.md`.
-
-### Traps and gotchas
-
-- The baselines come from the CI artifact alone. The Mac draws other pixels with the same renderer.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Follow the `gitar-review` skill on this push, and answer each comment. Then tell the owner that the PR is ready for Codex.
