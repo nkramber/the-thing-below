@@ -1,3 +1,42 @@
+# Session handoff archive
+## Session 235: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #63, round 2. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: reviewer. Base: `097ea32`.
+
+### What this session did, and why
+
+- Re-read the round 1 findings and the response file, then reviewed PR #63 at effective head `a7902e7`.
+- Verified P2-1: the Gitar reads now paginate comments, check runs, check suites, and review threads. The regression tests pass.
+- Verified P2-2: a repeated finding id now gives a fault. The regression test passes.
+- Reviewed the API-key removal, ChatGPT login check, owner confirmation, and the updates to D-932 and D-933.
+- Updated `docs/reviews/pr-63.md`. Both findings are fixed, and the verdict is `Ready for owner merge`.
+
+### The state of the build
+
+- `main` is `097ea32`. Before this commit, the remote PR head was `a7902e7`.
+- `make build`, `make test` (2,371 tests), `make format`, `make ste-check`, and `make lint` passed locally.
+- CI run 35834375973 passed implementation checks on `a7902e7`. Gitar passed. The review-gate failure read the old verdict and head, before this review commit.
+
+### What is in flight
+
+- This review record and entry need one metadata commit and a push to `feat/pr-95-codex-review`.
+- Fresh review-gate and metadata checks must pass after publication.
+
+### Traps and gotchas
+
+- Metadata commits do not change the effective head (D-610).
+- Review-gate run 35834379314 failed only because the record still named `Changes required` and `ca9dd85`.
+- Keep each Codex process free of `OPENAI_API_KEY` and `CODEX_API_KEY` (D-932).
+
+### The questions that block progress
+
+None. D-926 to D-933 record the owner answers.
+
+### The next concrete action
+
+Commit this entry with the review record, push once, then verify the remote head and the fresh review-gate result.
+
 ## Session 234: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -37,7 +76,7 @@ None. D-926 to D-933 hold the answers of 2026-09-23.
 ### The next concrete action
 
 Answer the Gitar pass of the new head. Then run `make codex-review PR=63` in the background.
-# Session handoff archive
+
 ## Session 233: 2026-09-23, Codex
 
 Author: Codex
