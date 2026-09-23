@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 221: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #60. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: reviewer. Base: `a20d32f`.
+
+### What this session did, and why
+
+- Reviewed the reversion of the Gitar pause at effective head `aa1a10f`.
+- Found that PR #60 deletes the PR #58 review and sessions 209 and 210. It also edits dated PR #59 records. D-10 says that a rewrite falsifies a dated record.
+- Added `docs/reviews/pr-60.md` with finding P2-1 and verdict `Changes required`.
+
+### The state of the build
+
+- The remote head of `main` is `a20d32f`.
+- At `aa1a10f`, `make ste-check` passed with 0 findings. Changed-path CI passed its listed checks, and the Gitar check passed. Review-gate failed RG 3 because the review record did not yet exist.
+- The review and this handoff need commit and push. The effective head remains `aa1a10f`.
+
+### What is in flight
+
+- PR #60 needs the author to restore the historical records and follow the end-of-pause decision procedure from the base runbook.
+
+### Traps and gotchas
+
+- D-10 calls dated records history. Do not rewrite them to remove a decision that later changed.
+- The PR #58 review and sessions 209 and 210 belong in the live records.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The author corrects P2-1. Then this reviewer reassesses PR #60.
+
 ## Session 220: 2026-09-23, Claude Code
 
 Author: Claude Code
