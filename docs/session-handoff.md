@@ -11,7 +11,7 @@ Session: author PR-60, round 1. Repository: the-thing-below. Branch: `feat/pr-60
 - Game holds the events of the fight for the 60 ticks of the transition. The fight then fades in from the cover color, and after a win or a flee the map fades back in before the wait intent (D-522, D-938, D-939).
 - The pass of the hand-off draws last in the frame, above the UI. The budget counts one transition pass on every map (D-523, D-923).
 - Added eleven captures: each look halfway through, and the color split at the reduced level, where the fade takes its place (D-863). The author read each frame of `make sheet FIXTURE=transition`, and reworked the snow whiteout, which read as static.
-- The owner asked how a player sees the count of the enemies of a fight. The battle screen draws no waiting enemy and no count (D-758, D-778). No decision says whether the wave is a surprise. That question belongs to the battle screen, and it waits for the answer of the owner.
+- The owner asked how a player sees the count of the enemies of a fight. The battle screen draws no waiting enemy and no count (D-758, D-778). OQ-242 holds the question, at the request of the owner.
 
 ### The state of the build
 
@@ -31,7 +31,7 @@ Session: author PR-60, round 1. Repository: the-thing-below. Branch: `feat/pr-60
 
 ### The questions that block progress
 
-None. The question of the enemy count waits for the owner and blocks nothing in PR-60.
+None. OQ-242 waits for the owner and blocks nothing in PR-60.
 
 ### The next concrete action
 
