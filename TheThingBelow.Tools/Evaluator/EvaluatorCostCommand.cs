@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
@@ -22,14 +23,14 @@ public sealed record CostReport(int Turns, int MostActions, int MeanActions, lon
 
 /// <summary>
 /// The `evaluator-cost` command. It plays the worst fight of D-961, six enemies against three
-/// characters, and it times the choice of the evaluator for each enemy turn (F-53, G-14). The
-/// limit is 1 ms at the 95th percentile on the Steam Deck.
+/// characters, and it times each whole enemy turn: the choice of the evaluator and its effect
+/// (F-53, G-14). The limit is 1 ms at the 95th percentile on the Steam Deck.
 /// </summary>
 /// <remarks>
-/// The command times <see cref="BattleEvaluator.Choose"/> alone, because the rules of a turn
-/// resolve one action and draw a few rolls. Each timed call opens a new stream of the
-/// evaluator, so the fight itself never reads a timed call. Run it from a Release build: a
-/// Debug build is slower, and its numbers say nothing of the Deck.
+/// The command times <see cref="BattleTurns.EnemyAct"/> on a copy of the run, from its
+/// snapshot, so the fight that the command plays never reads a timed turn. The copy is made
+/// outside the timer. Run it from a Release build: a Debug build is slower, and its numbers
+/// say nothing of the Deck.
 /// </remarks>
 public static class EvaluatorCostCommand
 {
@@ -124,10 +125,9 @@ public static class EvaluatorCostCommand
                         continue;
                     }
 
-                    RandomStream stream = RandomStreams.Open(seed, StreamId.Evaluator);
-                    RunContext context = run.State.Context($"{Name}/{enemy.Target.Describe()}");
+                    Simulation copy = CopyOf(run, seed, content);
                     long start = Stopwatch.GetTimestamp();
-                    _ = BattleEvaluator.Choose(battle, enemy, content, stream, context);
+                    _ = PlayEnemyTurn(copy, enemy.Target);
                     long elapsed = Stopwatch.GetTimestamp() - start;
 
                     played += 1;
@@ -164,6 +164,31 @@ public static class EvaluatorCostCommand
     {
         int rank = (int)(((long)count * percent + 99) / 100);
         return Math.Max(rank, 1) - 1;
+    }
+
+    /// <summary>Plays one whole enemy turn on a run: the choice, the effect, and the events (D-961).</summary>
+    /// <param name="run">The run, a copy that the measurement throws away.</param>
+    /// <param name="enemy">The enemy on the field.</param>
+    /// <returns>The events of the turn.</returns>
+    public static IReadOnlyList<BattleEvent> PlayEnemyTurn(Simulation run, BattleTarget enemy)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+
+        BattleTurns.EnemyAct(run.State, enemy, run.State.Context($"{Name}/{enemy.Describe()}"), []);
+        return run.TakeBattleEvents();
+    }
+
+    /// <summary>Makes a copy of a run from its snapshot, so a timed turn never changes the fight of the command.</summary>
+    /// <param name="run">The run.</param>
+    /// <param name="seed">The seed of the run.</param>
+    /// <param name="content">The battle content of the run.</param>
+    /// <returns>The copy.</returns>
+    public static Simulation CopyOf(Simulation run, ulong seed, BattleContent content)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+
+        var reader = new ContentReader(Encoding.UTF8.GetBytes(RunSnapshotText.Write(run.Snapshot())), $"{Name} copy");
+        return Simulation.Resume(seed, RunSnapshotText.Read(ref reader), CostFight.Map(), content, DebugIntentHandlers.None);
     }
 
     private static Simulation IntoFight(ulong seed, BattleContent content)

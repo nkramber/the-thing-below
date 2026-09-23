@@ -193,6 +193,34 @@ public static class BattleTurns
     }
 
     /// <summary>
+    /// Plays one action of an enemy on the field: the choice of the evaluator, and its effect
+    /// with its events and the end check (D-65, D-955). The rules call the same code for the
+    /// enemy whose turn begins. The `evaluator-cost` command of Tools times this call on a copy
+    /// of a run, so the limit of D-961 reads the whole turn.
+    /// </summary>
+    /// <param name="state">The run, whose battle runs.</param>
+    /// <param name="enemy">The side and the slot of the enemy.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <param name="log">The log entries of this tick (D-179).</param>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="SimulationException">No battle runs, or the target names no enemy on the field (T-2).</exception>
+    public static void EnemyAct(RunState state, BattleTarget enemy, RunContext context, List<LogEntry> log)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(log);
+
+        Battle battle = RunningBattle(state, context);
+        Combatant actor = battle.At(enemy, context);
+        if (enemy.Side != BattleSide.Enemy || actor.Place != CombatantPlace.Field)
+        {
+            throw new SimulationException($"an enemy action of {enemy.Describe()}, which is no enemy on the field (D-65)", context);
+        }
+
+        EnemyTurn(state, battle, actor, context, log);
+    }
+
+    /// <summary>
     /// Ends a battle that the party won or fled, after the screen is done (D-522). A win marks
     /// the map enemy dead, and a flee starts its grace time (D-381, D-748). The map runs again
     /// from the next tick.

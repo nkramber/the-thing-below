@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Runs;
 using TheThingBelow.Tools;
 using TheThingBelow.Tools.Evaluator;
 using Xunit;
@@ -30,6 +32,28 @@ public sealed class EvaluatorCostCommandTests
         Assert.True(
             exitCode == 0 || errors.ToString().Contains("passes the limit", StringComparison.Ordinal),
             $"The command gave the exit code {exitCode} and the errors '{errors}'.");
+    }
+
+    [Fact]
+    public void TheTimedTurnAppliesTheActionOnACopyOfTheRun()
+    {
+        // P2-1 of the PR-67 review, D-961: the timer reads the whole enemy turn, the choice and
+        // its effect with its events, and the fight of the command never reads a timed turn.
+        BattleContent content = CostFight.Content(RepositoryRoot.Find());
+        Simulation run = Simulation.Start(1, CostFight.Map(), content, DebugIntentHandlers.None);
+        run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
+        Battle battle = run.State.Battle ?? throw new InvalidOperationException("The step into the guard started no battle.");
+        long readyAt = battle.Enemies[0].ReadyAt;
+        _ = run.TakeBattleEvents();
+
+        Simulation copy = EvaluatorCostCommand.CopyOf(run, 1, content);
+        IReadOnlyList<BattleEvent> events = EvaluatorCostCommand.PlayEnemyTurn(copy, battle.Enemies[0].Target);
+
+        Assert.Contains(events, played => played.Actor == battle.Enemies[0].Target
+            && played.Kind is BattleEventKind.Hit or BattleEventKind.Miss or BattleEventKind.Heal or BattleEventKind.Defend or BattleEventKind.Step);
+        Assert.True((copy.State.Battle?.Enemies[0].ReadyAt ?? 0) > readyAt, "The action of the timed turn pushed the enemy on the timeline of the copy.");
+        Assert.Equal(readyAt, battle.Enemies[0].ReadyAt);
+        Assert.Empty(run.TakeBattleEvents());
     }
 
     [Fact]

@@ -1,4 +1,42 @@
 # Session handoff archive
+## Session 238: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #64, round 1. Repository: the-thing-below. Branch: `feat/pr-60-transitions`. PR: #64. Role: reviewer. Base: `ca8c549`.
+
+### What this session did, and why
+
+- Reviewed PR #64 from base `ca8c549` through effective head `875fe53`, across 99 changed paths.
+- Confirmed Claude Code authored the substantive changes, and the Codex reviewer passes the provider gate (T-4, D-17).
+- Verified the tick-after-wait crash fix and its regression test. Reviewed the transition content, deterministic pick, hand-off phases, shaders, budget, captures, and roadmap tests.
+- Read the current CI run and inspected its screen artifact. Every implementation check passed, including all platform legs, screen-test, and Gitar.
+- Added `docs/reviews/pr-64.md` with no findings and `Ready for owner merge` for `875fe53`.
+
+### The state of the build
+
+- `main` and the PR base are `ca8c549`. The effective head is `875fe53`. The remote branch tip before publication is `f3b4855`.
+- `make verify` passed locally: 2,441 tests and every local gate passed.
+- CI run 35884251448 passed build, test, format, smoke, replay identity, coverage, det-lint, STE, changed paths, and screen-test. Gitar passed. The pre-publication review-gate failure awaits its normal rerun after the record lands.
+- The review record and this entry need one metadata commit and a push to `feat/pr-60-transitions`.
+
+### What is in flight
+
+- Publish the review record and this handoff entry together.
+- Verify the remote branch head and the fresh review-gate result.
+
+### Traps and gotchas
+
+- The effective head is `875fe53`; later commits change handoff metadata alone.
+- Push with `git push origin HEAD:feat/pr-60-transitions`.
+
+### The questions that block progress
+
+OQ-242 does not affect PR-60. It asks how the screen shows the count of waiting enemies.
+
+### The next concrete action
+
+Commit the review record and handoff entry together. Push, fetch, and verify the remote head.
+
 ## Session 237: 2026-09-23, Claude Code
 
 Author: Claude Code
