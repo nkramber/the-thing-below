@@ -119,7 +119,7 @@ Built by PR-11. Phase file: `phase-2-first-playable.md`.
 - The evaluator scores every legal action of an enemy by its simulated outcome: damage, kills, threat, healing, timeline shift, and row placement (D-65, D-377).
 - It simulates each legal action and the strongest answer of the other side, one action ahead with one reply (D-534).
 - The cost grows with the count of legal actions times the answers, and no measurement exists (F-53). PR-11 reports the cost of a turn before Gate 2 (G-14).
-- The evaluator uses one seeded stream, and its order of work never changes (G-4, T-7). OQ-127 holds the tie-break of two equal scores.
+- The evaluator uses one seeded stream, and its order of work never changes (G-4, T-7). On a tie of two scores, the evaluator draws one action from its own stream (D-947).
 - A profile reweights the terms of the score and adds traits (D-65).
 - The evaluator lives in Core, and it never reads a screen, a clock, or an effect (G-1, G-3).
 - M-3, M-4, and M-6 measure the cost in a night, in an encounter, and on the Deck (D-507, D-161).
@@ -131,8 +131,8 @@ Built by PR-11. Phase file: `phase-2-first-playable.md`.
 Built by PR-11 and PR-9. Phase file: `phase-2-first-playable.md`.
 
 - Each enemy carries a personality profile in content: the weights of the score terms and its traits (D-65).
-- Every profile validates at load, and a profile that can never act fails that load (G-21, T-2). OQ-128 holds what makes a profile unable to act.
-- Each profile carries a steal list of items and some gold, and a human enemy carries what a person carries (D-383). OQ-129 holds the chance of a steal.
+- Every profile validates at load, and a profile that can never act fails that load (G-21, T-2). A check fight against one fixture party member finds a profile with no legal action (D-948).
+- Each profile carries a steal list of items and some gold, and a human enemy carries what a person carries (D-383). Each profile gives the base chance of a steal, and PR-13 builds the steal action with the Theft term (D-949, D-950).
 - A group file for each region holds each enemy group: its enemies, their rows, and their profiles (D-535).
 - A map names a group by its id, and a test proves that each named group exists (D-528, D-535). PR-9 holds that test on its fixture group file, and PR-11 grows the file (D-766).
 - PR-11 proves the evaluator on fixture profiles, and PR-17 writes the profiles of the first playable.
@@ -172,12 +172,13 @@ Built by PR-9 and PR-10. Phase file: `phase-2-first-playable.md`.
 
 ### 7.10 The battle screen and its effects
 
-Built by PR-10 and PR-57. Phase file: `phase-2-first-playable.md`.
+Built by PR-10, PR-98, and PR-57. Phase file: `phase-2-first-playable.md`.
 
 - The side view puts the enemies on the left and the party on the right, each side in two rows (D-111, D-377).
 - The timeline strip runs across the top, and the command menu and the status sit at the bottom (D-111).
 - The player picks each action, item, and target from the keyboard or the gamepad, and a pointer marks the target (D-827, D-833).
 - A short bar under each enemy shows its health, with no number (D-826).
+- PR-98 draws each waiting enemy at full size and darker, in one column at the left edge, behind the back row (D-951 to D-954).
 - A damage number pops over its target, and one message line states the action in the game voice (D-213, G-20).
 - The attack pose plays on an action, and a color flash marks a hit (D-96, D-108).
 - The backdrop of the place drifts behind the fight, in the light of the time of day of the map (D-205, D-442). Every fight draws the fixture backdrop until the place art of PR-17 (D-831).
@@ -209,7 +210,8 @@ Built by PR-9, PR-11, and PR-15. Phase files: `phase-2-first-playable.md` and ev
 | PR-9 | The timeline, the actions, the defend, the damage, the rows, the wave, the flee, the row change, and the item use | D-376 to D-382, D-533, D-755 to D-781 |
 | PR-66 | The eight elements and the ten statuses | D-74, D-75, D-390, D-533, D-790 to D-811 |
 | PR-10 | The battle screen | D-111, D-213 |
-| PR-11 | The evaluator, the profiles, and the groups | D-65, D-534, D-535 |
+| PR-11 | The evaluator, the profiles, and the groups | D-65, D-534, D-535, D-947 to D-950 |
+| PR-98 | The waiting enemies on the battle screen | D-951 to D-954 |
 | PR-57 | The blood, the sparks, the shake, and the hit-stop | D-186 |
 | PR-20 | The boss phases and the signature moves | D-65 |
 | PR-12 | The lessons and the aptitudes that a fight uses | D-272, D-358 |
@@ -255,14 +257,15 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 5. PR-10: the battle screen.
 6. PR-48, PR-56, and PR-57: the normal maps, the light, and the battle effects (`area-effects.md`).
 7. PR-11: the evaluator, the profiles, and the groups, with the cost of a turn (F-53).
-8. PR-12 and PR-13: the lessons, the gear, and the items that a fight uses.
-9. PR-15: the bots that play the fixture dungeon.
-10. PR-16 and PR-64: the dungeon parts around the fights.
-11. PR-17: the enemies and the groups of the first playable.
-12. M-4: the turns of an encounter and the downs of a dungeon.
-13. **← GATE 2 (first playable).**
-14. PR-20: the boss phases, in Phase 3.
-15. PR-30: the balance pass, in Phase 4.
+8. PR-98: the waiting enemies at the left edge of the field (D-951 to D-954).
+9. PR-12 and PR-13: the lessons, the gear, and the items that a fight uses.
+10. PR-15: the bots that play the fixture dungeon.
+11. PR-16 and PR-64: the dungeon parts around the fights.
+12. PR-17: the enemies and the groups of the first playable.
+13. M-4: the turns of an encounter and the downs of a dungeon.
+14. **← GATE 2 (first playable).**
+15. PR-20: the boss phases, in Phase 3.
+16. PR-30: the balance pass, in Phase 4.
 
 ## 9. Open questions
 
@@ -271,12 +274,14 @@ The register is `docs/questions.md` (D-19). These questions block battle PRs, an
 - OQ-124: a defend action. Resolved by D-755.
 - OQ-125: how many turns the timeline strip shows. Resolved by D-756.
 - OQ-126: where the delay of each action lives. Resolved by D-757.
-- OQ-127: the tie-break of two equal scores. Blocks PR-11.
-- OQ-128: what makes a profile unable to act. Blocks PR-11.
-- OQ-129: the chance of a steal, and the cost of a failure. Blocks PR-11.
+- OQ-127: the tie-break of two equal scores. Resolved by D-947.
+- OQ-128: what makes a profile unable to act. Resolved by D-948.
+- OQ-129: the chance of a steal, and the cost of a failure. Resolved by D-949 and D-950.
 - OQ-130: what starts a boss phase. Blocks PR-20.
 - OQ-131: how the screen shows the health of an enemy. Resolved by D-826.
 - OQ-132: a group larger than its rows. Resolved by D-758.
 - OQ-133: the flee chance and the grace time. Resolved by D-748 and D-763.
+- OQ-242: the waiting enemies of a fight. Resolved by D-951.
+- OQ-243: a column of the waiting enemies, taller than the field. Blocks PR-98.
 
 No open question blocks this file.
