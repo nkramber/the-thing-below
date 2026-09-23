@@ -1,6 +1,6 @@
 # The review and the merge
 
-Status: active runbook. Written in ASD-STE100. Decisions: D-926 to D-933, and D-942 to D-944.
+Status: active runbook. Written in ASD-STE100. Decisions: D-926 to D-933, and D-942 to D-946.
 
 This runbook gives the loop of the author from a push to the merge. It also gives the review command, the three-strike stop, the auto-merge, and the merge settings of the repository. The `one-pr-one-session`, `gitar-review`, and `pr-review` skills hold the rules, and this runbook holds the commands.
 
@@ -15,6 +15,8 @@ This runbook gives the loop of the author from a push to the merge. It also give
 7. On `three-strike-stop`, go to "The three-strike stop".
 8. On `fault` or `refused`, read the reason lines, correct the cause, then go to step 3.
 
+**Gitar pause (D-945).** Step 2 is one read of the Gitar output with commands B and C of the `gitar-review` skill, with no wait for a pass. Step 3 runs `make codex-review PR=<n> -- --skip-gitar-review` (D-946). A Gitar review thread or a finding of the dashboard is feedback. On feedback, stop at once, and tell the owner before any other step. A claim of the CI analysis alone gets its answer with no stop.
+
 ## A commit of documents alone
 
 After an approval, a commit that changes paths of the skip set alone keeps the approval (D-943). The skip set holds `docs/`, all of `.claude/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `LICENSE`, and the PR template (D-857). The `review-gate` check stays green, and the PR needs no new run of `make codex-review`. A change of a decision row keeps the approval too.
@@ -25,6 +27,8 @@ Such a commit still gets its Gitar pass, and the author answers each comment and
 2. Push the commit, with its handoff entry.
 3. Get a complete Gitar pass of the new head with the `gitar-review` skill, and answer each comment.
 4. Go to "The confirmation and the auto-merge".
+
+**Gitar pause (D-945).** Step 3 is the read of the author loop, with no wait for a pass.
 
 A commit that changes a path outside the skip set needs a new review. Go to step 1 of the author loop.
 
@@ -41,6 +45,8 @@ The `codex-review` command of Tools holds the logic, and the Makefile target run
 7. Run the review with the prompt `Review PR #<n>.` and the instructions of the skill and the push.
 8. Fetch, read the record on origin, and compare its head field with the effective head (D-610).
 9. Print the verdict, the open finding ids, the three-strike ids, and the path of the transcript.
+
+The flag `--skip-gitar-review` skips step 5, and the command then reads no Gitar fact (D-946). The prompt of the reviewer then says that no complete Gitar pass is a condition of the review. It also says that each Gitar comment still needs its answer. Make reads a word after `--` as a goal, so the form of the target is `make codex-review PR=<n> -- --skip-gitar-review`. The target refuses each other extra goal, and the goal of the flag fails without the `codex-review` goal.
 
 The command removes `OPENAI_API_KEY` and `CODEX_API_KEY` from each Codex process that it starts, so no review runs at API prices (D-932). The removal changes the environment of that process alone. The shell and each other process keep their keys.
 
@@ -84,6 +90,8 @@ Turn on the auto-merge only when each of these conditions holds (D-930, D-933, D
 - The record gives `Ready for owner merge` for the effective head, or for an earlier head that D-943 keeps approved.
 - The owner confirmed the merge after the summary in four sections.
 
+**Gitar pause (D-945).** The Gitar condition above holds with no pass when the read of the author loop found no open Gitar thread or finding. The `review-override` label of a docs-only PR needs the same read, and no Gitar approval.
+
 The summary goes inside the question block of `AskUserQuestion`, so the owner reads it with the question. Text above a question card does not show. Each section has a few sentences:
 
 - What: the concern of the PR, and what it changes.
@@ -122,3 +130,20 @@ A setting of the repository is outward-facing. A session changes one only after 
 - `required_conversation_resolution` covers each review thread of Gitar. A top-level comment of Gitar is no thread, and the author answers it under the `gitar-review` skill.
 - A required context matches by name. Each context reports on a docs-only head and on a code head, because each gate job of `ci.yml` runs with `if: always()`. The `review-gate` workflow runs on each event of the PR.
 - The `export` workflow runs on a change of its paths alone, so it is not a required context (D-512, D-692). A required context that never reports blocks each merge.
+
+## The end of the Gitar pause
+
+The pause of D-945 holds until the owner tells a session to end it in a PR. Each pause text of a rule file is one whole line, and that line holds the marker that the command below reads. Thus that PR removes the pause with these steps:
+
+1. Make a branch from `main` for the PR.
+2. Run the command below. It lists each line of the pause.
+3. Delete each line that it lists.
+4. Delete this section.
+5. Add a decision row that ends the pause, and write `Superseded by` that row in the Effect column of D-945.
+6. Run the command again. It must show no line.
+
+```bash
+git grep -n -E "Gitar pause \(D-945\)" -- . ":!docs/decisions.md" ":!docs/session-handoff.md" ":!docs/session-handoff-archive.md" ":!docs/reviews/"
+```
+
+The flag `--skip-gitar-review` stays, with each text of D-946 (D-946). The dated records and the register keep the pause as history. PR #58 and PR #60 did the same for the pause of D-895, which D-909 ended.

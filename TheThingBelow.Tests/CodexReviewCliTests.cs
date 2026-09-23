@@ -82,12 +82,25 @@ public sealed class CodexReviewCliTests
     [Fact]
     public void ThePromptIsTheRequestOfTheOwnerWithTheSkillAndThePush()
     {
-        string prompt = CodexCli.ReviewPrompt(63, "feat/pr-95-codex-review", "review/pr-63");
+        string prompt = CodexCli.ReviewPrompt(63, "feat/pr-95-codex-review", "review/pr-63", false);
 
         Assert.StartsWith("Review PR #63.\n", prompt, StringComparison.Ordinal);
         Assert.Contains("`.claude/skills/pr-review/SKILL.md`", prompt, StringComparison.Ordinal);
         Assert.Contains("git push origin HEAD:feat/pr-95-codex-review", prompt, StringComparison.Ordinal);
         Assert.Contains("one metadata commit", prompt, StringComparison.Ordinal);
+        Assert.DoesNotContain("--skip-gitar-review", prompt, StringComparison.Ordinal);
+    }
+
+    /// <summary>A run with the flag tells the reviewer that no complete Gitar pass is a condition (D-946).</summary>
+    [Fact]
+    public void ThePromptOfASkippedGitarPassSaysSo()
+    {
+        string prompt = CodexCli.ReviewPrompt(66, "feat/pr-97-gitar-pause", "review/pr-66", true);
+
+        Assert.Contains(CodexCli.SkippedGitarLine, prompt, StringComparison.Ordinal);
+        Assert.Contains("`--skip-gitar-review` (D-946)", prompt, StringComparison.Ordinal);
+        Assert.Contains("still needs its answer", prompt, StringComparison.Ordinal);
+        Assert.EndsWith("git push origin HEAD:feat/pr-97-gitar-pause`.", prompt, StringComparison.Ordinal);
     }
 
     [Theory]

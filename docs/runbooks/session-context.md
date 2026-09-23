@@ -65,6 +65,8 @@ The checker reads each tracked file from the working tree, so it can name a faul
 
 ## The Gitar wait
 
+**Gitar pause (D-945).** No session runs this wait. The author loop of `docs/runbooks/merge.md` gives the read that replaces it.
+
 Wait for Gitar with one command (D-586). The command stops when a Gitar comment has an edit time after the recorded time, or when five minutes pass. It reads each Gitar comment, and the reply to a request is a Gitar comment. Then run command B of the `gitar-review` skill one time. When command B shows the "On it" reply and no new dashboard edit, run the wait again with `since` set to the reply time.
 
 In Claude Code, run the command in the background, and the harness calls the session again when the command ends. In Codex, run it as one command.

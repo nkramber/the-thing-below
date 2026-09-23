@@ -115,6 +115,8 @@ The prompt is one fenced block that the owner pastes into the next session. Step
 
 ## Automated review pass
 
+**Gitar pause (D-945).** No step waits for Gitar, and the PR gate needs no Gitar pass. On a Gitar thread or finding, stop and tell the owner at once. `docs/runbooks/merge.md` gives each rule.
+
 An automated reviewer, gitar, comments on every PR after a push (D-14). After each push, the author loads the `gitar-review` skill and follows it. The rules below add to the skill, and a rule of this repo wins over it.
 
 - The author answers every comment before the hand-over to the other provider, or before the session applies the `review-override` label (D-67).
@@ -144,9 +146,9 @@ The solution and the project names follow D-217. Run each command from the check
 - Play session: `/Applications/Godot_mono.app/Contents/MacOS/Godot --path TheThingBelow.Game`
 - Cross-provider review: `make codex-review PR=<n>` (D-926).
 
-Every option of the test application comes after `--` (D-592). The coverage command writes a Cobertura file, and the CI job makes a Markdown summary (D-593). The content-hash command takes `--write` after an intended change of a rule file (D-648). The `--sheets <folder>` option of `atlas` writes the review sheets, and no sheet enters git (D-514).
+Every option of the test application comes after `--` (D-592). The content-hash command takes `--write` after an intended change of a rule file (D-648). The `--sheets <folder>` option of `atlas` writes the review sheets, and no sheet enters git (D-514).
 
-The name `Godot` is not on the command path, so the play session and `make smoke` use the full path. The STE check reads every live document that git tracks and takes no file list (D-608, D-702). The `ste-writing` skill holds each of its rules and each exempt path (D-605, D-607, D-611, D-696). Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585).
+The STE check reads every live document that git tracks and takes no file list (D-608, D-702). The `ste-writing` skill holds each of its rules and each exempt path (D-605, D-607, D-611, D-696). Run it in the commit command of `docs/runbooks/session-context.md`, and one time before the first push of a PR (D-585).
 
 ## PR gate
 

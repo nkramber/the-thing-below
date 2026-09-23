@@ -1,4 +1,120 @@
 # Session handoff archive
+## Session 235: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #63, round 2. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: reviewer. Base: `097ea32`.
+
+### What this session did, and why
+
+- Re-read the round 1 findings and the response file, then reviewed PR #63 at effective head `a7902e7`.
+- Verified P2-1: the Gitar reads now paginate comments, check runs, check suites, and review threads. The regression tests pass.
+- Verified P2-2: a repeated finding id now gives a fault. The regression test passes.
+- Reviewed the API-key removal, ChatGPT login check, owner confirmation, and the updates to D-932 and D-933.
+- Updated `docs/reviews/pr-63.md`. Both findings are fixed, and the verdict is `Ready for owner merge`.
+
+### The state of the build
+
+- `main` is `097ea32`. Before this commit, the remote PR head was `a7902e7`.
+- `make build`, `make test` (2,371 tests), `make format`, `make ste-check`, and `make lint` passed locally.
+- CI run 35834375973 passed implementation checks on `a7902e7`. Gitar passed. The review-gate failure read the old verdict and head, before this review commit.
+
+### What is in flight
+
+- This review record and entry need one metadata commit and a push to `feat/pr-95-codex-review`.
+- Fresh review-gate and metadata checks must pass after publication.
+
+### Traps and gotchas
+
+- Metadata commits do not change the effective head (D-610).
+- Review-gate run 35834379314 failed only because the record still named `Changes required` and `ca9dd85`.
+- Keep each Codex process free of `OPENAI_API_KEY` and `CODEX_API_KEY` (D-932).
+
+### The questions that block progress
+
+None. D-926 to D-933 record the owner answers.
+
+### The next concrete action
+
+Commit this entry with the review record, push once, then verify the remote head and the fresh review-gate result.
+
+## Session 234: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR #63, round 2. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: author. Base: `097ea32`.
+
+### What this session did, and why
+
+- Ran the first live `make codex-review PR=63` on `ca9dd85`. The reviewer pushed `49480f1`, and the command gave `changes-required` with P2-1 and P2-2 open.
+- Fixed P2-1: every GitHub read of the command now takes every page. Fixed P2-2: an id that comes two times in a record is a fault. `docs/reviews/pr-63-response.md` answers both.
+- Recorded two owner directions. D-932: no API key in a Codex process, and a ChatGPT login before each run. D-933: the owner confirms each merge after a summary of one paragraph.
+- Applied the three settings of D-931 after the approval of the owner. The compare command of `docs/runbooks/merge.md` matched the record.
+- Answered the Gitar pass on `ca9dd85`: the code review approved with no thread, and one CI claim (RG 7) had merit. The description line changed, and a PR comment answers it.
+
+### The state of the build
+
+- `main` is `097ea32`. Before this commit, the remote head was `49480f1`, the review commit.
+- CI passed each job on `ca9dd85`. The Codex tests pass locally: 91 of them.
+
+### What is in flight
+
+- The Gitar pass of the new head, then `make codex-review PR=63` for round 2.
+- After an approval: the summary of one paragraph and the confirmation of the owner. The owner merges PR #63 by hand (D-931, D-933).
+
+### Traps and gotchas
+
+- A test of `-c forced_login_method="api"` logged the CLI out, and each Codex process of the machine failed until the owner logged in again. Never pass that option (D-932).
+- `codex login status` writes to the error stream. The command reads both streams.
+- Make gives exit 2 for each failed target. Read the outcome line of the command.
+- `CLAUDE.md` holds 16,371 bytes of the limit of 16,384.
+- The `docs/reviews/` line of the description takes the form `No change needed because` until a record lands. A `Changed:` line fails RG 7.
+- The review commit `49480f1` removed the title line of `docs/session-handoff-archive.md`. This round restored it.
+
+### The questions that block progress
+
+None. D-926 to D-933 hold the answers of 2026-09-23.
+
+### The next concrete action
+
+Answer the Gitar pass of the new head. Then run `make codex-review PR=63` in the background.
+
+## Session 233: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #63, round 1. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: reviewer. Base: `097ea32`.
+
+### What this session did, and why
+
+- Reviewed all 37 changed paths from base `097ea32` through effective head `ca9dd85`.
+- Confirmed Claude Code authored the PR, and the Codex reviewer passes the provider gate (T-4, D-17).
+- Found that the Gitar pass check reads only 100 review threads, and that duplicate finding IDs split the three-strike count (D-14, D-929).
+- Ran `make verify`: 2,359 tests passed, and each local check passed.
+- Read the live CI checks. Each implementation check passed. Review-gate failed RG 3 because the review record was absent.
+- Added `docs/reviews/pr-63.md` with two open findings and the verdict `Changes required`.
+
+### The state of the build
+
+- The base and merge base are `097ea32`. The effective code head is `ca9dd85`.
+- Local verification passed. Live build, test, format, coverage, lint, identity, screen-test, smoke, and STE checks passed on their CI legs.
+- The Gitar check passed on `ca9dd85`. The live merge settings match `docs/runbooks/branch-protection.json` (D-931).
+
+### What is in flight
+
+- The author needs to fix P2-1 and P2-2 in `docs/reviews/pr-63.md`, then request a repeat review.
+- This metadata commit publishes the review record and this entry. The `docs/reviews/` Documents row needs correction after publication.
+
+### Traps and gotchas
+
+- Metadata commits do not change effective head `ca9dd85` (D-610).
+- The pre-publication review-gate failure is RG 3 because the review record is absent. RG 4 and RG 5 skip until the record lands.
+
+### The questions that block progress
+
+None. The PR-95 roadmap lists no open question.
+
+### The next concrete action
+
+The author fixes both findings and requests a repeat review of PR #63.
+
 ## Session 232: 2026-09-23, Claude Code
 
 Author: Claude Code

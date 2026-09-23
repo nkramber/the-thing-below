@@ -15,8 +15,13 @@ SMOKE_FRAME_LIMIT := 600
 # limit holds every capture of the list, and the screen-test job of CI holds the same number.
 SHEET_FRAME_LIMIT := 1200
 
+# The flag of the codex-review target that skips the check of the Gitar pass (D-946). The flag
+# comes after `--` on the command line of make, so make reads it as a goal.
+SKIP_GITAR_REVIEW := --skip-gitar-review
+CODEX_REVIEW_FLAGS := $(filter $(SKIP_GITAR_REVIEW),$(MAKECMDGOALS))
 
-.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke sheet walk run clean codex-review
+
+.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke sheet walk run clean codex-review $(SKIP_GITAR_REVIEW)
 
 ## verify: every check that this machine can run.
 verify: build test format lint ste-check identity content atlas smoke
@@ -176,9 +181,18 @@ run:
 # The command gives 0 for an approval, 2 for `Changes required` or `Blocked`, 3 for the
 # three-strike stop, and 1 for a fault or a refusal. Make gives 2 for each code other than 0, so
 # read the last line of the output: `codex-review: outcome <name> (exit <code>)`.
+#
+# `make codex-review PR=<n> -- --skip-gitar-review` skips the check of the Gitar pass (D-946).
+# Make reads each word after `--` as a goal and not as an option of make. Thus the flag reaches
+# this file as a goal, and the target passes it to the command of Tools. The goal of the flag
+# does nothing, and it fails without the `codex-review` goal. The flag is permanent.
 codex-review:
 	@test -n "$(PR)" || { echo "codex-review: set PR=<number>, such as make codex-review PR=63 (T-2)." >&2; exit 1; }
-	dotnet run --project $(TOOLS_PROJECT) -- codex-review --root . --pull-request $(PR)
+	@test -z "$(filter-out codex-review $(SKIP_GITAR_REVIEW),$(MAKECMDGOALS))" || { echo "codex-review: the goal '$(filter-out codex-review $(SKIP_GITAR_REVIEW),$(MAKECMDGOALS))' is unknown. The one flag is $(SKIP_GITAR_REVIEW) (T-2)." >&2; exit 1; }
+	dotnet run --project $(TOOLS_PROJECT) -- codex-review --root . --pull-request $(PR) $(CODEX_REVIEW_FLAGS)
+
+$(SKIP_GITAR_REVIEW):
+	@test -n "$(filter codex-review,$(MAKECMDGOALS))" || { echo "codex-review: $(SKIP_GITAR_REVIEW) needs the codex-review goal, such as make codex-review PR=63 -- $(SKIP_GITAR_REVIEW) (T-2)." >&2; exit 1; }
 
 ## where: the branch, the tree, and the PR state.
 where:

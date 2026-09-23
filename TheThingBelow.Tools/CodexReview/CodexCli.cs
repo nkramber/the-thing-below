@@ -166,25 +166,37 @@ public static class CodexCli
 
     /// <summary>
     /// Gives the prompt of the review. It is the request that the owner typed in the desktop
-    /// app, and two lines that tell the reviewer the skill and the push (D-926).
+    /// app, and two lines that tell the reviewer the skill and the push (D-926). A run with the
+    /// flag of D-946 adds a line that tells the reviewer that no complete Gitar pass is a condition.
     /// </summary>
     /// <param name="number">The GitHub number of the pull request.</param>
     /// <param name="branch">The branch of the pull request on GitHub.</param>
     /// <param name="localBranch">The local branch of the worktree, which tracks the branch on GitHub.</param>
+    /// <param name="skipGitarReview">True when the command line holds `--skip-gitar-review`.</param>
     /// <returns>The prompt text.</returns>
-    public static string ReviewPrompt(int number, string branch, string localBranch)
+    public static string ReviewPrompt(int number, string branch, string localBranch, bool skipGitarReview)
     {
         ArgumentException.ThrowIfNullOrEmpty(branch);
         ArgumentException.ThrowIfNullOrEmpty(localBranch);
 
         string text = number.ToString(CultureInfo.InvariantCulture);
+        string gitar = skipGitarReview ? SkippedGitarLine : string.Empty;
         return
             $"Review PR #{text}.\n\n" +
             "Load and follow `.claude/skills/pr-review/SKILL.md`. " +
             $"The `codex-review` command started this review in a separate worktree, on the local branch `{localBranch}`, which tracks `origin/{branch}`.\n\n" +
+            gitar +
             "Commit the review record and your handoff entry as one metadata commit. " +
             $"Push it with `git push origin HEAD:{branch}`.";
     }
+
+    /// <summary>
+    /// The prompt line of a run with `--skip-gitar-review` (D-946). A Gitar comment that exists
+    /// still needs its answer, so the line lifts the condition of a complete pass alone.
+    /// </summary>
+    public const string SkippedGitarLine =
+        "The author started this review with `--skip-gitar-review` (D-946). A complete or current Gitar pass is not a condition of this review. " +
+        "Each Gitar comment that exists still needs its answer.\n\n";
 
     private static List<string> ExecArguments(string sandbox, string folder, string lastMessageFile)
     {
