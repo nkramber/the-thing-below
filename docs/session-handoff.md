@@ -1,7 +1,7 @@
 ## Session 246: 2026-09-23, Claude Code
 
 Author: Claude Code
-Session: author PR-11, round 1. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: the PR-11 intent, before GitHub gives a number. Role: author. Base: `d429d03`.
+Session: author PR-11, round 1. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: #67. Role: author. Base: `d429d03`.
 
 ### What this session did, and why
 
@@ -11,6 +11,8 @@ Session: author PR-11, round 1. Repository: the-thing-below. Branch: `feat/pr-11
 - Added save format 6 with the stream of the evaluator, and simulation version 17 (G-17).
 - Added the `evaluator-cost` command and `make evaluator-cost` (D-961). The Mac gave 43 us at the 95th percentile, with 15 legal actions at most.
 - Added PR-98 to the roadmap for the waiting enemies on screen (D-951 to D-954), and filed OQ-243.
+- Opened PR #67. CI run 35906133812 passed each check except `screen-test` and `review-gate`. Seven battle captures took new numbers and a new strip, and the baseline took them from the artifact (D-733).
+- Read the Gitar output one time: the notice of the free plan alone, with no thread and no finding (D-945).
 
 ### The state of the build
 
@@ -19,7 +21,7 @@ Session: author PR-11, round 1. Repository: the-thing-below. Branch: `feat/pr-11
 
 ### What is in flight
 
-- The first push of PR-11, CI, the Gitar read of D-945, and `make codex-review PR=<n> -- --skip-gitar-review`.
+- CI on the baseline commit, then `make codex-review PR=67 -- --skip-gitar-review`.
 - The owner run of `make evaluator-cost` on the Deck, before the merge (D-961).
 
 ### Traps and gotchas
@@ -34,7 +36,7 @@ None for PR-11. OQ-243 blocks PR-98.
 
 ### The next concrete action
 
-Push the branch, open the PR, read CI and the Gitar output one time, then run the Codex review.
+Read CI on the baseline commit, read the Gitar output one time, then run `make codex-review PR=67 -- --skip-gitar-review`.
 
 ## Session 245: 2026-09-23, Claude Code
 
