@@ -1,4 +1,35 @@
 # Session handoff archive
+## Session 218: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-94, round 7. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
+
+### What this session did, and why
+
+- Committed the baselines of `map-fog-1x` and `battle-fog-1x` from the artifact of CI run 35803303503 at `205a8ee` (D-733). The two runs of that job matched on all 72 captures, and only the two fog frames differed from the old baseline.
+- The final head of `docs/reviews/pr-59-response.md` names this commit.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The PR head before this round is `205a8ee`, and the commit of this round is the effective head.
+- CI on `205a8ee` passed each check except screen-test, on the two fog frames alone, and review-gate, which reads the `Blocked` verdict of `8011192`.
+
+### What is in flight
+
+- The PR waits for the repeat review of the other provider on the answer to P2-1 (T-4).
+
+### Traps and gotchas
+
+- None new.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The other provider reviews the answer to P2-1, and updates `docs/reviews/pr-59.md`.
+
 ## Session 217: 2026-09-22, Claude Code
 
 Author: Claude Code

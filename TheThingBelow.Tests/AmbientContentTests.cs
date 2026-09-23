@@ -136,7 +136,7 @@ public sealed class AmbientContentTests
         ContentSet set = ContentSet.Load(new List<ContentFile>(ContentFolder.Read(RepositoryRoot.Find())));
         ContentId map = ContentId.Parse("map.fixture_dungeon", "test", "map");
 
-        Assert.Equal(2, set.Light.DecorOf(map).Shafts.Count);
+        Assert.Single(set.Light.DecorOf(map).Shafts);
         Assert.Equal(1, set.Light.ShaftPassesOf(map));
         Assert.Equal(0, LightFixtures.Load(LightFixtures.Files(LightFixtures.DecorBody(""), LightFixtures.SetupBody())).ShaftPassesOf(ContentId.Parse(LightFixtures.MapId, "test", "map")));
         Assert.Equal(1, LightFixtures.Load(LightFixtures.Files(LightFixtures.DecorBody("", shafts: LightFixtures.Shaft("beam", 3, 0)), LightFixtures.SetupBody())).ShaftPassesOf(ContentId.Parse(LightFixtures.MapId, "test", "map")));

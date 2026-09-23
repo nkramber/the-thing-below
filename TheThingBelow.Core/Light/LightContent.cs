@@ -20,7 +20,7 @@ namespace TheThingBelow.Core.Light;
 /// <item>Each map has one decor file and one light setup for its own time of day (D-442).</item>
 /// <item>Each decor file and each light setup names a map that exists.</item>
 /// <item>Each piece names a kind that exists, and a drawing draws that kind (D-519).</item>
-/// <item>Each light shaft names a shaft kind that exists (D-918).</item>
+/// <item>Each light shaft names a shaft kind that exists, and a drawing draws the opening of that kind (D-918, D-924).</item>
 /// <item>Each piece and each light shaft hangs on a wall with a floor or a doorway to its south (D-844, D-918).</item>
 /// <item>Each change names a piece of its map, and each added light lies on its map (D-843).</item>
 /// <item>Each color names a key of the palette, the color of each glow, each shaft, and the vignette included (D-846, D-181).</item>
@@ -272,6 +272,18 @@ public sealed class LightContent
                     kind.File,
                     "id",
                     $"no drawing draws '{kind.Id.Value}' for the use '{MapUse}', and Game draws each decor piece (D-519)");
+            }
+        }
+
+        foreach (ShaftKind kind in this.shaftKinds.Values)
+        {
+            // A beam falls from an opening that a drawing shows, and never from a bare wall (D-924).
+            if (!atlas.Draws(kind.Id, MapUse))
+            {
+                throw ContentException.ForField(
+                    kind.File,
+                    "id",
+                    $"no drawing draws '{kind.Id.Value}' for the use '{MapUse}', and a light shaft falls from an opening that a drawing shows (D-924)");
             }
         }
     }

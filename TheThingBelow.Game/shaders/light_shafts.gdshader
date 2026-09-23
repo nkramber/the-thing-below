@@ -1,16 +1,16 @@
-// The light shafts of the HD-2D look (D-849, D-917 to D-921). One rectangle covers the view in the
-// overlay, above the fog and the hit bursts, so a beam lights the fog and never glows (D-916,
-// D-919). The tilt-shift blur and the vignette draw above the overlay.
+// The light shafts of the HD-2D look (D-849, D-917 to D-920, D-924, D-925). One rectangle covers
+// the view in the overlay, above the fog and the hit bursts, so a beam lights the fog and never
+// glows (D-916, D-919). The tilt-shift blur and the vignette draw above the overlay.
 //
-// Each shaft is a beam from a place on a wall into the room to its south. The beam slants by a
-// count of art pixels over its length, and it grows a little wider as it falls. Its light is
-// full at the top and fades to nothing at its foot. Where beams overlap, their light adds.
+// Each shaft is a still beam from an opening in a wall, such as a window, into the room to its
+// south. The beam slants by a count of art pixels over its length, and it grows a little wider as
+// it falls. Its light is full at the top and fades to nothing at its foot. Where beams overlap,
+// their light adds.
 //
 // The shader adds the light of each beam to the picture under it. It writes the light with an
 // alpha of 0 and the blend of premultiplied alpha, so the overlay adds that light over the world
-// and dims nothing. The shader never reads TIME. Game gives it the strength of each beam at the
-// tick, with the shimmer of its kind, so one tick gives one picture (F-100, D-921). The shader
-// never writes NORMAL_MAP (D-183).
+// and dims nothing. Each beam stands still, so the shader never reads TIME, and one frame of the
+// view gives one picture (F-100, D-925). The shader never writes NORMAL_MAP (D-183).
 shader_type canvas_item;
 render_mode unshaded, blend_premul_alpha;
 
@@ -44,7 +44,7 @@ uniform int widths[MOST_SHAFTS];
 // The palette color of each beam (D-181).
 uniform vec4 colors[MOST_SHAFTS] : source_color;
 
-// The strength of each beam at the tick, from 0 to 1, with its shimmer (D-921).
+// The strength of each beam, from 0 to 1.
 uniform float strengths[MOST_SHAFTS];
 
 // The pixel of the rectangle, from its north-west corner, in art pixels.

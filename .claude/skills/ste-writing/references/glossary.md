@@ -157,8 +157,7 @@ Effects terms from the roadmaps PR of 2026-09-15:
 | scene view | the view of 640 by 360 that joins the world and the overlay, which the tilt-shift blur reads (D-919) | composite, back buffer |
 | tilt-shift blur | the blur of a band at the top and the bottom of the view (D-849) | depth of field, DOF, bokeh |
 | vignette | the dark at the edges and the corners of the view (D-849) | edge shade, falloff |
-| light shaft | a beam of light from a place on a wall into the room to its south, which a shaft kind holds (D-918) | god ray, sunbeam, light ray |
-| shimmer | the slow wave of the tick that swells and fades a light shaft (D-921) | pulse, which names the wave of a glow, and flicker |
+| light shaft | a still beam of light from an opening in a wall, such as a window, into the room to its south, which a shaft kind holds (D-918, D-924, D-925) | god ray, sunbeam, light ray |
 | smooth mode, stepped mode | the two modes of the three passes of PR-92: no steps, or steps over blocks of art pixels (D-917) | soft mode, pixel mode |
 | pulse | the slow wave of the tick that swells and fades each glow (D-913) | flicker, which names the steps of a torch light (D-891), and throb |
 | wait intent | the intent that Game sends when an effect that the world waits for ends (D-522) | continue intent, done signal |

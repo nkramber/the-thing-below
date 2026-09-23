@@ -760,7 +760,7 @@ How to file a question (D-19, D-24):
     - A still beam in both modes, the recommendation.
     - A slow shimmer in both modes. The strength of each beam swells and fades on a wave of the tick, as the glow does (D-913).
     - A still beam in the smooth mode alone.
-    - Resolved 2026-09-23: D-921. Both the still beam and the shimmer, each in both modes, to compare.
+    - Resolved 2026-09-23: D-921. Both the still beam and the shimmer, each in both modes, to compare. D-925 keeps the still beam.
 238. **OQ-238. The Deck sweep of the heavier stack.** D-849 needs a new Deck sweep before PR-92 merges (G-14). How does the sweep measure the stack? Raised 2026-09-23. Blocked PR-92.
     - New stages on the branch `spike/deck-test`, the recommendation. The stage `full-load-24` is the measurement before, and the same load with the three passes is the measurement after.
     - A frame meter in the debug build of the game, on the fixture map, with the passes off and on.
@@ -770,3 +770,9 @@ How to file a question (D-19, D-24):
     - 5. The row holds the passes of PR-92 alone, and PR-60 needs a new sweep.
     - 8. The sweep adds passes that the game does not hold yet, for room.
     - Resolved 2026-09-23: D-923. 6.
+240. **OQ-240. The light of a wall shaft.** The owner read the fixture shafts and said that a beam from a bare wall makes no sense. Where does a shaft come from? Raised 2026-09-23. Blocked PR-92.
+    - From the ceiling onto a floor tile, the recommendation. The beam starts at the top of the view and falls onto the tile.
+    - From the top edge of the view, at one angle for the map.
+    - From a wall, only where a drawing shows an opening, such as a window.
+    - Resolved 2026-09-23: D-924. From a wall with an opening. The owner also wants shafts from the ceiling later (OQ-241).
+241. **OQ-241. The PR of the ceiling shafts.** The owner wants light shafts from the ceiling at some point (D-924). Which PR adds them, and where does it sit in the sequence? Raised 2026-09-23. Blocks nothing yet.

@@ -380,11 +380,12 @@ Built by PR-56 and PR-92. Phase file: `phase-2-first-playable.md`.
 - Each pass takes a smooth mode and a stepped mode, and the owner reads both and picks one (D-917). The file `content/effects/hd2d.json` holds the mode, the blur, and the vignette.
 - The stepped mode fades in 2 to 8 steps over blocks of 1 to 8 art pixels, as the fog does. The smooth mode fades with no steps, and its colors can leave the palette.
 - A light shaft is a shaft kind in `content/decor/shafts/`, and the decor file of a map places each shaft on a wall (D-918). A map holds 8 shafts at most, the size of the arrays of the shader.
-- A shaft can shimmer on a slow wave of the tick, as the glow pulses. A depth of 0 gives a still beam, and the fixture dungeon holds one of each (D-921).
+- A wall shaft falls from an opening, such as a window, that a drawing of its kind shows. The load refuses a shaft kind that no drawing draws (D-924).
+- Each shaft stands still (D-925). Shafts from the ceiling onto a floor tile come in a later PR (D-924, OQ-241).
 - The blur and the vignette draw on every map and every fight. A shaft draws where a decor file places it (D-920).
 - The shafts draw in the overlay, above the fog. The blur and the vignette draw over the world and the overlay, and the marks and the UI stay sharp above them (D-210, D-919).
 - Each pass of PR-92 counts against the effect budget (D-523). The budget of D-617 holds 3 passes, so a new Deck sweep measures the heavier stack before PR-92 merges (G-14). The pass row then rises to 6 (D-922, D-923).
-- The screen test captures the map, a fight, and the still fixture in the stepped mode too, so the owner reads both modes (D-917).
+- The screen test captures the map and a fight in the stepped mode too, so the owner reads both modes (D-917).
 
 > *In plain English:* the goal is a storybook diorama: dark places, warm pools of light, and a soft blur at the edges. The light comes first, and the blur and the shafts come later, after a test on the Deck.
 

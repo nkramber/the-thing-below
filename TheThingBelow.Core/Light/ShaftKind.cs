@@ -5,18 +5,15 @@ using TheThingBelow.Core.Content;
 namespace TheThingBelow.Core.Light;
 
 /// <summary>
-/// One kind of light shaft: a beam of light from a place on a wall into the room to its south
-/// (D-849, D-918). No rule reads a shaft, so the file lies outside the rule folder (D-495).
+/// One kind of light shaft: a still beam of light from an opening in a wall, such as a window,
+/// into the room to its south (D-849, D-918, D-924, D-925). No rule reads a shaft, so the file
+/// lies outside the rule folder (D-495).
 /// </summary>
 /// <remarks>
 /// The decor file of a map places each shaft on a wall, as it places each torch (D-844, D-918).
-/// A shaft has no drawing and no Godot light. The shaft pass of Game draws every shaft of the
-/// view in one full-screen pass, above the fog, so a beam never glows (D-916, D-919).
-/// <para>
-/// The shimmer swells and fades the strength of the beam on a slow wave of the tick, with a phase
-/// from the id of its piece, as the glow pulses (D-913, D-921). A shimmer depth of 0 gives a
-/// still beam.
-/// </para>
+/// A drawing of the opening draws the kind, and Game draws it on the wall, so no beam comes out
+/// of a bare wall (D-924). A shaft has no Godot light. The shaft pass of Game draws every shaft of
+/// the view in one full-screen pass, above the fog, so a beam never glows (D-916, D-919).
 /// </remarks>
 public sealed class ShaftKind
 {
@@ -38,13 +35,7 @@ public sealed class ShaftKind
     /// <summary>The longest beam, in art pixels: the height of the view.</summary>
     public const int MostLength = 360;
 
-    /// <summary>The longest wave of the shimmer, in ticks: ten seconds.</summary>
-    public const int MostShimmerTicks = 600;
-
-    /// <summary>The deepest shimmer, in basis points: the beam falls to half its light at the low of the wave.</summary>
-    public const int MostShimmerDepth = BasisPoints.One / 2;
-
-    private ShaftKind(string file, ContentId id, char key, int strength, int width, int length, int slant, int x, int y, int shimmerTicks, int shimmerDepth)
+    private ShaftKind(string file, ContentId id, char key, int strength, int width, int length, int slant, int x, int y)
     {
         this.File = file;
         this.Id = id;
@@ -55,14 +46,12 @@ public sealed class ShaftKind
         this.Slant = slant;
         this.X = x;
         this.Y = y;
-        this.ShimmerTicks = shimmerTicks;
-        this.ShimmerDepth = shimmerDepth;
     }
 
     /// <summary>The path of the file, under `content/`, which every error names (T-2).</summary>
     public string File { get; }
 
-    /// <summary>The id of the kind, such as `shaft.fixture_crack`.</summary>
+    /// <summary>The id of the kind, such as `shaft.fixture_window`. A drawing of the opening draws it (D-924).</summary>
     public ContentId Id { get; }
 
     /// <summary>The palette key of the light of the beam (D-181).</summary>
@@ -88,12 +77,6 @@ public sealed class ShaftKind
     /// A value of the tile size or more puts the top over the tile to the south.
     /// </summary>
     public int Y { get; }
-
-    /// <summary>The ticks of one wave of the shimmer (D-921).</summary>
-    public int ShimmerTicks { get; }
-
-    /// <summary>The part of the light of the beam that the shimmer takes away at the low of the wave, in basis points. 0 gives a still beam (D-921).</summary>
-    public int ShimmerDepth { get; }
 
     /// <summary>Tells whether a content path is a shaft file.</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
@@ -139,7 +122,7 @@ public sealed class ShaftKind
                 case "color":
                     key = reader.ReadString();
                     break;
-                case "strength" or "width" or "length" or "slant" or "x" or "y" or "shimmer_ticks" or "shimmer_depth":
+                case "strength" or "width" or "length" or "slant" or "x" or "y":
                     values[field] = reader.ReadInt();
                     break;
                 default:
@@ -166,9 +149,7 @@ public sealed class ShaftKind
             length,
             InRange(ref reader, depth, values, "slant", -length, length, "a beam slants by its length at most"),
             InRange(ref reader, depth, values, "x", 0, AtlasPages.TileSize - 1, "the top lies inside the tile"),
-            InRange(ref reader, depth, values, "y", 0, (2 * AtlasPages.TileSize) - 1, "the top lies in the tile, or the tile to its south"),
-            InRange(ref reader, depth, values, "shimmer_ticks", 2, MostShimmerTicks, "a wave takes 2 ticks or more"),
-            InRange(ref reader, depth, values, "shimmer_depth", 0, MostShimmerDepth, "the shimmer never takes more than half the light"));
+            InRange(ref reader, depth, values, "y", 0, (2 * AtlasPages.TileSize) - 1, "the top lies in the tile, or the tile to its south"));
     }
 
     private static int InRange(ref ContentReader reader, int depth, SortedDictionary<string, int> values, string field, int least, int most, string reason)

@@ -8,7 +8,7 @@ using Xunit;
 
 namespace TheThingBelow.Tests;
 
-/// <summary>The strict reader of a shaft kind, and the light shafts of a decor file (D-918, D-921).</summary>
+/// <summary>The strict reader of a shaft kind, and the light shafts of a decor file (D-918, D-924, D-925).</summary>
 public sealed class ShaftKindTests
 {
     [Fact]
@@ -24,8 +24,6 @@ public sealed class ShaftKindTests
         Assert.Equal(16, kind.Slant);
         Assert.Equal(16, kind.X);
         Assert.Equal(8, kind.Y);
-        Assert.Equal(240, kind.ShimmerTicks);
-        Assert.Equal(0, kind.ShimmerDepth);
     }
 
     [Theory]
@@ -40,8 +38,6 @@ public sealed class ShaftKindTests
     [InlineData("\"slant\": 16", "\"slant\": -97", "slant", "-96 to 96")]
     [InlineData("\"x\": 16", "\"x\": 32", "x", "0 to 31")]
     [InlineData("\"y\": 8", "\"y\": 64", "y", "0 to 63")]
-    [InlineData("\"shimmer_ticks\": 240", "\"shimmer_ticks\": 1", "shimmer_ticks", "2 to 600")]
-    [InlineData("\"shimmer_depth\": 0", "\"shimmer_depth\": 5001", "shimmer_depth", "0 to 5000")]
     public void AValueOutsideItsLimitFailsWithTheField(string from, string to, string field, string reason)
     {
         // T-2: each bad value names the file, the field, and the rule. A beam of no light would
@@ -56,7 +52,7 @@ public sealed class ShaftKindTests
     [Theory]
     [InlineData("\"color\": \"j\", ")]
     [InlineData("\"length\": 96, ")]
-    [InlineData(", \"shimmer_depth\": 0")]
+    [InlineData(", \"y\": 8")]
     public void AShaftKindWithAnAbsentFieldFails(string removed)
     {
         // T-2: an absent value is an error, never a default.
@@ -66,15 +62,29 @@ public sealed class ShaftKindTests
     }
 
     [Fact]
-    public void TheCheckoutHoldsAStillShaftAndAShaftThatShimmers()
+    public void TheCheckoutHoldsOneShaftFromAWindowThatADrawingDraws()
     {
-        // D-921: the owner compares a still beam with a beam that shimmers, on the fixture dungeon.
+        // D-924: the beam of the fixture dungeon falls from a window that a drawing shows.
         ContentSet set = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
         DecorFile decor = set.Light.DecorOf(ContentId.Parse("map.fixture_dungeon", "test", "map"));
 
-        Assert.Equal(2, decor.Shafts.Count);
-        Assert.Equal(0, set.Light.ShaftOf(decor.Shafts[0].Kind).ShimmerDepth);
-        Assert.True(set.Light.ShaftOf(decor.Shafts[1].Kind).ShimmerDepth > 0, "the second shaft of the fixture dungeon holds no shimmer (D-921)");
+        DecorPiece shaft = Assert.Single(decor.Shafts);
+        Assert.Equal("shaft.fixture_window", shaft.Kind.Value);
+        Assert.True(set.Atlas.Draws(shaft.Kind, LightContent.MapUse), "no drawing draws the window of the fixture shaft (D-924)");
+    }
+
+    [Fact]
+    public void AShaftKindThatNoDrawingDrawsFails()
+    {
+        // D-924: a beam falls from an opening that a drawing shows, and never from a bare wall.
+        List<ContentFile> files = LightFixtures.Files(LightFixtures.DecorBody(string.Empty), LightFixtures.SetupBody());
+
+        ContentException error = Assert.Throws<ContentException>(
+            () => LightContent.Load(files, LightFixtures.Maps(), LightFixtures.Palette(), LightFixtures.Atlas(shaft: "shaft.other")));
+
+        Assert.Equal(LightFixtures.ShaftKindPath, error.File);
+        Assert.Equal("id", error.Field);
+        Assert.Contains("falls from an opening", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]

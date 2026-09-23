@@ -79,15 +79,11 @@ public sealed class ScreenCapturesTests
         "scroll-17.png",
     ];
 
-    /// <summary>The captures of the stepped mode of the passes of the HD-2D look, on the map, in a fight, and in the still fixture (D-917, D-921).</summary>
+    /// <summary>The captures of the stepped mode of the passes of the HD-2D look, on the map and in a fight (D-917).</summary>
     private static readonly string[] SteppedNames =
     [
         "map-stepped-1x.png",
         "battle-stepped-1x.png",
-        "still-stepped-060.png",
-        "still-stepped-120.png",
-        "still-stepped-180.png",
-        "still-stepped-240.png",
     ];
 
     // This property stays below `StillNames`, because its build reads that array, and a static
@@ -107,9 +103,9 @@ public sealed class ScreenCapturesTests
         // level of the flash and shake reduction (D-863, exit test 1 of PR-57).
         // PR-58 adds one capture of each ambient kind on the map and over a fight, the pit room
         // of the wall shape beside a doorway, and three frames of a step that scrolls the view
-        // (D-852, D-889, F-97, exit test 1 of PR-58). PR-92 adds the map, a fight, and the still
-        // fixture in the stepped mode of the passes (D-917, D-921).
-        Assert.Equal(10 + 34 + 1 + 10 + 3 + 14 + 6, FileNames().Count);
+        // (D-852, D-889, F-97, exit test 1 of PR-58). PR-92 adds the map and a fight in the
+        // stepped mode of the passes (D-917).
+        Assert.Equal(10 + 34 + 1 + 10 + 3 + 14 + 2, FileNames().Count);
     }
 
     [Fact]

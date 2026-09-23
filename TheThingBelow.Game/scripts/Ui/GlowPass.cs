@@ -1,7 +1,9 @@
 using System;
+using System.Text;
 using Godot;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Light;
 
 namespace TheThingBelow.Game.Ui;
@@ -191,8 +193,14 @@ public static class GlowPass
     public static float PulseOf(Glow glow, string id, long tick)
     {
         ArgumentNullException.ThrowIfNull(glow);
+        ArgumentException.ThrowIfNullOrEmpty(id);
+        ArgumentOutOfRangeException.ThrowIfNegative(tick);
 
-        return LightWave.PartOf(id, glow.PulseTicks, glow.PulseDepth, tick, PulseSeed);
+        ulong hash = XxHash64.Compute(Encoding.UTF8.GetBytes(id), PulseSeed);
+        long phase = (long)(hash % (ulong)glow.PulseTicks);
+        long step = (tick + phase) % glow.PulseTicks;
+        float wave = (1f - MathF.Cos(2f * MathF.PI * step / glow.PulseTicks)) / 2f;
+        return 1f - (glow.PulseDepth / (float)BasisPoints.One * wave);
     }
 
     private static void Lift(CanvasItem item, uint layer)

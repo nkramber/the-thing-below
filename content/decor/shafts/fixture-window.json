@@ -1,0 +1,11 @@
+{
+ "comment": "A still beam of pale moonlight from a barred window high in a wall, which falls into the room to its south (D-849, D-918, D-924, D-925). The decor file of a map places it on a wall, as it places a torch, and the drawing of the window draws on that wall, so no beam comes out of a bare wall. The color is a palette key, and the strength is the light that the top of the beam adds, in basis points of that color. The top sits under the sill of the window. The beam slants east by the slant over its length, grows a little wider as it falls, and fades to nothing at its foot. The shaft pass draws it above the fog, so it never glows (D-916, D-919).",
+ "id": "shaft.fixture_window",
+ "color": "L",
+ "strength": 3000,
+ "width": 12,
+ "length": 128,
+ "slant": 24,
+ "x": 16,
+ "y": 28
+}

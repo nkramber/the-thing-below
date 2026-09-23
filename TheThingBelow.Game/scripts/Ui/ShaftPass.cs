@@ -13,9 +13,8 @@ namespace TheThingBelow.Game.Ui;
 /// and the hit bursts, so a beam lights the fog and never glows (D-916, D-919).
 /// </summary>
 /// <remarks>
-/// At each tick, this class gives the shader the top of each beam in art pixels of the view, and
-/// the strength of each beam with its shimmer (D-921). The shader never reads the clock of Godot,
-/// so one tick gives one picture in every capture (F-100, D-172).
+/// At each frame, this class gives the shader the top of each beam in art pixels of the view.
+/// Each beam stands still, so the shader reads no tick and never the clock of Godot (F-100, D-925).
 /// </remarks>
 public sealed class ShaftPass
 {
@@ -52,11 +51,8 @@ public sealed class ShaftPass
     /// <summary>The name of the uniform of the palette color of each beam.</summary>
     public const string ColorsName = "colors";
 
-    /// <summary>The name of the uniform of the strength of each beam at the tick.</summary>
+    /// <summary>The name of the uniform of the strength of each beam.</summary>
     public const string StrengthsName = "strengths";
-
-    /// <summary>The seed of the hash of the phase of each shimmer. A new value moves the shimmer of every shaft.</summary>
-    private const ulong ShimmerSeed = 0x73686166UL;
 
     private readonly ColorRect rect;
     private readonly ShaderMaterial material;
@@ -100,7 +96,6 @@ public sealed class ShaftPass
         {
             ShaftKind kind = light.ShaftOf(piece.Kind);
             placed.Add(new PlacedShaft(
-                piece.Id.Value,
                 kind,
                 checked((piece.Tile.X * MapCamera.TilePixels) + kind.X),
                 checked((piece.Tile.Y * MapCamera.TilePixels) + kind.Y)));
@@ -128,15 +123,13 @@ public sealed class ShaftPass
         return new ShaftPass(rect, material, placed);
     }
 
-    /// <summary>Puts the pass over the view at one tick, with the shimmer of each beam (D-921).</summary>
+    /// <summary>Puts the pass over the view, so each beam stays on the world (F-97).</summary>
     /// <param name="point">The north-west corner of the view, in art pixels of the parent.</param>
     /// <param name="width">The width of the view, in art pixels.</param>
     /// <param name="height">The height of the view, in art pixels.</param>
-    /// <param name="tick">The tick of the run, from 0.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The tick is below zero, or the view is empty (T-2).</exception>
-    public void Show(Vector2 point, int width, int height, long tick)
+    /// <exception cref="ArgumentOutOfRangeException">The view is empty (T-2).</exception>
+    public void Show(Vector2 point, int width, int height)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(tick);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
 
@@ -144,14 +137,11 @@ public sealed class ShaftPass
         int viewY = (int)point.Y;
         int[] topX = new int[ShaftKind.MostShaftsOnMap];
         int[] topY = new int[ShaftKind.MostShaftsOnMap];
-        float[] strengths = new float[ShaftKind.MostShaftsOnMap];
         for (int index = 0; index < this.shafts.Count; index += 1)
         {
             PlacedShaft shaft = this.shafts[index];
             topX[index] = shaft.X - viewX;
             topY[index] = shaft.Y - viewY;
-            float shimmer = LightWave.PartOf(shaft.Id, shaft.Kind.ShimmerTicks, shaft.Kind.ShimmerDepth, tick, ShimmerSeed);
-            strengths[index] = shaft.Kind.Strength / (float)BasisPoints.One * shimmer;
         }
 
         // The rectangle moves with the view, and each beam stays on the world (F-97).
@@ -161,16 +151,16 @@ public sealed class ShaftPass
         this.material.SetShaderParameter(OriginYName, viewY);
         this.material.SetShaderParameter(TopXName, topX);
         this.material.SetShaderParameter(TopYName, topY);
-        this.material.SetShaderParameter(StrengthsName, strengths);
     }
 
-    /// <summary>Gives the shader the values of each beam that never change: the count, the shape, and the color.</summary>
+    /// <summary>Gives the shader the values of each beam that never change: the count, the shape, the color, and the strength.</summary>
     private static void SetBeams(ShaderMaterial material, IReadOnlyList<PlacedShaft> placed, Palette palette)
     {
         int[] slants = new int[ShaftKind.MostShaftsOnMap];
         int[] lengths = new int[ShaftKind.MostShaftsOnMap];
         int[] widths = new int[ShaftKind.MostShaftsOnMap];
         var colors = new Color[ShaftKind.MostShaftsOnMap];
+        float[] strengths = new float[ShaftKind.MostShaftsOnMap];
         for (int index = 0; index < placed.Count; index += 1)
         {
             ShaftKind kind = placed[index].Kind;
@@ -178,6 +168,7 @@ public sealed class ShaftPass
             lengths[index] = kind.Length;
             widths[index] = kind.Width;
             colors[index] = LookPasses.ColorOf(palette, kind.Key, kind.File);
+            strengths[index] = kind.Strength / (float)BasisPoints.One;
         }
 
         material.SetShaderParameter(ShaftCountName, placed.Count);
@@ -185,8 +176,9 @@ public sealed class ShaftPass
         material.SetShaderParameter(LengthsName, lengths);
         material.SetShaderParameter(WidthsName, widths);
         material.SetShaderParameter(ColorsName, colors);
+        material.SetShaderParameter(StrengthsName, strengths);
     }
 
-    /// <summary>One shaft of the map at its place: the id of its piece, its kind, and the top of its beam in world pixels.</summary>
-    private sealed record PlacedShaft(string Id, ShaftKind Kind, int X, int Y);
+    /// <summary>One shaft of the map at its place: its kind, and the top of its beam in world pixels.</summary>
+    private sealed record PlacedShaft(ShaftKind Kind, int X, int Y);
 }

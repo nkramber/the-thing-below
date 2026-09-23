@@ -204,7 +204,7 @@ public partial class MapScreen : Node2D
         this.weather.Show(this.view, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tick);
         if (this.shafts is not null)
         {
-            this.shafts.Show(this.view, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tick);
+            this.shafts.Show(this.view, FrameRoot.WorldWidth, FrameRoot.WorldHeight);
         }
     }
 
@@ -310,25 +310,16 @@ public partial class MapScreen : Node2D
         LightSetup setup = content.Light.SetupOf(map.Id, map.Time);
         this.AddChild(WorldLights.Ambient(content.Palette, setup.Ambient));
 
-        foreach (DecorPiece piece in content.Light.DecorOf(map.Id).Pieces)
+        DecorFile pieces = content.Light.DecorOf(map.Id);
+        foreach (DecorPiece piece in pieces.Pieces)
         {
-            AtlasEntry entry = atlas.Index.Entry(piece.Kind, LightContent.MapUse);
+            this.AddChild(PieceSprite(atlas, piece));
+        }
 
-            // A piece sorts by the south edge of its wall, as a map sprite sorts by its feet
-            // (F-94, D-737). A figure in front of the wall then draws over it.
-            this.AddChild(new Sprite2D
-            {
-                Name = piece.Id.Value,
-                Texture = atlas.Frame(entry.Id, 0),
-                Centered = false,
-                Position = new Vector2(piece.Tile.X * MapCamera.TilePixels, FeetOf(piece.Tile.Y * MapCamera.TilePixels, 1)),
-                Offset = new Vector2(0, -entry.Height),
-
-                // A flame gives light and takes none, so the dark of the ambient light never
-                // dims it. The piece is a sprite, so it never glows, and the fire of the torch
-                // glows instead (D-188, D-912).
-                Material = new CanvasItemMaterial { LightMode = CanvasItemMaterial.LightModeEnum.Unshaded },
-            });
+        // Each light shaft falls from an opening on its wall, so the map draws the opening too (D-924).
+        foreach (DecorPiece shaft in pieces.Shafts)
+        {
+            this.AddChild(PieceSprite(atlas, shaft));
         }
 
         foreach (WallShadow wall in WallShadows.Of(map))
@@ -396,6 +387,28 @@ public partial class MapScreen : Node2D
             -tall,
             (map.Width * MapCamera.TilePixels) + (2 * wide),
             (map.Height * MapCamera.TilePixels) + (2 * tall));
+    }
+
+    /// <summary>Builds the sprite of one decor piece or of the opening of one light shaft, on its wall (D-844, D-924).</summary>
+    private static Sprite2D PieceSprite(GameAtlas atlas, DecorPiece piece)
+    {
+        AtlasEntry entry = atlas.Index.Entry(piece.Kind, LightContent.MapUse);
+
+        // A piece sorts by the south edge of its wall, as a map sprite sorts by its feet
+        // (F-94, D-737). A figure in front of the wall then draws over it.
+        return new Sprite2D
+        {
+            Name = piece.Id.Value,
+            Texture = atlas.Frame(entry.Id, 0),
+            Centered = false,
+            Position = new Vector2(piece.Tile.X * MapCamera.TilePixels, FeetOf(piece.Tile.Y * MapCamera.TilePixels, 1)),
+            Offset = new Vector2(0, -entry.Height),
+
+            // A flame and the opening of a shaft give light and take none, so the dark of the
+            // ambient light never dims them. The piece is a sprite, so it never glows, and the
+            // fire of a torch glows instead (D-188, D-912).
+            Material = new CanvasItemMaterial { LightMode = CanvasItemMaterial.LightModeEnum.Unshaded },
+        };
     }
 
     /// <summary>Gives the fire of the decor kind of one light, or no value for a light that no piece holds.</summary>

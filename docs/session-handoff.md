@@ -1,3 +1,38 @@
+## Session 228: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-92, round 2. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- The owner read the fixture shafts and said that a beam from a bare wall makes no sense. D-924 keeps wall shafts only under an opening, such as a window (OQ-240).
+- The owner kept the still beam. D-925 removes the shimmer, its fields, the shimmer shaft, and the stepped still captures, and `LightWave` went back into `GlowPass`.
+- A shaft kind now needs a drawing, and the map draws it on the wall. The fixture dungeon holds one barred window at (6, 1), with `drawing.decor_fixture_window` in the atlas.
+- The owner wants ceiling shafts later. OQ-241 asks which PR adds them.
+
+### The state of the build
+
+- `main` is `05dcc3d`. The tests, format, lint, identity, content, atlas, and smoke pass on this machine. The author read `make sheet` for the map fixture.
+- The map and pit baselines change with the window, and they come from the CI artifact of this round (D-733).
+
+### What is in flight
+
+- The owner runs the Deck sweep of `spike/deck-test`. The pass row of 6 stands only when `full-load-24-look` and `budget-rows` hold 60 frames per second (G-14).
+- The PR waits for CI, the new baselines, gitar, and the review of the other provider.
+
+### Traps and gotchas
+
+- The window sits on the brick face of the wall tile, rows 16 to 27. The cap above the face is rows 0 to 15.
+- A shaft sprite draws unshaded, as a torch does, so the opening stays bright in the dark.
+
+### The questions that block progress
+
+None. OQ-241 blocks no PR yet.
+
+### The next concrete action
+
+Commit the baselines from the CI artifact. Then read the Deck reports, and record the numbers in the PR.
+
 ## Session 227: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -325,34 +360,3 @@ None. D-908 resolves OQ-231.
 ### The next concrete action
 
 Run `make where`, commit the review record and this handoff, push, then fetch and verify the remote head and review-gate.
-
-## Session 218: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-94, round 7. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
-
-### What this session did, and why
-
-- Committed the baselines of `map-fog-1x` and `battle-fog-1x` from the artifact of CI run 35803303503 at `205a8ee` (D-733). The two runs of that job matched on all 72 captures, and only the two fog frames differed from the old baseline.
-- The final head of `docs/reviews/pr-59-response.md` names this commit.
-
-### The state of the build
-
-- The remote head of `main` is `8d98c46`. The PR head before this round is `205a8ee`, and the commit of this round is the effective head.
-- CI on `205a8ee` passed each check except screen-test, on the two fog frames alone, and review-gate, which reads the `Blocked` verdict of `8011192`.
-
-### What is in flight
-
-- The PR waits for the repeat review of the other provider on the answer to P2-1 (T-4).
-
-### Traps and gotchas
-
-- None new.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The other provider reviews the answer to P2-1, and updates `docs/reviews/pr-59.md`.

@@ -56,9 +56,6 @@ public sealed partial class CaptureSession : Node
     private FrameRoot? frame;
     private GameRun? walkRun;
     private MapScreen? walkMap;
-
-    /// <summary>The fixture that holds the walk run, so a walk of another fixture builds its own (D-921).</summary>
-    private string? walkFixture;
     private int stepTicks;
     private int next;
     private int waited;
@@ -228,9 +225,7 @@ public sealed partial class CaptureSession : Node
     /// </remarks>
     private void WalkOneTick(ScreenCapture capture, WalkTick walk)
     {
-        // Two walk fixtures can follow each other, such as the still fixture in each mode, so a
-        // walk of another fixture builds its own run (D-921).
-        if (this.walkRun is null || this.walkMap is null || string.CompareOrdinal(this.walkFixture, capture.Fixture) != 0)
+        if (this.walkRun is null || this.walkMap is null)
         {
             this.BuildFixture(capture);
         }
@@ -355,8 +350,6 @@ public sealed partial class CaptureSession : Node
             this.walkMap = null;
         }
 
-        this.walkFixture = capture.Fixture;
-
         var built = new FrameRoot();
         this.AddChild(built);
         this.frame = built;
@@ -381,12 +374,11 @@ public sealed partial class CaptureSession : Node
             return;
         }
 
-        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.StillFixture) == 0
-            || string.CompareOrdinal(capture.Fixture, ScreenCaptures.SteppedStillFixture) == 0)
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.StillFixture) == 0)
         {
             GameRun still = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             this.walkRun = still;
-            this.walkMap = MapFixture.Build(built, @base, still.Party, this.content, seekParticles: true, mode: capture.Mode);
+            this.walkMap = MapFixture.Build(built, @base, still.Party, this.content, seekParticles: true);
             this.stepTicks = 0;
             return;
         }

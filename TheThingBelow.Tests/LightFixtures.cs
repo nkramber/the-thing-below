@@ -53,9 +53,9 @@ public static class LightFixtures
     /// <summary>The path of the test shaft kind.</summary>
     public const string ShaftKindPath = "decor/shafts/beam.json";
 
-    /// <summary>The body of the test shaft kind: a still beam from the middle of its wall.</summary>
+    /// <summary>The body of the test shaft kind: a still beam from an opening in the middle of its wall (D-924, D-925).</summary>
     public const string ShaftKindBody =
-        """{ "comment": "a test beam", "id": "shaft.beam", "color": "j", "strength": 3000, "width": 12, "length": 96, "slant": 16, "x": 16, "y": 8, "shimmer_ticks": 240, "shimmer_depth": 0 }""";
+        """{ "comment": "a test beam", "id": "shaft.beam", "color": "j", "strength": 3000, "width": 12, "length": 96, "slant": 16, "x": 16, "y": 8 }""";
 
     /// <summary>The body of the test decor kind: a torch with the light 4 pixels over the tile to its south.</summary>
     public const string KindBody =
@@ -180,10 +180,11 @@ public static class LightFixtures
             """),
         Core.Content.Palette.Path);
 
-    /// <summary>The atlas index of the test, with one drawing of the decor kind (D-519).</summary>
-    /// <param name="draws">The content id that the drawing draws.</param>
+    /// <summary>The atlas index of the test, with one drawing of the decor kind and of the opening of the shaft kind (D-519, D-924).</summary>
+    /// <param name="draws">The content id of the decor kind that the drawing draws.</param>
+    /// <param name="shaft">The content id of the shaft kind that the drawing draws.</param>
     /// <returns>The index.</returns>
-    public static AtlasIndex Atlas(string draws = KindId) => AtlasIndex.Read(
+    public static AtlasIndex Atlas(string draws = KindId, string shaft = ShaftKindId) => AtlasIndex.Read(
         Encoding.UTF8.GetBytes(
             $$"""
             {
@@ -195,7 +196,7 @@ public static class LightFixtures
                "page": "map_sprites",
                "width": 32,
                "height": 32,
-               "draws": [ { "content": "{{draws}}", "use": "map" } ],
+               "draws": [ { "content": "{{draws}}", "use": "map" }, { "content": "{{shaft}}", "use": "map" } ],
                "frames": [ { "x": 0, "y": 0, "ticks": 0 } ]
               }
              ]

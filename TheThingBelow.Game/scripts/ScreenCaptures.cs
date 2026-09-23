@@ -92,9 +92,6 @@ public static class ScreenCaptures
     /// <summary>The running screen through a step that scrolls the view, which shows that each particle stays on the world (F-97).</summary>
     public const string ScrollFixture = "scroll";
 
-    /// <summary>The still fixture in the stepped mode of the passes, which shows the shimmer of a light shaft in that mode (D-917, D-921).</summary>
-    public const string SteppedStillFixture = "still-stepped";
-
     /// <summary>The frame of the map fixture and of the battle fixture in the stepped mode of the passes (D-917).</summary>
     public const string SteppedFrame = "stepped-1x";
 
@@ -199,7 +196,7 @@ public static class ScreenCaptures
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
     public static IReadOnlyList<string> Fixtures { get; } =
-        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, SteppedStillFixture];
+        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -300,22 +297,16 @@ public static class ScreenCaptures
         }
 
         // The party stands still, and each frame reads the weather one second later (D-894).
-        // A fault in the motion of a mote or of a flame then changes a baseline. The frames also
-        // show the still light shaft and the shimmer of the other, in each mode (D-921).
-        foreach (string fixture in new[] { StillFixture, SteppedStillFixture })
+        // A fault in the motion of a mote or of a flame then changes a baseline.
+        foreach (int tick in StillTicks)
         {
-            PassMode? mode = string.CompareOrdinal(fixture, SteppedStillFixture) == 0 ? PassMode.Stepped : null;
-            foreach (int tick in StillTicks)
-            {
-                captures.Add(new ScreenCapture(
-                    fixture,
-                    $"{tick:D3}",
-                    ScreenFit.FrameWidth,
-                    ScreenFit.FrameHeight,
-                    FitMode.Fill,
-                    new WalkTick(StillAction, tick),
-                    Mode: mode));
-            }
+            captures.Add(new ScreenCapture(
+                StillFixture,
+                $"{tick:D3}",
+                ScreenFit.FrameWidth,
+                ScreenFit.FrameHeight,
+                FitMode.Fill,
+                new WalkTick(StillAction, tick)));
         }
 
         // The pit room draws at 1x. The frame holds the doorway at (6, 12) and the walls beside
