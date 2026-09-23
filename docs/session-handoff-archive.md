@@ -1,4 +1,43 @@
 # Session handoff archive
+## Session 216: 2026-09-22, Codex
+
+Author: Codex
+Session: reviewer PR-94, round 1. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: reviewer. Base: `8d98c46`.
+
+### What this session did, and why
+
+- Reviewed the full diff from `8d98c46` to effective head `8011192`.
+- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
+- Checked the fog reader, render path, shader, budget, contrast checks, tests, project records, CI, and screen captures.
+- Wrote `docs/reviews/pr-59.md` with one P2 finding about OQ-231.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The remote PR head is `c40c559`, and the effective head is `8011192`.
+- `make verify` passed with 2,174 tests. All other local checks passed.
+- CI run 35801129146 passed each implementation check on every leg. The review gate waits for the review record.
+- All 72 screen captures match the committed baselines.
+- Metadata CI run 35802108533 passed its applicable checks. It skipped the implementation matrix legs.
+- Metadata review-gate run 35802107959 passed RG 1 to RG 3 and RG 5 to RG 8. RG 4 failed because this review has the required `Blocked` verdict.
+
+### What is in flight
+
+- OQ-231 needs the owner's coverage choice. The PR cannot close this question until the decision enters the records.
+- The owner must answer OQ-231 before the review can approve the PR.
+
+### Traps and gotchas
+
+- The Gitar comment repeats the OQ-231 mismatch. D-895 pauses Gitar answers.
+- The review commit changes only metadata paths, so the effective head stays `8011192`.
+
+### The questions that block progress
+
+OQ-231 asks whether fog coverage should decrease, stay the same, or increase. D-907 does not answer it.
+
+### The next concrete action
+
+The owner answers OQ-231. The author records the answer and updates the fog content if needed.
+
 ## Session 215: 2026-09-22, Claude Code
 
 Author: Claude Code
