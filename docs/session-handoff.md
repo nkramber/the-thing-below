@@ -15,10 +15,11 @@ Session: reviewer PR #62, round 2. Repository: the-thing-below. Branch: `feat/pr
 
 - `main` is `05dcc3d`. Before this review commit, the remote PR head was `3c3de99` and the effective head was `238bafe`.
 - CI run 35823669111 passed the implementation checks on `238bafe`. Metadata run 35826831792 passed applicable checks, with implementation legs skipped. Review-gate run 35826840307 failed only RG 4 because the previous record still said `Blocked`.
+- Review-gate run 35828245270 passed RG 1 to RG 8 after publication at `d366f7e`. Metadata run 35828245787 and Gitar passed on that head; the Gitar review approves the code.
 
 ### What is in flight
 
-- The updated review and handoff need a commit and push. A fresh review-gate result must confirm RG 4 after publication.
+- The review is ready for the owner to merge.
 
 ### Traps and gotchas
 
@@ -31,7 +32,7 @@ None. OQ-241 asks which later PR adds ceiling shafts and blocks no progress here
 
 ### The next concrete action
 
-Push this review and handoff, then verify the fresh review-gate and Gitar results on the PR.
+The owner merges PR #62.
 
 ## Session 230: 2026-09-23, Claude Code
 
