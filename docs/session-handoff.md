@@ -1,3 +1,40 @@
+## Session 220: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR #60. Repository: the-thing-below. Branch: `docs/pr-60-revert-gitar-pause`. PR: #60. Role: author. Base: `a20d32f`.
+
+### What this session did, and why
+
+- The owner told the session to undo PR #58, the pause of the gitar pass, and to put each file back as it was.
+- Reverted the squash commit `8d98c46`. The four skills, `CLAUDE.md`, `AGENTS.md`, the PR template, and the runbook are the same as at `8d98c46~1`.
+- Restored D-14, D-66, D-67, D-586, D-587, and D-705 to their text at `8d98c46~1`. Removed the pause row, its heading, and the review record of PR #58.
+- Removed the handoff entries of sessions 209 and 210. Removed each citation of the pause row from the records of PR #59.
+- Kept D-896 to D-908 of PR #59. They now continue the table of D-894.
+- The owner chose to remove the records too, and not to add a row that ends the pause. Thus no decision row records this revert.
+
+### The state of the build
+
+- The remote head of `main` is `a20d32f`, the merge of PR #59.
+- PR #58 changed no workflow and no branch protection rule. The eight required checks of `main` read no gitar result. Thus this PR changes no CI.
+
+### What is in flight
+
+- PR #60 waits for the gitar pass and for the review of the other provider. It changes decision rows, so the label of D-401 does not apply.
+
+### Traps and gotchas
+
+- The rules of D-14 and D-66 hold again. Each PR, this PR included, waits for the gitar pass and answers it.
+- The session numbers 209 and 210 are now absent from both handoff files.
+- Sessions 199 to 208 stay in the archive. The limit of 10 entries keeps them there.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Follow the `gitar-review` skill on PR #60. Then the other provider reviews PR #60.
+
 ## Session 219: 2026-09-23, Codex
 
 Author: Codex
@@ -24,7 +61,7 @@ Session: reviewer PR-94, round 2. Repository: the-thing-below. Branch: `feat/pr-
 
 ### Traps and gotchas
 
-- D-895 pauses Gitar replies. The Gitar check passed, and the current Gitar comment reports the stale review-gate fields.
+- The Gitar check passed, and the current Gitar comment reports the stale review-gate fields.
 - Bot and night-gate checks do not exist yet; PR-15 and PR-49 create them (G-16).
 
 ### The questions that block progress
@@ -129,7 +166,7 @@ Session: reviewer PR-94, round 1. Repository: the-thing-below. Branch: `feat/pr-
 
 ### Traps and gotchas
 
-- The Gitar comment repeats the OQ-231 mismatch. D-895 pauses Gitar answers.
+- The Gitar comment repeats the OQ-231 mismatch.
 - The review commit changes only metadata paths, so the effective head stays `8011192`.
 
 ### The questions that block progress
@@ -158,7 +195,7 @@ Session: author PR-94, round 5. Repository: the-thing-below. Branch: `feat/pr-94
 
 ### What is in flight
 
-- The PR waits for the review of the other provider (T-4). The gitar pause of D-895 holds.
+- The PR waits for the review of the other provider (T-4).
 
 ### Traps and gotchas
 
@@ -263,7 +300,7 @@ Session: author PR-94, round 2. Repository: the-thing-below. Branch: `feat/pr-94
 
 ### What is in flight
 
-- The PR waits for the review of the other provider (T-4). The gitar pause of D-895 holds.
+- The PR waits for the review of the other provider (T-4).
 
 ### Traps and gotchas
 
@@ -302,7 +339,7 @@ Session: author PR-94, round 1. Repository: the-thing-below. Branch: `feat/pr-94
 ### What is in flight
 
 - The PR waits for CI. The screen-test job then gives new baselines for `map-fog-1x` and `battle-fog-1x`, and the author commits them from the artifact.
-- Then the PR waits for the review of the other provider (T-4). The gitar pause of D-895 holds.
+- Then the PR waits for the review of the other provider (T-4).
 
 ### Traps and gotchas
 
@@ -319,40 +356,5 @@ None.
 ### The next concrete action
 
 Take the new fog baselines from the CI artifact of the screen-test job, commit them, and ask the other provider for the review.
-
-## Session 210: 2026-09-22, Codex
-
-Author: Codex
-Session: reviewer PR #58. Repository: the-thing-below. Branch: `docs/pr-gitar-pause`. PR: #58. Role: reviewer. Base: `871624e`.
-
-### What this session did, and why
-
-- Reviewed the policy change and reversal procedure of PR #58.
-- Confirmed that Claude Code authored the PR and that this review uses the other provider (T-4, D-17).
-- Inspected all 11 changed paths. The effective head is `3239ba1`; the later commit changes only handoff metadata (D-589, D-610).
-- Wrote `docs/reviews/pr-58.md` with no finding and verdict `Ready for owner merge` for effective head `3239ba1`.
-- Corrected the PR Documents line for `docs/reviews/`.
-
-### The state of the build
-
-- The remote head before this review was `ab77727321783167d51915e873733b1f5c6220da`. The review metadata reached `origin` as `47cdd7553406eae34e98eb6a8a5f46929f5cca65`; the effective head is `3239ba1`.
-- `make ste-check` passed with 0 findings. CI passed each applicable check, including review-gate. The docs-only matrix legs skipped as expected.
-
-### What is in flight
-
-- The review record and this entry were pushed. The owner can merge after reading the review record.
-
-### Traps and gotchas
-
-- The pause of D-895 makes a Gitar pass optional. It does not remove the review by the other provider.
-- The Gitar dashboard approved the effective head with no issue. The pause of D-895 does not require a response.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-The owner reads the review record and merges PR #58.
 
 # Session handoff
