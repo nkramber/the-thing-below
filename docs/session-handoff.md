@@ -1,3 +1,40 @@
+## Session 236: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR #63, hand-over. Repository: the-thing-below. Branch: `feat/pr-95-codex-review`. PR: #63. Role: author. Base: `097ea32`.
+
+### What this session did, and why
+
+- Ran round 2 of `make codex-review PR=63` on `a7902e7`. The run checked the ChatGPT login, removed the API key variables, and gave `approve`. The reviewer pushed `50e5664`, with `Ready for owner merge` for `a7902e7` and P2-1 and P2-2 fixed.
+- Answered the Gitar pass on `a7902e7`: the code review approved with no thread. Its CI claim named RG 4 and RG 5 of the round 1 record, and a PR comment answers it. The two faults cleared with the round 2 record.
+- Read the live merge settings again. The compare command of `docs/runbooks/merge.md` matched `docs/runbooks/branch-protection.json`.
+
+### The state of the build
+
+- `main` is `097ea32`. Before this commit, the remote head was `50e5664`, and the effective head is `a7902e7`.
+- CI run 35834375973 passed each job on `a7902e7`. Run 35835364953 passed on `50e5664`, and `review-gate` passed there with RG 1 to RG 8.
+- The Gitar pass approves `a7902e7`, and no thread is open. Two PR comments answer its two CI claims.
+- The PR waits for the owner merge (D-931). The summary of one paragraph goes to the owner before the merge (D-933).
+
+### What is in flight
+
+- The confirmation of the owner, then the owner merge of PR #63.
+- After the merge, the transitional prompt of step 6.
+
+### Traps and gotchas
+
+- The first auto-merge comes on the next PR. Before `gh pr merge <n> --auto --squash`, post the summary and get the confirmation of the owner (D-933).
+- Never pass `forced_login_method` to the CLI. A mismatch logs the CLI out (D-932).
+- Make gives exit 2 for each failed target. Read the outcome line of the command.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The owner confirms the summary and merges PR #63.
+
 ## Session 235: 2026-09-23, Codex
 
 Author: Codex
@@ -336,39 +373,3 @@ None. The Deck sweep is a measurement, not a question.
 ### The next concrete action
 
 Read the Deck reports, commit them to `spike/deck-test`, and record the numbers in the PR. Then commit the baselines from the CI artifact.
-
-## Session 226: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #61, round 1. Repository: the-thing-below. Branch: `feat/pr-59-glow`. PR: #61. Role: reviewer. Base: `430c8e9`.
-
-### What this session did, and why
-
-- Reviewed the complete diff from `430c8e9` to effective head `0d55d93`.
-- Verified the provider gate. Claude Code authored the PR, and Codex reviewed it.
-- Checked the glow reader, light bound, rendering path, overlay, budget, tests, decisions, and captures.
-- Added `docs/reviews/pr-61.md` with no finding, and published the review record.
-
-### The state of the build
-
-- The remote head of `main` is `430c8e9`. Metadata commit `89a606a` reached the branch, and the effective head stays `0d55d93`.
-- `make verify` passed with 2,221 tests. `make sheet` wrote all 72 captures.
-- CI run 35815610824 passed every applicable implementation check on every leg. Gitar approved the effective head.
-- Metadata run 35816940918 and review-gate run 35816940027 passed. The fresh gate passed RG 1 to RG 8.
-
-### What is in flight
-
-- PR #61 is ready for owner merge.
-
-### Traps and gotchas
-
-- The first review-gate run failed because this review record was not in the diff yet. The metadata run passed after the record reached the branch.
-- The fog, hit bursts, and marks use the overlay view above the glow (D-916).
-
-### The questions that block progress
-
-None. OQ-102 and OQ-232 are resolved by D-910 and D-915.
-
-### The next concrete action
-
-The owner merges PR #61.
