@@ -12,7 +12,7 @@ namespace TheThingBelow.Game.Ui;
 /// </summary>
 /// <remarks>
 /// The shader reads a fractal noise at each world pixel, and each layer fades smoothly from clear
-/// to its full strength in one palette key, at the pixel size of the art (D-900, D-901, D-181).
+/// to its full strength in a few steps, over blocks of art pixels, in one palette key (D-900, D-907, D-181).
 /// Where layers overlap, the strongest layer wins (D-899).
 /// <para>
 /// The shader never reads the clock of Godot. At each tick, this class gives each layer the
@@ -54,6 +54,12 @@ public sealed class FogPass
 
     /// <summary>The name of the uniform of the full strength of each layer.</summary>
     public const string StrengthsName = "strengths";
+
+    /// <summary>The name of the uniform of the count of steps of each layer.</summary>
+    public const string StepsName = "steps";
+
+    /// <summary>The name of the uniform of the block size of each layer.</summary>
+    public const string CellSizesName = "cell_sizes";
 
     private readonly ColorRect rect;
     private readonly ShaderMaterial material;
@@ -155,6 +161,8 @@ public sealed class FogPass
         int[] fadeFrom = new int[FogLayer.MostLayers];
         int[] fadeTo = new int[FogLayer.MostLayers];
         int[] strengths = new int[FogLayer.MostLayers];
+        int[] steps = new int[FogLayer.MostLayers];
+        int[] cellSizes = new int[FogLayer.MostLayers];
         for (int index = 0; index < fogs.Count; index += 1)
         {
             FogLayer layer = fogs[index];
@@ -164,6 +172,8 @@ public sealed class FogPass
             fadeFrom[index] = layer.From;
             fadeTo[index] = layer.To;
             strengths[index] = layer.Strength;
+            steps[index] = layer.Steps;
+            cellSizes[index] = layer.CellSize;
         }
 
         material.SetShaderParameter(LayerCountName, fogs.Count);
@@ -173,6 +183,8 @@ public sealed class FogPass
         material.SetShaderParameter(FadeFromName, fadeFrom);
         material.SetShaderParameter(FadeToName, fadeTo);
         material.SetShaderParameter(StrengthsName, strengths);
+        material.SetShaderParameter(StepsName, steps);
+        material.SetShaderParameter(CellSizesName, cellSizes);
     }
 
     private static Color ColorOf(string name, char key, Palette palette)

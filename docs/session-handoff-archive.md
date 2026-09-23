@@ -1,4 +1,43 @@
 # Session handoff archive
+## Session 204: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-57. Repository: the-thing-below. Branch: `feat/pr-57-effects`. PR: #56. Role: author. Base: `8aaf0f6`.
+
+### What this session did, and why
+
+- Asked OQ-98 and OQ-99. D-875 sets `GPUParticles2D`, and D-876 shakes the battle picture alone.
+- Found that no heavy blow and no spell exist before PR-12, and asked. D-877 to D-883 set the heavy blow, the spell flash in PR-12, the hit files, the hit-stop, the hit flash, the sparks of the brute, and the battle file. D-884 moves the hurt flinch to PR-17.
+- Built the records and readers of Core (`TheThingBelow.Core/Effects/`), the particle row of the budget, the battle file, and the two hit files.
+- Moved the timings of PR-10 into the battle file. Game builds one particle node for each palette key, and seeks each burst to its age in ticks.
+- Added six battle captures: blood, sparks, a frame inside the hit-stop, and the heavy blow at full, reduced, and off.
+- Read each battle frame of `make sheet FIXTURE=battle` on the Mac. Two runs gave the same bytes.
+
+### The state of the build
+
+- Local: build, format, det-lint, content hash, replay identity, atlas, smoke, and ste-check pass. The smoke line counts 8 particle nodes.
+- 2063 of 2069 tests pass. The six failures are the baselines of the new captures, which the first CI run makes (D-733).
+- The branch holds `f2a0f57` and this entry. The push of this round sets the remote head.
+
+### What is in flight
+
+- The screen-test job fails on the six new captures and on the changed `battle-blow-1x.png`. The author reads each frame of the `screen-captures` artifact and commits them to `screens/baseline/`.
+- The gitar pass, then the Codex review in `docs/reviews/pr-56.md`.
+
+### Traps and gotchas
+
+- The walk to the deep room queues a step only when no step runs. A step queued inside a step runs after it and carries the party past the turn. The hall walk keeps its old queue, so its baselines stay.
+- The capture fixture stages each heavy blow as the real hit of the fight with the weak affinity, because no move carries an element before PR-12.
+- A burst seeks with `Restart(keepSeed: true)` and `RequestParticlesProcess`, at speed zero. The seed comes from the tick when the event started.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, open the PR, and wait for CI. Read and commit the baselines from the artifact, then follow the `gitar-review` skill.
+
 ## Session 203: 2026-09-22, Codex
 
 Author: Codex

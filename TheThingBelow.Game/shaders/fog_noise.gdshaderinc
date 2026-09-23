@@ -2,10 +2,10 @@
 // `fog_lit.gdshader` include this file, and they differ in the scene light alone (D-183).
 //
 // One rectangle covers the view, and the shader draws every layer of the fog in one
-// full-screen pass (D-898). Each layer reads a fractal noise at each world pixel. It is clear
-// below its start level, full above its full level, and it fades smoothly between the two, in
-// one palette key (D-900). The world viewport draws art pixels, so each pixel of the fog is one
-// art pixel (D-901). Where layers overlap, the strongest layer wins (D-899).
+// full-screen pass (D-898). Each layer reads a fractal noise at each block of its world pixels.
+// It is clear below its start level, full above its full level, and it fades in a few steps of
+// strength between the two, in one palette key. The blocks and the steps keep the pixel look of
+// the art (D-900, D-907). Where layers overlap, the strongest layer wins (D-899).
 //
 // The shader never reads TIME. Game gives each layer the world pixel of the north-west corner
 // of the view, with the drift of that layer at the tick, so one tick gives one picture in
@@ -41,11 +41,23 @@ uniform int fade_to[MOST_LAYERS];
 // The full strength of each layer, in basis points.
 uniform int strengths[MOST_LAYERS];
 
+// The count of steps of strength of each layer, from clear to full.
+uniform int steps[MOST_LAYERS];
+
+// The side of each block of each layer, in art pixels. Each block takes one strength.
+uniform int cell_sizes[MOST_LAYERS];
+
 // The pixel of the rectangle, from its north-west corner, in art pixels.
 varying vec2 local;
 
 void vertex() {
 	local = VERTEX;
+}
+
+// A whole-number division that rounds down, also for a negative value. The drift of a layer
+// can take the world pixel below zero, and the division of GLSL rounds toward zero.
+int floor_div(int value, int divisor) {
+	return value >= 0 ? value / divisor : -((divisor - 1 - value) / divisor);
 }
 
 // A hash of 32 bits with a good spread, so the points of the noise show no pattern.
@@ -98,9 +110,14 @@ void fragment() {
 	vec3 color = vec3(0.0);
 	float strongest = 0.0;
 	for (int layer = 0; layer < layer_count; layer++) {
+		// Each block reads the noise at its north-west pixel, so the whole block takes one strength.
+		int size = cell_sizes[layer];
 		ivec2 world = ivec2(origin_x[layer], origin_y[layer]) + pixel;
-		float level = fog_noise(world, scales[layer], seeds[layer]) * 10000.0;
-		float fade = smoothstep(float(fade_from[layer]), float(fade_to[layer]), level);
+		ivec2 block = ivec2(floor_div(world.x, size), floor_div(world.y, size)) * size;
+		float level = fog_noise(block, scales[layer], seeds[layer]) * 10000.0;
+		// The fade rounds down to its step, so a block below the first step stays clear.
+		float count = float(steps[layer]);
+		float fade = floor(smoothstep(float(fade_from[layer]), float(fade_to[layer]), level) * count) / count;
 		float strength = fade * float(strengths[layer]) / 10000.0;
 		if (strength > strongest) {
 			strongest = strength;

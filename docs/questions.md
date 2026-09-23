@@ -726,3 +726,7 @@ How to file a question (D-19, D-24):
     - A floor of 16, and the test skips a pair at the floor or below.
     - No fog test.
     - Resolved 2026-09-22: D-906. A floor of 17.
+231. **OQ-231. The coverage of the soft fog.** The fog of round 3 covers about two thirds of the map view, and the reference leaves more clear ground. Raised 2026-09-22. Blocks PR-94.
+    - A little less coverage, the recommendation.
+    - The coverage as it is, or more coverage.
+    - Resolved 2026-09-22: D-907. The owner asked for more of the pixel look of the art, between the soft fog and the bands of round 1.

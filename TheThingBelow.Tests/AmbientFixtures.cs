@@ -32,6 +32,8 @@ internal static class AmbientFixtures
          "from": 5000,
          "to": 6000,
          "strength": 2000,
+         "steps": 4,
+         "cell_size": 2,
          "scale": 32,
          "seed": 7,
          "drift_x": 4,

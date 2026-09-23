@@ -25,6 +25,8 @@ public sealed class AmbientFileTests
         Assert.Equal(5000, fog.From);
         Assert.Equal(6000, fog.To);
         Assert.Equal(2000, fog.Strength);
+        Assert.Equal(4, fog.Steps);
+        Assert.Equal(2, fog.CellSize);
         Assert.Equal(32, fog.Scale);
         Assert.Equal(7, fog.Seed);
         Assert.Equal(4, fog.DriftX);
@@ -90,7 +92,10 @@ public sealed class AmbientFileTests
     [InlineData("\"scale\": 32", "\"scale\": 257", "8 to 256")]
     [InlineData("\"seed\": 7", "\"seed\": -1", "0 to 65535")]
     [InlineData("\"scale\": 32,", "", "the field is absent")]
-    [InlineData("\"seed\": 7,", "\"seed\": 7, \"cell_size\": 2,", "an unknown field")]
+    [InlineData("\"steps\": 4", "\"steps\": 1", "2 to 8")]
+    [InlineData("\"steps\": 4", "\"steps\": 9", "2 to 8")]
+    [InlineData("\"cell_size\": 2", "\"cell_size\": 9", "1 to 8")]
+    [InlineData("\"seed\": 7,", "\"seed\": 7, \"rows\": [],", "an unknown field")]
     public void AFogValueOutsideItsLimitFailsWithTheReason(string from, string to, string reason)
     {
         string body = AmbientFixtures.Body(fogs: AmbientFixtures.Fog).Replace(from, to, StringComparison.Ordinal);

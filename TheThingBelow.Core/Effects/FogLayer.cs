@@ -11,8 +11,9 @@ namespace TheThingBelow.Core.Effects;
 /// </summary>
 /// <remarks>
 /// Below the noise level <see cref="From"/> the layer is clear, and at <see cref="To"/> and above
-/// it takes its full strength. Between the two it fades smoothly, at the pixel size of the art
-/// (D-900, D-901). All the layers of one fog draw in one full-screen pass of the effect budget,
+/// it takes its full strength. Between the two it fades in <see cref="Steps"/> steps of strength,
+/// over blocks of <see cref="CellSize"/> art pixels, so the soft fog keeps the pixel look of the
+/// art (D-900, D-907). All the layers of one fog draw in one full-screen pass of the effect budget,
 /// and where they overlap, the strongest layer wins (D-898, D-899). No rule of Core reads the
 /// noise, and this record holds the values that Game gives the shader.
 /// </remarks>
@@ -20,11 +21,13 @@ namespace TheThingBelow.Core.Effects;
 /// <param name="From">The noise level where the layer starts to show, in basis points of the range of the noise (D-169).</param>
 /// <param name="To">The noise level where the layer reaches its full strength, in basis points. It is above <see cref="From"/>.</param>
 /// <param name="Strength">The full strength of the layer, in basis points, where 10000 covers the art in full (D-169).</param>
+/// <param name="Steps">The count of steps of strength from clear to full, so the fade shows a few hard steps.</param>
+/// <param name="CellSize">The side of each block of the fog, in art pixels. Each block takes one strength.</param>
 /// <param name="Scale">The size of the largest shapes of the noise, in art pixels.</param>
 /// <param name="Seed">The seed of the noise, so two layers of one fog draw different shapes.</param>
 /// <param name="DriftX">The drift of the layer to the east, in art pixels in each second of 60 ticks. A negative value drifts west.</param>
 /// <param name="DriftY">The drift of the layer down the screen, in art pixels in each second. A negative value drifts up.</param>
-public sealed record FogLayer(char Key, int From, int To, int Strength, int Scale, int Seed, int DriftX, int DriftY)
+public sealed record FogLayer(char Key, int From, int To, int Strength, int Steps, int CellSize, int Scale, int Seed, int DriftX, int DriftY)
 {
     /// <summary>The most layers of one fog, which the shader draws in one pass (D-898).</summary>
     public const int MostLayers = 3;
@@ -34,6 +37,15 @@ public sealed record FogLayer(char Key, int From, int To, int Strength, int Scal
     /// fog against each enemy, so this limit only stops a fog that covers the art in full.
     /// </summary>
     public const int MostStrength = 8000;
+
+    /// <summary>The least count of steps of the fade.</summary>
+    public const int LeastSteps = 2;
+
+    /// <summary>The most steps of the fade.</summary>
+    public const int MostSteps = 8;
+
+    /// <summary>The largest side of a block, in art pixels.</summary>
+    public const int MostCellSize = 8;
 
     /// <summary>The fastest drift, in art pixels in each second.</summary>
     public const int MostDrift = 60;
@@ -74,6 +86,8 @@ public sealed record FogLayer(char Key, int From, int To, int Strength, int Scal
         int? from = null;
         int? to = null;
         int? strength = null;
+        int? steps = null;
+        int? cellSize = null;
         int? scale = null;
         int? seed = null;
         int? driftX = null;
@@ -95,6 +109,12 @@ public sealed record FogLayer(char Key, int From, int To, int Strength, int Scal
                     break;
                 case "strength":
                     strength = reader.ReadInt();
+                    break;
+                case "steps":
+                    steps = reader.ReadInt();
+                    break;
+                case "cell_size":
+                    cellSize = reader.ReadInt();
                     break;
                 case "scale":
                     scale = reader.ReadInt();
@@ -131,6 +151,8 @@ public sealed record FogLayer(char Key, int From, int To, int Strength, int Scal
             start,
             full,
             Within(ref reader, depth, "strength", strength, 1, MostStrength),
+            Within(ref reader, depth, "steps", steps, LeastSteps, MostSteps),
+            Within(ref reader, depth, "cell_size", cellSize, 1, MostCellSize),
             Within(ref reader, depth, "scale", scale, LeastScale, MostScale),
             Within(ref reader, depth, "seed", seed, 0, MostSeed),
             Within(ref reader, depth, "drift_x", driftX, -MostDrift, MostDrift),

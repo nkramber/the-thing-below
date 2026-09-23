@@ -103,7 +103,7 @@ public sealed class GameShaderTests
         string[] fields =
         [
             "LayerCountName", "ColorsName", "OriginXName", "OriginYName", "ScalesName",
-            "SeedsName", "FadeFromName", "FadeToName", "StrengthsName",
+            "SeedsName", "FadeFromName", "FadeToName", "StrengthsName", "StepsName", "CellSizesName",
         ];
         foreach (string field in fields)
         {

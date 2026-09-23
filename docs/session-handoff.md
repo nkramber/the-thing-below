@@ -1,3 +1,38 @@
+## Session 214: 2026-09-22, Claude Code
+
+Author: Claude Code
+Session: author PR-94, round 4. Repository: the-thing-below. Branch: `feat/pr-94-fog`. PR: #59. Role: author. Base: `8d98c46`.
+
+### What this session did, and why
+
+- The owner read the soft fog of round 3 and asked for more of the pixel look of the art, between the soft fog and the bands of round 1. OQ-231 and D-907 record it, and D-900 and D-901 have a revision in part.
+- `FogLayer` takes `steps` (2 to 8) and `cell_size` (1 to 8). The shader reads the noise at the north-west pixel of each block, and it rounds the fade down to its step, so a block below the first step stays clear.
+- The capture fog takes 4 steps and blocks of 2 art pixels in each layer.
+- The session read `map-fog-1x` and `battle-fog-1x` from `make sheet`. The fog keeps the cloud shapes of round 3, in blocks of 2 pixels and 4 hard steps of strength.
+
+### The state of the build
+
+- The remote head of `main` is `8d98c46`. The PR head before this round is `374aae8`.
+- CI on `374aae8` passed each check except screen-test, on the two fog frames alone, and review-gate, which waits for the review record.
+- `make test` (2,174 tests), `make format`, `make lint`, `make identity`, `make content`, `make smoke`, and `make ste-check` pass on this machine.
+
+### What is in flight
+
+- The screen-test job gives new baselines for the two fog frames, and the author commits them from the artifact.
+- The owner reads the new fog. The steps, the block size, and the coverage are values of the content file.
+
+### Traps and gotchas
+
+- A change of a content file after the last build fails `TheEmbeddedSetMatchesTheFolderByBytes` until the next build (D-508).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit the fog baselines from the CI artifact. Then the owner reads the fog, and the other provider reviews PR #59.
+
 ## Session 213: 2026-09-22, Claude Code
 
 Author: Claude Code
@@ -345,42 +380,3 @@ None.
 ### The next concrete action
 
 Follow the `gitar-review` skill on this push, and answer each comment. Then tell the owner that the PR is ready for Codex.
-
-## Session 204: 2026-09-22, Claude Code
-
-Author: Claude Code
-Session: author PR-57. Repository: the-thing-below. Branch: `feat/pr-57-effects`. PR: #56. Role: author. Base: `8aaf0f6`.
-
-### What this session did, and why
-
-- Asked OQ-98 and OQ-99. D-875 sets `GPUParticles2D`, and D-876 shakes the battle picture alone.
-- Found that no heavy blow and no spell exist before PR-12, and asked. D-877 to D-883 set the heavy blow, the spell flash in PR-12, the hit files, the hit-stop, the hit flash, the sparks of the brute, and the battle file. D-884 moves the hurt flinch to PR-17.
-- Built the records and readers of Core (`TheThingBelow.Core/Effects/`), the particle row of the budget, the battle file, and the two hit files.
-- Moved the timings of PR-10 into the battle file. Game builds one particle node for each palette key, and seeks each burst to its age in ticks.
-- Added six battle captures: blood, sparks, a frame inside the hit-stop, and the heavy blow at full, reduced, and off.
-- Read each battle frame of `make sheet FIXTURE=battle` on the Mac. Two runs gave the same bytes.
-
-### The state of the build
-
-- Local: build, format, det-lint, content hash, replay identity, atlas, smoke, and ste-check pass. The smoke line counts 8 particle nodes.
-- 2063 of 2069 tests pass. The six failures are the baselines of the new captures, which the first CI run makes (D-733).
-- The branch holds `f2a0f57` and this entry. The push of this round sets the remote head.
-
-### What is in flight
-
-- The screen-test job fails on the six new captures and on the changed `battle-blow-1x.png`. The author reads each frame of the `screen-captures` artifact and commits them to `screens/baseline/`.
-- The gitar pass, then the Codex review in `docs/reviews/pr-56.md`.
-
-### Traps and gotchas
-
-- The walk to the deep room queues a step only when no step runs. A step queued inside a step runs after it and carries the party past the turn. The hall walk keeps its old queue, so its baselines stay.
-- The capture fixture stages each heavy blow as the real hit of the fight with the weak affinity, because no move carries an element before PR-12.
-- A burst seeks with `Restart(keepSeed: true)` and `RequestParticlesProcess`, at speed zero. The seed comes from the tick when the event started.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push, open the PR, and wait for CI. Read and commit the baselines from the artifact, then follow the `gitar-review` skill.
