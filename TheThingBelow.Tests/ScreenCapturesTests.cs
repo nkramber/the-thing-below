@@ -79,6 +79,17 @@ public sealed class ScreenCapturesTests
         "scroll-17.png",
     ];
 
+    /// <summary>The captures of the stepped mode of the passes of the HD-2D look, on the map, in a fight, and in the still fixture (D-917, D-921).</summary>
+    private static readonly string[] SteppedNames =
+    [
+        "map-stepped-1x.png",
+        "battle-stepped-1x.png",
+        "still-stepped-060.png",
+        "still-stepped-120.png",
+        "still-stepped-180.png",
+        "still-stepped-240.png",
+    ];
+
     // This property stays below `StillNames`, because its build reads that array, and a static
     // member takes its value in the order of the file (T-2).
     /// <summary>Every file that one run of the capture session writes, in the order of the list.</summary>
@@ -96,8 +107,9 @@ public sealed class ScreenCapturesTests
         // level of the flash and shake reduction (D-863, exit test 1 of PR-57).
         // PR-58 adds one capture of each ambient kind on the map and over a fight, the pit room
         // of the wall shape beside a doorway, and three frames of a step that scrolls the view
-        // (D-852, D-889, F-97, exit test 1 of PR-58).
-        Assert.Equal(10 + 34 + 1 + 10 + 3 + 14, FileNames().Count);
+        // (D-852, D-889, F-97, exit test 1 of PR-58). PR-92 adds the map, a fight, and the still
+        // fixture in the stepped mode of the passes (D-917, D-921).
+        Assert.Equal(10 + 34 + 1 + 10 + 3 + 14 + 6, FileNames().Count);
     }
 
     [Fact]
@@ -300,6 +312,11 @@ public sealed class ScreenCapturesTests
         }
 
         foreach (string name in WeatherNames)
+        {
+            names.Add(name);
+        }
+
+        foreach (string name in SteppedNames)
         {
             names.Add(name);
         }

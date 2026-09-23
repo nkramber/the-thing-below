@@ -17,7 +17,7 @@ namespace TheThingBelow.Core.Effects;
 /// <item>Each map that a file serves exists, and a map takes one shipped weather or none (D-202).</item>
 /// <item>Each color names a key of the palette (D-181).</item>
 /// <item>The particles of a map, with its weather, its torches, and the carried light, keep inside the effect budget. So do the particles of a fight on the map, with its largest hit burst (D-523).</item>
-/// <item>The fog of a weather keeps inside the row of full-screen passes with the glow, as one pass for all its layers (D-523, D-898, D-910).</item>
+/// <item>Each map keeps inside the row of full-screen passes: the glow, the tilt-shift blur, the vignette, its light shafts, and the fog of its weather, as one pass for all its layers (D-523, D-898, D-918, D-920).</item>
 /// <item>The full strength of each layer of fog keeps each enemy of each map that it serves visible (D-885, D-886).</item>
 /// </list>
 /// </remarks>
@@ -105,7 +105,17 @@ public sealed class AmbientContent
             {
                 GameMap served = world.Maps[map.Value];
                 RefuseOverBudget(effect, served, world, burst);
+                RefusePassesOverBudget(served, effect, world.Light);
                 RefuseFaintEnemy(effect, served, world);
+            }
+        }
+
+        // A map with no weather still draws the glow, the blur, the vignette, and its shafts (D-920).
+        foreach (GameMap map in world.Maps.Values)
+        {
+            if (!weatherOf.ContainsKey(map.Id.Value))
+            {
+                RefusePassesOverBudget(map, null, world.Light);
             }
         }
 
@@ -190,7 +200,7 @@ public sealed class AmbientContent
     }
 
     /// <summary>
-    /// Refuses a weather whose particles or passes pass the budget on a map (D-523, T-2). The
+    /// Refuses a weather whose particles pass the budget on a map (D-523, T-2). The
     /// map count holds every torch of the map, the carried light, and the weather. A fight shows
     /// the weather and one hit burst at a time.
     /// </summary>
@@ -207,15 +217,41 @@ public sealed class AmbientContent
                 "emitters",
                 $"the map '{map.Id.Value}' shows {live} live particles with this weather, and the row `live_particles` of `{EffectBudget.Path}` allows {budget.LiveParticles} (D-523)");
         }
+    }
 
-        // The glow draws on every map and every fight, so each weather shares the row with it (D-523, D-910).
-        int passes = checked(effect.FullScreenPasses + Glow.FullScreenPasses);
-        if (passes > budget.FullScreenPasses)
+    /// <summary>Gives the full-screen passes of one map, with its weather (D-523).</summary>
+    /// <param name="map">The map.</param>
+    /// <param name="weather">The weather of the map, or no value for a map with no weather (D-202).</param>
+    /// <param name="light">The light content, for the passes and the light shafts of the map.</param>
+    /// <returns>The count of passes.</returns>
+    /// <exception cref="ArgumentNullException">The map or the light is null (T-2).</exception>
+    /// <remarks>
+    /// Every map and every fight draws the glow, the tilt-shift blur, and the vignette (D-910,
+    /// D-920). A map with a light shaft draws one shaft pass, and a weather with fog draws one fog
+    /// pass for all its layers (D-898, D-918). A fight on the map draws its weather and no shaft,
+    /// so the count of the map is never below the count of a fight.
+    /// </remarks>
+    public static int PassesOf(GameMap map, AmbientEffect? weather, LightContent light)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(light);
+
+        // A map with no weather draws no fog, so its weather adds no pass (D-202).
+        int fog = weather is null ? 0 : weather.FullScreenPasses;
+        return checked(Glow.FullScreenPasses + Hd2dPasses.FullScreenPasses + light.ShaftPassesOf(map.Id) + fog);
+    }
+
+    /// <summary>Refuses a map whose passes, with its weather, pass the row of full-screen passes (D-523, T-2).</summary>
+    private static void RefusePassesOverBudget(GameMap map, AmbientEffect? weather, LightContent light)
+    {
+        int passes = PassesOf(map, weather, light);
+        if (passes > light.Budget.FullScreenPasses)
         {
+            string fog = weather is null ? "no weather" : $"the weather '{weather.Id.Value}'";
             throw ContentException.ForField(
-                effect.File,
-                "fogs",
-                $"the weather and the glow draw {passes} full-screen passes, and the row `full_screen_passes` of `{EffectBudget.Path}` allows {budget.FullScreenPasses} (D-523, D-898, D-910)");
+                EffectBudget.Path,
+                "full_screen_passes",
+                $"the map '{map.Id.Value}' draws {passes} full-screen passes: the glow, the tilt-shift blur, the vignette, {light.ShaftPassesOf(map.Id)} for its light shafts, and {fog}. The row allows {light.Budget.FullScreenPasses} (D-523, D-898, D-918, D-920)");
         }
     }
 

@@ -31,7 +31,9 @@ public static class SimulationVersion
     /// and the budget counts one pass for each fog (D-897, D-898). PR-59 raised it to 14:
     /// the reader of the glow file and of the glow of each fire, the bound of the lit art below the
     /// glow threshold, the count of the glow pass in the budget, and the refusal of a lit fog
-    /// (D-910, D-912, D-913, D-916).
+    /// (D-910, D-912, D-913, D-916). PR-92 raised it to 15: the reader of the shaft kinds, the shafts of
+    /// a decor file, and the file of the passes of the HD-2D look, and the count of the passes of each
+    /// map in the budget (D-917, D-918, D-920).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -39,5 +41,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 14;
+    public const int Current = 15;
 }

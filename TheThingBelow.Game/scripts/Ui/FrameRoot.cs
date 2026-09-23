@@ -1,5 +1,7 @@
 using System;
 using Godot;
+using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Light;
 
 namespace TheThingBelow.Game.Ui;
 
@@ -24,7 +26,13 @@ namespace TheThingBelow.Game.Ui;
 /// <para>
 /// The world draws in HDR 2D with the glow of Godot, and its view turns linear light into sRGB
 /// (D-910, F-103). An overlay view with no HDR 2D shares the world, and it draws the fog, the hit
-/// bursts, and the marks above the glow and under the UI, so the fog never glows (D-916).
+/// bursts, and the light shafts above the glow, so the fog never glows (D-916, D-919).
+/// </para>
+/// <para>
+/// A scene view of 640 by 360 joins the world and the overlay. The frame draws the scene with the
+/// tilt-shift blur, and the vignette over it (D-849, D-919). A mark view shares the world too, and
+/// it draws the marks above the passes, so each mark stays sharp. The UI draws above every view
+/// (D-208, D-210).
 /// </para>
 /// </remarks>
 public partial class FrameRoot : Node
@@ -41,6 +49,10 @@ public partial class FrameRoot : Node
     private SubViewport worldViewport = null!;
     private SubViewport frameViewport = null!;
     private SubViewport overlayViewport = null!;
+    private SubViewport markViewport = null!;
+    private SubViewport sceneViewport = null!;
+    private ShaderMaterial blur = null!;
+    private ShaderMaterial vignette = null!;
     private SubViewport? stepViewport;
     private TextureRect screenView = null!;
     private ColorRect bars = null!;
@@ -62,6 +74,8 @@ public partial class FrameRoot : Node
     {
         this.BuildWorld();
         this.BuildOverlay();
+        this.BuildMarks();
+        this.BuildScene();
         this.BuildFrame();
         this.BuildScreenView();
 
@@ -85,6 +99,25 @@ public partial class FrameRoot : Node
         }
 
         this.worldViewport.World3D.Environment = GlowPass.EnvironmentOf(glow);
+    }
+
+    /// <summary>Gives the frame the tilt-shift blur and the vignette of the passes, on a map or in a fight (D-917, D-920).</summary>
+    /// <param name="passes">The passes of the file, in the mode that the screen shows.</param>
+    /// <param name="palette">The palette, which gives the key of the vignette its color (D-181).</param>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The frame is not in the tree yet, so it holds no passes (T-2).</exception>
+    /// <remarks>Until a screen calls this method, the blur and the vignette draw nothing, so a screen with no world stays as it was.</remarks>
+    public void ShowPasses(Hd2dPasses passes, Palette palette)
+    {
+        ArgumentNullException.ThrowIfNull(passes);
+        ArgumentNullException.ThrowIfNull(palette);
+
+        if (this.blur is null)
+        {
+            throw new InvalidOperationException("The frame holds no passes before it enters the tree, so it can show none (T-2).");
+        }
+
+        LookPasses.Show(this.blur, this.vignette, passes, palette);
     }
 
     /// <summary>Changes the fit of the frame, which the fit of the display settings sets (D-232, D-860).</summary>
@@ -172,6 +205,50 @@ public partial class FrameRoot : Node
         this.AddChild(this.overlayViewport);
     }
 
+    private void BuildMarks()
+    {
+        // The mark view shares the world as the overlay does, and it draws the marks alone, above
+        // the tilt-shift blur and the vignette, so each mark stays sharp (D-208, D-919).
+        this.markViewport = new SubViewport
+        {
+            Size = new Vector2I(WorldWidth, WorldHeight),
+            RenderTargetUpdateMode = SubViewport.UpdateMode.Always,
+            TransparentBg = true,
+            Oversampling = false,
+            World2D = this.worldViewport.World2D,
+            CanvasCullMask = GlowPass.MarkLayer,
+        };
+
+        this.AddChild(this.markViewport);
+    }
+
+    private void BuildScene()
+    {
+        // The scene joins the world and the overlay at the size of the art, so the tilt-shift blur
+        // reads the fog, the hit bursts, and the light shafts with the world (D-919).
+        this.sceneViewport = new SubViewport
+        {
+            Size = new Vector2I(WorldWidth, WorldHeight),
+            RenderTargetUpdateMode = SubViewport.UpdateMode.Always,
+            Oversampling = false,
+        };
+
+        this.sceneViewport.AddChild(new TextureRect
+        {
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            Texture = this.worldViewport.GetTexture(),
+            Position = Vector2.Zero,
+            Size = new Vector2(WorldWidth, WorldHeight),
+            TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
+
+            // The world holds linear light, and the scene has no HDR 2D, so the view turns each
+            // pixel into sRGB (F-103).
+            Material = GlowPass.ViewMaterial(),
+        });
+        this.sceneViewport.AddChild(ViewOf(this.overlayViewport, WorldWidth, WorldHeight));
+        this.AddChild(this.sceneViewport);
+    }
+
     private void BuildFrame()
     {
         this.frameViewport = new SubViewport
@@ -181,19 +258,30 @@ public partial class FrameRoot : Node
             Oversampling = false,
         };
 
-        // The world fills the frame at 2x, so one art pixel covers 2 by 2 frame pixels
-        // (D-230, D-633).
-        var worldView = new TextureRect
+        // The scene fills the frame at 2x, so one art pixel covers 2 by 2 frame pixels
+        // (D-230, D-633). The view reads the scene with a linear filter for the taps of the blur,
+        // and the shader reads each sharp pixel at the middle of its art pixel, so the filter
+        // never softens it.
+        this.blur = LookPasses.BlurMaterial();
+        this.vignette = LookPasses.VignetteMaterial();
+        var sceneView = new TextureRect
         {
-            Texture = this.worldViewport.GetTexture(),
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            Texture = this.sceneViewport.GetTexture(),
             Position = Vector2.Zero,
             Size = new Vector2(WorldWidth * WorldScale, WorldHeight * WorldScale),
             StretchMode = TextureRect.StretchModeEnum.Scale,
-            TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
+            TextureFilter = CanvasItem.TextureFilterEnum.Linear,
+            Material = this.blur,
+        };
 
-            // The world holds linear light, and the frame has no HDR 2D, so the view turns each
-            // pixel into sRGB (F-103).
-            Material = GlowPass.ViewMaterial(),
+        // The vignette covers the scene, under the marks and the UI (D-919).
+        var dark = new ColorRect
+        {
+            Position = Vector2.Zero,
+            Size = new Vector2(WorldWidth * WorldScale, WorldHeight * WorldScale),
+            MouseFilter = Control.MouseFilterEnum.Ignore,
+            Material = this.vignette,
         };
 
         this.Layer = new Control
@@ -203,22 +291,29 @@ public partial class FrameRoot : Node
             MouseFilter = Control.MouseFilterEnum.Ignore,
         };
 
-        this.frameViewport.AddChild(worldView);
-        this.frameViewport.AddChild(new TextureRect
+        this.frameViewport.AddChild(sceneView);
+        this.frameViewport.AddChild(dark);
+        this.frameViewport.AddChild(ViewOf(this.markViewport, WorldWidth * WorldScale, WorldHeight * WorldScale));
+        this.frameViewport.AddChild(this.Layer);
+        this.AddChild(this.frameViewport);
+    }
+
+    /// <summary>Builds the view of a transparent viewport that shares the world, such as the overlay, at a size.</summary>
+    private static TextureRect ViewOf(SubViewport viewport, int width, int height)
+    {
+        return new TextureRect
         {
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-            Texture = this.overlayViewport.GetTexture(),
+            Texture = viewport.GetTexture(),
             Position = Vector2.Zero,
-            Size = new Vector2(WorldWidth * WorldScale, WorldHeight * WorldScale),
+            Size = new Vector2(width, height),
             StretchMode = TextureRect.StretchModeEnum.Scale,
             TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
 
             // A transparent view holds its color times its alpha, so it draws with the blend of
             // premultiplied alpha, and the fog keeps its strength over the world.
             Material = new CanvasItemMaterial { BlendMode = CanvasItemMaterial.BlendModeEnum.PremultAlpha },
-        });
-        this.frameViewport.AddChild(this.Layer);
-        this.AddChild(this.frameViewport);
+        };
     }
 
     private void BuildScreenView()

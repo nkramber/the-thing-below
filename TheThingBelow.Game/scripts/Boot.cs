@@ -1374,7 +1374,7 @@ public partial class Boot : Node
         GameMap map = session.Party.Map;
         UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
         var drawn = new MapScreen();
-        drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, session.Party, loaded, loaded.Effects.Ambient.WeatherOf(map.Id));
+        drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, session.Party, loaded, loaded.Effects.Ambient.WeatherOf(map.Id), loaded.Light.Passes);
         drawn.CarriedLightOn = true;
         drawn.ShowParty(session.Party, 0);
         drawn.ShowWeather(session.Tick, seek: false);

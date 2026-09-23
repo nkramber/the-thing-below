@@ -112,6 +112,9 @@ public sealed class BattleScreen
         this.world = new Node2D { YSortEnabled = true };
         frame.World.AddChild(this.world);
         frame.ShowGlow(content.Light.Glow);
+
+        // A fight draws the tilt-shift blur and the vignette as a map does (D-920).
+        frame.ShowPasses(content.Light.Passes, content.Palette);
         this.layer = new Control
         {
             Position = Vector2.Zero,
@@ -130,7 +133,7 @@ public sealed class BattleScreen
             Visible = false,
         };
         this.world.AddChild(this.pointer);
-        GlowPass.LiftAboveGlow(this.pointer);
+        GlowPass.LiftToMarks(this.pointer);
 
         this.BuildStrip();
         this.message = this.BuildLinePanel(BattleLayout.Message);
@@ -531,8 +534,8 @@ public sealed class BattleScreen
         border.AddChild(fill);
         this.world.AddChild(border);
 
-        // The bar draws above the fog and the glow, as the mark does (D-208, D-916).
-        GlowPass.LiftAboveGlow(border);
+        // The bar draws above the fog, the glow, and the passes, as the mark does (D-208, D-916, D-919).
+        GlowPass.LiftToMarks(border);
         return new HealthBar(border, fill);
     }
 

@@ -5,6 +5,7 @@ using Godot;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Effects;
+using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Game.Ui;
 using TheThingBelow.Storage;
@@ -55,6 +56,9 @@ public sealed partial class CaptureSession : Node
     private FrameRoot? frame;
     private GameRun? walkRun;
     private MapScreen? walkMap;
+
+    /// <summary>The fixture that holds the walk run, so a walk of another fixture builds its own (D-921).</summary>
+    private string? walkFixture;
     private int stepTicks;
     private int next;
     private int waited;
@@ -224,7 +228,9 @@ public sealed partial class CaptureSession : Node
     /// </remarks>
     private void WalkOneTick(ScreenCapture capture, WalkTick walk)
     {
-        if (this.walkRun is null || this.walkMap is null)
+        // Two walk fixtures can follow each other, such as the still fixture in each mode, so a
+        // walk of another fixture builds its own run (D-921).
+        if (this.walkRun is null || this.walkMap is null || string.CompareOrdinal(this.walkFixture, capture.Fixture) != 0)
         {
             this.BuildFixture(capture);
         }
@@ -349,6 +355,8 @@ public sealed partial class CaptureSession : Node
             this.walkMap = null;
         }
 
+        this.walkFixture = capture.Fixture;
+
         var built = new FrameRoot();
         this.AddChild(built);
         this.frame = built;
@@ -363,7 +371,7 @@ public sealed partial class CaptureSession : Node
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.MapFixture) == 0)
         {
             GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-            MapFixture.Build(built, @base, open.Party, this.content, this.AmbientOf(capture), seekParticles: true);
+            MapFixture.Build(built, @base, open.Party, this.content, this.AmbientOf(capture), seekParticles: true, mode: capture.Mode);
             return;
         }
 
@@ -373,11 +381,12 @@ public sealed partial class CaptureSession : Node
             return;
         }
 
-        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.StillFixture) == 0)
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.StillFixture) == 0
+            || string.CompareOrdinal(capture.Fixture, ScreenCaptures.SteppedStillFixture) == 0)
         {
             GameRun still = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             this.walkRun = still;
-            this.walkMap = MapFixture.Build(built, @base, still.Party, this.content, seekParticles: true);
+            this.walkMap = MapFixture.Build(built, @base, still.Party, this.content, seekParticles: true, mode: capture.Mode);
             this.stepTicks = 0;
             return;
         }
@@ -527,6 +536,12 @@ public sealed partial class CaptureSession : Node
             ScreenCaptures.LevelOf(capture.Frame),
             this.AmbientOf(capture));
         screen.SeekParticles = true;
+
+        // A fight draws no light shaft, so the mode of the capture reaches the blur and the vignette alone (D-917, D-920).
+        if (capture.Mode is PassMode mode)
+        {
+            built.ShowPasses(this.content.Light.Passes.WithMode(mode), this.content.Palette);
+        }
         if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleTargetFrame) == 0
             && screen.Read(InputActions.Confirm) is not null)
         {
