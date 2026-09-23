@@ -12,15 +12,17 @@ Session: reviewer PR-94, round 1. Repository: the-thing-below. Branch: `feat/pr-
 
 ### The state of the build
 
-- The remote head of `main` is `8d98c46`. The effective head of PR #59 is `8011192`.
+- The remote head of `main` is `8d98c46`. The remote PR head is `c40c559`, and the effective head is `8011192`.
 - `make verify` passed with 2,174 tests. All other local checks passed.
 - CI run 35801129146 passed each implementation check on every leg. The review gate waits for the review record.
 - All 72 screen captures match the committed baselines.
+- Metadata CI run 35802108533 passed its applicable checks. It skipped the implementation matrix legs.
+- Metadata review-gate run 35802107959 passed RG 1 to RG 3 and RG 5 to RG 8. RG 4 failed because this review has the required `Blocked` verdict.
 
 ### What is in flight
 
-- The review record and this entry need commit and push.
 - OQ-231 needs the owner's coverage choice. The PR cannot close this question until the decision enters the records.
+- The owner must answer OQ-231 before the review can approve the PR.
 
 ### Traps and gotchas
 
@@ -33,7 +35,7 @@ OQ-231 asks whether fog coverage should decrease, stay the same, or increase. D-
 
 ### The next concrete action
 
-Commit and push the review record and this handoff entry. Then verify the remote head.
+The owner answers OQ-231. The author records the answer and updates the fog content if needed.
 
 ## Session 215: 2026-09-22, Claude Code
 
