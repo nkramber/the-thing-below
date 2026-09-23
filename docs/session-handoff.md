@@ -1,3 +1,42 @@
+
+## Session 238: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #64, round 1. Repository: the-thing-below. Branch: `feat/pr-60-transitions`. PR: #64. Role: reviewer. Base: `ca8c549`.
+
+### What this session did, and why
+
+- Reviewed PR #64 from base `ca8c549` through effective head `875fe53`, across 99 changed paths.
+- Confirmed Claude Code authored the substantive changes, and the Codex reviewer passes the provider gate (T-4, D-17).
+- Verified the tick-after-wait crash fix and its regression test. Reviewed the transition content, deterministic pick, hand-off phases, shaders, budget, captures, and roadmap tests.
+- Read the current CI run and inspected its screen artifact. Every implementation check passed, including all platform legs, screen-test, and Gitar.
+- Added `docs/reviews/pr-64.md` with no findings and `Ready for owner merge` for `875fe53`.
+
+### The state of the build
+
+- `main` and the PR base are `ca8c549`. The effective head is `875fe53`. The remote branch tip before publication is `f3b4855`.
+- `make verify` passed locally: 2,441 tests and every local gate passed.
+- CI run 35884251448 passed build, test, format, smoke, replay identity, coverage, det-lint, STE, changed paths, and screen-test. Gitar passed. The pre-publication review-gate failure awaits its normal rerun after the record lands.
+- The review record and this entry need one metadata commit and a push to `feat/pr-60-transitions`.
+
+### What is in flight
+
+- Publish the review record and this handoff entry together.
+- Verify the remote branch head and the fresh review-gate result.
+
+### Traps and gotchas
+
+- The effective head is `875fe53`; later commits change handoff metadata alone.
+- Push with `git push origin HEAD:feat/pr-60-transitions`.
+
+### The questions that block progress
+
+OQ-242 does not affect PR-60. It asks how the screen shows the count of waiting enemies.
+
+### The next concrete action
+
+Commit the review record and handoff entry together. Push, fetch, and verify the remote head.
+
 ## Session 237: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -41,6 +80,8 @@ None. OQ-242 waits for the owner and blocks nothing in PR-60.
 
 Run `make codex-review PR=64` on the effective head `875fe53`, and answer its outcome.
 
+
+
 ## Session 236: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -77,6 +118,8 @@ None.
 ### The next concrete action
 
 The owner confirms the summary and merges PR #63.
+
+
 
 ## Session 235: 2026-09-23, Codex
 
@@ -115,6 +158,8 @@ None. D-926 to D-933 record the owner answers.
 ### The next concrete action
 
 Commit this entry with the review record, push once, then verify the remote head and the fresh review-gate result.
+
+
 
 ## Session 234: 2026-09-23, Claude Code
 
@@ -156,6 +201,8 @@ None. D-926 to D-933 hold the answers of 2026-09-23.
 
 Answer the Gitar pass of the new head. Then run `make codex-review PR=63` in the background.
 
+
+
 ## Session 233: 2026-09-23, Codex
 
 Author: Codex
@@ -193,6 +240,8 @@ None. The PR-95 roadmap lists no open question.
 ### The next concrete action
 
 The author fixes both findings and requests a repeat review of PR #63.
+
+
 
 ## Session 232: 2026-09-23, Claude Code
 
@@ -234,6 +283,8 @@ None. D-926 to D-931 hold the answers of 2026-09-23.
 
 Answer the Gitar pass of PR #63. Then run `make codex-review PR=63` in the background.
 
+
+
 ## Session 231: 2026-09-23, Codex
 
 Author: Codex
@@ -270,6 +321,8 @@ None. OQ-241 asks which later PR adds ceiling shafts and blocks no progress here
 
 The owner merges PR #62.
 
+
+
 ## Session 230: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -302,6 +355,8 @@ None. OQ-241 blocks no progress on PR #62.
 ### The next concrete action
 
 The other provider repeats the review of PR #62.
+
+
 
 ## Session 229: 2026-09-23, Codex
 
@@ -338,41 +393,3 @@ None. OQ-241 blocks no progress on PR #62.
 ### The next concrete action
 
 The author answers the Gitar comment, then the other provider reviews the response.
-
-## Session 228: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-92, round 2. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
-
-### What this session did, and why
-
-- The owner read the fixture shafts and said that a beam from a bare wall makes no sense. D-924 keeps wall shafts only under an opening, such as a window (OQ-240).
-- The owner kept the still beam. D-925 removes the shimmer, its fields, the shimmer shaft, and the stepped still captures, and `LightWave` went back into `GlowPass`.
-- A shaft kind now needs a drawing, and the map draws it on the wall. The fixture dungeon holds one barred window at (6, 1), with `drawing.decor_fixture_window` in the atlas.
-- The owner wants ceiling shafts later. OQ-241 asks which PR adds them.
-
-### The state of the build
-
-- `main` is `05dcc3d`. The tests, format, lint, identity, content, atlas, and smoke pass on this machine. The author read `make sheet` for the map fixture.
-- CI run 35821954258 on `efbf7dd`: the two capture runs matched on all 74 captures. The 48 baselines that the window changed come from its artifact (D-733).
-- Gitar approved `efbf7dd` with no finding. CI and gitar passed on `8b299b3`, with review-gate waiting for the review record.
-- The owner turned on SSH on the Deck, and this session ran the sweep of `spike/deck-test` there at the owner's request. The results are `a6f9f0b` on that branch, and they hold the pass row of 6 (F-106).
-
-### What is in flight
-
-- The PR waits for CI on the baseline commit and the review of the other provider.
-
-### Traps and gotchas
-
-- The window sits on the brick face of the wall tile, rows 16 to 27. The cap above the face is rows 0 to 15.
-- A shaft sprite draws unshaded, as a torch does, so the opening stays bright in the dark.
-- Over SSH, the Deck takes no `.bashrc`, so set `DOTNET_ROOT`, `PATH`, and `GODOT` by hand, and `DISPLAY=:0` for the sweep. Godot then falls back to Wayland.
-- The owner should stop SSH on the Deck after this PR: `sudo systemctl stop sshd`.
-
-### The questions that block progress
-
-None. OQ-241 blocks no PR yet.
-
-### The next concrete action
-
-The other provider reviews PR #62.

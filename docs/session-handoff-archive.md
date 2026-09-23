@@ -1,4 +1,44 @@
 # Session handoff archive
+
+## Session 228: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-92, round 2. Repository: the-thing-below. Branch: `feat/pr-92-hd2d-passes`. PR: #62. Role: author. Base: `05dcc3d`.
+
+### What this session did, and why
+
+- The owner read the fixture shafts and said that a beam from a bare wall makes no sense. D-924 keeps wall shafts only under an opening, such as a window (OQ-240).
+- The owner kept the still beam. D-925 removes the shimmer, its fields, the shimmer shaft, and the stepped still captures, and `LightWave` went back into `GlowPass`.
+- A shaft kind now needs a drawing, and the map draws it on the wall. The fixture dungeon holds one barred window at (6, 1), with `drawing.decor_fixture_window` in the atlas.
+- The owner wants ceiling shafts later. OQ-241 asks which PR adds them.
+
+### The state of the build
+
+- `main` is `05dcc3d`. The tests, format, lint, identity, content, atlas, and smoke pass on this machine. The author read `make sheet` for the map fixture.
+- CI run 35821954258 on `efbf7dd`: the two capture runs matched on all 74 captures. The 48 baselines that the window changed come from its artifact (D-733).
+- Gitar approved `efbf7dd` with no finding. CI and gitar passed on `8b299b3`, with review-gate waiting for the review record.
+- The owner turned on SSH on the Deck, and this session ran the sweep of `spike/deck-test` there at the owner's request. The results are `a6f9f0b` on that branch, and they hold the pass row of 6 (F-106).
+
+### What is in flight
+
+- The PR waits for CI on the baseline commit and the review of the other provider.
+
+### Traps and gotchas
+
+- The window sits on the brick face of the wall tile, rows 16 to 27. The cap above the face is rows 0 to 15.
+- A shaft sprite draws unshaded, as a torch does, so the opening stays bright in the dark.
+- Over SSH, the Deck takes no `.bashrc`, so set `DOTNET_ROOT`, `PATH`, and `GODOT` by hand, and `DISPLAY=:0` for the sweep. Godot then falls back to Wayland.
+- The owner should stop SSH on the Deck after this PR: `sudo systemctl stop sshd`.
+
+### The questions that block progress
+
+None. OQ-241 blocks no PR yet.
+
+### The next concrete action
+
+The other provider reviews PR #62.
+
+
 ## Session 227: 2026-09-23, Claude Code
 
 Author: Claude Code
