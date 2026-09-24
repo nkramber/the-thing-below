@@ -292,7 +292,7 @@ public static class RunRecordText
                     debug = reader.ReadBoolean();
                     break;
                 case "item":
-                    item = reader.ReadContentId(BattleFixture.ItemKind);
+                    item = ReadItemOrPiece(ref reader);
                     break;
                 case "target":
                     target = ReadTarget(ref reader);
@@ -319,6 +319,18 @@ public static class RunRecordText
             option,
             lesson,
             actor);
+    }
+
+    /// <summary>Reads the item field of an intent: an item of an item use, or a piece of a change of gear (D-780, D-1048).</summary>
+    private static ContentId ReadItemOrPiece(ref ContentReader reader)
+    {
+        ContentId id = reader.ReadContentId();
+        if (string.CompareOrdinal(id.Kind, ItemList.Kind) != 0 && string.CompareOrdinal(id.Kind, GearList.Kind) != 0)
+        {
+            throw reader.Refuse($"the item field holds '{id.Value}', and it holds an id of the kind '{ItemList.Kind}' or '{GearList.Kind}' (D-780, D-1048)");
+        }
+
+        return id;
     }
 
     private static BattleTarget ReadTarget(ref ContentReader reader)

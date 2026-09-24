@@ -82,6 +82,8 @@ Built by PR-66. Phase file: `phase-2-first-playable.md`.
 - PR-66 adds the eight elements with weakness, resist, and absorb, and the ten statuses (D-74, D-75, D-533).
 - Damage uses fixed-point integers, and content writes each rate in basis points (D-169, G-2).
 - Each enemy record holds one affinity for each element, and a list of the statuses that it refuses (D-794, D-805). PR-13 gives gear the same table (D-790).
+- The gear of a character gives its element table. The best protection applies, and each `weak` piece steps it down one step (D-1037).
+- PR-99 settles the stat set and the heal of an absorbed hit (D-1041, OQ-247, OQ-248).
 - A move holds one element or none, and a status with its chance or none (D-793, D-796). The basic attack holds neither.
 - One hit takes the rate of its affinity, then the back row, the defend, and the shell cut. An absorb heals the hit, and no cut applies to it (D-795, D-809).
 - A hit rolls the miss, then the hit factor, then the status chance, on the battle stream (D-807).
@@ -137,6 +139,9 @@ Built by PR-11 and PR-9. Phase file: `phase-2-first-playable.md`.
 - Each entry of a group names a personality profile: the weights of the score terms (D-65, D-958). Each profile has one file under `content/rules/profiles/` (D-956).
 - Every profile validates at load, and a profile that can never act fails that load (G-21, T-2). A check fight against one fixture party member finds a profile with no legal action (D-948).
 - Each profile carries a steal list of items and some gold, and a human enemy carries what a person carries (D-383). Each profile gives the base chance of a steal, and PR-13 builds the steal action with the Theft term (D-949, D-950).
+- A steal takes one remaining entry at random. The party gets three tries in one fight, and each success halves the next chance (D-1044, D-1045).
+- A steal list can hold gear. A success takes gear at the lower of the gear chance of the profile and the cap of the success: 5%, 15%, then 25% (D-1051).
+- Each profile carries a drop list, and each entry holds its own chance. A drop is rare (D-1042).
 - A group file for each region holds each enemy group: its enemies, their rows, and their profiles (D-535). Each map names its region, and the group files live under `content/rules/groups/` (D-957).
 - A map names a group by its id, and a test proves that each named group exists (D-528, D-535). PR-9 holds that test on its fixture group file, and PR-11 grows the file (D-766).
 - PR-11 proves the evaluator on fixture profiles, and PR-17 writes the profiles of the first playable.
@@ -220,7 +225,8 @@ Built by PR-9, PR-11, and PR-15. Phase files: `phase-2-first-playable.md` and ev
 | PR-57 | The blood, the sparks, the shake, and the hit-stop | D-186 |
 | PR-20 | The boss phases and the signature moves | D-65 |
 | PR-12 | The lessons and the aptitudes that a fight uses | D-272, D-358 |
-| PR-13 | The gear and the items that a fight spends | D-44, D-382 |
+| PR-13 | The gear and the items that a fight spends, the steal, and the drops | D-44, D-382, D-1036 to D-1046 |
+| PR-99 | The stat set and the heal of an absorbed hit | D-1041 |
 | PR-17 | The enemies and the groups of the first places | D-313, D-362 |
 | PR-90 | The balance harness, which measures each encounter | D-822 |
 | PR-30 | The balance pass over every number | D-35, G-14 |
@@ -264,13 +270,14 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 7. PR-11: the evaluator, the profiles, and the groups, with the cost of a turn (F-53).
 8. PR-98: the waiting enemies at the left edge of the field (D-951 to D-954).
 9. PR-12 and PR-13: the lessons, the gear, and the items that a fight uses.
-10. PR-15: the bots that play the fixture dungeon.
-11. PR-16 and PR-64: the dungeon parts around the fights.
-12. PR-17: the enemies and the groups of the first playable.
-13. M-4: the turns of an encounter and the downs of a dungeon.
-14. **← GATE 2 (first playable).**
-15. PR-20: the boss phases, in Phase 3.
-16. PR-30: the balance pass, in Phase 4.
+10. PR-99: the stat set and the heal of an absorbed hit (D-1041).
+11. PR-15: the bots that play the fixture dungeon.
+12. PR-16 and PR-64: the dungeon parts around the fights.
+13. PR-17: the enemies and the groups of the first playable.
+14. M-4: the turns of an encounter and the downs of a dungeon.
+15. **← GATE 2 (first playable).**
+16. PR-20: the boss phases, in Phase 3.
+17. PR-30: the balance pass, in Phase 4.
 
 ## 9. Open questions
 
@@ -288,5 +295,7 @@ The register is `docs/questions.md` (D-19). These questions block battle PRs, an
 - OQ-133: the flee chance and the grace time. Resolved by D-748 and D-763.
 - OQ-242: the waiting enemies of a fight. Resolved by D-951.
 - OQ-243: a column of the waiting enemies, taller than the field. Resolved by D-963.
+- OQ-247: the stat set. Blocks PR-99.
+- OQ-248: the heal of an absorbed hit. Blocks PR-99.
 
-No open question blocks this file.
+OQ-130 blocks PR-20. OQ-247 and OQ-248 block PR-99.

@@ -51,9 +51,12 @@ public sealed class BattleMessagesTests
     public void EveryLineHoldsFortyCharactersWithTheLongestNames()
     {
         // D-241: a battle message holds 40 characters. The test fills each place with the
-        // longest name of the table, the longest status, and the largest stat (D-775).
+        // longest name of its kind, the longest status, and the largest stat (D-775). A piece
+        // of gear never enters a battle line, so its name takes no place (D-1046).
         StringTable strings = Content.Value.Strings;
-        string longestName = Longest(strings, "name.");
+        BattleContent battle = Content.Value.Battle;
+        string longestName = LongestNameOf(strings, NamedInFights(battle));
+        string longestItem = LongestNameOf(strings, battle.Items.Ids);
         string longestStatus = Longest(strings, "status.");
         string amount = BattleFixture.MostStat.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
@@ -70,6 +73,7 @@ public sealed class BattleMessagesTests
                 .Replace("{target}", longestName, StringComparison.Ordinal)
                 .Replace("{status}", longestStatus, StringComparison.Ordinal)
                 .Replace("{form}", longestName, StringComparison.Ordinal)
+                .Replace("{item}", longestItem, StringComparison.Ordinal)
                 .Replace("{amount}", amount, StringComparison.Ordinal);
             Assert.True(text.Length <= MessageLimit, $"The line '{id.Value}' reads '{text}', {text.Length} characters, above {MessageLimit} (D-241).");
         }
@@ -91,7 +95,7 @@ public sealed class BattleMessagesTests
             things.Add(enemy.Id);
         }
 
-        foreach (ItemRecord item in battle.Fixture.Items)
+        foreach (ItemRecord item in battle.Items.Records)
         {
             things.Add(item.Id);
         }
@@ -184,6 +188,47 @@ public sealed class BattleMessagesTests
     private static MethodInfo Method(string name) =>
         GameAssemblyFile.Type(MessagesTypeName).GetMethod(name, BindingFlags.Public | BindingFlags.Static)
             ?? throw new InvalidOperationException($"The battle messages hold no '{name}' method (T-2).");
+
+    /// <summary>Gives the ids whose names a combatant place or a form place of a line reads: each character, each enemy, and each form of a lesson.</summary>
+    private static List<ContentId> NamedInFights(BattleContent battle)
+    {
+        var ids = new List<ContentId>();
+        foreach (CharacterRecord character in battle.Fixture.Characters)
+        {
+            ids.Add(character.Id);
+        }
+
+        foreach (EnemyRecord enemy in battle.Enemies)
+        {
+            ids.Add(enemy.Id);
+        }
+
+        foreach (LessonRecord lesson in battle.Lessons.Records)
+        {
+            foreach (LessonForm form in lesson.Forms)
+            {
+                ids.Add(form.Ability);
+            }
+        }
+
+        return ids;
+    }
+
+    private static string LongestNameOf(StringTable strings, IReadOnlyList<ContentId> ids)
+    {
+        string longest = string.Empty;
+        foreach (ContentId id in ids)
+        {
+            string text = strings.Text(ContentId.Parse($"name.{id.Name}", StringTable.Path, id.Value));
+            if (text.Length > longest.Length)
+            {
+                longest = text;
+            }
+        }
+
+        Assert.NotEmpty(longest);
+        return longest;
+    }
 
     private static string Longest(StringTable strings, string prefix)
     {

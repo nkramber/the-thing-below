@@ -56,11 +56,18 @@ Game terms from the roadmap interview of 2026-09-12:
 | defend | the action that cuts the damage until the next turn of the character (D-755) | guard, which names a lesson kind (D-377), block |
 | move | one kind of strike: its delay, its power, its element, and its status chance. The basic attack is one move (D-376, D-793) | skill, technique, attack, when the text means the kind |
 | affinity | how a combatant takes a hit of one element: normal, weak, resist, or absorb (D-794) | weakness, when the text means the whole set, and resistance |
-| element table | the eight affinities of one enemy record, and later of one piece of gear (D-790, D-794) | affinity row, element chart |
+| element table | the eight affinities of one enemy record or of one piece of gear (D-790, D-794, D-1036) | affinity row, element chart |
 | immune list | the statuses that an enemy record refuses (D-805) | resistances, immunities |
 | share | the part of full health that poison, bleed, or regen moves at a turn, in basis points (D-803, D-808) | tick damage, DoT |
 | gear | items in equipment slots (D-44) | equipment, armor, as the set |
 | item | a thing in the inventory that is not gear (D-45) | consumable, object |
+| gear slot | one of the six places of a character that holds one piece of gear: the weapon, the off-hand, the head, the body, and two accessories (D-44) | equipment slot, socket, and slot alone, which names the place of a combatant |
+| pack | the party store of spare gear and items, outside the gear slots (D-382) | bag, inventory, when the text means the store |
+| stack limit | the most copies of one item or one piece of gear that the party owns, worn copies included (D-1038, D-1039) | stack size, max stack, cap |
+| used-up item | an item that one use spends, such as a draught (D-384) | consumable |
+| key item | an item with a stack limit of 1 that a use never spends, such as the torch (D-848, D-1038) | unique item, quest item |
+| drop list | the items that a profile can give at a win, each with its own chance (D-1042) | loot table, drop table |
+| steal list | the items, the gold, and the gear that a profile carries for a steal (D-383, D-1051) | pocket, loot list |
 | gold | the currency (D-60) | money, coins, gil |
 | character level | the level from experience (D-34) | level, alone |
 | stat curve | the table of the health, the MP, the attack, the defense, and the speed of one character, one row for each level (D-537, D-966) | growth table, stat table |

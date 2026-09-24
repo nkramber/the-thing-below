@@ -1447,20 +1447,30 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 
 - The six equipment slots: the weapon, the shield or off-hand, the head, the body, and two accessories (D-44).
 - Gear that any character wears, because the aptitudes carry the difference (D-374).
-- The element table of each piece of gear, which PR-66 builds for the enemy record (D-790, D-794).
-- Fixed, hand-authored gear with a few rarity tiers, and no random affix and no crafting (D-45, OQ-143).
-- The pack, with a small fixed number of each item (D-382, OQ-142).
-- The item use on a turn, which restores less in a fight than outside one (D-382).
-- The steal action: the roll, the Theft term, the clamp, the failure that costs the turn, and the stolen entry in the pack (D-949, D-950).
-- The items that a fight gives, as message lines after the summary of PR-67 (D-835, D-975).
+- The attack, defense, and speed amounts of each piece, and its element table (D-790, D-794, D-1036).
+- The rule that combines the gear of one character: the amounts add, and the element levels follow D-1037.
+- A negative amount, and the floor of 1 on each stat (D-1047).
+- The gear window equips and removes gear anywhere outside a fight (D-1048).
+- Fixed, hand-authored gear, with no random affix and no crafting. A rarity tier is the place of a find alone (D-45, D-1040).
+- The pack, with a stack limit on each item record and each gear record. The limit counts each owned copy (D-382, D-1038, D-1039).
+- The four item effects: heal, restore, cure, and revive. The item rate cuts each amount in a fight (D-382, D-1046).
+- The item use in a fight, and the item use from the item window outside a fight. The window refuses a use that changes nothing (D-382, D-1049).
+- The steal of a Theft drill: the roll, the Theft term, and the clamp (D-949, D-950).
+- The three tries of a fight, the halved chance, and the stolen entry in the pack (D-1044, D-1045).
+- The gear of a steal list: the gear chance of the profile under the cap of each success, and the check of room (D-1051).
+- The party gold number, which a stolen gold entry fills (D-1043).
+- The drop list of each profile, and the drops of a win as message lines after the summary of PR-67 (D-835, D-975, D-1042).
 - The find over the stack limit, which stays in its chest and which the save records (D-385).
 - The gear window and the item window in the stack of PR-62.
+- A simulation version bump, because the rules change (G-17).
 
 **Out of scope.**
 
-- The shop and the gold (PR-65, D-530).
+- The shop, and the screen that shows the gold (PR-65, D-530).
 - The chests that hold gear and items (PR-16).
 - The items of region one (PR-42 and the content PRs).
+- The stat set and the heal of an absorbed hit (PR-99, D-1041).
+- The death of Elio, which the content of Phase 4 builds (D-364).
 
 **Exit tests.**
 
@@ -1468,20 +1478,57 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 2. The screen shows each empty slot (D-44).
 3. A pickup over the stack limit leaves a remainder, and the pack names it (D-385). PR-16 builds the chest that holds it.
 4. An item restores less in a fight than outside one (D-382).
-5. A test proves that two accessories with one effect follow the rule of OQ-141.
-6. The snapshot holds the pack and the slots.
+5. A test proves each example of D-1037 for two or more pieces with one element.
+6. A seed loop proves the three tries and the halved chance of a steal (D-1045).
+7. A seed loop proves the gear cap of each success, and a first success after two failures (D-1051).
+8. The snapshot holds the pack, the gold, and the slots.
 
 **Review focus.**
 
-- The answer of OQ-140 sets what a piece of gear changes, and OQ-143 what a rarity tier changes.
-- The gear of Elio leaves the game with him, and content marks it (D-364).
-- A steal takes one entry from the list of an enemy, which PR-11 holds (D-383). The chance adds the Theft term to the base chance of the profile (D-949).
+- Gear never changes health or MP (D-1036).
+- A drop chance of the fixture stays low (D-1042).
+- A steal takes one entry from the list of an enemy, which PR-11 holds (D-383, D-1044). The chance adds the Theft term to the base chance of the profile (D-949).
 
-**Questions.** OQ-140, OQ-141, OQ-142, and OQ-143.
+**Questions.** None. D-1036 to D-1046 answer OQ-140 to OQ-143 and each question of the scope.
 
-> *In plain English:* six slots, and anyone can wear anything. What you find is what the author placed, so a good weapon is a real event.
+> *In plain English:* six slots, and anyone can wear anything. What you find is what the author placed, so a good weapon is a real event. You carry a few of each thing, and a thief gets three tries in each fight.
 
-### 7.34 PR-91: the torch item
+### 7.34 PR-99: the stat set, the heal of an absorbed hit, and the lesson swap
+
+Area files: `area-battle.md` section 7.4, and `area-progression.md` section 7.3.
+
+**Scope.**
+
+- The stat set of OQ-247: a magic stat, and a split of defense, or the answer of the owner (D-1041).
+- The stat curves of the fixture characters, the enemy records, and the gear records, with each new stat.
+- The damage of a strike and of a spell, from the answer of OQ-247.
+- The absorb rate of OQ-248 in the battle rules file (D-795).
+- The lesson swap anywhere outside a fight, in place of the swap place (D-1050).
+- The stat names on the battle screen and in the menu (D-979).
+- A simulation version bump, because the rules change (G-17).
+
+**Out of scope.**
+
+- The balance pass over each number (PR-30).
+- The gear and the items themselves (PR-13).
+
+**Exit tests.**
+
+1. A strike and a spell each read the stats of the answer of OQ-247.
+2. An absorbed hit heals the amount of the answer of OQ-248, rounded down.
+3. The lesson window swaps a lesson on the map away from a hub and a save point (D-1050).
+4. A save of PR-13 loads, and each new stat takes its value from the curve (G-5).
+
+**Review focus.**
+
+- Each record that holds a stat holds each new stat, and an absent field fails the load (T-2).
+- The replay identity job gives the new state hash on every leg (G-5).
+
+**Questions.** OQ-247 and OQ-248.
+
+> *In plain English:* a spell now reads the magic of the caster, and armor can guard against steel or against spells. A fire spell on a fire beast heals it less than before. Lessons change anywhere outside a fight.
+
+### 7.35 PR-91: the torch item
 
 Area file: `area-exploration.md` section 7.17.
 
@@ -1515,7 +1562,7 @@ Area file: `area-exploration.md` section 7.17.
 
 > *In plain English:* the torch becomes a real item. Dark places need it, and guards see it from far away, so the player chooses between light and stealth.
 
-### 7.35 PR-14: the hub map, the NPCs, and the services
+### 7.36 PR-14: the hub map, the NPCs, and the services
 
 Area file: `area-exploration.md` section 7.11.
 
@@ -1524,7 +1571,7 @@ Area file: `area-exploration.md` section 7.11.
 - The hub as a walkable map with NPC sprites, on the same code path as a dungeon (D-112).
 - The hub content format, with the services that each hub offers (D-28, D-59).
 - The rest, which restores health and MP and cures poison, blind, and silence (D-42, D-390).
-- The save, the party swap, and the lesson swap at the hub, which marks the hub as a swap place (D-59, D-62, D-356, D-1030).
+- The save and the party swap at the hub (D-59, D-62). PR-99 opens the lesson swap anywhere outside a fight, so the hub marks no swap place (D-1050).
 - A condition of PR-68 on each service, so a story flag can close one (D-543, D-544, D-556).
 - The talk trigger of PR-68 fires when the player talks with an NPC (D-1005). A story scene step can name an NPC as a story scene actor (D-1006).
 - The service screens in the window stack of PR-62.
@@ -1558,7 +1605,7 @@ Area file: `area-exploration.md` section 7.11.
 
 > *In plain English:* the hub is a place you walk through, where the party recovers and reshapes itself before the next dungeon. Every hub has a different shape.
 
-### 7.36 PR-65: the shop and the gold
+### 7.37 PR-65: the shop and the gold
 
 Area file: `area-exploration.md` section 7.12.
 
@@ -1595,7 +1642,7 @@ Area file: `area-exploration.md` section 7.12.
 
 > *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
 
-### 7.37 PR-36: the dialogue box, the portraits, and the story scene on screen
+### 7.38 PR-36: the dialogue box, the portraits, and the story scene on screen
 
 Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
@@ -1638,7 +1685,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 > *In plain English:* people walk, turn, and speak on the map you already walk on. Their words appear in a box at the bottom, with a face beside them.
 
-### 7.38 PR-15: the headless runner and the bots
+### 7.39 PR-15: the headless runner and the bots
 
 Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
@@ -1676,7 +1723,7 @@ Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
 > *In plain English:* simple robots play the game with no screen. They make the same choices a player makes, and every crash they find comes with the seed that repeats it.
 
-### 7.39 PR-49: the night job and the night gate
+### 7.40 PR-49: the night job and the night gate
 
 Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
@@ -1714,14 +1761,14 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
 > *In plain English:* every night the robots play thousands of runs on all three systems. No change merges unless a recent night ended with no crash and no dead end.
 
-### 7.40 PR-16: the dungeon parts, the death, and the save points
+### 7.41 PR-16: the dungeon parts, the death, and the save points
 
 Area file: `area-exploration.md` section 7.8.
 
 **Scope.**
 
 - The treasure, the locked doors, and the keys (D-41).
-- The save points, which save, swap the party, and swap the lessons. Each marks a swap place (D-36, D-58, D-356, D-1030).
+- The save points, which save and swap the party (D-36, D-58). PR-99 opens the lesson swap anywhere outside a fight, so a save point marks no swap place (D-1050).
 - The MP that a save point restores once for the place, and the health that it does not (D-389, D-555).
 - The Theft drill that opens a lock that the map marks as pickable, where a story lock always needs its key (D-386).
 - The chest that keeps what the party cannot carry (D-385).
@@ -1758,7 +1805,7 @@ Area file: `area-exploration.md` section 7.8.
 
 > *In plain English:* the dungeon gains its chests, doors, keys, and resting stones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
-### 7.41 PR-64: the traps, the hazards, and the statuses on the map
+### 7.42 PR-64: the traps, the hazards, and the statuses on the map
 
 Area file: `area-exploration.md` section 7.9.
 
@@ -1798,7 +1845,7 @@ Area file: `area-exploration.md` section 7.9.
 
 > *In plain English:* the dungeon itself can hurt you. Poison still hurts while you walk, and a party can go down between fights.
 
-### 7.42 PR-35: the region map
+### 7.43 PR-35: the region map
 
 Area file: `area-exploration.md` section 7.13.
 
@@ -1834,11 +1881,11 @@ Area file: `area-exploration.md` section 7.13.
 
 > *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
 
-### 7.43 PR-37: retired
+### 7.44 PR-37: retired
 
 PR-37 held the CRT shader and its toggle, which have no purpose after D-618. No later item takes the id (G-10). This entry exists so that a reader of the sequence finds the gap and its reason.
 
-### 7.44 PR-38: the audio synthesizer and the first sounds
+### 7.45 PR-38: the audio synthesizer and the first sounds
 
 Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
@@ -1877,7 +1924,7 @@ Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
 > *In plain English:* music and sound start as rows of numbers in a text file. A tool of ours turns those rows into sound, the same way on every computer.
 
-### 7.45 PR-69: the audio player base
+### 7.46 PR-69: the audio player base
 
 Area file: `area-audio.md` sections 7.2 and 7.3.
 
@@ -1913,7 +1960,7 @@ Area file: `area-audio.md` sections 7.2 and 7.3.
 
 > *In plain English:* this part makes sound come out. It sets the volumes, and it mutes the game when the window loses focus.
 
-### 7.46 PR-70: the rules of what plays when
+### 7.47 PR-70: the rules of what plays when
 
 Area file: `area-audio.md` sections 7.4 to 7.10.
 
@@ -1960,7 +2007,7 @@ Area file: `area-audio.md` sections 7.4 to 7.10.
 
 > *In plain English:* every place has its own music, a low bed of wind or fire under it, and its own footsteps. The music changes when the story turns the day to night.
 
-### 7.47 PR-71: the sound room
+### 7.48 PR-71: the sound room
 
 Area file: `area-audio.md` section 7.11.
 
@@ -1990,7 +2037,7 @@ Area file: `area-audio.md` section 7.11.
 
 > *In plain English:* the owner listens to every piece of music before it ships. One tool plays a batch on the desk, and this one plays it inside the game.
 
-### 7.48 PR-51: the PNG import
+### 7.49 PR-51: the PNG import
 
 Area file: `area-tools.md` section 7.11.
 
@@ -2032,7 +2079,7 @@ Area file: `area-tools.md` section 7.11.
 
 > *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
 
-### 7.49 PR-52: the map preview
+### 7.50 PR-52: the map preview
 
 Area file: `area-tools.md` section 7.12.
 
@@ -2062,7 +2109,7 @@ Area file: `area-tools.md` section 7.12.
 
 > *In plain English:* maps are text files too. This tool draws a map as a picture, so the owner can see and approve a place before anyone walks it.
 
-### 7.50 PR-53: the tile-edge tool
+### 7.51 PR-53: the tile-edge tool
 
 Area file: `area-tools.md` section 7.13.
 
@@ -2095,7 +2142,7 @@ Area file: `area-tools.md` section 7.13.
 
 > *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own.
 
-### 7.51 PR-72: the music and the sounds of the first playable
+### 7.52 PR-72: the music and the sounds of the first playable
 
 Area file: `area-audio.md` section 7.12.
 
@@ -2130,7 +2177,7 @@ Area file: `area-audio.md` section 7.12.
 
 > *In plain English:* the music arrives in two batches. This is the first: enough for the first thing that the owner plays.
 
-### 7.52 PR-17: the village, the first hub, and the first dungeon
+### 7.53 PR-17: the village, the first hub, and the first dungeon
 
 Area files: every area file. The content PR touches each area.
 
@@ -2177,7 +2224,7 @@ Area files: every area file. The content PR touches each area.
 
 > *In plain English:* the first real place to play. Everything before this was machinery.
 
-### 7.53 M-3, M-4, and M-6: the measurements of the phase
+### 7.54 M-3, M-4, and M-6: the measurements of the phase
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
@@ -2206,7 +2253,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* three sets of numbers close the phase. They are the cost of the robots each night, the length of a fight, and the speed on the handheld.
 
-### 7.54 Gate 2: the first playable
+### 7.55 Gate 2: the first playable
 
 **The gate.** Gate 2 passes when every line holds:
 
@@ -2224,7 +2271,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* at this point the game is a game. The owner walks a village, fights in a mine, and says whether it feels right.
 
-### 7.55 PR-74: the capture
+### 7.56 PR-74: the capture
 
 Area file: `area-release.md` section 7.6.
 
@@ -2258,7 +2305,7 @@ Area file: `area-release.md` section 7.6.
 
 > *In plain English:* the game can replay a recorded run and write every frame to disk. That gives the same picture each time, so a screenshot or a trailer shot is repeatable.
 
-### 7.56 PR-75: the store text and the owner steps
+### 7.57 PR-75: the store text and the owner steps
 
 Area file: `area-release.md` section 7.7.
 
@@ -2295,7 +2342,7 @@ Area file: `area-release.md` section 7.7.
 
 > *In plain English:* the shop page words get written and approved like any other text in the game. The owner pays the fee and answers the questions that only Valve asks.
 
-### 7.57 PR-76: the store art and the screenshots
+### 7.58 PR-76: the store art and the screenshots
 
 Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
@@ -2339,7 +2386,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 4. PR-48, PR-56, PR-93, PR-63, PR-57, PR-58, PR-94, PR-59, PR-92, PR-95, PR-60, PR-96, PR-97: the normal maps, the light, the settings, the effects, and the automated review.
 5. PR-11, PR-98, PR-67, PR-62: the enemies that think, the waiting enemies on screen, the character level, and the menu windows.
 6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
-7. PR-12, PR-13, PR-91, PR-14, PR-65: the build of a party, the torch, the hub, and the shop.
+7. PR-12, PR-13, PR-99, PR-91, PR-14, PR-65: the build of a party, the stat set, the torch, the hub, and the shop.
 8. PR-36: the dialogue box.
 9. PR-15, PR-49: the bots, the night job, and the night gate.
 10. Owner: require the bot and `night-gate` checks on `main` after their first runs.
@@ -2417,10 +2464,10 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-137 | The lesson slots at each level | PR-12 |
 | OQ-138 | The points that a lesson gains from a battle | PR-12 |
 | OQ-139 | Two copies of one lesson in one party | PR-12 |
-| OQ-140 | What a piece of gear changes | PR-13 |
-| OQ-141 | Two accessories with one effect | PR-13 |
-| OQ-142 | The stack limit of each item | PR-13 |
-| OQ-143 | What a rarity tier changes | PR-13 |
+| OQ-140 | What a piece of gear changes. Resolved by D-1036 | PR-13 |
+| OQ-141 | Two accessories with one effect. Resolved by D-1037 | PR-13 |
+| OQ-142 | The stack limit of each item. Resolved by D-1038 and D-1039 | PR-13 |
+| OQ-143 | What a rarity tier changes. Resolved by D-1040 | PR-13 |
 | OQ-217 | How far the party sees in the dark | PR-91 |
 | OQ-218 | How much farther an enemy sees a lit torch | PR-91 |
 | OQ-219 | The paths of the docs-only set | PR-93 |
@@ -2452,5 +2499,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-232 | The glow that stays, resolved by D-915 | PR-59 |
 | OQ-242 | The waiting enemies of a fight. Resolved by D-951 | PR-98 |
 | OQ-243 | A column of the waiting enemies, taller than the field. Resolved by D-963 | PR-98 |
+| OQ-247 | The stat set | PR-99 |
+| OQ-248 | The heal of an absorbed hit | PR-99 |
 
-No open question blocks this file.
+OQ-247 and OQ-248 block PR-99.

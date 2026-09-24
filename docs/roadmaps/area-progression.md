@@ -60,6 +60,7 @@ Built by PR-67. Phase file: `phase-2-first-playable.md`.
 Built by PR-67. Phase file: `phase-2-first-playable.md`.
 
 - Each character carries its own stat curve in content: the health, the MP, the attack, the defense, and the speed at each level (D-537).
+- PR-99 settles the stat set of OQ-247, and each curve then holds each new stat (D-1041).
 - The end of the job system left the stats with no source, and D-537 closes that gap (F-54).
 - The cast reads as people before any gear, so one character is tough and another is frail (D-33, D-537).
 - The death of Elio costs a shape that no other character holds, and the replacement brings a curve of its own (D-270, D-321).
@@ -132,8 +133,13 @@ Built by PR-13. Phase file: `phase-2-first-playable.md`.
 
 - Six slots hold gear: the weapon, the shield or off-hand, the head, the body, and two accessories (D-44).
 - Nothing limits what a character wears, because the aptitudes carry the difference (D-374).
-- Gear is fixed and hand-authored, with a few rarity tiers, and no random affix and no crafting exist (D-45).
-- OQ-140 holds what a piece of gear changes, and OQ-141 holds two accessories with one effect.
+- Gear is fixed and hand-authored, and no random affix and no crafting exist (D-45).
+- A piece adds to attack, defense, and speed, and never to health or MP. Only a special piece holds an element level other than `normal` (D-1036).
+- The amounts of the six slots add. The best protection of the worn pieces applies, and each `weak` piece steps it down one step (D-1037).
+- An amount can be negative, and each stat keeps a floor of 1 (D-1047).
+- The party changes gear anywhere outside a fight (D-1048).
+- A gear record holds a stack limit from 1 to 3, and the limit counts the worn copies too (D-1038, D-1039).
+- A rarity tier is the place of a find alone, and no record holds it (D-1040).
 - The gear of Elio leaves the game with him (D-364).
 - The screen shows each empty slot, and `area-ui-input.md` holds that screen (D-44, the exit tests of PR-13).
 
@@ -143,13 +149,18 @@ Built by PR-13. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-13. Phase file: `phase-2-first-playable.md`.
 
-- The pack holds a small, fixed number of each item (D-382). OQ-142 holds the limit.
+- Each item record holds its stack limit: 3 to 10 for a used-up item, and 1 for a key item (D-382, D-1038).
+- The limit counts each copy that the party owns (D-1039).
 - A small, hand-placed set of items gets used up: MP draughts, healing, cures for statuses, and the rare revive (D-384).
-- Any character can use an item on a turn, and an item restores less in a fight than outside one (D-382).
+- Each item holds one effect: a heal, a restore of MP, a cure, or a revive (D-1046).
+- Any character can use an item on a turn, and the item rate cuts each amount in a fight, but never a cure (D-382, D-1046).
+- The item window refuses a use that changes nothing, and a fight allows it (D-1049).
 - A find over the stack limit stays in its chest, and the save records what remains (D-385).
 - Mend rites and cure rites also work from the menu outside a fight, and silence stops them (D-391, D-393).
-- OQ-143 holds what a rarity tier changes.
-- A steal takes one entry from the list of an enemy, and `area-battle.md` holds the steal (D-383).
+- A steal takes one entry from the list of an enemy, and `area-battle.md` holds the steal (D-383, D-1044, D-1045).
+- A steal can take a piece of gear that the party has room for, at the gear cap of D-1051.
+- A win can drop an item from the drop list of a profile, and a drop is rare (D-1042).
+- The party holds a gold number, which a steal fills and PR-65 spends (D-1043).
 
 > *In plain English:* you carry a few of each thing, and a chest keeps what will not fit. Potions are scarce and worth less in the middle of a fight.
 
@@ -185,7 +196,8 @@ Built by PR-67, PR-12, PR-13, and PR-15. Phase files: `phase-2-first-playable.md
 |---|---|---|
 | PR-67 | The character level, the experience, the shrink, MP, and the stat curves | D-34, D-388, D-536, D-537 |
 | PR-12 | The lesson slots, the growth, the forms, the owned lesson set, and the two aptitudes | D-356 to D-361, D-539, D-1018 to D-1024 |
-| PR-13 | The six gear slots, the inventory, and the items | D-44, D-45, D-382 |
+| PR-13 | The six gear slots, the inventory, the items, the steal, and the drops | D-44, D-45, D-382, D-1036 to D-1046 |
+| PR-99 | The stat set of each curve | D-1041 |
 | PR-19 | The quest state that holds each personal task | D-282, D-538 |
 | PR-16 and PR-65 | The chests and the shops that give lessons, gear, and items | D-365, D-530, D-1024 |
 | PR-42 | The lessons of region one, with their icons and their text | D-304 |
@@ -229,15 +241,16 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 4. PR-67: the character level, the experience, MP, and the stat curves (D-536).
 5. PR-12: the lesson slots, the growth, the forms, and the aptitudes.
 6. PR-13: the gear, the inventory, and the items.
-7. PR-14 and PR-65: the hub and the shop that sell them (`area-exploration.md`).
-8. PR-16: the chests that hold them.
-9. PR-17: the lessons, the gear, and the items of the first playable.
-10. M-4: the turns of an encounter and the downs of a dungeon.
-11. **← GATE 2 (first playable).**
-12. PR-19: the quest state and each personal task, in Phase 3.
-13. PR-42: the lessons of region one, in Phase 4.
-14. PR-28 and PR-29: the content of each personal task.
-15. PR-30: the balance pass over every number.
+7. PR-99: the stat set (D-1041).
+8. PR-14 and PR-65: the hub and the shop that sell them (`area-exploration.md`).
+9. PR-16: the chests that hold them.
+10. PR-17: the lessons, the gear, and the items of the first playable.
+11. M-4: the turns of an encounter and the downs of a dungeon.
+12. **← GATE 2 (first playable).**
+13. PR-19: the quest state and each personal task, in Phase 3.
+14. PR-42: the lessons of region one, in Phase 4.
+15. PR-28 and PR-29: the content of each personal task.
+16. PR-30: the balance pass over every number.
 
 ## 9. Open questions
 
@@ -246,12 +259,13 @@ The register is `docs/questions.md` (D-19). These questions block progression PR
 - OQ-134: the shape of a stat curve. Resolved by D-966.
 - OQ-135: the MP that a save point and a rest restore. Resolved by D-967.
 - OQ-136: the shrink of the experience of an enemy. Resolved by D-968 and D-969.
-- OQ-137: the lesson slots at each level. Blocks PR-12.
-- OQ-138: the points that a lesson gains from a battle. Blocks PR-12.
-- OQ-139: two copies of one lesson in one party. Blocks PR-12.
-- OQ-140: what a piece of gear changes. Blocks PR-13.
-- OQ-141: two accessories with one effect. Blocks PR-13.
-- OQ-142: the stack limit of each item. Blocks PR-13.
-- OQ-143: what a rarity tier changes. Blocks PR-13.
+- OQ-137: the lesson slots at each level. Resolved by D-1018.
+- OQ-138: the points that a lesson gains from a battle. Resolved by D-1019 to D-1022.
+- OQ-139: two copies of one lesson in one party. Resolved by D-1023 to D-1025.
+- OQ-140: what a piece of gear changes. Resolved by D-1036.
+- OQ-141: two accessories with one effect. Resolved by D-1037.
+- OQ-142: the stack limit of each item. Resolved by D-1038 and D-1039.
+- OQ-143: what a rarity tier changes. Resolved by D-1040.
+- OQ-247: the stat set. Blocks PR-99.
 
-No open question blocks this file.
+OQ-247 blocks PR-99.

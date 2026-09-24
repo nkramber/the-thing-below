@@ -49,6 +49,12 @@ public sealed class BattleRules
         "flee_floor",
         "flee_ceiling",
         "item_rate",
+        "steal_rate",
+        "steal_floor",
+        "steal_ceiling",
+        "steal_gear_first",
+        "steal_gear_second",
+        "steal_gear_third",
         "weak_rate",
         "resist_rate",
         "absorb_rate",
@@ -93,6 +99,10 @@ public sealed class BattleRules
         this.FleeFloor = numbers["flee_floor"];
         this.FleeCeiling = numbers["flee_ceiling"];
         this.ItemRate = numbers["item_rate"];
+        this.StealRate = numbers["steal_rate"];
+        this.StealFloor = numbers["steal_floor"];
+        this.StealCeiling = numbers["steal_ceiling"];
+        this.StealGearCaps = [numbers["steal_gear_first"], numbers["steal_gear_second"], numbers["steal_gear_third"]];
         this.WeakRate = numbers["weak_rate"];
         this.ResistRate = numbers["resist_rate"];
         this.AbsorbRate = numbers["absorb_rate"];
@@ -178,6 +188,18 @@ public sealed class BattleRules
 
     /// <summary>The rate of the effect of an item in battle (D-382).</summary>
     public int ItemRate { get; }
+
+    /// <summary>The rate that each earlier success of a fight puts on the chance of a steal (D-1045).</summary>
+    public int StealRate { get; }
+
+    /// <summary>The lowest chance of a steal, after the Theft term and the rate of the earlier successes (D-949, D-1045).</summary>
+    public int StealFloor { get; }
+
+    /// <summary>The highest chance of a steal (D-949).</summary>
+    public int StealCeiling { get; }
+
+    /// <summary>The cap of the gear chance of the first, the second, and the third success of a fight, in basis points (D-1051).</summary>
+    public IReadOnlyList<int> StealGearCaps { get; }
 
     /// <summary>The rate of a hit of an element that the target is weak to (D-794).</summary>
     public int WeakRate { get; }
@@ -392,6 +414,12 @@ public sealed class BattleRules
         CheckRange(numbers, file, "flee_floor", 0, BasisPoints.One);
         CheckRange(numbers, file, "flee_ceiling", numbers["flee_floor"], BasisPoints.One);
         CheckRange(numbers, file, "item_rate", 0, BasisPoints.One);
+        CheckRange(numbers, file, "steal_rate", 0, BasisPoints.One);
+        CheckRange(numbers, file, "steal_floor", 0, BasisPoints.One);
+        CheckRange(numbers, file, "steal_ceiling", numbers["steal_floor"], BasisPoints.One);
+        CheckRange(numbers, file, "steal_gear_first", 0, BasisPoints.One);
+        CheckRange(numbers, file, "steal_gear_second", 0, BasisPoints.One);
+        CheckRange(numbers, file, "steal_gear_third", 0, BasisPoints.One);
         CheckRange(numbers, file, "weak_rate", 0, MostRate);
         CheckRange(numbers, file, "resist_rate", 0, MostRate);
         CheckRange(numbers, file, "absorb_rate", 0, MostRate);

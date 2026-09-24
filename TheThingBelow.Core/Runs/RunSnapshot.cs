@@ -46,12 +46,13 @@ public sealed record MapSnapshot(
     SightMark? Mark,
     MapEncounter? Encounter);
 
-/// <summary>The characters of the party and their pack in a snapshot (D-765).</summary>
+/// <summary>The characters of the party, their pack, and their gold in a snapshot (D-765, D-1043).</summary>
 /// <param name="Characters">Each character, in slot order.</param>
-/// <param name="Pack">Each item of the pack, in the order of the fixture file.</param>
+/// <param name="Pack">Each item and each piece of spare gear of the pack, in the ordinal order of the ids (D-1038).</param>
 /// <param name="LessonPack">The owned lessons that no character carries, from save format 10 (D-1024). Null in a snapshot of an older format.</param>
 /// <param name="AtSwapPlace">True when the party stood at a swap place, from save format 10 (D-1030). False in a snapshot of an older format.</param>
-public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IReadOnlyList<PackValues> Pack, IReadOnlyList<ContentId>? LessonPack, bool AtSwapPlace);
+/// <param name="Gold">The gold of the party, from save format 11 (D-1043). Null in a snapshot of an older format, and the resume then starts at zero.</param>
+public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IReadOnlyList<PackValues> Pack, IReadOnlyList<ContentId>? LessonPack, bool AtSwapPlace, int? Gold);
 
 /// <summary>
 /// The whole state of a run at the end of one tick. A record holds one snapshot and the

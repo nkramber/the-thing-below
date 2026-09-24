@@ -50,6 +50,8 @@ public static class BattleSnapshotText
             writer.WriteEndArray();
             LessonValues lessons = character.Lessons ?? throw new ArgumentException($"The character '{character.Character.Value}' holds no lessons, and a snapshot of this build writes the lessons of each character (D-1018).", nameof(party));
             WriteLessons(writer, lessons);
+            IReadOnlyList<ContentId?> gear = character.Gear ?? throw new ArgumentException($"The character '{character.Character.Value}' holds no gear slots, and a snapshot of this build writes the gear of each character (D-44).", nameof(party));
+            WriteGear(writer, gear);
             writer.WriteEndObject();
         }
 
@@ -57,8 +59,9 @@ public static class BattleSnapshotText
         writer.WriteStartArray("pack");
         foreach (PackValues entry in party.Pack)
         {
+            // The kind of the id names the field, as in the fixture file (D-1038).
             writer.WriteStartObject();
-            writer.WriteString("item", entry.Item.Value);
+            writer.WriteString(entry.Id.Kind, entry.Id.Value);
             writer.WriteNumber("count", entry.Count);
             writer.WriteEndObject();
         }
@@ -73,7 +76,30 @@ public static class BattleSnapshotText
 
         writer.WriteEndArray();
         writer.WriteBoolean("swap_place", party.AtSwapPlace);
+        int gold = party.Gold ?? throw new ArgumentException("The party holds no gold, and a snapshot of this build writes it (D-1043).", nameof(party));
+        writer.WriteNumber("gold", gold);
         writer.WriteEndObject();
+    }
+
+    /// <summary>
+    /// Writes the gear of one character as the array `gear`: each filled gear slot with its
+    /// index (D-44). The reader of content holds no null, so an empty slot takes no entry.
+    /// </summary>
+    private static void WriteGear(Utf8JsonWriter writer, IReadOnlyList<ContentId?> gear)
+    {
+        writer.WriteStartArray("gear");
+        for (int index = 0; index < gear.Count; index += 1)
+        {
+            if (gear[index] is ContentId piece)
+            {
+                writer.WriteStartObject();
+                writer.WriteNumber("slot", index);
+                writer.WriteString("gear", piece.Value);
+                writer.WriteEndObject();
+            }
+        }
+
+        writer.WriteEndArray();
     }
 
     /// <summary>
@@ -155,6 +181,20 @@ public static class BattleSnapshotText
         }
 
         writer.WriteEndArray();
+        StealValues steals = battle.Steals ?? throw new ArgumentException("The battle holds no steals, and a snapshot of this build writes them (D-1045).", nameof(battle));
+        writer.WriteStartObject("steals");
+        writer.WriteNumber("tries", steals.Tries);
+        writer.WriteStartArray("taken");
+        foreach (StolenEntry entry in steals.Taken)
+        {
+            writer.WriteStartObject();
+            writer.WriteNumber("enemy", entry.Enemy);
+            writer.WriteNumber("entry", entry.Entry);
+            writer.WriteEndObject();
+        }
+
+        writer.WriteEndArray();
+        writer.WriteEndObject();
         writer.WriteEndObject();
     }
 
@@ -169,6 +209,7 @@ public static class BattleSnapshotText
         List<PackValues>? pack = null;
         List<ContentId>? lessonPack = null;
         bool? atSwapPlace = null;
+        int? gold = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -188,6 +229,11 @@ public static class BattleSnapshotText
                 case "swap_place" when format >= 10:
                     atSwapPlace = reader.ReadBoolean();
                     break;
+
+                // Save format 11 adds the gold, the gear slots, and the spare gear (D-1038, D-1043).
+                case "gold" when format >= 11:
+                    gold = reader.ReadInt();
+                    break;
                 case "characters":
                     characters = [];
                     int charactersDepth = reader.ReadArrayStart();
@@ -202,7 +248,7 @@ public static class BattleSnapshotText
                     int packDepth = reader.ReadArrayStart();
                     while (reader.ReadNextElement(packDepth, pack.Count))
                     {
-                        pack.Add(ReadPackEntry(ref reader));
+                        pack.Add(ReadPackEntry(ref reader, format));
                     }
 
                     break;
@@ -215,7 +261,8 @@ public static class BattleSnapshotText
             reader.Require(characters, depth, "characters"),
             reader.Require(pack, depth, "pack"),
             format >= 10 ? reader.Require(lessonPack, depth, "lesson_pack") : null,
-            format >= 10 && reader.RequireValue(atSwapPlace, depth, "swap_place"));
+            format >= 10 && reader.RequireValue(atSwapPlace, depth, "swap_place"),
+            format >= 11 ? reader.RequireInt(gold, depth, "gold") : null);
     }
 
     /// <summary>
@@ -247,6 +294,7 @@ public static class BattleSnapshotText
         long? now = null;
         BattleOutcome? outcome = null;
         List<CombatantValues>? combatants = null;
+        StealValues? steals = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -264,6 +312,11 @@ public static class BattleSnapshotText
                     break;
                 case "outcome":
                     outcome = ReadOutcome(ref reader);
+                    break;
+
+                // Save format 11 adds the steal tries and the stolen entries (D-1044, D-1045).
+                case "steals" when format >= 11:
+                    steals = ReadSteals(ref reader);
                     break;
                 case "combatants":
                     combatants = [];
@@ -284,7 +337,62 @@ public static class BattleSnapshotText
             reader.Require(group, depth, "group"),
             reader.RequireValue(now, depth, "now"),
             reader.RequireValue(outcome, depth, "outcome"),
-            reader.Require(combatants, depth, "combatants"));
+            reader.Require(combatants, depth, "combatants"),
+            format >= 11 ? reader.Require(steals, depth, "steals") : null);
+    }
+
+    private static StealValues ReadSteals(ref ContentReader reader)
+    {
+        int? tries = null;
+        List<StolenEntry>? taken = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "tries":
+                    tries = reader.ReadInt();
+                    break;
+                case "taken":
+                    taken = [];
+                    int takenDepth = reader.ReadArrayStart();
+                    while (reader.ReadNextElement(takenDepth, taken.Count))
+                    {
+                        taken.Add(ReadStolenEntry(ref reader));
+                    }
+
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new StealValues(reader.RequireInt(tries, depth, "tries"), reader.Require(taken, depth, "taken"));
+    }
+
+    private static StolenEntry ReadStolenEntry(ref ContentReader reader)
+    {
+        int? enemy = null;
+        int? entry = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "enemy":
+                    enemy = reader.ReadInt();
+                    break;
+                case "entry":
+                    entry = reader.ReadInt();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new StolenEntry(reader.RequireInt(enemy, depth, "enemy"), reader.RequireInt(entry, depth, "entry"));
     }
 
     private static CharacterValues ReadCharacter(ref ContentReader reader, int format)
@@ -297,6 +405,7 @@ public static class BattleSnapshotText
         int? experience = null;
         int? mp = null;
         LessonValues? lessons = null;
+        IReadOnlyList<ContentId?>? gear = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -308,6 +417,9 @@ public static class BattleSnapshotText
                     break;
                 case "lessons" when format >= 10:
                     lessons = ReadLessons(ref reader);
+                    break;
+                case "gear" when format >= 11:
+                    gear = ReadGear(ref reader);
                     break;
                 case "health":
                     health = reader.ReadInt();
@@ -338,7 +450,49 @@ public static class BattleSnapshotText
             reader.RequireValue(row, depth, "row"),
             format >= 5 ? reader.Require(statuses, depth, "statuses") : [],
             format >= 7 ? ReadGrowth(ref reader, depth, level, experience, mp) : null,
-            format >= 10 ? reader.Require(lessons, depth, "lessons") : null);
+            format >= 10 ? reader.Require(lessons, depth, "lessons") : null,
+            format >= 11 ? reader.Require(gear, depth, "gear") : null);
+    }
+
+    /// <summary>Reads the gear of one character (D-44). Each filled gear slot names its index, from 0 to 5, in order and with no repeat.</summary>
+    private static ContentId?[] ReadGear(ref ContentReader reader)
+    {
+        var gear = new ContentId?[GearRules.SlotCount];
+        int last = -1;
+        int count = 0;
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, count))
+        {
+            int? slot = null;
+            ContentId? piece = null;
+            int entryDepth = reader.ReadObjectStart();
+            while (reader.ReadNextField(entryDepth, out string field))
+            {
+                switch (field)
+                {
+                    case "slot":
+                        slot = reader.ReadInt();
+                        break;
+                    case "gear":
+                        piece = reader.ReadContentId(GearList.Kind);
+                        break;
+                    default:
+                        throw reader.UnknownField(field);
+                }
+            }
+
+            int readSlot = reader.RequireInt(slot, entryDepth, "slot");
+            if (readSlot <= last || readSlot >= GearRules.SlotCount)
+            {
+                throw reader.RefuseField(entryDepth, "slot", $"the gear slot {readSlot} repeats, leaves the order, or is outside 0 to {GearRules.SlotCount - 1} (D-44)");
+            }
+
+            gear[readSlot] = reader.Require(piece, entryDepth, "gear");
+            last = readSlot;
+            count += 1;
+        }
+
+        return gear;
     }
 
     /// <summary>
@@ -461,9 +615,11 @@ public static class BattleSnapshotText
             reader.RequireInt(experience, depth, "experience"),
             reader.RequireInt(mp, depth, "mp"));
 
-    private static PackValues ReadPackEntry(ref ContentReader reader)
+    /// <summary>Reads one pack entry: an item, or from save format 11 an item or a piece of gear (D-1038).</summary>
+    private static PackValues ReadPackEntry(ref ContentReader reader, int format)
     {
         ContentId? item = null;
+        ContentId? gear = null;
         int? count = null;
 
         int depth = reader.ReadObjectStart();
@@ -472,7 +628,10 @@ public static class BattleSnapshotText
             switch (field)
             {
                 case "item":
-                    item = reader.ReadContentId(BattleFixture.ItemKind);
+                    item = reader.ReadContentId(ItemList.Kind);
+                    break;
+                case "gear" when format >= 11:
+                    gear = reader.ReadContentId(GearList.Kind);
                     break;
                 case "count":
                     count = reader.ReadInt();
@@ -482,7 +641,12 @@ public static class BattleSnapshotText
             }
         }
 
-        return new PackValues(reader.Require(item, depth, "item"), reader.RequireInt(count, depth, "count"));
+        if ((item is null) == (gear is null))
+        {
+            throw reader.RefuseField(depth, "item", "a pack entry names one item or one piece of gear, and not both (D-1038)");
+        }
+
+        return new PackValues(item ?? gear!, reader.RequireInt(count, depth, "count"));
     }
 
     private static CombatantValues ReadCombatant(ref ContentReader reader, int format)

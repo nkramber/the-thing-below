@@ -129,6 +129,18 @@ public static class ScreenCaptures
     /// <summary>The frame of the menu fixture with the list of a swap at a swap place, which the debug command marks (D-1030).</summary>
     public const string MenuLessonsSwapFrame = "lessons-swap-1x";
 
+    /// <summary>The frame of the menu fixture with the gear window over the main list: the stats and the six slots, with each empty slot (D-44, exit test 2 of PR-13).</summary>
+    public const string MenuGearFrame = "gear-1x";
+
+    /// <summary>The frame of the menu fixture with the pieces of the pack that fit the first accessory slot (D-1048).</summary>
+    public const string MenuGearPackFrame = "gear-pack-1x";
+
+    /// <summary>The frame of the menu fixture with the item window over the main list: each item with its count and its limit (D-1039).</summary>
+    public const string MenuItemsFrame = "items-1x";
+
+    /// <summary>The gear slot that <see cref="MenuGearPackFrame"/> opens: the first accessory slot.</summary>
+    public const int GearPackSlot = 4;
+
     /// <summary>The frame of the battle fixture with the lessons of the first character after the Lessons command (D-1031).</summary>
     public const string BattleLessonsFrame = "lessons-1x";
 
@@ -481,7 +493,7 @@ public static class ScreenCaptures
 
         // PR-62: the menu stack at 1x, the floor of the Steam Deck, and the main list at 1080 rows,
         // which takes the smaller body (D-707). The notice draws inside its type-out and its hold.
-        foreach (string frame in new[] { MenuListFrame, MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame })
+        foreach (string frame in new[] { MenuListFrame, MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame })
         {
             captures.Add(new ScreenCapture(MenuFixture, frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         }

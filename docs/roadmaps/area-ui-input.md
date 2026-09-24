@@ -139,6 +139,10 @@ Built by PR-62. Phase file: `phase-2-first-playable.md`.
 - A map action opens the dungeon map screen from the walk, with the M key and the Back button of the gamepad (D-986, D-990). Back or the map action closes it.
 - The party window sets the starting row of each character, and the snapshot keeps the row (D-377, D-558).
 - The status window shows the full sheet of each character (D-569, D-991). The sheet holds the level, the row, HP, MP, the experience, the stats, and the statuses that last.
+- The status window shows the stats with the worn gear (D-1036).
+- The gear window shows the stats with the gear, and the six gear slots with a dash for each empty slot (D-44).
+- The gear window lists the pieces of the pack that fit a slot (D-1048).
+- The item window shows each item with its owned count and its stack limit, and a use that changes nothing shows dim (D-1039, D-1049).
 - PR-62 proves the stack with a fixture menu, and each later system PR adds one screen (D-525).
 
 > *In plain English:* menus are windows that stack on each other, and the world stops while one is open. The keyboard, the gamepad, and the mouse all move the same cursor.
@@ -247,7 +251,8 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | PR-62 | The window stack, the party window with the starting row, the status window, the notices, the notice log, and the dungeon map screen | D-211, D-218, D-221, D-525, D-558, D-567, D-569 |
 | PR-63 | The settings screen, the settings file, and the three accessibility settings | D-214, D-226, D-526, D-870 |
 | PR-12 | The lesson window with the aptitudes, the slots, the swap, and the cast from the menu, and the Lessons command of a fight in two rows of commands | D-211, D-1030, D-1031, D-1033, D-1034 |
-| PR-13 to PR-16 | The gear, item, status, and save screens, one for each system | D-211 |
+| PR-13 | The gear window, the item window, and the stats with the gear in the status window | D-44, D-1036, D-1039, D-1048, D-1049 |
+| PR-14 and PR-16 | The service and save screens, one for each system | D-211 |
 | PR-36 | The dialogue box, the name plate, and the choices | D-114, D-223 |
 | PR-35 | The region map screen | D-113 |
 | PR-33 | The title screen, the version line, the settings entry, and the credits screen | D-454, D-467 |

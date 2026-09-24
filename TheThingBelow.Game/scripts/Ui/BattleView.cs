@@ -296,9 +296,20 @@ public sealed class BattleView
                 // The amount of a lesson event is the MP that the form spent (D-1027).
                 actor.Mp = Math.Max(0, actor.Mp - played.Amount);
                 return;
+            case BattleEventKind.ItemMp:
+                ShownCombatant restored = this.At(TargetOf(played));
+                restored.Mp = checked(restored.Mp + played.Amount);
+                return;
+            case BattleEventKind.Revive:
+                // The amount of a revive is the health of the character who stands up (D-1046).
+                ShownCombatant raised = this.At(TargetOf(played));
+                raised.Place = CombatantPlace.Field;
+                raised.Health = played.Amount;
+                return;
             default:
                 // A start, a turn, a miss, a defend, a failed flee, an immune status, a sleep,
-                // the three ends, and the experience change no value that the screen shows.
+                // the three ends, the experience, a cure item, a steal, and a drop change no
+                // value that the screen shows. The status off events of a cure follow it.
                 return;
         }
     }

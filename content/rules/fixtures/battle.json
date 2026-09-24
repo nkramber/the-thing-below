@@ -1,5 +1,5 @@
 {
- "comment": "The fixture of the battle core (D-765, D-775, D-781). Each character holds its row, its join level, and its stat curve of one row for each of the 40 levels, with the numbers of D-977 (D-363, D-966, D-972). Each character names its main aptitude, its side aptitude, and the flag that unlocks the side aptitude (D-274, D-281, D-538). The start lessons and the lesson pack follow D-1023 and D-1030. PR-13 replaces the items with the pack, and each id stays. The enemies live in the enemy records of `rules/enemies/` (D-786), and the groups in the group file of each region of `rules/groups/` (D-957).",
+ "comment": "The fixture of the battle core (D-765, D-775, D-781). Each character holds its row, its join level, and its stat curve of one row for each of the 40 levels, with the numbers of D-977 (D-363, D-966, D-972). Each character names its main aptitude, its side aptitude, and the flag that unlocks the side aptitude (D-274, D-281, D-538). The start lessons and the lesson pack follow D-1023 and D-1030. The items live in the item file and the gear in the gear file, and the pack and the start gear name them (D-1038). Each id stays. The enemies live in the enemy records of `rules/enemies/` (D-786), and the groups in the group file of each region of `rules/groups/` (D-957).",
  "characters": [
   {
    "id": "character.marrek",
@@ -52,21 +52,24 @@
    ]
   }
  ],
- "items": [
-  {
-   "id": "item.fixture_draught",
-   "heal": 30,
-   "delay": 100
-  }
- ],
  "start_party": [
   "character.marrek"
  ],
  "pack": [
-  { "item": "item.fixture_draught", "count": 3 }
+  { "item": "item.fixture_draught", "count": 3 },
+  { "item": "item.fixture_tonic", "count": 2 },
+  { "item": "item.fixture_salts", "count": 2 },
+  { "item": "item.fixture_root", "count": 1 },
+  { "gear": "gear.fixture_buckler", "count": 1 },
+  { "gear": "gear.fixture_hood", "count": 1 },
+  { "gear": "gear.fixture_charm", "count": 1 },
+  { "gear": "gear.fixture_ash_ring", "count": 1 }
+ ],
+ "start_gear": [
+  { "character": "character.marrek", "gear": ["gear.fixture_pick", "gear.fixture_coat"] }
  ],
  "start_lessons": [
   { "character": "character.marrek", "lessons": ["lesson.fixture_hew", "lesson.fixture_cinder"] }
  ],
- "lesson_pack": ["lesson.fixture_salve", "lesson.fixture_purge", "lesson.fixture_rot", "lesson.fixture_quicken", "lesson.fixture_bolt"]
+ "lesson_pack": ["lesson.fixture_pilfer", "lesson.fixture_salve", "lesson.fixture_purge", "lesson.fixture_rot", "lesson.fixture_quicken", "lesson.fixture_bolt"]
 }

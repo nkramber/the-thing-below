@@ -145,8 +145,8 @@ public sealed class NoticeLogTests
     public void ASnapshotOfFormatSevenThatHoldsALogFailsTheRead()
     {
         // D-985: format 7 predates the log, so a log in it is a fault of the file.
-        // The lessons of format 10 come before the log, so the line drops them first (D-1018).
-        string line = SnapshotLines.WithoutLessons(RunSnapshotText.Write(Start(TestBattles.Notices).Snapshot()));
+        // The lessons of format 10 and the gear of format 11 come before the log, so the line drops them first (D-1018, D-1038).
+        string line = SnapshotLines.AsFormatNine(RunSnapshotText.Write(Start(TestBattles.Notices).Snapshot()));
         var reader = new ContentReader(Encoding.UTF8.GetBytes(line), "the test");
 
         try

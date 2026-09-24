@@ -344,14 +344,27 @@ public static class BattleTurns
             return $"an item use of '{item.Value}', and the pack holds none (D-775)";
         }
 
+        if (string.CompareOrdinal(item.Kind, ItemList.Kind) != 0 || state.BattleContent.Item(item) is not UsedUpItem used)
+        {
+            return $"an item use of '{item.Value}', which is no used-up item (D-384, D-1038)";
+        }
+
         if (choice.Target is not BattleTarget target || target.Side != BattleSide.Party || target.Slot < 0 || target.Slot >= battle.Party.Count)
         {
             return $"an item use that names no character slot from 0 to {battle.Party.Count - 1} (D-764)";
         }
 
-        return battle.Party[target.Slot].Place == CombatantPlace.Field
+        // A revive reaches a fallen character, and every other item a character who stands.
+        // A use that changes nothing still goes through in a fight (D-36, D-1046, D-1049).
+        CombatantPlace place = battle.Party[target.Slot].Place;
+        if (used is ReviveItem)
+        {
+            return place == CombatantPlace.Down ? null : $"a revive on {target.Describe()}, who stands (D-36, D-1046)";
+        }
+
+        return place == CombatantPlace.Field
             ? null
-            : $"an item use on {target.Describe()}, and an item of this build reaches a character who stands (D-36, D-775)";
+            : $"an item use on {target.Describe()}, and '{item.Value}' reaches a character who stands (D-36, D-1046)";
     }
 
     /// <summary>
@@ -378,6 +391,18 @@ public static class BattleTurns
         }
 
         AbilityRecord ability = LessonRules.FormAbility(state, lesson, form);
+        if (ability is StealAbility)
+        {
+            if (LootRules.RefusalOfSteal(battle) is string spent)
+            {
+                return spent;
+            }
+
+            return target.Side == BattleSide.Enemy && target.Slot >= 0 && target.Slot < battle.Enemies.Count && battle.Enemies[target.Slot].Place == CombatantPlace.Field
+                ? null
+                : $"the target {target.Describe()}, and a steal aims at an enemy on the field (D-383, D-1044)";
+        }
+
         if (ability is StrikeAbility strike)
         {
             if (target.Side != BattleSide.Enemy || target.Slot < 0 || target.Slot >= battle.Enemies.Count)
@@ -436,6 +461,10 @@ public static class BattleTurns
             case BoonAbility boon:
                 Give(state, battle, battle.At(aimed, context), boon.Status, context);
                 PushBack(actor, boon.Delay, context);
+                break;
+            case StealAbility steal:
+                LootRules.Steal(state, battle, actor, aimed, context);
+                PushBack(actor, steal.Delay, context);
                 break;
             default:
                 throw new SimulationException($"the form '{ability.Id.Value}', whose effect names no rule (T-2)", context);
@@ -845,19 +874,59 @@ public static class BattleTurns
             ?? throw new SimulationException("an item use that names no item (D-780)", context);
         BattleTarget aimed = TargetOf(choice, context);
         Combatant target = battle.At(aimed, context);
-        if (aimed.Side != BattleSide.Party || target.Place != CombatantPlace.Field)
+        if (state.BattleContent.Item(itemId) is not UsedUpItem item)
         {
-            throw new SimulationException(
-                $"an item use on {aimed.Describe()}, and an item of this build reaches a character who stands (D-36, D-775)",
-                context);
+            throw new SimulationException($"an item use of '{itemId.Value}', which is no used-up item (D-384, D-1038)", context);
         }
 
-        ItemRecord item = state.BattleContent.Item(itemId);
+        bool reaches = aimed.Side == BattleSide.Party &&
+            target.Place == (item is ReviveItem ? CombatantPlace.Down : CombatantPlace.Field);
+        if (!reaches)
+        {
+            throw new SimulationException($"an item use of '{itemId.Value}' on {aimed.Describe()}, which the item does not reach (D-36, D-1046)", context);
+        }
+
+        // The item rate cuts each amount in a fight, and never a cure (D-382, D-1046).
+        BattleRules rules = state.BattleContent.Rules;
         state.Characters.Take(item.Id, context);
-        int heal = BasisPoints.Apply(item.Heal, state.BattleContent.Rules.ItemRate, context);
-        int restored = Math.Min(heal, target.FullHealth - target.Health);
-        target.Health += restored;
-        state.AddEvent(new BattleEvent(BattleEventKind.Item, actor.Target, target.Target, restored));
+        switch (item)
+        {
+            case HealItem heal:
+                int restored = Math.Min(BasisPoints.Apply(heal.Amount, rules.ItemRate, context), target.FullHealth - target.Health);
+                target.Health += restored;
+                state.AddEvent(new BattleEvent(BattleEventKind.Item, actor.Target, target.Target, restored, null, Affinity.Normal, item.Id));
+                break;
+            case RestoreItem restore:
+                PartyMember member = state.Characters.Members[aimed.Slot];
+                int mp = Math.Min(BasisPoints.Apply(restore.Amount, rules.ItemRate, context), member.Stats.Mp - member.Mp);
+                member.Mp += mp;
+                state.AddEvent(new BattleEvent(BattleEventKind.ItemMp, actor.Target, target.Target, mp, null, Affinity.Normal, item.Id));
+                break;
+            case CureItem cure:
+                state.AddEvent(new BattleEvent(BattleEventKind.ItemCure, actor.Target, target.Target, 0, null, Affinity.Normal, item.Id));
+                foreach (StatusKind status in cure.Statuses)
+                {
+                    if (target.Statuses.Holds(status))
+                    {
+                        target.Statuses.Remove(status);
+                        state.AddEvent(new BattleEvent(BattleEventKind.StatusOff, target.Target, null, 0, status));
+                    }
+                }
+
+                target.PushRate = Battle.PushRateOf(target, rules);
+                break;
+            case ReviveItem revive:
+                // A revive always stands the ally up, so the cut keeps at least 1 health (D-36).
+                int health = Math.Min(Math.Max(1, BasisPoints.Apply(revive.Amount, rules.ItemRate, context)), target.FullHealth);
+                target.Health = health;
+                target.Place = CombatantPlace.Field;
+                target.ReadyAt = checked(battle.Now + Battle.Push(rules.AttackDelay, target.Speed, target.PushRate, context));
+                state.AddEvent(new BattleEvent(BattleEventKind.Revive, actor.Target, target.Target, health, null, Affinity.Normal, item.Id));
+                break;
+            default:
+                throw new SimulationException($"the item '{item.Id.Value}', whose effect names no rule (T-2)", context);
+        }
+
         PushBack(actor, item.Delay, context);
     }
 
@@ -947,6 +1016,9 @@ public static class BattleTurns
 
             // The points of each lesson follow the experience, and a new form shows after a level-up (D-1019).
             LessonRules.Award(state, battle);
+
+            // The drops follow the summary as message lines (D-975, D-1042).
+            LootRules.Drop(state, battle, context);
         }
         else if (!AnyStands(battle.Party, false))
         {

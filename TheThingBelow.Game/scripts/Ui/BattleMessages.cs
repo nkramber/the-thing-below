@@ -48,6 +48,9 @@ public static class BattleMessages
     /// <summary>The place of the name of a form of a lesson, in a message (D-1027).</summary>
     public const string FormPlace = "form";
 
+    /// <summary>The place in a line of the name of an item (D-1046).</summary>
+    public const string ItemPlace = "item";
+
     /// <summary>
     /// Gives the line of one event, or no value for a turn, a win, or the summary. A turn changes only who
     /// acts, a win keeps the line of the last event on screen, and the summary shows above each head (D-835, D-975).
@@ -69,7 +72,8 @@ public static class BattleMessages
             BattleEventKind.Turn => null,
 
             // A win shows no line of its own. The last line of the fight stands, and the text of
-            // the summary rises above each head. PR-13 and PR-65 add the loot as lines (D-835, D-975).
+            // the summary rises above each head. The drops follow as lines, and PR-65 adds its
+            // loot the same way (D-835, D-975, D-1042).
             BattleEventKind.Won => null,
             BattleEventKind.Experience => null,
             BattleEventKind.LevelUp => null,
@@ -94,6 +98,17 @@ public static class BattleMessages
             BattleEventKind.StatusHeal => Line("battle.status_heal", Actor(played, view, strings), Amount(played)),
             BattleEventKind.Asleep => Line("battle.asleep", Actor(played, view, strings)),
             BattleEventKind.Lesson => Line("battle.lesson", Actor(played, view, strings), Form(played, strings)),
+            BattleEventKind.ItemMp => Line("battle.item_mp", Target(played, view, strings), Amount(played)),
+            BattleEventKind.ItemCure => Line("battle.item_cure", Target(played, view, strings), Item(played, strings)),
+            BattleEventKind.Revive => Line("battle.revive", Target(played, view, strings)),
+            BattleEventKind.StealItem => Line("battle.steal_item", Actor(played, view, strings), Item(played, strings)),
+            BattleEventKind.StealGear => Line("battle.steal_item", Actor(played, view, strings), Item(played, strings)),
+            BattleEventKind.StealGold => Line("battle.steal_gold", Actor(played, view, strings), Amount(played)),
+            BattleEventKind.StealFailed => Line("battle.steal_failed", Actor(played, view, strings)),
+            BattleEventKind.StealEmpty => Line("battle.steal_empty", Target(played, view, strings)),
+            BattleEventKind.StealFull => Line("battle.steal_full", Item(played, strings)),
+            BattleEventKind.Drop => Line("battle.drop", Actor(played, view, strings), Item(played, strings)),
+            BattleEventKind.DropLost => Line("battle.drop_lost", Item(played, strings)),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(played), played.Kind, $"The battle event '{played.Kind}' has no message line (G-20, T-2)."),
         };
@@ -179,6 +194,16 @@ public static class BattleMessages
             nameof(played));
 
         return new(FormPlace, strings.Text(NameIdOf(ability)));
+    }
+
+    /// <summary>Gives the name of the item of an item, steal, or drop event: `name.` and the name part of the item (D-1046).</summary>
+    private static KeyValuePair<string, string> Item(BattleEvent played, StringTable strings)
+    {
+        ContentId item = played.Ability ?? throw new ArgumentException(
+            $"The battle event '{BattleEvents.NameOf(played.Kind)}' of {played.Actor.Describe()} holds no item (T-2).",
+            nameof(played));
+
+        return new(ItemPlace, strings.Text(NameIdOf(item)));
     }
 
     private static KeyValuePair<string, string> Amount(BattleEvent played) =>

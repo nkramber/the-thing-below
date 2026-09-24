@@ -1,0 +1,9 @@
+{
+ "comment": "The items (D-1038, D-1046). A used-up item holds a stack limit from 3 to 10, and a key item holds 1. A heal, a restore, and a revive give an amount, and a cure ends its statuses. The item rate of the battle rules cuts each amount in a fight (D-382). PR-13 moved the draught here from the battle fixture, and each id is permanent (D-166). PR-30 tunes each number.",
+ "items": [
+  { "id": "item.fixture_draught", "kind": "heal", "limit": 5, "delay": 100, "amount": 30 },
+  { "id": "item.fixture_tonic", "kind": "restore", "limit": 5, "delay": 100, "amount": 10 },
+  { "id": "item.fixture_salts", "kind": "cure", "limit": 5, "delay": 90, "statuses": ["poison", "blind", "silence"] },
+  { "id": "item.fixture_root", "kind": "revive", "limit": 3, "delay": 120, "amount": 25 }
+ ]
+}

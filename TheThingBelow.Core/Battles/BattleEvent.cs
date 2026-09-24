@@ -24,7 +24,7 @@ public enum BattleEventKind
     /// <summary>A combatant stepped to the other row (D-380).</summary>
     Step,
 
-    /// <summary>A character used an item. The amount is the health restored (D-382).</summary>
+    /// <summary>A character used a heal item. The ability names the item, and the amount is the health restored (D-382, D-1046).</summary>
     Item,
 
     /// <summary>A flee failed, and it cost the turn (D-378).</summary>
@@ -80,6 +80,39 @@ public enum BattleEventKind
 
     /// <summary>A lesson opened a new form for a character after a battle won. The ability names the form, and the amount is the points of the lesson (D-539, D-1019).</summary>
     FormOpened,
+
+    /// <summary>A character used a restore item. The ability names the item, and the amount is the MP restored (D-1046).</summary>
+    ItemMp,
+
+    /// <summary>A character used a cure item. The ability names the item. A status off event follows for each status that ended (D-1046).</summary>
+    ItemCure,
+
+    /// <summary>A character used a revive item, and the fallen target stood up. The ability names the item, and the amount is the health (D-36, D-1046).</summary>
+    Revive,
+
+    /// <summary>A steal took an item. The target is the enemy, and the ability names the item (D-383, D-1044).</summary>
+    StealItem,
+
+    /// <summary>A steal took gold. The target is the enemy, and the amount is the gold (D-1043, D-1044).</summary>
+    StealGold,
+
+    /// <summary>A steal failed, and it cost the turn (D-949).</summary>
+    StealFailed,
+
+    /// <summary>A steal found no entry left on the enemy, and it cost the turn (D-1044).</summary>
+    StealEmpty,
+
+    /// <summary>A steal found an item over its stack limit, which stayed with the enemy. The ability names the item (D-1044).</summary>
+    StealFull,
+
+    /// <summary>A fallen enemy dropped an item at a win. The actor is the enemy, and the ability names the item (D-1042).</summary>
+    Drop,
+
+    /// <summary>A fallen enemy dropped an item over its stack limit, which left the game. The actor is the enemy, and the ability names the item (D-1042).</summary>
+    DropLost,
+
+    /// <summary>A steal took a piece of gear. The target is the enemy, and the ability names the piece (D-1051).</summary>
+    StealGear,
 }
 
 /// <summary>One event of a battle (D-168, D-532).</summary>
@@ -89,7 +122,7 @@ public enum BattleEventKind
 /// <param name="Amount">The damage or the health, and zero for the other kinds.</param>
 /// <param name="Status">The status of a status event, and no value for the other kinds (D-75).</param>
 /// <param name="Affinity">The affinity of the target of a hit or an absorb, and `normal` for the other kinds (D-794).</param>
-/// <param name="Ability">The form of a lesson event or a form event, and no value for the other kinds (D-1027).</param>
+/// <param name="Ability">The form of a lesson event or a form event, or the item of an item, steal, or drop event, and no value for the other kinds (D-1027, D-1046).</param>
 public sealed record BattleEvent(BattleEventKind Kind, BattleTarget Actor, BattleTarget? Target, int Amount, StatusKind? Status = null, Affinity Affinity = Affinity.Normal, ContentId? Ability = null)
 {
     /// <summary>Gives the event as one text, for a log line of Game (D-767).</summary>
@@ -139,6 +172,17 @@ public static class BattleEvents
         BattleEventKind.LevelUp => "level up",
         BattleEventKind.Lesson => "lesson",
         BattleEventKind.FormOpened => "form opened",
+        BattleEventKind.ItemMp => "item mp",
+        BattleEventKind.ItemCure => "item cure",
+        BattleEventKind.Revive => "revive",
+        BattleEventKind.StealItem => "steal item",
+        BattleEventKind.StealGold => "steal gold",
+        BattleEventKind.StealFailed => "steal failed",
+        BattleEventKind.StealEmpty => "steal empty",
+        BattleEventKind.StealFull => "steal full",
+        BattleEventKind.Drop => "drop",
+        BattleEventKind.DropLost => "drop lost",
+        BattleEventKind.StealGear => "steal gear",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no battle event (D-532)"),
     };
 }

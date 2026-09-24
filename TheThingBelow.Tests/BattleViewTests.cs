@@ -161,9 +161,9 @@ public sealed class BattleViewTests
             foreach (PackValues entry in run.State.Characters.Pack)
             {
                 var target = new BattleTarget(BattleSide.Party, 0);
-                if (entry.Count > 0 && BattleTurns.RefusalOf(run.State, new BattleChoice(BattleAction.Item, target, entry.Item)) is null)
+                if (entry.Count > 0 && BattleTurns.RefusalOf(run.State, new BattleChoice(BattleAction.Item, target, entry.Id)) is null)
                 {
-                    return Intent.OfPlayer(IntentIds.BattleItem, target, entry.Item);
+                    return Intent.OfPlayer(IntentIds.BattleItem, target, entry.Id);
                 }
             }
         }

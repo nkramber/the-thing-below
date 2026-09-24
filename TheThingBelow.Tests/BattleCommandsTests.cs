@@ -160,7 +160,7 @@ public sealed class BattleCommandsTests
 
         Assert.Equal(IntentIds.BattleItem.Value, made.Action.Value);
         Assert.Equal(new BattleTarget(BattleSide.Party, 0), made.Target);
-        Assert.Equal(first.Item, made.Item);
+        Assert.Equal(first.Id, made.Item);
     }
 
     [Fact]

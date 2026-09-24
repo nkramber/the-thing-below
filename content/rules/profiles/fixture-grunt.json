@@ -1,7 +1,9 @@
 {
- "comment": "The profile of the fixture grunt (D-956). It weighs the health of its allies above damage, so a grunt binds a hurt ally before it attacks. PR-11 ships the weights alone (D-958), and PR-30 tunes them. The steal list holds some gold (D-383, D-949).",
+ "comment": "The profile of the fixture grunt (D-956). It weighs the health of its allies above damage, so a grunt binds a hurt ally before it attacks. PR-11 ships the weights alone (D-958), and PR-30 tunes them. The steal list holds some gold (D-383, D-949). The drop list holds a rare draught (D-1042).",
  "id": "profile.fixture_grunt",
  "weights": { "damage": 60, "kills": 2, "threat": 60, "healing": 100, "timeline": 1, "row": 150 },
  "steal_chance": 4000,
- "steal": [{ "gold": 6 }]
+ "steal_gear_chance": 0,
+ "steal": [{ "gold": 6 }],
+ "drops": [{ "item": "item.fixture_draught", "chance": 1000 }]
 }

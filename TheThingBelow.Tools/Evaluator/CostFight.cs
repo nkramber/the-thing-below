@@ -29,9 +29,9 @@ public static class CostFight
       { "id": "character.cost_second", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(80, 20, 10, 3, 110))}} },
       { "id": "character.cost_third", "row": "back", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(70, 20, 8, 2, 120))}} }
      ],
-     "items": [{ "id": "item.cost_draught", "heal": 30, "delay": 100 }],
      "start_party": ["character.cost_first", "character.cost_second", "character.cost_third"],
      "pack": [{ "item": "item.cost_draught", "count": 3 }],
+     "start_gear": [],
      "start_lessons": [],
      "lesson_pack": []
     }
@@ -99,7 +99,23 @@ public static class CostFight
      "id": "profile.cost_careful",
      "weights": { "damage": 100, "kills": 3, "threat": 60, "healing": 150, "timeline": 1, "row": 200 },
      "steal_chance": 0,
-     "steal": []
+     "steal_gear_chance": 0,
+     "steal": [],
+     "drops": []
+    }
+    """;
+
+    private const string ItemText = """
+    {
+     "comment": "The item file of the cost fight.",
+     "items": [{ "id": "item.cost_draught", "kind": "heal", "limit": 5, "delay": 100, "amount": 30 }]
+    }
+    """;
+
+    private const string GearText = """
+    {
+     "comment": "The gear file of the cost fight, which holds no piece.",
+     "gear": []
     }
     """;
 
@@ -168,6 +184,8 @@ public static class CostFight
             [EnemyRecord.Read(Encoding.UTF8.GetBytes(EnemyText), "cost-raider.json")],
             AbilityList.Read(Encoding.UTF8.GetBytes(AbilityText), "cost-abilities.json"),
             LessonList.Read(Encoding.UTF8.GetBytes(LessonText), "cost-lessons.json"),
+            ItemList.Read(Encoding.UTF8.GetBytes(ItemText), "cost-items.json"),
+            GearList.Read(Encoding.UTF8.GetBytes(GearText), "cost-gear.json"),
             new List<GroupFile> { GroupFile.Read(Encoding.UTF8.GetBytes(GroupText), $"{GroupFile.Folder}cost.json") },
             [ProfileRecord.Read(Encoding.UTF8.GetBytes(ProfileText), "cost-profile.json")]);
     }

@@ -58,4 +58,8 @@ public static class DebugCommandIds
     /// <summary>The console marked the place of the party as a swap place of lessons (D-1030).</summary>
     public static readonly ContentId SwapPlace =
         ContentId.Parse("debug.swap_place", Source, nameof(SwapPlace));
+
+    /// <summary>The console put one copy of each item and each piece of gear in the pack, to each stack limit (D-385, D-1038).</summary>
+    public static readonly ContentId Stock =
+        ContentId.Parse("debug.stock", Source, nameof(Stock));
 }

@@ -147,14 +147,14 @@ public sealed class DebugSession
         return true;
     }
 
-    /// <summary>Gives the first item of the pack with a count above zero, or no value (D-775).</summary>
+    /// <summary>Gives the first used-up item of the pack, in the ordinal order of the ids, or no value (D-775, D-1038). The pack holds spare gear too, which no fight uses.</summary>
     private static ContentId? FirstItem(RunState state)
     {
         foreach (PackValues entry in state.Characters.Pack)
         {
-            if (entry.Count > 0)
+            if (string.CompareOrdinal(entry.Id.Kind, ItemList.Kind) == 0 && state.BattleContent.Item(entry.Id) is UsedUpItem)
             {
-                return entry.Item;
+                return entry.Id;
             }
         }
 

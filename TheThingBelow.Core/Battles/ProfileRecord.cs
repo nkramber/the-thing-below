@@ -17,7 +17,7 @@ namespace TheThingBelow.Core.Battles;
 /// <param name="Row">The weight of the change in the count of this side that the melee of the other side cannot reach.</param>
 public sealed record ScoreWeights(int Damage, int Kills, int Threat, int Healing, int Timeline, int Row);
 
-/// <summary>One entry of a steal list: an item or some gold (D-383). PR-13 builds the steal (D-950).</summary>
+/// <summary>One entry of a steal list: an item, some gold, or a piece of gear (D-383, D-1051). PR-13 builds the steal (D-950, D-1044).</summary>
 public abstract record StealEntry;
 
 /// <summary>An item that a steal takes (D-383).</summary>
@@ -28,14 +28,25 @@ public sealed record StealItem(ContentId Item) : StealEntry;
 /// <param name="Gold">The amount of gold, above zero.</param>
 public sealed record StealGold(int Gold) : StealEntry;
 
+/// <summary>A piece of gear that a steal takes, at the gear chance of D-1051.</summary>
+/// <param name="Gear">The id of the piece.</param>
+public sealed record StealGear(ContentId Gear) : StealEntry;
+
+/// <summary>One entry of a drop list: an item and its own chance at a win (D-1042).</summary>
+/// <param name="Item">The id of the item.</param>
+/// <param name="Chance">The chance of the drop, in basis points, from 1 to 10000.</param>
+public sealed record DropEntry(ContentId Item, int Chance);
+
 /// <summary>
 /// The personality profile of an enemy: the weights of the score terms, the base chance of a
-/// steal, and the steal list (D-65, D-383, D-949, D-956, D-958). Each profile has one file
-/// under `content/rules/profiles/`, and each entry of a group names a profile id.
+/// steal, the steal list, and the drop list (D-65, D-383, D-949, D-956, D-958, D-1042). Each
+/// profile has one file under `content/rules/profiles/`, and each entry of a group names a
+/// profile id.
 /// </summary>
 /// <remarks>
 /// PR-11 ships the weights alone, and the first trait comes with the first enemy that needs
-/// one (D-958). PR-13 builds the steal action on the base chance and the list (D-950).
+/// one (D-958). PR-13 builds the steal action on the base chance and the list, and adds the
+/// drop list (D-950, D-1042).
 /// </remarks>
 public sealed class ProfileRecord
 {
@@ -48,13 +59,15 @@ public sealed class ProfileRecord
     /// <summary>The largest weight of one term, which keeps each score inside a `long` (T-2).</summary>
     public const int MostWeight = BasisPoints.One;
 
-    private ProfileRecord(string file, ContentId id, ScoreWeights weights, int stealChance, IReadOnlyList<StealEntry> steal)
+    private ProfileRecord(string file, ContentId id, ScoreWeights weights, int stealChance, int stealGearChance, IReadOnlyList<StealEntry> steal, IReadOnlyList<DropEntry> drops)
     {
         this.File = file;
         this.Id = id;
         this.Weights = weights;
         this.StealChance = stealChance;
+        this.StealGearChance = stealGearChance;
         this.Steal = steal;
+        this.Drops = drops;
     }
 
     /// <summary>The path of the file, for an error that names this profile (T-2).</summary>
@@ -69,8 +82,14 @@ public sealed class ProfileRecord
     /// <summary>The base chance of a steal, in basis points (D-949). An empty list takes 0, and a list with an entry takes more.</summary>
     public int StealChance { get; }
 
+    /// <summary>The gear chance of a successful steal, in basis points, which the cap of each success can lower (D-1051). A list with no gear takes 0.</summary>
+    public int StealGearChance { get; }
+
     /// <summary>The entries that a steal can take, in the order of the file (D-383). The list can be empty.</summary>
     public IReadOnlyList<StealEntry> Steal { get; }
+
+    /// <summary>The items that a win can drop, each with its own chance, in the order of the file (D-1042). The list can be empty.</summary>
+    public IReadOnlyList<DropEntry> Drops { get; }
 
     /// <summary>Tells whether a content path is a profile file (D-956).</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
@@ -91,7 +110,7 @@ public sealed class ProfileRecord
     /// A field is absent, unknown, repeated, or out of its range, a steal entry holds other
     /// than one item or one gold, or the base chance disagrees with the list (G-6, T-2).
     /// </exception>
-    /// <remarks>The battle content checks each item of the steal list against the items (D-383).</remarks>
+    /// <remarks>The battle content checks each item of the steal list and of the drop list against the items (D-383, D-1042).</remarks>
     public static ProfileRecord Read(ReadOnlySpan<byte> bytes, string file)
     {
         var reader = new ContentReader(bytes, file);
@@ -99,7 +118,9 @@ public sealed class ProfileRecord
         ContentId? id = null;
         ScoreWeights? weights = null;
         int? stealChance = null;
+        int? stealGearChance = null;
         List<StealEntry>? steal = null;
+        List<DropEntry>? drops = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -118,8 +139,14 @@ public sealed class ProfileRecord
                 case "steal_chance":
                     stealChance = ReadChance(ref reader);
                     break;
+                case "steal_gear_chance":
+                    stealGearChance = ReadChance(ref reader);
+                    break;
                 case "steal":
                     steal = ReadSteal(ref reader);
+                    break;
+                case "drops":
+                    drops = ReadDrops(ref reader);
                     break;
                 default:
                     throw reader.UnknownField(field);
@@ -132,7 +159,9 @@ public sealed class ProfileRecord
             reader.Require(id, depth, "id"),
             reader.Require(weights, depth, "weights"),
             reader.RequireInt(stealChance, depth, "steal_chance"),
-            reader.Require(steal, depth, "steal"));
+            reader.RequireInt(stealGearChance, depth, "steal_gear_chance"),
+            reader.Require(steal, depth, "steal"),
+            reader.Require(drops, depth, "drops"));
         profile.RefuseChanceOfList(ref reader, depth);
         reader.ReadFileEnd();
 
@@ -219,10 +248,23 @@ public sealed class ProfileRecord
         return entries;
     }
 
-    private static StealEntry ReadStealEntry(ref ContentReader reader)
+    private static List<DropEntry> ReadDrops(ref ContentReader reader)
+    {
+        List<DropEntry> entries = [];
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, entries.Count))
+        {
+            entries.Add(ReadDropEntry(ref reader));
+        }
+
+        return entries;
+    }
+
+    /// <summary>Reads one drop entry: an item, and a chance from 1 to 10000 basis points (D-1042).</summary>
+    private static DropEntry ReadDropEntry(ref ContentReader reader)
     {
         ContentId? item = null;
-        int? gold = null;
+        int? chance = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -230,27 +272,62 @@ public sealed class ProfileRecord
             switch (field)
             {
                 case "item":
-                    item = reader.ReadContentId(BattleFixture.ItemKind);
+                    item = reader.ReadContentId(ItemList.Kind);
                     break;
-                case "gold":
-                    gold = BattleFixture.ReadStat(ref reader, 1);
+                case "chance":
+                    chance = ReadChance(ref reader);
                     break;
                 default:
                     throw reader.UnknownField(field);
             }
         }
 
-        if (item is not null && gold is null)
+        int readChance = reader.RequireInt(chance, depth, "chance");
+        if (readChance == 0)
+        {
+            throw reader.RefuseField(depth, "chance", "the chance is 0, so the entry never drops (D-1042)");
+        }
+
+        return new DropEntry(reader.Require(item, depth, "item"), readChance);
+    }
+
+    private static StealEntry ReadStealEntry(ref ContentReader reader)
+    {
+        ContentId? item = null;
+        int? gold = null;
+        ContentId? gear = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "item":
+                    item = reader.ReadContentId(ItemList.Kind);
+                    break;
+                case "gold":
+                    gold = BattleFixture.ReadStat(ref reader, 1);
+                    break;
+                case "gear":
+                    gear = reader.ReadContentId(GearList.Kind);
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        int named = (item is null ? 0 : 1) + (gold is null ? 0 : 1) + (gear is null ? 0 : 1);
+        if (named != 1)
+        {
+            throw reader.RefuseField(depth, "item", "a steal entry holds one item, one gold, or one piece of gear, and not two or none (D-383, D-1051)");
+        }
+
+        if (item is not null)
         {
             return new StealItem(item);
         }
 
-        if (gold is int amount && item is null)
-        {
-            return new StealGold(amount);
-        }
-
-        throw reader.RefuseField(depth, "item", "a steal entry holds one item or one gold, and not both or neither (D-383)");
+        return gold is int amount ? new StealGold(amount) : new StealGear(gear!);
     }
 
     /// <summary>Refuses a base chance of 0 with a list that holds an entry, and a chance above 0 with an empty list (D-949).</summary>
@@ -264,6 +341,30 @@ public sealed class ProfileRecord
         if (this.Steal.Count > 0 && this.StealChance == 0)
         {
             throw reader.RefuseField(depth, "steal_chance", "the chance is 0, and the steal list holds an entry that no steal can take (D-949)");
+        }
+
+        // D-1051: gear takes a gear chance, and a gold entry that comes back when only gear is left.
+        bool gear = false;
+        bool gold = false;
+        foreach (StealEntry entry in this.Steal)
+        {
+            gear |= entry is StealGear;
+            gold |= entry is StealGold;
+        }
+
+        if (gear && this.StealGearChance == 0)
+        {
+            throw reader.RefuseField(depth, "steal_gear_chance", "the gear chance is 0, and the steal list holds gear that no steal can take (D-1051)");
+        }
+
+        if (!gear && this.StealGearChance != 0)
+        {
+            throw reader.RefuseField(depth, "steal_gear_chance", $"the gear chance is {this.StealGearChance}, and the steal list holds no gear (D-1051)");
+        }
+
+        if (gear && !gold)
+        {
+            throw reader.RefuseField(depth, "steal", "the steal list holds gear and no gold, and a steal takes a gold entry again when only gear is left (D-1051)");
         }
     }
 }

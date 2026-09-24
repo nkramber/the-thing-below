@@ -346,25 +346,29 @@ public static partial class IdentitySet
     }
     """;
 
-    /// <summary>The profile of each brute and grunt of this set (D-956). PR-11 added it, and it never changes.</summary>
+    /// <summary>The profile of each brute and grunt of this set (D-956). PR-11 added it, and PR-13 added the drop list and the charm of the steal list (D-1042, D-1051).</summary>
     private const string BruteProfileFile = """
     {
      "comment": "The profile of the brutes of the identity set. It never changes.",
      "id": "profile.identity_brute",
      "weights": { "damage": 100, "kills": 3, "threat": 60, "healing": 50, "timeline": 1, "row": 200 },
      "steal_chance": 2500,
-     "steal": [{ "item": "item.identity_draught" }, { "gold": 12 }]
+     "steal_gear_chance": 2500,
+     "steal": [{ "item": "item.identity_draught" }, { "gold": 12 }, { "gear": "gear.identity_charm" }],
+     "drops": [{ "item": "item.identity_draught", "chance": 3000 }]
     }
     """;
 
-    /// <summary>The profile of the mender of this set (D-956). PR-11 added it, and it never changes.</summary>
+    /// <summary>The profile of the mender of this set (D-956). PR-11 added it, and PR-13 added the empty drop list (D-1042).</summary>
     private const string MenderProfileFile = """
     {
      "comment": "The profile of the mender of the identity set. It never changes.",
      "id": "profile.identity_mender",
      "weights": { "damage": 40, "kills": 1, "threat": 80, "healing": 300, "timeline": 1, "row": 400 },
      "steal_chance": 0,
-     "steal": []
+     "steal_gear_chance": 0,
+     "steal": [],
+     "drops": []
     }
     """;
 
@@ -404,6 +408,28 @@ public static partial class IdentitySet
     }
     """;
 
+    /// <summary>The item file of this set (D-1038, D-1046). PR-13 added it with the draught of PR-9.</summary>
+    private const string ItemFile = """
+    {
+     "comment": "The item file of the identity set. PR-13 added it.",
+     "items": [
+      { "id": "item.identity_draught", "kind": "heal", "limit": 10, "delay": 100, "amount": 30 }
+     ]
+    }
+    """;
+
+    /// <summary>The gear file of this set (D-1036). PR-13 added it: a weapon, a ring that resists fire, and a charm that is weak to fire.</summary>
+    private const string GearFile = """
+    {
+     "comment": "The gear file of the identity set. PR-13 added it.",
+     "gear": [
+      { "id": "gear.identity_blade", "slot": "weapon", "limit": 1, "attack": 3, "defense": 0, "speed": -2, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.identity_ring", "slot": "accessory", "limit": 1, "attack": 0, "defense": 1, "speed": 0, "elements": { "fire": "resist", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.identity_charm", "slot": "accessory", "limit": 1, "attack": 0, "defense": 0, "speed": 4, "elements": { "fire": "weak", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } }
+     ]
+    }
+    """;
+
     /// <summary>The notice file of this set (D-989). PR-62 added it, and it never changes.</summary>
     private const string NoticeFile = """
     {
@@ -418,13 +444,14 @@ public static partial class IdentitySet
     /// <summary>The ability file of this set (D-785). PR-80 added it, and it never changes.</summary>
     private const string AbilityFile = """
     {
-     "comment": "The ability file of the identity set. PR-11 gave each ability its effect and added the mend. PR-12 gave the strike its status field and added the moves of the lessons, and the file never changes again.",
+     "comment": "The ability file of the identity set. PR-11 gave each ability its effect and added the mend. PR-12 gave the strike its status field and added the moves of the lessons, and PR-13 added the steal.",
      "abilities": [
       { "id": "ability.identity_strike", "kind": "strike", "delay": 120, "power": 14000, "element": "fire", "reach": "any", "status": "none" },
       { "id": "ability.identity_mend", "kind": "heal", "delay": 100, "heal": 18 },
       { "id": "ability.identity_blast", "kind": "strike", "delay": 130, "power": 20000, "element": "fire", "reach": "any", "status": "poison", "chance": 5000 },
       { "id": "ability.identity_purge", "kind": "cure", "delay": 90, "statuses": ["poison", "blind", "silence"] },
-      { "id": "ability.identity_haste", "kind": "boon", "delay": 90, "status": "haste" }
+      { "id": "ability.identity_haste", "kind": "boon", "delay": 90, "status": "haste" },
+      { "id": "ability.identity_pilfer", "kind": "steal", "delay": 100 }
      ]
     }
     """;
@@ -432,7 +459,7 @@ public static partial class IdentitySet
     /// <summary>The lesson file of this set (D-1026). PR-12 added it.</summary>
     private const string LessonFile = """
     {
-     "comment": "The lesson file of the identity set. PR-12 added it, and it never changes again.",
+     "comment": "The lesson file of the identity set. PR-12 added it, and PR-13 added the steal drill.",
      "lessons": [
       { "id": "lesson.identity_blast", "kind": "harm", "forms": [
        { "ability": "ability.identity_strike", "points": 0, "mp": 3, "description": "lesson.identity_strike" },
@@ -442,7 +469,9 @@ public static partial class IdentitySet
       { "id": "lesson.identity_purge", "kind": "mend", "forms": [
        { "ability": "ability.identity_purge", "points": 0, "mp": 1, "description": "lesson.identity_purge" } ] },
       { "id": "lesson.identity_haste", "kind": "boon", "forms": [
-       { "ability": "ability.identity_haste", "points": 0, "mp": 2, "description": "lesson.identity_haste" } ] }
+       { "ability": "ability.identity_haste", "points": 0, "mp": 2, "description": "lesson.identity_haste" } ] },
+      { "id": "lesson.identity_pilfer", "kind": "theft", "forms": [
+       { "ability": "ability.identity_pilfer", "points": 0, "mp": 0, "description": "lesson.identity_pilfer" } ] }
      ]
     }
     """;
@@ -450,7 +479,7 @@ public static partial class IdentitySet
     /// <summary>The battle rules of this set, with the numbers of D-777. They never change.</summary>
     private const string BattleRulesFile = """
     {
-     "comment": "The battle rules of the identity set. PR-9 added them, and PR-12 added the lesson slots and the aptitude bonus.",
+     "comment": "The battle rules of the identity set. PR-9 added them, PR-12 added the lesson slots and the aptitude bonus, and PR-13 added the steal numbers and a third slot for the steal drill.",
      "attack_delay": 100,
      "attack_power": 10000,
      "defend_delay": 60,
@@ -472,6 +501,12 @@ public static partial class IdentitySet
      "flee_floor": 1000,
      "flee_ceiling": 9000,
      "item_rate": 5000,
+     "steal_rate": 5000,
+     "steal_floor": 0,
+     "steal_ceiling": 9000,
+     "steal_gear_first": 500,
+     "steal_gear_second": 1500,
+     "steal_gear_third": 2500,
      "weak_rate": 15000,
      "resist_rate": 5000,
      "absorb_rate": 10000,
@@ -489,7 +524,7 @@ public static partial class IdentitySet
      "blind_miss": 3000,
      "experience_cut": 1500,
      "experience_gap": 4,
-     "lesson_slots": 2,
+     "lesson_slots": 3,
      "aptitude_bonus": 2500,
      "level_experience": [0, 20, 60, 120, 200, 300, 420, 560, 720, 900, 1100, 1320, 1560, 1820, 2100, 2400, 2720, 3060, 3420, 3800, 4200, 4620, 5060, 5520, 6000, 6500, 7020, 7560, 8120, 8700, 9300, 9920, 10560, 11220, 11900, 12600, 13320, 14060, 14820, 15600],
      "lesson_slot_levels": [5, 12, 20, 30]
@@ -502,17 +537,15 @@ public static partial class IdentitySet
     /// </summary>
     private static readonly string BattleFixtureFile = $$"""
     {
-     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, PR-11 moved its groups to the group file, PR-68 added the friend who joins in the story run, and PR-12 added the aptitudes, the start lessons, and the lesson pack.",
+     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, PR-11 moved its groups to the group file, PR-68 added the friend who joins in the story run, PR-12 added the aptitudes, the start lessons, and the lesson pack, and PR-13 moved the item to the item file and added the gear.",
      "characters": [
       { "id": "character.identity_hero", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(90, 20, 14, 4, 100))}} },
       { "id": "character.identity_friend", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "harm", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(70, 30, 10, 3, 110))}} }
      ],
-     "items": [
-      { "id": "item.identity_draught", "heal": 30, "delay": 100 }
-     ],
      "start_party": ["character.identity_hero"],
-     "pack": [{ "item": "item.identity_draught", "count": 9 }],
-     "start_lessons": [{ "character": "character.identity_hero", "lessons": ["lesson.identity_blast", "lesson.identity_mend"] }],
+     "pack": [{ "item": "item.identity_draught", "count": 9 }, { "gear": "gear.identity_charm", "count": 1 }],
+     "start_gear": [{ "character": "character.identity_hero", "gear": ["gear.identity_blade", "gear.identity_ring"] }],
+     "start_lessons": [{ "character": "character.identity_hero", "lessons": ["lesson.identity_blast", "lesson.identity_mend", "lesson.identity_pilfer"] }],
      "lesson_pack": ["lesson.identity_purge", "lesson.identity_haste"]
     }
     """;
@@ -741,6 +774,8 @@ public static partial class IdentitySet
             ],
             AbilityList.Read(Encoding.UTF8.GetBytes(AbilityFile), "identity-set-abilities.json"),
             LessonList.Read(Encoding.UTF8.GetBytes(LessonFile), "identity-set-lessons.json"),
+            ItemList.Read(Encoding.UTF8.GetBytes(ItemFile), "identity-set-items.json"),
+            GearList.Read(Encoding.UTF8.GetBytes(GearFile), "identity-set-gear.json"),
             [GroupFile.Read(Encoding.UTF8.GetBytes(GroupFileText), $"{GroupFile.Folder}identity.json")],
             [
                 ProfileRecord.Read(Encoding.UTF8.GetBytes(BruteProfileFile), "identity-set-brute-profile.json"),
@@ -835,16 +870,18 @@ public static partial class IdentitySet
     }
 
     /// <summary>
-    /// The script of the lesson run (D-391, D-1027). The hero casts the mend from the menu
-    /// before the fight, then walks into the guard. In the fight each turn takes the next step of
-    /// a fixed cycle: the first form of the blast, the mend on the hero, the second form of the
-    /// blast once the hero opened it, and an attack. A form that the rules refuse, such as a rite
-    /// with too little MP, gives its place to the attack, so the run reads the refusal too.
+    /// The script of the lesson run (D-391, D-1027, D-1048). The hero casts the mend from the
+    /// menu and puts the charm of the pack on, before the fight, then walks into the guard. In
+    /// the fight each turn takes the next step of a fixed cycle: the first form of the blast,
+    /// the mend on the hero, the second form of the blast once the hero opened it, a steal, and
+    /// an attack. A form that the rules refuse, such as a rite with too little MP or a fourth
+    /// steal, gives its place to the attack, so the run reads the refusal too.
     /// </summary>
     private static IReadOnlyList<Intent> IntentsOfLessonTick(RunState state, int turns, int step)
     {
         ContentId blast = ContentId.Parse("lesson.identity_blast", "identity", "lesson");
         ContentId mend = ContentId.Parse("lesson.identity_mend", "identity", "lesson");
+        ContentId pilfer = ContentId.Parse("lesson.identity_pilfer", "identity", "lesson");
         switch (step)
         {
             case 0:
@@ -852,6 +889,8 @@ public static partial class IdentitySet
             case 1:
                 return [Intent.OfMenuCast(0, mend, 0, 0)];
             case 2:
+                return [Intent.OfGearWear(0, 5, ContentId.Parse("gear.identity_charm", "identity", "gear"))];
+            case 3:
                 return [Intent.OfPlayer(IntentIds.CloseMenu)];
             default:
                 break;
@@ -868,11 +907,12 @@ public static partial class IdentitySet
         }
 
         Intent attack = Intent.OfPlayer(IntentIds.BattleAttack, battle.MeleeTargets(BattleSide.Enemy)[0].Target, null);
-        Intent chosen = (turns % 4) switch
+        Intent chosen = (turns % 5) switch
         {
             0 => Intent.OfBattleLesson(blast, 0, battle.MeleeTargets(BattleSide.Enemy)[0].Target),
             1 => Intent.OfBattleLesson(mend, 0, next.Target),
             2 => Intent.OfBattleLesson(blast, 1, battle.MeleeTargets(BattleSide.Enemy)[0].Target),
+            3 => Intent.OfBattleLesson(pilfer, 0, battle.MeleeTargets(BattleSide.Enemy)[0].Target),
             _ => attack,
         };
         BattleChoice choice = new(BattleAction.Lesson, chosen.Target, null, chosen.Lesson, chosen.Option);

@@ -48,6 +48,9 @@ public static class SimulationVersion
     /// story scene (D-540, D-997 to D-1013). PR-12 raised it to 22: each character carries lessons in the slots of
     /// its level, a form of a lesson acts in a fight with the aptitude bonus, a Mend rite and a cure rite act from the menu,
     /// each equipped lesson gains points from a battle won, and a swap of lessons needs a swap place (D-1018 to D-1033).
+    /// PR-13 raised it to 23: each character wears gear in six slots, which adds to its stats and gives its element
+    /// table, the pack holds each item and piece to its stack limit, an item heals, restores, cures, or revives, a
+    /// Theft drill steals three times in a fight at most, and a win rolls the drops of each profile (D-1036 to D-1050).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -55,5 +58,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 22;
+    public const int Current = 23;
 }

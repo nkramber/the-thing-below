@@ -138,6 +138,8 @@ public sealed class ContentSet
         BattleFixture? battleFixture = null;
         AbilityList? abilities = null;
         LessonList? lessons = null;
+        ItemList? items = null;
+        GearList? gear = null;
         NoticeList? notices = null;
         FlagList? flags = null;
         List<StoryScene> scenes = [];
@@ -203,6 +205,20 @@ public sealed class ContentSet
                 // branch of the rule fixtures below (D-1026).
                 lessons = LessonList.Read(file.Bytes, file.Path);
                 AddIds(file.Path, lessons.Ids, sources);
+            }
+            else if (string.CompareOrdinal(file.Path, ItemList.Path) == 0)
+            {
+                // The item file lies under the rule folder, so this branch comes before the
+                // branch of the rule fixtures below (D-1038).
+                items = ItemList.Read(file.Bytes, file.Path);
+                AddIds(file.Path, items.Ids, sources);
+            }
+            else if (string.CompareOrdinal(file.Path, GearList.Path) == 0)
+            {
+                // The gear file lies under the rule folder, so this branch comes before the
+                // branch of the rule fixtures below (D-1036).
+                gear = GearList.Read(file.Bytes, file.Path);
+                AddIds(file.Path, gear.Ids, sources);
             }
             else if (string.CompareOrdinal(file.Path, NoticeList.Path) == 0)
             {
@@ -320,6 +336,8 @@ public sealed class ContentSet
             enemies,
             abilities ?? throw AbsentFile(AbilityList.Path),
             lessons ?? throw AbsentFile(LessonList.Path),
+            items ?? throw AbsentFile(ItemList.Path),
+            gear ?? throw AbsentFile(GearList.Path),
             groups,
             profiles);
 
@@ -941,6 +959,21 @@ public sealed class ContentSet
                 this.RequireString(lessons.File, $"{lesson.Id.Value}.{form.Ability.Value}", NameIdOf(form.Ability));
                 this.RequireString(lessons.File, $"{lesson.Id.Value}.{form.Ability.Value}.description", form.Description);
             }
+        }
+
+        // The name of each item and each piece of gear is `name.` and the name part of its id.
+        // Its line for the item window and the gear window lives under the id itself, as the
+        // line of a notice does (G-7, D-989, D-1046).
+        foreach (ItemRecord item in this.Battle.Items.Records)
+        {
+            this.RequireString(this.Battle.Items.File, item.Id.Value, NameIdOf(item.Id));
+            this.RequireString(this.Battle.Items.File, $"{item.Id.Value}.description", item.Id);
+        }
+
+        foreach (GearRecord piece in this.Battle.Gear.Records)
+        {
+            this.RequireString(this.Battle.Gear.File, piece.Id.Value, NameIdOf(piece.Id));
+            this.RequireString(this.Battle.Gear.File, $"{piece.Id.Value}.description", piece.Id);
         }
 
         foreach (RuleFixtureEntry entry in this.ruleEntries.Values)

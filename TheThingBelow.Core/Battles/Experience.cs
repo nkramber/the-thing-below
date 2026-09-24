@@ -133,7 +133,7 @@ public static class Experience
             state.AddEvent(new BattleEvent(BattleEventKind.Experience, new BattleTarget(BattleSide.Party, slot), null, added));
             if (member.Level > before)
             {
-                battle.Party[slot].Raise(member.Stats);
+                battle.Party[slot].Raise(member.StatsWith(content.Gear));
                 levelUps.Add((slot, member.Level));
             }
         }

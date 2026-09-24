@@ -7,24 +7,29 @@ namespace TheThingBelow.Core.Battles;
 
 /// <summary>
 /// The content that a battle reads: the rules file, the fixture file, the enemy records, the
-/// ability file, the lesson file, the group file of each region, and the profiles (D-557, D-757, D-765, D-775, D-1026,
-/// D-785, D-786, D-956, D-957). A run holds one, from the content set of its build.
+/// ability file, the lesson file, the item file, the gear file, the group file of each region,
+/// and the profiles (D-557, D-757, D-765, D-775, D-1026, D-785, D-786, D-956, D-957, D-1036,
+/// D-1038). A run holds one, from the content set of its build.
 /// </summary>
 public sealed class BattleContent
 {
     /// <summary>Holds the battle files, and checks each id that one file names in another (T-2).</summary>
     /// <param name="rules">The numbers of the rules.</param>
-    /// <param name="fixture">The characters and the items.</param>
+    /// <param name="fixture">The characters and the start of a run.</param>
     /// <param name="enemies">The enemy records, one for each file, in the order of the paths (D-786).</param>
     /// <param name="abilities">The ability file (D-785).</param>
     /// <param name="lessons">The lesson file (D-1026).</param>
+    /// <param name="items">The item file (D-1038, D-1046).</param>
+    /// <param name="gear">The gear file (D-1036).</param>
     /// <param name="groups">The group files, one for each region, in the order of the paths (D-957).</param>
     /// <param name="profiles">The profiles, one for each file, in the order of the paths (D-956).</param>
     /// <exception cref="ContentException">
     /// Two records take one id, two files take one region, a record names an absent ability,
     /// a group names an absent enemy or profile, the waiting column of a group is taller than the
-    /// field, a steal list names an absent item, or an enemy of a group has no legal action. The
-    /// error names the file and the id (T-2, D-166, D-948, D-963).
+    /// field, a steal list or a drop list names an absent item, the pack or the start gear names
+    /// an absent id, passes a stack limit, or puts a piece in no slot of its kind, or an enemy of
+    /// a group has no legal action. The error names the file and the id (T-2, D-166, D-948,
+    /// D-963, D-1038).
     /// </exception>
     public BattleContent(
         BattleRules rules,
@@ -32,6 +37,8 @@ public sealed class BattleContent
         IReadOnlyList<EnemyRecord> enemies,
         AbilityList abilities,
         LessonList lessons,
+        ItemList items,
+        GearList gear,
         IReadOnlyList<GroupFile> groups,
         IReadOnlyList<ProfileRecord> profiles)
     {
@@ -40,6 +47,8 @@ public sealed class BattleContent
         ArgumentNullException.ThrowIfNull(enemies);
         ArgumentNullException.ThrowIfNull(abilities);
         ArgumentNullException.ThrowIfNull(lessons);
+        ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(gear);
         ArgumentNullException.ThrowIfNull(groups);
         ArgumentNullException.ThrowIfNull(profiles);
 
@@ -48,6 +57,8 @@ public sealed class BattleContent
         this.Enemies = enemies;
         this.Abilities = abilities;
         this.Lessons = lessons;
+        this.Items = items;
+        this.Gear = gear;
         this.GroupFiles = groups;
         this.Profiles = profiles;
 
@@ -60,13 +71,16 @@ public sealed class BattleContent
         this.RefuseAbsentEnemyOrProfile();
         this.RefuseTallWaitingColumn();
         this.RefuseAbsentStealItem();
+        this.RefuseAbsentDropItem();
+        this.RefuseWrongStartGear();
+        this.RefuseWrongPack();
         this.RequireEveryEntryActs();
     }
 
     /// <summary>The numbers of the rules.</summary>
     public BattleRules Rules { get; }
 
-    /// <summary>The characters and the items.</summary>
+    /// <summary>The characters and the start of a run.</summary>
     public BattleFixture Fixture { get; }
 
     /// <summary>Every enemy record, in the order of the paths (D-786).</summary>
@@ -77,6 +91,12 @@ public sealed class BattleContent
 
     /// <summary>The lesson file (D-1026).</summary>
     public LessonList Lessons { get; }
+
+    /// <summary>The item file (D-1038, D-1046).</summary>
+    public ItemList Items { get; }
+
+    /// <summary>The gear file (D-1036).</summary>
+    public GearList Gear { get; }
 
     /// <summary>The group file of each region, in the order of the paths (D-957).</summary>
     public IReadOnlyList<GroupFile> GroupFiles { get; }
@@ -172,15 +192,47 @@ public sealed class BattleContent
             ?? throw ContentException.ForField(ProfileRecord.Folder, id.Value, "no profile file has this id (T-2, D-956)");
     }
 
-    /// <summary>Finds an item by id (D-775).</summary>
+    /// <summary>Finds an item by id (D-775, D-1038).</summary>
     /// <param name="id">The id.</param>
     /// <returns>The record.</returns>
-    /// <exception cref="ContentException">The fixture holds no such item (T-2).</exception>
+    /// <exception cref="ContentException">The item file holds no such item (T-2).</exception>
     public ItemRecord Item(ContentId id)
     {
         ArgumentNullException.ThrowIfNull(id);
 
-        return this.FindItem(id) ?? throw Absent(id, "item");
+        return this.Items.Item(id);
+    }
+
+    /// <summary>Finds a piece of gear by id (D-1036).</summary>
+    /// <param name="id">The id.</param>
+    /// <returns>The record.</returns>
+    /// <exception cref="ContentException">The gear file holds no such piece (T-2).</exception>
+    public GearRecord Piece(ContentId id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        return this.Gear.Piece(id);
+    }
+
+    /// <summary>Gives the stack limit of an item or a piece of gear, by the kind of its id (D-1038).</summary>
+    /// <param name="id">The id, of the kind `item` or `gear`.</param>
+    /// <returns>The limit.</returns>
+    /// <exception cref="ContentException">The item file or the gear file holds no such id, or the id is of another kind (T-2).</exception>
+    public int LimitOf(ContentId id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        if (string.CompareOrdinal(id.Kind, ItemList.Kind) == 0)
+        {
+            return this.Items.Item(id).Limit;
+        }
+
+        if (string.CompareOrdinal(id.Kind, GearList.Kind) == 0)
+        {
+            return this.Gear.Piece(id).Limit;
+        }
+
+        throw ContentException.ForField(BattleFixture.Path, id.Value, $"the id is of the kind '{id.Kind}', and the pack holds the kinds '{ItemList.Kind}' and '{GearList.Kind}' alone (D-1038)");
     }
 
     /// <summary>
@@ -279,19 +331,6 @@ public sealed class BattleContent
             if (string.CompareOrdinal(profile.Id.Value, id.Value) == 0)
             {
                 return profile;
-            }
-        }
-
-        return null;
-    }
-
-    private ItemRecord? FindItem(ContentId id)
-    {
-        foreach (ItemRecord item in this.Fixture.Items)
-        {
-            if (string.CompareOrdinal(item.Id.Value, id.Value) == 0)
-            {
-                return item;
             }
         }
 
@@ -498,20 +537,93 @@ public sealed class BattleContent
         }
     }
 
-    /// <summary>Refuses a steal list that names an item with no record (T-2, D-383).</summary>
+    /// <summary>Refuses a steal list that names an item or a piece of gear with no record (T-2, D-383, D-1051).</summary>
     private void RefuseAbsentStealItem()
     {
         foreach (ProfileRecord profile in this.Profiles)
         {
             foreach (StealEntry entry in profile.Steal)
             {
-                if (entry is StealItem stolen && this.FindItem(stolen.Item) is null)
+                if (entry is StealItem stolen && !this.Items.Holds(stolen.Item))
                 {
                     throw ContentException.ForField(
                         profile.File,
                         stolen.Item.Value,
-                        $"the steal list of '{profile.Id.Value}' names this item, and '{BattleFixture.Path}' holds no such item (T-2, D-383)");
+                        $"the steal list of '{profile.Id.Value}' names this item, and '{ItemList.Path}' holds no such item (T-2, D-383)");
                 }
+
+                if (entry is StealGear gear && !this.Gear.Holds(gear.Gear))
+                {
+                    throw ContentException.ForField(
+                        profile.File,
+                        gear.Gear.Value,
+                        $"the steal list of '{profile.Id.Value}' names this piece, and '{GearList.Path}' holds no such piece (T-2, D-1051)");
+                }
+            }
+        }
+    }
+
+    /// <summary>Refuses a drop list that names an item with no record (T-2, D-1042).</summary>
+    private void RefuseAbsentDropItem()
+    {
+        foreach (ProfileRecord profile in this.Profiles)
+        {
+            foreach (DropEntry entry in profile.Drops)
+            {
+                if (!this.Items.Holds(entry.Item))
+                {
+                    throw ContentException.ForField(
+                        profile.File,
+                        entry.Item.Value,
+                        $"the drop list of '{profile.Id.Value}' names this item, and '{ItemList.Path}' holds no such item (T-2, D-1042)");
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Refuses start gear that names an absent piece, or a piece with no empty slot of its
+    /// kind: one weapon, one off-hand, one head, one body, and two accessories (D-44).
+    /// </summary>
+    private void RefuseWrongStartGear()
+    {
+        foreach (StartGear entry in this.Fixture.StartGear)
+        {
+            _ = GearRules.SlotsOf(entry.Gear, this.Gear, BattleFixture.Path, entry.Character.Value);
+        }
+    }
+
+    /// <summary>
+    /// Refuses a pack entry that names an absent item or piece, and a start that owns more
+    /// copies than the stack limit: the pack and the start gear together (D-1038, D-1039).
+    /// </summary>
+    private void RefuseWrongPack()
+    {
+        var owned = new SortedDictionary<string, int>(StringComparer.Ordinal);
+        foreach (PackEntry entry in this.Fixture.Pack)
+        {
+            _ = this.LimitOf(entry.Id);
+            owned[entry.Id.Value] = entry.Count;
+        }
+
+        foreach (StartGear entry in this.Fixture.StartGear)
+        {
+            foreach (ContentId piece in entry.Gear)
+            {
+                owned[piece.Value] = (owned.TryGetValue(piece.Value, out int count) ? count : 0) + 1;
+            }
+        }
+
+        foreach (KeyValuePair<string, int> entry in owned)
+        {
+            ContentId id = ContentId.Parse(entry.Key, BattleFixture.Path, "pack");
+            int limit = this.LimitOf(id);
+            if (entry.Value > limit)
+            {
+                throw ContentException.ForField(
+                    BattleFixture.Path,
+                    entry.Key,
+                    $"the party starts with {entry.Value} copies, the pack and the start gear together, and the stack limit is {limit} (D-1038, D-1039)");
             }
         }
     }

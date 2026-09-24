@@ -31,10 +31,10 @@ namespace TheThingBelow.Core.Runs;
 /// True when the debug console of a development build made the intent (D-171, D-260).
 /// </param>
 /// <param name="Target">The side and the slot that a battle intent or a row intent aims at, or no value (D-558, D-764).</param>
-/// <param name="Item">The item of an item use, or no value (D-780).</param>
-/// <param name="Option">An index from zero: the option of a pick (D-1007), the form of a lesson use, or the lesson slot of a swap (D-1027, D-1030). No value for the other intents.</param>
+/// <param name="Item">The item of an item use, or the piece of a change of gear, or no value (D-780, D-1048).</param>
+/// <param name="Option">An index from zero: the option of a pick (D-1007), the form of a lesson use, the lesson slot of a swap, or the gear slot of a change of gear (D-1027, D-1030, D-1048). No value for the other intents.</param>
 /// <param name="Lesson">The lesson of a lesson use or a swap, or no value (D-1026).</param>
-/// <param name="Actor">The party slot of the character who casts from the menu or whose slot a swap changes, or no value (D-391, D-1030).</param>
+/// <param name="Actor">The party slot of the character who casts from the menu, or whose slot a swap or a change of gear changes, or no value (D-391, D-1030, D-1048).</param>
 public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target = null, ContentId? Item = null, int? Option = null, ContentId? Lesson = null, int? Actor = null)
 {
     /// <summary>Makes an intent that the player made through a screen of the game.</summary>
@@ -122,6 +122,25 @@ public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target
     /// <returns>The intent, with no debug mark.</returns>
     public static Intent OfLessonSwap(int character, int slot, ContentId? lesson) =>
         new(IntentIds.LessonSwap, false, null, null, slot, lesson, character);
+
+    /// <summary>Makes the intent of an item use from the item window: one item on one character (D-1046, D-1049).</summary>
+    /// <param name="item">The id of the item.</param>
+    /// <param name="target">The party slot of the target.</param>
+    /// <returns>The intent, with no debug mark.</returns>
+    /// <exception cref="ArgumentNullException">The item is null (T-2).</exception>
+    public static Intent OfMenuItem(ContentId item, int target)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        return new Intent(IntentIds.MenuItem, false, new BattleTarget(BattleSide.Party, target), item);
+    }
+
+    /// <summary>Makes the intent of a change of gear: a piece of the pack in one gear slot, or an empty slot (D-44, D-1048).</summary>
+    /// <param name="character">The party slot of the character.</param>
+    /// <param name="slot">The gear slot, from 0 to 5.</param>
+    /// <param name="piece">The id of the piece, or no value to empty the slot.</param>
+    /// <returns>The intent, with no debug mark. The item field carries the piece.</returns>
+    public static Intent OfGearWear(int character, int slot, ContentId? piece) =>
+        new(IntentIds.GearWear, false, null, piece, slot, null, character);
 
     /// <summary>Gives the intent as one line for an error message and a log line (T-2).</summary>
     /// <returns>The action, the item, the target, the option, and the debug mark, each when the intent carries it.</returns>

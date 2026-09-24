@@ -9,16 +9,20 @@ namespace TheThingBelow.Tests;
 internal static partial class SnapshotLines
 {
     /// <summary>
-    /// Drops the lessons of each character, the lesson pack, and the swap place, which save
-    /// format 10 added (D-1018, D-1024, D-1030). A test of an older reader then reaches the
-    /// field that it reads.
+    /// Drops the fields that save format 10 and 11 added: the lessons of each character, the
+    /// lesson pack, and the swap place (D-1018, D-1024, D-1030), then the gear of each character,
+    /// the gold, and the steals of a fight (D-1038, D-1043, D-1045). A test of an older reader
+    /// then reaches the field that it reads.
     /// </summary>
-    /// <param name="line">A snapshot line of this build.</param>
-    /// <returns>The line with no lesson field.</returns>
-    public static string WithoutLessons(string line)
+    /// <param name="line">A snapshot line of this build, whose pack holds items alone.</param>
+    /// <returns>The line in the shape of save format 9.</returns>
+    public static string AsFormatNine(string line)
     {
         string noSlots = CharacterLessons().Replace(line, string.Empty);
-        return PartyLessons().Replace(noSlots, string.Empty);
+        string noLessons = PartyLessons().Replace(noSlots, string.Empty);
+        string noGear = CharacterGear().Replace(noLessons, string.Empty);
+        string noGold = PartyGold().Replace(noGear, string.Empty);
+        return BattleSteals().Replace(noGold, string.Empty);
     }
 
     // The arrays hold objects with no nested array, so the first `]` ends each one.
@@ -27,4 +31,13 @@ internal static partial class SnapshotLines
 
     [GeneratedRegex(""","lesson_pack":\[[^\]]*\],"swap_place":(true|false)""")]
     private static partial Regex PartyLessons();
+
+    [GeneratedRegex(""","gear":\[[^\]]*\]""")]
+    private static partial Regex CharacterGear();
+
+    [GeneratedRegex(""","gold":\d+""")]
+    private static partial Regex PartyGold();
+
+    [GeneratedRegex(""","steals":\{"tries":\d+,"taken":\[[^\]]*\]\}""")]
+    private static partial Regex BattleSteals();
 }

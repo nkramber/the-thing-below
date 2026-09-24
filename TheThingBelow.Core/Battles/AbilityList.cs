@@ -46,6 +46,11 @@ public sealed record CureAbility(ContentId Id, int Delay, IReadOnlyList<StatusKi
 /// <param name="Status">The status that the move gives.</param>
 public sealed record BoonAbility(ContentId Id, int Delay, StatusKind Status) : AbilityRecord(Id, Delay);
 
+/// <summary>A move that tries to take one entry of the steal list of one enemy on the field. A Theft drill of a lesson gives it (D-383, D-950, D-1029).</summary>
+/// <param name="Id">The id, of the kind `ability`.</param>
+/// <param name="Delay">The delay of the move, in ticks at speed 100 (D-768).</param>
+public sealed record StealAbility(ContentId Id, int Delay) : AbilityRecord(Id, Delay);
+
 /// <summary>
 /// The ability file: the id of each ability and its effect (D-785, D-955, D-1029). The file is
 /// `content/rules/abilities.json`. An enemy record and a form of a lesson name ids from this
@@ -75,6 +80,9 @@ public sealed class AbilityList
 
     /// <summary>The name of the kind of a boon, in the file (D-1029).</summary>
     public const string BoonName = "boon";
+
+    /// <summary>The name of the kind of a steal, in the file (D-950).</summary>
+    public const string StealName = "steal";
 
     /// <summary>The name of the status of a strike with no status, in the file (D-793).</summary>
     public const string NoStatusName = "none";
@@ -191,8 +199,9 @@ public sealed class AbilityList
 
     /// <summary>
     /// Reads one entry. A strike takes a power, an element, a reach, and a status with its
-    /// chance. A heal takes a heal, a cure takes its statuses, and a boon takes its status. A
-    /// field of another kind is an error, so no field of an entry goes unread (D-955, D-1029).
+    /// chance. A heal takes a heal, a cure takes its statuses, a boon takes its status, and a
+    /// steal takes the delay alone. A field of another kind is an error, so no field of an entry
+    /// goes unread (D-950, D-955, D-1029).
     /// </summary>
     private static AbilityRecord ReadAbility(ref ContentReader reader)
     {
@@ -289,7 +298,15 @@ public sealed class AbilityList
             return new BoonAbility(readId, readDelay, BoonStatusOf(ref reader, depth, reader.Require(status, depth, "status"), readId));
         }
 
-        throw reader.RefuseField(depth, "kind", $"the kind '{readKind}' of '{readId.Value}' is not one of {StrikeName}, {HealName}, {CureName}, {BoonName} (D-955, D-1029)");
+        if (string.CompareOrdinal(readKind, StealName) == 0)
+        {
+            RefusePresent(ref reader, depth, heal is not null, "heal", readId, StealName);
+            RefusePresent(ref reader, depth, status is not null, "status", readId, StealName);
+            RefusePresent(ref reader, depth, statuses is not null, "statuses", readId, StealName);
+            return new StealAbility(readId, readDelay);
+        }
+
+        throw reader.RefuseField(depth, "kind", $"the kind '{readKind}' of '{readId.Value}' is not one of {StrikeName}, {HealName}, {CureName}, {BoonName}, {StealName} (D-950, D-955, D-1029)");
     }
 
     /// <summary>
@@ -330,8 +347,8 @@ public sealed class AbilityList
         throw reader.RefuseField(depth, "status", $"the status '{name}' of the boon '{id.Value}' is not one of haste, regen, shell (D-281, D-1029)");
     }
 
-    /// <summary>Reads the statuses of a cure: at least one, in the order of D-75, with no repeat (D-1029).</summary>
-    private static List<StatusKind> ReadStatuses(ref ContentReader reader)
+    /// <summary>Reads the statuses of a cure: at least one, in the order of D-75, with no repeat (D-1029). The item file reads a cure item with this rule too (D-1046).</summary>
+    internal static List<StatusKind> ReadStatuses(ref ContentReader reader)
     {
         List<StatusKind> statuses = [];
         int depth = reader.ReadArrayStart();
