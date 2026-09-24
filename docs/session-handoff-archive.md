@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 269: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #73, round 1. Repository: the-thing-below. Branch: `feat/pr-12-lessons`. PR: #73. Role: reviewer. Base: `5f1164c`.
+
+### What this session did, and why
+
+- Reviewed PR #73 from merge base `5f1164c` through effective head `2d08989`. The author is Claude Code, so Codex passes the provider gate (T-4, D-17).
+- Traced lesson loading and validation, battle and menu use, lesson growth, swap ownership, save migration, replay state, spell effects, and the affected UI flows. Inspected all 144 changed paths.
+- Read the nine affected CI screen captures. No visual fault was found (D-733, D-784).
+- Ran `make verify`: all 3,010 tests and local checks passed. CI run 36004087356 passed the implementation checks on macOS, Ubuntu, and Windows. The rerun screen test passed.
+- Added `docs/reviews/pr-73.md` with `Ready for owner merge` for `2d08989`.
+
+### The state of the build
+
+- Base: `5f1164c`. Effective head: `2d08989`. Remote PR head before this metadata commit: `a4987ec`.
+- CI run 36004087356 passed build, test, and format; smoke; replay identity; det-lint; STE; coverage; and the screen test at the effective head. Run 36005990820 passed implementation checks at the metadata tip. Review-gate awaits this record.
+
+### What is in flight
+
+- This metadata commit holds the review record and this entry. After publication, a fresh review-gate result must pass.
+
+### Traps and gotchas
+
+- The only Gitar comment says it is working and has no item, so it needs no answer and does not block the verdict (D-964). The user requested `--skip-gitar-review`; no Gitar pass was required (D-945, D-946).
+- OQ-246 records a known one-level screen-test flake. The rerun of the reviewed commit passed (D-733).
+
+### The questions that block progress
+
+None for PR-12. OQ-245 blocks PR-42 only. OQ-246 blocks no PR.
+
+### The next concrete action
+
+Fetch the branch, verify the pushed metadata head and the fresh `review-gate` result, then report the review verdict for PR #73.
 
 ## Session 268: 2026-09-24, Claude Code
 

@@ -1,3 +1,38 @@
+## Session 279: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #76, round 1. Repository: the-thing-below. Branch: `feat/pr-91-torch-item`. PR: #76. Role: reviewer. Base: `15aad83`.
+
+### What this session did, and why
+
+- Reviewed PR #76 at effective head `4b4681c`. Claude Code authored the substantive commits, so Codex passes the provider gate (T-4, D-17).
+- Inspected all 184 changed paths, including Core sight and torch rules, Game fades and input, save and settings migration, tests, content, screen baselines, and project documents.
+- Confirmed the Gitar sight finding fix: the range grows in 24 ticks, the mark stays visible during the fade, and the regression test covers guards 3 to 6 tiles away (D-720, D-1062, D-1063).
+- Confirmed the Gitar CI analysis item is answered by the corrected `docs/runbooks/merge.md` row in the PR description (D-577, D-581, D-964).
+- Published `docs/reviews/pr-76.md` with `Ready for owner merge` for `4b4681c`.
+
+### The state of the build
+
+- Base and merge base: `15aad83`. Effective and remote head before this metadata commit: `4b4681c`.
+- `make verify` passed on macOS arm64: 3,202 tests, format, det-lint, STE, replay identity, content, atlas, and smoke.
+- CI run `36066356708` passed all implementation checks. `review-gate` waited for this review record. The Gitar code and CI items have answers.
+
+### What is in flight
+
+- This commit holds the review record and this entry. It must be pushed and verified.
+
+### Traps and gotchas
+
+- OQ-246 records a one-level screen-test flake and blocks no PR.
+- `make sheet` with no fixture can exceed the PNG height limit. Use `FIXTURE=` for one fixture at a time (D-735).
+
+### The questions that block progress
+
+None. OQ-246 blocks no PR.
+
+### The next concrete action
+
+Push this metadata commit to `feat/pr-91-torch-item`. Fetch, check the branch status, confirm the PR head with `gh pr view`, and read the new `review-gate` result.
 ## Session 278: 2026-09-24, Claude Code
 
 Author: Claude Code
@@ -314,38 +349,3 @@ None for PR-13. OQ-247 and OQ-248 block PR-99.
 ### The next concrete action
 
 Wait for CI on the new head, and rerun the screen test on a flake of OQ-246. Then run `make codex-review PR=74 -- --skip-gitar-review`.
-
-## Session 269: 2026-09-24, Codex
-
-Author: Codex
-Session: reviewer PR #73, round 1. Repository: the-thing-below. Branch: `feat/pr-12-lessons`. PR: #73. Role: reviewer. Base: `5f1164c`.
-
-### What this session did, and why
-
-- Reviewed PR #73 from merge base `5f1164c` through effective head `2d08989`. The author is Claude Code, so Codex passes the provider gate (T-4, D-17).
-- Traced lesson loading and validation, battle and menu use, lesson growth, swap ownership, save migration, replay state, spell effects, and the affected UI flows. Inspected all 144 changed paths.
-- Read the nine affected CI screen captures. No visual fault was found (D-733, D-784).
-- Ran `make verify`: all 3,010 tests and local checks passed. CI run 36004087356 passed the implementation checks on macOS, Ubuntu, and Windows. The rerun screen test passed.
-- Added `docs/reviews/pr-73.md` with `Ready for owner merge` for `2d08989`.
-
-### The state of the build
-
-- Base: `5f1164c`. Effective head: `2d08989`. Remote PR head before this metadata commit: `a4987ec`.
-- CI run 36004087356 passed build, test, and format; smoke; replay identity; det-lint; STE; coverage; and the screen test at the effective head. Run 36005990820 passed implementation checks at the metadata tip. Review-gate awaits this record.
-
-### What is in flight
-
-- This metadata commit holds the review record and this entry. After publication, a fresh review-gate result must pass.
-
-### Traps and gotchas
-
-- The only Gitar comment says it is working and has no item, so it needs no answer and does not block the verdict (D-964). The user requested `--skip-gitar-review`; no Gitar pass was required (D-945, D-946).
-- OQ-246 records a known one-level screen-test flake. The rerun of the reviewed commit passed (D-733).
-
-### The questions that block progress
-
-None for PR-12. OQ-245 blocks PR-42 only. OQ-246 blocks no PR.
-
-### The next concrete action
-
-Fetch the branch, verify the pushed metadata head and the fresh `review-gate` result, then report the review verdict for PR #73.
