@@ -1,3 +1,40 @@
+## Session 273: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #75, round 1. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: reviewer. Base: `f1ab753`.
+
+### What this session did, and why
+
+- Reviewed PR #75 from merge base `f1ab753` through effective head `26d20cc`.
+- Confirmed Claude Code authored the PR, so Codex passes the provider gate (T-4, D-17).
+- Traced all 84 changed paths across stats, strikes, heals, absorbs, lesson swaps, saves, replay, content, UI, and tests.
+- Read all eight changed screen frames from CI. No visual fault was found (D-731, D-784).
+- Found P2-1: a valid heal can overflow before its health cap.
+- Added `docs/reviews/pr-75.md` with `Changes required` for `26d20cc`.
+- `make verify` passed with 3,152 tests.
+
+### The state of the build
+
+- Base and merge base: `f1ab753`. Effective head and remote head before this metadata commit: `26d20cc`.
+- CI run `36039388273` passed the build, test, and format matrix; smoke on all three legs; det-lint; replay identity on all three legs; coverage; screen-test; and ste-check. `review-gate` failed because the review record was absent.
+
+### What is in flight
+
+- This metadata commit holds the review record and this entry. The author needs to correct P2-1 and request a repeat review.
+
+### Traps and gotchas
+
+- The only Gitar comment says “Gitar is working.” It has no item and needs no answer (D-964). The owner requested `--skip-gitar-review`; the pass was not required (D-946).
+- Maximum valid content values make the intermediate product exceed `long`, but the final heal fits `int`.
+
+### The questions that block progress
+
+None. OQ-247 and OQ-248 resolve in D-1052 and D-1055.
+
+### The next concrete action
+
+Correct P2-1, push the correction with a new handoff entry, then run a repeat review of PR #75.
+
 ## Session 272: 2026-09-24, Claude Code
 
 Author: Claude Code
@@ -317,39 +354,3 @@ None for PR-68.
 ### The next concrete action
 
 Read the CI result of the pushed head, read the Gitar output one time, then run `make codex-review PR=71 -- --skip-gitar-review` in the background.
-
-## Session 263: 2026-09-24, Codex
-
-Author: Codex
-Session: reviewer PR #71, round 1. Repository: the-thing-below. Branch: `feat/pr-68-story-scenes`. PR: #71. Role: reviewer. Base: `31f172e`.
-
-### What this session did, and why
-
-- Reviewed PR #71 from merge base `31f172e` through effective head `f8868ae`.
-- Confirmed Claude Code authored the change, so Codex passes the provider gate (T-4, D-17).
-- Traced story content, triggers, simulation, battles, joins, saves, snapshots, and replay.
-- Found P2-1: snapshot restore accepts a shown actor id that the content does not declare.
-- Added `docs/reviews/pr-71.md` with `Changes required` for `f8868ae`.
-- Corrected the Documents row of the PR description.
-
-### The state of the build
-
-- Base: `31f172e`. Effective head: `f8868ae`. Remote head before this metadata commit: `ebd6f6b`.
-- `make verify` passed on macOS arm64 with 2,851 tests. CI run `35948186000` passed implementation checks on macOS, Ubuntu, and Windows. `review-gate` failed because the review record was absent.
-
-### What is in flight
-
-- The review record and this handoff entry are one metadata commit. The review requires a corrected effective head and a repeat review.
-
-### Traps and gotchas
-
-- The only Gitar comment is a free-plan status notice with no item. D-964 says it needs no answer and does not block the verdict.
-- No screen changed, so no screen-test frames needed visual review.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Correct P2-1, publish the correction, and start a repeat review of PR #71.

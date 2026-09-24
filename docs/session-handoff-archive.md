@@ -1,5 +1,41 @@
 # Session handoff archive
 
+## Session 263: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #71, round 1. Repository: the-thing-below. Branch: `feat/pr-68-story-scenes`. PR: #71. Role: reviewer. Base: `31f172e`.
+
+### What this session did, and why
+
+- Reviewed PR #71 from merge base `31f172e` through effective head `f8868ae`.
+- Confirmed Claude Code authored the change, so Codex passes the provider gate (T-4, D-17).
+- Traced story content, triggers, simulation, battles, joins, saves, snapshots, and replay.
+- Found P2-1: snapshot restore accepts a shown actor id that the content does not declare.
+- Added `docs/reviews/pr-71.md` with `Changes required` for `f8868ae`.
+- Corrected the Documents row of the PR description.
+
+### The state of the build
+
+- Base: `31f172e`. Effective head: `f8868ae`. Remote head before this metadata commit: `ebd6f6b`.
+- `make verify` passed on macOS arm64 with 2,851 tests. CI run `35948186000` passed implementation checks on macOS, Ubuntu, and Windows. `review-gate` failed because the review record was absent.
+
+### What is in flight
+
+- The review record and this handoff entry are one metadata commit. The review requires a corrected effective head and a repeat review.
+
+### Traps and gotchas
+
+- The only Gitar comment is a free-plan status notice with no item. D-964 says it needs no answer and does not block the verdict.
+- No screen changed, so no screen-test frames needed visual review.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Correct P2-1, publish the correction, and start a repeat review of PR #71.
+
 ## Session 262: 2026-09-24, Claude Code
 
 Author: Claude Code
