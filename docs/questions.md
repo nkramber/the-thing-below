@@ -803,3 +803,6 @@ How to file a question (D-19, D-24):
 245. **OQ-245. The protect effect of a Guard drill.** A Guard drill protects allies (D-281). PR-12 adds a cure and a boon, and no effect protects an ally (D-1029). What does a Guard drill do in a battle, and which PR builds it? Raised 2026-09-24. Blocks PR-42.
     - A cover, the recommendation. The holder takes each melee strike that lands on a chosen ally until the next turn of the holder. The rule reads the row of D-377, and the balance pass reads the damage that the holder takes.
     - A shield on one ally. The holder gives the shell status of D-798 to one ally. It needs no new rule, but the Guard drill then does the work of a Boon rite.
+246. **OQ-246. A flake of one level in the screen test.** On PR #73, a few hundred pixels of three frames differed by one level: `scroll-09`, `map-fire-1x`, and `battle-spell-full-1x`. The frames with the difference changed from run to run, and a rerun of one commit passed (D-172, D-733). What does the screen test do about it? Raised 2026-09-24. Blocks no PR.
+    - Find the cause first, the recommendation. A later PR logs the CPU of each runner and compares two jobs of one commit. The check stays exact, and a fix follows the evidence.
+    - Allow one level in a small count of pixels. The check stops the flake at once. A real change of one level then passes in silence.

@@ -17,7 +17,7 @@ Session: author PR #73, round 1. Repository: the-thing-below. Branch: `feat/pr-1
 
 ### What is in flight
 
-- `scroll-09.png` differed by one level in 592 pixels of a dim band in two CI runs, with the same bytes. The local renderer draws it the same on `main` and on this branch, and no map code changed. The PR takes the CI frame as its baseline (D-733).
+- `scroll-09.png` differed by one level in 592 pixels of a dim band in two CI runs, with the same bytes. The local renderer draws it the same on `main` and on this branch, and no map code changed. The PR takes the CI frame as its baseline (D-733). The next run found one-level differences in `map-fire-1x` and `battle-spell-full-1x` too, and a rerun of that commit passed. OQ-246 holds the flake.
 - The Codex review through `make codex-review PR=73 -- --skip-gitar-review` (D-945, D-946).
 
 ### Traps and gotchas
@@ -29,7 +29,7 @@ Session: author PR #73, round 1. Repository: the-thing-below. Branch: `feat/pr-1
 
 ### The questions that block progress
 
-None. OQ-245 blocks PR-42.
+None. OQ-245 blocks PR-42, and OQ-246 blocks no PR.
 
 ### The next concrete action
 
