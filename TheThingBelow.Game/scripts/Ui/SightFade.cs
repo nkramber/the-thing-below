@@ -12,7 +12,7 @@ namespace TheThingBelow.Game.Ui;
 /// <list type="bullet">
 /// <item>The distance fade: an enemy fades out across one tile past the range, as the enemy or the party moves.</item>
 /// <item>The wall fade: an enemy fades over <see cref="FadeTicks"/> ticks when a wall corner opens or closes the line between it and the lead.</item>
-/// <item>The range fade: the range moves to its new value over <see cref="RangeFadeTicks"/> ticks when the party holds the torch out or puts it away, so the dark closes in and never snaps.</item>
+/// <item>The range fade: the range grows over <see cref="RangeGrowTicks"/> ticks when the party holds the torch out, and it shrinks over <see cref="RangeFadeTicks"/> ticks when the party puts the torch away, so the dark never snaps.</item>
 /// </list>
 /// Each fade counts the ticks of the run and never a clock, so one tick gives one picture in
 /// each capture (T-7, D-172). This type holds no Godot value, so a test reads it with no engine
@@ -32,12 +32,21 @@ public sealed class SightFade
     /// </summary>
     public const int RangeFadeTicks = 60;
 
+    /// <summary>
+    /// The ticks of a range that grows, under a half second at 60 ticks. Core gives each patrol the
+    /// torch range on the next tick, so an enemy that sees the party must draw in full before its
+    /// beat of 30 ticks ends (D-720, D-1063). A regression test of the Gitar finding of PR #76 holds
+    /// it. A shorter grow fades an enemy at the edge in within four ticks, which reads as a pop.
+    /// </summary>
+    public const int RangeGrowTicks = 24;
+
     private readonly bool[] clear;
     private readonly int[] shareAtChange;
     private readonly long[] changedAt;
     private int rangeFrom;
     private int rangeTo;
     private long rangeChangedAt;
+    private int rangeTicks = RangeFadeTicks;
 
     /// <summary>Starts the fades of one map, with each fade at rest.</summary>
     /// <param name="clear">For each enemy, true when no wall stands between it and the lead now.</param>
@@ -88,7 +97,7 @@ public sealed class SightFade
         return this.WallShare(index, tick) * DistanceShare(distance, this.RangeAt(tick)) / Full;
     }
 
-    /// <summary>Moves the range to a new value over <see cref="RangeFadeTicks"/> ticks (D-1063).</summary>
+    /// <summary>Moves the range to a new value: a grow over <see cref="RangeGrowTicks"/> ticks, and a shrink over <see cref="RangeFadeTicks"/> ticks (D-1063).</summary>
     /// <param name="rangePixels">The sight range of the party now, in art pixels.</param>
     /// <param name="tick">The tick of the run.</param>
     /// <exception cref="ArgumentOutOfRangeException">The range is below zero (T-2).</exception>
@@ -102,6 +111,7 @@ public sealed class SightFade
         }
 
         this.rangeFrom = this.RangeAt(tick);
+        this.rangeTicks = rangePixels > this.rangeFrom ? RangeGrowTicks : RangeFadeTicks;
         this.rangeTo = rangePixels;
         this.rangeChangedAt = tick;
     }
@@ -160,12 +170,12 @@ public sealed class SightFade
 
     private int RangeAt(long tick)
     {
-        if (this.rangeChangedAt == long.MinValue || tick - this.rangeChangedAt >= RangeFadeTicks)
+        if (this.rangeChangedAt == long.MinValue || tick - this.rangeChangedAt >= this.rangeTicks)
         {
             return this.rangeTo;
         }
 
         long ticks = tick - this.rangeChangedAt;
-        return this.rangeFrom + (int)((this.rangeTo - this.rangeFrom) * ticks / RangeFadeTicks);
+        return this.rangeFrom + (int)((this.rangeTo - this.rangeFrom) * ticks / this.rangeTicks);
     }
 }

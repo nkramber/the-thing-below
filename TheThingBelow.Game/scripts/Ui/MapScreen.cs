@@ -568,7 +568,9 @@ public partial class MapScreen : Node2D
             sprite.Modulate = new Color(1, 1, 1, share / (float)SightFade.Full);
             sprite.Position = new Vector2(x, FeetOf(y, patrol.Body.Side));
 
-            if (!drawn || mark is null || string.CompareOrdinal(mark.Enemy.Value, patrol.Patrol.Id.Value) != 0)
+            // The mark draws with the enemy that saw the party, also while the dark still fades
+            // that enemy in, so the warning of a sight never hides (D-720, D-1062).
+            if (patrol.Dead || mark is null || string.CompareOrdinal(mark.Enemy.Value, patrol.Patrol.Id.Value) != 0)
             {
                 continue;
             }

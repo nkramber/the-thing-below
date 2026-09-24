@@ -10,6 +10,8 @@ Session: author PR-91, round 1. Repository: the-thing-below. Branch: `feat/pr-91
 - Game: the `torch` action on the T key and the Y button, with the settings file at format 3. The torch in the hand, the carried light that follows the torch, and `SightFade` for each enemy of a dark map.
 - The console lost its `torch` command (D-1071). The identity set gained the `torch` run.
 - The author read the frames of `make walk`, the pit fixture, and the settings fixture on this machine.
+- Gitar found that a held torch let a patrol see the party while the screen still faded the patrol in. The range now grows in 24 ticks, inside the beat of 30, and the mark draws with a fading patrol. A regression test holds it.
+- The owner set D-1072: when the fix of Gitar differs or has a flaw, the session applies its own fix with no question.
 
 ### The state of the build
 
@@ -19,7 +21,7 @@ Session: author PR-91, round 1. Repository: the-thing-below. Branch: `feat/pr-91
 
 ### What is in flight
 
-- PR #76 is open. The commit of the baselines waits for CI, then `make codex-review PR=76 -- --skip-gitar-review` runs.
+- PR #76 is open. The fix of the Gitar finding waits for CI, then `make codex-review PR=76 -- --skip-gitar-review` runs.
 
 ### Traps and gotchas
 
@@ -33,7 +35,7 @@ None. OQ-246 stays open and blocks no PR.
 
 ### The next concrete action
 
-When CI of the baseline commit passes each job but `review-gate`, run `make codex-review PR=76 -- --skip-gitar-review` in the background (D-926, D-1061).
+When CI of the fix commit passes each job but `review-gate`, run `make codex-review PR=76 -- --skip-gitar-review` in the background (D-926, D-1061).
 
 ## Session 277: 2026-09-24, Codex
 

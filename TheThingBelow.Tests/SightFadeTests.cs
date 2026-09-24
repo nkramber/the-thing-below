@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Streams;
 using Xunit;
 
@@ -76,11 +77,37 @@ public sealed class SightFadeTests
     }
 
     [Fact]
+    public void TheRangeGrowsInsideTheBeatOfASight()
+    {
+        // D-720: an enemy that sees the party draws in full before the beat ends and the fight starts.
+        Assert.True(Constant("RangeGrowTicks") < MapRules.BeatTicks);
+    }
+
+    [Theory]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(5)]
+    [InlineData(6)]
+    public void AHeldTorchDrawsEachEnemyInItsRangeInFullBeforeTheBeatEnds(int tiles)
+    {
+        // A regression test of the Gitar finding of PR #76. Core gives a patrol its torch range
+        // on the next tick, so a patrol at 6 tiles can see the party at once and start its beat.
+        // The range grew over 60 ticks, so the enemy stayed hidden past the beat and a fight
+        // started with nothing on the screen (D-720, D-1063). The range now grows inside the beat.
+        Fade fade = new([true], 2 * Tile);
+        fade.MoveRange(6 * Tile, 500);
+
+        Assert.Equal(Full, fade.ShareOf(0, true, tiles * Tile, 500 + MapRules.BeatTicks - 1));
+    }
+
+    [Fact]
     public void NoShareJumpsInOneTickOverOneThousandSeeds()
     {
         // Exit test 9 of section 7.35 at the level of the rule of the fade: each tick moves the
         // share of an enemy by a small step alone, whatever the walls and the torch do (D-1062).
-        const int Step = 150;
+        // A wall fade moves a share by 67 in a tick, and a grow of the range by 167 at most, so one
+        // tick of both moves it by 234. A full fade then takes four ticks at least.
+        const int Step = 250;
         for (ulong seed = 0; seed < 1000; seed += 1)
         {
             Pcg32 generator = Pcg32.FromSeed(seed, 91);
@@ -108,6 +135,9 @@ public sealed class SightFadeTests
             }
         }
     }
+
+    private static int Constant(string name) =>
+        (int)GameAssemblyFile.Type(TypeName).GetField(name, BindingFlags.Public | BindingFlags.Static)!.GetRawConstantValue()!;
 
     private static T Call<T>(string name, params object[] arguments) =>
         (T)(GameAssemblyFile.Type(TypeName).GetMethod(name, BindingFlags.Public | BindingFlags.Static)!.Invoke(null, arguments)
