@@ -233,6 +233,23 @@ public partial class MapScreen : Node2D
     /// <summary>True while the lead draws with the torch in its hand (D-1066, D-1069).</summary>
     public bool LeadHoldsTorch => this.lead.Texture == this.leadTorch;
 
+    /// <summary>True when an enemy draws with a share between none and full, inside a fade of the dark (D-1062).</summary>
+    public bool ShowsAFade
+    {
+        get
+        {
+            foreach (int share in this.shares)
+            {
+                if (share > 0 && share < SightFade.Full)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
     /// <summary>
     /// Reads each light of the map back, and fails on a light that draws nothing (F-46). A
     /// headless session draws nothing, so this check reads the nodes and never the pixels (F-23).

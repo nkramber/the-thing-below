@@ -289,16 +289,43 @@ public sealed partial class CaptureSession : Node
 
     /// <summary>
     /// Builds the running screen with the party in the pit room: the same map fixture, walked
-    /// from the spawn point down the corridor of column 6 (D-852).
+    /// from the spawn point down the corridor of column 6 (D-852). The torch frame walks in with
+    /// the torch held out, puts it away, and draws each tick of the range fade that follows (D-1062).
     /// </summary>
-    /// <exception cref="InvalidOperationException">A step of the route never ended, or a tick wrote an error (T-2).</exception>
-    private void BuildPitRoom(FrameRoot built, UiBase @base)
+    /// <exception cref="InvalidOperationException">
+    /// A step of the route never ended, a tick wrote an error, or the torch frame shows no enemy
+    /// inside a fade (T-2).
+    /// </exception>
+    private void BuildPitRoom(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
+        bool fade = string.CompareOrdinal(capture.Frame, ScreenCaptures.PitTorchFrame) == 0;
         GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        if (fade)
+        {
+            this.HoldTorch(open);
+        }
+
         MapScreen drawn = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
         foreach (string action in ScreenCaptures.PitRoute)
         {
             this.StepOnce(open, action);
+            drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
+        }
+
+        if (fade)
+        {
+            open.Queue(open.IntentOf(InputActions.Torch));
+            for (int tick = 0; tick <= ScreenCaptures.DarkFadeTicks; tick += 1)
+            {
+                this.RunTicks(open, 1);
+                drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
+            }
+
+            if (open.TorchHeld || !drawn.ShowsAFade)
+            {
+                throw new InvalidOperationException(
+                    $"The capture '{capture.FileName}' holds the torch out {open.TorchHeld} at tick {open.Tick} and shows a fade {drawn.ShowsAFade}. The frame proves the fade of the dark (T-2, D-1062).");
+            }
         }
 
         drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
@@ -417,7 +444,7 @@ public sealed partial class CaptureSession : Node
 
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.PitFixture) == 0)
         {
-            this.BuildPitRoom(built, @base);
+            this.BuildPitRoom(built, @base, capture);
             return;
         }
 

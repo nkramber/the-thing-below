@@ -158,7 +158,8 @@ public sealed class ScreenCapturesTests
         // window with its slots and its swap list, and the flash of a spell at each level (D-1027,
         // D-1030, D-1031, D-1032).
         // PR-13 adds the gear window, its pack list, and the item window to the menu names (D-44, D-1048).
-        Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + MenuNames.Length, FileNames().Count);
+        // PR-91 adds the pit room with an enemy inside the fade of the dark (D-1062, exit test 8 of PR-91).
+        Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + 1 + MenuNames.Length, FileNames().Count);
     }
 
     [Fact]
