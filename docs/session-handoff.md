@@ -25,6 +25,7 @@ Session: author PR-62, round 1. Repository: the-thing-below. Branch: `feat/pr-62
 
 - `RunState.Start`, `Resume`, `Simulation`, and `RunReplay.Play` take the notice file. Tests use `TestBattles.Notices`.
 - The capture session builds no input map, so the menu captures build each view and send no event.
+- A capture that shows the map seeks its particles to the tick of the run. The first menu frames did not, and `menu-list-fill-1080` moved by one color step between runs.
 - The glossary refuses "banner". The box at the top edge is the notice box.
 
 ### The questions that block progress

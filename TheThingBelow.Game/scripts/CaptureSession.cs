@@ -527,8 +527,11 @@ public sealed partial class CaptureSession : Node
             }
         }
 
-        MapScreen drawn = MapFixture.Build(built, @base, open.Party, this.content);
+        // The map stays visible beside the main list, so each particle takes the tick of the run and
+        // never the clock of the engine, and two sessions draw the same pixels (D-172, T-7).
+        MapScreen drawn = MapFixture.Build(built, @base, open.Party, this.content, seekParticles: true);
         drawn.ShowParty(open.Party, 0);
+        drawn.ShowWeather(open.Tick, seek: true);
         if (string.CompareOrdinal(frame, ScreenCaptures.MenuMapFrame) == 0)
         {
             _ = new DungeonMapView(built, @base, open.Party);
