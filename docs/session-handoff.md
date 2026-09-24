@@ -1,3 +1,36 @@
+## Session 276: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-99, round 3. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: author. Base: `f1ab753`.
+
+### What this session did, and why
+
+- The repeat review of Session 275 gave `Blocked` on `15945f2`. P2-1 was fixed, and screen-test had failed on the three frames of OQ-246.
+- The review ran after a failed screen-test. The owner set D-1061: the review starts only when each check but `review-gate` passes, and a flake gets reruns first.
+- The owner approved the string batch as written (D-57), and the PR description says so.
+- Screen-test attempt 3 of run `36041907957` passed on `15945f2`. The CI run `36044147120` of the review commit `d6c4f3a` was cancelled, and its rerun passed each job.
+
+### The state of the build
+
+- Remote head before this commit: `d6c4f3a`. Every check but `review-gate` passed on it.
+
+### What is in flight
+
+- The repeat review, after the CI of this commit passes.
+
+### Traps and gotchas
+
+- A rerun of an old run can cancel the run of a newer commit of the PR, because the runs share a concurrency group. Read the run of the PR head with `gh pr checks`.
+- A chain of a watch and a review must stop on a red check (D-1061).
+
+### The questions that block progress
+
+None. OQ-246 stays open and blocks no PR.
+
+### The next concrete action
+
+Wait for every check but `review-gate` to pass on this commit. Then run `make codex-review PR=75 -- --skip-gitar-review`.
+
 ## Session 275: 2026-09-24, Codex
 
 Author: Codex
@@ -316,39 +349,3 @@ None.
 ### The next concrete action
 
 Commit and push the review record and handoff together. Fetch, then verify the remote head and the new `review-gate` result.
-
-## Session 266: 2026-09-24, Claude Code
-
-Author: Claude Code
-Session: author PR #72, round 1. Repository: the-thing-below. Branch: `feat/pr-50-screenplay-tool`. PR: #72. Role: author. Base: `d0bb297`.
-
-### What this session did, and why
-
-- Asked the owner four gaps that the story scene format of PR-68 leaves for the screenplay, and recorded D-1014 to D-1017. Each answer took the recommendation.
-- D-1014 revises D-548 in part: PR-70 adds the cue look-up, because no audio file format exists before PR-38 and PR-70.
-- Built the `screenplay` command of Tools: the batch against the base folder (D-1015), the layout (D-1017), and the marked section of a PR body file (D-1016).
-- Added `make screenplay BODY=<file>`, which fills the base folder with `git archive` from the merge base.
-- Updated the PR-50 and PR-70 blocks, the tools, story, and audio area files, the design sequence, the glossary, the runbook, and the review contract.
-
-### The state of the build
-
-- `main` is `d0bb297`. The push of this round carries this entry.
-- `make verify` passed on macOS arm64 with 2,879 tests, the smoke session included.
-
-### What is in flight
-
-- PR #72 waits for CI, one read of the Gitar output, and `make codex-review PR=72 -- --skip-gitar-review` (D-945, D-946).
-
-### Traps and gotchas
-
-- No story scene ships in content yet, so a run on this branch prints "No story scene changes".
-- `CLAUDE.md` holds 16,382 of 16,384 bytes. The command of the screenplay lives in `docs/runbooks/dev-machine.md` for that reason.
-- The body count reads UTF-16 units, which is never below the count of GitHub.
-
-### The questions that block progress
-
-None for PR-50.
-
-### The next concrete action
-
-Read the CI result of the pushed head, read the Gitar output one time, then run `make codex-review PR=72 -- --skip-gitar-review` in the background.

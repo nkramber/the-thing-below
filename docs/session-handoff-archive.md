@@ -1,4 +1,40 @@
 # Session handoff archive
+## Session 266: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR #72, round 1. Repository: the-thing-below. Branch: `feat/pr-50-screenplay-tool`. PR: #72. Role: author. Base: `d0bb297`.
+
+### What this session did, and why
+
+- Asked the owner four gaps that the story scene format of PR-68 leaves for the screenplay, and recorded D-1014 to D-1017. Each answer took the recommendation.
+- D-1014 revises D-548 in part: PR-70 adds the cue look-up, because no audio file format exists before PR-38 and PR-70.
+- Built the `screenplay` command of Tools: the batch against the base folder (D-1015), the layout (D-1017), and the marked section of a PR body file (D-1016).
+- Added `make screenplay BODY=<file>`, which fills the base folder with `git archive` from the merge base.
+- Updated the PR-50 and PR-70 blocks, the tools, story, and audio area files, the design sequence, the glossary, the runbook, and the review contract.
+
+### The state of the build
+
+- `main` is `d0bb297`. The push of this round carries this entry.
+- `make verify` passed on macOS arm64 with 2,879 tests, the smoke session included.
+
+### What is in flight
+
+- PR #72 waits for CI, one read of the Gitar output, and `make codex-review PR=72 -- --skip-gitar-review` (D-945, D-946).
+
+### Traps and gotchas
+
+- No story scene ships in content yet, so a run on this branch prints "No story scene changes".
+- `CLAUDE.md` holds 16,382 of 16,384 bytes. The command of the screenplay lives in `docs/runbooks/dev-machine.md` for that reason.
+- The body count reads UTF-16 units, which is never below the count of GitHub.
+
+### The questions that block progress
+
+None for PR-50.
+
+### The next concrete action
+
+Read the CI result of the pushed head, read the Gitar output one time, then run `make codex-review PR=72 -- --skip-gitar-review` in the background.
+
 ## Session 265: 2026-09-24, Codex
 
 Author: Codex
