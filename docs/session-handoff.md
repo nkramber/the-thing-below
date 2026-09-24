@@ -1,3 +1,37 @@
+## Session 261: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #70, round 1. Repository: the-thing-below. Branch: `feat/pr-62-menu-windows`. PR: #70. Role: reviewer. Base: `a929c59`.
+
+### What this session did, and why
+
+- Reviewed PR #70 from merge base `a929c59` through effective head `654b678`.
+- Confirmed Claude Code authored the change, so Codex passes the provider gate (T-4, D-17).
+- Read all changed paths and traced the menu, map, notice, save, replay, and settings contracts. Read all 16 changed screen frames from CI.
+- Added `docs/reviews/pr-70.md` with `Ready for owner merge` for `654b678`. Corrected the Documents row of the PR description.
+
+### The state of the build
+
+- `main` and the PR base are `a929c59`. The effective head and remote head before this metadata commit are `654b678`.
+- `make verify` passed on macOS arm64 with 2,703 tests. CI run 35940703848 passed implementation checks on macOS, Ubuntu, and Windows. Review-gate failed because the review record was absent.
+
+### What is in flight
+
+- This metadata commit holds the review record and this handoff entry. Fresh review-gate and metadata-tip CI checks passed after publication.
+
+### Traps and gotchas
+
+- The Gitar status notice has no item. The review-thread query returned no threads, so D-964 requires no answer.
+- The CI screen artifact has 16 changed frames. All were read for this review (D-733, D-784).
+
+### The questions that block progress
+
+None for PR-70.
+
+### The next concrete action
+
+The review record and handoff are committed and pushed together. The remote head is `2888448`; review-gate and all applicable metadata-tip checks passed.
+
 ## Session 260: 2026-09-24, Claude Code
 
 Author: Claude Code
@@ -57,7 +91,7 @@ Session: reviewer PR #69, round 1. Repository: the-thing-below. Branch: `feat/pr
 
 ### What is in flight
 
-- This metadata commit holds the review record and this handoff entry. The push must make the new review-gate check pass.
+- This metadata commit holds the review record and this handoff entry. Fresh review-gate and metadata-tip CI checks passed after publication.
 
 ### Traps and gotchas
 
@@ -70,7 +104,7 @@ None for PR-69.
 
 ### The next concrete action
 
-Commit and push the review record and handoff together. Fetch, verify the remote head, and confirm the fresh review-gate result.
+The review record and handoff are committed and pushed together. The remote head is `2888448`; review-gate and all applicable metadata-tip checks passed.
 
 ## Session 258: 2026-09-23, Claude Code
 
@@ -322,39 +356,3 @@ None.
 ### The next concrete action
 
 Read the CI result of the baseline commit, read the Gitar output one time, then run `make codex-review PR=68 -- --skip-gitar-review` in the background (D-945, D-946).
-
-## Session 251: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #67, round 3. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: #67. Role: reviewer. Base: `d429d03`.
-
-### What this session did, and why
-
-- Re-reviewed PR #67 through effective head `a1f145d` after the cost correction and Deck measurement.
-- Verified P2-1 is fixed at `ad83e20`. The author recorded two Deck runs at 74 us and 103 us, both below the D-961 limit.
-- Verified the answer to the existing Gitar status comment. It has no thread or finding.
-- Updated the review record, corrected the test count and Documents row in the PR description, and set the verdict to Ready for owner merge.
-
-### The state of the build
-
-- `main` and the PR base are `d429d03`. The effective head is `a1f145d`.
-- `make verify` passed on macOS arm64 with 2,507 tests. CI run 35911353733 passed the shared checks. Platform implementation jobs passed at `ad83e20`.
-- The review-gate check failed against the prior blocked review record. A fresh result after this metadata commit is required.
-
-### What is in flight
-
-- The review record and this handoff entry need one metadata commit and a push to `feat/pr-11-evaluator`.
-- Read the new review-gate result after the push.
-
-### Traps and gotchas
-
-- The effective head is `a1f145d`, because the Deck procedure and F-53 changed outside the metadata set.
-- The Deck result comes from two Release runs of the cost command on the code at `ad83e20`.
-
-### The questions that block progress
-
-OQ-243 applies to PR-98 alone (D-951 to D-954).
-
-### The next concrete action
-
-Run the metadata commit and push gate, then confirm the published review-gate result.
