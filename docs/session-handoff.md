@@ -1,3 +1,37 @@
+## Session 282: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-100, round 2. Repository: the-thing-below. Branch: `docs/pr-100-gitar-resume`. PR: #77 (PR-100). Role: author. Base: `58dadb5`.
+
+### What this session did, and why
+
+- The Gitar poll of round 1 printed `completed at 375 s`. The Gitar code review approved with no thread.
+- Answered the one Gitar item, a claim of the CI analysis on `review-gate`. RG 3 and RG 7 failed because the review record did not exist yet. No change.
+- `make codex-review PR=77` ran with no skip flag and gave `Changes required` with P2-1: command E accepted a check that completed after 15 minutes.
+- Answered P2-1 with full merit in `docs/reviews/pr-77-response.md`. Command E now reads the completion time and prints `not complete` for a check that completed after 900 seconds.
+
+### The state of the build
+
+- Base `58dadb5`. The reviewed head `87cf4cc`, and the review record `7bc72b7`. The remote head is the commit of this entry.
+- `ste-check` gives 0 findings. Each other CI check was green on `87cf4cc`.
+
+### What is in flight
+
+- The Gitar pass of this head, with command E. Then `make codex-review PR=77` for round 2.
+
+### Traps and gotchas
+
+- `done` is a shell keyword, so command E names the completion age `took`.
+- A Gitar check of round 1 started about three minutes after the push. The fallback of D-1074 comments `Gitar review` only when no check exists at three minutes.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run command E of the `gitar-review` skill in the background for PR #77. Answer each Gitar item, then run `make codex-review PR=77` in the background.
+
 ## Session 281: 2026-09-24, Codex
 
 Author: Codex
@@ -315,40 +349,3 @@ None. OQ-247 and OQ-248 resolve in D-1052 and D-1055.
 ### The next concrete action
 
 Correct P2-1, push the correction with a new handoff entry, then run a repeat review of PR #75.
-
-## Session 272: 2026-09-24, Claude Code
-
-Author: Claude Code
-Session: author PR-99, round 1. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: author. Base: `f1ab753`.
-
-### What this session did, and why
-
-- Asked OQ-247, OQ-248, and each question of the scope. D-1052 to D-1060 hold the answers. D-356, D-979, and D-1041 carry the revisions in their Effect column.
-- Core: seven stats. A strike field sets attack against defense or magic against resistance. A heal is a base plus a share of magic, and it rolls the hit factor. An absorb heals a quarter of the hit, at least 1.
-- The swap place, its debug command, and its snapshot field are gone. Save format 12 drops the field, and formats 10 and 11 check it and drop it. The simulation version is 24.
-- Game: MAG and RES in the status window and the level-up lines. The gear window shows a line of trial stats in grey, green, and red.
-- Content, the test fixture, the identity file, the content hash, and `TheThingBelow.Tests/saves/format-12.json` follow. `StatSetTests` proves the new rules.
-
-### The state of the build
-
-- `make verify` parts ran on this machine: build, 3,152 tests green, format, det-lint, STE, and smoke.
-- Frames read one at a time from `artifacts/captures`: the gear window in both stages, the status window, both lesson frames, and the level-up rise. Each reads right.
-- The battle-experience frame moved: the grunt mend now heals more, so Marrek ends the fight at 40 health, not 47.
-
-### What is in flight
-
-- CI run `36038453605` passed every job but two. `screen-test` differed in 8 frames, and the baselines of this round come from its artifact (D-731). `review-gate` waits for the review record.
-
-### Traps and gotchas
-
-- `make sheet` captures each frame, then fails to join them: the sheet is 76,628 pixels high, and PNG holds 65,535. This PR adds no frame, so the fault comes from an earlier frame count.
-- The test fixture sets magic to attack and resistance to defense, so the old damage numbers hold. `StatSetTests` sets them apart.
-- The gear sum of the tests: the weak charm now adds 2 magic and costs 1 resistance.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Read the CI result of the baselines. Then read Gitar one time, and run `make codex-review PR=<n> -- --skip-gitar-review` (D-945, D-946).

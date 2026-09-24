@@ -217,10 +217,16 @@ while [ $(( $(date +%s) - push )) -lt 60 ]; do sleep 5; done
 while :; do
   age=$(( $(date +%s) - push ))
   s=$(h=$(gh pr view "$n" --json headRefOid --jq .headRefOid) && gh api "repos/$repo/commits/$h/check-runs?check_name=Gitar" \
-    --jq '[.check_runs[] | select(.app.slug == "gitar-bot")] | first | "\(.status) \(.conclusion) \(.started_at)"') \
+    --jq '[.check_runs[] | select(.app.slug == "gitar-bot")] | first | if . == null then "none"
+      else "\(.status) \(.conclusion) \(.completed_at | if . then fromdateiso8601 else 0 end)" end') \
     || { echo "gitar: read failed at $age s"; break; }
-  case "$s" in completed*) echo "gitar: completed at $age s: $s"; break ;; esac
-  if [ "$s" = "null null null" ] && [ "$age" -ge 180 ]; then echo "gitar: no check at $age s"; break; fi
+  # The last word is the completion time in seconds. A check that completed after 900 s counts as not complete.
+  case "$s" in completed*)
+    took=$(( ${s##* } - push ))
+    if [ "$took" -le 900 ]; then echo "gitar: completed at $took s: $s"; else echo "gitar: not complete at 900 s, completed at $took s: $s"; fi
+    break ;;
+  esac
+  if [ "$s" = none ] && [ "$age" -ge 180 ]; then echo "gitar: no check at $age s"; break; fi
   if [ "$age" -ge 900 ]; then echo "gitar: not complete at $age s: $s"; break; fi
   sleep 20
 done

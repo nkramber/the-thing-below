@@ -1,4 +1,41 @@
 # Session handoff archive
+## Session 272: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-99, round 1. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: author. Base: `f1ab753`.
+
+### What this session did, and why
+
+- Asked OQ-247, OQ-248, and each question of the scope. D-1052 to D-1060 hold the answers. D-356, D-979, and D-1041 carry the revisions in their Effect column.
+- Core: seven stats. A strike field sets attack against defense or magic against resistance. A heal is a base plus a share of magic, and it rolls the hit factor. An absorb heals a quarter of the hit, at least 1.
+- The swap place, its debug command, and its snapshot field are gone. Save format 12 drops the field, and formats 10 and 11 check it and drop it. The simulation version is 24.
+- Game: MAG and RES in the status window and the level-up lines. The gear window shows a line of trial stats in grey, green, and red.
+- Content, the test fixture, the identity file, the content hash, and `TheThingBelow.Tests/saves/format-12.json` follow. `StatSetTests` proves the new rules.
+
+### The state of the build
+
+- `make verify` parts ran on this machine: build, 3,152 tests green, format, det-lint, STE, and smoke.
+- Frames read one at a time from `artifacts/captures`: the gear window in both stages, the status window, both lesson frames, and the level-up rise. Each reads right.
+- The battle-experience frame moved: the grunt mend now heals more, so Marrek ends the fight at 40 health, not 47.
+
+### What is in flight
+
+- CI run `36038453605` passed every job but two. `screen-test` differed in 8 frames, and the baselines of this round come from its artifact (D-731). `review-gate` waits for the review record.
+
+### Traps and gotchas
+
+- `make sheet` captures each frame, then fails to join them: the sheet is 76,628 pixels high, and PNG holds 65,535. This PR adds no frame, so the fault comes from an earlier frame count.
+- The test fixture sets magic to attack and resistance to defense, so the old damage numbers hold. `StatSetTests` sets them apart.
+- The gear sum of the tests: the weak charm now adds 2 magic and costs 1 resistance.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the CI result of the baselines. Then read Gitar one time, and run `make codex-review PR=<n> -- --skip-gitar-review` (D-945, D-946).
+
 ## Session 271: 2026-09-24, Codex
 
 Author: Codex
