@@ -1,7 +1,7 @@
 ## Session 272: 2026-09-24, Claude Code
 
 Author: Claude Code
-Session: author PR-99, round 1. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: PR-99 before its number. Role: author. Base: `f1ab753`.
+Session: author PR-99, round 1. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: author. Base: `f1ab753`.
 
 ### What this session did, and why
 
@@ -15,10 +15,11 @@ Session: author PR-99, round 1. Repository: the-thing-below. Branch: `feat/pr-99
 
 - `make verify` parts ran on this machine: build, 3,152 tests green, format, det-lint, STE, and smoke.
 - Frames read one at a time from `artifacts/captures`: the gear window in both stages, the status window, both lesson frames, and the level-up rise. Each reads right.
+- The battle-experience frame moved: the grunt mend now heals more, so Marrek ends the fight at 40 health, not 47.
 
 ### What is in flight
 
-- The screen-test baselines of the gear, status, and lesson frames change. The CI artifact gives the new baselines (D-731).
+- CI run `36038453605` passed every job but two. `screen-test` differed in 8 frames, and the baselines of this round come from its artifact (D-731). `review-gate` waits for the review record.
 
 ### Traps and gotchas
 
@@ -32,7 +33,7 @@ None.
 
 ### The next concrete action
 
-Push, open the PR, read the CI result, and commit the screen-test baselines from the artifact. Then read Gitar one time, and run `make codex-review PR=<n> -- --skip-gitar-review` (D-945, D-946).
+Read the CI result of the baselines. Then read Gitar one time, and run `make codex-review PR=<n> -- --skip-gitar-review` (D-945, D-946).
 
 ## Session 271: 2026-09-24, Codex
 
