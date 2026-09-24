@@ -1,5 +1,43 @@
 # Session handoff archive
 
+## Session 260: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-62, round 1. Repository: the-thing-below. Branch: `feat/pr-62-menu-windows`. PR: #70. Role: author. Base: `a929c59`.
+
+### What this session did, and why
+
+- Asked OQ-111 and OQ-113 first, then the gaps that the code found: the map action, the log place, the dim entries, the notice source, the status sheet, the list order, the exit mark, and the time of a notice. D-982 to D-996 record the answers.
+- Core: the notice file, the notice rule, the notice log of 30 entries, and the row intent of the party window. Save format 8 and simulation version 20. The debug console posts a notice with `notice` and `aside`.
+- Storage: settings format 2, whose step adds the map action with M and Back.
+- Game: the main list, the party, status, and log windows, the dungeon map screen, the notice box, and the map action. The settings screen opens from the main list.
+
+### The state of the build
+
+- `main` is `a929c59`. The branch holds three decision commits, the Core commit `10985be`, and the Game commit `13829ba`.
+- CI run 35939130614 failed on the 8 new captures and 8 changed ones alone: the settings frames gain the Map row, and the ui frames show the notice line as the longest plain string. The baseline commit takes those 16 files from its `screen-captures` artifact (D-733). Smoke, identity, det-lint, and STE passed on every leg.
+- Local: build, format, det-lint, STE, identity, content, and smoke pass. 2703 of 2703 tests pass.
+- The author read each new frame of `make sheet FIXTURE=menu` and `FIXTURE=notice` (D-784).
+
+### What is in flight
+
+- CI on the commit of the 4 stable baselines from run 35940125266, whose two capture runs matched. Then the Codex review.
+
+### Traps and gotchas
+
+- `RunState.Start`, `Resume`, `Simulation`, and `RunReplay.Play` take the notice file. Tests use `TestBattles.Notices`.
+- The capture session builds no input map, so the menu captures build each view and send no event.
+- A capture that shows the map seeks its particles to the tick of the run. The first menu frames did not, and `menu-list-fill-1080` moved by one color step between runs.
+- The glossary refuses "banner". The box at the top edge is the notice box.
+
+### The questions that block progress
+
+None. The PR description holds the game text batch for the owner (D-57).
+
+### The next concrete action
+
+Wait for CI on the baseline commit to finish green except `review-gate`. Read Gitar once under D-945, then run `make codex-review PR=70 -- --skip-gitar-review`.
+
 ## Session 259: 2026-09-23, Codex
 
 Author: Codex
