@@ -1,4 +1,40 @@
 # Session handoff archive
+## Session 270: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-13, round 1. Repository: the-thing-below. Branch: `feat/pr-13-gear-items`. PR: #74. Role: author. Base: `b2bc579`.
+
+### What this session did, and why
+
+- Asked OQ-140 to OQ-143 and each question of the scope. D-1036 to D-1050 record the answers. OQ-247 and OQ-248 are new, and PR-99 holds them with the lesson swap anywhere (D-1041, D-1050).
+- Built the item file, the gear file, the six gear slots, the pack of items and spare gear with a stack limit for each record, the gold, the four item effects, the steal of a Theft drill, and the drops of a win in Core.
+- Built the gear window, the item window, the stats with the gear in the status window, the lines of the new events, and the debug command `stock`.
+- Raised the simulation version to 23 and the save format to 11, with a stored save of format 11. Rewrote the content hash and the identity file.
+- The owner added gear to the steal list: the gear chance of the profile under a cap of 5%, 15%, or 25% for each success, the check of room, and a gold entry that comes back (D-1051).
+- The smoke session walks the two new entries of the main list.
+
+### The state of the build
+
+- Base `b2bc579`. `make format`, `make lint`, `make smoke`, and the STE check pass. 3,135 tests: the only failures are the three baselines of the new menu captures. CI run 36020519177 failed the smoke walk, which this round repairs.
+
+### What is in flight
+
+- The PR takes 28 baselines from the artifact of CI run 36020519177, each read first. Its two sessions differed by one level in `map-fire-1x`, `scroll-09`, `still-240`, and `battle-spell-full-1x`, the flake of OQ-246. The PR leaves the first three baselines alone. The rerun of run 36021738678 agreed across its two sessions and matched every baseline but `battle-spell-full-1x`, which the PR then took from that run.
+
+### Traps and gotchas
+
+- `ContentId` compares by reference. A test compares the values (F-39).
+- The fixture of the tests gives Marrek no gear and profiles no drops, so the older battle numbers stay.
+- The fixture of the checkout gives Marrek the pick and the coat, so the menu and battle captures change.
+
+### The questions that block progress
+
+None for PR-13. OQ-247 and OQ-248 block PR-99.
+
+### The next concrete action
+
+Wait for CI on the new head, and rerun the screen test on a flake of OQ-246. Then run `make codex-review PR=74 -- --skip-gitar-review`.
+
 ## Session 269: 2026-09-24, Codex
 
 Author: Codex

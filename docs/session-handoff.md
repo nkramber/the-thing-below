@@ -1,3 +1,41 @@
+## Session 280: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-100, round 1. Repository: the-thing-below. Branch: `docs/pr-100-gitar-resume`. PR: #77 (PR-100). Role: author. Base: `58dadb5`.
+
+### What this session did, and why
+
+- The owner ended the Gitar pause and asked for a Gitar poll after each push. D-1073 supersedes D-945, and D-1074 sets the poll.
+- The owner answered four questions: PR-100 on a docs branch, a `Gitar review` comment when no Gitar check exists three minutes after the push, a stop at 15 minutes, and a direct answer of each finding with no stop.
+- The owner said again that the fix of the session wins when it is better than the fix of Gitar. D-1072 stands in full, and its Effect column quotes the words.
+- Removed each line of the pause and the steps that ended it in `docs/runbooks/merge.md`. The marker command lists no line.
+- Rewrote the push wait and command E of the `gitar-review` skill. Command E waits 60 seconds, then reads the Gitar check every 20 seconds. Its result line is `completed`, `no check`, `not complete`, or `read failed`.
+- Updated `CLAUDE.md`, `AGENTS.md`, `docs/runbooks/session-context.md`, the design status header, both sequences, and the blocks in `phase-2-first-playable.md` section 7.36 and `area-ci.md` section 7.23.
+- Named D-1073 beside each live citation of D-945, for rule REF 3.
+
+### The state of the build
+
+- Base `58dadb5`. The remote head is the commit of this entry.
+- `ste-check` gives 0 findings. Command E printed `completed` for PR #76 and `read failed` for a PR that does not exist.
+- No code changes. The `codex-review` command already refuses a Gitar pass that is not complete.
+
+### What is in flight
+
+- The Gitar pass of this head, with command E. Then `make codex-review PR=77`. The PR changes decision rows, so the `review-override` label does not apply (D-401).
+
+### Traps and gotchas
+
+- The `gitar-review` skill of each other repository still holds the wait of three minutes. This PR changes this repository alone.
+- The check-runs API gives 30 runs on each page. Command E filters by `check_name=Gitar`, so a code head with many CI legs still shows the Gitar check.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run command E of the `gitar-review` skill in the background for PR #77. Answer each Gitar item, then run `make codex-review PR=77` in the background.
+
 ## Session 279: 2026-09-24, Codex
 
 Author: Codex
@@ -314,38 +352,3 @@ None for PR-13. OQ-247 and OQ-248 remain with PR-99.
 ### The next concrete action
 
 Push the metadata commit to `feat/pr-13-gear-items`, fetch, confirm no commits are ahead, and verify the remote head and fresh `review-gate` result.
-## Session 270: 2026-09-24, Claude Code
-
-Author: Claude Code
-Session: author PR-13, round 1. Repository: the-thing-below. Branch: `feat/pr-13-gear-items`. PR: #74. Role: author. Base: `b2bc579`.
-
-### What this session did, and why
-
-- Asked OQ-140 to OQ-143 and each question of the scope. D-1036 to D-1050 record the answers. OQ-247 and OQ-248 are new, and PR-99 holds them with the lesson swap anywhere (D-1041, D-1050).
-- Built the item file, the gear file, the six gear slots, the pack of items and spare gear with a stack limit for each record, the gold, the four item effects, the steal of a Theft drill, and the drops of a win in Core.
-- Built the gear window, the item window, the stats with the gear in the status window, the lines of the new events, and the debug command `stock`.
-- Raised the simulation version to 23 and the save format to 11, with a stored save of format 11. Rewrote the content hash and the identity file.
-- The owner added gear to the steal list: the gear chance of the profile under a cap of 5%, 15%, or 25% for each success, the check of room, and a gold entry that comes back (D-1051).
-- The smoke session walks the two new entries of the main list.
-
-### The state of the build
-
-- Base `b2bc579`. `make format`, `make lint`, `make smoke`, and the STE check pass. 3,135 tests: the only failures are the three baselines of the new menu captures. CI run 36020519177 failed the smoke walk, which this round repairs.
-
-### What is in flight
-
-- The PR takes 28 baselines from the artifact of CI run 36020519177, each read first. Its two sessions differed by one level in `map-fire-1x`, `scroll-09`, `still-240`, and `battle-spell-full-1x`, the flake of OQ-246. The PR leaves the first three baselines alone. The rerun of run 36021738678 agreed across its two sessions and matched every baseline but `battle-spell-full-1x`, which the PR then took from that run.
-
-### Traps and gotchas
-
-- `ContentId` compares by reference. A test compares the values (F-39).
-- The fixture of the tests gives Marrek no gear and profiles no drops, so the older battle numbers stay.
-- The fixture of the checkout gives Marrek the pick and the coat, so the menu and battle captures change.
-
-### The questions that block progress
-
-None for PR-13. OQ-247 and OQ-248 block PR-99.
-
-### The next concrete action
-
-Wait for CI on the new head, and rerun the screen test on a flake of OQ-246. Then run `make codex-review PR=74 -- --skip-gitar-review`.

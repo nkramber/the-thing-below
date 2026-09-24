@@ -115,12 +115,10 @@ The prompt is one fenced block that the owner pastes into the next session. Step
 
 ## Automated review pass
 
-**Gitar pause (D-945).** No step waits for Gitar, and the PR gate needs no Gitar pass. On a Gitar thread or finding, stop and tell the owner at once. `docs/runbooks/merge.md` gives each rule.
-
 An automated reviewer, gitar, comments on every PR after a push (D-14). After each push, the author loads the `gitar-review` skill and follows it. The rules below add to the skill, and a rule of this repo wins over it.
 
 - The author answers each Gitar item before the hand-over to the other provider, or before the session applies the `review-override` label (D-67, D-964).
-- Wait for gitar with the one command of `docs/runbooks/session-context.md`, not a call for each poll (D-586).
+- After each push, run the Gitar poll of the `gitar-review` skill in the background (D-1074). It waits 60 seconds, then reads the Gitar check until the check completes. After a `Gitar review` comment, wait with the one command of `docs/runbooks/session-context.md` (D-586).
 - When the pass is complete, run `make codex-review PR=<n>` in the background, or apply the label below (D-926). `docs/runbooks/merge.md` gives the rest. The owner confirms each merge after a summary (D-933, D-942).
 - A reply names no provider, harness, or model as the source of work (T-6).
 - The reviewing provider reads the existing PR comments into its review and never addresses gitar. The `pr-review` skill holds the procedure of the reviewer.
