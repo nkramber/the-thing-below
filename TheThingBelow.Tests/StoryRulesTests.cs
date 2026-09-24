@@ -115,6 +115,30 @@ public sealed class StoryRulesTests
         Assert.Equal(left - 1, run.State.Story.TicksLeft);
     }
 
+    [Fact]
+    public void APauseInTheBattleOfAStorySceneFails()
+    {
+        // D-1010: the pause holds a story scene, and a battle of the story scene is a battle.
+        Simulation run = TestStory.Start(Seed);
+        run.Step([]);
+        PlayWhile(run, () => run.State.Battle is null);
+
+        SimulationException error = Assert.Throws<SimulationException>(() => run.Step([Intent.OfPlayer(IntentIds.StoryPause)]));
+
+        Assert.Contains("'battle'", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheEndOfAPauseWithNoPauseFails()
+    {
+        Simulation run = TestStory.Start(Seed);
+        run.Step([]);
+
+        SimulationException error = Assert.Throws<SimulationException>(() => run.Step([Intent.OfPlayer(IntentIds.StoryResume)]));
+
+        Assert.Contains("no pause holds", error.Message, StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData("intent.move_north")]
     [InlineData("intent.open_menu")]
