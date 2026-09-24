@@ -5,6 +5,7 @@ using Godot;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Game.Ui;
 
@@ -129,7 +130,7 @@ public sealed class LessonsView : IMenuView
         this.ui.Text.Put(this.level, Id("menu.level"), Values(("level", Number(member.Level))));
         this.ui.Text.Put(this.aptitudes, Id("menu.lesson_aptitudes"), Values(
             ("main", this.Text(AptitudeIdOf(member.Record.MainAptitude))),
-            ("side", this.Text(this.state.Story.Flags.IsOn(member.Record.SideFlag) ? AptitudeIdOf(member.Record.SideAptitude) : Id("menu.aptitude_hidden")))));
+            ("side", this.Text(SideIdOf(member.Record, this.state.Story.Flags)))));
         this.ui.Text.Put(this.caption, CaptionOf(this.Cursor.Stage));
 
         List<Entry> entries = this.Entries();
@@ -168,6 +169,19 @@ public sealed class LessonsView : IMenuView
     /// <param name="kind">The kind.</param>
     /// <returns>The id, such as `aptitude.mend`.</returns>
     public static ContentId AptitudeIdOf(AptitudeKind kind) => Id($"aptitude.{Aptitudes.NameOf(kind)}");
+
+    /// <summary>Gives the string id of the side aptitude of a character: its kind once its flag is on, and an empty mark before (D-283, D-538).</summary>
+    /// <param name="record">The character.</param>
+    /// <param name="flags">The story flags.</param>
+    /// <returns>The id, such as `aptitude.guard` or `menu.aptitude_hidden`.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    public static ContentId SideIdOf(CharacterRecord record, FlagSet flags)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+        ArgumentNullException.ThrowIfNull(flags);
+
+        return flags.IsOn(record.SideFlag) ? AptitudeIdOf(record.SideAptitude) : Id("menu.aptitude_hidden");
+    }
 
     private static ContentId CaptionOf(LessonStage stage) => Id(stage switch
     {

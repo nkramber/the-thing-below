@@ -422,7 +422,7 @@ public static class BattleTurns
         {
             case StrikeAbility strike:
                 StatusChance? status = strike.Status is StatusChance given
-                    ? given with { Chance = Math.Min(BasisPoints.One, BasisPoints.Apply(given.Chance, rate, context)) }
+                    ? given with { Chance = LessonRules.RaisedChance(given.Chance, rate, context) }
                     : null;
                 BattleMove move = new(strike.Delay, BasisPoints.Apply(strike.Power, rate, context), strike.Element, status);
                 Strike(state, battle, actor, move, aimed, strike.Reach, context, log);

@@ -79,6 +79,18 @@ public sealed class LessonRulesTests
     }
 
     [Fact]
+    public void TheBonusRaisesAStatusChanceToASureHitAtMost()
+    {
+        // D-1028: the bonus raises the chance of a status too, and no chance passes 10000.
+        RunContext context = new(Seed, 0, "test");
+
+        Assert.Equal(7500, LessonRules.RaisedChance(6000, 12500, context));
+        Assert.Equal(6750, LessonRules.RaisedChance(6000, 11250, context));
+        Assert.Equal(10000, LessonRules.RaisedChance(9000, 12500, context));
+        Assert.Equal(6000, LessonRules.RaisedChance(6000, 10000, context));
+    }
+
+    [Fact]
     public void ALessonUseRefusesAnUnopenedFormALessonOfNoSlotAndTooLittleMp()
     {
         Simulation run = BattleRuns.IntoBattle(Seed, "group.test_pair", TestBattles.ExactWithParty(1));

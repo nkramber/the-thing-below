@@ -38,6 +38,14 @@ public static class LessonRules
         return character.SideAptitude == kind && flags.IsOn(character.SideFlag) ? rules.AptitudeBonus / 2 : 0;
     }
 
+    /// <summary>Gives the chance of a status after the aptitude bonus: the chance times the rate, to a sure hit at most (D-1028).</summary>
+    /// <param name="chance">The chance of the move, in basis points.</param>
+    /// <param name="rate">One plus the bonus, in basis points.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <returns>The raised chance, from the chance to 10000.</returns>
+    public static int RaisedChance(int chance, int rate, RunContext context) =>
+        Math.Min(BasisPoints.One, BasisPoints.Apply(chance, rate, context));
+
     /// <summary>
     /// Gives the reason that the rules refuse a use of a form now, or no value when the use is
     /// legal. A slot of the character must hold the lesson, the character must have opened the

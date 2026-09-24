@@ -111,6 +111,18 @@ public sealed class LessonCursorTests
     }
 
     [Fact]
+    public void TheWindowShowsAnEmptyMarkUntilTheFlagOfTheSideAptitudeIsOn()
+    {
+        // Exit test 2 of PR-12 (D-283, D-538, D-1033): a story flag of PR-68 unlocks the guard of Marrek.
+        Simulation run = InMenu(TestBattles.Content, swapPlace: false);
+        CharacterRecord marrek = run.State.Characters.Members[0].Record;
+
+        Assert.Equal("menu.aptitude_hidden", ((ContentId)GameValue.Static("LessonsView", "SideIdOf", marrek, run.State.Story.Flags)!).Value);
+        Assert.True(run.State.Story.Flags.TurnOn(marrek.SideFlag));
+        Assert.Equal("aptitude.guard", ((ContentId)GameValue.Static("LessonsView", "SideIdOf", marrek, run.State.Story.Flags)!).Value);
+    }
+
+    [Fact]
     public void TheCharacterTurnsInTheSlotStageAlone()
     {
         Simulation run = InMenu(TestBattles.WithParty(2), swapPlace: true);
