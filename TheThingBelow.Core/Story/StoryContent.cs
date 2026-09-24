@@ -20,10 +20,14 @@ public sealed class StoryContent
 {
     private readonly SortedDictionary<string, StoryScene> scenes;
 
-    private StoryContent(FlagList flags, SortedDictionary<string, StoryScene> scenes)
+    // The ids of the cast of this build, which a stored actor must name (D-166, D-1006).
+    private readonly SortedSet<string> cast;
+
+    private StoryContent(FlagList flags, SortedDictionary<string, StoryScene> scenes, SortedSet<string> cast)
     {
         this.Flags = flags;
         this.scenes = scenes;
+        this.cast = cast;
     }
 
     /// <summary>The flag file of this build (D-1003).</summary>
@@ -61,7 +65,13 @@ public sealed class StoryContent
             byId.Add(scene.Id.Value, scene);
         }
 
-        return new StoryContent(flags, byId);
+        var cast = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (CharacterRecord record in battle.Fixture.Characters)
+        {
+            _ = cast.Add(record.Id.Value);
+        }
+
+        return new StoryContent(flags, byId, cast);
     }
 
     /// <summary>Finds a story scene by id.</summary>
@@ -86,6 +96,16 @@ public sealed class StoryContent
         ArgumentNullException.ThrowIfNull(id);
 
         return this.scenes.TryGetValue(id.Value, out scene);
+    }
+
+    /// <summary>Tells whether the battle content of this build holds a cast member, for a stored actor that a load reads (D-166).</summary>
+    /// <param name="character">The id of the cast member.</param>
+    /// <returns>True when the battle fixture holds a character with this id.</returns>
+    public bool HoldsCast(ContentId character)
+    {
+        ArgumentNullException.ThrowIfNull(character);
+
+        return this.cast.Contains(character.Value);
     }
 
     /// <summary>

@@ -392,6 +392,7 @@ public sealed class StoryState
         foreach (ActorValues actor in values.Actors)
         {
             ArgumentNullException.ThrowIfNull(actor);
+            Refuse(!this.Content.HoldsCast(actor.Character), source, $"it shows '{actor.Character.Value}', which no character of this build holds (D-1006)");
             Refuse(this.Find(actor.Character) is not null, source, $"it shows '{actor.Character.Value}' two times");
             Refuse(!MapRules.CanEnter(map, actor.At), source, $"it shows '{actor.Character.Value}' at {actor.At}, which no actor can stand on");
             Refuse(this.ActorStandsAt(actor.At), source, $"two actors stand at {actor.At}");

@@ -90,6 +90,7 @@ public sealed class StorySnapshotTests
             { "a phase past the end", story => story with { Scene = Scene("scene.test_fight", 5, ScenePhase.WaitIntent, 0) }, "past the last step" },
             { "ticks above the wait", story => story with { Scene = Scene("scene.test_meet", 5, ScenePhase.Ticks, 6) }, "the range is 1 to 5" },
             { "an actor on a wall", story => story with { Scene = Scene("scene.test_meet", 1, ScenePhase.WaitIntent, 0, new ActorValues(Id("character.test_second"), new TilePoint(0, 0), StepDirection.West)) }, "which no actor can stand on" },
+            { "an actor that no character of this build holds", story => story with { Scene = Scene("scene.test_meet", 1, ScenePhase.WaitIntent, 0, new ActorValues(Id("character.unknown"), new TilePoint(7, 1), StepDirection.West)) }, "it shows 'character.unknown', which no character of this build holds" },
             { "an actor twice", story => story with { Scene = Scene("scene.test_meet", 1, ScenePhase.WaitIntent, 0, Ally(7), Ally(6)) }, "two times" },
             { "two actors on one tile", story => story with { Scene = Scene("scene.test_meet", 1, ScenePhase.WaitIntent, 0, Ally(7), new ActorValues(Id("character.test_third"), new TilePoint(7, 1), StepDirection.West)) }, "two actors stand at" },
             { "a battle with no battle", story => story with { Scene = Scene("scene.test_fight", 1, ScenePhase.Battle, 0) }, "it holds no battle" },
