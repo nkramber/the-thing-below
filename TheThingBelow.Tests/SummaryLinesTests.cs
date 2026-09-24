@@ -25,8 +25,8 @@ public sealed class SummaryLinesTests
     [Fact]
     public void ALevelUpShowsTheLevelThenEachStatThatRoseInOrder()
     {
-        // D-975, D-979: Marrek rises from level 1 to 2, which adds 6 health, 2 MP, 1 attack,
-        // and 1 defense, and no speed, so the speed shows no line.
+        // D-975, D-979, D-1056: Marrek rises from level 1 to 2, which adds 6 health, 2 MP, 1
+        // attack, 1 magic, 1 defense, and 1 resistance, and no speed, so the speed shows no line.
         (object view, List<BattleEvent> played) = FoughtToTheEnd();
         BattleEvent levelUp = played.Find(each => each.Kind == BattleEventKind.LevelUp && each.Actor.Slot == 0)
             ?? throw new InvalidOperationException("The fight gave Marrek no level-up.");
@@ -34,7 +34,7 @@ public sealed class SummaryLinesTests
         List<(string Id, string Amount, string Stat)> lines = LinesOf(levelUp, view);
 
         Assert.Equal(
-            [("battle.level_up", "", ""), ("battle.summary_gain", "6", "HP"), ("battle.summary_gain", "2", "MP"), ("battle.summary_gain", "1", "ATK"), ("battle.summary_gain", "1", "DEF")],
+            [("battle.level_up", "", ""), ("battle.summary_gain", "6", "HP"), ("battle.summary_gain", "2", "MP"), ("battle.summary_gain", "1", "ATK"), ("battle.summary_gain", "1", "MAG"), ("battle.summary_gain", "1", "DEF"), ("battle.summary_gain", "1", "RES")],
             lines);
     }
 

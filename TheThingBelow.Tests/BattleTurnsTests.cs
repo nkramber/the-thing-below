@@ -414,7 +414,7 @@ public sealed class BattleTurnsTests
         Simulation run = BattleRuns.IntoBattle(Seed, "group.test_pair", TestBattles.Exact);
         List<LogEntry> log = [];
 
-        BattleTurns.StrikeWith(run.State, new BattleMove(160, 10000, null, new StatusChance(StatusKind.Stun, 10000)), new BattleTarget(BattleSide.Enemy, 0), run.State.Context("test"), log);
+        BattleTurns.StrikeWith(run.State, new BattleMove(160, 10000, StrikeStat.Attack, null, new StatusChance(StatusKind.Stun, 10000)), new BattleTarget(BattleSide.Enemy, 0), run.State.Context("test"), log);
 
         Battle battle = BattleRuns.BattleOf(run);
         Assert.Equal(160, battle.Party[0].ReadyAt);

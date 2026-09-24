@@ -80,12 +80,6 @@ public static class WorldRules
         PartyStep step = party.Advance();
         AddPartyEntries(state, party, step, log);
 
-        // A step of the lead leaves the swap place of a hub or a save point (D-1030).
-        if (step.Started is not null)
-        {
-            state.Characters.LeaveSwapPlace();
-        }
-
         if (step.Bumped is ContentId bumped)
         {
             patrols.StartBump(bumped);

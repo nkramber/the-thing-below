@@ -89,14 +89,16 @@ public sealed record StealValues(int Tries, IReadOnlyList<StolenEntry> Taken);
 /// <summary>One character or one enemy in a battle.</summary>
 public sealed class Combatant
 {
-    internal Combatant(BattleSide side, int slot, ContentId id, int fullHealth, int attack, int defense, int speed, ElementTable elements, IReadOnlyList<StatusKind> immune)
+    internal Combatant(BattleSide side, int slot, ContentId id, int fullHealth, int attack, int magic, int defense, int resistance, int speed, ElementTable elements, IReadOnlyList<StatusKind> immune)
     {
         this.Side = side;
         this.Slot = slot;
         this.Id = id;
         this.FullHealth = fullHealth;
         this.Attack = attack;
+        this.Magic = magic;
         this.Defense = defense;
+        this.Resistance = resistance;
         this.Speed = speed;
         this.PushRate = BasisPoints.One;
         this.Elements = elements;
@@ -115,11 +117,17 @@ public sealed class Combatant
     /// <summary>The full health of the record, or of the level of a character (D-966).</summary>
     public int FullHealth { get; private set; }
 
-    /// <summary>The attack (D-771).</summary>
+    /// <summary>The attack, which a physical hit reads (D-771, D-1053).</summary>
     public int Attack { get; private set; }
 
-    /// <summary>The defense (D-771).</summary>
+    /// <summary>The magic, which a magic hit and a heal read (D-1053, D-1057).</summary>
+    public int Magic { get; private set; }
+
+    /// <summary>The defense, which guards against a physical hit (D-771, D-1053).</summary>
     public int Defense { get; private set; }
+
+    /// <summary>The resistance, which guards against a magic hit (D-1052, D-1053).</summary>
+    public int Resistance { get; private set; }
 
     /// <summary>The speed (D-768, D-769).</summary>
     public int Speed { get; private set; }
@@ -164,7 +172,9 @@ public sealed class Combatant
     {
         this.FullHealth = stats.Health;
         this.Attack = stats.Attack;
+        this.Magic = stats.Magic;
         this.Defense = stats.Defense;
+        this.Resistance = stats.Resistance;
         this.Speed = stats.Speed;
         this.Health = stats.Health;
     }
@@ -249,7 +259,7 @@ public sealed class Battle
             // The gear adds to the stats and gives the element table (D-1036, D-1037).
             PartyMember member = partyState.Members[slot];
             StatRow stats = member.StatsWith(content.Gear);
-            Combatant combatant = new(BattleSide.Party, slot, member.Record.Id, stats.Health, stats.Attack, stats.Defense, stats.Speed, member.ElementsWith(content.Gear), [])
+            Combatant combatant = new(BattleSide.Party, slot, member.Record.Id, stats.Health, stats.Attack, stats.Magic, stats.Defense, stats.Resistance, stats.Speed, member.ElementsWith(content.Gear), [])
             {
                 Health = member.Health,
                 Row = member.Row,
@@ -270,7 +280,7 @@ public sealed class Battle
         {
             GroupEntry entry = group.Entries[slot];
             EnemyRecord record = content.Enemy(entry.Enemy);
-            Combatant combatant = new(BattleSide.Enemy, slot, record.Id, record.Health, record.Attack, record.Defense, record.Speed, record.Elements, record.Immune)
+            Combatant combatant = new(BattleSide.Enemy, slot, record.Id, record.Health, record.Attack, record.Magic, record.Defense, record.Resistance, record.Speed, record.Elements, record.Immune)
             {
                 Health = record.Health,
                 Row = entry.Row,
@@ -305,13 +315,13 @@ public sealed class Battle
     {
         var single = new GroupRecord(group.Id, group.Boss, new List<GroupEntry> { entry with { Waits = false } });
         StatRow stats = character.At(character.JoinLevel);
-        Combatant member = new(BattleSide.Party, 0, character.Id, stats.Health, stats.Attack, stats.Defense, stats.Speed, ElementTable.AllNormal, [])
+        Combatant member = new(BattleSide.Party, 0, character.Id, stats.Health, stats.Attack, stats.Magic, stats.Defense, stats.Resistance, stats.Speed, ElementTable.AllNormal, [])
         {
             Health = stats.Health,
             Row = character.Row,
             Place = CombatantPlace.Field,
         };
-        Combatant foe = new(BattleSide.Enemy, 0, enemy.Id, enemy.Health, enemy.Attack, enemy.Defense, enemy.Speed, enemy.Elements, enemy.Immune)
+        Combatant foe = new(BattleSide.Enemy, 0, enemy.Id, enemy.Health, enemy.Attack, enemy.Magic, enemy.Defense, enemy.Resistance, enemy.Speed, enemy.Elements, enemy.Immune)
         {
             Health = enemy.Health,
             Row = entry.Row,
@@ -703,7 +713,7 @@ public sealed class Battle
                 source,
                 $"the party slot {stored.Slot} holds '{stored.Id.Value}', and the party holds '{member.Record.Id.Value}' there");
             StatRow stats = member.StatsWith(content.Gear);
-            return new Combatant(BattleSide.Party, stored.Slot, member.Record.Id, stats.Health, stats.Attack, stats.Defense, stats.Speed, member.ElementsWith(content.Gear), []);
+            return new Combatant(BattleSide.Party, stored.Slot, member.Record.Id, stats.Health, stats.Attack, stats.Magic, stats.Defense, stats.Resistance, stats.Speed, member.ElementsWith(content.Gear), []);
         }
 
         Refuse(stored.Slot >= group.Entries.Count, source, $"the enemy slot {stored.Slot} is past the group '{group.Id.Value}'");
@@ -713,7 +723,7 @@ public sealed class Battle
             source,
             $"the enemy slot {stored.Slot} holds '{stored.Id.Value}', and the group '{group.Id.Value}' holds '{expected.Value}' there");
         EnemyRecord enemy = content.Enemy(stored.Id);
-        return new Combatant(BattleSide.Enemy, stored.Slot, enemy.Id, enemy.Health, enemy.Attack, enemy.Defense, enemy.Speed, enemy.Elements, enemy.Immune);
+        return new Combatant(BattleSide.Enemy, stored.Slot, enemy.Id, enemy.Health, enemy.Attack, enemy.Magic, enemy.Defense, enemy.Resistance, enemy.Speed, enemy.Elements, enemy.Immune);
     }
 
     /// <summary>

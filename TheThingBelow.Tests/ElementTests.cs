@@ -60,7 +60,8 @@ public sealed class ElementTests
             Assert.Equal((BattleEventKind.Hit, Affinity.Weak), (hits[1].Kind, hits[1].Affinity));
             Assert.Equal((BattleEventKind.Hit, Affinity.Resist), (hits[2].Kind, hits[2].Affinity));
 
-            int restored = Math.Min(normal, 30 - before[3]);
+            // D-1055: an absorb heals a quarter of the hit, rounded down, and at least 1.
+            int restored = Math.Min(Math.Max(1, normal * 2500 / 10000), 30 - before[3]);
             Assert.True(
                 hits[3].Kind == BattleEventKind.Absorb && hits[3].Amount == restored && after[3] == before[3] + restored,
                 $"{where}: absorb gave {hits[3].Kind} {hits[3].Amount} from {before[3]} to {after[3]}, and the heal is {restored}.");
@@ -98,10 +99,10 @@ public sealed class ElementTests
     }
 
     [Fact]
-    public void AnAbsorbHealsTheWholeHitThroughShellAndDefend()
+    public void AnAbsorbHealsAQuarterOfTheHitThroughShell()
     {
-        // D-809: no cut applies to the heal of an absorb. The grunt takes 11, then shell,
-        // then absorbs a fire hit of 11 back to full.
+        // Exit test 2 of PR-99 (D-809, D-1055): no cut applies to the heal of an absorb. The
+        // grunt takes 11, then shell, then absorbs a quarter of a fire hit of 11, rounded down.
         Simulation run = BattleRuns.IntoBattle(Seed, "group.one", TestBattles.WithGrunt(Element.Fire, Affinity.Absorb, [], exact: true));
         List<LogEntry> log = [];
         BattleTarget grunt = new(BattleSide.Enemy, 0);
@@ -111,7 +112,24 @@ public sealed class ElementTests
         BattleTurns.GiveStatus(run.State, grunt, StatusKind.Shell, run.State.Context("test"));
         BattleTurns.StrikeWith(run.State, Fire(), grunt, run.State.Context("test"), log);
 
-        Assert.Equal(30, BattleRuns.BattleOf(run).Enemies[0].Health);
+        Assert.Equal(19 + 2, BattleRuns.BattleOf(run).Enemies[0].Health);
+    }
+
+    [Fact]
+    public void AnAbsorbOfASmallHitHealsOne()
+    {
+        // D-1055: a quarter of a hit of 3 rounds down to 0, and the heal is at least 1.
+        Simulation run = BattleRuns.IntoBattle(Seed, "group.one", TestBattles.WithGrunt(Element.Fire, Affinity.Absorb, [], exact: true));
+        BattleTarget grunt = new(BattleSide.Enemy, 0);
+        run.Step([BattleRuns.AttackFirst(run)]);
+        _ = run.TakeBattleEvents();
+
+        // 12 attack times 2600 over the 102 of the defense of 2 gives a hit of 3 (D-771).
+        BattleTurns.StrikeWith(run.State, new BattleMove(100, 2600, StrikeStat.Attack, Element.Fire, null), grunt, run.State.Context("test"), []);
+
+        BattleEvent absorb = Assert.Single(run.TakeBattleEvents(), each => each.Kind == BattleEventKind.Absorb);
+        Assert.Equal(1, absorb.Amount);
+        Assert.Equal(19 + 1, BattleRuns.BattleOf(run).Enemies[0].Health);
     }
 
     [Fact]
@@ -184,7 +202,7 @@ public sealed class ElementTests
         int before = battle.Enemies[0].Health;
         _ = run.TakeBattleEvents();
 
-        BattleTurns.StrikeWith(run.State, new BattleMove(100, power, element, null), new BattleTarget(BattleSide.Enemy, 0), run.State.Context("test"), []);
+        BattleTurns.StrikeWith(run.State, new BattleMove(100, power, StrikeStat.Attack, element, null), new BattleTarget(BattleSide.Enemy, 0), run.State.Context("test"), []);
 
         foreach (BattleEvent battleEvent in run.TakeBattleEvents())
         {
@@ -199,7 +217,7 @@ public sealed class ElementTests
         throw new InvalidOperationException($"Seed {seed}: the strike emitted no hit, miss, or absorb.");
     }
 
-    private static BattleMove Fire() => new(100, 10000, Element.Fire, null);
+    private static BattleMove Fire() => new(100, 10000, StrikeStat.Attack, Element.Fire, null);
 
     private static EnemyRecord ReadGrunt(string find, string replace)
     {

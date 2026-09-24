@@ -4,13 +4,15 @@ using TheThingBelow.Core.Content;
 
 namespace TheThingBelow.Core.Battles;
 
-/// <summary>The five stats of one character level (D-537, D-966).</summary>
+/// <summary>The seven stats of one character level (D-537, D-966, D-1052).</summary>
 /// <param name="Health">The full health.</param>
 /// <param name="Mp">The full MP (D-42).</param>
-/// <param name="Attack">The attack, which the damage reads (D-771).</param>
-/// <param name="Defense">The defense, which the damage reads (D-771).</param>
+/// <param name="Attack">The attack, which the damage of a physical hit reads (D-771, D-1053).</param>
+/// <param name="Magic">The magic, which the damage of a magic hit and the amount of a heal read (D-1053, D-1057).</param>
+/// <param name="Defense">The defense, which guards against a physical hit (D-771, D-1053).</param>
+/// <param name="Resistance">The resistance, which guards against a magic hit (D-1052, D-1053).</param>
 /// <param name="Speed">The speed, which each push and each tie reads (D-768, D-769).</param>
-public sealed record StatRow(int Health, int Mp, int Attack, int Defense, int Speed);
+public sealed record StatRow(int Health, int Mp, int Attack, int Magic, int Defense, int Resistance, int Speed);
 
 /// <summary>One character: the start row, the join level, the stat curve, and the two aptitudes (D-274, D-363, D-537, D-765, D-966).</summary>
 /// <param name="Id">The id, of the kind `character`.</param>
@@ -94,7 +96,7 @@ public static class StatCurve
         var text = new System.Text.StringBuilder("[");
         for (int level = 1; level <= HighestLevel; level += 1)
         {
-            text.Append(System.Globalization.CultureInfo.InvariantCulture, $"{(level > 1 ? ", " : string.Empty)}{{ \"level\": {level}, \"health\": {row.Health}, \"mp\": {row.Mp}, \"attack\": {row.Attack}, \"defense\": {row.Defense}, \"speed\": {row.Speed} }}");
+            text.Append(System.Globalization.CultureInfo.InvariantCulture, $"{(level > 1 ? ", " : string.Empty)}{{ \"level\": {level}, \"health\": {row.Health}, \"mp\": {row.Mp}, \"attack\": {row.Attack}, \"magic\": {row.Magic}, \"defense\": {row.Defense}, \"resistance\": {row.Resistance}, \"speed\": {row.Speed} }}");
         }
 
         return text.Append(']').ToString();
@@ -106,7 +108,9 @@ public static class StatCurve
         int? health = null;
         int? mp = null;
         int? attack = null;
+        int? magic = null;
         int? defense = null;
+        int? resistance = null;
         int? speed = null;
 
         int depth = reader.ReadObjectStart();
@@ -126,8 +130,14 @@ public static class StatCurve
                 case "attack":
                     attack = BattleFixture.ReadStat(ref reader, 0);
                     break;
+                case "magic":
+                    magic = BattleFixture.ReadStat(ref reader, 0);
+                    break;
                 case "defense":
                     defense = BattleFixture.ReadStat(ref reader, 0);
+                    break;
+                case "resistance":
+                    resistance = BattleFixture.ReadStat(ref reader, 0);
                     break;
                 case "speed":
                     speed = BattleFixture.ReadStat(ref reader, 1);
@@ -147,7 +157,9 @@ public static class StatCurve
             reader.RequireInt(health, depth, "health"),
             reader.RequireInt(mp, depth, "mp"),
             reader.RequireInt(attack, depth, "attack"),
+            reader.RequireInt(magic, depth, "magic"),
             reader.RequireInt(defense, depth, "defense"),
+            reader.RequireInt(resistance, depth, "resistance"),
             reader.RequireInt(speed, depth, "speed"));
     }
 
@@ -169,7 +181,9 @@ public static class StatCurve
             ("health", before.Health, row.Health),
             ("mp", before.Mp, row.Mp),
             ("attack", before.Attack, row.Attack),
+            ("magic", before.Magic, row.Magic),
             ("defense", before.Defense, row.Defense),
+            ("resistance", before.Resistance, row.Resistance),
             ("speed", before.Speed, row.Speed),
         ];
         foreach ((string name, int was, int now) in stats)

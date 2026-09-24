@@ -73,9 +73,9 @@ public static class GearRules
     }
 
     /// <summary>
-    /// Gives the stats of a character with its gear. The attack, defense, and speed amounts of
-    /// each worn piece add, and each of the three keeps a floor of 1. Health and MP never
-    /// change (D-1036, D-1037, D-1047).
+    /// Gives the stats of a character with its gear. The attack, magic, defense, resistance, and
+    /// speed amounts of each worn piece add, and each of the five keeps a floor of 1. Health and
+    /// MP never change (D-1036, D-1037, D-1047, D-1052).
     /// </summary>
     /// <param name="curve">The stats of the character at its level, from its stat curve.</param>
     /// <param name="worn">The six gear slots, each with a gear id or no value for an empty slot.</param>
@@ -89,7 +89,9 @@ public static class GearRules
         ArgumentNullException.ThrowIfNull(gear);
 
         int attack = curve.Attack;
+        int magic = curve.Magic;
         int defense = curve.Defense;
+        int resistance = curve.Resistance;
         int speed = curve.Speed;
         foreach (ContentId? id in worn)
         {
@@ -100,14 +102,18 @@ public static class GearRules
 
             GearRecord piece = gear.Piece(id);
             attack = checked(attack + piece.Attack);
+            magic = checked(magic + piece.Magic);
             defense = checked(defense + piece.Defense);
+            resistance = checked(resistance + piece.Resistance);
             speed = checked(speed + piece.Speed);
         }
 
         return curve with
         {
             Attack = Math.Max(LowestStat, attack),
+            Magic = Math.Max(LowestStat, magic),
             Defense = Math.Max(LowestStat, defense),
+            Resistance = Math.Max(LowestStat, resistance),
             Speed = Math.Max(LowestStat, speed),
         };
     }

@@ -20,7 +20,7 @@ Game terms from the roadmap interview of 2026-09-12:
 | form | a named ability of a lesson that a point total opens (D-539) | version, tier, rank, when the text means this |
 | owned lesson | a lesson in the pack, or on a character of the party or the reserve (D-1023, D-1024) | party lesson, held lesson |
 | fallback item | the item that a chest gives in place of an owned lesson (D-1024) | substitute, replacement item |
-| swap place | a hub or a save point, where the party swaps lessons (D-356, D-1030) | swap point, lesson shrine |
+| swap place | a hub or a save point, where the party swapped lessons from PR-12 to PR-99. A swap now works anywhere outside a fight, and the term names the old rule alone (D-1030, D-1050) | swap point, lesson shrine |
 | lead | the one character whom story scenes center on (D-267) | hero, protagonist, main character |
 | ability | an action that a lesson gives (D-272, D-278) | skill, technique, move |
 | spell | an ability that costs MP (D-42) | magic, cast |
@@ -70,7 +70,9 @@ Game terms from the roadmap interview of 2026-09-12:
 | steal list | the items, the gold, and the gear that a profile carries for a steal (D-383, D-1051) | pocket, loot list |
 | gold | the currency (D-60) | money, coins, gil |
 | character level | the level from experience (D-34) | level, alone |
-| stat curve | the table of the health, the MP, the attack, the defense, and the speed of one character, one row for each level (D-537, D-966) | growth table, stat table |
+| stat curve | the table of the health, the MP, the attack, the magic, the defense, the resistance, and the speed of one character, one row for each level (D-537, D-966, D-1052) | growth table, stat table |
+| magic | the stat that a magic hit and a heal read (D-1052, D-1053, D-1057) | intelligence, spirit, power |
+| resistance | the stat that guards against a magic hit (D-1052, D-1053). The affinity `resist` of D-794 is another concept | magic defense, spirit, ward |
 | join level | the character level at which a character joins the party (D-363) | start level, recruit level |
 | experience table | the total experience of each character level, one table for every character (D-971) | level table, exp curve |
 | shrink | the cut of the experience of an enemy for each level that a character stands above it (D-388, D-968) | penalty, falloff, share |

@@ -298,7 +298,7 @@ public sealed class MenuHost
             $"The party window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
         MenuWindowKind.Lessons => new LessonsView(this.frame, this.ui, this.content.Strings, this.run.State, this.lessonCursor ?? throw new InvalidOperationException(
             $"The lesson window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
-        MenuWindowKind.Gear => new GearView(this.frame, this.ui, this.run.State, this.gearCursor ?? throw new InvalidOperationException(
+        MenuWindowKind.Gear => new GearView(this.frame, this.ui, this.content.Strings, this.run.State, this.gearCursor ?? throw new InvalidOperationException(
             $"The gear window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
         MenuWindowKind.Items => new ItemsView(this.frame, this.ui, this.run.State, this.itemCursor ?? throw new InvalidOperationException(
             $"The item window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),

@@ -11,7 +11,7 @@ namespace TheThingBelow.Game.Ui;
 /// <summary>
 /// The status window: the full sheet of each character in its own column (D-569, D-991). The
 /// sheet holds the name, the level, the row, HP, MP, the experience and the experience to the
-/// next level, ATK, DEF, SPD, and each status that lasts.
+/// next level, ATK, MAG, DEF, RES, SPD, and each status that lasts (D-1056).
 /// </summary>
 /// <remarks>
 /// The window reads the state of the run and makes no intent. A stat names itself in three
@@ -21,10 +21,13 @@ namespace TheThingBelow.Game.Ui;
 public sealed class StatusView : IMenuView
 {
     /// <summary>The fixed lines of one column, before the statuses.</summary>
-    private const int FixedLines = 10;
+    private const int FixedLines = 12;
 
     /// <summary>The count of statuses that last past a fight: poison, blind, and silence (D-390).</summary>
     private static readonly int LastingCount = CountLasting();
+
+    /// <summary>The lines of one column: the fixed lines, then one line for each status that lasts. The window holds them at each body size (D-707, D-1056).</summary>
+    public static int SheetLines => FixedLines + LastingCount;
 
     private readonly UiBase ui;
     private readonly StringTable strings;
@@ -58,7 +61,7 @@ public sealed class StatusView : IMenuView
         int line = MenuLayout.LineOf(body);
         int width = (box.Width - (MenuLayout.Pad * 2)) / MenuLayout.StatusColumns;
         int top = MenuLayout.FirstLineTop(body, ui.Theme.TitleSize);
-        int most = FixedLines + LastingCount;
+        int most = SheetLines;
         for (int slot = 0; slot < state.Characters.Members.Count; slot += 1)
         {
             List<Label> column = [];
@@ -141,7 +144,8 @@ public sealed class StatusView : IMenuView
 
     private void ShowColumn(List<Label> column, PartyMember member, IReadOnlyList<int> table)
     {
-        // The attack, the defense, and the speed hold the worn gear, and the gear never changes health or MP (D-1036).
+        // The attack, the magic, the defense, the resistance, and the speed hold the worn gear, and the gear never
+        // changes health or MP (D-1036, D-1052).
         StatRow full = member.StatsWith(this.state.BattleContent.Gear);
         this.ui.Text.Put(column[0], BattleMessages.NameIdOf(member.Record.Id));
         this.ui.Text.Put(column[1], Id("menu.level"), Values(("level", Number(member.Level))));
@@ -159,8 +163,10 @@ public sealed class StatusView : IMenuView
         }
 
         this.PutStat(column[7], "battle.stat_atk", full.Attack);
-        this.PutStat(column[8], "battle.stat_def", full.Defense);
-        this.PutStat(column[9], "battle.stat_spd", full.Speed);
+        this.PutStat(column[8], "battle.stat_mag", full.Magic);
+        this.PutStat(column[9], "battle.stat_def", full.Defense);
+        this.PutStat(column[10], "battle.stat_res", full.Resistance);
+        this.PutStat(column[11], "battle.stat_spd", full.Speed);
 
         for (int place = 0; place < LastingCount; place += 1)
         {

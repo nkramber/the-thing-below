@@ -335,6 +335,16 @@ public static class RunSnapshotText
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
     public static RunSnapshot ReadFormatTen(ref ContentReader reader) => ReadLine(ref reader, 10, null);
 
+    /// <summary>
+    /// Reads a snapshot of save format 11, which holds the swap place of D-1030. The read checks
+    /// the field and drops it, because a swap of lessons needs no place (D-1050).
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <returns>The snapshot.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatEleven(ref ContentReader reader) => ReadLine(ref reader, 11, null);
+
     private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {
         long? tick = null;

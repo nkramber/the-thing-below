@@ -47,23 +47,24 @@ public enum BattleAction
 public sealed record BattleChoice(BattleAction Action, BattleTarget? Target, ContentId? Item, ContentId? Lesson = null, int? Form = null);
 
 /// <summary>
-/// One strike: its delay, its power, its element, and the status that it gives on a hit
-/// (D-376, D-793). The basic attack is one move, and a lesson of PR-12 adds others, such as a
+/// One strike: its delay, its power, its stat, its element, and the status that it gives on a
+/// hit (D-376, D-793, D-1053). The basic attack is one move, and a lesson of PR-12 adds others, such as a
 /// heavy blow or a rite of fire.
 /// </summary>
 /// <param name="Delay">The delay, in ticks at speed 100 (D-768).</param>
 /// <param name="Power">The power, in basis points (D-771).</param>
+/// <param name="Stat">The stats that the hit reads: the attack against the defense, or the magic against the resistance (D-1053).</param>
 /// <param name="Element">The one element of the move, or none (D-796).</param>
 /// <param name="Status">The status that a hit gives, with its chance, or none (D-807).</param>
-public sealed record BattleMove(int Delay, int Power, Element? Element, StatusChance? Status)
+public sealed record BattleMove(int Delay, int Power, StrikeStat Stat, Element? Element, StatusChance? Status)
 {
-    /// <summary>Gives the basic attack of the rules (D-359).</summary>
+    /// <summary>Gives the basic attack of the rules, which reads the attack (D-359, D-1053).</summary>
     /// <param name="rules">The rules.</param>
     /// <returns>The move.</returns>
     public static BattleMove BasicAttack(BattleRules rules)
     {
         ArgumentNullException.ThrowIfNull(rules);
 
-        return new BattleMove(rules.AttackDelay, rules.AttackPower, null, null);
+        return new BattleMove(rules.AttackDelay, rules.AttackPower, StrikeStat.Attack, null, null);
     }
 }

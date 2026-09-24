@@ -6,10 +6,10 @@ using Xunit;
 
 namespace TheThingBelow.Tests;
 
-/// <summary>The reader of the ability file: the id and the effect of each move (D-785, D-955, D-1029). Each error names the file (T-2).</summary>
+/// <summary>The reader of the ability file: the id and the effect of each move (D-785, D-955, D-1029, D-1053, D-1057). Each error names the file (T-2).</summary>
 public sealed class AbilityListTests
 {
-    private const string Bash = "{ \"id\": \"ability.fixture_bash\", \"kind\": \"strike\", \"delay\": 100, \"power\": 5000, \"element\": \"none\", \"reach\": \"melee\", \"status\": \"none\" }";
+    private const string Bash = "{ \"id\": \"ability.fixture_bash\", \"kind\": \"strike\", \"delay\": 100, \"power\": 5000, \"stat\": \"attack\", \"element\": \"none\", \"reach\": \"melee\", \"status\": \"none\" }";
 
     [Fact]
     public void EachKindOfMoveReadsItsFields()
@@ -17,9 +17,10 @@ public sealed class AbilityListTests
         AbilityList list = Read(TestBattles.AbilitiesFile);
 
         StrikeAbility bash = Assert.IsType<StrikeAbility>(list.Ability(Id("ability.fixture_bash")));
-        Assert.Equal((100, 5000, (Element?)null, AbilityReach.Melee), (bash.Delay, bash.Power, bash.Element, bash.Reach));
+        Assert.Equal((100, 5000, StrikeStat.Attack, (Element?)null, AbilityReach.Melee), (bash.Delay, bash.Power, bash.Stat, bash.Element, bash.Reach));
         HealAbility mend = Assert.IsType<HealAbility>(list.Ability(Id("ability.test_mend")));
-        Assert.Equal((100, 20), (mend.Delay, mend.Heal));
+        Assert.Equal((100, 20, 1), (mend.Delay, mend.Base, mend.Power));
+        Assert.Equal(StrikeStat.Magic, Assert.IsType<StrikeAbility>(list.Ability(Id("ability.fixture_cinder"))).Stat);
         Assert.Equal("ability.fixture_bash", IdsOf(list)[0]);
         Assert.Null(bash.Status);
         CureAbility purge = Assert.IsType<CureAbility>(list.Ability(Id("ability.fixture_purge")));
@@ -47,24 +48,29 @@ public sealed class AbilityListTests
     [InlineData("\"kind\": \"strike\"", "\"kind\": \"blade\"", "kind")]
     [InlineData("\"delay\": 100, \"power\": 5000", "\"power\": 5000", "absent")]
     [InlineData("\"delay\": 100, \"power\": 5000", "\"delay\": 0, \"power\": 5000", "outside 1 to")]
-    [InlineData("\"power\": 5000", "\"power\": 5000, \"heal\": 4", "takes no field 'heal'")]
+    [InlineData("\"power\": 5000", "\"power\": 5000, \"base\": 4", "takes no field 'base'")]
+    [InlineData("\"stat\": \"attack\", ", "", "absent")]
+    [InlineData("\"stat\": \"attack\"", "\"stat\": \"mind\"", "the stat 'mind'")]
     [InlineData("\"element\": \"none\"", "\"element\": \"steam\"", "the element 'steam'")]
     [InlineData("\"reach\": \"melee\"", "\"reach\": \"far\"", "the reach 'far'")]
     [InlineData("\"reach\": \"melee\"", "\"reach\": \"melee\", \"range\": 2", "unknown field")]
-    [InlineData("\"heal\": 20", "\"heal\": 20, \"power\": 100", "takes no field 'power'")]
-    [InlineData("\"heal\": 20", "\"heal\": 20, \"reach\": \"any\"", "takes no field 'reach'")]
-    [InlineData("\"delay\": 100, \"heal\": 20", "\"delay\": 100", "absent")]
+    [InlineData("\"base\": 20, \"power\": 1", "\"base\": 20, \"power\": 1, \"stat\": \"magic\"", "takes no field 'stat'")]
+    [InlineData("\"base\": 20, \"power\": 1", "\"base\": 20, \"power\": 1, \"reach\": \"any\"", "takes no field 'reach'")]
+    [InlineData("\"delay\": 100, \"base\": 20", "\"delay\": 100", "absent")]
+    [InlineData("\"base\": 20, \"power\": 1", "\"base\": 20", "absent")]
+    [InlineData("\"base\": 20", "\"base\": 0", "outside 1 to")]
     [InlineData("\"reach\": \"melee\", \"status\": \"none\"", "\"reach\": \"melee\"", "absent")]
     [InlineData("\"reach\": \"melee\", \"status\": \"none\"", "\"reach\": \"melee\", \"status\": \"doom\"", "the status 'doom'")]
     [InlineData("\"reach\": \"melee\", \"status\": \"none\"", "\"reach\": \"melee\", \"status\": \"none\", \"chance\": 10", "takes no field 'chance'")]
     [InlineData("\"status\": \"poison\", \"chance\": 6000", "\"status\": \"poison\"", "absent")]
     [InlineData("\"status\": \"poison\", \"chance\": 6000", "\"status\": \"poison\", \"chance\": 0", "outside 1 to 10000")]
     [InlineData("\"status\": \"poison\", \"chance\": 6000", "\"status\": \"poison\", \"chance\": 10001", "outside 1 to 10000")]
-    [InlineData("\"heal\": 20", "\"heal\": 20, \"status\": \"none\"", "takes no field 'status'")]
+    [InlineData("\"base\": 20, \"power\": 1", "\"base\": 20, \"power\": 1, \"status\": \"none\"", "takes no field 'status'")]
     [InlineData("\"statuses\": [\"poison\", \"blind\", \"silence\"]", "\"statuses\": []", "at least one status")]
     [InlineData("\"statuses\": [\"poison\", \"blind\", \"silence\"]", "\"statuses\": [\"blind\", \"poison\"]", "leaves the order")]
     [InlineData("\"statuses\": [\"poison\", \"blind\", \"silence\"]", "\"statuses\": [\"poison\", \"doom\"]", "the status 'doom'")]
-    [InlineData("\"statuses\": [\"poison\", \"blind\", \"silence\"]", "\"heal\": 5, \"statuses\": [\"poison\"]", "takes no field 'heal'")]
+    [InlineData("\"statuses\": [\"poison\", \"blind\", \"silence\"]", "\"base\": 5, \"statuses\": [\"poison\"]", "takes no field 'base'")]
+    [InlineData("\"statuses\": [\"poison\", \"blind\", \"silence\"]", "\"power\": 5, \"statuses\": [\"poison\"]", "takes no field 'power'")]
     [InlineData("\"kind\": \"cure\", \"delay\": 100, \"statuses\": [\"poison\", \"blind\", \"silence\"]", "\"kind\": \"cure\", \"delay\": 100", "absent")]
     [InlineData("\"status\": \"haste\"", "\"status\": \"poison\"", "is not one of haste, regen, shell")]
     [InlineData("\"status\": \"haste\"", "\"status\": \"haste\", \"statuses\": [\"poison\"]", "takes no field 'statuses'")]

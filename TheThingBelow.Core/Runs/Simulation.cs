@@ -28,7 +28,7 @@ namespace TheThingBelow.Core.Runs;
 /// </para>
 /// <para>
 /// The lesson window casts a Mend rite or a cure rite and swaps a lesson while a menu is open,
-/// and a swap needs a swap place (D-391, D-1030). A battle intent can use a form of a lesson
+/// anywhere outside a fight (D-391, D-1050). A battle intent can use a form of a lesson
 /// (D-1027, D-1031).
 /// </para>
 /// <para>
@@ -440,7 +440,7 @@ public sealed class Simulation
     }
 
     /// <summary>
-    /// Applies a cast from the menu or a swap of lessons (D-391, D-1030). Both need the open
+    /// Applies a cast from the menu or a swap of lessons (D-391, D-1050). Both need the open
     /// menu and no battle, as the row change does (D-558).
     /// </summary>
     /// <returns>True when the intent was one of the two, which this method applied.</returns>
@@ -455,7 +455,7 @@ public sealed class Simulation
 
         if (!this.State.MenuOpen || this.State.Battle is not null)
         {
-            throw new SimulationException($"the intent '{intent.Action.Value}' while no menu is open or a battle holds the run, and the lesson window makes it (D-391, D-1030)", context);
+            throw new SimulationException($"the intent '{intent.Action.Value}' while no menu is open or a battle holds the run, and the lesson window makes it (D-391, D-1050)", context);
         }
 
         int actor = intent.Actor ?? throw new SimulationException($"the intent '{intent.Action.Value}' names no character (D-391, D-1030)", context);

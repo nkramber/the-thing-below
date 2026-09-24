@@ -142,6 +142,8 @@ Built by PR-62. Phase file: `phase-2-first-playable.md`.
 - The status window shows the stats with the worn gear (D-1036).
 - The gear window shows the stats with the gear, and the six gear slots with a dash for each empty slot (D-44).
 - The gear window lists the pieces of the pack that fit a slot (D-1048).
+- The gear list shows the name of each piece. A second line of stats shows each stat with the piece under the cursor, in grey, green, or red (D-1060).
+- The status window and the gear window name the magic MAG and the resistance RES (D-1056).
 - The item window shows each item with its owned count and its stack limit, and a use that changes nothing shows dim (D-1039, D-1049).
 - PR-62 proves the stack with a fixture menu, and each later system PR adds one screen (D-525).
 
@@ -252,6 +254,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | PR-63 | The settings screen, the settings file, and the three accessibility settings | D-214, D-226, D-526, D-870 |
 | PR-12 | The lesson window with the aptitudes, the slots, the swap, and the cast from the menu, and the Lessons command of a fight in two rows of commands | D-211, D-1030, D-1031, D-1033, D-1034 |
 | PR-13 | The gear window, the item window, and the stats with the gear in the status window | D-44, D-1036, D-1039, D-1048, D-1049 |
+| PR-99 | MAG and RES on each screen, the line of trial stats in the gear window, and the lesson swap anywhere outside a fight | D-1050, D-1056, D-1060 |
 | PR-14 and PR-16 | The service and save screens, one for each system | D-211 |
 | PR-36 | The dialogue box, the name plate, and the choices | D-114, D-223 |
 | PR-35 | The region map screen | D-113 |

@@ -58,6 +58,10 @@ public static class SaveFormat
     /// spare gear in the pack and the gold (D-44, D-1038, D-1043). A save of an older format gives
     /// each character its start gear of the fixture, and the party no gold.
     /// </para>
+    /// <para>
+    /// PR-99 raised it to 12. The party dropped the swap place, because a swap of lessons needs
+    /// no place (D-1050). A save of format 10 or 11 holds the field, and the read drops it.
+    /// </para>
     /// </remarks>
-    public const int Current = 11;
+    public const int Current = 12;
 }

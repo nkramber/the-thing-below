@@ -11,7 +11,7 @@ namespace TheThingBelow.Tests;
 
 /// <summary>
 /// The rules of the lessons: the use of a form in a fight, the aptitude bonus, the points of a
-/// battle won, the growth of each character, the owned lesson set, the swap place, and the cast
+/// battle won, the growth of each character, the owned lesson set, the swap anywhere outside a fight, and the cast
 /// from the menu (D-356 to D-361, D-391, D-393, D-1018 to D-1031). Each exit test of PR-12 in
 /// `phase-2-first-playable.md` names its test here.
 /// </summary>
@@ -244,7 +244,6 @@ public sealed class LessonRulesTests
             Lessons = values.Lessons! with { Points = [new LessonPoints(Cinder, 120), new LessonPoints(Hew, 0)] },
         }));
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
-        run.State.Characters.MarkSwapPlace();
         Assert.Equal(2, OpenedOf(run, 0, Cinder));
 
         run.Step([Intent.OfLessonSwap(0, 1, null), Intent.OfLessonSwap(1, 0, Cinder)]);
@@ -264,24 +263,22 @@ public sealed class LessonRulesTests
         run.State.BattleContent.Lessons.Lesson(lesson).OpenedAt(run.State.Characters.Members[character].PointsOf(lesson));
 
     [Fact]
-    public void OutsideASwapPlaceCoreRefusesASwapOfLessons()
+    public void CoreRefusesASwapOfLessonsInAFight()
     {
-        // Exit test 11 of PR-12 (D-1030).
-        Simulation run = Start(TestBattles.Content, TestMaps.Room, party => party);
-        run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
+        // D-1050: a swap works anywhere outside a fight, and a fight refuses it.
+        Simulation run = BattleRuns.IntoBattle(Seed, "group.one", TestBattles.Content);
 
         SimulationException error = Assert.Throws<SimulationException>(() => run.Step([Intent.OfLessonSwap(0, 0, Salve)]));
 
-        Assert.Contains("outside a swap place", error.Message, StringComparison.Ordinal);
+        Assert.Contains("a battle holds the run", error.Message, StringComparison.Ordinal);
         Assert.Equal(Hew.Value, run.State.Characters.Members[0].Slots[0]?.Value);
     }
 
     [Fact]
-    public void AtASwapPlaceASwapMovesTheSlotLessonToTheEndOfTheLessonPack()
+    public void ASwapOnTheMapMovesTheSlotLessonToTheEndOfTheLessonPack()
     {
         Simulation run = Start(TestBattles.Content, TestMaps.Room, party => party);
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
-        run.State.Characters.MarkSwapPlace();
 
         run.Step([Intent.OfLessonSwap(0, 0, Salve)]);
 
@@ -332,8 +329,9 @@ public sealed class LessonRulesTests
     [Fact]
     public void ACureRiteWorksFromTheMenuOutsideBattleAndSilenceStopsIt()
     {
-        // Exit test 6 of PR-12 (D-391, D-393).
-        BattleContent content = TestBattles.WithLessonFiles(fixture: WithStartLessons("\"lesson.fixture_purge\", \"lesson.fixture_salve\""));
+        // Exit test 6 of PR-12 (D-391, D-393). The exact rules hold the hit factor of the heal at
+        // 10000, so the salve heals its base of 30 (D-1057, D-1059).
+        BattleContent content = TestBattles.WithLessonFiles(fixture: WithStartLessons("\"lesson.fixture_purge\", \"lesson.fixture_salve\""), exact: true);
         Simulation run = Start(content, TestMaps.Room, party => WithMarrek(party, values => values with { Health = 20, Statuses = [StatusKind.Poison] }));
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
 
@@ -363,14 +361,13 @@ public sealed class LessonRulesTests
     }
 
     [Fact]
-    public void ASnapshotHoldsTheLessonsThePointsTheLessonPackAndTheSwapPlace()
+    public void ASnapshotHoldsTheLessonsThePointsAndTheLessonPackAndNoSwapPlace()
     {
         Simulation run = Start(TestBattles.Content, TestMaps.Room, party => WithMarrek(party, values => values with
         {
             Lessons = values.Lessons! with { Points = [new LessonPoints(Cinder, 30), new LessonPoints(Hew, 7)] },
         }));
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
-        run.State.Characters.MarkSwapPlace();
         run.Step([Intent.OfLessonSwap(0, 1, null)]);
 
         string line = RunSnapshotText.Write(run.Snapshot());
@@ -379,7 +376,7 @@ public sealed class LessonRulesTests
         Assert.Equal(line, RunSnapshotText.Write(resumed.Snapshot()));
         Assert.Equal(run.StateHash(), resumed.StateHash());
         Assert.Contains("\"slots\":[{\"slot\":0,\"lesson\":\"lesson.fixture_hew\"}]", line, StringComparison.Ordinal);
-        Assert.Contains("\"swap_place\":true", line, StringComparison.Ordinal);
+        Assert.DoesNotContain("swap_place", line, StringComparison.Ordinal);
         Assert.Equal(30, resumed.State.Characters.Members[0].PointsOf(Cinder));
     }
 
@@ -404,6 +401,30 @@ public sealed class LessonRulesTests
     }
 
     private static ContentId Id(string value) => ContentId.Parse(value, "test", "id");
+
+    [Fact]
+    public void FormatElevenNeedsTheSwapPlaceAndThisFormatRefusesIt()
+    {
+        // D-166, D-1050: format 10 and 11 hold the swap place, and the read drops it. Format 12
+        // dropped the field, so a swap place in it is an unknown field (T-2).
+        string line = RunSnapshotText.Write(Start(TestBattles.Content, TestMaps.Room, party => party).Snapshot());
+        string withPlace = line.Replace(",\"gold\":", ",\"swap_place\":true,\"gold\":", StringComparison.Ordinal);
+        Assert.NotEqual(line, withPlace);
+
+        var eleven = new ContentReader(System.Text.Encoding.UTF8.GetBytes(withPlace), "the test");
+        RunSnapshot dropped = RunSnapshotText.ReadFormatEleven(ref eleven);
+        Assert.Equal(line, RunSnapshotText.Write(dropped));
+
+        ContentException absent = Assert.Throws<ContentException>(() =>
+        {
+            var reader = new ContentReader(System.Text.Encoding.UTF8.GetBytes(line), "the test");
+            _ = RunSnapshotText.ReadFormatEleven(ref reader);
+        });
+        Assert.Contains("swap_place", absent.Message, StringComparison.Ordinal);
+
+        ContentException unknown = Assert.Throws<ContentException>(() => ReadLine(withPlace));
+        Assert.Contains("swap_place", unknown.Message, StringComparison.Ordinal);
+    }
 
     private static RunSnapshot ReadLine(string line)
     {

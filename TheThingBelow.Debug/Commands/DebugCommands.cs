@@ -28,7 +28,8 @@ namespace TheThingBelow.Debug.Commands;
 /// <para>
 /// Each later PR that gives the rules a new value can add its own commands here, such as the
 /// story flags of PR-68. PR-67 added the level, the experience, and the MP, and no command. PR-12 added
-/// the `swap` command, which marks a swap place of lessons (D-1030). PR-13 added the `stock` command,
+/// the `swap` command, which marked a swap place of lessons, and PR-99 removed it, because a
+/// swap of lessons needs no place (D-1030, D-1050). PR-13 added the `stock` command,
 /// which fills the pack for a test of the gear window and the item window (D-1038).
 /// </para>
 /// </remarks>
@@ -73,9 +74,6 @@ public static class DebugCommands
     /// <summary>The name of the command that posts a notice that does not log (D-989).</summary>
     public const string AsideName = "aside";
 
-    /// <summary>The name of the command that marks a swap place of lessons (D-1030).</summary>
-    public const string SwapName = "swap";
-
     /// <summary>The name of the command that puts one copy of each item and each piece of gear in the pack (D-1038).</summary>
     public const string StockName = "stock";
 
@@ -105,7 +103,6 @@ public static class DebugCommands
         DebugCommand.OfIntent(FleeName, "tries to flee on the turn of a character", DebugCommandIds.BattleFlee, Flee),
         DebugCommand.OfIntent(NoticeName, "posts the first notice of the notice file that logs", DebugCommandIds.NoticeLogged, PostLogged),
         DebugCommand.OfIntent(AsideName, "posts the first notice of the notice file that does not log", DebugCommandIds.NoticePlain, PostPlain),
-        DebugCommand.OfIntent(SwapName, "marks the place of the party as a swap place, until the next step (D-1030)", DebugCommandIds.SwapPlace, MarkSwapPlace),
         DebugCommand.OfIntent(StockName, "puts one copy of each item and each piece of gear in the pack, to each stack limit (D-1038)", DebugCommandIds.Stock, Stock),
         DebugCommand.OfView(TorchName, "turns the carried light on or off, and sends no intent (D-847, D-851)"),
         DebugCommand.OfReport(BattleName, "gives each combatant, the turn, and the strip", BattleOf),
@@ -179,13 +176,6 @@ public static class DebugCommands
             }
         }
     }
-
-    /// <summary>
-    /// Marks the place of the party as a swap place, so a person swaps lessons before PR-14 and
-    /// PR-16 mark the hubs and the save points (D-1030). The next step of the lead leaves it.
-    /// </summary>
-    private static void MarkSwapPlace(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>
-        state.Characters.MarkSwapPlace();
 
     /// <summary>
     /// Puts one copy of each item and each piece of gear in the pack, so a person tries the gear

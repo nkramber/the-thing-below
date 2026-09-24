@@ -75,7 +75,6 @@ public static class BattleSnapshotText
         }
 
         writer.WriteEndArray();
-        writer.WriteBoolean("swap_place", party.AtSwapPlace);
         int gold = party.Gold ?? throw new ArgumentException("The party holds no gold, and a snapshot of this build writes it (D-1043).", nameof(party));
         writer.WriteNumber("gold", gold);
         writer.WriteEndObject();
@@ -208,7 +207,7 @@ public static class BattleSnapshotText
         List<CharacterValues>? characters = null;
         List<PackValues>? pack = null;
         List<ContentId>? lessonPack = null;
-        bool? atSwapPlace = null;
+        bool? swapPlace = null;
         int? gold = null;
 
         int depth = reader.ReadObjectStart();
@@ -217,6 +216,7 @@ public static class BattleSnapshotText
             switch (field)
             {
                 // Save format 10 adds the lesson pack and the swap place (D-1024, D-1030).
+                // Save format 12 drops the swap place (D-1050).
                 case "lesson_pack" when format >= 10:
                     lessonPack = [];
                     int lessonDepth = reader.ReadArrayStart();
@@ -226,8 +226,8 @@ public static class BattleSnapshotText
                     }
 
                     break;
-                case "swap_place" when format >= 10:
-                    atSwapPlace = reader.ReadBoolean();
+                case "swap_place" when format is 10 or 11:
+                    swapPlace = reader.ReadBoolean();
                     break;
 
                 // Save format 11 adds the gold, the gear slots, and the spare gear (D-1038, D-1043).
@@ -257,11 +257,16 @@ public static class BattleSnapshotText
             }
         }
 
+        // A save of format 10 or 11 holds the swap place. The read checks it and drops it (D-1050).
+        if (format is 10 or 11)
+        {
+            _ = reader.RequireValue(swapPlace, depth, "swap_place");
+        }
+
         return new PartySnapshot(
             reader.Require(characters, depth, "characters"),
             reader.Require(pack, depth, "pack"),
             format >= 10 ? reader.Require(lessonPack, depth, "lesson_pack") : null,
-            format >= 10 && reader.RequireValue(atSwapPlace, depth, "swap_place"),
             format >= 11 ? reader.RequireInt(gold, depth, "gold") : null);
     }
 

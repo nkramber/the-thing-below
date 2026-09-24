@@ -120,6 +120,29 @@ public sealed class GearCursorTests
         }
     }
 
+    [Fact]
+    public void TheTrialStatsHoldTheWornStatsInTheSlotsAndThePieceUnderTheCursorInThePack()
+    {
+        // D-1060: the line under the worn stats shows each stat with the piece under the cursor.
+        // The charm adds 1 attack, 2 magic, and 2 speed, and it costs 1 resistance.
+        Simulation run = InMenu();
+        Stock(run, Resist, Charm);
+        GameValue cursor = GameValue.New("GearCursor", run.State);
+        StatRow worn = run.State.Characters.Members[0].StatsWith(run.State.BattleContent.Gear);
+        cursor.Call("Point", 4);
+
+        Assert.Equal(worn, (StatRow)cursor.Call("TrialStats")!);
+
+        cursor.Call("Confirm");
+        cursor.Call("Point", 2);
+        StatRow trial = (StatRow)cursor.Call("TrialStats")!;
+
+        Assert.Equal(worn with { Attack = worn.Attack + 1, Magic = worn.Magic + 2, Resistance = worn.Resistance - 1, Speed = worn.Speed + 2 }, trial);
+        Assert.Equal("menu.gear_gain", ((ContentId)GameValue.Static("GearView", "TrialIdOf", worn.Magic, trial.Magic)!).Value);
+        Assert.Equal("menu.gear_loss", ((ContentId)GameValue.Static("GearView", "TrialIdOf", worn.Resistance, trial.Resistance)!).Value);
+        Assert.Equal("menu.gear_same", ((ContentId)GameValue.Static("GearView", "TrialIdOf", worn.Defense, trial.Defense)!).Value);
+    }
+
     private static Simulation InMenu()
     {
         Simulation run = TestParty.Start(Seed, marrek => marrek);

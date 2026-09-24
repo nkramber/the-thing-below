@@ -230,8 +230,14 @@ public sealed class BattleFixtureTests
         Assert.Equal(1, marrek.JoinLevel);
         for (int level = 1; level <= StatCurve.HighestLevel; level += 1)
         {
-            Assert.Equal(TestBattles.MarrekAt(level), marrek.At(level));
+            // D-977 holds five stats. PR-99 adds the magic and the resistance of D-1052, and the
+            // curve of the tests sets them to the attack and the defense.
+            StatRow row = marrek.At(level);
+            Assert.Equal(TestBattles.MarrekAt(level) with { Magic = row.Magic, Resistance = row.Resistance }, row);
         }
+
+        Assert.Equal((6, 3), (marrek.At(1).Magic, marrek.At(1).Resistance));
+        Assert.Equal((26, 18), (marrek.At(StatCurve.HighestLevel).Magic, marrek.At(StatCurve.HighestLevel).Resistance));
     }
 
     [Fact]

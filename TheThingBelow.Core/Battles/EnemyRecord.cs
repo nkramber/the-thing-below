@@ -21,7 +21,7 @@ public sealed class EnemyRecord
     /// <summary>The kind of an enemy id (D-646).</summary>
     public const string Kind = "enemy";
 
-    private EnemyRecord(string file, ContentId id, EnemySize size, int level, int experience, int health, int attack, int defense, int speed, IReadOnlyList<ContentId> abilities, ElementTable elements, IReadOnlyList<StatusKind> immune)
+    private EnemyRecord(string file, ContentId id, EnemySize size, int level, int experience, int health, int attack, int magic, int defense, int resistance, int speed, IReadOnlyList<ContentId> abilities, ElementTable elements, IReadOnlyList<StatusKind> immune)
     {
         this.File = file;
         this.Id = id;
@@ -30,7 +30,9 @@ public sealed class EnemyRecord
         this.Experience = experience;
         this.Health = health;
         this.Attack = attack;
+        this.Magic = magic;
         this.Defense = defense;
+        this.Resistance = resistance;
         this.Speed = speed;
         this.Abilities = abilities;
         this.Elements = elements;
@@ -55,11 +57,17 @@ public sealed class EnemyRecord
     /// <summary>The full health.</summary>
     public int Health { get; }
 
-    /// <summary>The attack (D-771).</summary>
+    /// <summary>The attack, which a physical hit reads (D-771, D-1053).</summary>
     public int Attack { get; }
 
-    /// <summary>The defense (D-771).</summary>
+    /// <summary>The magic, which a magic hit and a heal read (D-1053, D-1057).</summary>
+    public int Magic { get; }
+
+    /// <summary>The defense, which guards against a physical hit (D-771, D-1053).</summary>
     public int Defense { get; }
+
+    /// <summary>The resistance, which guards against a magic hit (D-1052, D-1053).</summary>
+    public int Resistance { get; }
 
     /// <summary>The speed (D-768).</summary>
     public int Speed { get; }
@@ -100,7 +108,9 @@ public sealed class EnemyRecord
         int? experience = null;
         int? health = null;
         int? attack = null;
+        int? magic = null;
         int? defense = null;
+        int? resistance = null;
         int? speed = null;
         List<ContentId>? abilities = null;
         ElementTable? elements = null;
@@ -132,8 +142,14 @@ public sealed class EnemyRecord
                 case "attack":
                     attack = BattleFixture.ReadStat(ref reader, 0);
                     break;
+                case "magic":
+                    magic = BattleFixture.ReadStat(ref reader, 0);
+                    break;
                 case "defense":
                     defense = BattleFixture.ReadStat(ref reader, 0);
+                    break;
+                case "resistance":
+                    resistance = BattleFixture.ReadStat(ref reader, 0);
                     break;
                 case "speed":
                     speed = BattleFixture.ReadStat(ref reader, 1);
@@ -161,7 +177,9 @@ public sealed class EnemyRecord
             reader.RequireInt(experience, depth, "experience"),
             reader.RequireInt(health, depth, "health"),
             reader.RequireInt(attack, depth, "attack"),
+            reader.RequireInt(magic, depth, "magic"),
             reader.RequireInt(defense, depth, "defense"),
+            reader.RequireInt(resistance, depth, "resistance"),
             reader.RequireInt(speed, depth, "speed"),
             reader.Require(abilities, depth, "abilities"),
             reader.Require(elements, depth, "elements"),

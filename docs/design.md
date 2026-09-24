@@ -112,6 +112,10 @@ A drop list on each profile gives rare items at a win, and a steal of gold adds 
 
 The item window refuses a use that changes nothing (D-1049). PR-13 holds each one. PR-99 settles the stat set and the heal of an absorbed hit, and it opens the lesson swap (D-1041, D-1050).
 
+2026-09-24 stat pass: Core holds seven stats, and magic and resistance join the five of D-537 (D-1052). A strike reads attack against defense, or magic against resistance, and the defend cut stays one cut (D-1053, D-1054). An absorb heals a quarter of the hit, and at least 1 (D-1055).
+
+A heal adds a share of the magic of the caster to its base (D-1057). A heal rolls the hit factor, and outside a fight the roll draws on the progression stream (D-1058, D-1059). A screen names the new stats MAG and RES (D-1056). The gear window compares the piece under the cursor with the worn piece (D-1060). PR-99 holds each one, and the lesson swap anywhere outside a fight (D-1050).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.

@@ -243,17 +243,19 @@ public static class BattleEvaluator
         {
             case EnemyActionKind.Attack:
                 struck = battle.At(TargetOf(action, context), context);
-                (damage, kills) = Expected(rules, enemy, struck, rules.AttackPower, null, true, context);
+                (damage, kills) = Expected(rules, enemy, struck, StrikeStat.Attack, rules.AttackPower, null, true, context);
                 delay = rules.AttackDelay;
                 break;
             case EnemyActionKind.Ability when action.Ability is StrikeAbility strike:
                 struck = battle.At(TargetOf(action, context), context);
-                (damage, kills) = Expected(rules, enemy, struck, strike.Power, strike.Element, strike.Reach == AbilityReach.Melee, context);
+                (damage, kills) = Expected(rules, enemy, struck, strike.Stat, strike.Power, strike.Element, strike.Reach == AbilityReach.Melee, context);
                 delay = strike.Delay;
                 break;
             case EnemyActionKind.Ability when action.Ability is HealAbility heal:
                 Combatant ally = battle.At(TargetOf(action, context), context);
-                healing = Math.Min(heal.Heal, ally.FullHealth - ally.Health);
+                // D-959: the score reads the heal at the middle hit factor (D-1058).
+                int middleFactor = (rules.HitLow + rules.HitHigh) / 2;
+                healing = Math.Min(BattleMath.HealAmount(heal, enemy.Magic, BasisPoints.One, middleFactor, context), ally.FullHealth - ally.Health);
                 sketch.Healed = ally;
                 sketch.HealedAmount = (int)healing;
                 delay = heal.Delay;
@@ -282,15 +284,15 @@ public static class BattleEvaluator
     /// counts the hit chance when the damage reaches that health. An absorb gives the health
     /// that it restores as damage below zero, and no kill (D-795).
     /// </summary>
-    private static (long Damage, long Kills) Expected(BattleRules rules, Combatant attacker, Combatant target, int power, Element? element, bool melee, RunContext context)
+    private static (long Damage, long Kills) Expected(BattleRules rules, Combatant attacker, Combatant target, StrikeStat stat, int power, Element? element, bool melee, RunContext context)
     {
         long hitChance = BasisPoints.One - BattleMath.MissChance(rules, attacker, target);
         int middle = (rules.HitLow + rules.HitHigh) / 2;
-        long hit = BattleMath.Hit(attacker, target, power, middle);
+        long hit = BattleMath.Hit(attacker, target, stat, power, middle);
         Affinity affinity = element is Element named ? target.Elements.Of(named) : Affinity.Normal;
         if (affinity == Affinity.Absorb)
         {
-            long restored = Math.Min(checked(hit * rules.AbsorbRate) / BasisPoints.One, target.FullHealth - target.Health);
+            long restored = Math.Min(BattleMath.AbsorbHeal(rules, hit, context), target.FullHealth - target.Health);
             return (-restored * hitChance / BasisPoints.One, 0);
         }
 
@@ -331,7 +333,7 @@ public static class BattleEvaluator
         {
             long hitChance = BasisPoints.One - BattleMath.MissChance(rules, character, target);
             int middle = (rules.HitLow + rules.HitHigh) / 2;
-            long hit = BattleMath.Hit(character, target, rules.AttackPower, middle);
+            long hit = BattleMath.Hit(character, target, StrikeStat.Attack, rules.AttackPower, middle);
             bool defending = ReferenceEquals(target, sketch.Actor) ? sketch.ActorDefends || target.Defending : target.Defending;
             int damage = BattleMath.Damage(rules, character, target, hit, Affinity.Normal, false, true, defending, context);
             int health = ReferenceEquals(target, sketch.Healed) ? target.Health + sketch.HealedAmount : target.Health;

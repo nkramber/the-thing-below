@@ -1425,7 +1425,7 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 8. A level-1 lesson on a level-40 character gains the full base experience of a level-10 enemy (D-1020).
 9. A downed character gains no lesson points, and a lesson stops at the total of its last form (D-1021, D-1022).
 10. The owned lesson set refuses a second copy of a lesson, and the error names the lesson (D-1023, D-1024).
-11. Outside a swap place, Core refuses a swap of lessons (D-1030).
+11. Outside a swap place, Core refuses a swap of lessons (D-1030). PR-99 removed the swap place and this test (D-1050).
 12. A spell with no flash file, or two flash files with one look, fail a test (D-1032).
 
 **Review focus.**
@@ -1499,34 +1499,39 @@ Area files: `area-battle.md` section 7.4, and `area-progression.md` section 7.3.
 
 **Scope.**
 
-- The stat set of OQ-247: a magic stat, and a split of defense, or the answer of the owner (D-1041).
-- The stat curves of the fixture characters, the enemy records, and the gear records, with each new stat.
-- The damage of a strike and of a spell, from the answer of OQ-247.
-- The absorb rate of OQ-248 in the battle rules file (D-795).
-- The lesson swap anywhere outside a fight, in place of the swap place (D-1050).
-- The stat names on the battle screen and in the menu (D-979).
+- The stat set of D-1052: the magic and the resistance on each stat curve, each enemy record, and each piece of gear.
+- The stat field of each strike: the attack against the defense, or the magic against the resistance (D-1053). The defend cut stays one cut (D-1054).
+- The absorb rate of 2500 in the battle rules file, with a heal of at least 1 (D-795, D-1055).
+- The heal of D-1057: a base and a power on each heal ability. The hit factor draws on the battle stream, or on the progression stream from the menu (D-1058, D-1059).
+- The lesson swap anywhere outside a fight, in place of the swap place, and the end of the `swap` debug command (D-1050).
+- Save format 12, which drops the swap place. The read of format 10 and 11 checks the field and drops it (D-166).
+- The stat names MAG and RES on the battle screen and in the menu (D-979, D-1056).
+- The line of trial stats in the gear window, in grey, green, and red (D-1060).
 - A simulation version bump, because the rules change (G-17).
 
 **Out of scope.**
 
 - The balance pass over each number (PR-30).
 - The gear and the items themselves (PR-13).
+- The heal of an item, which stays a flat amount (D-382, D-1057).
 
 **Exit tests.**
 
-1. A strike and a spell each read the stats of the answer of OQ-247.
-2. An absorbed hit heals the amount of the answer of OQ-248, rounded down.
+1. A strike and a spell each read the stats of D-1053.
+2. An absorbed hit heals a quarter of the hit, rounded down, and at least 1 (D-1055).
 3. The lesson window swaps a lesson on the map away from a hub and a save point (D-1050).
 4. A save of PR-13 loads, and each new stat takes its value from the curve (G-5).
+5. A heal adds the share of the magic, and it rolls the hit factor (D-1057 to D-1059).
+6. Each cell of the gear window and each line of the status window fit at both body sizes (D-1060).
 
 **Review focus.**
 
 - Each record that holds a stat holds each new stat, and an absent field fails the load (T-2).
 - The replay identity job gives the new state hash on every leg (G-5).
 
-**Questions.** OQ-247 and OQ-248.
+**Questions.** None. D-1052 to D-1060 answer OQ-247, OQ-248, and each question of the scope.
 
-> *In plain English:* a spell now reads the magic of the caster, and armor can guard against steel or against spells. A fire spell on a fire beast heals it less than before. Lessons change anywhere outside a fight.
+> *In plain English:* a spell now reads the magic of the caster, and armor can guard against steel or against spells. A fire spell on a fire beast heals it a quarter of the hit. A heal grows with the magic of the caster. Lessons change anywhere outside a fight.
 
 ### 7.35 PR-91: the torch item
 
@@ -2499,7 +2504,5 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-232 | The glow that stays, resolved by D-915 | PR-59 |
 | OQ-242 | The waiting enemies of a fight. Resolved by D-951 | PR-98 |
 | OQ-243 | A column of the waiting enemies, taller than the field. Resolved by D-963 | PR-98 |
-| OQ-247 | The stat set | PR-99 |
-| OQ-248 | The heal of an absorbed hit | PR-99 |
-
-OQ-247 and OQ-248 block PR-99.
+| OQ-247 | The stat set. Resolved by D-1052 | PR-99 |
+| OQ-248 | The heal of an absorbed hit. Resolved by D-1055 | PR-99 |

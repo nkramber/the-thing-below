@@ -10,8 +10,8 @@ using Xunit;
 namespace TheThingBelow.Tests;
 
 /// <summary>
-/// The cursor of the lesson window: the slots, the swap at a swap place, and the cast from the
-/// menu (D-356, D-391, D-1030). A move makes no intent, and a whole choice makes one (D-493).
+/// The cursor of the lesson window: the slots, the swap anywhere outside a fight, and the cast
+/// from the menu (D-356, D-391, D-1050). A move makes no intent, and a whole choice makes one (D-493).
 /// The tests read the built Game assembly, because Tests takes no reference to Game (D-614).
 /// </summary>
 public sealed class LessonCursorTests
@@ -19,21 +19,20 @@ public sealed class LessonCursorTests
     private const ulong Seed = 5;
 
     [Fact]
-    public void OutsideASwapPlaceASlotWithNoHealOffersNothing()
+    public void ASlotWithNoHealOffersTheSwapAlone()
     {
-        // D-1030: the hew and the cinder act in a fight alone, and no swap works away from a swap place.
-        Simulation run = InMenu(TestBattles.Content, swapPlace: false);
+        // D-1050: the hew and the cinder act in a fight alone, and the swap works anywhere outside a fight.
+        Simulation run = InMenu(TestBattles.Content);
         GameValue cursor = GameValue.New("LessonCursor", run.State);
 
-        Assert.Empty((IList)cursor.Call("UsesOf", 0)!);
-        Assert.Null(cursor.Call("Confirm"));
-        Assert.Equal("Slot", cursor.Name("Stage"));
+        Assert.Equal(["Swap"], Names((IList)cursor.Call("UsesOf", 0)!));
     }
 
     [Fact]
-    public void AtASwapPlaceASlotSwapsToALessonOfThePack()
+    public void ASlotSwapsToALessonOfThePackAwayFromAHubAndASavePoint()
     {
-        Simulation run = InMenu(TestBattles.Content, swapPlace: true);
+        // Exit test 3 of PR-99 (D-1050): the party stands on the room map, which holds no hub and no save point.
+        Simulation run = InMenu(TestBattles.Content);
         GameValue cursor = GameValue.New("LessonCursor", run.State);
 
         Assert.Null(cursor.Call("Confirm"));
@@ -54,10 +53,10 @@ public sealed class LessonCursorTests
     }
 
     [Fact]
-    public void AMendRiteAtASwapPlaceOffersTheCastAndTheSwap()
+    public void AMendRiteOffersTheCastAndTheSwap()
     {
-        // D-391: the salve casts from the menu, and the swap place adds the swap.
-        Simulation run = InMenu(WithSalve(), swapPlace: true, hurt: true);
+        // D-391, D-1050: the salve casts from the menu, and the swap works anywhere outside a fight.
+        Simulation run = InMenu(WithSalve(), hurt: true);
         GameValue cursor = GameValue.New("LessonCursor", run.State);
 
         Assert.Null(cursor.Call("Confirm"));
@@ -81,7 +80,7 @@ public sealed class LessonCursorTests
     [Fact]
     public void ACancelWalksBackThroughEachListAndClosesTheWindowFromTheSlots()
     {
-        Simulation run = InMenu(WithSalve(), swapPlace: true, hurt: true);
+        Simulation run = InMenu(WithSalve(), hurt: true);
         GameValue cursor = GameValue.New("LessonCursor", run.State);
         cursor.Call("Confirm");
         cursor.Call("Confirm");
@@ -100,9 +99,11 @@ public sealed class LessonCursorTests
     public void SilenceDimsTheCastFromTheMenu()
     {
         // D-393: silence on the party stops a rite from the menu, and the form stays on the list.
-        Simulation run = InMenu(WithSalve(), swapPlace: false, hurt: true, silenced: true);
+        Simulation run = InMenu(WithSalve(), hurt: true, silenced: true);
         GameValue cursor = GameValue.New("LessonCursor", run.State);
 
+        Assert.Null(cursor.Call("Confirm"));
+        Assert.Equal("Choice", cursor.Name("Stage"));
         Assert.Null(cursor.Call("Confirm"));
         Assert.Equal("Form", cursor.Name("Stage"));
         Assert.False((bool)cursor.Call("AllowsForm", 0)!);
@@ -114,7 +115,7 @@ public sealed class LessonCursorTests
     public void TheWindowShowsAnEmptyMarkUntilTheFlagOfTheSideAptitudeIsOn()
     {
         // Exit test 2 of PR-12 (D-283, D-538, D-1033): a story flag of PR-68 unlocks the guard of Marrek.
-        Simulation run = InMenu(TestBattles.Content, swapPlace: false);
+        Simulation run = InMenu(TestBattles.Content);
         CharacterRecord marrek = run.State.Characters.Members[0].Record;
 
         Assert.Equal("menu.aptitude_hidden", ((ContentId)GameValue.Static("LessonsView", "SideIdOf", marrek, run.State.Story.Flags)!).Value);
@@ -125,7 +126,7 @@ public sealed class LessonCursorTests
     [Fact]
     public void TheCharacterTurnsInTheSlotStageAlone()
     {
-        Simulation run = InMenu(TestBattles.WithParty(2), swapPlace: true);
+        Simulation run = InMenu(TestBattles.WithParty(2));
         GameValue cursor = GameValue.New("LessonCursor", run.State);
 
         cursor.Call("Turn", 1);
@@ -144,7 +145,7 @@ public sealed class LessonCursorTests
         .Replace("\"lesson_pack\": [\"lesson.fixture_salve\", ", "\"lesson_pack\": [\"lesson.fixture_hew\", ", StringComparison.Ordinal));
 
     /// <summary>Starts a run on the room map, hurts or silences Marrek through a load, and opens the menu.</summary>
-    private static Simulation InMenu(BattleContent content, bool swapPlace, bool hurt = false, bool silenced = false)
+    private static Simulation InMenu(BattleContent content, bool hurt = false, bool silenced = false)
     {
         var story = TheThingBelow.Core.Story.StoryContent.Load(
             TheThingBelow.Core.Story.FlagList.Read(System.Text.Encoding.UTF8.GetBytes(TestBattles.NoFlagsFile), TheThingBelow.Core.Story.FlagList.Path),
@@ -166,10 +167,6 @@ public sealed class LessonCursorTests
 
         Simulation run = Simulation.Resume(Seed, start with { Characters = party with { Characters = characters } }, map, content, TestBattles.Notices, story, DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
-        if (swapPlace)
-        {
-            run.State.Characters.MarkSwapPlace();
-        }
 
         return run;
     }

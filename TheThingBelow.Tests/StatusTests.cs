@@ -244,8 +244,8 @@ public sealed class StatusTests
         Assert.False(BattleRuns.BattleOf(immune).Enemies[0].Statuses.Holds(StatusKind.Sleep));
         Assert.Contains(Events(immune), e => e.Kind == BattleEventKind.Immune && e.Status == StatusKind.Sleep);
 
-        BattleTurns.StrikeWith(immune.State, new BattleMove(100, 10000, null, new StatusChance(StatusKind.Sleep, 5000)), Grunt, immune.State.Context("test"), []);
-        BattleTurns.StrikeWith(plain.State, new BattleMove(100, 10000, null, null), Grunt, plain.State.Context("test"), []);
+        BattleTurns.StrikeWith(immune.State, new BattleMove(100, 10000, StrikeStat.Attack, null, new StatusChance(StatusKind.Sleep, 5000)), Grunt, immune.State.Context("test"), []);
+        BattleTurns.StrikeWith(plain.State, new BattleMove(100, 10000, StrikeStat.Attack, null, null), Grunt, plain.State.Context("test"), []);
 
         Assert.Equal(plain.StateHash(), immune.StateHash());
     }

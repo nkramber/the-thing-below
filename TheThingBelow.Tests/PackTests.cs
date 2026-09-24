@@ -169,7 +169,7 @@ public sealed class PackTests
         CharacterValues marrek = Stored([Blade, null, null, null, null, null]);
 
         ArgumentException error = Assert.Throws<ArgumentException>(() =>
-            PartyState.Resume(TestBattles.Content, [marrek], [new PackValues(Blade, 2)], [], false, 0, "the test"));
+            PartyState.Resume(TestBattles.Content, [marrek], [new PackValues(Blade, 2)], [], 0, "the test"));
 
         Assert.Contains("owns 3 copies of 'gear.test_blade', and the stack limit is 2", error.Message, StringComparison.Ordinal);
     }
@@ -180,7 +180,7 @@ public sealed class PackTests
         CharacterValues marrek = Stored([null, Blade, null, null, null, null]);
 
         ArgumentException error = Assert.Throws<ArgumentException>(() =>
-            PartyState.Resume(TestBattles.Content, [marrek], [], [], false, 0, "the test"));
+            PartyState.Resume(TestBattles.Content, [marrek], [], [], 0, "the test"));
 
         Assert.Contains("of the kind 'weapon' in the gear slot 1", error.Message, StringComparison.Ordinal);
     }
@@ -192,9 +192,9 @@ public sealed class PackTests
         CharacterValues marrek = Stored([null, null, null, null, null, null]);
 
         ArgumentException mixed = Assert.Throws<ArgumentException>(() =>
-            PartyState.Resume(TestBattles.Content, [marrek], [], [], false, null, "the test"));
+            PartyState.Resume(TestBattles.Content, [marrek], [], [], null, "the test"));
         ArgumentException below = Assert.Throws<ArgumentException>(() =>
-            PartyState.Resume(TestBattles.Content, [marrek], [], [], false, -1, "the test"));
+            PartyState.Resume(TestBattles.Content, [marrek], [], [], -1, "the test"));
 
         Assert.Contains("differ on the save format", mixed.Message, StringComparison.Ordinal);
         Assert.Contains("below zero", below.Message, StringComparison.Ordinal);

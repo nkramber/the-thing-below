@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Story;
+using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Battles;
 
@@ -147,7 +148,8 @@ public static class LessonRules
 
     /// <summary>
     /// Casts a Mend rite or a cure rite from the menu (D-391). The caster spends the MP, and the
-    /// heal or the cure takes the aptitude bonus of the caster (D-1028).
+    /// heal or the cure takes the aptitude bonus of the caster (D-1028). A heal reads the magic of
+    /// the caster with its gear, and it draws the hit factor on the progression stream (D-1057, D-1059).
     /// </summary>
     /// <param name="state">The run.</param>
     /// <param name="caster">The party slot of the caster.</param>
@@ -176,7 +178,10 @@ public static class LessonRules
         switch (FormAbility(state, lesson, form))
         {
             case HealAbility heal:
-                int healed = BasisPoints.Apply(heal.Heal, BasisPoints.One + bonus, context);
+                // D-1059: no battle stream runs on the map, so the factor draws on the progression stream.
+                BattleRules rules = state.BattleContent.Rules;
+                int factor = state.Stream(StreamId.Progression).NextInt(rules.HitLow, rules.HitHigh, context);
+                int healed = BattleMath.HealAmount(heal, member.StatsWith(state.BattleContent.Gear).Magic, BasisPoints.One + bonus, factor, context);
                 aimed.Health = Math.Min(aimed.Stats.Health, aimed.Health + healed);
                 break;
             case CureAbility cure:

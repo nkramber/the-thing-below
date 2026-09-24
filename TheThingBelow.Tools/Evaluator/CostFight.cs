@@ -25,9 +25,9 @@ public static class CostFight
     {
      "comment": "The party of the cost fight: three characters.",
      "characters": [
-      { "id": "character.cost_first", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(90, 20, 12, 4, 100))}} },
-      { "id": "character.cost_second", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(80, 20, 10, 3, 110))}} },
-      { "id": "character.cost_third", "row": "back", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(70, 20, 8, 2, 120))}} }
+      { "id": "character.cost_first", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(90, 20, 12, 6, 4, 3, 100))}} },
+      { "id": "character.cost_second", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(80, 20, 10, 8, 3, 3, 110))}} },
+      { "id": "character.cost_third", "row": "back", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(70, 20, 8, 10, 2, 4, 120))}} }
      ],
      "start_party": ["character.cost_first", "character.cost_second", "character.cost_third"],
      "pack": [{ "item": "item.cost_draught", "count": 3 }],
@@ -46,7 +46,9 @@ public static class CostFight
      "experience": 10,
      "health": 40,
      "attack": 8,
+     "magic": 6,
      "defense": 2,
+     "resistance": 2,
      "speed": 90,
      "abilities": ["ability.cost_bash", "ability.cost_shot", "ability.cost_mend"],
      "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
@@ -65,9 +67,9 @@ public static class CostFight
     {
      "comment": "The moves of the cost fight.",
      "abilities": [
-      { "id": "ability.cost_bash", "kind": "strike", "delay": 130, "power": 14000, "element": "none", "reach": "melee", "status": "none" },
-      { "id": "ability.cost_shot", "kind": "strike", "delay": 110, "power": 9000, "element": "fire", "reach": "any", "status": "none" },
-      { "id": "ability.cost_mend", "kind": "heal", "delay": 110, "heal": 12 }
+      { "id": "ability.cost_bash", "kind": "strike", "delay": 130, "power": 14000, "stat": "attack", "element": "none", "reach": "melee", "status": "none" },
+      { "id": "ability.cost_shot", "kind": "strike", "delay": 110, "power": 9000, "stat": "magic", "element": "fire", "reach": "any", "status": "none" },
+      { "id": "ability.cost_mend", "kind": "heal", "delay": 110, "base": 12, "power": 5000 }
      ]
     }
     """;

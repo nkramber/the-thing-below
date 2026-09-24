@@ -14,6 +14,16 @@ public enum AbilityReach
     Any,
 }
 
+/// <summary>The stats that a strike reads: the attack against the defense, or the magic against the resistance (D-1053).</summary>
+public enum StrikeStat
+{
+    /// <summary>A physical hit: the attack of the attacker against the defense of the target, as the basic attack.</summary>
+    Attack,
+
+    /// <summary>A magic hit: the magic of the attacker against the resistance of the target.</summary>
+    Magic,
+}
+
 /// <summary>One entry of the ability file: an id and the effect of a move of an enemy or of a lesson (D-785, D-955, D-1029).</summary>
 /// <param name="Id">The id, of the kind `ability`.</param>
 /// <param name="Delay">The delay of the move, in ticks at speed 100 (D-768).</param>
@@ -23,16 +33,21 @@ public abstract record AbilityRecord(ContentId Id, int Delay);
 /// <param name="Id">The id, of the kind `ability`.</param>
 /// <param name="Delay">The delay of the move, in ticks at speed 100 (D-768).</param>
 /// <param name="Power">The power, in basis points, which the hit of D-771 reads.</param>
+/// <param name="Stat">The stats that the hit reads (D-1053).</param>
 /// <param name="Element">The one element of the move, or no value for none (D-796).</param>
 /// <param name="Reach">The row that the strike reaches (D-377).</param>
 /// <param name="Status">The status that a hit gives, with its chance, or no value for none (D-793, D-807).</param>
-public sealed record StrikeAbility(ContentId Id, int Delay, int Power, Element? Element, AbilityReach Reach, StatusChance? Status) : AbilityRecord(Id, Delay);
+public sealed record StrikeAbility(ContentId Id, int Delay, int Power, StrikeStat Stat, Element? Element, AbilityReach Reach, StatusChance? Status) : AbilityRecord(Id, Delay);
 
-/// <summary>A move that heals one combatant of its own side on the field, in either row (D-955).</summary>
+/// <summary>
+/// A move that heals one combatant of its own side on the field, in either row (D-955). The heal
+/// is the base plus the magic of the caster times the power, then the hit factor (D-1057).
+/// </summary>
 /// <param name="Id">The id, of the kind `ability`.</param>
 /// <param name="Delay">The delay of the move, in ticks at speed 100 (D-768).</param>
-/// <param name="Heal">The health that the move restores, up to the full health of the target.</param>
-public sealed record HealAbility(ContentId Id, int Delay, int Heal) : AbilityRecord(Id, Delay);
+/// <param name="Base">The health that the move restores at a magic of 0, before the hit factor (D-1057).</param>
+/// <param name="Power">The share of the magic of the caster that the move adds, in basis points (D-1057).</param>
+public sealed record HealAbility(ContentId Id, int Delay, int Base, int Power) : AbilityRecord(Id, Delay);
 
 /// <summary>A move that ends set statuses on one ally on the field. A cure rite of a lesson gives it (D-391, D-1029).</summary>
 /// <param name="Id">The id, of the kind `ability`.</param>
@@ -58,7 +73,8 @@ public sealed record StealAbility(ContentId Id, int Delay) : AbilityRecord(Id, D
 /// </summary>
 /// <remarks>
 /// PR-11 gives an enemy ability its effect. PR-12 adds the status of a strike, the cure, and
-/// the boon, and the lesson file holds the fields of a lesson (D-955, D-1026, D-1029). Each id
+/// the boon, and the lesson file holds the fields of a lesson (D-955, D-1026, D-1029). PR-99
+/// adds the stat of a strike and the base and the power of a heal (D-1053, D-1057). Each id
 /// stays (D-166).
 /// </remarks>
 public sealed class AbilityList
@@ -89,6 +105,12 @@ public sealed class AbilityList
 
     /// <summary>The name of the element of a move with no element, in the file (D-796).</summary>
     public const string NoElementName = "none";
+
+    /// <summary>The name of the stat of a physical strike, in the file (D-1053).</summary>
+    public const string AttackStatName = "attack";
+
+    /// <summary>The name of the stat of a magic strike, in the file (D-1053).</summary>
+    public const string MagicStatName = "magic";
 
     private AbilityList(string file, IReadOnlyList<AbilityRecord> records)
     {
@@ -198,10 +220,10 @@ public sealed class AbilityList
     }
 
     /// <summary>
-    /// Reads one entry. A strike takes a power, an element, a reach, and a status with its
-    /// chance. A heal takes a heal, a cure takes its statuses, a boon takes its status, and a
-    /// steal takes the delay alone. A field of another kind is an error, so no field of an entry
-    /// goes unread (D-950, D-955, D-1029).
+    /// Reads one entry. A strike takes a power, a stat, an element, a reach, and a status with
+    /// its chance. A heal takes a base and a power, a cure takes its statuses, a boon takes its
+    /// status, and a steal takes the delay alone. A field of another kind is an error, so no
+    /// field of an entry goes unread (D-950, D-955, D-1029, D-1053, D-1057).
     /// </summary>
     private static AbilityRecord ReadAbility(ref ContentReader reader)
     {
@@ -209,7 +231,8 @@ public sealed class AbilityList
         string? kind = null;
         int? delay = null;
         int? power = null;
-        int? heal = null;
+        string? stat = null;
+        int? healBase = null;
         string? element = null;
         string? reach = null;
         string? status = null;
@@ -233,8 +256,11 @@ public sealed class AbilityList
                 case "power":
                     power = BattleFixture.ReadStat(ref reader, 1);
                     break;
-                case "heal":
-                    heal = BattleFixture.ReadStat(ref reader, 1);
+                case "stat":
+                    stat = reader.ReadString();
+                    break;
+                case "base":
+                    healBase = BattleFixture.ReadStat(ref reader, 1);
                     break;
                 case "element":
                     element = reader.ReadString();
@@ -259,21 +285,30 @@ public sealed class AbilityList
         ContentId readId = reader.Require(id, depth, "id");
         string readKind = reader.Require(kind, depth, "kind");
         int readDelay = reader.RequireInt(delay, depth, "delay");
+
+        // The kind decides which fields the entry takes, so an unknown kind fails before any field.
+        if (!IsKind(readKind))
+        {
+            throw reader.RefuseField(depth, "kind", $"the kind '{readKind}' of '{readId.Value}' is not one of {StrikeName}, {HealName}, {CureName}, {BoonName}, {StealName} (D-950, D-955, D-1029)");
+        }
+
         if (string.CompareOrdinal(readKind, StrikeName) == 0)
         {
-            RefusePresent(ref reader, depth, heal is not null, "heal", readId, StrikeName);
+            RefusePresent(ref reader, depth, healBase is not null, "base", readId, StrikeName);
             RefusePresent(ref reader, depth, statuses is not null, "statuses", readId, StrikeName);
             return new StrikeAbility(
                 readId,
                 readDelay,
                 reader.RequireInt(power, depth, "power"),
+                StatOf(ref reader, depth, reader.Require(stat, depth, "stat"), readId),
                 ElementOf(ref reader, depth, reader.Require(element, depth, "element")),
                 ReachOf(ref reader, depth, reader.Require(reach, depth, "reach")),
                 StatusChanceOf(ref reader, depth, reader.Require(status, depth, "status"), chance, readId));
         }
 
-        // A heal, a cure, and a boon take none of the fields of a strike (D-955, D-1029).
-        RefusePresent(ref reader, depth, power is not null, "power", readId, readKind);
+        // A heal, a cure, and a boon take none of the fields of a strike (D-955, D-1029). A heal
+        // alone takes a power too, which reads the magic of the caster (D-1057).
+        RefusePresent(ref reader, depth, stat is not null, "stat", readId, readKind);
         RefusePresent(ref reader, depth, element is not null, "element", readId, readKind);
         RefusePresent(ref reader, depth, reach is not null, "reach", readId, readKind);
         RefusePresent(ref reader, depth, chance is not null, "chance", readId, readKind);
@@ -281,33 +316,36 @@ public sealed class AbilityList
         {
             RefusePresent(ref reader, depth, status is not null, "status", readId, HealName);
             RefusePresent(ref reader, depth, statuses is not null, "statuses", readId, HealName);
-            return new HealAbility(readId, readDelay, reader.RequireInt(heal, depth, "heal"));
+            return new HealAbility(readId, readDelay, reader.RequireInt(healBase, depth, "base"), reader.RequireInt(power, depth, "power"));
         }
 
+        // A cure, a boon, and a steal take neither field of a heal.
+        RefusePresent(ref reader, depth, power is not null, "power", readId, readKind);
+        RefusePresent(ref reader, depth, healBase is not null, "base", readId, readKind);
         if (string.CompareOrdinal(readKind, CureName) == 0)
         {
-            RefusePresent(ref reader, depth, heal is not null, "heal", readId, CureName);
             RefusePresent(ref reader, depth, status is not null, "status", readId, CureName);
             return new CureAbility(readId, readDelay, reader.Require(statuses, depth, "statuses"));
         }
 
         if (string.CompareOrdinal(readKind, BoonName) == 0)
         {
-            RefusePresent(ref reader, depth, heal is not null, "heal", readId, BoonName);
             RefusePresent(ref reader, depth, statuses is not null, "statuses", readId, BoonName);
             return new BoonAbility(readId, readDelay, BoonStatusOf(ref reader, depth, reader.Require(status, depth, "status"), readId));
         }
 
-        if (string.CompareOrdinal(readKind, StealName) == 0)
-        {
-            RefusePresent(ref reader, depth, heal is not null, "heal", readId, StealName);
-            RefusePresent(ref reader, depth, status is not null, "status", readId, StealName);
-            RefusePresent(ref reader, depth, statuses is not null, "statuses", readId, StealName);
-            return new StealAbility(readId, readDelay);
-        }
-
-        throw reader.RefuseField(depth, "kind", $"the kind '{readKind}' of '{readId.Value}' is not one of {StrikeName}, {HealName}, {CureName}, {BoonName}, {StealName} (D-950, D-955, D-1029)");
+        // The check of the kind above leaves the steal alone.
+        RefusePresent(ref reader, depth, status is not null, "status", readId, StealName);
+        RefusePresent(ref reader, depth, statuses is not null, "statuses", readId, StealName);
+        return new StealAbility(readId, readDelay);
     }
+
+    private static bool IsKind(string kind) =>
+        string.CompareOrdinal(kind, StrikeName) == 0 ||
+        string.CompareOrdinal(kind, HealName) == 0 ||
+        string.CompareOrdinal(kind, CureName) == 0 ||
+        string.CompareOrdinal(kind, BoonName) == 0 ||
+        string.CompareOrdinal(kind, StealName) == 0;
 
     /// <summary>
     /// Gives the status of a strike: none with no chance, or a status with a chance from 1 to
@@ -382,6 +420,21 @@ public sealed class AbilityList
         {
             throw reader.RefuseField(depth, field, $"the {kind} '{id.Value}' takes no field '{field}', which another kind of move reads (D-955)");
         }
+    }
+
+    private static StrikeStat StatOf(ref ContentReader reader, int depth, string name, ContentId id)
+    {
+        if (string.CompareOrdinal(name, AttackStatName) == 0)
+        {
+            return StrikeStat.Attack;
+        }
+
+        if (string.CompareOrdinal(name, MagicStatName) == 0)
+        {
+            return StrikeStat.Magic;
+        }
+
+        throw reader.RefuseField(depth, "stat", $"the stat '{name}' of '{id.Value}' is not one of {AttackStatName}, {MagicStatName} (D-1053)");
     }
 
     private static Element? ElementOf(ref ContentReader reader, int depth, string name)
