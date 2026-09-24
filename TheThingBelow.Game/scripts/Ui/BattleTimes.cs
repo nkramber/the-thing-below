@@ -68,6 +68,18 @@ public static class BattleTimes
 
             // The line of a lesson holds while the flash of a spell plays (D-1032).
             BattleEventKind.Lesson => pace.LineTicks,
+            BattleEventKind.ItemMp => pace.LineTicks,
+            BattleEventKind.ItemCure => pace.LineTicks,
+            BattleEventKind.Revive => pace.LineTicks,
+            BattleEventKind.StealItem => pace.LineTicks,
+            BattleEventKind.StealGold => pace.LineTicks,
+            BattleEventKind.StealFailed => pace.LineTicks,
+            BattleEventKind.StealEmpty => pace.LineTicks,
+            BattleEventKind.StealFull => pace.LineTicks,
+
+            // A drop is a line of the loot after the summary (D-975, D-1042).
+            BattleEventKind.Drop => pace.LineTicks,
+            BattleEventKind.DropLost => pace.LineTicks,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(kind), kind, $"The battle event '{kind}' has no timing on the screen (D-829, T-2)."),
         };

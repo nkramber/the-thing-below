@@ -12,7 +12,8 @@ namespace TheThingBelow.Core.Battles;
 /// <param name="Statuses">Poison, blind, and silence, in the order of D-75, which last past a fight (D-390, D-792).</param>
 /// <param name="Growth">The level, the experience, and the MP, from save format 7 (D-966). Null in a snapshot of an older format, and the resume then starts the character at its join level with full MP (D-166, D-363).</param>
 /// <param name="Lessons">The lesson slots and the points of each lesson, from save format 10 (D-361, D-1018). Null in a snapshot of an older format, and the resume then gives the start lessons of the fixture (D-166).</param>
-public sealed record CharacterValues(ContentId Character, int Health, BattleRow Row, IReadOnlyList<StatusKind> Statuses, GrowthValues? Growth, LessonValues? Lessons);
+/// <param name="Gear">The six gear slots, each with a gear id or no value for an empty slot, from save format 11 (D-44). Null in a snapshot of an older format, and the resume then gives the start gear of the fixture (D-166).</param>
+public sealed record CharacterValues(ContentId Character, int Health, BattleRow Row, IReadOnlyList<StatusKind> Statuses, GrowthValues? Growth, LessonValues? Lessons, IReadOnlyList<ContentId?>? Gear);
 
 /// <summary>The stored lessons of one character (D-356, D-361).</summary>
 /// <param name="Slots">The lesson of each slot, and no value for an empty slot. The count is the slot count of the level (D-1018).</param>
@@ -30,19 +31,21 @@ public sealed record LessonPoints(ContentId Lesson, int Points);
 /// <param name="Mp">The MP now, from zero to the full MP of the level (D-42).</param>
 public sealed record GrowthValues(int Level, int Experience, int Mp);
 
-/// <summary>The stored count of one item of the pack (D-775).</summary>
-/// <param name="Item">The id of the item.</param>
-/// <param name="Count">The count now.</param>
-public sealed record PackValues(ContentId Item, int Count);
+/// <summary>The stored count of one item or one piece of spare gear in the pack (D-775, D-1038).</summary>
+/// <param name="Id">The id of the item or the piece, of the kind `item` or `gear`.</param>
+/// <param name="Count">The count now, from 1.</param>
+public sealed record PackValues(ContentId Id, int Count);
 
 /// <summary>One character of the party, with the level, the health, the MP, and the row that last between battles (D-34, D-36, D-42, D-765).</summary>
 public sealed class PartyMember
 {
     private readonly SortedDictionary<string, LessonPoints> points = new(StringComparer.Ordinal);
+    private readonly ContentId?[] gear;
     private ContentId?[] slots;
 
-    internal PartyMember(CharacterRecord record, GrowthValues growth, int health, BattleRow row, IReadOnlyList<StatusKind> statuses, LessonValues lessons)
+    internal PartyMember(CharacterRecord record, GrowthValues growth, int health, BattleRow row, IReadOnlyList<StatusKind> statuses, LessonValues lessons, IReadOnlyList<ContentId?> gear)
     {
+        this.gear = CopyOf(gear);
         this.Record = record;
         this.Level = growth.Level;
         this.Experience = growth.Experience;
@@ -59,6 +62,9 @@ public sealed class PartyMember
 
     /// <summary>The lesson of each slot, and no value for an empty slot. The count grows with the level (D-356, D-1018).</summary>
     public IReadOnlyList<ContentId?> Slots => this.slots;
+
+    /// <summary>The six gear slots: the weapon, the off-hand, the head, the body, and two accessories. Each holds a gear id, or no value when it is empty (D-44).</summary>
+    public IReadOnlyList<ContentId?> Gear => this.gear;
 
     /// <summary>The points of each lesson that the character ever carried, in the ordinal order of the lesson ids (D-361).</summary>
     public IReadOnlyList<LessonPoints> Points
@@ -84,8 +90,18 @@ public sealed class PartyMember
     /// <summary>The total experience, which gives the level (D-971).</summary>
     public int Experience { get; private set; }
 
-    /// <summary>The stats of the level now (D-966).</summary>
+    /// <summary>The stats of the level now, with no gear (D-966). The full health and the full MP come from it, because gear never changes them (D-1036).</summary>
     public StatRow Stats => this.Record.At(this.Level);
+
+    /// <summary>Gives the stats of the level now with the worn gear (D-1036, D-1047).</summary>
+    /// <param name="gear">The gear file.</param>
+    /// <returns>The stats. The attack, the defense, and the speed hold the gear.</returns>
+    public StatRow StatsWith(GearList gear) => GearRules.StatsOf(this.Stats, this.gear, gear);
+
+    /// <summary>Gives the element table of the worn gear (D-1037).</summary>
+    /// <param name="gear">The gear file.</param>
+    /// <returns>The table.</returns>
+    public ElementTable ElementsWith(GearList gear) => GearRules.ElementsOf(this.gear, gear);
 
     /// <summary>The health now, from zero to the full health of the level.</summary>
     public int Health { get; internal set; }
@@ -168,6 +184,11 @@ public sealed class PartyMember
         }
     }
 
+    /// <summary>Puts a piece in a gear slot, or empties the slot. The party state checks the slot kind and the pack first (D-44, D-1048).</summary>
+    /// <param name="slot">The gear slot, which the party state checked.</param>
+    /// <param name="piece">The piece, or no value to empty the slot.</param>
+    internal void Wear(int slot, ContentId? piece) => this.gear[slot] = piece;
+
     /// <summary>Adds points to one carried lesson, to the total of its last form at most (D-357, D-1021).</summary>
     /// <param name="lesson">The lesson, which a slot holds.</param>
     /// <param name="earned">The points of the battle, from zero.</param>
@@ -234,28 +255,46 @@ public sealed class PartyMember
 }
 
 /// <summary>
-/// The characters of the party and their pack, which last between battles (D-36, D-765,
-/// D-775). The snapshot holds them from save format 4, the statuses that last from save format 5 (D-792), and the level, the experience, and the MP from save format 7 (D-966).
+/// The characters of the party, their pack, and their gold, which last between battles (D-36,
+/// D-765, D-775, D-1043). The snapshot holds them from save format 4, the statuses that last
+/// from save format 5 (D-792), the level, the experience, and the MP from save format 7
+/// (D-966), and the gear slots, the spare gear, and the gold from save format 11 (D-44, D-1038).
 /// </summary>
 public sealed class PartyState
 {
-    private readonly PackValues[] pack;
+    private readonly SortedDictionary<string, PackValues> pack;
     private readonly List<ContentId> lessonPack;
     private PartyMember[] members;
 
-    private PartyState(PartyMember[] members, PackValues[] pack, List<ContentId> lessonPack, bool atSwapPlace)
+    private PartyState(PartyMember[] members, SortedDictionary<string, PackValues> pack, List<ContentId> lessonPack, bool atSwapPlace, int gold)
     {
         this.members = members;
         this.pack = pack;
         this.lessonPack = lessonPack;
         this.AtSwapPlace = atSwapPlace;
+        this.Gold = gold;
     }
 
     /// <summary>The characters, in slot order (D-336).</summary>
     public IReadOnlyList<PartyMember> Members => this.members;
 
-    /// <summary>The pack, in the order of the fixture file (D-775).</summary>
-    public IReadOnlyList<PackValues> Pack => this.pack;
+    /// <summary>The items and the spare gear of the pack, in the ordinal order of the ids. Each entry holds a count from 1 (D-775, D-1038).</summary>
+    public IReadOnlyList<PackValues> Pack
+    {
+        get
+        {
+            List<PackValues> all = [];
+            foreach (PackValues entry in this.pack.Values)
+            {
+                all.Add(entry);
+            }
+
+            return all;
+        }
+    }
+
+    /// <summary>The gold of the party, from zero. A steal adds to it, and PR-65 shows it and spends it (D-1043).</summary>
+    public int Gold { get; private set; }
 
     /// <summary>The owned lessons that no character carries, in the order that they entered the pack (D-1024).</summary>
     public IReadOnlyList<ContentId> LessonPack => this.lessonPack;
@@ -269,7 +308,8 @@ public sealed class PartyState
 
     /// <summary>
     /// Starts the party of a new run: the start party of the fixture at full health, the start
-    /// pack, the start lessons, and the lesson pack (D-336, D-765, D-1030).
+    /// pack, the start gear, the start lessons, the lesson pack, and no gold (D-336, D-765,
+    /// D-1030, D-1038, D-1043).
     /// </summary>
     /// <param name="content">The battle content of the run.</param>
     /// <returns>The party.</returns>
@@ -283,16 +323,16 @@ public sealed class PartyState
         {
             CharacterRecord record = content.Character(id);
             LessonValues lessons = StartLessonsOf(record, record.JoinLevel, content);
-            members.Add(new PartyMember(record, PartyMember.JoinValues(record, content.Rules), record.At(record.JoinLevel).Health, record.Row, [], lessons));
+            members.Add(new PartyMember(record, PartyMember.JoinValues(record, content.Rules), record.At(record.JoinLevel).Health, record.Row, [], lessons, StartGearOf(record, content)));
         }
 
-        List<PackValues> pack = [];
+        var pack = new SortedDictionary<string, PackValues>(StringComparer.Ordinal);
         foreach (PackEntry entry in content.Fixture.Pack)
         {
-            pack.Add(new PackValues(entry.Item, entry.Count));
+            pack.Add(entry.Id.Value, new PackValues(entry.Id, entry.Count));
         }
 
-        return new PartyState([.. members], [.. pack], new List<ContentId>(content.Fixture.LessonPack), false);
+        return new PartyState([.. members], pack, new List<ContentId>(content.Fixture.LessonPack), false, 0);
     }
 
     /// <summary>Puts the party back from the values of a snapshot (D-166, D-765).</summary>
@@ -311,12 +351,14 @@ public sealed class PartyState
     /// </remarks>
     /// <param name="lessonPack">The stored lesson pack, or no value for a snapshot of save format 9 or older.</param>
     /// <param name="atSwapPlace">True when the party stood at a swap place (D-1030).</param>
+    /// <param name="gold">The stored gold, or no value for a snapshot of save format 10 or older, which starts at zero (D-1043).</param>
     public static PartyState Resume(
         BattleContent content,
         IReadOnlyList<CharacterValues> characters,
         IReadOnlyList<PackValues> pack,
         IReadOnlyList<ContentId>? lessonPack,
         bool atSwapPlace,
+        int? gold,
         string source)
     {
         ArgumentNullException.ThrowIfNull(content);
@@ -356,17 +398,31 @@ public sealed class PartyState
                 $"the character '{record.Id.Value}' and the lesson pack differ on the save format: one holds lessons and one does not (D-166)");
             LessonValues lessons = stored.Lessons ?? StartLessonsOf(record, growth.Level, content);
             CheckLessons(record, growth.Level, lessons, content, source);
-            members.Add(new PartyMember(record, growth, stored.Health, stored.Row, stored.Statuses, lessons));
+            Refuse(
+                (stored.Gear is null) != (gold is null),
+                source,
+                $"the character '{record.Id.Value}' and the gold differ on the save format: one holds gear and one does not (D-166)");
+            IReadOnlyList<ContentId?> worn = stored.Gear ?? StartGearOf(record, content);
+            CheckGear(record, worn, content, source);
+            members.Add(new PartyMember(record, growth, stored.Health, stored.Row, stored.Statuses, lessons, worn));
         }
 
-        List<PackValues> items = [];
+        // A snapshot of save format 10 or older can hold an item at zero, and the pack now
+        // keeps no empty entry (D-166, D-1038).
+        var items = new SortedDictionary<string, PackValues>(StringComparer.Ordinal);
         foreach (PackValues stored in pack)
         {
             ArgumentNullException.ThrowIfNull(stored);
-            _ = content.Item(stored.Item);
-            Refuse(stored.Count < 0, source, $"the pack holds {stored.Count} of '{stored.Item.Value}', which is below zero");
-            items.Add(stored);
+            _ = content.LimitOf(stored.Id);
+            Refuse(stored.Count < 0, source, $"the pack holds {stored.Count} of '{stored.Id.Value}', which is below zero");
+            Refuse(items.ContainsKey(stored.Id.Value), source, $"the pack holds '{stored.Id.Value}' in two entries");
+            if (stored.Count > 0)
+            {
+                items.Add(stored.Id.Value, stored);
+            }
         }
+
+        Refuse(gold < 0, source, $"it holds the gold {gold}, which is below zero (D-1043)");
 
         List<ContentId> owned = lessonPack is null ? OlderLessonPack(members, content) : new List<ContentId>(lessonPack);
         foreach (ContentId lesson in owned)
@@ -375,8 +431,9 @@ public sealed class PartyState
             Refuse(!content.Lessons.Holds(lesson), source, $"the lesson pack holds '{lesson.Value}', which the lesson file lacks (D-1026)");
         }
 
-        var party = new PartyState([.. members], [.. items], owned, atSwapPlace);
+        var party = new PartyState([.. members], items, owned, atSwapPlace, gold ?? 0);
         party.CheckOneCopy(source);
+        party.CheckStackLimits(content, source);
         return party;
     }
 
@@ -525,22 +582,163 @@ public sealed class PartyState
     /// <returns>A new list, which a later swap never changes.</returns>
     public IReadOnlyList<ContentId> LessonPackValues() => new List<ContentId>(this.lessonPack);
 
-    /// <summary>Gives the count of one item in the pack (D-775).</summary>
-    /// <param name="item">The id of the item.</param>
-    /// <returns>The count, which is zero when the pack holds no entry for the item.</returns>
-    public int CountOf(ContentId item)
+    /// <summary>Gives the count of one item or one piece of gear in the pack (D-775).</summary>
+    /// <param name="id">The id of the item or the piece.</param>
+    /// <returns>The count, which is zero when the pack holds no entry for the id.</returns>
+    public int CountOf(ContentId id)
     {
-        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(id);
 
-        foreach (PackValues entry in this.pack)
+        return this.pack.TryGetValue(id.Value, out PackValues? entry) ? entry.Count : 0;
+    }
+
+    /// <summary>Gives the count of the copies that the party owns: in the pack, and in the gear slots of each character (D-1039).</summary>
+    /// <param name="id">The id of the item or the piece.</param>
+    /// <returns>The count, from zero. The stack limit holds it.</returns>
+    public int OwnedCount(ContentId id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        int owned = this.CountOf(id);
+        foreach (PartyMember member in this.members)
         {
-            if (string.CompareOrdinal(entry.Item.Value, item.Value) == 0)
+            foreach (ContentId? piece in member.Gear)
             {
-                return entry.Count;
+                if (piece is not null && string.CompareOrdinal(piece.Value, id.Value) == 0)
+                {
+                    owned += 1;
+                }
             }
         }
 
-        return 0;
+        return owned;
+    }
+
+    /// <summary>
+    /// Puts copies of an item or a piece of gear in the pack, up to the stack limit, and gives
+    /// the count that did not fit (D-385, D-1038, D-1039). The copies that did not fit stay
+    /// where they were: in a chest, or with an enemy. PR-16 calls it for a chest.
+    /// </summary>
+    /// <param name="id">The id of the item or the piece.</param>
+    /// <param name="count">The count of the find, from 1.</param>
+    /// <param name="content">The battle content, which holds the stack limit.</param>
+    /// <returns>The remainder, from zero to the count.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The count is below 1 (T-2).</exception>
+    /// <exception cref="ContentException">The item file or the gear file holds no such id (T-2).</exception>
+    public int Pick(ContentId id, int count, BattleContent content)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+        ArgumentNullException.ThrowIfNull(content);
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 1);
+
+        int room = Math.Max(0, content.LimitOf(id) - this.OwnedCount(id));
+        int taken = Math.Min(room, count);
+        if (taken > 0)
+        {
+            this.Put(id, taken);
+        }
+
+        return count - taken;
+    }
+
+    /// <summary>Adds gold to the party, from a steal (D-1043).</summary>
+    /// <param name="gold">The gold, above zero.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <exception cref="SimulationException">The gold is below 1, or the sum passes an `int` (T-2).</exception>
+    public void AddGold(int gold, RunContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (gold < 1 || gold > int.MaxValue - this.Gold)
+        {
+            throw new SimulationException($"an add of {gold} gold to {this.Gold}, which is below 1 or passes the largest gold (T-2)", context);
+        }
+
+        this.Gold += gold;
+    }
+
+    /// <summary>
+    /// Gives the reason that the rules refuse a change of gear now, or no value when the change
+    /// is legal (D-44, D-1048). A change puts a piece of the pack in a gear slot of its kind, or
+    /// empties a slot. The piece of the slot goes back to the pack. The gear window reads it.
+    /// </summary>
+    /// <param name="character">The slot of the character in the party.</param>
+    /// <param name="slot">The gear slot, from 0 to 5.</param>
+    /// <param name="piece">The piece of the pack, or no value to empty the slot.</param>
+    /// <param name="content">The battle content, which holds the gear file.</param>
+    /// <returns>The reason, or no value.</returns>
+    public string? RefusalOfWear(int character, int slot, ContentId? piece, BattleContent content)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+
+        if (character < 0 || character >= this.members.Length)
+        {
+            return $"the character slot {character}, and the party holds the slots 0 to {this.members.Length - 1}";
+        }
+
+        if (slot < 0 || slot >= GearRules.SlotCount)
+        {
+            return $"the gear slot {slot}, and a character holds the gear slots 0 to {GearRules.SlotCount - 1} (D-44)";
+        }
+
+        PartyMember member = this.members[character];
+        if (piece is null)
+        {
+            return member.Gear[slot] is null ? $"an empty of the gear slot {slot} of '{member.Record.Id.Value}', which holds no piece" : null;
+        }
+
+        if (string.CompareOrdinal(piece.Kind, GearList.Kind) != 0 || !content.Gear.Holds(piece))
+        {
+            return $"the id '{piece.Value}', which the gear file does not hold (D-1036)";
+        }
+
+        if (this.CountOf(piece) == 0)
+        {
+            return $"the piece '{piece.Value}', which the pack does not hold (D-1038)";
+        }
+
+        GearSlotKind kind = content.Piece(piece).Slot;
+        if (kind != GearRules.KindOf(slot))
+        {
+            return $"the piece '{piece.Value}' of the kind '{GearList.NameOf(kind)}' in the gear slot {slot} of the kind '{GearList.NameOf(GearRules.KindOf(slot))}' (D-44)";
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Changes the gear of one slot: the piece of the pack goes in, and the piece of the slot
+    /// goes to the pack (D-44, D-1048). The owned count never changes, so no stack limit
+    /// applies (D-1039).
+    /// </summary>
+    /// <param name="character">The slot of the character in the party.</param>
+    /// <param name="slot">The gear slot, from 0 to 5.</param>
+    /// <param name="piece">The piece of the pack, or no value to empty the slot.</param>
+    /// <param name="content">The battle content, which holds the gear file.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <exception cref="SimulationException">The rules refuse the change, and the error names the reason (T-2).</exception>
+    public void Wear(int character, int slot, ContentId? piece, BattleContent content, RunContext context)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (this.RefusalOfWear(character, slot, piece, content) is string refusal)
+        {
+            throw new SimulationException($"a change of gear, and the rules refuse it: {refusal}", context);
+        }
+
+        PartyMember member = this.members[character];
+        ContentId? held = member.Gear[slot];
+        if (piece is ContentId put)
+        {
+            this.Take(put, context);
+        }
+
+        member.Wear(slot, piece);
+        if (held is ContentId removed)
+        {
+            this.Put(removed, 1);
+        }
     }
 
     /// <summary>Gives the stored values of every character, in slot order (D-765).</summary>
@@ -556,7 +754,8 @@ public sealed class PartyState
                 member.Row,
                 member.Statuses,
                 new GrowthValues(member.Level, member.Experience, member.Mp),
-                new LessonValues(PartyMember.CopyOf(member.Slots), member.Points)));
+                new LessonValues(PartyMember.CopyOf(member.Slots), member.Points),
+                PartyMember.CopyOf(member.Gear)));
         }
 
         return values;
@@ -569,16 +768,7 @@ public sealed class PartyState
     /// would change with each later use, and a record that starts from it replays another run
     /// (G-5, T-2).
     /// </remarks>
-    public IReadOnlyList<PackValues> PackValues()
-    {
-        List<PackValues> values = [];
-        foreach (PackValues entry in this.pack)
-        {
-            values.Add(entry);
-        }
-
-        return values;
-    }
+    public IReadOnlyList<PackValues> PackValues() => this.Pack;
 
     /// <summary>Adds every value of the party to the state hash, in slot order (G-5).</summary>
     /// <param name="hasher">The hasher of the state.</param>
@@ -614,14 +804,21 @@ public sealed class PartyState
                 hasher.AddText(entry.Lesson.Value);
                 hasher.AddInt32(entry.Points);
             }
+
+            foreach (ContentId? piece in member.Gear)
+            {
+                hasher.AddText(piece?.Value ?? string.Empty);
+            }
         }
 
-        hasher.AddInt32(this.pack.Length);
-        foreach (PackValues entry in this.pack)
+        hasher.AddInt32(this.pack.Count);
+        foreach (PackValues entry in this.pack.Values)
         {
-            hasher.AddText(entry.Item.Value);
+            hasher.AddText(entry.Id.Value);
             hasher.AddInt32(entry.Count);
         }
+
+        hasher.AddInt32(this.Gold);
 
         hasher.AddInt32(this.lessonPack.Count);
         foreach (ContentId lesson in this.lessonPack)
@@ -688,34 +885,101 @@ public sealed class PartyState
         }
 
         GrowthValues growth = PartyMember.JoinValues(record, rules);
-        var joined = new PartyMember(record, growth, record.At(growth.Level).Health, record.Row, [], PartyMember.EmptyLessons(growth.Level, rules));
+        var joined = new PartyMember(record, growth, record.At(growth.Level).Health, record.Row, [], PartyMember.EmptyLessons(growth.Level, rules), new ContentId?[GearRules.SlotCount]);
         this.members = [.. this.members, joined];
     }
 
-    /// <summary>Takes one item from the pack (D-775).</summary>
-    /// <param name="item">The id of the item.</param>
+    /// <summary>Takes one copy of an item or a piece from the pack. An entry at zero leaves the pack (D-775).</summary>
+    /// <param name="id">The id of the item or the piece.</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
-    /// <exception cref="SimulationException">The pack holds none of the item (T-2).</exception>
-    internal void Take(ContentId item, RunContext context)
+    /// <exception cref="SimulationException">The pack holds none of the id (T-2).</exception>
+    internal void Take(ContentId id, RunContext context)
     {
-        for (int index = 0; index < this.pack.Length; index += 1)
+        if (!this.pack.TryGetValue(id.Value, out PackValues? entry))
         {
-            PackValues entry = this.pack[index];
-            if (string.CompareOrdinal(entry.Item.Value, item.Value) != 0)
+            throw new SimulationException($"a take of '{id.Value}' from the pack, and the pack holds none (D-775)", context);
+        }
+
+        if (entry.Count == 1)
+        {
+            _ = this.pack.Remove(id.Value);
+            return;
+        }
+
+        this.pack[id.Value] = entry with { Count = entry.Count - 1 };
+    }
+
+    /// <summary>Puts copies in the pack. The caller checked the stack limit, or keeps the owned count (D-1039).</summary>
+    private void Put(ContentId id, int count)
+    {
+        int before = this.CountOf(id);
+        this.pack[id.Value] = new PackValues(id, checked(before + count));
+    }
+
+    /// <summary>Gives the start gear of a character: the pieces of the fixture, each in the first empty slot of its kind (D-44).</summary>
+    private static ContentId?[] StartGearOf(CharacterRecord record, BattleContent content)
+    {
+        foreach (StartGear entry in content.Fixture.StartGear)
+        {
+            if (string.CompareOrdinal(entry.Character.Value, record.Id.Value) == 0)
+            {
+                return GearRules.SlotsOf(entry.Gear, content.Gear, BattleFixture.Path, record.Id.Value);
+            }
+        }
+
+        return new ContentId?[GearRules.SlotCount];
+    }
+
+    /// <summary>Refuses stored gear that no run can make: another count than six slots, an absent piece, or a piece in a slot of another kind (D-44).</summary>
+    private static void CheckGear(CharacterRecord record, IReadOnlyList<ContentId?> worn, BattleContent content, string source)
+    {
+        string who = record.Id.Value;
+        Refuse(worn.Count != GearRules.SlotCount, source, $"the character '{who}' holds {worn.Count} gear slots, and a character holds {GearRules.SlotCount} (D-44)");
+        for (int slot = 0; slot < worn.Count; slot += 1)
+        {
+            if (worn[slot] is not ContentId piece)
             {
                 continue;
             }
 
-            if (entry.Count == 0)
-            {
-                break;
-            }
+            Refuse(
+                string.CompareOrdinal(piece.Kind, GearList.Kind) != 0 || !content.Gear.Holds(piece),
+                source,
+                $"the character '{who}' wears '{piece.Value}', which the gear file lacks (D-1036)");
+            GearSlotKind kind = content.Piece(piece).Slot;
+            Refuse(
+                kind != GearRules.KindOf(slot),
+                source,
+                $"the character '{who}' wears '{piece.Value}' of the kind '{GearList.NameOf(kind)}' in the gear slot {slot} (D-44)");
+        }
+    }
 
-            this.pack[index] = entry with { Count = entry.Count - 1 };
-            return;
+    /// <summary>Refuses a party that owns more copies of an item or a piece than its stack limit, the worn copies included (D-1038, D-1039).</summary>
+    private void CheckStackLimits(BattleContent content, string source)
+    {
+        var ids = new SortedDictionary<string, ContentId>(StringComparer.Ordinal);
+        foreach (PackValues entry in this.pack.Values)
+        {
+            ids[entry.Id.Value] = entry.Id;
         }
 
-        throw new SimulationException($"a use of the item '{item.Value}', and the pack holds none (D-775)", context);
+        foreach (PartyMember member in this.members)
+        {
+            foreach (ContentId? piece in member.Gear)
+            {
+                if (piece is not null)
+                {
+                    ids[piece.Value] = piece;
+                }
+            }
+        }
+
+        foreach (ContentId id in ids.Values)
+        {
+            int owned = this.OwnedCount(id);
+            int limit = content.LimitOf(id);
+            Refuse(owned > limit, source, $"the party owns {owned} copies of '{id.Value}', and the stack limit is {limit} (D-1038, D-1039)");
+        }
     }
 
     /// <summary>

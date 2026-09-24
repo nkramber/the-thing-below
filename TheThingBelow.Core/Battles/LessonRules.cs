@@ -274,7 +274,7 @@ public static class LessonRules
         }
     }
 
-    private static bool Holds(IReadOnlyList<StatusKind> statuses, StatusKind status)
+    internal static bool Holds(IReadOnlyList<StatusKind> statuses, StatusKind status)
     {
         foreach (StatusKind held in statuses)
         {
@@ -287,7 +287,7 @@ public static class LessonRules
         return false;
     }
 
-    private static List<StatusKind> Without(IReadOnlyList<StatusKind> statuses, IReadOnlyList<StatusKind> cured)
+    internal static List<StatusKind> Without(IReadOnlyList<StatusKind> statuses, IReadOnlyList<StatusKind> cured)
     {
         List<StatusKind> kept = [];
         foreach (StatusKind status in statuses)

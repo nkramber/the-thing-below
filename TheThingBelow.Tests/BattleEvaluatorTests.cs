@@ -29,7 +29,8 @@ public sealed class BattleEvaluatorTests
      "id": "profile.test_protector",
      "weights": { "damage": 50, "kills": 0, "threat": 0, "healing": 300, "timeline": 0, "row": 0 },
      "steal_chance": 0,
-     "steal": []
+     "steal": [],
+     "drops": []
     }
     """;
 
@@ -39,7 +40,8 @@ public sealed class BattleEvaluatorTests
      "id": "profile.test_idle",
      "weights": { "damage": 0, "kills": 0, "threat": 0, "healing": 0, "timeline": 0, "row": 0 },
      "steal_chance": 0,
-     "steal": []
+     "steal": [],
+     "drops": []
     }
     """;
 
@@ -49,7 +51,8 @@ public sealed class BattleEvaluatorTests
      "id": "profile.test_careful",
      "weights": { "damage": 100, "kills": 3, "threat": 80, "healing": 150, "timeline": 1, "row": 200 },
      "steal_chance": 0,
-     "steal": []
+     "steal": [],
+     "drops": []
     }
     """;
 

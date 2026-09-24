@@ -53,6 +53,11 @@ public static class SaveFormat
     /// that it carried, and the party gained the lesson pack and the swap place (D-361, D-1018,
     /// D-1024, D-1030). A save of an older format gives each character its start lessons.
     /// </para>
+    /// <para>
+    /// PR-13 raised it to 11. Each character gained its six gear slots, and the party gained the
+    /// spare gear in the pack and the gold (D-44, D-1038, D-1043). A save of an older format gives
+    /// each character its start gear of the fixture, and the party no gold.
+    /// </para>
     /// </remarks>
-    public const int Current = 10;
+    public const int Current = 11;
 }

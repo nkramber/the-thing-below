@@ -82,6 +82,14 @@
    "text": "{actor} goes down."
   },
   {
+   "id": "battle.drop",
+   "text": "{actor} drops {item}."
+  },
+  {
+   "id": "battle.drop_lost",
+   "text": "No room for {item}. It stays."
+  },
+  {
    "id": "battle.fled",
    "text": "Away. Nobody follows."
   },
@@ -126,8 +134,16 @@
    "text": "{target} gets {amount} back."
   },
   {
+   "id": "battle.item_cure",
+   "text": "{target} takes the {item}."
+  },
+  {
    "id": "battle.item_entry",
    "text": "{item} x{count}"
+  },
+  {
+   "id": "battle.item_mp",
+   "text": "{target} gets {amount} MP back."
   },
   {
    "id": "battle.lesson",
@@ -190,6 +206,10 @@
    "text": "{actor} reels."
   },
   {
+   "id": "battle.revive",
+   "text": "{target} gets up."
+  },
+  {
    "id": "battle.started",
    "text": "Weapons out."
   },
@@ -224,6 +244,26 @@
   {
    "id": "battle.status_off",
    "text": "{actor}'s {status} ends."
+  },
+  {
+   "id": "battle.steal_empty",
+   "text": "{target} has nothing left."
+  },
+  {
+   "id": "battle.steal_failed",
+   "text": "{actor} comes away empty."
+  },
+  {
+   "id": "battle.steal_full",
+   "text": "No room for {item}."
+  },
+  {
+   "id": "battle.steal_gold",
+   "text": "{actor} takes {amount} gold."
+  },
+  {
+   "id": "battle.steal_item",
+   "text": "{actor} takes {item}."
   },
   {
    "id": "battle.step_back",
@@ -274,6 +314,46 @@
    "text": "The game stopped."
   },
   {
+   "id": "gear.fixture_ash_ring",
+   "text": "Black iron. Fire slides off it. Cold bites through."
+  },
+  {
+   "id": "gear.fixture_buckler",
+   "text": "Boiled leather over a wooden rim."
+  },
+  {
+   "id": "gear.fixture_charm",
+   "text": "A knuckle bone on a cord. Light in the hand."
+  },
+  {
+   "id": "gear.fixture_coat",
+   "text": "Oilskin over wool. Heavy, and slow to dry."
+  },
+  {
+   "id": "gear.fixture_hood",
+   "text": "Wool, stiff with old sweat."
+  },
+  {
+   "id": "gear.fixture_pick",
+   "text": "A miner's pick. The haft is split and bound."
+  },
+  {
+   "id": "item.fixture_draught",
+   "text": "Restores health. Bitter, and thick as tar."
+  },
+  {
+   "id": "item.fixture_root",
+   "text": "Stands a fallen ally up. It tastes of earth."
+  },
+  {
+   "id": "item.fixture_salts",
+   "text": "Ends poison, blindness, and silence."
+  },
+  {
+   "id": "item.fixture_tonic",
+   "text": "Restores MP. It burns on the way down."
+  },
+  {
    "id": "label.fixture_dungeon",
    "text": "The old cut"
   },
@@ -308,6 +388,10 @@
   {
    "id": "lesson.fixture_hew",
    "text": "A hard cut at the front row."
+  },
+  {
+   "id": "lesson.fixture_pilfer",
+   "text": "Take one thing from an enemy. Three tries in a fight."
   },
   {
    "id": "lesson.fixture_purge",
@@ -470,6 +554,10 @@
    "text": "Status"
   },
   {
+   "id": "name.fixture_ash_ring",
+   "text": "Ash ring"
+  },
+  {
    "id": "name.fixture_blaze",
    "text": "Blaze"
   },
@@ -482,12 +570,24 @@
    "text": "Brute"
   },
   {
+   "id": "name.fixture_buckler",
+   "text": "Buckler"
+  },
+  {
+   "id": "name.fixture_charm",
+   "text": "Bone charm"
+  },
+  {
    "id": "name.fixture_cinder",
    "text": "Cinder"
   },
   {
    "id": "name.fixture_cleave",
    "text": "Cleave"
+  },
+  {
+   "id": "name.fixture_coat",
+   "text": "Oilskin coat"
   },
   {
    "id": "name.fixture_draught",
@@ -502,6 +602,18 @@
    "text": "Hew"
   },
   {
+   "id": "name.fixture_hood",
+   "text": "Hood"
+  },
+  {
+   "id": "name.fixture_pick",
+   "text": "Pick"
+  },
+  {
+   "id": "name.fixture_pilfer",
+   "text": "Pilfer"
+  },
+  {
    "id": "name.fixture_purge",
    "text": "Purge"
   },
@@ -510,12 +622,24 @@
    "text": "Quicken"
   },
   {
+   "id": "name.fixture_root",
+   "text": "Grave root"
+  },
+  {
    "id": "name.fixture_rot",
    "text": "Rot"
   },
   {
+   "id": "name.fixture_salts",
+   "text": "Salts"
+  },
+  {
    "id": "name.fixture_salve",
    "text": "Salve"
+  },
+  {
+   "id": "name.fixture_tonic",
+   "text": "Tonic"
   },
   {
    "id": "name.marrek",

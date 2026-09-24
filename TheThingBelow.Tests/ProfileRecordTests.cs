@@ -27,6 +27,8 @@ public sealed class ProfileRecordTests
         Assert.Equal(2, brute.Steal.Count);
         Assert.Equal("item.fixture_draught", Assert.IsType<StealItem>(brute.Steal[0]).Item.Value);
         Assert.Equal(new StealGold(15), brute.Steal[1]);
+        Assert.Equal(("item.fixture_draught", 1000), (Assert.Single(grunt.Drops).Item.Value, grunt.Drops[0].Chance));
+        Assert.Equal(("item.fixture_tonic", 500), (Assert.Single(brute.Drops).Item.Value, brute.Drops[0].Chance));
         Assert.Equal("rules/profiles/fixture-grunt.json", grunt.File);
     }
 
@@ -42,6 +44,10 @@ public sealed class ProfileRecordTests
     [InlineData("{ \"gold\": 5 }", "{ }", "item", "not both or neither")]
     [InlineData("{ \"gold\": 5 }", "{ \"gold\": 0 }", "gold", "outside 1 to")]
     [InlineData("\"id\": \"profile.test_attacker\"", "\"id\": \"enemy.test_attacker\"", "id", "profile")]
+    [InlineData("\"drops\": []", "\"drops\": [{ \"item\": \"item.fixture_draught\", \"chance\": 0 }]", "chance", "never drops")]
+    [InlineData("\"drops\": []", "\"drops\": [{ \"item\": \"item.fixture_draught\", \"chance\": 10001 }]", "chance", "outside 0 to 10000")]
+    [InlineData("\"drops\": []", "\"drops\": [{ \"item\": \"item.fixture_draught\" }]", "chance", "absent")]
+    [InlineData(",\n \"drops\": []", "", "drops", "absent")]
     public void AProfileThatBreaksARuleFailsWithTheFileAndTheField(string from, string to, string field, string reason)
     {
         string text = TestBattles.AttackerProfileFile.Replace(from, to, StringComparison.Ordinal);

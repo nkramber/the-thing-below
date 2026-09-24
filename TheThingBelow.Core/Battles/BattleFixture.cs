@@ -5,16 +5,15 @@ using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Battles;
 
-/// <summary>One item that a character can use in battle, until the items of PR-13 (D-775).</summary>
-/// <param name="Id">The id, of the kind `item`.</param>
-/// <param name="Heal">The health that the item restores outside a battle (D-382).</param>
-/// <param name="Delay">The delay of a use, in ticks at speed 100 (D-757).</param>
-public sealed record ItemRecord(ContentId Id, int Heal, int Delay);
+/// <summary>The count of one item or one piece of gear in the pack at the start of a run (D-775, D-1038).</summary>
+/// <param name="Id">The id of the item or the piece, of the kind `item` or `gear`.</param>
+/// <param name="Count">The count, from 1.</param>
+public sealed record PackEntry(ContentId Id, int Count);
 
-/// <summary>The count of one item in the pack at the start of a run (D-775).</summary>
-/// <param name="Item">The id of the item.</param>
-/// <param name="Count">The count.</param>
-public sealed record PackEntry(ContentId Item, int Count);
+/// <summary>The gear that one character of the start party wears at the start of a run (D-44).</summary>
+/// <param name="Character">The id of the character.</param>
+/// <param name="Gear">The ids of the pieces. Each piece goes to the first empty slot of its kind.</param>
+public sealed record StartGear(ContentId Character, IReadOnlyList<ContentId> Gear);
 
 /// <summary>The lessons that one character of the start party carries at the start of a run, in slot order (D-1030).</summary>
 /// <param name="Character">The id of the character.</param>
@@ -22,12 +21,13 @@ public sealed record PackEntry(ContentId Item, int Count);
 public sealed record StartLessons(ContentId Character, IReadOnlyList<ContentId> Lessons);
 
 /// <summary>
-/// The fixture file of the battle core: the characters, the items, and the start of a run
-/// (D-765, D-775). The groups live in the group file of each region (D-957). The file is `content/rules/fixtures/battle.json`.
+/// The fixture file of the battle core: the characters and the start of a run (D-765,
+/// D-775). The groups live in the group file of each region (D-957). The file is `content/rules/fixtures/battle.json`.
 /// </summary>
 /// <remarks>
 /// PR-67 gave each character a join level and a stat curve in place of its fixed stats
-/// (D-363, D-966). PR-13 replaces the items with the pack (D-775). Each id stays. PR-11 moved the groups to the group file of each region
+/// (D-363, D-966). PR-13 moved the items to the item file, and added the gear in the pack and
+/// the start gear (D-1038). Each id stays. PR-11 moved the groups to the group file of each region
 /// with the same ids (D-766, D-957).
 /// PR-80 moved the enemies to the enemy record, and the battle content checks that each
 /// group names a record (D-557, D-786).
@@ -39,9 +39,6 @@ public sealed class BattleFixture
 
     /// <summary>The kind of a character id.</summary>
     public const string CharacterKind = "character";
-
-    /// <summary>The kind of an item id.</summary>
-    public const string ItemKind = "item";
 
     /// <summary>The most characters in the party (D-31, D-336).</summary>
     public const int MostCharacters = 3;
@@ -65,16 +62,16 @@ public sealed class BattleFixture
 
     private BattleFixture(
         IReadOnlyList<CharacterRecord> characters,
-        IReadOnlyList<ItemRecord> items,
         IReadOnlyList<ContentId> startParty,
         IReadOnlyList<PackEntry> pack,
+        IReadOnlyList<StartGear> startGear,
         IReadOnlyList<StartLessons> startLessons,
         IReadOnlyList<ContentId> lessonPack)
     {
         this.Characters = characters;
-        this.Items = items;
         this.StartParty = startParty;
         this.Pack = pack;
+        this.StartGear = startGear;
         this.StartLessons = startLessons;
         this.LessonPack = lessonPack;
     }
@@ -82,14 +79,14 @@ public sealed class BattleFixture
     /// <summary>Every character, in the order of the file.</summary>
     public IReadOnlyList<CharacterRecord> Characters { get; }
 
-    /// <summary>Every item, in the order of the file.</summary>
-    public IReadOnlyList<ItemRecord> Items { get; }
-
     /// <summary>The characters of the party at the start of a run, in slot order (D-336).</summary>
     public IReadOnlyList<ContentId> StartParty { get; }
 
-    /// <summary>The pack at the start of a run, in the order of the file (D-775).</summary>
+    /// <summary>The items and the spare gear of the pack at the start of a run, in the order of the file (D-775, D-1038).</summary>
     public IReadOnlyList<PackEntry> Pack { get; }
+
+    /// <summary>The gear of each character of the start party, in the order of the file (D-44).</summary>
+    public IReadOnlyList<StartGear> StartGear { get; }
 
     /// <summary>The lessons of each character of the start party, in the order of the file (D-1030).</summary>
     public IReadOnlyList<StartLessons> StartLessons { get; }
@@ -107,9 +104,9 @@ public sealed class BattleFixture
         var reader = new ContentReader(bytes, file);
         string? comment = null;
         List<CharacterRecord>? characters = null;
-        List<ItemRecord>? items = null;
         List<ContentId>? startParty = null;
         List<PackEntry>? pack = null;
+        List<StartGear>? startGear = null;
         List<StartLessons>? startLessons = null;
         List<ContentId>? lessonPack = null;
 
@@ -124,14 +121,14 @@ public sealed class BattleFixture
                 case "characters":
                     characters = ReadList(ref reader, ReadCharacter);
                     break;
-                case "items":
-                    items = ReadList(ref reader, ReadItem);
-                    break;
                 case "start_party":
                     startParty = ReadList(ref reader, ReadCharacterId);
                     break;
                 case "pack":
                     pack = ReadList(ref reader, ReadPackEntry);
+                    break;
+                case "start_gear":
+                    startGear = ReadList(ref reader, ReadStartGear);
                     break;
                 case "start_lessons":
                     startLessons = ReadList(ref reader, ReadStartLessons);
@@ -147,9 +144,9 @@ public sealed class BattleFixture
         _ = reader.Require(comment, depth, "comment");
         var fixture = new BattleFixture(
             reader.Require(characters, depth, "characters"),
-            reader.Require(items, depth, "items"),
             reader.Require(startParty, depth, "start_party"),
             reader.Require(pack, depth, "pack"),
+            reader.Require(startGear, depth, "start_gear"),
             reader.Require(startLessons, depth, "start_lessons"),
             reader.Require(lessonPack, depth, "lesson_pack"));
         reader.ReadFileEnd();
@@ -159,18 +156,13 @@ public sealed class BattleFixture
     }
 
     /// <summary>Gives every content id that the file defines, in the order of the file (D-166).</summary>
-    /// <returns>The ids of the characters and the items.</returns>
+    /// <returns>The ids of the characters.</returns>
     public IReadOnlyList<ContentId> DefinedIds()
     {
         List<ContentId> ids = [];
         foreach (CharacterRecord character in this.Characters)
         {
             ids.Add(character.Id);
-        }
-
-        foreach (ItemRecord item in this.Items)
-        {
-            ids.Add(item.Id);
         }
 
         return ids;
@@ -263,37 +255,6 @@ public sealed class BattleFixture
         return kind;
     }
 
-    private static ItemRecord ReadItem(ref ContentReader reader)
-    {
-        ContentId? id = null;
-        int? heal = null;
-        int? delay = null;
-
-        int depth = reader.ReadObjectStart();
-        while (reader.ReadNextField(depth, out string field))
-        {
-            switch (field)
-            {
-                case "id":
-                    id = reader.ReadContentId(ItemKind);
-                    break;
-                case "heal":
-                    heal = ReadStat(ref reader, 1);
-                    break;
-                case "delay":
-                    delay = ReadStat(ref reader, 1);
-                    break;
-                default:
-                    throw reader.UnknownField(field);
-            }
-        }
-
-        return new ItemRecord(
-            reader.Require(id, depth, "id"),
-            reader.RequireInt(heal, depth, "heal"),
-            reader.RequireInt(delay, depth, "delay"));
-    }
-
     private static ContentId ReadCharacterId(ref ContentReader reader) => reader.ReadContentId(CharacterKind);
 
     private static ContentId ReadLessonId(ref ContentReader reader) => reader.ReadContentId(LessonList.Kind);
@@ -322,9 +283,11 @@ public sealed class BattleFixture
         return new StartLessons(reader.Require(character, depth, "character"), reader.Require(lessons, depth, "lessons"));
     }
 
+    /// <summary>Reads one pack entry: an `item` or a `gear` id, and a count from 1 (D-1038).</summary>
     private static PackEntry ReadPackEntry(ref ContentReader reader)
     {
         ContentId? item = null;
+        ContentId? gear = null;
         int? count = null;
 
         int depth = reader.ReadObjectStart();
@@ -333,18 +296,52 @@ public sealed class BattleFixture
             switch (field)
             {
                 case "item":
-                    item = reader.ReadContentId(ItemKind);
+                    item = reader.ReadContentId(ItemList.Kind);
+                    break;
+                case "gear":
+                    gear = reader.ReadContentId(GearList.Kind);
                     break;
                 case "count":
-                    count = ReadStat(ref reader, 0);
+                    count = ReadStat(ref reader, 1);
                     break;
                 default:
                     throw reader.UnknownField(field);
             }
         }
 
-        return new PackEntry(reader.Require(item, depth, "item"), reader.RequireInt(count, depth, "count"));
+        if ((item is null) == (gear is null))
+        {
+            throw reader.RefuseField(depth, "item", "a pack entry names one item or one piece of gear, and not both (D-1038)");
+        }
+
+        return new PackEntry(item ?? gear!, reader.RequireInt(count, depth, "count"));
     }
+
+    private static StartGear ReadStartGear(ref ContentReader reader)
+    {
+        ContentId? character = null;
+        List<ContentId>? gear = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "character":
+                    character = reader.ReadContentId(CharacterKind);
+                    break;
+                case "gear":
+                    gear = ReadList(ref reader, ReadGearId);
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new StartGear(reader.Require(character, depth, "character"), reader.Require(gear, depth, "gear"));
+    }
+
+    private static ContentId ReadGearId(ref ContentReader reader) => reader.ReadContentId(GearList.Kind);
 
     /// <summary>Reads a stat, and refuses a value outside the lowest value to <see cref="MostStat"/> (T-2).</summary>
     /// <param name="reader">The reader, at the value.</param>
@@ -424,13 +421,28 @@ public sealed class BattleFixture
             }
         }
 
+        // The battle content checks each id of the pack and of the start gear against the
+        // item file and the gear file, and each stack limit (D-1038).
         var packed = new SortedSet<string>(StringComparer.Ordinal);
         foreach (PackEntry entry in this.Pack)
         {
-            Require(defined, file, entry.Item, "the pack");
-            if (!packed.Add(entry.Item.Value))
+            if (!packed.Add(entry.Id.Value))
             {
-                throw ContentException.ForField(file, "pack", $"the pack holds '{entry.Item.Value}' two times, and one entry holds each item");
+                throw ContentException.ForField(file, "pack", $"the pack holds '{entry.Id.Value}' two times, and one entry holds each item or piece");
+            }
+        }
+
+        var wearers = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (StartGear entry in this.StartGear)
+        {
+            if (!started.Contains(entry.Character.Value))
+            {
+                throw ContentException.ForField(file, "start_gear", $"the character '{entry.Character.Value}' wears start gear, and it is not in the start party (D-44)");
+            }
+
+            if (!wearers.Add(entry.Character.Value))
+            {
+                throw ContentException.ForField(file, "start_gear", $"the character '{entry.Character.Value}' has two entries of start gear");
             }
         }
 

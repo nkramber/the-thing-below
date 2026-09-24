@@ -40,6 +40,9 @@ internal static class TestBattles
      "flee_floor": 1000,
      "flee_ceiling": 9000,
      "item_rate": 5000,
+     "steal_rate": 5000,
+     "steal_floor": 0,
+     "steal_ceiling": 9000,
      "weak_rate": 15000,
      "resist_rate": 5000,
      "absorb_rate": 10000,
@@ -76,11 +79,9 @@ internal static class TestBattles
       { "id": "character.test_second", "row": "front", "join_level": 1, "main_aptitude": "harm", "side_aptitude": "mend", "side_flag": "flag.test_second_side", "curve": {{StatCurve.FlatText(new StatRow(50, 12, 10, 3, 110))}} },
       { "id": "character.test_third", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "boon", "side_flag": "flag.test_third_side", "curve": {{StatCurve.FlatText(new StatRow(40, 16, 8, 2, 120))}} }
      ],
-     "items": [
-      { "id": "item.fixture_draught", "heal": 30, "delay": 100 }
-     ],
      "start_party": ["character.marrek"],
      "pack": [{ "item": "item.fixture_draught", "count": 3 }],
+     "start_gear": [],
      "start_lessons": [{ "character": "character.marrek", "lessons": ["lesson.fixture_hew", "lesson.fixture_cinder"] }],
      "lesson_pack": ["lesson.fixture_salve", "lesson.fixture_purge", "lesson.fixture_rot", "lesson.fixture_quicken", "lesson.fixture_bolt"]
     }
@@ -182,7 +183,45 @@ internal static class TestBattles
      "id": "profile.test_attacker",
      "weights": { "damage": 100, "kills": 0, "threat": 0, "healing": 0, "timeline": 0, "row": 0 },
      "steal_chance": 3000,
-     "steal": [{ "item": "item.fixture_draught" }, { "gold": 5 }]
+     "steal": [{ "item": "item.fixture_draught" }, { "gold": 5 }],
+     "drops": []
+    }
+    """;
+
+    /// <summary>
+    /// The item file of the tests (D-1038, D-1046): one item of each effect and a key item.
+    /// The fixture pack holds the draught alone, so a test adds the others with a pick.
+    /// </summary>
+    public const string ItemsFile = """
+    {
+     "comment": "The item file of the tests.",
+     "items": [
+      { "id": "item.fixture_draught", "kind": "heal", "limit": 5, "delay": 100, "amount": 30 },
+      { "id": "item.test_tonic", "kind": "restore", "limit": 4, "delay": 100, "amount": 10 },
+      { "id": "item.test_salts", "kind": "cure", "limit": 5, "delay": 90, "statuses": ["poison", "silence"] },
+      { "id": "item.test_root", "kind": "revive", "limit": 3, "delay": 120, "amount": 25 },
+      { "id": "item.test_token", "kind": "key", "limit": 1 }
+     ]
+    }
+    """;
+
+    /// <summary>
+    /// The gear file of the tests (D-1036, D-1037): a piece of each slot kind, and three
+    /// accessories that resist, absorb, and are weak to fire. Marrek of the tests wears none,
+    /// so every number of the battle tests stays.
+    /// </summary>
+    public const string GearFile = """
+    {
+     "comment": "The gear file of the tests.",
+     "gear": [
+      { "id": "gear.test_blade", "slot": "weapon", "limit": 2, "attack": 5, "defense": 0, "speed": -3, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_shield", "slot": "off_hand", "limit": 1, "attack": 0, "defense": 3, "speed": 0, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_helm", "slot": "head", "limit": 1, "attack": 0, "defense": 1, "speed": 0, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_mail", "slot": "body", "limit": 1, "attack": 0, "defense": 4, "speed": -99, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_resist_ring", "slot": "accessory", "limit": 3, "attack": 0, "defense": 0, "speed": 0, "elements": { "fire": "resist", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_absorb_ring", "slot": "accessory", "limit": 3, "attack": 0, "defense": 0, "speed": 0, "elements": { "fire": "absorb", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_weak_charm", "slot": "accessory", "limit": 3, "attack": 1, "defense": 0, "speed": 2, "elements": { "fire": "weak", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } }
+     ]
     }
     """;
 
@@ -245,7 +284,8 @@ internal static class TestBattles
       { "id": "ability.fixture_salve", "kind": "heal", "delay": 120, "heal": 30 },
       { "id": "ability.fixture_purge", "kind": "cure", "delay": 100, "statuses": ["poison", "blind", "silence"] },
       { "id": "ability.fixture_quicken", "kind": "boon", "delay": 100, "status": "haste" },
-      { "id": "ability.fixture_bolt", "kind": "strike", "delay": 100, "power": 12000, "element": "none", "reach": "any", "status": "none" }
+      { "id": "ability.fixture_bolt", "kind": "strike", "delay": 100, "power": 12000, "element": "none", "reach": "any", "status": "none" },
+      { "id": "ability.test_pilfer", "kind": "steal", "delay": 100 }
      ]
     }
     """;
@@ -275,10 +315,24 @@ internal static class TestBattles
       { "id": "lesson.fixture_quicken", "kind": "boon", "forms": [
        { "ability": "ability.fixture_quicken", "points": 0, "mp": 4, "description": "lesson.fixture_quicken" } ] },
       { "id": "lesson.fixture_bolt", "kind": "shot", "forms": [
-       { "ability": "ability.fixture_bolt", "points": 0, "mp": 0, "description": "lesson.fixture_bolt" } ] }
+       { "ability": "ability.fixture_bolt", "points": 0, "mp": 0, "description": "lesson.fixture_bolt" } ] },
+      { "id": "lesson.test_pilfer", "kind": "theft", "forms": [
+       { "ability": "ability.test_pilfer", "points": 0, "mp": 0, "description": "lesson.test_pilfer" } ] }
      ]
     }
     """;
+
+    /// <summary>
+    /// The name and the line of each item and each piece of gear of the tests. A content set that
+    /// holds <see cref="ItemsFile"/> and <see cref="GearFile"/> needs them in its string table (G-7, D-1046).
+    /// </summary>
+    public const string ItemStrings =
+        """{ "id": "item.fixture_draught", "text": "fixture_draught text." }, { "id": "name.fixture_draught", "text": "fixture_draught" }, { "id": "item.test_tonic", "text": "test_tonic text." }, { "id": "name.test_tonic", "text": "test_tonic" }""" + ", " +
+        """{ "id": "item.test_salts", "text": "test_salts text." }, { "id": "name.test_salts", "text": "test_salts" }, { "id": "item.test_root", "text": "test_root text." }, { "id": "name.test_root", "text": "test_root" }""" + ", " +
+        """{ "id": "item.test_token", "text": "test_token text." }, { "id": "name.test_token", "text": "test_token" }, { "id": "gear.test_blade", "text": "test_blade text." }, { "id": "name.test_blade", "text": "test_blade" }""" + ", " +
+        """{ "id": "gear.test_shield", "text": "test_shield text." }, { "id": "name.test_shield", "text": "test_shield" }, { "id": "gear.test_helm", "text": "test_helm text." }, { "id": "name.test_helm", "text": "test_helm" }""" + ", " +
+        """{ "id": "gear.test_mail", "text": "test_mail text." }, { "id": "name.test_mail", "text": "test_mail" }, { "id": "gear.test_resist_ring", "text": "test_resist_ring text." }, { "id": "name.test_resist_ring", "text": "test_resist_ring" }""" + ", " +
+        """{ "id": "gear.test_absorb_ring", "text": "test_absorb_ring text." }, { "id": "name.test_absorb_ring", "text": "test_absorb_ring" }, { "id": "gear.test_weak_charm", "text": "test_weak_charm text." }, { "id": "name.test_weak_charm", "text": "test_weak_charm" }""";
 
     /// <summary>
     /// The strings of <see cref="LessonsFile"/>, in ordinal order. A content set that holds the
@@ -289,6 +343,7 @@ internal static class TestBattles
         """{ "id": "lesson.fixture_cleave", "text": "Cleave text." }, { "id": "lesson.fixture_hew", "text": "Hew text." }, """ +
         """{ "id": "lesson.fixture_purge", "text": "Purge text." }, { "id": "lesson.fixture_quicken", "text": "Quicken text." }, """ +
         """{ "id": "lesson.fixture_rot", "text": "Rot text." }, { "id": "lesson.fixture_salve", "text": "Salve text." }, """ +
+        """{ "id": "lesson.test_pilfer", "text": "Pilfer text." }, { "id": "name.test_pilfer", "text": "Pilfer" }, """ +
         """{ "id": "name.fixture_blaze", "text": "Blaze" }, { "id": "name.fixture_bolt", "text": "Bolt" }, { "id": "name.fixture_cinder", "text": "Cinder" }, """ +
         """{ "id": "name.fixture_cleave", "text": "Cleave" }, { "id": "name.fixture_hew", "text": "Hew" }, """ +
         """{ "id": "name.fixture_purge", "text": "Purge" }, { "id": "name.fixture_quicken", "text": "Quicken" }, """ +
@@ -346,6 +401,8 @@ internal static class TestBattles
         new ContentFile(BattleFixture.Path, Encoding.UTF8.GetBytes(FixtureFile)),
         new ContentFile(AbilityList.Path, Encoding.UTF8.GetBytes(AbilitiesFile)),
         new ContentFile(LessonList.Path, Encoding.UTF8.GetBytes(LessonsFile)),
+        new ContentFile(ItemList.Path, Encoding.UTF8.GetBytes(ItemsFile)),
+        new ContentFile(GearList.Path, Encoding.UTF8.GetBytes(GearFile)),
         new ContentFile(BrutePath, Encoding.UTF8.GetBytes(BruteFile)),
         new ContentFile(GruntPath, Encoding.UTF8.GetBytes(GruntFile)),
         new ContentFile(FixtureGroupsPath, Encoding.UTF8.GetBytes(FixtureGroupsFile)),
@@ -434,6 +491,34 @@ internal static class TestBattles
     /// <param name="size">The count of characters: 1, 2, or 3 (D-336).</param>
     /// <returns>The battle content.</returns>
     public static BattleContent WithParty(int size) => Of(FixtureWithParty(size));
+
+    /// <summary>
+    /// Gives the battle content of the tests with a thief: Marrek carries the hew and the steal
+    /// drill of the tests, and every hit takes the factor 10000 with no miss (D-950, D-1045).
+    /// </summary>
+    /// <param name="stealChance">The base chance of a steal of the attacker profile, in basis points.</param>
+    /// <param name="rules">More changes of the rules, such as the steal clamp.</param>
+    /// <returns>The battle content.</returns>
+    /// <summary>Gives the battle content of the tests with a drop list on the attacker profile, and every hit at the factor 10000 with no miss (D-1042).</summary>
+    /// <param name="drops">The text of the drop list, such as `[{ "item": "item.fixture_draught", "chance": 10000 }]`.</param>
+    /// <returns>The battle content.</returns>
+    public static BattleContent WithDrops(string drops)
+    {
+        (string Field, int Value)[] exact = [("hit_low", 10000), ("hit_high", 10000), ("miss_base", 0), ("miss_ceiling", 0)];
+        string profile = AttackerProfileFile.Replace("\"drops\": []", $"\"drops\": {drops}", System.StringComparison.Ordinal);
+        return Build(FixtureFile, exact, attacker: profile);
+    }
+
+    public static BattleContent WithThief(int stealChance, params (string Field, int Value)[] rules)
+    {
+        string fixture = FixtureFile.Replace(
+            "\"lessons\": [\"lesson.fixture_hew\", \"lesson.fixture_cinder\"]",
+            "\"lessons\": [\"lesson.fixture_hew\", \"lesson.test_pilfer\"]",
+            System.StringComparison.Ordinal);
+        (string Field, int Value)[] exact = [("hit_low", 10000), ("hit_high", 10000), ("miss_base", 0), ("miss_ceiling", 0), .. rules];
+        string profile = AttackerProfileFile.Replace("\"steal_chance\": 3000", $"\"steal_chance\": {stealChance}", System.StringComparison.Ordinal);
+        return Build(fixture, exact, attacker: profile);
+    }
 
     /// <summary>
     /// Gives stored lessons with the slot count of another level, in the rules of the tests: the
@@ -534,7 +619,7 @@ internal static class TestBattles
         return Build(FixtureWithParty(3), changes, grunt, groups, profiles);
     }
 
-    private static BattleContent Build(string fixture, (string Field, int Value)[] changes, string? grunt = null, string? groups = null, string[]? profiles = null, string? lessons = null, string? abilities = null)
+    private static BattleContent Build(string fixture, (string Field, int Value)[] changes, string? grunt = null, string? groups = null, string[]? profiles = null, string? lessons = null, string? abilities = null, string? attacker = null)
     {
         string rules = RulesFile;
         foreach ((string field, int value) in changes)
@@ -554,16 +639,18 @@ internal static class TestBattles
             ],
             AbilityList.Read(Encoding.UTF8.GetBytes(abilities ?? AbilitiesFile), AbilityList.Path),
             LessonList.Read(Encoding.UTF8.GetBytes(lessons ?? LessonsFile), LessonList.Path),
+            ItemList.Read(Encoding.UTF8.GetBytes(ItemsFile), ItemList.Path),
+            GearList.Read(Encoding.UTF8.GetBytes(GearFile), GearList.Path),
             [
                 GroupFile.Read(Encoding.UTF8.GetBytes(FixtureGroupsFile), FixtureGroupsPath),
                 GroupFile.Read(Encoding.UTF8.GetBytes(groups ?? GroupsFile), GroupsPath),
             ],
-            ProfilesOf(profiles ?? []));
+            ProfilesOf(profiles ?? [], attacker ?? AttackerProfileFile));
     }
 
-    private static List<ProfileRecord> ProfilesOf(string[] more)
+    private static List<ProfileRecord> ProfilesOf(string[] more, string attacker)
     {
-        List<ProfileRecord> profiles = [ProfileRecord.Read(Encoding.UTF8.GetBytes(AttackerProfileFile), AttackerProfilePath)];
+        List<ProfileRecord> profiles = [ProfileRecord.Read(Encoding.UTF8.GetBytes(attacker), AttackerProfilePath)];
         for (int index = 0; index < more.Length; index += 1)
         {
             profiles.Add(ProfileRecord.Read(Encoding.UTF8.GetBytes(more[index]), $"rules/profiles/test-{index}.json"));

@@ -101,4 +101,10 @@ public static class IntentIds
 
     /// <summary>The lesson window puts a lesson of the lesson pack in a slot, or empties a slot (D-356, D-1030).</summary>
     public static readonly ContentId LessonSwap = ContentId.Parse("intent.lesson_swap", Source, nameof(LessonSwap));
+
+    /// <summary>The item window uses one item on one character, outside a battle (D-382, D-1046, D-1049).</summary>
+    public static readonly ContentId MenuItem = ContentId.Parse("intent.menu_item", Source, nameof(MenuItem));
+
+    /// <summary>The gear window puts a piece of the pack in a gear slot, or empties a slot, outside a battle (D-44, D-1048).</summary>
+    public static readonly ContentId GearWear = ContentId.Parse("intent.gear_wear", Source, nameof(GearWear));
 }

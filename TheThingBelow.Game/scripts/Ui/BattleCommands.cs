@@ -227,7 +227,7 @@ public sealed class BattleCommands
             case CommandStage.Action:
                 return this.ConfirmAction(Actions[this.Cursor]);
             case CommandStage.Item:
-                this.item = this.items[this.Cursor].Item;
+                this.item = this.items[this.Cursor].Id;
                 this.OpenTargets(BattleAction.Item, this.item);
                 return null;
             case CommandStage.Lesson:
@@ -252,7 +252,7 @@ public sealed class BattleCommands
         {
             case CommandStage.Target when this.action == BattleAction.Item:
                 this.Stage = CommandStage.Item;
-                this.Cursor = Math.Max(0, this.items.FindIndex(entry => string.CompareOrdinal(entry.Item.Value, this.item!.Value) == 0));
+                this.Cursor = Math.Max(0, this.items.FindIndex(entry => string.CompareOrdinal(entry.Id.Value, this.item!.Value) == 0));
                 return;
             case CommandStage.Target when this.action == BattleAction.Lesson:
                 this.Stage = CommandStage.Form;
@@ -419,7 +419,7 @@ public sealed class BattleCommands
         var usable = new List<PackValues>();
         foreach (PackValues entry in this.state.Characters.Pack)
         {
-            if (entry.Count > 0 && this.TargetsOf(BattleAction.Item, entry.Item).Count > 0)
+            if (entry.Count > 0 && this.TargetsOf(BattleAction.Item, entry.Id).Count > 0)
             {
                 usable.Add(entry);
             }

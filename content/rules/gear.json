@@ -1,0 +1,11 @@
+{
+ "comment": "The gear (D-44, D-1036). Each piece adds to attack, defense, and speed, from -99 to 99, and never to health or MP (D-1047). A plain piece holds normal for each element, and a special piece holds another level (D-1037). Each piece holds a stack limit from 1 to 3 (D-1038). Each id is permanent (D-166). PR-30 tunes each number.",
+ "gear": [
+  { "id": "gear.fixture_pick", "slot": "weapon", "limit": 1, "attack": 4, "defense": 0, "speed": 0, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+  { "id": "gear.fixture_buckler", "slot": "off_hand", "limit": 1, "attack": 0, "defense": 2, "speed": -1, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+  { "id": "gear.fixture_hood", "slot": "head", "limit": 2, "attack": 0, "defense": 1, "speed": 0, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+  { "id": "gear.fixture_coat", "slot": "body", "limit": 1, "attack": 0, "defense": 3, "speed": -2, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+  { "id": "gear.fixture_charm", "slot": "accessory", "limit": 2, "attack": 0, "defense": 0, "speed": 3, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+  { "id": "gear.fixture_ash_ring", "slot": "accessory", "limit": 1, "attack": 0, "defense": 0, "speed": 0, "elements": { "fire": "resist", "ice": "weak", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } }
+ ]
+}

@@ -37,7 +37,8 @@ namespace TheThingBelow.Tests;
 /// older predate the story state, and the migration starts with no flag on, no story scene, and
 /// no entry to read (D-540, D-1004). Format 9 and older predate the lessons, and the migration gives
 /// each character its start lessons at zero points and the lesson pack of the fixture (D-1018,
-/// D-1030).
+/// D-1030). Format 10 and older predate the gear, and the migration gives each character the
+/// start gear of the fixture, the party no gold, and a fight no steal try (D-1038, D-1043, D-1045).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
@@ -342,7 +343,7 @@ public sealed class SaveFixtureTests
         Combatant fighter = BattleRuns.BattleOf(run).Party[0];
         Assert.Equal(TestBattles.MarrekAt(2).Health, fighter.FullHealth);
         Assert.Equal(TestBattles.MarrekAt(2).Attack, fighter.Attack);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Notices = [], Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters) }), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Notices = [], Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) }), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -367,7 +368,7 @@ public sealed class SaveFixtureTests
 
         Assert.Equal([TestBattles.KeptNotice.Value], Values(run.State.NoticeLog.Entries));
         Assert.Equal(20, save.Header.SimulationVersion);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters) }), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) }), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -413,7 +414,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(ScenePhase.WaitIntent, story.Phase);
         Assert.True(story.Paused);
         Assert.Equal(2, run.State.Characters.Members.Count);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Characters = MigratedParty(save.Snapshot.Characters) }), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) }), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -444,7 +445,49 @@ public sealed class SaveFixtureTests
             ["lesson.fixture_purge", "lesson.fixture_rot", "lesson.fixture_quicken", "lesson.fixture_bolt", "lesson.fixture_cinder"],
             Values(run.State.Characters.LessonPack));
         Assert.True(run.State.Characters.AtSwapPlace);
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Characters = WithGear(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) }), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatElevenHoldsTheGearThePackTheGoldAndTheSteals()
+    {
+        // Exit test 7 of PR-13: the snapshot holds the pack, the gold, and the gear slots. PR-13
+        // wrote format 11 from a fight of the tests: Marrek wears the blade and the resist ring,
+        // the pack holds the spare shield, and the first steal took the 5 gold of the attacker.
+        SaveDocument save = ReadFormat(11);
+        Simulation run = ResumeInBattle(save);
+
+        PartyMember marrek = Assert.Single(run.State.Characters.Members);
+        Assert.Equal(23, save.Header.SimulationVersion);
+        Assert.Equal("gear.test_blade", marrek.Gear[0]?.Value);
+        Assert.Equal("gear.test_resist_ring", marrek.Gear[4]?.Value);
+        Assert.Equal(1, run.State.Characters.CountOf(ContentId.Parse("gear.test_shield", "test", "gear")));
+        Assert.Equal(3, run.State.Characters.CountOf(ContentId.Parse("item.fixture_draught", "test", "item")));
+        Assert.Equal(5, run.State.Characters.Gold);
+
+        Battle battle = BattleRuns.BattleOf(run);
+        Assert.Equal(1, battle.StealTries);
+        Assert.Equal([new StolenEntry(0, 1)], battle.Stolen);
+
+        // The fight reads the gear: the blade adds 5 to attack, and the ring resists fire (D-1036, D-1037).
+        Combatant fighter = battle.Party[0];
+        Assert.Equal(TestBattles.MarrekAt(1).Attack + 5, fighter.Attack);
+        Assert.Equal(Affinity.Resist, fighter.Elements.Of(Element.Fire));
         Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatTenGetsNoGearNoGoldAndNoStealTry()
+    {
+        // D-166: format 10 predates the gear. The fixture of the tests gives Marrek no start gear.
+        SaveDocument save = ReadFormat(10);
+        Assert.Null(save.Snapshot.Characters?.Gold);
+
+        Simulation run = ResumeInBattle(save);
+
+        PartyState party = run.State.Characters;
+        Assert.All(party.Members[0].Gear, Assert.Null);
+        Assert.Equal(0, party.Gold);
     }
 
     [Fact]
@@ -477,9 +520,10 @@ public sealed class SaveFixtureTests
     }
 
     /// <summary>
-    /// Gives the party of a save of format 9 or older as the migration of format 10 gives it:
+    /// Gives the party of a save of format 9 or older as the migration of format 11 gives it:
     /// each character with the slots of its level and its start lessons at zero points, the
-    /// lesson pack of the fixture, and no swap place (D-166, D-1018, D-1030).
+    /// lesson pack of the fixture, no swap place, no gear, and no gold (D-166, D-1018, D-1030,
+    /// D-1038, D-1043).
     /// </summary>
     private static PartySnapshot? MigratedParty(PartySnapshot? party)
     {
@@ -512,8 +556,33 @@ public sealed class SaveFixtureTests
             characters.Add(stored with { Lessons = new LessonValues(slots, [.. points.Values]) });
         }
 
-        return party with { Characters = characters, LessonPack = content.Fixture.LessonPack, AtSwapPlace = false };
+        return WithGear(party with { Characters = characters, LessonPack = content.Fixture.LessonPack, AtSwapPlace = false });
     }
+
+    /// <summary>
+    /// Gives the party of a save of format 10 or older as the migration of format 11 gives it:
+    /// each character with the start gear of the fixture of the tests, which is none, and no
+    /// gold (D-166, D-1038, D-1043).
+    /// </summary>
+    private static PartySnapshot? WithGear(PartySnapshot? party)
+    {
+        if (party is null)
+        {
+            return null;
+        }
+
+        List<CharacterValues> characters = [];
+        foreach (CharacterValues stored in party.Characters)
+        {
+            characters.Add(stored with { Gear = stored.Gear ?? new ContentId?[GearRules.SlotCount] });
+        }
+
+        return party with { Characters = characters, Gold = party.Gold ?? 0 };
+    }
+
+    /// <summary>Gives the battle of a save of format 10 or older as the migration gives it: no steal try (D-166, D-1045).</summary>
+    private static BattleValues? WithSteals(BattleValues? battle) =>
+        battle is null ? null : battle with { Steals = battle.Steals ?? new StealValues(0, []) };
 
     private static Simulation ResumeInBattle(SaveDocument save) =>
         Simulation.Resume(save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);

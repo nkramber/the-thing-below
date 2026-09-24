@@ -1,5 +1,5 @@
 {
- "comment": "The lessons (D-1026). Each lesson holds a kind of D-281 and its forms. Each form names an ability of the ability file, the point total that opens it, its MP cost, and its description, and the first form opens at zero (D-539, D-1027). The name of a lesson and of a form is `name.` and the name part of its id, and no two forms name one ability (D-1032). The fixture lessons of PR-12 cover six kinds: Mend, Harm, Blight, Boon, Blade, and Shot (D-1029). PR-42 writes the lessons of region one. Each id is permanent (D-166).",
+ "comment": "The lessons (D-1026). Each lesson holds a kind of D-281 and its forms. Each form names an ability of the ability file, the point total that opens it, its MP cost, and its description, and the first form opens at zero (D-539, D-1027). The name of a lesson and of a form is `name.` and the name part of its id, and no two forms name one ability (D-1032). The fixture lessons of PR-12 cover six kinds: Mend, Harm, Blight, Boon, Blade, and Shot (D-1029). PR-13 adds a Theft drill with the steal (D-950). PR-42 writes the lessons of region one. Each id is permanent (D-166).",
  "lessons": [
   {
    "id": "lesson.fixture_hew",
@@ -50,6 +50,13 @@
    "kind": "shot",
    "forms": [
     { "ability": "ability.fixture_bolt", "points": 0, "mp": 0, "description": "lesson.fixture_bolt" }
+   ]
+  },
+  {
+   "id": "lesson.fixture_pilfer",
+   "kind": "theft",
+   "forms": [
+    { "ability": "ability.fixture_pilfer", "points": 0, "mp": 0, "description": "lesson.fixture_pilfer" }
    ]
   }
  ]

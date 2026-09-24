@@ -67,12 +67,24 @@ public sealed record CombatantValues(
 /// <param name="Now">The tick of the timeline of the last turn.</param>
 /// <param name="Outcome">How the battle ended, or `running`.</param>
 /// <param name="Combatants">Every combatant, the party first, each side in slot order.</param>
+/// <param name="Steals">The steal tries of the fight and the entries taken, from save format 11 (D-1045). Null in a snapshot of an older format, which holds no try.</param>
 public sealed record BattleValues(
     ContentId Enemy,
     ContentId Group,
     long Now,
     BattleOutcome Outcome,
-    IReadOnlyList<CombatantValues> Combatants);
+    IReadOnlyList<CombatantValues> Combatants,
+    StealValues? Steals);
+
+/// <summary>One entry that a steal took in a fight. It leaves that enemy for the rest of the fight (D-1044).</summary>
+/// <param name="Enemy">The slot of the enemy.</param>
+/// <param name="Entry">The index of the entry in the steal list of the profile of the enemy.</param>
+public sealed record StolenEntry(int Enemy, int Entry);
+
+/// <summary>The steal tries of a fight, and each entry that a steal took, in the order of the steals (D-1044, D-1045).</summary>
+/// <param name="Tries">The tries of the whole party, from 0 to 3. A failed try counts.</param>
+/// <param name="Taken">Each entry taken. Each one is a success, which halves the chance of the next try.</param>
+public sealed record StealValues(int Tries, IReadOnlyList<StolenEntry> Taken);
 
 /// <summary>One character or one enemy in a battle.</summary>
 public sealed class Combatant
@@ -130,7 +142,7 @@ public sealed class Combatant
     /// <summary>True while a defend holds, until the next turn of the combatant (D-755).</summary>
     public bool Defending { get; internal set; }
 
-    /// <summary>The affinity to each element: the table of the enemy record, or every element normal for a character until PR-13 (D-790, D-794).</summary>
+    /// <summary>The affinity to each element: the table of the enemy record, or the table of the worn gear of a character (D-790, D-794, D-1037).</summary>
     public ElementTable Elements { get; }
 
     /// <summary>The statuses that do nothing to this combatant (D-805). A character refuses none.</summary>
@@ -174,6 +186,7 @@ public sealed class Battle
 
     private readonly Combatant[] party;
     private readonly Combatant[] enemies;
+    private readonly List<StolenEntry> stolen = [];
 
     private Battle(ContentId enemy, GroupRecord group, Combatant[] party, Combatant[] enemies)
     {
@@ -205,6 +218,12 @@ public sealed class Battle
     /// <summary>How the battle ended, or `running`.</summary>
     public BattleOutcome Outcome { get; internal set; }
 
+    /// <summary>The steal tries of the whole party in this fight, from 0 to 3. A failed try counts (D-1045).</summary>
+    public int StealTries { get; internal set; }
+
+    /// <summary>Each entry that a steal took in this fight, in the order of the steals (D-1044).</summary>
+    public IReadOnlyList<StolenEntry> Stolen => this.stolen;
+
     /// <summary>
     /// Starts a battle from an encounter (D-765, D-766, D-770). A down character stays down
     /// and takes no turn. Each combatant on the field starts one attack push out, and the side
@@ -227,9 +246,10 @@ public sealed class Battle
         List<Combatant> party = [];
         for (int slot = 0; slot < partyState.Members.Count; slot += 1)
         {
+            // The gear adds to the stats and gives the element table (D-1036, D-1037).
             PartyMember member = partyState.Members[slot];
-            StatRow stats = member.Stats;
-            Combatant combatant = new(BattleSide.Party, slot, member.Record.Id, stats.Health, stats.Attack, stats.Defense, stats.Speed, ElementTable.AllNormal, [])
+            StatRow stats = member.StatsWith(content.Gear);
+            Combatant combatant = new(BattleSide.Party, slot, member.Record.Id, stats.Health, stats.Attack, stats.Defense, stats.Speed, member.ElementsWith(content.Gear), [])
             {
                 Health = member.Health,
                 Row = member.Row,
@@ -346,11 +366,60 @@ public sealed class Battle
         Refuse(enemies.Count != group.Entries.Count, source, $"it holds {enemies.Count} enemies, and the group '{group.Id.Value}' holds {group.Entries.Count}");
         Refuse(values.Now < 0, source, $"the timeline is at {values.Now}, which is below zero");
 
-        return new Battle(values.Enemy, group, [.. party], [.. enemies])
+        var battle = new Battle(values.Enemy, group, [.. party], [.. enemies])
         {
             Now = values.Now,
             Outcome = values.Outcome,
         };
+        battle.PutSteals(content, values.Steals ?? new StealValues(0, []), source);
+        return battle;
+    }
+
+    /// <summary>Notes an entry that a steal took (D-1044).</summary>
+    /// <param name="entry">The entry.</param>
+    internal void NoteStolen(StolenEntry entry) => this.stolen.Add(entry);
+
+    /// <summary>Tells whether a steal took an entry of an enemy in this fight (D-1044).</summary>
+    /// <param name="enemy">The slot of the enemy.</param>
+    /// <param name="entry">The index of the entry in the steal list.</param>
+    /// <returns>True when the entry left the enemy.</returns>
+    public bool WasStolen(int enemy, int entry)
+    {
+        foreach (StolenEntry taken in this.stolen)
+        {
+            if (taken.Enemy == enemy && taken.Entry == entry)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Puts the stored steals back, and refuses a set that no fight can make: more than three tries, more entries than tries, or an entry that no steal list holds or that repeats (D-1044, D-1045).</summary>
+    private void PutSteals(BattleContent content, StealValues steals, string source)
+    {
+        ArgumentNullException.ThrowIfNull(steals.Taken);
+
+        Refuse(
+            steals.Tries < 0 || steals.Tries > LootRules.MostStealTries,
+            source,
+            $"it holds {steals.Tries} steal tries, and a fight allows 0 to {LootRules.MostStealTries} (D-1045)");
+        Refuse(steals.Taken.Count > steals.Tries, source, $"it holds {steals.Taken.Count} stolen entries from {steals.Tries} tries (D-1045)");
+        foreach (StolenEntry entry in steals.Taken)
+        {
+            ArgumentNullException.ThrowIfNull(entry);
+            Refuse(entry.Enemy < 0 || entry.Enemy >= this.enemies.Length, source, $"a stolen entry names the enemy slot {entry.Enemy}, which the fight lacks");
+            ProfileRecord profile = content.Profile(this.Group.Entries[entry.Enemy].Profile);
+            Refuse(
+                entry.Entry < 0 || entry.Entry >= profile.Steal.Count,
+                source,
+                $"a stolen entry names the entry {entry.Entry} of '{profile.Id.Value}', whose steal list holds {profile.Steal.Count} (D-383)");
+            Refuse(this.WasStolen(entry.Enemy, entry.Entry), source, $"the entry {entry.Entry} of the enemy slot {entry.Enemy} is stolen two times (D-1044)");
+            this.stolen.Add(entry);
+        }
+
+        this.StealTries = steals.Tries;
     }
 
     /// <summary>Gives the rate on each push that the statuses of a combatant set: haste, slow, or none (D-768, D-800).</summary>
@@ -532,7 +601,7 @@ public sealed class Battle
                 combatant.Statuses.Values()));
         }
 
-        return new BattleValues(this.Enemy, this.Group.Id, this.Now, this.Outcome, combatants);
+        return new BattleValues(this.Enemy, this.Group.Id, this.Now, this.Outcome, combatants, new StealValues(this.StealTries, new List<StolenEntry>(this.stolen)));
     }
 
     /// <summary>Adds every value of the battle to the state hash, in one fixed order (G-5).</summary>
@@ -556,6 +625,14 @@ public sealed class Battle
             hasher.AddInt32(combatant.PushRate);
             hasher.AddBoolean(combatant.Defending);
             combatant.Statuses.Hash(hasher);
+        }
+
+        hasher.AddInt32(this.StealTries);
+        hasher.AddInt32(this.stolen.Count);
+        foreach (StolenEntry entry in this.stolen)
+        {
+            hasher.AddInt32(entry.Enemy);
+            hasher.AddInt32(entry.Entry);
         }
     }
 
@@ -622,8 +699,8 @@ public sealed class Battle
                 string.CompareOrdinal(member.Record.Id.Value, stored.Id.Value) != 0,
                 source,
                 $"the party slot {stored.Slot} holds '{stored.Id.Value}', and the party holds '{member.Record.Id.Value}' there");
-            StatRow stats = member.Stats;
-            return new Combatant(BattleSide.Party, stored.Slot, member.Record.Id, stats.Health, stats.Attack, stats.Defense, stats.Speed, ElementTable.AllNormal, []);
+            StatRow stats = member.StatsWith(content.Gear);
+            return new Combatant(BattleSide.Party, stored.Slot, member.Record.Id, stats.Health, stats.Attack, stats.Defense, stats.Speed, member.ElementsWith(content.Gear), []);
         }
 
         Refuse(stored.Slot >= group.Entries.Count, source, $"the enemy slot {stored.Slot} is past the group '{group.Id.Value}'");

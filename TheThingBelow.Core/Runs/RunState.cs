@@ -240,7 +240,7 @@ public sealed class RunState
             return PartyState.Start(battleContent);
         }
 
-        return PartyState.Resume(battleContent, stored.Characters, stored.Pack, stored.LessonPack, stored.AtSwapPlace, "this run");
+        return PartyState.Resume(battleContent, stored.Characters, stored.Pack, stored.LessonPack, stored.AtSwapPlace, stored.Gold, "this run");
     }
 
     /// <summary>
@@ -347,7 +347,7 @@ public sealed class RunState
                 this.Party.Patrols.Values(),
                 this.Party.Patrols.Mark,
                 this.Party.Patrols.Encounter),
-            new PartySnapshot(this.Characters.CharacterValues(), this.Characters.PackValues(), this.Characters.LessonPackValues(), this.Characters.AtSwapPlace),
+            new PartySnapshot(this.Characters.CharacterValues(), this.Characters.PackValues(), this.Characters.LessonPackValues(), this.Characters.AtSwapPlace, this.Characters.Gold),
             this.Battle?.Values(),
             this.NoticeLog.Values(),
             this.Story.Values(),

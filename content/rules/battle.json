@@ -1,5 +1,5 @@
 {
- "comment": "The numbers of the battle rules (D-757, D-777, D-808). The experience rules follow D-968, D-971, and D-977. The lesson slots follow D-1018, and the aptitude bonus D-1028. Each delay counts ticks at speed 100, and each rate is in basis points (D-169, D-768). PR-30 tunes each number.",
+ "comment": "The numbers of the battle rules (D-757, D-777, D-808). The experience rules follow D-968, D-971, and D-977. The lesson slots follow D-1018, and the aptitude bonus D-1028. The steal rate follows D-1045, and the steal clamp D-949. Each delay counts ticks at speed 100, and each rate is in basis points (D-169, D-768). PR-30 tunes each number.",
  "attack_delay": 100,
  "attack_power": 10000,
  "defend_delay": 60,
@@ -21,6 +21,9 @@
  "flee_floor": 1000,
  "flee_ceiling": 9000,
  "item_rate": 5000,
+ "steal_rate": 5000,
+ "steal_floor": 0,
+ "steal_ceiling": 9000,
  "weak_rate": 15000,
  "resist_rate": 5000,
  "absorb_rate": 10000,

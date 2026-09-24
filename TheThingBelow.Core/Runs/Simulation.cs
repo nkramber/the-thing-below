@@ -238,6 +238,11 @@ public sealed class Simulation
             return;
         }
 
+        if (this.TryPackIntent(intent, context, log))
+        {
+            return;
+        }
+
         if (string.CompareOrdinal(intent.Action.Value, IntentIds.PartyRow.Value) == 0)
         {
             BattleTarget target = intent.Target ?? throw new SimulationException("a row change that names no character (D-558)", context);
@@ -378,18 +383,60 @@ public sealed class Simulation
         bool use = Is(intent, IntentIds.BattleLesson);
         bool cast = Is(intent, IntentIds.MenuCast);
         bool swap = Is(intent, IntentIds.LessonSwap);
+        bool menuItem = Is(intent, IntentIds.MenuItem);
+        bool wear = Is(intent, IntentIds.GearWear);
         bool unread =
-            (intent.Target is not null && !attack && !item && !row && !use && !cast) ||
-            (intent.Item is not null && !item) ||
-            (intent.Option is not null && !pick && !use && !cast && !swap) ||
+            (intent.Target is not null && !attack && !item && !row && !use && !cast && !menuItem) ||
+            (intent.Item is not null && !item && !menuItem && !wear) ||
+            (intent.Option is not null && !pick && !use && !cast && !swap && !wear) ||
             (intent.Lesson is not null && !use && !cast && !swap) ||
-            (intent.Actor is not null && !cast && !swap);
+            (intent.Actor is not null && !cast && !swap && !wear);
         if (unread)
         {
             throw new SimulationException(
                 "an intent that carries a target, an item, an option, a lesson, or an actor that no rule of its action reads (D-558, D-764, D-780, D-1007, D-1027, D-1030)",
                 context);
         }
+    }
+
+    /// <summary>
+    /// Applies an item use of the item window or a change of gear of the gear window (D-1048,
+    /// D-1049). Both need the open menu and no battle, as the row change does (D-558).
+    /// </summary>
+    /// <returns>True when the intent was one of the two, which this method applied.</returns>
+    private bool TryPackIntent(Intent intent, RunContext context, List<LogEntry> log)
+    {
+        bool use = Is(intent, IntentIds.MenuItem);
+        bool wear = Is(intent, IntentIds.GearWear);
+        if (!use && !wear)
+        {
+            return false;
+        }
+
+        if (!this.State.MenuOpen || this.State.Battle is not null)
+        {
+            throw new SimulationException($"the intent '{intent.Action.Value}' while no menu is open or a battle holds the run, and the item and gear windows make it (D-1048, D-1049)", context);
+        }
+
+        if (use)
+        {
+            ContentId item = intent.Item ?? throw new SimulationException("an item use from the menu that names no item (D-1046)", context);
+            BattleTarget target = intent.Target ?? throw new SimulationException("an item use from the menu that names no target (D-1046)", context);
+            if (target.Side != BattleSide.Party)
+            {
+                throw new SimulationException($"an item use from the menu at {target.Describe()}, and the item window aims at the party (D-1046)", context);
+            }
+
+            ItemRules.UseFromMenu(this.State, item, target.Slot, context);
+            log.Add(new LogEntry(LogLevel.Info, "a character used an item from the menu", this.State.Tick, LogSubsystems.Run, [new LogField("intent", intent.Describe())]));
+            return true;
+        }
+
+        int actor = intent.Actor ?? throw new SimulationException("a change of gear that names no character (D-1048)", context);
+        int slot = intent.Option ?? throw new SimulationException("a change of gear that names no gear slot (D-1048)", context);
+        this.State.Characters.Wear(actor, slot, intent.Item, this.State.BattleContent, context);
+        log.Add(new LogEntry(LogLevel.Info, "a character changed gear", this.State.Tick, LogSubsystems.Run, [new LogField("intent", intent.Describe())]));
+        return true;
     }
 
     /// <summary>

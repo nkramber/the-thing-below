@@ -227,10 +227,10 @@ public sealed class ExperienceTests
     public void AStoredLevelThatNoRunCanMakeIsRefused(int level, int experience, int mp, string reason)
     {
         // D-971, D-972: the level follows the experience, and the MP stays inside the level.
-        CharacterValues stored = new(Marrek, 10, BattleRow.Front, [], new GrowthValues(level, experience, mp), null);
+        CharacterValues stored = new(Marrek, 10, BattleRow.Front, [], new GrowthValues(level, experience, mp), null, null);
 
         ArgumentException error = Assert.Throws<ArgumentException>(() =>
-            PartyState.Resume(TestBattles.Content, [stored], [], null, false, "the test"));
+            PartyState.Resume(TestBattles.Content, [stored], [], null, false, null, "the test"));
 
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
     }
@@ -240,10 +240,11 @@ public sealed class ExperienceTests
     private static PartyState HurtParty() =>
         PartyState.Resume(
             TestBattles.Content,
-            [new CharacterValues(Marrek, 10, BattleRow.Front, [StatusKind.Poison], new GrowthValues(2, 25, 1), null)],
+            [new CharacterValues(Marrek, 10, BattleRow.Front, [StatusKind.Poison], new GrowthValues(2, 25, 1), null, null)],
             [],
             null,
             false,
+            null,
             "the test");
 
     /// <summary>Gives the events after the win of the fight, which the run took since its last take.</summary>
