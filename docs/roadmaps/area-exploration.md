@@ -306,7 +306,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 5. PR-9 and PR-10: the battle and its screen (`area-battle.md`).
 6. PR-62: the menu windows and the dungeon map screen.
 7. PR-12 and PR-13: the lessons and the items that a chest gives.
-8. PR-91: the torch item, right after PR-13 (D-848).
+8. PR-91: the torch item, right after PR-99 (D-848, D-1041).
 9. PR-14: the hub map and its services.
 10. PR-65: the shop and the gold economy, after PR-13 (D-530).
 11. PR-16: the treasure, the doors, the keys, and the save points.

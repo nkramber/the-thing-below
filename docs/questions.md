@@ -446,16 +446,16 @@ How to file a question (D-19, D-24):
     - Yes, and each character keeps its own points for it, the recommendation. D-361 already holds the points for each character, so the rules need nothing new. A party can put the same rite on three characters.
     - No, one copy of a lesson is equipped at a time. Each rite feels rare, and the party must choose who carries it. The shops of D-365 then need a rule against a second sale.
     - Resolved 2026-09-24: D-1023 to D-1025. The player never owns two copies. A shop hides an owned lesson, and a chest gives a fallback item.
-140. **OQ-140. What a piece of gear changes.** Six slots hold gear, and nothing limits what a character wears (D-44, D-374). What does a piece of gear do? Raised 2026-09-16. Blocks PR-13.
+140. **OQ-140. What a piece of gear changes.** Six slots hold gear, and nothing limits what a character wears (D-44, D-374). What does a piece of gear do? Raised 2026-09-16. Blocked PR-13. Resolved 2026-09-24: D-1036. Gear changes attack, defense, and speed, never health or MP, and special gear holds other element levels.
     - Flat changes to the five stats, and an affinity row for the eight elements, the recommendation. Gear reads at a glance, and it meets the affinities of D-43. Each item needs up to 13 numbers.
     - Flat changes to the five stats alone. The item text is short, and the balance is simple. Gear then never answers an element, so a fire dungeon has no gear answer.
-141. **OQ-141. Two accessories with one effect.** A character wears two accessories (D-44). What happens when both carry the same effect? Raised 2026-09-16. Blocks PR-13.
+141. **OQ-141. Two accessories with one effect.** A character wears two accessories (D-44). What happens when both carry the same effect? Raised 2026-09-16. Blocked PR-13. Resolved 2026-09-24: D-1037. The stats add. The best protection applies, and each `weak` piece steps it down one step.
     - The effects add, the recommendation. The player builds toward one thing on purpose, which fits the build decision of D-272. A doubled effect needs a cap in the balance pass.
     - The stronger of the two applies, and the other does nothing. No stack ever breaks the balance. The screen must explain why the second accessory gives nothing.
-142. **OQ-142. The stack limit of each item.** The pack holds a small, fixed number of each item (D-382). A find over the limit stays in its chest (D-385). What is the limit? Raised 2026-09-16. Blocks PR-13.
+142. **OQ-142. The stack limit of each item.** The pack holds a small, fixed number of each item (D-382). A find over the limit stays in its chest (D-385). What is the limit? Raised 2026-09-16. Blocked PR-13. Resolved 2026-09-24: D-1038 and D-1039. Each record holds its limit, and the limit counts each owned copy.
     - Five of each item, the recommendation. A dungeon visit carries a real limit, and the number is easy to read. A long dungeon can leave the party short.
     - A limit for each item in content, from three to ten. A revive stays rare while a cure is common. Each item needs one more number, and the screen must show it.
-143. **OQ-143. What a rarity tier changes.** Items come in a few rarity tiers (D-45). What does a tier mean in play? Raised 2026-09-16. Blocks PR-13.
+143. **OQ-143. What a rarity tier changes.** Items come in a few rarity tiers (D-45). What does a tier mean in play? Raised 2026-09-16. Blocked PR-13. Resolved 2026-09-24: D-1040 takes the first option.
     - The place of the item alone, the recommendation. A rare item sits behind a boss, a puzzle, or a secret, and its numbers need no rule. The tier is then a note for the author, not a rule in Core.
     - The place and a color in the menu. The player reads the value of a find at a glance. The color needs a palette key and a rule for each tier (D-181).
 144. **OQ-144. The step list of a story scene script.** D-173 names move, face, wait, say, choose, and set flag. D-563 adds a join step that brings a cast member into the party. Core runs each step (D-540). What is the full list? Raised 2026-09-16. Blocked PR-68.
@@ -806,3 +806,11 @@ How to file a question (D-19, D-24):
 246. **OQ-246. A flake of one level in the screen test.** On PR #73, a few hundred pixels of three frames differed by one level: `scroll-09`, `map-fire-1x`, and `battle-spell-full-1x`. The frames with the difference changed from run to run, and a rerun of one commit passed (D-172, D-733). What does the screen test do about it? Raised 2026-09-24. Blocks no PR.
     - Find the cause first, the recommendation. A later PR logs the CPU of each runner and compares two jobs of one commit. The check stays exact, and a fix follows the evidence.
     - Allow one level in a small count of pixels. The check stops the flake at once. A real change of one level then passes in silence.
+247. **OQ-247. The stat set.** Core holds five stats: health, MP, attack, defense, and speed (D-966, D-979). A spell reads the attack of the caster and the defense of the target, as a strike does. The owner asked for a magic stat. The owner also asked for a physical defense and a magic defense in place of one defense. Which stats does the game hold? Raised 2026-09-24. Blocks PR-99 (D-1041).
+    - Magic, and a split of defense, the recommendation. A strike reads attack against the physical defense, and a spell reads magic against the magic defense. A caster and a fighter then differ in their numbers. Each stat curve, each enemy record, and each gear record grow two numbers, and the balance pass tunes them.
+    - Magic alone, with one defense. A spell reads magic against defense. Each record grows one number. An enemy cannot be weak to spells and hard against strikes.
+    - The five stats as they stand. Nothing changes. A caster and a fighter differ only in their aptitudes and their lessons.
+248. **OQ-248. The heal of an absorbed hit.** An absorbed hit heals the target by the hit times the absorb rate, up to full health (D-795). The rate is 10000 basis points now, so an absorb heals the full hit. How much does an absorb heal? Raised 2026-09-24. Blocks PR-99 (D-1041).
+    - A quarter of the hit, rounded down, the recommendation and the proposal of the owner. The rate falls to 2500. An absorb stays a real gain for the target, and a wrong spell costs less.
+    - The full hit, as it stands. Nothing changes. A wrong spell on a boss can undo many turns of damage.
+    - Half of the hit, rounded down. The rate falls to 5000. The cost of a wrong spell sits between the two other options.
