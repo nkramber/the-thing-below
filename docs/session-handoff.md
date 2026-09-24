@@ -18,7 +18,7 @@ Session: author PR-13, round 1. Repository: the-thing-below. Branch: `feat/pr-13
 
 ### What is in flight
 
-- The PR takes 28 baselines from the artifact of CI run 36020519177, each read first. Its two sessions differed by one level in `map-fire-1x`, `scroll-09`, `still-240`, and `battle-spell-full-1x`, the flake of OQ-246. The PR leaves the first three baselines alone.
+- The PR takes 28 baselines from the artifact of CI run 36020519177, each read first. Its two sessions differed by one level in `map-fire-1x`, `scroll-09`, `still-240`, and `battle-spell-full-1x`, the flake of OQ-246. The PR leaves the first three baselines alone. The rerun of run 36021738678 agreed across its two sessions and matched every baseline but `battle-spell-full-1x`, which the PR then took from that run.
 
 ### Traps and gotchas
 
