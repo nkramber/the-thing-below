@@ -1,3 +1,41 @@
+## Session 262: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR #71, round 1. Repository: the-thing-below. Branch: `feat/pr-68-story-scenes`. PR: #71. Role: author. Base: `31f172e`.
+
+### What this session did, and why
+
+- Asked the owner OQ-144 to OQ-149 and nine rules of the runner, and recorded D-997 to D-1013. The owner chose the tree form of a condition against the recommendation (D-1001), and added the pause of D-1009.
+- Built the story scene format, the runner in Core, the flag file, the condition tree, the four trigger kinds of a map, the scene battle, and the join (D-540, D-563).
+- The snapshot gained the story state. Save format 9 and simulation version 21 hold it, with a fixture save of format 9 and a story run in the identity set.
+- Added the tests of the ten exit tests of PR-68, the seed loop of one thousand seeds included.
+- Moved the fire of the talk trigger and the NPC actor to PR-14, the pause screen to PR-36, and the step condition to PR-18 (D-1005, D-1007, D-1010).
+
+### The state of the build
+
+- `main` is `31f172e`. The branch head before this entry is `f8868ae`, and the push of this round carries this entry.
+- `make verify` passed on macOS arm64 with 2,851 tests, the smoke session included.
+
+### What is in flight
+
+- PR #71 waits for CI, one read of the Gitar output, and `make codex-review PR=71 -- --skip-gitar-review` (D-945, D-946).
+
+### Traps and gotchas
+
+- A move intent on the tick of an arrival chains the next step. A bot script moves only while the lead stands.
+- No story scene ships in content. Game draws no step before PR-36, so a trigger in the fixture dungeon stops the smoke session.
+- The battle of a start battle step names its story scene in the enemy field of the battle. The encounter code of Game reads a patrol, so PR-36 draws that battle start.
+- The word actor alone names the combatant of a turn. The glossary term is story scene actor.
+- The map field `triggers` is required. A test map needs `"triggers": []`.
+
+### The questions that block progress
+
+None for PR-68.
+
+### The next concrete action
+
+Read the CI result of the pushed head, read the Gitar output one time, then run `make codex-review PR=71 -- --skip-gitar-review` in the background.
+
 ## Session 261: 2026-09-24, Codex
 
 Author: Codex
@@ -317,42 +355,3 @@ OQ-243 is resolved by D-963. The unanswered Gitar status comment blocks approval
 ### The next concrete action
 
 The author answers the Gitar status comment. Then start a fresh review of PR #68.
-
-## Session 252: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-98, round 1. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: #68. Role: author. Base: `3223bcf`.
-
-### What this session did, and why
-
-- Asked the owner OQ-243. The session found that four elite bodies fit in the waiting column, and not six as D-954 said. The owner chose the load failure (D-963).
-- Recorded D-963, marked D-954 as revised in part, resolved OQ-243, and updated `docs/design.md` and both roadmaps.
-- Core: the load refuses a group whose waiting column is taller than 288 art pixels. The error names the group, the height, and the limit. The simulation version is 18, and the identity file changed with it (G-17).
-- Game: each waiting enemy draws at full size in the dim color, in a column at the left edge. The column stands on the bottom of its room, and the next enemy that steps in stands at the top. The rows of the enemies stand 40 columns to the right.
-- Read the frames `battle-waiting-1x`, `battle-sparks-1x`, and `battle-target-1x` of `make sheet FIXTURE=battle` (D-784). A column in the middle of its room put a lone grunt in the wall above the ground, so the column now stands on the bottom. Exit test 3 of the roadmap changed with it.
-- Added the `waiting-1x` capture of the fight of the deep room, and tests of the load check, the column, the step in, and the target menu.
-
-### The state of the build
-
-- `main` is `3223bcf`. The branch holds the code, the tests, and the documents of PR-98.
-- `make verify` passed on macOS arm64, except the baseline of `battle-waiting-1x.png`, which only the CI artifact gives (D-733).
-- CI run 35919855654 passed smoke, replay-identity, det-lint, and ste-check on each leg. The build legs and screen-test failed on the new battle frames alone. The 15 battle frames of its `screen-captures` artifact are the new baseline, and the author read each one (D-784).
-
-### What is in flight
-
-- The CI run on the baseline commit.
-- The Codex review: `make codex-review PR=68 -- --skip-gitar-review` (D-946).
-
-### Traps and gotchas
-
-- The patrol of a test map takes the size of the largest enemy of the tests content, so a test wave with a brute fails the map. The wave test uses grunts alone.
-- The elite group of the tests holds its waiting grunts in slots 3 and 4. The group of the content holds its waiting grunt in slot 1.
-- The waiting grunt reads very dark: the grunt art is dark, the dim color multiplies it, and the left edge takes little of the key light. The owner judges the shade from the sheet.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Read the CI result of the baseline commit, read the Gitar output one time, then run `make codex-review PR=68 -- --skip-gitar-review` in the background (D-945, D-946).
