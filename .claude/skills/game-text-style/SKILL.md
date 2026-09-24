@@ -20,7 +20,7 @@ Short sentences. Physical detail. No purple prose. Dry understatement. The world
 5. No modern idiom, no slang, no wink at the player.
 6. Humor is dry and rare. It comes from a character, never from the narrator.
 7. Dialogue sounds like a person under strain. Short lines. People interrupt, deflect, and lie.
-8. Battle messages state the fact and the number. "Vess takes 41." "The wolf falls." A battle screen names a stat in three characters at most: HP, MP, ATK, DEF, and SPD (D-979).
+8. Battle messages state the fact and the number. "Vess takes 41." "The wolf falls." A battle screen names a stat in three characters at most (D-979, D-1056). The names are HP, MP, ATK, MAG, DEF, RES, and SPD.
 9. Item text gives what the item does in one line, and one line of flavor at most.
 10. The player finds lore. Nobody tells it. A page, a carving, a corpse. Never a narrator lecture.
 11. Names are short and pronounceable. One or two syllables for people, and up to three for a foreign person (D-300). Places can take three.

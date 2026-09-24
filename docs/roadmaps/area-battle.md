@@ -83,9 +83,11 @@ Built by PR-66. Phase file: `phase-2-first-playable.md`.
 - Damage uses fixed-point integers, and content writes each rate in basis points (D-169, G-2).
 - Each enemy record holds one affinity for each element, and a list of the statuses that it refuses (D-794, D-805). PR-13 gives gear the same table (D-790).
 - The gear of a character gives its element table. The best protection applies, and each `weak` piece steps it down one step (D-1037).
-- PR-99 settles the stat set and the heal of an absorbed hit (D-1041, OQ-247, OQ-248).
+- A strike reads the attack against the defense, or the magic against the resistance. The field of the move sets the pair, and the basic attack reads the attack (D-1052, D-1053).
+- The defend cut stays one cut, and it cuts a physical hit and a magic hit alike (D-1054).
+- A heal is its base plus a share of the magic of the caster. It rolls the hit factor, on the progression stream outside a fight (D-1057 to D-1059).
 - A move holds one element or none, and a status with its chance or none (D-793, D-796). The basic attack holds neither.
-- One hit takes the rate of its affinity, then the back row, the defend, and the shell cut. An absorb heals the hit, and no cut applies to it (D-795, D-809).
+- One hit takes the rate of its affinity, then the back row, the defend, and the shell cut. An absorb heals a quarter of the hit, at least 1, and no cut applies to it (D-795, D-809, D-1055).
 - A hit rolls the miss, then the hit factor, then the status chance, on the battle stream (D-807).
 - Each status holds the tick of its end on the timeline, and a second copy resets the end. Haste and slow cancel each other (D-798, D-800).
 - Poison, bleed, and regen act at the start of each turn of the holder. A sleeper passes its turn, and a strike wakes it. A stun pushes the next turn once (D-799, D-802, D-803, D-810).
@@ -295,7 +297,7 @@ The register is `docs/questions.md` (D-19). These questions block battle PRs, an
 - OQ-133: the flee chance and the grace time. Resolved by D-748 and D-763.
 - OQ-242: the waiting enemies of a fight. Resolved by D-951.
 - OQ-243: a column of the waiting enemies, taller than the field. Resolved by D-963.
-- OQ-247: the stat set. Blocks PR-99.
-- OQ-248: the heal of an absorbed hit. Blocks PR-99.
+- OQ-247: the stat set. Resolved by D-1052.
+- OQ-248: the heal of an absorbed hit. Resolved by D-1055.
 
-OQ-130 blocks PR-20. OQ-247 and OQ-248 block PR-99.
+OQ-130 blocks PR-20.

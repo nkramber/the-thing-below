@@ -60,7 +60,7 @@ Built by PR-67. Phase file: `phase-2-first-playable.md`.
 Built by PR-67. Phase file: `phase-2-first-playable.md`.
 
 - Each character carries its own stat curve in content: the health, the MP, the attack, the defense, and the speed at each level (D-537).
-- PR-99 settles the stat set of OQ-247, and each curve then holds each new stat (D-1041).
+- PR-99 adds the magic and the resistance to each curve, and PR-30 tunes them (D-1052).
 - The end of the job system left the stats with no source, and D-537 closes that gap (F-54).
 - The cast reads as people before any gear, so one character is tough and another is frail (D-33, D-537).
 - The death of Elio costs a shape that no other character holds, and the replacement brings a curve of its own (D-270, D-321).
@@ -76,7 +76,7 @@ Built by PR-12. Phase file: `phase-2-first-playable.md`.
 
 - A lesson is a rite or a drill that any character equips to gain an ability (D-272, D-275, D-278).
 - Lesson slots sit on the character, and the slot count grows with the character level (D-356). D-1018 sets the levels.
-- The player swaps lessons at a hub or at a save point, and the load before a dungeon holds for the visit (D-356).
+- The player swaps lessons anywhere outside a fight, as the gear window changes gear (D-356, D-1050).
 - Every equipped lesson gains points from each battle won, used or not, and a reserve character gains half (D-357). A downed character gains none (D-1022).
 - The points come from the experience of each enemy, with a shrink that reads the lesson level, not the character level (D-1019, D-1020).
 - The points of a lesson stop at the total of its last form (D-1021).
@@ -134,7 +134,7 @@ Built by PR-13. Phase file: `phase-2-first-playable.md`.
 - Six slots hold gear: the weapon, the shield or off-hand, the head, the body, and two accessories (D-44).
 - Nothing limits what a character wears, because the aptitudes carry the difference (D-374).
 - Gear is fixed and hand-authored, and no random affix and no crafting exist (D-45).
-- A piece adds to attack, defense, and speed, and never to health or MP. Only a special piece holds an element level other than `normal` (D-1036).
+- A piece adds to attack, magic, defense, resistance, and speed, and never to health or MP (D-1052). Only a special piece holds an element level other than `normal` (D-1036).
 - The amounts of the six slots add. The best protection of the worn pieces applies, and each `weak` piece steps it down one step (D-1037).
 - An amount can be negative, and each stat keeps a floor of 1 (D-1047).
 - The party changes gear anywhere outside a fight (D-1048).
@@ -266,6 +266,6 @@ The register is `docs/questions.md` (D-19). These questions block progression PR
 - OQ-141: two accessories with one effect. Resolved by D-1037.
 - OQ-142: the stack limit of each item. Resolved by D-1038 and D-1039.
 - OQ-143: what a rarity tier changes. Resolved by D-1040.
-- OQ-247: the stat set. Blocks PR-99.
+- OQ-247: the stat set. Resolved by D-1052.
 
-OQ-247 blocks PR-99.
+No open question blocks a PR of this area.
