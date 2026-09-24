@@ -79,6 +79,7 @@ public static partial class IdentitySet
      "region": "region.identity",
      "label": "label.identity_run",
      "time": "day",
+     "dark": false,
      "terrain": [
       "#########",
       "#.......#",
@@ -136,6 +137,7 @@ public static partial class IdentitySet
      "region": "region.identity",
      "label": "label.identity_battle",
      "time": "day",
+     "dark": false,
      "terrain": [
       "#########",
       "#.......#",
@@ -174,6 +176,7 @@ public static partial class IdentitySet
      "region": "region.identity",
      "label": "label.identity_record",
      "time": "day",
+     "dark": false,
      "terrain": [
       "#########",
       "#.......#",
@@ -212,6 +215,7 @@ public static partial class IdentitySet
      "region": "region.identity",
      "label": "label.identity_status",
      "time": "day",
+     "dark": false,
      "terrain": [
       "#########",
       "#.......#",
@@ -250,6 +254,7 @@ public static partial class IdentitySet
      "region": "region.identity",
      "label": "label.identity_evaluator",
      "time": "day",
+     "dark": false,
      "terrain": [
       "#########",
       "#.......#",

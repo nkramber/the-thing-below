@@ -71,6 +71,7 @@ public static class PatrolMaps
          "region": "region.test",
          "label": "label.patrol_test",
          "time": "{{time}}",
+         "dark": false,
          "terrain": [
           "##########",
           "#........#",

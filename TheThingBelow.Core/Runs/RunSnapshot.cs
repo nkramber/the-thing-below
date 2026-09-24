@@ -51,7 +51,8 @@ public sealed record MapSnapshot(
 /// <param name="Pack">Each item and each piece of spare gear of the pack, in the ordinal order of the ids (D-1038).</param>
 /// <param name="LessonPack">The owned lessons that no character carries, from save format 10 (D-1024). Null in a snapshot of an older format.</param>
 /// <param name="Gold">The gold of the party, from save format 11 (D-1043). Null in a snapshot of an older format, and the resume then starts at zero.</param>
-public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IReadOnlyList<PackValues> Pack, IReadOnlyList<ContentId>? LessonPack, int? Gold);
+/// <param name="TorchHeld">True while the party holds the torch out, from save format 13 (D-1064). Null in a snapshot of an older format, and the resume then puts the torch away.</param>
+public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IReadOnlyList<PackValues> Pack, IReadOnlyList<ContentId>? LessonPack, int? Gold, bool? TorchHeld);
 
 /// <summary>
 /// The whole state of a run at the end of one tick. A record holds one snapshot and the

@@ -654,7 +654,7 @@ public sealed class MapPatrolsTests
 
         Assert.True(party.Patrols.All[0].Dead);
         Assert.False(party.Patrols.TryEnemyAt(new TilePoint(8, 3), out _));
-        Assert.False(party.Patrols.TrySight(map, party, out _));
+        Assert.False(party.Patrols.TrySight(map, party, torchHeld: false, out _));
     }
 
     private static readonly ContentId FleeAction = ContentId.Parse(
@@ -730,6 +730,7 @@ public sealed class MapPatrolsTests
          "region": "region.test",
          "label": "label.two_rooms",
          "time": "day",
+         "dark": false,
          "terrain": [
           "############",
           "#....#.....#",
@@ -859,7 +860,7 @@ public sealed class MapPatrolsTests
             null,
             "the test");
 
-        Assert.True(party.Patrols.TrySight(map, party, out PatrolState? seen));
+        Assert.True(party.Patrols.TrySight(map, party, torchHeld: false, out PatrolState? seen));
         party.Patrols.StartMark(seen!);
         for (int tick = 0; tick < MapRules.BeatTicks; tick += 1)
         {

@@ -362,6 +362,10 @@
    "text": "Restores MP. It burns on the way down."
   },
   {
+   "id": "item.torch",
+   "text": "Lights the dark. The guards see it too."
+  },
+  {
    "id": "label.fixture_dungeon",
    "text": "The old cut"
   },
@@ -714,6 +718,10 @@
    "text": "Marrek"
   },
   {
+   "id": "name.torch",
+   "text": "Torch"
+  },
+  {
    "id": "notice.fixture_drip",
    "text": "Water drips somewhere ahead."
   },
@@ -752,6 +760,10 @@
   {
    "id": "settings.action_step_west",
    "text": "Walk west"
+  },
+  {
+   "id": "settings.action_torch",
+   "text": "Torch"
   },
   {
    "id": "settings.ambience",

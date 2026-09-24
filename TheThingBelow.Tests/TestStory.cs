@@ -102,6 +102,7 @@ public static class TestStory
      "region": "region.test",
      "label": "label.test_story",
      "time": "day",
+     "dark": false,
      "terrain": [
       "##########",
       "#........#",

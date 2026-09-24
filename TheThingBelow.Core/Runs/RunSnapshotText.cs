@@ -345,6 +345,16 @@ public static class RunSnapshotText
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
     public static RunSnapshot ReadFormatEleven(ref ContentReader reader) => ReadLine(ref reader, 11, null);
 
+    /// <summary>
+    /// Reads a snapshot of save format 12, which holds no state of the torch (D-1064). The resume
+    /// puts the torch away.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <returns>The snapshot, with no state of the torch.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatTwelve(ref ContentReader reader) => ReadLine(ref reader, 12, null);
+
     private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {
         long? tick = null;

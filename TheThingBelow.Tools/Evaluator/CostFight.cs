@@ -128,6 +128,7 @@ public static class CostFight
      "region": "region.cost",
      "label": "label.cost_fight",
      "time": "day",
+     "dark": false,
      "terrain": [
       "#######",
       "#.....#",

@@ -107,4 +107,10 @@ public static class IntentIds
 
     /// <summary>The gear window puts a piece of the pack in a gear slot, or empties a slot, outside a battle (D-44, D-1048).</summary>
     public static readonly ContentId GearWear = ContentId.Parse("intent.gear_wear", Source, nameof(GearWear));
+
+    /// <summary>The player held the torch out, lit, on the walk (D-1064, D-1071).</summary>
+    public static readonly ContentId HoldTorch = ContentId.Parse("intent.hold_torch", Source, nameof(HoldTorch));
+
+    /// <summary>The player put the torch away, on the walk (D-1064, D-1071).</summary>
+    public static readonly ContentId PutTorchAway = ContentId.Parse("intent.put_torch_away", Source, nameof(PutTorchAway));
 }

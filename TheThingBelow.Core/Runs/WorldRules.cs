@@ -164,7 +164,7 @@ public static class WorldRules
                 ]));
         }
 
-        if (patrols.Mark is not null || !patrols.TrySight(party.Map, party, out PatrolState? seen))
+        if (patrols.Mark is not null || !patrols.TrySight(party.Map, party, state.Characters.TorchHeld, out PatrolState? seen))
         {
             return;
         }

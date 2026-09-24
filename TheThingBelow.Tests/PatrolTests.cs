@@ -334,6 +334,7 @@ public sealed class PatrolTests
              "region": "region.test",
              "label": "label.no_enemies",
              "time": "day",
+             "dark": false,
              "terrain": [ "###", "#.#", "###" ],
              "things": [
               { "id": "spawn_point.no_enemies_start", "kind": "spawn_point", "x": 1, "y": 1 }

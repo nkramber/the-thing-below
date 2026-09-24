@@ -43,6 +43,7 @@ public sealed class GameMap
         ContentId region,
         ContentId label,
         TimeOfDay time,
+        bool dark,
         int width,
         int height,
         TileKind[] tiles,
@@ -56,6 +57,7 @@ public sealed class GameMap
         this.Region = region;
         this.Label = label;
         this.Time = time;
+        this.Dark = dark;
         this.Width = width;
         this.Height = height;
         this.tiles = tiles;
@@ -79,6 +81,12 @@ public sealed class GameMap
 
     /// <summary>The time of day that the file gives, which a story flag can change (D-442).</summary>
     public TimeOfDay Time { get; }
+
+    /// <summary>
+    /// True when the map is dark, apart from its time of day (D-1062). On a dark map, the sight of
+    /// the party hides each enemy and thing past it, and the torch sets that sight (D-1063).
+    /// </summary>
+    public bool Dark { get; }
 
     /// <summary>The count of tiles from the west edge to the east edge.</summary>
     public int Width { get; }
@@ -196,6 +204,7 @@ public sealed class GameMap
         ContentId? region = null;
         ContentId? label = null;
         string? time = null;
+        bool? dark = null;
         List<string>? terrain = null;
         List<ThingLine>? things = null;
         List<Patrol>? patrols = null;
@@ -223,6 +232,9 @@ public sealed class GameMap
                 case "time":
                     time = reader.ReadString();
                     break;
+                case "dark":
+                    dark = reader.ReadBoolean();
+                    break;
                 case "terrain":
                     terrain = ReadRows(ref reader);
                     break;
@@ -247,6 +259,7 @@ public sealed class GameMap
             reader.Require(region, depth, "region"),
             reader.Require(label, depth, "label"),
             reader.Require(time, depth, "time"),
+            reader.RequireValue(dark, depth, "dark"),
             reader.Require(terrain, depth, "terrain"),
             reader.Require(things, depth, "things"),
             reader.Require(patrols, depth, "enemies"),
@@ -324,6 +337,7 @@ public sealed class GameMap
         ContentId region,
         ContentId label,
         string time,
+        bool dark,
         List<string> rows,
         List<ThingLine> lines,
         List<Patrol> patrols,
@@ -338,7 +352,7 @@ public sealed class GameMap
         TileKind[] tiles = ReadTerrain(ref reader, rows, out int width, out int height);
         MapThing[] things = BuildThings(ref reader, lines, tiles, width, height);
         TilePoint spawn = OneSpawn(ref reader, things);
-        var map = new GameMap(reader.File, id, region, label, parsed, width, height, tiles, things, [.. patrols], [.. triggers], spawn);
+        var map = new GameMap(reader.File, id, region, label, parsed, dark, width, height, tiles, things, [.. patrols], [.. triggers], spawn);
 
         // The map is complete here, so each check of a patrol reads the terrain and the
         // spawn point through the map itself and never through a second copy of them (T-1).

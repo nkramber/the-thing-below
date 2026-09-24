@@ -292,6 +292,7 @@ public sealed class GameMapTests
          "region": "region.test",
          "label": "label.bad",
          "time": "{{time}}",
+         "dark": false,
          "terrain": [
         {{terrain}}
          ],

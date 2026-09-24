@@ -230,7 +230,7 @@ public sealed class ExperienceTests
         CharacterValues stored = new(Marrek, 10, BattleRow.Front, [], new GrowthValues(level, experience, mp), null, null);
 
         ArgumentException error = Assert.Throws<ArgumentException>(() =>
-            PartyState.Resume(TestBattles.Content, [stored], [], null, null, "the test"));
+            PartyState.Resume(TestBattles.Content, [stored], [], null, null, null, "the test"));
 
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
     }
@@ -242,6 +242,7 @@ public sealed class ExperienceTests
             TestBattles.Content,
             [new CharacterValues(Marrek, 10, BattleRow.Front, [StatusKind.Poison], new GrowthValues(2, 25, 1), null, null)],
             [],
+            null,
             null,
             null,
             "the test");

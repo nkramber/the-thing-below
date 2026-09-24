@@ -28,6 +28,7 @@ public static class TestMaps
          "region": "region.test",
          "label": "label.test_room",
          "time": "day",
+         "dark": false,
          "terrain": [
           "############",
           "#..........#",
@@ -61,6 +62,7 @@ public static class TestMaps
          "region": "region.test",
          "label": "label.test_patrolled",
          "time": "day",
+         "dark": false,
          "terrain": [
           "################",
           "#..............#",
@@ -149,7 +151,7 @@ public static class TestMaps
     {
         var text = new StringBuilder();
         text.Append("{\n \"comment\": \"An open map for the tests of the camera.\",\n");
-        text.Append($" \"id\": \"{id}\",\n \"region\": \"region.test\",\n \"label\": \"{label}\",\n \"time\": \"day\",\n \"terrain\": [\n");
+        text.Append($" \"id\": \"{id}\",\n \"region\": \"region.test\",\n \"label\": \"{label}\",\n \"time\": \"day\",\n \"dark\": false,\n \"terrain\": [\n");
         for (int row = 0; row < height; row += 1)
         {
             bool edge = row == 0 || row == height - 1;

@@ -160,19 +160,23 @@ public sealed class ScreenHandOffTests
         // each frame, after every tick of it. In a frame of two ticks, the first tick took the wait
         // intent, and a step into the patrol beside the party started a fight on the second. The start
         // of the transition then met the phase `Waiting` and threw (T-2). The fixture fight starts by
-        // sight, so a save of it moves the lead to the tile east of the patrol, which steps west, and
-        // the step west after the wait intent steps into that patrol.
+        // sight, so a save of it moves the lead beside the patrol, on the side that the patrol faces
+        // away from, and the step after the wait intent steps into that patrol. The side follows the
+        // facing, because the patrol can step onto the tile that it faces (D-1067).
         GameRunProbe first = GameRunProbe.Start();
         first.WalkToFight();
         RunSnapshot snapshot = first.State.Snapshot();
-        TilePoint patrol = first.PatrolOfEncounter().At;
+        PatrolState met = first.PatrolOfEncounter();
+        TilePoint patrol = met.At;
+        bool fromEast = met.Facing == StepDirection.West;
+        int leadX = fromEast ? patrol.X + 1 : patrol.X - 1;
         MapSnapshot map = snapshot.Map ?? throw new InvalidOperationException("The snapshot holds no map (T-2).");
         // The walked tiles hold the tile of the lead (D-567), so the moved lead takes the mark of a walked tile.
         var walked = new List<string>(map.Walked);
         char[] row = walked[patrol.Y].ToCharArray();
-        row[patrol.X + 1] = map.Walked[map.LeadY][map.LeadX];
+        row[leadX] = map.Walked[map.LeadY][map.LeadX];
         walked[patrol.Y] = new string(row);
-        RunSnapshot beside = snapshot with { Map = map with { LeadX = patrol.X + 1, LeadY = patrol.Y, Stepping = null, StepTicks = 0, Walked = walked } };
+        RunSnapshot beside = snapshot with { Map = map with { LeadX = leadX, LeadY = patrol.Y, Stepping = null, StepTicks = 0, Walked = walked } };
         GameRunProbe run = GameRunProbe.Reload(new SaveDocument(SaveHeader.ForThisBuild(Content.Value.Hash, Seed), beside));
 
         // A frame builds the view of a fight that a load resumed, before the screen takes a command (D-531).
@@ -184,7 +188,7 @@ public sealed class ScreenHandOffTests
         }
 
         int calls = 0;
-        run.Advance(2.0 / 60.0, () => (calls++ == 0) ? null : Intent.OfPlayer(IntentIds.MoveWest));
+        run.Advance(2.0 / 60.0, () => (calls++ == 0) ? null : Intent.OfPlayer(fromEast ? IntentIds.MoveWest : IntentIds.MoveEast));
 
         Assert.Equal(2, calls);
         Assert.NotNull(run.State.Battle);

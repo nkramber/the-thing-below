@@ -49,7 +49,7 @@ public sealed class ContentSetTests
         ContentSet set = ContentSet.Load(Files(Rule("rules/a.json", "fixture.lamp", "label.lamp")));
 
         Assert.Single(set.Palette.Colors);
-        Assert.Equal(47, set.Strings.Count);
+        Assert.Equal(49, set.Strings.Count);
         Assert.Equal(64, set.Hash.Length);
         RuleFixtureEntry entry = Assert.Single(set.RuleEntries);
         Assert.Equal("fixture.lamp", entry.Id.Value);
@@ -628,6 +628,7 @@ public sealed class ContentSetTests
              "region": "region.test",
              "label": "{{label}}",
              "time": "day",
+             "dark": false,
              "terrain": [ "###", "#.#", "###" ],
              "things": [
               { "id": "spawn_point.one_start", "kind": "spawn_point", "x": 1, "y": 1 }

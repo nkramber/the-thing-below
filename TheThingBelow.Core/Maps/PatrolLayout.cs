@@ -27,7 +27,10 @@ public static class PatrolLayout
     {
         ArgumentNullException.ThrowIfNull(map);
 
-        int party = MapRules.PartySightRange(map.Time);
+        // The floor reads the range with the torch put away. The torch adds the same tiles to
+        // the party and to each patrol, so the rule then holds at each tick (D-720, D-1063).
+        int party = MapRules.PartySightRange(map, torchHeld: false);
+        string light = map.Dark ? "a dark map with the torch put away" : $"a map set to {TimesOfDay.NameOf(map.Time)}";
         foreach (Patrol patrol in map.Patrols)
         {
             // The player never loses to a thing that it could not see, so no map gives a
@@ -35,7 +38,7 @@ public static class PatrolLayout
             if (patrol.SightRange > party)
             {
                 throw reader.Refuse(
-                    $"the enemy '{patrol.Id.Value}' sees {patrol.SightRange} tiles, and the party sees {party} on a map set to {TimesOfDay.NameOf(map.Time)} (D-720)");
+                    $"the enemy '{patrol.Id.Value}' sees {patrol.SightRange} tiles, and the party sees {party} on {light} (D-720, D-1063)");
             }
 
             foreach (PatrolStation station in patrol.Stations)

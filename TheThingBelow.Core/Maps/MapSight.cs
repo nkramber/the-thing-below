@@ -3,14 +3,14 @@ using System;
 namespace TheThingBelow.Core.Maps;
 
 /// <summary>
-/// What a patrol sees (D-37, D-718). A wall stops its sight, and the rule uses integer math
-/// alone (T-7).
+/// What a patrol sees, and what the party sees on a dark map (D-37, D-718, D-1062). A wall
+/// stops each sight, and the rule uses integer math alone (T-7).
 /// </summary>
 /// <remarks>
 /// No fog of war covers a map, so the ground of a map is visible from the moment the party
-/// enters (D-566). Game draws every live enemy at any distance, so no sight of the party
-/// decides what Game draws (D-814). This rule decides whether a patrol notices the party. The
-/// light of the screen never reaches it (G-1).
+/// enters (D-566). On a map that is not dark, Game draws every live enemy at any distance
+/// (D-814). On a dark map, Game draws an enemy or a thing only inside the sight of the party
+/// (D-1062). The light of the screen never reaches either rule (G-1).
 /// <para>
 /// A patrol sees the quarter of the map that it faces, plus the eight tiles that touch it
 /// (D-718).
@@ -29,6 +29,29 @@ public static class MapSight
     /// of the game.
     /// </remarks>
     public const int PatrolTouchRange = 1;
+
+    /// <summary>Tells whether the party sees one tile of a dark map (D-1062).</summary>
+    /// <param name="map">The map that both tiles lie on.</param>
+    /// <param name="lead">The tile of the lead.</param>
+    /// <param name="range">The sight range of the party, in tiles (D-1063).</param>
+    /// <param name="at">The tile of the thing, or the tile of an enemy body nearest the lead.</param>
+    /// <returns>True when the tile lies inside the range and no wall stands between.</returns>
+    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The range is below zero, or a tile lies outside the map (T-2).</exception>
+    /// <remarks>
+    /// The party sees in every direction, and a patrol sees one quarter (D-718). The wall test
+    /// reads the same in both directions, so each patrol that sees the party with a range at or
+    /// under the range of the party is inside the sight of the party (D-720, D-1063).
+    /// </remarks>
+    public static bool PartySees(GameMap map, TilePoint lead, int range, TilePoint at)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentOutOfRangeException.ThrowIfNegative(range);
+        RefuseOutside(map, lead, nameof(lead));
+        RefuseOutside(map, at, nameof(at));
+
+        return Reach(lead, at) <= range && Clear(map, lead, at);
+    }
 
     /// <summary>Tells whether a patrol at one tile sees another tile (D-718).</summary>
     /// <param name="map">The map that both tiles lie on.</param>

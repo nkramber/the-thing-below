@@ -1,9 +1,10 @@
 {
- "comment": "The first dungeon of the game (D-528). The terrain rows hold the ground, and the things hold everything that a rule reads: the spawn point, the save point, the chest, the trap, the doors, the lock, and the marker (D-386). PR-7 ships it so that the party has a place to walk, and PR-8 adds the enemies of the `enemies` array (D-738). PR-68 adds the story scene triggers of the `triggers` array, which holds none until the arc content lands (D-1004). Later content PRs replace it with the dungeons of region one.",
+ "comment": "The first dungeon of the game (D-528). The terrain rows hold the ground, and the things hold everything that a rule reads: the spawn point, the save point, the chest, the trap, the doors, the lock, and the marker (D-386). PR-7 ships it so that the party has a place to walk, and PR-8 adds the enemies of the `enemies` array (D-738). PR-68 adds the story scene triggers of the `triggers` array, which holds none until the arc content lands (D-1004). PR-91 makes the map dark, so each patrol sees 2 tiles, and 6 tiles while the party holds the torch out (D-1063, D-1067). Later content PRs replace it with the dungeons of region one.",
  "id": "map.fixture_dungeon",
  "region": "region.fixture",
  "label": "label.fixture_dungeon",
  "time": "night",
+ "dark": true,
  "terrain": [
   "########################################",
   "########################################",
@@ -47,7 +48,7 @@
    "size": "common",
    "facing": "east",
    "step_ticks": 32,
-   "sight_range": 4,
+   "sight_range": 2,
    "routes": [
     { "times": ["dawn", "day", "dusk"], "tiles": [{ "x": 17, "y": 3 }, { "x": 25, "y": 3 }] },
     { "times": ["night"], "tiles": [{ "x": 17, "y": 7 }, { "x": 25, "y": 7 }] }
@@ -59,7 +60,7 @@
    "size": "common",
    "facing": "north",
    "step_ticks": 32,
-   "sight_range": 5,
+   "sight_range": 2,
    "routes": [
     { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 25, "y": 20 }] }
    ]
@@ -70,7 +71,7 @@
    "size": "elite",
    "facing": "south",
    "step_ticks": 32,
-   "sight_range": 3,
+   "sight_range": 2,
    "areas": [
     { "times": ["dawn", "day", "dusk", "night"], "x": 4, "y": 14, "width": 6, "height": 5 }
    ]

@@ -38,6 +38,7 @@ internal static class BattleRuns
          "region": "{{RegionOf(group)}}",
          "label": "label.test_guarded",
          "time": "day",
+         "dark": false,
          "terrain": [
           "######",
           "#....#",
@@ -78,6 +79,7 @@ internal static class BattleRuns
          "region": "{{RegionOf(group)}}",
          "label": "label.test_guarded_walker",
          "time": "day",
+         "dark": false,
          "terrain": [
           "########",
           "#......#",

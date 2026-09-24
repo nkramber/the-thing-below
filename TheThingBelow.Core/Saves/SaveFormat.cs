@@ -62,6 +62,10 @@ public static class SaveFormat
     /// PR-99 raised it to 12. The party dropped the swap place, because a swap of lessons needs
     /// no place (D-1050). A save of format 10 or 11 holds the field, and the read drops it.
     /// </para>
+    /// <para>
+    /// PR-91 raised it to 13. The party gained the state of the torch (D-1064). A save of an older
+    /// format puts the torch away, as the first get of the torch does.
+    /// </para>
     /// </remarks>
-    public const int Current = 12;
+    public const int Current = 13;
 }
