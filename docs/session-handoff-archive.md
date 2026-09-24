@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 265: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #71, round 2. Repository: the-thing-below. Branch: `feat/pr-68-story-scenes`. PR: #71. Role: reviewer. Base: `31f172e`.
+
+### What this session did, and why
+
+- Re-reviewed the correction of P2-1 from `f8868ae` to `498137c`.
+- Confirmed that stored story actors must name a character of this build (D-166, D-1006).
+- Ran the snapshot tests and `make verify`. Both passed.
+- Updated `docs/reviews/pr-71.md` and corrected the verified test count and handoff line in the PR description.
+
+### The state of the build
+
+- Base: `31f172e`. Effective head: `498137c`. Remote head before this metadata commit: `498137c`.
+- Local verification passed with 2,852 tests. CI run `35949615173` passed all implementation checks on macOS, Ubuntu, and Windows.
+
+### What is in flight
+
+- The review record and this entry are one metadata commit. This round pushes it to `feat/pr-68-story-scenes`.
+
+### Traps and gotchas
+
+- The Gitar status notice has no review item. D-964 says it needs no answer and does not block the verdict.
+- The author correction passed the original undeclared-actor trigger and the valid actor snapshot case.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Fetch the branch, verify the pushed metadata head, and report the review verdict for PR #71.
 
 ## Session 264: 2026-09-24, Claude Code
 

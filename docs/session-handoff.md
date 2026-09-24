@@ -1,3 +1,37 @@
+## Session 275: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #75, round 2. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: reviewer. Base: `f1ab753`.
+
+### What this session did, and why
+
+- Re-reviewed the heal correction from `26d20cc` to `15945f2`.
+- Verified that the regression test passes at the content limits. The old product overflowed before the health cap.
+- `make verify` passed on macOS arm64 with 3,153 tests.
+- Updated `docs/reviews/pr-75.md`. P2-1 is fixed in `15945f2`.
+
+### The state of the build
+
+- Base and merge base: `f1ab753`. Effective head: `15945f2`.
+- CI run `36041907957` passed implementation checks except `screen-test`, which failed on three captures. The rerun repeated the same differences. The remote still points to `15945f2`.
+
+### What is in flight
+
+- The repeat review record and this entry need one metadata commit and a push to `feat/pr-99-stats-absorb-swap`.
+
+### Traps and gotchas
+
+- The screen differences are a few channel values. The three capture frames look unchanged against their baselines.
+- Gitar's only comment says “Gitar is working”. It has no item and does not block the verdict (D-964). The pass was skipped under D-946.
+
+### The questions that block progress
+
+None. OQ-247 and OQ-248 resolve in D-1052 and D-1055.
+
+### The next concrete action
+
+Commit the blocked review and this handoff together, then push and verify the remote head. The author needs to resolve the three CI screen differences before approval.
+
 ## Session 274: 2026-09-24, Claude Code
 
 Author: Claude Code
@@ -318,37 +352,3 @@ None for PR-50.
 ### The next concrete action
 
 Read the CI result of the pushed head, read the Gitar output one time, then run `make codex-review PR=72 -- --skip-gitar-review` in the background.
-
-## Session 265: 2026-09-24, Codex
-
-Author: Codex
-Session: reviewer PR #71, round 2. Repository: the-thing-below. Branch: `feat/pr-68-story-scenes`. PR: #71. Role: reviewer. Base: `31f172e`.
-
-### What this session did, and why
-
-- Re-reviewed the correction of P2-1 from `f8868ae` to `498137c`.
-- Confirmed that stored story actors must name a character of this build (D-166, D-1006).
-- Ran the snapshot tests and `make verify`. Both passed.
-- Updated `docs/reviews/pr-71.md` and corrected the verified test count and handoff line in the PR description.
-
-### The state of the build
-
-- Base: `31f172e`. Effective head: `498137c`. Remote head before this metadata commit: `498137c`.
-- Local verification passed with 2,852 tests. CI run `35949615173` passed all implementation checks on macOS, Ubuntu, and Windows.
-
-### What is in flight
-
-- The review record and this entry are one metadata commit. This round pushes it to `feat/pr-68-story-scenes`.
-
-### Traps and gotchas
-
-- The Gitar status notice has no review item. D-964 says it needs no answer and does not block the verdict.
-- The author correction passed the original undeclared-actor trigger and the valid actor snapshot case.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Fetch the branch, verify the pushed metadata head, and report the review verdict for PR #71.
