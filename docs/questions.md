@@ -356,6 +356,7 @@ How to file a question (D-19, D-24):
 111. **OQ-111. The scale of the dungeon map screen.** The map screen draws each tile that the party walked (D-567). A dungeon is larger than the frame. At what scale does it draw? Raised 2026-09-16. Blocks PR-62.
     - One pixel for each tile, with the screen centered on the party, the recommendation. A large dungeon fits in the frame, and the shape reads at a glance. A door or a save point needs a mark of more than one pixel.
     - Eight pixels for each tile, with a scroll. Each room reads clearly, with its doors and chests. The player scrolls a large dungeon, which needs its own input rules.
+    - Resolved 2026-09-23: D-982. Sixteen pixels for each walked tile, one scale for every dungeon.
 112. **OQ-112. The text speeds and the type-out of the dialogue box.** The box types its text out at the chosen speed (D-223), and the text speed is an accessibility setting (D-214). Godot types out text in two ways. The box can re-wrap as each letter appears, or it can keep its layout (the external facts of `area-ui-input.md`). What does the box do? Raised 2026-09-16. The layout half closed on 2026-09-19: D-709 takes the fixed layout. The speeds stay open, and they block PR-36.
     - A fixed layout, with three speeds and an instant skip, the recommendation. The words never move once they appear, which reads best at speed. The box needs its full text before it types, which it always has.
     - A re-wrap as each letter appears, which is the Godot default. It needs no setup. A word can jump to the next line as the line fills, which reads poorly.
@@ -363,6 +364,7 @@ How to file a question (D-19, D-24):
 113. **OQ-113. The notice log.** An important notice also lands in a log in the menu (D-221). Which notices does the log keep, and how many? Raised 2026-09-16. Blocks PR-62.
     - The notices that content marks as important, with the last 50, the recommendation. The log stays short and readable, and the snapshot holds it (D-166). Content must mark each notice.
     - Every notice of the run, with no limit. No notice ever leaves the log. The log grows through a long run, and each entry joins the save.
+    - Resolved 2026-09-23: D-983, D-984, and D-985. Content marks each notice that logs, the log keeps the 30 newest, and the snapshot holds it.
 114. **OQ-114. The rule of sight.** The party sees part of a map, and a patrol sees the party (D-37). The game has no fog of war, so this rule hides no tile from the party (D-566). What rule decides what each one sees? Raised 2026-09-16. Blocks PR-7 and PR-8. Closed 2026-09-20 by D-718, D-719, and D-720.
     - A line from tile to tile, with a range, the recommendation. A wall stops the line, and the rule is the same for the party and for a patrol. The rule costs more time as the range grows, and the bots measure it (M-4).
     - A cone in front of the facing, with a range. A patrol behind the party sees nothing, which rewards a sneak. The party then needs a second rule for its own sight, because it sees every way.

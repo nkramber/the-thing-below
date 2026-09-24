@@ -166,6 +166,7 @@ public sealed class BattleMessagesTests
             20260918,
             BattleRuns.Map("group.fixture_pair"),
             Content.Value.Battle,
+            Content.Value.Notices,
             DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
         return GameAssemblyFile.Type("TheThingBelow.Game.Ui.BattleView").GetMethod("AtStart")!.Invoke(null, [run.State])!;

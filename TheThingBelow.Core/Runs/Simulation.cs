@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Notices;
 
 namespace TheThingBelow.Core.Runs;
 
@@ -18,6 +19,10 @@ namespace TheThingBelow.Core.Runs;
 /// The four step intents move the party one tile, and the world step of the same tick starts
 /// that step (D-493, D-716). The confirm intent and the cancel intent reach no rule of this
 /// build, and PR-16 gives them the door, the chest, and the save point of a map (D-493).
+/// </para>
+/// <para>
+/// The row intent of the party window moves one character to the other row while a menu is
+/// open, and the next battle starts the character there (D-558).
 /// </para>
 /// <para>
 /// A battle intent resolves the turn of a character at once, with each enemy turn up to the
@@ -56,19 +61,21 @@ public sealed class Simulation
     /// <param name="seed">The seed of the run (G-3, G-4).</param>
     /// <param name="map">The map that the run opens, with the party on its spawn point (D-528).</param>
     /// <param name="battleContent">The battle rules and the fixture, which hold every group that the map names (D-766).</param>
+    /// <param name="notices">The notice file of this build (D-989).</param>
     /// <param name="debugHandlers">
     /// The extra intent handlers of the host. A release build passes
     /// <see cref="DebugIntentHandlers.None"/> (D-260, D-492).
     /// </param>
     /// <returns>The run.</returns>
-    /// <exception cref="ArgumentNullException">The map or the handler set is null (T-2).</exception>
-    public static Simulation Start(ulong seed, GameMap map, BattleContent battleContent, DebugIntentHandlers debugHandlers)
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    public static Simulation Start(ulong seed, GameMap map, BattleContent battleContent, NoticeList notices, DebugIntentHandlers debugHandlers)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(battleContent);
+        ArgumentNullException.ThrowIfNull(notices);
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
-        return new Simulation(RunState.Start(seed, map, battleContent), debugHandlers);
+        return new Simulation(RunState.Start(seed, map, battleContent, notices), debugHandlers);
     }
 
     /// <summary>Starts a run again from a snapshot (D-651).</summary>
@@ -79,6 +86,7 @@ public sealed class Simulation
     /// <see cref="RunSnapshot.MapIdOrFirst"/> (D-166).
     /// </param>
     /// <param name="battleContent">The battle rules and the fixture of this build (D-766).</param>
+    /// <param name="notices">The notice file of this build (D-985).</param>
     /// <param name="debugHandlers">The extra intent handlers of the host (D-260).</param>
     /// <returns>The run, at the tick of the snapshot.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
@@ -88,14 +96,16 @@ public sealed class Simulation
         RunSnapshot snapshot,
         GameMap map,
         BattleContent battleContent,
+        NoticeList notices,
         DebugIntentHandlers debugHandlers)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(battleContent);
+        ArgumentNullException.ThrowIfNull(notices);
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
-        return new Simulation(RunState.Resume(seed, snapshot, map, battleContent), debugHandlers);
+        return new Simulation(RunState.Resume(seed, snapshot, map, battleContent, notices), debugHandlers);
     }
 
     /// <summary>Runs one tick of the rules.</summary>
@@ -133,6 +143,10 @@ public sealed class Simulation
     /// <summary>Takes every battle event since the last take, in the order of the rules (D-532).</summary>
     /// <returns>The events. Game queues them and plays them in order.</returns>
     public IReadOnlyList<BattleEvent> TakeBattleEvents() => this.State.TakeEvents();
+
+    /// <summary>Takes every notice that a rule posted since the last take, in the order of the posts (D-221).</summary>
+    /// <returns>The notices. Game queues them and shows them in order (D-994).</returns>
+    public IReadOnlyList<NoticeRecord> TakeNotices() => this.State.TakeNotices();
 
     /// <summary>Stores the whole state of the run (F-10, D-651).</summary>
     /// <returns>The snapshot.</returns>
@@ -195,6 +209,19 @@ public sealed class Simulation
             return;
         }
 
+        if (string.CompareOrdinal(intent.Action.Value, IntentIds.PartyRow.Value) == 0)
+        {
+            BattleTarget target = intent.Target ?? throw new SimulationException("a row change that names no character (D-558)", context);
+            this.State.SwapRow(target, context);
+            log.Add(new LogEntry(
+                LogLevel.Info,
+                "a character moved to the other row",
+                this.State.Tick,
+                LogSubsystems.Run,
+                [new LogField("target", target.Describe())]));
+            return;
+        }
+
         if (TryStepOf(intent, out StepDirection direction))
         {
             // The rule reads the intent here, and the world step of this tick starts the
@@ -242,17 +269,19 @@ public sealed class Simulation
     }
 
     /// <summary>
-    /// Refuses a target or an item on an intent that is not an attack or an item use. A value
-    /// that no rule reads points at a fault in the screen that made the intent (T-2).
+    /// Refuses a target on an intent that is not an attack, an item use, or a row change, and an
+    /// item on an intent that is not an item use. A value that no rule reads points at a fault in
+    /// the screen that made the intent (T-2).
     /// </summary>
     private static void RefuseOutsideBattle(Intent intent, RunContext context)
     {
         bool attack = string.CompareOrdinal(intent.Action.Value, IntentIds.BattleAttack.Value) == 0;
         bool item = string.CompareOrdinal(intent.Action.Value, IntentIds.BattleItem.Value) == 0;
-        if ((intent.Target is not null && !attack && !item) || (intent.Item is not null && !item))
+        bool row = string.CompareOrdinal(intent.Action.Value, IntentIds.PartyRow.Value) == 0;
+        if ((intent.Target is not null && !attack && !item && !row) || (intent.Item is not null && !item))
         {
             throw new SimulationException(
-                "an intent that carries a target or an item that no rule of its action reads (D-764, D-780)",
+                "an intent that carries a target or an item that no rule of its action reads (D-558, D-764, D-780)",
                 context);
         }
     }

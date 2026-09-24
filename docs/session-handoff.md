@@ -1,3 +1,75 @@
+## Session 261: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #70, round 1. Repository: the-thing-below. Branch: `feat/pr-62-menu-windows`. PR: #70. Role: reviewer. Base: `a929c59`.
+
+### What this session did, and why
+
+- Reviewed PR #70 from merge base `a929c59` through effective head `654b678`.
+- Confirmed Claude Code authored the change, so Codex passes the provider gate (T-4, D-17).
+- Read all changed paths and traced the menu, map, notice, save, replay, and settings contracts. Read all 16 changed screen frames from CI.
+- Added `docs/reviews/pr-70.md` with `Ready for owner merge` for `654b678`. Corrected the Documents row of the PR description.
+
+### The state of the build
+
+- `main` and the PR base are `a929c59`. The effective head and remote head before this metadata commit are `654b678`.
+- `make verify` passed on macOS arm64 with 2,703 tests. CI run 35940703848 passed implementation checks on macOS, Ubuntu, and Windows. Review-gate failed because the review record was absent.
+
+### What is in flight
+
+- This metadata commit holds the review record and this handoff entry. Fresh review-gate and metadata-tip CI checks passed after publication.
+
+### Traps and gotchas
+
+- The Gitar status notice has no item. The review-thread query returned no threads, so D-964 requires no answer.
+- The CI screen artifact has 16 changed frames. All were read for this review (D-733, D-784).
+
+### The questions that block progress
+
+None for PR-70.
+
+### The next concrete action
+
+The review record and handoff are committed and pushed together. The remote head is `2888448`; review-gate and all applicable metadata-tip checks passed.
+
+## Session 260: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-62, round 1. Repository: the-thing-below. Branch: `feat/pr-62-menu-windows`. PR: #70. Role: author. Base: `a929c59`.
+
+### What this session did, and why
+
+- Asked OQ-111 and OQ-113 first, then the gaps that the code found: the map action, the log place, the dim entries, the notice source, the status sheet, the list order, the exit mark, and the time of a notice. D-982 to D-996 record the answers.
+- Core: the notice file, the notice rule, the notice log of 30 entries, and the row intent of the party window. Save format 8 and simulation version 20. The debug console posts a notice with `notice` and `aside`.
+- Storage: settings format 2, whose step adds the map action with M and Back.
+- Game: the main list, the party, status, and log windows, the dungeon map screen, the notice box, and the map action. The settings screen opens from the main list.
+
+### The state of the build
+
+- `main` is `a929c59`. The branch holds three decision commits, the Core commit `10985be`, and the Game commit `13829ba`.
+- CI run 35939130614 failed on the 8 new captures and 8 changed ones alone: the settings frames gain the Map row, and the ui frames show the notice line as the longest plain string. The baseline commit takes those 16 files from its `screen-captures` artifact (D-733). Smoke, identity, det-lint, and STE passed on every leg.
+- Local: build, format, det-lint, STE, identity, content, and smoke pass. 2703 of 2703 tests pass.
+- The author read each new frame of `make sheet FIXTURE=menu` and `FIXTURE=notice` (D-784).
+
+### What is in flight
+
+- CI on the commit of the 4 stable baselines from run 35940125266, whose two capture runs matched. Then the Codex review.
+
+### Traps and gotchas
+
+- `RunState.Start`, `Resume`, `Simulation`, and `RunReplay.Play` take the notice file. Tests use `TestBattles.Notices`.
+- The capture session builds no input map, so the menu captures build each view and send no event.
+- A capture that shows the map seeks its particles to the tick of the run. The first menu frames did not, and `menu-list-fill-1080` moved by one color step between runs.
+- The glossary refuses "banner". The box at the top edge is the notice box.
+
+### The questions that block progress
+
+None. The PR description holds the game text batch for the owner (D-57).
+
+### The next concrete action
+
+Wait for CI on the baseline commit to finish green except `review-gate`. Read Gitar once under D-945, then run `make codex-review PR=70 -- --skip-gitar-review`.
+
 ## Session 259: 2026-09-23, Codex
 
 Author: Codex
@@ -19,7 +91,7 @@ Session: reviewer PR #69, round 1. Repository: the-thing-below. Branch: `feat/pr
 
 ### What is in flight
 
-- This metadata commit holds the review record and this handoff entry. The push must make the new review-gate check pass.
+- This metadata commit holds the review record and this handoff entry. Fresh review-gate and metadata-tip CI checks passed after publication.
 
 ### Traps and gotchas
 
@@ -32,7 +104,7 @@ None for PR-69.
 
 ### The next concrete action
 
-Commit and push the review record and handoff together. Fetch, verify the remote head, and confirm the fresh review-gate result.
+The review record and handoff are committed and pushed together. The remote head is `2888448`; review-gate and all applicable metadata-tip checks passed.
 
 ## Session 258: 2026-09-23, Claude Code
 
@@ -284,73 +356,3 @@ None.
 ### The next concrete action
 
 Read the CI result of the baseline commit, read the Gitar output one time, then run `make codex-review PR=68 -- --skip-gitar-review` in the background (D-945, D-946).
-
-## Session 251: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #67, round 3. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: #67. Role: reviewer. Base: `d429d03`.
-
-### What this session did, and why
-
-- Re-reviewed PR #67 through effective head `a1f145d` after the cost correction and Deck measurement.
-- Verified P2-1 is fixed at `ad83e20`. The author recorded two Deck runs at 74 us and 103 us, both below the D-961 limit.
-- Verified the answer to the existing Gitar status comment. It has no thread or finding.
-- Updated the review record, corrected the test count and Documents row in the PR description, and set the verdict to Ready for owner merge.
-
-### The state of the build
-
-- `main` and the PR base are `d429d03`. The effective head is `a1f145d`.
-- `make verify` passed on macOS arm64 with 2,507 tests. CI run 35911353733 passed the shared checks. Platform implementation jobs passed at `ad83e20`.
-- The review-gate check failed against the prior blocked review record. A fresh result after this metadata commit is required.
-
-### What is in flight
-
-- The review record and this handoff entry need one metadata commit and a push to `feat/pr-11-evaluator`.
-- Read the new review-gate result after the push.
-
-### Traps and gotchas
-
-- The effective head is `a1f145d`, because the Deck procedure and F-53 changed outside the metadata set.
-- The Deck result comes from two Release runs of the cost command on the code at `ad83e20`.
-
-### The questions that block progress
-
-OQ-243 applies to PR-98 alone (D-951 to D-954).
-
-### The next concrete action
-
-Run the metadata commit and push gate, then confirm the published review-gate result.
-
-## Session 250: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-11, round 3. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: #67. Role: author. Base: `d429d03`.
-
-### What this session did, and why
-
-- Read the record of Session 249: `Blocked` for `ad83e20`, with P2-1 fixed and no open finding.
-- Answered the Gitar status comment in a PR comment. It held no thread, no finding, and no claim (D-945, D-946).
-- Ran `evaluator-cost` on the Steam Deck over SSH, at the request of the owner. Two Release runs gave 74 us and 103 us at the 95th percentile, inside the limit of D-961.
-- Recorded the numbers in F-53 and the response file, and wrote the SSH steps into `docs/runbooks/dev-machine.md`.
-
-### The state of the build
-
-- `main` is `d429d03`. The effective head `ad83e20` holds the code. The commit of this round changes documents alone (D-943).
-
-### What is in flight
-
-- A new `make codex-review PR=67 -- --skip-gitar-review` on the record of this round.
-- After an approval, the merge question to the owner in four sections (D-942).
-
-### Traps and gotchas
-
-- The command sandbox blocks the local network. An SSH call to the Deck at `10.0.0.46` runs outside the sandbox.
-- The Deck has no `make`, so the Deck runs the `dotnet run` form of each target.
-
-### The questions that block progress
-
-None for PR-11. OQ-243 blocks PR-98.
-
-### The next concrete action
-
-Run `make codex-review PR=67 -- --skip-gitar-review`, and read its outcome.

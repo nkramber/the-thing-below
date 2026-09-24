@@ -173,7 +173,7 @@ public sealed class EnemyRecordTests
         BattleContent content = TestBattles.OfGroups(groups);
 
         ContentException error = Assert.Throws<ContentException>(
-            () => Simulation.Start(1, BattleRuns.Map("group.test_pair"), content, DebugIntentHandlers.None));
+            () => Simulation.Start(1, BattleRuns.Map("group.test_pair"), content, TestBattles.Notices, DebugIntentHandlers.None));
 
         Assert.Equal("tests-guarded.json", error.File);
         Assert.Contains("enemy.fixture_brute", error.Message, StringComparison.Ordinal);

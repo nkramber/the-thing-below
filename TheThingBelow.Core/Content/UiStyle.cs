@@ -12,6 +12,12 @@ public sealed record UiColor(string Role, string Key)
     public char KeyCharacter => this.Key[0];
 }
 
+/// <summary>The time of a notice on screen, in ticks of the world (D-994, D-995).</summary>
+/// <param name="SlideTicks">The ticks of the slide in at the top edge.</param>
+/// <param name="HoldTicks">The ticks that the whole line holds after the type-out.</param>
+/// <param name="FadeTicks">The ticks of the fade out.</param>
+public sealed record NoticeTiming(int SlideTicks, int HoldTicks, int FadeTicks);
+
 /// <summary>One window frame of the UI, named by its role and drawn from the atlas (D-220).</summary>
 /// <param name="Role">Where the frame draws, such as `window`.</param>
 /// <param name="Drawing">The id of the drawing that holds the nine parts of the frame.</param>
@@ -45,9 +51,11 @@ public sealed class UiStyle
         int largeBody,
         int titleScale,
         int borderPixels,
+        NoticeTiming notice,
         SortedDictionary<string, UiColor> colors,
         SortedDictionary<string, UiFrame> frames)
     {
+        this.Notice = notice;
         this.Comment = comment;
         this.SmallBody = smallBody;
         this.LargeBody = largeBody;
@@ -71,6 +79,9 @@ public sealed class UiStyle
 
     /// <summary>The width of the border of a panel, in frame pixels.</summary>
     public int BorderPixels { get; }
+
+    /// <summary>The time of a notice on screen (D-994).</summary>
+    public NoticeTiming Notice { get; }
 
     /// <summary>Every color, in ordinal order of its role (F-39).</summary>
     public IEnumerable<UiColor> Colors => this.colors.Values;
@@ -147,6 +158,7 @@ public sealed class UiStyle
         int? largeBody = null;
         int? titleScale = null;
         int? borderPixels = null;
+        NoticeTiming? notice = null;
         SortedDictionary<string, UiColor>? colors = null;
         SortedDictionary<string, UiFrame>? frames = null;
 
@@ -170,6 +182,9 @@ public sealed class UiStyle
                 case "border_pixels":
                     borderPixels = reader.ReadInt();
                     break;
+                case "notice":
+                    notice = ReadNotice(ref reader);
+                    break;
                 case "colors":
                     colors = ReadColors(ref reader);
                     break;
@@ -189,6 +204,7 @@ public sealed class UiStyle
             reader.RequireInt(largeBody, depth, "large_body"),
             reader.RequireInt(titleScale, depth, "title_scale"),
             reader.RequireInt(borderPixels, depth, "border_pixels"),
+            reader.Require(notice, depth, "notice"),
             reader.Require(colors, depth, "colors"),
             reader.Require(frames, depth, "frames"));
     }
@@ -205,6 +221,7 @@ public sealed class UiStyle
         int largeBody,
         int titleScale,
         int borderPixels,
+        NoticeTiming notice,
         SortedDictionary<string, UiColor> colors,
         SortedDictionary<string, UiFrame> frames)
     {
@@ -247,7 +264,46 @@ public sealed class UiStyle
             throw reader.RefuseField(depth, "frames", $"the style file holds no window frame, and a panel draws the '{WindowFrameRole}' frame (D-220)");
         }
 
-        return new UiStyle(comment, smallBody, largeBody, titleScale, borderPixels, colors, frames);
+        return new UiStyle(comment, smallBody, largeBody, titleScale, borderPixels, notice, colors, frames);
+    }
+
+    /// <summary>Reads the time of a notice. Each count is above zero, so each phase of a notice shows (D-994, T-2).</summary>
+    private static NoticeTiming ReadNotice(ref ContentReader reader)
+    {
+        int? slide = null;
+        int? hold = null;
+        int? fade = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "slide_ticks":
+                    slide = reader.ReadInt();
+                    break;
+                case "hold_ticks":
+                    hold = reader.ReadInt();
+                    break;
+                case "fade_ticks":
+                    fade = reader.ReadInt();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        var timing = new NoticeTiming(
+            reader.RequireInt(slide, depth, "slide_ticks"),
+            reader.RequireInt(hold, depth, "hold_ticks"),
+            reader.RequireInt(fade, depth, "fade_ticks"));
+        if (timing.SlideTicks <= 0 || timing.HoldTicks <= 0 || timing.FadeTicks <= 0)
+        {
+            throw reader.Refuse(
+                $"the notice takes {timing.SlideTicks}, {timing.HoldTicks}, and {timing.FadeTicks} ticks, and each phase of a notice takes one tick or more (D-994)");
+        }
+
+        return timing;
     }
 
     private static SortedDictionary<string, UiColor> ReadColors(ref ContentReader reader)

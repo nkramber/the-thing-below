@@ -64,6 +64,14 @@ public sealed class InputIntentTests
     }
 
     [Fact]
+    public void TheMapActionOpensTheMapScreenAndClosesIt()
+    {
+        // D-986. The map screen is a menu, so the map action pauses the world as the menu action does.
+        Assert.Equal(IntentIds.OpenMenu.Value, IntentOf("map", false).Value);
+        Assert.Equal(IntentIds.CloseMenu.Value, IntentOf("map", true).Value);
+    }
+
+    [Fact]
     public void AnUnknownActionFails()
     {
         // T-2. A name with no intent is an error, and never a silent step of nothing.

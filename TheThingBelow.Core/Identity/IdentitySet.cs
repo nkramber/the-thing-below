@@ -6,6 +6,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Streams;
 
@@ -391,6 +392,17 @@ public static class IdentitySet
     }
     """;
 
+    /// <summary>The notice file of this set (D-989). PR-62 added it, and it never changes.</summary>
+    private const string NoticeFile = """
+    {
+     "comment": "The notices of the identity set.",
+     "notices": [
+      { "id": "notice.identity_kept", "log": true },
+      { "id": "notice.identity_plain", "log": false }
+     ]
+    }
+    """;
+
     /// <summary>The ability file of this set (D-785). PR-80 added it, and it never changes.</summary>
     private const string AbilityFile = """
     {
@@ -602,7 +614,7 @@ public static class IdentitySet
     {
         GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(ReplayMapFile), "identity-set-map.json");
         RunHeader header = RunHeader.ForThisBuild(ReplayContentHash, RunSeed);
-        Simulation simulation = Simulation.Start(RunSeed, map, ReplayBattleContent(), DebugIntentHandlers.None);
+        Simulation simulation = Simulation.Start(RunSeed, map, ReplayBattleContent(), ReplayNotices(), DebugIntentHandlers.None);
         RunRecorder recorder = new(header, simulation.Snapshot());
 
         for (int step = 0; step < ReplayTickCount; step += 1)
@@ -621,7 +633,7 @@ public static class IdentitySet
 
         string text = RunRecordText.Write(recorder.Build());
         RunState replayed = RunReplay.Play(
-            RunRecordText.Read(text), ReplayContentHash, map, ReplayBattleContent(), DebugIntentHandlers.None);
+            RunRecordText.Read(text), ReplayContentHash, map, ReplayBattleContent(), ReplayNotices(), DebugIntentHandlers.None);
 
         StateHasher hasher = new();
         hasher.AddUInt64(simulation.StateHash());
@@ -632,7 +644,8 @@ public static class IdentitySet
 
     /// <summary>
     /// The script of the replay run. The menu opens and closes four times, so the run reads
-    /// a world that runs and a world that a menu pauses (D-162, D-650).
+    /// a world that runs and a world that a menu pauses (D-162, D-650). The party window moves
+    /// the lead to the other row inside each open menu (D-558).
     /// </summary>
     /// <remarks>
     /// The party also walks, so the run reads the step rule, the walked-tile record, and the
@@ -645,6 +658,11 @@ public static class IdentitySet
         if (inCycle == 37)
         {
             return [Intent.OfPlayer(IntentIds.OpenMenu)];
+        }
+
+        if (inCycle == 50)
+        {
+            return [Intent.OfPlayer(IntentIds.PartyRow, new BattleTarget(BattleSide.Party, 0), null)];
         }
 
         if (inCycle == 96)
@@ -685,6 +703,9 @@ public static class IdentitySet
                 ProfileRecord.Read(Encoding.UTF8.GetBytes(MenderProfileFile), "identity-set-mender-profile.json"),
             ]);
 
+    /// <summary>The notice file of every run of this set (D-989), from its own copy for the reason of <see cref="ReplayBattleContent"/>.</summary>
+    private static NoticeList ReplayNotices() => NoticeList.Read(Encoding.UTF8.GetBytes(NoticeFile), "identity-set-notices.json");
+
     /// <summary>
     /// Runs a scripted battle, writes the record, reads the text of it again, and replays it
     /// (exit test 7 of PR-9). The party steps into the guard, fights with every action, saves
@@ -697,7 +718,7 @@ public static class IdentitySet
         GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(mapFile), "identity-set-battle-map.json");
         BattleContent content = ReplayBattleContent();
         RunHeader header = RunHeader.ForThisBuild(ReplayContentHash, RunSeed);
-        Simulation simulation = Simulation.Start(RunSeed, map, content, DebugIntentHandlers.None);
+        Simulation simulation = Simulation.Start(RunSeed, map, content, ReplayNotices(), DebugIntentHandlers.None);
         RunRecorder recorder = new(header, simulation.Snapshot());
         StateHasher hasher = new();
         int turns = 0;
@@ -728,7 +749,7 @@ public static class IdentitySet
 
         string text = RunRecordText.Write(recorder.Build());
         RunState replayed = RunReplay.Play(
-            RunRecordText.Read(text), ReplayContentHash, map, content, DebugIntentHandlers.None);
+            RunRecordText.Read(text), ReplayContentHash, map, content, ReplayNotices(), DebugIntentHandlers.None);
 
         hasher.AddUInt64(simulation.StateHash());
         hasher.AddUInt64(replayed.StateHash());
@@ -784,7 +805,7 @@ public static class IdentitySet
     {
         GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(StatusMapFile), "identity-set-status-map.json");
         BattleContent content = ReplayBattleContent();
-        Simulation simulation = Simulation.Start(RunSeed, map, content, DebugIntentHandlers.None);
+        Simulation simulation = Simulation.Start(RunSeed, map, content, ReplayNotices(), DebugIntentHandlers.None);
         for (int step = 0; step < BattleTickCount && simulation.State.Battle is null; step += 1)
         {
             _ = simulation.Step(simulation.State.Party.Patrols.Encounter is null ? [Intent.OfPlayer(IntentIds.MoveEast)] : []);
@@ -805,7 +826,7 @@ public static class IdentitySet
             {
                 string text = RunSnapshotText.Write(simulation.Snapshot());
                 var reader = new ContentReader(Encoding.UTF8.GetBytes(text), "identity-set-status-snapshot");
-                copy = Simulation.Resume(RunSeed, RunSnapshotText.Read(ref reader), map, content, DebugIntentHandlers.None);
+                copy = Simulation.Resume(RunSeed, RunSnapshotText.Read(ref reader), map, content, ReplayNotices(), DebugIntentHandlers.None);
                 hasher.AddText(text);
             }
 

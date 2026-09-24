@@ -168,7 +168,7 @@ internal static class BattleRuns
     /// <returns>The run, in a battle.</returns>
     public static Simulation IntoBattle(ulong seed, string group, BattleContent? content = null)
     {
-        Simulation run = Simulation.Start(seed, Map(group), content ?? TestBattles.Content, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(seed, Map(group), content ?? TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
         Assert.NotNull(run.State.Battle);
         return run;

@@ -1,9 +1,10 @@
 {
- "comment": "The look of every menu, panel, and label, and the colors of the health bar, the MP bar, and the hit flash of the battle screen (D-527, D-826, D-829, D-976). Game builds the Godot Theme from this file at load, and no theme resource file exists (G-6). Each color names a palette key of content/sprites/palette.json, so the screen keeps one palette (D-89, D-181). The player picks the body size, and the title is title_scale times the body (D-707).",
+ "comment": "The look of every menu, panel, and label, and the colors of the health bar, the MP bar, and the hit flash of the battle screen (D-527, D-826, D-829, D-976). Game builds the Godot Theme from this file at load, and no theme resource file exists (G-6). Each color names a palette key of content/sprites/palette.json, so the screen keeps one palette (D-89, D-181). The player picks the body size, and the title is title_scale times the body (D-707). A notice slides in, holds, and fades over the ticks of the notice object, which count the ticks of the world (D-994, D-995). The map colors paint the dungeon map screen: a walked tile, a door, a save point, and the party (D-567, D-982).",
  "small_body": 24,
  "large_body": 32,
  "title_scale": 2,
  "border_pixels": 1,
+ "notice": { "slide_ticks": 12, "hold_ticks": 180, "fade_ticks": 30 },
  "colors": [
   { "role": "panel_fill", "key": "K" },
   { "role": "panel_shadow", "key": "k" },
@@ -17,7 +18,11 @@
   { "role": "bar_empty", "key": "d" },
   { "role": "bar_fill", "key": "x" },
   { "role": "bar_mp", "key": "c" },
-  { "role": "flash", "key": "w" }
+  { "role": "flash", "key": "w" },
+  { "role": "map_floor", "key": "D" },
+  { "role": "map_door", "key": "O" },
+  { "role": "map_save", "key": "u" },
+  { "role": "map_party", "key": "y" }
  ],
  "frames": [
   { "role": "window", "drawing": "drawing.ui_window_frame" }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Notices;
 
 namespace TheThingBelow.Core.Runs;
 
@@ -26,6 +27,7 @@ public static class RunReplay
     /// <see cref="RunSnapshot.MapIdOrFirst"/> (D-166).
     /// </param>
     /// <param name="battleContent">The battle rules and the fixture of this build (D-766).</param>
+    /// <param name="notices">The notice file of this build (D-985).</param>
     /// <param name="debugHandlers">
     /// The extra intent handlers of this host. A release host passes
     /// <see cref="DebugIntentHandlers.None"/>, and it then refuses a record with a debug
@@ -43,17 +45,19 @@ public static class RunReplay
         string contentHash,
         GameMap map,
         BattleContent battleContent,
+        NoticeList notices,
         DebugIntentHandlers debugHandlers)
     {
         ArgumentNullException.ThrowIfNull(record);
         ArgumentException.ThrowIfNullOrEmpty(contentHash);
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(battleContent);
+        ArgumentNullException.ThrowIfNull(notices);
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
         record.Header.CheckAgainstThisBuild(contentHash);
 
-        Simulation simulation = Simulation.Resume(record.Header.Seed, record.Snapshot, map, battleContent, debugHandlers);
+        Simulation simulation = Simulation.Resume(record.Header.Seed, record.Snapshot, map, battleContent, notices, debugHandlers);
         int next = 0;
 
         while (simulation.Tick < record.EndTick)

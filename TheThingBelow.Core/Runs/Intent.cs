@@ -18,7 +18,8 @@ namespace TheThingBelow.Core.Runs;
 /// action refuses the record, and the report names the intent and the tick (D-492, T-2).
 /// </para>
 /// <para>
-/// A battle intent names its target, and an item use names its item too (D-764, D-780).
+/// A battle intent names its target, and an item use names its item too (D-764, D-780). The
+/// row intent of the party window names its character as a target of the party side (D-558).
 /// Every other intent carries neither.
 /// </para>
 /// </remarks>
@@ -26,7 +27,7 @@ namespace TheThingBelow.Core.Runs;
 /// <param name="IsDebug">
 /// True when the debug console of a development build made the intent (D-171, D-260).
 /// </param>
-/// <param name="Target">The side and the slot that a battle intent aims at, or no value (D-764).</param>
+/// <param name="Target">The side and the slot that a battle intent or a row intent aims at, or no value (D-558, D-764).</param>
 /// <param name="Item">The item of an item use, or no value (D-780).</param>
 public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target = null, ContentId? Item = null)
 {

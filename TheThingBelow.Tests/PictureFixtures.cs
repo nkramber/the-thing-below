@@ -70,7 +70,7 @@ public static class PictureFixtures
         List<ContentFile> files =
         [
             File(Palette.Path, DrawingFixtures.PaletteBody),
-            File(StringTable.Path, """{ "comment": "a test table", "strings": [ ] }"""),
+            File(StringTable.Path, """{ "comment": "a test table", "strings": [ """ + TestBattles.NoticeStrings + """ ] }"""),
             File(AtlasIndex.Path, IndexBody(indexEntries)),
             File("sprites/drawings/pieces/a.json", PieceBody(PieceA, 2, 2, "\"kw\", \"k.\"", "a")),
             File("sprites/drawings/pieces/b.json", PieceBody(PieceB, 3, 1, "\"DDD\"", "b")),

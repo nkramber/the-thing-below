@@ -68,4 +68,10 @@ public static class IntentIds
     /// its event queue drains, and a bot sends it at once (D-522, D-532).
     /// </summary>
     public static readonly ContentId WaitBattleEnd = ContentId.Parse("intent.wait_battle_end", Source, nameof(WaitBattleEnd));
+
+    /// <summary>
+    /// The party window of a menu moved one character to the other row. The intent names the
+    /// character by its slot, as a battle target of the party side (D-377, D-558).
+    /// </summary>
+    public static readonly ContentId PartyRow = ContentId.Parse("intent.party_row", Source, nameof(PartyRow));
 }

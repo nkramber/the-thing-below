@@ -39,7 +39,7 @@ public sealed class SettingsMenuTests
                 "Messages", "RememberCursor", "EffectLevel", "TextSpeed", "DeadZone", "Vibration",
             ],
             items.GetRange(0, 15));
-        Assert.Equal(["step_north", "step_south", "step_east", "step_west", "confirm", "cancel", "menu"], actions);
+        Assert.Equal(["step_north", "step_south", "step_east", "step_west", "confirm", "cancel", "menu", "map"], actions);
     }
 
     [Fact]

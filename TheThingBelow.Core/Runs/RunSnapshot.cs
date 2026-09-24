@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Runs;
@@ -72,6 +73,10 @@ public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IR
 /// fixture at full health (D-166, D-765). One snapshot covers the map and the battle, so a
 /// battle that runs, or that waits for the screen, takes its place in the snapshot (D-531).
 /// </para>
+/// <para>
+/// A snapshot before save format 8 holds no notice log, and its migration starts the log empty
+/// (D-166, D-985).
+/// </para>
 /// </remarks>
 /// <param name="Tick">The count of ticks since the start of the run (D-164, D-650).</param>
 /// <param name="MenuOpen">True while a menu is open and the world waits (D-162).</param>
@@ -79,6 +84,7 @@ public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IR
 /// <param name="Map">The party on its map, or no value on a snapshot of save format 1 (D-166).</param>
 /// <param name="Characters">The characters and the pack, or no value on a snapshot before save format 4 (D-765).</param>
 /// <param name="Battle">The battle, or no value when none runs (D-531).</param>
+/// <param name="Notices">The notice log, oldest first, or no value on a snapshot before save format 8 (D-985).</param>
 /// <param name="Streams">The position of every stream, in the order of `RandomStreams.All`.</param>
 public sealed record RunSnapshot(
     long Tick,
@@ -87,6 +93,7 @@ public sealed record RunSnapshot(
     MapSnapshot? Map,
     PartySnapshot? Characters,
     BattleValues? Battle,
+    IReadOnlyList<ContentId>? Notices,
     IReadOnlyList<StreamPosition> Streams)
 {
     /// <summary>
@@ -120,6 +127,10 @@ public sealed record RunSnapshot(
             this.Battle is not null && (this.Characters is null || this.Map?.Encounter is null),
             source,
             "it holds a battle with no party or no encounter, and a battle needs both (D-531)");
+        Refuse(
+            this.Notices is not null && this.Notices.Count > NoticeLog.MostEntries,
+            source,
+            $"it holds {this.Notices?.Count} notices in the log, and the log keeps {NoticeLog.MostEntries} (D-984)");
         Refuse(
             this.Streams.Count != RandomStreams.All.Count,
             source,

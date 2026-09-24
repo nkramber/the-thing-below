@@ -524,7 +524,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 27. PR-11: the evaluator, the enemy profiles, and the groups, with the cost of a turn (D-65, D-534, F-53).
 28. PR-98: the waiting enemies at the left edge of the field, right after PR-11 (D-951 to D-954, D-963).
 29. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537, D-966 to D-981).
-30. PR-62: the menu windows, the party and status windows, the dungeon map screen, and the notices (D-211, D-558, D-567, D-569).
+30. PR-62: the menu windows, the party and status windows, the dungeon map screen, and the notices (D-211, D-558, D-567, D-569, D-982 to D-996).
 31. PR-68: the story scene format and runner, the join step, the flags, and the conditions, before PR-12 (D-541, D-544, D-556, D-563).
 32. PR-50: the screenplay tool, right after PR-68 (D-173, D-545).
 33. PR-12: the lessons, the slots, the forms, and the aptitudes (D-272, D-356, D-539).

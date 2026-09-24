@@ -198,6 +198,11 @@ UI and input terms from the roadmaps PR of 2026-09-16:
 | button prompt | the glyph of a button on the screen, which the game never shows (D-815) | icon, when the text means a button |
 | notice | the one-line message that slides in at the top edge of the screen (D-221) | toast, banner |
 | window frame | the drawn border of a menu window (D-220) | panel, and border, when the text means this drawing |
+| main list | the first window of the menu, which opens one window for each task (D-211, D-992) | main menu, pause menu |
+| task window | a window of the menu that the main list opens, such as the party window or the status window (D-211) | submenu, page |
+| notice box | the box at the top edge of the frame that shows one notice (D-221, D-994) | banner, toast |
+| notice log | the newest notices that content marks to log, and the menu window that lists them (D-983 to D-987) | journal, history, message log |
+| dungeon map screen | the menu screen that draws each tile that the party walked, with its doors and its save points (D-567, D-982) | minimap, automap |
 
 Story terms from the roadmaps PR of 2026-09-16:
 

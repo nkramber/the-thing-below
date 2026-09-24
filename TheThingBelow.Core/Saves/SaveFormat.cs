@@ -39,6 +39,10 @@ public static class SaveFormat
     /// PR-67 raised it to 7. Each character gained its level, its experience, and its MP (D-966).
     /// A save of an older format starts each character at its join level with full MP (D-363).
     /// </para>
+    /// <para>
+    /// PR-62 raised it to 8. The snapshot gained the notice log (D-985). A save of an older format
+    /// starts the log empty.
+    /// </para>
     /// </remarks>
-    public const int Current = 7;
+    public const int Current = 8;
 }

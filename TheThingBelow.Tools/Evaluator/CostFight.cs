@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Notices;
 
 namespace TheThingBelow.Tools.Evaluator;
 
@@ -123,6 +124,16 @@ public static class CostFight
     }
     """;
 
+    /// <summary>The notice file of the cost fight. A run needs one, and the fight posts none (D-989).</summary>
+    private const string NoticeText = """
+    {
+     "comment": "The notice of the cost fight.",
+     "notices": [
+      { "id": "notice.cost_plain", "log": false }
+     ]
+    }
+    """;
+
     /// <summary>Builds the battle content of the cost fight, with the rules file of the checkout.</summary>
     /// <param name="root">The root of the checkout.</param>
     /// <returns>The battle content.</returns>
@@ -140,6 +151,10 @@ public static class CostFight
             new List<GroupFile> { GroupFile.Read(Encoding.UTF8.GetBytes(GroupText), $"{GroupFile.Folder}cost.json") },
             [ProfileRecord.Read(Encoding.UTF8.GetBytes(ProfileText), "cost-profile.json")]);
     }
+
+    /// <summary>Gives the notice file of the cost fight, which posts no notice (D-989).</summary>
+    /// <returns>The notice file.</returns>
+    public static NoticeList Notices() => NoticeList.Read(Encoding.UTF8.GetBytes(NoticeText), "cost-notices.json");
 
     /// <summary>Gives the map of the cost fight.</summary>
     /// <returns>The map.</returns>

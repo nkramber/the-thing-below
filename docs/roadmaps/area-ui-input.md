@@ -130,14 +130,15 @@ Built by PR-61. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-62. Phase file: `phase-2-first-playable.md`.
 
-- A main list opens one window for each task: party, lessons, gear, items, status, and save (D-211).
+- A main list opens one window for each task: party, lessons, gear, items, status, log, save, and settings (D-211, D-992). An entry whose window a later PR builds shows dim (D-988).
 - Each window stacks over the last, back closes it, and the map stays visible behind (D-211).
 - A menu pauses the world (D-162). The tick rises while a menu is open, and the world systems skip their work (D-650).
 - A menu action is an intent, and the record holds no cursor move (D-493).
 - The mouse works on menus alone, and a mouse action on a menu makes the same intent as a key (D-219, D-493). The mouse moves the cursor, and a click chooses the item under the pointer (D-872).
-- The dungeon map screen draws each tile that the party walked, with the doors, the save points, and the exits on those tiles (D-567). OQ-111 holds its scale.
+- The dungeon map screen draws each tile that the party walked, with the doors and the save points on those tiles (D-567). PR-16 adds the exit mark (D-993). Each walked tile draws at 16 pixels, so a dungeon of 80 by 45 tiles or less shows whole (D-982).
+- A map action opens the dungeon map screen from the walk, with the M key and the Back button of the gamepad (D-986, D-990). Back or the map action closes it.
 - The party window sets the starting row of each character, and the snapshot keeps the row (D-377, D-558).
-- The status window shows the level, the MP, and the stats of each character (D-569).
+- The status window shows the full sheet of each character (D-569, D-991). The sheet holds the level, the row, HP, MP, the experience, the stats, and the statuses that last.
 - PR-62 proves the stack with a fixture menu, and each later system PR adds one screen (D-525).
 
 > *In plain English:* menus are windows that stack on each other, and the world stops while one is open. The keyboard, the gamepad, and the mouse all move the same cursor.
@@ -149,8 +150,9 @@ Built by PR-7 and PR-62. Phase file: `phase-2-first-playable.md`.
 - The HUD stays minimal. A health mark shows at the edge for a hurt or a down character, and nothing else (D-212).
 - A status that lasts on the map gets a mark too (D-390).
 - No sun or moon mark shows the time of day, because the story sets it and it never changes under the player (D-442, D-445).
-- A notice slides in at the top edge and fades, and the game continues (D-221).
-- An important notice also lands in a log in the menu (D-221). OQ-113 holds the log.
+- A notice slides in at the top edge, types out, holds, and fades, and the game continues (D-221, D-994). Confirm never skips it (D-996).
+- A notice counts the ticks of the world, so it hides and waits under a menu (D-995).
+- An important notice also lands in the log window of the main list (D-221, D-987). Content marks each notice that logs, the log keeps the 30 newest, and the snapshot holds it (D-983 to D-985).
 
 > *In plain English:* the screen stays clear while you walk. A short line slides in when something matters, and the menu keeps the ones that matter.
 
@@ -308,9 +310,9 @@ The register is `docs/questions.md` (D-19). These questions block UI PRs, and ea
 - OQ-108: where a remap lives, and what a conflict does. Resolved 2026-09-22 by D-862.
 - OQ-109: the dead zone of a stick, and its range in the settings. Resolved 2026-09-22 by D-861.
 - OQ-110: the cursor rules of a menu, and the mouse on it. Resolved 2026-09-22 by D-872.
-- OQ-111: the scale of the dungeon map screen. Blocks PR-62.
+- OQ-111: the scale of the dungeon map screen. Resolved 2026-09-23 by D-982.
 - OQ-112: the text speeds, and the type-out of the dialogue box. Resolved 2026-09-22 by D-709 and D-864.
-- OQ-113: the notice log, and how many notices it keeps. Blocks PR-62.
+- OQ-113: the notice log, and how many notices it keeps. Resolved 2026-09-23 by D-983 to D-985.
 - OQ-89: pixel snap in Game. Resolved 2026-09-20 by D-715.
 - OQ-64: the tick while a menu is open. Resolved 2026-09-18 by D-650.
 - OQ-90: where the studio mark shows. Blocks PR-33.

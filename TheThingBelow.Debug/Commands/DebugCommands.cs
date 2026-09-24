@@ -5,6 +5,7 @@ using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Runs;
 
 namespace TheThingBelow.Debug.Commands;
@@ -64,6 +65,12 @@ public static class DebugCommands
     /// <summary>The name of the command that turns the carried light on or off (D-851).</summary>
     public const string TorchName = "torch";
 
+    /// <summary>The name of the command that posts a notice that logs (D-989).</summary>
+    public const string NoticeName = "notice";
+
+    /// <summary>The name of the command that posts a notice that does not log (D-989).</summary>
+    public const string AsideName = "aside";
+
     // The order of this list is the order of `help`, and it never follows a hash of a name
     // (G-4). The list is short, so a walk of it reads better than a map of one entry (T-1).
     private static readonly IReadOnlyList<DebugCommand> Commands =
@@ -88,6 +95,8 @@ public static class DebugCommands
             UseItem,
             BattleSide.Party),
         DebugCommand.OfIntent(FleeName, "tries to flee on the turn of a character", DebugCommandIds.BattleFlee, Flee),
+        DebugCommand.OfIntent(NoticeName, "posts the first notice of the notice file that logs", DebugCommandIds.NoticeLogged, PostLogged),
+        DebugCommand.OfIntent(AsideName, "posts the first notice of the notice file that does not log", DebugCommandIds.NoticePlain, PostPlain),
         DebugCommand.OfView(TorchName, "turns the carried light on or off, and sends no intent (D-847, D-851)"),
         DebugCommand.OfReport(BattleName, "gives each combatant, the turn, and the strip", BattleOf),
         DebugCommand.OfReport(HashName, "gives the state hash of the run", HashOf),
@@ -160,6 +169,14 @@ public static class DebugCommands
             }
         }
     }
+
+    /// <summary>Posts the first notice that logs, so a person sees the notice and its entry in the log (D-989).</summary>
+    private static void PostLogged(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>
+        NoticeRules.Post(state, state.Notices.FirstThatLogs(true).Id, context, log);
+
+    /// <summary>Posts the first notice that does not log, so a person sees a notice that the log leaves out (D-989).</summary>
+    private static void PostPlain(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>
+        NoticeRules.Post(state, state.Notices.FirstThatLogs(false).Id, context, log);
 
     private static void Attack(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>
         ActOrWarn(state, new BattleChoice(BattleAction.Attack, intent.Target, null), context, log);

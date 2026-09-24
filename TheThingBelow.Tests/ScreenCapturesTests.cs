@@ -91,6 +91,19 @@ public sealed class ScreenCapturesTests
         "battle-stepped-1x.png",
     ];
 
+    /// <summary>The captures of the menu stack and of a notice (exit test 2 of PR-62, D-211, D-567, D-994).</summary>
+    private static readonly string[] MenuNames =
+    [
+        "menu-list-1x.png",
+        "menu-party-1x.png",
+        "menu-status-1x.png",
+        "menu-log-1x.png",
+        "menu-map-1x.png",
+        "menu-list-fill-1080.png",
+        "notice-type-1x.png",
+        "notice-hold-1x.png",
+    ];
+
     /// <summary>The captures of the ten transitions, and the color split at the reduced level (D-195, D-863).</summary>
     private static readonly string[] TransitionNames =
     [
@@ -129,7 +142,9 @@ public sealed class ScreenCapturesTests
         // split at the reduced level (D-195, D-863, exit tests 1 and 2 of PR-60). PR-98 adds the
         // fight of the deep room with its waiting column (D-953, exit test 1 of PR-98). PR-67 adds the
         // experience after a win, and a staged level-up halfway and settled (D-975, exit test 8 of PR-67).
-        Assert.Equal(10 + 34 + 1 + 14 + 3 + 14 + 2 + 11, FileNames().Count);
+        // PR-62 adds the main list, each task window, and the dungeon map screen at 1x, the main list at
+        // 1080 rows, and a notice inside its type-out and its hold (exit test 2 of PR-62).
+        Assert.Equal(10 + 34 + 1 + 14 + 3 + 14 + 2 + 11 + MenuNames.Length, FileNames().Count);
     }
 
     [Fact]
@@ -372,6 +387,11 @@ public sealed class ScreenCapturesTests
         }
 
         foreach (string name in TransitionNames)
+        {
+            names.Add(name);
+        }
+
+        foreach (string name in MenuNames)
         {
             names.Add(name);
         }

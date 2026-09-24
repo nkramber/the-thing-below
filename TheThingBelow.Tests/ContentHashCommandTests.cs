@@ -172,7 +172,9 @@ public sealed class ContentHashCommandTests
           { "id": "label.fixture_dungeon", "text": "The old cut" },
           { "id": "label.lamp", "text": "Tin lamp" },
           { "id": "label.nail", "text": "Bent nail" },
-          { "id": "label.rope", "text": "Dry rope" }
+          { "id": "label.rope", "text": "Dry rope" },
+          { "id": "notice.fixture_drip", "text": "Water drips somewhere ahead." },
+          { "id": "notice.fixture_mark", "text": "Someone cut a mark in the stone. It is fresh." }
          ]
         }
         """;

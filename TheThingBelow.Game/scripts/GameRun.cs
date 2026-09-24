@@ -6,6 +6,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Saves;
 using TheThingBelow.Game.Ui;
@@ -42,18 +43,22 @@ public sealed class GameRun
     private readonly BattleEffects pace;
     private readonly TransitionContent transitions;
     private readonly ScreenHandOff handOff;
+    private readonly StringTable strings;
+    private readonly NoticeQueue notices;
     private ContentId? lastCommon;
     private BattleView? view;
     private BattleEvent? playing;
     private long playingSince;
 
-    private GameRun(Simulation simulation, RunRecorder recorder, EffectContent effects, MessageSpeed messageSpeed)
+    private GameRun(Simulation simulation, RunRecorder recorder, ContentSet content, MessageSpeed messageSpeed)
     {
         this.simulation = simulation;
         this.recorder = recorder;
-        this.pace = effects.Battle;
-        this.transitions = effects.Transitions;
-        this.handOff = new ScreenHandOff(effects.Transitions.Table.FadeTicks);
+        this.pace = content.Effects.Battle;
+        this.transitions = content.Effects.Transitions;
+        this.handOff = new ScreenHandOff(content.Effects.Transitions.Table.FadeTicks);
+        this.strings = content.Strings;
+        this.notices = new NoticeQueue(content.Style.Notice);
         this.MessageSpeed = messageSpeed;
     }
 
@@ -220,8 +225,8 @@ public sealed class GameRun
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
         RunHeader header = RunHeader.ForThisBuild(content.Hash, seed);
-        Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), content.Battle, debugHandlers);
-        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content.Effects, messageSpeed);
+        Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), content.Battle, content.Notices, debugHandlers);
+        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content, messageSpeed);
     }
 
     /// <summary>
@@ -258,9 +263,10 @@ public sealed class GameRun
             snapshot,
             content.Map(snapshot.MapIdOrFirst),
             content.Battle,
+            content.Notices,
             debugHandlers);
         RunHeader header = RunHeader.ForThisBuild(content.Hash, save.Header.Seed);
-        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content.Effects, messageSpeed);
+        return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content, messageSpeed);
     }
 
     /// <summary>
@@ -328,6 +334,13 @@ public sealed class GameRun
             if (this.simulation.State.Battle is null)
             {
                 this.LeaveFight();
+            }
+
+            // A posted notice joins the queue of the notice box on its own tick, so the notice box starts it
+            // at the tick of the world where the rule posted it (D-221, D-994).
+            foreach (NoticeRecord posted in this.simulation.TakeNotices())
+            {
+                this.notices.Add(posted.Id, this.strings.Text(posted.Id).Length, this.simulation.State.WorldTick);
             }
 
             IReadOnlyList<BattleEvent> taken = this.simulation.TakeBattleEvents();
@@ -527,6 +540,14 @@ public sealed class GameRun
     /// <summary>Gives the log entry of a phase of the hand-off (D-179).</summary>
     private LogEntry HandOffEntry(string message, IReadOnlyList<LogField> fields) =>
         new(LogLevel.Info, message, this.simulation.Tick, LogSubsystems.Game, fields);
+
+    /// <summary>Gives what the notice box shows at the tick of the world now (D-994, D-995).</summary>
+    /// <param name="charactersPerSecond">The text speed of the settings (D-864).</param>
+    /// <returns>The frame of the notice on screen, or no value when none shows.</returns>
+    /// <remarks>
+    /// A notice counts the ticks of the world, so it waits while a menu pauses the world (D-995).
+    /// </remarks>
+    public NoticeFrame? NoticeAt(int charactersPerSecond) => this.notices.FrameAt(this.simulation.State.WorldTick, charactersPerSecond);
 
     /// <summary>Gives the record of the run as it stands now (G-5, D-651).</summary>
     /// <returns>The record, which the crash file of D-170 carries.</returns>

@@ -102,6 +102,45 @@ public static class ScreenCaptures
     /// <summary>The running screen under a transition into a fight, halfway through it (D-195, exit tests 1 and 2 of PR-60).</summary>
     public const string TransitionFixture = "transition";
 
+    /// <summary>The menu stack over the paused map: the main list, each task window beside it, and the dungeon map screen (D-211, D-567, D-982).</summary>
+    public const string MenuFixture = "menu";
+
+    /// <summary>The running screen with a notice at the top edge, inside its type-out and inside its hold (D-221, D-994).</summary>
+    public const string NoticeFixture = "notice";
+
+    /// <summary>The frame of the menu fixture with the main list alone.</summary>
+    public const string MenuListFrame = "list-1x";
+
+    /// <summary>The frame of the menu fixture with the main list at 1080 rows, which takes a body of 24 (D-707).</summary>
+    public const string MenuListDesktopFrame = "list-fill-1080";
+
+    /// <summary>The frame of the menu fixture with the party window over the main list (D-558).</summary>
+    public const string MenuPartyFrame = "party-1x";
+
+    /// <summary>The frame of the menu fixture with the status window over the main list (D-991).</summary>
+    public const string MenuStatusFrame = "status-1x";
+
+    /// <summary>The frame of the menu fixture with the notice log over the main list (D-987).</summary>
+    public const string MenuLogFrame = "log-1x";
+
+    /// <summary>The frame of the menu fixture with the dungeon map screen after the walk of <see cref="DungeonRoute"/> (D-982).</summary>
+    public const string MenuMapFrame = "map-1x";
+
+    /// <summary>The frame of the notice fixture inside the type-out of the line (D-709).</summary>
+    public const string NoticeTypeFrame = "type-1x";
+
+    /// <summary>The frame of the notice fixture inside the hold of the whole line (D-994).</summary>
+    public const string NoticeHoldFrame = "hold-1x";
+
+    /// <summary>The ticks after the post of the notice that the type-out frame shows: the slide of 12 ticks and 15 more (D-994).</summary>
+    public const int NoticeTypeTicks = 27;
+
+    /// <summary>The ticks after the post of the notice that the hold frame shows, past the slide and the type-out of the line (D-994).</summary>
+    public const int NoticeHoldTicks = 90;
+
+    /// <summary>The count of notices that the log frame posts, each one a notice that logs (D-983).</summary>
+    public const int LogFrameNotices = 3;
+
     /// <summary>The tick of each transition that its frame shows, halfway through the 60 ticks of D-941.</summary>
     public const int TransitionTick = 30;
 
@@ -192,6 +231,19 @@ public static class ScreenCaptures
         InputActions.StepSouth, InputActions.StepSouth, InputActions.StepSouth,
     ];
 
+    /// <summary>
+    /// The steps of the map frame of the menu fixture: south into the save point at (9, 6), north,
+    /// and east through the door at (11, 4), so the map shows a walked save point and a walked door
+    /// (D-567, D-993).
+    /// </summary>
+    public static IReadOnlyList<string> DungeonRoute { get; } =
+    [
+        InputActions.StepSouth, InputActions.StepSouth,
+        InputActions.StepEast, InputActions.StepEast, InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+        InputActions.StepNorth, InputActions.StepNorth,
+        InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+    ];
+
     /// <summary>The ticks of the still fixture that take a frame: one second apart (D-894).</summary>
     public static IReadOnlyList<int> StillTicks { get; } = [60, 120, 180, 240];
 
@@ -236,7 +288,7 @@ public static class ScreenCaptures
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
     public static IReadOnlyList<string> Fixtures { get; } =
-        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, TransitionFixture];
+        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, TransitionFixture, MenuFixture, NoticeFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -391,6 +443,17 @@ public static class ScreenCaptures
         captures.Add(new ScreenCapture(SettingsFixture, "fill-1080", DesktopWidth, 1080, FitMode.Fill, null));
         captures.Add(new ScreenCapture(
             SettingsFixture, SettingsConflictFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+
+        // PR-62: the menu stack at 1x, the floor of the Steam Deck, and the main list at 1080 rows,
+        // which takes the smaller body (D-707). The notice draws inside its type-out and its hold.
+        foreach (string frame in new[] { MenuListFrame, MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame })
+        {
+            captures.Add(new ScreenCapture(MenuFixture, frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        }
+
+        captures.Add(new ScreenCapture(MenuFixture, MenuListDesktopFrame, DesktopWidth, 1080, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(NoticeFixture, NoticeTypeFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(NoticeFixture, NoticeHoldFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         return captures;
     }
 

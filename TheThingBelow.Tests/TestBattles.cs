@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Notices;
 
 namespace TheThingBelow.Tests;
 
@@ -240,8 +241,34 @@ internal static class TestBattles
     /// <summary>The path of the brute record in a content set of the tests (D-786).</summary>
     public const string BrutePath = "rules/enemies/fixture-brute.json";
 
+    /// <summary>
+    /// The notice file of the tests: one notice that logs and one that does not (D-983, D-989).
+    /// A content set that holds it needs <see cref="NoticeStrings"/> in its string table (G-7).
+    /// </summary>
+    public const string NoticesFile = """
+    {
+     "comment": "The notices of the tests.",
+     "notices": [
+      { "id": "notice.test_kept", "log": true },
+      { "id": "notice.test_plain", "log": false }
+     ]
+    }
+    """;
+
+    /// <summary>The string entries of the two notices of <see cref="NoticesFile"/>, for the string table of a test content set (G-7).</summary>
+    public const string NoticeStrings = """{ "id": "notice.test_kept", "text": "A kept line." }, { "id": "notice.test_plain", "text": "A plain line." }""";
+
+    /// <summary>The notice file of the tests, as a run reads it (D-989).</summary>
+    public static readonly NoticeList Notices = NoticeList.Read(Encoding.UTF8.GetBytes(NoticesFile), NoticeList.Path);
+
+    /// <summary>The id of the notice of the tests that logs (D-983).</summary>
+    public static readonly ContentId KeptNotice = ContentId.Parse("notice.test_kept", "test", "notice");
+
+    /// <summary>The id of the notice of the tests that does not log (D-983).</summary>
+    public static readonly ContentId PlainNotice = ContentId.Parse("notice.test_plain", "test", "notice");
+
     /// <summary>Gives the battle files of a content set, with the text of the tests (D-757, D-766, D-785, D-786).</summary>
-    /// <returns>The rules file, the fixture file, the ability file, the two enemy records, the group file, the profile, and the effect files that serve those combatants (D-879).</returns>
+    /// <returns>The rules file, the fixture file, the ability file, the two enemy records, the group file, the profile, the notice file (D-989), and the effect files that serve those combatants (D-879).</returns>
     public static IReadOnlyList<ContentFile> Files() =>
     [
         new ContentFile(BattleRules.Path, Encoding.UTF8.GetBytes(RulesFile)),
@@ -252,6 +279,7 @@ internal static class TestBattles
         new ContentFile(FixtureGroupsPath, Encoding.UTF8.GetBytes(FixtureGroupsFile)),
         new ContentFile(GroupsPath, Encoding.UTF8.GetBytes(GroupsFile)),
         new ContentFile(AttackerProfilePath, Encoding.UTF8.GetBytes(AttackerProfileFile)),
+        new ContentFile(NoticeList.Path, Encoding.UTF8.GetBytes(NoticesFile)),
         .. EffectFixtures.Files(),
     ];
 
