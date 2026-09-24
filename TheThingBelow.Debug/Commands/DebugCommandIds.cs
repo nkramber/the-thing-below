@@ -46,4 +46,12 @@ public static class DebugCommandIds
     /// <summary>The console tried to flee on the turn of a character (D-378, D-767).</summary>
     public static readonly ContentId BattleFlee =
         ContentId.Parse("debug.battle_flee", Source, nameof(BattleFlee));
+
+    /// <summary>The console posted the first notice of the notice file that logs (D-989).</summary>
+    public static readonly ContentId NoticeLogged =
+        ContentId.Parse("debug.notice_logged", Source, nameof(NoticeLogged));
+
+    /// <summary>The console posted the first notice of the notice file that does not log (D-989).</summary>
+    public static readonly ContentId NoticePlain =
+        ContentId.Parse("debug.notice_plain", Source, nameof(NoticePlain));
 }

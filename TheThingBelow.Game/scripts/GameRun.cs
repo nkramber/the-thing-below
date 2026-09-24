@@ -220,7 +220,7 @@ public sealed class GameRun
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
         RunHeader header = RunHeader.ForThisBuild(content.Hash, seed);
-        Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), content.Battle, debugHandlers);
+        Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), content.Battle, content.Notices, debugHandlers);
         return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content.Effects, messageSpeed);
     }
 
@@ -258,6 +258,7 @@ public sealed class GameRun
             snapshot,
             content.Map(snapshot.MapIdOrFirst),
             content.Battle,
+            content.Notices,
             debugHandlers);
         RunHeader header = RunHeader.ForThisBuild(content.Hash, save.Header.Seed);
         return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content.Effects, messageSpeed);

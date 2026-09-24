@@ -6,6 +6,7 @@ using System.Text.Json;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Saves;
 using TheThingBelow.Core.Streams;
 
@@ -43,6 +44,7 @@ public static class RunSnapshotText
             WriteMap(writer, snapshot.Map);
             WriteParty(writer, snapshot.Characters);
             WriteBattle(writer, snapshot.Battle);
+            WriteNotices(writer, snapshot.Notices);
             writer.WriteStartArray("streams");
             foreach (StreamPosition position in snapshot.Streams)
             {
@@ -58,6 +60,28 @@ public static class RunSnapshotText
         }
 
         return Encoding.UTF8.GetString(bytes.WrittenSpan);
+    }
+
+    /// <summary>
+    /// Writes the notice log, oldest first (D-985). This build writes save format 8, so the field
+    /// is always present, and it holds an empty array before the first notice that logs.
+    /// </summary>
+    private static void WriteNotices(Utf8JsonWriter writer, IReadOnlyList<ContentId>? notices)
+    {
+        if (notices is null)
+        {
+            throw new ArgumentException(
+                "A snapshot that this build writes holds a notice log. A snapshot with none comes from save format 7 or older, and this build never writes one (T-2, D-166).",
+                nameof(notices));
+        }
+
+        writer.WriteStartArray("notices");
+        foreach (ContentId notice in notices)
+        {
+            writer.WriteStringValue(notice.Value);
+        }
+
+        writer.WriteEndArray();
     }
 
     /// <summary>
@@ -253,6 +277,16 @@ public static class RunSnapshotText
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
     public static RunSnapshot ReadFormatSix(ref ContentReader reader) => ReadLine(ref reader, 6, null);
 
+    /// <summary>
+    /// Reads a snapshot of save format 7, which holds no notice log (D-985). The resume starts
+    /// the log empty.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <returns>The snapshot, with no notice log.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatSeven(ref ContentReader reader) => ReadLine(ref reader, 7, null);
+
     private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {
         long? tick = null;
@@ -261,6 +295,7 @@ public static class RunSnapshotText
         MapSnapshot? map = null;
         PartySnapshot? party = null;
         BattleValues? battle = null;
+        List<ContentId>? notices = null;
         List<StreamPosition>? streams = null;
 
         int depth = reader.ReadObjectStart();
@@ -276,6 +311,13 @@ public static class RunSnapshotText
                     break;
                 case "world":
                     world = reader.ReadLong();
+                    break;
+                // Save format 7 and older predate the notice log (D-985).
+                case "notices" when format < 8:
+                    throw reader.Refuse(
+                        $"the snapshot of save format {format} holds a notice log, and that format predates it (D-985)");
+                case "notices":
+                    notices = ReadNotices(ref reader);
                     break;
                 case "map":
                     map = ReadMap(ref reader, format);
@@ -311,6 +353,12 @@ public static class RunSnapshotText
                 $"the snapshot of save format {format} holds a party or a battle, and that format predates both (D-765)");
         }
 
+        // Save format 8 and each later format hold the notice log (D-985).
+        if (format >= 8)
+        {
+            _ = reader.Require(notices, depth, "notices");
+        }
+
         RunSnapshot snapshot = new(
             reader.RequireValue(tick, depth, "tick"),
             reader.RequireValue(menu, depth, "menu"),
@@ -318,6 +366,7 @@ public static class RunSnapshotText
             reader.Require(map, depth, "map"),
             party,
             battle,
+            notices,
             StreamsOf(reader.Require(streams, depth, "streams"), format, seed));
 
         snapshot.Check(reader.File);
@@ -384,10 +433,23 @@ public static class RunSnapshotText
             null,
             null,
             null,
+            null,
             StreamsOf(reader.Require(streams, depth, "streams"), 1, seed));
 
         snapshot.Check(reader.File);
         return snapshot;
+    }
+
+    private static List<ContentId> ReadNotices(ref ContentReader reader)
+    {
+        List<ContentId> notices = [];
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, notices.Count))
+        {
+            notices.Add(reader.ReadContentId(NoticeList.Kind));
+        }
+
+        return notices;
     }
 
     private static MapSnapshot ReadMap(ref ContentReader reader, int format)

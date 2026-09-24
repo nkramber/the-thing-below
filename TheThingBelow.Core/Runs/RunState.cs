@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Runs;
@@ -30,6 +32,10 @@ public sealed class RunState
     // state, so no snapshot and no hash reads them (D-168, D-532).
     private readonly List<BattleEvent> events = [];
 
+    // The notices that a rule posted wait here until Game takes them. They are output, and not
+    // state, so no snapshot and no hash reads them (D-168, D-221).
+    private readonly List<NoticeRecord> posted = [];
+
     private RunState(
         ulong seed,
         RandomStream[] streams,
@@ -39,9 +45,13 @@ public sealed class RunState
         MapState map,
         BattleContent battleContent,
         PartyState characters,
-        Battle? battle)
+        Battle? battle,
+        NoticeList notices,
+        NoticeLog noticeLog)
     {
         this.BattleContent = battleContent;
+        this.Notices = notices;
+        this.NoticeLog = noticeLog;
         this.Characters = characters;
         this.Battle = battle;
         this.Seed = seed;
@@ -76,16 +86,24 @@ public sealed class RunState
     /// <summary>The battle that runs, or that ended and waits for the screen, or no value (D-522, D-531).</summary>
     public Battle? Battle { get; private set; }
 
+    /// <summary>The notice file of this build, which the rule of a notice reads (D-983, D-989).</summary>
+    public NoticeList Notices { get; }
+
+    /// <summary>The newest notices that content marks to log, oldest first (D-221, D-984).</summary>
+    public NoticeLog NoticeLog { get; }
+
     /// <summary>Starts a new run from a seed, at tick zero, on one map.</summary>
     /// <param name="seed">The seed of the run (G-3, G-4).</param>
     /// <param name="map">The map that the run opens, with the party on its spawn point (D-528).</param>
     /// <param name="battleContent">The battle rules and the fixture, which hold every group that the map names (D-766).</param>
-    /// <returns>The state, with every stream at its first value.</returns>
-    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
-    public static RunState Start(ulong seed, GameMap map, BattleContent battleContent)
+    /// <param name="notices">The notice file of this build (D-989).</param>
+    /// <returns>The state, with every stream at its first value and an empty notice log.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    public static RunState Start(ulong seed, GameMap map, BattleContent battleContent, NoticeList notices)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(battleContent);
+        ArgumentNullException.ThrowIfNull(notices);
         battleContent.RequireGroupsOf(map);
 
         RandomStream[] streams = new RandomStream[RandomStreams.All.Count];
@@ -103,7 +121,9 @@ public sealed class RunState
             MapState.Enter(map),
             battleContent,
             PartyState.Start(battleContent),
-            null);
+            null,
+            notices,
+            NoticeLog.Empty());
     }
 
     /// <summary>Starts a run again from a snapshot (D-259, D-651).</summary>
@@ -114,6 +134,7 @@ public sealed class RunState
     /// <see cref="RunSnapshot.MapIdOrFirst"/> (D-166).
     /// </param>
     /// <param name="battleContent">The battle rules and the fixture, which hold every group that the map names (D-766).</param>
+    /// <param name="notices">The notice file of this build, which each entry of the stored log must name (D-985).</param>
     /// <returns>The state, with every stream at the position of the snapshot.</returns>
     /// <exception cref="ArgumentNullException">The snapshot or the map is null (T-2).</exception>
     /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the map is another map (T-2).</exception>
@@ -121,13 +142,16 @@ public sealed class RunState
     /// A snapshot of save format 1 holds no map, because it predates the tile map. Its
     /// migration puts the party on the spawn point of the first map, with that tile walked
     /// and no other (D-166, D-654). A snapshot of save format 2 holds no enemy, and its
-    /// migration puts each enemy of the map on the start tile of its station (D-750).
+    /// migration puts each enemy of the map on the start tile of its station (D-750). A
+    /// snapshot before save format 8 holds no notice log, and its migration starts the log
+    /// empty (D-985).
     /// </remarks>
-    public static RunState Resume(ulong seed, RunSnapshot snapshot, GameMap map, BattleContent battleContent)
+    public static RunState Resume(ulong seed, RunSnapshot snapshot, GameMap map, BattleContent battleContent, NoticeList notices)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(battleContent);
+        ArgumentNullException.ThrowIfNull(notices);
         battleContent.RequireGroupsOf(map);
         snapshot.Check("this run");
 
@@ -151,7 +175,9 @@ public sealed class RunState
             party,
             battleContent,
             characters,
-            ResumeBattle(snapshot, party, characters, battleContent));
+            ResumeBattle(snapshot, party, characters, battleContent),
+            notices,
+            snapshot.Notices is null ? NoticeLog.Empty() : NoticeLog.Resume(snapshot.Notices, notices, "this run"));
     }
 
     private static MapState ResumeMap(RunSnapshot snapshot, GameMap map)
@@ -264,6 +290,7 @@ public sealed class RunState
                 this.Party.Patrols.Encounter),
             new PartySnapshot(this.Characters.CharacterValues(), this.Characters.PackValues()),
             this.Battle?.Values(),
+            this.NoticeLog.Values(),
             ReadPositions(this.streams));
 
     /// <summary>Computes the state hash that a replay and the identity job compare (G-5).</summary>
@@ -285,6 +312,7 @@ public sealed class RunState
         this.Characters.Hash(hasher);
         hasher.AddBoolean(this.Battle is not null);
         this.Battle?.Hash(hasher);
+        this.NoticeLog.Hash(hasher);
 
         foreach (RandomStream stream in this.streams)
         {
@@ -348,6 +376,62 @@ public sealed class RunState
         BattleEvent[] taken = [.. this.events];
         this.events.Clear();
         return taken;
+    }
+
+    /// <summary>Takes every notice that a rule posted since the last take, in the order of the posts (D-221).</summary>
+    /// <returns>The notices, which the run no longer holds.</returns>
+    public IReadOnlyList<NoticeRecord> TakeNotices()
+    {
+        NoticeRecord[] taken = [.. this.posted];
+        this.posted.Clear();
+        return taken;
+    }
+
+    /// <summary>Moves one character of the party to the other row, from the party window of a menu (D-377, D-558).</summary>
+    /// <param name="target">The side and the slot of the character, which must be the party side.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <exception cref="ArgumentNullException">The context is null (T-2).</exception>
+    /// <exception cref="SimulationException">
+    /// No menu is open, a battle holds the run, the target is an enemy, or the party holds no
+    /// character in the slot (T-2).
+    /// </exception>
+    /// <remarks>
+    /// The next battle starts each character in its row (D-558). The row step of a fight stays
+    /// the control inside a fight, so the party window changes a row outside one alone (D-380).
+    /// </remarks>
+    public void SwapRow(BattleTarget target, RunContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (!this.MenuOpen)
+        {
+            throw new SimulationException("a row change while no menu is open, and the party window of a menu makes it (D-558)", context);
+        }
+
+        if (this.Battle is not null)
+        {
+            throw new SimulationException("a row change while a battle holds the run, and the row step of a fight makes it there (D-380)", context);
+        }
+
+        if (target.Side != BattleSide.Party || target.Slot < 0 || target.Slot >= this.Characters.Members.Count)
+        {
+            throw new SimulationException(
+                $"a row change of {target.Describe()}, and the party holds {this.Characters.Members.Count} characters (D-558)",
+                context);
+        }
+
+        PartyMember member = this.Characters.Members[target.Slot];
+        member.Row = BattleSides.Other(member.Row);
+    }
+
+    /// <summary>Holds one posted notice for Game, and adds it to the log when content marks it (D-221, D-983).</summary>
+    internal void AddNotice(NoticeRecord notice)
+    {
+        this.posted.Add(notice);
+        if (notice.Logs)
+        {
+            this.NoticeLog.Add(notice.Id);
+        }
     }
 
     /// <summary>Sets the battle, or ends it with null (D-531).</summary>

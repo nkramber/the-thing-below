@@ -118,7 +118,7 @@ public sealed class BattlePropertyTests
         // stand still while the battle waits for a character, whatever the intents of the map.
         for (ulong seed = 0; seed < SeedCount; seed += 1)
         {
-            Simulation run = Simulation.Start(seed, BattleRuns.MapWithWalker("group.test_pair"), TestBattles.Content, DebugIntentHandlers.None);
+            Simulation run = Simulation.Start(seed, BattleRuns.MapWithWalker("group.test_pair"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
             for (int tick = 0; tick < (int)(seed % 40); tick += 1)
             {
                 run.Step([]);
@@ -148,7 +148,7 @@ public sealed class BattlePropertyTests
         // replay-identity job compares it on every leg (G-5, D-504).
         for (ulong seed = 0; seed < 50; seed += 1)
         {
-            Simulation run = Simulation.Start(seed, BattleRuns.Map("group.test_pair"), TestBattles.Content, DebugIntentHandlers.None);
+            Simulation run = Simulation.Start(seed, BattleRuns.Map("group.test_pair"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
             RunRecorder recorder = new(RunHeader.ForThisBuild("0123456789abcdef", seed), run.Snapshot());
             for (int turn = 0; turn < 60; turn += 1)
             {
@@ -162,6 +162,7 @@ public sealed class BattlePropertyTests
                 "0123456789abcdef",
                 BattleRuns.Map("group.test_pair"),
                 TestBattles.Content,
+                TestBattles.Notices,
                 DebugIntentHandlers.None);
 
             Assert.True(run.StateHash() == replayed.StateHash(), $"Seed {seed}: the replay of a fight gave another state hash (G-5).");

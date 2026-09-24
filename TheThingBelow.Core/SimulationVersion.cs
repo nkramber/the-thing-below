@@ -41,7 +41,9 @@ public static class SimulationVersion
     /// files (D-947, D-955 to D-960). PR-98 raised it to 18: the load refuses a group whose waiting
     /// column is taller than the field (D-963). PR-67 raised it to 19: the stats of a character follow the curve of its
     /// level, a battle won gives experience with the shrink of each enemy, a level-up fills the health and the MP, and
-    /// the party holds the level, the experience, and the MP (D-966 to D-974).
+    /// the party holds the level, the experience, and the MP (D-966 to D-974). PR-62 raised it to 20: the party
+    /// window moves a character to the other row, a rule posts a notice, and the run holds the notice log (D-558,
+    /// D-983 to D-985, D-989).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -49,5 +51,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 19;
+    public const int Current = 20;
 }

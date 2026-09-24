@@ -4,6 +4,7 @@ using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Notices;
 
 namespace TheThingBelow.Core.Content;
 
@@ -41,6 +42,7 @@ public sealed class ContentSet
         AtlasIndex atlas,
         UiStyle style,
         BattleContent battle,
+        NoticeList notices,
         LightContent light,
         EffectContent effects,
         SortedDictionary<string, RuleFixtureEntry> ruleEntries,
@@ -55,6 +57,7 @@ public sealed class ContentSet
         this.Atlas = atlas;
         this.Style = style;
         this.Battle = battle;
+        this.Notices = notices;
         this.Light = light;
         this.Effects = effects;
         this.ruleEntries = ruleEntries;
@@ -79,6 +82,9 @@ public sealed class ContentSet
 
     /// <summary>The battle rules and the battle fixture (D-757, D-766).</summary>
     public BattleContent Battle { get; }
+
+    /// <summary>The notice file, which the rule of a notice reads (D-983, D-989).</summary>
+    public NoticeList Notices { get; }
 
     /// <summary>The decor, the light setups, the carried light, and the effect budget (D-523, D-843, D-844, D-847).</summary>
     public LightContent Light { get; }
@@ -125,6 +131,7 @@ public sealed class ContentSet
         BattleRules? battleRules = null;
         BattleFixture? battleFixture = null;
         AbilityList? abilities = null;
+        NoticeList? notices = null;
         List<EnemyRecord> enemies = [];
         List<GroupFile> groups = [];
         List<ProfileRecord> profiles = [];
@@ -180,6 +187,13 @@ public sealed class ContentSet
             {
                 abilities = AbilityList.Read(file.Bytes, file.Path);
                 AddIds(file.Path, abilities.Ids, sources);
+            }
+            else if (string.CompareOrdinal(file.Path, NoticeList.Path) == 0)
+            {
+                // The notice file lies under the rule folder, so this branch comes before the
+                // branch of the rule fixtures below (D-989).
+                notices = NoticeList.Read(file.Bytes, file.Path);
+                AddIds(file.Path, notices.Ids, sources);
             }
             else if (EnemyRecord.IsEnemyFile(file.Path))
             {
@@ -291,6 +305,7 @@ public sealed class ContentSet
             readAtlas,
             readStyle,
             battle,
+            notices ?? throw AbsentFile(NoticeList.Path),
             light,
             EffectContent.Load(effectFiles, new AmbientWorld(maps, battle, light, drawings, readPalette)),
             ruleEntries,
@@ -846,6 +861,18 @@ public sealed class ContentSet
                     map.File,
                     $"{map.Id.Value}.label",
                     $"the string table holds no id '{map.Label.Value}' (G-7)");
+            }
+        }
+
+        // The line of a notice lives in the string table under the id of the notice (G-7, D-989).
+        foreach (NoticeRecord notice in this.Notices.Records)
+        {
+            if (!this.Strings.Contains(notice.Id))
+            {
+                throw ContentException.ForField(
+                    this.Notices.File,
+                    notice.Id.Value,
+                    $"the string table holds no id '{notice.Id.Value}', which holds the line of the notice (G-7)");
             }
         }
 

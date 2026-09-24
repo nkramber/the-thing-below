@@ -28,7 +28,7 @@ public sealed class RunReplayTests
             (Simulation run, RunRecorder recorder) = RunScripts.Play(seed, ContentHash, script, 0);
 
             RunRecord record = RunRecordText.Read(RunRecordText.Write(recorder.Build()));
-            RunState replayed = RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
+            RunState replayed = RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
 
             Assert.True(
                 run.StateHash() == replayed.StateHash(),
@@ -46,7 +46,7 @@ public sealed class RunReplayTests
         (Simulation run, RunRecorder recorder) = RunScripts.Play(seed, ContentHash, script, 300);
 
         RunRecord record = recorder.Build();
-        RunState replayed = RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
+        RunState replayed = RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
 
         Assert.True(record.Snapshot.Tick >= 900 - 300, "The record kept no recent snapshot.");
         Assert.Equal(run.StateHash(), replayed.StateHash());
@@ -60,7 +60,7 @@ public sealed class RunReplayTests
         RunRecord record = OneTickRecord(header => header with { SimulationVersion = 1 });
 
         RunRecordException error = Assert.Throws<RunRecordException>(
-            () => RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None));
+            () => RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None));
 
         Assert.Contains("simulation version 1", error.Message, StringComparison.Ordinal);
         Assert.Contains(
@@ -74,7 +74,7 @@ public sealed class RunReplayTests
         RunRecord record = OneTickRecord(header => header with { ContentHash = "the-old-content" });
 
         RunRecordException error = Assert.Throws<RunRecordException>(
-            () => RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None));
+            () => RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None));
 
         Assert.Contains("the-old-content", error.Message, StringComparison.Ordinal);
         Assert.Contains(ContentHash, error.Message, StringComparison.Ordinal);
@@ -86,7 +86,7 @@ public sealed class RunReplayTests
         RunRecord record = OneTickRecord(header => header with { FormatVersion = 99 });
 
         RunRecordException error = Assert.Throws<RunRecordException>(
-            () => RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None));
+            () => RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None));
 
         Assert.Contains("format version 99", error.Message, StringComparison.Ordinal);
         Assert.Contains(
@@ -101,7 +101,7 @@ public sealed class RunReplayTests
         RunRecord record = DebugIntentRecord();
 
         SimulationException error = Assert.Throws<SimulationException>(
-            () => RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None));
+            () => RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None));
 
         Assert.Contains("debug.step_east", error.Message, StringComparison.Ordinal);
         Assert.Contains("tick 3", error.Message, StringComparison.Ordinal);
@@ -120,7 +120,7 @@ public sealed class RunReplayTests
                 (state, intent, context, log) => state.WantStep(StepDirection.East, context)),
         ]);
 
-        RunState replayed = RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, handlers);
+        RunState replayed = RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, handlers);
 
         Assert.Equal(StepDirection.East, replayed.Party.Facing);
         Assert.Equal(5, replayed.Tick);
@@ -132,7 +132,7 @@ public sealed class RunReplayTests
         // The end tick is its own value, because a run takes many ticks after its last
         // intent. A replay that stopped at the last line would give another state.
         const ulong seed = 7;
-        Simulation run = Simulation.Start(seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, seed), run.Snapshot());
 
         Intent[] open = [Intent.OfPlayer(IntentIds.OpenMenu)];
@@ -144,7 +144,7 @@ public sealed class RunReplayTests
             recorder.Step(run.Tick, []);
         }
 
-        RunState replayed = RunReplay.Play(recorder.Build(), ContentHash, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
+        RunState replayed = RunReplay.Play(recorder.Build(), ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
 
         Assert.Equal(201, replayed.Tick);
         Assert.Equal(run.StateHash(), replayed.StateHash());
@@ -156,7 +156,7 @@ public sealed class RunReplayTests
         // Exit test 7 of section 7.3 of `phase-2-first-playable.md`. The walk of a run
         // replays to the same tile, the same step, and the same record (D-567, G-5, T-7).
         const ulong seed = 0x0000000000cafe01;
-        Simulation run = Simulation.Start(seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, seed), run.Snapshot());
 
         foreach (IReadOnlyList<Intent> intents in RunScripts.Make(seed, 400))
@@ -165,7 +165,7 @@ public sealed class RunReplayTests
             recorder.Step(run.Tick, intents);
         }
 
-        RunState replayed = RunReplay.Play(recorder.Build(), ContentHash, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
+        RunState replayed = RunReplay.Play(recorder.Build(), ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
 
         Assert.Equal(run.StateHash(), replayed.StateHash());
         Assert.Equal(run.State.Party.LeadAt, replayed.Party.LeadAt);
@@ -178,7 +178,7 @@ public sealed class RunReplayTests
     private static RunRecord OneTickRecord(Func<RunHeader, RunHeader> change)
     {
         const ulong seed = 1;
-        Simulation run = Simulation.Start(seed, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
         RunHeader header = change(RunHeader.ForThisBuild(ContentHash, seed));
         RunRecorder recorder = new(header, run.Snapshot());
 
@@ -197,7 +197,7 @@ public sealed class RunReplayTests
                 (state, intent, context, log) => state.WantStep(StepDirection.East, context)),
         ]);
 
-        Simulation run = Simulation.Start(seed, TestMaps.Room, TestBattles.Content, handlers);
+        Simulation run = Simulation.Start(seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, handlers);
         RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, seed), run.Snapshot());
 
         for (int tick = 1; tick <= 5; tick += 1)

@@ -188,12 +188,12 @@ public static class EvaluatorCostCommand
         ArgumentNullException.ThrowIfNull(run);
 
         var reader = new ContentReader(Encoding.UTF8.GetBytes(RunSnapshotText.Write(run.Snapshot())), $"{Name} copy");
-        return Simulation.Resume(seed, RunSnapshotText.Read(ref reader), CostFight.Map(), content, DebugIntentHandlers.None);
+        return Simulation.Resume(seed, RunSnapshotText.Read(ref reader), CostFight.Map(), content, run.State.Notices, DebugIntentHandlers.None);
     }
 
     private static Simulation IntoFight(ulong seed, BattleContent content)
     {
-        Simulation run = Simulation.Start(seed, CostFight.Map(), content, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(seed, CostFight.Map(), content, CostFight.Notices(), DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
         if (run.State.Battle is null)
         {

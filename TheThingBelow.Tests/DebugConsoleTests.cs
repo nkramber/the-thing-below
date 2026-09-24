@@ -5,6 +5,7 @@ using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Runs;
 using Xunit;
 
@@ -33,6 +34,9 @@ public sealed class DebugConsoleTests
         "debug.battle_flee",
     ];
 
+    /// <summary>The ids of the two notice commands, which post a notice that logs and one that does not (D-989).</summary>
+    private static readonly string[] NoticeIds = ["debug.notice_logged", "debug.notice_plain"];
+
     /// <summary>The seed of the runs of these tests.</summary>
     private const ulong Seed = 20260920;
 
@@ -46,13 +50,19 @@ public sealed class DebugConsoleTests
         // a debug handler (D-260, D-492).
         DebugIntentHandlers handlers = DebugAssemblyFile.Handlers();
 
-        Assert.Equal(1 + BattleIds.Length, handlers.Count);
+        Assert.Equal(1 + BattleIds.Length + NoticeIds.Length, handlers.Count);
         Assert.True(handlers.TryFind(Id(RevealId), out DebugIntentHandler? found));
         Assert.NotNull(found);
         foreach (string battleId in BattleIds)
         {
             Assert.True(handlers.TryFind(Id(battleId), out DebugIntentHandler? battle), $"No handler takes '{battleId}'.");
             Assert.NotNull(battle);
+        }
+
+        foreach (string noticeId in NoticeIds)
+        {
+            Assert.True(handlers.TryFind(Id(noticeId), out DebugIntentHandler? notice), $"No handler takes '{noticeId}'.");
+            Assert.NotNull(notice);
         }
 
         // PR-8 held this id, and the battle of PR-9 replaced it. No entry takes it again (D-166).
@@ -74,6 +84,20 @@ public sealed class DebugConsoleTests
         Assert.True(sent.IsDebug);
         Assert.Equal(1, run.State.Party.Walked.Count);
         Assert.Contains(RevealId, string.Join(" ", answer), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheNoticeCommandsPostANoticeOfEachKindAndTheLogKeepsTheOneThatLogs()
+    {
+        // D-989: the console posts the first notice of each kind, and D-983 keeps the one that logs.
+        Simulation run = Start();
+
+        run.Step([Intent.OfDebugConsole(Id(NoticeIds[0])), Intent.OfDebugConsole(Id(NoticeIds[1]))]);
+
+        IReadOnlyList<NoticeRecord> shown = run.TakeNotices();
+        Assert.Equal([TestBattles.KeptNotice.Value, TestBattles.PlainNotice.Value], [shown[0].Id.Value, shown[1].Id.Value]);
+        ContentId kept = Assert.Single(run.State.NoticeLog.Entries);
+        Assert.Equal(TestBattles.KeptNotice.Value, kept.Value);
     }
 
     [Fact]
@@ -102,6 +126,7 @@ public sealed class DebugConsoleTests
             ContentHash,
             TestMaps.Room,
             TestBattles.Content,
+            TestBattles.Notices,
             DebugAssemblyFile.Handlers());
 
         Assert.Equal(TestMaps.Room.Width * TestMaps.Room.Height, replayed.Party.Walked.Count);
@@ -116,7 +141,7 @@ public sealed class DebugConsoleTests
         RunRecord record = RevealRecord();
 
         SimulationException error = Assert.Throws<SimulationException>(
-            () => RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, DebugIntentHandlers.None));
+            () => RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None));
 
         Assert.Contains(RevealId, error.Message, StringComparison.Ordinal);
         Assert.Contains("tick 1", error.Message, StringComparison.Ordinal);
@@ -284,7 +309,7 @@ public sealed class DebugConsoleTests
     public void TheConsoleFightsABattleToItsEnd()
     {
         // D-767: until the battle screen of PR-10, the console takes the turn of a character.
-        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, DebugAssemblyFile.Handlers());
+        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, DebugAssemblyFile.Handlers());
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
         List<Intent> queued = [];
 
@@ -302,7 +327,7 @@ public sealed class DebugConsoleTests
     public void ABattleCommandAtASlotThatMeleeDoesNotReachChangesNothingAndWarns()
     {
         // A fault of the person never stops the run, and the warning gives the reason (D-179, T-2).
-        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.test_elite"), TestBattles.Content, DebugAssemblyFile.Handlers());
+        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.test_elite"), TestBattles.Content, TestBattles.Notices, DebugAssemblyFile.Handlers());
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
         IReadOnlyList<LogEntry> log = run.Step([Intent.OfDebugConsole(Id("debug.battle_attack"), new BattleTarget(BattleSide.Enemy, 1), null)]);
 
@@ -333,11 +358,11 @@ public sealed class DebugConsoleTests
             Assert.True(names.Add(name), $"Two commands take the name '{name}' (T-2).");
         }
 
-        Assert.Equal(11, names.Count);
+        Assert.Equal(13, names.Count);
     }
 
     private static Simulation Start() =>
-        Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, DebugAssemblyFile.Handlers());
+        Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugAssemblyFile.Handlers());
 
     private static ContentId Id(string value) =>
         ContentId.Parse(value, "TheThingBelow.Tests/DebugConsoleTests.cs", nameof(Id));

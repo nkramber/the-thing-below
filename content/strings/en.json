@@ -1,5 +1,5 @@
 {
- "comment": "The English string table (D-167, G-7). Every string the player reads lives here, and no C# file holds one. The first entries are the labels of the fixture rules of PR-5 (D-649). The crash entries carry the message of a crash and the address of D-473. The address is a placeholder in the reserved .invalid domain until the owner names the studio (D-712, OQ-57). The map label is the name of the first dungeon, which PR-7 ships (D-528). The battle entries are the lines, the commands, and the names of the battle screen of PR-10 (D-213, D-827). A name entry is `name.` and the name part of a content id. The settings entries are the labels and the values of the settings screen of PR-63 (D-226, D-872).",
+ "comment": "The English string table (D-167, G-7). Every string the player reads lives here, and no C# file holds one. The first entries are the labels of the fixture rules of PR-5 (D-649). The crash entries carry the message of a crash and the address of D-473. The address is a placeholder in the reserved .invalid domain until the owner names the studio (D-712, OQ-57). The map label is the name of the first dungeon, which PR-7 ships (D-528). The battle entries are the lines, the commands, and the names of the battle screen of PR-10 (D-213, D-827). A name entry is `name.` and the name part of a content id. The settings entries are the labels and the values of the settings screen of PR-63 (D-226, D-872). The menu entries are the labels of the main list, its windows, and the dungeon map screen of PR-62 (D-211, D-991). A notice entry holds the line of the notice of the same id (D-989).",
  "strings": [
   {
    "id": "battle.absorb",
@@ -238,6 +238,90 @@
    "text": "Wet rope"
   },
   {
+   "id": "menu.experience",
+   "text": "XP {amount}"
+  },
+  {
+   "id": "menu.gear",
+   "text": "Gear"
+  },
+  {
+   "id": "menu.items",
+   "text": "Items"
+  },
+  {
+   "id": "menu.lessons",
+   "text": "Lessons"
+  },
+  {
+   "id": "menu.level",
+   "text": "Level {level}"
+  },
+  {
+   "id": "menu.log",
+   "text": "Log"
+  },
+  {
+   "id": "menu.log_empty",
+   "text": "Nothing yet."
+  },
+  {
+   "id": "menu.map_door",
+   "text": "Door"
+  },
+  {
+   "id": "menu.map_waystone",
+   "text": "Waystone"
+  },
+  {
+   "id": "menu.map_you",
+   "text": "You"
+  },
+  {
+   "id": "menu.next",
+   "text": "Next {amount}"
+  },
+  {
+   "id": "menu.next_none",
+   "text": "Next -"
+  },
+  {
+   "id": "menu.party",
+   "text": "Party"
+  },
+  {
+   "id": "menu.party_help",
+   "text": "Confirm moves to the other row."
+  },
+  {
+   "id": "menu.row_back",
+   "text": "Back row"
+  },
+  {
+   "id": "menu.row_front",
+   "text": "Front row"
+  },
+  {
+   "id": "menu.save",
+   "text": "Save"
+  },
+  {
+   "id": "menu.settings",
+   "text": "Settings"
+  },
+  {
+   "id": "menu.sound",
+   "text": "Sound"
+  },
+  {
+   "id": "menu.stat",
+   "text": "{stat} {value}"
+  },
+  {
+   "id": "menu.status",
+   "text": "Status"
+  },
+  {
    "id": "name.fixture_brute",
    "text": "Brute"
   },
@@ -254,12 +338,24 @@
    "text": "Marrek"
   },
   {
+   "id": "notice.fixture_drip",
+   "text": "Water drips somewhere ahead."
+  },
+  {
+   "id": "notice.fixture_mark",
+   "text": "Someone cut a mark in the stone. It is fresh."
+  },
+  {
    "id": "settings.action_cancel",
    "text": "Back"
   },
   {
    "id": "settings.action_confirm",
    "text": "Confirm"
+  },
+  {
+   "id": "settings.action_map",
+   "text": "Map"
   },
   {
    "id": "settings.action_menu",

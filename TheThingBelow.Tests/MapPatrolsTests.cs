@@ -119,7 +119,7 @@ public sealed class MapPatrolsTests
         // G-4: one seeded stream for each subsystem, and the map draws from the exploration
         // stream (D-741).
         Simulation one = Start(PatrolMaps.Of(PatrolMaps.Pacer));
-        Simulation other = Simulation.Start(Seed + 1, PatrolMaps.Of(PatrolMaps.Pacer), TestBattles.Content, DebugIntentHandlers.None);
+        Simulation other = Simulation.Start(Seed + 1, PatrolMaps.Of(PatrolMaps.Pacer), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
         List<TilePoint> first = [];
         List<TilePoint> second = [];
 
@@ -282,7 +282,7 @@ public sealed class MapPatrolsTests
         // Exit test 1 of section 7.6 of `phase-2-first-playable.md` (D-739).
         for (ulong seed = 0; seed < SeedCount; seed += 1)
         {
-            Simulation run = Simulation.Start(seed, TwoRooms(12), TestBattles.Content, DebugIntentHandlers.None);
+            Simulation run = Simulation.Start(seed, TwoRooms(12), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
             IReadOnlyList<TilePoint> route = Only(run).Station.Tiles;
 
             for (int tick = 0; tick < 200; tick += 1)
@@ -302,7 +302,7 @@ public sealed class MapPatrolsTests
         // Exit test 2 of section 7.6 of `phase-2-first-playable.md` (D-718).
         for (ulong seed = 0; seed < SeedCount; seed += 1)
         {
-            Simulation run = Simulation.Start(seed, TwoRooms(12), TestBattles.Content, DebugIntentHandlers.None);
+            Simulation run = Simulation.Start(seed, TwoRooms(12), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
 
             for (int tick = 0; tick < 200; tick += 1)
             {
@@ -321,7 +321,7 @@ public sealed class MapPatrolsTests
         // Exit test 4 of section 7.6 of `phase-2-first-playable.md` (D-209, D-741).
         for (ulong seed = 0; seed < SeedCount; seed += 1)
         {
-            Simulation run = Simulation.Start(seed, TestMaps.Patrolled, TestBattles.Content, DebugIntentHandlers.None);
+            Simulation run = Simulation.Start(seed, TestMaps.Patrolled, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
             PatrolState elite = run.State.Party.Patrols.All[2];
             TileArea area = elite.Station.Area!.Value;
 
@@ -468,13 +468,13 @@ public sealed class MapPatrolsTests
     {
         // D-750: a load puts each patrol back where it stood.
         GameMap map = TestMaps.Patrolled;
-        Simulation run = Simulation.Start(Seed, map, TestBattles.Content, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, map, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
         for (int tick = 0; tick < 90; tick += 1)
         {
             run.Step([]);
         }
 
-        Simulation again = Simulation.Resume(Seed, run.Snapshot(), map, TestBattles.Content, DebugIntentHandlers.None);
+        Simulation again = Simulation.Resume(Seed, run.Snapshot(), map, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
 
         Assert.Equal(run.StateHash(), again.StateHash());
         for (int index = 0; index < map.Patrols.Count; index += 1)
@@ -764,7 +764,7 @@ public sealed class MapPatrolsTests
 
     /// <summary>Starts a run on one map, with the handlers of the debug console (D-749).</summary>
     private static Simulation Start(GameMap map) =>
-        Simulation.Start(Seed, map, TestBattles.Content, DebugAssemblyFile.Handlers());
+        Simulation.Start(Seed, map, TestBattles.Content, TestBattles.Notices, DebugAssemblyFile.Handlers());
 
     /// <summary>
     /// Runs a map to the start of an encounter and its battle, so a test can flee it (D-767).
@@ -776,6 +776,7 @@ public sealed class MapPatrolsTests
             seed,
             PatrolMaps.Of(PatrolMaps.Enemy(facing: "south", stations: Watcher)),
             TestBattles.SureFlee,
+            TestBattles.Notices,
             DebugAssemblyFile.Handlers());
 
         while (run.State.Party.Patrols.Encounter is null)
