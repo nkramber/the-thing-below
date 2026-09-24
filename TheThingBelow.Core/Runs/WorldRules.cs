@@ -4,6 +4,7 @@ using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Story;
 using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Runs;
@@ -23,6 +24,12 @@ namespace TheThingBelow.Core.Runs;
 /// the same tick. While the encounter runs, no map system ticks, so the patrols and the grace
 /// time all stand still (D-531). A snapshot of save format 3 can hold an encounter with no
 /// battle, and the next world step starts that battle (D-765).
+/// </para>
+/// <para>
+/// A story scene holds the map still as a battle does, and the tick runs its steps alone
+/// (D-1009). With no story scene, the tick first reads the entry trigger and the battle end
+/// trigger that wait, and it reads the tile trigger of a tile that the party reached after
+/// the encounter of the same step (D-1004).
 /// </para>
 /// <para>
 /// A step of the party and a step of an enemy each take the debug level, and a sight and an
@@ -50,6 +57,18 @@ public static class WorldRules
             return;
         }
 
+        // A story scene holds the map still until its last step ends (D-1009).
+        if (state.Story.Running)
+        {
+            StoryRules.Advance(state, log);
+            return;
+        }
+
+        if (StoryRules.FireWaiting(state, log))
+        {
+            return;
+        }
+
         MapState party = state.Party;
         MapPatrols patrols = party.Patrols;
 
@@ -72,6 +91,12 @@ public static class WorldRules
         if (patrols.Encounter is not null)
         {
             BattleTurns.Begin(state, log);
+            return;
+        }
+
+        // A story scene that starts on the tile holds the patrols still from this tick (D-1009).
+        if (step.Arrived && StoryRules.FireTile(state, step.At, log))
+        {
             return;
         }
 

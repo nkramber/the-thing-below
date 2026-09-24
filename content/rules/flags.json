@@ -1,0 +1,4 @@
+{
+ "comment": "Every story flag id of the game, with one line of prose for each (D-542, D-1003). A flag is a name that is on or off, and a load fails on a flag id that this file does not declare. A condition, a set flag step, and a choose step each name a flag of this file. PR-68 built the flags with no flag of its own, and the arc content of PR-17 and later PRs adds each one here.",
+ "flags": []
+}

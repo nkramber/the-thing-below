@@ -44,7 +44,7 @@ public static class TestMaps
           { "id": "door.test_room_east", "kind": "door", "x": 11, "y": 4 },
           { "id": "lock.test_room_east", "kind": "lock", "x": 11, "y": 4, "pickable": false }
          ],
-         "enemies": []
+         "enemies": [], "triggers": []
         }
         """);
 
@@ -112,7 +112,7 @@ public static class TestMaps
             { "times": ["dawn", "day", "dusk", "night"], "x": 2, "y": 7, "width": 5, "height": 3 }
            ]
           }
-         ]
+         ], "triggers": []
         }
         """);
 
@@ -159,7 +159,7 @@ public static class TestMaps
 
         text.Append(" ],\n \"things\": [\n");
         text.Append($"  {{ \"id\": \"spawn_point.{id[4..]}_start\", \"kind\": \"spawn_point\", \"x\": 1, \"y\": 1 }}\n");
-        text.Append(" ],\n \"enemies\": []\n}\n");
+        text.Append(" ],\n \"enemies\": [],\n \"triggers\": []\n}\n");
         return text.ToString();
     }
 }

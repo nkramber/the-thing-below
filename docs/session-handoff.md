@@ -1,3 +1,146 @@
+## Session 265: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #71, round 2. Repository: the-thing-below. Branch: `feat/pr-68-story-scenes`. PR: #71. Role: reviewer. Base: `31f172e`.
+
+### What this session did, and why
+
+- Re-reviewed the correction of P2-1 from `f8868ae` to `498137c`.
+- Confirmed that stored story actors must name a character of this build (D-166, D-1006).
+- Ran the snapshot tests and `make verify`. Both passed.
+- Updated `docs/reviews/pr-71.md` and corrected the verified test count and handoff line in the PR description.
+
+### The state of the build
+
+- Base: `31f172e`. Effective head: `498137c`. Remote head before this metadata commit: `498137c`.
+- Local verification passed with 2,852 tests. CI run `35949615173` passed all implementation checks on macOS, Ubuntu, and Windows.
+
+### What is in flight
+
+- The review record and this entry are one metadata commit. This round pushes it to `feat/pr-68-story-scenes`.
+
+### Traps and gotchas
+
+- The Gitar status notice has no review item. D-964 says it needs no answer and does not block the verdict.
+- The author correction passed the original undeclared-actor trigger and the valid actor snapshot case.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Fetch the branch, verify the pushed metadata head, and report the review verdict for PR #71.
+
+## Session 264: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR #71, round 2. Repository: the-thing-below. Branch: `feat/pr-68-story-scenes`. PR: #71. Role: author. Base: `31f172e`.
+
+### What this session did, and why
+
+- Read the review record of `f8868ae`: `Changes required`, with one finding, P2-1.
+- P2-1 has full merit. A stored story scene actor with an id that no character of the build holds passed the load. `StoryContent.HoldsCast` now gives the cast of the build, and `StoryState.ResumeScene` refuses such an actor (D-166, D-1006).
+- Added the regression case to `StorySnapshotTests`. It fails on `f8868ae` and passes on the correction.
+- Wrote `docs/reviews/pr-71-response.md`.
+- Moved the title of `docs/session-handoff-archive.md` back to the top. The review commit put Session 253 above it.
+
+### The state of the build
+
+- `main` is `31f172e`. The remote head before this round is `b6fd45a`, the review record of Session 263. The push of this round carries the correction, the response, and this entry.
+- `make verify` passed on macOS arm64 with 2,852 tests, the smoke session included. CI of round 1 passed every job except the review gate.
+
+### What is in flight
+
+- PR #71 waits for CI of this round, one read of the Gitar output, and `make codex-review PR=71 -- --skip-gitar-review` (D-945, D-946).
+
+### Traps and gotchas
+
+- The traps of Session 262 stand: a move intent on the tick of an arrival chains a step, no story scene ships in content, and the battle of a story scene names the story scene in its enemy field.
+- The Gitar comment of round 1 is a plan notice with no item, so it needs no answer (D-964).
+
+### The questions that block progress
+
+None for PR-68.
+
+### The next concrete action
+
+Read the CI result of the pushed head, read the Gitar output one time, then run `make codex-review PR=71 -- --skip-gitar-review` in the background.
+
+## Session 263: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #71, round 1. Repository: the-thing-below. Branch: `feat/pr-68-story-scenes`. PR: #71. Role: reviewer. Base: `31f172e`.
+
+### What this session did, and why
+
+- Reviewed PR #71 from merge base `31f172e` through effective head `f8868ae`.
+- Confirmed Claude Code authored the change, so Codex passes the provider gate (T-4, D-17).
+- Traced story content, triggers, simulation, battles, joins, saves, snapshots, and replay.
+- Found P2-1: snapshot restore accepts a shown actor id that the content does not declare.
+- Added `docs/reviews/pr-71.md` with `Changes required` for `f8868ae`.
+- Corrected the Documents row of the PR description.
+
+### The state of the build
+
+- Base: `31f172e`. Effective head: `f8868ae`. Remote head before this metadata commit: `ebd6f6b`.
+- `make verify` passed on macOS arm64 with 2,851 tests. CI run `35948186000` passed implementation checks on macOS, Ubuntu, and Windows. `review-gate` failed because the review record was absent.
+
+### What is in flight
+
+- The review record and this handoff entry are one metadata commit. The review requires a corrected effective head and a repeat review.
+
+### Traps and gotchas
+
+- The only Gitar comment is a free-plan status notice with no item. D-964 says it needs no answer and does not block the verdict.
+- No screen changed, so no screen-test frames needed visual review.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Correct P2-1, publish the correction, and start a repeat review of PR #71.
+
+## Session 262: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR #71, round 1. Repository: the-thing-below. Branch: `feat/pr-68-story-scenes`. PR: #71. Role: author. Base: `31f172e`.
+
+### What this session did, and why
+
+- Asked the owner OQ-144 to OQ-149 and nine rules of the runner, and recorded D-997 to D-1013. The owner chose the tree form of a condition against the recommendation (D-1001), and added the pause of D-1009.
+- Built the story scene format, the runner in Core, the flag file, the condition tree, the four trigger kinds of a map, the scene battle, and the join (D-540, D-563).
+- The snapshot gained the story state. Save format 9 and simulation version 21 hold it, with a fixture save of format 9 and a story run in the identity set.
+- Added the tests of the ten exit tests of PR-68, the seed loop of one thousand seeds included.
+- Moved the fire of the talk trigger and the NPC actor to PR-14, the pause screen to PR-36, and the step condition to PR-18 (D-1005, D-1007, D-1010).
+
+### The state of the build
+
+- `main` is `31f172e`. The branch head before this entry is `f8868ae`, and the push of this round carries this entry.
+- `make verify` passed on macOS arm64 with 2,851 tests, the smoke session included.
+
+### What is in flight
+
+- PR #71 waits for CI, one read of the Gitar output, and `make codex-review PR=71 -- --skip-gitar-review` (D-945, D-946).
+
+### Traps and gotchas
+
+- A move intent on the tick of an arrival chains the next step. A bot script moves only while the lead stands.
+- No story scene ships in content. Game draws no step before PR-36, so a trigger in the fixture dungeon stops the smoke session.
+- The battle of a start battle step names its story scene in the enemy field of the battle. The encounter code of Game reads a patrol, so PR-36 draws that battle start.
+- The word actor alone names the combatant of a turn. The glossary term is story scene actor.
+- The map field `triggers` is required. A test map needs `"triggers": []`.
+
+### The questions that block progress
+
+None for PR-68.
+
+### The next concrete action
+
+Read the CI result of the pushed head, read the Gitar output one time, then run `make codex-review PR=71 -- --skip-gitar-review` in the background.
+
 ## Session 261: 2026-09-24, Codex
 
 Author: Codex
@@ -211,148 +354,3 @@ None.
 ### The next concrete action
 
 Wait for CI on the head, read the Gitar output one time, then run `make codex-review PR=68 -- --skip-gitar-review`.
-
-## Session 255: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #68, round 2. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: #68. Role: reviewer. Base: `3223bcf`.
-
-### What this session did, and why
-
-- Re-reviewed PR #68 at effective head `caaea8f`. Commits after that head change review and handoff metadata alone (D-610).
-- Confirmed that Claude Code authored the change and Codex passes the provider gate (T-4, D-17).
-- Verified the owner's answer to the existing Gitar status notice. No review or inline comments exist (D-945, D-946).
-- Updated `docs/reviews/pr-68.md` with the current verdict and the prior verdict history.
-
-### The state of the build
-
-- `main` is `3223bcf`. The effective head is `caaea8f`. The remote tip before this metadata commit is `fde91a6`.
-- CI run 35920519185 passed the implementation checks at `caaea8f`. CI run 35922327323 passed the applicable checks at `fde91a6`, but `review-gate` read the prior Blocked verdict and failed.
-
-### What is in flight
-
-- This metadata commit holds the updated review and this handoff entry. A fresh `review-gate` result must pass after the push.
-
-### Traps and gotchas
-
-- The effective head remains `caaea8f`. The commits after it change only paths in the metadata set (D-610).
-- The Gitar pass is not a review condition under D-945 and D-946. The author answered the existing status notice.
-
-### The questions that block progress
-
-None. OQ-243 is resolved by D-963.
-
-### The next concrete action
-
-Push this metadata commit, then verify the remote head and the fresh `review-gate` result.
-
-## Session 254: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-98, round 2. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: #68. Role: author. Base: `3223bcf`.
-
-### What this session did, and why
-
-- Read the record of Session 253: `Blocked` for `caaea8f`, with no finding. The one open item is the Gitar status notice, which had no answer.
-- Answered that notice in a PR comment. It holds no thread, no finding, and no claim (D-945, D-946).
-
-### The state of the build
-
-- `main` is `3223bcf`. The effective head is `caaea8f`. The commits after it change the metadata set alone (D-610).
-- CI passed each check at `caaea8f` except `review-gate`, which reads the verdict.
-
-### What is in flight
-
-- A new `make codex-review PR=68 -- --skip-gitar-review` on the answer of this round.
-- After an approval, the merge question to the owner in four sections (D-942).
-
-### Traps and gotchas
-
-- A Gitar status notice counts as a comment that needs an answer, even with no finding.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Run `make codex-review PR=68 -- --skip-gitar-review`, and read its outcome.
-
-## Session 253: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #68, round 1. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: #68. Role: reviewer. Base: `3223bcf`.
-
-### What this session did, and why
-
-- Reviewed PR #68 from base `3223bcf` through effective head `caaea8f`.
-- Verified Claude Code authored the changes and Codex passes the provider gate (T-4, D-17).
-- Checked the load limit, the screen layout, the step-in order, the target menu, the simulation version, and the replay identity.
-- Ran `make verify`, checked CI, and read all 15 affected battle frames of the screen-test artifact.
-- Found no code defect. The existing Gitar status comment has no author answer. The review is Blocked until the author answers it.
-- Corrected the Documents row of the PR description and added `docs/reviews/pr-68.md`.
-- Committed and pushed the review and handoff as metadata commit `52aa9a8`. The fresh review-gate check failed RG 4 because the verdict is Blocked.
-
-### The state of the build
-
-- `main` and the PR base are `3223bcf`. The effective head is `caaea8f`.
-- `make verify` passed on macOS arm64 with 2,522 tests. CI run 35920519185 passed the implementation checks on each platform.
-- The initial `review-gate` check failed because this record did not exist. After publication, RG 3 and RG 5 to RG 8 passed. RG 4 failed because the verdict is Blocked.
-- CI run 35921902597 passed the metadata checks. The platform matrix jobs skipped because the commit changed metadata paths alone.
-
-### What is in flight
-
-- The author needs to answer the existing Gitar status comment.
-- The owner needs to start a fresh review after the author answers.
-
-### Traps and gotchas
-
-- The Gitar comment says “Gitar is working.” It has no thread or finding, but the user requires an answer to each existing Gitar comment.
-- The Gitar pass itself is not a review condition under D-945 and D-946.
-
-### The questions that block progress
-
-OQ-243 is resolved by D-963. The unanswered Gitar status comment blocks approval.
-
-### The next concrete action
-
-The author answers the Gitar status comment. Then start a fresh review of PR #68.
-
-## Session 252: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-98, round 1. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: #68. Role: author. Base: `3223bcf`.
-
-### What this session did, and why
-
-- Asked the owner OQ-243. The session found that four elite bodies fit in the waiting column, and not six as D-954 said. The owner chose the load failure (D-963).
-- Recorded D-963, marked D-954 as revised in part, resolved OQ-243, and updated `docs/design.md` and both roadmaps.
-- Core: the load refuses a group whose waiting column is taller than 288 art pixels. The error names the group, the height, and the limit. The simulation version is 18, and the identity file changed with it (G-17).
-- Game: each waiting enemy draws at full size in the dim color, in a column at the left edge. The column stands on the bottom of its room, and the next enemy that steps in stands at the top. The rows of the enemies stand 40 columns to the right.
-- Read the frames `battle-waiting-1x`, `battle-sparks-1x`, and `battle-target-1x` of `make sheet FIXTURE=battle` (D-784). A column in the middle of its room put a lone grunt in the wall above the ground, so the column now stands on the bottom. Exit test 3 of the roadmap changed with it.
-- Added the `waiting-1x` capture of the fight of the deep room, and tests of the load check, the column, the step in, and the target menu.
-
-### The state of the build
-
-- `main` is `3223bcf`. The branch holds the code, the tests, and the documents of PR-98.
-- `make verify` passed on macOS arm64, except the baseline of `battle-waiting-1x.png`, which only the CI artifact gives (D-733).
-- CI run 35919855654 passed smoke, replay-identity, det-lint, and ste-check on each leg. The build legs and screen-test failed on the new battle frames alone. The 15 battle frames of its `screen-captures` artifact are the new baseline, and the author read each one (D-784).
-
-### What is in flight
-
-- The CI run on the baseline commit.
-- The Codex review: `make codex-review PR=68 -- --skip-gitar-review` (D-946).
-
-### Traps and gotchas
-
-- The patrol of a test map takes the size of the largest enemy of the tests content, so a test wave with a brute fails the map. The wave test uses grunts alone.
-- The elite group of the tests holds its waiting grunts in slots 3 and 4. The group of the content holds its waiting grunt in slot 1.
-- The waiting grunt reads very dark: the grunt art is dark, the dim color multiplies it, and the left edge takes little of the key light. The owner judges the shade from the sheet.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Read the CI result of the baseline commit, read the Gitar output one time, then run `make codex-review PR=68 -- --skip-gitar-review` in the background (D-945, D-946).

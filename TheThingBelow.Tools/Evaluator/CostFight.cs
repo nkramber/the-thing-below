@@ -5,6 +5,7 @@ using System.Text;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
+using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Tools.Evaluator;
 
@@ -120,7 +121,8 @@ public static class CostFight
         { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 2, "y": 1 }] }
        ]
       }
-     ]
+     ],
+     "triggers": []
     }
     """;
 
@@ -131,6 +133,14 @@ public static class CostFight
      "notices": [
       { "id": "notice.cost_plain", "log": false }
      ]
+    }
+    """;
+
+    /// <summary>The flag file of the cost fight. A run needs one, and the fight plays no story scene (D-1003).</summary>
+    private const string FlagText = """
+    {
+     "comment": "The flags of the cost fight. It declares none.",
+     "flags": []
     }
     """;
 
@@ -155,6 +165,12 @@ public static class CostFight
     /// <summary>Gives the notice file of the cost fight, which posts no notice (D-989).</summary>
     /// <returns>The notice file.</returns>
     public static NoticeList Notices() => NoticeList.Read(Encoding.UTF8.GetBytes(NoticeText), "cost-notices.json");
+
+    /// <summary>Gives the story content of the cost fight, which holds no flag and no story scene (D-540).</summary>
+    /// <param name="content">The battle content of the cost fight.</param>
+    /// <returns>The story content.</returns>
+    public static StoryContent Story(BattleContent content) =>
+        StoryContent.Load(FlagList.Read(Encoding.UTF8.GetBytes(FlagText), "cost-flags.json"), [], content);
 
     /// <summary>Gives the map of the cost fight.</summary>
     /// <returns>The map.</returns>

@@ -45,8 +45,9 @@ Built by PR-68. Phase file: `phase-2-first-playable.md`.
 - A join step adds a cast member to the party, and it changes the party state in the snapshot (D-342, D-563).
 - A story scene names no track and no cue. The audio file names the story scene and the step that its cue serves (D-548, `area-audio.md`).
 - A story scene names no art. An art file names the content ids that it draws, as D-519 asks.
-- The schema validates each story scene at load, and an absent field is an error (G-6, T-2). A step that names an absent string id, flag id, or sprite id fails with the story scene, the step, and the id.
-- OQ-144 holds the full step list, and OQ-149 holds a step that starts a battle.
+- The schema validates each story scene at load, and an absent field is an error (G-6, T-2). A step that names an absent string id, flag id, cast member, or enemy group fails with the story scene, the step, and the id.
+- A script holds eleven kinds of step, and a start battle step names an enemy group (D-997, D-998). A pick of a choose step sets the flag of its option (D-1007).
+- A step acts on the lead, or on a cast member that a show step put on a marker. Each shown cast member leaves at the end of the story scene (D-1006).
 
 > *In plain English:* a story scene is a list of simple steps in a data file. It says walk here, face there, say this line, and ask this question. Nothing about it is code.
 
@@ -58,7 +59,8 @@ Built by PR-68. Phase file: `phase-2-first-playable.md`.
 - Game sends a wait intent when a move, a face, or a line ends (D-493, D-522). An effect that the world waits for uses the same intent.
 - A bot answers each wait intent at once, so the bots and the night gate play every story scene (D-64, G-22).
 - The story scene state joins the snapshot, the state hash, and the migration set (G-5, D-166).
-- Core never reads a clock, so the length of a step comes from content or from the wait intent (G-3). OQ-145 holds which.
+- Core never reads a clock, so the length of a step comes from content or from the wait intent (G-3). A wait step names its ticks, and every other step that Game animates ends on the wait intent (D-1000, D-1013).
+- The map holds still while a story scene runs. The start button pauses the story scene, and PR-36 draws the pause screen (D-1009, D-1010).
 - Property tests over one thousand seeds prove that a replay of a run with story scenes gives the same end-state hash (T-3, G-5).
 - D-114 put the runner in the engine layer, and D-540 revises that part. The engine layer still draws each step.
 
@@ -69,13 +71,13 @@ Built by PR-68. Phase file: `phase-2-first-playable.md`.
 Built by PR-68, and used by PR-18, PR-14, PR-35, and PR-19. Phase file: `phase-2-first-playable.md`.
 
 - A story flag is a name that is on or off, and Core holds the set of the flags that are on (D-542).
-- Content declares every flag id, and a load fails on an id that no file declares (T-2). OQ-147 holds where the declaration lives.
+- The flag file `content/rules/flags.json` declares every flag id with one line of prose (D-1003). A load fails on an id that the file does not declare (T-2).
 - One condition form serves every reader (D-543). The readers are a story scene step, a route of the region map, a hub line, a quest, and an enemy group.
 - Core validates each condition at load against the declared ids, so one parser, one test, and one error message cover every reader (T-1, T-2).
 - PR-68 takes the flag set and the condition form, because a story scene step sets a flag and PR-18 lands in Phase 3 (D-544, F-55).
 - A flag id is permanent, and the snapshot of the prologue carries each flag into the full game (D-163, D-166).
 - No count and no value hide in a flag, because D-329 removed the relationship value and the faction reputation.
-- OQ-146 holds the shape of a condition.
+- A condition is a tree of all, any, and not over flag leaves. The always leaf marks a thing that no flag gates, so no reader holds an absent condition (D-1001, D-1002).
 
 > *In plain English:* what the game remembers about your choices is a list of names that are on. Every part of the game reads that list the same way.
 
@@ -102,7 +104,7 @@ Built by PR-68, and used by PR-7, PR-14, and PR-16. Phase file: `phase-2-first-p
 - A trigger fires from the tick of Core, so a replay starts each story scene at the same tick (T-7, G-5).
 - A story scene that plays once sets a flag, and its condition then refuses it (D-542).
 - The village holds a placeholder story scene until the arc content lands (D-292, PR-17).
-- OQ-148 holds what fires a trigger: a tile, a talk, the entry to a map, or a fight that ends.
+- Four kinds of event fire a trigger: a tile, a talk with an NPC, the entry to the map, and a won battle (D-1004). A battle end trigger names a patrol of its map (D-1011). PR-14 fires the talk kind with the NPCs (D-1005).
 
 > *In plain English:* a story scene starts because you walked somewhere, spoke to somebody, or finished a fight. The map file says where and when.
 
@@ -262,12 +264,12 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 
 The register is `docs/questions.md` (D-19). These questions block story PRs, and each PR asks its questions when it starts (D-487):
 
-- OQ-144: the full step list of a story scene script. Blocks PR-68.
-- OQ-145: how a step that takes time ends. Blocks PR-68.
-- OQ-146: the shape of a condition. Blocks PR-68.
-- OQ-147: where content declares each flag id. Blocks PR-68.
-- OQ-148: what fires a story scene trigger. Blocks PR-68.
-- OQ-149: whether a story scene step starts a battle. Blocks PR-68.
+- OQ-144: the full step list of a story scene script. Resolved 2026-09-23 by D-997.
+- OQ-145: how a step that takes time ends. Resolved 2026-09-23 by D-1000.
+- OQ-146: the shape of a condition. Resolved 2026-09-23 by D-1001 and D-1002.
+- OQ-147: where content declares each flag id. Resolved 2026-09-23 by D-1003.
+- OQ-148: what fires a story scene trigger. Resolved 2026-09-23 by D-1004.
+- OQ-149: whether a story scene step starts a battle. Resolved 2026-09-23 by D-998 and D-999.
 - OQ-150: how the player skips a story scene. Blocks PR-36.
 - OQ-151: how the choices lay out in the dialogue box. Blocks PR-36.
 - OQ-152: what a quest holds. Blocks PR-19.

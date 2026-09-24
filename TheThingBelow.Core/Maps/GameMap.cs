@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Maps;
 
 /// <summary>
 /// One map of the game, as its rule file holds it: the terrain rows, every thing that a rule
-/// reads, every enemy, and the time of day (D-528, D-738).
+/// reads, every enemy, every story scene trigger, and the time of day (D-528, D-738, D-1004).
 /// </summary>
 /// <remarks>
 /// One rule file holds each map, so one file holds each place for the author, for the review,
@@ -34,6 +35,7 @@ public sealed class GameMap
     private readonly TileKind[] tiles;
     private readonly MapThing[] things;
     private readonly Patrol[] patrols;
+    private readonly SceneTrigger[] triggers;
 
     private GameMap(
         string file,
@@ -46,6 +48,7 @@ public sealed class GameMap
         TileKind[] tiles,
         MapThing[] things,
         Patrol[] patrols,
+        SceneTrigger[] triggers,
         TilePoint spawn)
     {
         this.File = file;
@@ -58,6 +61,7 @@ public sealed class GameMap
         this.tiles = tiles;
         this.things = things;
         this.patrols = patrols;
+        this.triggers = triggers;
         this.Spawn = spawn;
     }
 
@@ -90,6 +94,9 @@ public sealed class GameMap
 
     /// <summary>Every enemy that this map places, in the order of the file (D-738, G-4).</summary>
     public IReadOnlyList<Patrol> Patrols => this.patrols;
+
+    /// <summary>Every story scene trigger of the map, in the order of the file, which is the order that a tick reads them (D-528, D-1004, G-4).</summary>
+    public IReadOnlyList<SceneTrigger> Triggers => this.triggers;
 
     /// <summary>Tells whether one tile lies inside the map.</summary>
     /// <param name="at">The tile.</param>
@@ -135,6 +142,28 @@ public sealed class GameMap
         return found;
     }
 
+    /// <summary>Finds the tile of one marker of the map (D-528).</summary>
+    /// <param name="marker">The id of the marker, which a story scene step names (D-1006, D-1013).</param>
+    /// <param name="at">The tile of the marker, when the map holds it.</param>
+    /// <returns>True when the map holds a marker with this id.</returns>
+    /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
+    public bool TryMarker(ContentId marker, out TilePoint at)
+    {
+        ArgumentNullException.ThrowIfNull(marker);
+
+        foreach (MapThing thing in this.things)
+        {
+            if (thing.Kind == MapThingKind.Marker && string.CompareOrdinal(thing.Id.Value, marker.Value) == 0)
+            {
+                at = thing.At;
+                return true;
+            }
+        }
+
+        at = default;
+        return false;
+    }
+
     /// <summary>Tells whether a path of this repository is a map file (D-528).</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
     /// <returns>True when the path lies in the map folder and is a JSON file.</returns>
@@ -170,6 +199,7 @@ public sealed class GameMap
         List<string>? terrain = null;
         List<ThingLine>? things = null;
         List<Patrol>? patrols = null;
+        List<SceneTrigger>? triggers = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -202,6 +232,9 @@ public sealed class GameMap
                 case "enemies":
                     patrols = Patrol.ReadAll(ref reader);
                     break;
+                case "triggers":
+                    triggers = SceneTrigger.ReadAll(ref reader);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -216,7 +249,8 @@ public sealed class GameMap
             reader.Require(time, depth, "time"),
             reader.Require(terrain, depth, "terrain"),
             reader.Require(things, depth, "things"),
-            reader.Require(patrols, depth, "enemies"));
+            reader.Require(patrols, depth, "enemies"),
+            reader.Require(triggers, depth, "triggers"));
     }
 
     private static List<string> ReadRows(ref ContentReader reader)
@@ -292,7 +326,8 @@ public sealed class GameMap
         string time,
         List<string> rows,
         List<ThingLine> lines,
-        List<Patrol> patrols)
+        List<Patrol> patrols,
+        List<SceneTrigger> triggers)
     {
         if (!TimesOfDay.TryOf(time, out TimeOfDay parsed))
         {
@@ -303,11 +338,12 @@ public sealed class GameMap
         TileKind[] tiles = ReadTerrain(ref reader, rows, out int width, out int height);
         MapThing[] things = BuildThings(ref reader, lines, tiles, width, height);
         TilePoint spawn = OneSpawn(ref reader, things);
-        var map = new GameMap(reader.File, id, region, label, parsed, width, height, tiles, things, [.. patrols], spawn);
+        var map = new GameMap(reader.File, id, region, label, parsed, width, height, tiles, things, [.. patrols], [.. triggers], spawn);
 
         // The map is complete here, so each check of a patrol reads the terrain and the
         // spawn point through the map itself and never through a second copy of them (T-1).
         PatrolLayout.Check(ref reader, map);
+        CheckTriggers(ref reader, map);
         return map;
     }
 
@@ -500,6 +536,49 @@ public sealed class GameMap
         }
 
         return spawn;
+    }
+
+    /// <summary>
+    /// Refuses a trigger that this map cannot fire: a repeated id, a tile that the party cannot
+    /// stand on, or a patrol that the map does not place (D-1004, D-1011, T-2). The content set
+    /// checks the story scene and the flags of each trigger.
+    /// </summary>
+    private static void CheckTriggers(ref ContentReader reader, GameMap map)
+    {
+        for (int index = 0; index < map.triggers.Length; index += 1)
+        {
+            SceneTrigger trigger = map.triggers[index];
+            for (int earlier = 0; earlier < index; earlier += 1)
+            {
+                if (string.CompareOrdinal(map.triggers[earlier].Id.Value, trigger.Id.Value) == 0)
+                {
+                    throw reader.Refuse($"two triggers of this map take the id '{trigger.Id.Value}', and an id is permanent (D-166)");
+                }
+            }
+
+            if (trigger.At is TilePoint at && !MapRules.CanEnter(map, at))
+            {
+                throw reader.Refuse($"the trigger '{trigger.Id.Value}' sits at {at}, which the party cannot stand on, so it never fires (D-1004)");
+            }
+
+            if (trigger.Patrol is ContentId patrol && !map.PlacesPatrol(patrol))
+            {
+                throw reader.Refuse($"the trigger '{trigger.Id.Value}' names the patrol '{patrol.Value}', and this map places no such patrol (D-1011)");
+            }
+        }
+    }
+
+    private bool PlacesPatrol(ContentId id)
+    {
+        foreach (Patrol patrol in this.patrols)
+        {
+            if (string.CompareOrdinal(patrol.Id.Value, id.Value) == 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private sealed record ThingLine(ContentId Id, string Kind, int X, int Y, bool? Pickable);

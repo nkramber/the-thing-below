@@ -207,6 +207,11 @@ public static class RunRecordText
                     writer.WriteEndObject();
                 }
 
+                if (intent.Option is int option)
+                {
+                    writer.WriteNumber("option", option);
+                }
+
                 writer.WriteEndObject();
             }
 
@@ -261,6 +266,7 @@ public static class RunRecordText
         bool? debug = null;
         ContentId? item = null;
         BattleTarget? target = null;
+        int? option = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -279,6 +285,9 @@ public static class RunRecordText
                 case "target":
                     target = ReadTarget(ref reader);
                     break;
+                case "option":
+                    option = reader.ReadInt();
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -288,7 +297,8 @@ public static class RunRecordText
             reader.Require(action, depth, "action"),
             reader.RequireValue(debug, depth, "debug"),
             target,
-            item);
+            item,
+            option);
     }
 
     private static BattleTarget ReadTarget(ref ContentReader reader)

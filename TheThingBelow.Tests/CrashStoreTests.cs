@@ -162,7 +162,7 @@ public sealed class CrashStoreTests : IDisposable
 
         Assert.Equal(
             run.StateHash(),
-            RunReplay.Play(read.Record!, SaveRuns.ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None).StateHash());
+            RunReplay.Play(read.Record!, SaveRuns.ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).StateHash());
     }
 
     [Fact]
@@ -250,7 +250,7 @@ public sealed class CrashStoreTests : IDisposable
     }
 
     private static SimulationException CoreFault() => Assert.Throws<SimulationException>(
-        () => Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None).Step([Intent.OfPlayer(IntentIds.CloseMenu)]));
+        () => Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Step([Intent.OfPlayer(IntentIds.CloseMenu)]));
 
     private static RunRecord Record()
     {

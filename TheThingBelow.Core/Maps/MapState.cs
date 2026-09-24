@@ -263,6 +263,34 @@ public sealed class MapState
         return new PartyStep(arrived, walked, started, bumped);
     }
 
+    /// <summary>
+    /// Ends the step that runs and the wanted step, so the lead stands still on its tile while a
+    /// story scene runs (D-1009).
+    /// </summary>
+    /// <remarks>
+    /// A tile trigger fires when the lead arrives, and the same tick can start the next step of
+    /// the player. The story scene starts from the tile of the trigger, so that step ends here.
+    /// </remarks>
+    internal void HoldStill()
+    {
+        this.Stepping = null;
+        this.StepTicks = 0;
+        this.wanted = null;
+    }
+
+    /// <summary>Moves the lead one tile in a move step of a story scene, and marks the tile walked (D-567, D-1012).</summary>
+    /// <param name="direction">The direction of the tile, which the lead then faces.</param>
+    internal void WalkInScene(StepDirection direction)
+    {
+        this.Facing = direction;
+        this.LeadAt = this.LeadAt.Step(direction);
+        this.Walked.Mark(this.LeadAt);
+    }
+
+    /// <summary>Turns the lead in a face step of a story scene (D-1000).</summary>
+    /// <param name="direction">The direction.</param>
+    internal void FaceInScene(StepDirection direction) => this.Facing = direction;
+
     /// <summary>Adds every value of this state to the state hash (G-5).</summary>
     /// <param name="hasher">The hasher of the state.</param>
     /// <exception cref="ArgumentNullException">The hasher is null (T-2).</exception>

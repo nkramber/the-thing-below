@@ -43,6 +43,11 @@ public static class SaveFormat
     /// PR-62 raised it to 8. The snapshot gained the notice log (D-985). A save of an older format
     /// starts the log empty.
     /// </para>
+    /// <para>
+    /// PR-68 raised it to 9. The snapshot gained the story state: the flags, the story scene that
+    /// runs, and the events that fire a trigger (D-540, D-542). A save of an older format starts with
+    /// no flag on and no story scene.
+    /// </para>
     /// </remarks>
-    public const int Current = 8;
+    public const int Current = 9;
 }

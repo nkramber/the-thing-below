@@ -7,6 +7,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Saves;
+using TheThingBelow.Core.Story;
 using TheThingBelow.Core.Streams;
 using Xunit;
 
@@ -32,12 +33,17 @@ namespace TheThingBelow.Tests;
 /// Format 5 and older predate the stream of the evaluator, and the migration opens it at its
 /// first value from the seed of the header (D-947). Format 6 and older predate the level, and the
 /// migration starts each character at its join level with full MP (D-363, D-966). Format 7 and
-/// older predate the notice log, and the migration starts the log empty (D-985).
+/// older predate the notice log, and the migration starts the log empty (D-985). Format 8 and
+/// older predate the story state, and the migration starts with no flag on, no story scene, and
+/// no entry to read (D-540, D-1004).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
 {
     private const string FixtureFolder = "TheThingBelow.Tests/saves";
+
+    /// <summary>The story state that the migration of format 8 and older gives: no flag, no story scene, and no entry (D-1004).</summary>
+    private static readonly StoryValues MigratedStory = new([], null, false, false, null);
 
     [Fact]
     public void EveryFormatVersionHasAStoredSave()
@@ -98,7 +104,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(1, save.Header.SimulationVersion);
 
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         Assert.Equal(120, run.Tick);
     }
@@ -111,7 +117,7 @@ public sealed class SaveFixtureTests
         SaveDocument save = ReadFormat(1);
 
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         Assert.Equal(TestMaps.FixtureDungeon.Spawn, run.State.Party.LeadAt);
         Assert.Equal(1, run.State.Party.Walked.Count);
@@ -128,7 +134,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(TestMaps.Room.Id.Value, save.Snapshot.Map.Map.Value);
 
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         Assert.Equal(SaveRuns.FixtureTicks, run.Tick);
         Assert.Equal(save.Snapshot.Map.Walked, run.State.Party.Walked.Rows());
@@ -139,7 +145,7 @@ public sealed class SaveFixtureTests
     {
         SaveDocument save = ReadFormat(1);
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, TestMaps.FixtureDungeon, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         run.Step([]);
 
@@ -180,7 +186,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(3, save.Snapshot.Map.Enemies.Count);
 
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, TestMaps.Patrolled, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, TestMaps.Patrolled, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         Assert.Equal(SaveRuns.FixtureTicks, run.Tick);
         IReadOnlyList<PatrolState> enemies = run.State.Party.Patrols.All;
@@ -205,7 +211,7 @@ public sealed class SaveFixtureTests
         Assert.Null(save.Snapshot.Characters);
 
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, TestMaps.Patrolled, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, TestMaps.Patrolled, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         PartyMember marrek = Assert.Single(run.State.Characters.Members);
         Assert.Equal("character.marrek", marrek.Record.Id.Value);
@@ -225,7 +231,7 @@ public sealed class SaveFixtureTests
         Assert.NotNull(save.Snapshot.Characters);
 
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         Battle battle = BattleRuns.BattleOf(run);
         Assert.Equal(BattleOutcome.Running, battle.Outcome);
@@ -240,7 +246,7 @@ public sealed class SaveFixtureTests
     {
         SaveDocument save = ReadFormat(4);
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         BattleOutcome outcome = BattleRuns.FightToEnd(run, save.Header.Seed);
 
@@ -254,7 +260,7 @@ public sealed class SaveFixtureTests
         // grunt holds slow to tick 400. Poison took 3 at the start of the turn of Marrek at 75.
         SaveDocument save = ReadFormat(5);
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         Battle battle = BattleRuns.BattleOf(run);
         Assert.Equal([new StatusValues(StatusKind.Poison, null), new StatusValues(StatusKind.Haste, 400)], battle.Party[0].Statuses.Values());
@@ -269,7 +275,7 @@ public sealed class SaveFixtureTests
     {
         SaveDocument save = ReadFormat(3);
         Simulation run = Simulation.Resume(
-            save.Header.Seed, save.Snapshot, TestMaps.Patrolled, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+            save.Header.Seed, save.Snapshot, TestMaps.Patrolled, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         run.Step([]);
 
@@ -332,7 +338,7 @@ public sealed class SaveFixtureTests
         Combatant fighter = BattleRuns.BattleOf(run).Party[0];
         Assert.Equal(TestBattles.MarrekAt(2).Health, fighter.FullHealth);
         Assert.Equal(TestBattles.MarrekAt(2).Attack, fighter.Attack);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Notices = [] }), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Notices = [], Story = MigratedStory }), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -357,7 +363,7 @@ public sealed class SaveFixtureTests
 
         Assert.Equal([TestBattles.KeptNotice.Value], Values(run.State.NoticeLog.Entries));
         Assert.Equal(20, save.Header.SimulationVersion);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Story = MigratedStory }), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -369,6 +375,53 @@ public sealed class SaveFixtureTests
         Assert.Equal(
             RunSnapshotText.Write(ResumeInBattle(seven).Snapshot() with { Notices = [TestBattles.KeptNotice] }),
             RunSnapshotText.Write(ResumeInBattle(eight).Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatEightStartsWithNoFlagAndNoStoryScene()
+    {
+        // D-540: format 8 predates the story state. A load is not an entry to the map, so no
+        // entry trigger fires on the next world step (D-1004).
+        SaveDocument save = ReadFormat(8);
+        Assert.Null(save.Snapshot.Story);
+
+        Simulation run = ResumeInBattle(save);
+
+        Assert.Equal(0, run.State.Story.Flags.Count);
+        Assert.False(run.State.Story.Running);
+        Assert.False(run.State.Story.EntryPending);
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatNineHoldsTheFlagsAndThePausedStoryScene()
+    {
+        // Exit tests 7 and 8 of PR-68: the snapshot carries the flag set, the story scene, the
+        // pause, and the party that the join made (D-166, D-563). PR-68 wrote format 9 from the
+        // story fixture, paused on the first step of the fight.
+        SaveDocument save = ReadFormat(9);
+        Simulation run = TestStory.Resume(save.Header.Seed, save.Snapshot);
+
+        StoryState story = run.State.Story;
+        Assert.Equal(21, save.Header.SimulationVersion);
+        Assert.Equal(["flag.test_met", "flag.test_yes"], Values(story.Flags.Values(FlagList.Path)));
+        Assert.Equal(TestStory.Fight.Value, story.Scene?.Id.Value);
+        Assert.Equal(0, story.Step);
+        Assert.Equal(ScenePhase.WaitIntent, story.Phase);
+        Assert.True(story.Paused);
+        Assert.Equal(2, run.State.Characters.Members.Count);
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatNinePlaysOnToTheEndOfTheFight()
+    {
+        SaveDocument save = ReadFormat(9);
+        Simulation run = TestStory.Resume(save.Header.Seed, save.Snapshot);
+
+        run.Step([Intent.OfPlayer(IntentIds.StoryResume)]);
+        StoryRulesTests.PlayWhile(run, () => run.State.Story.Running);
+
+        Assert.True(run.State.Story.Flags.IsOn(ContentId.Parse("flag.test_done", "test", "flag")));
     }
 
     private static List<string> Values(IReadOnlyList<ContentId> ids)
@@ -383,7 +436,7 @@ public sealed class SaveFixtureTests
     }
 
     private static Simulation ResumeInBattle(SaveDocument save) =>
-        Simulation.Resume(save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation.Resume(save.Header.Seed, save.Snapshot, BattleRuns.Map("group.test_pair"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
 
     private static StreamPosition EvaluatorAtFirstValue(ulong seed)

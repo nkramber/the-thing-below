@@ -93,7 +93,7 @@ public sealed class NoticeLogTests
         string line = RunSnapshotText.Write(run.Snapshot());
 
         var reader = new ContentReader(Encoding.UTF8.GetBytes(line), "the test");
-        Simulation resumed = Simulation.Resume(Seed, RunSnapshotText.Read(ref reader), TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation resumed = Simulation.Resume(Seed, RunSnapshotText.Read(ref reader), TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         Assert.Equal(TestBattles.KeptNotice.Value, Assert.Single(resumed.State.NoticeLog.Entries).Value);
         Assert.Equal(run.StateHash(), resumed.StateHash());
@@ -119,7 +119,7 @@ public sealed class NoticeLogTests
         RunSnapshot broken = run.Snapshot() with { Notices = [TestBattles.PlainNotice] };
 
         ArgumentException error = Assert.Throws<ArgumentException>(
-            () => Simulation.Resume(Seed, broken, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None));
+            () => Simulation.Resume(Seed, broken, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
 
         Assert.Contains("notice.test_plain", error.Message, StringComparison.Ordinal);
     }
@@ -160,7 +160,7 @@ public sealed class NoticeLogTests
     }
 
     private static Simulation Start(NoticeList notices) =>
-        Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, notices, DebugIntentHandlers.None);
+        Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, notices, TestBattles.Story, DebugIntentHandlers.None);
 
     private static void Post(Simulation run, ContentId notice) =>
         NoticeRules.Post(run.State, notice, run.State.Context("the test"), []);

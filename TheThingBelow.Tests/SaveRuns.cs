@@ -27,7 +27,7 @@ public static class SaveRuns
     {
         ArgumentOutOfRangeException.ThrowIfNegative(tickCount);
 
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         foreach (IReadOnlyList<Intent> intents in RunScripts.Make(Seed, tickCount))
         {
             run.Step(intents);
@@ -46,7 +46,7 @@ public static class SaveRuns
     {
         ArgumentOutOfRangeException.ThrowIfNegative(tickCount);
 
-        Simulation run = Simulation.Start(Seed, TestMaps.Patrolled, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Patrolled, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         foreach (IReadOnlyList<Intent> intents in RunScripts.Make(Seed, tickCount))
         {
             run.Step(intents);

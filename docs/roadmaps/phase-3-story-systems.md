@@ -44,6 +44,7 @@ Area file: `area-story.md` section 7.6.
 **Scope.**
 
 - The branch conditions in content, on the one condition form of PR-68 (D-40, D-329, D-543).
+- The step condition, which lets a story scene branch on a flag. A step of PR-68 holds no condition (D-1007).
 - The four flag effects: a closed route, a lost ally outside the cast, a changed hub, and a new time of day (D-301, D-442).
 - The fixture branches that prove each of the four flag effects.
 - The flags of the prologue in the save, which region two reads (D-163, D-353).

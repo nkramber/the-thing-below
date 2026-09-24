@@ -4,6 +4,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Core.Story;
 using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Battles;
@@ -44,6 +45,37 @@ public static class BattleTurns
         state.SetBattle(battle);
         state.AddEvent(new BattleEvent(BattleEventKind.Started, new BattleTarget(BattleSide.Enemy, 0), null, 0));
         log.Add(Entry(state, LogLevel.Info, "a battle started", [new LogField("group", battle.Group.Id.Value)]));
+        RunUntilCharacter(state, battle, log);
+    }
+
+    /// <summary>
+    /// Starts the battle of a start battle step, and runs each enemy turn before the first turn
+    /// of a character (D-998, D-770). No side comes from behind, and no patrol of the map takes
+    /// part, so the battle names the story scene in place of a patrol.
+    /// </summary>
+    /// <param name="state">The run, which holds no battle and no encounter.</param>
+    /// <param name="scene">The story scene of the step.</param>
+    /// <param name="group">The enemy group of the step.</param>
+    /// <param name="log">The log entries of this tick (D-179).</param>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="SimulationException">A battle or an encounter already runs (T-2).</exception>
+    public static void BeginStory(RunState state, ContentId scene, ContentId group, List<LogEntry> log)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(scene);
+        ArgumentNullException.ThrowIfNull(group);
+        ArgumentNullException.ThrowIfNull(log);
+
+        RunContext context = state.Context($"battle/begin/{scene.Value}");
+        if (state.Battle is not null || state.Party.Patrols.Encounter is not null)
+        {
+            throw new SimulationException("a start battle step, and a battle or an encounter already runs (D-531, D-998)", context);
+        }
+
+        Battle battle = Battle.Start(state.BattleContent, new MapEncounter(scene, group, EncounterSide.None), state.Characters, context);
+        state.SetBattle(battle);
+        state.AddEvent(new BattleEvent(BattleEventKind.Started, new BattleTarget(BattleSide.Enemy, 0), null, 0));
+        log.Add(Entry(state, LogLevel.Info, "a battle of a story scene started", [new LogField("group", battle.Group.Id.Value), new LogField("scene", scene.Value)]));
         RunUntilCharacter(state, battle, log);
     }
 
@@ -124,7 +156,7 @@ public static class BattleTurns
         {
             BattleAction.Attack => RefusalOfAttack(battle, choice.Target),
             BattleAction.Item => RefusalOfItem(state, battle, choice),
-            BattleAction.Flee => battle.Group.Boss ? $"a boss group, '{battle.Group.Id.Value}', which no party flees (D-378)" : null,
+            BattleAction.Flee => RefusalOfFlee(battle),
             BattleAction.Defend or BattleAction.Step => null,
             _ => $"the action {choice.Action}, which names no rule",
         };
@@ -244,10 +276,27 @@ public static class BattleTurns
                 context);
         }
 
+        if (battle.FromStoryScene)
+        {
+            // A battle of a story scene has no patrol, and its story scene goes on at the step
+            // after the start battle step (D-999).
+            state.SetBattle(null);
+            StoryRules.FinishBattle(state, context);
+            log.Add(Entry(
+                state,
+                LogLevel.Info,
+                "the battle of a story scene ended and the story scene goes on",
+                [new LogField("scene", battle.Enemy.Value), new LogField("outcome", Battle.OutcomeName(battle.Outcome))]));
+            return;
+        }
+
         MapPatrols patrols = state.Party.Patrols;
         if (battle.Outcome == BattleOutcome.Won)
         {
             patrols.Defeat();
+
+            // The next world step reads the battle end triggers of this patrol (D-1011).
+            state.Story.NoteWin(battle.Enemy);
         }
         else
         {
@@ -703,13 +752,24 @@ public static class BattleTurns
         PushBack(actor, item.Delay, context);
     }
 
-    private static void TryFlee(RunState state, Battle battle, Combatant actor, RunContext context, List<LogEntry> log)
+    /// <summary>Gives the reason that no party flees this battle: a boss, or a battle of a story scene (D-378, D-1008).</summary>
+    private static string? RefusalOfFlee(Battle battle)
     {
         if (battle.Group.Boss)
         {
-            throw new SimulationException(
-                $"a flee from the boss group '{battle.Group.Id.Value}', and no party flees from a boss (D-378)",
-                context);
+            return $"a boss group, '{battle.Group.Id.Value}', which no party flees (D-378)";
+        }
+
+        return battle.FromStoryScene
+            ? $"the battle of the story scene '{battle.Enemy.Value}', which no party flees (D-1008)"
+            : null;
+    }
+
+    private static void TryFlee(RunState state, Battle battle, Combatant actor, RunContext context, List<LogEntry> log)
+    {
+        if (RefusalOfFlee(battle) is string refusal)
+        {
+            throw new SimulationException($"a flee from {refusal}", context);
         }
 
         BattleRules rules = state.BattleContent.Rules;

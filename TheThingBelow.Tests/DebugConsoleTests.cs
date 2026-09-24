@@ -127,6 +127,7 @@ public sealed class DebugConsoleTests
             TestMaps.Room,
             TestBattles.Content,
             TestBattles.Notices,
+            TestBattles.Story,
             DebugAssemblyFile.Handlers());
 
         Assert.Equal(TestMaps.Room.Width * TestMaps.Room.Height, replayed.Party.Walked.Count);
@@ -141,7 +142,7 @@ public sealed class DebugConsoleTests
         RunRecord record = RevealRecord();
 
         SimulationException error = Assert.Throws<SimulationException>(
-            () => RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None));
+            () => RunReplay.Play(record, ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
 
         Assert.Contains(RevealId, error.Message, StringComparison.Ordinal);
         Assert.Contains("tick 1", error.Message, StringComparison.Ordinal);
@@ -309,7 +310,7 @@ public sealed class DebugConsoleTests
     public void TheConsoleFightsABattleToItsEnd()
     {
         // D-767: until the battle screen of PR-10, the console takes the turn of a character.
-        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, DebugAssemblyFile.Handlers());
+        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugAssemblyFile.Handlers());
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
         List<Intent> queued = [];
 
@@ -327,7 +328,7 @@ public sealed class DebugConsoleTests
     public void ABattleCommandAtASlotThatMeleeDoesNotReachChangesNothingAndWarns()
     {
         // A fault of the person never stops the run, and the warning gives the reason (D-179, T-2).
-        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.test_elite"), TestBattles.Content, TestBattles.Notices, DebugAssemblyFile.Handlers());
+        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.test_elite"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugAssemblyFile.Handlers());
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
         IReadOnlyList<LogEntry> log = run.Step([Intent.OfDebugConsole(Id("debug.battle_attack"), new BattleTarget(BattleSide.Enemy, 1), null)]);
 
@@ -362,7 +363,7 @@ public sealed class DebugConsoleTests
     }
 
     private static Simulation Start() =>
-        Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugAssemblyFile.Handlers());
+        Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugAssemblyFile.Handlers());
 
     private static ContentId Id(string value) =>
         ContentId.Parse(value, "TheThingBelow.Tests/DebugConsoleTests.cs", nameof(Id));

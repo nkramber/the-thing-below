@@ -27,7 +27,7 @@ public sealed class BattleSnapshotTextTests
 
         string line = RunSnapshotText.Write(snapshot);
         RunSnapshot read = Read(line);
-        Simulation resumed = Simulation.Resume(Seed, read, BattleRuns.Map("group.fixture_elite"), TestBattles.WithParty(2), TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation resumed = Simulation.Resume(Seed, read, BattleRuns.Map("group.fixture_elite"), TestBattles.WithParty(2), TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         Assert.Equal(line, RunSnapshotText.Write(read));
         Assert.Equal(run.StateHash(), resumed.StateHash());
@@ -73,7 +73,7 @@ public sealed class BattleSnapshotTextTests
         RunSnapshot broken = snapshot with { Battle = snapshot.Battle! with { Group = ContentId.Parse("group.other", "test", "group") } };
 
         ArgumentException error = Assert.Throws<ArgumentException>(
-            () => Simulation.Resume(Seed, broken, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None));
+            () => Simulation.Resume(Seed, broken, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
 
         Assert.Contains("group.other", error.Message, StringComparison.Ordinal);
     }
@@ -87,7 +87,7 @@ public sealed class BattleSnapshotTextTests
         RunSnapshot broken = snapshot with { Battle = snapshot.Battle with { Combatants = combatants } };
 
         ArgumentException error = Assert.Throws<ArgumentException>(
-            () => Simulation.Resume(Seed, broken, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None));
+            () => Simulation.Resume(Seed, broken, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
 
         Assert.Contains("0 to 30", error.Message, StringComparison.Ordinal);
     }
@@ -96,7 +96,7 @@ public sealed class BattleSnapshotTextTests
     public void ARecordHoldsTheTargetAndTheItemOfAnIntent()
     {
         // D-764, D-780: the record reads the use of one item on one character.
-        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild("0123456789abcdef", Seed), run.Snapshot());
         Intent use = Intent.OfPlayer(IntentIds.BattleItem, new BattleTarget(BattleSide.Party, 0), ContentId.Parse("item.fixture_draught", "test", "item"));
         recorder.Step(1, [Intent.OfPlayer(IntentIds.MoveEast)]);
@@ -114,7 +114,7 @@ public sealed class BattleSnapshotTextTests
     [Fact]
     public void ARecordWithAnUnknownSideOfATargetFailsWithTheLine()
     {
-        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild("0123456789abcdef", Seed), run.Snapshot());
         recorder.Step(1, [Intent.OfPlayer(IntentIds.BattleAttack, new BattleTarget(BattleSide.Enemy, 0), null)]);
         string text = RunRecordText.Write(recorder.Build()).Replace("\"side\":\"enemy\"", "\"side\":\"moon\"", StringComparison.Ordinal);
@@ -129,12 +129,12 @@ public sealed class BattleSnapshotTextTests
     public void ARecordOfFormatOneFailsWithItsLine()
     {
         // D-764: a record replays on its own simulation version alone, so no reader of format 1 exists.
-        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild("0123456789abcdef", Seed), run.Snapshot());
         string text = RunRecordText.Write(recorder.Build()).Replace("{\"format\":2,", "{\"format\":1,", StringComparison.Ordinal);
 
         RunRecordException error = Assert.Throws<RunRecordException>(
-            () => RunReplay.Play(RunRecordText.Read(text), "0123456789abcdef", BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None));
+            () => RunReplay.Play(RunRecordText.Read(text), "0123456789abcdef", BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
 
         Assert.Equal(1, error.Line);
         Assert.Contains("format version 1", error.Message, StringComparison.Ordinal);
@@ -172,7 +172,7 @@ public sealed class BattleSnapshotTextTests
 
     private static SaveDocument SaveOf(long tick)
     {
-        RunSnapshot snapshot = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None).Snapshot();
+        RunSnapshot snapshot = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
         return new SaveDocument(SaveHeader.ForThisBuild("0123456789abcdef", Seed), snapshot with { Tick = tick, WorldTick = 0 });
     }
 

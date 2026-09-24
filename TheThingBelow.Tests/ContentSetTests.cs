@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Story;
 using Xunit;
 
 namespace TheThingBelow.Tests;
@@ -569,6 +570,57 @@ public sealed class ContentSetTests
         Assert.Contains("map.one", error.Message, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void AStorySceneFileJoinsTheSetUnderItsId()
+    {
+        ContentSet set = ContentSet.Load(Files(SceneFile("label.lamp")));
+
+        StoryScene scene = Assert.Single(set.Story.Scenes);
+        Assert.Equal("scene.test_note", scene.Id.Value);
+        Assert.Equal("rules/scenes/note.json", scene.File);
+    }
+
+    [Fact]
+    public void AStorySceneLineThatTheStringTableLacksIsAnError()
+    {
+        // Exit test 3 of PR-68: the error names the story scene, the step, and the id (G-7).
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(Files(SceneFile("line.absent"))));
+
+        Assert.Contains("rules/scenes/note.json", error.Message, StringComparison.Ordinal);
+        Assert.Contains("scene.test_note.steps[0].line", error.Message, StringComparison.Ordinal);
+        Assert.Contains("line.absent", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ASetWithNoFlagFileIsAnError()
+    {
+        // D-1003: one file declares every flag, so a build with none holds no story.
+        List<ContentFile> files = [];
+        foreach (ContentFile file in Files())
+        {
+            if (string.CompareOrdinal(file.Path, FlagList.Path) != 0)
+            {
+                files.Add(file);
+            }
+        }
+
+        ContentException error = Assert.Throws<ContentException>(() => ContentSet.Load(files));
+
+        Assert.Contains(FlagList.Path, error.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>The text of one story scene file with one line, for a test of the content set (D-173).</summary>
+    private static ContentFile SceneFile(string line) =>
+        File(
+            "rules/scenes/note.json",
+            $$"""
+            {
+             "comment": "a note",
+             "id": "scene.test_note",
+             "steps": [ { "kind": "say", "speaker": "none", "line": "{{line}}" } ]
+            }
+            """);
+
     /// <summary>The text of one small map file, for a test of the content set (D-528).</summary>
     private static ContentFile MapFile(string path, string id, string label) =>
         File(
@@ -584,7 +636,7 @@ public sealed class ContentSetTests
              "things": [
               { "id": "spawn_point.one_start", "kind": "spawn_point", "x": 1, "y": 1 }
              ],
-             "enemies": []
+             "enemies": [], "triggers": []
             }
             """);
 

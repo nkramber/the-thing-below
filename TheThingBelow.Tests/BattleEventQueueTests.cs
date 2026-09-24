@@ -227,7 +227,7 @@ public sealed class BattleEventQueueTests
     public void AReloadResumesTheNewerSave()
     {
         // D-231: the later tick of the run wins.
-        RunSnapshot start = Simulation.Start(Seed, Content.Value.Map(MapIds.FirstMap), Content.Value.Battle, Content.Value.Notices, DebugIntentHandlers.None).Snapshot();
+        RunSnapshot start = Simulation.Start(Seed, Content.Value.Map(MapIds.FirstMap), Content.Value.Battle, Content.Value.Notices, Content.Value.Story, DebugIntentHandlers.None).Snapshot();
         SaveDocument older = new(SaveHeader.ForThisBuild(Content.Value.Hash, Seed), start with { Tick = 40 });
         SaveDocument newer = new(SaveHeader.ForThisBuild(Content.Value.Hash, Seed), start with { Tick = 90 });
 

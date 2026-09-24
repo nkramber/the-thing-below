@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Story;
 using TheThingBelow.Core.Runs;
 
 namespace TheThingBelow.Core.Battles;
@@ -152,6 +153,23 @@ public static class BattleSnapshotText
         return new PartySnapshot(reader.Require(characters, depth, "characters"), reader.Require(pack, depth, "pack"));
     }
 
+    /// <summary>
+    /// Reads the id of what started the battle: a patrol of the map, or from save format 9 the
+    /// story scene of a start battle step (D-749, D-998).
+    /// </summary>
+    private static ContentId ReadEnemy(ref ContentReader reader, int format)
+    {
+        ContentId id = reader.ReadContentId();
+        bool patrol = string.CompareOrdinal(id.Kind, Patrol.IdKind) == 0;
+        bool scene = format >= 9 && string.CompareOrdinal(id.Kind, StoryScene.Kind) == 0;
+        if (!patrol && !scene)
+        {
+            throw reader.Refuse($"the battle names '{id.Value}', and a battle of save format {format} names a patrol{(format >= 9 ? " or a story scene" : string.Empty)} (D-749, D-998)");
+        }
+
+        return id;
+    }
+
     /// <summary>Reads the object `battle`.</summary>
     /// <param name="reader">The reader of the snapshot line.</param>
     /// <param name="format">The save format of the line, 4 or later. Format 4 holds a push rate and no status (D-792).</param>
@@ -171,7 +189,7 @@ public static class BattleSnapshotText
             switch (field)
             {
                 case "enemy":
-                    enemy = reader.ReadContentId(Patrol.IdKind);
+                    enemy = ReadEnemy(ref reader, format);
                     break;
                 case "group":
                     group = reader.ReadContentId(Patrol.GroupKind);

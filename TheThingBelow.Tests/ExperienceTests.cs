@@ -252,7 +252,7 @@ public sealed class ExperienceTests
     private static Simulation RunWithParty(ulong seed, string group, BattleContent content, Func<int, CharacterValues, CharacterValues> change)
     {
         GameMap map = BattleRuns.Map(group);
-        RunSnapshot start = Simulation.Start(seed, map, content, TestBattles.Notices, DebugIntentHandlers.None).Snapshot();
+        RunSnapshot start = Simulation.Start(seed, map, content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
         PartySnapshot party = start.Characters ?? throw new InvalidOperationException("The snapshot holds no party.");
         List<CharacterValues> characters = [];
         for (int slot = 0; slot < party.Characters.Count; slot += 1)
@@ -261,7 +261,7 @@ public sealed class ExperienceTests
         }
 
         RunSnapshot changed = start with { Characters = party with { Characters = characters } };
-        Simulation run = Simulation.Resume(seed, changed, map, content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Resume(seed, changed, map, content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
         Assert.NotNull(run.State.Battle);
         return run;

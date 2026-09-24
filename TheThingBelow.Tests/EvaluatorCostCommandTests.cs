@@ -40,7 +40,7 @@ public sealed class EvaluatorCostCommandTests
         // P2-1 of the PR-67 review, D-961: the timer reads the whole enemy turn, the choice and
         // its effect with its events, and the fight of the command never reads a timed turn.
         BattleContent content = CostFight.Content(RepositoryRoot.Find());
-        Simulation run = Simulation.Start(1, CostFight.Map(), content, CostFight.Notices(), DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(1, CostFight.Map(), content, CostFight.Notices(), CostFight.Story(content), DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
         Battle battle = run.State.Battle ?? throw new InvalidOperationException("The step into the guard started no battle.");
         long readyAt = battle.Enemies[0].ReadyAt;

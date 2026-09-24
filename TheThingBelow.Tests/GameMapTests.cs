@@ -300,7 +300,7 @@ public sealed class GameMapTests
          ],
          "enemies": [
         {{enemies}}
-         ]
+         ], "triggers": []
         }
         """;
 }

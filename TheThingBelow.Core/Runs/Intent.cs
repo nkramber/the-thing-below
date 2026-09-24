@@ -20,7 +20,8 @@ namespace TheThingBelow.Core.Runs;
 /// <para>
 /// A battle intent names its target, and an item use names its item too (D-764, D-780). The
 /// row intent of the party window names its character as a target of the party side (D-558).
-/// Every other intent carries neither.
+/// The pick intent of a choose step names the index of its option (D-1007). Every other intent
+/// carries none of the three.
 /// </para>
 /// </remarks>
 /// <param name="Action">The id of the choice, such as `intent.open_menu`.</param>
@@ -29,7 +30,8 @@ namespace TheThingBelow.Core.Runs;
 /// </param>
 /// <param name="Target">The side and the slot that a battle intent or a row intent aims at, or no value (D-558, D-764).</param>
 /// <param name="Item">The item of an item use, or no value (D-780).</param>
-public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target = null, ContentId? Item = null)
+/// <param name="Option">The index of the option of a pick, from zero, or no value (D-1007).</param>
+public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target = null, ContentId? Item = null, int? Option = null)
 {
     /// <summary>Makes an intent that the player made through a screen of the game.</summary>
     /// <param name="action">The id of the choice, such as `intent.open_menu`.</param>
@@ -79,13 +81,19 @@ public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target
         return new Intent(action, true, target, item);
     }
 
+    /// <summary>Makes the pick intent of a choose step that the player made (D-1007).</summary>
+    /// <param name="option">The index of the option, from zero.</param>
+    /// <returns>The intent, with no debug mark.</returns>
+    public static Intent OfPick(int option) => new(IntentIds.StoryPick, false, null, null, option);
+
     /// <summary>Gives the intent as one line for an error message and a log line (T-2).</summary>
-    /// <returns>The action, the item, the target, and the debug mark, each when the intent carries it.</returns>
+    /// <returns>The action, the item, the target, the option, and the debug mark, each when the intent carries it.</returns>
     public string Describe()
     {
         string target = this.Target is BattleTarget aimed ? $" at {aimed.Describe()}" : string.Empty;
         string item = this.Item is ContentId used ? $" with {used.Value}" : string.Empty;
+        string option = this.Option is int picked ? $" option {picked}" : string.Empty;
         string mark = this.IsDebug ? " (debug)" : string.Empty;
-        return $"{this.Action.Value}{item}{target}{mark}";
+        return $"{this.Action.Value}{item}{target}{option}{mark}";
     }
 }
