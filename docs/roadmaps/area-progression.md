@@ -152,7 +152,7 @@ Built by PR-13. Phase file: `phase-2-first-playable.md`.
 - Each item record holds its stack limit: 3 to 10 for a used-up item, and 1 for a key item (D-382, D-1038).
 - The limit counts each copy that the party owns (D-1039).
 - A small, hand-placed set of items gets used up: MP draughts, healing, cures for statuses, and the rare revive (D-384).
-- Each item holds one effect: a heal, a restore of MP, a cure, or a revive (D-1046).
+- Each item holds one effect: a heal, a restore of MP, a cure, or a revive (D-1046). A key item, such as the torch, holds no effect (D-1065).
 - Any character can use an item on a turn, and the item rate cuts each amount in a fight, but never a cure (D-382, D-1046).
 - The item window refuses a use that changes nothing, and a fight allows it (D-1049).
 - A find over the stack limit stays in its chest, and the save records what remains (D-385).

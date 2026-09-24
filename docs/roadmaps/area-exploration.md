@@ -108,7 +108,7 @@ Built by PR-7. Phase file: `phase-2-first-playable.md`.
 - Core computes what a patrol sees (D-37). No fog of war covers a map, so the ground is visible from the moment the party enters (D-566).
 - Core records each tile that the party walked, and the dungeon map screen of PR-62 draws those tiles (D-567). The snapshot holds the record.
 - A patrol sees the party by its own sight, and a wall stops it (D-37, the exit tests of PR-8).
-- Game draws every live enemy and every thing at any distance, so no enemy pops in on the screen (D-814). The range of the party caps the sight of a patrol alone (D-720).
+- Game draws every live enemy and every thing at any distance, so no enemy pops in on the screen (D-814). A dark map hides each thing past the sight of the party, with a fade (D-1062). The range of the party caps the sight of a patrol alone (D-720).
 - A patrol sees the quarter of the map that it faces, plus the eight tiles that touch it, and a wall stops it (D-718).
 - A map gives no patrol a longer range than the party has on that map, and the load of PR-8 refuses one (D-720).
 - D-566 resolved OQ-116, because no fog exists to remember.
@@ -287,11 +287,13 @@ Each later PR that adds a map rule or a place keeps this list. The phase files m
 Built by PR-56 and PR-91. Phase file: `phase-2-first-playable.md`.
 
 - PR-56 draws the carried light in Game, and a switch of Game turns it on (D-847). No rule reads that light (G-1).
-- PR-91 makes the torch an item of Core. It never burns out, and the player can put it out (D-848).
-- The party needs a lit torch to see in the dark. OQ-217 holds how far the party sees with it and with none (D-848).
-- An enemy sees a lit torch from farther away. OQ-218 holds how much farther (D-848).
-- A lit torch lights a brazier, and a puzzle of PR-21 reads the brazier (D-41, D-848).
-- The state of the torch turns the carried light on or off (D-847).
+- PR-91 makes the torch a key item of Core. It never burns out (D-848, D-1065).
+- The party holds the torch out, always lit, or puts it away for stealth. The party first gets the torch put away (D-1064).
+- A map file names each dark map. There, each enemy and thing past the sight of the party fades out, and the ground stays visible (D-1062).
+- In the dark, the party sees 2 tiles, and 6 tiles with the torch held out (D-1063).
+- A held torch gives each patrol of a dark map the same 4 tiles (D-1063).
+- A torch held out lights a brazier, and a puzzle of PR-21 reads the brazier (D-41, D-848).
+- The state of the torch turns the carried light and the torch in the hand on or off (D-847, D-1066).
 
 > *In plain English:* the party carries a torch. First it is only a light on the screen. Later it becomes a real item: dark places need it, and guards see it from far away.
 

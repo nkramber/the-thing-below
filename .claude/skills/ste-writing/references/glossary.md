@@ -65,7 +65,10 @@ Game terms from the roadmap interview of 2026-09-12:
 | pack | the party store of spare gear and items, outside the gear slots (D-382) | bag, inventory, when the text means the store |
 | stack limit | the most copies of one item or one piece of gear that the party owns, worn copies included (D-1038, D-1039) | stack size, max stack, cap |
 | used-up item | an item that one use spends, such as a draught (D-384) | consumable |
-| key item | an item with a stack limit of 1 that a use never spends, such as the torch (D-848, D-1038) | unique item, quest item |
+| key item | an item with a stack limit of 1 that a use never spends, such as the torch (D-848, D-1038, D-1065) | unique item, quest item |
+| held out | the state of the torch in the hand, which is always lit (D-1064) | lit, when the text means this state, and torch on |
+| put away | the state of the torch in the pack, with no light (D-1064) | put out, unlit, extinguished |
+| dark map | a map whose file sets the `dark` field, where the sight of the party hides each thing past it (D-1062) | dark area, unlit map |
 | drop list | the items that a profile can give at a win, each with its own chance (D-1042) | loot table, drop table |
 | steal list | the items, the gold, and the gear that a profile carries for a steal (D-383, D-1051) | pocket, loot list |
 | gold | the currency (D-60) | money, coins, gil |
