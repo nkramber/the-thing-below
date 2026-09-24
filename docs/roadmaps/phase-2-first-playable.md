@@ -1449,10 +1449,12 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 - Gear that any character wears, because the aptitudes carry the difference (D-374).
 - The attack, defense, and speed amounts of each piece, and its element table (D-790, D-794, D-1036).
 - The rule that combines the gear of one character: the amounts add, and the element levels follow D-1037.
+- A negative amount, and the floor of 1 on each stat (D-1047).
+- The gear window equips and removes gear anywhere outside a fight (D-1048).
 - Fixed, hand-authored gear, with no random affix and no crafting. A rarity tier is the place of a find alone (D-45, D-1040).
 - The pack, with a stack limit on each item record and each gear record. The limit counts each owned copy (D-382, D-1038, D-1039).
 - The four item effects: heal, restore, cure, and revive. The item rate cuts each amount in a fight (D-382, D-1046).
-- The item use in a fight, and the item use from the item window outside a fight (D-382).
+- The item use in a fight, and the item use from the item window outside a fight. The window refuses a use that changes nothing (D-382, D-1049).
 - The steal of a Theft drill: the roll, the Theft term, and the clamp (D-949, D-950).
 - The three tries of a fight, the halved chance, and the stolen entry in the pack (D-1044, D-1045).
 - The party gold number, which a stolen gold entry fills (D-1043).
@@ -1489,7 +1491,7 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 
 > *In plain English:* six slots, and anyone can wear anything. What you find is what the author placed, so a good weapon is a real event. You carry a few of each thing, and a thief gets three tries in each fight.
 
-### 7.34 PR-99: the stat set and the heal of an absorbed hit
+### 7.34 PR-99: the stat set, the heal of an absorbed hit, and the lesson swap
 
 Area files: `area-battle.md` section 7.4, and `area-progression.md` section 7.3.
 
@@ -1499,6 +1501,7 @@ Area files: `area-battle.md` section 7.4, and `area-progression.md` section 7.3.
 - The stat curves of the fixture characters, the enemy records, and the gear records, with each new stat.
 - The damage of a strike and of a spell, from the answer of OQ-247.
 - The absorb rate of OQ-248 in the battle rules file (D-795).
+- The lesson swap anywhere outside a fight, in place of the swap place (D-1050).
 - The stat names on the battle screen and in the menu (D-979).
 - A simulation version bump, because the rules change (G-17).
 
@@ -1511,7 +1514,8 @@ Area files: `area-battle.md` section 7.4, and `area-progression.md` section 7.3.
 
 1. A strike and a spell each read the stats of the answer of OQ-247.
 2. An absorbed hit heals the amount of the answer of OQ-248, rounded down.
-3. A save of PR-13 loads, and each new stat takes its value from the curve (G-5).
+3. The lesson window swaps a lesson on the map away from a hub and a save point (D-1050).
+4. A save of PR-13 loads, and each new stat takes its value from the curve (G-5).
 
 **Review focus.**
 
@@ -1520,7 +1524,7 @@ Area files: `area-battle.md` section 7.4, and `area-progression.md` section 7.3.
 
 **Questions.** OQ-247 and OQ-248.
 
-> *In plain English:* a spell now reads the magic of the caster, and armor can guard against steel or against spells. A fire spell on a fire beast heals it less than before.
+> *In plain English:* a spell now reads the magic of the caster, and armor can guard against steel or against spells. A fire spell on a fire beast heals it less than before. Lessons change anywhere outside a fight.
 
 ### 7.35 PR-91: the torch item
 
@@ -1565,7 +1569,7 @@ Area file: `area-exploration.md` section 7.11.
 - The hub as a walkable map with NPC sprites, on the same code path as a dungeon (D-112).
 - The hub content format, with the services that each hub offers (D-28, D-59).
 - The rest, which restores health and MP and cures poison, blind, and silence (D-42, D-390).
-- The save, the party swap, and the lesson swap at the hub, which marks the hub as a swap place (D-59, D-62, D-356, D-1030).
+- The save and the party swap at the hub (D-59, D-62). PR-99 opens the lesson swap anywhere outside a fight, so the hub marks no swap place (D-1050).
 - A condition of PR-68 on each service, so a story flag can close one (D-543, D-544, D-556).
 - The talk trigger of PR-68 fires when the player talks with an NPC (D-1005). A story scene step can name an NPC as a story scene actor (D-1006).
 - The service screens in the window stack of PR-62.
@@ -1762,7 +1766,7 @@ Area file: `area-exploration.md` section 7.8.
 **Scope.**
 
 - The treasure, the locked doors, and the keys (D-41).
-- The save points, which save, swap the party, and swap the lessons. Each marks a swap place (D-36, D-58, D-356, D-1030).
+- The save points, which save and swap the party (D-36, D-58). PR-99 opens the lesson swap anywhere outside a fight, so a save point marks no swap place (D-1050).
 - The MP that a save point restores once for the place, and the health that it does not (D-389, D-555).
 - The Theft drill that opens a lock that the map marks as pickable, where a story lock always needs its key (D-386).
 - The chest that keeps what the party cannot carry (D-385).

@@ -136,6 +136,8 @@ Built by PR-13. Phase file: `phase-2-first-playable.md`.
 - Gear is fixed and hand-authored, and no random affix and no crafting exist (D-45).
 - A piece adds to attack, defense, and speed, and never to health or MP. Only a special piece holds an element level other than `normal` (D-1036).
 - The amounts of the six slots add. The best protection of the worn pieces applies, and each `weak` piece steps it down one step (D-1037).
+- An amount can be negative, and each stat keeps a floor of 1 (D-1047).
+- The party changes gear anywhere outside a fight (D-1048).
 - A gear record holds a stack limit from 1 to 3, and the limit counts the worn copies too (D-1038, D-1039).
 - A rarity tier is the place of a find alone, and no record holds it (D-1040).
 - The gear of Elio leaves the game with him (D-364).
@@ -152,6 +154,7 @@ Built by PR-13. Phase file: `phase-2-first-playable.md`.
 - A small, hand-placed set of items gets used up: MP draughts, healing, cures for statuses, and the rare revive (D-384).
 - Each item holds one effect: a heal, a restore of MP, a cure, or a revive (D-1046).
 - Any character can use an item on a turn, and the item rate cuts each amount in a fight, but never a cure (D-382, D-1046).
+- The item window refuses a use that changes nothing, and a fight allows it (D-1049).
 - A find over the stack limit stays in its chest, and the save records what remains (D-385).
 - Mend rites and cure rites also work from the menu outside a fight, and silence stops them (D-391, D-393).
 - A steal takes one entry from the list of an enemy, and `area-battle.md` holds the steal (D-383, D-1044, D-1045).

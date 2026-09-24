@@ -108,7 +108,9 @@ The player never owns two copies of one lesson, and D-364 stands for the lessons
 
 2026-09-24 gear pass: gear adds to attack, defense, and speed, and special gear holds other element levels (D-1036). The best protection of the worn gear applies, and each `weak` piece steps it down one step (D-1037). Each record holds a stack limit, and the limit counts each owned copy (D-1038, D-1039). A rarity tier is the place of a find alone (D-1040).
 
-A drop list on each profile gives rare items at a win, and a steal of gold adds to a party gold number (D-1042, D-1043). A fight allows three steal tries, and each success halves the next chance (D-1044, D-1045). An item heals, restores MP, cures, or revives (D-1046). PR-13 holds each one. PR-99 settles the stat set and the heal of an absorbed hit (D-1041).
+A drop list on each profile gives rare items at a win, and a steal of gold adds to a party gold number (D-1042, D-1043). A fight allows three steal tries, and each success halves the next chance (D-1044, D-1045). An item heals, restores MP, cures, or revives (D-1046). A gear amount can be negative, each stat keeps a floor of 1, and gear changes anywhere outside a fight (D-1047, D-1048).
+
+The item window refuses a use that changes nothing (D-1049). PR-13 holds each one. PR-99 settles the stat set and the heal of an absorbed hit, and it opens the lesson swap (D-1041, D-1050).
 
 External facts, each with the date of its check:
 
@@ -537,7 +539,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 32. PR-50: the screenplay tool, right after PR-68 (D-173, D-545, D-1014 to D-1017).
 33. PR-12: the lessons, the slots, the forms, and the aptitudes (D-272, D-356, D-539).
 34. PR-13: the six gear slots, the items, and the pack (D-44, D-382).
-35. PR-99: the stat set and the heal of an absorbed hit, right after PR-13 (D-1041).
+35. PR-99: the stat set, the heal of an absorbed hit, and the lesson swap, right after PR-13 (D-1041, D-1050).
 36. PR-91: the torch item, right after PR-99 (D-847, D-848, D-1041).
 37. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
 38. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
