@@ -13,11 +13,11 @@ Session: author PR #73, round 1. Repository: the-thing-below. Branch: `feat/pr-1
 ### The state of the build
 
 - `main` is `5f1164c`. The branch holds the docs, the code, and this entry.
-- Before the push, 3,003 of 3,010 tests passed, and format, lint, identity, content, atlas, and smoke passed. The seven failures are the baseline tests of the seven new captures, which wait for the `screen-captures` artifact.
+- CI run 36002016629 at `6a0d8d3` passed smoke, det-lint, replay identity, and STE on each leg. The tests failed on the seven missing baselines alone. The next commit adds 35 reviewed baselines from its `screen-captures` artifact.
 
 ### What is in flight
 
-- The baselines of the seven new captures, and the changed baselines of the battle frames and the main list.
+- `scroll-09.png` differs from its baseline in 592 pixels by one level, in a dim band, and no map code changed. The next run shows whether the difference repeats.
 - The Gitar read, then `make codex-review PR=73 -- --skip-gitar-review` (D-945, D-946).
 
 ### Traps and gotchas
@@ -33,7 +33,7 @@ None. OQ-245 blocks PR-42.
 
 ### The next concrete action
 
-After the push, download the `screen-captures` artifact, read each frame, and commit the new and changed baselines. Then read the Gitar output and run the Codex review.
+Read the screen-test result of `scroll-09`. When CI is green but for the review gate, read the Gitar output and run the Codex review.
 
 ## Session 267: 2026-09-24, Codex
 
