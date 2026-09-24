@@ -1,7 +1,7 @@
 ## Session 278: 2026-09-24, Claude Code
 
 Author: Claude Code
-Session: author PR-91, round 1. Repository: the-thing-below. Branch: `feat/pr-91-torch-item`. PR: PR-91, the GitHub number follows the open. Role: author. Base: `15aad83`.
+Session: author PR-91, round 1. Repository: the-thing-below. Branch: `feat/pr-91-torch-item`. PR: #76. Role: author. Base: `15aad83`.
 
 ### What this session did, and why
 
@@ -14,11 +14,12 @@ Session: author PR-91, round 1. Repository: the-thing-below. Branch: `feat/pr-91
 ### The state of the build
 
 - Local head before this entry: `04fa13c`. `make verify` parts passed on this machine: build, 3197 tests, format, lint, STE, identity, content, atlas, and smoke.
-- The screen baselines change: the map is dark, and the pit fixture gains `pit-torch-1x`. CI writes the new baselines.
+- CI run `36061445475` passed each job but `screen-test` and `review-gate`. The screen-test flake of OQ-246 took reruns, then the job reached the baseline step.
+- The new baselines come from that artifact: 90 changed captures and `pit-torch-1x`. The battle frames move one level, because the patrols of the fixture now see 2 tiles and the fight starts later (D-1067). The smoke fight ends at tick 2443, and at tick 2186 on `main`.
 
 ### What is in flight
 
-- The first push, the open of the PR, and the read of the captures of the `screen-test` job.
+- PR #76 is open. The commit of the baselines waits for CI, then `make codex-review PR=76 -- --skip-gitar-review` runs.
 
 ### Traps and gotchas
 
@@ -32,7 +33,7 @@ None. OQ-246 stays open and blocks no PR.
 
 ### The next concrete action
 
-Push the branch, open the PR, and read the `screen-test` job. Commit the new baselines from its artifact after a read of each changed frame.
+When CI of the baseline commit passes each job but `review-gate`, run `make codex-review PR=76 -- --skip-gitar-review` in the background (D-926, D-1061).
 
 ## Session 277: 2026-09-24, Codex
 
