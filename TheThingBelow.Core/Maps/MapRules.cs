@@ -87,6 +87,59 @@ public static class MapRules
         _ => throw new ArgumentOutOfRangeException(nameof(time), time, "the value names no time of day (D-442)"),
     };
 
+    /// <summary>The sight range of the party on a dark map with the torch put away, in tiles (D-1063).</summary>
+    public const int DarkSightRange = 2;
+
+    /// <summary>
+    /// The tiles that the torch held out adds on a dark map: to the sight of the party, and the
+    /// same tiles to the sight of each patrol (D-1063).
+    /// </summary>
+    public const int TorchSightBonus = 4;
+
+    /// <summary>Gives the sight range of the party on one map, in tiles (D-720, D-1063).</summary>
+    /// <param name="map">The map.</param>
+    /// <param name="torchHeld">True while the party holds the torch out (D-1064).</param>
+    /// <returns>
+    /// On a dark map, 2 tiles, and 6 tiles with the torch held out. On any other map, the range
+    /// of its time of day, and the torch changes nothing.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
+    public static int PartySightRange(GameMap map, bool torchHeld)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+
+        if (!map.Dark)
+        {
+            return PartySightRange(map.Time);
+        }
+
+        return torchHeld ? DarkSightRange + TorchSightBonus : DarkSightRange;
+    }
+
+    /// <summary>Gives the sight range of one patrol on its map, in tiles (D-718, D-1063).</summary>
+    /// <param name="map">The map of the patrol.</param>
+    /// <param name="patrol">The patrol.</param>
+    /// <param name="torchHeld">True while the party holds the torch out (D-1064).</param>
+    /// <returns>The range of the file, plus the torch bonus on a dark map while the party holds the torch out.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <remarks>
+    /// The patrol gains what the party gains, so a range at the floor of D-720 stays at or under
+    /// the sight of the party at each tick. Each patrol that sees the party is then inside the
+    /// sight of the party (D-1063).
+    /// </remarks>
+    public static int PatrolSightRange(GameMap map, Patrol patrol, bool torchHeld)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(patrol);
+
+        if (map.Dark && torchHeld)
+        {
+            return checked(patrol.SightRange + TorchSightBonus);
+        }
+
+        return patrol.SightRange;
+    }
+
     /// <summary>Tells whether the party can step onto one tile of a map.</summary>
     /// <param name="map">The map.</param>
     /// <param name="at">The tile that the step reaches, which can lie outside the map.</param>

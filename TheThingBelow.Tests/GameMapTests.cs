@@ -263,6 +263,40 @@ public sealed class GameMapTests
         Assert.Contains("time", error.Message, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void AMapWithNoDarkFieldFailsTheLoad()
+    {
+        // D-1062, G-6: an absent field is an error, and never a map that is not dark.
+        ContentException error = Assert.Throws<ContentException>(
+            () => TestMaps.Of("no-dark.json", Map().Replace(" \"dark\": false,\n", string.Empty, StringComparison.Ordinal)));
+
+        Assert.Contains("dark", error.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("true", true)]
+    [InlineData("false", false)]
+    public void TheDarkFieldGivesTheDarkOfTheMap(string field, bool dark)
+    {
+        GameMap map = TestMaps.Of("dark.json", Map().Replace("\"dark\": false", $"\"dark\": {field}", StringComparison.Ordinal));
+
+        Assert.Equal(dark, map.Dark);
+    }
+
+    [Fact]
+    public void ADarkFieldThatHoldsNoBooleanFailsTheLoad()
+    {
+        Assert.Throws<ContentException>(
+            () => TestMaps.Of("dark-text.json", Map().Replace("\"dark\": false", "\"dark\": \"yes\"", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public void TheFirstDungeonIsDark()
+    {
+        // D-1067: the fixture dungeon is the dark map of PR-91.
+        Assert.True(TestMaps.FixtureDungeon.Dark);
+    }
+
     [Theory]
     [InlineData("rules/maps/deep-mine.json", true)]
     [InlineData("rules/maps/nested/deep-mine.json", true)]
@@ -292,6 +326,7 @@ public sealed class GameMapTests
          "region": "region.test",
          "label": "label.bad",
          "time": "{{time}}",
+         "dark": false,
          "terrain": [
         {{terrain}}
          ],

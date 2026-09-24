@@ -50,10 +50,13 @@ public sealed class SettingsFixtureTests
     public void TheStoredFileOfFormatOneHoldsTheFixtureDefaultsWithTheMapActionOfItsStep()
     {
         // Exit test 11 of PR-62: format 1 predates the map action, and its step adds the M key
-        // and the Back button (D-986, D-990). Every other value stays.
+        // and the Back button (D-986, D-990). The step of format 2 then adds the torch action
+        // (D-1068). Every other value stays.
         string path = PathOfFormat(1);
 
-        Assert.Equal(SettingsMigration.FromFormatOne(SettingsFixtures.Defaults()), SettingsText.Read(File.ReadAllText(path), path));
+        Assert.Equal(
+            SettingsMigration.FromFormatTwo(SettingsMigration.FromFormatOne(SettingsFixtures.Defaults())),
+            SettingsText.Read(File.ReadAllText(path), path));
     }
 
     [Fact]
@@ -81,6 +84,54 @@ public sealed class SettingsFixtureTests
         StorageException error = Assert.Throws<StorageException>(() => SettingsText.Read(text, path));
 
         Assert.Contains("D-986", error.Message, System.StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheStoredFileOfFormatThreeHoldsTheSameSettingsAsItsMigratedFormatTwo()
+    {
+        // PR-91 wrote format 3 from the file of format 2, with the torch action of its step (D-1068).
+        string two = PathOfFormat(2);
+        string three = PathOfFormat(3);
+
+        GameSettings read = SettingsText.Read(File.ReadAllText(three), three);
+
+        Assert.Equal(SettingsText.Read(File.ReadAllText(two), two), read);
+        Assert.Equal(
+            [InputBinding.OfKey(SettingsMigration.TorchKey), InputBinding.OfButton(SettingsMigration.TorchButton)],
+            read.Controls.Bindings.Of(SettingsMigration.TorchAction));
+    }
+
+    [Fact]
+    public void AFileOfFormatTwoThatHoldsTheTorchActionFails()
+    {
+        // T-2: format 2 predates the torch action, so a file of that format with it is a fault.
+        string path = PathOfFormat(3);
+        string text = File.ReadAllText(path).Replace("\"format\": 3", "\"format\": 2", System.StringComparison.Ordinal);
+
+        StorageException error = Assert.Throws<StorageException>(() => SettingsText.Read(text, path));
+
+        Assert.Contains("D-1068", error.Message, System.StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheStepFromFormatTwoKeepsABindingOfThePlayerThatTheTorchDefaultsMeet()
+    {
+        // D-862: a player who bound T to confirm keeps it, and the settings screen names the
+        // conflict until a remap ends it. The step drops no binding.
+        GameSettings defaults = SettingsMigration.FromFormatOne(SettingsFixtures.Defaults());
+        GameSettings bound = defaults with
+        {
+            Controls = defaults.Controls with
+            {
+                Bindings = defaults.Controls.Bindings.Rebind("confirm", null, InputBinding.OfKey(SettingsMigration.TorchKey)),
+            },
+        };
+
+        GameSettings migrated = SettingsMigration.FromFormatTwo(bound);
+
+        Assert.Contains(InputBinding.OfKey(SettingsMigration.TorchKey), migrated.Controls.Bindings.Of("confirm"));
+        BindingConflict conflict = Assert.Single(migrated.Controls.Bindings.FindConflicts());
+        Assert.Equal(["confirm", "torch"], conflict.Actions);
     }
 
     [Fact]

@@ -43,6 +43,9 @@ public static partial class IdentitySet
     /// <summary>The name of the run that reads the stream split (D-643).</summary>
     public const string StreamSplitRun = "stream-split";
 
+    /// <summary>The name of the run that holds the torch out on a dark map, where a guard sees it from farther away (D-1062 to D-1064).</summary>
+    public const string TorchRun = "torch";
+
     /// <summary>The name of the run that reads the bounded draws of a stream (D-642).</summary>
     public const string RandomDrawsRun = "random-draws";
 
@@ -79,6 +82,7 @@ public static partial class IdentitySet
      "region": "region.identity",
      "label": "label.identity_run",
      "time": "day",
+     "dark": false,
      "terrain": [
       "#########",
       "#.......#",
@@ -136,6 +140,7 @@ public static partial class IdentitySet
      "region": "region.identity",
      "label": "label.identity_battle",
      "time": "day",
+     "dark": false,
      "terrain": [
       "#########",
       "#.......#",
@@ -163,6 +168,45 @@ public static partial class IdentitySet
     """;
 
     /// <summary>
+    /// The map of the torch run: a dark hall with a guard that faces the party and sees 2 tiles
+    /// (D-1062, D-1063). The party holds the torch out, so the guard sees it 6 tiles away and the
+    /// fight starts 4 tiles before it would in the dark.
+    /// </summary>
+    private const string TorchMapFile = """
+    {
+     "comment": "The map of the torch run of the identity set. PR-91 added it, and the map never changes again.",
+     "id": "map.identity_torch",
+     "region": "region.identity",
+     "label": "label.identity_torch",
+     "time": "night",
+     "dark": true,
+     "terrain": [
+      "################",
+      "#..............#",
+      "#..............#",
+      "################"
+     ],
+     "things": [
+      { "id": "spawn_point.identity_torch_start", "kind": "spawn_point", "x": 1, "y": 1 }
+     ],
+     "enemies": [
+      {
+       "id": "patrol.identity_torch_guard",
+       "group": "group.identity_battle",
+       "size": "common",
+       "facing": "west",
+       "step_ticks": 16,
+       "sight_range": 2,
+       "routes": [
+        { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 12, "y": 1 }] }
+       ]
+      }
+     ],
+     "triggers": []
+    }
+    """;
+
+    /// <summary>
     /// The map of the enemy-record run: the battle map, with a guard of the record group. The
     /// brute of that group names an ability, so the run fights a record with an ability id,
     /// which no fight reads yet (D-787).
@@ -174,6 +218,7 @@ public static partial class IdentitySet
      "region": "region.identity",
      "label": "label.identity_record",
      "time": "day",
+     "dark": false,
      "terrain": [
       "#########",
       "#.......#",
@@ -212,6 +257,7 @@ public static partial class IdentitySet
      "region": "region.identity",
      "label": "label.identity_status",
      "time": "day",
+     "dark": false,
      "terrain": [
       "#########",
       "#.......#",
@@ -250,6 +296,7 @@ public static partial class IdentitySet
      "region": "region.identity",
      "label": "label.identity_evaluator",
      "time": "day",
+     "dark": false,
      "terrain": [
       "#########",
       "#.......#",
@@ -417,9 +464,10 @@ public static partial class IdentitySet
     /// <summary>The item file of this set (D-1038, D-1046). PR-13 added it with the draught of PR-9.</summary>
     private const string ItemFile = """
     {
-     "comment": "The item file of the identity set. PR-13 added it.",
+     "comment": "The item file of the identity set. PR-13 added it, and PR-91 added the torch.",
      "items": [
-      { "id": "item.identity_draught", "kind": "heal", "limit": 10, "delay": 100, "amount": 30 }
+      { "id": "item.identity_draught", "kind": "heal", "limit": 10, "delay": 100, "amount": 30 },
+      { "id": "item.torch", "kind": "key", "limit": 1 }
      ]
     }
     """;
@@ -543,13 +591,13 @@ public static partial class IdentitySet
     /// </summary>
     private static readonly string BattleFixtureFile = $$"""
     {
-     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, PR-11 moved its groups to the group file, PR-68 added the friend who joins in the story run, PR-12 added the aptitudes, the start lessons, and the lesson pack, PR-13 moved the item to the item file and added the gear, and PR-99 added the magic and the resistance.",
+     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, PR-11 moved its groups to the group file, PR-68 added the friend who joins in the story run, PR-12 added the aptitudes, the start lessons, and the lesson pack, PR-13 moved the item to the item file and added the gear, PR-99 added the magic and the resistance, and PR-91 added the torch.",
      "characters": [
       { "id": "character.identity_hero", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(90, 20, 14, 6, 4, 3, 100))}} },
       { "id": "character.identity_friend", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "harm", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(70, 30, 10, 14, 3, 6, 110))}} }
      ],
      "start_party": ["character.identity_hero"],
-     "pack": [{ "item": "item.identity_draught", "count": 9 }, { "gear": "gear.identity_charm", "count": 1 }],
+     "pack": [{ "item": "item.identity_draught", "count": 9 }, { "item": "item.torch", "count": 1 }, { "gear": "gear.identity_charm", "count": 1 }],
      "start_gear": [{ "character": "character.identity_hero", "gear": ["gear.identity_blade", "gear.identity_ring"] }],
      "start_lessons": [{ "character": "character.identity_hero", "lessons": ["lesson.identity_blast", "lesson.identity_mend", "lesson.identity_pilfer"] }],
      "lesson_pack": ["lesson.identity_purge", "lesson.identity_haste"]
@@ -571,6 +619,7 @@ public static partial class IdentitySet
         StatusRun,
         StoryRun,
         StreamSplitRun,
+        TorchRun,
     ];
 
     /// <summary>Computes the state hash of one run of the set.</summary>
@@ -594,6 +643,7 @@ public static partial class IdentitySet
             StatusRun => ComputeStatuses(),
             StoryRun => ComputeStory(),
             StreamSplitRun => ComputeStreamSplit(),
+            TorchRun => ComputeBattle(TorchMapFile, IntentsOfTorchTick),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(runName),
                 runName,
@@ -873,6 +923,27 @@ public static partial class IdentitySet
             5 => [Intent.OfPlayer(IntentIds.BattleItem, self, ContentId.Parse("item.identity_draught", "identity", "item"))],
             _ => [Intent.OfPlayer(IntentIds.BattleAttack, battle.MeleeTargets(BattleSide.Enemy)[0].Target, null)],
         };
+    }
+
+    /// <summary>
+    /// The script of the torch run (D-1064, D-1071). The party holds the torch out on the first
+    /// tick and walks at the guard, so the bonus of the torch starts the fight (D-1063). After
+    /// the fight, the party puts the torch away and walks on.
+    /// </summary>
+    private static IReadOnlyList<Intent> IntentsOfTorchTick(RunState state, int turns, int step)
+    {
+        if (step == 0)
+        {
+            return [Intent.OfPlayer(IntentIds.HoldTorch)];
+        }
+
+        bool walks = state.Battle is null && state.Party.Patrols.Encounter is null;
+        if (walks && turns > 0 && state.Characters.TorchHeld)
+        {
+            return [Intent.OfPlayer(IntentIds.PutTorchAway)];
+        }
+
+        return IntentsOfBattleTick(state, turns, step);
     }
 
     /// <summary>

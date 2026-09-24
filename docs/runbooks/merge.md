@@ -17,6 +17,8 @@ This runbook gives the loop of the author from a push to the merge. It also give
 
 **Gitar pause (D-945).** Step 2 is one read of the Gitar output with commands B and C of the `gitar-review` skill, with no wait for a pass. Step 3 runs `make codex-review PR=<n> -- --skip-gitar-review` (D-946). A Gitar review thread or a finding of the dashboard is feedback. On feedback, stop at once, and tell the owner before any other step. A claim of the CI analysis alone gets its answer with no stop.
 
+A Gitar finding can come with a fix of Gitar. When the fix of the session differs from it, or it has a flaw, the session applies its own fix (D-1072). The session tells the owner of both fixes, and it asks no question about the choice.
+
 ## A commit of documents alone
 
 After an approval, a commit that changes paths of the skip set alone keeps the approval (D-943). The skip set holds `docs/`, all of `.claude/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `LICENSE`, and the PR template (D-857). The `review-gate` check stays green, and the PR needs no new run of `make codex-review`. A change of a decision row keeps the approval too.

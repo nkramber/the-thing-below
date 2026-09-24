@@ -223,6 +223,7 @@ public sealed class MapPatrols
     /// <summary>Finds the first enemy of the map that sees the party (D-718, D-737).</summary>
     /// <param name="map">The map that both stand on.</param>
     /// <param name="party">The party.</param>
+    /// <param name="torchHeld">True while the party holds the torch out, which widens the sight of each patrol of a dark map (D-1063).</param>
     /// <param name="seen">The enemy that sees the party, or null.</param>
     /// <returns>True when an enemy sees the party.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
@@ -231,7 +232,7 @@ public sealed class MapPatrols
     /// order starts the encounter and the answer never follows a hash (G-4, T-7). An enemy
     /// inside its grace time sees nothing, because no battle with it starts (D-381).
     /// </remarks>
-    public bool TrySight(GameMap map, MapState party, out PatrolState? seen)
+    public bool TrySight(GameMap map, MapState party, bool torchHeld, out PatrolState? seen)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(party);
@@ -244,7 +245,7 @@ public sealed class MapPatrols
             }
 
             TilePoint from = patrol.Body.Nearest(party.LeadAt);
-            if (MapSight.PatrolSees(map, from, patrol.Facing, patrol.Patrol.SightRange, party.LeadAt))
+            if (MapSight.PatrolSees(map, from, patrol.Facing, MapRules.PatrolSightRange(map, patrol.Patrol, torchHeld), party.LeadAt))
             {
                 seen = patrol;
                 return true;

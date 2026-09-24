@@ -270,7 +270,7 @@ public sealed partial class CaptureSession : Node
         }
 
         // A capture runs whole ticks, so it reads no part of a tick (D-782, D-820).
-        this.walkMap!.ShowParty(run.Party, 0);
+        this.walkMap!.ShowParty(run.Party, 0, run.Tick, run.TorchHeld);
         this.walkMap.ShowWeather(run.Tick, seek: true);
     }
 
@@ -289,20 +289,64 @@ public sealed partial class CaptureSession : Node
 
     /// <summary>
     /// Builds the running screen with the party in the pit room: the same map fixture, walked
-    /// from the spawn point down the corridor of column 6 (D-852).
+    /// from the spawn point down the corridor of column 6 (D-852). The torch frame walks in with
+    /// the torch held out, puts it away, and draws each tick of the range fade that follows (D-1062).
     /// </summary>
-    /// <exception cref="InvalidOperationException">A step of the route never ended, or a tick wrote an error (T-2).</exception>
-    private void BuildPitRoom(FrameRoot built, UiBase @base)
+    /// <exception cref="InvalidOperationException">
+    /// A step of the route never ended, a tick wrote an error, or the torch frame shows no enemy
+    /// inside a fade (T-2).
+    /// </exception>
+    private void BuildPitRoom(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
+        bool fade = string.CompareOrdinal(capture.Frame, ScreenCaptures.PitTorchFrame) == 0;
         GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-        MapScreen drawn = MapFixture.Build(built, @base, open.Party, this.content, seekParticles: true);
+        if (fade)
+        {
+            this.HoldTorch(open);
+        }
+
+        MapScreen drawn = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
         foreach (string action in ScreenCaptures.PitRoute)
         {
             this.StepOnce(open, action);
+            drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
         }
 
-        drawn.ShowParty(open.Party, 0);
+        if (fade)
+        {
+            open.Queue(open.IntentOf(InputActions.Torch));
+            for (int tick = 0; tick <= ScreenCaptures.DarkFadeTicks; tick += 1)
+            {
+                this.RunTicks(open, 1);
+                drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
+            }
+
+            if (open.TorchHeld || !drawn.ShowsAFade)
+            {
+                throw new InvalidOperationException(
+                    $"The capture '{capture.FileName}' holds the torch out {open.TorchHeld} at tick {open.Tick} and shows a fade {drawn.ShowsAFade}. The frame proves the fade of the dark (T-2, D-1062).");
+            }
+        }
+
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
         drawn.ShowWeather(open.Tick, seek: true);
+    }
+
+    /// <summary>
+    /// Holds the torch out through the torch action, as the player does, so a lit fixture shows
+    /// the carried light and the torch in the hand (D-1064, D-1071). The run takes one tick.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The run takes no torch intent now, or the tick wrote an error (T-2).</exception>
+    private void HoldTorch(GameRun run)
+    {
+        if (!run.TorchWorks || run.TorchHeldNextTick)
+        {
+            throw new InvalidOperationException(
+                $"A lit capture holds the torch out at tick {run.Tick}, and the run takes no intent that holds it out now (T-2, D-1071).");
+        }
+
+        run.Queue(run.IntentOf(InputActions.Torch));
+        this.RunTicks(run, 1);
     }
 
     /// <summary>Runs one whole step of the party, from its intent to the arrival of the lead (D-203).</summary>
@@ -381,7 +425,7 @@ public sealed partial class CaptureSession : Node
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.MapFixture) == 0)
         {
             GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-            MapFixture.Build(built, @base, open.Party, this.content, this.AmbientOf(capture), seekParticles: true, mode: capture.Mode);
+            MapFixture.Build(built, @base, open, this.content, this.AmbientOf(capture), seekParticles: true, mode: capture.Mode);
             return;
         }
 
@@ -390,7 +434,7 @@ public sealed partial class CaptureSession : Node
             // The map of the map fixture, with one transition over it at a fixed tick, so one frame
             // gives one picture (D-172, exit tests 1 and 2 of PR-60).
             GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-            MapFixture.Build(built, @base, open.Party, this.content, seekParticles: true);
+            MapFixture.Build(built, @base, open, this.content, seekParticles: true);
             TransitionFrame shown = ScreenCaptures.TransitionFrameOf(capture.Frame);
             Transition transition = this.TransitionOf(shown.Look);
             int progress = ScreenCaptures.TransitionTick * ScreenHandOff.ProgressScale / transition.Ticks;
@@ -400,7 +444,7 @@ public sealed partial class CaptureSession : Node
 
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.PitFixture) == 0)
         {
-            this.BuildPitRoom(built, @base);
+            this.BuildPitRoom(built, @base, capture);
             return;
         }
 
@@ -408,7 +452,7 @@ public sealed partial class CaptureSession : Node
         {
             GameRun still = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             this.walkRun = still;
-            this.walkMap = MapFixture.Build(built, @base, still.Party, this.content, seekParticles: true);
+            this.walkMap = MapFixture.Build(built, @base, still, this.content, seekParticles: true);
             this.stepTicks = 0;
             return;
         }
@@ -420,8 +464,8 @@ public sealed partial class CaptureSession : Node
             // weather and of a torch must stay on the world under it (F-97).
             GameRun scrolled = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             this.walkRun = scrolled;
-            this.walkMap = MapFixture.Build(built, @base, scrolled.Party, this.content, seekParticles: true);
-            this.walkMap.CarriedLightOn = true;
+            this.HoldTorch(scrolled);
+            this.walkMap = MapFixture.Build(built, @base, scrolled, this.content, seekParticles: true);
             foreach (string action in ScreenCaptures.PitRoute)
             {
                 this.StepOnce(scrolled, action);
@@ -437,11 +481,10 @@ public sealed partial class CaptureSession : Node
             // map, and each later frame of the walk runs one tick of them (D-782).
             GameRun walked = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
             this.walkRun = walked;
-            this.walkMap = MapFixture.Build(built, @base, walked.Party, this.content, seekParticles: true);
-
-            // The walk carries the light, so each frame of a step shows the light at the drawn
-            // place of the lead, inside the step too (D-847).
-            this.walkMap.CarriedLightOn = true;
+            // The walk holds the torch out, so each frame of a step shows the light and the torch
+            // at the drawn place of the lead, inside the step too (D-847, D-1066).
+            this.HoldTorch(walked);
+            this.walkMap = MapFixture.Build(built, @base, walked, this.content, seekParticles: true);
             return;
         }
 
@@ -522,15 +565,15 @@ public sealed partial class CaptureSession : Node
         {
             for (int notice = 0; notice < ScreenCaptures.LogFrameNotices; notice += 1)
             {
-                _ = DebugSeam.Run("notice", () => open.State, open.Queue, () => false);
+                _ = DebugSeam.Run("notice", () => open.State, open.Queue);
                 this.RunTicks(open, 1);
             }
         }
 
         // The map stays visible beside the main list, so each particle takes the tick of the run and
         // never the clock of the engine, and two sessions draw the same pixels (D-172, T-7).
-        MapScreen drawn = MapFixture.Build(built, @base, open.Party, this.content, seekParticles: true);
-        drawn.ShowParty(open.Party, 0);
+        MapScreen drawn = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
         drawn.ShowWeather(open.Tick, seek: true);
         if (string.CompareOrdinal(frame, ScreenCaptures.MenuMapFrame) == 0)
         {
@@ -606,13 +649,13 @@ public sealed partial class CaptureSession : Node
     private void BuildNotice(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
         GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-        _ = DebugSeam.Run("notice", () => open.State, open.Queue, () => false);
+        _ = DebugSeam.Run("notice", () => open.State, open.Queue);
         this.RunTicks(open, 1);
         bool typing = string.CompareOrdinal(capture.Frame, ScreenCaptures.NoticeTypeFrame) == 0;
         this.RunTicks(open, typing ? ScreenCaptures.NoticeTypeTicks : ScreenCaptures.NoticeHoldTicks);
 
-        MapScreen drawn = MapFixture.Build(built, @base, open.Party, this.content, seekParticles: true);
-        drawn.ShowParty(open.Party, 0);
+        MapScreen drawn = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
         drawn.ShowWeather(open.Tick, seek: true);
         NoticeFrame shown = open.NoticeAt(TextSpeeds.CharactersPerSecond(FixtureSettings.Access.Text)) ?? throw new InvalidOperationException(
             $"The capture '{capture.FileName}' shows no notice at tick {open.Tick}, and the console posted one (D-994, T-2).");
@@ -643,7 +686,7 @@ public sealed partial class CaptureSession : Node
     private void BuildSettings(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
         GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-        MapFixture.Build(built, @base, open.Party, this.content);
+        MapFixture.Build(built, @base, open, this.content);
 
         int autoBody = BodySize.DefaultFor(built.Fit.Height, this.content.Style.SmallBody, this.content.Style.LargeBody);
         SettingsScreen screen = SettingsScreen.Build(built, @base, this.content.Strings, FixtureSettings, autoBody);

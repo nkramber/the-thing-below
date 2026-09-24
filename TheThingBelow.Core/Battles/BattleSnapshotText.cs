@@ -77,6 +77,8 @@ public static class BattleSnapshotText
         writer.WriteEndArray();
         int gold = party.Gold ?? throw new ArgumentException("The party holds no gold, and a snapshot of this build writes it (D-1043).", nameof(party));
         writer.WriteNumber("gold", gold);
+        bool torchHeld = party.TorchHeld ?? throw new ArgumentException("The party holds no state of the torch, and a snapshot of this build writes it (D-1064).", nameof(party));
+        writer.WriteBoolean("torch_held", torchHeld);
         writer.WriteEndObject();
     }
 
@@ -209,6 +211,7 @@ public static class BattleSnapshotText
         List<ContentId>? lessonPack = null;
         bool? swapPlace = null;
         int? gold = null;
+        bool? torchHeld = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -233,6 +236,11 @@ public static class BattleSnapshotText
                 // Save format 11 adds the gold, the gear slots, and the spare gear (D-1038, D-1043).
                 case "gold" when format >= 11:
                     gold = reader.ReadInt();
+                    break;
+
+                // Save format 13 adds the state of the torch (D-1064).
+                case "torch_held" when format >= 13:
+                    torchHeld = reader.ReadBoolean();
                     break;
                 case "characters":
                     characters = [];
@@ -267,7 +275,8 @@ public static class BattleSnapshotText
             reader.Require(characters, depth, "characters"),
             reader.Require(pack, depth, "pack"),
             format >= 10 ? reader.Require(lessonPack, depth, "lesson_pack") : null,
-            format >= 11 ? reader.RequireInt(gold, depth, "gold") : null);
+            format >= 11 ? reader.RequireInt(gold, depth, "gold") : null,
+            format >= 13 ? reader.RequireValue(torchHeld, depth, "torch_held") : null);
     }
 
     /// <summary>

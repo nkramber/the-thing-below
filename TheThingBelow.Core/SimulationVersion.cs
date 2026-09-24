@@ -54,6 +54,9 @@ public static class SimulationVersion
     /// PR-99 raised it to 24: each stat row holds magic and resistance, a strike reads the attack or the magic of its
     /// stat, a heal reads the magic and draws the hit factor, an absorb heals a quarter of the hit, and a swap of lessons
     /// needs no place (D-1050, D-1052 to D-1059).
+    /// PR-91 raised it to 25: a map file names each dark map, the party sees 2 tiles there with the torch put away and
+    /// 6 tiles with it held out, a held torch gives each patrol of a dark map 4 tiles more, and the party holds the
+    /// torch out or puts it away on the walk (D-1062 to D-1064, D-1071).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -61,5 +64,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 24;
+    public const int Current = 25;
 }

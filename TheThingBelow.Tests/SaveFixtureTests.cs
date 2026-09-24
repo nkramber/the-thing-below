@@ -41,6 +41,7 @@ namespace TheThingBelow.Tests;
 /// start gear of the fixture, the party no gold, and a fight no steal try (D-1038, D-1043, D-1045).
 /// Format 10 and 11 hold the swap place, and the read drops it, because a swap of lessons needs no
 /// place (D-1050).
+/// Format 12 and older predate the torch, and the migration puts the torch away (D-1064).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
@@ -479,7 +480,7 @@ public sealed class SaveFixtureTests
         // value from the curve of the tests (D-1052, G-5).
         Assert.Equal((TestBattles.MarrekAt(1).Magic, TestBattles.MarrekAt(1).Resistance), (fighter.Magic, fighter.Resistance));
         Assert.Equal(Affinity.Resist, fighter.Elements.Of(Element.Fire));
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) }), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -492,11 +493,33 @@ public sealed class SaveFixtureTests
         Simulation run = ResumeInBattle(save);
 
         Assert.Equal(24, save.Header.SimulationVersion);
-        Assert.DoesNotContain("swap_place", RunSnapshotText.Write(save.Snapshot), StringComparison.Ordinal);
+        Assert.DoesNotContain("swap_place", RunSnapshotText.Write(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) }), StringComparison.Ordinal);
         Combatant fighter = BattleRuns.BattleOf(run).Party[0];
         StatRow curve = TestBattles.MarrekAt(1);
         Assert.Equal((curve.Attack + 5, curve.Magic, curve.Defense, curve.Resistance), (fighter.Attack, fighter.Magic, fighter.Defense, fighter.Resistance));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) }), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatThirteenHoldsTheTorchHeldOut()
+    {
+        // PR-91 wrote format 13 from the save of format 12: the same fight, with the torch in the
+        // pack and held out (D-1064).
+        SaveDocument save = ReadFormat(13);
+        Simulation run = ResumeInBattle(save);
+
+        Assert.Equal(25, save.Header.SimulationVersion);
+        Assert.Equal(true, run.Snapshot().Characters?.TorchHeld);
         Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatTwelvePutsTheTorchAway()
+    {
+        SaveDocument save = ReadFormat(12);
+
+        Assert.Null(save.Snapshot.Characters?.TorchHeld);
+        Assert.Equal(false, ResumeInBattle(save).Snapshot().Characters?.TorchHeld);
     }
 
     [Fact]
@@ -598,8 +621,12 @@ public sealed class SaveFixtureTests
             characters.Add(stored with { Gear = stored.Gear ?? new ContentId?[GearRules.SlotCount] });
         }
 
-        return party with { Characters = characters, Gold = party.Gold ?? 0 };
+        return WithTorch(party with { Characters = characters, Gold = party.Gold ?? 0 });
     }
+
+    /// <summary>Gives the party of a save of format 12 or older as the migration of format 13 gives it: the torch put away (D-166, D-1064).</summary>
+    private static PartySnapshot? WithTorch(PartySnapshot? party) =>
+        party is null ? null : party with { TorchHeld = party.TorchHeld ?? false };
 
     /// <summary>Gives the battle of a save of format 10 or older as the migration gives it: no steal try (D-166, D-1045).</summary>
     private static BattleValues? WithSteals(BattleValues? battle) =>

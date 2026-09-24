@@ -61,8 +61,9 @@ public static class PatrolMaps
     /// <summary>Reads a map of 10 by 8 tiles with the enemies of one test (D-738).</summary>
     /// <param name="enemies">The text of the `enemies` array, without its brackets.</param>
     /// <param name="time">The time of day of the map, which picks each station (D-442).</param>
+    /// <param name="dark">True for a dark map, where the torch sets the sight (D-1062).</param>
     /// <returns>The map.</returns>
-    public static GameMap Of(string enemies, string time = "day") => TestMaps.Of(
+    public static GameMap Of(string enemies, string time = "day", bool dark = false) => TestMaps.Of(
         "patrol-test.json",
         $$"""
         {
@@ -71,6 +72,7 @@ public static class PatrolMaps
          "region": "region.test",
          "label": "label.patrol_test",
          "time": "{{time}}",
+         "dark": {{(dark ? "true" : "false")}},
          "terrain": [
           "##########",
           "#........#",

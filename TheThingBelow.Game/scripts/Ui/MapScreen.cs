@@ -26,9 +26,11 @@ namespace TheThingBelow.Game.Ui;
 /// and both default to on (F-51, G-1, G-23).
 /// </para>
 /// <para>
-/// Every live enemy draws at any distance from the party, so no enemy pops in on the screen
-/// (D-814). The sort value of each enemy comes from the front row of its body, so the body
-/// draws in front of what it stands before (D-737).
+/// On a map that is not dark, every live enemy draws at any distance from the party, so no
+/// enemy pops in on the screen (D-814). On a dark map, an enemy draws inside the sight of the
+/// party alone, and <see cref="SightFade"/> fades each crossing of its edge (D-1062). The sort
+/// value of each enemy comes from the front row of its body, so the body draws in front of
+/// what it stands before (D-737).
 /// </para>
 /// <para>
 /// Every map sprite sits at the south edge of its front row, and its picture draws up from
@@ -41,7 +43,8 @@ namespace TheThingBelow.Game.Ui;
 /// The light setup of the map at its time of day gives the ambient light, and each decor piece
 /// gives its own light (D-442, D-843). Each wall casts the shadow of its full tile (D-845). The
 /// carried light follows the drawn place of the lead on each frame, inside a step too, and no
-/// rule reads it (D-847, G-1).
+/// rule reads it (D-847, G-1). The carried light and the torch in the hand draw while the party
+/// holds the torch out (D-1064, D-1066).
 /// </para>
 /// </remarks>
 public partial class MapScreen : Node2D
@@ -56,6 +59,9 @@ public partial class MapScreen : Node2D
 
     /// <summary>The use that the map drawing of a character serves (D-519).</summary>
     public const string MapUse = "map_front";
+
+    /// <summary>The use of the map drawing of the lead with the torch in its hand (D-1069).</summary>
+    public const string TorchUse = "map_torch";
 
     /// <summary>The role of the color of the mark of a sight, in the UI style file (D-527).</summary>
     public const string MarkRole = "text_warning";
@@ -80,6 +86,10 @@ public partial class MapScreen : Node2D
 
     private TileMapLayer ground = null!;
     private Sprite2D lead = null!;
+    private Texture2D leadPlain = null!;
+    private Texture2D leadTorch = null!;
+    private SightFade? fade;
+    private int[] shares = [];
     private Sprite2D[] enemies = [];
     private Node2D mark = null!;
     private PointLight2D carriedGround = null!;
@@ -130,14 +140,17 @@ public partial class MapScreen : Node2D
         this.ground = BuildGround(atlas, party.Map);
         this.AddChild(this.ground);
 
-        this.lead = BuildSprite(
-            atlas,
-            ContentId.Parse(LeadContentId, AtlasIndex.Path, nameof(LeadContentId)));
+        ContentId leadId = ContentId.Parse(LeadContentId, AtlasIndex.Path, nameof(LeadContentId));
+        this.lead = BuildSprite(atlas, leadId);
+        this.leadPlain = this.lead.Texture;
+        this.leadTorch = TorchTexture(atlas, leadId);
         this.lead.AddChild(FeetShadow(this.lead, WorldLights.LeadShadows));
         this.AddChild(this.lead);
 
         IReadOnlyList<PatrolState> patrols = party.Patrols.All;
         this.enemies = new Sprite2D[patrols.Count];
+        this.shares = new int[patrols.Count];
+        this.fade = null;
         for (int index = 0; index < patrols.Count; index += 1)
         {
             this.enemies[index] = BuildSprite(atlas, patrols[index].Patrol.Id);
@@ -161,23 +174,29 @@ public partial class MapScreen : Node2D
     /// <summary>Puts the party where Core put it, and moves the view (D-203, D-717).</summary>
     /// <param name="party">The party on its map, at the end of the last tick.</param>
     /// <param name="tickPart">The part of the next tick that the frame reached, from 0 to 999 (D-820).</param>
+    /// <param name="tick">The tick of the run, which each fade of the dark counts (D-1062).</param>
+    /// <param name="torchHeld">True while the party holds the torch out (D-1064).</param>
     /// <exception cref="ArgumentNullException">The party is null (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The tick is below zero (T-2).</exception>
     /// <remarks>
     /// Every value is a whole art pixel of the world viewport, so no sprite draws between
     /// two pixels and no Godot snap setting is on (D-715).
     /// </remarks>
-    public void ShowParty(MapState party, int tickPart)
+    public void ShowParty(MapState party, int tickPart, long tick, bool torchHeld)
     {
         ArgumentNullException.ThrowIfNull(party);
+        ArgumentOutOfRangeException.ThrowIfNegative(tick);
 
         int leadX = MapCamera.LeadX(party, tickPart);
         int leadY = MapCamera.LeadY(party, tickPart);
         this.lead.Position = new Vector2(leadX, FeetOf(leadY, 1));
+        this.lead.Texture = torchHeld ? this.leadTorch : this.leadPlain;
+        this.ShowCarriedLight(torchHeld);
         var carriedAt = new Vector2(leadX + this.carriedPlace.X, FeetOf(leadY, 1) + this.carriedPlace.Y);
         this.carriedGround.Position = carriedAt;
         this.carriedFigures.Position = carriedAt;
         this.carriedFlame.MoveTo(carriedAt);
-        this.ShowEnemies(party, tickPart);
+        this.ShowEnemies(party, tickPart, tick, torchHeld);
 
         CameraPlace view = MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tickPart);
         this.view = new Vector2(view.X, view.Y);
@@ -208,18 +227,26 @@ public partial class MapScreen : Node2D
         }
     }
 
-    /// <summary>
-    /// Turns the carried light on or off (D-847). It is off in play until PR-91 connects it to
-    /// the torch item, and the lit screen-test fixture and the `torch` command turn it on (D-851).
-    /// </summary>
-    public bool CarriedLightOn
+    /// <summary>True while the carried light draws, which follows the torch held out (D-847, D-1064).</summary>
+    public bool CarriedLightOn => this.carriedGround.Visible;
+
+    /// <summary>True while the lead draws with the torch in its hand (D-1066, D-1069).</summary>
+    public bool LeadHoldsTorch => this.lead.Texture == this.leadTorch;
+
+    /// <summary>True when an enemy draws with a share between none and full, inside a fade of the dark (D-1062).</summary>
+    public bool ShowsAFade
     {
-        get => this.carriedGround.Visible;
-        set
+        get
         {
-            this.carriedGround.Visible = value;
-            this.carriedFigures.Visible = value;
-            this.carriedFlame.Visible = value;
+            foreach (int share in this.shares)
+            {
+                if (share > 0 && share < SightFade.Full)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 
@@ -365,7 +392,15 @@ public partial class MapScreen : Node2D
             content.Light.Glow,
             WeatherArea(map),
             this);
-        this.CarriedLightOn = false;
+        this.ShowCarriedLight(false);
+    }
+
+    /// <summary>Turns the carried light on or off, with the torch held out or put away (D-847, D-1064).</summary>
+    private void ShowCarriedLight(bool on)
+    {
+        this.carriedGround.Visible = on;
+        this.carriedFigures.Visible = on;
+        this.carriedFlame.Visible = on;
     }
 
     /// <summary>
@@ -495,11 +530,20 @@ public partial class MapScreen : Node2D
     /// Godot sorts the body by that row (D-737). The offset of the sprite draws the picture
     /// up from there, so a picture taller than one tile covers the whole body.
     /// </remarks>
-    private void ShowEnemies(MapState party, int tickPart)
+    private void ShowEnemies(MapState party, int tickPart, long tick, bool torchHeld)
     {
         IReadOnlyList<PatrolState> patrols = party.Patrols.All;
         SightMark? mark = party.Patrols.Mark;
         this.mark.Visible = false;
+        int leadX = MapCamera.LeadX(party, tickPart);
+        int leadY = MapCamera.LeadY(party, tickPart);
+        int range = MapRules.PartySightRange(party.Map, torchHeld) * MapCamera.TilePixels;
+        if (party.Map.Dark && this.fade is null)
+        {
+            this.fade = new SightFade(ClearLines(party), range);
+        }
+
+        this.fade?.MoveRange(range, tick);
 
         for (int index = 0; index < patrols.Count; index += 1)
         {
@@ -508,14 +552,25 @@ public partial class MapScreen : Node2D
             int x = MapCamera.EnemyX(patrol, tickPart);
             int y = MapCamera.EnemyY(patrol, tickPart);
 
-            // Every live enemy draws, wherever it stands, so no enemy on the screen pops in
-            // when the party comes near. If the player could see it, the party can (D-814).
-            bool drawn = !patrol.Dead;
+            // On a map that is not dark, every live enemy draws, wherever it stands, so no enemy
+            // pops in when the party comes near (D-814). On a dark map, the sight of the party
+            // sets the share of each enemy, and the fade of each edge stops a pop-in (D-1062).
+            int share = SightFade.Full;
+            if (this.fade is not null)
+            {
+                bool clear = MapSight.Clear(party.Map, party.LeadAt, patrol.Body.Nearest(party.LeadAt));
+                share = this.fade.ShareOf(index, clear, SightFade.Reach(leadX, leadY, x, y, patrol.Body.Side), tick);
+            }
 
+            bool drawn = !patrol.Dead && share > 0;
+            this.shares[index] = patrol.Dead ? 0 : share;
             sprite.Visible = drawn;
+            sprite.Modulate = new Color(1, 1, 1, share / (float)SightFade.Full);
             sprite.Position = new Vector2(x, FeetOf(y, patrol.Body.Side));
 
-            if (!drawn || mark is null || string.CompareOrdinal(mark.Enemy.Value, patrol.Patrol.Id.Value) != 0)
+            // The mark draws with the enemy that saw the party, also while the dark still fades
+            // that enemy in, so the warning of a sight never hides (D-720, D-1062).
+            if (patrol.Dead || mark is null || string.CompareOrdinal(mark.Enemy.Value, patrol.Patrol.Id.Value) != 0)
             {
                 continue;
             }
@@ -525,6 +580,35 @@ public partial class MapScreen : Node2D
                 x + (patrol.Body.Side * MapCamera.TilePixels / 2) - (MarkWidth / 2),
                 y - MarkBar - MarkDot - MarkDot);
         }
+    }
+
+    /// <summary>Tells for each enemy whether a wall stands between it and the lead now (D-718, D-1062).</summary>
+    private static bool[] ClearLines(MapState party)
+    {
+        IReadOnlyList<PatrolState> patrols = party.Patrols.All;
+        bool[] clear = new bool[patrols.Count];
+        for (int index = 0; index < patrols.Count; index += 1)
+        {
+            clear[index] = MapSight.Clear(party.Map, party.LeadAt, patrols[index].Body.Nearest(party.LeadAt));
+        }
+
+        return clear;
+    }
+
+    /// <summary>Gives the map drawing of the lead with the torch in its hand, which fits the plain drawing (D-1069).</summary>
+    /// <exception cref="ContentException">The atlas holds no torch drawing of the lead (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The torch drawing differs in size from the plain drawing (T-2).</exception>
+    private static Texture2D TorchTexture(GameAtlas atlas, ContentId leadId)
+    {
+        AtlasEntry plain = atlas.Index.Entry(leadId, MapUse);
+        AtlasEntry torch = atlas.Index.Entry(leadId, TorchUse);
+        if (torch.Width != plain.Width || torch.Height != plain.Height)
+        {
+            throw new InvalidOperationException(
+                $"The torch drawing of '{leadId.Value}' is {torch.Width} by {torch.Height}, and its map drawing is {plain.Width} by {plain.Height}. One sprite shows both (T-2, D-1069).");
+        }
+
+        return atlas.Frame(torch.Id, 0);
     }
 
     /// <summary>
@@ -656,10 +740,12 @@ public partial class MapScreen : Node2D
             PatrolState patrol = party.Patrols.All[index];
             CheckSprite(this.enemies[index], $"the enemy '{patrol.Patrol.Id.Value}'");
 
-            // A live enemy draws at any distance and a dead one never draws (D-814).
+            // On a map that is not dark, a live enemy draws at any distance and a dead one never
+            // draws (D-814). On a dark map, a live enemy draws while the dark leaves a share of it (D-1062).
+            bool wanted = !patrol.Dead && (!party.Map.Dark || this.shares[index] > 0);
             Refuse(
-                this.enemies[index].Visible == patrol.Dead,
-                $"the enemy '{patrol.Patrol.Id.Value}' draws {this.enemies[index].Visible}, and it is dead {patrol.Dead} (D-814)");
+                this.enemies[index].Visible != wanted,
+                $"the enemy '{patrol.Patrol.Id.Value}' draws {this.enemies[index].Visible}, is dead {patrol.Dead}, and holds the share {this.shares[index]} on a map that is dark {party.Map.Dark} (D-814, D-1062)");
             drawn += this.enemies[index].Visible ? 1 : 0;
         }
 

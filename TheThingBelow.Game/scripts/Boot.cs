@@ -38,9 +38,6 @@ public partial class Boot : Node
     /// <summary>The argument that puts the debug lines of each subsystem in the log file (D-660).</summary>
     public const string DebugLogArgument = "--log-debug";
 
-    /// <summary>The console command that switches the carried light, which the smoke session runs again (D-851).</summary>
-    private const string TorchCommand = "torch";
-
     /// <summary>
     /// The argument that asks for the capture session of the screen-test job (D-172, D-732).
     /// The argument after it names the folder that takes one PNG for each capture.
@@ -144,7 +141,7 @@ public partial class Boot : Node
             this.FollowBattleScreen();
             if (this.battle is null)
             {
-                this.map?.ShowParty(this.run.Party, this.run.TickPart);
+                this.map?.ShowParty(this.run.Party, this.run.TickPart, this.run.Tick, this.run.TorchHeld);
                 this.map?.ShowWeather(this.run.Tick, seek: false);
             }
 
@@ -324,7 +321,7 @@ public partial class Boot : Node
             $"The screen built before the run started (T-2).");
 
         // The capture session of the screen-test job builds the same map (D-172, D-734).
-        this.map = MapFixture.Build(built, built_ui, open.Party, loaded);
+        this.map = MapFixture.Build(built, built_ui, open, loaded);
         this.noticeBox = new NoticeBox(built, built_ui);
 
         // A new frame keeps the windows of the menu open, so a change of the fit from the
@@ -599,20 +596,6 @@ public partial class Boot : Node
     }
 
     /// <summary>
-    /// Turns the carried light of the map on or off, for the `torch` command of the console
-    /// (D-847, D-851). No rule reads the light, so no intent and no record exist.
-    /// </summary>
-    /// <returns>True when the carried light is on now.</returns>
-    /// <exception cref="InvalidOperationException">The session built no map (T-2).</exception>
-    private bool SwitchCarriedLight()
-    {
-        MapScreen shown = this.map ?? throw new InvalidOperationException(
-            "The console switched the carried light, and this session built no map (T-2, D-851).");
-        shown.CarriedLightOn = !shown.CarriedLightOn;
-        return shown.CarriedLightOn;
-    }
-
-    /// <summary>
     /// Builds the debug console of a development build, and adds it to the frame layer above
     /// every other node (D-171, D-725). A release build builds none, because it holds no debug
     /// assembly (D-260, D-492).
@@ -621,7 +604,7 @@ public partial class Boot : Node
     /// <param name="open">The run that the console reads and sends its intents to.</param>
     private void BuildConsole(FrameRoot built, GameRun open)
     {
-        if (!DebugSeam.TryBuildConsole(() => open.State, open.Queue, this.SwitchCarriedLight, out Control? made) || made is null)
+        if (!DebugSeam.TryBuildConsole(() => open.State, open.Queue, out Control? made) || made is null)
         {
             return;
         }
@@ -836,7 +819,26 @@ public partial class Boot : Node
             Intent made = run.IntentOf(action);
             bool menu = string.CompareOrdinal(action, InputActions.Menu) == 0;
             bool map = string.CompareOrdinal(action, InputActions.Map) == 0;
-            if ((menu || map) && !run.InBattle && !run.MenuOpenNextTick)
+            bool torch = string.CompareOrdinal(action, InputActions.Torch) == 0;
+            if (torch)
+            {
+                // The torch works on the walk alone, with the torch in the pack, and the rules
+                // refuse the intent at any other time (D-1071, T-2).
+                if (run.TorchWorks)
+                {
+                    run.Queue(made);
+                }
+                else
+                {
+                    this.WriteLog([new LogEntry(
+                        LogLevel.Debug,
+                        "the torch action works on the walk alone, with the torch in the pack",
+                        run.Tick,
+                        LogSubsystems.Game,
+                        [new LogField("action", action)])]);
+                }
+            }
+            else if ((menu || map) && !run.InBattle && !run.MenuOpenNextTick)
             {
                 this.OpenMenu(run, action);
             }
@@ -1483,8 +1485,7 @@ public partial class Boot : Node
         UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
         var drawn = new MapScreen();
         drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, session.Party, loaded, loaded.Effects.Ambient.WeatherOf(map.Id), loaded.Light.Passes);
-        drawn.CarriedLightOn = true;
-        drawn.ShowParty(session.Party, 0);
+        string torch = CheckTorchDraw(drawn, session);
         drawn.ShowWeather(session.Tick, seek: false);
 
         CameraPlace view = MapCamera.Of(session.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, 0);
@@ -1497,7 +1498,32 @@ public partial class Boot : Node
         drawn.QueueFree();
         return $"'{map.Id.Value}' at {map.Width} by {map.Height} tiles, "
             + $"the party at {session.Party.LeadAt}, the view at ({view.X}, {view.Y}), "
-            + $"{sprites}, {lights}, {weather}, {lights2}, {room}, and {ground}";
+            + $"{sprites}, {torch}, {lights}, {weather}, {lights2}, {room}, and {ground}";
+    }
+
+    /// <summary>
+    /// Draws the party with the torch put away and then held out, and fails when the carried
+    /// light or the torch in the hand does not follow (exit test 7 of PR-91, D-1064, D-1066). The
+    /// torch stays held out, so the check of the lights reads the carried light too.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The light or the torch in the hand draws in the wrong state (T-2).</exception>
+    private static string CheckTorchDraw(MapScreen drawn, GameRun session)
+    {
+        drawn.ShowParty(session.Party, 0, session.Tick, torchHeld: false);
+        if (drawn.CarriedLightOn || drawn.LeadHoldsTorch)
+        {
+            throw new InvalidOperationException(
+                $"The torch is put away, and the carried light draws {drawn.CarriedLightOn} and the torch in the hand draws {drawn.LeadHoldsTorch} (D-1064, T-2).");
+        }
+
+        drawn.ShowParty(session.Party, 0, session.Tick, torchHeld: true);
+        if (!drawn.CarriedLightOn || !drawn.LeadHoldsTorch)
+        {
+            throw new InvalidOperationException(
+                $"The torch is held out, and the carried light draws {drawn.CarriedLightOn} and the torch in the hand draws {drawn.LeadHoldsTorch} (D-1066, T-2).");
+        }
+
+        return "the carried light and the torch in the hand follow the torch";
     }
 
     /// <summary>
@@ -1556,7 +1582,7 @@ public partial class Boot : Node
         }
 
         // The checks of the weather and of each torch run inside this call (F-97, F-98).
-        drawn.ShowParty(walked.Party, 0);
+        drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld);
         drawn.ShowWeather(walked.Tick, seek: false);
         string weather = drawn.DescribeWeather();
         CameraPlace view = MapCamera.Of(walked.Party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, 0);
@@ -1588,23 +1614,12 @@ public partial class Boot : Node
 
         int shown = this.TypeInConsole(session);
 
-        // The `torch` command switches a light of the view alone, so this session holds the
-        // switch in a local value and reads it back (D-851).
-        bool carriedOn = false;
-        bool SwitchLight()
-        {
-            carriedOn = !carriedOn;
-            return carriedOn;
-        }
-
         int answers = 0;
         IReadOnlyList<string> names = DebugSeam.CommandNames();
         foreach (string name in names)
         {
-            answers += DebugSeam.Run(name, () => session.State, session.Queue, SwitchLight).Count;
+            answers += DebugSeam.Run(name, () => session.State, session.Queue).Count;
         }
-
-        string torch = CheckTorchCommand(session, SwitchLight, () => carriedOn);
 
         // The console sends an intent, and the rules apply it on the next tick. Thus the
         // count below reads the work of the handler of the seam, and never a change that the
@@ -1621,36 +1636,7 @@ public partial class Boot : Node
 
         return $"{names.Count} commands with {answers} answer lines, {shown} lines on the screen "
             + $"after a typed line, "
-            + $"they marked {marked} more tiles as walked, and {torch}";
-    }
-
-    /// <summary>
-    /// Runs the `torch` command a second time, and fails when it sent an intent or left the
-    /// carried light on (D-851). The loop of every command ran it once and turned the light on.
-    /// </summary>
-    /// <param name="session">The run of the smoke session.</param>
-    /// <param name="switchLight">The switch that the commands of this session call.</param>
-    /// <param name="isOn">Reads the switch back.</param>
-    /// <returns>The line of the check, for the report of the smoke session.</returns>
-    /// <exception cref="InvalidOperationException">The command sent an intent, or it did not switch the light (T-2).</exception>
-    private static string CheckTorchCommand(GameRun session, Func<bool> switchLight, Func<bool> isOn)
-    {
-        if (!isOn())
-        {
-            throw new InvalidOperationException(
-                $"The loop of every command ran '{TorchCommand}', and the carried light stayed off (D-851, T-2).");
-        }
-
-        int queued = 0;
-        DebugSeam.Run(TorchCommand, () => session.State, _ => queued += 1, switchLight);
-        if (isOn() || queued != 0)
-        {
-            throw new InvalidOperationException(
-                $"The second '{TorchCommand}' left the carried light on {isOn()} and sent {queued} intents, "
-                + "and it switches the light off with no intent (D-851, T-2).");
-        }
-
-        return $"'{TorchCommand}' switched the carried light on and off with no intent";
+            + $"and they marked {marked} more tiles as walked";
     }
 
     /// <summary>

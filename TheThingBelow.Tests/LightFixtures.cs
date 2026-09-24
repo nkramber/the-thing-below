@@ -157,6 +157,7 @@ public static class LightFixtures
              "region": "region.test",
              "label": "label.lit",
              "time": "night",
+             "dark": false,
              "terrain": [ {{rows}} ],
              "things": [ { "id": "spawn_point.lit_start", "kind": "spawn_point", "x": 1, "y": 1 } ],
              "enemies": [], "triggers": []

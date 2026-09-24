@@ -407,17 +407,22 @@ public sealed class LessonRulesTests
     {
         // D-166, D-1050: format 10 and 11 hold the swap place, and the read drops it. Format 12
         // dropped the field, so a swap place in it is an unknown field (T-2).
+        // Format 13 added the state of the torch, so the line of format 11 drops it, and the
+        // write of the read puts the torch away as a resume does (D-1064).
         string line = RunSnapshotText.Write(Start(TestBattles.Content, TestMaps.Room, party => party).Snapshot());
-        string withPlace = line.Replace(",\"gold\":", ",\"swap_place\":true,\"gold\":", StringComparison.Ordinal);
-        Assert.NotEqual(line, withPlace);
+        string older = SnapshotLines.AsFormatTwelve(line);
+        string withPlace = older.Replace(",\"gold\":", ",\"swap_place\":true,\"gold\":", StringComparison.Ordinal);
+        Assert.NotEqual(older, withPlace);
 
         var eleven = new ContentReader(System.Text.Encoding.UTF8.GetBytes(withPlace), "the test");
         RunSnapshot dropped = RunSnapshotText.ReadFormatEleven(ref eleven);
-        Assert.Equal(line, RunSnapshotText.Write(dropped));
+        PartySnapshot party = dropped.Characters ?? throw new InvalidOperationException("The snapshot holds no party (T-2).");
+        Assert.Null(party.TorchHeld);
+        Assert.Equal(line, RunSnapshotText.Write(dropped with { Characters = party with { TorchHeld = false } }));
 
         ContentException absent = Assert.Throws<ContentException>(() =>
         {
-            var reader = new ContentReader(System.Text.Encoding.UTF8.GetBytes(line), "the test");
+            var reader = new ContentReader(System.Text.Encoding.UTF8.GetBytes(older), "the test");
             _ = RunSnapshotText.ReadFormatEleven(ref reader);
         });
         Assert.Contains("swap_place", absent.Message, StringComparison.Ordinal);

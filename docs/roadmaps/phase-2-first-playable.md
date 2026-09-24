@@ -651,7 +651,7 @@ Area file: `area-effects.md` sections 7.4 and 7.6.
 - Each color of light as a palette key with a strength in basis points (D-846).
 - The ambient light as the one canvas modulate of the world.
 - The point lights of torches, waystones, and spells, each with a light texture that Game builds and checks (D-183, F-46).
-- The carried light on the lead, its switch in Game, and the `torch` command of the console (D-847, D-851).
+- The carried light on the lead, its switch in Game, and the `torch` command of the console (D-847, D-851). D-1071 supersedes D-851 and removes the command.
 - A height on each light, because a light at height zero gives no light to a flat normal (F-46).
 - Hard shadows from walls, with a shape from the terrain that lets each wall face take light (D-183, D-845, D-852).
 - A shadow at the feet of each figure, with a pair of Godot lights for each source (D-853).
@@ -680,7 +680,7 @@ Area file: `area-effects.md` sections 7.4 and 7.6.
 8. A test proves that the change of a light setup wins over the default of the decor kind (D-843).
 9. A wall torch off a wall, or with no floor south, fails with the file and the id (D-844).
 10. The budget test counts the carried light in each view (D-842, D-847).
-11. The `torch` command turns the carried light on and off, and it sends no intent (D-851).
+11. The `torch` command turns the carried light on and off, and it sends no intent (D-851). D-1071 removes it.
 12. A wall of one tile shadows the far face of itself and every tile behind it (D-852).
 13. The budget test counts two lights for each source (D-853).
 
@@ -1539,33 +1539,47 @@ Area file: `area-exploration.md` section 7.17.
 
 **Scope.**
 
-- The torch as an item of Core in the pack of PR-13, which never burns out (D-848).
-- The intent that lights the torch or puts it out (D-848).
-- The sight of the party in the dark, with a lit torch and with none (D-848, OQ-217).
-- The longer sight of an enemy toward a lit torch (D-848, OQ-218).
-- The switch of the carried light, which follows the state of the torch (D-847).
+- The torch as the key item `item.torch` of Core in the pack of PR-13, which never burns out (D-848, D-1065).
+- The kind `key` in the item file, with no effect and no use in a fight (D-1065).
+- The `dark` field of each map file, apart from its time of day. The fixture dungeon turns dark, and its patrols see 2 tiles (D-1062, D-1067).
+- The intent that holds the torch out or puts it away, on the walk of any map. The torch starts put away, and the save holds its state (D-1064, D-1071).
+- The input action `torch` on the T key and the Y button, with a step of the settings file to format 3 (D-1068).
+- The fixture pack holds the torch, and the console loses its `torch` command (D-1071).
+- The sight of the party on a dark map: 2 tiles with the torch put away, and 6 tiles with it held out. A wall stops it (D-1062, D-1063).
+- The bonus of 4 tiles for each patrol of a dark map with the torch held out. The range floor there is 2 (D-720, D-1063).
+- The rule that hides each enemy and thing past the sight of the party on a dark map. Game fades each enemy, by distance and over time at a wall corner (D-1062, D-1070).
+- The switch of the carried light, which follows the state of the torch (D-847, D-1064).
+- The torch in the left hand of the lead, with the torch held out, in a second map drawing (D-912, D-1066, D-1069).
 - A simulation version bump, because the rules change (G-17).
 
 **Out of scope.**
 
 - The braziers of a puzzle (PR-21, D-41).
 - The light itself, which PR-56 builds (D-847).
+- The glow of the carried torch (D-912).
+- The draw of each thing on the map screen (D-1070).
 
 **Exit tests.**
 
-1. A seed loop proves the sight of the party with a lit torch and with none.
-2. A seed loop proves that an enemy sees a lit torch from farther away.
-3. A replay with the intent of the torch gives the same state hash on every CI leg (G-5).
-4. The carried light draws while the torch burns, and it goes dark when the player puts the torch out.
+1. A seed loop proves the sight of the party on a dark map, in each state of the torch.
+2. A seed loop proves that a patrol of a dark map sees a held torch 4 tiles farther.
+3. A seed loop proves that the torch changes no range on a map that is not dark.
+4. A seed loop proves that each patrol that sees the party lies inside the sight of the party (D-720).
+5. The load refuses a dark map with a patrol range above 2, and a map file with no `dark` field.
+6. A replay with the intent of the torch gives the same state hash on every CI leg (G-5).
+7. The carried light and the torch in the hand draw with the torch held out alone.
+8. The screen test holds a dark fixture with a thing in the fade (D-731).
+9. The frames of `make walk` show no pop-in on a dark map (D-784).
 
 **Review focus.**
 
 - The answer of OQ-217 meets D-566, which puts no fog of war on a map.
 - The light of the screen never reaches a rule of sight (G-1).
+- Each fade runs from the tick, so each frame of the screen test repeats (T-7).
 
-**Questions.** OQ-217 and OQ-218.
+**Questions.** None. D-1062 to D-1071 answer OQ-217, OQ-218, and each question of the scope.
 
-> *In plain English:* the torch becomes a real item. Dark places need it, and guards see it from far away, so the player chooses between light and stealth.
+> *In plain English:* the torch becomes a real item. Dark places hide what lies past its light, and guards see it from far away, so the player chooses between light and stealth.
 
 ### 7.36 PR-14: the hub map, the NPCs, and the services
 
@@ -2473,8 +2487,8 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-141 | Two accessories with one effect. Resolved by D-1037 | PR-13 |
 | OQ-142 | The stack limit of each item. Resolved by D-1038 and D-1039 | PR-13 |
 | OQ-143 | What a rarity tier changes. Resolved by D-1040 | PR-13 |
-| OQ-217 | How far the party sees in the dark | PR-91 |
-| OQ-218 | How much farther an enemy sees a lit torch | PR-91 |
+| OQ-217 | How far the party sees in the dark. Resolved by D-1062 and D-1063 | PR-91 |
+| OQ-218 | How much farther an enemy sees a lit torch. Resolved by D-1063 | PR-91 |
 | OQ-219 | The paths of the docs-only set | PR-93 |
 | OQ-144 | The full step list of a story scene script, resolved by D-997 | PR-68 |
 | OQ-145 | How a step that takes time ends, resolved by D-1000 | PR-68 |

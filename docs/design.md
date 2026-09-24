@@ -116,6 +116,14 @@ The item window refuses a use that changes nothing (D-1049). PR-13 holds each on
 
 A heal adds a share of the magic of the caster to its base (D-1057). A heal rolls the hit factor, and outside a fight the roll draws on the progression stream (D-1058, D-1059). A screen names the new stats MAG and RES (D-1056). The gear window compares the piece under the cursor with the worn piece (D-1060). PR-99 holds each one, and the lesson swap anywhere outside a fight (D-1050).
 
+2026-09-24 torch pass: a map file names each dark map, apart from its time of day. On a dark map, the ground stays visible, and each enemy and thing past the sight of the party fades out with no pop-in (D-1062). The party sees 2 tiles in the dark, and 6 tiles with the torch held out. A held torch gives each patrol there the same 4 tiles (D-1063).
+
+The party holds the torch out, always lit, or puts it away for stealth. The party first gets the torch put away (D-1064). The torch is an item of the kind `key` (D-1065). PR-91 holds each one, and the torch in the hand of the lead (D-1066).
+
+The fixture dungeon turns dark (D-1067). The T key and the Y button work the torch on the walk alone, and the console loses its `torch` command (D-1068, D-1071). The torch draws in the left hand (D-1069). No map screen draws a thing yet, so PR-91 fades the enemies alone (D-1070).
+
+2026-09-24 Gitar fix pass: a Gitar finding can come with a fix of Gitar. When the fix of the session differs from it, or it has a flaw, the session applies its own fix with no question (D-1072). The stop and the note of D-945 stand.
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -544,7 +552,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 33. PR-12: the lessons, the slots, the forms, and the aptitudes (D-272, D-356, D-539).
 34. PR-13: the six gear slots, the items, and the pack (D-44, D-382).
 35. PR-99: the stat set, the heal of an absorbed hit, and the lesson swap, right after PR-13 (D-1041, D-1050).
-36. PR-91: the torch item, right after PR-99 (D-847, D-848, D-1041).
+36. PR-91: the torch item, right after PR-99 (D-847, D-848, D-1041, D-1062 to D-1071).
 37. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
 38. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
 39. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).

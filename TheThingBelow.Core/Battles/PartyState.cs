@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
+using TheThingBelow.Core.Runs;
 
 namespace TheThingBelow.Core.Battles;
 
@@ -266,8 +267,9 @@ public sealed class PartyState
     private readonly List<ContentId> lessonPack;
     private PartyMember[] members;
 
-    private PartyState(PartyMember[] members, SortedDictionary<string, PackValues> pack, List<ContentId> lessonPack, int gold)
+    private PartyState(PartyMember[] members, SortedDictionary<string, PackValues> pack, List<ContentId> lessonPack, int gold, bool torchHeld)
     {
+        this.TorchHeld = torchHeld;
         this.members = members;
         this.pack = pack;
         this.lessonPack = lessonPack;
@@ -294,6 +296,9 @@ public sealed class PartyState
 
     /// <summary>The gold of the party, from zero. A steal adds to it, and PR-65 shows it and spends it (D-1043).</summary>
     public int Gold { get; private set; }
+
+    /// <summary>True while the party holds the torch out, lit, and false while the torch is put away or the pack holds none (D-1064).</summary>
+    public bool TorchHeld { get; private set; }
 
     /// <summary>The owned lessons that no character carries, in the order that they entered the pack (D-1024).</summary>
     public IReadOnlyList<ContentId> LessonPack => this.lessonPack;
@@ -324,7 +329,8 @@ public sealed class PartyState
             pack.Add(entry.Id.Value, new PackValues(entry.Id, entry.Count));
         }
 
-        return new PartyState([.. members], pack, new List<ContentId>(content.Fixture.LessonPack), 0);
+        // The party first gets the torch put away (D-1064).
+        return new PartyState([.. members], pack, new List<ContentId>(content.Fixture.LessonPack), 0, false);
     }
 
     /// <summary>Puts the party back from the values of a snapshot (D-166, D-765).</summary>
@@ -343,12 +349,14 @@ public sealed class PartyState
     /// </remarks>
     /// <param name="lessonPack">The stored lesson pack, or no value for a snapshot of save format 9 or older.</param>
     /// <param name="gold">The stored gold, or no value for a snapshot of save format 10 or older, which starts at zero (D-1043).</param>
+    /// <param name="torchHeld">The stored state of the torch, or no value for a snapshot of save format 12 or older, which puts the torch away (D-1064).</param>
     public static PartyState Resume(
         BattleContent content,
         IReadOnlyList<CharacterValues> characters,
         IReadOnlyList<PackValues> pack,
         IReadOnlyList<ContentId>? lessonPack,
         int? gold,
+        bool? torchHeld,
         string source)
     {
         ArgumentNullException.ThrowIfNull(content);
@@ -421,7 +429,10 @@ public sealed class PartyState
             Refuse(!content.Lessons.Holds(lesson), source, $"the lesson pack holds '{lesson.Value}', which the lesson file lacks (D-1026)");
         }
 
-        var party = new PartyState([.. members], items, owned, gold ?? 0);
+        bool held = torchHeld ?? false;
+        Refuse(held && !items.ContainsKey(TorchRules.Torch.Value), source, $"it holds the torch out, and the pack holds no '{TorchRules.Torch.Value}' (D-1064)");
+
+        var party = new PartyState([.. members], items, owned, gold ?? 0, held);
         party.CheckOneCopy(source);
         party.CheckStackLimits(content, source);
         return party;
@@ -636,6 +647,27 @@ public sealed class PartyState
         this.Gold += gold;
     }
 
+    /// <summary>Holds the torch out or puts it away (D-1064). `TorchRules` checks the walk and the pack first.</summary>
+    /// <param name="held">True to hold the torch out, and false to put it away.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <exception cref="SimulationException">The torch already has that state (T-2).</exception>
+    /// <remarks>
+    /// An intent that changes nothing is an error and never a value that the rule drops. It points at a
+    /// fault in the screen that made it (T-2).
+    /// </remarks>
+    public void SetTorchHeld(bool held, RunContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (this.TorchHeld == held)
+        {
+            string state = held ? "held out" : "put away";
+            throw new SimulationException($"an intent that leaves the torch {state}, which it already is (D-1064)", context);
+        }
+
+        this.TorchHeld = held;
+    }
+
     /// <summary>
     /// Gives the reason that the rules refuse a change of gear now, or no value when the change
     /// is legal (D-44, D-1048). A change puts a piece of the pack in a gear slot of its kind, or
@@ -798,6 +830,7 @@ public sealed class PartyState
         }
 
         hasher.AddInt32(this.Gold);
+        hasher.AddBoolean(this.TorchHeld);
 
         hasher.AddInt32(this.lessonPack.Count);
         foreach (ContentId lesson in this.lessonPack)

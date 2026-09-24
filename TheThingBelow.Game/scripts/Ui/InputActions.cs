@@ -47,6 +47,9 @@ public static class InputActions
     /// <summary>The action that opens the dungeon map screen from the walk, and that closes it (D-986).</summary>
     public const string Map = "map";
 
+    /// <summary>The action that holds the torch out on the walk, and that puts it away (D-1064, D-1068).</summary>
+    public const string Torch = "torch";
+
     private static readonly string[] AllStepNames = [StepNorth, StepSouth, StepEast, StepWest];
 
     private static readonly string[] AllNames =
@@ -59,6 +62,7 @@ public static class InputActions
         Cancel,
         Menu,
         Map,
+        Torch,
     ];
 
     /// <summary>Every action of the input map, in a fixed order.</summary>
@@ -93,9 +97,10 @@ public static class InputActions
     /// <summary>Gives the intent that one action makes.</summary>
     /// <param name="action">The name of the action, such as `confirm`.</param>
     /// <param name="menuOpen">True while a menu is open, which the menu action reads.</param>
+    /// <param name="torchHeld">True while the party holds the torch out, which the torch action reads (D-1064).</param>
     /// <returns>The id of the intent that Core reads.</returns>
     /// <exception cref="ArgumentException">The name is not an action of the input map (T-2).</exception>
-    public static ContentId IntentOf(string action, bool menuOpen)
+    public static ContentId IntentOf(string action, bool menuOpen, bool torchHeld)
     {
         ArgumentException.ThrowIfNullOrEmpty(action);
 
@@ -108,6 +113,7 @@ public static class InputActions
             Confirm => IntentIds.Confirm,
             Cancel => IntentIds.Cancel,
             Menu or Map => menuOpen ? IntentIds.CloseMenu : IntentIds.OpenMenu,
+            Torch => torchHeld ? IntentIds.PutTorchAway : IntentIds.HoldTorch,
             _ => throw new ArgumentException(
                 $"The name '{action}' is not an action of the input map. The actions are {Describe()} (T-2).",
                 nameof(action)),

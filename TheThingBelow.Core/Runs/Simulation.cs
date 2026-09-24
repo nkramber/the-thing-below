@@ -243,6 +243,11 @@ public sealed class Simulation
             return;
         }
 
+        if (this.TryTorchIntent(intent, context, log))
+        {
+            return;
+        }
+
         if (string.CompareOrdinal(intent.Action.Value, IntentIds.PartyRow.Value) == 0)
         {
             BattleTarget target = intent.Target ?? throw new SimulationException("a row change that names no character (D-558)", context);
@@ -404,6 +409,26 @@ public sealed class Simulation
     /// D-1049). Both need the open menu and no battle, as the row change does (D-558).
     /// </summary>
     /// <returns>True when the intent was one of the two, which this method applied.</returns>
+    /// <summary>Applies an intent that holds the torch out or puts it away, on the walk (D-1064, D-1071).</summary>
+    /// <returns>True when the intent was an intent of the torch, which this method applied.</returns>
+    private bool TryTorchIntent(Intent intent, RunContext context, List<LogEntry> log)
+    {
+        bool hold = Is(intent, IntentIds.HoldTorch);
+        if (!hold && !Is(intent, IntentIds.PutTorchAway))
+        {
+            return false;
+        }
+
+        TorchRules.Set(this.State, hold, context);
+        log.Add(new LogEntry(
+            LogLevel.Info,
+            hold ? "the party held the torch out" : "the party put the torch away",
+            this.State.Tick,
+            LogSubsystems.Run,
+            []));
+        return true;
+    }
+
     private bool TryPackIntent(Intent intent, RunContext context, List<LogEntry> log)
     {
         bool use = Is(intent, IntentIds.MenuItem);

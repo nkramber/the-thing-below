@@ -93,6 +93,15 @@ public static class ScreenCaptures
     /// <summary>The running screen with the party in the pit room, which shows the walls beside the doorway at (6, 12) (D-852).</summary>
     public const string PitFixture = "pit";
 
+    /// <summary>
+    /// The frame of the pit fixture inside the fade of the dark: the party walks in with the torch
+    /// held out, puts it away, and the frame waits <see cref="DarkFadeTicks"/> ticks (D-1062).
+    /// </summary>
+    public const string PitTorchFrame = "torch-1x";
+
+    /// <summary>The ticks from the put-away of the torch to the frame of <see cref="PitTorchFrame"/>, inside the range fade.</summary>
+    public const int DarkFadeTicks = 40;
+
     /// <summary>The running screen with the party still, which shows the motion of the weather over 4 seconds (D-894).</summary>
     public const string StillFixture = "still";
 
@@ -461,6 +470,10 @@ public static class ScreenCaptures
         // it, whose shape stops the light of a torch on the same wall (D-852).
         captures.Add(new ScreenCapture(
             PitFixture, "1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+
+        // The same room with an enemy inside the fade of the dark, which the session proves (exit test 8 of PR-91, D-1062).
+        captures.Add(new ScreenCapture(
+            PitFixture, PitTorchFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
 
         // The scroll fixture draws at 1x. Each frame holds one tick of a step south in the pit
         // room, where the view follows the lead (F-97).

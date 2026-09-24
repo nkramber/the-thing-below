@@ -28,7 +28,7 @@ internal static class SettingsFixtures
     });
 
     /// <summary>
-    /// The default bindings of the seven actions of the game, with the numbers of the Godot
+    /// The default bindings of each action of the game, with the numbers of the Godot
     /// values: the letter keys, the arrow keys, the pad, and the left stick (D-84).
     /// </summary>
     /// <returns>The bindings that `GameInputMap.DefaultBindings` gives.</returns>
@@ -42,9 +42,10 @@ internal static class SettingsFixtures
         ["step_north"] = [InputBinding.OfKey(W), InputBinding.OfKey(4194320), InputBinding.OfButton(11), InputBinding.OfStick(LeftY, -1)],
         ["step_south"] = [InputBinding.OfKey(83), InputBinding.OfKey(4194322), InputBinding.OfButton(12), InputBinding.OfStick(LeftY, 1)],
         ["step_west"] = [InputBinding.OfKey(65), InputBinding.OfKey(4194319), InputBinding.OfButton(13), InputBinding.OfStick(0, -1)],
+        ["torch"] = [InputBinding.OfKey(SettingsMigration.TorchKey), InputBinding.OfButton(SettingsMigration.TorchButton)],
     });
 
-    /// <summary>The defaults of a first start with the bindings of the seven actions of the game.</summary>
+    /// <summary>The defaults of a first start with the bindings of each action of the game.</summary>
     /// <returns>The settings.</returns>
     public static GameSettings DefaultsOfTheGame() => GameSettings.Defaults(GameBindings());
 

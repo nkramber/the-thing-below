@@ -93,6 +93,7 @@ public static partial class IdentitySet
      "region": "region.identity",
      "label": "label.identity_story",
      "time": "day",
+     "dark": false,
      "terrain": [
       "#########",
       "#.......#",

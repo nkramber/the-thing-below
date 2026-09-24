@@ -214,23 +214,35 @@ public static class SettingsText
         CheckFormat(ref reader, format);
 
         // Format 2 holds the fields of format 1, and its controls hold the map action (D-986).
-        // A file of format 1 takes the step that adds the defaults of that action (D-990). The PR
-        // that raises the format again adds the step from the version that it leaves here.
+        // Format 3 adds the torch action (D-1068). A file of an older format takes each step that
+        // adds the defaults of a later action (D-990). The PR that raises the format again adds
+        // the step from the version that it leaves here.
         GameSettings read = ReadFormatOne(ref reader, depth);
-        if (format > 1)
+        if (format < 2)
         {
-            return read;
+            RefuseLaterAction(ref reader, read, format, SettingsMigration.MapAction, "format 2 added (D-986)");
+            read = SettingsMigration.FromFormatOne(read);
         }
 
+        if (format < 3)
+        {
+            RefuseLaterAction(ref reader, read, format, SettingsMigration.TorchAction, "format 3 added (D-1068)");
+            read = SettingsMigration.FromFormatTwo(read);
+        }
+
+        return read;
+    }
+
+    /// <summary>Refuses a file of an older format that holds an action of a later format (T-2, D-570).</summary>
+    private static void RefuseLaterAction(ref ContentReader reader, GameSettings read, int format, string later, string added)
+    {
         foreach (string action in read.Controls.Bindings.Names)
         {
-            if (string.CompareOrdinal(action, SettingsMigration.MapAction) == 0)
+            if (string.CompareOrdinal(action, later) == 0)
             {
-                throw reader.Refuse($"the file takes format version 1 and holds the action '{action}', which format 2 added (D-986)");
+                throw reader.Refuse($"the file takes format version {format} and holds the action '{action}', which {added}");
             }
         }
-
-        return SettingsMigration.FromFormatOne(read);
     }
 
     private static void CheckFormat(ref ContentReader reader, int format)

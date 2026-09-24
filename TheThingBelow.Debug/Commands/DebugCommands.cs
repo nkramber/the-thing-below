@@ -19,8 +19,8 @@ namespace TheThingBelow.Debug.Commands;
 /// Six commands change the run. The `reveal` command marks every tile of the map as walked
 /// (D-567). The five battle commands take the turn of a character until the battle screen of
 /// PR-10: `attack`, `defend`, `step`, `item`, and `flee` (D-767). Four commands report and
-/// change nothing: `help`, `hash`, `where`, and `battle` (D-724). The `torch` command changes
-/// the view alone: it turns the carried light on or off, and it sends no intent (D-851).
+/// change nothing: `help`, `hash`, `where`, and `battle` (D-724). PR-91 removed the `torch`
+/// command of PR-56, because the torch action of the player replaced it (D-1071).
 /// <para>
 /// PR-9 replaced the `flee` command of PR-8, which ended an encounter with no battle, with the
 /// flee of the battle rules (D-378, D-767).
@@ -65,9 +65,6 @@ public static class DebugCommands
     /// <summary>The name of the command that reports the battle (D-767).</summary>
     public const string BattleName = "battle";
 
-    /// <summary>The name of the command that turns the carried light on or off (D-851).</summary>
-    public const string TorchName = "torch";
-
     /// <summary>The name of the command that posts a notice that logs (D-989).</summary>
     public const string NoticeName = "notice";
 
@@ -104,7 +101,6 @@ public static class DebugCommands
         DebugCommand.OfIntent(NoticeName, "posts the first notice of the notice file that logs", DebugCommandIds.NoticeLogged, PostLogged),
         DebugCommand.OfIntent(AsideName, "posts the first notice of the notice file that does not log", DebugCommandIds.NoticePlain, PostPlain),
         DebugCommand.OfIntent(StockName, "puts one copy of each item and each piece of gear in the pack, to each stack limit (D-1038)", DebugCommandIds.Stock, Stock),
-        DebugCommand.OfView(TorchName, "turns the carried light on or off, and sends no intent (D-847, D-851)"),
         DebugCommand.OfReport(BattleName, "gives each combatant, the turn, and the strip", BattleOf),
         DebugCommand.OfReport(HashName, "gives the state hash of the run", HashOf),
         DebugCommand.OfReport(WhereName, "gives the tick and the place of the party", PlaceOf),

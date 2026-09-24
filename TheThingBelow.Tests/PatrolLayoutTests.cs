@@ -171,6 +171,30 @@ public sealed class PatrolLayoutTests
     }
 
     [Fact]
+    public void ASightRangeAboveTheDarkRangeFailsTheLoadOfADarkMap()
+    {
+        // D-1063: the floor of D-720 reads the range of a dark map with the torch put away, so
+        // the bonus of a held torch keeps each patrol inside the sight of the party.
+        ContentException error = Assert.Throws<ContentException>(
+            () => PatrolMaps.Of(PatrolMaps.Enemy(sightRange: MapRules.DarkSightRange + 1), "day", dark: true));
+
+        Assert.Contains("the party sees 2 on a dark map with the torch put away", error.Message, StringComparison.Ordinal);
+        Assert.Contains("D-1063", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ASightRangeAtTheDarkRangeLoadsOnADarkMapOfAnyTime()
+    {
+        foreach (TimeOfDay time in TimesOfDay.All)
+        {
+            GameMap map = PatrolMaps.Of(PatrolMaps.Enemy(sightRange: MapRules.DarkSightRange), TimesOfDay.NameOf(time), dark: true);
+
+            Assert.True(map.Dark);
+            Assert.Equal(MapRules.DarkSightRange, Assert.Single(map.Patrols).SightRange);
+        }
+    }
+
+    [Fact]
     public void TwoEnemiesOfOneIdFailTheLoad()
     {
         ContentException error = Refuse($"{PatrolMaps.Enemy()},\n{PatrolMaps.Enemy(stations: Southwest)}");

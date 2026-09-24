@@ -11,6 +11,8 @@ Each repo that uses Gitar keeps a copy of this file. A rule of the repo wins ove
 
 **Gitar pause (D-945).** In the-thing-below, no step waits for a Gitar review or asks for one, and the procedure below does not apply. Read the Gitar output with command B and then command C, one time before each `make codex-review` run and one time before the merge question. On a Gitar review thread or a finding of the dashboard, stop at once, and tell the owner before any other step. After the owner saw it, answer it with "Rules for each reply". Answer a claim of the CI analysis alone with those rules, and do not stop.
 
+A finding can come with a fix of Gitar. When your fix differs from it, or it has a flaw, apply your own fix (D-1072). Tell the owner of both fixes, and ask no question about the choice.
+
 ## Terms
 
 - **Head**: the newest commit of the pull request branch on GitHub.

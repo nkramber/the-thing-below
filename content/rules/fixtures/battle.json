@@ -60,6 +60,7 @@
   { "item": "item.fixture_tonic", "count": 2 },
   { "item": "item.fixture_salts", "count": 2 },
   { "item": "item.fixture_root", "count": 1 },
+  { "item": "item.torch", "count": 1 },
   { "gear": "gear.fixture_buckler", "count": 1 },
   { "gear": "gear.fixture_hood", "count": 1 },
   { "gear": "gear.fixture_charm", "count": 1 },
