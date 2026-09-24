@@ -80,7 +80,6 @@ public static class DebugSeam
     /// <summary>Builds the console of a development build (D-171).</summary>
     /// <param name="state">Gives the state of the run now, which a report command reads.</param>
     /// <param name="queue">Takes an intent of the console into the next tick of the run.</param>
-    /// <param name="switchCarriedLight">Turns the carried light on or off, and tells whether it is on now (D-851).</param>
     /// <param name="console">The node of the console, or null in a release build.</param>
     /// <returns>True in a development build, which built the console.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
@@ -90,12 +89,10 @@ public static class DebugSeam
     public static bool TryBuildConsole(
         Func<RunState> state,
         Action<Intent> queue,
-        Func<bool> switchCarriedLight,
         out Control? console)
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(queue);
-        ArgumentNullException.ThrowIfNull(switchCarriedLight);
 
         if (!IsDevelopmentBuild)
         {
@@ -103,7 +100,7 @@ public static class DebugSeam
             return false;
         }
 
-        console = Entry<Func<Func<RunState>, Action<Intent>, Func<bool>, Control>>(ConsoleMember)(state, queue, switchCarriedLight);
+        console = Entry<Func<Func<RunState>, Action<Intent>, Control>>(ConsoleMember)(state, queue);
         return true;
     }
 
@@ -129,25 +126,22 @@ public static class DebugSeam
     /// <param name="line">The text of the line, such as `reveal`.</param>
     /// <param name="state">Gives the state of the run now.</param>
     /// <param name="queue">Takes an intent of the console into the next tick of the run.</param>
-    /// <param name="switchCarriedLight">Turns the carried light on or off, and tells whether it is on now (D-851).</param>
     /// <returns>The lines that a console would print.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="InvalidOperationException">
     /// The build is a release build, it holds no debug assembly, or the entry lost a member (T-2).
     /// </exception>
-    public static IReadOnlyList<string> Run(string line, Func<RunState> state, Action<Intent> queue, Func<bool> switchCarriedLight)
+    public static IReadOnlyList<string> Run(string line, Func<RunState> state, Action<Intent> queue)
     {
         ArgumentNullException.ThrowIfNull(line);
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(queue);
-        ArgumentNullException.ThrowIfNull(switchCarriedLight);
         RefuseReleaseBuild(nameof(Run));
 
-        return Entry<Func<string, Func<RunState>, Action<Intent>, Func<bool>, IReadOnlyList<string>>>(RunMember)(
+        return Entry<Func<string, Func<RunState>, Action<Intent>, IReadOnlyList<string>>>(RunMember)(
             line,
             state,
-            queue,
-            switchCarriedLight);
+            queue);
     }
 
     /// <summary>Names every command of the console (D-117).</summary>

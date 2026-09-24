@@ -129,6 +129,45 @@ public sealed class GameRun
         }
     }
 
+    /// <summary>True while the party holds the torch out, which the carried light and the torch in the hand follow (D-847, D-1064).</summary>
+    public bool TorchHeld => this.simulation.State.Characters.TorchHeld;
+
+    /// <summary>
+    /// True when the party holds the torch out for the next tick, with the queued intents of
+    /// this frame applied (D-1064), as <see cref="MenuOpenNextTick"/> reads the menu.
+    /// </summary>
+    public bool TorchHeldNextTick
+    {
+        get
+        {
+            bool held = this.TorchHeld;
+            foreach (Intent queued in this.queued)
+            {
+                if (string.CompareOrdinal(queued.Action.Value, IntentIds.HoldTorch.Value) == 0)
+                {
+                    held = true;
+                }
+                else if (string.CompareOrdinal(queued.Action.Value, IntentIds.PutTorchAway.Value) == 0)
+                {
+                    held = false;
+                }
+            }
+
+            return held;
+        }
+    }
+
+    /// <summary>
+    /// True when the torch action makes an intent: on the walk, with no menu, no fight, no
+    /// encounter, and no story scene, and with the torch in the pack (D-1071).
+    /// </summary>
+    /// <remarks>The rules refuse the intent at any other time, so the host sends none then (T-2).</remarks>
+    public bool TorchWorks =>
+        !this.MenuOpenNextTick &&
+        !this.InBattle &&
+        !this.simulation.State.Story.Running &&
+        this.simulation.State.Characters.CountOf(TorchRules.Torch) > 0;
+
     /// <summary>
     /// The state of the run, which a report command of the debug console reads (D-171, D-724).
     /// </summary>
@@ -272,7 +311,8 @@ public sealed class GameRun
 
     /// <summary>
     /// Gives the intent that one action of the input map makes now (D-493, D-561). The menu
-    /// action makes two intents, because one button opens the menu and closes it (D-162).
+    /// action makes two intents, because one button opens the menu and closes it (D-162). The
+    /// torch action makes two too, because one button holds the torch out and puts it away (D-1064).
     /// </summary>
     /// <param name="action">The name of the action, such as `menu`.</param>
     /// <returns>The intent of the player.</returns>
@@ -280,9 +320,10 @@ public sealed class GameRun
     /// <remarks>
     /// The method reads the menu state of the run, so the host never holds a copy of it. A
     /// host that passed a constant would send `intent.open_menu` for every press, and the
-    /// player could not leave the menu with its own button (T-2).
+    /// player could not leave the menu with its own button (T-2). The torch reads the queued
+    /// intents of this frame, so a second press before the tick puts the torch away again.
     /// </remarks>
-    public Intent IntentOf(string action) => Intent.OfPlayer(InputActions.IntentOf(action, this.MenuOpen));
+    public Intent IntentOf(string action) => Intent.OfPlayer(InputActions.IntentOf(action, this.MenuOpen, this.TorchHeldNextTick));
 
     /// <summary>Adds an intent that the next tick applies (D-493).</summary>
     /// <param name="intent">The intent, which Game made from one input event (F-50).</param>

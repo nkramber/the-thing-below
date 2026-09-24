@@ -21,7 +21,7 @@ public static class MapFixture
     /// <summary>Builds the map into one frame.</summary>
     /// <param name="frame">The frame that holds the world viewport and the UI layer.</param>
     /// <param name="base">The atlas and the theme.</param>
-    /// <param name="party">The party of the run, which names the map and the places.</param>
+    /// <param name="run">The run, whose party names the map and the places, and whose torch sets the carried light (D-1064).</param>
     /// <param name="content">The content set, for the decor and the light (D-843).</param>
     /// <param name="ambient">The weather that the screen draws, or no value for the weather of the map (D-202, D-889).</param>
     /// <param name="seekParticles">True for a capture, which seeks each stream to the tick of the frame (D-172).</param>
@@ -31,7 +31,7 @@ public static class MapFixture
     public static MapScreen Build(
         FrameRoot frame,
         UiBase @base,
-        MapState party,
+        GameRun run,
         ContentSet content,
         AmbientEffect? ambient = null,
         bool seekParticles = false,
@@ -39,9 +39,10 @@ public static class MapFixture
     {
         ArgumentNullException.ThrowIfNull(frame);
         ArgumentNullException.ThrowIfNull(@base);
-        ArgumentNullException.ThrowIfNull(party);
+        ArgumentNullException.ThrowIfNull(run);
         ArgumentNullException.ThrowIfNull(content);
 
+        MapState party = run.Party;
         frame.ShowGlow(content.Light.Glow);
 
         // A capture can show the other mode, so the owner reads both (D-917).
@@ -50,7 +51,7 @@ public static class MapFixture
         var drawn = new MapScreen();
         frame.World.AddChild(drawn);
         drawn.Build(@base.Atlas, @base.Theme, party, content, ambient ?? content.Effects.Ambient.WeatherOf(party.Map.Id), passes);
-        drawn.ShowParty(party, 0);
+        drawn.ShowParty(party, 0, run.Tick, run.TorchHeld);
         drawn.SeekParticles = seekParticles;
         drawn.ShowWeather(0, seekParticles);
         return drawn;

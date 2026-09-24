@@ -262,6 +262,36 @@ public sealed class GameRunTests
         Assert.Equal(IntentIds.Confirm.Value, shut.Action.Value);
     }
 
+    [Fact]
+    public void TheTorchActionHoldsTheTorchOutAndThenPutsItAway()
+    {
+        // D-1064, D-1068: one button holds the torch out and puts it away. The run reads the
+        // queued intents, so a second press before the tick puts the torch away again.
+        Run run = Run.Start();
+        Assert.False(run.State.Characters.TorchHeld);
+
+        Intent first = run.IntentOf("torch");
+        run.Queue(first);
+        Assert.Equal(IntentIds.PutTorchAway.Value, run.IntentOf("torch").Action.Value);
+        run.Advance(OneTick);
+
+        Assert.Equal(IntentIds.HoldTorch.Value, first.Action.Value);
+        Assert.True(run.State.Characters.TorchHeld);
+        Assert.Equal(IntentIds.PutTorchAway.Value, run.IntentOf("torch").Action.Value);
+    }
+
+    [Fact]
+    public void TheTorchWorksOnTheWalkAloneWithTheTorchInThePack()
+    {
+        // D-1071: the host sends the torch intent on the walk alone, and the fixture pack holds the torch.
+        Run run = Run.Start();
+        Assert.True(run.TorchWorks);
+
+        run.Queue(Intent.OfPlayer(IntentIds.OpenMenu));
+
+        Assert.False(run.TorchWorks);
+    }
+
     private sealed class Run
     {
         private readonly object instance;
@@ -307,6 +337,9 @@ public sealed class GameRunTests
 
         public RunState State => (RunState)(this.instance.GetType().GetProperty("State")!.GetValue(this.instance)
             ?? throw new InvalidOperationException("The run holds no state (T-2)."));
+
+        public bool TorchWorks => (bool)(this.instance.GetType().GetProperty("TorchWorks")!.GetValue(this.instance)
+            ?? throw new InvalidOperationException("The torch gate has no value (T-2)."));
 
         public object? NoticeAt(int charactersPerSecond) =>
             this.instance.GetType().GetMethod("NoticeAt")!.Invoke(this.instance, [charactersPerSecond]);

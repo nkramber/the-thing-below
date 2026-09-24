@@ -1,0 +1,48 @@
+{
+ "id": "drawing.marrek_map_torch",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "cast.marrek", "use": "map_torch" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "............kkkkkkkk............",
+    "..........kktBBBBBBbkk..........",
+    ".........ktttBBBBBBbbbk.........",
+    ".........ktttBBBBBBbbbk.........",
+    ".........kBbtttttttttBk.........",
+    "..........kBSssssssttk..........",
+    "...........@skssssks@...........",
+    ".....kdk...@skssssks@..GGGGGG...",
+    ".....dbd...@ssssssss@.g..g...g..",
+    ".....kbk...@sssttsss@....t......",
+    "......B.....@ssssss@.....t......",
+    "......B....rRRRRRRRRr....t......",
+    "......B..bbXXXxxxxRRRbb..t......",
+    "......Bbb333tXxtttttBBBbbt......",
+    "......Bb3333tXxtttttBBBBBt......",
+    "......Bb3333tXxtotttBBBBBt......",
+    "......Bb3333tXxtttttBBBBBt......",
+    "......Bb3333ttttttttBBBBBt......",
+    "......Bb3333ttttotttBBBBBt......",
+    "......BbtbbbbbbOObbbbbb3tt......",
+    "......B@tBBBBBBBBBBBBBBttt......",
+    "......B@@b3ttBBdd33ttBb@@t......",
+    "......B...dDDDd..dDDDd...t......",
+    "..........dGgDd..dGgDd..........",
+    "..........dGgDd..dGgDd..........",
+    "..........dGgDd..dGgDd..........",
+    "..........dGgDd..dGgDd..........",
+    "..........kbbbk..kbbbk..........",
+    ".........ktBBbk..ktBBbk.........",
+    ".........kkkkkk..kkkkkk........."
+   ]
+  }
+ ]
+}

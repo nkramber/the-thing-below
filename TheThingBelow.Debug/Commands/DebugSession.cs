@@ -20,10 +20,6 @@ namespace TheThingBelow.Debug.Commands;
 /// <para>
 /// A command that reports reads the state of the run and sends no intent (D-724).
 /// </para>
-/// <para>
-/// A command that changes the view calls the switch that the host gives, and it sends no
-/// intent, so no record holds it (D-851).
-/// </para>
 /// </remarks>
 public sealed class DebugSession
 {
@@ -32,22 +28,18 @@ public sealed class DebugSession
 
     private readonly Func<RunState> state;
     private readonly Action<Intent> queue;
-    private readonly Func<bool> switchCarriedLight;
 
     /// <summary>Makes the session over one run.</summary>
     /// <param name="state">Gives the state of the run now, which a report command reads.</param>
     /// <param name="queue">Takes an intent of the console into the next tick of the run.</param>
-    /// <param name="switchCarriedLight">Turns the carried light on or off, and tells whether it is on now (D-851).</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    public DebugSession(Func<RunState> state, Action<Intent> queue, Func<bool> switchCarriedLight)
+    public DebugSession(Func<RunState> state, Action<Intent> queue)
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(queue);
-        ArgumentNullException.ThrowIfNull(switchCarriedLight);
 
         this.state = state;
         this.queue = queue;
-        this.switchCarriedLight = switchCarriedLight;
     }
 
     /// <summary>Runs one typed line.</summary>
@@ -100,14 +92,6 @@ public sealed class DebugSession
         }
 
         List<string> answer = [$"> {shown}"];
-        if (command.ChangesView)
-        {
-            // The view changes here, and no rule reads it, so no intent and no record exist (D-851).
-            bool on = this.switchCarriedLight();
-            answer.Add(on ? "the carried light is on, and no record holds the change (D-847)" : "the carried light is off, and no record holds the change (D-847)");
-            return answer;
-        }
-
         if (command.MakesIntent)
         {
             // The command changes the run on a tick of the rules, and never here. The host

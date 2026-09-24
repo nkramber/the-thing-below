@@ -48,6 +48,10 @@ public static class GameInputMap
         // D-990: the Deck and an Xbox pad name the Back button View. The step of the settings file
         // from format 1 holds the same two numbers, and a test compares them (D-570).
         [InputActions.Map] = [Key(Godot.Key.M), Button(JoyButton.Back)],
+
+        // D-1068: the step of the settings file from format 2 holds the same two numbers, and a test
+        // compares them (D-570).
+        [InputActions.Torch] = [Key(Godot.Key.T), Button(JoyButton.Y)],
     });
 
     /// <summary>Builds every action of the game in the input map of this session.</summary>

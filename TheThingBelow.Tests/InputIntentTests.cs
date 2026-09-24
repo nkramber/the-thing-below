@@ -72,6 +72,14 @@ public sealed class InputIntentTests
     }
 
     [Fact]
+    public void TheTorchActionHoldsTheTorchOutAndPutsItAway()
+    {
+        // D-1064, D-1068. One button holds the torch out and puts it away.
+        Assert.Equal(IntentIds.HoldTorch.Value, IntentOf("torch", false, torchHeld: false).Value);
+        Assert.Equal(IntentIds.PutTorchAway.Value, IntentOf("torch", false, torchHeld: true).Value);
+    }
+
+    [Fact]
     public void AnUnknownActionFails()
     {
         // T-2. A name with no intent is an error, and never a silent step of nothing.
@@ -144,8 +152,8 @@ public sealed class InputIntentTests
             .GetProperty("Names")!
             .GetValue(null)!;
 
-    private static ContentId IntentOf(string action, bool menuOpen) =>
+    private static ContentId IntentOf(string action, bool menuOpen, bool torchHeld = false) =>
         (ContentId)GameAssemblyFile.Type(ActionsTypeName)
             .GetMethod("IntentOf")!
-            .Invoke(null, [action, menuOpen])!;
+            .Invoke(null, [action, menuOpen, torchHeld])!;
 }

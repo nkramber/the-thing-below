@@ -70,7 +70,7 @@ public sealed class DebugSeamTests
     }
 
     [Fact]
-    public void TheConsoleMemberTakesTheThreeDelegatesAndGivesAGodotControl()
+    public void TheConsoleMemberTakesTheTwoDelegatesAndGivesAGodotControl()
     {
         // The return type is an engine type, so this test reads its name and never the type.
         // Tests loads no Godot assembly (D-614).
@@ -78,7 +78,7 @@ public sealed class DebugSeamTests
 
         Assert.Equal("Godot.Control", found.ReturnType.FullName);
         Assert.Equal(
-            [typeof(Func<RunState>), typeof(Action<Intent>), typeof(Func<bool>)],
+            [typeof(Func<RunState>), typeof(Action<Intent>)],
             found.GetParameters().Select(parameter => parameter.ParameterType));
     }
 
@@ -96,12 +96,12 @@ public sealed class DebugSeamTests
     }
 
     [Fact]
-    public void TheRunMemberTakesTheLineAndTheThreeDelegates()
+    public void TheRunMemberTakesTheLineAndTheTwoDelegates()
     {
         MethodInfo found = DebugAssemblyFile.Member(Seam("RunMember"));
 
         Assert.Equal(
-            [typeof(string), typeof(Func<RunState>), typeof(Action<Intent>), typeof(Func<bool>)],
+            [typeof(string), typeof(Func<RunState>), typeof(Action<Intent>)],
             found.GetParameters().Select(parameter => parameter.ParameterType));
     }
 

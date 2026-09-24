@@ -196,26 +196,10 @@ public sealed class DebugConsoleTests
     }
 
     [Fact]
-    public void TheTorchCommandSwitchesTheCarriedLightAndSendsNoIntent()
+    public void TheConsoleHoldsNoTorchCommand()
     {
-        // D-851: the command changes the view alone, so no record holds it.
-        Simulation run = Start();
-        List<Intent> queued = [];
-        bool on = false;
-        bool Switch()
-        {
-            on = !on;
-            return on;
-        }
-
-        IReadOnlyList<string> first = DebugAssemblyFile.Run("torch", () => run.State, queued.Add, Switch);
-        Assert.True(on);
-        Assert.Contains("is on", first[1], StringComparison.Ordinal);
-
-        IReadOnlyList<string> second = DebugAssemblyFile.Run("torch", () => run.State, queued.Add, Switch);
-        Assert.False(on);
-        Assert.Contains("is off", second[1], StringComparison.Ordinal);
-        Assert.Empty(queued);
+        // D-1071: the torch action of the player replaced the `torch` command of D-851.
+        Assert.DoesNotContain("torch", DebugAssemblyFile.CommandNames());
     }
 
     [Fact]
@@ -388,7 +372,7 @@ public sealed class DebugConsoleTests
         }
 
         // PR-99 removed the `swap` command (D-1050).
-        Assert.Equal(14, names.Count);
+        Assert.Equal(13, names.Count);
     }
 
     private static Simulation Start() =>

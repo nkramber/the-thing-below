@@ -20,6 +20,15 @@ public static class SettingsMigration
     /// <remarks>The Deck and an Xbox pad name this button View (D-990).</remarks>
     public const int MapButton = 4;
 
+    /// <summary>The name of the torch action, which format 3 added (D-1068).</summary>
+    public const string TorchAction = "torch";
+
+    /// <summary>The number of the Godot `Key.T`, the default key of the torch action (D-1068).</summary>
+    public const int TorchKey = 84;
+
+    /// <summary>The number of the Godot `JoyButton.Y`, the default button of the torch action (D-1068).</summary>
+    public const int TorchButton = 3;
+
     /// <summary>
     /// Gives the settings of format 1 in format 2: the controls gain the map action with its
     /// default key and button (D-986, D-990).
@@ -33,7 +42,26 @@ public static class SettingsMigration
     /// on the settings screen, which names both actions and blocks the close until a remap
     /// ends it (D-862). The step never drops a binding of the player.
     /// </remarks>
-    public static GameSettings FromFormatOne(GameSettings settings)
+    public static GameSettings FromFormatOne(GameSettings settings) =>
+        WithAction(settings, MapAction, MapKey, MapButton, "format 1 hold the action 'map', and format 2 added it (D-986)");
+
+    /// <summary>
+    /// Gives the settings of format 2 in format 3: the controls gain the torch action with its
+    /// default key and button (D-1068).
+    /// </summary>
+    /// <param name="settings">The settings that a file of format 2 held.</param>
+    /// <returns>The settings with the torch action. Every other value stays.</returns>
+    /// <exception cref="ArgumentNullException">The settings are null (T-2).</exception>
+    /// <exception cref="ArgumentException">The settings already hold the torch action, which format 2 predates (T-2).</exception>
+    /// <remarks>
+    /// A player who bound T or the Y button to another action meets a conflict on the settings
+    /// screen, as the step of format 1 does (D-862). The step never drops a binding of the player.
+    /// </remarks>
+    public static GameSettings FromFormatTwo(GameSettings settings) =>
+        WithAction(settings, TorchAction, TorchKey, TorchButton, "format 2 hold the action 'torch', and format 3 added it (D-1068)");
+
+    /// <summary>Adds one action with its default key and button to the controls, and keeps every other binding.</summary>
+    private static GameSettings WithAction(GameSettings settings, string added, int key, int button, string refusal)
     {
         ArgumentNullException.ThrowIfNull(settings);
 
@@ -41,16 +69,15 @@ public static class SettingsMigration
         var actions = new SortedDictionary<string, IReadOnlyList<InputBinding>>(StringComparer.Ordinal);
         foreach (string action in bindings.Names)
         {
-            if (string.CompareOrdinal(action, MapAction) == 0)
+            if (string.CompareOrdinal(action, added) == 0)
             {
-                throw new ArgumentException(
-                    $"The settings of format 1 hold the action '{MapAction}', and format 2 added it (D-986).", nameof(settings));
+                throw new ArgumentException($"The settings of {refusal}.", nameof(settings));
             }
 
             actions.Add(action, bindings.Of(action));
         }
 
-        actions.Add(MapAction, [InputBinding.OfKey(MapKey), InputBinding.OfButton(MapButton)]);
+        actions.Add(added, [InputBinding.OfKey(key), InputBinding.OfButton(button)]);
         return settings with { Controls = settings.Controls with { Bindings = new ControlBindings(actions) } };
     }
 }

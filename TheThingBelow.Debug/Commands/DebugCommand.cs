@@ -6,8 +6,8 @@ using TheThingBelow.Core.Runs;
 namespace TheThingBelow.Debug.Commands;
 
 /// <summary>
-/// One command of the debug console (D-171). A command changes the run through an intent,
-/// reports a value of the run and changes nothing (D-724), or changes the view alone (D-851).
+/// One command of the debug console (D-171). A command changes the run through an intent, or
+/// reports a value of the run and changes nothing (D-724).
 /// </summary>
 /// <remarks>
 /// A command that changes the run carries the id of its intent and the handler of that
@@ -34,10 +34,8 @@ public sealed class DebugCommand
         ContentId? action,
         DebugIntentHandler? handler,
         Func<RunState, string>? report,
-        BattleSide? targetSide,
-        bool changesView = false)
+        BattleSide? targetSide)
     {
-        this.ChangesView = changesView;
         this.TargetSide = targetSide;
         this.Name = name;
         this.Summary = summary;
@@ -122,26 +120,6 @@ public sealed class DebugCommand
 
         return new DebugCommand(name, summary, null, null, report, null);
     }
-
-    /// <summary>Makes a command that changes the view alone, such as the carried light (D-851).</summary>
-    /// <param name="name">The word that the person types, such as `torch`.</param>
-    /// <param name="summary">One line for `help`.</param>
-    /// <returns>The command.</returns>
-    /// <exception cref="ArgumentException">The name or the summary is empty (T-2).</exception>
-    /// <remarks>
-    /// The command sends no intent, so no record holds it, and no rule reads the view (D-851,
-    /// G-1). The host gives the switch of the view to the session.
-    /// </remarks>
-    public static DebugCommand OfView(string name, string summary)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(name);
-        ArgumentException.ThrowIfNullOrEmpty(summary);
-
-        return new DebugCommand(name, summary, null, null, null, null, changesView: true);
-    }
-
-    /// <summary>True when the command changes the view alone and sends no intent (D-851).</summary>
-    public bool ChangesView { get; }
 
     /// <summary>True when the command sends an intent that the run record holds (D-171).</summary>
     public bool MakesIntent => this.Action is not null;
