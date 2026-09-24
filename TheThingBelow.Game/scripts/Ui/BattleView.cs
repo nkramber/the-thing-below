@@ -292,6 +292,10 @@ public sealed class BattleView
             case BattleEventKind.LevelUp:
                 actor.LevelUp(played.Amount);
                 return;
+            case BattleEventKind.Lesson:
+                // The amount of a lesson event is the MP that the form spent (D-1027).
+                actor.Mp = Math.Max(0, actor.Mp - played.Amount);
+                return;
             default:
                 // A start, a turn, a miss, a defend, a failed flee, an immune status, a sleep,
                 // the three ends, and the experience change no value that the screen shows.

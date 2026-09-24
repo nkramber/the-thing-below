@@ -1,0 +1,12 @@
+{
+ "comment": "The flash of the salve, the fixture heal rite (D-1032). A soft pale light swells over the ally, the frame takes a faint green, and motes of moss light drift up.",
+ "id": "effect.spell_salve",
+ "serves": ["ability.fixture_salve"],
+ "shape": "swell",
+ "length_ticks": 26,
+ "light": { "color": "V", "strength": 16000, "range": 80, "height": 24 },
+ "tint": { "color": "N", "strength": 500 },
+ "emitters": [
+  { "amount": 10, "lifetime_ticks": 26, "colors": ["V", "N", "w"], "size": 1, "area": 8, "direction": -90, "spread": 25, "slowest_speed": 10, "fastest_speed": 30, "gravity": -12 }
+ ]
+}

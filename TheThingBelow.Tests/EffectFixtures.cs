@@ -73,8 +73,38 @@ internal static class EffectFixtures
         ];
 
         files.AddRange(TransitionFiles());
+        files.AddRange(SpellFiles());
         return files;
     }
+
+    /// <summary>The forms of the rites of <see cref="TestBattles.LessonsFile"/>, each of which takes one spell file (D-1032).</summary>
+    public static readonly IReadOnlyList<string> RiteForms = ["cinder", "blaze", "salve", "purge", "rot", "quicken"];
+
+    /// <summary>Gives one spell file for each form of a rite of the tests. Each length differs, so no two files show one look (D-1032).</summary>
+    /// <returns>The files.</returns>
+    public static IReadOnlyList<ContentFile> SpellFiles()
+    {
+        List<ContentFile> files = [];
+        for (int index = 0; index < RiteForms.Count; index += 1)
+        {
+            files.Add(File(SpellPath(RiteForms[index]), SpellBody(RiteForms[index], 10 + (2 * index))));
+        }
+
+        return files;
+    }
+
+    /// <summary>Gives the path of the spell file of the tests for one form.</summary>
+    /// <param name="form">The name part of the ability, such as `cinder`.</param>
+    /// <returns>The path.</returns>
+    public static string SpellPath(string form) => $"{SpellEffect.Folder}test-{form}.json";
+
+    /// <summary>Makes the body of a spell file that serves one fixture form.</summary>
+    /// <param name="form">The name part of the ability, such as `cinder`.</param>
+    /// <param name="length">The length of the flash, in ticks, which sets the look apart.</param>
+    /// <param name="shape">The shape of the light.</param>
+    /// <returns>The body.</returns>
+    public static string SpellBody(string form, int length, string shape = "spike") =>
+        $$"""{ "comment": "a test spell file", "id": "effect.test_{{form}}", "serves": ["ability.fixture_{{form}}"], "shape": "{{shape}}", "length_ticks": {{length}}, "light": { "color": "k", "strength": 10000, "range": 64, "height": 16 }, "tint": { "color": "k", "strength": 500 }, "emitters": [{{Emitter}}] }""";
 
     /// <summary>
     /// Gives the files with the transition table replaced by one whose region holds each map of the

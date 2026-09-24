@@ -167,6 +167,45 @@ public static class BattleWalk
     }
 
     /// <summary>
+    /// Casts the first form of the cinder, the fire rite of the fixture, at the first enemy on the
+    /// first turn of a character, and plays its lesson event to the given ticks (D-1027, D-1032).
+    /// </summary>
+    /// <param name="run">The run, at a command of a character.</param>
+    /// <param name="ticksIntoSpell">The ticks of the lesson event that the run plays before it stops.</param>
+    /// <exception cref="ArgumentNullException">The run is null (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The ticks are outside the line of the lesson event (T-2).</exception>
+    /// <exception cref="InvalidOperationException">No such event came inside the limit (T-2).</exception>
+    public static void ToSpellOfCharacter(GameRun run, int ticksIntoSpell)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentOutOfRangeException.ThrowIfNegative(ticksIntoSpell);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(ticksIntoSpell, run.Pace.LineTicks);
+
+        ContentId cinder = ContentId.Parse("lesson.fixture_cinder", "TheThingBelow.Game/scripts/BattleWalk.cs", "cinder");
+        bool cast = false;
+        for (int tick = 0; tick < TickLimit; tick += 1)
+        {
+            if (run.PlayingEvent is BattleEvent playing
+                && playing.Kind == BattleEventKind.Lesson
+                && run.PlayingTicks == ticksIntoSpell)
+            {
+                return;
+            }
+
+            if (!cast && run.TakesBattleCommand && run.State.Battle is Battle battle)
+            {
+                run.Queue(Intent.OfBattleLesson(cinder, 0, battle.MeleeTargets(BattleSide.Enemy)[0].Target));
+                cast = true;
+            }
+
+            OneTick(run);
+        }
+
+        throw new InvalidOperationException(
+            $"The fight reached no spell of a character in {TickLimit} ticks (D-1032, T-2).");
+    }
+
+    /// <summary>
     /// Attacks the first enemy that melee reaches on each turn of a character, until the fight
     /// is won and the experience of the first character has played the given ticks (D-975).
     /// </summary>

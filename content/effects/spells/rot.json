@@ -1,0 +1,12 @@
+{
+ "comment": "The flash of the rot, the fixture blight rite (D-1032). A dull hex light spikes on the foe, the frame takes a sick violet tint, and heavy drops of plum fall and spread.",
+ "id": "effect.spell_rot",
+ "serves": ["ability.fixture_rot"],
+ "shape": "spike",
+ "length_ticks": 22,
+ "light": { "color": "P", "strength": 14000, "range": 64, "height": 16 },
+ "tint": { "color": "p", "strength": 900 },
+ "emitters": [
+  { "amount": 12, "lifetime_ticks": 22, "colors": ["P", "!", "p"], "size": 2, "area": 5, "direction": 90, "spread": 70, "slowest_speed": 10, "fastest_speed": 40, "gravity": 160 }
+ ]
+}

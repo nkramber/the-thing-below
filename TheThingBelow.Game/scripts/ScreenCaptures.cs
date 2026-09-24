@@ -279,6 +279,17 @@ public static class ScreenCaptures
         new("fire-1x", "effect.fire_capture"),
     ];
 
+    /// <summary>The frames of the flash of the cinder at each level of the flash and shake setting (D-863, D-1032).</summary>
+    public static IReadOnlyList<LevelFrame> SpellFrames { get; } =
+    [
+        new("spell-full-1x", EffectLevel.Full),
+        new("spell-reduced-1x", EffectLevel.Reduced),
+        new("spell-off-1x", EffectLevel.Off),
+    ];
+
+    /// <summary>The ticks into the lesson event that each spell frame shows: the peak of the spike and the start of its fall (D-1032).</summary>
+    public const int SpellFrameTicks = 3;
+
     /// <summary>The frames of the battle fixture that stage a heavy blow after its hit-stop, one for each level (D-863, D-877).</summary>
     public static IReadOnlyList<LevelFrame> HeavyFrames { get; } =
     [
@@ -380,6 +391,12 @@ public static class ScreenCaptures
         foreach (LevelFrame heavy in HeavyFrames)
         {
             captures.Add(new ScreenCapture(BattleFixture, heavy.Frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        }
+
+        // PR-12: the flash of the cinder at each level of the flash and shake setting (D-863, D-878, D-1032).
+        foreach (LevelFrame spell in SpellFrames)
+        {
+            captures.Add(new ScreenCapture(BattleFixture, spell.Frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         }
 
         // The summary after the win draws at 1x: the experience, and a staged level-up halfway
@@ -585,7 +602,25 @@ public static class ScreenCaptures
     /// <summary>Gives the level of the flash and shake reduction of a frame of the battle fixture (D-863).</summary>
     /// <param name="frame">The name of the frame.</param>
     /// <returns>The level of a heavy frame, and the default level, full, for every other frame (D-868).</returns>
-    public static EffectLevel LevelOf(string frame) => HeavyLevelOf(frame) ?? EffectLevel.Full;
+    public static EffectLevel LevelOf(string frame) => HeavyLevelOf(frame) ?? SpellLevelOf(frame) ?? EffectLevel.Full;
+
+    /// <summary>Tells whether a frame of the battle fixture shows the flash of a spell (D-1032).</summary>
+    /// <param name="frame">The name of the frame.</param>
+    /// <returns>True for each spell frame.</returns>
+    public static bool StagesSpell(string frame) => SpellLevelOf(frame) is not null;
+
+    private static EffectLevel? SpellLevelOf(string frame)
+    {
+        foreach (LevelFrame spell in SpellFrames)
+        {
+            if (string.CompareOrdinal(spell.Frame, frame) == 0)
+            {
+                return spell.Level;
+            }
+        }
+
+        return null;
+    }
 
     private static EffectLevel? HeavyLevelOf(string frame)
     {

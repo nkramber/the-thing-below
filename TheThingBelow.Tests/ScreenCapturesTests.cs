@@ -62,6 +62,9 @@ public sealed class ScreenCapturesTests
         "battle-heavy-full-1x.png",
         "battle-heavy-reduced-1x.png",
         "battle-heavy-off-1x.png",
+        "battle-spell-full-1x.png",
+        "battle-spell-reduced-1x.png",
+        "battle-spell-off-1x.png",
         "battle-experience-1x.png",
         "battle-level-up-rise-1x.png",
         "battle-level-up-1x.png",
@@ -130,7 +133,7 @@ public sealed class ScreenCapturesTests
     public static TheoryData<string> ExpectedNames { get; } = BuildExpectedNames();
 
     [Fact]
-    public void TheListHoldsFiveCapturesOfEachStillFixtureOneForEachTickOfTheWalkSixteenOfTheBattleAndThreeOfTheSettings()
+    public void TheListHoldsFiveCapturesOfEachStillFixtureOneForEachTickOfTheWalkNineteenOfTheBattleAndThreeOfTheSettings()
     {
         // D-734. Two still fixtures, and five captures of each one: the frame at 1x, and both
         // fit modes at 1080 and 1440 screen rows (D-232, D-568). D-782 adds the walk: 17 ticks
@@ -149,8 +152,9 @@ public sealed class ScreenCapturesTests
         // PR-62 adds the main list, each task window, and the dungeon map screen at 1x, the main list at
         // 1080 rows, and a notice inside its type-out and its hold (exit test 2 of PR-62).
         // PR-12 adds the list of the lessons and the list of the forms in a fight, and the lesson
-        // window with its slots and its swap list (D-1027, D-1030, D-1031).
-        Assert.Equal(10 + 34 + 1 + 16 + 3 + 14 + 2 + 11 + MenuNames.Length, FileNames().Count);
+        // window with its slots and its swap list, and the flash of a spell at each level (D-1027,
+        // D-1030, D-1031, D-1032).
+        Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + MenuNames.Length, FileNames().Count);
     }
 
     [Fact]

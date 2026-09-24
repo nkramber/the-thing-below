@@ -1777,7 +1777,7 @@ public partial class Boot : Node
                 if (screen is null)
                 {
                     screen = BattleScreen.Build(built, shownBase, loaded, open, new CommandMemory(SmokeSettings().Battle.RememberCursor), SmokeSettings().Access.Effects);
-                    nodes = $"{screen.CombatantCount} combatants over {screen.BackdropCopies} backdrop copies in {screen.CheckLights()} key light, with {screen.CheckBursts()} particle nodes";
+                    nodes = $"{screen.CombatantCount} combatants over {screen.BackdropCopies} backdrop copies in {screen.CheckLights()} lights (the key light and the light of a spell), with {screen.CheckBursts()} particle nodes";
                 }
 
                 screen.Show(open);

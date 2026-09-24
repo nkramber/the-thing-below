@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Runs;
 using Xunit;
 
@@ -141,7 +142,7 @@ public sealed class BattleViewTests
         BattleTurns.GiveStatus(run.State, chosen.Target, status, run.State.Context("test/status"));
     }
 
-    /// <summary>Picks the choice of one turn: an attack, a step, an item, or a defend (D-359).</summary>
+    /// <summary>Picks the choice of one turn: an attack, a step, an item, a defend, or a lesson that the rules take (D-359, D-1027).</summary>
     private static Intent ChoiceOf(Simulation run, ulong seed, int turn)
     {
         int pick = (int)((seed + (ulong)turn) % 5);
@@ -167,6 +168,22 @@ public sealed class BattleViewTests
             }
         }
 
+        if (pick == 4)
+        {
+            Battle battle = BattleRuns.BattleOf(run);
+            foreach (string name in new[] { "cinder", "hew" })
+            {
+                var lesson = ContentId.Parse($"lesson.fixture_{name}", "test", "lesson");
+                foreach (Combatant enemy in battle.Enemies)
+                {
+                    if (BattleTurns.RefusalOf(run.State, new BattleChoice(BattleAction.Lesson, enemy.Target, null, lesson, 0)) is null)
+                    {
+                        return Intent.OfBattleLesson(lesson, 0, enemy.Target);
+                    }
+                }
+            }
+        }
+
         return BattleRuns.AttackFirst(run);
     }
 
@@ -174,6 +191,15 @@ public sealed class BattleViewTests
     {
         Battle battle = BattleRuns.BattleOf(run);
         AssertSide(Side(view, "Party"), battle.Party, seed, turn);
+
+        // The view spends the MP of each lesson event, as the rules do (D-1027).
+        IReadOnlyList<object> party = Side(view, "Party");
+        for (int slot = 0; slot < party.Count; slot += 1)
+        {
+            int held = run.State.Characters.Members[slot].Mp;
+            Assert.True(held == Read<int>(party[slot], "Mp"), $"Seed {seed}, turn {turn}, party {slot}: the view shows MP {Read<int>(party[slot], "Mp")}, and the state holds {held}.");
+        }
+
         AssertSide(Side(view, "Enemies"), battle.Enemies, seed, turn);
     }
 

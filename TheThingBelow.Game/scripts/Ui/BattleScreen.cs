@@ -99,6 +99,8 @@ public sealed class BattleScreen
     private BattleLine? shownLine;
     private ContentId? shownDescription;
     private BattleCommands? commands;
+    private SpellFlash spellFlash = null!;
+    private ShownSpell? spell;
     private bool sentCommand;
     private string shownCommands = string.Empty;
 
@@ -233,6 +235,9 @@ public sealed class BattleScreen
             screen.bursts.Add(effect.Id.Value, HitBurst.Build(effect, content.Palette, screen.world));
         }
 
+        // The flash of each spell builds its light, its tint, and its burst at the start of the fight too (D-1032).
+        screen.spellFlash = SpellFlash.Build(content.Effects, content.Palette, screen.world);
+
         screen.PlaceStatusLines();
         screen.Show(run);
         return screen;
@@ -253,10 +258,10 @@ public sealed class BattleScreen
     public int CheckLights()
     {
         int count = WorldLights.CheckLights(this.world);
-        if (count != 1)
+        if (count != 2)
         {
             throw new InvalidOperationException(
-                $"The fight holds {count} lights, and it takes the one key light of its map (T-2, D-850).");
+                $"The fight holds {count} lights, and it takes the key light of its map and the light of a spell (T-2, D-850, D-1032).");
         }
 
         return count;
@@ -373,11 +378,43 @@ public sealed class BattleScreen
         this.ShowWaitingColumn(view);
 
         this.ShowBurst(view, playing, picture, run.Tick - ticks);
+        this.ShowSpell(view, playing, run.Tick, ticks);
         this.ShowMessage(view, playing);
         this.ShowNumber(view, playing, picture);
         this.ShowSummary(view, playing, picture);
         this.ShowStrip(run);
         this.ShowCommands(view);
+    }
+
+    /// <summary>
+    /// Plays the flash of a spell from the tick when its lesson event started, for the length of
+    /// the flash, so the flash keeps its own ticks at each message speed (D-1032). The place of
+    /// the target stays the place at the start, because the target can fall inside the flash.
+    /// </summary>
+    /// <param name="view">The view of the fight.</param>
+    /// <param name="playing">The event that plays, or no value.</param>
+    /// <param name="now">The tick of the run.</param>
+    /// <param name="ticks">The ticks of the event that plays.</param>
+    private void ShowSpell(BattleView view, BattleEvent? playing, long now, int ticks)
+    {
+        if (playing is { Kind: BattleEventKind.Lesson, Ability: ContentId ability, Target: BattleTarget target }
+            && this.content.Effects.SpellOf(ability) is SpellEffect started
+            && (this.spell is null || this.spell.Start != now - ticks))
+        {
+            ShownCombatant struck = view.At(target);
+            FieldPlace place = BattleLayout.PlaceOf(view, struck);
+            CombatantNodes nodes = target.Side == BattleSide.Party ? this.party[target.Slot] : this.enemies[target.Slot];
+            this.spell = new ShownSpell(started, now - ticks, new Vector2(place.X, place.Feet - (nodes.Height / 2)), target.Side == BattleSide.Enemy ? -1 : 1);
+        }
+
+        if (this.spell is not ShownSpell shown || now - shown.Start >= shown.Spell.LengthTicks)
+        {
+            this.spell = null;
+            this.spellFlash.Hide();
+            return;
+        }
+
+        this.spellFlash.Show(shown.Spell, shown.Point, shown.Away, unchecked((uint)shown.Start), (int)(now - shown.Start), this.Effects);
     }
 
     /// <summary>Shows the burst of the hit that plays, from the hit file of its target, and hides every other burst (D-879).</summary>
@@ -1138,6 +1175,9 @@ public sealed class BattleScreen
     }
 
     private sealed record HealthBar(ColorRect Border, ColorRect Fill);
+
+    /// <summary>The spell whose flash plays: the effect, the tick when it started, the body of its target, and the side that the burst leaves toward.</summary>
+    private sealed record ShownSpell(SpellEffect Spell, long Start, Vector2 Point, int Away);
 
     private sealed class StatusLine(HBoxContainer row, Label name, Label health, Label mp, HBoxContainer icons) : IconHolder
     {

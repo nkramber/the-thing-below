@@ -693,6 +693,11 @@ public sealed partial class CaptureSession : Node
             BattleWalk.ToBlowOfCharacter(fight, fight.Pace.BlowTick + afterBlow);
         }
 
+        if (ScreenCaptures.StagesSpell(capture.Frame))
+        {
+            BattleWalk.ToSpellOfCharacter(fight, ScreenCaptures.SpellFrameTicks);
+        }
+
         if (ScreenCaptures.ExperienceTicksOf(capture.Frame) is int intoExperience)
         {
             BattleWalk.ToExperienceOfCharacter(fight, intoExperience);

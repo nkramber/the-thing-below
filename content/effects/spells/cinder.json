@@ -1,0 +1,12 @@
+{
+ "comment": "The flash of the cinder, the first form of the fixture fire rite (D-1032). A short spike of flame light at the target, a thin orange tint, and a small spray of embers that climbs and dies.",
+ "id": "effect.spell_cinder",
+ "serves": ["ability.fixture_cinder"],
+ "shape": "spike",
+ "length_ticks": 18,
+ "light": { "color": "j", "strength": 22000, "range": 96, "height": 20 },
+ "tint": { "color": "j", "strength": 600 },
+ "emitters": [
+  { "amount": 14, "lifetime_ticks": 18, "colors": ["A", "j", "X"], "size": 1, "area": 4, "direction": -90, "spread": 60, "slowest_speed": 40, "fastest_speed": 110, "gravity": -60 }
+ ]
+}
