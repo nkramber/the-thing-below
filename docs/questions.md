@@ -455,24 +455,30 @@ How to file a question (D-19, D-24):
 143. **OQ-143. What a rarity tier changes.** Items come in a few rarity tiers (D-45). What does a tier mean in play? Raised 2026-09-16. Blocks PR-13.
     - The place of the item alone, the recommendation. A rare item sits behind a boss, a puzzle, or a secret, and its numbers need no rule. The tier is then a note for the author, not a rule in Core.
     - The place and a color in the menu. The player reads the value of a find at a glance. The color needs a palette key and a rule for each tier (D-181).
-144. **OQ-144. The step list of a story scene script.** D-173 names move, face, wait, say, choose, and set flag. D-563 adds a join step that brings a cast member into the party. Core runs each step (D-540). What is the full list? Raised 2026-09-16. Blocks PR-68.
+144. **OQ-144. The step list of a story scene script.** D-173 names move, face, wait, say, choose, and set flag. D-563 adds a join step that brings a cast member into the party. Core runs each step (D-540). What is the full list? Raised 2026-09-16. Blocked PR-68.
     - The six steps of D-173 and the join of D-563, plus show, hide, camera, and start battle, the recommendation. The arc of region one needs each one: people enter and leave, the view moves, and the bishop fight follows a story scene (D-319). Eleven steps make a larger schema and eleven tests.
     - The six steps of D-173 and the join of D-563 alone. The schema stays small, and every story scene reads the same way. A story scene then cannot bring a character on screen or start a fight, so the map file must do both.
-145. **OQ-145. How a step that takes time ends.** Game sends a wait intent when a move or a line ends (D-540). A wait step shows nothing. What sets its length? Raised 2026-09-16. Blocks PR-68.
+    - Resolved 2026-09-23: D-997. The eleven steps, the recommendation.
+145. **OQ-145. How a step that takes time ends.** Game sends a wait intent when a move or a line ends (D-540). A wait step shows nothing. What sets its length? Raised 2026-09-16. Blocked PR-68.
     - Content names a length in ticks for a wait step, and Game answers a move or a line with a wait intent, the recommendation. Core counts the ticks of a pause with no engine, so a bot and a replay match (G-3). Two rules for one idea.
     - Game answers every step with a wait intent, a wait step included. One rule covers each step. A bot then decides the length of every pause, so no story scene has a pace of its own in a run record.
-146. **OQ-146. The shape of a condition.** One condition form serves every reader (D-543), and a flag is on or off (D-542). What can a condition say? Raised 2026-09-16. Blocks PR-68.
+    - Resolved 2026-09-23: D-1000. A wait step names its ticks, and Game ends a move, a face, and a line.
+146. **OQ-146. The shape of a condition.** One condition form serves every reader (D-543), and a flag is on or off (D-542). What can a condition say? Raised 2026-09-16. Blocked PR-68.
     - A list of flag ids that must be on, and a list that must be off, the recommendation. Every condition reads at a glance, and the parser is a few lines (T-1). A choice between two routes needs a flag for each side.
     - A nested form with and, or, and not. Any rule of region two fits with no new content shape. It is a small language with its own parser, its own error messages, and its own tests.
-147. **OQ-147. Where content declares each flag id.** A load fails on a flag id that no file declares (D-542). Where does the declaration live? Raised 2026-09-16. Blocks PR-68.
+    - Resolved 2026-09-23: D-1001 and D-1002. A tree of all, any, and not over flag leaves, with an always leaf.
+147. **OQ-147. Where content declares each flag id.** A load fails on a flag id that no file declares (D-542). Where does the declaration live? Raised 2026-09-16. Blocked PR-68.
     - One file of every flag id, with a line of prose for each, the recommendation. The owner reads the whole memory of the game in one file, and a typo in any reader fails the load. Every story PR edits one file.
     - Each file declares the ids that it sets. A story scene carries its own flags, and no file grows without limit. Two files can then declare one id, so the loader needs a rule for a repeat.
-148. **OQ-148. What fires a story scene trigger.** The map file lists each story scene trigger with its condition (D-528). What fires one? Raised 2026-09-16. Blocks PR-68.
+    - Resolved 2026-09-23: D-1003. One file of every flag id, the recommendation.
+148. **OQ-148. What fires a story scene trigger.** The map file lists each story scene trigger with its condition (D-528). What fires one? Raised 2026-09-16. Blocked PR-68.
     - Four kinds, the recommendation: a tile, a talk with an NPC, the entry to a map, and the end of a fight. The arc of region one needs each kind. Each kind needs its own test and its own place in the tick.
     - A tile and a talk alone. Two kinds cover most beats, and the tick stays simple. A story scene after a boss then needs a tile in front of the exit, which a player can walk around.
-149. **OQ-149. Whether a story scene step starts a battle.** The party fights the bishop right after a story scene (D-319, D-327). No story scene sets who fights (D-351). Can a step start a battle? Raised 2026-09-16. Blocks PR-68.
+    - Resolved 2026-09-23: D-1004. The four kinds, the recommendation.
+149. **OQ-149. Whether a story scene step starts a battle.** The party fights the bishop right after a story scene (D-319, D-327). No story scene sets who fights (D-351). Can a step start a battle? Raised 2026-09-16. Blocked PR-68.
     - Yes, a step names an enemy group, and the party of the player fights it, the recommendation. A set fight after a story scene needs no tile, and D-351 holds because the player still picks the three. A story scene then reaches into the battle rules.
     - No, the map holds a trigger that a flag opens, and the story scene sets that flag. The story scene rules and the battle rules stay apart. Every set fight needs a tile and a flag, which is more content for each beat.
+    - Resolved 2026-09-23: D-998 and D-999. A step names an enemy group, and the story scene goes on after a win.
 150. **OQ-150. How the player skips a story scene.** The text speed and the skip are accessibility settings (D-214, PR-63). What does the skip do? Raised 2026-09-16. Blocks PR-36.
     - A held button fills each line at once and moves to the next step, the recommendation. A second read of a story scene costs little, and the player never loses a choice. A long story scene still takes many presses.
     - A skip that jumps to the end of the whole story scene. A replay of a lost fight costs no time at all. Each choice inside the story scene then needs a default, which the story must set.
