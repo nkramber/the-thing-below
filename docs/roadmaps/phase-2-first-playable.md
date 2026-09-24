@@ -651,7 +651,7 @@ Area file: `area-effects.md` sections 7.4 and 7.6.
 - Each color of light as a palette key with a strength in basis points (D-846).
 - The ambient light as the one canvas modulate of the world.
 - The point lights of torches, waystones, and spells, each with a light texture that Game builds and checks (D-183, F-46).
-- The carried light on the lead, its switch in Game, and the `torch` command of the console (D-847, D-851).
+- The carried light on the lead, its switch in Game, and the `torch` command of the console (D-847, D-851). D-1071 supersedes D-851 and removes the command.
 - A height on each light, because a light at height zero gives no light to a flat normal (F-46).
 - Hard shadows from walls, with a shape from the terrain that lets each wall face take light (D-183, D-845, D-852).
 - A shadow at the feet of each figure, with a pair of Godot lights for each source (D-853).
@@ -680,7 +680,7 @@ Area file: `area-effects.md` sections 7.4 and 7.6.
 8. A test proves that the change of a light setup wins over the default of the decor kind (D-843).
 9. A wall torch off a wall, or with no floor south, fails with the file and the id (D-844).
 10. The budget test counts the carried light in each view (D-842, D-847).
-11. The `torch` command turns the carried light on and off, and it sends no intent (D-851).
+11. The `torch` command turns the carried light on and off, and it sends no intent (D-851). D-1071 removes it.
 12. A wall of one tile shadows the far face of itself and every tile behind it (D-852).
 13. The budget test counts two lights for each source (D-853).
 
@@ -1541,13 +1541,15 @@ Area file: `area-exploration.md` section 7.17.
 
 - The torch as the key item `item.torch` of Core in the pack of PR-13, which never burns out (D-848, D-1065).
 - The kind `key` in the item file, with no effect and no use in a fight (D-1065).
-- The `dark` field of each map file, apart from its time of day (D-1062).
-- The intent that holds the torch out or puts it away, on any map. The torch starts put away, and the save holds its state (D-1064).
+- The `dark` field of each map file, apart from its time of day. The fixture dungeon turns dark, and its patrols see 2 tiles (D-1062, D-1067).
+- The intent that holds the torch out or puts it away, on the walk of any map. The torch starts put away, and the save holds its state (D-1064, D-1071).
+- The input action `torch` on the T key and the Y button, with a step of the settings file to format 3 (D-1068).
+- The fixture pack holds the torch, and the console loses its `torch` command (D-1071).
 - The sight of the party on a dark map: 2 tiles with the torch put away, and 6 tiles with it held out. A wall stops it (D-1062, D-1063).
 - The bonus of 4 tiles for each patrol of a dark map with the torch held out. The range floor there is 2 (D-720, D-1063).
-- The hide of each enemy and thing past the sight of the party on a dark map. A fade by distance and a fade over time at a wall corner stop each pop-in (D-1062).
+- The rule that hides each enemy and thing past the sight of the party on a dark map. Game fades each enemy, by distance and over time at a wall corner (D-1062, D-1070).
 - The switch of the carried light, which follows the state of the torch (D-847, D-1064).
-- The torch in the hand of the lead, with the torch held out (D-912, D-1066).
+- The torch in the left hand of the lead, with the torch held out, in a second map drawing (D-912, D-1066, D-1069).
 - A simulation version bump, because the rules change (G-17).
 
 **Out of scope.**
@@ -1555,6 +1557,7 @@ Area file: `area-exploration.md` section 7.17.
 - The braziers of a puzzle (PR-21, D-41).
 - The light itself, which PR-56 builds (D-847).
 - The glow of the carried torch (D-912).
+- The draw of each thing on the map screen (D-1070).
 
 **Exit tests.**
 
@@ -1574,7 +1577,7 @@ Area file: `area-exploration.md` section 7.17.
 - The light of the screen never reaches a rule of sight (G-1).
 - Each fade runs from the tick, so each frame of the screen test repeats (T-7).
 
-**Questions.** None. D-1062 to D-1066 answer OQ-217, OQ-218, and each question of the scope.
+**Questions.** None. D-1062 to D-1071 answer OQ-217, OQ-218, and each question of the scope.
 
 > *In plain English:* the torch becomes a real item. Dark places hide what lies past its light, and guards see it from far away, so the player chooses between light and stealth.
 

@@ -548,7 +548,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 33. PR-12: the lessons, the slots, the forms, and the aptitudes (D-272, D-356, D-539).
 34. PR-13: the six gear slots, the items, and the pack (D-44, D-382).
 35. PR-99: the stat set, the heal of an absorbed hit, and the lesson swap, right after PR-13 (D-1041, D-1050).
-36. PR-91: the torch item, right after PR-99 (D-847, D-848, D-1041, D-1062 to D-1066).
+36. PR-91: the torch item, right after PR-99 (D-847, D-848, D-1041, D-1062 to D-1071).
 37. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
 38. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
 39. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
