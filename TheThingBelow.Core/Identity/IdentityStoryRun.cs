@@ -214,7 +214,7 @@ public static partial class IdentitySet
     {
         if (state.Battle is not null)
         {
-            return IntentsOfBattleTick(state, turns);
+            return IntentsOfBattleTick(state, turns, 0);
         }
 
         StoryState story = state.Story;

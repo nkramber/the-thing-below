@@ -16,7 +16,7 @@ public readonly record struct BattleTarget(BattleSide Side, int Slot)
     public string Describe() => $"{BattleSides.NameOf(this.Side)} {this.Slot}";
 }
 
-/// <summary>The actions of a character on a turn (D-359, D-378, D-380, D-382, D-755).</summary>
+/// <summary>The actions of a character on a turn (D-359, D-378, D-380, D-382, D-755, D-1031).</summary>
 public enum BattleAction
 {
     /// <summary>The basic attack with the weapon in hand, a melee attack (D-359, D-377).</summary>
@@ -33,13 +33,18 @@ public enum BattleAction
 
     /// <summary>A try to flee (D-378).</summary>
     Flee,
+
+    /// <summary>The use of one form of one lesson on one target (D-1027, D-1031).</summary>
+    Lesson,
 }
 
-/// <summary>What the character whose turn it is does (D-532, D-764, D-780).</summary>
+/// <summary>What the character whose turn it is does (D-532, D-764, D-780, D-1031).</summary>
 /// <param name="Action">The action.</param>
 /// <param name="Target">The target of an attack or an item, and no value for the other actions.</param>
 /// <param name="Item">The item of an item use, and no value for the other actions.</param>
-public sealed record BattleChoice(BattleAction Action, BattleTarget? Target, ContentId? Item);
+/// <param name="Lesson">The lesson of a lesson use, and no value for the other actions (D-1031).</param>
+/// <param name="Form">The index of the form of a lesson use, and no value for the other actions (D-1027).</param>
+public sealed record BattleChoice(BattleAction Action, BattleTarget? Target, ContentId? Item, ContentId? Lesson = null, int? Form = null);
 
 /// <summary>
 /// One strike: its delay, its power, its element, and the status that it gives on a hit

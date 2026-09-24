@@ -212,6 +212,16 @@ public static class RunRecordText
                     writer.WriteNumber("option", option);
                 }
 
+                if (intent.Lesson is ContentId lesson)
+                {
+                    writer.WriteString("lesson", lesson.Value);
+                }
+
+                if (intent.Actor is int actor)
+                {
+                    writer.WriteNumber("actor", actor);
+                }
+
                 writer.WriteEndObject();
             }
 
@@ -267,6 +277,8 @@ public static class RunRecordText
         ContentId? item = null;
         BattleTarget? target = null;
         int? option = null;
+        ContentId? lesson = null;
+        int? actor = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -288,6 +300,12 @@ public static class RunRecordText
                 case "option":
                     option = reader.ReadInt();
                     break;
+                case "lesson":
+                    lesson = reader.ReadContentId(LessonList.Kind);
+                    break;
+                case "actor":
+                    actor = reader.ReadInt();
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -298,7 +316,9 @@ public static class RunRecordText
             reader.RequireValue(debug, depth, "debug"),
             target,
             item,
-            option);
+            option,
+            lesson,
+            actor);
     }
 
     private static BattleTarget ReadTarget(ref ContentReader reader)

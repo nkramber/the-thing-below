@@ -4,20 +4,24 @@ using TheThingBelow.Core.Content;
 
 namespace TheThingBelow.Core.Battles;
 
-/// <summary>One form of a lesson: an ability and the point total that opens it (D-539, D-1026).</summary>
+/// <summary>
+/// One form of a lesson: an ability and the point total that opens it (D-539, D-1026). The name
+/// of the form is the name of its ability: `name.` and the name part of the ability id (G-7).
+/// </summary>
 /// <param name="Ability">The ability that the form gives, an id of the ability file (D-785).</param>
 /// <param name="Points">The point total that opens the form. The first form opens at zero.</param>
 /// <param name="Mp">The MP that one use of the form costs (D-42).</param>
-/// <param name="Name">The string id of the name of the form (G-7).</param>
 /// <param name="Description">The string id of the short description of the form, which the list of forms shows (D-1027, G-7).</param>
-public sealed record LessonForm(ContentId Ability, int Points, int Mp, ContentId Name, ContentId Description);
+public sealed record LessonForm(ContentId Ability, int Points, int Mp, ContentId Description);
 
-/// <summary>One lesson: a rite or a drill with its kind and its forms (D-278, D-281, D-1026).</summary>
+/// <summary>
+/// One lesson: a rite or a drill with its kind and its forms (D-278, D-281, D-1026). The name of
+/// the lesson is `name.` and the name part of its id (G-7).
+/// </summary>
 /// <param name="Id">The id, of the kind `lesson`.</param>
-/// <param name="Name">The string id of the name of the lesson (G-7).</param>
 /// <param name="Kind">The kind of ability, which the aptitude bonus reads (D-358).</param>
 /// <param name="Forms">The forms, in the order of their point totals, from the first form at zero.</param>
-public sealed record LessonRecord(ContentId Id, ContentId Name, AptitudeKind Kind, IReadOnlyList<LessonForm> Forms)
+public sealed record LessonRecord(ContentId Id, AptitudeKind Kind, IReadOnlyList<LessonForm> Forms)
 {
     /// <summary>True when the lesson is a rite, which silence stops (D-393, D-806).</summary>
     public bool IsRite => Aptitudes.IsRite(this.Kind);
@@ -47,9 +51,9 @@ public sealed record LessonRecord(ContentId Id, ContentId Name, AptitudeKind Kin
 }
 
 /// <summary>
-/// The lesson file, `content/rules/lessons.json`: the name, the kind, and the forms of each
-/// lesson (D-1026). Each form names an ability of the ability file, and the battle content
-/// checks each one (D-785).
+/// The lesson file, `content/rules/lessons.json`: the kind and the forms of each lesson
+/// (D-1026). Each form names an ability of the ability file, and the battle content checks each
+/// one (D-785). No two forms name one ability, so each spell has one flash (D-1032).
 /// </summary>
 public sealed class LessonList
 {
@@ -116,6 +120,7 @@ public sealed class LessonList
         reader.ReadFileEnd();
 
         list.RefuseRepeatedId();
+        list.RefuseSharedAbility();
         return list;
     }
 
@@ -139,6 +144,28 @@ public sealed class LessonList
 
         return this.Find(id)
             ?? throw ContentException.ForField(this.File, id.Value, "the lesson file holds no lesson with this id (T-2, D-1026)");
+    }
+
+    /// <summary>Finds the form that gives an ability. No two forms name one ability (D-1032).</summary>
+    /// <param name="ability">The id of the ability.</param>
+    /// <returns>The lesson and the index of the form.</returns>
+    /// <exception cref="ContentException">No form of the file gives the ability (T-2).</exception>
+    public (LessonRecord Lesson, int Form) FormOf(ContentId ability)
+    {
+        ArgumentNullException.ThrowIfNull(ability);
+
+        foreach (LessonRecord record in this.Records)
+        {
+            for (int index = 0; index < record.Forms.Count; index += 1)
+            {
+                if (string.CompareOrdinal(record.Forms[index].Ability.Value, ability.Value) == 0)
+                {
+                    return (record, index);
+                }
+            }
+        }
+
+        throw ContentException.ForField(this.File, ability.Value, "no form of the lesson file gives this ability (T-2, D-1026)");
     }
 
     private LessonRecord? Find(ContentId id)
@@ -169,7 +196,6 @@ public sealed class LessonList
     private static LessonRecord ReadLesson(ref ContentReader reader)
     {
         ContentId? id = null;
-        ContentId? name = null;
         string? kind = null;
         List<LessonForm>? forms = null;
 
@@ -180,9 +206,6 @@ public sealed class LessonList
             {
                 case "id":
                     id = reader.ReadContentId(Kind);
-                    break;
-                case "name":
-                    name = reader.ReadContentId();
                     break;
                 case "kind":
                     kind = reader.ReadString();
@@ -224,7 +247,7 @@ public sealed class LessonList
             }
         }
 
-        return new LessonRecord(readId, reader.Require(name, depth, "name"), aptitude, readForms);
+        return new LessonRecord(readId, aptitude, readForms);
     }
 
     private static List<LessonForm> ReadForms(ref ContentReader reader)
@@ -244,7 +267,6 @@ public sealed class LessonList
         ContentId? ability = null;
         int? points = null;
         int? mp = null;
-        ContentId? name = null;
         ContentId? description = null;
 
         int depth = reader.ReadObjectStart();
@@ -261,9 +283,6 @@ public sealed class LessonList
                 case "mp":
                     mp = ReadMp(ref reader);
                     break;
-                case "name":
-                    name = reader.ReadContentId();
-                    break;
                 case "description":
                     description = reader.ReadContentId();
                     break;
@@ -276,7 +295,6 @@ public sealed class LessonList
             reader.Require(ability, depth, "ability"),
             reader.RequireInt(points, depth, "points"),
             reader.RequireInt(mp, depth, "mp"),
-            reader.Require(name, depth, "name"),
             reader.Require(description, depth, "description"));
     }
 
@@ -290,6 +308,25 @@ public sealed class LessonList
         }
 
         return mp;
+    }
+
+    /// <summary>Refuses two forms that name one ability, because each spell has a flash of its own (D-1032).</summary>
+    private void RefuseSharedAbility()
+    {
+        var seen = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (LessonRecord record in this.Records)
+        {
+            foreach (LessonForm form in record.Forms)
+            {
+                if (!seen.Add(form.Ability.Value))
+                {
+                    throw ContentException.ForField(
+                        this.File,
+                        record.Id.Value,
+                        $"a form names the ability '{form.Ability.Value}', which an earlier form names, and each spell has a flash of its own (D-1032)");
+                }
+            }
+        }
     }
 
     private void RefuseRepeatedId()

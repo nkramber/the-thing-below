@@ -22,11 +22,11 @@ public sealed class AbilityListTests
         Assert.Equal((100, 20), (mend.Delay, mend.Heal));
         Assert.Equal("ability.fixture_bash", IdsOf(list)[0]);
         Assert.Null(bash.Status);
-        CureAbility purge = Assert.IsType<CureAbility>(list.Ability(Id("ability.test_purge")));
+        CureAbility purge = Assert.IsType<CureAbility>(list.Ability(Id("ability.fixture_purge")));
         Assert.Equal(new[] { StatusKind.Poison, StatusKind.Blind, StatusKind.Silence }, purge.Statuses);
-        BoonAbility quicken = Assert.IsType<BoonAbility>(list.Ability(Id("ability.test_quicken")));
+        BoonAbility quicken = Assert.IsType<BoonAbility>(list.Ability(Id("ability.fixture_quicken")));
         Assert.Equal((100, StatusKind.Haste), (quicken.Delay, quicken.Status));
-        StrikeAbility rot = Assert.IsType<StrikeAbility>(list.Ability(Id("ability.test_rot")));
+        StrikeAbility rot = Assert.IsType<StrikeAbility>(list.Ability(Id("ability.fixture_rot")));
         Assert.Equal(new StatusChance(StatusKind.Poison, 6000), rot.Status);
     }
 

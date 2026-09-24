@@ -27,6 +27,11 @@ namespace TheThingBelow.Core.Runs;
 /// open, and the next battle starts the character there (D-558).
 /// </para>
 /// <para>
+/// The lesson window casts a Mend rite or a cure rite and swaps a lesson while a menu is open,
+/// and a swap needs a swap place (D-391, D-1030). A battle intent can use a form of a lesson
+/// (D-1027, D-1031).
+/// </para>
+/// <para>
 /// A battle intent resolves the turn of a character at once, with each enemy turn up to the
 /// next turn of a character (D-532). The events wait in the run until the host takes them
 /// with <see cref="TakeBattleEvents"/>. The wait intent of a battle ends a win or a flee,
@@ -187,7 +192,7 @@ public sealed class Simulation
             return;
         }
 
-        if (intent.Target is not null || intent.Item is not null || intent.Option is not null)
+        if (intent.Target is not null || intent.Item is not null || intent.Option is not null || intent.Lesson is not null || intent.Actor is not null)
         {
             RefuseOutsideBattle(intent, context);
         }
@@ -225,6 +230,11 @@ public sealed class Simulation
         {
             this.State.SetMenuOpen(false, context);
             log.Add(MenuEntry("the menu closed", this.State.Tick, intent));
+            return;
+        }
+
+        if (this.TryLessonIntent(intent, context, log))
+        {
             return;
         }
 
@@ -345,8 +355,12 @@ public sealed class Simulation
         {
             action = BattleAction.Flee;
         }
+        else if (string.CompareOrdinal(intent.Action.Value, IntentIds.BattleLesson.Value) == 0)
+        {
+            action = BattleAction.Lesson;
+        }
 
-        choice = action is BattleAction chosen ? new BattleChoice(chosen, intent.Target, intent.Item) : null;
+        choice = action is BattleAction chosen ? new BattleChoice(chosen, intent.Target, intent.Item, intent.Lesson, chosen == BattleAction.Lesson ? intent.Option : null) : null;
         return choice is not null;
     }
 
@@ -357,16 +371,65 @@ public sealed class Simulation
     /// </summary>
     private static void RefuseOutsideBattle(Intent intent, RunContext context)
     {
-        bool attack = string.CompareOrdinal(intent.Action.Value, IntentIds.BattleAttack.Value) == 0;
-        bool item = string.CompareOrdinal(intent.Action.Value, IntentIds.BattleItem.Value) == 0;
-        bool row = string.CompareOrdinal(intent.Action.Value, IntentIds.PartyRow.Value) == 0;
-        bool pick = string.CompareOrdinal(intent.Action.Value, IntentIds.StoryPick.Value) == 0;
-        if ((intent.Target is not null && !attack && !item && !row) || (intent.Item is not null && !item) || (intent.Option is not null && !pick))
+        bool attack = Is(intent, IntentIds.BattleAttack);
+        bool item = Is(intent, IntentIds.BattleItem);
+        bool row = Is(intent, IntentIds.PartyRow);
+        bool pick = Is(intent, IntentIds.StoryPick);
+        bool use = Is(intent, IntentIds.BattleLesson);
+        bool cast = Is(intent, IntentIds.MenuCast);
+        bool swap = Is(intent, IntentIds.LessonSwap);
+        bool unread =
+            (intent.Target is not null && !attack && !item && !row && !use && !cast) ||
+            (intent.Item is not null && !item) ||
+            (intent.Option is not null && !pick && !use && !cast && !swap) ||
+            (intent.Lesson is not null && !use && !cast && !swap) ||
+            (intent.Actor is not null && !cast && !swap);
+        if (unread)
         {
             throw new SimulationException(
-                "an intent that carries a target, an item, or an option that no rule of its action reads (D-558, D-764, D-780, D-1007)",
+                "an intent that carries a target, an item, an option, a lesson, or an actor that no rule of its action reads (D-558, D-764, D-780, D-1007, D-1027, D-1030)",
                 context);
         }
+    }
+
+    /// <summary>
+    /// Applies a cast from the menu or a swap of lessons (D-391, D-1030). Both need the open
+    /// menu and no battle, as the row change does (D-558).
+    /// </summary>
+    /// <returns>True when the intent was one of the two, which this method applied.</returns>
+    private bool TryLessonIntent(Intent intent, RunContext context, List<LogEntry> log)
+    {
+        bool cast = Is(intent, IntentIds.MenuCast);
+        bool swap = Is(intent, IntentIds.LessonSwap);
+        if (!cast && !swap)
+        {
+            return false;
+        }
+
+        if (!this.State.MenuOpen || this.State.Battle is not null)
+        {
+            throw new SimulationException($"the intent '{intent.Action.Value}' while no menu is open or a battle holds the run, and the lesson window makes it (D-391, D-1030)", context);
+        }
+
+        int actor = intent.Actor ?? throw new SimulationException($"the intent '{intent.Action.Value}' names no character (D-391, D-1030)", context);
+        int option = intent.Option ?? throw new SimulationException($"the intent '{intent.Action.Value}' names no form or slot (D-1027, D-1030)", context);
+        if (cast)
+        {
+            ContentId lesson = intent.Lesson ?? throw new SimulationException("a cast from the menu that names no lesson (D-391)", context);
+            BattleTarget target = intent.Target ?? throw new SimulationException("a cast from the menu that names no target (D-391)", context);
+            if (target.Side != BattleSide.Party)
+            {
+                throw new SimulationException($"a cast from the menu at {target.Describe()}, and a cast from the menu aims at the party (D-391)", context);
+            }
+
+            LessonRules.CastFromMenu(this.State, actor, lesson, option, target.Slot, context);
+            log.Add(new LogEntry(LogLevel.Info, "a character cast a rite from the menu", this.State.Tick, LogSubsystems.Run, [new LogField("intent", intent.Describe())]));
+            return true;
+        }
+
+        this.State.Characters.Swap(actor, option, intent.Lesson, context);
+        log.Add(new LogEntry(LogLevel.Info, "a character swapped a lesson", this.State.Tick, LogSubsystems.Run, [new LogField("intent", intent.Describe())]));
+        return true;
     }
 
     /// <summary>

@@ -27,7 +27,8 @@ namespace TheThingBelow.Debug.Commands;
 /// </para>
 /// <para>
 /// Each later PR that gives the rules a new value can add its own commands here, such as the
-/// story flags of PR-68. PR-67 added the level, the experience, and the MP, and no command.
+/// story flags of PR-68. PR-67 added the level, the experience, and the MP, and no command. PR-12 added
+/// the `swap` command, which marks a swap place of lessons (D-1030).
 /// </para>
 /// </remarks>
 public static class DebugCommands
@@ -71,6 +72,9 @@ public static class DebugCommands
     /// <summary>The name of the command that posts a notice that does not log (D-989).</summary>
     public const string AsideName = "aside";
 
+    /// <summary>The name of the command that marks a swap place of lessons (D-1030).</summary>
+    public const string SwapName = "swap";
+
     // The order of this list is the order of `help`, and it never follows a hash of a name
     // (G-4). The list is short, so a walk of it reads better than a map of one entry (T-1).
     private static readonly IReadOnlyList<DebugCommand> Commands =
@@ -97,6 +101,7 @@ public static class DebugCommands
         DebugCommand.OfIntent(FleeName, "tries to flee on the turn of a character", DebugCommandIds.BattleFlee, Flee),
         DebugCommand.OfIntent(NoticeName, "posts the first notice of the notice file that logs", DebugCommandIds.NoticeLogged, PostLogged),
         DebugCommand.OfIntent(AsideName, "posts the first notice of the notice file that does not log", DebugCommandIds.NoticePlain, PostPlain),
+        DebugCommand.OfIntent(SwapName, "marks the place of the party as a swap place, until the next step (D-1030)", DebugCommandIds.SwapPlace, MarkSwapPlace),
         DebugCommand.OfView(TorchName, "turns the carried light on or off, and sends no intent (D-847, D-851)"),
         DebugCommand.OfReport(BattleName, "gives each combatant, the turn, and the strip", BattleOf),
         DebugCommand.OfReport(HashName, "gives the state hash of the run", HashOf),
@@ -169,6 +174,13 @@ public static class DebugCommands
             }
         }
     }
+
+    /// <summary>
+    /// Marks the place of the party as a swap place, so a person swaps lessons before PR-14 and
+    /// PR-16 mark the hubs and the save points (D-1030). The next step of the lead leaves it.
+    /// </summary>
+    private static void MarkSwapPlace(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>
+        state.Characters.MarkSwapPlace();
 
     /// <summary>Posts the first notice that logs, so a person sees the notice and its entry in the log (D-989).</summary>
     private static void PostLogged(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>

@@ -891,6 +891,9 @@ public sealed class ContentSet
             drawing.Id.Value,
             $"the atlas index does not match this drawing, because {difference}. Run the atlas command again (G-24)");
 
+    /// <summary>Gives the string id of the name of a content entry: `name.` and the name part of its id (G-7).</summary>
+    private static ContentId NameIdOf(ContentId id) => ContentId.Parse($"name.{id.Name}", StringTable.Path, id.Value);
+
     private void RequireString(string file, string field, ContentId id)
     {
         if (!this.Strings.Contains(id))
@@ -927,14 +930,15 @@ public sealed class ContentSet
             }
         }
 
-        // The name of each lesson, and the name and the description of each form (G-7, D-1027).
+        // The name of each lesson and of each form is `name.` and the name part of its id, as
+        // for a combatant and an item. Each form also names its description (G-7, D-1027).
         LessonList lessons = this.Battle.Lessons;
         foreach (LessonRecord lesson in lessons.Records)
         {
-            this.RequireString(lessons.File, $"{lesson.Id.Value}.name", lesson.Name);
+            this.RequireString(lessons.File, lesson.Id.Value, NameIdOf(lesson.Id));
             foreach (LessonForm form in lesson.Forms)
             {
-                this.RequireString(lessons.File, $"{lesson.Id.Value}.{form.Ability.Value}.name", form.Name);
+                this.RequireString(lessons.File, $"{lesson.Id.Value}.{form.Ability.Value}", NameIdOf(form.Ability));
                 this.RequireString(lessons.File, $"{lesson.Id.Value}.{form.Ability.Value}.description", form.Description);
             }
         }

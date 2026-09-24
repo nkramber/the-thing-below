@@ -6,7 +6,7 @@ using Xunit;
 
 namespace TheThingBelow.Tests;
 
-/// <summary>The reader of the lesson file: the name, the kind, and the forms of each lesson (D-539, D-1026). Each error names the file (T-2).</summary>
+/// <summary>The reader of the lesson file: the kind and the forms of each lesson (D-539, D-1026). Each error names the file (T-2).</summary>
 public sealed class LessonListTests
 {
     [Fact]
@@ -14,21 +14,23 @@ public sealed class LessonListTests
     {
         LessonList list = Read(TestBattles.LessonsFile);
 
-        LessonRecord cinder = list.Lesson(Id("lesson.test_cinder"));
-        Assert.Equal((AptitudeKind.Harm, "name.test_cinder"), (cinder.Kind, cinder.Name.Value));
+        LessonRecord cinder = list.Lesson(Id("lesson.fixture_cinder"));
+        Assert.Equal(AptitudeKind.Harm, cinder.Kind);
         Assert.Equal(2, cinder.Forms.Count);
-        Assert.Equal(("ability.test_cinder", 0, 4, "name.test_cinder", "lesson.test_cinder"), FieldsOf(cinder.Forms[0]));
-        Assert.Equal(("ability.test_blaze", 120, 9, "name.test_blaze", "lesson.test_blaze"), FieldsOf(cinder.Forms[1]));
+        Assert.Equal(("ability.fixture_cinder", 0, 4, "lesson.fixture_cinder"), FieldsOf(cinder.Forms[0]));
+        Assert.Equal(("ability.fixture_blaze", 120, 9, "lesson.fixture_blaze"), FieldsOf(cinder.Forms[1]));
+        (LessonRecord found, int form) = Read(TestBattles.LessonsFile).FormOf(Id("ability.fixture_blaze"));
+        Assert.Equal((cinder.Id.Value, 1), (found.Id.Value, form));
         Assert.True(cinder.IsRite);
-        Assert.False(list.Lesson(Id("lesson.test_hew")).IsRite);
-        Assert.Equal("lesson.test_hew", list.Ids[0].Value);
+        Assert.False(list.Lesson(Id("lesson.fixture_hew")).IsRite);
+        Assert.Equal("lesson.fixture_hew", list.Ids[0].Value);
     }
 
     [Fact]
     public void APointTotalOpensEachFormAtOrBelowIt()
     {
         // D-539: each form names the point total that opens it, and the first opens at zero.
-        LessonRecord cinder = Read(TestBattles.LessonsFile).Lesson(Id("lesson.test_cinder"));
+        LessonRecord cinder = Read(TestBattles.LessonsFile).Lesson(Id("lesson.fixture_cinder"));
 
         Assert.Equal(1, cinder.OpenedAt(0));
         Assert.Equal(1, cinder.OpenedAt(119));
@@ -63,17 +65,19 @@ public sealed class LessonListTests
     }
 
     [Theory]
-    [InlineData("\"id\": \"lesson.test_hew\"", "\"id\": \"ability.test_hew\"", "lesson")]
+    [InlineData("\"id\": \"lesson.fixture_hew\"", "\"id\": \"ability.fixture_hew\"", "lesson")]
     [InlineData("\"kind\": \"blade\"", "\"kind\": \"stealth\"", "the kind 'stealth'")]
     [InlineData("\"kind\": \"blade\", ", "", "absent")]
     [InlineData("\"points\": 60", "\"points\": 0", "opens above the form before it")]
-    [InlineData("\"ability\": \"ability.test_hew\", \"points\": 0", "\"ability\": \"ability.test_hew\", \"points\": 5", "a lesson starts at its first form")]
-    [InlineData("\"points\": 0, \"mp\": 0, \"name\": \"name.test_hew\"", "\"points\": -1, \"mp\": 0, \"name\": \"name.test_hew\"", "outside 0 to")]
+    [InlineData("\"ability\": \"ability.fixture_hew\", \"points\": 0", "\"ability\": \"ability.fixture_hew\", \"points\": 5", "a lesson starts at its first form")]
+    [InlineData("\"points\": 0, \"mp\": 0, \"description\": \"lesson.fixture_hew\"", "\"points\": -1, \"mp\": 0, \"description\": \"lesson.fixture_hew\"", "outside 0 to")]
+    [InlineData("\"ability\": \"ability.fixture_cleave\"", "\"ability\": \"ability.fixture_hew\"", "each spell has a flash of its own")]
+    [InlineData("\"kind\": \"blade\", ", "\"kind\": \"blade\", \"name\": \"name.fixture_hew\", ", "unknown field")]
     [InlineData("\"mp\": 4", "\"mp\": 1000", "the MP cost 1000")]
     [InlineData("\"mp\": 4", "\"mp\": -1", "the MP cost -1")]
-    [InlineData(", \"description\": \"lesson.test_hew\"", "", "absent")]
-    [InlineData("\"ability\": \"ability.test_hew\"", "\"ability\": \"item.test_hew\"", "ability")]
-    [InlineData("\"name\": \"name.test_hew\", \"kind\"", "\"name\": \"name.test_hew\", \"tier\": 1, \"kind\"", "unknown field")]
+    [InlineData(", \"description\": \"lesson.fixture_hew\"", "", "absent")]
+    [InlineData("\"ability\": \"ability.fixture_hew\"", "\"ability\": \"item.test_hew\"", "ability")]
+    [InlineData("\"id\": \"lesson.fixture_hew\", \"kind\"", "\"id\": \"lesson.fixture_hew\", \"tier\": 1, \"kind\"", "unknown field")]
     public void ALessonFileThatBreaksARuleFailsWithTheFile(string from, string to, string reason)
     {
         int at = TestBattles.LessonsFile.IndexOf(from, StringComparison.Ordinal);
@@ -89,7 +93,7 @@ public sealed class LessonListTests
     [Fact]
     public void ALessonWithNoFormFails()
     {
-        const string text = """{ "comment": "c", "lessons": [{ "id": "lesson.a", "name": "name.a", "kind": "mend", "forms": [] }] }""";
+        const string text = """{ "comment": "c", "lessons": [{ "id": "lesson.a", "kind": "mend", "forms": [] }] }""";
 
         ContentException error = Assert.Throws<ContentException>(() => Read(text));
 
@@ -99,7 +103,7 @@ public sealed class LessonListTests
     [Fact]
     public void ARepeatedIdFailsWithTheId()
     {
-        const string lesson = """{ "id": "lesson.a", "name": "name.a", "kind": "mend", "forms": [{ "ability": "ability.a", "points": 0, "mp": 1, "name": "name.a", "description": "lesson.a" }] }""";
+        const string lesson = """{ "id": "lesson.a", "kind": "mend", "forms": [{ "ability": "ability.a", "points": 0, "mp": 1, "description": "lesson.a" }] }""";
 
         ContentException error = Assert.Throws<ContentException>(() => Read($$"""{ "comment": "c", "lessons": [{{lesson}}, {{lesson}}] }"""));
 
@@ -137,6 +141,6 @@ public sealed class LessonListTests
 
     private static ContentId Id(string value) => ContentId.Parse(value, "test", "id");
 
-    private static (string, int, int, string, string) FieldsOf(LessonForm form) =>
-        (form.Ability.Value, form.Points, form.Mp, form.Name.Value, form.Description.Value);
+    private static (string, int, int, string) FieldsOf(LessonForm form) =>
+        (form.Ability.Value, form.Points, form.Mp, form.Description.Value);
 }

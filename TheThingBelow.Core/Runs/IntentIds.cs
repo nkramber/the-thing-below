@@ -92,4 +92,13 @@ public static class IntentIds
 
     /// <summary>The player ended the pause of a story scene (D-1010).</summary>
     public static readonly ContentId StoryResume = ContentId.Parse("intent.story_resume", Source, nameof(StoryResume));
+
+    /// <summary>The character whose turn it is uses a form of a lesson on one target (D-1027, D-1031).</summary>
+    public static readonly ContentId BattleLesson = ContentId.Parse("intent.battle_lesson", Source, nameof(BattleLesson));
+
+    /// <summary>A character casts a Mend rite or a cure rite from the menu, outside a battle (D-391).</summary>
+    public static readonly ContentId MenuCast = ContentId.Parse("intent.menu_cast", Source, nameof(MenuCast));
+
+    /// <summary>The lesson window puts a lesson of the lesson pack in a slot, or empties a slot (D-356, D-1030).</summary>
+    public static readonly ContentId LessonSwap = ContentId.Parse("intent.lesson_swap", Source, nameof(LessonSwap));
 }

@@ -85,9 +85,9 @@ public sealed class BattleFixtureTests
     [InlineData("\"main_aptitude\": \"blade\", ", "", "main_aptitude")]
     [InlineData("\"side_flag\": \"flag.test_marrek_side\"", "\"side_flag\": \"notice.test_marrek_side\"", "the kind 'flag'")]
     [InlineData("\"character\": \"character.marrek\", \"lessons\"", "\"character\": \"character.test_second\", \"lessons\"", "not in the start party")]
-    [InlineData("\"lesson_pack\": [\"lesson.test_salve\"", "\"lesson_pack\": [\"lesson.test_hew\"", "never owns two copies")]
-    [InlineData("[\"lesson.test_hew\", \"lesson.test_cinder\"]", "[\"lesson.test_hew\", \"lesson.test_hew\"]", "never owns two copies")]
-    [InlineData(",\n \"lesson_pack\": [\"lesson.test_salve\", \"lesson.test_purge\", \"lesson.test_rot\", \"lesson.test_quicken\"]", "", "lesson_pack")]
+    [InlineData("\"lesson_pack\": [\"lesson.fixture_salve\"", "\"lesson_pack\": [\"lesson.fixture_hew\"", "never owns two copies")]
+    [InlineData("[\"lesson.fixture_hew\", \"lesson.fixture_cinder\"]", "[\"lesson.fixture_hew\", \"lesson.fixture_hew\"]", "never owns two copies")]
+    [InlineData(",\n \"lesson_pack\": [\"lesson.fixture_salve\", \"lesson.fixture_purge\", \"lesson.fixture_rot\", \"lesson.fixture_quicken\", \"lesson.fixture_bolt\"]", "", "lesson_pack")]
     public void AFixtureThatBreaksARuleFailsWithTheFieldOrTheId(string from, string to, string named)
     {
         string text = ReplaceFirst(TestBattles.FixtureFile, from, to);
@@ -133,19 +133,19 @@ public sealed class BattleFixtureTests
     [Fact]
     public void AFormThatNamesAnAbsentAbilityFailsWithTheLesson()
     {
-        string lessons = TestBattles.LessonsFile.Replace("\"ability\": \"ability.test_blaze\"", "\"ability\": \"ability.absent\"", StringComparison.Ordinal);
+        string lessons = TestBattles.LessonsFile.Replace("\"ability\": \"ability.fixture_blaze\"", "\"ability\": \"ability.absent\"", StringComparison.Ordinal);
 
         ContentException error = Assert.Throws<ContentException>(() => TestBattles.WithLessonFiles(lessons: lessons));
 
         Assert.Equal(LessonList.Path, error.File);
-        Assert.Contains("lesson.test_cinder", error.Message, StringComparison.Ordinal);
+        Assert.Contains("lesson.fixture_cinder", error.Message, StringComparison.Ordinal);
         Assert.Contains("ability.absent", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
     public void AStartLessonThatTheLessonFileLacksFails()
     {
-        string fixture = ReplaceFirst(TestBattles.FixtureFile, "\"lesson.test_rot\"", "\"lesson.absent\"");
+        string fixture = ReplaceFirst(TestBattles.FixtureFile, "\"lesson.fixture_rot\"", "\"lesson.absent\"");
 
         ContentException error = Assert.Throws<ContentException>(() => TestBattles.WithLessonFiles(fixture: fixture));
 
@@ -159,9 +159,9 @@ public sealed class BattleFixtureTests
         // D-1018: Marrek joins at level 1 with two slots.
         string fixture = ReplaceFirst(
             TestBattles.FixtureFile,
-            "[\"lesson.test_hew\", \"lesson.test_cinder\"]",
-            "[\"lesson.test_hew\", \"lesson.test_cinder\", \"lesson.test_salve\"]");
-        fixture = ReplaceFirst(fixture, "[\"lesson.test_salve\", ", "[");
+            "[\"lesson.fixture_hew\", \"lesson.fixture_cinder\"]",
+            "[\"lesson.fixture_hew\", \"lesson.fixture_cinder\", \"lesson.fixture_salve\"]");
+        fixture = ReplaceFirst(fixture, "[\"lesson.fixture_salve\", ", "[");
 
         ContentException error = Assert.Throws<ContentException>(() => TestBattles.WithLessonFiles(fixture: fixture));
 
@@ -172,7 +172,7 @@ public sealed class BattleFixtureTests
     public void AnEnemyThatNamesACureFailsWithTheEnemy()
     {
         // D-1029: a cure and a boon serve the lessons, and the evaluator scores a strike and a heal alone.
-        string grunt = TestBattles.GruntFile.Replace("\"abilities\": []", "\"abilities\": [\"ability.test_purge\"]", StringComparison.Ordinal);
+        string grunt = TestBattles.GruntFile.Replace("\"abilities\": []", "\"abilities\": [\"ability.fixture_purge\"]", StringComparison.Ordinal);
         Assert.NotEqual(TestBattles.GruntFile, grunt);
 
         ContentException error = Assert.Throws<ContentException>(() => TestBattles.WithLessonFiles(grunt: grunt));

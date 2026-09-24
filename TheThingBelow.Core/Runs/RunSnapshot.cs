@@ -49,7 +49,9 @@ public sealed record MapSnapshot(
 /// <summary>The characters of the party and their pack in a snapshot (D-765).</summary>
 /// <param name="Characters">Each character, in slot order.</param>
 /// <param name="Pack">Each item of the pack, in the order of the fixture file.</param>
-public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IReadOnlyList<PackValues> Pack);
+/// <param name="LessonPack">The owned lessons that no character carries, from save format 10 (D-1024). Null in a snapshot of an older format.</param>
+/// <param name="AtSwapPlace">True when the party stood at a swap place, from save format 10 (D-1030). False in a snapshot of an older format.</param>
+public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IReadOnlyList<PackValues> Pack, IReadOnlyList<ContentId>? LessonPack, bool AtSwapPlace);
 
 /// <summary>
 /// The whole state of a run at the end of one tick. A record holds one snapshot and the

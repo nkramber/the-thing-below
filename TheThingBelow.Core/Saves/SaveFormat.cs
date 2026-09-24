@@ -48,6 +48,11 @@ public static class SaveFormat
     /// runs, and the events that fire a trigger (D-540, D-542). A save of an older format starts with
     /// no flag on and no story scene.
     /// </para>
+    /// <para>
+    /// PR-12 raised it to 10. Each character gained its lesson slots and the points of each lesson
+    /// that it carried, and the party gained the lesson pack and the swap place (D-361, D-1018,
+    /// D-1024, D-1030). A save of an older format gives each character its start lessons.
+    /// </para>
     /// </remarks>
-    public const int Current = 9;
+    public const int Current = 10;
 }

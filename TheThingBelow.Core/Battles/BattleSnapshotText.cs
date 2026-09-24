@@ -48,6 +48,8 @@ public static class BattleSnapshotText
             }
 
             writer.WriteEndArray();
+            LessonValues lessons = character.Lessons ?? throw new ArgumentException($"The character '{character.Character.Value}' holds no lessons, and a snapshot of this build writes the lessons of each character (D-1018).", nameof(party));
+            WriteLessons(writer, lessons);
             writer.WriteEndObject();
         }
 
@@ -58,6 +60,50 @@ public static class BattleSnapshotText
             writer.WriteStartObject();
             writer.WriteString("item", entry.Item.Value);
             writer.WriteNumber("count", entry.Count);
+            writer.WriteEndObject();
+        }
+
+        writer.WriteEndArray();
+        IReadOnlyList<ContentId> lessonPack = party.LessonPack ?? throw new ArgumentException("The party holds no lesson pack, and a snapshot of this build writes it (D-1024).", nameof(party));
+        writer.WriteStartArray("lesson_pack");
+        foreach (ContentId lesson in lessonPack)
+        {
+            writer.WriteStringValue(lesson.Value);
+        }
+
+        writer.WriteEndArray();
+        writer.WriteBoolean("swap_place", party.AtSwapPlace);
+        writer.WriteEndObject();
+    }
+
+    /// <summary>
+    /// Writes the lessons of one character as the object `lessons`: the slot count, each filled
+    /// slot with its index, and the points of each carried lesson (D-361, D-1018). The reader of
+    /// content holds no null, so an empty slot takes no entry.
+    /// </summary>
+    private static void WriteLessons(Utf8JsonWriter writer, LessonValues lessons)
+    {
+        writer.WriteStartObject("lessons");
+        writer.WriteNumber("slot_count", lessons.Slots.Count);
+        writer.WriteStartArray("slots");
+        for (int index = 0; index < lessons.Slots.Count; index += 1)
+        {
+            if (lessons.Slots[index] is ContentId held)
+            {
+                writer.WriteStartObject();
+                writer.WriteNumber("slot", index);
+                writer.WriteString("lesson", held.Value);
+                writer.WriteEndObject();
+            }
+        }
+
+        writer.WriteEndArray();
+        writer.WriteStartArray("points");
+        foreach (LessonPoints entry in lessons.Points)
+        {
+            writer.WriteStartObject();
+            writer.WriteString("lesson", entry.Lesson.Value);
+            writer.WriteNumber("points", entry.Points);
             writer.WriteEndObject();
         }
 
@@ -121,12 +167,27 @@ public static class BattleSnapshotText
     {
         List<CharacterValues>? characters = null;
         List<PackValues>? pack = null;
+        List<ContentId>? lessonPack = null;
+        bool? atSwapPlace = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
         {
             switch (field)
             {
+                // Save format 10 adds the lesson pack and the swap place (D-1024, D-1030).
+                case "lesson_pack" when format >= 10:
+                    lessonPack = [];
+                    int lessonDepth = reader.ReadArrayStart();
+                    while (reader.ReadNextElement(lessonDepth, lessonPack.Count))
+                    {
+                        lessonPack.Add(reader.ReadContentId(LessonList.Kind));
+                    }
+
+                    break;
+                case "swap_place" when format >= 10:
+                    atSwapPlace = reader.ReadBoolean();
+                    break;
                 case "characters":
                     characters = [];
                     int charactersDepth = reader.ReadArrayStart();
@@ -150,7 +211,11 @@ public static class BattleSnapshotText
             }
         }
 
-        return new PartySnapshot(reader.Require(characters, depth, "characters"), reader.Require(pack, depth, "pack"));
+        return new PartySnapshot(
+            reader.Require(characters, depth, "characters"),
+            reader.Require(pack, depth, "pack"),
+            format >= 10 ? reader.Require(lessonPack, depth, "lesson_pack") : null,
+            format >= 10 && reader.RequireValue(atSwapPlace, depth, "swap_place"));
     }
 
     /// <summary>
@@ -231,6 +296,7 @@ public static class BattleSnapshotText
         int? level = null;
         int? experience = null;
         int? mp = null;
+        LessonValues? lessons = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -239,6 +305,9 @@ public static class BattleSnapshotText
             {
                 case "id":
                     id = reader.ReadContentId(BattleFixture.CharacterKind);
+                    break;
+                case "lessons" when format >= 10:
+                    lessons = ReadLessons(ref reader);
                     break;
                 case "health":
                     health = reader.ReadInt();
@@ -268,7 +337,120 @@ public static class BattleSnapshotText
             reader.RequireInt(health, depth, "health"),
             reader.RequireValue(row, depth, "row"),
             format >= 5 ? reader.Require(statuses, depth, "statuses") : [],
-            format >= 7 ? ReadGrowth(ref reader, depth, level, experience, mp) : null);
+            format >= 7 ? ReadGrowth(ref reader, depth, level, experience, mp) : null,
+            format >= 10 ? reader.Require(lessons, depth, "lessons") : null);
+    }
+
+    /// <summary>
+    /// Reads the lessons of one character (D-361, D-1018). Each filled slot names its index,
+    /// and the slots rise with no repeat inside the slot count. The resume checks the count
+    /// against the level and each id against the lesson file.
+    /// </summary>
+    private static LessonValues ReadLessons(ref ContentReader reader)
+    {
+        int? count = null;
+        List<(int Slot, ContentId Lesson)>? filled = null;
+        List<LessonPoints>? points = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "slot_count":
+                    count = reader.ReadInt();
+                    break;
+                case "slots":
+                    filled = [];
+                    int slotsDepth = reader.ReadArrayStart();
+                    while (reader.ReadNextElement(slotsDepth, filled.Count))
+                    {
+                        filled.Add(ReadFilledSlot(ref reader));
+                    }
+
+                    break;
+                case "points":
+                    points = [];
+                    int pointsDepth = reader.ReadArrayStart();
+                    while (reader.ReadNextElement(pointsDepth, points.Count))
+                    {
+                        points.Add(ReadLessonPoints(ref reader));
+                    }
+
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        int slotCount = reader.RequireInt(count, depth, "slot_count");
+        if (slotCount < 0 || slotCount > StatCurve.HighestLevel)
+        {
+            throw reader.RefuseField(depth, "slot_count", $"the slot count {slotCount} is outside 0 to {StatCurve.HighestLevel} (D-1018)");
+        }
+
+        var slots = new ContentId?[slotCount];
+        int last = -1;
+        foreach ((int slot, ContentId lesson) in reader.Require(filled, depth, "slots"))
+        {
+            if (slot <= last || slot >= slotCount)
+            {
+                throw reader.RefuseField(depth, "slots", $"the slot {slot} repeats, falls, or lies outside 0 to {slotCount - 1} (D-1018)");
+            }
+
+            slots[slot] = lesson;
+            last = slot;
+        }
+
+        return new LessonValues(slots, reader.Require(points, depth, "points"));
+    }
+
+    private static (int Slot, ContentId Lesson) ReadFilledSlot(ref ContentReader reader)
+    {
+        int? slot = null;
+        ContentId? lesson = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "slot":
+                    slot = reader.ReadInt();
+                    break;
+                case "lesson":
+                    lesson = reader.ReadContentId(LessonList.Kind);
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return (reader.RequireInt(slot, depth, "slot"), reader.Require(lesson, depth, "lesson"));
+    }
+
+    private static LessonPoints ReadLessonPoints(ref ContentReader reader)
+    {
+        ContentId? lesson = null;
+        int? points = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "lesson":
+                    lesson = reader.ReadContentId(LessonList.Kind);
+                    break;
+                case "points":
+                    points = reader.ReadInt();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new LessonPoints(reader.Require(lesson, depth, "lesson"), reader.RequireInt(points, depth, "points"));
     }
 
     // Save format 7 adds the level, the experience, and the MP (D-966). An older snapshot

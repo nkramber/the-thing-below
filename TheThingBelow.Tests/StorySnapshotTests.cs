@@ -195,7 +195,7 @@ public sealed class StorySnapshotTests
         SimulationException error = Assert.Throws<SimulationException>(
             () => run.Step([new Intent(IntentIds.MoveEast, false, null, null, 0)]));
 
-        Assert.Contains("an option that no rule of its action reads", error.Message, StringComparison.Ordinal);
+        Assert.Contains("an option, a lesson, or an actor that no rule of its action reads", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]

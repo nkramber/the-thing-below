@@ -30,6 +30,10 @@
    "text": "Item"
   },
   {
+   "id": "battle.command_lessons",
+   "text": "Lessons"
+  },
+  {
    "id": "battle.command_step_forward",
    "text": "Step forward"
   },
@@ -84,6 +88,10 @@
   {
    "id": "battle.item_entry",
    "text": "{item} x{count}"
+  },
+  {
+   "id": "battle.lesson",
+   "text": "{actor}: {form}."
   },
   {
    "id": "battle.level_up",
@@ -192,6 +200,10 @@
   {
    "id": "battle.summary_experience",
    "text": "+{amount} XP"
+  },
+  {
+   "id": "battle.summary_form",
+   "text": "Learned {form}"
   },
   {
    "id": "battle.summary_gain",

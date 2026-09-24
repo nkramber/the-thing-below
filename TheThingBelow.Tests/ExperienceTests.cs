@@ -162,7 +162,12 @@ public sealed class ExperienceTests
         BattleContent content = TestBattles.WithRules(("experience_cut", 0), ("experience_gap", StatCurve.HighestLevel - 1));
         Assert.Equal(6, Experience.Shrunk(6, StatCurve.HighestLevel, 1, content.Rules));
         Simulation run = RunWithParty(4, "group.test_pair", content, (_, values) =>
-            values with { Health = full.Health, Growth = new GrowthValues(StatCurve.HighestLevel, top, full.Mp) });
+            values with
+            {
+                Health = full.Health,
+                Growth = new GrowthValues(StatCurve.HighestLevel, top, full.Mp),
+                Lessons = TestBattles.LessonsAtLevel(values.Lessons, StatCurve.HighestLevel),
+            });
         Assert.Equal(BattleOutcome.Won, BattleRuns.FightToEnd(run, 4));
 
         Assert.Empty(EventsAfterTheWin(run));
@@ -222,10 +227,10 @@ public sealed class ExperienceTests
     public void AStoredLevelThatNoRunCanMakeIsRefused(int level, int experience, int mp, string reason)
     {
         // D-971, D-972: the level follows the experience, and the MP stays inside the level.
-        CharacterValues stored = new(Marrek, 10, BattleRow.Front, [], new GrowthValues(level, experience, mp));
+        CharacterValues stored = new(Marrek, 10, BattleRow.Front, [], new GrowthValues(level, experience, mp), null);
 
         ArgumentException error = Assert.Throws<ArgumentException>(() =>
-            PartyState.Resume(TestBattles.Content, [stored], [], "the test"));
+            PartyState.Resume(TestBattles.Content, [stored], [], null, false, "the test"));
 
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
     }
@@ -235,8 +240,10 @@ public sealed class ExperienceTests
     private static PartyState HurtParty() =>
         PartyState.Resume(
             TestBattles.Content,
-            [new CharacterValues(Marrek, 10, BattleRow.Front, [StatusKind.Poison], new GrowthValues(2, 25, 1))],
+            [new CharacterValues(Marrek, 10, BattleRow.Front, [StatusKind.Poison], new GrowthValues(2, 25, 1), null)],
             [],
+            null,
+            false,
             "the test");
 
     /// <summary>Gives the events after the win of the fight, which the run took since its last take.</summary>

@@ -1,4 +1,5 @@
 using System;
+using TheThingBelow.Core.Content;
 
 namespace TheThingBelow.Core.Battles;
 
@@ -65,7 +66,7 @@ public enum BattleEventKind
     /// <summary>A turn of a sleeper passed with no action (D-802).</summary>
     Asleep,
 
-    /// <summary>An enemy healed an ally with a move. The amount is the health restored (D-955).</summary>
+    /// <summary>An enemy or a lesson healed an ally with a move. The amount is the health restored (D-955, D-1029).</summary>
     Heal,
 
     /// <summary>A character earned experience from a battle won. The amount is the experience (D-34, D-975).</summary>
@@ -73,6 +74,12 @@ public enum BattleEventKind
 
     /// <summary>A character reached a new level, which filled its health and its MP. The amount is the new level. PR-70 plays the sting (D-422, D-973).</summary>
     LevelUp,
+
+    /// <summary>A character used a form of a lesson. The ability names the form, the target is the target, and the amount is the MP spent (D-1027, D-1032).</summary>
+    Lesson,
+
+    /// <summary>A lesson opened a new form for a character after a battle won. The ability names the form, and the amount is the points of the lesson (D-539, D-1019).</summary>
+    FormOpened,
 }
 
 /// <summary>One event of a battle (D-168, D-532).</summary>
@@ -82,7 +89,8 @@ public enum BattleEventKind
 /// <param name="Amount">The damage or the health, and zero for the other kinds.</param>
 /// <param name="Status">The status of a status event, and no value for the other kinds (D-75).</param>
 /// <param name="Affinity">The affinity of the target of a hit or an absorb, and `normal` for the other kinds (D-794).</param>
-public sealed record BattleEvent(BattleEventKind Kind, BattleTarget Actor, BattleTarget? Target, int Amount, StatusKind? Status = null, Affinity Affinity = Affinity.Normal)
+/// <param name="Ability">The form of a lesson event or a form event, and no value for the other kinds (D-1027).</param>
+public sealed record BattleEvent(BattleEventKind Kind, BattleTarget Actor, BattleTarget? Target, int Amount, StatusKind? Status = null, Affinity Affinity = Affinity.Normal, ContentId? Ability = null)
 {
     /// <summary>Gives the event as one text, for a log line of Game (D-767).</summary>
     /// <returns>The kind, the actor, the target, and the amount, then the status and an affinity other than `normal`.</returns>
@@ -92,7 +100,8 @@ public sealed record BattleEvent(BattleEventKind Kind, BattleTarget Actor, Battl
         string amount = this.Amount != 0 ? $" for {this.Amount}" : string.Empty;
         string status = this.Status is StatusKind held ? $" ({Statuses.NameOf(held)})" : string.Empty;
         string affinity = this.Affinity != Affinity.Normal ? $" ({Elements.NameOf(this.Affinity)})" : string.Empty;
-        return $"{BattleEvents.NameOf(this.Kind)}: {this.Actor.Describe()}{target}{amount}{status}{affinity}";
+        string ability = this.Ability is ContentId form ? $" [{form.Value}]" : string.Empty;
+        return $"{BattleEvents.NameOf(this.Kind)}: {this.Actor.Describe()}{ability}{target}{amount}{status}{affinity}";
     }
 }
 
@@ -128,6 +137,8 @@ public static class BattleEvents
         BattleEventKind.Heal => "heal",
         BattleEventKind.Experience => "experience",
         BattleEventKind.LevelUp => "level up",
+        BattleEventKind.Lesson => "lesson",
+        BattleEventKind.FormOpened => "form opened",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no battle event (D-532)"),
     };
 }

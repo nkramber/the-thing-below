@@ -30,11 +30,12 @@ public sealed class BattleMessagesTests
     {
         // Exit test 3 of PR-10. det-lint proves that Game shows no inline string (DL 8), and
         // this test proves that each event names an id of the table. A win shows no line, and the
-        // experience and the level-ups rise above each head instead of a line (D-835, D-975).
+        // experience, the level-ups, and each new form rise above each head instead of a line (D-835,
+        // D-975, D-1027).
         foreach (BattleEvent played in EveryEvent())
         {
             object? line = LineOf(played, EnemyNamedFirst());
-            if (played.Kind is BattleEventKind.Turn or BattleEventKind.Won or BattleEventKind.Experience or BattleEventKind.LevelUp)
+            if (played.Kind is BattleEventKind.Turn or BattleEventKind.Won or BattleEventKind.Experience or BattleEventKind.LevelUp or BattleEventKind.FormOpened)
             {
                 Assert.Null(line);
                 continue;
@@ -68,6 +69,7 @@ public sealed class BattleMessagesTests
                 .Replace("{actor}", longestName, StringComparison.Ordinal)
                 .Replace("{target}", longestName, StringComparison.Ordinal)
                 .Replace("{status}", longestStatus, StringComparison.Ordinal)
+                .Replace("{form}", longestName, StringComparison.Ordinal)
                 .Replace("{amount}", amount, StringComparison.Ordinal);
             Assert.True(text.Length <= MessageLimit, $"The line '{id.Value}' reads '{text}', {text.Length} characters, above {MessageLimit} (D-241).");
         }
@@ -131,6 +133,8 @@ public sealed class BattleMessagesTests
         Assert.Equal("battle.hit", ((ContentId)Method("HitIdOf").Invoke(null, [Affinity.Normal])!).Value);
     }
 
+    private static readonly ContentId Form = ContentId.Parse("ability.fixture_blaze", "test", "ability");
+
     /// <summary>Gives one event of each kind, each affinity of a hit, each status, and each side of a fall.</summary>
     private static List<BattleEvent> EveryEvent()
     {
@@ -139,8 +143,9 @@ public sealed class BattleMessagesTests
         var events = new List<BattleEvent>();
         foreach (BattleEventKind kind in Enum.GetValues<BattleEventKind>())
         {
-            events.Add(new BattleEvent(kind, party, enemy, 12, StatusKind.Poison));
-            events.Add(new BattleEvent(kind, enemy, party, 12, StatusKind.Poison));
+            // A lesson event and a form event name the form of a checkout lesson (D-1027).
+            events.Add(new BattleEvent(kind, party, enemy, 12, StatusKind.Poison, Affinity.Normal, Form));
+            events.Add(new BattleEvent(kind, enemy, party, 12, StatusKind.Poison, Affinity.Normal, Form));
         }
 
         foreach (Affinity affinity in Elements.Affinities)

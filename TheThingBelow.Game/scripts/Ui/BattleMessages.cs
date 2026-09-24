@@ -45,6 +45,9 @@ public static class BattleMessages
     /// <summary>The place of the name of a status, in a message.</summary>
     public const string StatusPlace = "status";
 
+    /// <summary>The place of the name of a form of a lesson, in a message (D-1027).</summary>
+    public const string FormPlace = "form";
+
     /// <summary>
     /// Gives the line of one event, or no value for a turn, a win, or the summary. A turn changes only who
     /// acts, a win keeps the line of the last event on screen, and the summary shows above each head (D-835, D-975).
@@ -70,6 +73,7 @@ public static class BattleMessages
             BattleEventKind.Won => null,
             BattleEventKind.Experience => null,
             BattleEventKind.LevelUp => null,
+            BattleEventKind.FormOpened => null,
             BattleEventKind.Started => Line("battle.started"),
             BattleEventKind.Hit => Line(HitIdOf(played.Affinity), Target(played, view, strings), Amount(played)),
             BattleEventKind.Miss => Line("battle.miss", Actor(played, view, strings)),
@@ -89,6 +93,7 @@ public static class BattleMessages
             BattleEventKind.StatusHurt => Line("battle.status_hurt", Actor(played, view, strings), Amount(played), Status(played, strings)),
             BattleEventKind.StatusHeal => Line("battle.status_heal", Actor(played, view, strings), Amount(played)),
             BattleEventKind.Asleep => Line("battle.asleep", Actor(played, view, strings)),
+            BattleEventKind.Lesson => Line("battle.lesson", Actor(played, view, strings), Form(played, strings)),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(played), played.Kind, $"The battle event '{played.Kind}' has no message line (G-20, T-2)."),
         };
@@ -164,6 +169,16 @@ public static class BattleMessages
             nameof(played));
 
         return new(TargetPlace, strings.Text(NameIdOf(view.At(target).Id)));
+    }
+
+    /// <summary>Gives the name of the form of a lesson event: `name.` and the name part of its ability (D-1026, D-1027).</summary>
+    private static KeyValuePair<string, string> Form(BattleEvent played, StringTable strings)
+    {
+        ContentId ability = played.Ability ?? throw new ArgumentException(
+            $"The battle event '{BattleEvents.NameOf(played.Kind)}' of {played.Actor.Describe()} holds no form (T-2).",
+            nameof(played));
+
+        return new(FormPlace, strings.Text(NameIdOf(ability)));
     }
 
     private static KeyValuePair<string, string> Amount(BattleEvent played) =>

@@ -7,7 +7,7 @@ using TheThingBelow.Core.Content;
 namespace TheThingBelow.Game.Ui;
 
 /// <summary>
-/// The lines that rise above the head of a character after a won fight: the experience, then
+/// The lines that rise above the head of a character after a won fight: the experience, each new form of a lesson, then
 /// "Level up!" and one line for each stat that rose (D-975, D-978, D-979).
 /// </summary>
 /// <remarks>
@@ -38,6 +38,14 @@ public static class SummaryLines
         if (played.Kind == BattleEventKind.Experience)
         {
             return [Line("battle.summary_experience", (BattleMessages.AmountPlace, Text(played.Amount)))];
+        }
+
+        // A form that a lesson opened rises as one line with its name (D-539, D-1027).
+        if (played.Kind == BattleEventKind.FormOpened)
+        {
+            ContentId form = played.Ability ?? throw new InvalidOperationException(
+                $"The new form of {played.Actor.Describe()} names no ability (D-1027, T-2).");
+            return [Line("battle.summary_form", (BattleMessages.FormPlace, strings.Text(BattleMessages.NameIdOf(form))))];
         }
 
         if (played.Kind != BattleEventKind.LevelUp)
