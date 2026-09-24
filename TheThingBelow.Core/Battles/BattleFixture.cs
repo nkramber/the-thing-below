@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Battles;
 
@@ -14,6 +15,11 @@ public sealed record ItemRecord(ContentId Id, int Heal, int Delay);
 /// <param name="Item">The id of the item.</param>
 /// <param name="Count">The count.</param>
 public sealed record PackEntry(ContentId Item, int Count);
+
+/// <summary>The lessons that one character of the start party carries at the start of a run, in slot order (D-1030).</summary>
+/// <param name="Character">The id of the character.</param>
+/// <param name="Lessons">The ids of the lessons, one for each slot from the first.</param>
+public sealed record StartLessons(ContentId Character, IReadOnlyList<ContentId> Lessons);
 
 /// <summary>
 /// The fixture file of the battle core: the characters, the items, and the start of a run
@@ -60,12 +66,16 @@ public sealed class BattleFixture
         IReadOnlyList<CharacterRecord> characters,
         IReadOnlyList<ItemRecord> items,
         IReadOnlyList<ContentId> startParty,
-        IReadOnlyList<PackEntry> pack)
+        IReadOnlyList<PackEntry> pack,
+        IReadOnlyList<StartLessons> startLessons,
+        IReadOnlyList<ContentId> lessonPack)
     {
         this.Characters = characters;
         this.Items = items;
         this.StartParty = startParty;
         this.Pack = pack;
+        this.StartLessons = startLessons;
+        this.LessonPack = lessonPack;
     }
 
     /// <summary>Every character, in the order of the file.</summary>
@@ -80,6 +90,12 @@ public sealed class BattleFixture
     /// <summary>The pack at the start of a run, in the order of the file (D-775).</summary>
     public IReadOnlyList<PackEntry> Pack { get; }
 
+    /// <summary>The lessons of each character of the start party, in the order of the file (D-1030).</summary>
+    public IReadOnlyList<StartLessons> StartLessons { get; }
+
+    /// <summary>The owned lessons that no character carries at the start of a run, in the order of the file (D-1024).</summary>
+    public IReadOnlyList<ContentId> LessonPack { get; }
+
     /// <summary>Reads the fixture file, and checks every record and every id that one record names (T-2).</summary>
     /// <param name="bytes">The bytes of the file.</param>
     /// <param name="file">The path of the file, for an error.</param>
@@ -93,6 +109,8 @@ public sealed class BattleFixture
         List<ItemRecord>? items = null;
         List<ContentId>? startParty = null;
         List<PackEntry>? pack = null;
+        List<StartLessons>? startLessons = null;
+        List<ContentId>? lessonPack = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -114,6 +132,12 @@ public sealed class BattleFixture
                 case "pack":
                     pack = ReadList(ref reader, ReadPackEntry);
                     break;
+                case "start_lessons":
+                    startLessons = ReadList(ref reader, ReadStartLessons);
+                    break;
+                case "lesson_pack":
+                    lessonPack = ReadList(ref reader, ReadLessonId);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -124,7 +148,9 @@ public sealed class BattleFixture
             reader.Require(characters, depth, "characters"),
             reader.Require(items, depth, "items"),
             reader.Require(startParty, depth, "start_party"),
-            reader.Require(pack, depth, "pack"));
+            reader.Require(pack, depth, "pack"),
+            reader.Require(startLessons, depth, "start_lessons"),
+            reader.Require(lessonPack, depth, "lesson_pack"));
         reader.ReadFileEnd();
 
         fixture.CheckIds(file);
@@ -169,6 +195,9 @@ public sealed class BattleFixture
         BattleRow? row = null;
         int? joinLevel = null;
         List<StatRow>? curve = null;
+        AptitudeKind? main = null;
+        AptitudeKind? side = null;
+        ContentId? sideFlag = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -187,16 +216,50 @@ public sealed class BattleFixture
                 case "curve":
                     curve = StatCurve.Read(ref reader);
                     break;
+                case "main_aptitude":
+                    main = ReadAptitude(ref reader);
+                    break;
+                case "side_aptitude":
+                    side = ReadAptitude(ref reader);
+                    break;
+                case "side_flag":
+                    sideFlag = reader.ReadContentId(FlagList.Kind);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
         }
 
+        ContentId readId = reader.Require(id, depth, "id");
+        AptitudeKind readMain = reader.RequireValue(main, depth, "main_aptitude");
+        AptitudeKind readSide = reader.RequireValue(side, depth, "side_aptitude");
+        if (readMain == readSide)
+        {
+            throw reader.RefuseField(
+                depth,
+                "side_aptitude",
+                $"the side aptitude of '{readId.Value}' is '{Aptitudes.NameOf(readSide)}', its main aptitude, and a side aptitude never matches the main aptitude (D-281)");
+        }
+
         return new CharacterRecord(
-            reader.Require(id, depth, "id"),
+            readId,
             reader.RequireValue(row, depth, "row"),
             reader.RequireInt(joinLevel, depth, "join_level"),
-            reader.Require(curve, depth, "curve"));
+            reader.Require(curve, depth, "curve"),
+            readMain,
+            readSide,
+            reader.Require(sideFlag, depth, "side_flag"));
+    }
+
+    private static AptitudeKind ReadAptitude(ref ContentReader reader)
+    {
+        string name = reader.ReadString();
+        if (!Aptitudes.TryOf(name, out AptitudeKind kind))
+        {
+            throw reader.Refuse($"the aptitude '{name}' is not one of {Aptitudes.EveryName} (D-281)");
+        }
+
+        return kind;
     }
 
     private static ItemRecord ReadItem(ref ContentReader reader)
@@ -231,6 +294,32 @@ public sealed class BattleFixture
     }
 
     private static ContentId ReadCharacterId(ref ContentReader reader) => reader.ReadContentId(CharacterKind);
+
+    private static ContentId ReadLessonId(ref ContentReader reader) => reader.ReadContentId(LessonList.Kind);
+
+    private static StartLessons ReadStartLessons(ref ContentReader reader)
+    {
+        ContentId? character = null;
+        List<ContentId>? lessons = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "character":
+                    character = reader.ReadContentId(CharacterKind);
+                    break;
+                case "lessons":
+                    lessons = ReadList(ref reader, ReadLessonId);
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new StartLessons(reader.Require(character, depth, "character"), reader.Require(lessons, depth, "lessons"));
+    }
 
     private static PackEntry ReadPackEntry(ref ContentReader reader)
     {
@@ -341,6 +430,48 @@ public sealed class BattleFixture
             if (!packed.Add(entry.Item.Value))
             {
                 throw ContentException.ForField(file, "pack", $"the pack holds '{entry.Item.Value}' two times, and one entry holds each item");
+            }
+        }
+
+        this.CheckStartLessons(file, started);
+    }
+
+    /// <summary>
+    /// Refuses start lessons of a character outside the start party, a character with two
+    /// entries, and one lesson two times across the start lessons and the lesson pack, because
+    /// the player never owns two copies of one lesson (D-1023). The battle content checks each
+    /// lesson id and each slot count.
+    /// </summary>
+    private void CheckStartLessons(string file, SortedSet<string> started)
+    {
+        var carriers = new SortedSet<string>(StringComparer.Ordinal);
+        var owned = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (StartLessons entry in this.StartLessons)
+        {
+            if (!started.Contains(entry.Character.Value))
+            {
+                throw ContentException.ForField(file, "start_lessons", $"the character '{entry.Character.Value}' carries start lessons, and it is not in the start party (D-1030)");
+            }
+
+            if (!carriers.Add(entry.Character.Value))
+            {
+                throw ContentException.ForField(file, "start_lessons", $"the character '{entry.Character.Value}' has two entries of start lessons");
+            }
+
+            foreach (ContentId lesson in entry.Lessons)
+            {
+                if (!owned.Add(lesson.Value))
+                {
+                    throw ContentException.ForField(file, "start_lessons", $"the lesson '{lesson.Value}' starts two times, and the player never owns two copies of one lesson (D-1023)");
+                }
+            }
+        }
+
+        foreach (ContentId lesson in this.LessonPack)
+        {
+            if (!owned.Add(lesson.Value))
+            {
+                throw ContentException.ForField(file, "lesson_pack", $"the lesson '{lesson.Value}' starts two times, and the player never owns two copies of one lesson (D-1023)");
             }
         }
     }

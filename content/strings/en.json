@@ -238,6 +238,42 @@
    "text": "Wet rope"
   },
   {
+   "id": "lesson.fixture_blaze",
+   "text": "More fire on one foe, either row."
+  },
+  {
+   "id": "lesson.fixture_bolt",
+   "text": "A shot at one foe, either row."
+  },
+  {
+   "id": "lesson.fixture_cinder",
+   "text": "Fire on one foe, either row."
+  },
+  {
+   "id": "lesson.fixture_cleave",
+   "text": "A heavier cut at the front row."
+  },
+  {
+   "id": "lesson.fixture_hew",
+   "text": "A hard cut at the front row."
+  },
+  {
+   "id": "lesson.fixture_purge",
+   "text": "Ends poison, blind, and silence on one ally."
+  },
+  {
+   "id": "lesson.fixture_quicken",
+   "text": "Haste on one ally."
+  },
+  {
+   "id": "lesson.fixture_rot",
+   "text": "A weak blow that can poison."
+  },
+  {
+   "id": "lesson.fixture_salve",
+   "text": "Closes the wounds of one ally."
+  },
+  {
    "id": "menu.experience",
    "text": "XP {amount}"
   },
@@ -322,8 +358,24 @@
    "text": "Status"
   },
   {
+   "id": "name.fixture_blaze",
+   "text": "Blaze"
+  },
+  {
+   "id": "name.fixture_bolt",
+   "text": "Bolt"
+  },
+  {
    "id": "name.fixture_brute",
    "text": "Brute"
+  },
+  {
+   "id": "name.fixture_cinder",
+   "text": "Cinder"
+  },
+  {
+   "id": "name.fixture_cleave",
+   "text": "Cleave"
   },
   {
    "id": "name.fixture_draught",
@@ -332,6 +384,26 @@
   {
    "id": "name.fixture_grunt",
    "text": "Grunt"
+  },
+  {
+   "id": "name.fixture_hew",
+   "text": "Hew"
+  },
+  {
+   "id": "name.fixture_purge",
+   "text": "Purge"
+  },
+  {
+   "id": "name.fixture_quicken",
+   "text": "Quicken"
+  },
+  {
+   "id": "name.fixture_rot",
+   "text": "Rot"
+  },
+  {
+   "id": "name.fixture_salve",
+   "text": "Salve"
   },
   {
    "id": "name.marrek",

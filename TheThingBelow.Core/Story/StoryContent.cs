@@ -69,6 +69,9 @@ public sealed class StoryContent
         foreach (CharacterRecord record in battle.Fixture.Characters)
         {
             _ = cast.Add(record.Id.Value);
+
+            // The side aptitude of each character reads a flag of the flag file (D-538, D-556).
+            flags.RequireDeclared(record.SideFlag, BattleFixture.Path, $"{record.Id.Value}.side_flag");
         }
 
         return new StoryContent(flags, byId, cast);

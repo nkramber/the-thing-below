@@ -57,7 +57,10 @@ internal static class TestBattles
      "blind_miss": 3000,
      "experience_cut": 1500,
      "experience_gap": 4,
-     "level_experience": [0, 20, 60, 120, 200, 300, 420, 560, 720, 900, 1100, 1320, 1560, 1820, 2100, 2400, 2720, 3060, 3420, 3800, 4200, 4620, 5060, 5520, 6000, 6500, 7020, 7560, 8120, 8700, 9300, 9920, 10560, 11220, 11900, 12600, 13320, 14060, 14820, 15600]
+     "lesson_slots": 2,
+     "aptitude_bonus": 2500,
+     "level_experience": [0, 20, 60, 120, 200, 300, 420, 560, 720, 900, 1100, 1320, 1560, 1820, 2100, 2400, 2720, 3060, 3420, 3800, 4200, 4620, 5060, 5520, 6000, 6500, 7020, 7560, 8120, 8700, 9300, 9920, 10560, 11220, 11900, 12600, 13320, 14060, 14820, 15600],
+     "lesson_slot_levels": [5, 12, 20, 30]
     }
     """;
 
@@ -69,15 +72,17 @@ internal static class TestBattles
     {
      "comment": "The battle fixture of the tests.",
      "characters": [
-      { "id": "character.marrek", "row": "front", "join_level": 1, "curve": {{MarrekCurve()}} },
-      { "id": "character.test_second", "row": "front", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(50, 12, 10, 3, 110))}} },
-      { "id": "character.test_third", "row": "back", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(40, 16, 8, 2, 120))}} }
+      { "id": "character.marrek", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.test_marrek_side", "curve": {{MarrekCurve()}} },
+      { "id": "character.test_second", "row": "front", "join_level": 1, "main_aptitude": "harm", "side_aptitude": "mend", "side_flag": "flag.test_second_side", "curve": {{StatCurve.FlatText(new StatRow(50, 12, 10, 3, 110))}} },
+      { "id": "character.test_third", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "boon", "side_flag": "flag.test_third_side", "curve": {{StatCurve.FlatText(new StatRow(40, 16, 8, 2, 120))}} }
      ],
      "items": [
       { "id": "item.fixture_draught", "heal": 30, "delay": 100 }
      ],
      "start_party": ["character.marrek"],
-     "pack": [{ "item": "item.fixture_draught", "count": 3 }]
+     "pack": [{ "item": "item.fixture_draught", "count": 3 }],
+     "start_lessons": [{ "character": "character.marrek", "lessons": ["lesson.test_hew", "lesson.test_cinder"] }],
+     "lesson_pack": ["lesson.test_salve", "lesson.test_purge", "lesson.test_rot", "lesson.test_quicken"]
     }
     """;
 
@@ -229,12 +234,61 @@ internal static class TestBattles
     {
      "comment": "The ability file of the tests.",
      "abilities": [
-      { "id": "ability.fixture_bash", "kind": "strike", "delay": 100, "power": 5000, "element": "none", "reach": "melee" },
+      { "id": "ability.fixture_bash", "kind": "strike", "delay": 100, "power": 5000, "element": "none", "reach": "melee", "status": "none" },
       { "id": "ability.test_mend", "kind": "heal", "delay": 100, "heal": 20 },
-      { "id": "ability.test_shot", "kind": "strike", "delay": 100, "power": 15000, "element": "none", "reach": "any" }
+      { "id": "ability.test_shot", "kind": "strike", "delay": 100, "power": 15000, "element": "none", "reach": "any", "status": "none" },
+      { "id": "ability.test_hew", "kind": "strike", "delay": 110, "power": 15000, "element": "none", "reach": "melee", "status": "none" },
+      { "id": "ability.test_cleave", "kind": "strike", "delay": 120, "power": 20000, "element": "none", "reach": "melee", "status": "none" },
+      { "id": "ability.test_cinder", "kind": "strike", "delay": 120, "power": 14000, "element": "fire", "reach": "any", "status": "none" },
+      { "id": "ability.test_blaze", "kind": "strike", "delay": 140, "power": 22000, "element": "fire", "reach": "any", "status": "none" },
+      { "id": "ability.test_rot", "kind": "strike", "delay": 110, "power": 5000, "element": "none", "reach": "any", "status": "poison", "chance": 6000 },
+      { "id": "ability.test_salve", "kind": "heal", "delay": 120, "heal": 30 },
+      { "id": "ability.test_purge", "kind": "cure", "delay": 100, "statuses": ["poison", "blind", "silence"] },
+      { "id": "ability.test_quicken", "kind": "boon", "delay": 100, "status": "haste" }
      ]
     }
     """;
+
+    /// <summary>
+    /// The lesson file of the tests (D-1026). The hew and the cinder open a second form, and
+    /// the others cover the heal, the cure, the status strike, and the boon (D-1029). Marrek
+    /// starts with the hew and the cinder, and the rest start in the lesson pack.
+    /// </summary>
+    public const string LessonsFile = """
+    {
+     "comment": "The lesson file of the tests.",
+     "lessons": [
+      { "id": "lesson.test_hew", "name": "name.test_hew", "kind": "blade", "forms": [
+       { "ability": "ability.test_hew", "points": 0, "mp": 0, "name": "name.test_hew", "description": "lesson.test_hew" },
+       { "ability": "ability.test_cleave", "points": 60, "mp": 0, "name": "name.test_cleave", "description": "lesson.test_cleave" } ] },
+      { "id": "lesson.test_cinder", "name": "name.test_cinder", "kind": "harm", "forms": [
+       { "ability": "ability.test_cinder", "points": 0, "mp": 4, "name": "name.test_cinder", "description": "lesson.test_cinder" },
+       { "ability": "ability.test_blaze", "points": 120, "mp": 9, "name": "name.test_blaze", "description": "lesson.test_blaze" } ] },
+      { "id": "lesson.test_salve", "name": "name.test_salve", "kind": "mend", "forms": [
+       { "ability": "ability.test_salve", "points": 0, "mp": 3, "name": "name.test_salve", "description": "lesson.test_salve" } ] },
+      { "id": "lesson.test_purge", "name": "name.test_purge", "kind": "mend", "forms": [
+       { "ability": "ability.test_purge", "points": 0, "mp": 2, "name": "name.test_purge", "description": "lesson.test_purge" } ] },
+      { "id": "lesson.test_rot", "name": "name.test_rot", "kind": "blight", "forms": [
+       { "ability": "ability.test_rot", "points": 0, "mp": 3, "name": "name.test_rot", "description": "lesson.test_rot" } ] },
+      { "id": "lesson.test_quicken", "name": "name.test_quicken", "kind": "boon", "forms": [
+       { "ability": "ability.test_quicken", "points": 0, "mp": 4, "name": "name.test_quicken", "description": "lesson.test_quicken" } ] }
+     ]
+    }
+    """;
+
+    /// <summary>
+    /// The strings of <see cref="LessonsFile"/>, in ordinal order. A content set that holds the
+    /// lesson file needs them in its string table (G-7), before <see cref="NoticeStrings"/>.
+    /// </summary>
+    public const string LessonStrings =
+        """{ "id": "lesson.test_blaze", "text": "Blaze text." }, { "id": "lesson.test_cinder", "text": "Cinder text." }, """ +
+        """{ "id": "lesson.test_cleave", "text": "Cleave text." }, { "id": "lesson.test_hew", "text": "Hew text." }, """ +
+        """{ "id": "lesson.test_purge", "text": "Purge text." }, { "id": "lesson.test_quicken", "text": "Quicken text." }, """ +
+        """{ "id": "lesson.test_rot", "text": "Rot text." }, { "id": "lesson.test_salve", "text": "Salve text." }, """ +
+        """{ "id": "name.test_blaze", "text": "Blaze" }, { "id": "name.test_cinder", "text": "Cinder" }, """ +
+        """{ "id": "name.test_cleave", "text": "Cleave" }, { "id": "name.test_hew", "text": "Hew" }, """ +
+        """{ "id": "name.test_purge", "text": "Purge" }, { "id": "name.test_quicken", "text": "Quicken" }, """ +
+        """{ "id": "name.test_rot", "text": "Rot" }, { "id": "name.test_salve", "text": "Salve" }""";
 
     /// <summary>The path of the grunt record in a content set of the tests (D-786).</summary>
     public const string GruntPath = "rules/enemies/fixture-grunt.json";
@@ -271,8 +325,12 @@ internal static class TestBattles
     /// <summary>The flag file of a test content set with no story scene: it declares no flag (D-1003).</summary>
     public const string NoFlagsFile = """
     {
-     "comment": "The flags of the tests. It declares none.",
-     "flags": []
+     "comment": "The flags of the tests. It declares the flags of the side aptitudes alone.",
+     "flags": [
+      { "id": "flag.test_marrek_side", "note": "The side aptitude of Marrek is open." },
+      { "id": "flag.test_second_side", "note": "The side aptitude of the second character is open." },
+      { "id": "flag.test_third_side", "note": "The side aptitude of the third character is open." }
+     ]
     }
     """;
 
@@ -283,6 +341,7 @@ internal static class TestBattles
         new ContentFile(BattleRules.Path, Encoding.UTF8.GetBytes(RulesFile)),
         new ContentFile(BattleFixture.Path, Encoding.UTF8.GetBytes(FixtureFile)),
         new ContentFile(AbilityList.Path, Encoding.UTF8.GetBytes(AbilitiesFile)),
+        new ContentFile(LessonList.Path, Encoding.UTF8.GetBytes(LessonsFile)),
         new ContentFile(BrutePath, Encoding.UTF8.GetBytes(BruteFile)),
         new ContentFile(GruntPath, Encoding.UTF8.GetBytes(GruntFile)),
         new ContentFile(FixtureGroupsPath, Encoding.UTF8.GetBytes(FixtureGroupsFile)),
@@ -349,6 +408,15 @@ internal static class TestBattles
     /// <param name="fixture">The text of the fixture file.</param>
     /// <returns>The battle content.</returns>
     public static BattleContent Of(string fixture) => Build(fixture, []);
+
+    /// <summary>Reads the content of the tests with other text for the fixture, the lesson file, the ability file, or the grunt (D-1026).</summary>
+    /// <param name="fixture">The text of the fixture file, or no value for <see cref="FixtureFile"/>.</param>
+    /// <param name="lessons">The text of the lesson file, or no value for <see cref="LessonsFile"/>.</param>
+    /// <param name="abilities">The text of the ability file, or no value for <see cref="AbilitiesFile"/>.</param>
+    /// <param name="grunt">The text of the grunt record, or no value for <see cref="GruntFile"/>.</param>
+    /// <returns>The battle content.</returns>
+    public static BattleContent WithLessonFiles(string? fixture = null, string? lessons = null, string? abilities = null, string? grunt = null) =>
+        Build(fixture ?? FixtureFile, [], grunt, null, null, lessons, abilities);
 
     /// <summary>The battle content of the tests, with a party of the first characters of the fixture.</summary>
     /// <param name="size">The count of characters: 1, 2, or 3 (D-336).</param>
@@ -433,7 +501,7 @@ internal static class TestBattles
         return Build(FixtureWithParty(3), changes, grunt, groups, profiles);
     }
 
-    private static BattleContent Build(string fixture, (string Field, int Value)[] changes, string? grunt = null, string? groups = null, string[]? profiles = null)
+    private static BattleContent Build(string fixture, (string Field, int Value)[] changes, string? grunt = null, string? groups = null, string[]? profiles = null, string? lessons = null, string? abilities = null)
     {
         string rules = RulesFile;
         foreach ((string field, int value) in changes)
@@ -451,7 +519,8 @@ internal static class TestBattles
                 EnemyRecord.Read(Encoding.UTF8.GetBytes(BruteFile), BrutePath),
                 EnemyRecord.Read(Encoding.UTF8.GetBytes(grunt ?? GruntFile), GruntPath),
             ],
-            AbilityList.Read(Encoding.UTF8.GetBytes(AbilitiesFile), AbilityList.Path),
+            AbilityList.Read(Encoding.UTF8.GetBytes(abilities ?? AbilitiesFile), AbilityList.Path),
+            LessonList.Read(Encoding.UTF8.GetBytes(lessons ?? LessonsFile), LessonList.Path),
             [
                 GroupFile.Read(Encoding.UTF8.GetBytes(FixtureGroupsFile), FixtureGroupsPath),
                 GroupFile.Read(Encoding.UTF8.GetBytes(groups ?? GroupsFile), GroupsPath),

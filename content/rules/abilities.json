@@ -1,7 +1,16 @@
 {
- "comment": "The abilities (D-785). An enemy record names ids from this file. PR-11 gave each entry the effect of an enemy move: a strike with a power, an element, and a reach, or a heal (D-955). PR-12 adds the fields of a lesson to each entry. Each id is permanent (D-166).",
+ "comment": "The abilities (D-785). An enemy record and a form of a lesson name ids from this file (D-1026). PR-11 gave each entry the effect of a move: a strike with a power, an element, and a reach, or a heal (D-955). PR-12 gave a strike its status with a chance, and added the cure and the boon (D-793, D-1029). The fixture lessons of PR-12 name the entries after the heal. Each id is permanent (D-166).",
  "abilities": [
-  { "id": "ability.fixture_bash", "kind": "strike", "delay": 130, "power": 13000, "element": "none", "reach": "melee" },
-  { "id": "ability.fixture_mend", "kind": "heal", "delay": 150, "heal": 6 }
+  { "id": "ability.fixture_bash", "kind": "strike", "delay": 130, "power": 13000, "element": "none", "reach": "melee", "status": "none" },
+  { "id": "ability.fixture_mend", "kind": "heal", "delay": 150, "heal": 6 },
+  { "id": "ability.fixture_hew", "kind": "strike", "delay": 110, "power": 15000, "element": "none", "reach": "melee", "status": "none" },
+  { "id": "ability.fixture_cleave", "kind": "strike", "delay": 120, "power": 20000, "element": "none", "reach": "melee", "status": "none" },
+  { "id": "ability.fixture_cinder", "kind": "strike", "delay": 120, "power": 14000, "element": "fire", "reach": "any", "status": "none" },
+  { "id": "ability.fixture_blaze", "kind": "strike", "delay": 140, "power": 22000, "element": "fire", "reach": "any", "status": "none" },
+  { "id": "ability.fixture_rot", "kind": "strike", "delay": 110, "power": 5000, "element": "none", "reach": "any", "status": "poison", "chance": 6000 },
+  { "id": "ability.fixture_bolt", "kind": "strike", "delay": 100, "power": 12000, "element": "none", "reach": "any", "status": "none" },
+  { "id": "ability.fixture_salve", "kind": "heal", "delay": 120, "heal": 30 },
+  { "id": "ability.fixture_purge", "kind": "cure", "delay": 100, "statuses": ["poison", "blind", "silence"] },
+  { "id": "ability.fixture_quicken", "kind": "boon", "delay": 100, "status": "haste" }
  ]
 }

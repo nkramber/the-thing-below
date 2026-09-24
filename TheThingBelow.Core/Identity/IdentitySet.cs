@@ -415,18 +415,26 @@ public static partial class IdentitySet
     /// <summary>The ability file of this set (D-785). PR-80 added it, and it never changes.</summary>
     private const string AbilityFile = """
     {
-     "comment": "The ability file of the identity set. PR-11 gave each ability its effect and added the mend, and it never changes again.",
+     "comment": "The ability file of the identity set. PR-11 gave each ability its effect and added the mend, and PR-12 gave the strike its status field.",
      "abilities": [
-      { "id": "ability.identity_strike", "kind": "strike", "delay": 120, "power": 14000, "element": "fire", "reach": "any" },
+      { "id": "ability.identity_strike", "kind": "strike", "delay": 120, "power": 14000, "element": "fire", "reach": "any", "status": "none" },
       { "id": "ability.identity_mend", "kind": "heal", "delay": 100, "heal": 18 }
      ]
+    }
+    """;
+
+    /// <summary>The lesson file of this set (D-1026). PR-12 added it.</summary>
+    private const string LessonFile = """
+    {
+     "comment": "The lesson file of the identity set. PR-12 added it.",
+     "lessons": []
     }
     """;
 
     /// <summary>The battle rules of this set, with the numbers of D-777. They never change.</summary>
     private const string BattleRulesFile = """
     {
-     "comment": "The battle rules of the identity set. PR-9 added them, and they never change.",
+     "comment": "The battle rules of the identity set. PR-9 added them, and PR-12 added the lesson slots and the aptitude bonus.",
      "attack_delay": 100,
      "attack_power": 10000,
      "defend_delay": 60,
@@ -465,7 +473,10 @@ public static partial class IdentitySet
      "blind_miss": 3000,
      "experience_cut": 1500,
      "experience_gap": 4,
-     "level_experience": [0, 20, 60, 120, 200, 300, 420, 560, 720, 900, 1100, 1320, 1560, 1820, 2100, 2400, 2720, 3060, 3420, 3800, 4200, 4620, 5060, 5520, 6000, 6500, 7020, 7560, 8120, 8700, 9300, 9920, 10560, 11220, 11900, 12600, 13320, 14060, 14820, 15600]
+     "lesson_slots": 2,
+     "aptitude_bonus": 2500,
+     "level_experience": [0, 20, 60, 120, 200, 300, 420, 560, 720, 900, 1100, 1320, 1560, 1820, 2100, 2400, 2720, 3060, 3420, 3800, 4200, 4620, 5060, 5520, 6000, 6500, 7020, 7560, 8120, 8700, 9300, 9920, 10560, 11220, 11900, 12600, 13320, 14060, 14820, 15600],
+     "lesson_slot_levels": [5, 12, 20, 30]
     }
     """;
 
@@ -475,16 +486,18 @@ public static partial class IdentitySet
     /// </summary>
     private static readonly string BattleFixtureFile = $$"""
     {
-     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, PR-11 moved its groups to the group file, and PR-68 added the friend who joins in the story run.",
+     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, PR-11 moved its groups to the group file, PR-68 added the friend who joins in the story run, and PR-12 added the aptitudes, the start lessons, and the lesson pack.",
      "characters": [
-      { "id": "character.identity_hero", "row": "front", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(90, 20, 14, 4, 100))}} },
-      { "id": "character.identity_friend", "row": "back", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(70, 30, 10, 3, 110))}} }
+      { "id": "character.identity_hero", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(90, 20, 14, 4, 100))}} },
+      { "id": "character.identity_friend", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "harm", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(70, 30, 10, 3, 110))}} }
      ],
      "items": [
       { "id": "item.identity_draught", "heal": 30, "delay": 100 }
      ],
      "start_party": ["character.identity_hero"],
-     "pack": [{ "item": "item.identity_draught", "count": 9 }]
+     "pack": [{ "item": "item.identity_draught", "count": 9 }],
+     "start_lessons": [],
+     "lesson_pack": []
     }
     """;
 
@@ -709,6 +722,7 @@ public static partial class IdentitySet
                 EnemyRecord.Read(Encoding.UTF8.GetBytes(MenderRecordFile), "identity-set-mender.json"),
             ],
             AbilityList.Read(Encoding.UTF8.GetBytes(AbilityFile), "identity-set-abilities.json"),
+            LessonList.Read(Encoding.UTF8.GetBytes(LessonFile), "identity-set-lessons.json"),
             [GroupFile.Read(Encoding.UTF8.GetBytes(GroupFileText), $"{GroupFile.Folder}identity.json")],
             [
                 ProfileRecord.Read(Encoding.UTF8.GetBytes(BruteProfileFile), "identity-set-brute-profile.json"),

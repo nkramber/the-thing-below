@@ -94,7 +94,7 @@ public sealed class GroupFileTests
         GroupFile second = GroupFile.Read(Encoding.UTF8.GetBytes(Text(Entries(1, 0)).Replace("group.big", "group.big_second", StringComparison.Ordinal)), Path);
 
         ContentException error = Assert.Throws<ContentException>(
-            () => new BattleContent(tests.Rules, tests.Fixture, tests.Enemies, tests.Abilities, [first, second], tests.Profiles));
+            () => new BattleContent(tests.Rules, tests.Fixture, tests.Enemies, tests.Abilities, tests.Lessons, [first, second], tests.Profiles));
 
         Assert.Contains("a second group file takes the region 'region.big'", error.Message, StringComparison.Ordinal);
     }

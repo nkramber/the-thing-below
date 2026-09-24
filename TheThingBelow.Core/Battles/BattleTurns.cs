@@ -563,7 +563,7 @@ public static class BattleTurns
                 Strike(state, battle, enemy, BattleMove.BasicAttack(content.Rules), EnemyTargetOf(action, context), AbilityReach.Melee, context, log);
                 break;
             case EnemyActionKind.Ability when action.Ability is StrikeAbility strike:
-                BattleMove move = new(strike.Delay, strike.Power, strike.Element, null);
+                BattleMove move = new(strike.Delay, strike.Power, strike.Element, strike.Status);
                 Strike(state, battle, enemy, move, EnemyTargetOf(action, context), strike.Reach, context, log);
                 break;
             case EnemyActionKind.Ability when action.Ability is HealAbility heal:

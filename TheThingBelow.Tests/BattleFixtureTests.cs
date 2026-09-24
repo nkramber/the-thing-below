@@ -50,6 +50,13 @@ public sealed class BattleFixtureTests
     [InlineData("[0, 20, 60,", "[0, 60, 20,", "level_experience", "above the total")]
     [InlineData("15600]", "15600, 16000]", "level_experience", "one total for each level")]
     [InlineData("\"level_experience\"", "\"level_totals\"", "level_totals", "unknown field")]
+    [InlineData("\"lesson_slots\": 2,", "\"lesson_slots\": 0,", "lesson_slots", "outside 1 to 40")]
+    [InlineData("\"aptitude_bonus\": 2500,", "\"aptitude_bonus\": -1,", "aptitude_bonus", "outside 0 to")]
+    [InlineData("\"aptitude_bonus\": 2500,", "", "aptitude_bonus", "absent")]
+    [InlineData("[5, 12, 20, 30]", "[5, 5, 20, 30]", "slot level 5", "above the one before it")]
+    [InlineData("[5, 12, 20, 30]", "[1, 12]", "slot level 1", "outside 2 to 40")]
+    [InlineData("[5, 12, 20, 30]", "[5, 41]", "slot level 41", "outside 6 to 40")]
+    [InlineData(",\n \"lesson_slot_levels\": [5, 12, 20, 30]", "", "lesson_slot_levels", "absent")]
     public void ARulesFileThatBreaksARuleFailsWithTheField(string from, string to, string field, string reason)
     {
         string text = TestBattles.RulesFile.Replace(from, to, StringComparison.Ordinal);
@@ -73,6 +80,14 @@ public sealed class BattleFixtureTests
     [InlineData("\"level\": 2,", "\"level\": 3,", "names level 3")]
     [InlineData("\"join_level\": 1", "\"join_level\": 41", "outside 1 to 40")]
     [InlineData("\"join_level\": 1, ", "", "join_level")]
+    [InlineData("\"main_aptitude\": \"blade\"", "\"main_aptitude\": \"stealth\"", "the aptitude 'stealth'")]
+    [InlineData("\"main_aptitude\": \"blade\"", "\"main_aptitude\": \"guard\"", "never matches the main aptitude")]
+    [InlineData("\"main_aptitude\": \"blade\", ", "", "main_aptitude")]
+    [InlineData("\"side_flag\": \"flag.test_marrek_side\"", "\"side_flag\": \"notice.test_marrek_side\"", "the kind 'flag'")]
+    [InlineData("\"character\": \"character.marrek\", \"lessons\"", "\"character\": \"character.test_second\", \"lessons\"", "not in the start party")]
+    [InlineData("\"lesson_pack\": [\"lesson.test_salve\"", "\"lesson_pack\": [\"lesson.test_hew\"", "never owns two copies")]
+    [InlineData("[\"lesson.test_hew\", \"lesson.test_cinder\"]", "[\"lesson.test_hew\", \"lesson.test_hew\"]", "never owns two copies")]
+    [InlineData(",\n \"lesson_pack\": [\"lesson.test_salve\", \"lesson.test_purge\", \"lesson.test_rot\", \"lesson.test_quicken\"]", "", "lesson_pack")]
     public void AFixtureThatBreaksARuleFailsWithTheFieldOrTheId(string from, string to, string named)
     {
         string text = ReplaceFirst(TestBattles.FixtureFile, from, to);
@@ -80,6 +95,89 @@ public sealed class BattleFixtureTests
         ContentException error = Assert.Throws<ContentException>(() => BattleFixture.Read(Encoding.UTF8.GetBytes(text), "fixture.json"));
 
         Assert.Contains(named, error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheCheckoutHoldsTheLessonNumbersOfTheOwner()
+    {
+        // D-1018: two slots at level 1, and one more at 5, 12, 20, and 30. D-1028: 2500 basis points.
+        ContentSet content = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
+        BattleRules rules = content.Battle.Rules;
+        Assert.Equal(2, rules.LessonSlots);
+        Assert.Equal([5, 12, 20, 30], rules.LessonSlotLevels);
+        Assert.Equal(2500, rules.AptitudeBonus);
+
+        // The cast file gives Marrek the blade and the guard (D-274, D-281).
+        CharacterRecord marrek = content.Battle.Character(ContentId.Parse("character.marrek", "test", "character"));
+        Assert.Equal((AptitudeKind.Blade, AptitudeKind.Guard), (marrek.MainAptitude, marrek.SideAptitude));
+        Assert.Equal("flag.fixture_marrek_side", marrek.SideFlag.Value);
+    }
+
+    [Fact]
+    public void ACharacterGainsALessonSlotAtEachLevelOfD1018AndAtNoOtherLevel()
+    {
+        // Exit test 7 of PR-12 (D-1018).
+        BattleRules rules = TestBattles.Content.Rules;
+        int[] opening = [5, 12, 20, 30];
+
+        Assert.Equal(2, rules.SlotsAt(1));
+        for (int level = 2; level <= StatCurve.HighestLevel; level += 1)
+        {
+            int gained = rules.SlotsAt(level) - rules.SlotsAt(level - 1);
+            Assert.True(gained == (Array.IndexOf(opening, level) >= 0 ? 1 : 0), $"Level {level} gains {gained} slots.");
+        }
+
+        Assert.Equal(6, rules.SlotsAt(StatCurve.HighestLevel));
+    }
+
+    [Fact]
+    public void AFormThatNamesAnAbsentAbilityFailsWithTheLesson()
+    {
+        string lessons = TestBattles.LessonsFile.Replace("\"ability\": \"ability.test_blaze\"", "\"ability\": \"ability.absent\"", StringComparison.Ordinal);
+
+        ContentException error = Assert.Throws<ContentException>(() => TestBattles.WithLessonFiles(lessons: lessons));
+
+        Assert.Equal(LessonList.Path, error.File);
+        Assert.Contains("lesson.test_cinder", error.Message, StringComparison.Ordinal);
+        Assert.Contains("ability.absent", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AStartLessonThatTheLessonFileLacksFails()
+    {
+        string fixture = ReplaceFirst(TestBattles.FixtureFile, "\"lesson.test_rot\"", "\"lesson.absent\"");
+
+        ContentException error = Assert.Throws<ContentException>(() => TestBattles.WithLessonFiles(fixture: fixture));
+
+        Assert.Contains("lesson.absent", error.Message, StringComparison.Ordinal);
+        Assert.Contains("lesson_pack", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void MoreStartLessonsThanTheSlotsOfTheJoinLevelFail()
+    {
+        // D-1018: Marrek joins at level 1 with two slots.
+        string fixture = ReplaceFirst(
+            TestBattles.FixtureFile,
+            "[\"lesson.test_hew\", \"lesson.test_cinder\"]",
+            "[\"lesson.test_hew\", \"lesson.test_cinder\", \"lesson.test_salve\"]");
+        fixture = ReplaceFirst(fixture, "[\"lesson.test_salve\", ", "[");
+
+        ContentException error = Assert.Throws<ContentException>(() => TestBattles.WithLessonFiles(fixture: fixture));
+
+        Assert.Contains("starts with 3 lessons, and it has 2 slots at level 1", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AnEnemyThatNamesACureFailsWithTheEnemy()
+    {
+        // D-1029: a cure and a boon serve the lessons, and the evaluator scores a strike and a heal alone.
+        string grunt = TestBattles.GruntFile.Replace("\"abilities\": []", "\"abilities\": [\"ability.test_purge\"]", StringComparison.Ordinal);
+        Assert.NotEqual(TestBattles.GruntFile, grunt);
+
+        ContentException error = Assert.Throws<ContentException>(() => TestBattles.WithLessonFiles(grunt: grunt));
+
+        Assert.Contains("an enemy move is a strike or a heal", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -66,9 +66,11 @@ public sealed class BattleRules
         "blind_miss",
         "experience_cut",
         "experience_gap",
+        "lesson_slots",
+        "aptitude_bonus",
     ];
 
-    private BattleRules(SortedDictionary<string, int> numbers, IReadOnlyList<int> levelExperience)
+    private BattleRules(SortedDictionary<string, int> numbers, IReadOnlyList<int> levelExperience, IReadOnlyList<int> slotLevels)
     {
         this.AttackDelay = numbers["attack_delay"];
         this.AttackPower = numbers["attack_power"];
@@ -109,6 +111,9 @@ public sealed class BattleRules
         this.ExperienceCut = numbers["experience_cut"];
         this.ExperienceGap = numbers["experience_gap"];
         this.LevelExperience = levelExperience;
+        this.LessonSlots = numbers["lesson_slots"];
+        this.AptitudeBonus = numbers["aptitude_bonus"];
+        this.LessonSlotLevels = slotLevels;
     }
 
     /// <summary>The delay of the basic attack, in ticks at speed 100 (D-359, D-757).</summary>
@@ -231,6 +236,32 @@ public sealed class BattleRules
     /// </summary>
     public IReadOnlyList<int> LevelExperience { get; }
 
+    /// <summary>The count of lesson slots of a character at level 1 (D-1018).</summary>
+    public int LessonSlots { get; }
+
+    /// <summary>The levels that each open one more lesson slot, in rising order (D-1018).</summary>
+    public IReadOnlyList<int> LessonSlotLevels { get; }
+
+    /// <summary>The bonus of a lesson of the main aptitude, in basis points. A side aptitude gives half (D-358, D-360, D-1028).</summary>
+    public int AptitudeBonus { get; }
+
+    /// <summary>Gives the count of lesson slots of a character at one level (D-356, D-1018).</summary>
+    /// <param name="level">The character level, from 1 to <see cref="StatCurve.HighestLevel"/>.</param>
+    /// <returns>The slots at level 1, plus one for each slot level that the level reaches.</returns>
+    public int SlotsAt(int level)
+    {
+        int slots = this.LessonSlots;
+        foreach (int opens in this.LessonSlotLevels)
+        {
+            if (level >= opens)
+            {
+                slots += 1;
+            }
+        }
+
+        return slots;
+    }
+
     /// <summary>Reads the rules file, and checks every number (T-2).</summary>
     /// <param name="bytes">The bytes of the file.</param>
     /// <param name="file">The path of the file, for an error.</param>
@@ -242,6 +273,7 @@ public sealed class BattleRules
         var numbers = new SortedDictionary<string, int>(StringComparer.Ordinal);
         string? comment = null;
         List<int>? levelExperience = null;
+        List<int>? slotLevels = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -253,6 +285,10 @@ public sealed class BattleRules
             else if (string.CompareOrdinal(field, "level_experience") == 0)
             {
                 levelExperience = ReadLevelExperience(ref reader);
+            }
+            else if (string.CompareOrdinal(field, "lesson_slot_levels") == 0)
+            {
+                slotLevels = ReadSlotLevels(ref reader);
             }
             else if (Array.IndexOf(Fields, field) >= 0)
             {
@@ -274,9 +310,10 @@ public sealed class BattleRules
         }
 
         List<int> table = reader.Require(levelExperience, depth, "level_experience");
+        List<int> levels = reader.Require(slotLevels, depth, "lesson_slot_levels");
         reader.ReadFileEnd();
         CheckRanges(numbers, file);
-        return new BattleRules(numbers, table);
+        return new BattleRules(numbers, table, levels);
     }
 
     /// <summary>
@@ -310,6 +347,26 @@ public sealed class BattleRules
         }
 
         return totals;
+    }
+
+    /// <summary>Reads the levels that each open one more lesson slot: each from 2 to the highest level, above the one before it (D-1018).</summary>
+    private static List<int> ReadSlotLevels(ref ContentReader reader)
+    {
+        List<int> levels = [];
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, levels.Count))
+        {
+            int level = reader.ReadInt();
+            int lowest = levels.Count == 0 ? 2 : levels[^1] + 1;
+            if (level < lowest || level > StatCurve.HighestLevel)
+            {
+                throw reader.Refuse($"the slot level {level} is outside {lowest} to {StatCurve.HighestLevel}, and each slot level is above the one before it (D-1018)");
+            }
+
+            levels.Add(level);
+        }
+
+        return levels;
     }
 
     private static void CheckRanges(SortedDictionary<string, int> numbers, string file)
@@ -352,6 +409,8 @@ public sealed class BattleRules
         CheckRange(numbers, file, "blind_miss", 0, BasisPoints.One);
         CheckRange(numbers, file, "experience_cut", 0, BasisPoints.One);
         CheckRange(numbers, file, "experience_gap", 0, StatCurve.HighestLevel - 1);
+        CheckRange(numbers, file, "lesson_slots", 1, StatCurve.HighestLevel);
+        CheckRange(numbers, file, "aptitude_bonus", 0, MostRate);
     }
 
     private static void CheckRange(SortedDictionary<string, int> numbers, string file, string field, int lowest, int highest)

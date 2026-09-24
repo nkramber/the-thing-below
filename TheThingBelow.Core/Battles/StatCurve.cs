@@ -12,12 +12,15 @@ namespace TheThingBelow.Core.Battles;
 /// <param name="Speed">The speed, which each push and each tie reads (D-768, D-769).</param>
 public sealed record StatRow(int Health, int Mp, int Attack, int Defense, int Speed);
 
-/// <summary>One character: the start row, the join level, and the stat curve (D-363, D-537, D-765, D-966).</summary>
+/// <summary>One character: the start row, the join level, the stat curve, and the two aptitudes (D-274, D-363, D-537, D-765, D-966).</summary>
 /// <param name="Id">The id, of the kind `character`.</param>
 /// <param name="Row">The row at the start of a run (D-558).</param>
 /// <param name="JoinLevel">The level at which the character joins the party (D-363).</param>
 /// <param name="Curve">One row for each level, from level 1 to <see cref="StatCurve.HighestLevel"/> (D-966, D-972).</param>
-public sealed record CharacterRecord(ContentId Id, BattleRow Row, int JoinLevel, IReadOnlyList<StatRow> Curve)
+/// <param name="MainAptitude">The kind that the character does best (D-274, D-358).</param>
+/// <param name="SideAptitude">The second kind, which never matches the main aptitude (D-281, D-282).</param>
+/// <param name="SideFlag">The story flag that unlocks the side aptitude (D-538, D-556).</param>
+public sealed record CharacterRecord(ContentId Id, BattleRow Row, int JoinLevel, IReadOnlyList<StatRow> Curve, AptitudeKind MainAptitude, AptitudeKind SideAptitude, ContentId SideFlag)
 {
     /// <summary>Gives the stats of one level (D-966).</summary>
     /// <param name="level">The level, from 1 to <see cref="StatCurve.HighestLevel"/>.</param>
