@@ -211,7 +211,7 @@ From the roadmap interview of 2026-09-12:
 | Debug assembly | Debug assembly | debug intents, the typed line of the console | Core state, through the seam of D-260. The console reads the state and sends each change as an intent (D-724) | High. A release build never loads it (D-260). Game loads it by name outside the release configuration, and it names no type of it (D-723) |
 | Save, record, crash, log, and settings files | Storage | record bytes, snapshot bytes, crash context, log entries, the settings | save files, record files, crash files, log files, the settings file (D-860) | High. A torn write loses a save (D-178, D-494) |
 | Map scene, battle scene, hub scene, scene runner | Game | Core state, content from the Game assembly, the atlas and its index, large pictures, edge files, string table | screen, intents | Medium. Cosmetic by design (D-106, D-111, D-114, D-501). Player text reaches the screen through the text helper (D-499). The content bytes come from the Game assembly (D-508). Art draws with the Nearest filter, and an art file names the content ids that it draws (D-519, F-45) |
-| Dialogue box and portraits | Game | Core story scene state, string table | screen, wait intents, choice intents | Medium (D-109). Game draws each story scene step and sends a wait intent when it ends (D-540) |
+| Dialogue box and portraits | Game | Core story scene state, string table | screen, wait intents, choice intents, pause intents | Medium (D-109). Game draws each story scene step and sends a wait intent when it ends (D-540). The start button pauses a story scene (D-1010) |
 | The frame and the fit | Game | settings | screen | Medium. The Deck floor, the one 16:9 frame, and the fit at 1920 by 1080 (D-228, D-568). The game draws no CRT pass (D-618). OQ-183 holds the scale of the frame on a screen |
 | Light, particles, glow, and transitions | Game | effect files, light setups, normal maps, the effect budget, Core state | screen, wait intents | Medium. The effect budget of the Deck test holds them inside 60 frames per second, and no rule waits for an effect (D-139, D-160, D-182, D-183, D-522, D-523) |
 | Crash file and replay viewer | Game | run record, crash file | screen, and a crash file through Storage | High. The crash report, and a viewer in development builds alone (D-170, D-175, D-494) |
@@ -525,7 +525,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 28. PR-98: the waiting enemies at the left edge of the field, right after PR-11 (D-951 to D-954, D-963).
 29. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537, D-966 to D-981).
 30. PR-62: the menu windows, the party and status windows, the dungeon map screen, and the notices (D-211, D-558, D-567, D-569, D-982 to D-996).
-31. PR-68: the story scene format and runner, the join step, the flags, and the conditions, before PR-12 (D-541, D-544, D-556, D-563).
+31. PR-68: the story scene format and runner, the join step, the flags, and the conditions, before PR-12 (D-541, D-544, D-556, D-563, D-997 to D-1013).
 32. PR-50: the screenplay tool, right after PR-68 (D-173, D-545).
 33. PR-12: the lessons, the slots, the forms, and the aptitudes (D-272, D-356, D-539).
 34. PR-13: the six gear slots, the items, and the pack (D-44, D-382).

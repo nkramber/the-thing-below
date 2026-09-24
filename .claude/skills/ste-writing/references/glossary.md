@@ -211,6 +211,11 @@ Story terms from the roadmaps PR of 2026-09-16:
 | story scene step | one entry of a story scene script, such as a move, a line, a choice, or a join (D-173, D-563) | command, action, when the text means a step |
 | story flag | a name that is on or off, which a choice or a story scene sets (D-329, D-542) | switch, variable, state bit |
 | condition | the one content form that reads the story flags, which every reader uses (D-543) | requirement, gate, predicate |
+| flag file | the one content file that declares every story flag id with one line of prose, `content/rules/flags.json` (D-1003) | flag registry, flag list |
+| always leaf | the condition that holds for a thing that no flag gates (D-1002) | empty condition, default condition |
+| story scene trigger | an entry of a map file that starts a story scene from a tile, a talk, the entry to the map, or a won battle (D-1004) | event trigger, hook |
+| story scene actor | the lead, or a cast member that a show step put on the map, which a story scene step moves, turns, or hides (D-1006) | actor alone, which names the combatant of a turn, puppet, entity |
+| story scene pause | the hold of a story scene that the start button makes, with its own screen (D-1009, D-1010) | freeze, pause alone where the text can mean the pause of a menu (D-162) |
 | quest | one entry of the quest state, a personal task included (D-59, D-538) | mission, task, when the text means the entry |
 | personal task | the quest of one character that unlocks the side aptitude (D-282) | side quest, character quest |
 | rumor board | the NPC in a hub that shows the open quests (D-59) | quest board, notice board |

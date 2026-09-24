@@ -1297,14 +1297,17 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 
 **Scope.**
 
-- The story scene format: a JSON list of steps, such as move, face, wait, say, choose, and set flag (D-173, OQ-144).
+- The story scene format: a JSON list of eleven kinds of step (D-173, D-997). A pick of a choose step sets the flag of its option (D-1007).
 - The join step, which adds a cast member to the party (D-342, D-563).
 - The story scene runner in Core, which holds the step index and every flag that a step sets (D-540).
-- The wait intent that Game sends at the end of a move, a face, or a line (D-493, D-522).
+- The wait intent that Game sends at the end of a move, a face, a line, or a camera step. A wait step names its ticks, and Core counts them (D-493, D-522, D-1000, D-1013).
+- The story scene actors: the lead, and each cast member that a show step puts on a marker. Each shown cast member leaves at the end of the story scene (D-1006, D-1012).
+- The start battle step. No party flees its battle, and the story scene goes on after the win (D-998, D-999, D-1008).
+- The map holds still while a story scene runs, and the pause intent and the resume intent hold the story scene (D-1009, D-1010).
 - The story flag, a name that is on or off, and the set of the flags that are on (D-542).
-- The declaration of every flag id in content, and a load that fails on an id that no file declares (OQ-147).
-- One condition form for every reader: a story scene step, a route, a hub line, a quest, and an enemy group (D-543).
-- The story scene triggers in the map file, each with its condition (D-528, OQ-148).
+- The one flag file that declares every flag id, and a load that fails on an id that the file does not declare (D-1003).
+- One condition form for every reader: a tree of all, any, and not over flag leaves, with an always leaf (D-543, D-1001, D-1002).
+- The four kinds of story scene trigger in the map file, each with its condition. PR-68 fires the tile, the entry, and the battle end (D-528, D-1004, D-1011).
 - The story scene state in the snapshot, the state hash, and the migration set (D-166, G-5).
 
 **Out of scope.**
@@ -1313,6 +1316,9 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 - The branches, the choice effects, and the lost ally (PR-18, D-544).
 - The quest state and the personal tasks (PR-19).
 - The screenplay tool (PR-50, D-545).
+- The firing of the talk trigger, and the NPC as a story scene actor (PR-14, D-1005, D-1006).
+- The pause screen, and the draw of each step (PR-36, D-1010).
+- The step condition of a branch (PR-18, D-1007).
 
 **Exit tests.**
 
@@ -1324,16 +1330,18 @@ Area file: `area-story.md` sections 7.1, 7.2, 7.3, and 7.5.
 6. A trigger fires from the tick, and two replays start the story scene at the same tick.
 7. The snapshot carries the flag set through a migration.
 8. A join step adds a fixture cast member to the party, and the snapshot keeps the party (D-563).
+9. No party flees the battle of a start battle step, and the story scene goes on after the win (D-998, D-999, D-1008).
+10. The pause holds a wait step, and Core refuses every other intent of the player (D-1009, D-1010).
 
 **Review focus.**
 
 - D-540 revises D-114 in part, and the PR cites the revision.
 - One parser, one test, and one error message cover every reader of a condition (T-1, D-543).
 - The bots of PR-15 answer the same wait intent, so they play every story scene when PR-15 lands (D-64, D-540, G-16).
-- Core reads no clock, so the length of a step comes from content or from the wait intent (G-3, OQ-145).
+- Core reads no clock, so the length of a step comes from content or from the wait intent (G-3, D-1000).
 - A story scene names no art and no track (D-519, D-548).
 
-**Questions.** OQ-144, OQ-145, OQ-146, OQ-147, OQ-148, and OQ-149.
+**Questions.** None. D-997 to D-1004 resolved OQ-144 to OQ-149. D-1005 to D-1013 set the rules of the runner.
 
 > *In plain English:* a story scene is a list of simple steps in a data file: walk here, say this line, ask this question. The rules run it, so a robot can play it and a replay always matches.
 
@@ -1502,6 +1510,7 @@ Area file: `area-exploration.md` section 7.11.
 - The rest, which restores health and MP and cures poison, blind, and silence (D-42, D-390).
 - The save, the party swap, and the lesson swap at the hub (D-59, D-62, D-356).
 - A condition of PR-68 on each service, so a story flag can close one (D-543, D-544, D-556).
+- The talk trigger of PR-68 fires when the player talks with an NPC (D-1005). A story scene step can name an NPC as a story scene actor (D-1006).
 - The service screens in the window stack of PR-62.
 - The village as a start area with no shop and no rest (D-369).
 
@@ -1521,6 +1530,7 @@ Area file: `area-exploration.md` section 7.11.
 6. A hub that offers no rest refuses the rest, and the screen says so.
 7. A hub file that names an absent service fails with the file and the service.
 8. A story flag closes a fixture service, and the hub refuses it (D-543).
+9. A talk with a fixture NPC fires its trigger, and a step of the story scene moves the NPC (D-1005, D-1006).
 
 **Review focus.**
 
@@ -1580,6 +1590,9 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 - The choice as an intent, whose result Core holds (D-493, D-540).
 - Fixture portraits as 64 by 64 grids, because PR-28 and PR-29 draw the cast (D-234).
 - The skip, which the accessibility settings of PR-63 hold (D-214, OQ-150).
+- The pause screen of a story scene: the display dims, and one line in the middle shows the pause (D-1009, D-1010).
+- The camera step, and the view back on the lead at the end of a story scene (D-1013).
+- The start of the battle of a start battle step, which no patrol of the map starts (D-998).
 
 **Out of scope.**
 
@@ -1595,6 +1608,8 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 4. The type-out follows the fixed layout of D-709 at each speed of D-864.
 5. The skip follows the rule of OQ-150, and the player never loses a choice.
 6. Each string comes from the string table, and det-lint proves it.
+7. A screen test captures the pause screen, and the start button ends the pause (D-1010).
+8. A fixture story scene starts its battle on screen, and the story scene goes on after the win (D-998, D-999).
 
 **Review focus.**
 
@@ -2388,12 +2403,12 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-217 | How far the party sees in the dark | PR-91 |
 | OQ-218 | How much farther an enemy sees a lit torch | PR-91 |
 | OQ-219 | The paths of the docs-only set | PR-93 |
-| OQ-144 | The full step list of a story scene script | PR-68 |
-| OQ-145 | How a step that takes time ends | PR-68 |
-| OQ-146 | The shape of a condition | PR-68 |
-| OQ-147 | Where content declares each flag id | PR-68 |
-| OQ-148 | What fires a story scene trigger | PR-68 |
-| OQ-149 | Whether a story scene step starts a battle | PR-68 |
+| OQ-144 | The full step list of a story scene script, resolved by D-997 | PR-68 |
+| OQ-145 | How a step that takes time ends, resolved by D-1000 | PR-68 |
+| OQ-146 | The shape of a condition, resolved by D-1001 and D-1002 | PR-68 |
+| OQ-147 | Where content declares each flag id, resolved by D-1003 | PR-68 |
+| OQ-148 | What fires a story scene trigger, resolved by D-1004 | PR-68 |
+| OQ-149 | Whether a story scene step starts a battle, resolved by D-998 and D-999 | PR-68 |
 | OQ-150 | How the player skips a story scene | PR-36 |
 | OQ-151 | How the choices lay out in the dialogue box | PR-36 |
 | OQ-156 | The instrument voices of the synthesizer | PR-38 |
