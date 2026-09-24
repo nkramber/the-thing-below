@@ -1,4 +1,40 @@
 # Session handoff archive
+## Session 271: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #74, round 1. Repository: the-thing-below. Branch: `feat/pr-13-gear-items`. PR: #74. Role: reviewer. Base: `b2bc579`.
+
+### What this session did, and why
+
+- Reviewed PR #74 from merge base `b2bc579` through effective head `15cc89c`.
+- Confirmed Claude Code authored the PR, so Codex passes the provider gate (T-4, D-17).
+- Traced gear, items, pack limits, steal and drop behavior, save migration, replay state, menus, and content validation across all 132 changed paths.
+- Read all 28 changed frames from the CI screen-captures artifact. No visual fault was found (D-733, D-784).
+- Added `docs/reviews/pr-74.md` with `Ready for owner merge` for `15cc89c`. Corrected the Documents row of the PR description.
+- `make verify` passed with 3,135 tests.
+
+### The state of the build
+
+- Base and merge base: `b2bc579`. Effective head and remote head before this metadata commit: `15cc89c`.
+- CI run `36023732533` passed build, tests, format, smoke, replay identity, det-lint, coverage, STE, and screen-test. `review-gate` failed because the review record was absent.
+
+### What is in flight
+
+- This metadata commit holds the review record and this entry. Fresh review-gate evidence must pass after publication.
+
+### Traps and gotchas
+
+- The Gitar comment is only a status notice. It has no item and needs no answer (D-964). The owner requested `--skip-gitar-review` (D-946).
+- The changed frame review used the configured CI artifact, not local rendering.
+
+### The questions that block progress
+
+None for PR-13. OQ-247 and OQ-248 remain with PR-99.
+
+### The next concrete action
+
+Push the metadata commit to `feat/pr-13-gear-items`, fetch, confirm no commits are ahead, and verify the remote head and fresh `review-gate` result.
+
 ## Session 270: 2026-09-24, Claude Code
 
 Author: Claude Code

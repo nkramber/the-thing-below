@@ -1,3 +1,39 @@
+## Session 281: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #77, round 1. Repository: the-thing-below. Branch: `docs/pr-100-gitar-resume`. PR: #77 (PR-100). Role: reviewer. Base: `58dadb5`.
+
+### What this session did, and why
+
+- Reviewed PR #77 from merge base `58dadb5` through effective head `87cf4cc`.
+- Confirmed Claude Code authored the PR, so Codex passes the provider gate (T-4, D-17).
+- Inspected all 15 changed paths and checked the Gitar poll, decision updates, roadmap, and handoff changes against their contracts.
+- Verified the Gitar CI claim. RG 3 and RG 7 failed because the review record was absent; this metadata commit adds it (D-577, D-581, D-964).
+- Found that command E can accept a Gitar check that completed after the 15-minute limit (D-1074). The review record gives `Changes required` for `87cf4cc`.
+
+### The state of the build
+
+- Base and merge base: `58dadb5`. Effective and remote head before this metadata commit: `87cf4cc`.
+- CI run `36070042782` passed the applicable build, test, format, smoke, det-lint, replay identity, screen, coverage, changed-paths, and STE checks. The matrix jobs skipped for this documentation change.
+- `review-gate` run `36070042856` failed because the review record was absent. The new run must read this record.
+
+### What is in flight
+
+- This metadata commit holds the review record and this entry. The author must address P2-1 before the PR can receive approval.
+
+### Traps and gotchas
+
+- Command E checks `completed` before it checks the 900-second limit, and it omits `completed_at`.
+- The Gitar CI claim is answered in the PR discussion. The row becomes true when this review record lands.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push this review record and handoff entry to `docs/pr-100-gitar-resume`. Fetch, verify the remote head, and read the fresh `review-gate` result.
+
 ## Session 280: 2026-09-24, Claude Code
 
 Author: Claude Code
@@ -316,39 +352,3 @@ None.
 ### The next concrete action
 
 Read the CI result of the baselines. Then read Gitar one time, and run `make codex-review PR=<n> -- --skip-gitar-review` (D-945, D-946).
-
-## Session 271: 2026-09-24, Codex
-
-Author: Codex
-Session: reviewer PR #74, round 1. Repository: the-thing-below. Branch: `feat/pr-13-gear-items`. PR: #74. Role: reviewer. Base: `b2bc579`.
-
-### What this session did, and why
-
-- Reviewed PR #74 from merge base `b2bc579` through effective head `15cc89c`.
-- Confirmed Claude Code authored the PR, so Codex passes the provider gate (T-4, D-17).
-- Traced gear, items, pack limits, steal and drop behavior, save migration, replay state, menus, and content validation across all 132 changed paths.
-- Read all 28 changed frames from the CI screen-captures artifact. No visual fault was found (D-733, D-784).
-- Added `docs/reviews/pr-74.md` with `Ready for owner merge` for `15cc89c`. Corrected the Documents row of the PR description.
-- `make verify` passed with 3,135 tests.
-
-### The state of the build
-
-- Base and merge base: `b2bc579`. Effective head and remote head before this metadata commit: `15cc89c`.
-- CI run `36023732533` passed build, tests, format, smoke, replay identity, det-lint, coverage, STE, and screen-test. `review-gate` failed because the review record was absent.
-
-### What is in flight
-
-- This metadata commit holds the review record and this entry. Fresh review-gate evidence must pass after publication.
-
-### Traps and gotchas
-
-- The Gitar comment is only a status notice. It has no item and needs no answer (D-964). The owner requested `--skip-gitar-review` (D-946).
-- The changed frame review used the configured CI artifact, not local rendering.
-
-### The questions that block progress
-
-None for PR-13. OQ-247 and OQ-248 remain with PR-99.
-
-### The next concrete action
-
-Push the metadata commit to `feat/pr-13-gear-items`, fetch, confirm no commits are ahead, and verify the remote head and fresh `review-gate` result.
