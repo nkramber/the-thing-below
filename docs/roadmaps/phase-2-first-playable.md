@@ -1259,6 +1259,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 - The mouse on menus alone, which makes the same intent as a key or a button (D-219, D-493). The mouse moves the cursor, and a click chooses (D-872).
 - The dungeon map screen, which draws each tile that the party walked at 16 pixels (D-567, D-982). A new map action opens it from the walk, with the M key and the Back button (D-986, D-990).
 - The notice that slides in at the top edge, and the log window of the main list (D-221, D-987). The log keeps the 30 newest marked notices in the snapshot (D-983 to D-985).
+- The time of a notice: it types out at the text speed, holds, and fades, and it pauses under a menu (D-994 to D-996).
 - A fixture notice file with one notice that logs and one that does not (D-989). A Core rule posts a notice, and a debug command posts one.
 
 **Out of scope.**
@@ -1273,7 +1274,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 3. A menu action makes an intent, and the record holds no cursor move (D-493).
 4. The mouse, the keyboard, and the gamepad each move the same cursor (D-219).
 5. A test proves that the world does not run while a menu is open, and that the tick rises (D-162, D-650).
-6. The dungeon map screen shows each walked tile, with the doors, the save points, and the exits on it (D-567).
+6. The dungeon map screen shows each walked tile, with the doors and the save points on it (D-567, D-993).
 7. The party window sets the row of a character, and a fight starts with that row (D-377, D-558).
 8. The row and the notice log survive a save and a load. The log takes a snapshot format bump and its migration (D-166, D-558, D-985).
 9. The status window shows the full sheet of each character (D-569, D-991).
@@ -1692,7 +1693,7 @@ Area file: `area-exploration.md` section 7.8.
 - The MP that a save point restores once for the place, and the health that it does not (D-389, D-555).
 - The Theft drill that opens a lock that the map marks as pickable, where a story lock always needs its key (D-386).
 - The chest that keeps what the party cannot carry (D-385).
-- The dungeon exit, which returns the party to the region map.
+- The dungeon exit, which returns the party to the region map, and its mark on the dungeon map screen of PR-62 (D-567, D-993).
 - The killed enemy that stays dead until a story event reopens the place (D-555).
 - The save window in the stack of PR-62.
 

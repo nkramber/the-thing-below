@@ -135,7 +135,7 @@ Built by PR-62. Phase file: `phase-2-first-playable.md`.
 - A menu pauses the world (D-162). The tick rises while a menu is open, and the world systems skip their work (D-650).
 - A menu action is an intent, and the record holds no cursor move (D-493).
 - The mouse works on menus alone, and a mouse action on a menu makes the same intent as a key (D-219, D-493). The mouse moves the cursor, and a click chooses the item under the pointer (D-872).
-- The dungeon map screen draws each tile that the party walked, with the doors, the save points, and the exits on those tiles (D-567). Each walked tile draws at 16 pixels, so a dungeon of 80 by 45 tiles or less shows whole (D-982).
+- The dungeon map screen draws each tile that the party walked, with the doors and the save points on those tiles (D-567). PR-16 adds the exit mark (D-993). Each walked tile draws at 16 pixels, so a dungeon of 80 by 45 tiles or less shows whole (D-982).
 - A map action opens the dungeon map screen from the walk, with the M key and the Back button of the gamepad (D-986, D-990). Back or the map action closes it.
 - The party window sets the starting row of each character, and the snapshot keeps the row (D-377, D-558).
 - The status window shows the full sheet of each character (D-569, D-991). The sheet holds the level, the row, HP, MP, the experience, the stats, and the statuses that last.
@@ -150,7 +150,8 @@ Built by PR-7 and PR-62. Phase file: `phase-2-first-playable.md`.
 - The HUD stays minimal. A health mark shows at the edge for a hurt or a down character, and nothing else (D-212).
 - A status that lasts on the map gets a mark too (D-390).
 - No sun or moon mark shows the time of day, because the story sets it and it never changes under the player (D-442, D-445).
-- A notice slides in at the top edge and fades, and the game continues (D-221).
+- A notice slides in at the top edge, types out, holds, and fades, and the game continues (D-221, D-994). Confirm never skips it (D-996).
+- A notice counts the ticks of the world, so it hides and waits under a menu (D-995).
 - An important notice also lands in the log window of the main list (D-221, D-987). Content marks each notice that logs, the log keeps the 30 newest, and the snapshot holds it (D-983 to D-985).
 
 > *In plain English:* the screen stays clear while you walk. A short line slides in when something matters, and the menu keeps the ones that matter.
