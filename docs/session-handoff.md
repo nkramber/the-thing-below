@@ -12,12 +12,12 @@ Session: reviewer PR #75, round 2. Repository: the-thing-below. Branch: `feat/pr
 
 ### The state of the build
 
-- Base and merge base: `f1ab753`. Effective head: `15945f2`.
+- Base and merge base: `f1ab753`. Effective head: `15945f2`. Remote metadata tip before this follow-up update: `3cdfad6`.
 - CI run `36041907957` passed implementation checks except `screen-test`, which failed on three captures. The rerun repeated the same differences. The remote still points to `15945f2`.
 
 ### What is in flight
 
-- The repeat review record and this entry need one metadata commit and a push to `feat/pr-99-stats-absorb-swap`.
+- The review record and this entry were pushed in metadata commit `3cdfad6`. The PR still needs its three screen-test differences resolved.
 
 ### Traps and gotchas
 
@@ -30,7 +30,7 @@ None. OQ-247 and OQ-248 resolve in D-1052 and D-1055.
 
 ### The next concrete action
 
-Commit the blocked review and this handoff together, then push and verify the remote head. The author needs to resolve the three CI screen differences before approval.
+The author needs to resolve the three CI screen differences before approval. The metadata push triggered fresh CI checks.
 
 ## Session 274: 2026-09-24, Claude Code
 
