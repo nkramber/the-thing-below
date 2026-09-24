@@ -422,6 +422,46 @@
    "text": "Gear"
   },
   {
+   "id": "menu.gear_amounts",
+   "text": "ATK {attack} DEF {defense} SPD {speed}"
+  },
+  {
+   "id": "menu.gear_help",
+   "text": "Left and right show the next one."
+  },
+  {
+   "id": "menu.gear_pack",
+   "text": "Put on"
+  },
+  {
+   "id": "menu.gear_remove",
+   "text": "Take it off"
+  },
+  {
+   "id": "menu.gear_slots",
+   "text": "Slots"
+  },
+  {
+   "id": "menu.gear_stats",
+   "text": "ATK {attack}   DEF {defense}   SPD {speed}"
+  },
+  {
+   "id": "menu.item_count",
+   "text": "{count}/{limit}"
+  },
+  {
+   "id": "menu.item_list",
+   "text": "Pack"
+  },
+  {
+   "id": "menu.item_none",
+   "text": "The pack holds nothing to use."
+  },
+  {
+   "id": "menu.item_target",
+   "text": "On whom"
+  },
+  {
    "id": "menu.items",
    "text": "Items"
   },
@@ -538,8 +578,28 @@
    "text": "Settings"
   },
   {
+   "id": "menu.slot_accessory",
+   "text": "Trinket"
+  },
+  {
+   "id": "menu.slot_body",
+   "text": "Body"
+  },
+  {
    "id": "menu.slot_empty",
    "text": "—"
+  },
+  {
+   "id": "menu.slot_head",
+   "text": "Head"
+  },
+  {
+   "id": "menu.slot_off_hand",
+   "text": "Off-hand"
+  },
+  {
+   "id": "menu.slot_weapon",
+   "text": "Weapon"
   },
   {
    "id": "menu.sound",

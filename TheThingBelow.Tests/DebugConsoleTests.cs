@@ -53,7 +53,7 @@ public sealed class DebugConsoleTests
         // a debug handler (D-260, D-492).
         DebugIntentHandlers handlers = DebugAssemblyFile.Handlers();
 
-        Assert.Equal(2 + BattleIds.Length + NoticeIds.Length, handlers.Count);
+        Assert.Equal(3 + BattleIds.Length + NoticeIds.Length, handlers.Count);
         Assert.True(handlers.TryFind(Id(RevealId), out DebugIntentHandler? found));
         Assert.NotNull(found);
         Assert.True(handlers.TryFind(Id(SwapId), out DebugIntentHandler? swap));
@@ -117,6 +117,22 @@ public sealed class DebugConsoleTests
 
         run.Step([Intent.OfPlayer(IntentIds.MoveSouth)]);
         Assert.False(run.State.Characters.AtSwapPlace);
+    }
+
+    [Fact]
+    public void TheStockIntentFillsThePackAndNamesEachCopyOverTheLimit()
+    {
+        // Exit test 3 of PR-13 through the console: the mail of the tests has the limit 1, so the
+        // second stock leaves its copy out, and a line names it (D-385, D-1038).
+        Simulation run = Start();
+        run.Step([Intent.OfDebugConsole(Id("debug.stock"))]);
+        Assert.Equal(4, run.State.Characters.CountOf(ContentId.Parse("item.fixture_draught", "test", "item")));
+        Assert.Equal(1, run.State.Characters.CountOf(ContentId.Parse("gear.test_mail", "test", "gear")));
+
+        IReadOnlyList<LogEntry> log = run.Step([Intent.OfDebugConsole(Id("debug.stock"))]);
+
+        Assert.Equal(1, run.State.Characters.CountOf(ContentId.Parse("gear.test_mail", "test", "gear")));
+        Assert.Contains(log, entry => entry.Message.Contains("stays out of it", StringComparison.Ordinal) && entry.Fields[0].Value == "gear.test_mail");
     }
 
     [Fact]
@@ -378,7 +394,7 @@ public sealed class DebugConsoleTests
             Assert.True(names.Add(name), $"Two commands take the name '{name}' (T-2).");
         }
 
-        Assert.Equal(14, names.Count);
+        Assert.Equal(15, names.Count);
     }
 
     private static Simulation Start() =>

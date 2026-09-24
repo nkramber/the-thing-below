@@ -28,7 +28,8 @@ namespace TheThingBelow.Debug.Commands;
 /// <para>
 /// Each later PR that gives the rules a new value can add its own commands here, such as the
 /// story flags of PR-68. PR-67 added the level, the experience, and the MP, and no command. PR-12 added
-/// the `swap` command, which marks a swap place of lessons (D-1030).
+/// the `swap` command, which marks a swap place of lessons (D-1030). PR-13 added the `stock` command,
+/// which fills the pack for a test of the gear window and the item window (D-1038).
 /// </para>
 /// </remarks>
 public static class DebugCommands
@@ -75,6 +76,9 @@ public static class DebugCommands
     /// <summary>The name of the command that marks a swap place of lessons (D-1030).</summary>
     public const string SwapName = "swap";
 
+    /// <summary>The name of the command that puts one copy of each item and each piece of gear in the pack (D-1038).</summary>
+    public const string StockName = "stock";
+
     // The order of this list is the order of `help`, and it never follows a hash of a name
     // (G-4). The list is short, so a walk of it reads better than a map of one entry (T-1).
     private static readonly IReadOnlyList<DebugCommand> Commands =
@@ -102,6 +106,7 @@ public static class DebugCommands
         DebugCommand.OfIntent(NoticeName, "posts the first notice of the notice file that logs", DebugCommandIds.NoticeLogged, PostLogged),
         DebugCommand.OfIntent(AsideName, "posts the first notice of the notice file that does not log", DebugCommandIds.NoticePlain, PostPlain),
         DebugCommand.OfIntent(SwapName, "marks the place of the party as a swap place, until the next step (D-1030)", DebugCommandIds.SwapPlace, MarkSwapPlace),
+        DebugCommand.OfIntent(StockName, "puts one copy of each item and each piece of gear in the pack, to each stack limit (D-1038)", DebugCommandIds.Stock, Stock),
         DebugCommand.OfView(TorchName, "turns the carried light on or off, and sends no intent (D-847, D-851)"),
         DebugCommand.OfReport(BattleName, "gives each combatant, the turn, and the strip", BattleOf),
         DebugCommand.OfReport(HashName, "gives the state hash of the run", HashOf),
@@ -181,6 +186,29 @@ public static class DebugCommands
     /// </summary>
     private static void MarkSwapPlace(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>
         state.Characters.MarkSwapPlace();
+
+    /// <summary>
+    /// Puts one copy of each item and each piece of gear in the pack, so a person tries the gear
+    /// window and the item window before PR-16 builds the chests (D-1038). A copy over the stack
+    /// limit stays out of the pack, and a line names it (D-385).
+    /// </summary>
+    private static void Stock(RunState state, Intent intent, RunContext context, List<LogEntry> log)
+    {
+        var ids = new List<ContentId>(state.BattleContent.Items.Ids);
+        ids.AddRange(state.BattleContent.Gear.Ids);
+        foreach (ContentId id in ids)
+        {
+            if (state.Characters.Pick(id, 1, state.BattleContent) > 0)
+            {
+                log.Add(new LogEntry(
+                    LogLevel.Info,
+                    "the pack holds the stack limit, and the copy stays out of it (D-385)",
+                    state.Tick,
+                    LogSubsystems.Run,
+                    [new LogField("id", id.Value), new LogField("context", context.Describe())]));
+            }
+        }
+    }
 
     /// <summary>Posts the first notice that logs, so a person sees the notice and its entry in the log (D-989).</summary>
     private static void PostLogged(RunState state, Intent intent, RunContext context, List<LogEntry> log) =>

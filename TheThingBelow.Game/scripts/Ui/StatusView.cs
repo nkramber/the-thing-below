@@ -141,7 +141,8 @@ public sealed class StatusView : IMenuView
 
     private void ShowColumn(List<Label> column, PartyMember member, IReadOnlyList<int> table)
     {
-        StatRow full = member.Stats;
+        // The attack, the defense, and the speed hold the worn gear, and the gear never changes health or MP (D-1036).
+        StatRow full = member.StatsWith(this.state.BattleContent.Gear);
         this.ui.Text.Put(column[0], BattleMessages.NameIdOf(member.Record.Id));
         this.ui.Text.Put(column[1], Id("menu.level"), Values(("level", Number(member.Level))));
         this.ui.Text.Put(column[2], PartyView.RowIdOf(member.Row));

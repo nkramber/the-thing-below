@@ -26,6 +26,12 @@ public enum MenuWindowKind
 
     /// <summary>The lesson window, which swaps a lesson and casts a heal or a cure (D-391, D-1030).</summary>
     Lessons,
+
+    /// <summary>The gear window, which changes the gear of each character (D-44, D-1048).</summary>
+    Gear,
+
+    /// <summary>The item window, which uses an item outside a fight (D-1046, D-1049).</summary>
+    Items,
 }
 
 /// <summary>

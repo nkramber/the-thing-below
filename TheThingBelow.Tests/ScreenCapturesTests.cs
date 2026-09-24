@@ -106,6 +106,9 @@ public sealed class ScreenCapturesTests
         "menu-map-1x.png",
         "menu-lessons-1x.png",
         "menu-lessons-swap-1x.png",
+        "menu-gear-1x.png",
+        "menu-gear-pack-1x.png",
+        "menu-items-1x.png",
         "menu-list-fill-1080.png",
         "notice-type-1x.png",
         "notice-hold-1x.png",
@@ -154,6 +157,7 @@ public sealed class ScreenCapturesTests
         // PR-12 adds the list of the lessons and the list of the forms in a fight, and the lesson
         // window with its slots and its swap list, and the flash of a spell at each level (D-1027,
         // D-1030, D-1031, D-1032).
+        // PR-13 adds the gear window, its pack list, and the item window to the menu names (D-44, D-1048).
         Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + MenuNames.Length, FileNames().Count);
     }
 

@@ -552,6 +552,8 @@ public sealed partial class CaptureSession : Node
             ScreenCaptures.MenuStatusFrame => MenuEntry.Status,
             ScreenCaptures.MenuLogFrame => MenuEntry.Log,
             ScreenCaptures.MenuLessonsFrame or ScreenCaptures.MenuLessonsSwapFrame => MenuEntry.Lessons,
+            ScreenCaptures.MenuGearFrame or ScreenCaptures.MenuGearPackFrame => MenuEntry.Gear,
+            ScreenCaptures.MenuItemsFrame => MenuEntry.Items,
             _ => throw new ArgumentOutOfRangeException(nameof(capture), frame, $"The menu fixture draws no frame '{frame}' (T-2)."),
         };
         while (list.Current != entry)
@@ -581,6 +583,24 @@ public sealed partial class CaptureSession : Node
             }
 
             _ = new LessonsView(built, @base, this.content.Strings, open.State, cursor);
+        }
+        else if (string.CompareOrdinal(frame, ScreenCaptures.MenuGearFrame) == 0 || string.CompareOrdinal(frame, ScreenCaptures.MenuGearPackFrame) == 0)
+        {
+            var cursor = new GearCursor(open.State);
+            if (string.CompareOrdinal(frame, ScreenCaptures.MenuGearPackFrame) == 0)
+            {
+                cursor.Point(ScreenCaptures.GearPackSlot);
+                if (cursor.Confirm() is not null || cursor.Stage != GearStage.Pack)
+                {
+                    throw new InvalidOperationException($"The capture '{capture.FileName}' confirmed the accessory slot, and the window did not open the pack list (D-1048, T-2).");
+                }
+            }
+
+            _ = new GearView(built, @base, open.State, cursor);
+        }
+        else if (string.CompareOrdinal(frame, ScreenCaptures.MenuItemsFrame) == 0)
+        {
+            _ = new ItemsView(built, @base, open.State, new ItemCursor(open.State));
         }
     }
 

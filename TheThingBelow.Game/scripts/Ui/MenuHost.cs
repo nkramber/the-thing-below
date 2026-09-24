@@ -38,6 +38,8 @@ public sealed class MenuHost
     private MainList mainList = new();
     private PartyList? partyList;
     private LessonCursor? lessonCursor;
+    private GearCursor? gearCursor;
+    private ItemCursor? itemCursor;
 
     /// <summary>Makes the host of the menu of one run, with no window open.</summary>
     /// <param name="frame">The frame, whose UI layer takes each window.</param>
@@ -197,6 +199,16 @@ public sealed class MenuHost
                 this.lessonCursor = new LessonCursor(this.run.State);
             }
 
+            if (kind == MenuWindowKind.Gear)
+            {
+                this.gearCursor = new GearCursor(this.run.State);
+            }
+
+            if (kind == MenuWindowKind.Items)
+            {
+                this.itemCursor = new ItemCursor(this.run.State);
+            }
+
             this.path.Open(kind);
             this.views.Add(this.Build(kind, null));
             this.writeLog([new LogEntry(LogLevel.Info, "the menu opened a window", this.run.Tick, LogSubsystems.Game, [WindowField(kind)])]);
@@ -214,6 +226,17 @@ public sealed class MenuHost
         if (top == MenuWindowKind.Lessons && this.views[^1] is LessonsView lessons && lessons.TakeIntent() is Intent made)
         {
             this.run.Queue(made);
+        }
+
+        // The gear window and the item window made the intent of a whole choice (D-1048, D-1049).
+        if (top == MenuWindowKind.Gear && this.views[^1] is GearView gear && gear.TakeIntent() is Intent worn)
+        {
+            this.run.Queue(worn);
+        }
+
+        if (top == MenuWindowKind.Items && this.views[^1] is ItemsView items && items.TakeIntent() is Intent used)
+        {
+            this.run.Queue(used);
         }
     }
 
@@ -275,6 +298,10 @@ public sealed class MenuHost
             $"The party window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
         MenuWindowKind.Lessons => new LessonsView(this.frame, this.ui, this.content.Strings, this.run.State, this.lessonCursor ?? throw new InvalidOperationException(
             $"The lesson window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
+        MenuWindowKind.Gear => new GearView(this.frame, this.ui, this.run.State, this.gearCursor ?? throw new InvalidOperationException(
+            $"The gear window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
+        MenuWindowKind.Items => new ItemsView(this.frame, this.ui, this.run.State, this.itemCursor ?? throw new InvalidOperationException(
+            $"The item window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
         MenuWindowKind.Status => new StatusView(this.frame, this.ui, this.content.Strings, this.run.State),
         MenuWindowKind.Log => new LogView(this.frame, this.ui, this.run.State),
         MenuWindowKind.Settings => new SettingsView(

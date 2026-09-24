@@ -12,10 +12,10 @@ public enum MenuEntry
     /// <summary>The lessons window, which PR-12 builds (D-525).</summary>
     Lessons,
 
-    /// <summary>The gear window, which PR-13 builds (D-525).</summary>
+    /// <summary>The gear window, which changes the gear of each character (D-44, D-1048).</summary>
     Gear,
 
-    /// <summary>The items window, which PR-14 builds (D-525).</summary>
+    /// <summary>The items window, which uses an item outside a fight (D-1046, D-1049).</summary>
     Items,
 
     /// <summary>The status window (D-569).</summary>
@@ -71,8 +71,8 @@ public sealed class MainList
     /// <returns>False for an entry whose window a later PR builds, which shows dim.</returns>
     public static bool IsLive(MenuEntry entry) => entry switch
     {
-        MenuEntry.Party or MenuEntry.Lessons or MenuEntry.Status or MenuEntry.Log or MenuEntry.Settings => true,
-        MenuEntry.Gear or MenuEntry.Items or MenuEntry.Save => false,
+        MenuEntry.Party or MenuEntry.Lessons or MenuEntry.Gear or MenuEntry.Items or MenuEntry.Status or MenuEntry.Log or MenuEntry.Settings => true,
+        MenuEntry.Save => false,
         _ => throw new ArgumentOutOfRangeException(nameof(entry), entry, "The main list holds no such entry (T-2)."),
     };
 
@@ -84,6 +84,8 @@ public sealed class MainList
     {
         MenuEntry.Party => MenuWindowKind.Party,
         MenuEntry.Lessons => MenuWindowKind.Lessons,
+        MenuEntry.Gear => MenuWindowKind.Gear,
+        MenuEntry.Items => MenuWindowKind.Items,
         MenuEntry.Status => MenuWindowKind.Status,
         MenuEntry.Log => MenuWindowKind.Log,
         MenuEntry.Settings => MenuWindowKind.Settings,
