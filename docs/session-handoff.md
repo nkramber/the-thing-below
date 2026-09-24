@@ -18,7 +18,7 @@ Session: author PR-13, round 1. Repository: the-thing-below. Branch: `feat/pr-13
 
 ### What is in flight
 
-- CI gives the baselines of the new and changed captures, which the next commit takes from the screen-test artifact (D-731).
+- The PR takes 28 baselines from the artifact of CI run 36020519177, each read first. Its two sessions differed by one level in `map-fire-1x`, `scroll-09`, `still-240`, and `battle-spell-full-1x`, the flake of OQ-246. The PR leaves the first three baselines alone.
 
 ### Traps and gotchas
 
@@ -32,7 +32,7 @@ None for PR-13. OQ-247 and OQ-248 block PR-99.
 
 ### The next concrete action
 
-Read the CI screen-test artifact, and commit each changed baseline after a read of each frame. Then run `make codex-review PR=74 -- --skip-gitar-review`.
+Wait for CI on the new head, and rerun the screen test on a flake of OQ-246. Then run `make codex-review PR=74 -- --skip-gitar-review`.
 
 ## Session 269: 2026-09-24, Codex
 
