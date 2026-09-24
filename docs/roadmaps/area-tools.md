@@ -221,7 +221,9 @@ Built by PR-50. Phase file: `phase-2-first-playable.md`.
 
 - The command prints each story scene script as a screenplay, with the text of each string id, for the PR description (D-173, G-25). It lands right after PR-68, because it needs the scene format and the string table alone (D-545).
 - A story scene that names an absent string id fails with the story scene, the step, and the id (T-2).
-- The tool looks each cue up in the audio file, because a story scene names no cue (D-548).
+- The batch holds each story scene that the PR changes, against the base content (D-1015). The tool writes a marked section of a PR body file, and it refuses a body above the limit of GitHub (D-1016).
+- Each step starts with its number, and each step that is not a line gives one action line (D-1017).
+- PR-70 adds the look-up of each cue in the audio file, because a story scene names no cue (D-548, D-1014).
 - `area-story.md` holds the story scene format.
 
 > *In plain English:* a story scene is a list of steps in a data file. This tool prints it like a script, so the owner reads the story scene as a story before approval.

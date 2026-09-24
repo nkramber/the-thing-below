@@ -146,6 +146,7 @@ Built by PR-50. Phase file: `phase-2-first-playable.md`.
 - The command prints each story scene script as a screenplay, with the text of each string id (D-173, G-25). The file `area-tools.md` holds the tool.
 - It lands right after PR-68, because it needs the story scene format and the string table alone (D-545).
 - A story scene that names an absent string id fails with the story scene, the step, and the id (T-2).
+- One run prints each story scene that the PR changes, into a marked section of the PR body file (D-1015, D-1016, D-1017).
 - The owner approves each text batch in its PR description, in full (D-57, G-25).
 - Every player string follows the `game-text-style` skill (D-63, G-20).
 

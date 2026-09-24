@@ -235,3 +235,12 @@ Release terms from the roadmaps PR of 2026-09-16:
 | capture | the development-build command that replays a run record into PNG frames and a WAV file (D-476, D-551) | recorder, screen capture |
 | store image | a capsule, a logo, or a library image of the store page (D-475) | asset, art, when the text means these |
 | credits roll | the story scene that plays the credits after the last story scene of region one (D-467, D-552) | end credits, roll, alone |
+
+Screenplay terms from PR-50 on 2026-09-23:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| screenplay | the Markdown text that the `screenplay` command writes for the story scenes of one batch (D-173, D-1017) | script, which names the story scene file, and transcript |
+| Screenplay section | the part of the PR description between the two marker lines of the screenplay tool (D-1016) | screenplay block, story section |
+| action line | the one line of the screenplay for a step that is not a say step (D-1017) | stage direction |
+| base folder | the folder that holds the content of the base commit, which the screenplay tool reads to find the batch (D-1015) | old content, base checkout |

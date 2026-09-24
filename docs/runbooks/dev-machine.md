@@ -81,6 +81,19 @@ PR-11 added the `evaluator-cost` command of Tools. It times one enemy turn of th
 3. Three answers need the Deck: the scale on the screen, the readability at 1x, and the frame time (D-621, M-6, M-7).
 4. The owner reads each new effect on the Mac, as its PR lands (D-622).
 
+## The screenplay of a story batch
+
+Run these steps in each PR that changes a story scene file, or a line that a story scene speaks (D-57, G-25). The `make screenplay` target writes the Screenplay section of the PR description (D-1015, D-1016, D-1017).
+
+1. Write the PR description to a file: `gh pr view <n> --json body -q .body > artifacts/pr-body.md`.
+2. Run `make screenplay BODY=artifacts/pr-body.md`. The target reads the merge base with origin/main.
+3. Set `BASE=<commit>` when the base of the PR is not the merge base with origin/main.
+4. Read the Screenplay section of the file before you send it.
+5. Send the file: `gh pr edit <n> --body-file artifacts/pr-body.md`.
+6. Run the steps again after each change of the batch. A second run replaces the section.
+
+The command fails on a body above 65,536 characters, the limit of GitHub. Split the batch over more PRs then.
+
 ## Owner actions on GitHub
 
 1. Before PR-1, enable "Require actions to be pinned to a full-length commit SHA" in the Actions settings of the repository (D-511). The owner did this on 2026-09-14.

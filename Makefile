@@ -21,7 +21,7 @@ SKIP_GITAR_REVIEW := --skip-gitar-review
 CODEX_REVIEW_FLAGS := $(filter $(SKIP_GITAR_REVIEW),$(MAKECMDGOALS))
 
 
-.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke sheet walk run clean codex-review evaluator-cost $(SKIP_GITAR_REVIEW)
+.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke sheet walk run clean codex-review screenplay evaluator-cost $(SKIP_GITAR_REVIEW)
 
 ## verify: every check that this machine can run.
 verify: build test format lint ste-check identity content atlas smoke
@@ -193,6 +193,24 @@ codex-review:
 
 $(SKIP_GITAR_REVIEW):
 	@test -n "$(filter codex-review,$(MAKECMDGOALS))" || { echo "codex-review: $(SKIP_GITAR_REVIEW) needs the codex-review goal, such as make codex-review PR=63 -- $(SKIP_GITAR_REVIEW) (T-2)." >&2; exit 1; }
+
+## screenplay: write the screenplay of the changed story scenes into a PR body file (D-1015, D-1016).
+#
+# `BODY=<file>` names the body file, such as the output of `gh pr view <n> --json body -q .body`.
+# `BASE=<commit>` names the base commit, and the merge base with origin/main is the default.
+# The target fills artifacts/screenplay-base with the content of the base commit through
+# `git archive`, then the command of Tools writes the Screenplay section of the body file.
+# Send the file with `gh pr edit <n> --body-file <file>`.
+screenplay:
+	@test -n "$(BODY)" || { echo "screenplay: set BODY=<file>, such as make screenplay BODY=artifacts/pr-body.md (T-2)." >&2; exit 1; }
+	@set -eu; \
+	base="$(BASE)"; \
+	if [ -z "$$base" ]; then base=$$(git merge-base origin/main HEAD); fi; \
+	rm -rf artifacts/screenplay-base; \
+	mkdir -p artifacts/screenplay-base; \
+	git archive "$$base" content | tar -x -C artifacts/screenplay-base; \
+	echo "screenplay: the base content of $$base"; \
+	dotnet run --project $(TOOLS_PROJECT) -- screenplay --root . --base artifacts/screenplay-base --body "$(BODY)"
 
 ## evaluator-cost: time one enemy turn of the worst fight, from a Release build (D-961, F-53).
 #
