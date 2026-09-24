@@ -1357,11 +1357,13 @@ public partial class Boot : Node
         int closes = 0;
         var host = new MenuHost(built, shownBase, session, loaded, SmokeSettings, _ => closes += 1, entries => this.WriteLog(entries));
 
-        // The party window moves the lead to the other row, and each other entry opens and closes.
+        // The party window moves the lead to the other row, and each other entry opens and closes:
+        // the lessons, the status, the log, and the settings (D-988, D-992).
         host.OpenMainList();
         string[] presses =
         [
             "ui_accept", "ui_accept", "ui_cancel",
+            "ui_down", "ui_accept", "ui_cancel",
             "ui_down", "ui_accept", "ui_cancel",
             "ui_down", "ui_accept", "ui_cancel",
             "ui_down", "ui_accept", "ui_cancel",
@@ -1775,7 +1777,7 @@ public partial class Boot : Node
                 if (screen is null)
                 {
                     screen = BattleScreen.Build(built, shownBase, loaded, open, new CommandMemory(SmokeSettings().Battle.RememberCursor), SmokeSettings().Access.Effects);
-                    nodes = $"{screen.CombatantCount} combatants over {screen.BackdropCopies} backdrop copies in {screen.CheckLights()} key light, with {screen.CheckBursts()} particle nodes";
+                    nodes = $"{screen.CombatantCount} combatants over {screen.BackdropCopies} backdrop copies in {screen.CheckLights()} lights (the key light and the light of a spell), with {screen.CheckBursts()} particle nodes";
                 }
 
                 screen.Show(open);

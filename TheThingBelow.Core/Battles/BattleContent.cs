@@ -7,7 +7,7 @@ namespace TheThingBelow.Core.Battles;
 
 /// <summary>
 /// The content that a battle reads: the rules file, the fixture file, the enemy records, the
-/// ability file, the group file of each region, and the profiles (D-557, D-757, D-765, D-775,
+/// ability file, the lesson file, the group file of each region, and the profiles (D-557, D-757, D-765, D-775, D-1026,
 /// D-785, D-786, D-956, D-957). A run holds one, from the content set of its build.
 /// </summary>
 public sealed class BattleContent
@@ -17,6 +17,7 @@ public sealed class BattleContent
     /// <param name="fixture">The characters and the items.</param>
     /// <param name="enemies">The enemy records, one for each file, in the order of the paths (D-786).</param>
     /// <param name="abilities">The ability file (D-785).</param>
+    /// <param name="lessons">The lesson file (D-1026).</param>
     /// <param name="groups">The group files, one for each region, in the order of the paths (D-957).</param>
     /// <param name="profiles">The profiles, one for each file, in the order of the paths (D-956).</param>
     /// <exception cref="ContentException">
@@ -30,6 +31,7 @@ public sealed class BattleContent
         BattleFixture fixture,
         IReadOnlyList<EnemyRecord> enemies,
         AbilityList abilities,
+        LessonList lessons,
         IReadOnlyList<GroupFile> groups,
         IReadOnlyList<ProfileRecord> profiles)
     {
@@ -37,6 +39,7 @@ public sealed class BattleContent
         ArgumentNullException.ThrowIfNull(fixture);
         ArgumentNullException.ThrowIfNull(enemies);
         ArgumentNullException.ThrowIfNull(abilities);
+        ArgumentNullException.ThrowIfNull(lessons);
         ArgumentNullException.ThrowIfNull(groups);
         ArgumentNullException.ThrowIfNull(profiles);
 
@@ -44,11 +47,14 @@ public sealed class BattleContent
         this.Fixture = fixture;
         this.Enemies = enemies;
         this.Abilities = abilities;
+        this.Lessons = lessons;
         this.GroupFiles = groups;
         this.Profiles = profiles;
 
         this.RefuseRepeatedEnemy();
         this.RefuseAbsentAbility();
+        this.RefuseWrongLessonAbility();
+        this.RefuseWrongStartLessons();
         this.RefuseRepeatedRegionOrGroup();
         this.RefuseRepeatedProfile();
         this.RefuseAbsentEnemyOrProfile();
@@ -68,6 +74,9 @@ public sealed class BattleContent
 
     /// <summary>The ability file (D-785).</summary>
     public AbilityList Abilities { get; }
+
+    /// <summary>The lesson file (D-1026).</summary>
+    public LessonList Lessons { get; }
 
     /// <summary>The group file of each region, in the order of the paths (D-957).</summary>
     public IReadOnlyList<GroupFile> GroupFiles { get; }
@@ -320,7 +329,77 @@ public sealed class BattleContent
                         ability.Value,
                         $"the enemy '{enemy.Id.Value}' names this ability, and '{this.Abilities.File}' holds no such id (T-2, D-785)");
                 }
+
+                // The evaluator of PR-11 scores a strike and a heal alone. A cure and a boon
+                // serve the lessons of PR-12 (D-955, D-1029).
+                if (this.Abilities.Ability(ability) is not (StrikeAbility or HealAbility))
+                {
+                    throw ContentException.ForField(
+                        enemy.File,
+                        ability.Value,
+                        $"the enemy '{enemy.Id.Value}' names this ability, and an enemy move is a strike or a heal (D-955, D-1029)");
+                }
             }
+        }
+    }
+
+    /// <summary>Refuses a form of a lesson that names an absent ability (T-2, D-785, D-1026).</summary>
+    private void RefuseWrongLessonAbility()
+    {
+        foreach (LessonRecord lesson in this.Lessons.Records)
+        {
+            foreach (LessonForm form in lesson.Forms)
+            {
+                if (!this.Abilities.Holds(form.Ability))
+                {
+                    throw ContentException.ForField(
+                        this.Lessons.File,
+                        lesson.Id.Value,
+                        $"a form names the ability '{form.Ability.Value}', and '{this.Abilities.File}' holds no such id (T-2, D-785)");
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Refuses a start lesson or a lesson of the lesson pack that the lesson file does not hold,
+    /// and a character that starts with more lessons than its slots at its join level (D-1018,
+    /// D-1030).
+    /// </summary>
+    private void RefuseWrongStartLessons()
+    {
+        foreach (StartLessons entry in this.Fixture.StartLessons)
+        {
+            CharacterRecord character = this.Character(entry.Character);
+            int slots = this.Rules.SlotsAt(character.JoinLevel);
+            if (entry.Lessons.Count > slots)
+            {
+                throw ContentException.ForField(
+                    BattleFixture.Path,
+                    "start_lessons",
+                    $"the character '{character.Id.Value}' starts with {entry.Lessons.Count} lessons, and it has {slots} slots at level {character.JoinLevel} (D-1018)");
+            }
+
+            foreach (ContentId lesson in entry.Lessons)
+            {
+                this.RequireLesson(lesson, "start_lessons");
+            }
+        }
+
+        foreach (ContentId lesson in this.Fixture.LessonPack)
+        {
+            this.RequireLesson(lesson, "lesson_pack");
+        }
+    }
+
+    private void RequireLesson(ContentId lesson, string field)
+    {
+        if (!this.Lessons.Holds(lesson))
+        {
+            throw ContentException.ForField(
+                BattleFixture.Path,
+                field,
+                $"the fixture names the lesson '{lesson.Value}', and '{this.Lessons.File}' holds no such id (T-2, D-1026)");
         }
     }
 

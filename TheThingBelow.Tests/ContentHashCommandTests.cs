@@ -80,7 +80,7 @@ public sealed class ContentHashCommandTests
     {
         using ContentCheckout checkout = ContentCheckout.Copy();
         string before = ContentHashCommand.ReadCommitted(checkout.Root);
-        checkout.WriteRuleFile("strings/en.json", ChangedStringTable());
+        checkout.WriteRuleFile("strings/en.json", ChangedStringTable(checkout.Root));
         using StringWriter output = new();
         using StringWriter errors = new();
 
@@ -164,18 +164,11 @@ public sealed class ContentHashCommandTests
         }
         """;
 
-    private static string ChangedStringTable() =>
-        """
-        {
-         "comment": "a note",
-         "strings": [
-          { "id": "label.fixture_dungeon", "text": "The old cut" },
-          { "id": "label.lamp", "text": "Tin lamp" },
-          { "id": "label.nail", "text": "Bent nail" },
-          { "id": "label.rope", "text": "Dry rope" },
-          { "id": "notice.fixture_drip", "text": "Water drips somewhere ahead." },
-          { "id": "notice.fixture_mark", "text": "Someone cut a mark in the stone. It is fresh." }
-         ]
-        }
-        """;
+    /// <summary>Gives the string table of the copy with one text changed. Each id stays, so each check of a string reads the same set (G-7).</summary>
+    private static string ChangedStringTable(string root)
+    {
+        string table = File.ReadAllText(Path.Combine(root, ContentFolder.FolderName, "strings", "en.json")).Replace("\"Tin lamp\"", "\"Rusted lamp\"", StringComparison.Ordinal);
+        Assert.Contains("Rusted lamp", table, StringComparison.Ordinal);
+        return table.Replace("\r\n", "\n", StringComparison.Ordinal);
+    }
 }

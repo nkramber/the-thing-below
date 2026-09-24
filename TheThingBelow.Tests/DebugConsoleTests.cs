@@ -37,6 +37,9 @@ public sealed class DebugConsoleTests
     /// <summary>The ids of the two notice commands, which post a notice that logs and one that does not (D-989).</summary>
     private static readonly string[] NoticeIds = ["debug.notice_logged", "debug.notice_plain"];
 
+    // PR-12 added the command that marks a swap place of lessons (D-1030).
+    private const string SwapId = "debug.swap_place";
+
     /// <summary>The seed of the runs of these tests.</summary>
     private const ulong Seed = 20260920;
 
@@ -50,9 +53,11 @@ public sealed class DebugConsoleTests
         // a debug handler (D-260, D-492).
         DebugIntentHandlers handlers = DebugAssemblyFile.Handlers();
 
-        Assert.Equal(1 + BattleIds.Length + NoticeIds.Length, handlers.Count);
+        Assert.Equal(2 + BattleIds.Length + NoticeIds.Length, handlers.Count);
         Assert.True(handlers.TryFind(Id(RevealId), out DebugIntentHandler? found));
         Assert.NotNull(found);
+        Assert.True(handlers.TryFind(Id(SwapId), out DebugIntentHandler? swap));
+        Assert.NotNull(swap);
         foreach (string battleId in BattleIds)
         {
             Assert.True(handlers.TryFind(Id(battleId), out DebugIntentHandler? battle), $"No handler takes '{battleId}'.");
@@ -98,6 +103,20 @@ public sealed class DebugConsoleTests
         Assert.Equal([TestBattles.KeptNotice.Value, TestBattles.PlainNotice.Value], [shown[0].Id.Value, shown[1].Id.Value]);
         ContentId kept = Assert.Single(run.State.NoticeLog.Entries);
         Assert.Equal(TestBattles.KeptNotice.Value, kept.Value);
+    }
+
+    [Fact]
+    public void TheSwapIntentMarksASwapPlaceUntilTheNextStepOfTheLead()
+    {
+        // D-1030: the command marks a swap place before PR-14 and PR-16, and a step leaves it.
+        Simulation run = Start();
+        Assert.False(run.State.Characters.AtSwapPlace);
+
+        run.Step([Intent.OfDebugConsole(Id(SwapId))]);
+        Assert.True(run.State.Characters.AtSwapPlace);
+
+        run.Step([Intent.OfPlayer(IntentIds.MoveSouth)]);
+        Assert.False(run.State.Characters.AtSwapPlace);
     }
 
     [Fact]
@@ -359,7 +378,7 @@ public sealed class DebugConsoleTests
             Assert.True(names.Add(name), $"Two commands take the name '{name}' (T-2).");
         }
 
-        Assert.Equal(13, names.Count);
+        Assert.Equal(14, names.Count);
     }
 
     private static Simulation Start() =>

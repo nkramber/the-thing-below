@@ -23,6 +23,7 @@ namespace TheThingBelow.Core.Effects;
 /// <item>Each character and each enemy takes exactly one hit file (D-879).</item>
 /// <item>Each color names a key of the palette (D-181).</item>
 /// <item>The particles of one burst keep inside the effect budget (D-523).</item>
+/// <item>Each form of a rite takes exactly one spell file, and no two spell files show one look (D-1032).</item>
 /// <item>The ambient files keep the checks of <see cref="AmbientContent"/> (D-202, D-523, D-886).</item>
 /// <item>The transitions keep the checks of <see cref="TransitionContent"/> (D-195, D-934, D-936).</item>
 /// </list>
@@ -30,14 +31,19 @@ namespace TheThingBelow.Core.Effects;
 public sealed class EffectContent
 {
     private readonly SortedDictionary<string, HitEffect> hitOf;
+    private readonly SortedDictionary<string, SpellEffect> spellOf;
 
     private EffectContent(
         BattleEffects battle,
         IReadOnlyList<HitEffect> hits,
         SortedDictionary<string, HitEffect> hitOf,
+        IReadOnlyList<SpellEffect> spells,
+        SortedDictionary<string, SpellEffect> spellOf,
         AmbientContent ambient,
         TransitionContent transitions)
     {
+        this.Spells = spells;
+        this.spellOf = spellOf;
         this.Ambient = ambient;
         this.Transitions = transitions;
         this.Battle = battle;
@@ -50,6 +56,9 @@ public sealed class EffectContent
 
     /// <summary>Every hit effect, in the order of its path (F-39).</summary>
     public IReadOnlyList<HitEffect> Hits { get; }
+
+    /// <summary>Every spell effect, in the order of its path (F-39, D-1032).</summary>
+    public IReadOnlyList<SpellEffect> Spells { get; }
 
     /// <summary>The weather of each map and the capture files of the screen test (D-187, D-889).</summary>
     public AmbientContent Ambient { get; }
@@ -66,6 +75,7 @@ public sealed class EffectContent
 
         return string.CompareOrdinal(path, BattleEffects.Path) == 0
             || HitEffect.IsHitFile(path)
+            || SpellEffect.IsSpellFile(path)
             || AmbientEffect.IsAmbientFile(path)
             || TransitionContent.IsTransitionContent(path);
     }
@@ -81,6 +91,16 @@ public sealed class EffectContent
         return this.hitOf.TryGetValue(combatant.Value, out HitEffect? found)
             ? found
             : throw ContentException.ForFile(HitEffect.Folder, $"no hit file serves '{combatant.Value}', and each combatant takes one (D-879)");
+    }
+
+    /// <summary>Gives the flash of a form of a rite, or no value for a form of a drill (D-1032).</summary>
+    /// <param name="ability">The ability of the form.</param>
+    /// <returns>The spell effect, or no value when no spell file serves the ability.</returns>
+    public SpellEffect? SpellOf(ContentId ability)
+    {
+        ArgumentNullException.ThrowIfNull(ability);
+
+        return this.spellOf.TryGetValue(ability.Value, out SpellEffect? found) ? found : null;
     }
 
     /// <summary>Reads every effect file, and checks each one against the fight, the palette, and the budget.</summary>
@@ -101,6 +121,7 @@ public sealed class EffectContent
 
         BattleEffects? pace = null;
         var hits = new List<HitEffect>();
+        var spells = new List<SpellEffect>();
         var ids = new SortedDictionary<string, string>(StringComparer.Ordinal);
         foreach (ContentFile file in files)
         {
@@ -128,6 +149,16 @@ public sealed class EffectContent
 
                 hits.Add(hit);
             }
+            else if (SpellEffect.IsSpellFile(file.Path))
+            {
+                SpellEffect spell = SpellEffect.Read(file.Bytes, file.Path);
+                if (!ids.TryAdd(spell.Id.Value, file.Path))
+                {
+                    throw ContentException.ForField(file.Path, "id", $"the file '{ids[spell.Id.Value]}' holds the effect '{spell.Id.Value}' too, and one id names one effect (D-166)");
+                }
+
+                spells.Add(spell);
+            }
             else
             {
                 throw ContentException.ForFile(file.Path, "the file is not an effect file, and the content set gave it to the effect reader");
@@ -138,10 +169,15 @@ public sealed class EffectContent
         SortedDictionary<string, HitEffect> hitOf = ServedBy(hits, battle);
         RefuseAbsentColor(hits, palette);
         RefuseOverBudget(hits, budget);
+        spells.Sort(static (first, second) => string.CompareOrdinal(first.File, second.File));
+        SortedDictionary<string, SpellEffect> spellOf = SpellsOf(spells, battle);
+        RefuseWrongSpell(spells, palette, budget);
         return new EffectContent(
             pace ?? throw ContentException.ForFile(BattleEffects.Path, "the content set holds no such file"),
             hits,
             hitOf,
+            spells,
+            spellOf,
             AmbientContent.Load(ambientFiles, world, hits, ids),
             TransitionContent.Load(transitionFiles, world.Maps, palette, ids));
     }
@@ -219,6 +255,96 @@ public sealed class EffectContent
     /// plays one event at a time, and it ends the burst of an event when the next one starts,
     /// so one burst is the most that a fight shows at once.
     /// </summary>
+    /// <summary>
+    /// Gives the spell file of each form of a rite, and refuses a file that serves another ability,
+    /// two files of one ability, and a form of a rite with no file (D-1032).
+    /// </summary>
+    private static SortedDictionary<string, SpellEffect> SpellsOf(List<SpellEffect> spells, BattleContent battle)
+    {
+        var rites = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (LessonRecord lesson in battle.Lessons.Records)
+        {
+            if (!lesson.IsRite)
+            {
+                continue;
+            }
+
+            foreach (LessonForm form in lesson.Forms)
+            {
+                _ = rites.Add(form.Ability.Value);
+            }
+        }
+
+        var spellOf = new SortedDictionary<string, SpellEffect>(StringComparer.Ordinal);
+        foreach (SpellEffect spell in spells)
+        {
+            for (int index = 0; index < spell.Serves.Count; index += 1)
+            {
+                string id = spell.Serves[index].Value;
+                string field = $"serves[{index}]";
+                if (!rites.Contains(id))
+                {
+                    throw ContentException.ForField(spell.File, field, $"no form of a rite gives the ability '{id}', and a spell file serves the forms of rites (D-1032)");
+                }
+
+                if (!spellOf.TryAdd(id, spell))
+                {
+                    throw ContentException.ForField(spell.File, field, $"the file '{spellOf[id].File}' serves '{id}' too, and each spell has one flash (D-1032)");
+                }
+            }
+        }
+
+        foreach (string rite in rites)
+        {
+            if (!spellOf.ContainsKey(rite))
+            {
+                throw ContentException.ForFile(SpellEffect.Folder, $"no spell file serves '{rite}', and each form of a rite has a flash of its own (D-1032)");
+            }
+        }
+
+        return spellOf;
+    }
+
+    /// <summary>Refuses a spell file with a key that the palette lacks, a burst over the budget, or the look of another spell file (D-181, D-523, D-1032).</summary>
+    private static void RefuseWrongSpell(List<SpellEffect> spells, Palette palette, EffectBudget budget)
+    {
+        var looks = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach (SpellEffect spell in spells)
+        {
+            RequireKey(palette, spell.File, "light.color", spell.Light.Color.Key);
+            RequireKey(palette, spell.File, "tint.color", spell.Tint.Key);
+            for (int emitter = 0; emitter < spell.Emitters.Count; emitter += 1)
+            {
+                IReadOnlyList<char> colors = spell.Emitters[emitter].Colors;
+                for (int index = 0; index < colors.Count; index += 1)
+                {
+                    RequireKey(palette, spell.File, $"emitters[{emitter}].colors[{index}]", colors[index]);
+                }
+            }
+
+            if (spell.Particles > budget.LiveParticles)
+            {
+                throw ContentException.ForField(
+                    spell.File,
+                    "emitters",
+                    $"the burst holds {spell.Particles} live particles in one fight, and the row `live_particles` of `{EffectBudget.Path}` allows {budget.LiveParticles} (D-523)");
+            }
+
+            if (!looks.TryAdd(spell.Look, spell.File))
+            {
+                throw ContentException.ForFile(spell.File, $"the flash has the look of '{looks[spell.Look]}', and each spell has a flash of its own (D-1032)");
+            }
+        }
+    }
+
+    private static void RequireKey(Palette palette, string file, string field, char key)
+    {
+        if (!palette.TryColorOf(key, out _))
+        {
+            throw ContentException.ForField(file, field, $"the palette holds no key '{key}', and a flash takes a palette key (D-181, L-10)");
+        }
+    }
+
     private static void RefuseOverBudget(List<HitEffect> hits, EffectBudget budget)
     {
         foreach (HitEffect hit in hits)

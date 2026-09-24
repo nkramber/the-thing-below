@@ -1,0 +1,56 @@
+{
+ "comment": "The lessons (D-1026). Each lesson holds a kind of D-281 and its forms. Each form names an ability of the ability file, the point total that opens it, its MP cost, and its description, and the first form opens at zero (D-539, D-1027). The name of a lesson and of a form is `name.` and the name part of its id, and no two forms name one ability (D-1032). The fixture lessons of PR-12 cover six kinds: Mend, Harm, Blight, Boon, Blade, and Shot (D-1029). PR-42 writes the lessons of region one. Each id is permanent (D-166).",
+ "lessons": [
+  {
+   "id": "lesson.fixture_hew",
+   "kind": "blade",
+   "forms": [
+    { "ability": "ability.fixture_hew", "points": 0, "mp": 0, "description": "lesson.fixture_hew" },
+    { "ability": "ability.fixture_cleave", "points": 60, "mp": 0, "description": "lesson.fixture_cleave" }
+   ]
+  },
+  {
+   "id": "lesson.fixture_cinder",
+   "kind": "harm",
+   "forms": [
+    { "ability": "ability.fixture_cinder", "points": 0, "mp": 4, "description": "lesson.fixture_cinder" },
+    { "ability": "ability.fixture_blaze", "points": 120, "mp": 9, "description": "lesson.fixture_blaze" }
+   ]
+  },
+  {
+   "id": "lesson.fixture_salve",
+   "kind": "mend",
+   "forms": [
+    { "ability": "ability.fixture_salve", "points": 0, "mp": 3, "description": "lesson.fixture_salve" }
+   ]
+  },
+  {
+   "id": "lesson.fixture_purge",
+   "kind": "mend",
+   "forms": [
+    { "ability": "ability.fixture_purge", "points": 0, "mp": 2, "description": "lesson.fixture_purge" }
+   ]
+  },
+  {
+   "id": "lesson.fixture_rot",
+   "kind": "blight",
+   "forms": [
+    { "ability": "ability.fixture_rot", "points": 0, "mp": 3, "description": "lesson.fixture_rot" }
+   ]
+  },
+  {
+   "id": "lesson.fixture_quicken",
+   "kind": "boon",
+   "forms": [
+    { "ability": "ability.fixture_quicken", "points": 0, "mp": 4, "description": "lesson.fixture_quicken" }
+   ]
+  },
+  {
+   "id": "lesson.fixture_bolt",
+   "kind": "shot",
+   "forms": [
+    { "ability": "ability.fixture_bolt", "points": 0, "mp": 0, "description": "lesson.fixture_bolt" }
+   ]
+  }
+ ]
+}

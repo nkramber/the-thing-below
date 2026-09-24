@@ -35,7 +35,9 @@ namespace TheThingBelow.Tests;
 /// migration starts each character at its join level with full MP (D-363, D-966). Format 7 and
 /// older predate the notice log, and the migration starts the log empty (D-985). Format 8 and
 /// older predate the story state, and the migration starts with no flag on, no story scene, and
-/// no entry to read (D-540, D-1004).
+/// no entry to read (D-540, D-1004). Format 9 and older predate the lessons, and the migration gives
+/// each character its start lessons at zero points and the lesson pack of the fixture (D-1018,
+/// D-1030).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
@@ -168,6 +170,8 @@ public sealed class SaveFixtureTests
             found.Add(Path.GetFileName(file));
         }
 
+        // Format 10 sorts before format 2 in the ordinal order of the names, so both lists sort.
+        wanted.Sort(StringComparer.Ordinal);
         found.Sort(StringComparer.Ordinal);
         Assert.Equal(wanted, found);
     }
@@ -338,7 +342,7 @@ public sealed class SaveFixtureTests
         Combatant fighter = BattleRuns.BattleOf(run).Party[0];
         Assert.Equal(TestBattles.MarrekAt(2).Health, fighter.FullHealth);
         Assert.Equal(TestBattles.MarrekAt(2).Attack, fighter.Attack);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Notices = [], Story = MigratedStory }), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Notices = [], Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters) }), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -363,7 +367,7 @@ public sealed class SaveFixtureTests
 
         Assert.Equal([TestBattles.KeptNotice.Value], Values(run.State.NoticeLog.Entries));
         Assert.Equal(20, save.Header.SimulationVersion);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Story = MigratedStory }), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters) }), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -409,7 +413,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(ScenePhase.WaitIntent, story.Phase);
         Assert.True(story.Paused);
         Assert.Equal(2, run.State.Characters.Members.Count);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Characters = MigratedParty(save.Snapshot.Characters) }), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -424,6 +428,43 @@ public sealed class SaveFixtureTests
         Assert.True(run.State.Story.Flags.IsOn(ContentId.Parse("flag.test_done", "test", "flag")));
     }
 
+    [Fact]
+    public void TheStoredSaveOfFormatTenHoldsTheLessonsThePointsThePackAndTheSwapPlace()
+    {
+        // PR-12 wrote format 10 after one fight won and a swap at a swap place: the salve took the
+        // second slot of Marrek, and the cinder went to the end of the lesson pack (D-361, D-1030).
+        SaveDocument save = ReadFormat(10);
+        Simulation run = ResumeInBattle(save);
+
+        PartyMember marrek = Assert.Single(run.State.Characters.Members);
+        Assert.Equal(22, save.Header.SimulationVersion);
+        Assert.Equal(["lesson.fixture_hew", "lesson.fixture_salve"], [marrek.Slots[0]?.Value, marrek.Slots[1]?.Value]);
+        Assert.Equal((12, 12, 0), (marrek.PointsOf(Lesson("hew")), marrek.PointsOf(Lesson("cinder")), marrek.PointsOf(Lesson("salve"))));
+        Assert.Equal(
+            ["lesson.fixture_purge", "lesson.fixture_rot", "lesson.fixture_quicken", "lesson.fixture_bolt", "lesson.fixture_cinder"],
+            Values(run.State.Characters.LessonPack));
+        Assert.True(run.State.Characters.AtSwapPlace);
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatNineGetsTheStartLessonsOfTheFixture()
+    {
+        // D-166: format 9 predates the lessons, so each character gets its start lessons, and the
+        // lesson pack of the fixture holds the rest.
+        SaveDocument save = ReadFormat(9);
+        Assert.Null(save.Snapshot.Characters?.LessonPack);
+
+        Simulation run = TestStory.Resume(save.Header.Seed, save.Snapshot);
+
+        PartyState party = run.State.Characters;
+        Assert.Equal(["lesson.fixture_hew", "lesson.fixture_cinder"], [party.Members[0].Slots[0]?.Value, party.Members[0].Slots[1]?.Value]);
+        Assert.Equal(Values(TestBattles.Content.Fixture.LessonPack), Values(party.LessonPack));
+        Assert.False(party.AtSwapPlace);
+    }
+
+    private static ContentId Lesson(string name) => ContentId.Parse($"lesson.fixture_{name}", "test", "lesson");
+
     private static List<string> Values(IReadOnlyList<ContentId> ids)
     {
         List<string> values = [];
@@ -433,6 +474,45 @@ public sealed class SaveFixtureTests
         }
 
         return values;
+    }
+
+    /// <summary>
+    /// Gives the party of a save of format 9 or older as the migration of format 10 gives it:
+    /// each character with the slots of its level and its start lessons at zero points, the
+    /// lesson pack of the fixture, and no swap place (D-166, D-1018, D-1030).
+    /// </summary>
+    private static PartySnapshot? MigratedParty(PartySnapshot? party)
+    {
+        if (party is null)
+        {
+            return null;
+        }
+
+        BattleContent content = TestBattles.Content;
+        List<CharacterValues> characters = [];
+        foreach (CharacterValues stored in party.Characters)
+        {
+            int level = stored.Growth?.Level ?? content.Character(stored.Character).JoinLevel;
+            var slots = new ContentId?[content.Rules.SlotsAt(level)];
+            var points = new SortedDictionary<string, LessonPoints>(StringComparer.Ordinal);
+            foreach (StartLessons entry in content.Fixture.StartLessons)
+            {
+                if (string.CompareOrdinal(entry.Character.Value, stored.Character.Value) != 0)
+                {
+                    continue;
+                }
+
+                for (int index = 0; index < entry.Lessons.Count; index += 1)
+                {
+                    slots[index] = entry.Lessons[index];
+                    points.Add(entry.Lessons[index].Value, new LessonPoints(entry.Lessons[index], 0));
+                }
+            }
+
+            characters.Add(stored with { Lessons = new LessonValues(slots, [.. points.Values]) });
+        }
+
+        return party with { Characters = characters, LessonPack = content.Fixture.LessonPack, AtSwapPlace = false };
     }
 
     private static Simulation ResumeInBattle(SaveDocument save) =>

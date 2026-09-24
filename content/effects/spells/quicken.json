@@ -1,0 +1,12 @@
+{
+ "comment": "The flash of the quicken, the fixture boon rite (D-1032). A quick gold light pulses two times on the ally, the frame takes a thin brass tint on the first pulse, and sparks of gold fan out to the sides.",
+ "id": "effect.spell_quicken",
+ "serves": ["ability.fixture_quicken"],
+ "shape": "double",
+ "length_ticks": 20,
+ "light": { "color": "y", "strength": 20000, "range": 88, "height": 22 },
+ "tint": { "color": "O", "strength": 500 },
+ "emitters": [
+  { "amount": 16, "lifetime_ticks": 16, "colors": ["y", "O", "#"], "size": 1, "area": 3, "direction": 0, "spread": 180, "slowest_speed": 60, "fastest_speed": 140, "gravity": 0 }
+ ]
+}

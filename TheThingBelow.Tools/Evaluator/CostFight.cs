@@ -25,13 +25,15 @@ public static class CostFight
     {
      "comment": "The party of the cost fight: three characters.",
      "characters": [
-      { "id": "character.cost_first", "row": "front", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(90, 20, 12, 4, 100))}} },
-      { "id": "character.cost_second", "row": "front", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(80, 20, 10, 3, 110))}} },
-      { "id": "character.cost_third", "row": "back", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(70, 20, 8, 2, 120))}} }
+      { "id": "character.cost_first", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(90, 20, 12, 4, 100))}} },
+      { "id": "character.cost_second", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(80, 20, 10, 3, 110))}} },
+      { "id": "character.cost_third", "row": "back", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.cost_side", "curve": {{StatCurve.FlatText(new StatRow(70, 20, 8, 2, 120))}} }
      ],
      "items": [{ "id": "item.cost_draught", "heal": 30, "delay": 100 }],
      "start_party": ["character.cost_first", "character.cost_second", "character.cost_third"],
-     "pack": [{ "item": "item.cost_draught", "count": 3 }]
+     "pack": [{ "item": "item.cost_draught", "count": 3 }],
+     "start_lessons": [],
+     "lesson_pack": []
     }
     """;
 
@@ -52,12 +54,19 @@ public static class CostFight
     }
     """;
 
+    private const string LessonText = """
+    {
+     "comment": "The lessons of the cost fight. It holds none.",
+     "lessons": []
+    }
+    """;
+
     private const string AbilityText = """
     {
      "comment": "The moves of the cost fight.",
      "abilities": [
-      { "id": "ability.cost_bash", "kind": "strike", "delay": 130, "power": 14000, "element": "none", "reach": "melee" },
-      { "id": "ability.cost_shot", "kind": "strike", "delay": 110, "power": 9000, "element": "fire", "reach": "any" },
+      { "id": "ability.cost_bash", "kind": "strike", "delay": 130, "power": 14000, "element": "none", "reach": "melee", "status": "none" },
+      { "id": "ability.cost_shot", "kind": "strike", "delay": 110, "power": 9000, "element": "fire", "reach": "any", "status": "none" },
       { "id": "ability.cost_mend", "kind": "heal", "delay": 110, "heal": 12 }
      ]
     }
@@ -139,8 +148,8 @@ public static class CostFight
     /// <summary>The flag file of the cost fight. A run needs one, and the fight plays no story scene (D-1003).</summary>
     private const string FlagText = """
     {
-     "comment": "The flags of the cost fight. It declares none.",
-     "flags": []
+     "comment": "The flags of the cost fight. It declares the flag of the side aptitudes alone.",
+     "flags": [{ "id": "flag.cost_side", "note": "The side aptitude of each character of the cost fight is open." }]
     }
     """;
 
@@ -158,6 +167,7 @@ public static class CostFight
             BattleFixture.Read(Encoding.UTF8.GetBytes(FixtureText), "cost-fixture.json"),
             [EnemyRecord.Read(Encoding.UTF8.GetBytes(EnemyText), "cost-raider.json")],
             AbilityList.Read(Encoding.UTF8.GetBytes(AbilityText), "cost-abilities.json"),
+            LessonList.Read(Encoding.UTF8.GetBytes(LessonText), "cost-lessons.json"),
             new List<GroupFile> { GroupFile.Read(Encoding.UTF8.GetBytes(GroupText), $"{GroupFile.Folder}cost.json") },
             [ProfileRecord.Read(Encoding.UTF8.GetBytes(ProfileText), "cost-profile.json")]);
     }

@@ -62,6 +62,12 @@ public static class BattleTimes
             BattleEventKind.Wiped => pace.EndTicks,
             BattleEventKind.Experience => pace.Summary.ExperienceTicks,
             BattleEventKind.LevelUp => pace.Summary.LevelUpTicks,
+
+            // A new form rises as one line of the summary, as the experience does (D-975, D-1027).
+            BattleEventKind.FormOpened => pace.Summary.ExperienceTicks,
+
+            // The line of a lesson holds while the flash of a spell plays (D-1032).
+            BattleEventKind.Lesson => pace.LineTicks,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(kind), kind, $"The battle event '{kind}' has no timing on the screen (D-829, T-2)."),
         };

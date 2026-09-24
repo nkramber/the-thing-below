@@ -229,7 +229,7 @@ Built by PR-10, PR-57, and PR-12. Phase file: `phase-2-first-playable.md`.
 - PR-57 adds blood or sparks on a hit, from the hit file that serves the target (D-186, D-879).
 - PR-57 also adds a short screen shake and a brief hit-stop on a heavy blow (D-186, D-880).
 - A heavy blow is a hit on an element that the target is weak to (D-877).
-- PR-12 adds the flash of a spell, with a point light of PR-56 for its length (D-183, D-878).
+- PR-12 adds the flash of each spell, with a point light of PR-56 for its length. Each spell has a look of its own (D-183, D-878, D-1032).
 - A heavy blow also starts the vibration of D-434, and `area-ui-input.md` holds it.
 - A screen shake moves the battle picture alone, by whole pixels of the frame. The UI stays still (D-876).
 - The flash and shake reduction gives each flash and each shake a reduced form (D-214). The hit flash of PR-10 stays at each level (D-881). The screen tests capture each of the three levels: full, reduced, and off (D-863).
@@ -335,7 +335,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | PR-48 | The normal maps and their review sheets | D-184, D-521 |
 | PR-56 | Light setups, decor files, point lights, the carried light, shadows, and the budget test | D-183, D-442, D-523, D-842 to D-847, D-850 |
 | PR-57 | Effect files, particles, the shake, and the hit-stop | D-182, D-186, D-877 to D-883 |
-| PR-12 | The flash of a spell | D-186, D-878 |
+| PR-12 | The flash of each spell | D-186, D-878, D-1032 |
 | PR-58 | The four ambient kinds | D-187, D-202 |
 | PR-94 | The procedural fog: a soft noise shader of 1 to 3 layers in one pass | D-896 to D-908 |
 | PR-59 | The glow on light sources alone, and the fog above the glow | D-188, D-910 to D-916 |

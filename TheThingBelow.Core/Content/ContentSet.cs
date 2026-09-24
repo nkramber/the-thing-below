@@ -137,6 +137,7 @@ public sealed class ContentSet
         BattleRules? battleRules = null;
         BattleFixture? battleFixture = null;
         AbilityList? abilities = null;
+        LessonList? lessons = null;
         NoticeList? notices = null;
         FlagList? flags = null;
         List<StoryScene> scenes = [];
@@ -195,6 +196,13 @@ public sealed class ContentSet
             {
                 abilities = AbilityList.Read(file.Bytes, file.Path);
                 AddIds(file.Path, abilities.Ids, sources);
+            }
+            else if (string.CompareOrdinal(file.Path, LessonList.Path) == 0)
+            {
+                // The lesson file lies under the rule folder, so this branch comes before the
+                // branch of the rule fixtures below (D-1026).
+                lessons = LessonList.Read(file.Bytes, file.Path);
+                AddIds(file.Path, lessons.Ids, sources);
             }
             else if (string.CompareOrdinal(file.Path, NoticeList.Path) == 0)
             {
@@ -311,6 +319,7 @@ public sealed class ContentSet
             battleFixture ?? throw AbsentFile(BattleFixture.Path),
             enemies,
             abilities ?? throw AbsentFile(AbilityList.Path),
+            lessons ?? throw AbsentFile(LessonList.Path),
             groups,
             profiles);
 
@@ -882,6 +891,17 @@ public sealed class ContentSet
             drawing.Id.Value,
             $"the atlas index does not match this drawing, because {difference}. Run the atlas command again (G-24)");
 
+    /// <summary>Gives the string id of the name of a content entry: `name.` and the name part of its id (G-7).</summary>
+    private static ContentId NameIdOf(ContentId id) => ContentId.Parse($"name.{id.Name}", StringTable.Path, id.Value);
+
+    private void RequireString(string file, string field, ContentId id)
+    {
+        if (!this.Strings.Contains(id))
+        {
+            throw ContentException.ForField(file, field, $"the string table holds no id '{id.Value}' (G-7)");
+        }
+    }
+
     private void RefuseAbsentString(SortedDictionary<string, string> sources)
     {
         // Each line of a say step and each option of a choose step lives in the string table (G-7).
@@ -907,6 +927,19 @@ public sealed class ContentSet
                     this.Notices.File,
                     notice.Id.Value,
                     $"the string table holds no id '{notice.Id.Value}', which holds the line of the notice (G-7)");
+            }
+        }
+
+        // The name of each lesson and of each form is `name.` and the name part of its id, as
+        // for a combatant and an item. Each form also names its description (G-7, D-1027).
+        LessonList lessons = this.Battle.Lessons;
+        foreach (LessonRecord lesson in lessons.Records)
+        {
+            this.RequireString(lessons.File, lesson.Id.Value, NameIdOf(lesson.Id));
+            foreach (LessonForm form in lesson.Forms)
+            {
+                this.RequireString(lessons.File, $"{lesson.Id.Value}.{form.Ability.Value}", NameIdOf(form.Ability));
+                this.RequireString(lessons.File, $"{lesson.Id.Value}.{form.Ability.Value}.description", form.Description);
             }
         }
 

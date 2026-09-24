@@ -2,6 +2,38 @@
  "comment": "The English string table (D-167, G-7). Every string the player reads lives here, and no C# file holds one. The first entries are the labels of the fixture rules of PR-5 (D-649). The crash entries carry the message of a crash and the address of D-473. The address is a placeholder in the reserved .invalid domain until the owner names the studio (D-712, OQ-57). The map label is the name of the first dungeon, which PR-7 ships (D-528). The battle entries are the lines, the commands, and the names of the battle screen of PR-10 (D-213, D-827). A name entry is `name.` and the name part of a content id. The settings entries are the labels and the values of the settings screen of PR-63 (D-226, D-872). The menu entries are the labels of the main list, its windows, and the dungeon map screen of PR-62 (D-211, D-991). A notice entry holds the line of the notice of the same id (D-989).",
  "strings": [
   {
+   "id": "aptitude.blade",
+   "text": "Blade"
+  },
+  {
+   "id": "aptitude.blight",
+   "text": "Blight"
+  },
+  {
+   "id": "aptitude.boon",
+   "text": "Boon"
+  },
+  {
+   "id": "aptitude.guard",
+   "text": "Guard"
+  },
+  {
+   "id": "aptitude.harm",
+   "text": "Harm"
+  },
+  {
+   "id": "aptitude.mend",
+   "text": "Mend"
+  },
+  {
+   "id": "aptitude.shot",
+   "text": "Shot"
+  },
+  {
+   "id": "aptitude.theft",
+   "text": "Theft"
+  },
+  {
    "id": "battle.absorb",
    "text": "{target} takes it in. {amount} back."
   },
@@ -30,6 +62,10 @@
    "text": "Item"
   },
   {
+   "id": "battle.command_lessons",
+   "text": "Lessons"
+  },
+  {
    "id": "battle.command_step_forward",
    "text": "Step forward"
   },
@@ -52,6 +88,14 @@
   {
    "id": "battle.flee_failed",
    "text": "No way out."
+  },
+  {
+   "id": "battle.form_entry",
+   "text": "{form} {mp} MP"
+  },
+  {
+   "id": "battle.form_entry_free",
+   "text": "{form}"
   },
   {
    "id": "battle.heal",
@@ -84,6 +128,10 @@
   {
    "id": "battle.item_entry",
    "text": "{item} x{count}"
+  },
+  {
+   "id": "battle.lesson",
+   "text": "{actor}: {form}."
   },
   {
    "id": "battle.level_up",
@@ -194,6 +242,10 @@
    "text": "+{amount} XP"
   },
   {
+   "id": "battle.summary_form",
+   "text": "Learned {form}"
+  },
+  {
    "id": "battle.summary_gain",
    "text": "+{amount} {stat}"
   },
@@ -238,6 +290,46 @@
    "text": "Wet rope"
   },
   {
+   "id": "lesson.fixture_blaze",
+   "text": "More fire on one foe, either row."
+  },
+  {
+   "id": "lesson.fixture_bolt",
+   "text": "A shot at one foe, either row."
+  },
+  {
+   "id": "lesson.fixture_cinder",
+   "text": "Fire on one foe, either row."
+  },
+  {
+   "id": "lesson.fixture_cleave",
+   "text": "A heavier cut at the front row."
+  },
+  {
+   "id": "lesson.fixture_hew",
+   "text": "A hard cut at the front row."
+  },
+  {
+   "id": "lesson.fixture_purge",
+   "text": "Ends poison, blind, and silence on one ally."
+  },
+  {
+   "id": "lesson.fixture_quicken",
+   "text": "Haste on one ally."
+  },
+  {
+   "id": "lesson.fixture_rot",
+   "text": "A weak blow that can poison."
+  },
+  {
+   "id": "lesson.fixture_salve",
+   "text": "Closes the wounds of one ally."
+  },
+  {
+   "id": "menu.aptitude_hidden",
+   "text": "—"
+  },
+  {
    "id": "menu.experience",
    "text": "XP {amount}"
   },
@@ -248,6 +340,58 @@
   {
    "id": "menu.items",
    "text": "Items"
+  },
+  {
+   "id": "menu.lesson_aptitudes",
+   "text": "Main {main}   Side {side}"
+  },
+  {
+   "id": "menu.lesson_choice",
+   "text": "Use or swap"
+  },
+  {
+   "id": "menu.lesson_clear",
+   "text": "Leave it empty"
+  },
+  {
+   "id": "menu.lesson_forms",
+   "text": "Forms"
+  },
+  {
+   "id": "menu.lesson_full",
+   "text": "Full"
+  },
+  {
+   "id": "menu.lesson_help_away",
+   "text": "Lessons change hands at a waystone or in town."
+  },
+  {
+   "id": "menu.lesson_help_here",
+   "text": "Lessons change hands here."
+  },
+  {
+   "id": "menu.lesson_pack",
+   "text": "Put in the slot"
+  },
+  {
+   "id": "menu.lesson_points",
+   "text": "{points}/{next}"
+  },
+  {
+   "id": "menu.lesson_slots",
+   "text": "Slots"
+  },
+  {
+   "id": "menu.lesson_swap",
+   "text": "Swap"
+  },
+  {
+   "id": "menu.lesson_target",
+   "text": "On whom"
+  },
+  {
+   "id": "menu.lesson_use",
+   "text": "Use"
   },
   {
    "id": "menu.lessons",
@@ -310,6 +454,10 @@
    "text": "Settings"
   },
   {
+   "id": "menu.slot_empty",
+   "text": "—"
+  },
+  {
    "id": "menu.sound",
    "text": "Sound"
   },
@@ -322,8 +470,24 @@
    "text": "Status"
   },
   {
+   "id": "name.fixture_blaze",
+   "text": "Blaze"
+  },
+  {
+   "id": "name.fixture_bolt",
+   "text": "Bolt"
+  },
+  {
    "id": "name.fixture_brute",
    "text": "Brute"
+  },
+  {
+   "id": "name.fixture_cinder",
+   "text": "Cinder"
+  },
+  {
+   "id": "name.fixture_cleave",
+   "text": "Cleave"
   },
   {
    "id": "name.fixture_draught",
@@ -332,6 +496,26 @@
   {
    "id": "name.fixture_grunt",
    "text": "Grunt"
+  },
+  {
+   "id": "name.fixture_hew",
+   "text": "Hew"
+  },
+  {
+   "id": "name.fixture_purge",
+   "text": "Purge"
+  },
+  {
+   "id": "name.fixture_quicken",
+   "text": "Quicken"
+  },
+  {
+   "id": "name.fixture_rot",
+   "text": "Rot"
+  },
+  {
+   "id": "name.fixture_salve",
+   "text": "Salve"
   },
   {
    "id": "name.marrek",

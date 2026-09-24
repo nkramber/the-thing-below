@@ -1,5 +1,77 @@
 # Session handoff archive
 
+## Session 259: 2026-09-23, Codex
+
+Author: Codex
+Session: reviewer PR #69, round 1. Repository: the-thing-below. Branch: `feat/pr-67-character-level`. PR: #69. Role: reviewer. Base: `5b56d3d`.
+
+### What this session did, and why
+
+- Reviewed PR #69 from merge base `5b56d3d` through effective head `9604e8f`.
+- Confirmed Claude Code authored the change, so Codex passes the provider gate (T-4, D-17).
+- Traced experience, levels, MP, save migration, replay state, battle events, and the battle view. Inspected all 81 changed paths.
+- Read all 18 changed battle frames from the screen-test artifact. No visual fault was found (D-733, D-784).
+- Added `docs/reviews/pr-69.md` with `Ready for owner merge` for `9604e8f`.
+
+### The state of the build
+
+- `main` and the PR base are `5b56d3d`. The remote PR head before this metadata commit is `9604e8f`.
+- Focused tests passed, 89 of 89, after `make build` created the Game assembly.
+- CI run 35931706529 passed the implementation checks on every platform. Review-gate failed because the review record was absent.
+
+### What is in flight
+
+- This metadata commit holds the review record and this handoff entry. Fresh review-gate and metadata-tip CI checks passed after publication.
+
+### Traps and gotchas
+
+- Gitar's only comment is a status notice without an item. D-964 says it needs no answer and does not block the verdict.
+- Focused tests that read the Game assembly need `make build` first.
+
+### The questions that block progress
+
+None for PR-69.
+
+### The next concrete action
+
+The review record and handoff are committed and pushed together. The remote head is `2888448`; review-gate and all applicable metadata-tip checks passed.
+
+## Session 258: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-67, round 1. Repository: the-thing-below. Branch: `feat/pr-67-character-level`. PR: #69. Role: author. Base: `5b56d3d`.
+
+### What this session did, and why
+
+- Asked OQ-134, OQ-135, OQ-136, and the new OQ-244 before any code, then the numbers, the summary, and the text. D-966 to D-981 record the answers.
+- The owner revised D-387: a downed character earns no experience (D-974). The summary rises above each head on the battle screen, and each character shows a health bar and an MP bar (D-975, D-976).
+- Core: the stat curve and the join level of each character, the enemy level and experience, the cut, the gap, and the experience table. It also adds the award at a win, the level-up fill, and the restore rules of D-970. Save format 7 and simulation version 19.
+- Game: the text of the summary, the party bars, and "HP 60/60 MP 8/8" on the bottom line. The captures `battle-experience-1x`, `battle-level-up-rise-1x`, and `battle-level-up-1x` are new.
+
+### The state of the build
+
+- `main` is `5b56d3d`. PR #69 holds the decision commit, the round commit `b03ef23`, and the baseline commit.
+- CI run 35931067896 failed on the three new frames and 15 changed battle frames alone. The baseline commit holds those 18 files from its `screen-captures` artifact (D-733). Format, det-lint, STE, identity, content, atlas, and smoke pass.
+
+### What is in flight
+
+- CI on the baseline commit. Then one read of Gitar, and the Codex review.
+
+### Traps and gotchas
+
+- The glossary term "share" means the part of health that poison moves. The experience code says "shrunk", and the glossary now holds the new terms of PR-67.
+- The capture session builds a new screen for each frame, so the message line of a summary frame is empty. The game keeps the last line.
+- The two level-up frames stage a level-up on the view. The fixture fight gives 12 experience, and level 2 takes 20 (D-977).
+- The status panel holds a name of 8 characters at body 32 (D-981).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for CI on the baseline commit to finish green except `review-gate`. Read Gitar once under D-945, then run `make codex-review PR=69 -- --skip-gitar-review`.
+
 ## Session 257: 2026-09-23, Codex
 
 Author: Codex

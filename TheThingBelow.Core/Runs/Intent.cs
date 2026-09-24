@@ -20,8 +20,10 @@ namespace TheThingBelow.Core.Runs;
 /// <para>
 /// A battle intent names its target, and an item use names its item too (D-764, D-780). The
 /// row intent of the party window names its character as a target of the party side (D-558).
-/// The pick intent of a choose step names the index of its option (D-1007). Every other intent
-/// carries none of the three.
+/// The pick intent of a choose step names the index of its option (D-1007). A lesson use names its
+/// lesson and its form, a cast from the menu also names its caster, and a swap names the
+/// character, the slot, and the lesson (D-1027, D-1030). Every other intent carries none of
+/// these values.
 /// </para>
 /// </remarks>
 /// <param name="Action">The id of the choice, such as `intent.open_menu`.</param>
@@ -30,8 +32,10 @@ namespace TheThingBelow.Core.Runs;
 /// </param>
 /// <param name="Target">The side and the slot that a battle intent or a row intent aims at, or no value (D-558, D-764).</param>
 /// <param name="Item">The item of an item use, or no value (D-780).</param>
-/// <param name="Option">The index of the option of a pick, from zero, or no value (D-1007).</param>
-public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target = null, ContentId? Item = null, int? Option = null)
+/// <param name="Option">An index from zero: the option of a pick (D-1007), the form of a lesson use, or the lesson slot of a swap (D-1027, D-1030). No value for the other intents.</param>
+/// <param name="Lesson">The lesson of a lesson use or a swap, or no value (D-1026).</param>
+/// <param name="Actor">The party slot of the character who casts from the menu or whose slot a swap changes, or no value (D-391, D-1030).</param>
+public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target = null, ContentId? Item = null, int? Option = null, ContentId? Lesson = null, int? Actor = null)
 {
     /// <summary>Makes an intent that the player made through a screen of the game.</summary>
     /// <param name="action">The id of the choice, such as `intent.open_menu`.</param>
@@ -86,6 +90,39 @@ public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target
     /// <returns>The intent, with no debug mark.</returns>
     public static Intent OfPick(int option) => new(IntentIds.StoryPick, false, null, null, option);
 
+    /// <summary>Makes the battle intent of a lesson use: the form of a lesson of the character whose turn it is, on one target (D-1027, D-1031).</summary>
+    /// <param name="lesson">The lesson, which a slot of the character holds.</param>
+    /// <param name="form">The index of the form, from zero.</param>
+    /// <param name="target">The target.</param>
+    /// <returns>The intent, with no debug mark.</returns>
+    /// <exception cref="ArgumentNullException">The lesson is null (T-2).</exception>
+    public static Intent OfBattleLesson(ContentId lesson, int form, BattleTarget target)
+    {
+        ArgumentNullException.ThrowIfNull(lesson);
+        return new Intent(IntentIds.BattleLesson, false, target, null, form, lesson);
+    }
+
+    /// <summary>Makes the intent of a cast from the menu: a Mend rite or a cure rite of one character on one character (D-391).</summary>
+    /// <param name="caster">The party slot of the caster.</param>
+    /// <param name="lesson">The lesson, which a slot of the caster holds.</param>
+    /// <param name="form">The index of the form, from zero.</param>
+    /// <param name="target">The party slot of the target.</param>
+    /// <returns>The intent, with no debug mark.</returns>
+    /// <exception cref="ArgumentNullException">The lesson is null (T-2).</exception>
+    public static Intent OfMenuCast(int caster, ContentId lesson, int form, int target)
+    {
+        ArgumentNullException.ThrowIfNull(lesson);
+        return new Intent(IntentIds.MenuCast, false, new BattleTarget(BattleSide.Party, target), null, form, lesson, caster);
+    }
+
+    /// <summary>Makes the intent of a swap of lessons: a lesson of the lesson pack in one slot, or an empty slot (D-356, D-1030).</summary>
+    /// <param name="character">The party slot of the character.</param>
+    /// <param name="slot">The lesson slot, from zero.</param>
+    /// <param name="lesson">The lesson of the lesson pack, or no value to empty the slot.</param>
+    /// <returns>The intent, with no debug mark.</returns>
+    public static Intent OfLessonSwap(int character, int slot, ContentId? lesson) =>
+        new(IntentIds.LessonSwap, false, null, null, slot, lesson, character);
+
     /// <summary>Gives the intent as one line for an error message and a log line (T-2).</summary>
     /// <returns>The action, the item, the target, the option, and the debug mark, each when the intent carries it.</returns>
     public string Describe()
@@ -93,7 +130,9 @@ public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target
         string target = this.Target is BattleTarget aimed ? $" at {aimed.Describe()}" : string.Empty;
         string item = this.Item is ContentId used ? $" with {used.Value}" : string.Empty;
         string option = this.Option is int picked ? $" option {picked}" : string.Empty;
+        string lesson = this.Lesson is ContentId named ? $" lesson {named.Value}" : string.Empty;
+        string actor = this.Actor is int slot ? $" by party {slot}" : string.Empty;
         string mark = this.IsDebug ? " (debug)" : string.Empty;
-        return $"{this.Action.Value}{item}{target}{option}{mark}";
+        return $"{this.Action.Value}{actor}{lesson}{item}{target}{option}{mark}";
     }
 }

@@ -182,7 +182,8 @@ Built by PR-10, PR-98, and PR-57. Phase file: `phase-2-first-playable.md`.
 - The timeline strip runs across the top, and the command menu and the status sit at the bottom (D-111).
 - The player picks each action, item, and target from the keyboard or the gamepad, and a pointer marks the target (D-827, D-833).
 - A short bar under each enemy shows its health, with no number (D-826).
-- PR-98 draws each waiting enemy at full size and darker, in one column at the left edge, behind the back row (D-951 to D-954). The load fails a group whose column is taller than the field (D-963).
+- PR-98 draws each waiting enemy at full size and darker, in one column at the left edge, behind the back row (D-951 to D-954). The load fails a group whose column is taller than the field (D-963). PR-12 takes the room to 270 art pixels (D-1035).
+- PR-12 adds the Lessons command after the attack, with a list of lessons and a list of forms (D-1027, D-1031). The command menu takes two rows of three (D-1034).
 - A damage number pops over its target, and one message line states the action in the game voice (D-213, G-20).
 - The attack pose plays on an action, and a color flash marks a hit (D-96, D-108).
 - The backdrop of the place drifts behind the fight, in the light of the time of day of the map (D-205, D-442). Every fight draws the fixture backdrop until the place art of PR-17 (D-831).

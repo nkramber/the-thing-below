@@ -94,18 +94,18 @@ public sealed class GroupFileTests
         GroupFile second = GroupFile.Read(Encoding.UTF8.GetBytes(Text(Entries(1, 0)).Replace("group.big", "group.big_second", StringComparison.Ordinal)), Path);
 
         ContentException error = Assert.Throws<ContentException>(
-            () => new BattleContent(tests.Rules, tests.Fixture, tests.Enemies, tests.Abilities, [first, second], tests.Profiles));
+            () => new BattleContent(tests.Rules, tests.Fixture, tests.Enemies, tests.Abilities, tests.Lessons, [first, second], tests.Profiles));
 
         Assert.Contains("a second group file takes the region 'region.big'", error.Message, StringComparison.Ordinal);
     }
 
     [Theory]
-    [InlineData(4, 1)]
-    [InlineData(0, 9)]
-    [InlineData(3, 3)]
+    [InlineData(4, 0)]
+    [InlineData(0, 8)]
+    [InlineData(3, 2)]
     public void AWaitingColumnThatTheFieldHoldsLoads(int elites, int commons)
     {
-        // D-963: the column holds 288 art pixels, so four elites and one common fit exactly.
+        // D-1035: the column holds 270 art pixels, so four elites fit, and a common more does not.
         BattleContent content = TestBattles.OfGroups(WaveFile(elites, commons));
 
         Assert.Equal(1 + elites + commons, content.Group(ContentId.Parse("group.wave", Path, "id")).Entries.Count);
@@ -113,8 +113,8 @@ public sealed class GroupFileTests
 
     [Theory]
     [InlineData(5, 0, 320)]
-    [InlineData(0, 10, 320)]
-    [InlineData(4, 2, 320)]
+    [InlineData(0, 9, 288)]
+    [InlineData(4, 1, 288)]
     public void AWaitingColumnTallerThanTheFieldFailsWithTheGroupAndTheHeight(int elites, int commons, int height)
     {
         // D-963: four elite bodies fit, and not six. The error names the group, the height,

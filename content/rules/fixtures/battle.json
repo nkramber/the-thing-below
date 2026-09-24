@@ -1,10 +1,13 @@
 {
- "comment": "The fixture of the battle core (D-765, D-775, D-781). Each character holds its row, its join level, and its stat curve of one row for each of the 40 levels, with the numbers of D-977 (D-363, D-966, D-972). PR-13 replaces the items with the pack, and each id stays. The enemies live in the enemy records of `rules/enemies/` (D-786), and the groups in the group file of each region of `rules/groups/` (D-957).",
+ "comment": "The fixture of the battle core (D-765, D-775, D-781). Each character holds its row, its join level, and its stat curve of one row for each of the 40 levels, with the numbers of D-977 (D-363, D-966, D-972). Each character names its main aptitude, its side aptitude, and the flag that unlocks the side aptitude (D-274, D-281, D-538). The start lessons and the lesson pack follow D-1023 and D-1030. PR-13 replaces the items with the pack, and each id stays. The enemies live in the enemy records of `rules/enemies/` (D-786), and the groups in the group file of each region of `rules/groups/` (D-957).",
  "characters": [
   {
    "id": "character.marrek",
    "row": "front",
    "join_level": 1,
+   "main_aptitude": "blade",
+   "side_aptitude": "guard",
+   "side_flag": "flag.fixture_marrek_side",
    "curve": [
    { "level": 1, "health": 60, "mp": 8, "attack": 12, "defense": 4, "speed": 100 },
    { "level": 2, "health": 66, "mp": 10, "attack": 13, "defense": 5, "speed": 100 },
@@ -61,5 +64,9 @@
  ],
  "pack": [
   { "item": "item.fixture_draught", "count": 3 }
- ]
+ ],
+ "start_lessons": [
+  { "character": "character.marrek", "lessons": ["lesson.fixture_hew", "lesson.fixture_cinder"] }
+ ],
+ "lesson_pack": ["lesson.fixture_salve", "lesson.fixture_purge", "lesson.fixture_rot", "lesson.fixture_quicken", "lesson.fixture_bolt"]
 }

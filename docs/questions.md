@@ -437,12 +437,15 @@ How to file a question (D-19, D-24):
 137. **OQ-137. The lesson slots at each level.** The slot count grows with the character level (D-356). How many slots, and at which levels? Raised 2026-09-16. Blocks PR-12.
     - Two at the start, and one more at set levels, to six, the recommendation. Early choices stay tight, and a late build carries a shape. The numbers need the balance pass of PR-30.
     - A slot for each kind that the character can use. The build reads as wide from the start. A character can carry most of the lessons of the party, which weakens the choice of D-272.
+    - Resolved 2026-09-24: D-1018. Two slots at level 1, and one more at levels 5, 12, 20, and 30.
 138. **OQ-138. The points that a lesson gains.** Every equipped lesson gains points from each battle won, used or not, and a reserve character gains half (D-357). What sets the points? Raised 2026-09-16. Blocks PR-12.
     - The level of the enemy group, with the same shrink as the experience, the recommendation. A lesson grows where the fights are hard, and a weak enemy gives few points. It needs the numbers of OQ-136.
     - A flat count for each battle won. Every fight moves each lesson the same way. A player can farm the easiest fight in the region to open every form.
+    - Resolved 2026-09-24: D-1019 to D-1022. The experience of each enemy, with a shrink that reads the lesson level. The points stop at the last form, and a downed character gains none.
 139. **OQ-139. Two copies of one lesson.** A shop can sell a second copy of a lesson, and the growth belongs to the character (D-361, D-365). Can two characters carry the same lesson at once? Raised 2026-09-16. Blocks PR-12.
     - Yes, and each character keeps its own points for it, the recommendation. D-361 already holds the points for each character, so the rules need nothing new. A party can put the same rite on three characters.
     - No, one copy of a lesson is equipped at a time. Each rite feels rare, and the party must choose who carries it. The shops of D-365 then need a rule against a second sale.
+    - Resolved 2026-09-24: D-1023 to D-1025. The player never owns two copies. A shop hides an owned lesson, and a chest gives a fallback item.
 140. **OQ-140. What a piece of gear changes.** Six slots hold gear, and nothing limits what a character wears (D-44, D-374). What does a piece of gear do? Raised 2026-09-16. Blocks PR-13.
     - Flat changes to the five stats, and an affinity row for the eight elements, the recommendation. Gear reads at a glance, and it meets the affinities of D-43. Each item needs up to 13 numbers.
     - Flat changes to the five stats alone. The item text is short, and the balance is simple. Gear then never answers an element, so a fire dungeon has no gear answer.
@@ -797,3 +800,9 @@ How to file a question (D-19, D-24):
 244. **OQ-244. The level that the shrink reads.** The experience of an enemy shrinks as the party outlevels it (D-388, D-968). Which level does the shrink compare with the level of the enemy? Raised 2026-09-23. Blocks PR-67. Resolved 2026-09-23: D-969 takes the second option.
     - The average level of the characters on the field at the start of the fight, the recommendation. It follows the words of D-388, and it keeps the drift of D-73. A late character gets less than the second option gives.
     - The level of each character. A character who falls behind catches up faster. It narrows the drift of D-73, and the summary shows a different shrink for each character.
+245. **OQ-245. The protect effect of a Guard drill.** A Guard drill protects allies (D-281). PR-12 adds a cure and a boon, and no effect protects an ally (D-1029). What does a Guard drill do in a battle, and which PR builds it? Raised 2026-09-24. Blocks PR-42.
+    - A cover, the recommendation. The holder takes each melee strike that lands on a chosen ally until the next turn of the holder. The rule reads the row of D-377, and the balance pass reads the damage that the holder takes.
+    - A shield on one ally. The holder gives the shell status of D-798 to one ally. It needs no new rule, but the Guard drill then does the work of a Boon rite.
+246. **OQ-246. A flake of one level in the screen test.** On PR #73, a few hundred pixels of three frames differed by one level: `scroll-09`, `map-fire-1x`, and `battle-spell-full-1x`. The frames with the difference changed from run to run, and a rerun of one commit passed (D-172, D-733). What does the screen test do about it? Raised 2026-09-24. Blocks no PR.
+    - Find the cause first, the recommendation. A later PR logs the CPU of each runner and compares two jobs of one commit. The check stays exact, and a fix follows the evidence.
+    - Allow one level in a small count of pixels. The check stops the flake at once. A real change of one level then passes in silence.

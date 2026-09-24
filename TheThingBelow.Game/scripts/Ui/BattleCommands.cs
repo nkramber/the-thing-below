@@ -9,19 +9,26 @@ namespace TheThingBelow.Game.Ui;
 /// <summary>The part of the command menu that the cursor stands in (D-827).</summary>
 public enum CommandStage
 {
-    /// <summary>The five actions of a turn.</summary>
+    /// <summary>The six actions of a turn.</summary>
     Action,
+
+    /// <summary>The lessons of the character, after the Lessons command (D-1031).</summary>
+    Lesson,
+
+    /// <summary>The opened forms of the chosen lesson, with the cost of each (D-1027).</summary>
+    Form,
 
     /// <summary>The items of the pack, after the item action.</summary>
     Item,
 
-    /// <summary>The targets of an attack or of an item.</summary>
+    /// <summary>The targets of an attack, a form, or an item.</summary>
     Target,
 }
 
 /// <summary>
-/// The command menu of one turn of a character: the action, then the item or the target
-/// (D-111, D-827). Each move of the cursor stays in Game, and the menu makes one intent when
+/// The command menu of one turn of a character: the action, then the lesson and its form, or
+/// the item, then the target (D-111, D-827, D-1027, D-1031). Each move of the cursor stays in
+/// Game, and the menu makes one intent when
 /// the player confirms a whole choice, so the record holds the choice alone (D-493).
 /// </summary>
 /// <remarks>
@@ -40,6 +47,7 @@ public sealed class BattleCommands
     public static readonly IReadOnlyList<BattleAction> Actions =
     [
         BattleAction.Attack,
+        BattleAction.Lesson,
         BattleAction.Defend,
         BattleAction.Step,
         BattleAction.Item,
@@ -49,14 +57,20 @@ public sealed class BattleCommands
     private readonly RunState state;
     private readonly List<PackValues> items = [];
     private readonly List<BattleTarget> targets = [];
+    private readonly List<ContentId> lessons = [];
+    private readonly List<LessonForm> forms = [];
+    private readonly int slot;
     private BattleAction action = BattleAction.Attack;
     private ContentId? item;
+    private ContentId? lesson;
+    private int form;
 
     private BattleCommands(RunState state, Combatant actor)
     {
         this.state = state;
         this.Actor = actor.Id;
         this.ActorRow = actor.Row;
+        this.slot = actor.Slot;
     }
 
     /// <summary>The content id of the character whose turn it is, which the remembered cursor keys on (D-226).</summary>
@@ -77,6 +91,15 @@ public sealed class BattleCommands
     /// <summary>The items that the item stage offers, with the count of each, in the order of the pack.</summary>
     public IReadOnlyList<PackValues> Items => this.items;
 
+    /// <summary>The lessons that the lesson stage offers: the lesson of each filled slot of the character, in slot order (D-356).</summary>
+    public IReadOnlyList<ContentId> Lessons => this.lessons;
+
+    /// <summary>The forms that the form stage offers: each form of the chosen lesson that the character opened (D-1027).</summary>
+    public IReadOnlyList<LessonForm> Forms => this.forms;
+
+    /// <summary>The lesson of the form stage, or no value before the lesson stage confirms one.</summary>
+    public ContentId? ChosenLesson => this.lesson;
+
     /// <summary>The targets that the target stage offers, in slot order.</summary>
     public IReadOnlyList<BattleTarget> Targets => this.targets;
 
@@ -88,6 +111,8 @@ public sealed class BattleCommands
     {
         CommandStage.Action => Actions.Count,
         CommandStage.Item => this.items.Count,
+        CommandStage.Lesson => this.lessons.Count,
+        CommandStage.Form => this.forms.Count,
         _ => this.targets.Count,
     };
 
@@ -128,8 +153,39 @@ public sealed class BattleCommands
     {
         BattleAction.Attack => this.TargetsOf(BattleAction.Attack, null).Count > 0,
         BattleAction.Item => this.UsableItems().Count > 0,
+        BattleAction.Lesson => this.LessonsOfSlots().Exists(this.AllowsLesson),
         _ => BattleTurns.RefusalOf(this.state, new BattleChoice(offered, null, null)) is null,
     };
+
+    /// <summary>Tells whether a lesson of the character has a form that the rules take now, on at least one target (D-1027).</summary>
+    /// <param name="offered">The lesson.</param>
+    /// <returns>True when the lesson stage can confirm the lesson.</returns>
+    public bool AllowsLesson(ContentId offered)
+    {
+        ArgumentNullException.ThrowIfNull(offered);
+
+        int opened = this.OpenedFormsOf(offered).Count;
+        for (int index = 0; index < opened; index += 1)
+        {
+            if (this.AllowsForm(offered, index))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Tells whether the rules take a form of a lesson now, on at least one target: the MP, silence, and the reach (D-42, D-806).</summary>
+    /// <param name="offered">The lesson.</param>
+    /// <param name="index">The index of the form, from zero.</param>
+    /// <returns>True when the form stage can confirm the form.</returns>
+    public bool AllowsForm(ContentId offered, int index)
+    {
+        ArgumentNullException.ThrowIfNull(offered);
+
+        return this.LessonTargets(offered, index).Count > 0;
+    }
 
     /// <summary>Moves the cursor by one entry, and wraps at each end.</summary>
     /// <param name="step">-1 for the entry before, and 1 for the entry after.</param>
@@ -144,6 +200,24 @@ public sealed class BattleCommands
         this.Cursor = (this.Cursor + step + this.Count) % this.Count;
     }
 
+    /// <summary>
+    /// Moves the cursor to the row above or below in the grid of the menu, in the same column,
+    /// and wraps at the top and the bottom (D-1034). A short last row takes its last entry.
+    /// </summary>
+    /// <param name="step">-1 for the row above, and 1 for the row below.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The step is not -1 or 1 (T-2).</exception>
+    public void MoveRow(int step)
+    {
+        if (step != -1 && step != 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(step), step, "The cursor moves by one row, -1 or 1 (T-2).");
+        }
+
+        int rows = (this.Count + BattleLayout.CommandColumns - 1) / BattleLayout.CommandColumns;
+        int row = ((this.Cursor / BattleLayout.CommandColumns) + step + rows) % rows;
+        this.Cursor = Math.Min((row * BattleLayout.CommandColumns) + (this.Cursor % BattleLayout.CommandColumns), this.Count - 1);
+    }
+
     /// <summary>Confirms the entry under the cursor.</summary>
     /// <returns>The intent of a whole choice, or no value when the menu moves to its next stage or refuses the entry.</returns>
     public Intent? Confirm()
@@ -156,6 +230,14 @@ public sealed class BattleCommands
                 this.item = this.items[this.Cursor].Item;
                 this.OpenTargets(BattleAction.Item, this.item);
                 return null;
+            case CommandStage.Lesson:
+                this.ConfirmLesson(this.lessons[this.Cursor]);
+                return null;
+            case CommandStage.Form:
+                this.ConfirmForm(this.Cursor);
+                return null;
+            case CommandStage.Target when this.action == BattleAction.Lesson:
+                return Intent.OfBattleLesson(this.lesson!, this.form, this.targets[this.Cursor]);
             default:
                 BattleTarget target = this.targets[this.Cursor];
                 ContentId actionId = this.action == BattleAction.Item ? IntentIds.BattleItem : IntentIds.BattleAttack;
@@ -172,8 +254,17 @@ public sealed class BattleCommands
                 this.Stage = CommandStage.Item;
                 this.Cursor = Math.Max(0, this.items.FindIndex(entry => string.CompareOrdinal(entry.Item.Value, this.item!.Value) == 0));
                 return;
+            case CommandStage.Target when this.action == BattleAction.Lesson:
+                this.Stage = CommandStage.Form;
+                this.Cursor = this.form;
+                return;
+            case CommandStage.Form:
+                this.Stage = CommandStage.Lesson;
+                this.Cursor = Math.Max(0, this.lessons.FindIndex(entry => string.CompareOrdinal(entry.Value, this.lesson!.Value) == 0));
+                return;
             case CommandStage.Target:
             case CommandStage.Item:
+            case CommandStage.Lesson:
                 this.Stage = CommandStage.Action;
                 this.Cursor = IndexOf(this.action);
                 return;
@@ -201,6 +292,12 @@ public sealed class BattleCommands
                 this.Stage = CommandStage.Item;
                 this.Cursor = 0;
                 return null;
+            case BattleAction.Lesson:
+                this.lessons.Clear();
+                this.lessons.AddRange(this.LessonsOfSlots());
+                this.Stage = CommandStage.Lesson;
+                this.Cursor = 0;
+                return null;
             case BattleAction.Defend:
                 return Intent.OfPlayer(IntentIds.BattleDefend);
             case BattleAction.Step:
@@ -210,6 +307,84 @@ public sealed class BattleCommands
             default:
                 throw new InvalidOperationException($"The command menu offers the action '{chosen}', which it cannot send (T-2).");
         }
+    }
+
+    private void ConfirmLesson(ContentId chosen)
+    {
+        if (!this.AllowsLesson(chosen))
+        {
+            return;
+        }
+
+        this.lesson = chosen;
+        this.forms.Clear();
+        this.forms.AddRange(this.OpenedFormsOf(chosen));
+        this.Stage = CommandStage.Form;
+        this.Cursor = 0;
+    }
+
+    private void ConfirmForm(int index)
+    {
+        ContentId chosen = this.lesson ?? throw new InvalidOperationException("The form stage holds no lesson (T-2).");
+        if (!this.AllowsForm(chosen, index))
+        {
+            return;
+        }
+
+        this.form = index;
+        this.targets.Clear();
+        this.targets.AddRange(this.LessonTargets(chosen, index));
+        this.Stage = CommandStage.Target;
+        this.Cursor = 0;
+    }
+
+    /// <summary>Gives the lesson of each filled slot of the character, in slot order (D-356).</summary>
+    private List<ContentId> LessonsOfSlots()
+    {
+        var held = new List<ContentId>();
+        foreach (ContentId? carried in this.state.Characters.Members[this.slot].Slots)
+        {
+            if (carried is ContentId one)
+            {
+                held.Add(one);
+            }
+        }
+
+        return held;
+    }
+
+    /// <summary>Gives the forms of a lesson that the character opened (D-361, D-539).</summary>
+    private List<LessonForm> OpenedFormsOf(ContentId chosen)
+    {
+        LessonRecord record = this.state.BattleContent.Lessons.Lesson(chosen);
+        int opened = record.OpenedAt(this.state.Characters.Members[this.slot].PointsOf(chosen));
+        var found = new List<LessonForm>();
+        for (int index = 0; index < opened; index += 1)
+        {
+            found.Add(record.Forms[index]);
+        }
+
+        return found;
+    }
+
+    /// <summary>Gives each combatant of either side that the rules let the form reach now, in slot order (D-1029).</summary>
+    private List<BattleTarget> LessonTargets(ContentId chosen, int index)
+    {
+        Battle battle = this.state.Battle ?? throw new InvalidOperationException(
+            $"The command menu reads the targets of a lesson at tick {this.state.Tick}, and no battle runs (T-2).");
+        var found = new List<BattleTarget>();
+        foreach (IReadOnlyList<Combatant> side in new[] { battle.Enemies, battle.Party })
+        {
+            foreach (Combatant combatant in side)
+            {
+                if (BattleTurns.RefusalOf(this.state, new BattleChoice(BattleAction.Lesson, combatant.Target, null, chosen, index)) is null)
+                {
+                    found.Add(combatant.Target);
+                }
+            }
+        }
+
+        return found;
     }
 
     private void OpenTargets(BattleAction chosen, ContentId? used)

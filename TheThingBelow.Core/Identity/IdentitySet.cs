@@ -52,6 +52,9 @@ public static partial class IdentitySet
     /// <summary>The name of the run that reads the tick, the record, and the replay (D-650 to D-652).</summary>
     public const string ReplayRun = "replay";
 
+    /// <summary>The name of the run that casts from the menu and uses the forms of lessons in a fight (D-391, D-1027, D-1028).</summary>
+    public const string LessonRun = "lessons";
+
     /// <summary>
     /// The content hash that the record of the replay run names. The run reads no content
     /// file, because Core reads no file, so the value is a fixed text of this set (G-1).
@@ -415,10 +418,31 @@ public static partial class IdentitySet
     /// <summary>The ability file of this set (D-785). PR-80 added it, and it never changes.</summary>
     private const string AbilityFile = """
     {
-     "comment": "The ability file of the identity set. PR-11 gave each ability its effect and added the mend, and it never changes again.",
+     "comment": "The ability file of the identity set. PR-11 gave each ability its effect and added the mend. PR-12 gave the strike its status field and added the moves of the lessons, and the file never changes again.",
      "abilities": [
-      { "id": "ability.identity_strike", "kind": "strike", "delay": 120, "power": 14000, "element": "fire", "reach": "any" },
-      { "id": "ability.identity_mend", "kind": "heal", "delay": 100, "heal": 18 }
+      { "id": "ability.identity_strike", "kind": "strike", "delay": 120, "power": 14000, "element": "fire", "reach": "any", "status": "none" },
+      { "id": "ability.identity_mend", "kind": "heal", "delay": 100, "heal": 18 },
+      { "id": "ability.identity_blast", "kind": "strike", "delay": 130, "power": 20000, "element": "fire", "reach": "any", "status": "poison", "chance": 5000 },
+      { "id": "ability.identity_purge", "kind": "cure", "delay": 90, "statuses": ["poison", "blind", "silence"] },
+      { "id": "ability.identity_haste", "kind": "boon", "delay": 90, "status": "haste" }
+     ]
+    }
+    """;
+
+    /// <summary>The lesson file of this set (D-1026). PR-12 added it.</summary>
+    private const string LessonFile = """
+    {
+     "comment": "The lesson file of the identity set. PR-12 added it, and it never changes again.",
+     "lessons": [
+      { "id": "lesson.identity_blast", "kind": "harm", "forms": [
+       { "ability": "ability.identity_strike", "points": 0, "mp": 3, "description": "lesson.identity_strike" },
+       { "ability": "ability.identity_blast", "points": 6, "mp": 5, "description": "lesson.identity_blast" } ] },
+      { "id": "lesson.identity_mend", "kind": "mend", "forms": [
+       { "ability": "ability.identity_mend", "points": 0, "mp": 2, "description": "lesson.identity_mend" } ] },
+      { "id": "lesson.identity_purge", "kind": "mend", "forms": [
+       { "ability": "ability.identity_purge", "points": 0, "mp": 1, "description": "lesson.identity_purge" } ] },
+      { "id": "lesson.identity_haste", "kind": "boon", "forms": [
+       { "ability": "ability.identity_haste", "points": 0, "mp": 2, "description": "lesson.identity_haste" } ] }
      ]
     }
     """;
@@ -426,7 +450,7 @@ public static partial class IdentitySet
     /// <summary>The battle rules of this set, with the numbers of D-777. They never change.</summary>
     private const string BattleRulesFile = """
     {
-     "comment": "The battle rules of the identity set. PR-9 added them, and they never change.",
+     "comment": "The battle rules of the identity set. PR-9 added them, and PR-12 added the lesson slots and the aptitude bonus.",
      "attack_delay": 100,
      "attack_power": 10000,
      "defend_delay": 60,
@@ -465,7 +489,10 @@ public static partial class IdentitySet
      "blind_miss": 3000,
      "experience_cut": 1500,
      "experience_gap": 4,
-     "level_experience": [0, 20, 60, 120, 200, 300, 420, 560, 720, 900, 1100, 1320, 1560, 1820, 2100, 2400, 2720, 3060, 3420, 3800, 4200, 4620, 5060, 5520, 6000, 6500, 7020, 7560, 8120, 8700, 9300, 9920, 10560, 11220, 11900, 12600, 13320, 14060, 14820, 15600]
+     "lesson_slots": 2,
+     "aptitude_bonus": 2500,
+     "level_experience": [0, 20, 60, 120, 200, 300, 420, 560, 720, 900, 1100, 1320, 1560, 1820, 2100, 2400, 2720, 3060, 3420, 3800, 4200, 4620, 5060, 5520, 6000, 6500, 7020, 7560, 8120, 8700, 9300, 9920, 10560, 11220, 11900, 12600, 13320, 14060, 14820, 15600],
+     "lesson_slot_levels": [5, 12, 20, 30]
     }
     """;
 
@@ -475,16 +502,18 @@ public static partial class IdentitySet
     /// </summary>
     private static readonly string BattleFixtureFile = $$"""
     {
-     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, PR-11 moved its groups to the group file, and PR-68 added the friend who joins in the story run.",
+     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, PR-11 moved its groups to the group file, PR-68 added the friend who joins in the story run, and PR-12 added the aptitudes, the start lessons, and the lesson pack.",
      "characters": [
-      { "id": "character.identity_hero", "row": "front", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(90, 20, 14, 4, 100))}} },
-      { "id": "character.identity_friend", "row": "back", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(70, 30, 10, 3, 110))}} }
+      { "id": "character.identity_hero", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(90, 20, 14, 4, 100))}} },
+      { "id": "character.identity_friend", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "harm", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(70, 30, 10, 3, 110))}} }
      ],
      "items": [
       { "id": "item.identity_draught", "heal": 30, "delay": 100 }
      ],
      "start_party": ["character.identity_hero"],
-     "pack": [{ "item": "item.identity_draught", "count": 9 }]
+     "pack": [{ "item": "item.identity_draught", "count": 9 }],
+     "start_lessons": [{ "character": "character.identity_hero", "lessons": ["lesson.identity_blast", "lesson.identity_mend"] }],
+     "lesson_pack": ["lesson.identity_purge", "lesson.identity_haste"]
     }
     """;
 
@@ -496,6 +525,7 @@ public static partial class IdentitySet
         BattleRun,
         EnemyRecordRun,
         EvaluatorRun,
+        LessonRun,
         RandomDrawsRun,
         ReplayRun,
         StateHashRun,
@@ -515,9 +545,10 @@ public static partial class IdentitySet
         return runName switch
         {
             BasisPointsRun => ComputeBasisPoints(),
-            BattleRun => ComputeBattle(BattleMapFile),
-            EnemyRecordRun => ComputeBattle(RecordMapFile),
-            EvaluatorRun => ComputeBattle(EvaluatorMapFile),
+            BattleRun => ComputeBattle(BattleMapFile, IntentsOfBattleTick),
+            EnemyRecordRun => ComputeBattle(RecordMapFile, IntentsOfBattleTick),
+            EvaluatorRun => ComputeBattle(EvaluatorMapFile, IntentsOfBattleTick),
+            LessonRun => ComputeBattle(BattleMapFile, IntentsOfLessonTick),
             RandomDrawsRun => ComputeRandomDraws(),
             ReplayRun => ComputeReplay(),
             StateHashRun => ComputeStateHash(),
@@ -709,6 +740,7 @@ public static partial class IdentitySet
                 EnemyRecord.Read(Encoding.UTF8.GetBytes(MenderRecordFile), "identity-set-mender.json"),
             ],
             AbilityList.Read(Encoding.UTF8.GetBytes(AbilityFile), "identity-set-abilities.json"),
+            LessonList.Read(Encoding.UTF8.GetBytes(LessonFile), "identity-set-lessons.json"),
             [GroupFile.Read(Encoding.UTF8.GetBytes(GroupFileText), $"{GroupFile.Folder}identity.json")],
             [
                 ProfileRecord.Read(Encoding.UTF8.GetBytes(BruteProfileFile), "identity-set-brute-profile.json"),
@@ -725,7 +757,7 @@ public static partial class IdentitySet
     /// The battle run, the enemy-record run, and the evaluator run each give one map (exit
     /// test 5 of PR-80, D-504).
     /// </summary>
-    private static ulong ComputeBattle(string mapFile)
+    private static ulong ComputeBattle(string mapFile, Func<RunState, int, int, IReadOnlyList<Intent>> script)
     {
         GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(mapFile), "identity-set-battle-map.json");
         BattleContent content = ReplayBattleContent();
@@ -738,7 +770,7 @@ public static partial class IdentitySet
 
         for (int step = 0; step < BattleTickCount; step += 1)
         {
-            IReadOnlyList<Intent> intents = IntentsOfBattleTick(simulation.State, turns);
+            IReadOnlyList<Intent> intents = script(simulation.State, turns, step);
             if (intents.Count > 0 && simulation.State.Battle is not null)
             {
                 turns += 1;
@@ -774,7 +806,7 @@ public static partial class IdentitySet
     /// so the replay needs no script (D-493). Each turn of a character takes the next action
     /// of a fixed cycle, so the run reads every action of a character.
     /// </summary>
-    private static IReadOnlyList<Intent> IntentsOfBattleTick(RunState state, int turns)
+    private static IReadOnlyList<Intent> IntentsOfBattleTick(RunState state, int turns, int step)
     {
         if (state.Battle is not Battle battle)
         {
@@ -800,6 +832,51 @@ public static partial class IdentitySet
             5 => [Intent.OfPlayer(IntentIds.BattleItem, self, ContentId.Parse("item.identity_draught", "identity", "item"))],
             _ => [Intent.OfPlayer(IntentIds.BattleAttack, battle.MeleeTargets(BattleSide.Enemy)[0].Target, null)],
         };
+    }
+
+    /// <summary>
+    /// The script of the lesson run (D-391, D-1027). The hero casts the mend from the menu
+    /// before the fight, then walks into the guard. In the fight each turn takes the next step of
+    /// a fixed cycle: the first form of the blast, the mend on the hero, the second form of the
+    /// blast once the hero opened it, and an attack. A form that the rules refuse, such as a rite
+    /// with too little MP, gives its place to the attack, so the run reads the refusal too.
+    /// </summary>
+    private static IReadOnlyList<Intent> IntentsOfLessonTick(RunState state, int turns, int step)
+    {
+        ContentId blast = ContentId.Parse("lesson.identity_blast", "identity", "lesson");
+        ContentId mend = ContentId.Parse("lesson.identity_mend", "identity", "lesson");
+        switch (step)
+        {
+            case 0:
+                return [Intent.OfPlayer(IntentIds.OpenMenu)];
+            case 1:
+                return [Intent.OfMenuCast(0, mend, 0, 0)];
+            case 2:
+                return [Intent.OfPlayer(IntentIds.CloseMenu)];
+            default:
+                break;
+        }
+
+        if (state.Battle is not Battle battle || battle.Outcome != BattleOutcome.Running)
+        {
+            return IntentsOfBattleTick(state, turns, step);
+        }
+
+        if (battle.Next() is not Combatant next || next.Side != BattleSide.Party)
+        {
+            return [];
+        }
+
+        Intent attack = Intent.OfPlayer(IntentIds.BattleAttack, battle.MeleeTargets(BattleSide.Enemy)[0].Target, null);
+        Intent chosen = (turns % 4) switch
+        {
+            0 => Intent.OfBattleLesson(blast, 0, battle.MeleeTargets(BattleSide.Enemy)[0].Target),
+            1 => Intent.OfBattleLesson(mend, 0, next.Target),
+            2 => Intent.OfBattleLesson(blast, 1, battle.MeleeTargets(BattleSide.Enemy)[0].Target),
+            _ => attack,
+        };
+        BattleChoice choice = new(BattleAction.Lesson, chosen.Target, null, chosen.Lesson, chosen.Option);
+        return [chosen.Lesson is null || BattleTurns.RefusalOf(state, choice) is null ? chosen : attack];
     }
 
     /// <summary>

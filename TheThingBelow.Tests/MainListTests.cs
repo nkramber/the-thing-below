@@ -31,7 +31,8 @@ public sealed class MainListTests
             }
         }
 
-        Assert.Equal(["Party", "Status", "Log", "Settings"], live);
+        // PR-12 built the lesson window, so its entry is live (D-988).
+        Assert.Equal(["Party", "Lessons", "Status", "Log", "Settings"], live);
     }
 
     [Fact]
@@ -41,13 +42,13 @@ public sealed class MainListTests
         Assert.Equal("Party", list.Name("Current"));
 
         List<string> visited = [];
-        for (int step = 0; step < 4; step += 1)
+        for (int step = 0; step < 5; step += 1)
         {
             list.Call("Move", 1);
             visited.Add(list.Name("Current"));
         }
 
-        Assert.Equal(["Status", "Log", "Settings", "Party"], visited);
+        Assert.Equal(["Lessons", "Status", "Log", "Settings", "Party"], visited);
         list.Call("Move", -1);
         Assert.Equal("Settings", list.Name("Current"));
     }
@@ -69,13 +70,14 @@ public sealed class MainListTests
     {
         GameValue list = GameValue.New("MainList");
 
-        Assert.False((bool)list.Call("Point", 1)!);
+        Assert.False((bool)list.Call("Point", 2)!);
         Assert.Equal(0, list.Read<int>("Cursor"));
         Assert.Throws<ArgumentOutOfRangeException>(() => list.Call("Point", 8));
     }
 
     [Theory]
     [InlineData("Party", "Party")]
+    [InlineData("Lessons", "Lessons")]
     [InlineData("Status", "Status")]
     [InlineData("Log", "Log")]
     [InlineData("Settings", "Settings")]

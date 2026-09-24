@@ -122,6 +122,9 @@ public static class BattleTurns
             case BattleAction.Flee:
                 TryFlee(state, battle, actor, context, log);
                 break;
+            case BattleAction.Lesson:
+                UseLesson(state, battle, actor, choice, context, log);
+                break;
             default:
                 throw new SimulationException($"the battle action {choice.Action}, which names no rule (T-2)", context);
         }
@@ -157,6 +160,7 @@ public static class BattleTurns
             BattleAction.Attack => RefusalOfAttack(battle, choice.Target),
             BattleAction.Item => RefusalOfItem(state, battle, choice),
             BattleAction.Flee => RefusalOfFlee(battle),
+            BattleAction.Lesson => RefusalOfLesson(state, battle, actor, choice),
             BattleAction.Defend or BattleAction.Step => null,
             _ => $"the action {choice.Action}, which names no rule",
         };
@@ -348,6 +352,111 @@ public static class BattleTurns
         return battle.Party[target.Slot].Place == CombatantPlace.Field
             ? null
             : $"an item use on {target.Describe()}, and an item of this build reaches a character who stands (D-36, D-775)";
+    }
+
+    /// <summary>
+    /// Gives the reason that the rules refuse a lesson use: the lesson rules of the form, then
+    /// the target of its effect. A strike aims at an enemy that its reach reaches, and a heal, a
+    /// cure, and a boon aim at a character on the field (D-377, D-955, D-1029).
+    /// </summary>
+    private static string? RefusalOfLesson(RunState state, Battle battle, Combatant actor, BattleChoice choice)
+    {
+        if (choice.Lesson is not ContentId lesson || choice.Form is not int form)
+        {
+            return "a lesson use that names no lesson or no form (D-1027)";
+        }
+
+        bool silenced = actor.Statuses.Holds(StatusKind.Silence);
+        if (LessonRules.RefusalOfForm(state, actor.Slot, lesson, form, silenced) is string refusal)
+        {
+            return refusal;
+        }
+
+        if (choice.Target is not BattleTarget target)
+        {
+            return "a lesson use that names no target (D-764)";
+        }
+
+        AbilityRecord ability = LessonRules.FormAbility(state, lesson, form);
+        if (ability is StrikeAbility strike)
+        {
+            if (target.Side != BattleSide.Enemy || target.Slot < 0 || target.Slot >= battle.Enemies.Count)
+            {
+                return $"the target {target.Describe()}, and a strike aims at an enemy slot from 0 to {battle.Enemies.Count - 1}";
+            }
+
+            Combatant enemy = battle.Enemies[target.Slot];
+            bool reached = strike.Reach == AbilityReach.Melee ? Reaches(battle.MeleeTargets(BattleSide.Enemy), enemy) : enemy.Place == CombatantPlace.Field;
+            return reached ? null : $"the target {target.Describe()}, which the reach of '{ability.Id.Value}' does not reach (D-377, D-955)";
+        }
+
+        if (target.Side != BattleSide.Party || target.Slot < 0 || target.Slot >= battle.Party.Count)
+        {
+            return $"the target {target.Describe()}, and '{ability.Id.Value}' aims at a character slot from 0 to {battle.Party.Count - 1} (D-1029)";
+        }
+
+        return battle.Party[target.Slot].Place == CombatantPlace.Field
+            ? null
+            : $"the target {target.Describe()}, and '{ability.Id.Value}' reaches a character who stands (D-36, D-1029)";
+    }
+
+    /// <summary>
+    /// Uses one form of a lesson (D-1027). The character spends the MP, and the effect takes the
+    /// aptitude bonus: the power and the status chance of a strike, and the health of a heal
+    /// (D-1028). A cure ends its statuses on the target, and a boon gives its status (D-1029).
+    /// </summary>
+    private static void UseLesson(RunState state, Battle battle, Combatant actor, BattleChoice choice, RunContext context, List<LogEntry> log)
+    {
+        ContentId lesson = choice.Lesson ?? throw new SimulationException("a lesson use that names no lesson (D-1027)", context);
+        int form = choice.Form ?? throw new SimulationException("a lesson use that names no form (D-1027)", context);
+        BattleTarget aimed = TargetOf(choice, context);
+        PartyMember member = state.Characters.Members[actor.Slot];
+        LessonRecord record = state.BattleContent.Lessons.Lesson(lesson);
+        AbilityRecord ability = LessonRules.FormAbility(state, lesson, form);
+        int cost = record.Forms[form].Mp;
+        member.Mp -= cost;
+        state.AddEvent(new BattleEvent(BattleEventKind.Lesson, actor.Target, aimed, cost, null, Affinity.Normal, ability.Id));
+
+        int rate = BasisPoints.One + LessonRules.BonusOf(member.Record, record.Kind, state.BattleContent.Rules, state.Story.Flags);
+        switch (ability)
+        {
+            case StrikeAbility strike:
+                StatusChance? status = strike.Status is StatusChance given
+                    ? given with { Chance = LessonRules.RaisedChance(given.Chance, rate, context) }
+                    : null;
+                BattleMove move = new(strike.Delay, BasisPoints.Apply(strike.Power, rate, context), strike.Element, status);
+                Strike(state, battle, actor, move, aimed, strike.Reach, context, log);
+                break;
+            case HealAbility heal:
+                Heal(state, battle, actor, heal with { Heal = BasisPoints.Apply(heal.Heal, rate, context) }, aimed, context);
+                break;
+            case CureAbility cure:
+                Cure(state, battle, actor, cure, aimed, context);
+                break;
+            case BoonAbility boon:
+                Give(state, battle, battle.At(aimed, context), boon.Status, context);
+                PushBack(actor, boon.Delay, context);
+                break;
+            default:
+                throw new SimulationException($"the form '{ability.Id.Value}', whose effect names no rule (T-2)", context);
+        }
+    }
+
+    /// <summary>A cure of an ally on the field: each status of the cure that the ally holds ends (D-1029).</summary>
+    private static void Cure(RunState state, Battle battle, Combatant healer, CureAbility cure, BattleTarget aimed, RunContext context)
+    {
+        Combatant target = battle.At(aimed, context);
+        foreach (StatusKind status in cure.Statuses)
+        {
+            if (target.Statuses.Holds(status))
+            {
+                target.Statuses.Remove(status);
+                state.AddEvent(new BattleEvent(BattleEventKind.StatusOff, target.Target, null, 0, status));
+            }
+        }
+
+        target.PushRate = Battle.PushRateOf(target, state.BattleContent.Rules);
+        PushBack(healer, cure.Delay, context);
     }
 
     private static Battle RunningBattle(RunState state, RunContext context)
@@ -563,7 +672,7 @@ public static class BattleTurns
                 Strike(state, battle, enemy, BattleMove.BasicAttack(content.Rules), EnemyTargetOf(action, context), AbilityReach.Melee, context, log);
                 break;
             case EnemyActionKind.Ability when action.Ability is StrikeAbility strike:
-                BattleMove move = new(strike.Delay, strike.Power, strike.Element, null);
+                BattleMove move = new(strike.Delay, strike.Power, strike.Element, strike.Status);
                 Strike(state, battle, enemy, move, EnemyTargetOf(action, context), strike.Reach, context, log);
                 break;
             case EnemyActionKind.Ability when action.Ability is HealAbility heal:
@@ -835,6 +944,9 @@ public static class BattleTurns
 
             // The experience follows the win, so the victory sting plays before a level-up (D-422, D-975).
             Experience.Award(state, battle, context);
+
+            // The points of each lesson follow the experience, and a new form shows after a level-up (D-1019).
+            LessonRules.Award(state, battle);
         }
         else if (!AnyStands(battle.Party, false))
         {

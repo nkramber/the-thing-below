@@ -1,0 +1,12 @@
+{
+ "comment": "The flash of the purge, the fixture cure rite (D-1032). A cold white light pulses two times on the ally, the frame takes a brief chalk tint on the first pulse, and flakes of frost fall away.",
+ "id": "effect.spell_purge",
+ "serves": ["ability.fixture_purge"],
+ "shape": "double",
+ "length_ticks": 24,
+ "light": { "color": "&", "strength": 18000, "range": 72, "height": 20 },
+ "tint": { "color": "w", "strength": 700 },
+ "emitters": [
+  { "amount": 12, "lifetime_ticks": 22, "colors": ["&", "C", "e"], "size": 1, "area": 6, "direction": 90, "spread": 50, "slowest_speed": 20, "fastest_speed": 60, "gravity": 80 }
+ ]
+}

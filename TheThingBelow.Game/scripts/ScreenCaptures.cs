@@ -123,6 +123,18 @@ public static class ScreenCaptures
     /// <summary>The frame of the menu fixture with the notice log over the main list (D-987).</summary>
     public const string MenuLogFrame = "log-1x";
 
+    /// <summary>The frame of the menu fixture with the lesson window over the main list: the aptitudes and the slots (D-1033).</summary>
+    public const string MenuLessonsFrame = "lessons-1x";
+
+    /// <summary>The frame of the menu fixture with the list of a swap at a swap place, which the debug command marks (D-1030).</summary>
+    public const string MenuLessonsSwapFrame = "lessons-swap-1x";
+
+    /// <summary>The frame of the battle fixture with the lessons of the first character after the Lessons command (D-1031).</summary>
+    public const string BattleLessonsFrame = "lessons-1x";
+
+    /// <summary>The frame of the battle fixture with the forms of the cinder and the description of the first form (D-1027).</summary>
+    public const string BattleFormsFrame = "forms-1x";
+
     /// <summary>The frame of the menu fixture with the dungeon map screen after the walk of <see cref="DungeonRoute"/> (D-982).</summary>
     public const string MenuMapFrame = "map-1x";
 
@@ -267,6 +279,17 @@ public static class ScreenCaptures
         new("fire-1x", "effect.fire_capture"),
     ];
 
+    /// <summary>The frames of the flash of the cinder at each level of the flash and shake setting (D-863, D-1032).</summary>
+    public static IReadOnlyList<LevelFrame> SpellFrames { get; } =
+    [
+        new("spell-full-1x", EffectLevel.Full),
+        new("spell-reduced-1x", EffectLevel.Reduced),
+        new("spell-off-1x", EffectLevel.Off),
+    ];
+
+    /// <summary>The ticks into the lesson event that each spell frame shows: the peak of the spike and the start of its fall (D-1032).</summary>
+    public const int SpellFrameTicks = 3;
+
     /// <summary>The frames of the battle fixture that stage a heavy blow after its hit-stop, one for each level (D-863, D-877).</summary>
     public static IReadOnlyList<LevelFrame> HeavyFrames { get; } =
     [
@@ -347,6 +370,12 @@ public static class ScreenCaptures
         captures.Add(new ScreenCapture(BattleFixture, "menu-fill-1080", DesktopWidth, 1080, FitMode.Fill, null));
         captures.Add(new ScreenCapture(
             BattleFixture, BattleTargetFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+
+        // PR-12: the list of the lessons and the list of the forms with the description of the first form (D-1027, D-1031).
+        foreach (string frame in new[] { BattleLessonsFrame, BattleFormsFrame })
+        {
+            captures.Add(new ScreenCapture(BattleFixture, frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        }
         captures.Add(new ScreenCapture(
             BattleFixture, BattleBlowFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         captures.Add(new ScreenCapture(
@@ -362,6 +391,12 @@ public static class ScreenCaptures
         foreach (LevelFrame heavy in HeavyFrames)
         {
             captures.Add(new ScreenCapture(BattleFixture, heavy.Frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        }
+
+        // PR-12: the flash of the cinder at each level of the flash and shake setting (D-863, D-878, D-1032).
+        foreach (LevelFrame spell in SpellFrames)
+        {
+            captures.Add(new ScreenCapture(BattleFixture, spell.Frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         }
 
         // The summary after the win draws at 1x: the experience, and a staged level-up halfway
@@ -446,7 +481,7 @@ public static class ScreenCaptures
 
         // PR-62: the menu stack at 1x, the floor of the Steam Deck, and the main list at 1080 rows,
         // which takes the smaller body (D-707). The notice draws inside its type-out and its hold.
-        foreach (string frame in new[] { MenuListFrame, MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame })
+        foreach (string frame in new[] { MenuListFrame, MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame })
         {
             captures.Add(new ScreenCapture(MenuFixture, frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         }
@@ -455,6 +490,16 @@ public static class ScreenCaptures
         captures.Add(new ScreenCapture(NoticeFixture, NoticeTypeFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         captures.Add(new ScreenCapture(NoticeFixture, NoticeHoldFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         return captures;
+    }
+
+    /// <summary>Tells whether a frame of the battle fixture opens the lesson list of the command menu (D-1031).</summary>
+    /// <param name="frame">The name of the frame.</param>
+    /// <returns>True for the lessons frame and the forms frame.</returns>
+    public static bool OpensLessons(string frame)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(frame);
+
+        return string.CompareOrdinal(frame, BattleLessonsFrame) == 0 || string.CompareOrdinal(frame, BattleFormsFrame) == 0;
     }
 
     /// <summary>Gives the ticks after the blow that a frame of the battle fixture shows (D-829).</summary>
@@ -557,7 +602,25 @@ public static class ScreenCaptures
     /// <summary>Gives the level of the flash and shake reduction of a frame of the battle fixture (D-863).</summary>
     /// <param name="frame">The name of the frame.</param>
     /// <returns>The level of a heavy frame, and the default level, full, for every other frame (D-868).</returns>
-    public static EffectLevel LevelOf(string frame) => HeavyLevelOf(frame) ?? EffectLevel.Full;
+    public static EffectLevel LevelOf(string frame) => HeavyLevelOf(frame) ?? SpellLevelOf(frame) ?? EffectLevel.Full;
+
+    /// <summary>Tells whether a frame of the battle fixture shows the flash of a spell (D-1032).</summary>
+    /// <param name="frame">The name of the frame.</param>
+    /// <returns>True for each spell frame.</returns>
+    public static bool StagesSpell(string frame) => SpellLevelOf(frame) is not null;
+
+    private static EffectLevel? SpellLevelOf(string frame)
+    {
+        foreach (LevelFrame spell in SpellFrames)
+        {
+            if (string.CompareOrdinal(spell.Frame, frame) == 0)
+            {
+                return spell.Level;
+            }
+        }
+
+        return null;
+    }
 
     private static EffectLevel? HeavyLevelOf(string frame)
     {

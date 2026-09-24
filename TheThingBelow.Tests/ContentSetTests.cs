@@ -40,12 +40,8 @@ public sealed class ContentSetTests
         """;
 
     private const string StringsBody =
-        """
-        {
-         "comment": "a test table",
-         "strings": [ { "id": "label.lamp", "text": "Tin lamp" }, { "id": "notice.test_kept", "text": "A kept line." }, { "id": "notice.test_plain", "text": "A plain line." } ]
-        }
-        """;
+        """{ "comment": "a test table", "strings": [ { "id": "label.lamp", "text": "Tin lamp" }, """ +
+        TestBattles.LessonStrings + ", " + TestBattles.NoticeStrings + " ] }";
 
     [Fact]
     public void AWellFormedSetLoads()
@@ -53,7 +49,7 @@ public sealed class ContentSetTests
         ContentSet set = ContentSet.Load(Files(Rule("rules/a.json", "fixture.lamp", "label.lamp")));
 
         Assert.Single(set.Palette.Colors);
-        Assert.Equal(3, set.Strings.Count);
+        Assert.Equal(21, set.Strings.Count);
         Assert.Equal(64, set.Hash.Length);
         RuleFixtureEntry entry = Assert.Single(set.RuleEntries);
         Assert.Equal("fixture.lamp", entry.Id.Value);

@@ -60,6 +60,15 @@ public sealed class HitEffect
         }
     }
 
+    /// <summary>Makes the burst of a spell file, which the screen draws as it draws a hit (D-1032). The scene light never falls on it.</summary>
+    /// <param name="file">The path of the spell file.</param>
+    /// <param name="id">The id of the spell effect.</param>
+    /// <param name="serves">The abilities that the spell serves.</param>
+    /// <param name="emitters">The emitters of the burst.</param>
+    /// <returns>The burst.</returns>
+    internal static HitEffect OfSpell(string file, ContentId id, IReadOnlyList<ContentId> serves, IReadOnlyList<ParticleEmitter> emitters) =>
+        new(file, id, serves, false, emitters);
+
     /// <summary>Tells whether a content path is a hit file.</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
     /// <returns>True when the path lies in the folder of the hit files.</returns>

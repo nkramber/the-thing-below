@@ -14,11 +14,13 @@ public static partial class IdentitySet
     /// <summary>The count of ticks that the story run steps.</summary>
     private const int StoryTickCount = 900;
 
-    /// <summary>The flag file of the runs with no story scene. It never changes.</summary>
+    /// <summary>The flag file of the runs with no story scene. PR-12 added the flag of the side aptitude.</summary>
     private const string NoFlagFile = """
     {
-     "comment": "The flag file of the identity runs with no story scene. It declares no flag.",
-     "flags": []
+     "comment": "The flag file of the identity runs with no story scene. It declares the flag of the side aptitude alone, which PR-12 added.",
+     "flags": [
+      { "id": "flag.identity_side", "note": "The side aptitude of each character of the set is open." }
+     ]
     }
     """;
 
@@ -30,7 +32,8 @@ public static partial class IdentitySet
       { "id": "flag.identity_met", "note": "The friend met the hero." },
       { "id": "flag.identity_trust", "note": "The hero trusts the friend." },
       { "id": "flag.identity_doubt", "note": "The hero doubts the friend." },
-      { "id": "flag.identity_fought", "note": "The hero and the friend won the set fight." }
+      { "id": "flag.identity_fought", "note": "The hero and the friend won the set fight." },
+      { "id": "flag.identity_side", "note": "The side aptitude of each character of the set is open." }
      ]
     }
     """;
@@ -211,7 +214,7 @@ public static partial class IdentitySet
     {
         if (state.Battle is not null)
         {
-            return IntentsOfBattleTick(state, turns);
+            return IntentsOfBattleTick(state, turns, 0);
         }
 
         StoryState story = state.Story;

@@ -185,7 +185,7 @@ Area file: `area-progression.md` section 7.7.
 
 **Review focus.**
 
-- A shop can sell a second copy of a lesson, so content plans for copies (D-361, D-365).
+- The player never owns two copies of one lesson. A shop hides an owned lesson, and a chest with an owned lesson gives a fallback item (D-1023, D-1024).
 - No lesson copies itself, so the loot table stays finite (D-45, D-357).
 - The party never gets a license or a stamp, so every rite that it uses breaks the law (D-366).
 

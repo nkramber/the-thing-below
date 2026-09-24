@@ -68,8 +68,8 @@ public static class BattleLayout
     /// <summary>The column of the middle of the back row of the party.</summary>
     public const int PartyBackX = 490;
 
-    /// <summary>The row under the feet of the middle rank of a row.</summary>
-    public const int MiddleFeet = 218;
+    /// <summary>The row under the feet of the middle rank of a row. PR-12 lifted it from 218, so the icons of the lowest rank end above the message line over the two rows of commands (D-1034).</summary>
+    public const int MiddleFeet = 207;
 
     /// <summary>The rows between the feet of two ranks of one lane.</summary>
     public const int RankSpacing = 40;
@@ -125,12 +125,21 @@ public static class BattleLayout
     /// <summary>The timeline strip across the top of the frame (D-111, D-756).</summary>
     public static FrameBox Strip { get; } = StripBox();
 
-    /// <summary>The command menu, at the bottom left of the frame (D-111).</summary>
+    /// <summary>The count of the columns of the command menu: two rows of three hold the six commands (D-1031, D-1034).</summary>
+    public const int CommandColumns = 3;
+
+    /// <summary>The frame pixels between two rows of the command menu.</summary>
+    public const int CommandRowGap = 4;
+
+    /// <summary>The height of the command menu: two lines at the largest body size (D-707, D-1034).</summary>
+    public const int CommandsHeight = (32 * 2) + CommandRowGap + (PanelEdge * 2);
+
+    /// <summary>The command menu, at the bottom left of the frame, in two rows of three (D-111, D-1034).</summary>
     public static FrameBox Commands { get; } = new(
         UiMetrics.EdgePixels,
-        ScreenFit.FrameHeight - UiMetrics.EdgePixels - LineHeight,
+        ScreenFit.FrameHeight - UiMetrics.EdgePixels - CommandsHeight,
         LeftWidth,
-        LineHeight);
+        CommandsHeight);
 
     /// <summary>The message line, above the command menu (D-213).</summary>
     public static FrameBox Message { get; } = new(
