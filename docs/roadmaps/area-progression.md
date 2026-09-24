@@ -74,12 +74,14 @@ Built by PR-67. Phase file: `phase-2-first-playable.md`.
 Built by PR-12. Phase file: `phase-2-first-playable.md`.
 
 - A lesson is a rite or a drill that any character equips to gain an ability (D-272, D-275, D-278).
-- Lesson slots sit on the character, and the slot count grows with the character level (D-356). OQ-137 holds the count at each level.
+- Lesson slots sit on the character, and the slot count grows with the character level (D-356). D-1018 sets the levels.
 - The player swaps lessons at a hub or at a save point, and the load before a dungeon holds for the visit (D-356).
-- Every equipped lesson gains points from each battle won, used or not, and a reserve character gains half (D-357).
+- Every equipped lesson gains points from each battle won, used or not, and a reserve character gains half (D-357). A downed character gains none (D-1022).
+- The points come from the experience of each enemy, with a shrink that reads the lesson level, not the character level (D-1019, D-1020).
+- The points of a lesson stop at the total of its last form (D-1021).
 - Each lesson lists its named forms, and each form names the point total that opens it (D-539). A form is a new ability, not a larger number.
 - The growth belongs to the character, not to the lesson. A lesson passed to a new character starts at its first form for that character, and it resumes where that character left it (D-361).
-- OQ-138 holds the points of a battle, and OQ-139 holds two copies of one lesson in one party.
+- The player never owns two copies of one lesson, and the owned lesson set refuses a second copy (D-1023, D-1024).
 - No lesson ever copies itself, so the loot table stays finite (D-45, D-357).
 
 > *In plain English:* abilities come from rites and drills that anybody can carry. Use one long enough and it opens a stronger form, and that progress belongs to the person who carried it.
@@ -117,7 +119,7 @@ Built by PR-12, PR-16, PR-65, and PR-42. Phase files: `phase-2-first-playable.md
 
 - Three sources give lessons: the treasure of a dungeon, the shops of a hub, and the people of the story (D-365).
 - The old-faith hexer and the fence of the cave community teach or give lessons (D-246, D-365).
-- A shop can sell a second copy of a lesson, so content plans for copies and progress stays with the character (D-361, D-365).
+- More than one source can list a lesson. A shop hides an owned lesson, and a chest with an owned lesson gives a fallback item (D-1024).
 - The party never gets a license or a stamp, so every rite that it uses breaks the law (D-366).
 - PR-42 writes the lessons of region one across the eight kinds, with their icons and their text (D-304, G-20).
 - Every lesson has a place in a dungeon, a hub, or a story scene, and the gate of PR-42 proves it (D-304).
@@ -159,9 +161,9 @@ Built by the content of Phase 4 and later. Phase file: `phase-4-region-one.md`.
 - The death costs the main Mend of region one, and later content must offer lessons that take the place of his (D-270, D-364, D-394).
 - The replacement can share his main aptitude, and its side aptitude differs (D-274, D-303).
 - The save of the prologue carries all five characters, because the death falls after region one (D-163, D-309).
-- A player who loaded Elio heavily loses a large share of the build in one story scene (D-364).
+$1- At a point after his death, a shop sells one copy of each lesson that left with him, behind a condition (D-1025).
 
-> *In plain English:* when Elio dies, everything he carried goes with him. The game has to stay winnable for a player who gave him the best rites.
+> *In plain English:* when Elio dies, everything he carried goes with him. A shop later sells his rites again, so the game stays winnable for a player who gave him the best ones.
 
 ### 7.11 Progression in the tests
 
@@ -182,10 +184,10 @@ Built by PR-67, PR-12, PR-13, and PR-15. Phase files: `phase-2-first-playable.md
 | PR | Rules | Decisions |
 |---|---|---|
 | PR-67 | The character level, the experience, the shrink, MP, and the stat curves | D-34, D-388, D-536, D-537 |
-| PR-12 | The lesson slots, the growth, the forms, and the two aptitudes | D-356 to D-361, D-539 |
+| PR-12 | The lesson slots, the growth, the forms, the owned lesson set, and the two aptitudes | D-356 to D-361, D-539, D-1018 to D-1024 |
 | PR-13 | The six gear slots, the inventory, and the items | D-44, D-45, D-382 |
 | PR-19 | The quest state that holds each personal task | D-282, D-538 |
-| PR-16 and PR-65 | The chests and the shops that give lessons, gear, and items | D-365, D-530 |
+| PR-16 and PR-65 | The chests and the shops that give lessons, gear, and items | D-365, D-530, D-1024 |
 | PR-42 | The lessons of region one, with their icons and their text | D-304 |
 | PR-28 and PR-29 | The content of each personal task | D-352 |
 | PR-90 | The balance harness: a careful bot, a report of each item and lesson, and a night check | D-822 |

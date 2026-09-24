@@ -14,6 +14,12 @@ Game terms from the roadmap interview of 2026-09-12:
 | kind | one of the eight families of ability, written with a capital letter: Mend, Harm, Blight, Boon, Blade, Guard, Shot, Theft (D-281) | school, family, when the text means these eight |
 | main aptitude | the kind that a character does best (D-274) | class, role, specialty |
 | side aptitude | the second kind of a character, which a personal task unlocks (D-282) | side role, side job, subclass |
+| lesson slot | a place on a character that holds one equipped lesson (D-356, D-1018) | socket, materia slot |
+| lesson points | the points of one lesson for one character, from won battles (D-357, D-361, D-1019) | AP, ability points, lesson experience |
+| lesson level | the level that the lesson points reach on the experience table, which the lesson shrink reads (D-1020) | lesson rank, mastery |
+| form | a named ability of a lesson that a point total opens (D-539) | version, tier, rank, when the text means this |
+| owned lesson | a lesson in the pack, or on a character of the party or the reserve (D-1023, D-1024) | party lesson, held lesson |
+| fallback item | the item that a chest gives in place of an owned lesson (D-1024) | substitute, replacement item |
 | lead | the one character whom story scenes center on (D-267) | hero, protagonist, main character |
 | ability | an action that a lesson gives (D-272, D-278) | skill, technique, move |
 | spell | an ability that costs MP (D-42) | magic, cast |
