@@ -1,3 +1,38 @@
+## Session 267: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #72, round 1. Repository: the-thing-below. Branch: `feat/pr-50-screenplay-tool`. PR: #72. Role: reviewer. Base: `d0bb297`.
+
+### What this session did, and why
+
+- Reviewed PR #72 at effective head `396fae9`. The author is Claude Code, so Codex passes the provider gate (T-4, D-17).
+- Traced the screenplay command, batch, text output, body replacement, and base archive flow. No finding.
+- Ran `make verify`; all 2,879 tests and local checks passed. CI implementation checks passed on each platform.
+- Added `docs/reviews/pr-72.md` with `Ready for owner merge` for the effective head.
+
+### The state of the build
+
+- `main` is `d0bb297`. The effective head and remote head before this metadata commit are `396fae9`.
+- CI run `35951520857` passed implementation checks on macOS, Ubuntu, and Windows. Run `35951520861` failed RG 3 because the review record did not exist yet.
+
+### What is in flight
+
+- This metadata commit holds the review record and this handoff entry. A fresh `review-gate` result must pass after publication.
+
+### Traps and gotchas
+
+- The Gitar comment is a free-plan status notice, with no item, so it does not block the verdict (D-964).
+- The user requested `--skip-gitar-review`; no Gitar pass was required (D-945, D-946).
+- Session 257 moved to `docs/session-handoff-archive.md` to keep the 10 newest sessions here.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff together. Fetch, then verify the remote head and the new `review-gate` result.
+
 ## Session 266: 2026-09-24, Claude Code
 
 Author: Claude Code
@@ -320,37 +355,3 @@ None.
 ### The next concrete action
 
 Wait for CI on the baseline commit to finish green except `review-gate`. Read Gitar once under D-945, then run `make codex-review PR=69 -- --skip-gitar-review`.
-
-## Session 257: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #68, round 3. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: #68. Role: reviewer. Base: `3223bcf`.
-
-### What this session did, and why
-
-- Re-reviewed PR #68 at effective head `146f605`. The author added D-964, which says that a Gitar comment with no item needs no answer.
-- Confirmed Claude Code authored the substantive changes. Codex passes the provider gate (T-4, D-17).
-- Read the PR comments. The only Gitar comment is a status notice with no item, so it does not block the verdict (D-964).
-- Ran `make verify`; all 2,524 tests and the local checks passed. CI implementation checks passed. Updated `docs/reviews/pr-68.md` to `Ready for owner merge`.
-
-### The state of the build
-
-- `main` and the PR base are `3223bcf`. The effective head and remote head before this metadata commit are `146f605`.
-- CI run 35923363333 passed the implementation checks. CI run 35923364396 failed RG 5 because the review record named `caaea8f`, not the new effective head `146f605`.
-
-### What is in flight
-
-- This metadata commit holds the review record and this handoff entry. A fresh `review-gate` result must pass after publication.
-
-### Traps and gotchas
-
-- The Gitar status notice has no item and needs no answer under D-964.
-- A new prompt and test change made `146f605` the effective head. The older approval covers only `caaea8f`.
-
-### The questions that block progress
-
-None. OQ-243 is resolved by D-963.
-
-### The next concrete action
-
-Commit and push the review record and handoff together. Fetch, then verify the remote head and the new `review-gate` result.
