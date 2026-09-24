@@ -102,6 +102,10 @@ Nothing in this file is code. Each plan item ships as one pull request.
 
 2026-09-23 Gitar item pass: a Gitar comment with no thread, no finding, and no claim needs no answer. The reviewer ignores it, and the prompt of `make codex-review` says so (D-964). PR-98 holds the rule by an exception to G-8 (D-965).
 
+2026-09-24 lesson pass: two slots at level 1 grow to six by level 30 (D-1018). Each equipped lesson gains the experience of each enemy, and the shrink reads the level of the lesson (D-1019 to D-1022).
+
+The player never owns two copies of one lesson, and D-364 stands for the lessons of Elio (D-1023 to D-1025). A lesson file holds the forms (D-1026, D-1027). The main aptitude gives 2500 basis points, and a side aptitude gives half (D-1028). A cure and a boon join the effects, and each spell has a flash of its own (D-1029 to D-1033). The command menu of a fight takes two rows, and the room of the waiting column falls to 270 art pixels (D-1034, D-1035). PR-12 holds each one.
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
