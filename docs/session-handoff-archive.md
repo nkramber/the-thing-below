@@ -1,5 +1,39 @@
 # Session handoff archive
 
+## Session 261: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #70, round 1. Repository: the-thing-below. Branch: `feat/pr-62-menu-windows`. PR: #70. Role: reviewer. Base: `a929c59`.
+
+### What this session did, and why
+
+- Reviewed PR #70 from merge base `a929c59` through effective head `654b678`.
+- Confirmed Claude Code authored the change, so Codex passes the provider gate (T-4, D-17).
+- Read all changed paths and traced the menu, map, notice, save, replay, and settings contracts. Read all 16 changed screen frames from CI.
+- Added `docs/reviews/pr-70.md` with `Ready for owner merge` for `654b678`. Corrected the Documents row of the PR description.
+
+### The state of the build
+
+- `main` and the PR base are `a929c59`. The effective head and remote head before this metadata commit are `654b678`.
+- `make verify` passed on macOS arm64 with 2,703 tests. CI run 35940703848 passed implementation checks on macOS, Ubuntu, and Windows. Review-gate failed because the review record was absent.
+
+### What is in flight
+
+- This metadata commit holds the review record and this handoff entry. Fresh review-gate and metadata-tip CI checks passed after publication.
+
+### Traps and gotchas
+
+- The Gitar status notice has no item. The review-thread query returned no threads, so D-964 requires no answer.
+- The CI screen artifact has 16 changed frames. All were read for this review (D-733, D-784).
+
+### The questions that block progress
+
+None for PR-70.
+
+### The next concrete action
+
+The review record and handoff are committed and pushed together. The remote head is `2888448`; review-gate and all applicable metadata-tip checks passed.
+
 ## Session 260: 2026-09-24, Claude Code
 
 Author: Claude Code
