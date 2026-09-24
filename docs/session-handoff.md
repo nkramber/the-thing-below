@@ -1,3 +1,38 @@
+## Session 283: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #77, round 2. Repository: the-thing-below. Branch: `docs/pr-100-gitar-resume`. PR: #77 (PR-100). Role: reviewer. Base: `58dadb5`.
+
+### What this session did, and why
+
+- Re-reviewed PR #77 at effective head `066901e` after the author fixed P2-1.
+- Verified that command E reads the Gitar completion time and rejects a check after 900 seconds (D-1074).
+- Checked the current Gitar pass and the CI results. The Gitar dashboard approves the head with no finding (D-964).
+- Updated `docs/reviews/pr-77.md`. It closes P2-1 and gives `Ready for owner merge` for `066901e`.
+
+### The state of the build
+
+- Base and merge base: `58dadb5`. Effective and remote head before this metadata commit: `066901e`.
+- CI run `36071384377` passed build, test, format, smoke, det-lint, replay identity, screen-test, coverage, changed-paths, and STE. Matrix jobs skipped for this documentation change.
+- `review-gate` run `36071381473` failed only because the review record held the prior verdict. It must read this record after publication.
+
+### What is in flight
+
+- This metadata commit holds the repeat review and this entry. Fresh `review-gate` evidence must pass after publication.
+
+### Traps and gotchas
+
+- The review record keeps `Changes required` under `Earlier verdicts` and one current verdict under `Verdict`.
+- Session 273 moves to `docs/session-handoff-archive.md` to keep 10 entries in this file.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and this entry to `docs/pr-100-gitar-resume`. Fetch, confirm the remote head, and read the new `review-gate` result.
+
 ## Session 282: 2026-09-24, Claude Code
 
 Author: Claude Code
@@ -312,40 +347,3 @@ None. The owner has not yet approved the string batch of the PR description (D-5
 ### The next concrete action
 
 Push, confirm the remote head, and run the repeat review. On `approve`, ask the owner to confirm the merge with the summary of D-942.
-
-## Session 273: 2026-09-24, Codex
-
-Author: Codex
-Session: reviewer PR #75, round 1. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: reviewer. Base: `f1ab753`.
-
-### What this session did, and why
-
-- Reviewed PR #75 from merge base `f1ab753` through effective head `26d20cc`.
-- Confirmed Claude Code authored the PR, so Codex passes the provider gate (T-4, D-17).
-- Traced all 84 changed paths across stats, strikes, heals, absorbs, lesson swaps, saves, replay, content, UI, and tests.
-- Read all eight changed screen frames from CI. No visual fault was found (D-731, D-784).
-- Found P2-1: a valid heal can overflow before its health cap.
-- Added `docs/reviews/pr-75.md` with `Changes required` for `26d20cc`.
-- `make verify` passed with 3,152 tests.
-
-### The state of the build
-
-- Base and merge base: `f1ab753`. Effective head and remote head before this metadata commit: `26d20cc`.
-- CI run `36039388273` passed the build, test, and format matrix; smoke on all three legs; det-lint; replay identity on all three legs; coverage; screen-test; and ste-check. `review-gate` failed because the review record was absent.
-
-### What is in flight
-
-- This metadata commit holds the review record and this entry. The author needs to correct P2-1 and request a repeat review.
-
-### Traps and gotchas
-
-- The only Gitar comment says “Gitar is working.” It has no item and needs no answer (D-964). The owner requested `--skip-gitar-review`; the pass was not required (D-946).
-- Maximum valid content values make the intermediate product exceed `long`, but the final heal fits `int`.
-
-### The questions that block progress
-
-None. OQ-247 and OQ-248 resolve in D-1052 and D-1055.
-
-### The next concrete action
-
-Correct P2-1, push the correction with a new handoff entry, then run a repeat review of PR #75.
