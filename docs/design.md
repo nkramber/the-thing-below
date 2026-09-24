@@ -526,7 +526,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 29. PR-67: the character level, the experience, MP, and the stat curves (D-34, D-42, D-536, D-537, D-966 to D-981).
 30. PR-62: the menu windows, the party and status windows, the dungeon map screen, and the notices (D-211, D-558, D-567, D-569, D-982 to D-996).
 31. PR-68: the story scene format and runner, the join step, the flags, and the conditions, before PR-12 (D-541, D-544, D-556, D-563, D-997 to D-1013).
-32. PR-50: the screenplay tool, right after PR-68 (D-173, D-545).
+32. PR-50: the screenplay tool, right after PR-68 (D-173, D-545, D-1014 to D-1017).
 33. PR-12: the lessons, the slots, the forms, and the aptitudes (D-272, D-356, D-539).
 34. PR-13: the six gear slots, the items, and the pack (D-44, D-382).
 35. PR-91: the torch item, right after PR-13 (D-847, D-848).

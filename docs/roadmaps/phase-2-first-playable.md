@@ -1352,27 +1352,32 @@ Area files: `area-tools.md` section 7.10, `area-story.md` section 7.8.
 **Scope.**
 
 - The `screenplay` command, which prints each story scene script as a screenplay with the text of each string id (D-173, G-25).
-- The look-up of a cue in the audio file, because a story scene names no cue (D-548).
-- The attachment of the output to the PR description, where the owner approves the batch (D-57, G-25).
+- The batch: each story scene that the PR changes, against the base content, and each removed story scene file (D-1015).
+- The layout: a heading for each story scene, a number on each step, the speaker names, and the action lines (D-1017).
+- The Screenplay section between two marker lines of a PR body file, which the session sends with `gh` (D-57, D-1016).
+- The `make screenplay` target, which fills the base folder from the base commit with git (D-1015).
 
 **Out of scope.**
 
 - No game code. The tool reads content alone.
+- The look-up of a cue in the audio file (PR-70, D-1014).
 - The audio files themselves (PR-38, PR-70, PR-72).
 
 **Exit tests.**
 
 1. The command prints a fixture scene with each line in the order of the steps.
 2. A story scene that names an absent string id fails with the story scene, the step, and the id.
-3. The output reaches the PR description of a fixture batch.
-4. A cue in an audio file appears beside its line.
+3. The output reaches the PR body file of a fixture batch, and a second run replaces the section (D-1016).
+4. An unchanged story scene stays out of the batch, and a changed string puts its story scene in (D-1015).
+5. A body above 65,536 characters fails with its size and the limit (D-1016).
 
 **Review focus.**
 
 - The tool needs the story scene format and the string table alone, so it lands right after PR-68 (D-545).
+- D-1014 revises D-548 in part, and the PR cites the revision.
 - Every player string follows the `game-text-style` skill (D-63, G-20).
 
-**Questions.** None.
+**Questions.** None. D-1014 to D-1017 answered the gaps of the story scene format of PR-68.
 
 > *In plain English:* a tool prints each story scene in the shape of a film script. The owner reads the story as a story before anybody builds it.
 
@@ -1905,6 +1910,7 @@ Area file: `area-audio.md` sections 7.4 to 7.10.
 - The three battle tracks of a region, and the quiet and the resume after a fight (D-415, D-429).
 - The music that plays on under every in-game menu (D-421).
 - The cue of a story scene, from a small set of mood tracks (D-418, D-548).
+- The cue look-up of the screenplay tool, which prints each cue beside its step (D-1014).
 - The main theme, the four faction themes, and the five character themes of region one (D-419, D-427).
 - The four stings: a wipe, a level up, a victory, and a key find (D-422).
 - The ambience of each map in two layers, and the four kinds of map sound (D-424, D-425, OQ-162, OQ-163, OQ-166).
@@ -1927,6 +1933,7 @@ Area file: `area-audio.md` sections 7.4 to 7.10.
 5. Each of the four stings plays on its event, and no rule waits for a sting (D-522).
 6. A test fails an audio file that names a content id which no content file declares.
 7. A test proves that no rule file names a track, a sting, an ambience, or a sound effect (D-548).
+8. The screenplay tool prints a fixture cue beside its step (D-1014).
 
 **Review focus.**
 

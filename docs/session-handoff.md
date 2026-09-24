@@ -1,3 +1,39 @@
+## Session 266: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR #72, round 1. Repository: the-thing-below. Branch: `feat/pr-50-screenplay-tool`. PR: #72. Role: author. Base: `d0bb297`.
+
+### What this session did, and why
+
+- Asked the owner four gaps that the story scene format of PR-68 leaves for the screenplay, and recorded D-1014 to D-1017. Each answer took the recommendation.
+- D-1014 revises D-548 in part: PR-70 adds the cue look-up, because no audio file format exists before PR-38 and PR-70.
+- Built the `screenplay` command of Tools: the batch against the base folder (D-1015), the layout (D-1017), and the marked section of a PR body file (D-1016).
+- Added `make screenplay BODY=<file>`, which fills the base folder with `git archive` from the merge base.
+- Updated the PR-50 and PR-70 blocks, the tools, story, and audio area files, the design sequence, the glossary, the runbook, and the review contract.
+
+### The state of the build
+
+- `main` is `d0bb297`. The push of this round carries this entry.
+- `make verify` passed on macOS arm64 with 2,879 tests, the smoke session included.
+
+### What is in flight
+
+- PR #72 waits for CI, one read of the Gitar output, and `make codex-review PR=72 -- --skip-gitar-review` (D-945, D-946).
+
+### Traps and gotchas
+
+- No story scene ships in content yet, so a run on this branch prints "No story scene changes".
+- `CLAUDE.md` holds 16,382 of 16,384 bytes. The command of the screenplay lives in `docs/runbooks/dev-machine.md` for that reason.
+- The body count reads UTF-16 units, which is never below the count of GitHub.
+
+### The questions that block progress
+
+None for PR-50.
+
+### The next concrete action
+
+Read the CI result of the pushed head, read the Gitar output one time, then run `make codex-review PR=72 -- --skip-gitar-review` in the background.
+
 ## Session 265: 2026-09-24, Codex
 
 Author: Codex
@@ -318,39 +354,3 @@ None. OQ-243 is resolved by D-963.
 ### The next concrete action
 
 Commit and push the review record and handoff together. Fetch, then verify the remote head and the new `review-gate` result.
-
-## Session 256: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-98, round 3. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: #68. Role: author. Base: `3223bcf`.
-
-### What this session did, and why
-
-- Read the record of Session 255: `Ready for owner merge` for `caaea8f`. The owner stopped the merge first, because the review of round 1 blocked on a Gitar status notice alone.
-- Asked the owner two questions. The owner put a new Gitar rule in PR-98, an exception to G-8 (D-965). The owner chose that neither side acts on a Gitar comment with no item (D-964).
-- D-964: a Gitar item is a review thread, a finding of the dashboard, or a claim of the CI analysis. A comment with no item needs no answer, and the reviewer ignores it. D-14, D-66, D-67, D-944, and D-946 are revised in part.
-- Tools: every prompt of `make codex-review` now holds the D-964 line, with the flag of D-946 or without it. A test reads both forms.
-- Rules: `CLAUDE.md`, `AGENTS.md`, the `pr-review`, `gitar-review`, `one-pr-one-session`, and `ste-writing` skills, `docs/runbooks/merge.md`, the PR template, and `docs/design.md`.
-
-### The state of the build
-
-- `main` is `3223bcf`. The effective head moves with the change of Tools, so the approval of `caaea8f` no longer covers the head.
-- `make build`, `make test` (2524 tests), `make format`, and `make ste-check` passed on macOS arm64.
-
-### What is in flight
-
-- The CI run of this push, then `make codex-review PR=68 -- --skip-gitar-review`.
-- After an approval, the merge question to the owner in four sections (D-942).
-
-### Traps and gotchas
-
-- `CLAUDE.md` and `AGENTS.md` are 16382 bytes, 2 bytes under the limit of 16 KB. A later rule line needs a cut elsewhere.
-- The stopped review of round 2 pushed its approval before the stop. The new head needs a new review.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for CI on the head, read the Gitar output one time, then run `make codex-review PR=68 -- --skip-gitar-review`.

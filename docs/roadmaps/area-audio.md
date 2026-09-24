@@ -168,7 +168,7 @@ Built by PR-70. Phase file: `phase-2-first-playable.md`.
 - An audio file names the content ids that it serves: the maps, the battles, the menus, and the story scenes (D-548).
 - A rule file never names a track, a sting, an ambience, or a sound effect, as D-519 asks for art and D-495 for effects.
 - The cue of a story scene lives in the audio file, keyed by the story scene and the step (D-548). That revises D-418 in part.
-- The screenplay tool of PR-50 looks a cue up to print it beside its line (D-173, G-25).
+- PR-70 adds the look-up of a cue to the screenplay tool of PR-50, which prints the cue beside its step (D-173, D-1014, G-25).
 - A music batch touches no rule file, so it never changes the content hash and never breaks a stored record (D-495).
 - A test fails an audio file that names a content id which no content file declares (T-2).
 
