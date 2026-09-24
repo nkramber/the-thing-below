@@ -226,8 +226,16 @@
    "text": "HP"
   },
   {
+   "id": "battle.stat_mag",
+   "text": "MAG"
+  },
+  {
    "id": "battle.stat_mp",
    "text": "MP"
+  },
+  {
+   "id": "battle.stat_res",
+   "text": "RES"
   },
   {
    "id": "battle.stat_spd",
@@ -422,12 +430,16 @@
    "text": "Gear"
   },
   {
-   "id": "menu.gear_amounts",
-   "text": "ATK {attack} DEF {defense} SPD {speed}"
+   "id": "menu.gear_gain",
+   "text": "+{change}  {value}"
   },
   {
    "id": "menu.gear_help",
    "text": "Left and right show the next one."
+  },
+  {
+   "id": "menu.gear_loss",
+   "text": "-{change}  {value}"
   },
   {
    "id": "menu.gear_pack",
@@ -438,12 +450,12 @@
    "text": "Take it off"
   },
   {
-   "id": "menu.gear_slots",
-   "text": "Slots"
+   "id": "menu.gear_same",
+   "text": "{value}"
   },
   {
-   "id": "menu.gear_stats",
-   "text": "ATK {attack}   DEF {defense}   SPD {speed}"
+   "id": "menu.gear_slots",
+   "text": "Slots"
   },
   {
    "id": "menu.item_count",
@@ -486,12 +498,8 @@
    "text": "Full"
   },
   {
-   "id": "menu.lesson_help_away",
-   "text": "Lessons change hands at a waystone or in town."
-  },
-  {
-   "id": "menu.lesson_help_here",
-   "text": "Lessons change hands here."
+   "id": "menu.lesson_help",
+   "text": "Lessons change hands anywhere but a fight."
   },
   {
    "id": "menu.lesson_pack",

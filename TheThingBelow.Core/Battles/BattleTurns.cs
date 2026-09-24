@@ -449,11 +449,11 @@ public static class BattleTurns
                 StatusChance? status = strike.Status is StatusChance given
                     ? given with { Chance = LessonRules.RaisedChance(given.Chance, rate, context) }
                     : null;
-                BattleMove move = new(strike.Delay, BasisPoints.Apply(strike.Power, rate, context), strike.Element, status);
+                BattleMove move = new(strike.Delay, BasisPoints.Apply(strike.Power, rate, context), strike.Stat, strike.Element, status);
                 Strike(state, battle, actor, move, aimed, strike.Reach, context, log);
                 break;
             case HealAbility heal:
-                Heal(state, battle, actor, heal with { Heal = BasisPoints.Apply(heal.Heal, rate, context) }, aimed, context);
+                Heal(state, battle, actor, heal, rate, aimed, context);
                 break;
             case CureAbility cure:
                 Cure(state, battle, actor, cure, aimed, context);
@@ -701,11 +701,11 @@ public static class BattleTurns
                 Strike(state, battle, enemy, BattleMove.BasicAttack(content.Rules), EnemyTargetOf(action, context), AbilityReach.Melee, context, log);
                 break;
             case EnemyActionKind.Ability when action.Ability is StrikeAbility strike:
-                BattleMove move = new(strike.Delay, strike.Power, strike.Element, strike.Status);
+                BattleMove move = new(strike.Delay, strike.Power, strike.Stat, strike.Element, strike.Status);
                 Strike(state, battle, enemy, move, EnemyTargetOf(action, context), strike.Reach, context, log);
                 break;
             case EnemyActionKind.Ability when action.Ability is HealAbility heal:
-                Heal(state, battle, enemy, heal, EnemyTargetOf(action, context), context);
+                Heal(state, battle, enemy, heal, BasisPoints.One, EnemyTargetOf(action, context), context);
                 break;
             case EnemyActionKind.Defend:
                 Defend(state, enemy, context);
@@ -734,8 +734,11 @@ public static class BattleTurns
         PushBack(actor, state.BattleContent.Rules.StepDelay, context);
     }
 
-    /// <summary>A heal of an ally on the field, up to its full health. A heal never misses (D-955).</summary>
-    private static void Heal(RunState state, Battle battle, Combatant healer, HealAbility heal, BattleTarget aimed, RunContext context)
+    /// <summary>
+    /// A heal of an ally on the field, up to its full health. A heal never misses, and it draws
+    /// the hit factor on the battle stream (D-955, D-1057, D-1058).
+    /// </summary>
+    private static void Heal(RunState state, Battle battle, Combatant healer, HealAbility heal, int rate, BattleTarget aimed, RunContext context)
     {
         Combatant target = battle.At(aimed, context);
         if (aimed.Side != healer.Side || target.Place != CombatantPlace.Field)
@@ -745,7 +748,10 @@ public static class BattleTurns
                 context);
         }
 
-        int restored = Math.Min(heal.Heal, target.FullHealth - target.Health);
+        BattleRules rules = state.BattleContent.Rules;
+        int factor = state.Stream(StreamId.Battle).NextInt(rules.HitLow, rules.HitHigh, context);
+        int amount = BattleMath.HealAmount(heal, healer.Magic, rate, factor, context);
+        int restored = Math.Min(amount, target.FullHealth - target.Health);
         target.Health += restored;
         state.AddEvent(new BattleEvent(BattleEventKind.Heal, healer.Target, target.Target, restored));
         PushBack(healer, heal.Delay, context);
@@ -788,12 +794,12 @@ public static class BattleTurns
         else
         {
             int factor = stream.NextInt(rules.HitLow, rules.HitHigh, context);
-            long hit = BattleMath.Hit(attacker, target, move.Power, factor);
+            long hit = BattleMath.Hit(attacker, target, move.Stat, move.Power, factor);
             Affinity affinity = move.Element is Element element ? target.Elements.Of(element) : Affinity.Normal;
             if (affinity == Affinity.Absorb)
             {
-                // D-795 and D-809: an absorb heals the hit times the absorb rate, and no cut applies.
-                int heal = BattleMath.ToHealth(hit * rules.AbsorbRate / BasisPoints.One, context);
+                // D-795, D-809, and D-1055: an absorb heals the hit times the absorb rate, and no cut applies.
+                int heal = BattleMath.AbsorbHeal(rules, hit, context);
                 int restored = Math.Min(heal, target.FullHealth - target.Health);
                 target.Health += restored;
                 state.AddEvent(new BattleEvent(BattleEventKind.Absorb, attacker.Target, target.Target, restored, null, affinity));

@@ -9,9 +9,9 @@ namespace TheThingBelow.Tests;
 internal static partial class SnapshotLines
 {
     /// <summary>
-    /// Drops the fields that save format 10 and 11 added: the lessons of each character, the
-    /// lesson pack, and the swap place (D-1018, D-1024, D-1030), then the gear of each character,
-    /// the gold, and the steals of a fight (D-1038, D-1043, D-1045). A test of an older reader
+    /// Drops the fields that save format 10 and 11 added: the lessons of each character and the
+    /// lesson pack (D-1018, D-1024), then the gear of each character, the gold, and the steals of
+    /// a fight (D-1038, D-1043, D-1045). Format 12 dropped the swap place of format 10 (D-1050). A test of an older reader
     /// then reaches the field that it reads.
     /// </summary>
     /// <param name="line">A snapshot line of this build, whose pack holds items alone.</param>
@@ -29,7 +29,7 @@ internal static partial class SnapshotLines
     [GeneratedRegex(""","lessons":\{"slot_count":\d+,"slots":\[[^\]]*\],"points":\[[^\]]*\]\}""")]
     private static partial Regex CharacterLessons();
 
-    [GeneratedRegex(""","lesson_pack":\[[^\]]*\],"swap_place":(true|false)""")]
+    [GeneratedRegex(""","lesson_pack":\[[^\]]*\]""")]
     private static partial Regex PartyLessons();
 
     [GeneratedRegex(""","gear":\[[^\]]*\]""")]

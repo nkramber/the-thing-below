@@ -29,7 +29,7 @@
  "steal_gear_third": 2500,
  "weak_rate": 15000,
  "resist_rate": 5000,
- "absorb_rate": 10000,
+ "absorb_rate": 2500,
  "poison_share": 500,
  "bleed_share": 1000,
  "bleed_ticks": 300,

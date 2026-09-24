@@ -126,7 +126,7 @@ public static class ScreenCaptures
     /// <summary>The frame of the menu fixture with the lesson window over the main list: the aptitudes and the slots (D-1033).</summary>
     public const string MenuLessonsFrame = "lessons-1x";
 
-    /// <summary>The frame of the menu fixture with the list of a swap at a swap place, which the debug command marks (D-1030).</summary>
+    /// <summary>The frame of the menu fixture with the list of a swap, which works anywhere outside a fight (D-1050).</summary>
     public const string MenuLessonsSwapFrame = "lessons-swap-1x";
 
     /// <summary>The frame of the menu fixture with the gear window over the main list: the stats and the six slots, with each empty slot (D-44, exit test 2 of PR-13).</summary>

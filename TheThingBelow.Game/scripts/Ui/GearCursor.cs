@@ -114,6 +114,26 @@ public sealed class GearCursor
         return false;
     }
 
+    /// <summary>
+    /// Gives the stats of the character with the entry under the cursor in the chosen slot, for
+    /// the line that compares it with the worn gear. In the slot stage, and on the piece that the
+    /// slot holds, the stats equal the worn stats (D-1036, D-1052).
+    /// </summary>
+    /// <returns>The stats with the trial piece, or with the slot empty for the entry that empties it.</returns>
+    public StatRow TrialStats()
+    {
+        PartyMember member = this.Member;
+        GearList gear = this.state.BattleContent.Gear;
+        if (this.Stage == GearStage.Slot)
+        {
+            return member.StatsWith(gear);
+        }
+
+        var trial = new List<ContentId?>(member.Gear);
+        trial[this.Slot] = this.pack[this.Cursor];
+        return GearRules.StatsOf(member.Stats, trial, gear);
+    }
+
     /// <summary>Tells whether the rules take one entry of the pack stage in the chosen slot (D-1048).</summary>
     /// <param name="entry">The entry of the pack stage.</param>
     /// <returns>True when the change is legal.</returns>

@@ -39,6 +39,8 @@ namespace TheThingBelow.Tests;
 /// each character its start lessons at zero points and the lesson pack of the fixture (D-1018,
 /// D-1030). Format 10 and older predate the gear, and the migration gives each character the
 /// start gear of the fixture, the party no gold, and a fight no steal try (D-1038, D-1043, D-1045).
+/// Format 10 and 11 hold the swap place, and the read drops it, because a swap of lessons needs no
+/// place (D-1050).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
@@ -430,7 +432,7 @@ public sealed class SaveFixtureTests
     }
 
     [Fact]
-    public void TheStoredSaveOfFormatTenHoldsTheLessonsThePointsThePackAndTheSwapPlace()
+    public void TheStoredSaveOfFormatTenHoldsTheLessonsThePointsAndThePackAndDropsTheSwapPlace()
     {
         // PR-12 wrote format 10 after one fight won and a swap at a swap place: the salve took the
         // second slot of Marrek, and the cinder went to the end of the lesson pack (D-361, D-1030).
@@ -444,7 +446,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(
             ["lesson.fixture_purge", "lesson.fixture_rot", "lesson.fixture_quicken", "lesson.fixture_bolt", "lesson.fixture_cinder"],
             Values(run.State.Characters.LessonPack));
-        Assert.True(run.State.Characters.AtSwapPlace);
+        Assert.DoesNotContain("swap_place", RunSnapshotText.Write(run.Snapshot()), StringComparison.Ordinal);
         Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Characters = WithGear(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) }), RunSnapshotText.Write(run.Snapshot()));
     }
 
@@ -472,7 +474,28 @@ public sealed class SaveFixtureTests
         // The fight reads the gear: the blade adds 5 to attack, and the ring resists fire (D-1036, D-1037).
         Combatant fighter = battle.Party[0];
         Assert.Equal(TestBattles.MarrekAt(1).Attack + 5, fighter.Attack);
+
+        // Exit test 4 of PR-99: format 11 holds no magic and no resistance, and each takes its
+        // value from the curve of the tests (D-1052, G-5).
+        Assert.Equal((TestBattles.MarrekAt(1).Magic, TestBattles.MarrekAt(1).Resistance), (fighter.Magic, fighter.Resistance));
         Assert.Equal(Affinity.Resist, fighter.Elements.Of(Element.Fire));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatTwelveHoldsNoSwapPlaceAndReadsTheSevenStatsFromTheCurve()
+    {
+        // PR-99 wrote format 12 from the save of format 11: the same fight, with no swap place
+        // (D-1050). The snapshot holds no stat, so the fight reads each stat from the curve and
+        // the gear (D-1052, G-5).
+        SaveDocument save = ReadFormat(12);
+        Simulation run = ResumeInBattle(save);
+
+        Assert.Equal(24, save.Header.SimulationVersion);
+        Assert.DoesNotContain("swap_place", RunSnapshotText.Write(save.Snapshot), StringComparison.Ordinal);
+        Combatant fighter = BattleRuns.BattleOf(run).Party[0];
+        StatRow curve = TestBattles.MarrekAt(1);
+        Assert.Equal((curve.Attack + 5, curve.Magic, curve.Defense, curve.Resistance), (fighter.Attack, fighter.Magic, fighter.Defense, fighter.Resistance));
         Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
     }
 
@@ -503,7 +526,6 @@ public sealed class SaveFixtureTests
         PartyState party = run.State.Characters;
         Assert.Equal(["lesson.fixture_hew", "lesson.fixture_cinder"], [party.Members[0].Slots[0]?.Value, party.Members[0].Slots[1]?.Value]);
         Assert.Equal(Values(TestBattles.Content.Fixture.LessonPack), Values(party.LessonPack));
-        Assert.False(party.AtSwapPlace);
     }
 
     private static ContentId Lesson(string name) => ContentId.Parse($"lesson.fixture_{name}", "test", "lesson");
@@ -522,8 +544,7 @@ public sealed class SaveFixtureTests
     /// <summary>
     /// Gives the party of a save of format 9 or older as the migration of format 11 gives it:
     /// each character with the slots of its level and its start lessons at zero points, the
-    /// lesson pack of the fixture, no swap place, no gear, and no gold (D-166, D-1018, D-1030,
-    /// D-1038, D-1043).
+    /// lesson pack of the fixture, no gear, and no gold (D-166, D-1018, D-1038, D-1043).
     /// </summary>
     private static PartySnapshot? MigratedParty(PartySnapshot? party)
     {
@@ -556,7 +577,7 @@ public sealed class SaveFixtureTests
             characters.Add(stored with { Lessons = new LessonValues(slots, [.. points.Values]) });
         }
 
-        return WithGear(party with { Characters = characters, LessonPack = content.Fixture.LessonPack, AtSwapPlace = false });
+        return WithGear(party with { Characters = characters, LessonPack = content.Fixture.LessonPack });
     }
 
     /// <summary>

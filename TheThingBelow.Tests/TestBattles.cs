@@ -48,7 +48,7 @@ internal static class TestBattles
      "steal_gear_third": 2500,
      "weak_rate": 15000,
      "resist_rate": 5000,
-     "absorb_rate": 10000,
+     "absorb_rate": 2500,
      "poison_share": 500,
      "bleed_share": 1000,
      "bleed_ticks": 300,
@@ -79,8 +79,8 @@ internal static class TestBattles
      "comment": "The battle fixture of the tests.",
      "characters": [
       { "id": "character.marrek", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.test_marrek_side", "curve": {{MarrekCurve()}} },
-      { "id": "character.test_second", "row": "front", "join_level": 1, "main_aptitude": "harm", "side_aptitude": "mend", "side_flag": "flag.test_second_side", "curve": {{StatCurve.FlatText(new StatRow(50, 12, 10, 3, 110))}} },
-      { "id": "character.test_third", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "boon", "side_flag": "flag.test_third_side", "curve": {{StatCurve.FlatText(new StatRow(40, 16, 8, 2, 120))}} }
+      { "id": "character.test_second", "row": "front", "join_level": 1, "main_aptitude": "harm", "side_aptitude": "mend", "side_flag": "flag.test_second_side", "curve": {{StatCurve.FlatText(new StatRow(50, 12, 10, 10, 3, 3, 110))}} },
+      { "id": "character.test_third", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "boon", "side_flag": "flag.test_third_side", "curve": {{StatCurve.FlatText(new StatRow(40, 16, 8, 8, 2, 2, 120))}} }
      ],
      "start_party": ["character.marrek"],
      "pack": [{ "item": "item.fixture_draught", "count": 3 }],
@@ -218,13 +218,13 @@ internal static class TestBattles
     {
      "comment": "The gear file of the tests.",
      "gear": [
-      { "id": "gear.test_blade", "slot": "weapon", "limit": 2, "attack": 5, "defense": 0, "speed": -3, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.test_shield", "slot": "off_hand", "limit": 1, "attack": 0, "defense": 3, "speed": 0, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.test_helm", "slot": "head", "limit": 1, "attack": 0, "defense": 1, "speed": 0, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.test_mail", "slot": "body", "limit": 1, "attack": 0, "defense": 4, "speed": -99, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.test_resist_ring", "slot": "accessory", "limit": 3, "attack": 0, "defense": 0, "speed": 0, "elements": { "fire": "resist", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.test_absorb_ring", "slot": "accessory", "limit": 3, "attack": 0, "defense": 0, "speed": 0, "elements": { "fire": "absorb", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.test_weak_charm", "slot": "accessory", "limit": 3, "attack": 1, "defense": 0, "speed": 2, "elements": { "fire": "weak", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } }
+      { "id": "gear.test_blade", "slot": "weapon", "limit": 2, "attack": 5, "magic": 0, "defense": 0, "resistance": 0, "speed": -3, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_shield", "slot": "off_hand", "limit": 1, "attack": 0, "magic": 0, "defense": 3, "resistance": 0, "speed": 0, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_helm", "slot": "head", "limit": 1, "attack": 0, "magic": 0, "defense": 1, "resistance": 0, "speed": 0, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_mail", "slot": "body", "limit": 1, "attack": 0, "magic": 0, "defense": 4, "resistance": 0, "speed": -99, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_resist_ring", "slot": "accessory", "limit": 3, "attack": 0, "magic": 0, "defense": 0, "resistance": 0, "speed": 0, "elements": { "fire": "resist", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_absorb_ring", "slot": "accessory", "limit": 3, "attack": 0, "magic": 0, "defense": 0, "resistance": 0, "speed": 0, "elements": { "fire": "absorb", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_weak_charm", "slot": "accessory", "limit": 3, "attack": 1, "magic": 2, "defense": 0, "resistance": -1, "speed": 2, "elements": { "fire": "weak", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } }
      ]
     }
     """;
@@ -242,7 +242,9 @@ internal static class TestBattles
      "experience": 6,
      "health": 30,
      "attack": 8,
+     "magic": 8,
      "defense": 2,
+     "resistance": 2,
      "speed": 90,
      "abilities": [],
      "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
@@ -260,7 +262,9 @@ internal static class TestBattles
      "experience": 20,
      "health": 80,
      "attack": 14,
+     "magic": 14,
      "defense": 6,
+     "resistance": 6,
      "speed": 80,
      "abilities": ["ability.fixture_bash"],
      "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
@@ -277,18 +281,18 @@ internal static class TestBattles
     {
      "comment": "The ability file of the tests.",
      "abilities": [
-      { "id": "ability.fixture_bash", "kind": "strike", "delay": 100, "power": 5000, "element": "none", "reach": "melee", "status": "none" },
-      { "id": "ability.test_mend", "kind": "heal", "delay": 100, "heal": 20 },
-      { "id": "ability.test_shot", "kind": "strike", "delay": 100, "power": 15000, "element": "none", "reach": "any", "status": "none" },
-      { "id": "ability.fixture_hew", "kind": "strike", "delay": 110, "power": 15000, "element": "none", "reach": "melee", "status": "none" },
-      { "id": "ability.fixture_cleave", "kind": "strike", "delay": 120, "power": 20000, "element": "none", "reach": "melee", "status": "none" },
-      { "id": "ability.fixture_cinder", "kind": "strike", "delay": 120, "power": 14000, "element": "fire", "reach": "any", "status": "none" },
-      { "id": "ability.fixture_blaze", "kind": "strike", "delay": 140, "power": 22000, "element": "fire", "reach": "any", "status": "none" },
-      { "id": "ability.fixture_rot", "kind": "strike", "delay": 110, "power": 5000, "element": "none", "reach": "any", "status": "poison", "chance": 6000 },
-      { "id": "ability.fixture_salve", "kind": "heal", "delay": 120, "heal": 30 },
+      { "id": "ability.fixture_bash", "kind": "strike", "delay": 100, "power": 5000, "stat": "attack", "element": "none", "reach": "melee", "status": "none" },
+      { "id": "ability.test_mend", "kind": "heal", "delay": 100, "base": 20, "power": 1 },
+      { "id": "ability.test_shot", "kind": "strike", "delay": 100, "power": 15000, "stat": "attack", "element": "none", "reach": "any", "status": "none" },
+      { "id": "ability.fixture_hew", "kind": "strike", "delay": 110, "power": 15000, "stat": "attack", "element": "none", "reach": "melee", "status": "none" },
+      { "id": "ability.fixture_cleave", "kind": "strike", "delay": 120, "power": 20000, "stat": "attack", "element": "none", "reach": "melee", "status": "none" },
+      { "id": "ability.fixture_cinder", "kind": "strike", "delay": 120, "power": 14000, "stat": "magic", "element": "fire", "reach": "any", "status": "none" },
+      { "id": "ability.fixture_blaze", "kind": "strike", "delay": 140, "power": 22000, "stat": "magic", "element": "fire", "reach": "any", "status": "none" },
+      { "id": "ability.fixture_rot", "kind": "strike", "delay": 110, "power": 5000, "stat": "magic", "element": "none", "reach": "any", "status": "poison", "chance": 6000 },
+      { "id": "ability.fixture_salve", "kind": "heal", "delay": 120, "base": 30, "power": 1 },
       { "id": "ability.fixture_purge", "kind": "cure", "delay": 100, "statuses": ["poison", "blind", "silence"] },
       { "id": "ability.fixture_quicken", "kind": "boon", "delay": 100, "status": "haste" },
-      { "id": "ability.fixture_bolt", "kind": "strike", "delay": 100, "power": 12000, "element": "none", "reach": "any", "status": "none" },
+      { "id": "ability.fixture_bolt", "kind": "strike", "delay": 100, "power": 12000, "stat": "magic", "element": "none", "reach": "any", "status": "none" },
       { "id": "ability.test_pilfer", "kind": "steal", "delay": 100 }
      ]
     }
@@ -565,12 +569,14 @@ internal static class TestBattles
 
     /// <summary>
     /// Gives the stats of Marrek at one level, with the numbers of D-977. Level 1 holds the
-    /// stats of D-777, so each fight test of level 1 keeps its numbers.
+    /// stats of D-777, so each fight test of level 1 keeps its numbers. The magic equals the
+    /// attack and the resistance equals the defense, so a magic strike of the tests deals the
+    /// damage of a physical strike. `StatSetTests` sets the two apart (D-1052, D-1053).
     /// </summary>
     /// <param name="level">The level, from 1 to 40.</param>
     /// <returns>The row.</returns>
     public static StatRow MarrekAt(int level) =>
-        new(60 + (6 * (level - 1)), 8 + (2 * (level - 1)), 12 + (level - 1), 4 + (level / 2), 100 + (level / 4));
+        new(60 + (6 * (level - 1)), 8 + (2 * (level - 1)), 12 + (level - 1), 12 + (level - 1), 4 + (level / 2), 4 + (level / 2), 100 + (level / 4));
 
     /// <summary>Gives the total experience of one level in the rules of the tests: 10 x n x (n - 1) (D-977).</summary>
     /// <param name="level">The level, from 1 to 40.</param>
@@ -583,7 +589,7 @@ internal static class TestBattles
         for (int level = 1; level <= StatCurve.HighestLevel; level += 1)
         {
             StatRow row = MarrekAt(level);
-            rows.Add($"{{ \"level\": {level}, \"health\": {row.Health}, \"mp\": {row.Mp}, \"attack\": {row.Attack}, \"defense\": {row.Defense}, \"speed\": {row.Speed} }}");
+            rows.Add($"{{ \"level\": {level}, \"health\": {row.Health}, \"mp\": {row.Mp}, \"attack\": {row.Attack}, \"magic\": {row.Magic}, \"defense\": {row.Defense}, \"resistance\": {row.Resistance}, \"speed\": {row.Speed} }}");
         }
 
         return $"[{string.Join(", ", rows)}]";

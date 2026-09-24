@@ -37,13 +37,13 @@ public enum SlotUse
 
 /// <summary>
 /// The cursor of the lesson window: the character, the slot, and the lists of a swap and of a
-/// cast from the menu (D-356, D-391, D-1027, D-1030). A move of the cursor makes no intent, and
+/// cast from the menu (D-356, D-391, D-1027, D-1050). A move of the cursor makes no intent, and
 /// a whole choice makes one, so the record holds the choice alone (D-493).
 /// </summary>
 /// <remarks>
 /// The window reads each answer from the rules: the swap from the refusal of the party state,
 /// and the cast from the refusal of the lesson rules. No rule lives here (D-100). A slot with a
-/// heal or a cure at a swap place offers both uses. This type holds no Godot value, so a test
+/// heal or a cure offers both uses (D-1050). This type holds no Godot value, so a test
 /// reads it with no engine (D-614).
 /// </remarks>
 public sealed class LessonCursor
@@ -141,7 +141,7 @@ public sealed class LessonCursor
         this.Cursor = entry;
     }
 
-    /// <summary>Gives the uses of a slot that the rules take now: a cast of an opened heal or cure, and a swap at a swap place (D-391, D-1030).</summary>
+    /// <summary>Gives the uses of a slot that the rules take now: a cast of an opened heal or cure, and a swap anywhere outside a fight (D-391, D-1050).</summary>
     /// <param name="slot">The lesson slot.</param>
     /// <returns>The uses, a cast first.</returns>
     public IReadOnlyList<SlotUse> UsesOf(int slot)

@@ -518,13 +518,6 @@ public sealed partial class CaptureSession : Node
             }
         }
 
-        // The debug command marks a swap place, and the next tick applies it (D-1030).
-        if (string.CompareOrdinal(frame, ScreenCaptures.MenuLessonsSwapFrame) == 0)
-        {
-            _ = DebugSeam.Run("swap", () => open.State, open.Queue, () => false);
-            this.RunTicks(open, 1);
-        }
-
         if (string.CompareOrdinal(frame, ScreenCaptures.MenuLogFrame) == 0)
         {
             for (int notice = 0; notice < ScreenCaptures.LogFrameNotices; notice += 1)
@@ -596,7 +589,7 @@ public sealed partial class CaptureSession : Node
                 }
             }
 
-            _ = new GearView(built, @base, open.State, cursor);
+            _ = new GearView(built, @base, this.content.Strings, open.State, cursor);
         }
         else if (string.CompareOrdinal(frame, ScreenCaptures.MenuItemsFrame) == 0)
         {

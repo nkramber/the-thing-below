@@ -37,7 +37,7 @@ public sealed class DebugConsoleTests
     /// <summary>The ids of the two notice commands, which post a notice that logs and one that does not (D-989).</summary>
     private static readonly string[] NoticeIds = ["debug.notice_logged", "debug.notice_plain"];
 
-    // PR-12 added the command that marks a swap place of lessons (D-1030).
+    // PR-12 added the command that marked a swap place of lessons, and PR-99 removed it (D-1030, D-1050).
     private const string SwapId = "debug.swap_place";
 
     /// <summary>The seed of the runs of these tests.</summary>
@@ -53,11 +53,9 @@ public sealed class DebugConsoleTests
         // a debug handler (D-260, D-492).
         DebugIntentHandlers handlers = DebugAssemblyFile.Handlers();
 
-        Assert.Equal(3 + BattleIds.Length + NoticeIds.Length, handlers.Count);
+        Assert.Equal(2 + BattleIds.Length + NoticeIds.Length, handlers.Count);
         Assert.True(handlers.TryFind(Id(RevealId), out DebugIntentHandler? found));
         Assert.NotNull(found);
-        Assert.True(handlers.TryFind(Id(SwapId), out DebugIntentHandler? swap));
-        Assert.NotNull(swap);
         foreach (string battleId in BattleIds)
         {
             Assert.True(handlers.TryFind(Id(battleId), out DebugIntentHandler? battle), $"No handler takes '{battleId}'.");
@@ -106,17 +104,12 @@ public sealed class DebugConsoleTests
     }
 
     [Fact]
-    public void TheSwapIntentMarksASwapPlaceUntilTheNextStepOfTheLead()
+    public void NoHandlerTakesTheSwapPlaceIntent()
     {
-        // D-1030: the command marks a swap place before PR-14 and PR-16, and a step leaves it.
-        Simulation run = Start();
-        Assert.False(run.State.Characters.AtSwapPlace);
+        // D-1050: a swap of lessons needs no place, so the console marks none.
+        DebugIntentHandlers handlers = DebugAssemblyFile.Handlers();
 
-        run.Step([Intent.OfDebugConsole(Id(SwapId))]);
-        Assert.True(run.State.Characters.AtSwapPlace);
-
-        run.Step([Intent.OfPlayer(IntentIds.MoveSouth)]);
-        Assert.False(run.State.Characters.AtSwapPlace);
+        Assert.False(handlers.TryFind(Id(SwapId), out _));
     }
 
     [Fact]
@@ -394,7 +387,8 @@ public sealed class DebugConsoleTests
             Assert.True(names.Add(name), $"Two commands take the name '{name}' (T-2).");
         }
 
-        Assert.Equal(15, names.Count);
+        // PR-99 removed the `swap` command (D-1050).
+        Assert.Equal(14, names.Count);
     }
 
     private static Simulation Start() =>

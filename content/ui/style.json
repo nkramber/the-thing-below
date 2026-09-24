@@ -1,5 +1,5 @@
 {
- "comment": "The look of every menu, panel, and label, and the colors of the health bar, the MP bar, and the hit flash of the battle screen (D-527, D-826, D-829, D-976). Game builds the Godot Theme from this file at load, and no theme resource file exists (G-6). Each color names a palette key of content/sprites/palette.json, so the screen keeps one palette (D-89, D-181). The player picks the body size, and the title is title_scale times the body (D-707). A notice slides in, holds, and fades over the ticks of the notice object, which count the ticks of the world (D-994, D-995). The map colors paint the dungeon map screen: a walked tile, a door, a save point, and the party (D-567, D-982).",
+ "comment": "The look of every menu, panel, and label, and the colors of the health bar, the MP bar, and the hit flash of the battle screen (D-527, D-826, D-829, D-976). Game builds the Godot Theme from this file at load, and no theme resource file exists (G-6). Each color names a palette key of content/sprites/palette.json, so the screen keeps one palette (D-89, D-181). The player picks the body size, and the title is title_scale times the body (D-707). A notice slides in, holds, and fades over the ticks of the notice object, which count the ticks of the world (D-994, D-995). The map colors paint the dungeon map screen: a walked tile, a door, a save point, and the party (D-567, D-982). The gain and the loss color the stats of a piece of gear under the cursor of the gear window (D-1060).",
  "small_body": 24,
  "large_body": 32,
  "title_scale": 2,
@@ -13,6 +13,8 @@
   { "role": "text_dim", "key": "l" },
   { "role": "text_chosen", "key": "y" },
   { "role": "text_warning", "key": "x" },
+  { "role": "text_gain", "key": "v" },
+  { "role": "text_loss", "key": "x" },
   { "role": "cursor", "key": "y" },
   { "role": "bar_border", "key": "k" },
   { "role": "bar_empty", "key": "d" },

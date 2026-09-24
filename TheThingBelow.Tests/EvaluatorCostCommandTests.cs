@@ -19,14 +19,15 @@ public sealed class EvaluatorCostCommandTests
     [Fact]
     public void TheCommandReportsTheActionsAndTheTimesOfTheTurns()
     {
-        // Exit test 6 of PR-11: the count of legal actions and the time of a turn.
+        // Exit test 6 of PR-11: the count of legal actions and the time of a turn. The cost fight of PR-99
+        // reaches a turn of 15 legal actions after 80 turns (D-1057).
         using StringWriter output = new();
         using StringWriter errors = new();
 
-        int exitCode = Program.Run([EvaluatorCostCommand.Name, "--root", RepositoryRoot.Find(), "--turns", "40"], output, errors);
+        int exitCode = Program.Run([EvaluatorCostCommand.Name, "--root", RepositoryRoot.Find(), "--turns", "100"], output, errors);
 
         string report = output.ToString();
-        Assert.Contains("40 enemy turns of six enemies against three characters", report, StringComparison.Ordinal);
+        Assert.Contains("100 enemy turns of six enemies against three characters", report, StringComparison.Ordinal);
         Assert.Contains("legal actions of one turn: 15 at most", report, StringComparison.Ordinal);
         Assert.Contains("95th percentile", report, StringComparison.Ordinal);
         Assert.True(

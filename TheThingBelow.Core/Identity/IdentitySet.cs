@@ -286,7 +286,9 @@ public static partial class IdentitySet
      "experience": 8,
      "health": 30,
      "attack": 5,
+     "magic": 8,
      "defense": 3,
+     "resistance": 4,
      "speed": 95,
      "abilities": ["ability.identity_mend"],
      "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
@@ -382,7 +384,9 @@ public static partial class IdentitySet
      "experience": 6,
      "health": 20,
      "attack": 6,
+     "magic": 2,
      "defense": 2,
+     "resistance": 1,
      "speed": 90,
      "abilities": [],
      "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" },
@@ -400,7 +404,9 @@ public static partial class IdentitySet
      "experience": 15,
      "health": 45,
      "attack": 11,
+     "magic": 4,
      "defense": 5,
+     "resistance": 2,
      "speed": 80,
      "abilities": ["ability.identity_strike"],
      "elements": { "fire": "weak", "ice": "resist", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "absorb" },
@@ -423,9 +429,9 @@ public static partial class IdentitySet
     {
      "comment": "The gear file of the identity set. PR-13 added it.",
      "gear": [
-      { "id": "gear.identity_blade", "slot": "weapon", "limit": 1, "attack": 3, "defense": 0, "speed": -2, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.identity_ring", "slot": "accessory", "limit": 1, "attack": 0, "defense": 1, "speed": 0, "elements": { "fire": "resist", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.identity_charm", "slot": "accessory", "limit": 1, "attack": 0, "defense": 0, "speed": 4, "elements": { "fire": "weak", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } }
+      { "id": "gear.identity_blade", "slot": "weapon", "limit": 1, "attack": 3, "magic": 0, "defense": 0, "resistance": 0, "speed": -2, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.identity_ring", "slot": "accessory", "limit": 1, "attack": 0, "magic": 0, "defense": 1, "resistance": 2, "speed": 0, "elements": { "fire": "resist", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.identity_charm", "slot": "accessory", "limit": 1, "attack": 0, "magic": 2, "defense": 0, "resistance": 0, "speed": 4, "elements": { "fire": "weak", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } }
      ]
     }
     """;
@@ -444,11 +450,11 @@ public static partial class IdentitySet
     /// <summary>The ability file of this set (D-785). PR-80 added it, and it never changes.</summary>
     private const string AbilityFile = """
     {
-     "comment": "The ability file of the identity set. PR-11 gave each ability its effect and added the mend. PR-12 gave the strike its status field and added the moves of the lessons, and PR-13 added the steal.",
+     "comment": "The ability file of the identity set. PR-11 gave each ability its effect and added the mend. PR-12 gave the strike its status field and added the moves of the lessons, PR-13 added the steal, and PR-99 added the stat of a strike and the base and the power of a heal.",
      "abilities": [
-      { "id": "ability.identity_strike", "kind": "strike", "delay": 120, "power": 14000, "element": "fire", "reach": "any", "status": "none" },
-      { "id": "ability.identity_mend", "kind": "heal", "delay": 100, "heal": 18 },
-      { "id": "ability.identity_blast", "kind": "strike", "delay": 130, "power": 20000, "element": "fire", "reach": "any", "status": "poison", "chance": 5000 },
+      { "id": "ability.identity_strike", "kind": "strike", "delay": 120, "power": 14000, "stat": "magic", "element": "fire", "reach": "any", "status": "none" },
+      { "id": "ability.identity_mend", "kind": "heal", "delay": 100, "base": 12, "power": 5000 },
+      { "id": "ability.identity_blast", "kind": "strike", "delay": 130, "power": 20000, "stat": "magic", "element": "fire", "reach": "any", "status": "poison", "chance": 5000 },
       { "id": "ability.identity_purge", "kind": "cure", "delay": 90, "statuses": ["poison", "blind", "silence"] },
       { "id": "ability.identity_haste", "kind": "boon", "delay": 90, "status": "haste" },
       { "id": "ability.identity_pilfer", "kind": "steal", "delay": 100 }
@@ -509,7 +515,7 @@ public static partial class IdentitySet
      "steal_gear_third": 2500,
      "weak_rate": 15000,
      "resist_rate": 5000,
-     "absorb_rate": 10000,
+     "absorb_rate": 2500,
      "poison_share": 500,
      "bleed_share": 1000,
      "bleed_ticks": 300,
@@ -537,10 +543,10 @@ public static partial class IdentitySet
     /// </summary>
     private static readonly string BattleFixtureFile = $$"""
     {
-     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, PR-11 moved its groups to the group file, PR-68 added the friend who joins in the story run, PR-12 added the aptitudes, the start lessons, and the lesson pack, and PR-13 moved the item to the item file and added the gear.",
+     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, PR-11 moved its groups to the group file, PR-68 added the friend who joins in the story run, PR-12 added the aptitudes, the start lessons, and the lesson pack, PR-13 moved the item to the item file and added the gear, and PR-99 added the magic and the resistance.",
      "characters": [
-      { "id": "character.identity_hero", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(90, 20, 14, 4, 100))}} },
-      { "id": "character.identity_friend", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "harm", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(70, 30, 10, 3, 110))}} }
+      { "id": "character.identity_hero", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(90, 20, 14, 6, 4, 3, 100))}} },
+      { "id": "character.identity_friend", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "harm", "side_flag": "flag.identity_side", "curve": {{StatCurve.FlatText(new StatRow(70, 30, 10, 14, 3, 6, 110))}} }
      ],
      "start_party": ["character.identity_hero"],
      "pack": [{ "item": "item.identity_draught", "count": 9 }, { "gear": "gear.identity_charm", "count": 1 }],
@@ -1004,35 +1010,35 @@ public static partial class IdentitySet
         {
             case 0:
                 BattleTurns.GiveStatus(state, self, StatusKind.Regen, context);
-                BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Fire, new StatusChance(StatusKind.Poison, 10000)), aimed, context, log);
+                BattleTurns.StrikeWith(state, new BattleMove(attack, power, StrikeStat.Magic, Element.Fire, new StatusChance(StatusKind.Poison, 10000)), aimed, context, log);
                 break;
             case 1:
-                BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Ice, new StatusChance(StatusKind.Sleep, 6000)), aimed, context, log);
+                BattleTurns.StrikeWith(state, new BattleMove(attack, power, StrikeStat.Magic, Element.Ice, new StatusChance(StatusKind.Sleep, 6000)), aimed, context, log);
                 break;
             case 2:
                 BattleTurns.GiveStatus(state, self, StatusKind.Haste, context);
-                BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Dark, new StatusChance(StatusKind.Bleed, 8000)), aimed, context, log);
+                BattleTurns.StrikeWith(state, new BattleMove(attack, power, StrikeStat.Magic, Element.Dark, new StatusChance(StatusKind.Bleed, 8000)), aimed, context, log);
                 break;
             case 3:
                 BattleTurns.GiveStatus(state, self, StatusKind.Shell, context);
                 BattleTurns.GiveStatus(state, aimed, StatusKind.Slow, context);
-                BattleTurns.StrikeWith(state, new BattleMove(160, power, null, new StatusChance(StatusKind.Stun, 10000)), aimed, context, log);
+                BattleTurns.StrikeWith(state, new BattleMove(160, power, StrikeStat.Attack, null, new StatusChance(StatusKind.Stun, 10000)), aimed, context, log);
                 break;
             case 4:
                 BattleTurns.GiveStatus(state, self, StatusKind.Blind, context);
                 BattleTurns.GiveStatus(state, aimed, StatusKind.Haste, context);
-                BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Holy, new StatusChance(StatusKind.Stun, 10000)), aimed, context, log);
+                BattleTurns.StrikeWith(state, new BattleMove(attack, power, StrikeStat.Magic, Element.Holy, new StatusChance(StatusKind.Stun, 10000)), aimed, context, log);
                 break;
             case 5:
                 BattleTurns.GiveStatus(state, self, StatusKind.Silence, context);
-                BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Lightning, null), aimed, context, log);
+                BattleTurns.StrikeWith(state, new BattleMove(attack, power, StrikeStat.Magic, Element.Lightning, null), aimed, context, log);
                 break;
             case 6:
                 BattleTurns.GiveStatus(state, self, StatusKind.Poison, context);
                 BattleTurns.StrikeWith(state, BattleMove.BasicAttack(state.BattleContent.Rules), aimed, context, log);
                 break;
             default:
-                BattleTurns.StrikeWith(state, new BattleMove(attack, power, Element.Water, new StatusChance(StatusKind.Sleep, 10000)), aimed, context, log);
+                BattleTurns.StrikeWith(state, new BattleMove(attack, power, StrikeStat.Magic, Element.Water, new StatusChance(StatusKind.Sleep, 10000)), aimed, context, log);
                 break;
         }
     }

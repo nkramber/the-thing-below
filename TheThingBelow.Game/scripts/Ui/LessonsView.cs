@@ -292,7 +292,7 @@ public sealed class LessonsView : IMenuView
             : new Entry(BattleMessages.NameIdOf(held), Values(), Id("menu.lesson_points"), Values(("points", Number(points)), ("next", Number(record.Forms[opened].Points))), allowed);
     }
 
-    /// <summary>Gives the last line: the description of the form under the cursor, or where a swap works (D-1027, D-1030).</summary>
+    /// <summary>Gives the last line: the description of the form under the cursor, or where a swap works (D-1027, D-1050).</summary>
     private ContentId HelpId()
     {
         if (this.Cursor.Stage == LessonStage.Form)
@@ -300,7 +300,7 @@ public sealed class LessonsView : IMenuView
             return this.Cursor.Forms[this.Cursor.Cursor].Description;
         }
 
-        return this.state.Characters.AtSwapPlace ? Id("menu.lesson_help_here") : Id("menu.lesson_help_away");
+        return Id("menu.lesson_help");
     }
 
     private ViewOutcome ReadEvent(InputEvent signal, ScreenFit fit)

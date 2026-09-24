@@ -171,7 +171,7 @@ public sealed class PartyMember
 
     /// <summary>
     /// Puts a lesson in a slot, and starts its points at zero when the character never carried
-    /// it (D-361). The party state checks the swap place and the owned set first.
+    /// it (D-361). The party state checks the owned set first.
     /// </summary>
     /// <param name="slot">The slot index, which the party state checked.</param>
     /// <param name="lesson">The lesson, or no value to empty the slot.</param>
@@ -266,12 +266,11 @@ public sealed class PartyState
     private readonly List<ContentId> lessonPack;
     private PartyMember[] members;
 
-    private PartyState(PartyMember[] members, SortedDictionary<string, PackValues> pack, List<ContentId> lessonPack, bool atSwapPlace, int gold)
+    private PartyState(PartyMember[] members, SortedDictionary<string, PackValues> pack, List<ContentId> lessonPack, int gold)
     {
         this.members = members;
         this.pack = pack;
         this.lessonPack = lessonPack;
-        this.AtSwapPlace = atSwapPlace;
         this.Gold = gold;
     }
 
@@ -300,13 +299,6 @@ public sealed class PartyState
     public IReadOnlyList<ContentId> LessonPack => this.lessonPack;
 
     /// <summary>
-    /// True while the party stands at a swap place: a hub or a save point, where a swap of
-    /// lessons is legal (D-356, D-1030). PR-14 and PR-16 mark the places, and a debug command
-    /// marks one. A step of the lead leaves the place.
-    /// </summary>
-    public bool AtSwapPlace { get; private set; }
-
-    /// <summary>
     /// Starts the party of a new run: the start party of the fixture at full health, the start
     /// pack, the start gear, the start lessons, the lesson pack, and no gold (D-336, D-765,
     /// D-1030, D-1038, D-1043).
@@ -332,7 +324,7 @@ public sealed class PartyState
             pack.Add(entry.Id.Value, new PackValues(entry.Id, entry.Count));
         }
 
-        return new PartyState([.. members], pack, new List<ContentId>(content.Fixture.LessonPack), false, 0);
+        return new PartyState([.. members], pack, new List<ContentId>(content.Fixture.LessonPack), 0);
     }
 
     /// <summary>Puts the party back from the values of a snapshot (D-166, D-765).</summary>
@@ -350,14 +342,12 @@ public sealed class PartyState
     /// each start lesson one time (D-1023).
     /// </remarks>
     /// <param name="lessonPack">The stored lesson pack, or no value for a snapshot of save format 9 or older.</param>
-    /// <param name="atSwapPlace">True when the party stood at a swap place (D-1030).</param>
     /// <param name="gold">The stored gold, or no value for a snapshot of save format 10 or older, which starts at zero (D-1043).</param>
     public static PartyState Resume(
         BattleContent content,
         IReadOnlyList<CharacterValues> characters,
         IReadOnlyList<PackValues> pack,
         IReadOnlyList<ContentId>? lessonPack,
-        bool atSwapPlace,
         int? gold,
         string source)
     {
@@ -431,7 +421,7 @@ public sealed class PartyState
             Refuse(!content.Lessons.Holds(lesson), source, $"the lesson pack holds '{lesson.Value}', which the lesson file lacks (D-1026)");
         }
 
-        var party = new PartyState([.. members], items, owned, atSwapPlace, gold ?? 0);
+        var party = new PartyState([.. members], items, owned, gold ?? 0);
         party.CheckOneCopy(source);
         party.CheckStackLimits(content, source);
         return party;
@@ -487,20 +477,15 @@ public sealed class PartyState
 
     /// <summary>
     /// Gives the reason that the rules refuse a swap of lessons now, or no value when the swap
-    /// is legal (D-356, D-1030). A swap puts a lesson of the lesson pack in a slot, or empties a
-    /// slot. The lesson window reads it to show each legal swap (T-2).
+    /// is legal. A swap puts a lesson of the lesson pack in a slot, or empties a slot, anywhere
+    /// outside a fight (D-356, D-1050). The lesson window reads it to show each legal swap (T-2).
     /// </summary>
     /// <param name="character">The slot of the character in the party.</param>
     /// <param name="slot">The lesson slot of the character.</param>
     /// <param name="lesson">The lesson of the lesson pack, or no value to empty the slot.</param>
-    /// <returns>The reason, such as `no swap place`, or no value.</returns>
+    /// <returns>The reason, such as a lesson that the lesson pack does not hold, or no value.</returns>
     public string? RefusalOfSwap(int character, int slot, ContentId? lesson)
     {
-        if (!this.AtSwapPlace)
-        {
-            return "a swap of lessons outside a swap place, and a swap needs a hub or a save point (D-356, D-1030)";
-        }
-
         if (character < 0 || character >= this.members.Length)
         {
             return $"the character slot {character}, and the party holds the slots 0 to {this.members.Length - 1}";
@@ -527,7 +512,7 @@ public sealed class PartyState
 
     /// <summary>
     /// Swaps the lesson of one slot: the lesson of the lesson pack goes in, and the lesson of
-    /// the slot goes to the end of the lesson pack (D-356, D-1030). The points of each lesson
+    /// the slot goes to the end of the lesson pack (D-356, D-1050). The points of each lesson
     /// stay with the character (D-361).
     /// </summary>
     /// <param name="character">The slot of the character in the party.</param>
@@ -571,12 +556,6 @@ public sealed class PartyState
 
         return -1;
     }
-
-    /// <summary>Marks the place of the party as a swap place (D-1030). PR-14 calls it at a hub, PR-16 at a save point, and a debug command anywhere.</summary>
-    public void MarkSwapPlace() => this.AtSwapPlace = true;
-
-    /// <summary>Leaves the swap place. The world rules call it at each step of the lead (D-1030).</summary>
-    public void LeaveSwapPlace() => this.AtSwapPlace = false;
 
     /// <summary>Gives a copy of the lesson pack for a snapshot (D-1024).</summary>
     /// <returns>A new list, which a later swap never changes.</returns>
@@ -825,8 +804,6 @@ public sealed class PartyState
         {
             hasher.AddText(lesson.Value);
         }
-
-        hasher.AddInt32(this.AtSwapPlace ? 1 : 0);
     }
 
     /// <summary>

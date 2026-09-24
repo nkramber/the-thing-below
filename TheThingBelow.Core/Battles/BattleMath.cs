@@ -3,9 +3,10 @@ using System;
 namespace TheThingBelow.Core.Battles;
 
 /// <summary>
-/// The numbers of one strike: the miss chance, the hit, and the damage (D-771 to D-773,
-/// D-779, D-806, D-809). The rules of a turn and the evaluator both read them, so a score
-/// and a blow never disagree on a number (D-959).
+/// The numbers of one strike and one heal: the miss chance, the hit, the damage, the heal of
+/// an absorb, and the heal of an ability (D-771 to D-773, D-779, D-806, D-809, D-1055,
+/// D-1057). The rules of a turn and the evaluator both read them, so a score and a blow never
+/// disagree on a number (D-959).
 /// </summary>
 internal static class BattleMath
 {
@@ -31,19 +32,59 @@ internal static class BattleMath
 
     /// <summary>
     /// Gives the hit of D-771 and D-772: the attack times the power, times 100 over 100 plus
-    /// the defense, times the hit factor, with no rate and no floor yet.
+    /// the defense, times the hit factor, with no rate and no floor yet. A magic hit reads the
+    /// magic and the resistance in place of the attack and the defense (D-1053).
     /// </summary>
     /// <param name="attacker">The combatant that strikes.</param>
     /// <param name="target">The combatant that the strike hits.</param>
+    /// <param name="stat">The stats that the move reads (D-1053).</param>
     /// <param name="power">The power of the move, in basis points.</param>
     /// <param name="factor">The hit factor, in basis points (D-772).</param>
     /// <returns>The hit.</returns>
-    internal static long Hit(Combatant attacker, Combatant target, int power, int factor)
+    internal static long Hit(Combatant attacker, Combatant target, StrikeStat stat, int power, int factor)
     {
+        int strength = stat == StrikeStat.Magic ? attacker.Magic : attacker.Attack;
+        int guard = stat == StrikeStat.Magic ? target.Resistance : target.Defense;
+
         // Each factor is at most 100000, so the product stays inside a `long` (T-2).
-        long numerator = checked((long)attacker.Attack * power * 100 * factor);
-        long denominator = checked((long)BasisPoints.One * (100 + target.Defense) * BasisPoints.One);
+        long numerator = checked((long)strength * power * 100 * factor);
+        long denominator = checked((long)BasisPoints.One * (100 + guard) * BasisPoints.One);
         return numerator / denominator;
+    }
+
+    /// <summary>
+    /// Gives the heal of an absorbed hit: the hit times the absorb rate, rounded down, and at
+    /// least 1 (D-795, D-1055). The caller holds the heal to the health that the target lacks.
+    /// </summary>
+    /// <param name="rules">The rules.</param>
+    /// <param name="hit">The hit of <see cref="Hit"/>.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <returns>The heal.</returns>
+    /// <exception cref="SimulationException">The heal passes an `int` (T-2).</exception>
+    internal static int AbsorbHeal(BattleRules rules, long hit, RunContext context)
+    {
+        long heal = checked(hit * rules.AbsorbRate) / BasisPoints.One;
+        return heal < 1 ? 1 : ToHealth(heal, context);
+    }
+
+    /// <summary>
+    /// Gives the amount of a heal ability: the base plus the magic of the caster times the
+    /// power, then the aptitude rate and the hit factor, rounded down, and at least 1 (D-1028,
+    /// D-1057, D-1058). The caller holds the heal to the health that the target lacks.
+    /// </summary>
+    /// <param name="heal">The heal ability.</param>
+    /// <param name="magic">The magic of the caster.</param>
+    /// <param name="rate">The aptitude rate of the caster, in basis points: 10000 plus the bonus of D-1028, or 10000 for an enemy.</param>
+    /// <param name="factor">The hit factor, in basis points (D-772).</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <returns>The heal.</returns>
+    /// <exception cref="SimulationException">The heal passes an `int` (T-2).</exception>
+    internal static int HealAmount(HealAbility heal, int magic, int rate, int factor, RunContext context)
+    {
+        // One division at the end, so no step rounds down before the next (D-169).
+        long share = checked(((long)heal.Base * BasisPoints.One) + ((long)magic * heal.Power));
+        long amount = checked(share * rate * factor) / ((long)BasisPoints.One * BasisPoints.One * BasisPoints.One);
+        return amount < 1 ? 1 : ToHealth(amount, context);
     }
 
     /// <summary>

@@ -85,6 +85,40 @@ public sealed class MenuLayoutTests
         }
     }
 
+    [Theory]
+    [InlineData(24)]
+    [InlineData(32)]
+    public void EachLineOfTheStatusSheetFitsTheHeightOfTheWindow(int body)
+    {
+        // D-1056: the sheet gained MAG and RES, and each line still stands above the bottom edge.
+        int title = body * Content.Value.Style.TitleScale;
+        int sheet = (int)GameValue.StaticProperty("StatusView", "SheetLines")!;
+        int room = (int)GameValue.Static(Layout, "LogLines", body, title)!;
+
+        Assert.True(sheet <= room, $"The status sheet holds {sheet} lines, and the window holds {room} at a body of {body}.");
+    }
+
+    [Theory]
+    [InlineData(24)]
+    [InlineData(32)]
+    public void EachCellOfTheStatsOfTheGearWindowFitsAtTheHighestValues(int body)
+    {
+        // D-1060: a cell holds a stat of 999 with its name, or a change of 99 with the stat.
+        int fits = (int)GameValue.Static("GearView", "StatCellCharacters", body)!;
+        string[] cells =
+        [
+            Fill("menu.stat", "stat", Text(Id("battle.stat_res")), "value", "999"),
+            Fill("menu.gear_gain", "change", "99", "value", "999"),
+            Fill("menu.gear_loss", "change", "99", "value", "999"),
+            Fill("menu.gear_same", "value", "999"),
+        ];
+
+        foreach (string cell in cells)
+        {
+            Assert.True(cell.Length < fits, $"The cell '{cell}' fills the {fits} characters of a cell at a body of {body}, and the next cell needs a gap.");
+        }
+    }
+
     [Fact]
     public void EachWordOfTheKeyOfTheMapFitsItsPlace()
     {

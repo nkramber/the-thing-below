@@ -1,3 +1,39 @@
+## Session 272: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-99, round 1. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: PR-99 before its number. Role: author. Base: `f1ab753`.
+
+### What this session did, and why
+
+- Asked OQ-247, OQ-248, and each question of the scope. D-1052 to D-1060 hold the answers. D-356, D-979, and D-1041 carry the revisions in their Effect column.
+- Core: seven stats. A strike field sets attack against defense or magic against resistance. A heal is a base plus a share of magic, and it rolls the hit factor. An absorb heals a quarter of the hit, at least 1.
+- The swap place, its debug command, and its snapshot field are gone. Save format 12 drops the field, and formats 10 and 11 check it and drop it. The simulation version is 24.
+- Game: MAG and RES in the status window and the level-up lines. The gear window shows a line of trial stats in grey, green, and red.
+- Content, the test fixture, the identity file, the content hash, and `TheThingBelow.Tests/saves/format-12.json` follow. `StatSetTests` proves the new rules.
+
+### The state of the build
+
+- `make verify` parts ran on this machine: build, 3,152 tests green, format, det-lint, STE, and smoke.
+- Frames read one at a time from `artifacts/captures`: the gear window in both stages, the status window, both lesson frames, and the level-up rise. Each reads right.
+
+### What is in flight
+
+- The screen-test baselines of the gear, status, and lesson frames change. The CI artifact gives the new baselines (D-731).
+
+### Traps and gotchas
+
+- `make sheet` captures each frame, then fails to join them: the sheet is 76,628 pixels high, and PNG holds 65,535. This PR adds no frame, so the fault comes from an earlier frame count.
+- The test fixture sets magic to attack and resistance to defense, so the old damage numbers hold. `StatSetTests` sets them apart.
+- The gear sum of the tests: the weak charm now adds 2 magic and costs 1 resistance.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, open the PR, read the CI result, and commit the screen-test baselines from the artifact. Then read Gitar one time, and run `make codex-review PR=<n> -- --skip-gitar-review` (D-945, D-946).
+
 ## Session 271: 2026-09-24, Codex
 
 Author: Codex
@@ -316,41 +352,3 @@ None.
 ### The next concrete action
 
 Correct P2-1, publish the correction, and start a repeat review of PR #71.
-
-## Session 262: 2026-09-24, Claude Code
-
-Author: Claude Code
-Session: author PR #71, round 1. Repository: the-thing-below. Branch: `feat/pr-68-story-scenes`. PR: #71. Role: author. Base: `31f172e`.
-
-### What this session did, and why
-
-- Asked the owner OQ-144 to OQ-149 and nine rules of the runner, and recorded D-997 to D-1013. The owner chose the tree form of a condition against the recommendation (D-1001), and added the pause of D-1009.
-- Built the story scene format, the runner in Core, the flag file, the condition tree, the four trigger kinds of a map, the scene battle, and the join (D-540, D-563).
-- The snapshot gained the story state. Save format 9 and simulation version 21 hold it, with a fixture save of format 9 and a story run in the identity set.
-- Added the tests of the ten exit tests of PR-68, the seed loop of one thousand seeds included.
-- Moved the fire of the talk trigger and the NPC actor to PR-14, the pause screen to PR-36, and the step condition to PR-18 (D-1005, D-1007, D-1010).
-
-### The state of the build
-
-- `main` is `31f172e`. The branch head before this entry is `f8868ae`, and the push of this round carries this entry.
-- `make verify` passed on macOS arm64 with 2,851 tests, the smoke session included.
-
-### What is in flight
-
-- PR #71 waits for CI, one read of the Gitar output, and `make codex-review PR=71 -- --skip-gitar-review` (D-945, D-946).
-
-### Traps and gotchas
-
-- A move intent on the tick of an arrival chains the next step. A bot script moves only while the lead stands.
-- No story scene ships in content. Game draws no step before PR-36, so a trigger in the fixture dungeon stops the smoke session.
-- The battle of a start battle step names its story scene in the enemy field of the battle. The encounter code of Game reads a patrol, so PR-36 draws that battle start.
-- The word actor alone names the combatant of a turn. The glossary term is story scene actor.
-- The map field `triggers` is required. A test map needs `"triggers": []`.
-
-### The questions that block progress
-
-None for PR-68.
-
-### The next concrete action
-
-Read the CI result of the pushed head, read the Gitar output one time, then run `make codex-review PR=71 -- --skip-gitar-review` in the background.

@@ -61,7 +61,9 @@ public static class SummaryLines
         AddGain(lines, strings, "battle.stat_hp", after.Health - before.Health);
         AddGain(lines, strings, "battle.stat_mp", after.Mp - before.Mp);
         AddGain(lines, strings, "battle.stat_atk", after.Attack - before.Attack);
+        AddGain(lines, strings, "battle.stat_mag", after.Magic - before.Magic);
         AddGain(lines, strings, "battle.stat_def", after.Defense - before.Defense);
+        AddGain(lines, strings, "battle.stat_res", after.Resistance - before.Resistance);
         AddGain(lines, strings, "battle.stat_spd", after.Speed - before.Speed);
         return lines;
     }
