@@ -1,3 +1,39 @@
+## Session 278: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-91, round 1. Repository: the-thing-below. Branch: `feat/pr-91-torch-item`. PR: PR-91, the GitHub number follows the open. Role: author. Base: `15aad83`.
+
+### What this session did, and why
+
+- Asked the owner OQ-217, OQ-218, and each open question of the scope. D-1062 to D-1071 record the answers, and OQ-217 and OQ-218 close.
+- Core: the `dark` field of each map file, the sight of the party on a dark map, the torch bonus of each patrol, the torch intents, the torch state in the save of format 13, and simulation version 25.
+- Game: the `torch` action on the T key and the Y button, with the settings file at format 3. The torch in the hand, the carried light that follows the torch, and `SightFade` for each enemy of a dark map.
+- The console lost its `torch` command (D-1071). The identity set gained the `torch` run.
+- The author read the frames of `make walk`, the pit fixture, and the settings fixture on this machine.
+
+### The state of the build
+
+- Local head before this entry: `04fa13c`. `make verify` parts passed on this machine: build, 3197 tests, format, lint, STE, identity, content, atlas, and smoke.
+- The screen baselines change: the map is dark, and the pit fixture gains `pit-torch-1x`. CI writes the new baselines.
+
+### What is in flight
+
+- The first push, the open of the PR, and the read of the captures of the `screen-test` job.
+
+### Traps and gotchas
+
+- `make sheet` with no fixture writes every capture and then fails in the join of the sheet: the joined picture passes the height limit of 65535 pixels. Take one fixture at a time with `FIXTURE=`.
+- `make sheet` clears `artifacts/captures` on each run.
+- A Perl substitution with `|` as its delimiter reads an escaped `\|\|` in its pattern as an empty choice. Use another delimiter.
+
+### The questions that block progress
+
+None. OQ-246 stays open and blocks no PR.
+
+### The next concrete action
+
+Push the branch, open the PR, and read the `screen-test` job. Commit the new baselines from its artifact after a read of each changed frame.
+
 ## Session 277: 2026-09-24, Codex
 
 Author: Codex
@@ -310,40 +346,3 @@ None for PR-12. OQ-245 blocks PR-42 only. OQ-246 blocks no PR.
 ### The next concrete action
 
 Fetch the branch, verify the pushed metadata head and the fresh `review-gate` result, then report the review verdict for PR #73.
-
-## Session 268: 2026-09-24, Claude Code
-
-Author: Claude Code
-Session: author PR #73, round 1. Repository: the-thing-below. Branch: `feat/pr-12-lessons`. PR: #73. Role: author. Base: `5f1164c`.
-
-### What this session did, and why
-
-- Asked OQ-137 to OQ-139 and 13 follow-up questions. D-1018 to D-1035 record each answer, and OQ-245 holds the Guard effect.
-- Core: the lesson file, the eight kinds, the cure and the boon, the slots, the owned lesson set, the swap place, the lesson points with the lesson-level shrink, the aptitude bonus, the lesson use, and the cast from the menu. Save format 10 and simulation version 22.
-- Game: the Lessons command with its lesson and form lists, the command menu in two rows of three, the lesson window, and the flash of each spell at three levels.
-- Tests: 3,010, with the lesson rules, the cursor, the spells, format 10, and the `lessons` identity run.
-
-### The state of the build
-
-- `main` is `5f1164c`. The branch holds the docs, the code, and this entry.
-- CI run 36002016629 at `6a0d8d3` passed smoke, det-lint, replay identity, and STE on each leg. The tests failed on the seven missing baselines alone. The next commit adds 35 reviewed baselines from its `screen-captures` artifact.
-
-### What is in flight
-
-- `scroll-09.png` differed by one level in 592 pixels of a dim band in two CI runs, with the same bytes. The local renderer draws it the same on `main` and on this branch, and no map code changed. The PR takes the CI frame as its baseline (D-733). The next run found one-level differences in `map-fire-1x` and `battle-spell-full-1x` too, and a rerun of that commit passed. OQ-246 holds the flake.
-- The Codex review through `make codex-review PR=73 -- --skip-gitar-review` (D-945, D-946).
-
-### Traps and gotchas
-
-- The 1080-row captures fail on a screen shorter than 1080 rows. For a local `make sheet`, drop them from a copy of the capture list and put the file back.
-- `ContentId` compares by reference. Compare `Value` with an ordinal comparison.
-- A spread of an `IReadOnlyList` into an array makes Core call `System.Linq`, and the reference test fails.
-- The test lessons take the checkout ids, so a checkout run replays on the test content.
-
-### The questions that block progress
-
-None. OQ-245 blocks PR-42, and OQ-246 blocks no PR.
-
-### The next concrete action
-
-When CI is green but for the review gate, run `make codex-review PR=73 -- --skip-gitar-review`. The Gitar comment so far is a status notice with no item (D-964).
