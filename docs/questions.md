@@ -800,3 +800,6 @@ How to file a question (D-19, D-24):
 244. **OQ-244. The level that the shrink reads.** The experience of an enemy shrinks as the party outlevels it (D-388, D-968). Which level does the shrink compare with the level of the enemy? Raised 2026-09-23. Blocks PR-67. Resolved 2026-09-23: D-969 takes the second option.
     - The average level of the characters on the field at the start of the fight, the recommendation. It follows the words of D-388, and it keeps the drift of D-73. A late character gets less than the second option gives.
     - The level of each character. A character who falls behind catches up faster. It narrows the drift of D-73, and the summary shows a different shrink for each character.
+245. **OQ-245. The protect effect of a Guard drill.** A Guard drill protects allies (D-281). PR-12 adds a cure and a boon, and no effect protects an ally (D-1029). What does a Guard drill do in a battle, and which PR builds it? Raised 2026-09-24. Blocks PR-42.
+    - A cover, the recommendation. The holder takes each melee strike that lands on a chosen ally until the next turn of the holder. The rule reads the row of D-377, and the balance pass reads the damage that the holder takes.
+    - A shield on one ally. The holder gives the shell status of D-798 to one ally. It needs no new rule, but the Guard drill then does the work of a Boon rite.

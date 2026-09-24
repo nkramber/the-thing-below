@@ -79,7 +79,7 @@ Built by PR-12. Phase file: `phase-2-first-playable.md`.
 - Every equipped lesson gains points from each battle won, used or not, and a reserve character gains half (D-357). A downed character gains none (D-1022).
 - The points come from the experience of each enemy, with a shrink that reads the lesson level, not the character level (D-1019, D-1020).
 - The points of a lesson stop at the total of its last form (D-1021).
-- Each lesson lists its named forms, and each form names the point total that opens it (D-539). A form is a new ability, not a larger number.
+- Each lesson lists its named forms, and each form names the point total that opens it (D-539). A form is a new ability, not a larger number. The lesson file holds each lesson, and a character keeps each opened form (D-1026, D-1027).
 - The growth belongs to the character, not to the lesson. A lesson passed to a new character starts at its first form for that character, and it resumes where that character left it (D-361).
 - The player never owns two copies of one lesson, and the owned lesson set refuses a second copy (D-1023, D-1024).
 - No lesson ever copies itself, so the loot table stays finite (D-45, D-357).
@@ -93,7 +93,7 @@ Built by PR-12. Phase file: `phase-2-first-playable.md`.
 - Eight kinds cover every ability: Mend, Harm, Blight, Boon, Blade, Guard, Shot, and Theft (D-281).
 - Each character has one main aptitude, and no two characters share one. A replacement can share the main aptitude of the character who died (D-274, D-303).
 - A lesson of the kind of the aptitude works better, by a bonus in basis points (D-358).
-- A side aptitude gives half that bonus (D-360).
+- A side aptitude gives half that bonus (D-360). D-1028 sets the size of the bonus.
 - Any character uses any lesson, and the right character uses it best (D-274, D-358).
 - The eight kinds all reach region one, across the five characters (D-293).
 

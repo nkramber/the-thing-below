@@ -1388,28 +1388,30 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 **Scope.**
 
 - The lesson, a rite or a drill that any character equips to gain an ability (D-272, D-275, D-278).
-- The fields of a lesson on each entry of the ability file of PR-80, with the same ids (D-785).
+- The lesson file, with the name, the aptitude kind, and the forms of each lesson. Each form names an ability id of PR-80 (D-785, D-1026).
 - The lesson slots on the character: two at level 1, and one more at each level of the rules file (D-356, D-1018).
-- The swap of lessons at a hub and at a save point, which holds for the dungeon visit (D-356).
+- The swap of lessons at a swap place alone, which holds for the dungeon visit. PR-14 and PR-16 mark the places, and a debug command marks one (D-356, D-1030).
 - The points of each equipped lesson from a won battle: the experience of each enemy, with a shrink that reads the lesson level (D-357, D-1019, D-1020).
 - The half of a reserve character, no points for a downed character, and the stop at the last form (D-357, D-1021, D-1022).
-- The named forms of each lesson, and the point total that opens each form (D-539).
+- The named forms of each lesson, and the point total that opens each form. A character keeps each opened form (D-539, D-1027).
+- The cure and the boon effects of the ability file (D-1029).
 - The growth that belongs to the character, not to the lesson (D-361).
 - The owned lesson set, which holds one copy of each lesson and refuses a second copy with an error (D-1023, D-1024).
-- The eight kinds, the main aptitude of each character, and the bonus of a lesson of that kind, in basis points (D-274, D-281, D-358, D-791).
+- The eight kinds, the main aptitude of each character, and the bonus of a lesson of that kind, in basis points (D-274, D-281, D-358, D-791, D-1028).
 - The half bonus of a side aptitude, which reads the same table (D-360, D-791).
-- The side aptitude behind a story flag of PR-68, with an empty mark in the menu before the unlock (D-282, D-283, D-538, D-556).
+- The side aptitude behind a story flag of PR-68, with an empty mark in the lesson window before the unlock (D-282, D-283, D-538, D-556, D-1033).
 - The Mend rites and the cure rites that also work from the menu outside battle (D-391).
 - The element and the status chance of each lesson move, which fill the move fields of PR-66 (D-793).
-- The flash of a spell, with a point light of PR-56 for its length, its effect files, its reduced forms, and its captures (D-183, D-186, D-863, D-878).
+- The flash of each spell, with a point light of PR-56 for its length, its effect files, its reduced forms, and its captures (D-183, D-186, D-863, D-878, D-1032).
 - The refusal of a rite of a silenced holder, in a fight and from the menu (D-393, D-806).
-- The lesson window in the stack of PR-62.
+- The lesson window in the stack of PR-62, and the Lessons command of a battle with its list of forms (D-1027, D-1031).
 
 **Out of scope.**
 
 - The quest state that unlocks a side aptitude in play (PR-19, D-538).
 - The lessons of region one (PR-42, D-304) and the balance pass (PR-30).
 - The shop that hides an owned lesson (PR-65) and the fallback item of a chest (PR-16) (D-1024).
+- The steal of a Theft drill (PR-13) and the protect effect of a Guard drill (OQ-245, D-1029).
 
 **Exit tests.**
 
@@ -1423,6 +1425,8 @@ Area file: `area-progression.md` sections 7.4, 7.5, and 7.6.
 8. A level-1 lesson on a level-40 character gains the full base experience of a level-10 enemy (D-1020).
 9. A downed character gains no lesson points, and a lesson stops at the total of its last form (D-1021, D-1022).
 10. The owned lesson set refuses a second copy of a lesson, and the error names the lesson (D-1023, D-1024).
+11. Outside a swap place, Core refuses a swap of lessons (D-1030).
+12. A spell with no flash file, or two flash files with one look, fail a test (D-1032).
 
 **Review focus.**
 
@@ -1520,7 +1524,7 @@ Area file: `area-exploration.md` section 7.11.
 - The hub as a walkable map with NPC sprites, on the same code path as a dungeon (D-112).
 - The hub content format, with the services that each hub offers (D-28, D-59).
 - The rest, which restores health and MP and cures poison, blind, and silence (D-42, D-390).
-- The save, the party swap, and the lesson swap at the hub (D-59, D-62, D-356).
+- The save, the party swap, and the lesson swap at the hub, which marks the hub as a swap place (D-59, D-62, D-356, D-1030).
 - A condition of PR-68 on each service, so a story flag can close one (D-543, D-544, D-556).
 - The talk trigger of PR-68 fires when the player talks with an NPC (D-1005). A story scene step can name an NPC as a story scene actor (D-1006).
 - The service screens in the window stack of PR-62.
@@ -1717,7 +1721,7 @@ Area file: `area-exploration.md` section 7.8.
 **Scope.**
 
 - The treasure, the locked doors, and the keys (D-41).
-- The save points, which save, swap the party, and swap the lessons (D-36, D-58, D-356).
+- The save points, which save, swap the party, and swap the lessons. Each marks a swap place (D-36, D-58, D-356, D-1030).
 - The MP that a save point restores once for the place, and the health that it does not (D-389, D-555).
 - The Theft drill that opens a lock that the map marks as pickable, where a story lock always needs its key (D-386).
 - The chest that keeps what the party cannot carry (D-385).
