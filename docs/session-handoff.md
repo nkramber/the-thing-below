@@ -1,3 +1,39 @@
+## Session 263: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #71, round 1. Repository: the-thing-below. Branch: `feat/pr-68-story-scenes`. PR: #71. Role: reviewer. Base: `31f172e`.
+
+### What this session did, and why
+
+- Reviewed PR #71 from merge base `31f172e` through effective head `f8868ae`.
+- Confirmed Claude Code authored the change, so Codex passes the provider gate (T-4, D-17).
+- Traced story content, triggers, simulation, battles, joins, saves, snapshots, and replay.
+- Found P2-1: snapshot restore accepts a shown actor id that the content does not declare.
+- Added `docs/reviews/pr-71.md` with `Changes required` for `f8868ae`.
+- Corrected the Documents row of the PR description.
+
+### The state of the build
+
+- Base: `31f172e`. Effective head: `f8868ae`. Remote head before this metadata commit: `ebd6f6b`.
+- `make verify` passed on macOS arm64 with 2,851 tests. CI run `35948186000` passed implementation checks on macOS, Ubuntu, and Windows. `review-gate` failed because the review record was absent.
+
+### What is in flight
+
+- The review record and this handoff entry are one metadata commit. The review requires a corrected effective head and a repeat review.
+
+### Traps and gotchas
+
+- The only Gitar comment is a free-plan status notice with no item. D-964 says it needs no answer and does not block the verdict.
+- No screen changed, so no screen-test frames needed visual review.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Correct P2-1, publish the correction, and start a repeat review of PR #71.
+
 ## Session 262: 2026-09-24, Claude Code
 
 Author: Claude Code
@@ -315,43 +351,3 @@ None.
 ### The next concrete action
 
 Run `make codex-review PR=68 -- --skip-gitar-review`, and read its outcome.
-
-## Session 253: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #68, round 1. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: #68. Role: reviewer. Base: `3223bcf`.
-
-### What this session did, and why
-
-- Reviewed PR #68 from base `3223bcf` through effective head `caaea8f`.
-- Verified Claude Code authored the changes and Codex passes the provider gate (T-4, D-17).
-- Checked the load limit, the screen layout, the step-in order, the target menu, the simulation version, and the replay identity.
-- Ran `make verify`, checked CI, and read all 15 affected battle frames of the screen-test artifact.
-- Found no code defect. The existing Gitar status comment has no author answer. The review is Blocked until the author answers it.
-- Corrected the Documents row of the PR description and added `docs/reviews/pr-68.md`.
-- Committed and pushed the review and handoff as metadata commit `52aa9a8`. The fresh review-gate check failed RG 4 because the verdict is Blocked.
-
-### The state of the build
-
-- `main` and the PR base are `3223bcf`. The effective head is `caaea8f`.
-- `make verify` passed on macOS arm64 with 2,522 tests. CI run 35920519185 passed the implementation checks on each platform.
-- The initial `review-gate` check failed because this record did not exist. After publication, RG 3 and RG 5 to RG 8 passed. RG 4 failed because the verdict is Blocked.
-- CI run 35921902597 passed the metadata checks. The platform matrix jobs skipped because the commit changed metadata paths alone.
-
-### What is in flight
-
-- The author needs to answer the existing Gitar status comment.
-- The owner needs to start a fresh review after the author answers.
-
-### Traps and gotchas
-
-- The Gitar comment says “Gitar is working.” It has no thread or finding, but the user requires an answer to each existing Gitar comment.
-- The Gitar pass itself is not a review condition under D-945 and D-946.
-
-### The questions that block progress
-
-OQ-243 is resolved by D-963. The unanswered Gitar status comment blocks approval.
-
-### The next concrete action
-
-The author answers the Gitar status comment. Then start a fresh review of PR #68.
