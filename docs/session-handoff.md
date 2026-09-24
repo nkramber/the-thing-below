@@ -19,7 +19,7 @@ Session: author PR-62, round 1. Repository: the-thing-below. Branch: `feat/pr-62
 
 ### What is in flight
 
-- CI on the baseline commit. Then one read of Gitar, and the Codex review.
+- CI on the commit of the 4 stable baselines from run 35940125266, whose two capture runs matched. Then the Codex review.
 
 ### Traps and gotchas
 
