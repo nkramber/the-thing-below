@@ -1,3 +1,37 @@
+## Session 265: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #71, round 2. Repository: the-thing-below. Branch: `feat/pr-68-story-scenes`. PR: #71. Role: reviewer. Base: `31f172e`.
+
+### What this session did, and why
+
+- Re-reviewed the correction of P2-1 from `f8868ae` to `498137c`.
+- Confirmed that stored story actors must name a character of this build (D-166, D-1006).
+- Ran the snapshot tests and `make verify`. Both passed.
+- Updated `docs/reviews/pr-71.md` and corrected the verified test count and handoff line in the PR description.
+
+### The state of the build
+
+- Base: `31f172e`. Effective head: `498137c`. Remote head before this metadata commit: `498137c`.
+- Local verification passed with 2,852 tests. CI run `35949615173` passed all implementation checks on macOS, Ubuntu, and Windows.
+
+### What is in flight
+
+- The review record and this entry are one metadata commit. This round pushes it to `feat/pr-68-story-scenes`.
+
+### Traps and gotchas
+
+- The Gitar status notice has no review item. D-964 says it needs no answer and does not block the verdict.
+- The author correction passed the original undeclared-actor trigger and the valid actor snapshot case.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Fetch the branch, verify the pushed metadata head, and report the review verdict for PR #71.
+
 ## Session 264: 2026-09-24, Claude Code
 
 Author: Claude Code
@@ -320,37 +354,3 @@ None.
 ### The next concrete action
 
 Wait for CI on the head, read the Gitar output one time, then run `make codex-review PR=68 -- --skip-gitar-review`.
-
-## Session 255: 2026-09-23, Codex
-
-Author: Codex
-Session: reviewer PR #68, round 2. Repository: the-thing-below. Branch: `feat/pr-98-waiting-enemies`. PR: #68. Role: reviewer. Base: `3223bcf`.
-
-### What this session did, and why
-
-- Re-reviewed PR #68 at effective head `caaea8f`. Commits after that head change review and handoff metadata alone (D-610).
-- Confirmed that Claude Code authored the change and Codex passes the provider gate (T-4, D-17).
-- Verified the owner's answer to the existing Gitar status notice. No review or inline comments exist (D-945, D-946).
-- Updated `docs/reviews/pr-68.md` with the current verdict and the prior verdict history.
-
-### The state of the build
-
-- `main` is `3223bcf`. The effective head is `caaea8f`. The remote tip before this metadata commit is `fde91a6`.
-- CI run 35920519185 passed the implementation checks at `caaea8f`. CI run 35922327323 passed the applicable checks at `fde91a6`, but `review-gate` read the prior Blocked verdict and failed.
-
-### What is in flight
-
-- This metadata commit holds the updated review and this handoff entry. A fresh `review-gate` result must pass after the push.
-
-### Traps and gotchas
-
-- The effective head remains `caaea8f`. The commits after it change only paths in the metadata set (D-610).
-- The Gitar pass is not a review condition under D-945 and D-946. The author answered the existing status notice.
-
-### The questions that block progress
-
-None. OQ-243 is resolved by D-963.
-
-### The next concrete action
-
-Push this metadata commit, then verify the remote head and the fresh `review-gate` result.
