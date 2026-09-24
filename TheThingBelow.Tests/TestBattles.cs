@@ -484,11 +484,12 @@ internal static class TestBattles
     /// <param name="abilities">The text of the ability file, or no value for <see cref="AbilitiesFile"/>.</param>
     /// <param name="grunt">The text of the grunt record, or no value for <see cref="GruntFile"/>.</param>
     /// <param name="exact">True for the rolls of <see cref="Exact"/>: no miss and a hit factor of 10000.</param>
+    /// <param name="rules">Other values of the battle rules, after the values of <paramref name="exact"/>.</param>
     /// <returns>The battle content.</returns>
-    public static BattleContent WithLessonFiles(string? fixture = null, string? lessons = null, string? abilities = null, string? grunt = null, bool exact = false) =>
+    public static BattleContent WithLessonFiles(string? fixture = null, string? lessons = null, string? abilities = null, string? grunt = null, bool exact = false, (string Field, int Value)[]? rules = null) =>
         Build(
             fixture ?? FixtureFile,
-            exact ? [("hit_low", 10000), ("hit_high", 10000), ("miss_base", 0), ("miss_ceiling", 0)] : [],
+            [.. (exact ? [("hit_low", 10000), ("hit_high", 10000), ("miss_base", 0), ("miss_ceiling", 0)] : Array.Empty<(string, int)>()), .. rules ?? []],
             grunt,
             null,
             null,

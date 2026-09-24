@@ -1,3 +1,36 @@
+## Session 274: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-99, round 2. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: author. Base: `f1ab753`.
+
+### What this session did, and why
+
+- Answered P2-1 of `docs/reviews/pr-75.md` with full merit. The heal math overflowed a `long` at the content limits before its health cap (T-2).
+- `BattleMath.HealAmount` splits the scaled share at the scale of 10^12, so the product stays in a `long` and the one rounding of D-169 holds. Each heal that did not overflow gives the same number, and the identity file does not change.
+- `StatSetTests.AHealAtTheLimitsOfTheContentCompletesAndStopsAtFullHealth` fails on `26d20cc` with `OverflowException` and passes on the correction. `docs/reviews/pr-75-response.md` records the answer.
+
+### The state of the build
+
+- `make verify` passed on the Mac: 3,153 tests, format, det-lint, STE, identity, content, atlas, and smoke.
+- Round 1 CI run `36039388273` at `26d20cc` passed each job but `review-gate`, which waited for the record.
+
+### What is in flight
+
+- The repeat review of `make codex-review PR=75 -- --skip-gitar-review` (D-946).
+
+### Traps and gotchas
+
+- `make sheet` still fails to join the frames: the sheet passes the PNG height limit. The fault is older than this PR.
+- Gitar posted a status notice alone, with no item (D-964).
+
+### The questions that block progress
+
+None. The owner has not yet approved the string batch of the PR description (D-57).
+
+### The next concrete action
+
+Push, confirm the remote head, and run the repeat review. On `approve`, ask the owner to confirm the merge with the summary of D-942.
+
 ## Session 273: 2026-09-24, Codex
 
 Author: Codex
@@ -319,38 +352,3 @@ None.
 ### The next concrete action
 
 Fetch the branch, verify the pushed metadata head, and report the review verdict for PR #71.
-
-## Session 264: 2026-09-24, Claude Code
-
-Author: Claude Code
-Session: author PR #71, round 2. Repository: the-thing-below. Branch: `feat/pr-68-story-scenes`. PR: #71. Role: author. Base: `31f172e`.
-
-### What this session did, and why
-
-- Read the review record of `f8868ae`: `Changes required`, with one finding, P2-1.
-- P2-1 has full merit. A stored story scene actor with an id that no character of the build holds passed the load. `StoryContent.HoldsCast` now gives the cast of the build, and `StoryState.ResumeScene` refuses such an actor (D-166, D-1006).
-- Added the regression case to `StorySnapshotTests`. It fails on `f8868ae` and passes on the correction.
-- Wrote `docs/reviews/pr-71-response.md`.
-- Moved the title of `docs/session-handoff-archive.md` back to the top. The review commit put Session 253 above it.
-
-### The state of the build
-
-- `main` is `31f172e`. The remote head before this round is `b6fd45a`, the review record of Session 263. The push of this round carries the correction, the response, and this entry.
-- `make verify` passed on macOS arm64 with 2,852 tests, the smoke session included. CI of round 1 passed every job except the review gate.
-
-### What is in flight
-
-- PR #71 waits for CI of this round, one read of the Gitar output, and `make codex-review PR=71 -- --skip-gitar-review` (D-945, D-946).
-
-### Traps and gotchas
-
-- The traps of Session 262 stand: a move intent on the tick of an arrival chains a step, no story scene ships in content, and the battle of a story scene names the story scene in its enemy field.
-- The Gitar comment of round 1 is a plan notice with no item, so it needs no answer (D-964).
-
-### The questions that block progress
-
-None for PR-68.
-
-### The next concrete action
-
-Read the CI result of the pushed head, read the Gitar output one time, then run `make codex-review PR=71 -- --skip-gitar-review` in the background.

@@ -102,6 +102,28 @@ public sealed partial class StatSetTests
         Assert.True(seen.Count > 1, "Forty seeds gave one heal, and a heal rolls its factor (D-1058).");
     }
 
+    [Fact]
+    public void AHealAtTheLimitsOfTheContentCompletesAndStopsAtFullHealth()
+    {
+        // P2-1 of the PR-75 review (T-2, D-1057): a base, a power, a magic, and a hit factor of
+        // 100000 with a bonus of 100000 heal 121000000. The scaled product passes a `long`, and
+        // the heal still completes and stops at full health.
+        string fixture = MagicField().Replace(WithSalve(), "\"magic\": 100000")
+            .Replace("\"main_aptitude\": \"blade\", \"side_aptitude\": \"guard\"", "\"main_aptitude\": \"mend\", \"side_aptitude\": \"guard\"", StringComparison.Ordinal);
+        BattleContent content = TestBattles.WithLessonFiles(
+            fixture: fixture,
+            abilities: SalveOf(100000, 100000),
+            rules: [("aptitude_bonus", 100000), ("hit_low", 100000), ("hit_high", 100000)]);
+        Simulation run = Start(content, TestMaps.Room, 20);
+        run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
+
+        run.Step([Intent.OfMenuCast(0, Salve, 0, 0)]);
+
+        PartyMember marrek = run.State.Characters.Members[0];
+        Assert.Equal(100000, marrek.Stats.Magic);
+        Assert.Equal(marrek.Stats.Health, marrek.Health);
+    }
+
     /// <summary>Strikes the grunt with a move of power 10000 and one stat, and gives the damage.</summary>
     private static int HitOf(Simulation run, StrikeStat stat)
     {

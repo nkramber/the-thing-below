@@ -81,9 +81,14 @@ internal static class BattleMath
     /// <exception cref="SimulationException">The heal passes an `int` (T-2).</exception>
     internal static int HealAmount(HealAbility heal, int magic, int rate, int factor, RunContext context)
     {
-        // One division at the end, so no step rounds down before the next (D-169).
+        // One rounding at the end, so no step rounds down before the next (D-169). At the
+        // content limits the scaled share times the factor passes a `long`. Thus the share
+        // splits at the scale: the whole part times the factor is exact, and the rest times the
+        // factor stays below the scale times 100000. The two parts give the one rounded result.
+        long scale = (long)BasisPoints.One * BasisPoints.One * BasisPoints.One;
         long share = checked(((long)heal.Base * BasisPoints.One) + ((long)magic * heal.Power));
-        long amount = checked(share * rate * factor) / ((long)BasisPoints.One * BasisPoints.One * BasisPoints.One);
+        long scaled = checked(share * rate);
+        long amount = checked(((scaled / scale) * factor) + ((scaled % scale) * factor / scale));
         return amount < 1 ? 1 : ToHealth(amount, context);
     }
 
