@@ -32,6 +32,7 @@ public static class UiContentFixtures
          "large_body": 32,
          "title_scale": 2,
          "border_pixels": 1,
+         "notice": { "slide_ticks": 12, "hold_ticks": 180, "fade_ticks": 30 },
          "colors": [ { "role": "text", "key": "k" } ],
          "frames": [ { "role": "window", "drawing": "drawing.ui_window_frame" } ]
         }

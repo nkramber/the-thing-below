@@ -98,7 +98,8 @@ public partial class Boot : Node
     private FrameRoot? frame;
     private MapScreen? map;
     private BattleScreen? battle;
-    private SettingsScreen? settingsScreen;
+    private MenuHost? menus;
+    private NoticeBox? noticeBox;
     private SettingsStore? settingsStore;
     private GameSettings? settings;
     private CommandMemory? memory;
@@ -148,11 +149,27 @@ public partial class Boot : Node
             }
 
             this.ShowHandOff(this.run);
+            this.ShowMenuAndNotice(this.run);
         }
         catch (Exception fault)
         {
             this.ReportCrash(fault);
         }
+    }
+
+    /// <summary>
+    /// Draws each open window of the menu from the state of the run, and the notice box at the
+    /// tick of the world. The notice box hides under a menu, and it waits with the world (D-221, D-995).
+    /// </summary>
+    /// <param name="open">The run.</param>
+    /// <exception cref="InvalidOperationException">The session read no settings (T-2).</exception>
+    private void ShowMenuAndNotice(GameRun open)
+    {
+        GameSettings chosen = this.settings ?? throw new InvalidOperationException(
+            $"The notice box draws at tick {open.Tick}, and the session read no settings (T-2).");
+
+        this.menus?.Show();
+        this.noticeBox?.Show(open.NoticeAt(TextSpeeds.CharactersPerSecond(chosen.Access.Text)), open.MenuOpen);
     }
 
     /// <summary>
@@ -308,9 +325,27 @@ public partial class Boot : Node
 
         // The capture session of the screen-test job builds the same map (D-172, D-734).
         this.map = MapFixture.Build(built, built_ui, open.Party, loaded);
+        this.noticeBox = new NoticeBox(built, built_ui);
+
+        // A new frame keeps the windows of the menu open, so a change of the fit from the
+        // settings screen returns to the main list (D-707, D-871).
+        if (this.menus is MenuHost host)
+        {
+            host.Rebuild(built, built_ui);
+        }
+        else
+        {
+            this.menus = new MenuHost(built, built_ui, open, loaded, this.SettingsInUse, this.CloseSettings, entries => this.WriteLog(entries));
+        }
 
         this.BuildConsole(built, open);
     }
+
+    /// <summary>Gives the settings in use, which the settings screen of the menu opens with (D-871).</summary>
+    /// <returns>The settings.</returns>
+    /// <exception cref="InvalidOperationException">The session read no settings (T-2).</exception>
+    private GameSettings SettingsInUse() => this.settings ?? throw new InvalidOperationException(
+        "The settings screen opened, and the session read no settings (T-2).");
 
     /// <summary>
     /// Starts the run again after a wipe, and builds the screen again over the new run, so the
@@ -326,6 +361,9 @@ public partial class Boot : Node
             "A wipe reloads the run, and the session read no settings (T-2).");
         GameRun reloaded = ReloadRun(loaded, chosen.Battle.Messages);
         this.run = reloaded;
+
+        // The menu of the old run ends with it, and the new run builds its own (D-776).
+        this.menus = null;
         this.RebuildScreen(loaded);
         this.WriteLog([new LogEntry(
             LogLevel.Info,
@@ -410,6 +448,7 @@ public partial class Boot : Node
         this.frame = null;
         this.map = null;
         this.battle = null;
+        this.noticeBox = null;
         this.console = null;
         this.BuildScreen(loaded);
     }
@@ -754,11 +793,11 @@ public partial class Boot : Node
             return;
         }
 
-        // The settings screen takes every event while it is open, the mouse included, and the
-        // world stays paused under it (D-162, D-871, D-872).
-        if (this.settingsScreen is SettingsScreen open)
+        // The menu takes every event while a window is open, the mouse included, and the world
+        // stays paused under it (D-162, D-211, D-872).
+        if (this.menus is MenuHost host && host.IsOpen)
         {
-            this.ReadSettings(run, open, signal);
+            host.Read(signal);
             return;
         }
 
@@ -790,17 +829,29 @@ public partial class Boot : Node
                 continue;
             }
 
-            // The run holds the menu state. Until PR-62, the menu action on the map opens the
-            // settings screen, and the screen closes the menu (D-162, D-650, D-871). In a fight
-            // the intent goes to the rules as before.
+            // The menu action opens the main list on the walk, and the map action opens the
+            // dungeon map screen. The host sends the intents of the menu (D-162, D-211, D-986).
+            // In a fight the menu intent goes to the rules as before, and the map action does
+            // nothing, because the map screen opens from the walk alone.
             Intent made = run.IntentOf(action);
-            if (string.CompareOrdinal(action, InputActions.Menu) == 0 && !run.InBattle)
+            bool menu = string.CompareOrdinal(action, InputActions.Menu) == 0;
+            bool map = string.CompareOrdinal(action, InputActions.Map) == 0;
+            if ((menu || map) && !run.InBattle && !run.MenuOpenNextTick)
             {
-                this.OpenSettings(run, made);
+                this.OpenMenu(run, action);
             }
-            else if (string.CompareOrdinal(action, InputActions.Menu) == 0)
+            else if (menu)
             {
                 run.Queue(made);
+            }
+            else if (map)
+            {
+                this.WriteLog([new LogEntry(
+                    LogLevel.Debug,
+                    "the map action works on the walk alone",
+                    run.Tick,
+                    LogSubsystems.Game,
+                    [new LogField("action", action)])]);
             }
             else
             {
@@ -819,64 +870,44 @@ public partial class Boot : Node
         }
     }
 
-    /// <summary>Opens the menu of the run and the settings screen over it (D-162, D-871).</summary>
+    /// <summary>Opens the main list or the dungeon map screen from the walk, and the world pauses (D-162, D-211, D-986).</summary>
     /// <param name="run">The run, whose world pauses.</param>
-    /// <param name="open">The intent that opens the menu.</param>
-    /// <exception cref="InvalidOperationException">The session built no frame, no UI base, or no settings (T-2).</exception>
-    private void OpenSettings(GameRun run, Intent open)
+    /// <param name="action">The menu action or the map action.</param>
+    /// <exception cref="InvalidOperationException">The session built no menu host (T-2).</exception>
+    private void OpenMenu(GameRun run, string action)
     {
-        FrameRoot built = this.frame ?? throw new InvalidOperationException(
-            $"The menu opened at tick {run.Tick}, and the session built no frame (T-2).");
-        UiBase shown = this.ui ?? throw new InvalidOperationException(
-            $"The menu opened at tick {run.Tick}, and the session built no UI base (T-2).");
-        ContentSet loaded = this.content ?? throw new InvalidOperationException(
-            $"The menu opened at tick {run.Tick}, and the session loaded no content (T-2).");
-        GameSettings chosen = this.settings ?? throw new InvalidOperationException(
-            $"The menu opened at tick {run.Tick}, and the session read no settings (T-2).");
+        MenuHost host = this.menus ?? throw new InvalidOperationException(
+            $"The menu opened at tick {run.Tick}, and the session built no menu host (T-2).");
 
-        run.Queue(open);
-
-        // The screen takes every input while it is open, so no release of a held direction
+        // The menu takes every input while it is open, so no release of a held direction
         // reaches the map. A party that kept the direction would walk on after the close (T-2).
         this.held.Clear();
-        int autoBody = BodySize.DefaultFor(built.Fit.Height, loaded.Style.SmallBody, loaded.Style.LargeBody);
-        this.settingsScreen = SettingsScreen.Build(built, shown, loaded.Strings, chosen, autoBody);
-        this.WriteLog([new LogEntry(LogLevel.Info, "the settings screen opened", run.Tick, LogSubsystems.Game, [])]);
-    }
-
-    /// <summary>Gives one event to the settings screen, and closes it when the player leaves (D-862).</summary>
-    /// <param name="run">The run, whose menu the close ends.</param>
-    /// <param name="open">The settings screen.</param>
-    /// <param name="signal">The event of this frame.</param>
-    /// <exception cref="InvalidOperationException">The session built no frame (T-2).</exception>
-    private void ReadSettings(GameRun run, SettingsScreen open, InputEvent signal)
-    {
-        FrameRoot built = this.frame ?? throw new InvalidOperationException(
-            $"The settings screen read an event at tick {run.Tick}, and the session built no frame (T-2).");
-        if (open.Read(signal, built.Fit, InputActions.Menu) == SettingsOutcome.Close)
+        if (string.CompareOrdinal(action, InputActions.Map) == 0)
         {
-            this.CloseSettings(run, open);
+            host.OpenDungeonMap();
+        }
+        else
+        {
+            host.OpenMainList();
         }
     }
 
     /// <summary>
-    /// Closes the settings screen, writes and applies each change, and closes the menu of the
-    /// run (D-860, D-871).
+    /// Writes and applies the settings of the settings screen when it closes, with a change, and
+    /// logs the close (D-860, D-871).
     /// </summary>
-    /// <param name="run">The run, whose menu closes.</param>
-    /// <param name="open">The settings screen, which holds no conflict (D-862).</param>
-    /// <exception cref="InvalidOperationException">The session read no settings (T-2).</exception>
+    /// <param name="after">The settings of the screen, which holds no conflict (D-862).</param>
+    /// <exception cref="InvalidOperationException">The session read no settings or started no run (T-2).</exception>
     /// <exception cref="StorageException">The system refused the write (T-2).</exception>
-    private void CloseSettings(GameRun run, SettingsScreen open)
+    private void CloseSettings(GameSettings after)
     {
+        GameRun run = this.run ?? throw new InvalidOperationException(
+            "The settings screen closed, and the session started no run (T-2).");
         GameSettings before = this.settings ?? throw new InvalidOperationException(
             $"The settings screen closed at tick {run.Tick}, and the session read no settings (T-2).");
         SettingsStore store = this.settingsStore ?? throw new InvalidOperationException(
             $"The settings screen closed at tick {run.Tick}, and the session made no settings store (T-2).");
-        GameSettings after = open.Menu.Settings;
 
-        open.Free();
-        this.settingsScreen = null;
         if (!after.Equals(before))
         {
             store.Write(after);
@@ -884,9 +915,6 @@ public partial class Boot : Node
             this.ApplySettings(run, before, after);
         }
 
-        // The close intent goes by its own id. The open intent can still wait in the queue when
-        // one frame opens and closes the screen, and the menu action would then open it twice.
-        run.Queue(Intent.OfPlayer(IntentIds.CloseMenu));
         this.WriteLog([new LogEntry(
             LogLevel.Info,
             after.Equals(before) ? "the settings screen closed with no change" : "the settings screen closed and wrote the settings file",
@@ -1120,6 +1148,7 @@ public partial class Boot : Node
         GD.Print($"smoke: the console is {this.DescribeConsole(session)}.");
         GD.Print($"smoke: the battle is {this.DescribeBattle(content, session)}.");
         GD.Print($"smoke: the settings screen is {this.DescribeSettings(content)}.");
+        GD.Print($"smoke: the menus are {this.DescribeMenus(content)}.");
         GD.Print("smoke: the session ends with no error.");
         GetTree().Quit(SuccessExitCode);
     }
@@ -1308,6 +1337,64 @@ public partial class Boot : Node
         }
 
         return $"{string.Join(", ", built)}, and the six font settings of D-710 read back";
+    }
+
+    /// <summary>
+    /// Opens each window of the menu stack with the `ui_*` actions, as a player does, and the
+    /// dungeon map screen, and shows one notice in the notice box (D-211, D-221, D-986). Each window
+    /// reads its strings, so a string id that the table lacks fails every CI leg (T-2).
+    /// </summary>
+    /// <param name="loaded">The content set of this build.</param>
+    /// <returns>The count of windows that opened, the row of the lead after the party window, and the notice.</returns>
+    /// <exception cref="InvalidOperationException">A window stayed open, or the row intent never reached the run (T-2).</exception>
+    private string DescribeMenus(ContentSet loaded)
+    {
+        GameInputMap.Build(SmokeSettings().Controls);
+        var built = new FrameRoot();
+        this.AddChild(built);
+        UiBase shownBase = UiBase.Load(loaded, loaded.Style.SmallBody);
+        GameRun session = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
+        int closes = 0;
+        var host = new MenuHost(built, shownBase, session, loaded, SmokeSettings, _ => closes += 1, entries => this.WriteLog(entries));
+
+        // The party window moves the lead to the other row, and each other entry opens and closes.
+        host.OpenMainList();
+        string[] presses =
+        [
+            "ui_accept", "ui_accept", "ui_cancel",
+            "ui_down", "ui_accept", "ui_cancel",
+            "ui_down", "ui_accept", "ui_cancel",
+            "ui_down", "ui_accept", "ui_cancel",
+            "ui_cancel",
+        ];
+        int opened = 1;
+        foreach (string press in presses)
+        {
+            int before = host.Path.Windows.Count;
+            host.Read(new InputEventAction { Action = press, Pressed = true });
+            opened += host.Path.Windows.Count > before ? 1 : 0;
+        }
+
+        host.OpenDungeonMap();
+        host.Read(new InputEventAction { Action = "ui_cancel", Pressed = true });
+        opened += 1;
+        this.WriteLog(session.Advance(1.0 / FixedStepLoop.TicksPerSecond));
+
+        Core.Notices.NoticeRecord notice = loaded.Notices.FirstThatLogs(true);
+        var noticeBox = new NoticeBox(built, shownBase);
+        noticeBox.Show(new NoticeFrame(notice.Id, NoticePhase.Hold, 0, loaded.Strings.Text(notice.Id).Length, 1000), underMenu: false);
+
+        Core.Battles.BattleRow row = session.State.Characters.Members[0].Row;
+        bool open = host.IsOpen || session.MenuOpen;
+        this.RemoveChild(built);
+        built.QueueFree();
+        if (open || closes != 1 || row != Core.Battles.BattleRow.Back)
+        {
+            throw new InvalidOperationException(
+                $"The smoke menus left the menu open ({open}), closed the settings screen {closes} times, or left the lead in the row '{row}' (T-2).");
+        }
+
+        return $"{opened} windows that opened and closed, the lead in the back row, and the notice '{notice.Id.Value}' in the notice box";
     }
 
     /// <summary>

@@ -36,6 +36,7 @@ internal static class SettingsFixtures
     {
         ["cancel"] = [InputBinding.OfKey(Escape), InputBinding.OfKey(4194308), InputBinding.OfButton(ButtonB)],
         ["confirm"] = [InputBinding.OfKey(Enter), InputBinding.OfKey(32), InputBinding.OfButton(ButtonA)],
+        ["map"] = [InputBinding.OfKey(SettingsMigration.MapKey), InputBinding.OfButton(SettingsMigration.MapButton)],
         ["menu"] = [InputBinding.OfKey(4194306), InputBinding.OfButton(6)],
         ["step_east"] = [InputBinding.OfKey(68), InputBinding.OfKey(4194321), InputBinding.OfButton(14), InputBinding.OfStick(0, 1)],
         ["step_north"] = [InputBinding.OfKey(W), InputBinding.OfKey(4194320), InputBinding.OfButton(11), InputBinding.OfStick(LeftY, -1)],

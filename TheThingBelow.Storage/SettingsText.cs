@@ -213,9 +213,24 @@ public static class SettingsText
         int format = reader.ReadInt();
         CheckFormat(ref reader, format);
 
-        // Format 1 is the first format, and the chain holds no step yet (D-869). The PR that
-        // raises the format adds the step from the version that it leaves here.
-        return ReadFormatOne(ref reader, depth);
+        // Format 2 holds the fields of format 1, and its controls hold the map action (D-986).
+        // A file of format 1 takes the step that adds the defaults of that action (D-990). The PR
+        // that raises the format again adds the step from the version that it leaves here.
+        GameSettings read = ReadFormatOne(ref reader, depth);
+        if (format > 1)
+        {
+            return read;
+        }
+
+        foreach (string action in read.Controls.Bindings.Names)
+        {
+            if (string.CompareOrdinal(action, SettingsMigration.MapAction) == 0)
+            {
+                throw reader.Refuse($"the file takes format version 1 and holds the action '{action}', which format 2 added (D-986)");
+            }
+        }
+
+        return SettingsMigration.FromFormatOne(read);
     }
 
     private static void CheckFormat(ref ContentReader reader, int format)

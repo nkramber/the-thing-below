@@ -44,6 +44,10 @@ public static class GameInputMap
         [InputActions.Confirm] = [Key(Godot.Key.Enter), Key(Godot.Key.Space), Button(JoyButton.A)],
         [InputActions.Cancel] = [Key(Godot.Key.Escape), Key(Godot.Key.Backspace), Button(JoyButton.B)],
         [InputActions.Menu] = [Key(Godot.Key.Tab), Button(JoyButton.Start)],
+
+        // D-990: the Deck and an Xbox pad name the Back button View. The step of the settings file
+        // from format 1 holds the same two numbers, and a test compares them (D-570).
+        [InputActions.Map] = [Key(Godot.Key.M), Button(JoyButton.Back)],
     });
 
     /// <summary>Builds every action of the game in the input map of this session.</summary>

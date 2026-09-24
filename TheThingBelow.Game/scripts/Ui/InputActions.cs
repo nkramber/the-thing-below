@@ -14,8 +14,8 @@ namespace TheThingBelow.Game.Ui;
 /// A poll ignores what a menu already took, and it would make a second intent for one press
 /// (F-50). <see cref="GameInputMap"/> holds the keys and the buttons of each action.
 /// <para>
-/// The menu action makes two intents, because one button opens the menu and closes it
-/// (D-162, D-650). Every other action makes one.
+/// The menu action and the map action each make two intents, because one button opens the
+/// menu or the map screen and closes it (D-162, D-650, D-986). Every other action makes one.
 /// </para>
 /// <para>
 /// This type holds no Godot value, so a test reads it with no engine (D-614).
@@ -44,6 +44,9 @@ public static class InputActions
     /// <summary>The action that opens the menu, and that closes it (D-162).</summary>
     public const string Menu = "menu";
 
+    /// <summary>The action that opens the dungeon map screen from the walk, and that closes it (D-986).</summary>
+    public const string Map = "map";
+
     private static readonly string[] AllStepNames = [StepNorth, StepSouth, StepEast, StepWest];
 
     private static readonly string[] AllNames =
@@ -55,6 +58,7 @@ public static class InputActions
         Confirm,
         Cancel,
         Menu,
+        Map,
     ];
 
     /// <summary>Every action of the input map, in a fixed order.</summary>
@@ -103,7 +107,7 @@ public static class InputActions
             StepWest => IntentIds.MoveWest,
             Confirm => IntentIds.Confirm,
             Cancel => IntentIds.Cancel,
-            Menu => menuOpen ? IntentIds.CloseMenu : IntentIds.OpenMenu,
+            Menu or Map => menuOpen ? IntentIds.CloseMenu : IntentIds.OpenMenu,
             _ => throw new ArgumentException(
                 $"The name '{action}' is not an action of the input map. The actions are {Describe()} (T-2).",
                 nameof(action)),

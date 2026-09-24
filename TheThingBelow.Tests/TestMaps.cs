@@ -137,6 +137,13 @@ public static class TestMaps
     /// <returns>The map.</returns>
     public static GameMap Of(string file, string text) => GameMap.Read(Encoding.UTF8.GetBytes(text), file);
 
+    /// <summary>Gives an open map of one size: a wall on each edge, floor inside, and the spawn point at (1, 1).</summary>
+    /// <param name="id">The id of the map, of the kind `map`.</param>
+    /// <param name="width">The count of columns.</param>
+    /// <param name="height">The count of rows.</param>
+    /// <returns>The map.</returns>
+    public static GameMap OpenOf(string id, int width, int height) => Of($"{id}.json", Open(id, "label.test_open", width, height));
+
     /// <summary>Makes the text of an open map of one size, with a wall around its edge.</summary>
     private static string Open(string id, string label, int width, int height)
     {

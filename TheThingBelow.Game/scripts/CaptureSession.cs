@@ -317,7 +317,7 @@ public sealed partial class CaptureSession : Node
                 if (entry.Level == LogLevel.Error)
                 {
                     throw new InvalidOperationException(
-                        $"The tick {run.Tick} of the route to the pit room wrote an error: {entry.Message} (T-2).");
+                        $"The tick {run.Tick} of the route of a capture wrote an error: {entry.Message} (T-2).");
                 }
             }
 
@@ -328,7 +328,7 @@ public sealed partial class CaptureSession : Node
         }
 
         throw new InvalidOperationException(
-            $"The step '{action}' of the route to the pit room never ended, and the lead stands at {run.Party.LeadAt} (T-2, D-852).");
+            $"The step '{action}' of the route of a capture never ended, and the lead stands at {run.Party.LeadAt} (T-2, D-852).");
     }
 
     /// <summary>Gives the transition of one look from the content of the session (D-195).</summary>
@@ -468,6 +468,18 @@ public sealed partial class CaptureSession : Node
             return;
         }
 
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.MenuFixture) == 0)
+        {
+            this.BuildMenu(built, @base, capture);
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.NoticeFixture) == 0)
+        {
+            this.BuildNotice(built, @base, capture);
+            return;
+        }
+
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.UiFixture) == 0)
         {
             var panel = new UiFixture();
@@ -480,6 +492,113 @@ public sealed partial class CaptureSession : Node
             nameof(capture),
             capture.Fixture,
             $"The capture list names the fixture '{capture.Fixture}', and the session builds none (T-2).");
+    }
+
+    /// <summary>
+    /// Builds one window of the menu stack over the map of the fixture run (D-211, exit test 2 of
+    /// PR-62). The task windows open beside the main list, with its cursor on their entry. The map
+    /// frame walks <see cref="ScreenCaptures.DungeonRoute"/> first, and the log frame posts three
+    /// notices that log through the console (D-989).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A tick of the walk or of a notice wrote an error (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The capture names no frame of the menu fixture (T-2).</exception>
+    /// <remarks>
+    /// The session builds each view itself and sends no input event, because it builds no input
+    /// map, and a read of an absent action writes an error line (T-2).
+    /// </remarks>
+    private void BuildMenu(FrameRoot built, UiBase @base, ScreenCapture capture)
+    {
+        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        string frame = capture.Frame;
+        if (string.CompareOrdinal(frame, ScreenCaptures.MenuMapFrame) == 0)
+        {
+            foreach (string action in ScreenCaptures.DungeonRoute)
+            {
+                this.StepOnce(open, action);
+            }
+        }
+
+        if (string.CompareOrdinal(frame, ScreenCaptures.MenuLogFrame) == 0)
+        {
+            for (int notice = 0; notice < ScreenCaptures.LogFrameNotices; notice += 1)
+            {
+                _ = DebugSeam.Run("notice", () => open.State, open.Queue, () => false);
+                this.RunTicks(open, 1);
+            }
+        }
+
+        MapScreen drawn = MapFixture.Build(built, @base, open.Party, this.content);
+        drawn.ShowParty(open.Party, 0);
+        if (string.CompareOrdinal(frame, ScreenCaptures.MenuMapFrame) == 0)
+        {
+            _ = new DungeonMapView(built, @base, open.Party);
+            return;
+        }
+
+        var list = new MainList();
+        MenuEntry entry = frame switch
+        {
+            ScreenCaptures.MenuListFrame or ScreenCaptures.MenuListDesktopFrame or ScreenCaptures.MenuPartyFrame => MenuEntry.Party,
+            ScreenCaptures.MenuStatusFrame => MenuEntry.Status,
+            ScreenCaptures.MenuLogFrame => MenuEntry.Log,
+            _ => throw new ArgumentOutOfRangeException(nameof(capture), frame, $"The menu fixture draws no frame '{frame}' (T-2)."),
+        };
+        while (list.Current != entry)
+        {
+            list.Move(1);
+        }
+
+        _ = new MainListView(built, @base, list);
+        if (string.CompareOrdinal(frame, ScreenCaptures.MenuPartyFrame) == 0)
+        {
+            _ = new PartyView(built, @base, open.State, new PartyList(open.State.Characters.Members.Count));
+        }
+        else if (string.CompareOrdinal(frame, ScreenCaptures.MenuStatusFrame) == 0)
+        {
+            _ = new StatusView(built, @base, this.content.Strings, open.State);
+        }
+        else if (string.CompareOrdinal(frame, ScreenCaptures.MenuLogFrame) == 0)
+        {
+            _ = new LogView(built, @base, open.State);
+        }
+    }
+
+    /// <summary>
+    /// Builds the running screen with the notice of the console at one tick of its type-out or of
+    /// its hold (D-221, D-994). The run posts the notice on its first tick, and each later tick
+    /// takes the time of exactly one tick, so each session shows the same letters (T-7).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A tick wrote an error, or no notice shows at the frame (T-2).</exception>
+    private void BuildNotice(FrameRoot built, UiBase @base, ScreenCapture capture)
+    {
+        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        _ = DebugSeam.Run("notice", () => open.State, open.Queue, () => false);
+        this.RunTicks(open, 1);
+        bool typing = string.CompareOrdinal(capture.Frame, ScreenCaptures.NoticeTypeFrame) == 0;
+        this.RunTicks(open, typing ? ScreenCaptures.NoticeTypeTicks : ScreenCaptures.NoticeHoldTicks);
+
+        MapScreen drawn = MapFixture.Build(built, @base, open.Party, this.content, seekParticles: true);
+        drawn.ShowParty(open.Party, 0);
+        drawn.ShowWeather(open.Tick, seek: true);
+        NoticeFrame shown = open.NoticeAt(TextSpeeds.CharactersPerSecond(FixtureSettings.Access.Text)) ?? throw new InvalidOperationException(
+            $"The capture '{capture.FileName}' shows no notice at tick {open.Tick}, and the console posted one (D-994, T-2).");
+        new NoticeBox(built, @base).Show(shown, underMenu: false);
+    }
+
+    /// <summary>Runs whole ticks of a run, one tick for each call of the loop, and fails on an error line (T-2).</summary>
+    /// <exception cref="InvalidOperationException">A tick wrote an error (T-2).</exception>
+    private void RunTicks(GameRun run, int ticks)
+    {
+        for (int tick = 0; tick < ticks; tick += 1)
+        {
+            foreach (LogEntry entry in run.Advance(OneTickSeconds))
+            {
+                if (entry.Level == LogLevel.Error)
+                {
+                    throw new InvalidOperationException($"The tick {run.Tick} of a capture wrote an error: {entry.Message} (T-2).");
+                }
+            }
+        }
     }
 
     /// <summary>

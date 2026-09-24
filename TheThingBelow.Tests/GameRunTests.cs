@@ -59,6 +59,69 @@ public sealed class GameRunTests
     }
 
     [Fact]
+    public void AChoiceOfThePartyWindowReachesTheRecordAsOneIntentAndNoCursorMove()
+    {
+        // Exit test 3 of PR-62 (D-493): the cursor moves make no intent, and the record holds the
+        // open, the row change, and the close of the menu alone.
+        Run run = Run.Start();
+        GameValue list = GameValue.New("PartyList", 1);
+        run.Queue(Intent.OfPlayer(IntentIds.OpenMenu));
+        list.Call("Move", 1);
+        list.Call("Move", -1);
+        run.Queue((Intent)list.Call("Choose")!);
+        run.Queue(Intent.OfPlayer(IntentIds.CloseMenu));
+
+        run.Advance(OneTick);
+
+        List<string> recorded = [];
+        foreach (Intent intent in run.Record().Ticks[0].Intents)
+        {
+            recorded.Add(intent.Describe());
+        }
+
+        Assert.Equal(["intent.open_menu", "intent.party_row at party 0", "intent.close_menu"], recorded);
+        Assert.Equal(Core.Battles.BattleRow.Back, run.State.Characters.Members[0].Row);
+    }
+
+    [Fact]
+    public void TheWorldWaitsWhileAMenuIsOpenAndTheTickRises()
+    {
+        // Exit test 5 of PR-62 (D-162, D-650).
+        Run run = Run.Start();
+        run.Advance(OneTick);
+        long world = run.State.WorldTick;
+        run.Queue(Intent.OfPlayer(IntentIds.OpenMenu));
+
+        for (int tick = 0; tick < 10; tick += 1)
+        {
+            run.Advance(OneTick);
+        }
+
+        Assert.Equal(11, run.Tick);
+        Assert.Equal(world, run.State.WorldTick);
+    }
+
+    [Fact]
+    public void ANoticeWaitsWithTheWorldWhileAMenuIsOpen()
+    {
+        // D-995: the notice box counts the ticks of the world, so a menu stops the notice where it stands.
+        Run run = Run.Start(DebugAssemblyFile.Handlers());
+        run.Queue(Intent.OfDebugConsole(ContentId.Parse("debug.notice_logged", "test", "debug")));
+        run.Advance(OneTick);
+        run.Advance(OneTick);
+        object before = run.NoticeAt(60)!;
+        run.Queue(Intent.OfPlayer(IntentIds.OpenMenu));
+
+        for (int tick = 0; tick < 30; tick += 1)
+        {
+            run.Advance(OneTick);
+        }
+
+        Assert.Equal(before, run.NoticeAt(60));
+        Assert.Contains("notice.fixture_mark", before.ToString(), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AnEmptyQueueLeavesTheMenuStateOfTheRun()
     {
         Run run = Run.Start();
@@ -242,7 +305,15 @@ public sealed class GameRunTests
             (Intent)(this.intentOf.Invoke(this.instance, [action])
                 ?? throw new InvalidOperationException("The 'IntentOf' method gave nothing (T-2)."));
 
-        public static Run Start()
+        public RunState State => (RunState)(this.instance.GetType().GetProperty("State")!.GetValue(this.instance)
+            ?? throw new InvalidOperationException("The run holds no state (T-2)."));
+
+        public object? NoticeAt(int charactersPerSecond) =>
+            this.instance.GetType().GetMethod("NoticeAt")!.Invoke(this.instance, [charactersPerSecond]);
+
+        public static Run Start() => Start(DebugIntentHandlers.None);
+
+        public static Run Start(DebugIntentHandlers handlers)
         {
             Type type = GameAssemblyFile.Type(RunTypeName);
             MethodInfo start = type.GetMethod(
@@ -252,7 +323,7 @@ public sealed class GameRunTests
 
             // A test run passes no debug handler, as a release build does. The tests of the
             // console pass the handlers of the debug assembly (D-260, D-492).
-            object instance = start.Invoke(null, [Content.Value, Seed, DebugIntentHandlers.None, MessageSpeed.Normal])
+            object instance = start.Invoke(null, [Content.Value, Seed, handlers, MessageSpeed.Normal])
                 ?? throw new InvalidOperationException("The 'Start' method gave no run (T-2).");
             return new Run(type, instance);
         }

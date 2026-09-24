@@ -68,7 +68,7 @@ public sealed class SettingsTextTests
         string text = SettingsText.Write(SettingsFixtures.Defaults());
 
         Assert.DoesNotContain("\r", text, StringComparison.Ordinal);
-        Assert.StartsWith("{\n  \"format\": 1,", text, StringComparison.Ordinal);
+        Assert.StartsWith("{\n  \"format\": 2,", text, StringComparison.Ordinal);
         Assert.EndsWith("}\n", text, StringComparison.Ordinal);
     }
 
@@ -127,7 +127,7 @@ public sealed class SettingsTextTests
     public void ANewerFormatFailsAndNamesTheNewerBuild()
     {
         string text = SettingsText.Write(SettingsFixtures.Defaults())
-            .Replace("\"format\": 1", "\"format\": 2", StringComparison.Ordinal);
+            .Replace("\"format\": 2", "\"format\": 3", StringComparison.Ordinal);
 
         StorageException error = Assert.Throws<StorageException>(() => SettingsText.Read(text, File));
 

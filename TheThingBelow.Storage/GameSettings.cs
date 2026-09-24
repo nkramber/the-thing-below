@@ -51,6 +51,22 @@ public enum TextSpeed
     Fast,
 }
 
+/// <summary>The characters of each text speed (D-864).</summary>
+public static class TextSpeeds
+{
+    /// <summary>Gives the count of characters that one speed types out in one second (D-864).</summary>
+    /// <param name="speed">The speed.</param>
+    /// <returns>30, 60, or 120.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The value is no speed (T-2).</exception>
+    public static int CharactersPerSecond(TextSpeed speed) => speed switch
+    {
+        TextSpeed.Slow => 30,
+        TextSpeed.Normal => 60,
+        TextSpeed.Fast => 120,
+        _ => throw new ArgumentOutOfRangeException(nameof(speed), speed, "The text speed takes one of three values (D-864, T-2)."),
+    };
+}
+
 /// <summary>The three speeds of the events of the battle screen (D-866, D-873).</summary>
 public enum MessageSpeed
 {
