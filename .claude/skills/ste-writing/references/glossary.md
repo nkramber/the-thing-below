@@ -20,6 +20,7 @@ Game terms from the roadmap interview of 2026-09-12:
 | form | a named ability of a lesson that a point total opens (D-539) | version, tier, rank, when the text means this |
 | owned lesson | a lesson in the pack, or on a character of the party or the reserve (D-1023, D-1024) | party lesson, held lesson |
 | fallback item | the item that a chest gives in place of an owned lesson (D-1024) | substitute, replacement item |
+| swap place | a hub or a save point, where the party swaps lessons (D-356, D-1030) | swap point, lesson shrine |
 | lead | the one character whom story scenes center on (D-267) | hero, protagonist, main character |
 | ability | an action that a lesson gives (D-272, D-278) | skill, technique, move |
 | spell | an ability that costs MP (D-42) | magic, cast |
