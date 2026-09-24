@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Battles;
 
@@ -61,7 +62,7 @@ public sealed record CombatantValues(
     IReadOnlyList<StatusValues> Statuses);
 
 /// <summary>The stored values of one battle (D-531).</summary>
-/// <param name="Enemy">The id of the map enemy of the encounter (D-749).</param>
+/// <param name="Enemy">The id of the map enemy of the encounter (D-749), or of the story scene whose start battle step started the battle (D-998).</param>
 /// <param name="Group">The id of the group (D-753).</param>
 /// <param name="Now">The tick of the timeline of the last turn.</param>
 /// <param name="Outcome">How the battle ended, or `running`.</param>
@@ -183,8 +184,11 @@ public sealed class Battle
         this.Outcome = BattleOutcome.Running;
     }
 
-    /// <summary>The id of the map enemy of the encounter (D-749).</summary>
+    /// <summary>The id of the map enemy of the encounter (D-749), or of the story scene whose start battle step started the battle (D-998).</summary>
     public ContentId Enemy { get; }
+
+    /// <summary>True when a start battle step of a story scene started the battle, which no party flees (D-998, D-1008).</summary>
+    public bool FromStoryScene => string.CompareOrdinal(this.Enemy.Kind, StoryScene.Kind) == 0;
 
     /// <summary>The group (D-766).</summary>
     public GroupRecord Group { get; }

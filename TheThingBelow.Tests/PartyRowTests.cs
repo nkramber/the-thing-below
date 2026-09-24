@@ -53,7 +53,7 @@ public sealed class PartyRowTests
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
         run.Step([FirstRow]);
 
-        Simulation resumed = Simulation.Resume(Seed, run.Snapshot(), TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation resumed = Simulation.Resume(Seed, run.Snapshot(), TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         Assert.Equal(BattleRow.Back, resumed.State.Characters.Members[0].Row);
         Assert.Equal(run.StateHash(), resumed.StateHash());
@@ -124,7 +124,7 @@ public sealed class PartyRowTests
     }
 
     private static Simulation Start(Core.Maps.GameMap map) =>
-        Simulation.Start(Seed, map, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation.Start(Seed, map, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
     /// <summary>Steps east until the guard starts a fight, for 120 ticks at most.</summary>
     private static Simulation Walk(Simulation run)

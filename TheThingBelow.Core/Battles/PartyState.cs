@@ -115,8 +115,8 @@ public sealed class PartyMember
 /// </summary>
 public sealed class PartyState
 {
-    private readonly PartyMember[] members;
     private readonly PackValues[] pack;
+    private PartyMember[] members;
 
     private PartyState(PartyMember[] members, PackValues[] pack)
     {
@@ -316,6 +316,41 @@ public sealed class PartyState
             member.Fill();
             member.Statuses = [];
         }
+    }
+
+    /// <summary>
+    /// Adds a cast member to the last slot of the party, at its join level with full health
+    /// and full MP, in the row of its record (D-363, D-563).
+    /// </summary>
+    /// <param name="record">The cast member.</param>
+    /// <param name="rules">The rules, which hold the experience table.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <exception cref="SimulationException">The cast member is in the party, or the party is full (T-2).</exception>
+    /// <remarks>
+    /// A party holds three characters at most (D-31), and no rule of this build moves a character
+    /// to the reserve of D-58. The story adds each character in its order, so a join into a full
+    /// party points at a fault in the content (D-342).
+    /// </remarks>
+    internal void Join(CharacterRecord record, BattleRules rules, RunContext context)
+    {
+        foreach (PartyMember member in this.members)
+        {
+            if (string.CompareOrdinal(member.Record.Id.Value, record.Id.Value) == 0)
+            {
+                throw new SimulationException($"a join of '{record.Id.Value}', who is already in the party (D-563)", context);
+            }
+        }
+
+        if (this.members.Length >= BattleFixture.MostCharacters)
+        {
+            throw new SimulationException(
+                $"a join of '{record.Id.Value}', and the party already holds {this.members.Length} characters, the most that it holds (D-31, D-563)",
+                context);
+        }
+
+        GrowthValues growth = PartyMember.JoinValues(record, rules);
+        var joined = new PartyMember(record, growth, record.At(growth.Level).Health, record.Row, []);
+        this.members = [.. this.members, joined];
     }
 
     /// <summary>Takes one item from the pack (D-775).</summary>

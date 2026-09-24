@@ -43,7 +43,9 @@ public static class SimulationVersion
     /// level, a battle won gives experience with the shrink of each enemy, a level-up fills the health and the MP, and
     /// the party holds the level, the experience, and the MP (D-966 to D-974). PR-62 raised it to 20: the party
     /// window moves a character to the other row, a rule posts a notice, and the run holds the notice log (D-558,
-    /// D-983 to D-985, D-989).
+    /// D-983 to D-985, D-989). PR-68 raised it to 21: a map fires its story scene triggers, Core runs each step of a story scene
+    /// and holds the flags, a step starts a battle that no party flees, a cast member joins the party, and the pause holds a
+    /// story scene (D-540, D-997 to D-1013).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -51,5 +53,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 20;
+    public const int Current = 21;
 }

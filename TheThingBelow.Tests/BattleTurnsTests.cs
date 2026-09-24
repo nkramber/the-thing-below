@@ -25,7 +25,7 @@ public sealed class BattleTurnsTests
     public void AStepIntoAnEnemyStartsABattleOnTheSameTick()
     {
         // D-531, D-747: the encounter becomes a battle on its own tick, and the map holds still.
-        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Exact, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Exact, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
 
@@ -437,7 +437,7 @@ public sealed class BattleTurnsTests
     [Fact]
     public void ABattleIntentWithNoBattleIsAnError()
     {
-        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Exact, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Exact, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         SimulationException error = Assert.Throws<SimulationException>(
             () => run.Step([Intent.OfPlayer(IntentIds.BattleDefend)]));
@@ -449,7 +449,7 @@ public sealed class BattleTurnsTests
     public void ATargetOnAnIntentOfTheMapIsAnError()
     {
         // D-764, T-2: a value that no rule reads points at a fault of the screen.
-        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Exact, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Exact, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         Assert.Throws<SimulationException>(
             () => run.Step([Intent.OfPlayer(IntentIds.MoveNorth, new BattleTarget(BattleSide.Enemy, 0), null)]));
@@ -460,7 +460,7 @@ public sealed class BattleTurnsTests
     {
         // D-766: the test that each named group exists lands in PR-9.
         ContentException error = Assert.Throws<ContentException>(
-            () => Simulation.Start(Seed, BattleRuns.Map("group.absent"), TestBattles.Exact, TestBattles.Notices, DebugIntentHandlers.None));
+            () => Simulation.Start(Seed, BattleRuns.Map("group.absent"), TestBattles.Exact, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
 
         Assert.Contains("group.absent", error.Message, StringComparison.Ordinal);
         Assert.Contains("patrol.test_guard", error.Message, StringComparison.Ordinal);
@@ -492,10 +492,10 @@ public sealed class BattleTurnsTests
     private static Simulation Encountered(string group, EncounterSide behind, BattleContent content)
     {
         GameMap map = BattleRuns.Map(group);
-        RunSnapshot start = Simulation.Start(Seed, map, content, TestBattles.Notices, DebugIntentHandlers.None).Snapshot();
+        RunSnapshot start = Simulation.Start(Seed, map, content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
         MapEncounter encounter = new(map.Patrols[0].Id, map.Patrols[0].Group, behind);
         RunSnapshot held = start with { Map = start.Map! with { Encounter = encounter } };
-        return Simulation.Resume(Seed, held, map, content, TestBattles.Notices, DebugIntentHandlers.None);
+        return Simulation.Resume(Seed, held, map, content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
     }
 
     private static void Assume(bool holds)

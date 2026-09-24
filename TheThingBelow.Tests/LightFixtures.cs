@@ -159,7 +159,7 @@ public static class LightFixtures
              "time": "night",
              "terrain": [ {{rows}} ],
              "things": [ { "id": "spawn_point.lit_start", "kind": "spawn_point", "x": 1, "y": 1 } ],
-             "enemies": []
+             "enemies": [], "triggers": []
             }
             """;
         GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(body), "rules/maps/lit.json");

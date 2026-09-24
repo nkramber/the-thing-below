@@ -4,6 +4,7 @@ using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
+using TheThingBelow.Core.Story;
 using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Runs;
@@ -77,6 +78,10 @@ public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IR
 /// A snapshot before save format 8 holds no notice log, and its migration starts the log empty
 /// (D-166, D-985).
 /// </para>
+/// <para>
+/// A snapshot before save format 9 holds no story state, and its migration starts with no
+/// flag on and no story scene (D-166, D-540).
+/// </para>
 /// </remarks>
 /// <param name="Tick">The count of ticks since the start of the run (D-164, D-650).</param>
 /// <param name="MenuOpen">True while a menu is open and the world waits (D-162).</param>
@@ -85,6 +90,7 @@ public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IR
 /// <param name="Characters">The characters and the pack, or no value on a snapshot before save format 4 (D-765).</param>
 /// <param name="Battle">The battle, or no value when none runs (D-531).</param>
 /// <param name="Notices">The notice log, oldest first, or no value on a snapshot before save format 8 (D-985).</param>
+/// <param name="Story">The flags, the story scene that runs, and the events that fire a trigger, or no value on a snapshot before save format 9 (D-540, D-542).</param>
 /// <param name="Streams">The position of every stream, in the order of `RandomStreams.All`.</param>
 public sealed record RunSnapshot(
     long Tick,
@@ -94,6 +100,7 @@ public sealed record RunSnapshot(
     PartySnapshot? Characters,
     BattleValues? Battle,
     IReadOnlyList<ContentId>? Notices,
+    StoryValues? Story,
     IReadOnlyList<StreamPosition> Streams)
 {
     /// <summary>
@@ -124,9 +131,9 @@ public sealed record RunSnapshot(
             $"the world tick is {this.WorldTick}, and the tick is {this.Tick}, which is lower");
         this.CheckMap(source);
         Refuse(
-            this.Battle is not null && (this.Characters is null || this.Map?.Encounter is null),
+            this.Battle is not null && (this.Characters is null || (this.Map?.Encounter is null && !this.StoryWaitsForBattle())),
             source,
-            "it holds a battle with no party or no encounter, and a battle needs both (D-531)");
+            "it holds a battle with no party, or with no encounter and no story scene that waits for it, and a battle needs a party and one of the two (D-531, D-998)");
         Refuse(
             this.Notices is not null && this.Notices.Count > NoticeLog.MostEntries,
             source,
@@ -200,6 +207,9 @@ public sealed record RunSnapshot(
             source,
             "it holds no enemy list and it holds a mark or an encounter, and both name an enemy");
     }
+
+    /// <summary>Tells whether a story scene waits for the battle of its start battle step (D-998).</summary>
+    private bool StoryWaitsForBattle() => this.Story?.Scene?.Phase == ScenePhase.Battle;
 
     private static void Refuse(bool broken, string source, string reason)
     {

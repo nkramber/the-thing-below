@@ -149,7 +149,7 @@ public sealed class ScreenHandOffTests
         TickIntents wait = Assert.Single(record.Ticks, line => line.Intents.Count > 0 && line.Intents[0].Action.Value == IntentIds.WaitBattleEnd.Value);
         Assert.Equal(back + FadeTicks + 1, wait.Tick);
 
-        RunState replayed = RunReplay.Play(record, Content.Value.Hash, Content.Value.Map(record.Snapshot.MapIdOrFirst), Content.Value.Battle, Content.Value.Notices, DebugIntentHandlers.None);
+        RunState replayed = RunReplay.Play(record, Content.Value.Hash, Content.Value.Map(record.Snapshot.MapIdOrFirst), Content.Value.Battle, Content.Value.Notices, Content.Value.Story, DebugIntentHandlers.None);
         Assert.Equal(run.StateHash(), replayed.StateHash());
     }
 

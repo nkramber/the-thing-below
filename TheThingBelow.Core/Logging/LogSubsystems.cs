@@ -22,4 +22,7 @@ public static class LogSubsystems
 
     /// <summary>The battle: each action, each down, and the end of an encounter (D-168, D-532).</summary>
     public const string Battle = "battle";
+
+    /// <summary>The story: each trigger, each step of a story scene, each flag, and each join (D-540, D-542).</summary>
+    public const string Story = "story";
 }

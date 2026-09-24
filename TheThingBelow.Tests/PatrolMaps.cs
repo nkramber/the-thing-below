@@ -86,7 +86,7 @@ public static class PatrolMaps
          ],
          "enemies": [
         {{enemies}}
-         ]
+         ], "triggers": []
         }
         """);
 }

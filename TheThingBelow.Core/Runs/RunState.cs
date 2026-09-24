@@ -5,6 +5,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
+using TheThingBelow.Core.Story;
 using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Runs;
@@ -47,8 +48,10 @@ public sealed class RunState
         PartyState characters,
         Battle? battle,
         NoticeList notices,
-        NoticeLog noticeLog)
+        NoticeLog noticeLog,
+        StoryState story)
     {
+        this.Story = story;
         this.BattleContent = battleContent;
         this.Notices = notices;
         this.NoticeLog = noticeLog;
@@ -92,19 +95,26 @@ public sealed class RunState
     /// <summary>The newest notices that content marks to log, oldest first (D-221, D-984).</summary>
     public NoticeLog NoticeLog { get; }
 
+    /// <summary>The flags, the story scene that runs, and the events that fire a trigger (D-540, D-542).</summary>
+    public StoryState Story { get; }
+
     /// <summary>Starts a new run from a seed, at tick zero, on one map.</summary>
     /// <param name="seed">The seed of the run (G-3, G-4).</param>
     /// <param name="map">The map that the run opens, with the party on its spawn point (D-528).</param>
     /// <param name="battleContent">The battle rules and the fixture, which hold every group that the map names (D-766).</param>
     /// <param name="notices">The notice file of this build (D-989).</param>
-    /// <returns>The state, with every stream at its first value and an empty notice log.</returns>
+    /// <param name="story">The story content of this build, which holds every story scene that a trigger of the map starts (D-1004).</param>
+    /// <returns>The state, with every stream at its first value, an empty notice log, no flag on, and the entry of the map to read.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    public static RunState Start(ulong seed, GameMap map, BattleContent battleContent, NoticeList notices)
+    /// <exception cref="ContentException">A group or a trigger of the map names content that this build lacks (T-2).</exception>
+    public static RunState Start(ulong seed, GameMap map, BattleContent battleContent, NoticeList notices, StoryContent story)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(battleContent);
         ArgumentNullException.ThrowIfNull(notices);
+        ArgumentNullException.ThrowIfNull(story);
         battleContent.RequireGroupsOf(map);
+        story.RequireScenesOf(map);
 
         RandomStream[] streams = new RandomStream[RandomStreams.All.Count];
         for (int index = 0; index < streams.Length; index += 1)
@@ -123,7 +133,8 @@ public sealed class RunState
             PartyState.Start(battleContent),
             null,
             notices,
-            NoticeLog.Empty());
+            NoticeLog.Empty(),
+            StoryState.Start(story));
     }
 
     /// <summary>Starts a run again from a snapshot (D-259, D-651).</summary>
@@ -135,6 +146,7 @@ public sealed class RunState
     /// </param>
     /// <param name="battleContent">The battle rules and the fixture, which hold every group that the map names (D-766).</param>
     /// <param name="notices">The notice file of this build, which each entry of the stored log must name (D-985).</param>
+    /// <param name="story">The story content of this build, which each stored flag and story scene must name (D-166).</param>
     /// <returns>The state, with every stream at the position of the snapshot.</returns>
     /// <exception cref="ArgumentNullException">The snapshot or the map is null (T-2).</exception>
     /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the map is another map (T-2).</exception>
@@ -144,15 +156,19 @@ public sealed class RunState
     /// and no other (D-166, D-654). A snapshot of save format 2 holds no enemy, and its
     /// migration puts each enemy of the map on the start tile of its station (D-750). A
     /// snapshot before save format 8 holds no notice log, and its migration starts the log
-    /// empty (D-985).
+    /// empty (D-985). A snapshot before save format 9 holds no story state, and its migration
+    /// starts with no flag on, no story scene, and no entry to read, because a load is not an
+    /// entry to the map (D-1004).
     /// </remarks>
-    public static RunState Resume(ulong seed, RunSnapshot snapshot, GameMap map, BattleContent battleContent, NoticeList notices)
+    public static RunState Resume(ulong seed, RunSnapshot snapshot, GameMap map, BattleContent battleContent, NoticeList notices, StoryContent story)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(battleContent);
         ArgumentNullException.ThrowIfNull(notices);
+        ArgumentNullException.ThrowIfNull(story);
         battleContent.RequireGroupsOf(map);
+        story.RequireScenesOf(map);
         snapshot.Check("this run");
 
         RandomStream[] streams = new RandomStream[snapshot.Streams.Count];
@@ -166,6 +182,7 @@ public sealed class RunState
 
         MapState party = ResumeMap(snapshot, map);
         PartyState characters = ResumeCharacters(snapshot, battleContent);
+        StoryState storyState = ResumeStory(snapshot, story, map);
         return new RunState(
             seed,
             streams,
@@ -175,9 +192,10 @@ public sealed class RunState
             party,
             battleContent,
             characters,
-            ResumeBattle(snapshot, party, characters, battleContent),
+            ResumeBattle(snapshot, party, characters, battleContent, storyState),
             notices,
-            snapshot.Notices is null ? NoticeLog.Empty() : NoticeLog.Resume(snapshot.Notices, notices, "this run"));
+            snapshot.Notices is null ? NoticeLog.Empty() : NoticeLog.Resume(snapshot.Notices, notices, "this run"),
+            storyState);
     }
 
     private static MapState ResumeMap(RunSnapshot snapshot, GameMap map)
@@ -225,12 +243,53 @@ public sealed class RunState
         return PartyState.Resume(battleContent, stored.Characters, stored.Pack, "this run");
     }
 
-    /// <summary>Gives the battle of a snapshot, which must match the encounter of its map (D-531, T-2).</summary>
-    private static Battle? ResumeBattle(RunSnapshot snapshot, MapState party, PartyState characters, BattleContent battleContent)
+    /// <summary>
+    /// Gives the story state of a snapshot. A snapshot before save format 9 holds none, and its
+    /// migration starts with no flag on, no story scene, and no entry to read (D-166, D-1004).
+    /// </summary>
+    private static StoryState ResumeStory(RunSnapshot snapshot, StoryContent story, GameMap map)
     {
+        StoryValues stored = snapshot.Story ?? new StoryValues([], null, false, false, null);
+        return StoryState.Resume(story, stored, map, "this run");
+    }
+
+    /// <summary>
+    /// Gives the battle of a snapshot. A battle of a story scene must match the start battle
+    /// step of the story scene that runs, and any other battle must match the encounter of its
+    /// map (D-531, D-998, T-2).
+    /// </summary>
+    private static Battle? ResumeBattle(RunSnapshot snapshot, MapState party, PartyState characters, BattleContent battleContent, StoryState story)
+    {
+        bool storyWaits = story.Phase == ScenePhase.Battle;
         if (snapshot.Battle is not BattleValues stored)
         {
+            if (storyWaits)
+            {
+                throw new ArgumentException("The snapshot holds a story scene that waits for its battle, and it holds no battle (T-2, D-999).", nameof(snapshot));
+            }
+
             return null;
+        }
+
+        if (string.CompareOrdinal(stored.Enemy.Kind, StoryScene.Kind) == 0)
+        {
+            if (!storyWaits
+                || story.Scene is not StoryScene scene
+                || string.CompareOrdinal(scene.Id.Value, stored.Enemy.Value) != 0
+                || scene.Steps[story.Step] is not StartBattleStep start
+                || string.CompareOrdinal(start.Group.Value, stored.Group.Value) != 0)
+            {
+                throw new ArgumentException(
+                    $"The snapshot holds a battle of the story scene '{stored.Enemy.Value}' and the group '{stored.Group.Value}', and no start battle step of that story scene waits for it (T-2, D-998).",
+                    nameof(snapshot));
+            }
+
+            return Battle.Resume(battleContent, stored, characters, "this run");
+        }
+
+        if (storyWaits)
+        {
+            throw new ArgumentException($"The snapshot holds a story scene that waits for its battle, and the battle is one of the map enemy '{stored.Enemy.Value}' (T-2, D-999).", nameof(snapshot));
         }
 
         if (party.Patrols.Encounter is not MapEncounter encounter
@@ -291,6 +350,7 @@ public sealed class RunState
             new PartySnapshot(this.Characters.CharacterValues(), this.Characters.PackValues()),
             this.Battle?.Values(),
             this.NoticeLog.Values(),
+            this.Story.Values(),
             ReadPositions(this.streams));
 
     /// <summary>Computes the state hash that a replay and the identity job compare (G-5).</summary>
@@ -313,6 +373,7 @@ public sealed class RunState
         hasher.AddBoolean(this.Battle is not null);
         this.Battle?.Hash(hasher);
         this.NoticeLog.Hash(hasher);
+        this.Story.Hash(hasher);
 
         foreach (RandomStream stream in this.streams)
         {

@@ -26,7 +26,7 @@ public sealed class SimulationLogTests
     [Fact]
     public void AStepOfNoChangeReturnsNoEntry()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         Assert.Empty(run.Step(NoIntents));
     }
@@ -34,7 +34,7 @@ public sealed class SimulationLogTests
     [Fact]
     public void AMenuChangeReturnsOneInfoEntryOfTheRun()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         LogEntry opened = Assert.Single(run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]));
 
@@ -49,7 +49,7 @@ public sealed class SimulationLogTests
     [Fact]
     public void ACloseOfTheMenuReturnsItsOwnEntry()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
 
         LogEntry closed = Assert.Single(run.Step([Intent.OfPlayer(IntentIds.CloseMenu)]));
@@ -61,7 +61,7 @@ public sealed class SimulationLogTests
     [Fact]
     public void TheStartOfAStepReturnsOneDebugEntryOfTheWorld()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         LogEntry started = Assert.Single(run.Step([Intent.OfPlayer(IntentIds.MoveEast)]));
 
@@ -75,7 +75,7 @@ public sealed class SimulationLogTests
     [Fact]
     public void TheEndOfAStepReturnsOneDebugEntryWithTheWalkedCount()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
         for (int tick = 1; tick < MapRules.TicksPerStep; tick += 1)
         {
@@ -93,7 +93,7 @@ public sealed class SimulationLogTests
     public void AMenuHoldsTheStepOfTheParty()
     {
         // A menu pauses the world, so no step logs while the menu is open (D-162, D-650).
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.OpenMenu)]);
 
         for (int tick = 0; tick < MapRules.TicksPerStep * 2; tick += 1)
@@ -127,7 +127,7 @@ public sealed class SimulationLogTests
     [Fact]
     public void AStepReturnsTheEntriesOfThatStepAlone()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         Assert.Single(run.Step([Intent.OfPlayer(IntentIds.MoveEast)]));
 
         // The step after the start of a step holds no entry, so Core kept none of the
@@ -138,14 +138,14 @@ public sealed class SimulationLogTests
     [Fact]
     public void TheWorldRefusesAListThatIsNull()
     {
-        RunState state = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None).State;
+        RunState state = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).State;
 
         Assert.Throws<ArgumentNullException>(() => WorldRules.Step(state, null!));
     }
 
     private static IReadOnlyList<LogEntry> Play(ulong seed, int tickCount)
     {
-        Simulation run = Simulation.Start(seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         List<LogEntry> entries = [];
         foreach (IReadOnlyList<Intent> intents in RunScripts.Make(seed, tickCount))
         {

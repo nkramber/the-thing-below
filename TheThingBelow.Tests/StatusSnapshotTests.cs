@@ -33,7 +33,7 @@ public sealed class StatusSnapshotTests
         run.Step([BattleRuns.AttackFirst(run)]);
 
         string line = RunSnapshotText.Write(run.Snapshot());
-        Simulation resumed = Simulation.Resume(Seed, Read(line), BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation resumed = Simulation.Resume(Seed, Read(line), BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
         Assert.Contains("{\"status\":\"poison\"}", line, StringComparison.Ordinal);
         Assert.Contains("{\"status\":\"haste\",\"ends_at\":400}", line, StringComparison.Ordinal);
@@ -96,7 +96,7 @@ public sealed class StatusSnapshotTests
         RunSnapshot broken = WithEnemy(snapshot, enemy => enemy with { Statuses = [new StatusValues(StatusKind.Sleep, 300)] });
 
         ArgumentException error = Assert.Throws<ArgumentException>(
-            () => Simulation.Resume(Seed, broken, BattleRuns.Map("group.one"), content, TestBattles.Notices, DebugIntentHandlers.None));
+            () => Simulation.Resume(Seed, broken, BattleRuns.Map("group.one"), content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
 
         Assert.Contains("refuses", error.Message, StringComparison.Ordinal);
     }
@@ -108,13 +108,13 @@ public sealed class StatusSnapshotTests
     {
         // D-390, D-801: outside a fight a character holds poison, blind, and silence alone,
         // and a down character holds none.
-        RunSnapshot snapshot = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None).Snapshot();
+        RunSnapshot snapshot = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
         List<CharacterValues> characters = [.. snapshot.Characters!.Characters];
         characters[0] = characters[0] with { Health = health, Statuses = [status] };
         RunSnapshot broken = snapshot with { Characters = snapshot.Characters with { Characters = characters } };
 
         ArgumentException error = Assert.Throws<ArgumentException>(
-            () => Simulation.Resume(Seed, broken, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None));
+            () => Simulation.Resume(Seed, broken, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
 
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
     }
@@ -149,7 +149,7 @@ public sealed class StatusSnapshotTests
     {
         RunSnapshot broken = WithEnemy(BattleRuns.IntoBattle(Seed, "group.one").Snapshot(), change);
         return Assert.Throws<ArgumentException>(
-            () => Simulation.Resume(Seed, broken, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None));
+            () => Simulation.Resume(Seed, broken, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
     }
 
     private static RunSnapshot WithEnemy(RunSnapshot snapshot, Func<CombatantValues, CombatantValues> change)

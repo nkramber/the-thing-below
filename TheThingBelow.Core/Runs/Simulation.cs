@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Battles;
+using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
+using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Runs;
 
@@ -29,6 +31,12 @@ namespace TheThingBelow.Core.Runs;
 /// next turn of a character (D-532). The events wait in the run until the host takes them
 /// with <see cref="TakeBattleEvents"/>. The wait intent of a battle ends a win or a flee,
 /// and the map runs again from the next tick (D-522).
+/// </para>
+/// <para>
+/// While a story scene runs, the intents of the player are the step end, the pick, and the
+/// pause, and a battle of the story scene takes the battle intents. Any other intent is an
+/// error. The pause holds the world step, and it takes the end of the pause alone (D-1009,
+/// D-1010).
 /// </para>
 /// <para>
 /// A debug intent goes to the handlers that the host passed at the start. A host with no
@@ -62,20 +70,22 @@ public sealed class Simulation
     /// <param name="map">The map that the run opens, with the party on its spawn point (D-528).</param>
     /// <param name="battleContent">The battle rules and the fixture, which hold every group that the map names (D-766).</param>
     /// <param name="notices">The notice file of this build (D-989).</param>
+    /// <param name="story">The story content of this build (D-1004).</param>
     /// <param name="debugHandlers">
     /// The extra intent handlers of the host. A release build passes
     /// <see cref="DebugIntentHandlers.None"/> (D-260, D-492).
     /// </param>
     /// <returns>The run.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    public static Simulation Start(ulong seed, GameMap map, BattleContent battleContent, NoticeList notices, DebugIntentHandlers debugHandlers)
+    public static Simulation Start(ulong seed, GameMap map, BattleContent battleContent, NoticeList notices, StoryContent story, DebugIntentHandlers debugHandlers)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(battleContent);
         ArgumentNullException.ThrowIfNull(notices);
+        ArgumentNullException.ThrowIfNull(story);
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
-        return new Simulation(RunState.Start(seed, map, battleContent, notices), debugHandlers);
+        return new Simulation(RunState.Start(seed, map, battleContent, notices, story), debugHandlers);
     }
 
     /// <summary>Starts a run again from a snapshot (D-651).</summary>
@@ -87,6 +97,7 @@ public sealed class Simulation
     /// </param>
     /// <param name="battleContent">The battle rules and the fixture of this build (D-766).</param>
     /// <param name="notices">The notice file of this build (D-985).</param>
+    /// <param name="story">The story content of this build (D-166).</param>
     /// <param name="debugHandlers">The extra intent handlers of the host (D-260).</param>
     /// <returns>The run, at the tick of the snapshot.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
@@ -97,15 +108,17 @@ public sealed class Simulation
         GameMap map,
         BattleContent battleContent,
         NoticeList notices,
+        StoryContent story,
         DebugIntentHandlers debugHandlers)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(battleContent);
         ArgumentNullException.ThrowIfNull(notices);
+        ArgumentNullException.ThrowIfNull(story);
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
-        return new Simulation(RunState.Resume(seed, snapshot, map, battleContent, notices), debugHandlers);
+        return new Simulation(RunState.Resume(seed, snapshot, map, battleContent, notices, story), debugHandlers);
     }
 
     /// <summary>Runs one tick of the rules.</summary>
@@ -132,7 +145,8 @@ public sealed class Simulation
             this.Apply(intent, log);
         }
 
-        if (!this.State.MenuOpen)
+        // A menu and the pause of a story scene each hold the world still (D-162, D-1010).
+        if (!this.State.MenuOpen && !this.State.Story.Paused)
         {
             WorldRules.Step(this.State, log);
         }
@@ -173,9 +187,14 @@ public sealed class Simulation
             return;
         }
 
-        if (intent.Target is not null || intent.Item is not null)
+        if (intent.Target is not null || intent.Item is not null || intent.Option is not null)
         {
             RefuseOutsideBattle(intent, context);
+        }
+
+        if (this.TryStoryIntent(intent, context, log))
+        {
+            return;
         }
 
         if (TryBattleChoice(intent, out BattleChoice? choice))
@@ -237,6 +256,69 @@ public sealed class Simulation
     }
 
     /// <summary>
+    /// Applies an intent of a story scene, and refuses any other intent of the player while a
+    /// story scene runs (D-1009, D-1010).
+    /// </summary>
+    /// <returns>True when the intent was an intent of a story scene, which this method applied.</returns>
+    private bool TryStoryIntent(Intent intent, RunContext context, List<LogEntry> log)
+    {
+        StoryState story = this.State.Story;
+        if (Is(intent, IntentIds.StoryResume))
+        {
+            StoryRules.Resume(this.State, context);
+            log.Add(StoryEntry("the pause of a story scene ended", this.State.Tick, intent));
+            return true;
+        }
+
+        if (story.Paused)
+        {
+            throw new SimulationException($"the intent '{intent.Action.Value}' while the story scene is paused, and the pause takes its end alone (D-1010)", context);
+        }
+
+        if (Is(intent, IntentIds.StoryPause))
+        {
+            StoryRules.Pause(this.State, context);
+            log.Add(StoryEntry("the player paused a story scene", this.State.Tick, intent));
+            return true;
+        }
+
+        if (Is(intent, IntentIds.StoryStepEnd))
+        {
+            StoryRules.EndStep(this.State, context, log);
+            return true;
+        }
+
+        if (Is(intent, IntentIds.StoryPick))
+        {
+            int option = intent.Option ?? throw new SimulationException("a pick that names no option (D-1007)", context);
+            StoryRules.Pick(this.State, option, context, log);
+            return true;
+        }
+
+        // A battle of a story scene takes the battle intents, and the wait intent of its end
+        // lets the story scene go on (D-999).
+        bool battleIntent = TryBattleChoice(intent, out _) || Is(intent, IntentIds.WaitBattleEnd);
+        if (story.Running && !(story.Phase == ScenePhase.Battle && battleIntent))
+        {
+            throw new SimulationException(
+                $"the intent '{intent.Action.Value}' while a story scene runs, and a story scene takes the step end, the pick, and the pause alone (D-1009)",
+                context);
+        }
+
+        return false;
+    }
+
+    private static bool Is(Intent intent, ContentId action) => string.CompareOrdinal(intent.Action.Value, action.Value) == 0;
+
+    private static LogEntry StoryEntry(string message, long tick, Intent intent) =>
+        new(
+            LogLevel.Info,
+            message,
+            tick,
+            LogSubsystems.Story,
+            [new LogField("action", intent.Action.Value)]);
+
+    /// <summary>
     /// Gives the battle choice of a battle intent (D-764, D-780). The attack and the item take
     /// a target, and the item takes its item. `BattleTurns` refuses a choice that lacks one.
     /// </summary>
@@ -269,8 +351,8 @@ public sealed class Simulation
     }
 
     /// <summary>
-    /// Refuses a target on an intent that is not an attack, an item use, or a row change, and an
-    /// item on an intent that is not an item use. A value that no rule reads points at a fault in
+    /// Refuses a target on an intent that is not an attack, an item use, or a row change, an item
+    /// on an intent that is not an item use, and an option on an intent that is not a pick. A value that no rule reads points at a fault in
     /// the screen that made the intent (T-2).
     /// </summary>
     private static void RefuseOutsideBattle(Intent intent, RunContext context)
@@ -278,10 +360,11 @@ public sealed class Simulation
         bool attack = string.CompareOrdinal(intent.Action.Value, IntentIds.BattleAttack.Value) == 0;
         bool item = string.CompareOrdinal(intent.Action.Value, IntentIds.BattleItem.Value) == 0;
         bool row = string.CompareOrdinal(intent.Action.Value, IntentIds.PartyRow.Value) == 0;
-        if ((intent.Target is not null && !attack && !item && !row) || (intent.Item is not null && !item))
+        bool pick = string.CompareOrdinal(intent.Action.Value, IntentIds.StoryPick.Value) == 0;
+        if ((intent.Target is not null && !attack && !item && !row) || (intent.Item is not null && !item) || (intent.Option is not null && !pick))
         {
             throw new SimulationException(
-                "an intent that carries a target or an item that no rule of its action reads (D-558, D-764, D-780)",
+                "an intent that carries a target, an item, or an option that no rule of its action reads (D-558, D-764, D-780, D-1007)",
                 context);
         }
     }

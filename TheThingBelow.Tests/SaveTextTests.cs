@@ -92,7 +92,7 @@ public sealed class SaveTextTests
 
         Assert.Equal(
             run.StateHash(),
-            Simulation.Resume(read.Header.Seed, read.Snapshot, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None).StateHash());
+            Simulation.Resume(read.Header.Seed, read.Snapshot, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).StateHash());
     }
 
     [Fact]

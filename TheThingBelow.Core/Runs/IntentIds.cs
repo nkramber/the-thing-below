@@ -74,4 +74,22 @@ public static class IntentIds
     /// character by its slot, as a battle target of the party side (D-377, D-558).
     /// </summary>
     public static readonly ContentId PartyRow = ContentId.Parse("intent.party_row", Source, nameof(PartyRow));
+
+    /// <summary>
+    /// Game drew the move, the face, the line, or the camera of a story scene step to its end.
+    /// Game sends it when the step ends on screen, and a bot sends it at once (D-540, D-1000).
+    /// </summary>
+    public static readonly ContentId StoryStepEnd = ContentId.Parse("intent.story_step_end", Source, nameof(StoryStepEnd));
+
+    /// <summary>
+    /// The player picked one option of a choose step. The intent names the option by its index,
+    /// and Core turns on the flag of that option (D-1007).
+    /// </summary>
+    public static readonly ContentId StoryPick = ContentId.Parse("intent.story_pick", Source, nameof(StoryPick));
+
+    /// <summary>The player pressed start in a story scene, and the story scene holds still (D-1009, D-1010).</summary>
+    public static readonly ContentId StoryPause = ContentId.Parse("intent.story_pause", Source, nameof(StoryPause));
+
+    /// <summary>The player ended the pause of a story scene (D-1010).</summary>
+    public static readonly ContentId StoryResume = ContentId.Parse("intent.story_resume", Source, nameof(StoryResume));
 }

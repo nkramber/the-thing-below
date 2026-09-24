@@ -8,6 +8,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Saves;
+using TheThingBelow.Core.Story;
 using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Runs;
@@ -45,6 +46,7 @@ public static class RunSnapshotText
             WriteParty(writer, snapshot.Characters);
             WriteBattle(writer, snapshot.Battle);
             WriteNotices(writer, snapshot.Notices);
+            WriteStory(writer, snapshot.Story);
             writer.WriteStartArray("streams");
             foreach (StreamPosition position in snapshot.Streams)
             {
@@ -82,6 +84,22 @@ public static class RunSnapshotText
         }
 
         writer.WriteEndArray();
+    }
+
+    /// <summary>
+    /// Writes the story state (D-540). This build writes save format 9, so the field is always
+    /// present.
+    /// </summary>
+    private static void WriteStory(Utf8JsonWriter writer, StoryValues? story)
+    {
+        if (story is null)
+        {
+            throw new ArgumentException(
+                "A snapshot that this build writes holds a story state. A snapshot with none comes from save format 8 or older, and this build never writes one (T-2, D-166).",
+                nameof(story));
+        }
+
+        StorySnapshotText.Write(writer, story);
     }
 
     /// <summary>
@@ -287,6 +305,16 @@ public static class RunSnapshotText
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
     public static RunSnapshot ReadFormatSeven(ref ContentReader reader) => ReadLine(ref reader, 7, null);
 
+    /// <summary>
+    /// Reads a snapshot of save format 8, which holds no story state (D-540). The resume starts
+    /// with no flag on and no story scene.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <returns>The snapshot, with no story state.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatEight(ref ContentReader reader) => ReadLine(ref reader, 8, null);
+
     private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {
         long? tick = null;
@@ -296,6 +324,7 @@ public static class RunSnapshotText
         PartySnapshot? party = null;
         BattleValues? battle = null;
         List<ContentId>? notices = null;
+        StoryValues? story = null;
         List<StreamPosition>? streams = null;
 
         int depth = reader.ReadObjectStart();
@@ -318,6 +347,13 @@ public static class RunSnapshotText
                         $"the snapshot of save format {format} holds a notice log, and that format predates it (D-985)");
                 case "notices":
                     notices = ReadNotices(ref reader);
+                    break;
+                // Save format 8 and older predate the story state (D-540).
+                case "story" when format < 9:
+                    throw reader.Refuse(
+                        $"the snapshot of save format {format} holds a story state, and that format predates it (D-540)");
+                case "story":
+                    story = StorySnapshotText.Read(ref reader);
                     break;
                 case "map":
                     map = ReadMap(ref reader, format);
@@ -359,6 +395,12 @@ public static class RunSnapshotText
             _ = reader.Require(notices, depth, "notices");
         }
 
+        // Save format 9 and each later format hold the story state (D-540).
+        if (format >= 9)
+        {
+            _ = reader.Require(story, depth, "story");
+        }
+
         RunSnapshot snapshot = new(
             reader.RequireValue(tick, depth, "tick"),
             reader.RequireValue(menu, depth, "menu"),
@@ -367,6 +409,7 @@ public static class RunSnapshotText
             party,
             battle,
             notices,
+            story,
             StreamsOf(reader.Require(streams, depth, "streams"), format, seed));
 
         snapshot.Check(reader.File);
@@ -430,6 +473,7 @@ public static class RunSnapshotText
             reader.RequireValue(tick, depth, "tick"),
             reader.RequireValue(menu, depth, "menu"),
             reader.RequireValue(world, depth, "world"),
+            null,
             null,
             null,
             null,

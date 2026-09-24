@@ -8,6 +8,7 @@ using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Core.Story;
 using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Identity;
@@ -22,7 +23,7 @@ namespace TheThingBelow.Core.Identity;
 /// changes its hash also bumps <see cref="SimulationVersion"/>, and the review of that PR
 /// reads each changed hash (G-17, D-504).
 /// </remarks>
-public static class IdentitySet
+public static partial class IdentitySet
 {
     /// <summary>The name of the run that reads the fixed-point math (D-641).</summary>
     public const string BasisPointsRun = "basis-points";
@@ -35,6 +36,9 @@ public static class IdentitySet
 
     /// <summary>The name of the run that fights with every element level and every status (G-17, D-504, D-793).</summary>
     public const string StatusRun = "statuses";
+
+    /// <summary>The name of the run that plays two story scenes with every kind of step, a pause, and a battle (D-540, D-997).</summary>
+    public const string StoryRun = "story";
 
     /// <summary>The name of the run that reads the stream split (D-643).</summary>
     public const string StreamSplitRun = "stream-split";
@@ -107,7 +111,8 @@ public static class IdentitySet
         { "times": ["dawn", "day", "dusk", "night"], "x": 1, "y": 4, "width": 2, "height": 2 }
        ]
       }
-     ]
+     ],
+     "triggers": []
     }
     """;
 
@@ -149,7 +154,8 @@ public static class IdentitySet
         { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 3, "y": 1 }] }
        ]
       }
-     ]
+     ],
+     "triggers": []
     }
     """;
 
@@ -186,7 +192,8 @@ public static class IdentitySet
         { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 3, "y": 1 }] }
        ]
       }
-     ]
+     ],
+     "triggers": []
     }
     """;
 
@@ -223,7 +230,8 @@ public static class IdentitySet
         { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 3, "y": 1 }] }
        ]
       }
-     ]
+     ],
+     "triggers": []
     }
     """;
 
@@ -260,7 +268,8 @@ public static class IdentitySet
         { "times": ["dawn", "day", "dusk", "night"], "tiles": [{ "x": 3, "y": 1 }] }
        ]
       }
-     ]
+     ],
+     "triggers": []
     }
     """;
 
@@ -466,9 +475,10 @@ public static class IdentitySet
     /// </summary>
     private static readonly string BattleFixtureFile = $$"""
     {
-     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, and PR-11 moved its groups to the group file.",
+     "comment": "The battle fixture of the identity set. PR-9 added it, PR-80 moved its enemies to the enemy records, PR-11 moved its groups to the group file, and PR-68 added the friend who joins in the story run.",
      "characters": [
-      { "id": "character.identity_hero", "row": "front", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(90, 20, 14, 4, 100))}} }
+      { "id": "character.identity_hero", "row": "front", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(90, 20, 14, 4, 100))}} },
+      { "id": "character.identity_friend", "row": "back", "join_level": 1, "curve": {{StatCurve.FlatText(new StatRow(70, 30, 10, 3, 110))}} }
      ],
      "items": [
       { "id": "item.identity_draught", "heal": 30, "delay": 100 }
@@ -490,6 +500,7 @@ public static class IdentitySet
         ReplayRun,
         StateHashRun,
         StatusRun,
+        StoryRun,
         StreamSplitRun,
     ];
 
@@ -511,6 +522,7 @@ public static class IdentitySet
             ReplayRun => ComputeReplay(),
             StateHashRun => ComputeStateHash(),
             StatusRun => ComputeStatuses(),
+            StoryRun => ComputeStory(),
             StreamSplitRun => ComputeStreamSplit(),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(runName),
@@ -614,7 +626,7 @@ public static class IdentitySet
     {
         GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(ReplayMapFile), "identity-set-map.json");
         RunHeader header = RunHeader.ForThisBuild(ReplayContentHash, RunSeed);
-        Simulation simulation = Simulation.Start(RunSeed, map, ReplayBattleContent(), ReplayNotices(), DebugIntentHandlers.None);
+        Simulation simulation = Simulation.Start(RunSeed, map, ReplayBattleContent(), ReplayNotices(), NoStory(), DebugIntentHandlers.None);
         RunRecorder recorder = new(header, simulation.Snapshot());
 
         for (int step = 0; step < ReplayTickCount; step += 1)
@@ -633,7 +645,7 @@ public static class IdentitySet
 
         string text = RunRecordText.Write(recorder.Build());
         RunState replayed = RunReplay.Play(
-            RunRecordText.Read(text), ReplayContentHash, map, ReplayBattleContent(), ReplayNotices(), DebugIntentHandlers.None);
+            RunRecordText.Read(text), ReplayContentHash, map, ReplayBattleContent(), ReplayNotices(), NoStory(), DebugIntentHandlers.None);
 
         StateHasher hasher = new();
         hasher.AddUInt64(simulation.StateHash());
@@ -718,7 +730,7 @@ public static class IdentitySet
         GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(mapFile), "identity-set-battle-map.json");
         BattleContent content = ReplayBattleContent();
         RunHeader header = RunHeader.ForThisBuild(ReplayContentHash, RunSeed);
-        Simulation simulation = Simulation.Start(RunSeed, map, content, ReplayNotices(), DebugIntentHandlers.None);
+        Simulation simulation = Simulation.Start(RunSeed, map, content, ReplayNotices(), NoStory(), DebugIntentHandlers.None);
         RunRecorder recorder = new(header, simulation.Snapshot());
         StateHasher hasher = new();
         int turns = 0;
@@ -749,7 +761,7 @@ public static class IdentitySet
 
         string text = RunRecordText.Write(recorder.Build());
         RunState replayed = RunReplay.Play(
-            RunRecordText.Read(text), ReplayContentHash, map, content, ReplayNotices(), DebugIntentHandlers.None);
+            RunRecordText.Read(text), ReplayContentHash, map, content, ReplayNotices(), NoStory(), DebugIntentHandlers.None);
 
         hasher.AddUInt64(simulation.StateHash());
         hasher.AddUInt64(replayed.StateHash());
@@ -805,7 +817,7 @@ public static class IdentitySet
     {
         GameMap map = GameMap.Read(Encoding.UTF8.GetBytes(StatusMapFile), "identity-set-status-map.json");
         BattleContent content = ReplayBattleContent();
-        Simulation simulation = Simulation.Start(RunSeed, map, content, ReplayNotices(), DebugIntentHandlers.None);
+        Simulation simulation = Simulation.Start(RunSeed, map, content, ReplayNotices(), NoStory(), DebugIntentHandlers.None);
         for (int step = 0; step < BattleTickCount && simulation.State.Battle is null; step += 1)
         {
             _ = simulation.Step(simulation.State.Party.Patrols.Encounter is null ? [Intent.OfPlayer(IntentIds.MoveEast)] : []);
@@ -826,7 +838,7 @@ public static class IdentitySet
             {
                 string text = RunSnapshotText.Write(simulation.Snapshot());
                 var reader = new ContentReader(Encoding.UTF8.GetBytes(text), "identity-set-status-snapshot");
-                copy = Simulation.Resume(RunSeed, RunSnapshotText.Read(ref reader), map, content, ReplayNotices(), DebugIntentHandlers.None);
+                copy = Simulation.Resume(RunSeed, RunSnapshotText.Read(ref reader), map, content, ReplayNotices(), NoStory(), DebugIntentHandlers.None);
                 hasher.AddText(text);
             }
 

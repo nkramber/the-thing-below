@@ -5,6 +5,7 @@ using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
+using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Content;
 
@@ -43,6 +44,7 @@ public sealed class ContentSet
         UiStyle style,
         BattleContent battle,
         NoticeList notices,
+        StoryContent story,
         LightContent light,
         EffectContent effects,
         SortedDictionary<string, RuleFixtureEntry> ruleEntries,
@@ -58,6 +60,7 @@ public sealed class ContentSet
         this.Style = style;
         this.Battle = battle;
         this.Notices = notices;
+        this.Story = story;
         this.Light = light;
         this.Effects = effects;
         this.ruleEntries = ruleEntries;
@@ -85,6 +88,9 @@ public sealed class ContentSet
 
     /// <summary>The notice file, which the rule of a notice reads (D-983, D-989).</summary>
     public NoticeList Notices { get; }
+
+    /// <summary>The flag file and every story scene of this build (D-542, D-1003).</summary>
+    public StoryContent Story { get; }
 
     /// <summary>The decor, the light setups, the carried light, and the effect budget (D-523, D-843, D-844, D-847).</summary>
     public LightContent Light { get; }
@@ -132,6 +138,8 @@ public sealed class ContentSet
         BattleFixture? battleFixture = null;
         AbilityList? abilities = null;
         NoticeList? notices = null;
+        FlagList? flags = null;
+        List<StoryScene> scenes = [];
         List<EnemyRecord> enemies = [];
         List<GroupFile> groups = [];
         List<ProfileRecord> profiles = [];
@@ -194,6 +202,21 @@ public sealed class ContentSet
                 // branch of the rule fixtures below (D-989).
                 notices = NoticeList.Read(file.Bytes, file.Path);
                 AddIds(file.Path, notices.Ids, sources);
+            }
+            else if (string.CompareOrdinal(file.Path, FlagList.Path) == 0)
+            {
+                // The flag file lies under the rule folder, so this branch comes before the
+                // branch of the rule fixtures below (D-1003).
+                flags = FlagList.Read(file.Bytes, file.Path);
+                AddIds(file.Path, flags.Ids(), sources);
+            }
+            else if (StoryScene.IsSceneFile(file.Path))
+            {
+                // A story scene file lies under the rule folder, so this branch comes before
+                // the branch of the rule fixtures below (D-173).
+                StoryScene scene = StoryScene.Read(file.Bytes, file.Path);
+                AddIds(file.Path, [scene.Id], sources);
+                scenes.Add(scene);
             }
             else if (EnemyRecord.IsEnemyFile(file.Path))
             {
@@ -298,6 +321,13 @@ public sealed class ContentSet
             battle.RequireGroupsOf(map);
         }
 
+        // Each trigger of a map names a story scene, its flags, and its markers (D-1004).
+        StoryContent story = StoryContent.Load(flags ?? throw AbsentFile(FlagList.Path), scenes, battle);
+        foreach (GameMap map in maps.Values)
+        {
+            story.RequireScenesOf(map);
+        }
+
         LightContent light = LightContent.Load(lightFiles, maps, readPalette, readAtlas);
         var set = new ContentSet(
             readPalette,
@@ -306,6 +336,7 @@ public sealed class ContentSet
             readStyle,
             battle,
             notices ?? throw AbsentFile(NoticeList.Path),
+            story,
             light,
             EffectContent.Load(effectFiles, new AmbientWorld(maps, battle, light, drawings, readPalette)),
             ruleEntries,
@@ -853,6 +884,9 @@ public sealed class ContentSet
 
     private void RefuseAbsentString(SortedDictionary<string, string> sources)
     {
+        // Each line of a say step and each option of a choose step lives in the string table (G-7).
+        this.Story.RequireStrings(this.Strings);
+
         foreach (GameMap map in this.maps.Values)
         {
             if (!this.Strings.Contains(map.Label))

@@ -75,7 +75,7 @@ public sealed class RunRecordTextTests
     public void ADebugIntentCarriesItsMarkThroughTheText()
     {
         // D-171: the record marks a debug intent, so a run with a cheat says so.
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, new DebugIntentHandlers(
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, new DebugIntentHandlers(
         [
             new KeyValuePair<Core.Content.ContentId, DebugIntentHandler>(
                 RunScripts.DebugStepEast,
@@ -97,7 +97,7 @@ public sealed class RunRecordTextTests
     {
         // A JSON number of that size loses its top bits in a reader that holds numbers as a
         // fraction, so the seed takes the hexadecimal text form (T-7).
-        Simulation run = Simulation.Start(ulong.MaxValue, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(ulong.MaxValue, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, ulong.MaxValue), run.Snapshot());
         run.Step([]);
         recorder.Step(run.Tick, []);
@@ -187,7 +187,7 @@ public sealed class RunRecordTextTests
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
         lines[1] = "{\"tick\":0,\"menu\":false,\"world\":0,\"map\":{\"id\":\"map.test_room\",\"x\":2,\"y\":2,"
             + "\"facing\":\"south\",\"step_ticks\":0,\"walked\":[\"x\"],\"enemies\":[]},"
-            + "\"party\":{\"characters\":[{\"id\":\"character.marrek\",\"health\":60,\"level\":1,\"experience\":0,\"mp\":8,\"row\":\"front\",\"statuses\":[]}],\"pack\":[]},\"notices\":[],\"streams\":[]}";
+            + "\"party\":{\"characters\":[{\"id\":\"character.marrek\",\"health\":60,\"level\":1,\"experience\":0,\"mp\":8,\"row\":\"front\",\"statuses\":[]}],\"pack\":[]},\"notices\":[],\"story\":{\"flags\":[],\"paused\":false,\"entry\":true},\"streams\":[]}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
@@ -222,7 +222,7 @@ public sealed class RunRecordTextTests
         string text = string.Join('\n', lines) + "\n";
 
         Assert.Throws<RunRecordException>(
-            () => RunReplay.Play(RunRecordText.Read(text), ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None));
+            () => RunReplay.Play(RunRecordText.Read(text), ContentHash, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
     }
 
     [Fact]
@@ -279,7 +279,7 @@ public sealed class RunRecordTextTests
 
     private static RunRecord SmallRecord()
     {
-        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, DebugIntentHandlers.None);
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, Seed), run.Snapshot());
 
         Intent[] open = [Intent.OfPlayer(IntentIds.OpenMenu)];
