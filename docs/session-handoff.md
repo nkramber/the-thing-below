@@ -13,12 +13,13 @@ Session: author PR-62, round 1. Repository: the-thing-below. Branch: `feat/pr-62
 ### The state of the build
 
 - `main` is `a929c59`. The branch holds three decision commits, the Core commit `10985be`, and the Game commit `13829ba`.
-- Local: build, format, det-lint, STE, identity, content, and smoke pass. 2695 tests pass. The 8 new captures have no baseline yet, so 8 baseline tests fail.
+- CI run 35939130614 failed on the 8 new captures and 8 changed ones alone: the settings frames gain the Map row, and the ui frames show the notice line as the longest plain string. The baseline commit takes those 16 files from its `screen-captures` artifact (D-733). Smoke, identity, det-lint, and STE passed on every leg.
+- Local: build, format, det-lint, STE, identity, content, and smoke pass. 2703 of 2703 tests pass.
 - The author read each new frame of `make sheet FIXTURE=menu` and `FIXTURE=notice` (D-784).
 
 ### What is in flight
 
-- The first CI run. It fails on the 8 absent baselines alone. Then the baseline commit from its `screen-captures` artifact (D-733), one read of Gitar, and the Codex review.
+- CI on the baseline commit. Then one read of Gitar, and the Codex review.
 
 ### Traps and gotchas
 
@@ -32,7 +33,7 @@ None. The PR description holds the game text batch for the owner (D-57).
 
 ### The next concrete action
 
-Commit the 8 baselines from the artifact of the first CI run. Then wait for CI, read Gitar once under D-945, and run `make codex-review PR=70 -- --skip-gitar-review`.
+Wait for CI on the baseline commit to finish green except `review-gate`. Read Gitar once under D-945, then run `make codex-review PR=70 -- --skip-gitar-review`.
 
 ## Session 259: 2026-09-23, Codex
 
