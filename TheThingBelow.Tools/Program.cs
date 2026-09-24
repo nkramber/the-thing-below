@@ -11,6 +11,7 @@ using TheThingBelow.Tools.Identity;
 using TheThingBelow.Tools.Pictures;
 using TheThingBelow.Tools.ReviewGate;
 using TheThingBelow.Tools.Screens;
+using TheThingBelow.Tools.Screenplay;
 using TheThingBelow.Tools.SteCheck;
 
 namespace TheThingBelow.Tools;
@@ -110,6 +111,11 @@ public static class Program
             return CodexReviewCommand.Run(args[1..], output, errors);
         }
 
+        if (command == ScreenplayCommand.Name)
+        {
+            return ScreenplayCommand.Run(args[1..], output, errors);
+        }
+
         if (PlannedCommands.TryGetValue(command, out string? pullRequest))
         {
             errors.WriteLine(
@@ -136,6 +142,7 @@ public static class Program
         errors.WriteLine($"  {ChangedPathsCommand.Name}: ready");
         errors.WriteLine($"  {CodexReviewCommand.Name}: ready");
         errors.WriteLine($"  {EvaluatorCostCommand.Name}: ready");
+        errors.WriteLine($"  {ScreenplayCommand.Name}: ready");
         errors.WriteLine("The planned commands, with the PR that adds each one:");
         foreach (KeyValuePair<string, string> entry in PlannedCommands)
         {
