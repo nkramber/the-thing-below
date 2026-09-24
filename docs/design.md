@@ -120,6 +120,8 @@ A heal adds a share of the magic of the caster to its base (D-1057). A heal roll
 
 The party holds the torch out, always lit, or puts it away for stealth. The party first gets the torch put away (D-1064). The torch is an item of the kind `key` (D-1065). PR-91 holds each one, and the torch in the hand of the lead (D-1066).
 
+The fixture dungeon turns dark (D-1067). The T key and the Y button work the torch on the walk alone, and the console loses its `torch` command (D-1068, D-1071). The torch draws in the left hand (D-1069). No map screen draws a thing yet, so PR-91 fades the enemies alone (D-1070).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
