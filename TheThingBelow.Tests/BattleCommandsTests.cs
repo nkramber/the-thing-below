@@ -10,7 +10,8 @@ using Xunit;
 namespace TheThingBelow.Tests;
 
 /// <summary>
-/// The command menu of the battle screen: the action, then the item or the target (D-827).
+/// The command menu of the battle screen: the action, then the lesson and its form or the item,
+/// then the target (D-827, D-1027, D-1031).
 /// Each move of the cursor stays in Game, and a whole choice makes one intent (D-493). The
 /// tests read the built Game assembly, because Tests takes no reference to Game (D-614).
 /// </summary>
@@ -26,7 +27,7 @@ public sealed class BattleCommandsTests
         Assert.Equal("Action", Read(menu, "Stage").ToString());
         Assert.Equal(0, (int)Read(menu, "Cursor"));
         Move(menu, -1);
-        Assert.Equal(4, (int)Read(menu, "Cursor"));
+        Assert.Equal(5, (int)Read(menu, "Cursor"));
         Move(menu, 1);
         Assert.Equal(0, (int)Read(menu, "Cursor"));
     }
@@ -42,7 +43,7 @@ public sealed class BattleCommandsTests
 
         object menu = Type().GetMethod("Open")!.Invoke(null, [run.State, memory])!;
 
-        Assert.Equal(1, (int)Read(menu, "Cursor"));
+        Assert.Equal(2, (int)Read(menu, "Cursor"));
         Assert.Equal(BattleAction.Defend, (BattleAction)Read(menu, "Action"));
     }
 
@@ -120,9 +121,9 @@ public sealed class BattleCommandsTests
     }
 
     [Theory]
-    [InlineData(1, "intent.battle_defend")]
-    [InlineData(2, "intent.battle_step")]
-    [InlineData(4, "intent.battle_flee")]
+    [InlineData(2, "intent.battle_defend")]
+    [InlineData(3, "intent.battle_step")]
+    [InlineData(5, "intent.battle_flee")]
     public void AnActionWithNoTargetSendsItsIntentAtOnce(int cursor, string intent)
     {
         object menu = Open(OnFirstCommand());
@@ -143,7 +144,7 @@ public sealed class BattleCommandsTests
         // D-382, D-780: the item stage lists the pack, and the target stage lists the party.
         Simulation run = OnFirstCommand();
         object menu = Open(run);
-        for (int step = 0; step < 3; step += 1)
+        for (int step = 0; step < 4; step += 1)
         {
             Move(menu, 1);
         }
@@ -167,7 +168,7 @@ public sealed class BattleCommandsTests
     {
         // D-532: the menu reads each choice from the rules, so the rules never refuse one.
         Simulation run = OnFirstCommand();
-        for (int cursor = 0; cursor < 5; cursor += 1)
+        for (int cursor = 0; cursor < 6; cursor += 1)
         {
             object menu = Open(run);
             for (int step = 0; step < cursor; step += 1)
@@ -176,15 +177,95 @@ public sealed class BattleCommandsTests
             }
 
             Intent? made = null;
-            for (int press = 0; press < 3 && made is null; press += 1)
+            for (int press = 0; press < 4 && made is null; press += 1)
             {
                 made = Confirm(menu);
             }
 
             Assert.NotNull(made);
-            var choice = new BattleChoice(ActionOf(made!.Action), made.Target, made.Item);
+            var choice = new BattleChoice(ActionOf(made!.Action), made.Target, made.Item, made.Lesson, made.Lesson is null ? null : made.Option);
             Assert.Null(BattleTurns.RefusalOf(run.State, choice));
         }
+    }
+
+    [Fact]
+    public void UpAndDownMoveBetweenTheTwoRowsInOneColumnAndWrap()
+    {
+        // D-1034: the six commands stand in two rows of three.
+        object menu = Open(OnFirstCommand());
+
+        MoveRow(menu, 1);
+        Assert.Equal(BattleAction.Step, ActionAt((int)Read(menu, "Cursor")));
+        MoveRow(menu, 1);
+        Assert.Equal(0, (int)Read(menu, "Cursor"));
+        Move(menu, 1);
+        MoveRow(menu, -1);
+        Assert.Equal(BattleAction.Item, ActionAt((int)Read(menu, "Cursor")));
+    }
+
+    [Fact]
+    public void ALessonTakesTheLessonThenTheFormThenATarget()
+    {
+        // D-1027, D-1031: the Lessons command sits after the attack, and it lists each lesson of
+        // the slots, then each opened form of the lesson with its cost.
+        Simulation run = OnFirstCommand();
+        object menu = Open(run);
+        Move(menu, 1);
+        Assert.Equal(BattleAction.Lesson, ActionAt(1));
+
+        Assert.Null(Confirm(menu));
+        Assert.Equal("Lesson", Read(menu, "Stage").ToString());
+        Assert.Equal(["lesson.fixture_hew", "lesson.fixture_cinder"], Values((IList)Read(menu, "Lessons")));
+
+        Move(menu, 1);
+        Assert.Null(Confirm(menu));
+        Assert.Equal("Form", Read(menu, "Stage").ToString());
+        IList forms = (IList)Read(menu, "Forms");
+        Assert.Single(forms);
+        Assert.Equal(4, ((LessonForm)forms[0]!).Mp);
+
+        Assert.Null(Confirm(menu));
+        Assert.Equal("Target", Read(menu, "Stage").ToString());
+        Intent made = Confirm(menu) ?? throw new InvalidOperationException("The menu sent no intent.");
+
+        Assert.Equal(IntentIds.BattleLesson.Value, made.Action.Value);
+        Assert.Equal(("lesson.fixture_cinder", 0), (made.Lesson?.Value, made.Option));
+        Assert.Equal(BattleSide.Enemy, made.Target?.Side);
+    }
+
+    [Fact]
+    public void ACancelWalksBackFromTheTargetsToTheFormToTheLessonToTheAction()
+    {
+        object menu = Open(OnFirstCommand());
+        Move(menu, 1);
+        Confirm(menu);
+        Move(menu, 1);
+        Confirm(menu);
+        Confirm(menu);
+
+        Cancel(menu);
+        Assert.Equal("Form", Read(menu, "Stage").ToString());
+        Cancel(menu);
+        Assert.Equal(("Lesson", 1), (Read(menu, "Stage").ToString(), (int)Read(menu, "Cursor")));
+        Cancel(menu);
+        Assert.Equal(("Action", 1), (Read(menu, "Stage").ToString(), (int)Read(menu, "Cursor")));
+    }
+
+    [Fact]
+    public void ARiteOfASilencedCharacterStaysOnTheMenuAndRefusesTheConfirm()
+    {
+        // D-806: the cinder is a rite, and the menu reads the refusal of silence from the rules.
+        Simulation run = OnFirstCommand();
+        BattleTurns.GiveStatus(run.State, BattleRuns.BattleOf(run).Next()!.Target, StatusKind.Silence, run.State.Context("test"));
+        object menu = Open(run);
+        Move(menu, 1);
+        Confirm(menu);
+        Move(menu, 1);
+
+        ContentId cinder = ContentId.Parse("lesson.fixture_cinder", "test", "lesson");
+        Assert.False((bool)Type().GetMethod("AllowsLesson")!.Invoke(menu, [cinder])!);
+        Assert.Null(Confirm(menu));
+        Assert.Equal("Lesson", Read(menu, "Stage").ToString());
     }
 
     [Fact]
@@ -217,6 +298,7 @@ public sealed class BattleCommandsTests
         "intent.battle_step" => BattleAction.Step,
         "intent.battle_item" => BattleAction.Item,
         "intent.battle_flee" => BattleAction.Flee,
+        "intent.battle_lesson" => BattleAction.Lesson,
         _ => throw new InvalidOperationException($"The menu sent '{intent.Value}', which names no battle action."),
     };
 
@@ -229,6 +311,20 @@ public sealed class BattleCommandsTests
         return run;
     }
 
+    private static BattleAction ActionAt(int index) =>
+        ((IReadOnlyList<BattleAction>)Type().GetField("Actions")!.GetValue(null)!)[index];
+
+    private static List<string> Values(IList ids)
+    {
+        List<string> values = [];
+        foreach (object? id in ids)
+        {
+            values.Add(((ContentId)id!).Value);
+        }
+
+        return values;
+    }
+
     private static object Open(Simulation run) =>
         Type().GetMethod("Open")!.Invoke(null, [run.State, Memory(enabled: false)])!;
 
@@ -237,6 +333,8 @@ public sealed class BattleCommandsTests
         Activator.CreateInstance(GameAssemblyFile.Type("TheThingBelow.Game.Ui.CommandMemory"), [enabled])!;
 
     private static void Move(object menu, int step) => Type().GetMethod("Move")!.Invoke(menu, [step]);
+
+    private static void MoveRow(object menu, int step) => Type().GetMethod("MoveRow")!.Invoke(menu, [step]);
 
     private static Intent? Confirm(object menu) => (Intent?)Type().GetMethod("Confirm")!.Invoke(menu, null);
 

@@ -123,6 +123,18 @@ public static class ScreenCaptures
     /// <summary>The frame of the menu fixture with the notice log over the main list (D-987).</summary>
     public const string MenuLogFrame = "log-1x";
 
+    /// <summary>The frame of the menu fixture with the lesson window over the main list: the aptitudes and the slots (D-1033).</summary>
+    public const string MenuLessonsFrame = "lessons-1x";
+
+    /// <summary>The frame of the menu fixture with the list of a swap at a swap place, which the debug command marks (D-1030).</summary>
+    public const string MenuLessonsSwapFrame = "lessons-swap-1x";
+
+    /// <summary>The frame of the battle fixture with the lessons of the first character after the Lessons command (D-1031).</summary>
+    public const string BattleLessonsFrame = "lessons-1x";
+
+    /// <summary>The frame of the battle fixture with the forms of the cinder and the description of the first form (D-1027).</summary>
+    public const string BattleFormsFrame = "forms-1x";
+
     /// <summary>The frame of the menu fixture with the dungeon map screen after the walk of <see cref="DungeonRoute"/> (D-982).</summary>
     public const string MenuMapFrame = "map-1x";
 
@@ -347,6 +359,12 @@ public static class ScreenCaptures
         captures.Add(new ScreenCapture(BattleFixture, "menu-fill-1080", DesktopWidth, 1080, FitMode.Fill, null));
         captures.Add(new ScreenCapture(
             BattleFixture, BattleTargetFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+
+        // PR-12: the list of the lessons and the list of the forms with the description of the first form (D-1027, D-1031).
+        foreach (string frame in new[] { BattleLessonsFrame, BattleFormsFrame })
+        {
+            captures.Add(new ScreenCapture(BattleFixture, frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        }
         captures.Add(new ScreenCapture(
             BattleFixture, BattleBlowFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         captures.Add(new ScreenCapture(
@@ -446,7 +464,7 @@ public static class ScreenCaptures
 
         // PR-62: the menu stack at 1x, the floor of the Steam Deck, and the main list at 1080 rows,
         // which takes the smaller body (D-707). The notice draws inside its type-out and its hold.
-        foreach (string frame in new[] { MenuListFrame, MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame })
+        foreach (string frame in new[] { MenuListFrame, MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame })
         {
             captures.Add(new ScreenCapture(MenuFixture, frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         }
@@ -455,6 +473,16 @@ public static class ScreenCaptures
         captures.Add(new ScreenCapture(NoticeFixture, NoticeTypeFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         captures.Add(new ScreenCapture(NoticeFixture, NoticeHoldFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         return captures;
+    }
+
+    /// <summary>Tells whether a frame of the battle fixture opens the lesson list of the command menu (D-1031).</summary>
+    /// <param name="frame">The name of the frame.</param>
+    /// <returns>True for the lessons frame and the forms frame.</returns>
+    public static bool OpensLessons(string frame)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(frame);
+
+        return string.CompareOrdinal(frame, BattleLessonsFrame) == 0 || string.CompareOrdinal(frame, BattleFormsFrame) == 0;
     }
 
     /// <summary>Gives the ticks after the blow that a frame of the battle fixture shows (D-829).</summary>

@@ -88,7 +88,7 @@ public sealed class BattleScreen
     private readonly Label message;
     private readonly Label number;
     private readonly Label[] summaryLabels = new Label[BattleEffects.SummaryLines];
-    private readonly HBoxContainer commandRow;
+    private readonly GridContainer commandRow;
     private readonly List<StatusLine> statusLines = [];
     private readonly Color chosenColor;
     private readonly Color dimColor;
@@ -96,6 +96,8 @@ public sealed class BattleScreen
     private readonly BattleEffects pace;
     private readonly SortedDictionary<string, HitBurst> bursts = new(StringComparer.Ordinal);
     private BattleEvent? shownEvent;
+    private BattleLine? shownLine;
+    private ContentId? shownDescription;
     private BattleCommands? commands;
     private bool sentCommand;
     private string shownCommands = string.Empty;
@@ -139,8 +141,10 @@ public sealed class BattleScreen
         this.BuildStrip();
         this.message = this.BuildLinePanel(BattleLayout.Message);
         Control commandInside = this.Panel(BattleLayout.Commands);
-        this.commandRow = new HBoxContainer { Size = commandInside.Size };
-        this.commandRow.AddThemeConstantOverride("separation", ui.Theme.BodySize);
+        // Two rows of three hold the six commands, and each later list takes the same grid (D-1034).
+        this.commandRow = new GridContainer { Size = commandInside.Size, Columns = BattleLayout.CommandColumns };
+        this.commandRow.AddThemeConstantOverride("h_separation", ui.Theme.BodySize);
+        this.commandRow.AddThemeConstantOverride("v_separation", BattleLayout.CommandRowGap);
         commandInside.AddChild(this.commandRow);
         this.number = new Label
         {
@@ -430,13 +434,17 @@ public sealed class BattleScreen
 
         switch (action)
         {
-            case InputActions.StepNorth:
             case InputActions.StepWest:
                 open.Move(-1);
                 return null;
-            case InputActions.StepSouth:
             case InputActions.StepEast:
                 open.Move(1);
+                return null;
+            case InputActions.StepNorth:
+                open.MoveRow(-1);
+                return null;
+            case InputActions.StepSouth:
+                open.MoveRow(1);
                 return null;
             case InputActions.Cancel:
                 open.Cancel();
@@ -463,6 +471,8 @@ public sealed class BattleScreen
     private ContentId DrawingOf(ContentId thing, string use) => this.content.Atlas.Entry(thing, use).Id;
 
     private static ContentId Parse(string id) => ContentId.Parse(id, AtlasIndex.Path, "battle screen");
+
+    private static ContentId StringId(string id) => ContentId.Parse(id, StringTable.Path, "battle screen");
 
     private static Shader LoadFlashShader()
     {
@@ -835,6 +845,7 @@ public sealed class BattleScreen
         this.shownEvent = playing;
         if (BattleMessages.Of(playing, view, this.content.Strings) is BattleLine line)
         {
+            this.shownLine = line;
             this.ui.Text.Put(this.message, line.Id, line.Values);
         }
     }
@@ -961,6 +972,22 @@ public sealed class BattleScreen
                 }
 
                 break;
+            case CommandStage.Lesson:
+                foreach (ContentId lesson in open.Lessons)
+                {
+                    entries.Add((BattleMessages.NameIdOf(lesson), Values(), open.AllowsLesson(lesson)));
+                }
+
+                break;
+            case CommandStage.Form:
+                ContentId chosen = open.ChosenLesson ?? throw new InvalidOperationException(
+                    "The command menu stands in the form stage and holds no lesson (T-2).");
+                for (int index = 0; index < open.Forms.Count; index += 1)
+                {
+                    entries.Add(this.FormEntry(open.Forms[index], open.AllowsForm(chosen, index)));
+                }
+
+                break;
             default:
                 BattleTarget pointed = open.PointedTarget ?? throw new InvalidOperationException(
                     "The command menu stands in the target stage and points at no target (T-2).");
@@ -971,6 +998,44 @@ public sealed class BattleScreen
 
         string key = $"{open.Stage}:{open.Cursor}:{string.Join(",", entries.ConvertAll(entry => entry.Id.Value + entry.Allowed))}";
         this.ShowCommandRow(key, entries, open.Stage == CommandStage.Target ? 0 : open.Cursor);
+        this.ShowFormDescription(open);
+    }
+
+    /// <summary>Gives the entry of one form: its name and its MP cost, or its name alone for a drill (D-1027).</summary>
+    private (ContentId Id, IReadOnlyDictionary<string, string> Values, bool Allowed) FormEntry(LessonForm form, bool allowed)
+    {
+        string name = this.content.Strings.Text(BattleMessages.NameIdOf(form.Ability));
+        return form.Mp == 0
+            ? (StringId("battle.form_entry_free"), Values(("form", name)), allowed)
+            : (StringId("battle.form_entry"), Values(("form", name), ("mp", form.Mp.ToString(CultureInfo.InvariantCulture))), allowed);
+    }
+
+    /// <summary>
+    /// Shows the description of the form under the cursor on the message line while the form
+    /// stage is open, and puts the line of the last event back when it closes (D-1027).
+    /// </summary>
+    private void ShowFormDescription(BattleCommands open)
+    {
+        if (open.Stage == CommandStage.Form)
+        {
+            ContentId description = open.Forms[open.Cursor].Description;
+            if (!ReferenceEquals(this.shownDescription, description))
+            {
+                this.shownDescription = description;
+                this.ui.Text.Put(this.message, description);
+            }
+
+            return;
+        }
+
+        if (this.shownDescription is not null)
+        {
+            this.shownDescription = null;
+            if (this.shownLine is BattleLine line)
+            {
+                this.ui.Text.Put(this.message, line.Id, line.Values);
+            }
+        }
     }
 
     private void ShowCommandRow(
@@ -1023,6 +1088,7 @@ public sealed class BattleScreen
         action switch
         {
             BattleAction.Attack => "battle.command_attack",
+            BattleAction.Lesson => "battle.command_lessons",
             BattleAction.Defend => "battle.command_defend",
             BattleAction.Step => row == BattleRow.Front ? "battle.command_back_up" : "battle.command_step_forward",
             BattleAction.Item => "battle.command_item",

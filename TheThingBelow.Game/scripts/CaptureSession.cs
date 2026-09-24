@@ -518,6 +518,13 @@ public sealed partial class CaptureSession : Node
             }
         }
 
+        // The debug command marks a swap place, and the next tick applies it (D-1030).
+        if (string.CompareOrdinal(frame, ScreenCaptures.MenuLessonsSwapFrame) == 0)
+        {
+            _ = DebugSeam.Run("swap", () => open.State, open.Queue, () => false);
+            this.RunTicks(open, 1);
+        }
+
         if (string.CompareOrdinal(frame, ScreenCaptures.MenuLogFrame) == 0)
         {
             for (int notice = 0; notice < ScreenCaptures.LogFrameNotices; notice += 1)
@@ -544,6 +551,7 @@ public sealed partial class CaptureSession : Node
             ScreenCaptures.MenuListFrame or ScreenCaptures.MenuListDesktopFrame or ScreenCaptures.MenuPartyFrame => MenuEntry.Party,
             ScreenCaptures.MenuStatusFrame => MenuEntry.Status,
             ScreenCaptures.MenuLogFrame => MenuEntry.Log,
+            ScreenCaptures.MenuLessonsFrame or ScreenCaptures.MenuLessonsSwapFrame => MenuEntry.Lessons,
             _ => throw new ArgumentOutOfRangeException(nameof(capture), frame, $"The menu fixture draws no frame '{frame}' (T-2)."),
         };
         while (list.Current != entry)
@@ -563,6 +571,16 @@ public sealed partial class CaptureSession : Node
         else if (string.CompareOrdinal(frame, ScreenCaptures.MenuLogFrame) == 0)
         {
             _ = new LogView(built, @base, open.State);
+        }
+        else if (string.CompareOrdinal(frame, ScreenCaptures.MenuLessonsFrame) == 0 || string.CompareOrdinal(frame, ScreenCaptures.MenuLessonsSwapFrame) == 0)
+        {
+            var cursor = new LessonCursor(open.State);
+            if (string.CompareOrdinal(frame, ScreenCaptures.MenuLessonsSwapFrame) == 0 && cursor.Confirm() is not null)
+            {
+                throw new InvalidOperationException($"The capture '{capture.FileName}' confirmed a slot, and the window sent an intent before the pack list (D-1030, T-2).");
+            }
+
+            _ = new LessonsView(built, @base, this.content.Strings, open.State, cursor);
         }
     }
 
@@ -695,6 +713,11 @@ public sealed partial class CaptureSession : Node
         {
             built.ShowPasses(this.content.Light.Passes.WithMode(mode), this.content.Palette);
         }
+        if (ScreenCaptures.OpensLessons(capture.Frame))
+        {
+            this.OpenLessons(screen, capture);
+        }
+
         if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleTargetFrame) == 0
             && screen.Read(InputActions.Confirm) is not null)
         {
@@ -723,6 +746,27 @@ public sealed partial class CaptureSession : Node
         }
 
         screen.Show(fight);
+    }
+
+    /// <summary>
+    /// Opens the lesson list of the command menu, and for the forms frame the forms of the cinder,
+    /// the second lesson of the first character (D-1027, D-1031). No press sends an intent.
+    /// </summary>
+    private void OpenLessons(BattleScreen screen, ScreenCapture capture)
+    {
+        List<string> presses = [InputActions.StepEast, InputActions.Confirm];
+        if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleFormsFrame) == 0)
+        {
+            presses.AddRange([InputActions.StepEast, InputActions.Confirm]);
+        }
+
+        foreach (string press in presses)
+        {
+            if (screen.Read(press) is not null)
+            {
+                throw new InvalidOperationException($"The capture '{capture.FileName}' pressed '{press}', and the menu sent an intent before a target (D-1031, T-2).");
+            }
+        }
     }
 
     /// <summary>

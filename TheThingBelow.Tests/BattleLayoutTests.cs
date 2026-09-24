@@ -224,10 +224,10 @@ public sealed class BattleLayoutTests
         // D-953: a short column stands on the ground, and the next enemy stands at its top.
         int top = Const("WaitingTop");
         List<(int X, int Feet)> one = WaitingPlaces([32]);
-        List<(int X, int Feet)> full = WaitingPlaces([96, 96, 96]);
+        List<(int X, int Feet)> full = WaitingPlaces([90, 90, 90]);
 
         Assert.Equal([(Const("WaitingX"), top + BattleFixture.MostWaitingHeight)], one);
-        Assert.Equal([(Const("WaitingX"), top + 96), (Const("WaitingX"), top + 192), (Const("WaitingX"), top + 288)], full);
+        Assert.Equal([(Const("WaitingX"), top + 90), (Const("WaitingX"), top + 180), (Const("WaitingX"), top + 270)], full);
     }
 
     [Fact]

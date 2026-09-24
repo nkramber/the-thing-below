@@ -46,12 +46,14 @@ public sealed class ScreenCapturesTests
         "ui-whole-1440.png",
     ];
 
-    /// <summary>The captures of the battle fixture (D-827, D-833), with each battle effect of PR-57 (D-863, D-879), and the summary of PR-67 (D-975).</summary>
+    /// <summary>The captures of the battle fixture (D-827, D-833), with the lists of the lessons of PR-12 (D-1027), each battle effect of PR-57 (D-863, D-879), and the summary of PR-67 (D-975).</summary>
     private static readonly string[] BattleNames =
     [
         "battle-menu-1x.png",
         "battle-menu-fill-1080.png",
         "battle-target-1x.png",
+        "battle-lessons-1x.png",
+        "battle-forms-1x.png",
         "battle-blow-1x.png",
         "battle-waiting-1x.png",
         "battle-blood-1x.png",
@@ -99,6 +101,8 @@ public sealed class ScreenCapturesTests
         "menu-status-1x.png",
         "menu-log-1x.png",
         "menu-map-1x.png",
+        "menu-lessons-1x.png",
+        "menu-lessons-swap-1x.png",
         "menu-list-fill-1080.png",
         "notice-type-1x.png",
         "notice-hold-1x.png",
@@ -126,7 +130,7 @@ public sealed class ScreenCapturesTests
     public static TheoryData<string> ExpectedNames { get; } = BuildExpectedNames();
 
     [Fact]
-    public void TheListHoldsFiveCapturesOfEachStillFixtureOneForEachTickOfTheWalkFourteenOfTheBattleAndThreeOfTheSettings()
+    public void TheListHoldsFiveCapturesOfEachStillFixtureOneForEachTickOfTheWalkSixteenOfTheBattleAndThreeOfTheSettings()
     {
         // D-734. Two still fixtures, and five captures of each one: the frame at 1x, and both
         // fit modes at 1080 and 1440 screen rows (D-232, D-568). D-782 adds the walk: 17 ticks
@@ -144,7 +148,9 @@ public sealed class ScreenCapturesTests
         // experience after a win, and a staged level-up halfway and settled (D-975, exit test 8 of PR-67).
         // PR-62 adds the main list, each task window, and the dungeon map screen at 1x, the main list at
         // 1080 rows, and a notice inside its type-out and its hold (exit test 2 of PR-62).
-        Assert.Equal(10 + 34 + 1 + 14 + 3 + 14 + 2 + 11 + MenuNames.Length, FileNames().Count);
+        // PR-12 adds the list of the lessons and the list of the forms in a fight, and the lesson
+        // window with its slots and its swap list (D-1027, D-1030, D-1031).
+        Assert.Equal(10 + 34 + 1 + 16 + 3 + 14 + 2 + 11 + MenuNames.Length, FileNames().Count);
     }
 
     [Fact]

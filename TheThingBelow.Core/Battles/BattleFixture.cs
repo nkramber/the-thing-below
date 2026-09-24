@@ -52,9 +52,10 @@ public sealed class BattleFixture
     /// <summary>
     /// The most height of the column of the waiting enemies, in art pixels (D-953, D-963). It
     /// is the room at the left edge of the field, between the top margin of the frame and the
-    /// message line. A test of Game proves that the layout gives the column this room.
+    /// message line. A test of Game proves that the layout gives the column this room. PR-12 took
+    /// it from 288 to 270, because the command menu grew to two rows (D-1034, D-1035).
     /// </summary>
-    public const int MostWaitingHeight = 288;
+    public const int MostWaitingHeight = 270;
 
     /// <summary>The most enemies in a group, the waiting ones included (D-762).</summary>
     public const int MostInGroup = 12;

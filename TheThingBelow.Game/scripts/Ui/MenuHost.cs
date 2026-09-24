@@ -37,6 +37,7 @@ public sealed class MenuHost
     private UiBase ui;
     private MainList mainList = new();
     private PartyList? partyList;
+    private LessonCursor? lessonCursor;
 
     /// <summary>Makes the host of the menu of one run, with no window open.</summary>
     /// <param name="frame">The frame, whose UI layer takes each window.</param>
@@ -191,6 +192,11 @@ public sealed class MenuHost
                 this.partyList = new PartyList(this.run.State.Characters.Members.Count);
             }
 
+            if (kind == MenuWindowKind.Lessons)
+            {
+                this.lessonCursor = new LessonCursor(this.run.State);
+            }
+
             this.path.Open(kind);
             this.views.Add(this.Build(kind, null));
             this.writeLog([new LogEntry(LogLevel.Info, "the menu opened a window", this.run.Tick, LogSubsystems.Game, [WindowField(kind)])]);
@@ -202,6 +208,12 @@ public sealed class MenuHost
             PartyList list = this.partyList ?? throw new InvalidOperationException(
                 $"The party window chose at tick {this.run.Tick}, and the host made no cursor for it (T-2).");
             this.run.Queue(list.Choose());
+        }
+
+        // The lesson window made the intent of a whole choice: a swap or a cast (D-391, D-1030).
+        if (top == MenuWindowKind.Lessons && this.views[^1] is LessonsView lessons && lessons.TakeIntent() is Intent made)
+        {
+            this.run.Queue(made);
         }
     }
 
@@ -261,6 +273,8 @@ public sealed class MenuHost
         MenuWindowKind.MainList => new MainListView(this.frame, this.ui, this.mainList),
         MenuWindowKind.Party => new PartyView(this.frame, this.ui, this.run.State, this.partyList ?? throw new InvalidOperationException(
             $"The party window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
+        MenuWindowKind.Lessons => new LessonsView(this.frame, this.ui, this.content.Strings, this.run.State, this.lessonCursor ?? throw new InvalidOperationException(
+            $"The lesson window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
         MenuWindowKind.Status => new StatusView(this.frame, this.ui, this.content.Strings, this.run.State),
         MenuWindowKind.Log => new LogView(this.frame, this.ui, this.run.State),
         MenuWindowKind.Settings => new SettingsView(

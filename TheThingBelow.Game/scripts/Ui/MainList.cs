@@ -71,8 +71,8 @@ public sealed class MainList
     /// <returns>False for an entry whose window a later PR builds, which shows dim.</returns>
     public static bool IsLive(MenuEntry entry) => entry switch
     {
-        MenuEntry.Party or MenuEntry.Status or MenuEntry.Log or MenuEntry.Settings => true,
-        MenuEntry.Lessons or MenuEntry.Gear or MenuEntry.Items or MenuEntry.Save => false,
+        MenuEntry.Party or MenuEntry.Lessons or MenuEntry.Status or MenuEntry.Log or MenuEntry.Settings => true,
+        MenuEntry.Gear or MenuEntry.Items or MenuEntry.Save => false,
         _ => throw new ArgumentOutOfRangeException(nameof(entry), entry, "The main list holds no such entry (T-2)."),
     };
 
@@ -83,6 +83,7 @@ public sealed class MainList
     public static MenuWindowKind WindowOf(MenuEntry entry) => entry switch
     {
         MenuEntry.Party => MenuWindowKind.Party,
+        MenuEntry.Lessons => MenuWindowKind.Lessons,
         MenuEntry.Status => MenuWindowKind.Status,
         MenuEntry.Log => MenuWindowKind.Log,
         MenuEntry.Settings => MenuWindowKind.Settings,

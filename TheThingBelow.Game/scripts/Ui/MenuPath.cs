@@ -23,6 +23,9 @@ public enum MenuWindowKind
 
     /// <summary>The dungeon map screen, which the map action opens from the walk (D-986).</summary>
     DungeonMap,
+
+    /// <summary>The lesson window, which swaps a lesson and casts a heal or a cure (D-391, D-1030).</summary>
+    Lessons,
 }
 
 /// <summary>

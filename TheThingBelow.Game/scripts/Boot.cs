@@ -1357,11 +1357,13 @@ public partial class Boot : Node
         int closes = 0;
         var host = new MenuHost(built, shownBase, session, loaded, SmokeSettings, _ => closes += 1, entries => this.WriteLog(entries));
 
-        // The party window moves the lead to the other row, and each other entry opens and closes.
+        // The party window moves the lead to the other row, and each other entry opens and closes:
+        // the lessons, the status, the log, and the settings (D-988, D-992).
         host.OpenMainList();
         string[] presses =
         [
             "ui_accept", "ui_accept", "ui_cancel",
+            "ui_down", "ui_accept", "ui_cancel",
             "ui_down", "ui_accept", "ui_cancel",
             "ui_down", "ui_accept", "ui_cancel",
             "ui_down", "ui_accept", "ui_cancel",
