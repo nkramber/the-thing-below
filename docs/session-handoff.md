@@ -1,3 +1,39 @@
+## Session 260: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-62, round 1. Repository: the-thing-below. Branch: `feat/pr-62-menu-windows`. PR: #70. Role: author. Base: `a929c59`.
+
+### What this session did, and why
+
+- Asked OQ-111 and OQ-113 first, then the gaps that the code found: the map action, the log place, the dim entries, the notice source, the status sheet, the list order, the exit mark, and the time of a notice. D-982 to D-996 record the answers.
+- Core: the notice file, the notice rule, the notice log of 30 entries, and the row intent of the party window. Save format 8 and simulation version 20. The debug console posts a notice with `notice` and `aside`.
+- Storage: settings format 2, whose step adds the map action with M and Back.
+- Game: the main list, the party, status, and log windows, the dungeon map screen, the notice box, and the map action. The settings screen opens from the main list.
+
+### The state of the build
+
+- `main` is `a929c59`. The branch holds three decision commits, the Core commit `10985be`, and the Game commit `13829ba`.
+- Local: build, format, det-lint, STE, identity, content, and smoke pass. 2695 tests pass. The 8 new captures have no baseline yet, so 8 baseline tests fail.
+- The author read each new frame of `make sheet FIXTURE=menu` and `FIXTURE=notice` (D-784).
+
+### What is in flight
+
+- The first CI run. It fails on the 8 absent baselines alone. Then the baseline commit from its `screen-captures` artifact (D-733), one read of Gitar, and the Codex review.
+
+### Traps and gotchas
+
+- `RunState.Start`, `Resume`, `Simulation`, and `RunReplay.Play` take the notice file. Tests use `TestBattles.Notices`.
+- The capture session builds no input map, so the menu captures build each view and send no event.
+- The glossary refuses "banner". The box at the top edge is the notice box.
+
+### The questions that block progress
+
+None. The PR description holds the game text batch for the owner (D-57).
+
+### The next concrete action
+
+Commit the 8 baselines from the artifact of the first CI run. Then wait for CI, read Gitar once under D-945, and run `make codex-review PR=70 -- --skip-gitar-review`.
+
 ## Session 259: 2026-09-23, Codex
 
 Author: Codex
@@ -320,37 +356,3 @@ OQ-243 applies to PR-98 alone (D-951 to D-954).
 ### The next concrete action
 
 Run the metadata commit and push gate, then confirm the published review-gate result.
-
-## Session 250: 2026-09-23, Claude Code
-
-Author: Claude Code
-Session: author PR-11, round 3. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: #67. Role: author. Base: `d429d03`.
-
-### What this session did, and why
-
-- Read the record of Session 249: `Blocked` for `ad83e20`, with P2-1 fixed and no open finding.
-- Answered the Gitar status comment in a PR comment. It held no thread, no finding, and no claim (D-945, D-946).
-- Ran `evaluator-cost` on the Steam Deck over SSH, at the request of the owner. Two Release runs gave 74 us and 103 us at the 95th percentile, inside the limit of D-961.
-- Recorded the numbers in F-53 and the response file, and wrote the SSH steps into `docs/runbooks/dev-machine.md`.
-
-### The state of the build
-
-- `main` is `d429d03`. The effective head `ad83e20` holds the code. The commit of this round changes documents alone (D-943).
-
-### What is in flight
-
-- A new `make codex-review PR=67 -- --skip-gitar-review` on the record of this round.
-- After an approval, the merge question to the owner in four sections (D-942).
-
-### Traps and gotchas
-
-- The command sandbox blocks the local network. An SSH call to the Deck at `10.0.0.46` runs outside the sandbox.
-- The Deck has no `make`, so the Deck runs the `dotnet run` form of each target.
-
-### The questions that block progress
-
-None for PR-11. OQ-243 blocks PR-98.
-
-### The next concrete action
-
-Run `make codex-review PR=67 -- --skip-gitar-review`, and read its outcome.

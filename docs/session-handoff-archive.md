@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 250: 2026-09-23, Claude Code
+
+Author: Claude Code
+Session: author PR-11, round 3. Repository: the-thing-below. Branch: `feat/pr-11-evaluator`. PR: #67. Role: author. Base: `d429d03`.
+
+### What this session did, and why
+
+- Read the record of Session 249: `Blocked` for `ad83e20`, with P2-1 fixed and no open finding.
+- Answered the Gitar status comment in a PR comment. It held no thread, no finding, and no claim (D-945, D-946).
+- Ran `evaluator-cost` on the Steam Deck over SSH, at the request of the owner. Two Release runs gave 74 us and 103 us at the 95th percentile, inside the limit of D-961.
+- Recorded the numbers in F-53 and the response file, and wrote the SSH steps into `docs/runbooks/dev-machine.md`.
+
+### The state of the build
+
+- `main` is `d429d03`. The effective head `ad83e20` holds the code. The commit of this round changes documents alone (D-943).
+
+### What is in flight
+
+- A new `make codex-review PR=67 -- --skip-gitar-review` on the record of this round.
+- After an approval, the merge question to the owner in four sections (D-942).
+
+### Traps and gotchas
+
+- The command sandbox blocks the local network. An SSH call to the Deck at `10.0.0.46` runs outside the sandbox.
+- The Deck has no `make`, so the Deck runs the `dotnet run` form of each target.
+
+### The questions that block progress
+
+None for PR-11. OQ-243 blocks PR-98.
+
+### The next concrete action
+
+Run `make codex-review PR=67 -- --skip-gitar-review`, and read its outcome.
+
 ## Session 249: 2026-09-23, Codex
 
 Author: Codex
