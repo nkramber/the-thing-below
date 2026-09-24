@@ -1,6 +1,6 @@
 ---
 name: gitar-review
-description: Get a Gitar review of the head of a pull request, wait three minutes after each push, prove that the review is current, and answer every finding. Verify each finding as a claim, then fix and reply, or refute, reply, and resolve. Load after each push to a pull request, documents alone included.
+description: Get a Gitar review of the head of a pull request, poll its Gitar check from 60 seconds after each push, prove that the review is current, and answer every finding. Verify each finding as a claim, then fix and reply, or refute, reply, and resolve. Load after each push to a pull request, documents alone included.
 ---
 
 # Gitar review skill
@@ -9,9 +9,7 @@ The GitHub app `gitar-bot` reviews pull requests. This skill gets a Gitar review
 
 Each repo that uses Gitar keeps a copy of this file. A rule of the repo wins over this skill. For example, a repo can ask for a second review, or it can limit who replies to Gitar.
 
-**Gitar pause (D-945).** In the-thing-below, no step waits for a Gitar review or asks for one, and the procedure below does not apply. Read the Gitar output with command B and then command C, one time before each `make codex-review` run and one time before the merge question. On a Gitar review thread or a finding of the dashboard, stop at once, and tell the owner before any other step. After the owner saw it, answer it with "Rules for each reply". Answer a claim of the CI analysis alone with those rules, and do not stop.
-
-A finding can come with a fix of Gitar. When your fix differs from it, or it has a flaw, apply your own fix (D-1072). Tell the owner of both fixes, and ask no question about the choice.
+A finding can come with a fix of Gitar. When your fix is better than it, differs from it, or finds a flaw in it, apply your own fix (D-1072, D-1073). Tell the owner of both fixes, and ask no question about the choice.
 
 ## Terms
 
@@ -23,7 +21,9 @@ A finding can come with a fix of Gitar. When your fix differs from it, or it has
 - **Metadata set**: the four paths of this pull request (D-610): `docs/reviews/pr-<number>.md`, `docs/reviews/pr-<number>-response.md`, `docs/session-handoff.md`, and `docs/session-handoff-archive.md`.
 - **Current review**: a review of the effective head.
 - **Stale review**: a review of a commit older than the effective head.
-- **Push wait**: the minimum wait of three minutes after a push, before a `Gitar review` comment (D-705).
+- **Push wait**: the wait of 60 seconds after a push, before the first read of the Gitar check (D-1074).
+- **Gitar poll**: after the push wait, a read of the Gitar check every 20 seconds until the check completes (D-1074).
+- **Request time**: three minutes after the push. A `Gitar review` comment never comes before it (D-705).
 
 ## Why a review goes stale
 
@@ -38,11 +38,11 @@ Do these steps after each push.
 1. Push all the commits of this round of changes. Push one time, not one time for each fix.
 2. Run command A. Continue only when the local head and the pull request head are the same commit.
 3. Record the head and the push time from command A.
-4. Do the push wait with command E. Always do the full push wait, also when Gitar paused automatic reviews.
-5. Do not comment `Gitar review` before the push wait ends.
-6. After the push wait, run the Gitar check part of command E. Then run command B.
-7. Find if an automatic review started. Apply the rule in "Find an automatic review".
-8. When an automatic review runs, wait until its Gitar check completes. Do not comment `Gitar review`.
+4. Start command E in the background. It does the push wait, then the Gitar poll (D-1074).
+5. Do not comment `Gitar review` before command E ends.
+6. Read the result line of command E. Then run command B.
+7. On `completed` or `no check`, go to step 9. The rule in "Find an automatic review" tells if an automatic review ran.
+8. On `not complete` or `read failed`, stop and tell the owner (D-1074).
 9. Apply the rule in "Prove that a review is current".
 10. When the review is current, go to step 17.
 11. When the review is stale, or you cannot prove that it is current, comment `Gitar review` on the pull request.
@@ -66,16 +66,16 @@ A Gitar item is a review thread, a finding of the dashboard, or a claim of the C
 
 ## Find an automatic review
 
-The owner permits a `Gitar review` comment only after the push wait, and only when no automatic review started (D-705).
+The owner permits a `Gitar review` comment only at the request time or later, and only when no automatic review started (D-705, D-1074).
 
 An automatic review started when one of these conditions is true:
 
 - The Gitar check of `gitar-bot` on the head has the status `queued` or `in_progress`.
 - The review is current. Apply the rule in "Prove that a review is current".
 
-When neither condition is true after the push wait, no automatic review started. You can then comment `Gitar review`.
+When neither condition is true at the request time, no automatic review started. You can then comment `Gitar review`.
 
-On 2026-09-16, the Gitar check on the heads of #30, #31, and #32 started 8 to 31 seconds after the commit. Each check completed in 80 seconds or less. So the push wait of three minutes is longer than a normal automatic review.
+On 2026-09-16, the Gitar check on the heads of #30, #31, and #32 started 8 to 31 seconds after the commit. Each check completed in 80 seconds or less. So the Gitar check of a normal automatic review exists at the end of the push wait, and it completes in the next minute. The poll stops at 15 minutes after the push, and a slower check goes to the owner (D-1074).
 
 ## Prove that a review is current
 
@@ -109,7 +109,7 @@ A commit of documents alone outside the metadata set moves the effective head, s
 - A manual review can edit the dashboard comment and attach no Gitar check to the new head. Apply the rule in "Prove that a review is current".
 - The pause note can come beside a full review. Open the collapsed `Code Review` block before you comment `Gitar review`.
 - A request before a push gets a review of the old head. Push first, then ask.
-- A request during the push wait can start a second review beside the automatic review. It can also use the request limit of Gitar. Do the full push wait first.
+- A request before the request time can start a second review beside the automatic review. It can also use the request limit of Gitar. Wait for the result line of command E first.
 - Gitar limits requests. When Gitar replies "You've sent several Gitar comments in a short window", wait ten minutes. Then comment `Gitar review` one time. On 2026-09-16, a second request one minute after a finished review got this reply.
 - Do not send a second `Gitar review` comment while the first review runs.
 - Gitar refuses a request in a reply, and the dashboard comment does not change. A wait that watches the dashboard comment alone then never ends. Read the reply first.
@@ -207,16 +207,27 @@ gh api graphql -f id=<thread-id> -f query='
 gh pr comment "$n" --body "Gitar review"
 ```
 
-### E. The push wait and the Gitar check
+### E. The push wait and the Gitar poll
 
 ```bash
-# The push wait. Replace <seconds> with the push time in seconds from command A.
-# The loop ends three minutes after the push. A tool that refuses a long command can run it in the background.
+# Replace <seconds> with the push time in seconds from command A. Run it in the background (D-1074).
+# It prints one result line: completed, no check, not complete, or read failed.
 push=<seconds>
-while [ $(( $(date +%s) - push )) -lt 180 ]; do sleep 15; done
-
-# The Gitar check on the head: the status, the conclusion, and the start time.
-h=$(gh pr view "$n" --json headRefOid --jq .headRefOid)
-gh api "repos/$repo/commits/$h/check-runs" \
-  --jq '.check_runs[] | select(.app.slug == "gitar-bot") | "\(.status) \(.conclusion) \(.started_at)"'
+while [ $(( $(date +%s) - push )) -lt 60 ]; do sleep 5; done
+while :; do
+  age=$(( $(date +%s) - push ))
+  s=$(h=$(gh pr view "$n" --json headRefOid --jq .headRefOid) && gh api "repos/$repo/commits/$h/check-runs?check_name=Gitar" \
+    --jq '[.check_runs[] | select(.app.slug == "gitar-bot")] | first | if . == null then "none"
+      else "\(.status) \(.conclusion) \(.completed_at | if . then fromdateiso8601 else 0 end)" end') \
+    || { echo "gitar: read failed at $age s"; break; }
+  # The last word is the completion time in seconds. A check that completed after 900 s counts as not complete.
+  case "$s" in completed*)
+    took=$(( ${s##* } - push ))
+    if [ "$took" -le 900 ]; then echo "gitar: completed at $took s: $s"; else echo "gitar: not complete at 900 s, completed at $took s: $s"; fi
+    break ;;
+  esac
+  if [ "$s" = none ] && [ "$age" -ge 180 ]; then echo "gitar: no check at $age s"; break; fi
+  if [ "$age" -ge 900 ]; then echo "gitar: not complete at $age s: $s"; break; fi
+  sleep 20
+done
 ```

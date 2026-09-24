@@ -6,8 +6,6 @@ Part of the `pr-review` skill (D-588). Load this file when the session is the au
 
 An automated reviewer, gitar, comments on every PR after a push (D-14). This pass comes before the cross-provider review and never replaces it (T-4). A documentation PR answers the pass too (D-66).
 
-**Gitar pause (D-945).** The author waits for no Gitar pass. The `gitar-review` skill gives the read of each gate and the stop on a thread or a finding. After the owner saw the feedback, the author answers it with the rules below.
-
 After each push, the author loads `.claude/skills/gitar-review/SKILL.md` and follows it. That skill holds the procedure: get a current review of the head, read each finding as a claim, fix or refute it, reply, and resolve. This section does not repeat it.
 
 These rules of this repo add to the `gitar-review` skill, and they win over it:

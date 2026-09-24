@@ -396,12 +396,22 @@ Built by PR-96. Phase file: `phase-2-first-playable.md` section 7.24.
 
 Built by PR-97. Phase file: `phase-2-first-playable.md` section 7.25.
 
-- No step waits for a Gitar pass while the pause holds. The author reads the Gitar output one time before each review run and before the merge question (D-945).
-- A Gitar review thread or finding stops the session, and the owner sees it before any other step (D-945).
+- No step waits for a Gitar pass while the pause holds. The author reads the Gitar output one time before each review run and before the merge question (D-945, superseded by D-1073).
+- A Gitar review thread or finding stops the session, and the owner sees it before any other step (D-945, superseded by D-1073).
 - `make codex-review PR=<n> -- --skip-gitar-review` skips the Gitar check of the command. The flag stays after the pause (D-946).
-- Each line of the pause holds one marker, and `docs/runbooks/merge.md` gives the steps that end the pause (D-945).
+- Each line of the pause holds one marker, and `docs/runbooks/merge.md` gives the steps that end the pause (D-945, superseded by D-1073).
 
 > *In plain English:* no PR waits for Gitar for now, and Gitar feedback goes to the owner first.
+
+### 7.23 The end of the Gitar pause
+
+Built by PR-100. Phase file: `phase-2-first-playable.md` section 7.36.
+
+- The pause of D-945 ends, and D-1073 supersedes it. Each PR waits for a complete Gitar pass again, and a Gitar finding gets its answer with no stop.
+- After a push, the session waits 60 seconds, then reads the Gitar check every 20 seconds until it completes (D-1074).
+- With no Gitar check three minutes after the push, the session comments `Gitar review`. At 15 minutes, it stops and tells the owner (D-705, D-1074).
+
+> *In plain English:* each PR waits for Gitar again, and the session checks for Gitar one minute after each push.
 
 ## 8. Sequence
 
@@ -425,11 +435,12 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 16. PR-93: ste-check, review-gate, and Gitar alone on a docs-only change, right after PR-56 (D-856).
 17. PR-95: the automated review, the three-strike stop, and the gated auto-merge, right after PR-92 (D-926 to D-933).
 18. PR-96: the rules of the review loop, right after PR-60 (D-942 to D-944).
-19. PR-97: the Gitar pause and the flag that skips the Gitar check, right after PR-96 (D-945, D-946).
-20. PR-15: the bot runs on every leg (D-505).
-21. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
-22. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-23. **← GATE 2 (first playable).**
+19. PR-97: the Gitar pause and the flag that skips the Gitar check, right after PR-96 (D-945, superseded by D-1073, and D-946).
+20. PR-100: the end of the Gitar pause and the Gitar poll, right after PR-91 (D-1073, D-1074).
+21. PR-15: the bot runs on every leg (D-505).
+22. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
+23. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+24. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 

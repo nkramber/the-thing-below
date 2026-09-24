@@ -12,7 +12,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 Phase 2 turns the machine of Phase 1 into a game that the owner plays. It ends at Gate 2. There the owner walks the village, one hub, and one dungeon on the desktop and on the Deck. Then the owner signs off on feel (D-51, D-92, D-362).
 
-Phase 2 is the largest phase of the plan. It holds 54 PRs, and 51 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
+Phase 2 is the largest phase of the plan. It holds 55 PRs, and 52 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
 
 Four lines of work run through the phase. The walk comes first: the frame, the map, the camera, and the enemies on it (PR-61, PR-7, PR-8). The fight follows, with the enemy record and the screen (PR-9, PR-80, PR-66, PR-10). The light and the effects then land, each right after the first map scene or battle scene that it needs (PR-48 to PR-60, D-520). The build, the story, and the audio close the phase, and PR-17 writes the content that the owner plays.
 
@@ -1098,11 +1098,11 @@ Area file: `area-ci.md` section 7.22.
 
 **Scope.**
 
-- The pause of the Gitar requirement. No step waits for a Gitar pass, and a Gitar review thread or finding stops the session until the owner saw it (D-945).
-- One read of the Gitar output before each `make codex-review` run and before the merge question (D-945).
-- The `review-override` label of a docs-only PR with no Gitar approval (D-945).
+- The pause of the Gitar requirement. No step waits for a Gitar pass, and a Gitar review thread or finding stops the session until the owner saw it (D-945, superseded by D-1073).
+- One read of the Gitar output before each `make codex-review` run and before the merge question (D-945, superseded by D-1073).
+- The `review-override` label of a docs-only PR with no Gitar approval (D-945, superseded by D-1073).
 - The flag `--skip-gitar-review` of the `codex-review` command, and the form `make codex-review PR=<n> -- --skip-gitar-review` (D-946).
-- One marker on each line of the pause, so that one command lists each line, and the steps that end the pause (D-945).
+- One marker on each line of the pause, so that one command lists each line, and the steps that end the pause (D-945, superseded by D-1073).
 
 **Out of scope.**
 
@@ -1119,9 +1119,9 @@ Area file: `area-ci.md` section 7.22.
 **Review focus.**
 
 - The flag skips the Gitar check alone. Each other refusal of the command stands (D-926).
-- Each line of the pause holds the marker, and no text of D-946 holds it (D-945).
+- Each line of the pause holds the marker, and no text of D-946 holds it (D-945, superseded by D-1073).
 
-**Questions.** None. D-945 and D-946 hold the answers of 2026-09-23.
+**Questions.** None. D-945 and D-946 hold the answers of 2026-09-23. D-1073 superseded D-945 on 2026-09-24.
 
 > *In plain English:* Gitar can still comment, but no PR waits for it. A session stops and tells the owner when Gitar finds a problem. The review command takes a flag that skips the Gitar check, and the flag stays after the pause.
 
@@ -1581,7 +1581,39 @@ Area file: `area-exploration.md` section 7.17.
 
 > *In plain English:* the torch becomes a real item. Dark places hide what lies past its light, and guards see it from far away, so the player chooses between light and stealth.
 
-### 7.36 PR-14: the hub map, the NPCs, and the services
+### 7.36 PR-100: the end of the Gitar pause and the Gitar poll
+
+Area file: `area-ci.md` section 7.23.
+
+**Scope.**
+
+- The end of the Gitar pause. Each PR waits for a complete Gitar pass again, and a Gitar finding gets its answer with no stop (D-1073).
+- The removal of each line of the pause, and of the steps that end the pause in `docs/runbooks/merge.md` (D-1073).
+- The Gitar poll after a push, in command E of the `gitar-review` skill (D-1074). It waits 60 seconds, then reads the Gitar check every 20 seconds until the check completes.
+- The `Gitar review` comment when no Gitar check exists three minutes after the push, and the stop at 15 minutes (D-705, D-1074).
+
+**Out of scope.**
+
+- A change of the `codex-review` command. It already refuses a Gitar pass that is not complete, and the flag of D-946 stays.
+- A change of a workflow file, of the branch protection, or of the `review-gate` command.
+- The copy of the `gitar-review` skill in each other repository.
+
+**Exit tests.**
+
+1. The command of the pause marker lists no line outside the dated records and the register.
+2. Command E prints `completed` for a head with a completed Gitar check. It prints `read failed` for a PR that does not exist.
+3. The `ste-check` job is green, and `CLAUDE.md` and `AGENTS.md` stay identical (D-20).
+
+**Review focus.**
+
+- No rule file still tells a session to skip the Gitar pass, or to pass `--skip-gitar-review` (D-1073).
+- Each row that D-945 revised names D-1073 in its Effect column.
+
+**Questions.** None. D-1073 and D-1074 hold the answers of 2026-09-24.
+
+> *In plain English:* each PR waits for Gitar again. After a push, the session checks for Gitar after one minute, and it checks again until Gitar finishes.
+
+### 7.37 PR-14: the hub map, the NPCs, and the services
 
 Area file: `area-exploration.md` section 7.11.
 
@@ -1624,7 +1656,7 @@ Area file: `area-exploration.md` section 7.11.
 
 > *In plain English:* the hub is a place you walk through, where the party recovers and reshapes itself before the next dungeon. Every hub has a different shape.
 
-### 7.37 PR-65: the shop and the gold
+### 7.38 PR-65: the shop and the gold
 
 Area file: `area-exploration.md` section 7.12.
 
@@ -1661,7 +1693,7 @@ Area file: `area-exploration.md` section 7.12.
 
 > *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
 
-### 7.38 PR-36: the dialogue box, the portraits, and the story scene on screen
+### 7.39 PR-36: the dialogue box, the portraits, and the story scene on screen
 
 Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
@@ -1704,7 +1736,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 > *In plain English:* people walk, turn, and speak on the map you already walk on. Their words appear in a box at the bottom, with a face beside them.
 
-### 7.39 PR-15: the headless runner and the bots
+### 7.40 PR-15: the headless runner and the bots
 
 Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
@@ -1742,7 +1774,7 @@ Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
 > *In plain English:* simple robots play the game with no screen. They make the same choices a player makes, and every crash they find comes with the seed that repeats it.
 
-### 7.40 PR-49: the night job and the night gate
+### 7.41 PR-49: the night job and the night gate
 
 Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
@@ -1780,7 +1812,7 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
 > *In plain English:* every night the robots play thousands of runs on all three systems. No change merges unless a recent night ended with no crash and no dead end.
 
-### 7.41 PR-16: the dungeon parts, the death, and the save points
+### 7.42 PR-16: the dungeon parts, the death, and the save points
 
 Area file: `area-exploration.md` section 7.8.
 
@@ -1824,7 +1856,7 @@ Area file: `area-exploration.md` section 7.8.
 
 > *In plain English:* the dungeon gains its chests, doors, keys, and resting stones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
-### 7.42 PR-64: the traps, the hazards, and the statuses on the map
+### 7.43 PR-64: the traps, the hazards, and the statuses on the map
 
 Area file: `area-exploration.md` section 7.9.
 
@@ -1864,7 +1896,7 @@ Area file: `area-exploration.md` section 7.9.
 
 > *In plain English:* the dungeon itself can hurt you. Poison still hurts while you walk, and a party can go down between fights.
 
-### 7.43 PR-35: the region map
+### 7.44 PR-35: the region map
 
 Area file: `area-exploration.md` section 7.13.
 
@@ -1900,11 +1932,11 @@ Area file: `area-exploration.md` section 7.13.
 
 > *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
 
-### 7.44 PR-37: retired
+### 7.45 PR-37: retired
 
 PR-37 held the CRT shader and its toggle, which have no purpose after D-618. No later item takes the id (G-10). This entry exists so that a reader of the sequence finds the gap and its reason.
 
-### 7.45 PR-38: the audio synthesizer and the first sounds
+### 7.46 PR-38: the audio synthesizer and the first sounds
 
 Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
@@ -1943,7 +1975,7 @@ Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
 > *In plain English:* music and sound start as rows of numbers in a text file. A tool of ours turns those rows into sound, the same way on every computer.
 
-### 7.46 PR-69: the audio player base
+### 7.47 PR-69: the audio player base
 
 Area file: `area-audio.md` sections 7.2 and 7.3.
 
@@ -1979,7 +2011,7 @@ Area file: `area-audio.md` sections 7.2 and 7.3.
 
 > *In plain English:* this part makes sound come out. It sets the volumes, and it mutes the game when the window loses focus.
 
-### 7.47 PR-70: the rules of what plays when
+### 7.48 PR-70: the rules of what plays when
 
 Area file: `area-audio.md` sections 7.4 to 7.10.
 
@@ -2026,7 +2058,7 @@ Area file: `area-audio.md` sections 7.4 to 7.10.
 
 > *In plain English:* every place has its own music, a low bed of wind or fire under it, and its own footsteps. The music changes when the story turns the day to night.
 
-### 7.48 PR-71: the sound room
+### 7.49 PR-71: the sound room
 
 Area file: `area-audio.md` section 7.11.
 
@@ -2056,7 +2088,7 @@ Area file: `area-audio.md` section 7.11.
 
 > *In plain English:* the owner listens to every piece of music before it ships. One tool plays a batch on the desk, and this one plays it inside the game.
 
-### 7.49 PR-51: the PNG import
+### 7.50 PR-51: the PNG import
 
 Area file: `area-tools.md` section 7.11.
 
@@ -2098,7 +2130,7 @@ Area file: `area-tools.md` section 7.11.
 
 > *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
 
-### 7.50 PR-52: the map preview
+### 7.51 PR-52: the map preview
 
 Area file: `area-tools.md` section 7.12.
 
@@ -2128,7 +2160,7 @@ Area file: `area-tools.md` section 7.12.
 
 > *In plain English:* maps are text files too. This tool draws a map as a picture, so the owner can see and approve a place before anyone walks it.
 
-### 7.51 PR-53: the tile-edge tool
+### 7.52 PR-53: the tile-edge tool
 
 Area file: `area-tools.md` section 7.13.
 
@@ -2161,7 +2193,7 @@ Area file: `area-tools.md` section 7.13.
 
 > *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own.
 
-### 7.52 PR-72: the music and the sounds of the first playable
+### 7.53 PR-72: the music and the sounds of the first playable
 
 Area file: `area-audio.md` section 7.12.
 
@@ -2196,7 +2228,7 @@ Area file: `area-audio.md` section 7.12.
 
 > *In plain English:* the music arrives in two batches. This is the first: enough for the first thing that the owner plays.
 
-### 7.53 PR-17: the village, the first hub, and the first dungeon
+### 7.54 PR-17: the village, the first hub, and the first dungeon
 
 Area files: every area file. The content PR touches each area.
 
@@ -2243,7 +2275,7 @@ Area files: every area file. The content PR touches each area.
 
 > *In plain English:* the first real place to play. Everything before this was machinery.
 
-### 7.54 M-3, M-4, and M-6: the measurements of the phase
+### 7.55 M-3, M-4, and M-6: the measurements of the phase
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
@@ -2272,7 +2304,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* three sets of numbers close the phase. They are the cost of the robots each night, the length of a fight, and the speed on the handheld.
 
-### 7.55 Gate 2: the first playable
+### 7.56 Gate 2: the first playable
 
 **The gate.** Gate 2 passes when every line holds:
 
@@ -2290,7 +2322,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* at this point the game is a game. The owner walks a village, fights in a mine, and says whether it feels right.
 
-### 7.56 PR-74: the capture
+### 7.57 PR-74: the capture
 
 Area file: `area-release.md` section 7.6.
 
@@ -2324,7 +2356,7 @@ Area file: `area-release.md` section 7.6.
 
 > *In plain English:* the game can replay a recorded run and write every frame to disk. That gives the same picture each time, so a screenshot or a trailer shot is repeatable.
 
-### 7.57 PR-75: the store text and the owner steps
+### 7.58 PR-75: the store text and the owner steps
 
 Area file: `area-release.md` section 7.7.
 
@@ -2361,7 +2393,7 @@ Area file: `area-release.md` section 7.7.
 
 > *In plain English:* the shop page words get written and approved like any other text in the game. The owner pays the fee and answers the questions that only Valve asks.
 
-### 7.58 PR-76: the store art and the screenshots
+### 7.59 PR-76: the store art and the screenshots
 
 Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
@@ -2405,7 +2437,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 4. PR-48, PR-56, PR-93, PR-63, PR-57, PR-58, PR-94, PR-59, PR-92, PR-95, PR-60, PR-96, PR-97: the normal maps, the light, the settings, the effects, and the automated review.
 5. PR-11, PR-98, PR-67, PR-62: the enemies that think, the waiting enemies on screen, the character level, and the menu windows.
 6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
-7. PR-12, PR-13, PR-99, PR-91, PR-14, PR-65: the build of a party, the stat set, the torch, the hub, and the shop.
+7. PR-12, PR-13, PR-99, PR-91, PR-100, PR-14, PR-65: the build of a party, the stat set, the torch, the end of the Gitar pause, the hub, and the shop.
 8. PR-36: the dialogue box.
 9. PR-15, PR-49: the bots, the night job, and the night gate.
 10. Owner: require the bot and `night-gate` checks on `main` after their first runs.
