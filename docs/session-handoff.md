@@ -1,3 +1,36 @@
+## Session 277: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #75, round 3. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: reviewer. Base: `f1ab753`.
+
+### What this session did, and why
+
+- Re-reviewed PR #75 at effective head `8392c44`. Claude Code authored the PR, so Codex passes the provider gate (T-4, D-17).
+- Confirmed P2-1 is fixed. The regression test passed in the prior round, and current CI passed at this head.
+- Inspected D-1061, all 86 changed paths, and the current CI results. The review record now gives `Ready for owner merge`.
+
+### The state of the build
+
+- Base and merge base: `f1ab753`. Effective and remote head before this metadata commit: `8392c44`.
+- CI run `36046700241` passed the changed-path checks, screen-test, smoke, coverage, and ste-check. Review-gate waits for this record.
+
+### What is in flight
+
+- This commit holds the review record and this handoff entry. It must be pushed and verified.
+
+### Traps and gotchas
+
+- Local `dotnet test` reported no test projects for the Microsoft.Testing.Platform setup. Current CI build and test passed.
+- Gitar's status notice has no item and needs no answer (D-964). The pass was skipped under D-946.
+
+### The questions that block progress
+
+OQ-246 remains open and blocks no PR.
+
+### The next concrete action
+
+Push the metadata commit to `feat/pr-99-stats-absorb-swap`. Fetch, verify the branch status and PR head, and read the review-gate result.
+
 ## Session 276: 2026-09-24, Claude Code
 
 Author: Claude Code
@@ -314,38 +347,3 @@ None. OQ-245 blocks PR-42, and OQ-246 blocks no PR.
 ### The next concrete action
 
 When CI is green but for the review gate, run `make codex-review PR=73 -- --skip-gitar-review`. The Gitar comment so far is a status notice with no item (D-964).
-
-## Session 267: 2026-09-24, Codex
-
-Author: Codex
-Session: reviewer PR #72, round 1. Repository: the-thing-below. Branch: `feat/pr-50-screenplay-tool`. PR: #72. Role: reviewer. Base: `d0bb297`.
-
-### What this session did, and why
-
-- Reviewed PR #72 at effective head `396fae9`. The author is Claude Code, so Codex passes the provider gate (T-4, D-17).
-- Traced the screenplay command, batch, text output, body replacement, and base archive flow. No finding.
-- Ran `make verify`; all 2,879 tests and local checks passed. CI implementation checks passed on each platform.
-- Added `docs/reviews/pr-72.md` with `Ready for owner merge` for the effective head.
-
-### The state of the build
-
-- `main` is `d0bb297`. The effective head and remote head before this metadata commit are `396fae9`.
-- CI run `35951520857` passed implementation checks on macOS, Ubuntu, and Windows. Run `35951520861` failed RG 3 because the review record did not exist yet.
-
-### What is in flight
-
-- This metadata commit holds the review record and this handoff entry. A fresh `review-gate` result must pass after publication.
-
-### Traps and gotchas
-
-- The Gitar comment is a free-plan status notice, with no item, so it does not block the verdict (D-964).
-- The user requested `--skip-gitar-review`; no Gitar pass was required (D-945, D-946).
-- Session 257 moved to `docs/session-handoff-archive.md` to keep the 10 newest sessions here.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and handoff together. Fetch, then verify the remote head and the new `review-gate` result.
