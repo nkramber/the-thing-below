@@ -346,14 +346,15 @@ public static partial class IdentitySet
     }
     """;
 
-    /// <summary>The profile of each brute and grunt of this set (D-956). PR-11 added it, and PR-13 added the drop list (D-1042).</summary>
+    /// <summary>The profile of each brute and grunt of this set (D-956). PR-11 added it, and PR-13 added the drop list and the charm of the steal list (D-1042, D-1051).</summary>
     private const string BruteProfileFile = """
     {
      "comment": "The profile of the brutes of the identity set. It never changes.",
      "id": "profile.identity_brute",
      "weights": { "damage": 100, "kills": 3, "threat": 60, "healing": 50, "timeline": 1, "row": 200 },
      "steal_chance": 2500,
-     "steal": [{ "item": "item.identity_draught" }, { "gold": 12 }],
+     "steal_gear_chance": 2500,
+     "steal": [{ "item": "item.identity_draught" }, { "gold": 12 }, { "gear": "gear.identity_charm" }],
      "drops": [{ "item": "item.identity_draught", "chance": 3000 }]
     }
     """;
@@ -365,6 +366,7 @@ public static partial class IdentitySet
      "id": "profile.identity_mender",
      "weights": { "damage": 40, "kills": 1, "threat": 80, "healing": 300, "timeline": 1, "row": 400 },
      "steal_chance": 0,
+     "steal_gear_chance": 0,
      "steal": [],
      "drops": []
     }
@@ -502,6 +504,9 @@ public static partial class IdentitySet
      "steal_rate": 5000,
      "steal_floor": 0,
      "steal_ceiling": 9000,
+     "steal_gear_first": 500,
+     "steal_gear_second": 1500,
+     "steal_gear_third": 2500,
      "weak_rate": 15000,
      "resist_rate": 5000,
      "absorb_rate": 10000,

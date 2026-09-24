@@ -158,6 +158,7 @@ Built by PR-13. Phase file: `phase-2-first-playable.md`.
 - A find over the stack limit stays in its chest, and the save records what remains (D-385).
 - Mend rites and cure rites also work from the menu outside a fight, and silence stops them (D-391, D-393).
 - A steal takes one entry from the list of an enemy, and `area-battle.md` holds the steal (D-383, D-1044, D-1045).
+- A steal can take a piece of gear that the party has room for, at the gear cap of D-1051.
 - A win can drop an item from the drop list of a profile, and a drop is rare (D-1042).
 - The party holds a gold number, which a steal fills and PR-65 spends (D-1043).
 

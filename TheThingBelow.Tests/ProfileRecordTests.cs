@@ -24,7 +24,9 @@ public sealed class ProfileRecordTests
         Assert.Equal(new ScoreWeights(100, 3, 40, 0, 1, 100), brute.Weights);
         Assert.Equal(4000, grunt.StealChance);
         Assert.Equal(new StealGold(6), Assert.Single(grunt.Steal));
-        Assert.Equal(2, brute.Steal.Count);
+        Assert.Equal(3, brute.Steal.Count);
+        Assert.Equal("gear.fixture_hood", Assert.IsType<StealGear>(brute.Steal[2]).Gear.Value);
+        Assert.Equal((0, 2500), (grunt.StealGearChance, brute.StealGearChance));
         Assert.Equal("item.fixture_draught", Assert.IsType<StealItem>(brute.Steal[0]).Item.Value);
         Assert.Equal(new StealGold(15), brute.Steal[1]);
         Assert.Equal(("item.fixture_draught", 1000), (Assert.Single(grunt.Drops).Item.Value, grunt.Drops[0].Chance));
@@ -40,14 +42,18 @@ public sealed class ProfileRecordTests
     [InlineData("\"steal_chance\": 3000", "\"steal_chance\": 10001", "steal_chance", "outside 0 to 10000")]
     [InlineData("\"steal_chance\": 3000", "\"steal_chance\": 0", "steal_chance", "no steal can take")]
     [InlineData("[{ \"item\": \"item.fixture_draught\" }, { \"gold\": 5 }]", "[]", "steal_chance", "the steal list is empty")]
-    [InlineData("{ \"gold\": 5 }", "{ \"gold\": 5, \"item\": \"item.fixture_draught\" }", "item", "not both or neither")]
-    [InlineData("{ \"gold\": 5 }", "{ }", "item", "not both or neither")]
+    [InlineData("{ \"gold\": 5 }", "{ \"gold\": 5, \"item\": \"item.fixture_draught\" }", "item", "not two or none")]
+    [InlineData("{ \"gold\": 5 }", "{ }", "item", "not two or none")]
     [InlineData("{ \"gold\": 5 }", "{ \"gold\": 0 }", "gold", "outside 1 to")]
     [InlineData("\"id\": \"profile.test_attacker\"", "\"id\": \"enemy.test_attacker\"", "id", "profile")]
     [InlineData("\"drops\": []", "\"drops\": [{ \"item\": \"item.fixture_draught\", \"chance\": 0 }]", "chance", "never drops")]
     [InlineData("\"drops\": []", "\"drops\": [{ \"item\": \"item.fixture_draught\", \"chance\": 10001 }]", "chance", "outside 0 to 10000")]
     [InlineData("\"drops\": []", "\"drops\": [{ \"item\": \"item.fixture_draught\" }]", "chance", "absent")]
     [InlineData(",\n \"drops\": []", "", "drops", "absent")]
+    [InlineData("\"steal_gear_chance\": 0", "\"steal_gear_chance\": 500", "steal_gear_chance", "holds no gear")]
+    [InlineData("{ \"gold\": 5 }]", "{ \"gold\": 5 }, { \"gear\": \"gear.test_blade\" }]", "steal_gear_chance", "holds gear that no steal can take")]
+    [InlineData("\"steal_gear_chance\": 0,\n \"steal\": [{ \"item\": \"item.fixture_draught\" }, { \"gold\": 5 }]", "\"steal_gear_chance\": 500,\n \"steal\": [{ \"item\": \"item.fixture_draught\" }, { \"gear\": \"gear.test_blade\" }]", "steal", "holds gear and no gold")]
+    [InlineData("{ \"gold\": 5 }", "{ \"gold\": 5, \"gear\": \"gear.test_blade\" }", "item", "not two or none")]
     public void AProfileThatBreaksARuleFailsWithTheFileAndTheField(string from, string to, string field, string reason)
     {
         string text = TestBattles.AttackerProfileFile.Replace(from, to, StringComparison.Ordinal);

@@ -67,7 +67,7 @@ Game terms from the roadmap interview of 2026-09-12:
 | used-up item | an item that one use spends, such as a draught (D-384) | consumable |
 | key item | an item with a stack limit of 1 that a use never spends, such as the torch (D-848, D-1038) | unique item, quest item |
 | drop list | the items that a profile can give at a win, each with its own chance (D-1042) | loot table, drop table |
-| steal list | the items and the gold that a profile carries for a steal (D-383) | pocket, loot list |
+| steal list | the items, the gold, and the gear that a profile carries for a steal (D-383, D-1051) | pocket, loot list |
 | gold | the currency (D-60) | money, coins, gil |
 | character level | the level from experience (D-34) | level, alone |
 | stat curve | the table of the health, the MP, the attack, the defense, and the speed of one character, one row for each level (D-537, D-966) | growth table, stat table |

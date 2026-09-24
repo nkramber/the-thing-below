@@ -110,6 +110,9 @@ public enum BattleEventKind
 
     /// <summary>A fallen enemy dropped an item over its stack limit, which left the game. The actor is the enemy, and the ability names the item (D-1042).</summary>
     DropLost,
+
+    /// <summary>A steal took a piece of gear. The target is the enemy, and the ability names the piece (D-1051).</summary>
+    StealGear,
 }
 
 /// <summary>One event of a battle (D-168, D-532).</summary>
@@ -179,6 +182,7 @@ public static class BattleEvents
         BattleEventKind.StealFull => "steal full",
         BattleEventKind.Drop => "drop",
         BattleEventKind.DropLost => "drop lost",
+        BattleEventKind.StealGear => "steal gear",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no battle event (D-532)"),
     };
 }

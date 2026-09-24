@@ -396,7 +396,7 @@ public sealed class Battle
         return false;
     }
 
-    /// <summary>Puts the stored steals back, and refuses a set that no fight can make: more than three tries, more entries than tries, or an entry that no steal list holds or that repeats (D-1044, D-1045).</summary>
+    /// <summary>Puts the stored steals back, and refuses a set that no fight can make: more than three tries, more entries than tries, or an entry that no steal list holds or that repeats and is no gold (D-1044, D-1045, D-1051).</summary>
     private void PutSteals(BattleContent content, StealValues steals, string source)
     {
         ArgumentNullException.ThrowIfNull(steals.Taken);
@@ -415,7 +415,10 @@ public sealed class Battle
                 entry.Entry < 0 || entry.Entry >= profile.Steal.Count,
                 source,
                 $"a stolen entry names the entry {entry.Entry} of '{profile.Id.Value}', whose steal list holds {profile.Steal.Count} (D-383)");
-            Refuse(this.WasStolen(entry.Enemy, entry.Entry), source, $"the entry {entry.Entry} of the enemy slot {entry.Enemy} is stolen two times (D-1044)");
+            Refuse(
+                this.WasStolen(entry.Enemy, entry.Entry) && profile.Steal[entry.Entry] is not StealGold,
+                source,
+                $"the entry {entry.Entry} of the enemy slot {entry.Enemy} is stolen two times, and a gold entry alone comes back (D-1044, D-1051)");
             this.stolen.Add(entry);
         }
 

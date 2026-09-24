@@ -43,6 +43,9 @@ internal static class TestBattles
      "steal_rate": 5000,
      "steal_floor": 0,
      "steal_ceiling": 9000,
+     "steal_gear_first": 500,
+     "steal_gear_second": 1500,
+     "steal_gear_third": 2500,
      "weak_rate": 15000,
      "resist_rate": 5000,
      "absorb_rate": 10000,
@@ -183,6 +186,7 @@ internal static class TestBattles
      "id": "profile.test_attacker",
      "weights": { "damage": 100, "kills": 0, "threat": 0, "healing": 0, "timeline": 0, "row": 0 },
      "steal_chance": 3000,
+     "steal_gear_chance": 0,
      "steal": [{ "item": "item.fixture_draught" }, { "gold": 5 }],
      "drops": []
     }
@@ -507,6 +511,24 @@ internal static class TestBattles
         (string Field, int Value)[] exact = [("hit_low", 10000), ("hit_high", 10000), ("miss_base", 0), ("miss_ceiling", 0)];
         string profile = AttackerProfileFile.Replace("\"drops\": []", $"\"drops\": {drops}", System.StringComparison.Ordinal);
         return Build(FixtureFile, exact, attacker: profile);
+    }
+
+    /// <summary>Gives the battle content of the tests with a thief, sure steals, and a steal list with a gear chance (D-1051).</summary>
+    /// <param name="gearChance">The gear chance of the attacker profile, in basis points.</param>
+    /// <param name="steal">The text of the steal list.</param>
+    /// <returns>The battle content.</returns>
+    public static BattleContent WithGearThief(int gearChance, string steal)
+    {
+        string fixture = FixtureFile.Replace(
+            "\"lessons\": [\"lesson.fixture_hew\", \"lesson.fixture_cinder\"]",
+            "\"lessons\": [\"lesson.fixture_hew\", \"lesson.test_pilfer\"]",
+            System.StringComparison.Ordinal);
+        (string Field, int Value)[] rules = [("hit_low", 10000), ("hit_high", 10000), ("miss_base", 0), ("miss_ceiling", 0), ("steal_ceiling", 10000), ("steal_rate", 10000)];
+        string profile = AttackerProfileFile
+            .Replace("\"steal_chance\": 3000", "\"steal_chance\": 10000", System.StringComparison.Ordinal)
+            .Replace("\"steal_gear_chance\": 0", $"\"steal_gear_chance\": {gearChance}", System.StringComparison.Ordinal)
+            .Replace("[{ \"item\": \"item.fixture_draught\" }, { \"gold\": 5 }]", steal, System.StringComparison.Ordinal);
+        return Build(fixture, rules, attacker: profile);
     }
 
     public static BattleContent WithThief(int stealChance, params (string Field, int Value)[] rules)

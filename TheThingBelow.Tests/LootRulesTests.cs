@@ -172,6 +172,110 @@ public sealed class LootRulesTests
         Assert.InRange(drops * 1000 / (2 * Seeds), 70, 130);
     }
 
+    [Theory]
+    [InlineData(10000, 0, 500)]
+    [InlineData(10000, 1, 1500)]
+    [InlineData(10000, 2, 2500)]
+    [InlineData(1000, 2, 1000)]
+    [InlineData(1000, 0, 500)]
+    public void TheGearChanceIsTheLowerOfTheProfileAndTheCapOfTheSuccess(int profileChance, int successes, int expected)
+    {
+        // D-1051: 5%, 15%, and 25% for the first, the second, and the third success, and a profile can lower each.
+        Assert.Equal(expected, LootRules.GearChance(profileChance, successes, TestBattles.Content.Rules));
+    }
+
+    [Fact]
+    public void EachSuccessTakesGearAtTheCapOfItsPlace()
+    {
+        // D-1051: three golds keep a gold entry left for each success, so the gear rate of each
+        // success reads its cap. The rolls follow the seeds, so the rates are fixed.
+        BattleContent content = TestBattles.WithGearThief(10000, "[{ \"gold\": 5 }, { \"gold\": 6 }, { \"gold\": 7 }, { \"gear\": \"gear.test_blade\" }]");
+        int[] tries = new int[3];
+        int[] gear = new int[3];
+        for (ulong seed = 1; seed <= Seeds; seed += 1)
+        {
+            Simulation run = BattleRuns.IntoBattle(seed, "group.test_pair", content);
+            BattleTarget enemy = BattleRuns.BattleOf(run).Enemies[0].Target;
+            for (int success = 0; success < 3; success += 1)
+            {
+                List<BattleEventKind> kinds = Steal(run, enemy);
+                tries[success] += 1;
+                if (kinds.Contains(BattleEventKind.StealGear))
+                {
+                    gear[success] += 1;
+                    break;
+                }
+            }
+        }
+
+        Assert.InRange(gear[0] * 1000 / tries[0], 20, 80);
+        Assert.InRange(gear[1] * 1000 / tries[1], 100, 200);
+        Assert.InRange(gear[2] * 1000 / tries[2], 190, 310);
+    }
+
+    [Fact]
+    public void AFirstSuccessAfterTwoFailedTriesTakesTheCapOfAFirstSuccess()
+    {
+        // D-1051: the count reads the successes and never the tries.
+        BattleContent content = TestBattles.WithGearThief(10000, "[{ \"gold\": 5 }, { \"gear\": \"gear.test_blade\" }]");
+        int gear = 0;
+        for (ulong seed = 1; seed <= Seeds; seed += 1)
+        {
+            Simulation fresh = BattleRuns.IntoBattle(seed, "group.test_pair", content);
+            RunSnapshot snapshot = fresh.Snapshot();
+            RunSnapshot twoFailures = snapshot with { Battle = snapshot.Battle! with { Steals = new StealValues(2, []) } };
+            Simulation run = Simulation.Resume(seed, twoFailures, BattleRuns.Map("group.test_pair"), content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+            Assert.Equal(2, BattleRuns.BattleOf(run).StealTries);
+
+            List<BattleEventKind> kinds = Steal(run, BattleRuns.BattleOf(run).Enemies[0].Target);
+
+            Assert.True(kinds.Contains(BattleEventKind.StealGear) || kinds.Contains(BattleEventKind.StealGold), $"Seed {seed}: the sure steal took nothing.");
+            gear += kinds.Contains(BattleEventKind.StealGear) ? 1 : 0;
+        }
+
+        Assert.InRange(gear * 1000 / Seeds, 20, 80);
+    }
+
+    [Fact]
+    public void AStealNeverPicksGearThatThePackHasNoRoomFor()
+    {
+        // D-1051: the blade has a limit of 2, and the pack holds 2, so the pick checks the room
+        // first. With the gold taken, only the blade is left, and the gold entry comes back.
+        BattleContent content = TestBattles.WithGearThief(10000, "[{ \"gold\": 5 }, { \"gear\": \"gear.test_blade\" }]");
+        ContentId blade = ContentId.Parse("gear.test_blade", "test", "gear");
+        for (ulong seed = 1; seed <= 200; seed += 1)
+        {
+            Simulation run = BattleRuns.IntoBattle(seed, "group.test_pair", content);
+            Assert.Equal(0, run.State.Characters.Pick(blade, 2, content));
+            Battle battle = BattleRuns.BattleOf(run);
+            BattleTarget enemy = battle.Enemies[0].Target;
+
+            List<BattleEventKind> kinds = [.. Steal(run, enemy), .. Steal(run, enemy), .. Steal(run, enemy)];
+
+            Assert.DoesNotContain(BattleEventKind.StealGear, kinds);
+            Assert.Equal(3, kinds.FindAll(kind => kind == BattleEventKind.StealGold).Count);
+            Assert.Equal(15, run.State.Characters.Gold);
+            Assert.Equal([0, 0, 0], [battle.Stolen[0].Entry, battle.Stolen[1].Entry, battle.Stolen[2].Entry]);
+        }
+    }
+
+    [Fact]
+    public void AResumeTakesARepeatedGoldEntryAndRefusesARepeatedItem()
+    {
+        // D-1051: the gold entry comes back when only gear is left, and no other entry repeats.
+        Simulation run = BattleRuns.IntoBattle(4, "group.test_pair");
+        RunSnapshot snapshot = run.Snapshot();
+        RunSnapshot gold = snapshot with { Battle = snapshot.Battle! with { Steals = new StealValues(2, [new StolenEntry(0, 1), new StolenEntry(0, 1)]) } };
+        RunSnapshot item = snapshot with { Battle = snapshot.Battle! with { Steals = new StealValues(2, [new StolenEntry(0, 0), new StolenEntry(0, 0)]) } };
+
+        Simulation resumed = Simulation.Resume(4, gold, BattleRuns.Map("group.test_pair"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+        ArgumentException error = Assert.Throws<ArgumentException>(() =>
+            Simulation.Resume(4, item, BattleRuns.Map("group.test_pair"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
+
+        Assert.Equal(2, BattleRuns.BattleOf(resumed).Stolen.Count);
+        Assert.Contains("a gold entry alone comes back", error.Message, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void AFailedStealCostsTheTurnOfTheThief()
     {

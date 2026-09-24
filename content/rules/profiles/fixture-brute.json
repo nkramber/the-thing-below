@@ -1,8 +1,9 @@
 {
- "comment": "The profile of the fixture brute (D-956). It weighs damage and kills above its own safety, and it never heals. PR-11 ships the weights alone (D-958), and PR-30 tunes them. The steal list holds a draught and some gold (D-383, D-949). The drop list holds a rare tonic (D-1042).",
+ "comment": "The profile of the fixture brute (D-956). It weighs damage and kills above its own safety, and it never heals. PR-11 ships the weights alone (D-958), and PR-30 tunes them. The steal list holds a draught, some gold, and a hood, at the gear chance of D-1051 (D-383, D-949). The drop list holds a rare tonic (D-1042).",
  "id": "profile.fixture_brute",
  "weights": { "damage": 100, "kills": 3, "threat": 40, "healing": 0, "timeline": 1, "row": 100 },
  "steal_chance": 2500,
- "steal": [{ "item": "item.fixture_draught" }, { "gold": 15 }],
+ "steal_gear_chance": 2500,
+ "steal": [{ "item": "item.fixture_draught" }, { "gold": 15 }, { "gear": "gear.fixture_hood" }],
  "drops": [{ "item": "item.fixture_tonic", "chance": 500 }]
 }

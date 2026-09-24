@@ -102,6 +102,7 @@ public static class BattleMessages
             BattleEventKind.ItemCure => Line("battle.item_cure", Target(played, view, strings), Item(played, strings)),
             BattleEventKind.Revive => Line("battle.revive", Target(played, view, strings)),
             BattleEventKind.StealItem => Line("battle.steal_item", Actor(played, view, strings), Item(played, strings)),
+            BattleEventKind.StealGear => Line("battle.steal_item", Actor(played, view, strings), Item(played, strings)),
             BattleEventKind.StealGold => Line("battle.steal_gold", Actor(played, view, strings), Amount(played)),
             BattleEventKind.StealFailed => Line("battle.steal_failed", Actor(played, view, strings)),
             BattleEventKind.StealEmpty => Line("battle.steal_empty", Target(played, view, strings)),

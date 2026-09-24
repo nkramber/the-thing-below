@@ -1457,6 +1457,7 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 - The item use in a fight, and the item use from the item window outside a fight. The window refuses a use that changes nothing (D-382, D-1049).
 - The steal of a Theft drill: the roll, the Theft term, and the clamp (D-949, D-950).
 - The three tries of a fight, the halved chance, and the stolen entry in the pack (D-1044, D-1045).
+- The gear of a steal list: the gear chance of the profile under the cap of each success, and the check of room (D-1051).
 - The party gold number, which a stolen gold entry fills (D-1043).
 - The drop list of each profile, and the drops of a win as message lines after the summary of PR-67 (D-835, D-975, D-1042).
 - The find over the stack limit, which stays in its chest and which the save records (D-385).
@@ -1479,7 +1480,8 @@ Area file: `area-progression.md` sections 7.8 and 7.9.
 4. An item restores less in a fight than outside one (D-382).
 5. A test proves each example of D-1037 for two or more pieces with one element.
 6. A seed loop proves the three tries and the halved chance of a steal (D-1045).
-7. The snapshot holds the pack, the gold, and the slots.
+7. A seed loop proves the gear cap of each success, and a first success after two failures (D-1051).
+8. The snapshot holds the pack, the gold, and the slots.
 
 **Review focus.**
 

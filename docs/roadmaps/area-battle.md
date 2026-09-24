@@ -140,6 +140,7 @@ Built by PR-11 and PR-9. Phase file: `phase-2-first-playable.md`.
 - Every profile validates at load, and a profile that can never act fails that load (G-21, T-2). A check fight against one fixture party member finds a profile with no legal action (D-948).
 - Each profile carries a steal list of items and some gold, and a human enemy carries what a person carries (D-383). Each profile gives the base chance of a steal, and PR-13 builds the steal action with the Theft term (D-949, D-950).
 - A steal takes one remaining entry at random. The party gets three tries in one fight, and each success halves the next chance (D-1044, D-1045).
+- A steal list can hold gear. A success takes gear at the lower of the gear chance of the profile and the cap of the success: 5%, 15%, then 25% (D-1051).
 - Each profile carries a drop list, and each entry holds its own chance. A drop is rare (D-1042).
 - A group file for each region holds each enemy group: its enemies, their rows, and their profiles (D-535). Each map names its region, and the group files live under `content/rules/groups/` (D-957).
 - A map names a group by its id, and a test proves that each named group exists (D-528, D-535). PR-9 holds that test on its fixture group file, and PR-11 grows the file (D-766).

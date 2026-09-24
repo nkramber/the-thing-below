@@ -108,7 +108,7 @@ The player never owns two copies of one lesson, and D-364 stands for the lessons
 
 2026-09-24 gear pass: gear adds to attack, defense, and speed, and special gear holds other element levels (D-1036). The best protection of the worn gear applies, and each `weak` piece steps it down one step (D-1037). Each record holds a stack limit, and the limit counts each owned copy (D-1038, D-1039). A rarity tier is the place of a find alone (D-1040).
 
-A drop list on each profile gives rare items at a win, and a steal of gold adds to a party gold number (D-1042, D-1043). A fight allows three steal tries, and each success halves the next chance (D-1044, D-1045). An item heals, restores MP, cures, or revives (D-1046). A gear amount can be negative, each stat keeps a floor of 1, and gear changes anywhere outside a fight (D-1047, D-1048).
+A drop list on each profile gives rare items at a win, and a steal of gold adds to a party gold number (D-1042, D-1043). A fight allows three steal tries, and each success halves the next chance (D-1044, D-1045). A steal takes gear at the gear chance of the profile, under a cap of 5%, 15%, or 25% for each success (D-1051). An item heals, restores MP, cures, or revives (D-1046). A gear amount can be negative, each stat keeps a floor of 1, and gear changes anywhere outside a fight (D-1047, D-1048).
 
 The item window refuses a use that changes nothing (D-1049). PR-13 holds each one. PR-99 settles the stat set and the heal of an absorbed hit, and it opens the lesson swap (D-1041, D-1050).
 

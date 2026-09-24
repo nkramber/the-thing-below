@@ -3,6 +3,7 @@
  "id": "profile.fixture_grunt",
  "weights": { "damage": 60, "kills": 2, "threat": 60, "healing": 100, "timeline": 1, "row": 150 },
  "steal_chance": 4000,
+ "steal_gear_chance": 0,
  "steal": [{ "gold": 6 }],
  "drops": [{ "item": "item.fixture_draught", "chance": 1000 }]
 }

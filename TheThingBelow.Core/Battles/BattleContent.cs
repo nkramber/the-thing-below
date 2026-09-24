@@ -537,7 +537,7 @@ public sealed class BattleContent
         }
     }
 
-    /// <summary>Refuses a steal list that names an item with no record (T-2, D-383).</summary>
+    /// <summary>Refuses a steal list that names an item or a piece of gear with no record (T-2, D-383, D-1051).</summary>
     private void RefuseAbsentStealItem()
     {
         foreach (ProfileRecord profile in this.Profiles)
@@ -550,6 +550,14 @@ public sealed class BattleContent
                         profile.File,
                         stolen.Item.Value,
                         $"the steal list of '{profile.Id.Value}' names this item, and '{ItemList.Path}' holds no such item (T-2, D-383)");
+                }
+
+                if (entry is StealGear gear && !this.Gear.Holds(gear.Gear))
+                {
+                    throw ContentException.ForField(
+                        profile.File,
+                        gear.Gear.Value,
+                        $"the steal list of '{profile.Id.Value}' names this piece, and '{GearList.Path}' holds no such piece (T-2, D-1051)");
                 }
             }
         }

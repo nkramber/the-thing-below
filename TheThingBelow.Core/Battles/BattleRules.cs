@@ -52,6 +52,9 @@ public sealed class BattleRules
         "steal_rate",
         "steal_floor",
         "steal_ceiling",
+        "steal_gear_first",
+        "steal_gear_second",
+        "steal_gear_third",
         "weak_rate",
         "resist_rate",
         "absorb_rate",
@@ -99,6 +102,7 @@ public sealed class BattleRules
         this.StealRate = numbers["steal_rate"];
         this.StealFloor = numbers["steal_floor"];
         this.StealCeiling = numbers["steal_ceiling"];
+        this.StealGearCaps = [numbers["steal_gear_first"], numbers["steal_gear_second"], numbers["steal_gear_third"]];
         this.WeakRate = numbers["weak_rate"];
         this.ResistRate = numbers["resist_rate"];
         this.AbsorbRate = numbers["absorb_rate"];
@@ -193,6 +197,9 @@ public sealed class BattleRules
 
     /// <summary>The highest chance of a steal (D-949).</summary>
     public int StealCeiling { get; }
+
+    /// <summary>The cap of the gear chance of the first, the second, and the third success of a fight, in basis points (D-1051).</summary>
+    public IReadOnlyList<int> StealGearCaps { get; }
 
     /// <summary>The rate of a hit of an element that the target is weak to (D-794).</summary>
     public int WeakRate { get; }
@@ -410,6 +417,9 @@ public sealed class BattleRules
         CheckRange(numbers, file, "steal_rate", 0, BasisPoints.One);
         CheckRange(numbers, file, "steal_floor", 0, BasisPoints.One);
         CheckRange(numbers, file, "steal_ceiling", numbers["steal_floor"], BasisPoints.One);
+        CheckRange(numbers, file, "steal_gear_first", 0, BasisPoints.One);
+        CheckRange(numbers, file, "steal_gear_second", 0, BasisPoints.One);
+        CheckRange(numbers, file, "steal_gear_third", 0, BasisPoints.One);
         CheckRange(numbers, file, "weak_rate", 0, MostRate);
         CheckRange(numbers, file, "resist_rate", 0, MostRate);
         CheckRange(numbers, file, "absorb_rate", 0, MostRate);

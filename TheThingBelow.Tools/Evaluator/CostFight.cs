@@ -99,6 +99,7 @@ public static class CostFight
      "id": "profile.cost_careful",
      "weights": { "damage": 100, "kills": 3, "threat": 60, "healing": 150, "timeline": 1, "row": 200 },
      "steal_chance": 0,
+     "steal_gear_chance": 0,
      "steal": [],
      "drops": []
     }

@@ -1,7 +1,7 @@
 ## Session 270: 2026-09-24, Claude Code
 
 Author: Claude Code
-Session: author PR-13, round 1. Repository: the-thing-below. Branch: `feat/pr-13-gear-items`. PR: the one intent PR-13, before GitHub gives a number. Role: author. Base: `b2bc579`.
+Session: author PR-13, round 1. Repository: the-thing-below. Branch: `feat/pr-13-gear-items`. PR: #74. Role: author. Base: `b2bc579`.
 
 ### What this session did, and why
 
@@ -9,10 +9,12 @@ Session: author PR-13, round 1. Repository: the-thing-below. Branch: `feat/pr-13
 - Built the item file, the gear file, the six gear slots, the pack of items and spare gear with a stack limit for each record, the gold, the four item effects, the steal of a Theft drill, and the drops of a win in Core.
 - Built the gear window, the item window, the stats with the gear in the status window, the lines of the new events, and the debug command `stock`.
 - Raised the simulation version to 23 and the save format to 11, with a stored save of format 11. Rewrote the content hash and the identity file.
+- The owner added gear to the steal list: the gear chance of the profile under a cap of 5%, 15%, or 25% for each success, the check of room, and a gold entry that comes back (D-1051).
+- The smoke session walks the two new entries of the main list.
 
 ### The state of the build
 
-- Base `b2bc579`. `make format`, `make lint`, and the STE check pass. 3,122 tests: the only failures are the three baselines of the new menu captures.
+- Base `b2bc579`. `make format`, `make lint`, `make smoke`, and the STE check pass. 3,135 tests: the only failures are the three baselines of the new menu captures. CI run 36020519177 failed the smoke walk, which this round repairs.
 
 ### What is in flight
 
@@ -30,7 +32,7 @@ None for PR-13. OQ-247 and OQ-248 block PR-99.
 
 ### The next concrete action
 
-Push, open the PR, read the CI screen-test artifact, and commit each changed baseline after a read of each frame.
+Read the CI screen-test artifact, and commit each changed baseline after a read of each frame. Then run `make codex-review PR=74 -- --skip-gitar-review`.
 
 ## Session 269: 2026-09-24, Codex
 
