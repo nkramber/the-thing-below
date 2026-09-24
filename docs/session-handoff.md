@@ -17,8 +17,8 @@ Session: author PR #73, round 1. Repository: the-thing-below. Branch: `feat/pr-1
 
 ### What is in flight
 
-- `scroll-09.png` differs from its baseline in 592 pixels by one level, in a dim band, and no map code changed. The next run shows whether the difference repeats.
-- The Gitar read, then `make codex-review PR=73 -- --skip-gitar-review` (D-945, D-946).
+- `scroll-09.png` differed by one level in 592 pixels of a dim band in two CI runs, with the same bytes. The local renderer draws it the same on `main` and on this branch, and no map code changed. The PR takes the CI frame as its baseline (D-733).
+- The Codex review through `make codex-review PR=73 -- --skip-gitar-review` (D-945, D-946).
 
 ### Traps and gotchas
 
@@ -33,7 +33,7 @@ None. OQ-245 blocks PR-42.
 
 ### The next concrete action
 
-Read the screen-test result of `scroll-09`. When CI is green but for the review gate, read the Gitar output and run the Codex review.
+When CI is green but for the review gate, run `make codex-review PR=73 -- --skip-gitar-review`. The Gitar comment so far is a status notice with no item (D-964).
 
 ## Session 267: 2026-09-24, Codex
 
