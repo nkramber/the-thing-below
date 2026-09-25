@@ -21,7 +21,8 @@ Session: author PR #79 (PR-102), round 4. Repository: the-thing-below. Branch: `
 
 ### Traps and gotchas
 
-- A merge of `main` into a PR branch makes `make codex-review` give `fault` until `BranchCommits` reads merge commits.
+- A merge of `main` into a PR branch makes `make codex-review` give `fault` until `BranchCommits` reads merge commits. The owner put that fix in the PR of finding P3-9 (D-1089).
+- The owner asks the merge question only after every check of the current tip is green and its Gitar pass is complete.
 
 ### The questions that block progress
 
@@ -29,7 +30,7 @@ None.
 
 ### The next concrete action
 
-Ask the owner to confirm the merge. Then turn on the auto-merge under `docs/runbooks/merge.md`.
+Wait for green CI and the Gitar pass of the tip, then ask the owner to confirm the merge. Then turn on the auto-merge under `docs/runbooks/merge.md`.
 
 ## Session 292: 2026-09-25, Codex
 
