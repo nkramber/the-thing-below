@@ -5,6 +5,7 @@ using System.Reflection;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using Xunit;
 
@@ -81,6 +82,50 @@ public sealed class BattleViewTests
         {
             Assert.Equal(Read<int>(enemy, "FullHealth"), Read<int>(enemy, "Health"));
         }
+    }
+
+    [Fact]
+    public void TheStartViewOfAFightThatWipesInItsFirstTickShowsThePartyBeforeTheBlows()
+    {
+        // Finding P3-38 of the repository review: the start view read the party state, and an
+        // ambush that downed each character before the first turn of a character ended the fight
+        // inside the tick that started it. The screen then showed everyone down before the blows
+        // played. The view reads the party from before that tick (D-776).
+        // The run holds an ambush of the test pair (D-770), each blow of the exact content takes 7,
+        // and Marrek holds 1 health, so the first blow wipes the party of one.
+        const ulong seed = 20260925;
+        GameMap map = BattleRuns.Map("group.test_pair");
+        RunSnapshot start = Simulation.Start(seed, map, TestBattles.Exact, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
+        PartySnapshot party = start.Characters!;
+        List<CharacterValues> characters = [.. party.Characters];
+        characters[0] = characters[0] with { Health = 1 };
+        RunSnapshot ambushed = start with
+        {
+            Characters = party with { Characters = characters },
+            Map = start.Map! with { Encounter = new MapEncounter(map.Patrols[0].Id, map.Patrols[0].Group, EncounterSide.Enemy) },
+        };
+        Simulation run = Simulation.Resume(seed, ambushed, map, TestBattles.Exact, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+
+        object before = PartyOf(run.State);
+        run.Step([]);
+
+        Assert.Equal(BattleOutcome.Wiped, BattleRuns.BattleOf(run).Outcome);
+        Assert.Equal(0, run.State.Characters.Members[0].Health);
+        object shown = Side(AtStart(run.State, before), "Party")[0];
+        Assert.Equal(1, Read<int>(shown, "Health"));
+        Assert.Equal("Field", Read<CombatantPlace>(shown, "Place").ToString());
+    }
+
+    [Fact]
+    public void AStartViewFromAPartyOfAnotherSizeIsAnError()
+    {
+        // T-2: the count of characters of the kept party matches the fight.
+        Simulation run = BattleRuns.IntoBattle(3, "group.fixture_pair");
+
+        TargetInvocationException thrown = Assert.Throws<TargetInvocationException>(
+            () => AtStart(run.State, Array.CreateInstance(GameAssemblyFile.Type("TheThingBelow.Game.Ui.StartMember"), 0)));
+
+        Assert.IsType<InvalidOperationException>(thrown.InnerException);
     }
 
     [Fact]
@@ -242,8 +287,13 @@ public sealed class BattleViewTests
         }
     }
 
-    private static object AtStart(RunState state) =>
-        GameAssemblyFile.Type(ViewTypeName).GetMethod("AtStart")!.Invoke(null, [state])!;
+    private static object AtStart(RunState state) => AtStart(state, PartyOf(state));
+
+    private static object AtStart(RunState state, object party) =>
+        GameAssemblyFile.Type(ViewTypeName).GetMethod("AtStart")!.Invoke(null, [state, party])!;
+
+    private static object PartyOf(RunState state) =>
+        GameAssemblyFile.Type(ViewTypeName).GetMethod("PartyOf")!.Invoke(null, [state])!;
 
     private static object Of(RunState state) =>
         GameAssemblyFile.Type(ViewTypeName).GetMethod("Of")!.Invoke(null, [state])!;

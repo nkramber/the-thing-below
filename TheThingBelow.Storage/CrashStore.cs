@@ -35,6 +35,9 @@ public sealed class CrashStore
     /// <summary>The count of crash files that the folder keeps (D-659).</summary>
     public const int KeepCount = 10;
 
+    /// <summary>The largest crash file that the game reads, in bytes: 256 MiB. A crash file holds the record of the run, which grows with the play of a long session.</summary>
+    public const long MostBytes = 256L * 1024 * 1024;
+
     private readonly string folder;
     private readonly Action<string> remove;
 
@@ -102,19 +105,29 @@ public sealed class CrashStore
 
         // The safe write of D-178 gives the file in one step, so a reader of the folder never
         // finds a part of a crash file, also when the crash came from a full disk (T-2).
-        SafeWrite.Replace(path, CrashText.Write(hidden));
+        SafeWrite.Replace(path, CrashText.Write(hidden), text => CrashText.Read(text, path));
 
         // The limit of D-659 never cancels the crash file that exists now. A removal that fails
         // goes to the caller through `CleanupFault`, and the caller logs it (T-2).
+        // Each cleanup runs on its own, so a locked old file never keeps the temporary file of a
+        // torn write, and the first fault goes to the caller.
         this.CleanupFault = null;
         try
         {
             FolderFiles.KeepNewest(this.folder, FilePrefix, FileExtension, KeepCount, path, this.remove);
-            FolderFiles.RemoveTemporaryFiles(this.folder, FilePrefix, FileExtension);
         }
         catch (StorageException cleanup)
         {
             this.CleanupFault = cleanup;
+        }
+
+        try
+        {
+            FolderFiles.RemoveTemporaryFiles(this.folder, FilePrefix, FileExtension);
+        }
+        catch (StorageException cleanup)
+        {
+            this.CleanupFault ??= cleanup;
         }
 
         return path;
@@ -135,14 +148,7 @@ public sealed class CrashStore
             throw StorageException.ForPath(path, "the game found no crash file");
         }
 
-        try
-        {
-            return CrashText.Read(Encoding.UTF8.GetString(File.ReadAllBytes(path)), path);
-        }
-        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
-        {
-            throw StorageException.ForPath(path, "the game could not read the file of a crash", fault);
-        }
+        return CrashText.Read(FileText.Read(path, MostBytes, "the file of a crash"), path);
     }
 
     /// <summary>Gives the names of the crash files, the newest one first (D-659).</summary>

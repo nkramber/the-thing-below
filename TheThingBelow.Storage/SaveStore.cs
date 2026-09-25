@@ -32,6 +32,9 @@ public enum SaveKind
 /// </remarks>
 public sealed class SaveStore
 {
+    /// <summary>The largest save that the game reads, in bytes: 16 MiB. A save holds one snapshot, and the record compacts at each save (F-10).</summary>
+    public const long MostBytes = 16L * 1024 * 1024;
+
     private readonly string folder;
 
     /// <summary>Makes a store of the saves in one folder.</summary>
@@ -89,7 +92,7 @@ public sealed class SaveStore
 
         string path = this.PathOf(kind);
         this.MakeFolder();
-        SafeWrite.Replace(path, SaveText.Write(document));
+        SafeWrite.Replace(path, SaveText.Write(document), text => SaveText.Read(text, path));
     }
 
     /// <summary>Reads one save, and leaves the file (D-258).</summary>
@@ -139,17 +142,7 @@ public sealed class SaveStore
             nameof(kind), kind, $"The game holds no save with the number {(int)kind} (D-62, D-258)."),
     };
 
-    private static string ReadText(string path)
-    {
-        try
-        {
-            return Encoding.UTF8.GetString(File.ReadAllBytes(path));
-        }
-        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
-        {
-            throw StorageException.ForPath(path, "the game could not read the file of a save", fault);
-        }
-    }
+    private static string ReadText(string path) => FileText.Read(path, MostBytes, "the file of a save");
 
     private static void Remove(string path)
     {

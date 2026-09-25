@@ -1,4 +1,36 @@
 # Session handoff archive
+## Session 286: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR-101, round 3. Repository: the-thing-below. Branch: `fix/pr-101-torch-and-pad`. PR: #78 (PR-101). Role: author. Base: `c154ddd`.
+
+### What this session did, and why
+
+- The Gitar pass of `7aef6dc` approved, and Gitar closed its finding of round 1 as fixed.
+- The screen-test job of `7aef6dc` failed on `map-fire-1x.png` alone: 232 pixels, one level each. The render of this machine and of CI differ there by one level. The baseline takes the capture of the job artifact 10846167929 (D-733). The other 107 captures of the artifact match the baseline.
+- Each other CI check of `7aef6dc` passed or was in progress. `review-gate` waits for the review record alone.
+
+### The state of the build
+
+- Base `c154ddd`. The reviewed Gitar head `7aef6dc`. The remote head is the commit of this entry.
+- The job artifact of CI downloads through the proxy of this machine with the API address of the artifact.
+
+### What is in flight
+
+- The Gitar pass and the screen-test job of this head. Then the owner runs `make codex-review PR=78`.
+
+### Traps and gotchas
+
+- `map-fire-1x.png` and `still-240.png` can differ by one level between this machine and CI. Take a changed capture from the artifact of the job, never from this machine alone.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the screen-test job and the Gitar pass of this head. When both pass, tell the owner to run `make codex-review PR=78`.
+
 ## Session 285: 2026-09-25, Claude Code
 
 Author: Claude Code

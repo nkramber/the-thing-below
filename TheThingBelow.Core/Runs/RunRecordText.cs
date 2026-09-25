@@ -69,6 +69,10 @@ public static class RunRecordText
         }
 
         RunHeader header = ReadLine(lines[0], 1, ReadHeader);
+
+        // The snapshot of line 2 takes the fields of its own version, so the versions of line 1
+        // come first, and an older record reports its version and not a field (G-17, D-259).
+        header.CheckVersions();
         RunSnapshot snapshot = ReadLine(lines[1], 2, RunSnapshotText.Read);
 
         List<TickIntents> ticks = [];

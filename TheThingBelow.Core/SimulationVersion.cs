@@ -62,7 +62,7 @@ public static class SimulationVersion
     /// PR-103 raised it to 27: a step into a group inside its grace time starts no encounter, a move intent ends
     /// with its tick when a battle, a menu, or a story scene holds the world (D-1085), an encounter waits for the end of the
     /// step of the lead (D-1094), the reader takes a glow halo up to 192 pixels wide (D-1092), and a content field name of
-    /// points alone fails with its file.
+    /// points alone fails with its file, and the record reader checks its versions before its snapshot and reads format 3.
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number

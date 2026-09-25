@@ -69,7 +69,7 @@ public sealed class TextHelper
     /// <param name="id">The string id, for each error (T-2).</param>
     /// <param name="values">The value of each place, by its name.</param>
     /// <returns>The text that the player reads.</returns>
-    /// <exception cref="ContentException">A place has no value, or a place has no closing mark (T-2).</exception>
+    /// <exception cref="ContentException">A place has no value, a value has no place, or a place has no closing mark (T-2).</exception>
     /// <remarks>
     /// The method reads no engine value, so a test drives it with no engine (D-614). It stays
     /// public for that test, and every draw of a string still goes through <see cref="Put(Label, ContentId)"/>.
@@ -83,9 +83,11 @@ public sealed class TextHelper
         int open = text.IndexOf(OpenMark, StringComparison.Ordinal);
         if (open < 0)
         {
+            RefuseUnplacedValues(id, values, []);
             return text;
         }
 
+        List<string> used = [];
         StringBuilder filled = new();
         int read = 0;
         while (open >= 0)
@@ -110,12 +112,33 @@ public sealed class TextHelper
 
             filled.Append(text, read, open - read);
             filled.Append(value);
+            used.Add(name);
             read = close + 1;
             open = text.IndexOf(OpenMark, read);
         }
 
         filled.Append(text, read, text.Length - read);
+        RefuseUnplacedValues(id, values, used);
         return filled.ToString();
+    }
+
+    /// <summary>
+    /// Refuses a value that no place of the text takes. A text edit that renamed or removed a
+    /// place, such as `{amount}`, dropped the number of a hit in silence (T-2).
+    /// </summary>
+    /// <exception cref="ContentException">A value has no place in the text (T-2).</exception>
+    private static void RefuseUnplacedValues(ContentId id, IReadOnlyDictionary<string, string> values, List<string> used)
+    {
+        foreach (string name in values.Keys)
+        {
+            if (!used.Contains(name))
+            {
+                throw ContentException.ForField(
+                    StringTable.Path,
+                    id.Value,
+                    $"the caller gave a value for the place '{name}', and the text holds no such place (T-2)");
+            }
+        }
     }
 
     private static readonly IReadOnlyDictionary<string, string> EmptyValues =

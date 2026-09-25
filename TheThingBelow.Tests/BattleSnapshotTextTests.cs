@@ -131,7 +131,7 @@ public sealed class BattleSnapshotTextTests
         // D-764: a record replays on its own simulation version alone, so no reader of format 1 exists.
         Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild("0123456789abcdef", Seed), run.Snapshot());
-        string text = RunRecordText.Write(recorder.Build()).Replace("{\"format\":2,", "{\"format\":1,", StringComparison.Ordinal);
+        string text = RunRecordText.Write(recorder.Build()).Replace("{\"format\":3,", "{\"format\":1,", StringComparison.Ordinal);
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunReplay.Play(RunRecordText.Read(text), "0123456789abcdef", BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));

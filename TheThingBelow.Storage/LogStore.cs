@@ -37,6 +37,9 @@ public sealed class LogStore
     /// <summary>The count of log files that the folder keeps (D-659).</summary>
     public const int KeepCount = 10;
 
+    /// <summary>The largest log file that the game reads, in bytes: 256 MiB.</summary>
+    public const long MostBytes = 256L * 1024 * 1024;
+
     private static readonly UTF8Encoding TextEncoding = new(encoderShouldEmitUTF8Identifier: false);
 
     private readonly string folder;
@@ -203,15 +206,7 @@ public sealed class LogStore
     {
         string path = this.SessionFile;
 
-        string text;
-        try
-        {
-            text = Encoding.UTF8.GetString(File.ReadAllBytes(path));
-        }
-        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
-        {
-            throw StorageException.ForPath(path, "the game could not read the log file of the session", fault);
-        }
+        string text = FileText.Read(path, MostBytes, "the log file of the session");
 
         List<LogLine> lines = [];
         foreach (string line in text.Split('\n'))

@@ -1706,6 +1706,15 @@ The owner also added four directions (D-1090):
 - The halo of a wall torch is 168 pixels wide at 3825, and it falls to 1% of its middle at its edge (D-1092).
 - The message box above the item list of a fight shows the line of the item under the cursor (D-1093).
 - A beat that ends while the lead walks waits for the end of that step (D-1094).
+- The halo meets 0 at its edge with no slope, and its texture holds half floats (D-1095).
+
+The owner then asked for five more findings (D-1090):
+
+- A write reads its temporary file back with the reader of its kind, and a refused rename tries again (F-126).
+- The record reader checks the versions of line 1 first, and the record format rises to 3 (F-127).
+- A string fill refuses a value with no place (F-128).
+- A read of a file of the game takes a size cap and a strict UTF-8 decode (F-129).
+- The start view of a fight reads the party from before the tick that started it (F-130).
 
 **Out of scope.**
 
@@ -1728,13 +1737,19 @@ The owner also added four directions (D-1090):
 12. `TheCarriedLightAndTheHaloOfAWallTorchHoldTheValuesOfTheOwner` and `TheHaloFallsOnASlowCurveToAHundredthOfItsMiddleAtItsEdge` pass, and the load guard of the lit art passes.
 13. The smoke fight opens the item list and reads the line of the item in the message box.
 14. `AnEncounterWaitsUntilTheLeadStopsMoving` and `AnEncounterOfALeadThatStandsStillStartsWhenTheBeatEnds` pass.
+15. `TheHaloFallsOnASlowCurveAndMeetsItsEdgeWithNoRing` passes.
+16. `ATemporaryFileThatFailsItsCheckLeavesTheOldSaveWhole` and `ARenameThatTheSystemRefusesTwiceTakesTheThirdTry` pass.
+17. `ARecordOfAnOlderSimulationVersionReportsItsVersionAndNotAFieldOfItsSnapshot` and `ARecordOfAnOlderVersionKeepsTheCrashLineInItsError` pass.
+18. `AValueWithNoPlaceInTheTextIsAnError` and `EachLineOfEachEventFillsEachPlaceWithTheValuesOfTheCode` pass.
+19. `ASaveWithAByteThatIsNotUtf8FailsWithThePath` and `ASaveAboveTheCapFailsBeforeTheRead` pass.
+20. `TheStartViewOfAFightThatWipesInItsFirstTickShowsThePartyBeforeTheBlows` passes.
 
 **Review focus.**
 
 - The simulation version rises to 27, and the identity file changes with it (G-17, D-504).
 - The line "Paused" is the one new player string (D-57).
 
-**Questions.** None. D-1083 to D-1085 and D-1090 to D-1094 hold the answers.
+**Questions.** None. D-1083 to D-1085 and D-1090 to D-1095 hold the answers.
 
 > *In plain English:* a press of the menu button in a fight crashed the game. Now it pauses the fight. A step into a fled enemy starts no instant fight, and a window with no focus stops the walk. Five smaller guards keep crash files, the resume file, and the load errors honest.
 

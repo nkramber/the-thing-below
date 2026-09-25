@@ -138,7 +138,9 @@ The owner also answered four findings of the review. The `codex-review` command 
 
 The second part of PR-103 holds five guards. A failed removal of an older crash file or log file no longer hides the new file (F-121). A read of the resume file leaves it until the run resumes (F-122). Each identity run refuses a replay that differs from the live run (F-123). A field name of points alone, and a font offset near the limit of an integer, fail with the file (F-124). The frame builds inside the try block of its caller (F-125).
 
-The owner added four directions to PR-103. The carried light takes 17400 with a range of 300 (D-1091). The halo of a wall torch spreads to 168 pixels, 15% weaker at its middle, and falls to 1% at its edge (D-1092). The message box above the item list of a fight shows the line of the item under the cursor (D-1093). No fight starts while the lead walks between two tiles (D-1094).
+The owner added four directions to PR-103. The carried light takes 17400 with a range of 300 (D-1091). The halo of a wall torch spreads to 168 pixels, 15% weaker at its middle, and falls to 1% at its edge (D-1092). The message box above the item list of a fight shows the line of the item under the cursor (D-1093). No fight starts while the lead walks between two tiles (D-1094). The halo then fades to nothing at its edge with no ring (D-1095).
+
+The third part of PR-103 holds five more findings. A write reads its temporary file back with the reader of its kind before the rename, and a refused rename tries again (F-126). The record reader checks the versions of line 1 before line 2, and the record format rises to 3 (F-127). A string fill refuses a value with no place (F-128). A read of a file of the game takes a size cap and a strict UTF-8 decode (F-129). The start view of a fight reads the party from before the tick that started it (F-130).
 
 External facts, each with the date of its check:
 
@@ -460,6 +462,11 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-123 | The identity runs of a replay and of a resumed copy hashed both state hashes into one value and compared nothing. A divergence that every leg shared became the new expected value of `--write`. The statuses run put in 0 when it took no copy (G-5) | 2026-09-24 | ✅ PR-103: each run refuses two different hashes, and an absent copy is an error |
 | F-124 | A field name that was empty or held points alone gave no segment of the path, and the error broke its own contract with an argument error and no file. A font offset near the limit of an integer wrapped the bounds check to a number below zero, and a later read threw an index error | 2026-09-24 | ✅ PR-103: the reader refuses the name with the parent path, and the font checks use 64-bit sums |
 | F-125 | The frame built in `_Ready`, which the engine calls. The .NET bridge of Godot prints an error of that callback and runs on, so a shader that failed to load left a half frame, and the crash file named a later error (G-18) | 2026-09-24 | ✅ PR-103: `FrameRoot.AddTo` builds the frame inside the try block of its caller |
+| F-126 | The safe write of D-178 never read its temporary file again before the rename, although D-178 says that it checks it. A bad write thus replaced the last good file. A Windows program that held the target open made the rename fail at once, and the close of the settings screen then crashed | 2026-09-24 | ✅ PR-103: the write compares each byte and gives the text to the reader of its kind, and a refused rename tries five times |
+| F-127 | The record reader parsed the snapshot of line 2 before it read the versions of line 1, so an older record failed on a field and hid its version. The crash reader then lost its readable crash line. The record format stayed at 2 after PR-68 and PR-12 added intent fields (G-17) | 2026-09-24 | ✅ PR-103: the reader checks both versions first, the crash error carries the crash line, and the format rises to 3 |
+| F-128 | The fill of a string threw for a place with no value, and it ignored a value with no place. A text edit that removed `{amount}` dropped the number of a hit in silence, and no test tied the places of a line to the values of the code (G-7) | 2026-09-24 | ✅ PR-103: the fill refuses a value with no place, and a test fills the line of each battle event |
+| F-129 | Storage decoded each file with the replacing UTF-8 decoder, which turns a bad byte into U+FFFD, so the strict reader never saw it. No read had a size cap | 2026-09-24 | ✅ PR-103: one read of Storage takes a cap for each kind of file and a strict decode that names the byte |
+| F-130 | The start view of a fight read the party state. An ambush that downed each character before the first turn of a character ended the fight inside the tick that started it, so the screen showed everyone down before the blows played (D-776) | 2026-09-24 | ✅ PR-103: the run keeps the party of the tick before the start, and the start view reads it |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -591,7 +598,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 37. PR-100: the end of the Gitar pause and the Gitar poll after a push, right after PR-91 (D-1073, D-1074).
 38. PR-101: the glow halo, the carried flame, every pad, and the pointer, after PR-100 (D-1075 to D-1078).
 39. PR-102: the gate fixes of the repository review of 2026-09-24, in one PR, after PR-101 (D-1081, D-1086, D-1087).
-40. PR-103: the input fixes, the grace time, five guards, and four owner directions, in one PR, after PR-102 (D-1083 to D-1085, D-1090 to D-1094).
+40. PR-103: the input fixes, the grace time, ten guards, and five owner directions, in one PR, after PR-102 (D-1083 to D-1085, D-1090 to D-1095).
 41. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
 42. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
 43. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).

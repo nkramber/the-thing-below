@@ -82,7 +82,7 @@ public sealed class SummaryLinesTests
     private static (object View, List<BattleEvent> Played) FoughtToTheEnd()
     {
         Simulation run = BattleRuns.IntoBattle(5, "group.test_elite", TestBattles.ExactWithParty(3));
-        object view = GameAssemblyFile.Type(ViewTypeName).GetMethod("AtStart")!.Invoke(null, [run.State])!;
+        object view = GameAssemblyFile.Type(ViewTypeName).GetMethod("AtStart")!.Invoke(null, [run.State, GameAssemblyFile.Type(ViewTypeName).GetMethod("PartyOf")!.Invoke(null, [run.State])])!;
         List<BattleEvent> played = [.. run.TakeBattleEvents()];
         Assert.Equal(BattleOutcome.Won, BattleRuns.FightToEnd(run, 5));
         played.AddRange(run.TakeBattleEvents());

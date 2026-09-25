@@ -93,33 +93,47 @@ public sealed class GlowPassTests
     }
 
     [Fact]
-    public void TheHaloFallsOnASlowCurveToAHundredthOfItsMiddleAtItsEdge()
+    public void TheHaloFallsOnASlowCurveAndMeetsItsEdgeWithNoRing()
     {
-        // D-1092: the middle holds the full light, the edge holds 1% of it, and past the edge the
-        // halo gives nothing. The old fall of power 2.5 gave 18% at half the radius, and the new
-        // curve gives about 32%, so the step off is more gradual.
-        float edge = (float)GameAssemblyFile.Type("TheThingBelow.Game.Ui.GlowPass").GetField("HaloEdgeShare")!.GetValue(null)!;
+        // D-1092 and D-1095: the middle holds the full light, and a third of it stays at half the
+        // radius. The curve of D-1092 fell to 1% at the edge and stopped there, and the sRGB curve of
+        // the screen showed that stop as a faint ring. The curve now reaches 1% at about 82% of the
+        // radius, and it meets 0 at the edge with no slope.
+        float power = (float)GameAssemblyFile.Type("TheThingBelow.Game.Ui.GlowPass").GetField("HaloPower")!.GetValue(null)!;
 
-        Assert.Equal(0.01f, edge);
-        Assert.Equal(1f, HaloShareAt(0f, edge));
-        Assert.InRange(HaloShareAt(1f, edge), 0.0099f, 0.0101f);
-        Assert.Equal(0f, HaloShareAt(1.001f, edge));
-        Assert.InRange(HaloShareAt(0.5f, edge), 0.31f, 0.33f);
+        Assert.Equal(1f, HaloShareAt(0f, power));
+        Assert.InRange(HaloShareAt(0.5f, power), 0.31f, 0.33f);
+        Assert.InRange(HaloShareAt(0.82f, power), 0.011f, 0.012f);
+        Assert.Equal(0f, HaloShareAt(1f, power));
+        Assert.Equal(0f, HaloShareAt(1.001f, power));
+
+        // The last hundredth of the radius holds less light than one part in a million, where the
+        // curve of D-1092 held 1%.
+        Assert.True(HaloShareAt(0.99f, power) < 0.000001f, $"the halo holds {HaloShareAt(0.99f, power)} of its middle next to its edge (D-1095)");
 
         float before = 1f;
         for (int step = 1; step <= 100; step += 1)
         {
-            float share = HaloShareAt(step / 100f, edge);
+            float share = HaloShareAt(step / 100f, power);
             Assert.True(share < before, $"the halo rose at the distance {step / 100f} (D-1092)");
             Assert.True(before - share < 0.05f, $"the halo stepped down by {before - share} at the distance {step / 100f} (D-1092)");
             before = share;
         }
     }
 
-    private static float HaloShareAt(float distance, float edgeShare)
+    [Fact]
+    public void AHaloCurveOfPowerOneOrLessIsAnError()
+    {
+        // A power of 1 or less meets the edge with a slope, and the ring of D-1095 comes back (T-2).
+        System.Reflection.TargetInvocationException error = Assert.Throws<System.Reflection.TargetInvocationException>(() => HaloShareAt(0.5f, 1f));
+
+        Assert.IsType<ArgumentOutOfRangeException>(error.InnerException);
+    }
+
+    private static float HaloShareAt(float distance, float power)
     {
         MethodInfo method = GameAssemblyFile.Type("TheThingBelow.Game.Ui.WorldLights").GetMethod("HaloShareAt")!;
-        return (float)method.Invoke(null, [distance, edgeShare])!;
+        return (float)method.Invoke(null, [distance, power])!;
     }
 
     private static float PulseOf(Glow glow, string id, long tick)

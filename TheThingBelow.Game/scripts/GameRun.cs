@@ -48,6 +48,7 @@ public sealed class GameRun
     private ContentId? lastCommon;
     private BattleView? view;
     private BattleEvent? playing;
+    private IReadOnlyList<StartMember>? startParty;
     private long playingSince;
 
     private GameRun(Simulation simulation, RunRecorder recorder, ContentSet content, MessageSpeed messageSpeed)
@@ -439,6 +440,10 @@ public sealed class GameRun
                 intents.Add(held);
             }
 
+            // The start view of a fight reads the party from before the tick that starts it, because
+            // an ambush that wipes the party ends the fight inside that tick (D-776).
+            IReadOnlyList<StartMember>? before = this.simulation.State.Battle is null ? BattleView.PartyOf(this.simulation.State) : null;
+
             this.recorder.Step(this.simulation.Tick + 1, intents);
             log.AddRange(this.simulation.Step(intents));
 
@@ -459,6 +464,8 @@ public sealed class GameRun
             IReadOnlyList<BattleEvent> taken = this.simulation.TakeBattleEvents();
             if (StartsFight(taken))
             {
+                this.startParty = before ?? throw new InvalidOperationException(
+                    $"A fight started at tick {this.simulation.Tick} while another fight held the run (D-531, T-2).");
                 log.Add(this.StartTransition());
             }
 
@@ -513,7 +520,8 @@ public sealed class GameRun
             BattleEvent played = this.events.PlayNext();
             if (played.Kind == BattleEventKind.Started)
             {
-                this.view = BattleView.AtStart(this.simulation.State);
+                this.view = BattleView.AtStart(this.simulation.State, this.startParty ?? throw new InvalidOperationException(
+                    $"The screen plays the start of a fight at tick {this.simulation.Tick}, and the run kept no party of the tick before it (D-776, T-2)."));
             }
 
             BattleView shown = this.view ?? throw new InvalidOperationException(
