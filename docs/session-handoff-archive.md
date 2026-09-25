@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 282: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-100, round 2. Repository: the-thing-below. Branch: `docs/pr-100-gitar-resume`. PR: #77 (PR-100). Role: author. Base: `58dadb5`.
+
+### What this session did, and why
+
+- The Gitar poll of round 1 printed `completed at 375 s`. The Gitar code review approved with no thread.
+- Answered the one Gitar item, a claim of the CI analysis on `review-gate`. RG 3 and RG 7 failed because the review record did not exist yet. No change.
+- `make codex-review PR=77` ran with no skip flag and gave `Changes required` with P2-1: command E accepted a check that completed after 15 minutes.
+- Answered P2-1 with full merit in `docs/reviews/pr-77-response.md`. Command E now reads the completion time and prints `not complete` for a check that completed after 900 seconds.
+
+### The state of the build
+
+- Base `58dadb5`. The reviewed head `87cf4cc`, and the review record `7bc72b7`. The remote head is the commit of this entry.
+- `ste-check` gives 0 findings. Each other CI check was green on `87cf4cc`.
+
+### What is in flight
+
+- The Gitar pass of this head, with command E. Then `make codex-review PR=77` for round 2.
+
+### Traps and gotchas
+
+- `done` is a shell keyword, so command E names the completion age `took`.
+- A Gitar check of round 1 started about three minutes after the push. The fallback of D-1074 comments `Gitar review` only when no check exists at three minutes.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Run command E of the `gitar-review` skill in the background for PR #77. Answer each Gitar item, then run `make codex-review PR=77` in the background.
 ## Session 281: 2026-09-24, Codex
 
 Author: Codex
