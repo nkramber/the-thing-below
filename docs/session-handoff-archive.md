@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 288: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR-101, round 1. Repository: the-thing-below. Local branch: `review/pr-78`; PR branch: `fix/pr-101-torch-and-pad`. PR: #78. Role: reviewer. Base: `c154ddd`.
+
+### What this session did, and why
+
+- Reviewed the effective head `55ba1b2` of PR #78 against the PR-101 roadmap and its exit tests. No in-scope defect was found.
+- Verified the Gitar halo finding's fix at `7aef6dc`. The current Gitar CI analysis reported the missing RG 3 review record; this session adds that record. The clean approval has no item (D-964).
+- Read all 78 changed screen-test artifact frames from CI run `36094314170`. No visual fault was found.
+
+### The state of the build
+
+- Base and merge base `c154ddd`; effective head and remote code head `55ba1b2` before this metadata commit.
+- `make verify` passed on this machine: build, 3,219 tests, format, det-lint, ste-check, replay identity, content hash, atlas, and smoke.
+- CI run `36094314170` passed the implementation checks and Gitar. `review-gate` failed at RG 3 before this review record existed; a fresh result follows publication.
+
+### What is in flight
+
+- This review record and handoff are committed together and pushed to the PR branch. The remote head and fresh `review-gate` result must be verified.
+
+### Traps and gotchas
+
+- The failure of `review-gate` at the implementation head is the expected missing-record state. The metadata commit adds the record and must trigger a fresh gate.
+- No physical Steam Deck was available. The smoke session covers device 3 input events, and the game logs pad device ids for a later Deck check (D-1077).
+
+### The questions that block progress
+
+OQ-246 remains open for the cause of the one-level screen-test variance. D-1080 sets the one-level compare and leaves the cause for later; OQ-246 blocks no PR.
+
+### The next concrete action
+
+Push the metadata commit to `fix/pr-101-torch-and-pad`, fetch, confirm the branch has no ahead commit and `gh pr view` names the pushed head, then read the fresh review-gate and Gitar results.
+
 ## Session 287: 2026-09-25, Claude Code
 
 Author: Claude Code

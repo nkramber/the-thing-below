@@ -1707,7 +1707,7 @@ The owner also added four directions (D-1090):
 - The message box above the item list of a fight shows the line of the item under the cursor (D-1093).
 - A beat that ends while the lead walks waits for the end of that step (D-1094).
 - The halo meets 0 at its edge with no slope, and its texture holds half floats (D-1095).
-- The halo softens to a strength of 2678, 30% below 3825 (D-1096).
+- The halo softened to a strength of 2678 (D-1096), and after a playtest the wall torch holds no glow (D-1097).
 
 The owner then asked for five more findings (D-1090):
 
@@ -1735,7 +1735,7 @@ The owner then asked for five more findings (D-1090):
 9. `AReplayThatDivergesFromTheLiveRunStopsTheIdentityRun` passes, and the identity file stays the same.
 10. `AFieldNameOfNoCharacterOrOfPointsAloneFailsWithTheFile` and `ATableStartNearTheLimitOfAnIntegerFailsWithTheFile` pass.
 11. `TheFrameBuildsInsideTheTryBlockOfItsCaller` passes, and the smoke session and the capture session build each frame.
-12. `TheCarriedLightAndTheHaloOfAWallTorchHoldTheValuesOfTheOwner` and `TheHaloFallsOnASlowCurveToAHundredthOfItsMiddleAtItsEdge` pass, and the load guard of the lit art passes.
+12. `TheCarriedLightHoldsTheValuesOfTheOwner`, `NeitherTheWallTorchNorTheCarriedTorchGlows`, and `TheReaderTakesAHaloOfSixTilesAtMost` pass, and the load guard of the lit art passes.
 13. The smoke fight opens the item list and reads the line of the item in the message box.
 14. `AnEncounterWaitsUntilTheLeadStopsMoving` and `AnEncounterOfALeadThatStandsStillStartsWhenTheBeatEnds` pass.
 15. `TheHaloFallsOnASlowCurveAndMeetsItsEdgeWithNoRing` passes.
@@ -1750,7 +1750,7 @@ The owner then asked for five more findings (D-1090):
 - The simulation version rises to 27, and the identity file changes with it (G-17, D-504).
 - The line "Paused" is the one new player string (D-57).
 
-**Questions.** None. D-1083 to D-1085 and D-1090 to D-1096 hold the answers.
+**Questions.** None. D-1083 to D-1085 and D-1090 to D-1097 hold the answers.
 
 > *In plain English:* a press of the menu button in a fight crashed the game. Now it pauses the fight. A step into a fled enemy starts no instant fight, and a window with no focus stops the walk. Five smaller guards keep crash files, the resume file, and the load errors honest.
 

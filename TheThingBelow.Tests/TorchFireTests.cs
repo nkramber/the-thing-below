@@ -154,21 +154,21 @@ public sealed class TorchFireTests
     }
 
     [Fact]
-    public void TheCarriedLightAndTheHaloOfAWallTorchHoldTheValuesOfTheOwner()
+    public void TheCarriedLightHoldsTheValuesOfTheOwner()
     {
         // D-1091: the carried light is about 9% brighter than the 16000 of D-1076, and it reaches a
         // quarter farther than its 240. A quarter more strength fails the glow guard of the load.
-        // D-1092: the halo of a wall torch spreads half again as far as its 112 pixels, at 85% of
-        // its 4500. D-1096: the halo then softens by 30% more, to 70% of 3825, rounded up.
         ContentSet set = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
-        GlowSeed halo = set.Light.KindOf(ContentId.Parse("decor.wall_torch", "test", "id")).Fire.Glow;
 
         Assert.Equal(17400, set.Light.Carried.Light.Color.Strength);
         Assert.Equal(240 * 125 / 100, set.Light.Carried.Light.Range);
-        Assert.Equal(112 * 3 / 2, halo.Width);
-        Assert.Equal(112 * 3 / 2, halo.Height);
-        Assert.Equal(((4500 * 85 / 100 * 70) + 99) / 100, halo.Strength);
-        Assert.True(halo.Width <= GlowSeed.MostSide, "the side bound of the reader takes the wider halo (D-1092)");
+    }
+
+    [Fact]
+    public void TheReaderTakesAHaloOfSixTilesAtMost()
+    {
+        // D-1092: the reader takes a halo side up to 192 pixels, and refuses one pixel more.
+        Assert.Equal(192, GlowSeed.MostSide);
     }
 
     [Fact]
@@ -214,14 +214,15 @@ public sealed class TorchFireTests
     }
 
     [Fact]
-    public void TheWallTorchGlowsAndTheCarriedTorchDoesNot()
+    public void NeitherTheWallTorchNorTheCarriedTorchGlows()
     {
-        // D-912: the fire of each wall torch glows. The flame of the carried torch draws over the
-        // lead, so its glow would read as a sprite that glows (D-188), and it keeps a strength of 0.
+        // D-1097: after a playtest, the owner chose the wall torch with no glow halo. The flame of
+        // the carried torch draws over the lead, so its glow would read as a sprite that glows
+        // (D-188), and it keeps a strength of 0 too. A strength of 0 draws no halo (D-912).
         ContentSet set = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
         TorchFire wall = set.Light.KindOf(ContentId.Parse("decor.wall_torch", "test", "id")).Fire;
 
-        Assert.True(wall.Glow.Strength > 0, "the wall torch holds no glow (D-912)");
+        Assert.Equal(0, wall.Glow.Strength);
         Assert.Equal(0, set.Light.Carried.Fire.Glow.Strength);
     }
 

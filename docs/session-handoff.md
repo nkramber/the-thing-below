@@ -1,3 +1,37 @@
+## Session 298: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #80 (PR-103), round 5. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: #80. Role: author. Base: `5c1db06`.
+
+### What this session did, and why
+
+- The owner asked to remove the glow of the wall torches for a playtest, and the session set its strength to 0 in the working tree alone. After the playtest, the owner chose no glow (D-1097).
+- The wall torch now holds a glow of strength 0, so it draws no halo (D-912). The halo code, the size of 168 pixels, and the curve of D-1095 stay for a later fire that glows. D-1097 supersedes D-1096 and revises D-1075 and D-1092 in part.
+- `NeitherTheWallTorchNorTheCarriedTorchGlows` replaces the test that the wall torch glows, and `TheReaderTakesAHaloOfSixTilesAtMost` keeps the reader bound of D-1092.
+- Gitar approved `a8e9cdb` with no open finding. Its CI claim names RG 3 alone: the review record waits for the review of the other provider.
+
+### The state of the build
+
+- `make build`, `make test` (3307), `make format`, `make content`, `make ste-check`, and `make smoke` pass on this machine.
+- The remote head holds this entry.
+
+### What is in flight
+
+- The Gitar pass and the CI of the round 5 push.
+- The `screen-test` job fails on the map frames of the torch, and on the item line. The author reads each changed frame of the CI artifact and commits the new baseline (D-733). Then `make codex-review PR=80`.
+
+### Traps and gotchas
+
+- The citation of a superseded decision names the decision that superseded it, or ste-check fails on REF 3.
+
+### The questions that block progress
+
+None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
+
+### The next concrete action
+
+Poll the Gitar check of the round 5 push, and answer each Gitar item. Commit the new screen baseline from the CI artifact, and then run `make codex-review PR=80` when each CI check but `review-gate` passes.
+
 ## Session 297: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -330,37 +364,3 @@ None for PR-102. The owner asked for suggestions to approve on P2-2, P2-3, P2-5,
 ### The next concrete action
 
 Push, open PR #79, and run the Gitar poll of the `gitar-review` skill in the background.
-
-## Session 288: 2026-09-25, Codex
-
-Author: Codex
-Session: reviewer PR-101, round 1. Repository: the-thing-below. Local branch: `review/pr-78`; PR branch: `fix/pr-101-torch-and-pad`. PR: #78. Role: reviewer. Base: `c154ddd`.
-
-### What this session did, and why
-
-- Reviewed the effective head `55ba1b2` of PR #78 against the PR-101 roadmap and its exit tests. No in-scope defect was found.
-- Verified the Gitar halo finding's fix at `7aef6dc`. The current Gitar CI analysis reported the missing RG 3 review record; this session adds that record. The clean approval has no item (D-964).
-- Read all 78 changed screen-test artifact frames from CI run `36094314170`. No visual fault was found.
-
-### The state of the build
-
-- Base and merge base `c154ddd`; effective head and remote code head `55ba1b2` before this metadata commit.
-- `make verify` passed on this machine: build, 3,219 tests, format, det-lint, ste-check, replay identity, content hash, atlas, and smoke.
-- CI run `36094314170` passed the implementation checks and Gitar. `review-gate` failed at RG 3 before this review record existed; a fresh result follows publication.
-
-### What is in flight
-
-- This review record and handoff are committed together and pushed to the PR branch. The remote head and fresh `review-gate` result must be verified.
-
-### Traps and gotchas
-
-- The failure of `review-gate` at the implementation head is the expected missing-record state. The metadata commit adds the record and must trigger a fresh gate.
-- No physical Steam Deck was available. The smoke session covers device 3 input events, and the game logs pad device ids for a later Deck check (D-1077).
-
-### The questions that block progress
-
-OQ-246 remains open for the cause of the one-level screen-test variance. D-1080 sets the one-level compare and leaves the cause for later; OQ-246 blocks no PR.
-
-### The next concrete action
-
-Push the metadata commit to `fix/pr-101-torch-and-pad`, fetch, confirm the branch has no ahead commit and `gh pr view` names the pushed head, then read the fresh review-gate and Gitar results.
