@@ -156,6 +156,10 @@ public sealed class Simulation
             WorldRules.Step(this.State, log);
         }
 
+        // A move intent lasts its own tick alone. A battle, a menu, or a story scene can hold the
+        // world for this tick, and the direction then ends here and starts no later step (T-7).
+        this.State.Party.EndTick();
+
         return log;
     }
 

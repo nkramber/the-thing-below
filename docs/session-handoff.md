@@ -1,3 +1,42 @@
+## Session 294: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR-103, round 1. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: the one PR intent of this branch, before GitHub gives a number. Role: author. Base: `5c1db06`.
+
+### What this session did, and why
+
+- The owner put more than one finding of the repository review of 2026-09-24 in one PR (D-1090). This PR holds P1-1, P2-6, P2-4, P3-2, and P3-5. Each one reproduced at `5c1db06`.
+- P1-1: the menu action in a fight pauses the fight, with a dim and "Paused" above the hand-off (D-1083, F-116). The playback, the hand-off, and the battle screen count the world tick, so the pause holds them. No command menu opens under the pause, and no fight ends under it.
+- P1-1, story path: the menu action, the map action, and the held step make no intent while a story scene runs.
+- P2-6: a hold of a step ends when its last source comes up. A loss of the focus holds the world and forgets each hold (D-1084, F-117).
+- P2-4: a step into a group inside its grace time starts no encounter (D-1085, F-118). P3-2: a move intent ends with its tick (F-119). The simulation version rises to 27, and the identity file changes with it.
+- P3-5: the crash message draws on a new top layer above the hand-off, and a resize after a crash builds nothing (F-120).
+- `ScreenHandOffTests.AFightOnTheTickAfterTheWaitIntentStartsItsTransition` stepped into the fled group after the wait intent, which D-1085 refuses. The test now steps into another patrol.
+
+### The state of the build
+
+- `make build`, `make test` (3272 passed), `make format`, `make lint`, `make identity`, `make content`, `make ste-check`, and `make smoke` pass on this machine. The smoke session holds its fight paused for 120 frames.
+- The remote head holds this entry.
+
+### What is in flight
+
+- The first Gitar pass and the CI of the first push.
+
+### Traps and gotchas
+
+- Perl with the `|` delimiter and a `\|` in the pattern reads an alternation, and it wrote text at the head of `Boot.cs`. Use the Edit tool for C# code.
+- The screen-test baselines hold no capture of the pause. The fight clock changes no capture while no menu opened before the fight.
+- The engine sends a focus notification before `Boot._Ready` opens the log. The first build of the focus rule crashed there, and only a session with a window showed it. The smoke session has no window, so `make sheet` found it.
+- `make sheet` fails on `main` too: 108 captures make a sheet taller than 65535 pixels. The capture session itself writes every frame.
+
+### The questions that block progress
+
+None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
+
+### The next concrete action
+
+Poll the Gitar check of the first push, and answer each Gitar item.
+
 ## Session 293: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -306,43 +345,3 @@ None.
 ### The next concrete action
 
 Read the Gitar pass of the new head, reply on the Gitar thread with the fix commit, and answer each new Gitar item. The owner runs `make codex-review PR=78`.
-
-## Session 284: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR-101, round 1. Repository: the-thing-below. Branch: `fix/pr-101-torch-and-pad`. PR: PR-101, with the GitHub number from the open. Role: author. Base: `c154ddd`.
-
-### What this session did, and why
-
-- The owner asked for three fixes and one change of order in one PR. The owner accepted the two concerns in one PR, and the PR description records it.
-- The wall torch drew a box over its flame: the glow rectangle of D-915. A soft round halo behind the flame took its place, below the glow threshold. It gives 105% of the light that the rectangle spread (D-1075).
-- The carried torch got a flame of six rows in the map drawing, a denser flame stream, and the flame orange at 16000 with a range of 240 (D-1076).
-- Pad input: each binding matches every device, `ui_accept` and `ui_cancel` take the A and the B buttons, and a press gate passes the first press of each hold alone. Game logs each pad that connects (D-1077, F-107).
-- A key press, a pad button, or a stick push hides the mouse pointer, and a mouse move shows it (D-1078).
-- The audio PRs PR-38, PR-69, PR-70, PR-71, and PR-72 moved to right after PR-17 (D-1079).
-- The simulation version went to 26, because the reader of the glow changed. The identity file and 78 captures of the baseline changed with it.
-
-### The state of the build
-
-- Base `c154ddd`. The remote head is the commit of this entry.
-- On this machine: build, 3,214 tests, format, det-lint, identity, content hash, atlas, smoke, and `ste-check` pass. The capture session under Xvfb and lavapipe, with the Mesa version of CI, matched 108 of 109 captures of the base commit.
-
-### What is in flight
-
-- The Gitar pass of the head, then `make codex-review PR=<n>`.
-
-### Traps and gotchas
-
-- Godot 4.7.2 gives a new pad event the device 0 and a new key event the device 16. A binding of device 0 matched the first pad alone (F-107).
-- The default `ui_accept` and `ui_cancel` of Godot 4.7.2 hold no pad button (F-107).
-- No Steam Deck was at hand. The smoke session proves each rule with the events of a pad of device 3. The cause of the repeat of a held Start on the Deck is not proven. The pad log names the devices of the Deck at the next test.
-- `still-240.png` of the base commit differed from the baseline by one level in 296 pixels on this machine. When the screen-test job fails on one capture alone, take the capture from the artifact of the job (D-733).
-- A glow halo above the threshold clips to full light and draws a box again. The load refuses it (D-1075).
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Read the Gitar pass of the PR head, and answer each Gitar item. This machine has no `codex` or `gh` command, so the owner runs `make codex-review PR=<n>` for the cross-provider review.

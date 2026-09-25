@@ -248,8 +248,13 @@ public sealed class MapState
             if (this.Patrols.TryEnemyAt(target, out PatrolState? found))
             {
                 // The body blocks the step, and the step starts the encounter at once. This
-                // is the sneak of D-265 in the hands of the player (D-747).
-                bumped = found!.Patrol.Id;
+                // is the sneak of D-265 in the hands of the player (D-747). Inside the grace
+                // time of a flee, the body still blocks the step, and no encounter starts
+                // (D-381, D-1085).
+                if (found!.GraceTicks == 0)
+                {
+                    bumped = found.Patrol.Id;
+                }
             }
             else if (MapRules.CanEnter(this.Map, target))
             {
@@ -262,6 +267,17 @@ public sealed class MapState
         this.wanted = null;
         return new PartyStep(arrived, walked, started, bumped);
     }
+
+    /// <summary>
+    /// Ends the wanted direction of this tick (D-493). The run calls it at the end of each tick,
+    /// also a tick in which a menu, a battle, or a story scene held the world, so a move intent
+    /// never starts a step on a later tick (T-7).
+    /// </summary>
+    /// <remarks>
+    /// The snapshot and the state hash leave the wanted direction out, so a direction that lived
+    /// past its tick made a resumed run differ from the live run with equal hashes (G-5).
+    /// </remarks>
+    internal void EndTick() => this.wanted = null;
 
     /// <summary>
     /// Ends the step that runs and the wanted step, so the lead stands still on its tile while a

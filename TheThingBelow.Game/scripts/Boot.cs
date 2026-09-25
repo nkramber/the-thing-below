@@ -81,6 +81,9 @@ public partial class Boot : Node
     /// <summary>The most frames that the smoke session walks or fights before it fails (T-2).</summary>
     private const int SmokeBattleFrames = 6000;
 
+    /// <summary>The count of frames that the smoke fight holds its pause (D-1083).</summary>
+    private const int SmokePauseFrames = 120;
+
     /// <summary>The line that the smoke session types in the console of a development build (D-724).</summary>
     private const string SmokeConsoleLine = "help";
 
@@ -97,14 +100,22 @@ public partial class Boot : Node
     private BattleScreen? battle;
     private MenuHost? menus;
     private NoticeBox? noticeBox;
+    private PauseView? pause;
     private SettingsStore? settingsStore;
     private GameSettings? settings;
     private CommandMemory? memory;
     private Control? console;
-    private readonly HeldSteps held = new();
     private readonly PressGate gate = new();
+    private readonly HeldSteps held;
     private readonly MousePointer pointer = new();
     private bool crashed;
+    private bool focused = true;
+
+    /// <summary>Makes the node, whose held steps read the sources of the gate (D-1084).</summary>
+    public Boot()
+    {
+        this.held = new HeldSteps(this.gate);
+    }
 
     /// <summary>Opens the log file, reads the arguments, and picks the session.</summary>
     public override void _Ready()
@@ -134,7 +145,13 @@ public partial class Boot : Node
 
         try
         {
-            this.WriteLog(this.run.Advance(delta, this.HeldStepIntent));
+            // A window with no focus holds the world, and it runs no tick until the focus comes
+            // back (D-1084).
+            if (this.focused)
+            {
+                this.WriteLog(this.run.Advance(delta, this.HeldStepIntent));
+            }
+
             if (this.run.WipeReady)
             {
                 this.ReloadAfterWipe();
@@ -148,6 +165,7 @@ public partial class Boot : Node
             }
 
             this.ShowHandOff(this.run);
+            this.pause?.Show(this.run.FightPaused);
             this.ShowMenuAndNotice(this.run);
         }
         catch (Exception fault)
@@ -189,8 +207,9 @@ public partial class Boot : Node
         // The queue can already hold the intent that opens the menu, because the host reads
         // input before it runs the ticks of a frame. A step intent for that tick would meet
         // the refusal of the rules (D-162, T-2). An encounter holds the map still, so a step
-        // intent then moves nothing, and the record stays free of it (D-531).
-        if (open is null || open.MenuOpenNextTick || open.InBattle)
+        // intent then moves nothing, and the record stays free of it (D-531). A story scene
+        // refuses a step intent, and it moves the lead itself (D-1009).
+        if (open is null || open.MenuOpenNextTick || open.InBattle || open.StoryRunning)
         {
             return null;
         }
@@ -286,17 +305,61 @@ public partial class Boot : Node
         }
     }
 
-    /// <summary>Forgets every held input when the window loses the focus (D-1077).</summary>
+    /// <summary>
+    /// Holds the world and forgets every held input when the window loses the focus, and runs the
+    /// world again when the focus comes back, with no press (D-1077, D-1084).
+    /// </summary>
     /// <param name="what">The notification of the engine.</param>
     /// <remarks>
     /// The system sends no release to a window that lost the focus, so a held source would stop
-    /// each later press of its action (T-2).
+    /// each later press of its action, and a held step walked the party on with nobody at the
+    /// controls (T-2). The engine sends the notification of the application and of the window,
+    /// so the second one of a pair changes nothing.
     /// </remarks>
     public override void _Notification(int what)
     {
-        if (what == NotificationApplicationFocusOut)
+        if (what == NotificationApplicationFocusOut || what == NotificationWMWindowFocusOut)
         {
-            this.gate.Clear();
+            this.FollowFocus(focused: false);
+        }
+        else if (what == NotificationApplicationFocusIn || what == NotificationWMWindowFocusIn)
+        {
+            this.FollowFocus(focused: true);
+        }
+    }
+
+    /// <summary>Records a change of the focus of the window, and logs it (D-1084).</summary>
+    /// <param name="focused">True when the window has the focus now.</param>
+    private void FollowFocus(bool focused)
+    {
+        if (focused == this.focused || this.crashed)
+        {
+            return;
+        }
+
+        this.focused = focused;
+        this.gate.Clear();
+        this.held.Clear();
+
+        // The engine sends the focus of a new window before the node enters the tree, and the
+        // log file opens in `_Ready`. That first change holds no run, so it takes no log line.
+        if (this.log is null)
+        {
+            return;
+        }
+
+        try
+        {
+            this.WriteLog([new LogEntry(
+                LogLevel.Info,
+                focused ? "the window got the focus back, and the world runs again" : "the window lost the focus, and the world holds",
+                this.run?.Tick ?? 0,
+                LogSubsystems.Game,
+                [])]);
+        }
+        catch (Exception fault)
+        {
+            this.ReportCrash(fault);
         }
     }
 
@@ -379,6 +442,7 @@ public partial class Boot : Node
         // The capture session of the screen-test job builds the same map (D-172, D-734).
         this.map = MapFixture.Build(built, built_ui, open, loaded);
         this.noticeBox = new NoticeBox(built, built_ui);
+        this.pause = new PauseView(built, built_ui);
 
         // A new frame keeps the windows of the menu open, so a change of the fit from the
         // settings screen returns to the main list (D-707, D-871).
@@ -490,7 +554,7 @@ public partial class Boot : Node
         GameSettings chosen = this.settings ?? throw new InvalidOperationException(
             $"The hand-off draws at tick {open.Tick}, and the session read no settings (T-2).");
 
-        built.HandOffPass.Show(open.HandOff, open.Transitions, open.Tick, chosen.Access.Effects, loaded.Palette);
+        built.HandOffPass.Show(open.HandOff, open.Transitions, open.FightTick, chosen.Access.Effects, loaded.Palette);
     }
 
     /// <summary>Removes the frame and its nodes, and builds the screen again over the current run.</summary>
@@ -502,6 +566,7 @@ public partial class Boot : Node
         this.map = null;
         this.battle = null;
         this.noticeBox = null;
+        this.pause = null;
         this.console = null;
         this.BuildScreen(loaded);
     }
@@ -526,7 +591,7 @@ public partial class Boot : Node
         {
             ContentSet? loaded = this.content;
             FrameRoot? built = this.frame;
-            if (loaded is null || built is null || this.settings?.Display.Body != BodySetting.Auto)
+            if (loaded is null || built is null)
             {
                 return;
             }
@@ -534,7 +599,8 @@ public partial class Boot : Node
             Vector2I screen = this.GetWindow().Size;
             ScreenFit fit = ScreenFit.Of(built.Mode, Math.Max(1, screen.X), Math.Max(1, screen.Y));
             int body = BodySize.DefaultFor(fit.Height, loaded.Style.SmallBody, loaded.Style.LargeBody);
-            if (body == this.builtBody)
+            bool running = this.run is not null && !this.crashed;
+            if (!BodySize.RebuildsOnResize(running, this.settings?.Display.Body == BodySetting.Auto, this.builtBody, body))
             {
                 return;
             }
@@ -869,6 +935,14 @@ public partial class Boot : Node
         // release of each step action, and never a poll (D-716, F-50).
         this.held.Read(signal);
 
+        // In a fight, the pause takes the menu action, and while it holds it takes every action
+        // (D-1083). The command menu then gets no event, so no battle intent meets the refusal of
+        // the rules under the menu (D-162).
+        if (run.InBattle && this.ReadFightPause(run, signal))
+        {
+            return;
+        }
+
         // While a character has the turn, the command menu takes every action. A move of its
         // cursor makes no intent, and a whole choice makes one (D-493, D-827).
         if (this.battle?.Commands is not null)
@@ -895,8 +969,7 @@ public partial class Boot : Node
 
             // The menu action opens the main list on the walk, and the map action opens the
             // dungeon map screen. The host sends the intents of the menu (D-162, D-211, D-986).
-            // In a fight the menu intent goes to the rules as before, and the map action does
-            // nothing, because the map screen opens from the walk alone.
+            // The pause took the menu action of a fight, and a story scene takes no menu (D-1009).
             Intent made = run.IntentOf(action);
             bool menu = string.CompareOrdinal(action, InputActions.Menu) == 0;
             bool map = string.CompareOrdinal(action, InputActions.Map) == 0;
@@ -919,19 +992,15 @@ public partial class Boot : Node
                         [new LogField("action", action)])]);
                 }
             }
-            else if ((menu || map) && !run.InBattle && !run.MenuOpenNextTick)
+            else if ((menu || map) && run.MenuWorks)
             {
                 this.OpenMenu(run, action);
             }
-            else if (menu)
-            {
-                run.Queue(made);
-            }
-            else if (map)
+            else if (menu || map)
             {
                 this.WriteLog([new LogEntry(
                     LogLevel.Debug,
-                    "the map action works on the walk alone",
+                    "the menu action and the map action open a window on the walk alone",
                     run.Tick,
                     LogSubsystems.Game,
                     [new LogField("action", action)])]);
@@ -951,6 +1020,54 @@ public partial class Boot : Node
 
             return;
         }
+    }
+
+    /// <summary>
+    /// Reads one event of a fight for its pause (D-1083). The menu action pauses the fight, and
+    /// the menu action or the back action ends the pause. The pause takes every other action.
+    /// </summary>
+    /// <param name="run">The run, which holds a fight or its encounter.</param>
+    /// <param name="signal">The event of this frame.</param>
+    /// <returns>True when the pause took the event, and no other reader gets it.</returns>
+    private bool ReadFightPause(GameRun run, InputEvent signal)
+    {
+        bool paused = run.FightPaused;
+        string? action = null;
+        if (signal.IsActionPressed(InputActions.Menu))
+        {
+            action = InputActions.Menu;
+        }
+        else if (paused && signal.IsActionPressed(InputActions.Cancel))
+        {
+            action = InputActions.Cancel;
+        }
+
+        if (action is null)
+        {
+            return paused;
+        }
+
+        if (run.PauseIntentOf(action) is Intent made)
+        {
+            run.Queue(made);
+            this.WriteLog([new LogEntry(
+                LogLevel.Info,
+                paused ? "the player ended the pause of the fight" : "the player paused the fight",
+                run.Tick,
+                LogSubsystems.Game,
+                [new LogField("action", action)])]);
+            return true;
+        }
+
+        // The rules have yet to apply a menu intent, the fight ends, or a story scene runs, so
+        // the action makes no intent now (D-1083, D-1009).
+        this.WriteLog([new LogEntry(
+            LogLevel.Debug,
+            "the fight takes no pause intent now",
+            run.Tick,
+            LogSubsystems.Game,
+            [new LogField("action", action)])]);
+        return true;
     }
 
     /// <summary>Opens the main list or the dungeon map screen from the walk, and the world pauses (D-162, D-211, D-986).</summary>
@@ -1174,8 +1291,10 @@ public partial class Boot : Node
 
         try
         {
+            // The message draws above the pass of the hand-off, so a crash during a transition
+            // still shows its text (D-559).
             var message = new CrashScreen();
-            this.frame.Layer.AddChild(message);
+            this.frame.Top.AddChild(message);
             message.Build(this.ui, this.content.Strings, Path.GetFileName(path));
             return true;
         }
@@ -1920,6 +2039,8 @@ public partial class Boot : Node
         var built = new FrameRoot();
         this.AddChild(built);
         UiBase shownBase = UiBase.Load(loaded, loaded.Style.SmallBody);
+        var pause = new PauseView(built, shownBase);
+        string paused = "no pause";
         BattleScreen? screen = null;
         int commands = 0;
         string nodes = "no screen";
@@ -1947,6 +2068,12 @@ public partial class Boot : Node
                 screen.Show(open);
             }
 
+            // The pause of D-1083 runs once, in the middle of the playback of the first event.
+            if (screen is not null && open.PlayingEvent is not null && string.CompareOrdinal(paused, "no pause") == 0)
+            {
+                paused = this.CheckFightPause(open, screen, pause, built);
+            }
+
             if (screen?.Commands is not null)
             {
                 commands += 1;
@@ -1961,15 +2088,71 @@ public partial class Boot : Node
 
         // A wipe reloads a run that stands on the map, and a win or a flee ends on the map
         // after the wait intent. A run still in the battle ran out of frames (T-2).
-        if (string.CompareOrdinal(outcome, "none") == 0 || open.InBattle || commands == 0)
+        if (string.CompareOrdinal(outcome, "none") == 0 || open.InBattle || commands == 0 || string.CompareOrdinal(paused, "no pause") == 0)
         {
             throw new InvalidOperationException(
                 $"The smoke battle reached no end in {SmokeBattleFrames} frames: the outcome is '{outcome}', the menu sent "
-                + $"{commands} commands, and the party is at {open.Party.LeadAt} (D-767, D-827, T-2).");
+                + $"{commands} commands, the party is at {open.Party.LeadAt}, and the pause is '{paused}' (D-767, D-827, D-1083, T-2).");
         }
 
-        return $"'{outcome}' after {frame} frames and {commands} commands of the menu, with {nodes}, "
+        return $"'{outcome}' after {frame} frames and {commands} commands of the menu, with {nodes}, the pause {paused}, "
             + $"and the run is at tick {open.Tick} with the party at {open.Party.LeadAt}";
+    }
+
+    /// <summary>
+    /// Pauses the smoke fight in the middle of the playback of an event, and reads the rules of
+    /// D-1083: the pause shows above the hand-off, it holds the fight, it opens no command menu,
+    /// and the back action ends it.
+    /// </summary>
+    /// <param name="open">The run, which plays an event of the fight.</param>
+    /// <param name="screen">The battle screen of the fight.</param>
+    /// <param name="pause">The pause view on the frame.</param>
+    /// <param name="built">The frame of the fight.</param>
+    /// <returns>What the pause did.</returns>
+    /// <exception cref="InvalidOperationException">The pause broke a rule of D-1083 (T-2).</exception>
+    /// <remarks>
+    /// Before D-1083 the playback ran on under the menu of the rules, the command menu opened,
+    /// and the next command crashed the session, so this check fails on that build (T-3).
+    /// </remarks>
+    private string CheckFightPause(GameRun open, BattleScreen screen, PauseView pause, FrameRoot built)
+    {
+        Intent start = open.PauseIntentOf(InputActions.Menu) ?? throw new InvalidOperationException(
+            $"The menu action made no pause at tick {open.Tick} of the smoke fight (D-1083, T-2).");
+        open.Queue(start);
+        this.WriteLog(open.Advance(SmokeFrameSeconds));
+        long held = open.FightTick;
+        for (int frame = 0; frame < SmokePauseFrames; frame += 1)
+        {
+            this.WriteLog(open.Advance(SmokeFrameSeconds));
+            screen.Show(open);
+            pause.Show(open.FightPaused);
+            if (!pause.Shown || screen.Commands is not null || open.TakesBattleCommand || open.FightTick != held)
+            {
+                throw new InvalidOperationException(
+                    $"The pause of the smoke fight broke at frame {frame}: shown {pause.Shown}, command menu {screen.Commands is not null}, "
+                    + $"gate {open.TakesBattleCommand}, and the fight tick {open.FightTick} after {held} (D-1083, T-2).");
+            }
+        }
+
+        // The top layer is the last child of the frame, so it draws above the pass of the hand-off.
+        Node top = built.Top;
+        if (top.GetIndex() != top.GetParent().GetChildCount() - 1)
+        {
+            throw new InvalidOperationException(
+                $"The top layer of the frame is child {top.GetIndex()} of {top.GetParent().GetChildCount()}, and it must draw last (D-1083, T-2).");
+        }
+
+        Intent end = open.PauseIntentOf(InputActions.Cancel) ?? throw new InvalidOperationException(
+            $"The back action ended no pause at tick {open.Tick} of the smoke fight (D-1083, T-2).");
+        open.Queue(end);
+        this.WriteLog(open.Advance(SmokeFrameSeconds));
+        pause.Show(open.FightPaused);
+        if (pause.Shown)
+        {
+            throw new InvalidOperationException($"The back action left the pause on screen at tick {open.Tick} (D-1083, T-2).");
+        }
+
+        return $"held the fight tick at {held} for {SmokePauseFrames} frames above the hand-off, and the back action ended it";
     }
 
     /// <summary>Presses confirm twice in the command menu: the attack, then the first target (D-827).</summary>

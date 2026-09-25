@@ -354,7 +354,7 @@ public sealed class BattleScreen
         BattleView view = run.BattleView ?? throw new InvalidOperationException(
             $"The battle screen draws at tick {run.Tick}, and the run holds no view of a fight (D-532, T-2).");
 
-        this.backdrop.Position = new Vector2(BattleTimes.DriftAt(this.pace, run.Tick), 0);
+        this.backdrop.Position = new Vector2(BattleTimes.DriftAt(this.pace, run.FightTick), 0);
         this.FollowCommands(run);
 
         // The shake reads the ticks of the event, and the rest of the picture reads the ticks
@@ -363,7 +363,7 @@ public sealed class BattleScreen
         int picture = playing is null ? ticks : BattleTimes.PictureTicks(this.pace, playing, ticks);
         int shake = playing is null ? 0 : BattleTimes.ShakeAt(this.pace, playing, ticks, this.Effects);
         this.world.Position = new Vector2(shake, 0);
-        this.weather.Show(Vector2.Zero, FrameRoot.WorldWidth, FrameRoot.WorldHeight, run.Tick);
+        this.weather.Show(Vector2.Zero, FrameRoot.WorldWidth, FrameRoot.WorldHeight, run.FightTick);
         for (int slot = 0; slot < view.Party.Count; slot += 1)
         {
             this.ShowCombatant(view, view.Party[slot], this.party[slot], playing, picture);
@@ -377,8 +377,8 @@ public sealed class BattleScreen
 
         this.ShowWaitingColumn(view);
 
-        this.ShowBurst(view, playing, picture, run.Tick - ticks);
-        this.ShowSpell(view, playing, run.Tick, ticks);
+        this.ShowBurst(view, playing, picture, run.FightTick - ticks);
+        this.ShowSpell(view, playing, run.FightTick, ticks);
         this.ShowMessage(view, playing);
         this.ShowNumber(view, playing, picture);
         this.ShowSummary(view, playing, picture);
@@ -703,6 +703,13 @@ public sealed class BattleScreen
 
     private void FollowCommands(GameRun run)
     {
+        // The pause opens no command menu, and a menu that stood open keeps its choice under the
+        // dim until the pause ends (D-1083).
+        if (run.FightPaused)
+        {
+            return;
+        }
+
         if (!run.TakesBattleCommand)
         {
             this.commands = null;

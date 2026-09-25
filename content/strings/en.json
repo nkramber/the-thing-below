@@ -730,6 +730,10 @@
    "text": "Someone cut a mark in the stone. It is fresh."
   },
   {
+   "id": "pause.title",
+   "text": "Paused"
+  },
+  {
    "id": "settings.action_cancel",
    "text": "Back"
   },

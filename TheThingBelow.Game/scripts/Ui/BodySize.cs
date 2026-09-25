@@ -36,4 +36,17 @@ public static class BodySize
 
         return drawnFrameHeight == ScreenFit.FrameHeight ? largeBody : smallBody;
     }
+    /// <summary>Tells whether a new window size builds the screen again (D-707, D-874).</summary>
+    /// <param name="running">True while a run plays, and false after a crash stopped it (D-559).</param>
+    /// <param name="auto">True when the body size setting is auto.</param>
+    /// <param name="builtBody">The body size that the screen built with.</param>
+    /// <param name="defaultBody">The default body size of the new window size, which <see cref="DefaultFor"/> gives.</param>
+    /// <returns>True when a run plays, the setting is auto, and the default body size changed.</returns>
+    /// <remarks>
+    /// A crash stops the run and shows its message on the frame. A build of the screen after it
+    /// found no run, crashed a second time, and wrote a second crash file over the message of
+    /// the first (D-559, T-2).
+    /// </remarks>
+    public static bool RebuildsOnResize(bool running, bool auto, int builtBody, int defaultBody) =>
+        running && auto && builtBody != defaultBody;
 }

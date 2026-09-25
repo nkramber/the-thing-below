@@ -127,6 +127,35 @@ public sealed class PressGateTests
     }
 
     [Fact]
+    public void AnActionStaysHeldUntilItsLastSourceComesUp()
+    {
+        // The held steps read this answer, so a release of one of two sources leaves the step
+        // held (D-1084).
+        object gate = New();
+        Assert.False(Holds(gate, Menu));
+
+        Press(gate, Menu, Start);
+        Press(gate, Menu, Tab);
+        Release(gate, Menu, Start);
+        Assert.True(Holds(gate, Menu));
+
+        Release(gate, Menu, Tab);
+        Assert.False(Holds(gate, Menu));
+    }
+
+    [Fact]
+    public void AClearLeavesNoActionHeld()
+    {
+        // A loss of the focus clears the gate, because the system sends no release (D-1084).
+        object gate = New();
+        Press(gate, Menu, Start);
+
+        Method("Clear").Invoke(gate, null);
+
+        Assert.False(Holds(gate, Menu));
+    }
+
+    [Fact]
     public void TheGateReadsEachMenuActionThatTheMenusRead()
     {
         IReadOnlyList<string> names = (IReadOnlyList<string>)GameAssemblyFile.Type(TypeName)
@@ -144,6 +173,9 @@ public sealed class PressGateTests
 
     private static bool Release(object gate, string action, string source) =>
         (bool)Method("Release").Invoke(gate, [action, source])!;
+
+    private static bool Holds(object gate, string action) =>
+        (bool)Method("Holds").Invoke(gate, [action])!;
 
     private static int ForgetPad(object gate, int device) =>
         (int)Method("ForgetPad").Invoke(gate, [device])!;

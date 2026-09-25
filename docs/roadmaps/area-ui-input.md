@@ -260,6 +260,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | PR-12 | The lesson window with the aptitudes, the slots, the swap, and the cast from the menu, and the Lessons command of a fight in two rows of commands | D-211, D-1030, D-1031, D-1033, D-1034 |
 | PR-13 | The gear window, the item window, and the stats with the gear in the status window | D-44, D-1036, D-1039, D-1048, D-1049 |
 | PR-99 | MAG and RES on each screen, the line of trial stats in the gear window, and the lesson swap anywhere outside a fight | D-1050, D-1056, D-1060 |
+| PR-103 | The pause of a fight, with a dim and "Paused" above the hand-off, and the crash message above the hand-off | D-1083, D-1084 |
 | PR-14 and PR-16 | The service and save screens, one for each system | D-211 |
 | PR-36 | The dialogue box, the name plate, and the choices | D-114, D-223 |
 | PR-35 | The region map screen | D-113 |

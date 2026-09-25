@@ -75,6 +75,28 @@ public sealed class BodySizeTests
         Assert.IsType<ArgumentOutOfRangeException>(thrown.InnerException);
     }
 
+    [Fact]
+    public void ACrashedSessionNeverBuildsTheScreenAgainOnAResize()
+    {
+        // Finding P3-5 of the repository review: a resize after a crash built the screen with no
+        // run, crashed a second time, and replaced the message of the first crash (D-559).
+        Assert.False(RebuildsOnResize(running: false, auto: true, builtBody: 32, defaultBody: 24));
+    }
+
+    [Fact]
+    public void ARunningSessionBuildsTheScreenAgainWhenTheAutoBodyChanges()
+    {
+        // D-707, D-874: the auto body follows the window, and the other three cases hold still.
+        Assert.True(RebuildsOnResize(running: true, auto: true, builtBody: 32, defaultBody: 24));
+        Assert.False(RebuildsOnResize(running: true, auto: true, builtBody: 24, defaultBody: 24));
+        Assert.False(RebuildsOnResize(running: true, auto: false, builtBody: 32, defaultBody: 24));
+    }
+
+    private static bool RebuildsOnResize(bool running, bool auto, int builtBody, int defaultBody) =>
+        (bool)GameAssemblyFile.Type(BodyTypeName)
+            .GetMethod("RebuildsOnResize")!
+            .Invoke(null, [running, auto, builtBody, defaultBody])!;
+
     private static int DefaultFor(int drawnHeight, UiStyle style) =>
         (int)GameAssemblyFile.Type(BodyTypeName)
             .GetMethod("DefaultFor")!

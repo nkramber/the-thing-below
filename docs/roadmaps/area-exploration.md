@@ -246,6 +246,7 @@ Built by PR-35. Phase file: `phase-2-first-playable.md`.
 |---|---|---|
 | PR-7 | The map format, the movement, the sight, the walked-tile record, the camera, and a fixture dungeon | D-106, D-165, D-528, D-566, D-567 |
 | PR-8 | The enemies on the map, the patrols, the sight mark, and the grace time | D-37, D-208, D-381 |
+| PR-103 | A step into a group inside its grace time starts no encounter, and a move intent ends with its tick | D-1085 |
 | PR-16 | The treasure, the doors, the keys, and the save points | D-41, D-529 |
 | PR-64 | The traps, the hazards, and the statuses that last on the map | D-390 to D-393, D-529 |
 | PR-14 | The hub map, the NPCs, the rest, the save, and the party swap | D-59, D-112, D-530 |

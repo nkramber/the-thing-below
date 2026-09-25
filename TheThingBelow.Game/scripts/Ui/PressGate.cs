@@ -117,6 +117,17 @@ public sealed class PressGate
         return this.holders.TryGetValue(action, out List<string>? sources) && sources.Remove(source);
     }
 
+    /// <summary>Tells whether any source holds one action now (D-1084).</summary>
+    /// <param name="action">The name of the action, such as `step_north`.</param>
+    /// <returns>True while a key, a button, or a stick holds the action.</returns>
+    /// <exception cref="ArgumentException">The name is empty (T-2).</exception>
+    public bool Holds(string action)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(action);
+
+        return this.holders.TryGetValue(action, out List<string>? sources) && sources.Count > 0;
+    }
+
     /// <summary>
     /// Forgets every held source. The window calls it when it loses the focus, because the
     /// system then sends no release (T-2).

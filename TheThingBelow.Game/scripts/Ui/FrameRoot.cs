@@ -73,6 +73,16 @@ public partial class FrameRoot : Node
     /// <summary>The pass of the hand-off, above the UI, which covers the whole frame (D-195, D-210, D-939).</summary>
     public TransitionPass HandOffPass { get; private set; } = null!;
 
+    /// <summary>
+    /// The place of each UI node that draws above the hand-off: the pause of a fight and the
+    /// message of a crash (D-559, D-1083).
+    /// </summary>
+    /// <remarks>
+    /// The pass of the hand-off covers the whole frame, so a pause or a crash during a transition
+    /// drew under it, and the player saw a still cover with no text.
+    /// </remarks>
+    public Control Top { get; private set; } = null!;
+
     /// <summary>Builds the frame, the world viewport, and the view on the screen.</summary>
     public override void _Ready()
     {
@@ -302,6 +312,15 @@ public partial class FrameRoot : Node
 
         // The transition covers the whole frame, the UI included, so it draws last (D-195, D-210).
         this.HandOffPass = TransitionPass.Build(this.frameViewport);
+
+        // The pause of a fight and the message of a crash draw above the transition (D-559, D-1083).
+        this.Top = new Control
+        {
+            Position = Vector2.Zero,
+            Size = new Vector2(ScreenFit.FrameWidth, ScreenFit.FrameHeight),
+            MouseFilter = Control.MouseFilterEnum.Ignore,
+        };
+        this.frameViewport.AddChild(this.Top);
         this.AddChild(this.frameViewport);
     }
 
