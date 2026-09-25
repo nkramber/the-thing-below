@@ -102,6 +102,8 @@ public partial class Boot : Node
     private CommandMemory? memory;
     private Control? console;
     private readonly HeldSteps held = new();
+    private readonly PressGate gate = new();
+    private readonly MousePointer pointer = new();
     private bool crashed;
 
     /// <summary>Opens the log file, reads the arguments, and picks the session.</summary>
@@ -242,6 +244,60 @@ public partial class Boot : Node
         this.BuildScreen(loaded);
         this.ReportWindowMode(chosen.Display.Window);
         this.GetWindow().SizeChanged += this.OnWindowSizeChanged;
+        Input.Singleton.JoyConnectionChanged += this.OnPadConnectionChanged;
+        foreach (int device in Input.GetConnectedJoypads())
+        {
+            this.OnPadConnectionChanged(device, true);
+        }
+    }
+
+    /// <summary>
+    /// Logs each pad that connects or disconnects, and forgets the held buttons of a pad that
+    /// disconnects (D-1077).
+    /// </summary>
+    /// <param name="device">The device number of the pad.</param>
+    /// <param name="connected">True when the pad connected.</param>
+    /// <remarks>
+    /// A system can show one pad as two devices, such as the Steam Deck with Steam Input. The
+    /// log names each device, so a report of a pad fault shows the devices of that system (T-2).
+    /// </remarks>
+    private void OnPadConnectionChanged(long device, bool connected)
+    {
+        try
+        {
+            int pad = (int)device;
+            int forgot = connected ? 0 : this.gate.ForgetPad(pad);
+            string name = Input.GetJoyName(pad);
+            this.WriteLog([new LogEntry(
+                LogLevel.Info,
+                connected ? "a pad connected" : "a pad disconnected",
+                this.run?.Tick ?? 0,
+                LogSubsystems.Game,
+                [
+                    LogField.OfNumber("device", pad),
+                    new LogField("name", name.Length > 0 ? name : "none"),
+                    new LogField("known", Input.IsJoyKnown(pad) ? "yes" : "no"),
+                    LogField.OfNumber("forgot", forgot),
+                ])]);
+        }
+        catch (Exception fault)
+        {
+            this.ReportCrash(fault);
+        }
+    }
+
+    /// <summary>Forgets every held input when the window loses the focus (D-1077).</summary>
+    /// <param name="what">The notification of the engine.</param>
+    /// <remarks>
+    /// The system sends no release to a window that lost the focus, so a held source would stop
+    /// each later press of its action (T-2).
+    /// </remarks>
+    public override void _Notification(int what)
+    {
+        if (what == NotificationApplicationFocusOut)
+        {
+            this.gate.Clear();
+        }
     }
 
     /// <summary>
@@ -615,8 +671,9 @@ public partial class Boot : Node
     }
 
     /// <summary>
-    /// Reads each key event before any node of the frame reads it, and sends it on its route
-    /// (D-171, D-725, D-813).
+    /// Reads each input event before any node of the frame reads it. The event shows or hides
+    /// the mouse pointer, the gate stops a second press of a held action, and a key goes on its
+    /// route (D-171, D-725, D-813, D-1077, D-1078).
     /// </summary>
     /// <param name="signal">Every input event of this frame.</param>
     /// <remarks>
@@ -627,7 +684,31 @@ public partial class Boot : Node
     /// </remarks>
     public override void _Input(InputEvent signal)
     {
-        if (this.crashed || signal is not InputEventKey key)
+        if (this.crashed || signal is null)
+        {
+            return;
+        }
+
+        try
+        {
+            this.pointer.Read(signal);
+
+            // The gate stops a second press of a held action, from any device, before any node
+            // reads it (D-1077, F-107). The console takes the repeat of a held key, so the gate
+            // stops no key while the console is open (D-725).
+            if (!this.gate.Read(signal) && this.console?.Visible != true)
+            {
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+        }
+        catch (Exception fault)
+        {
+            this.ReportCrash(fault);
+            return;
+        }
+
+        if (signal is not InputEventKey key)
         {
             return;
         }
@@ -1151,6 +1232,7 @@ public partial class Boot : Node
         GD.Print($"smoke: the battle is {this.DescribeBattle(content, session)}.");
         GD.Print($"smoke: the settings screen is {this.DescribeSettings(content)}.");
         GD.Print($"smoke: the menus are {this.DescribeMenus(content)}.");
+        GD.Print($"smoke: the pads are {DescribePads()}.");
         GD.Print("smoke: the session ends with no error.");
         GetTree().Quit(SuccessExitCode);
     }
@@ -1340,6 +1422,100 @@ public partial class Boot : Node
 
         return $"{string.Join(", ", built)}, and the six font settings of D-710 read back";
     }
+
+    /// <summary>
+    /// Builds the input map, and reads the pad rules of D-1077 and D-1078 with the events of a
+    /// pad other than the first, as a Steam Deck with Steam Input sends them (F-107).
+    /// </summary>
+    /// <returns>The count of pad bindings that matched, and the results of the gate and the pointer.</returns>
+    /// <exception cref="InvalidOperationException">A pad binding matched no event, or the gate or the pointer broke a rule (T-2).</exception>
+    /// <remarks>
+    /// Before D-1077 each pad binding matched the device 0 alone, and no menu action held a pad
+    /// button but the D-pad, so this check failed on the old input map (T-3).
+    /// </remarks>
+    private static string DescribePads()
+    {
+        const int OtherPad = 3;
+        ControlSettings controls = SmokeSettings().Controls;
+        GameInputMap.Build(controls);
+
+        int matched = 0;
+        foreach (string action in InputActions.Names)
+        {
+            foreach (InputBinding binding in controls.Bindings.Of(action))
+            {
+                InputEvent press = binding.Kind switch
+                {
+                    BindingKind.Key => new InputEventKey { PhysicalKeycode = (Key)binding.Code, Pressed = true },
+                    BindingKind.Button => PadButton((JoyButton)binding.Code, OtherPad, true),
+                    _ => PadStick((JoyAxis)binding.Code, OtherPad, binding.Direction),
+                };
+                if (!press.IsActionPressed(action))
+                {
+                    throw new InvalidOperationException(
+                        $"The binding {binding} of the action '{action}' matched no press of the device {OtherPad} (D-1077, T-2).");
+                }
+
+                matched += 1;
+            }
+        }
+
+        foreach ((string action, JoyButton button) in GameInputMap.MenuPadButtons)
+        {
+            if (!PadButton(button, OtherPad, true).IsActionPressed(action))
+            {
+                throw new InvalidOperationException(
+                    $"The pad button {button} of the device {OtherPad} did not press the menu action '{action}' (D-1077, T-2).");
+            }
+
+            matched += 1;
+        }
+
+        // One hold of the menu button, a mirror of it on a second device, and a new press after
+        // the release of both. Then one push of the stick in three motion events (F-107).
+        var gate = new PressGate();
+        bool[] passed =
+        [
+            gate.Read(PadButton(JoyButton.Start, OtherPad, true)),
+            gate.Read(PadButton(JoyButton.Start, OtherPad, true)),
+            gate.Read(PadButton(JoyButton.Start, OtherPad + 1, true)),
+            gate.Read(PadButton(JoyButton.Start, OtherPad, false)),
+            gate.Read(PadButton(JoyButton.Start, OtherPad + 1, false)),
+            gate.Read(PadButton(JoyButton.Start, OtherPad, true)),
+            gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0.8f)),
+            gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0.9f)),
+            gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 1f)),
+            gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0f)),
+            gate.Read(PadStick(JoyAxis.LeftY, OtherPad, 0.8f)),
+        ];
+        bool[] expected = [true, false, false, true, true, true, true, false, false, true, true];
+        if (!passed.AsSpan().SequenceEqual(expected))
+        {
+            throw new InvalidOperationException(
+                $"The press gate passed [{string.Join(", ", passed)}], and the rule gives [{string.Join(", ", expected)}] (D-1077, T-2).");
+        }
+
+        var pointer = new MousePointer();
+        pointer.Read(PadButton(JoyButton.A, OtherPad, true));
+        bool hidden = !pointer.Shown;
+        pointer.Read(new InputEventMouseMotion { Relative = new Vector2(4, 0) });
+        if (!hidden || !pointer.Shown)
+        {
+            throw new InvalidOperationException(
+                $"A pad press hid the pointer {hidden}, and a mouse move showed it {pointer.Shown} (D-1078, T-2).");
+        }
+
+        return $"{matched} bindings that a pad of the device {OtherPad} presses, one press of each hold, " +
+            "and a pointer that a pad hides and a mouse shows";
+    }
+
+    /// <summary>Makes the press or the release of one pad button, for the smoke session.</summary>
+    private static InputEventJoypadButton PadButton(JoyButton button, int device, bool pressed) =>
+        new() { ButtonIndex = button, Device = device, Pressed = pressed };
+
+    /// <summary>Makes one motion event of one stick axis, for the smoke session.</summary>
+    private static InputEventJoypadMotion PadStick(JoyAxis axis, int device, float value) =>
+        new() { Axis = axis, Device = device, AxisValue = value };
 
     /// <summary>
     /// Opens each window of the menu stack with the `ui_*` actions, as a player does, and the

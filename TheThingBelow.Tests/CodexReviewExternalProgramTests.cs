@@ -81,7 +81,7 @@ public sealed class CodexReviewExternalProgramTests
     }
 
     /// <summary>
-    /// The regression test of F-114. The old runner waited with no limit, so a program that
+    /// The regression test of F-115. The old runner waited with no limit, so a program that
     /// hung stopped the review with no report. Each case stops within seconds of its limit.
     /// </summary>
     [Theory]
@@ -98,7 +98,7 @@ public sealed class CodexReviewExternalProgramTests
 
             Assert.Contains("`sleep 30`", fault.Message, StringComparison.Ordinal);
             Assert.Contains("limit of 1 seconds", fault.Message, StringComparison.Ordinal);
-            Assert.Contains("D-1086", fault.Message, StringComparison.Ordinal);
+            Assert.Contains("D-1087", fault.Message, StringComparison.Ordinal);
             Assert.True(clock.Elapsed < TimeSpan.FromSeconds(20), $"The stop took {clock.Elapsed}, and the limit is 1 second.");
         }
         finally
@@ -141,7 +141,7 @@ public sealed class CodexReviewExternalProgramTests
             () => ExternalProgram.Run("sh", ["-c", "sleep 30 & exit 0"], Path.GetTempPath(), null, TimeSpan.FromSeconds(20)));
 
         Assert.Contains("stayed open", fault.Message, StringComparison.Ordinal);
-        Assert.Contains("D-1086", fault.Message, StringComparison.Ordinal);
+        Assert.Contains("D-1087", fault.Message, StringComparison.Ordinal);
         Assert.True(clock.Elapsed < TimeSpan.FromSeconds(20), $"The read took {clock.Elapsed}, and the bound is {ExternalProgram.DrainLimit}.");
     }
 
@@ -162,7 +162,7 @@ public sealed class CodexReviewExternalProgramTests
     }
 
     [Fact]
-    public void EachLimitOfTheCommandIsTheValueOfD1086()
+    public void EachLimitOfTheCommandIsTheValueOfD1087()
     {
         Assert.Equal(TimeSpan.FromMinutes(5), ExternalProgram.StepLimit);
         Assert.Equal(TimeSpan.FromSeconds(5), ExternalProgram.DrainLimit);

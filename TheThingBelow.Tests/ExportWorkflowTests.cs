@@ -143,7 +143,7 @@ public sealed class ExportWorkflowTests
     }
 
     /// <summary>
-    /// The regression test of F-110. GitHub keeps one waiting run in a group and cancels an
+    /// The regression test of F-111. GitHub keeps one waiting run in a group and cancels an
     /// older waiting run, even with no cancel of the run in progress. One group for `main`
     /// thus dropped the export of the middle merge of three quick merges.
     /// </summary>
@@ -161,7 +161,7 @@ public sealed class ExportWorkflowTests
     }
 
     /// <summary>
-    /// The regression test of F-111. Under `set -e`, a nonzero code of the editor ended the
+    /// The regression test of F-112. Under `set -e`, a nonzero code of the editor ended the
     /// step before it printed the log, so a failed export showed no reason.
     /// </summary>
     [Theory]
@@ -177,8 +177,8 @@ public sealed class ExportWorkflowTests
 
         int printed = Array.FindIndex(lines, run, line => line.Trim() == print);
         int checkedCode = Array.FindIndex(lines, run, line => line.Contains("if [ \"$status\" != \"0\" ]; then", StringComparison.Ordinal));
-        Assert.True(printed > run, $"The step '{stepName}' does not print its log after the editor runs (F-111).");
-        Assert.True(checkedCode > printed, $"The step '{stepName}' reads the code of the editor before it prints the log (F-111).");
+        Assert.True(printed > run, $"The step '{stepName}' does not print its log after the editor runs (F-112).");
+        Assert.True(checkedCode > printed, $"The step '{stepName}' reads the code of the editor before it prints the log (F-112).");
     }
 
     [Fact]

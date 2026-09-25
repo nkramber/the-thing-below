@@ -24,12 +24,12 @@ public static class ExternalProgram
 {
     /// <summary>
     /// The time limit of one git, gh, or npm call that reads or writes a small amount of data
-    /// (D-1086). Each such call of a review took seconds.
+    /// (D-1087). Each such call of a review took seconds.
     /// </summary>
     public static readonly TimeSpan StepLimit = TimeSpan.FromMinutes(5);
 
     /// <summary>
-    /// The time that the read of the output can take after the program ends or stops (D-1086).
+    /// The time that the read of the output can take after the program ends or stops (D-1087).
     /// A pipe that stays open past it belongs to a process that the program left behind.
     /// </summary>
     public static readonly TimeSpan DrainLimit = TimeSpan.FromSeconds(5);
@@ -42,7 +42,7 @@ public static class ExternalProgram
     /// The file that takes the standard output as the program writes it, or null to keep the
     /// output in the result.
     /// </param>
-    /// <param name="limit">The time that the program can run before the command stops it (D-1086).</param>
+    /// <param name="limit">The time that the program can run before the command stops it (D-1087).</param>
     /// <returns>The exit code and the text of the two streams.</returns>
     /// <exception cref="InvalidOperationException">The program did not start, or it ran past its limit (T-2).</exception>
     public static ProgramResult Run(
@@ -67,7 +67,7 @@ public static class ExternalProgram
     /// The file that takes the standard output as the program writes it, or null to keep the
     /// output in the result.
     /// </param>
-    /// <param name="limit">The time that the program can run before the command stops it (D-1086).</param>
+    /// <param name="limit">The time that the program can run before the command stops it (D-1087).</param>
     /// <param name="removedVariables">The name of each variable that the program does not get.</param>
     /// <returns>The exit code and the text of the two streams.</returns>
     /// <exception cref="InvalidOperationException">
@@ -130,7 +130,7 @@ public static class ExternalProgram
 
         // A process outside the tree can still hold a pipe open. Windows loses the parent link
         // of a child of Git Bash, and a program can leave a child that runs on. The read of the
-        // two streams thus gets its own bound, or it waits as long as that process runs (F-114).
+        // two streams thus gets its own bound, or it waits as long as that process runs (F-115).
         Task both = Task.WhenAll(errorText, outputText);
         bool drained = ReferenceEquals(Task.WhenAny(both, Task.Delay(DrainLimit)).GetAwaiter().GetResult(), both);
         if (!ended)
@@ -138,14 +138,14 @@ public static class ExternalProgram
             string error = drained ? errorText.GetAwaiter().GetResult().Trim() : "Its output stayed open after the stop.";
             throw new InvalidOperationException(
                 $"`{Describe(program, arguments)}` ran past its limit of {Seconds(limit)} seconds in '{workingDirectory}', " +
-                $"so the command stopped it and each process that it started (D-1086, T-2). {error}");
+                $"so the command stopped it and each process that it started (D-1087, T-2). {error}");
         }
 
         if (!drained)
         {
             throw new InvalidOperationException(
                 $"`{Describe(program, arguments)}` ended in '{workingDirectory}', and its output stayed open for {Seconds(DrainLimit)} seconds more. " +
-                "A process that it started holds the output, so the command stopped the read (D-1086, T-2).");
+                "A process that it started holds the output, so the command stopped the read (D-1087, T-2).");
         }
 
         return new ProgramResult(process.ExitCode, outputText.GetAwaiter().GetResult(), errorText.GetAwaiter().GetResult());
@@ -169,7 +169,7 @@ public static class ExternalProgram
     /// <param name="program">The program name or its full path.</param>
     /// <param name="arguments">Each argument, with no shell between them.</param>
     /// <param name="workingDirectory">The folder in which the program runs.</param>
-    /// <param name="limit">The time that the program can run before the command stops it (D-1086).</param>
+    /// <param name="limit">The time that the program can run before the command stops it (D-1087).</param>
     /// <returns>The standard output, with the white space at each end removed.</returns>
     /// <exception cref="InvalidOperationException">
     /// The program did not start, it ran past its limit, or it gave an exit code other than 0.

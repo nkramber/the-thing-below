@@ -58,7 +58,7 @@ public sealed class SteCheckAgentFileTests
     }
 
     /// <summary>
-    /// The regression test of F-112. The old rule read the lines alone, so a change of the last
+    /// The regression test of F-113. The old rule read the lines alone, so a change of the last
     /// line end, or of each line end, passed ste-check and failed `AgentFileTests` on `main`.
     /// </summary>
     [Theory]

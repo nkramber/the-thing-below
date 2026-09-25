@@ -20,7 +20,7 @@ permissions:
 # A PR shares one group, and a new push cancels the run of the older head. Each push to `main`
 # takes a group of its own commit. GitHub keeps one waiting run in a group and cancels an older
 # waiting run, even with no cancel of the run in progress. One group for `main` thus dropped the
-# middle run of three quick merges, and that merge lost the record of its checks (F-110).
+# middle run of three quick merges, and that merge lost the record of its checks (F-111).
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -81,7 +81,7 @@ jobs:
           # path that `main` changed since the branch point as a path of the PR. Git finds
           # renames by default, and a rename then lists its new path alone. Each list of paths
           # thus takes `--no-renames`, so a move into `docs/` still lists the path that it left
-          # (F-108).
+          # (F-109).
           git diff --no-renames --name-only "$BASE_REF...$HEAD_REF" > "$facts/pr-paths.txt"
           echo "The PR changes these paths:"
           cat "$facts/pr-paths.txt"

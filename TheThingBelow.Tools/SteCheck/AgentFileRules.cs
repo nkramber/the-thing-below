@@ -77,7 +77,7 @@ public static class AgentFileRules
 
         // A read of lines drops each line end, so two files that differ in a line end alone, or
         // in the end of the last line, pass the loop above. The test of D-20 compares the whole
-        // text, so this rule compares each byte too (F-112).
+        // text, so this rule compares each byte too (F-113).
         if (!documents.ReadBytes(ClaudePath).AsSpan().SequenceEqual(documents.ReadBytes(AgentsPath)))
         {
             return [DifferenceAt(

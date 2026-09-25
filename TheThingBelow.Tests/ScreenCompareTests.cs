@@ -44,12 +44,43 @@ public sealed class ScreenCompareTests
     public void EveryChangedPixelCounts()
     {
         PngImage baseline = Image(2, 2, 10);
-        PngImage capture = Image(2, 2, 11);
+        PngImage capture = Image(2, 2, 12);
 
         Assert.Equal(4, ScreenCompare.Differences(baseline, capture, out PixelDifference? first));
         Assert.NotNull(first);
         Assert.Equal(0, first.X);
         Assert.Equal(0, first.Y);
+    }
+
+    [Fact]
+    public void AStepOfOneLevelOnEachChannelMatches()
+    {
+        // D-1080, F-108: the edge of a wall shadow drew one level apart on two runners of CI, with
+        // no change of the screen. A step of one level on each channel still matches.
+        PngImage baseline = Image(2, 2, 10);
+        byte[] pixels = Pixels(2, 2, 11);
+        pixels[3] = 254;
+        var capture = new PngImage(2, 2, PngColorKind.Rgba, pixels);
+
+        Assert.Equal(0, ScreenCompare.Differences(baseline, capture, out PixelDifference? first));
+        Assert.Null(first);
+    }
+
+    [Fact]
+    public void AStepOfTwoLevelsOnOneChannelFails()
+    {
+        // D-1080: the compare keeps each change larger than one level.
+        PngImage baseline = Image(4, 3, 10);
+        byte[] pixels = Pixels(4, 3, 10);
+        pixels[(((2 * 4) + 1) * 4) + 1] = 12;
+        var capture = new PngImage(4, 3, PngColorKind.Rgba, pixels);
+
+        int count = ScreenCompare.Differences(baseline, capture, out PixelDifference? first);
+
+        Assert.Equal(1, count);
+        Assert.NotNull(first);
+        Assert.Equal("10,10,10,255", first.Baseline);
+        Assert.Equal("10,12,10,255", first.Capture);
     }
 
     [Fact]

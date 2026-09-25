@@ -9,7 +9,7 @@ namespace TheThingBelow.Tests;
 /// <summary>
 /// The workflows collect the paths and the diff of a PR with git, and the commands of Tools
 /// decide from them (D-859, D-15). These tests read the committed workflow text, because no
-/// test runs the git layer of a workflow (F-108, F-109).
+/// test runs the git layer of a workflow (F-109, F-110).
 /// </summary>
 public sealed class WorkflowPathListTests
 {
@@ -26,7 +26,7 @@ public sealed class WorkflowPathListTests
     private static readonly string[] PathCommands = ["git diff", "git show", "git log"];
 
     /// <summary>
-    /// The regression test of F-108. Git finds renames by default, and a rename then lists its
+    /// The regression test of F-109. Git finds renames by default, and a rename then lists its
     /// new path alone. A move of a test file into `docs/` then read as a change of documents
     /// alone, so CI skipped and the label passed.
     /// </summary>
@@ -61,11 +61,11 @@ public sealed class WorkflowPathListTests
         Assert.True(lists.Count >= 4, $"The search found {lists.Count} git lists of paths: {string.Join(", ", lists)}.");
         Assert.True(
             faults.Count == 0,
-            $"These git lists of paths find renames, and a rename then hides the path that it left: {string.Join(", ", faults)} (F-108).");
+            $"These git lists of paths find renames, and a rename then hides the path that it left: {string.Join(", ", faults)} (F-109).");
     }
 
     /// <summary>
-    /// The regression test of F-109. Linux refuses one argument above 128 KiB, and the step
+    /// The regression test of F-110. Linux refuses one argument above 128 KiB, and the step
     /// passed the diff of `docs/decisions.md` to jq as one argument.
     /// </summary>
     [Theory]
@@ -96,7 +96,7 @@ public sealed class WorkflowPathListTests
         {
             Assert.True(
                 small.Any(option => line.Contains(option, StringComparison.Ordinal)),
-                $"The line '{line}' passes a value to jq as one argument, and only the number, the labels, and one sha stay small (F-109).");
+                $"The line '{line}' passes a value to jq as one argument, and only the number, the labels, and one sha stay small (F-110).");
         }
     }
 }

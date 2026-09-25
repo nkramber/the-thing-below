@@ -166,7 +166,7 @@ public sealed class ReviewGateOverrideRuleTests
     }
 
     /// <summary>
-    /// The regression test of D-1085 and F-113. The local settings file holds the same hooks as
+    /// The regression test of D-1086 and F-114. The local settings file holds the same hooks as
     /// the shared one, and the old rule took it as a path of `.claude/`.
     /// </summary>
     [Fact]
@@ -181,7 +181,7 @@ public sealed class ReviewGateOverrideRuleTests
 
         Assert.Equal(GateResult.Fault, check.Result);
         Assert.Contains("`.claude/settings.local.json`", check.Detail, StringComparison.Ordinal);
-        Assert.Contains("D-1085", check.Detail, StringComparison.Ordinal);
+        Assert.Contains("D-1086", check.Detail, StringComparison.Ordinal);
     }
 
     [Theory]

@@ -277,14 +277,16 @@ public sealed class LightContentTests
     }
 
     [Theory]
-    [InlineData("j", 160000, true)]
-    [InlineData("k", 160000, false)]
-    [InlineData("j", 90000, false)]
-    public void AGlowTooDarkAtTheLowOfItsPulseFails(string key, int strength, bool loads)
+    [InlineData("j", 5000, true)]
+    [InlineData("j", 71000, true)]
+    [InlineData("j", 72000, false)]
+    [InlineData("j", 160000, false)]
+    [InlineData("k", 160000, true)]
+    public void AGlowHaloThatPassesTheThresholdFails(string key, int strength, bool loads)
     {
-        // D-912, D-913, T-2: the flame color at 16 times its light passes the threshold of 70000
-        // at the low of its pulse. Ink at 16 times stays far below it, and the flame color at 9
-        // times falls to 64370 at the low of the pulse, so each would give no glow in silence.
+        // D-1075, T-2: a halo above the threshold of 70000 clips to full light, and the glow of
+        // Godot spreads it into a box. The flame color, whose brightest channel is 251 of 255,
+        // stays below at 71000 and passes at 72000. Ink at 16 times stays far below it.
         string body = LightFixtures.KindBody.Replace(
             "\"glow\": { \"color\": \"k\", \"strength\": 0,",
             $"\"glow\": {{ \"color\": \"{key}\", \"strength\": {strength},",
@@ -303,7 +305,7 @@ public sealed class LightContentTests
         ContentException error = Assert.Throws<ContentException>(() => LightFixtures.Load(files));
         Assert.Equal(LightFixtures.KindPath, error.File);
         Assert.Equal("fire.glow.strength", error.Field);
-        Assert.Contains("at the low of its pulse", error.Message, StringComparison.Ordinal);
+        Assert.Contains("at the top of its pulse", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]

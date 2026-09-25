@@ -55,7 +55,7 @@ public static class DocumentRowRules
 
     /// <summary>
     /// Gives the written form of a row: each path in backticks, joined by "and". The gate test
-    /// of the skill looks for this exact cell, so DOCS 1 reads this form (F-112).
+    /// of the skill looks for this exact cell, so DOCS 1 reads this form (F-113).
     /// </summary>
     /// <param name="row">The row name, as `DocumentRules.RequiredRows` holds it.</param>
     /// <returns>The form, such as "`CLAUDE.md` and `AGENTS.md`".</returns>
@@ -166,7 +166,7 @@ public static class DocumentRowRules
                     path,
                     1,
                     "DOCS 1",
-                    $"row {index + 1} of the Documents rows reads {cells[index]}, and the gate test reads the form {form} (D-581, F-112)"));
+                    $"row {index + 1} of the Documents rows reads {cells[index]}, and the gate test reads the form {form} (D-581, F-113)"));
                 return;
             }
         }

@@ -38,16 +38,16 @@ public static class CodexReviewCommand
     public const string TranscriptFolder = "artifacts/codex-review";
 
     /// <summary>
-    /// The time limit of the review itself (D-1086). The longest review of PR #63 to PR #77 took
+    /// The time limit of the review itself (D-1087). The longest review of PR #63 to PR #77 took
     /// 17 minutes, so the limit is more than five times that. At the limit the command stops
     /// the review and gives a fault that names the command, and the worktree stays for a read.
     /// </summary>
     public static readonly TimeSpan ReviewLimit = TimeSpan.FromMinutes(90);
 
-    /// <summary>The time limit of the npm install of the CLI, which downloads the package (D-927, D-1086).</summary>
+    /// <summary>The time limit of the npm install of the CLI, which downloads the package (D-927, D-1087).</summary>
     public static readonly TimeSpan InstallLimit = TimeSpan.FromMinutes(10);
 
-    /// <summary>The time limit of the model probe, which sends one short prompt (D-926, D-1086).</summary>
+    /// <summary>The time limit of the model probe, which sends one short prompt (D-926, D-1087).</summary>
     public static readonly TimeSpan ProbeLimit = TimeSpan.FromMinutes(10);
 
     /// <summary>Reads the options and runs one review.</summary>

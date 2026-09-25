@@ -175,7 +175,8 @@ Effects terms from the roadmaps PR of 2026-09-15:
 | effect budget | the committed limits of lights with shadows, live particles, and full-screen passes that hold 60 frames per second on the Deck (D-523) | frame budget, perf budget |
 | full-screen pass | an effect that redraws the whole frame, such as fog, glow, or a transition (D-523) | post-process, when the text means these |
 | glow threshold | the linear light, in basis points of full white, where a pixel of the world view starts to glow (D-910) | bloom threshold, glow cutoff |
-| glow rectangle | the small rectangle of one palette key over a flame, which draws above the glow threshold and pulses (D-913, D-915) | glow seed in prose, emission, bloom source |
+| glow halo | the soft round light of one palette key behind a flame, which adds its light below the glow threshold and pulses (D-913, D-1075) | glow rectangle for the glow of today, glow seed in prose, emission, bloom source |
+| glow rectangle | the small rectangle over a flame of D-913 and D-915, above the glow threshold, which the glow halo replaced (D-1075) | glow halo, when the text means the rectangle |
 | overlay | the view with no HDR 2D that shares the world and draws the fog, the hit bursts, and the light shafts above the glow (D-916, D-919) | top layer, foreground view |
 | mark view | the view that shares the world and draws the marks, the battle pointer, and the health bars above the passes of PR-92 (D-919) | mark layer in prose, top view |
 | scene view | the view of 640 by 360 that joins the world and the overlay, which the tilt-shift blur reads (D-919) | composite, back buffer |

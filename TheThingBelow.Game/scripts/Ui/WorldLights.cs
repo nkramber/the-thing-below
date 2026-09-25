@@ -45,15 +45,24 @@ public static class WorldLights
     /// <summary>The occluder mask of the lead, whose carried light it never blocks (D-853).</summary>
     public const int LeadShadows = 4;
 
-    /// <summary>Builds the light texture: full light at the center, and none at the edge of the circle.</summary>
+    /// <summary>
+    /// The power of the fall of a light: 1.5, so a pool of light has a soft edge and a bright
+    /// middle, as the HD-2D look of D-849 asks.
+    /// </summary>
+    public const float LightFalloff = 1.5f;
+
+    /// <summary>Builds a round texture: full light at the center, and none at the edge of the circle.</summary>
+    /// <param name="falloff">
+    /// The power of the fall with the distance to the edge: <see cref="LightFalloff"/> for a light,
+    /// and a higher power for a halo, which falls faster near its middle (D-1075).
+    /// </param>
     /// <returns>The texture.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The power is not above 0 (T-2).</exception>
     /// <exception cref="InvalidOperationException">Godot made no texture from the image (T-2, F-45).</exception>
-    /// <remarks>
-    /// The light falls with the distance to its edge to the power 1.5, so a pool of light has a
-    /// soft edge and a bright middle, as the HD-2D look of D-849 asks.
-    /// </remarks>
-    public static ImageTexture BuildTexture()
+    public static ImageTexture BuildTexture(float falloff)
     {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(falloff);
+
         var picture = Image.CreateEmpty(TextureSize, TextureSize, false, Image.Format.Rgba8);
         float half = TextureSize / 2f;
         for (int y = 0; y < TextureSize; y += 1)
@@ -63,7 +72,7 @@ public static class WorldLights
                 float dx = (x + 0.5f - half) / half;
                 float dy = (y + 0.5f - half) / half;
                 float edge = Math.Max(0f, 1f - MathF.Sqrt((dx * dx) + (dy * dy)));
-                picture.SetPixel(x, y, new Color(1f, 1f, 1f, MathF.Pow(edge, 1.5f)));
+                picture.SetPixel(x, y, new Color(1f, 1f, 1f, MathF.Pow(edge, falloff)));
             }
         }
 

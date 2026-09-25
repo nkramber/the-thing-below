@@ -44,11 +44,11 @@ public static class OverrideRules
     /// <summary>
     /// The local settings file of the harness. It holds the same hooks and permissions as
     /// <see cref="HarnessSettingsPath"/>, so a commit of it takes the same guard. Git ignores
-    /// it, and a forced add still reaches this rule (D-1085).
+    /// it, and a forced add still reaches this rule (D-1086).
     /// </summary>
     public const string HarnessLocalSettingsPath = ".claude/settings.local.json";
 
-    /// <summary>The settings files of the harness, which the eligible set leaves out (D-700, D-1085).</summary>
+    /// <summary>The settings files of the harness, which the eligible set leaves out (D-700, D-1086).</summary>
     public static readonly IReadOnlyList<string> HarnessSettingsPaths = [HarnessSettingsPath, HarnessLocalSettingsPath];
 
     /// <summary>Reads the label set of the pull request.</summary>
@@ -195,7 +195,7 @@ public static class OverrideRules
     private static bool IsEligible(string file)
     {
         // The settings files of `.claude/` take the review, so the refusal comes before the
-        // folder match (D-700, D-1085).
+        // folder match (D-700, D-1086).
         if (IsHarnessSettings(file))
         {
             return false;
@@ -229,7 +229,7 @@ public static class OverrideRules
 
         if (IsHarnessSettings(path))
         {
-            return "A settings file of the harness can hold a hook that runs a command, so it takes the review (D-700, D-1085)";
+            return "A settings file of the harness can hold a hook that runs a command, so it takes the review (D-700, D-1086)";
         }
 
         return "A path outside the eligible set takes the review of the other provider (D-16, D-71)";
@@ -238,7 +238,7 @@ public static class OverrideRules
     private static bool IsHarnessSettings(string path)
     {
         // macOS and Windows resolve a case variant of the path to the same settings file, so the
-        // compare ignores case (D-700, D-1085).
+        // compare ignores case (D-700, D-1086).
         foreach (string settings in HarnessSettingsPaths)
         {
             if (string.Equals(path, settings, StringComparison.OrdinalIgnoreCase))

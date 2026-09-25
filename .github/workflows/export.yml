@@ -34,7 +34,7 @@ permissions:
 # to `main` takes a group of its own commit, because D-449 asks for the export of every merge.
 # GitHub keeps one waiting run in a group and cancels an older waiting run, even with no cancel
 # of the run in progress. One group for `main` thus dropped the export of the middle merge of
-# three quick merges (F-110).
+# three quick merges (F-111).
 concurrency:
   group: export-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -207,7 +207,7 @@ jobs:
       # The option `--import` works in an editor build alone, and it implies `--quit`.
       #
       # `set -e` ends the step on a nonzero code, before the log reaches the job output. Thus
-      # the step keeps the code, prints the log, and reads the code after that (F-111, T-2).
+      # the step keeps the code, prints the log, and reads the code after that (F-112, T-2).
       - name: Import the project
         run: |
           set -euo pipefail
@@ -225,7 +225,7 @@ jobs:
 
       # The export runs `dotnet publish` on the Game project itself, so the assembly and its
       # embedded content reach the build with no include filter (D-508, F-42, F-73). The step
-      # keeps the exit code of the export and prints the log before it reads the code (F-111).
+      # keeps the exit code of the export and prints the log before it reads the code (F-112).
       - name: Export the build of this leg
         env:
           PRESET: ${{ matrix.preset }}

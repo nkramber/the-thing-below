@@ -10,15 +10,16 @@ namespace TheThingBelow.Game.Ui;
 
 /// <summary>
 /// The glow of the world view: the environment of the world, the view of the world in the frame,
-/// the glow rectangle of each fire and its pulse, and the layer that draws above the glow (D-188,
-/// D-910, D-913, D-915, D-916).
+/// the glow halo of each fire and its pulse, and the layer that draws above the glow (D-188,
+/// D-910, D-913, D-915, D-916, D-1075).
 /// </summary>
 /// <remarks>
 /// The world draws in HDR 2D, so a pixel keeps linear light above full white. The glow of Godot
 /// reads each pixel whose brightest channel passes the threshold of the glow file, and Core keeps
-/// every lit sprite and tile below that threshold (F-47). The glow rectangle of each fire draws
-/// above the threshold, and it pulses on a slow wave of the tick, so the glow never flickers
-/// (D-913).
+/// every lit sprite and tile below that threshold (F-47). The glow halo of each fire adds a soft
+/// round light behind the flame, below the threshold, and it pulses on a slow wave of the tick, so
+/// the glow never flickers (D-913). A glow rectangle above the threshold drew as a box over each
+/// torch, so the halo took its place (D-1075).
 /// <para>
 /// The fog, the hit bursts, and the light shafts draw on a layer that the world view never draws.
 /// An overlay view with no HDR 2D shares the world and draws that layer alone, above the glow. So
@@ -44,8 +45,14 @@ public static class GlowPass
     /// <summary>The canvas layers that the world view draws: every layer but the layer above the glow and the layer of the marks.</summary>
     public const uint WorldLayers = uint.MaxValue & ~AboveGlowLayer & ~MarkLayer;
 
-    /// <summary>The cap of the linear light that the glow reads: above the strongest glow rectangle of 16 (D-913).</summary>
+    /// <summary>The cap of the linear light that the glow reads: above the strongest light of 16 that a glow file permits (D-913).</summary>
     public const float LuminanceCap = 32f;
+
+    /// <summary>
+    /// The power of the fall of a glow halo: 2.5, so the halo falls fast near the flame and then
+    /// slowly, as the spread of the old glow rectangle did (D-1075).
+    /// </summary>
+    public const float HaloFalloff = 2.5f;
 
     /// <summary>The seed of the hash of the phase of each pulse. A new value moves the pulse of every glow.</summary>
     private const ulong PulseSeed = 0x676C6F77UL;
@@ -121,20 +128,26 @@ public static class GlowPass
     /// <exception cref="InvalidOperationException">The node has no parent yet, so no parent takes the layer (T-2).</exception>
     public static void LiftToMarks(CanvasItem item) => Lift(item, MarkLayer);
 
-    /// <summary>Builds the glow rectangle of one fire, or nothing for a glow of strength 0 (D-912, D-913).</summary>
+    /// <summary>Builds the glow halo of one fire, or nothing for a glow of strength 0 (D-912, D-1075).</summary>
     /// <param name="id">The id of the source, which names the node (T-2).</param>
     /// <param name="seed">The glow of the fire of the source.</param>
     /// <param name="palette">The palette, which gives the key its color (D-181).</param>
-    /// <param name="zIndex">The Z index of the rectangle: the Z index of the flame.</param>
+    /// <param name="halo">The round texture of every halo, from <see cref="WorldLights.BuildTexture"/> with <see cref="HaloFalloff"/>.</param>
     /// <param name="parent">The world of the screen.</param>
     /// <returns>The node, or null when the source never glows.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="ContentException">The palette holds no such key (T-2).</exception>
-    public static ColorRect? BuildSeed(string id, GlowSeed seed, Palette palette, int zIndex, Node2D parent)
+    /// <remarks>
+    /// The halo adds its light to the world under it, and the world sorts it by its row, so it
+    /// draws over the wall and the floor and under the torch and each figure south of it. Thus
+    /// the flame keeps each of its pixels, and no box draws (D-1075).
+    /// </remarks>
+    public static Sprite2D? BuildSeed(string id, GlowSeed seed, Palette palette, Texture2D halo, Node2D parent)
     {
         ArgumentException.ThrowIfNullOrEmpty(id);
         ArgumentNullException.ThrowIfNull(seed);
         ArgumentNullException.ThrowIfNull(palette);
+        ArgumentNullException.ThrowIfNull(halo);
         ArgumentNullException.ThrowIfNull(parent);
 
         if (seed.Strength == 0)
@@ -142,24 +155,29 @@ public static class GlowPass
             return null;
         }
 
-        var rect = new ColorRect
+        var sprite = new Sprite2D
         {
             Name = $"{id}_glow",
-            Color = WorldLights.PaletteColorOf(palette, new LightColor(seed.Key, seed.Strength)),
-            Size = new Vector2(seed.Width, seed.Height),
-            MouseFilter = Control.MouseFilterEnum.Ignore,
-            ZIndex = zIndex,
+            Texture = halo,
+            Centered = true,
+            Scale = new Vector2(seed.Width / (float)halo.GetWidth(), seed.Height / (float)halo.GetHeight()),
+            Modulate = WorldLights.PaletteColorOf(palette, new LightColor(seed.Key, seed.Strength)),
 
             // The glow keeps its own light, and the dark of the ambient light never dims it (D-183).
-            Material = new CanvasItemMaterial { LightMode = CanvasItemMaterial.LightModeEnum.Unshaded },
+            // It adds to the world under it, as the spread of the glow did (D-1075).
+            Material = new CanvasItemMaterial
+            {
+                LightMode = CanvasItemMaterial.LightModeEnum.Unshaded,
+                BlendMode = CanvasItemMaterial.BlendModeEnum.Add,
+            },
         };
 
-        parent.AddChild(rect);
-        return rect;
+        parent.AddChild(sprite);
+        return sprite;
     }
 
-    /// <summary>Puts the glow rectangle of a fire at the place of its light at one tick, with its pulse (D-913).</summary>
-    /// <param name="rect">The node of <see cref="BuildSeed"/>.</param>
+    /// <summary>Puts the glow halo of a fire at the place of its light at one tick, with its pulse (D-913, D-1075).</summary>
+    /// <param name="sprite">The node of <see cref="BuildSeed"/>.</param>
     /// <param name="seed">The glow of the fire of the source.</param>
     /// <param name="glow">The glow file, which holds the pulse.</param>
     /// <param name="id">The id of the source, which sets the phase of its pulse.</param>
@@ -169,17 +187,17 @@ public static class GlowPass
     /// <exception cref="ArgumentOutOfRangeException">The tick is below zero (T-2).</exception>
     /// <remarks>
     /// Godot reads a modulate as sRGB, and it turns it into linear light in HDR 2D (F-103). Thus
-    /// the modulate is the sRGB value of the strength times the pulse, and the rectangle draws at
-    /// that linear light.
+    /// the modulate is the sRGB value of the strength times the pulse, and the middle of the halo
+    /// draws at that linear light.
     /// </remarks>
-    public static void ShowSeed(ColorRect rect, GlowSeed seed, Glow glow, string id, Vector2 place, long tick)
+    public static void ShowSeed(Sprite2D sprite, GlowSeed seed, Glow glow, string id, Vector2 place, long tick)
     {
-        ArgumentNullException.ThrowIfNull(rect);
+        ArgumentNullException.ThrowIfNull(sprite);
         ArgumentNullException.ThrowIfNull(seed);
 
         float light = PartOf(seed.Strength) * PulseOf(glow, id, tick);
-        rect.Position = new Vector2(place.X + seed.X - (seed.Width / 2), place.Y + seed.Y - (seed.Height / 2));
-        rect.SelfModulate = new Color(light, light, light).LinearToSrgb();
+        sprite.Position = new Vector2(place.X + seed.X, place.Y + seed.Y);
+        sprite.SelfModulate = new Color(light, light, light).LinearToSrgb();
     }
 
     /// <summary>Gives the pulse of one glow at one tick: 1 at the top of the wave, and 1 less the depth at the low (D-913).</summary>

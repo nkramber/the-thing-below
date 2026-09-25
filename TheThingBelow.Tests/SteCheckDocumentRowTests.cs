@@ -56,7 +56,7 @@ public sealed class SteCheckDocumentRowTests
     }
 
     /// <summary>
-    /// The regression test of F-112. The old rule removed each backtick before the compare, so
+    /// The regression test of F-113. The old rule removed each backtick before the compare, so
     /// a row with a partial backtick passed ste-check and failed the gate test of the skill on
     /// `main`, because that test skips on a docs-only PR.
     /// </summary>

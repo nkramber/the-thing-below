@@ -236,7 +236,7 @@ Built by PR-41. Phase file: `phase-2-first-playable.md`.
 - PR-10 adds the `battle` fixture: the command menu at 1x and at 1080 rows, and the pointer on the first target (D-827, D-833). One more frame shows a blow of a character with its flash and its number. The run walks into the fixture fight one tick at a time, so each capture shows the same tick.
 - PR-92 adds the map and a fight in the stepped mode of the passes of the HD-2D look (D-917).
 - The `--fixture <name>` argument takes one fixture alone, and `make walk` runs the walk on the machine of the owner (D-782). The author reads each frame before the hand-over (D-784).
-- The `screens` command of Tools compares decoded pixels with the committed baseline of `screens/baseline` (F-19, D-736, `area-tools.md` section 7.14). One changed pixel fails the job.
+- The `screens` command of Tools compares decoded pixels with the committed baseline of `screens/baseline` (F-19, D-736, `area-tools.md` section 7.14). One pixel with a step of two levels or more on one channel fails the job. A step of one level passes, because a flake of one level came from the runner and from the order of the captures (D-1080, F-108).
 - Two runs give the same frames, because the fixture seed is fixed (T-7). The walk gives the run the time of exactly one tick for each frame (D-782). The job takes the captures two times and compares them.
 - Every run keeps the captures as an artifact, and the author commits a new baseline by hand (D-733).
 - An error line in the log of the session fails the job (T-2). A shader that fails to compile reports in the log alone.
@@ -415,15 +415,15 @@ Built by PR-100. Phase file: `phase-2-first-playable.md` section 7.36.
 
 ### 7.24 The gate fixes of the repository review
 
-Built by PR-102. Phase file: `phase-2-first-playable.md` section 7.37.
+Built by PR-102. Phase file: `phase-2-first-playable.md` section 7.38.
 
-- Each git list of paths in a workflow takes `--no-renames`, so a rename lists the path that it left (F-108).
-- The review gate gives each value that grows with the PR to jq through a file (F-109).
-- Each push to `main` gets a concurrency group of its own commit, so each merge keeps its checks and its export (F-110).
-- The import and export steps print the log before they read the exit code (F-111).
-- AGENTS 1 and DOCS 1 of ste-check read the exact text, as their tests do (F-112).
-- The label does not cover .claude/settings.local.json, and git ignores it (D-1085, F-113).
-- Each program of the `codex-review` command runs under a time limit (D-1086, F-114).
+- Each git list of paths in a workflow takes `--no-renames`, so a rename lists the path that it left (F-109).
+- The review gate gives each value that grows with the PR to jq through a file (F-110).
+- Each push to `main` gets a concurrency group of its own commit, so each merge keeps its checks and its export (F-111).
+- The import and export steps print the log before they read the exit code (F-112).
+- AGENTS 1 and DOCS 1 of ste-check read the exact text, as their tests do (F-113).
+- The label does not cover .claude/settings.local.json, and git ignores it (D-1086, F-114).
+- Each program of the `codex-review` command runs under a time limit (D-1087, F-115).
 
 > *In plain English:* a moved file, a large list of decisions, or a quick run of merges slipped past a check. Each check now sees these cases.
 
@@ -451,7 +451,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 18. PR-96: the rules of the review loop, right after PR-60 (D-942 to D-944).
 19. PR-97: the Gitar pause and the flag that skips the Gitar check, right after PR-96 (D-945, superseded by D-1073, and D-946).
 20. PR-100: the end of the Gitar pause and the Gitar poll, right after PR-91 (D-1073, D-1074).
-21. PR-102: the gate fixes of the repository review, right after PR-100 (D-1080, D-1085, D-1086).
+21. PR-102: the gate fixes of the repository review, right after PR-101 (D-1081, D-1086, D-1087).
 22. PR-15: the bot runs on every leg (D-505).
 23. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
 24. Owner: require the bot and `night-gate` checks on `main` after their first runs.

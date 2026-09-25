@@ -10,6 +10,12 @@ namespace TheThingBelow.Core.Light;
 /// <param name="Level">The light, in basis points of linear light, where 10000 lights full white art to full white.</param>
 public sealed record LitPeak(int Column, int Row, int Level);
 
+/// <summary>The glow halo of one fixed fire of a map, at its place (D-1075).</summary>
+/// <param name="X">The column of the middle of the halo, in art pixels from the west edge of the map.</param>
+/// <param name="Y">The row of the middle of the halo, in art pixels from the north edge of the map.</param>
+/// <param name="Glow">The glow of the fire.</param>
+public sealed record HaloPlace(int X, int Y, GlowSeed Glow);
+
 /// <summary>
 /// Gives an upper bound of the lit art of a map and of a fight, which the load keeps below the
 /// glow threshold, so a sprite or a tile never glows (D-910, F-47).
@@ -22,7 +28,8 @@ public sealed record LitPeak(int Column, int Row, int Level);
 /// <item>The art is full white. A lit pixel is its art color times the light, so no art color gives more.</item>
 /// <item>Each light color counts its brightest channel, in sRGB. The linear value of a channel is never above its sRGB value.</item>
 /// <item>Each light takes the strongest level and the widest range of every fire of the build (D-891).</item>
-/// <item>The carried light can stand at any place, so each tile takes its full strength (D-847).</item>
+/// <item>The carried light can stand at any place, so each tile takes its full strength (D-847). Its glow halo does the same.</item>
+/// <item>Each glow halo adds the light of its middle to each tile that its circle can reach, because it adds onto the art under it (D-1075).</item>
 /// <item>A light falls to its edge along a straight line, which is never below the curve of the light texture of Game.</item>
 /// <item>The distance to a light is the largest of the column and the row distance, which is never above the true distance.</item>
 /// <item>No shadow and no normal map takes light away.</item>
@@ -39,8 +46,9 @@ public static class BrightestLight
     /// Gives the brightest light that can fall on art of a map, and the tile where it falls.
     /// </summary>
     /// <param name="lights">The fixed lights of the map.</param>
+    /// <param name="halos">The glow halo of each fixed fire of the map (D-1075).</param>
     /// <param name="ambient">The ambient light of the map.</param>
-    /// <param name="carried">The carried light.</param>
+    /// <param name="carried">The carried light, and the glow of its fire.</param>
     /// <param name="brightest">The strongest strength and the widest range of every fire of the build.</param>
     /// <param name="palette">The palette, which gives each light its color (D-846).</param>
     /// <param name="columns">The width of the map, in tiles.</param>
@@ -51,22 +59,28 @@ public static class BrightestLight
     /// <exception cref="ContentException">The palette holds no key of a light (T-2).</exception>
     public static LitPeak OnMap(
         IReadOnlyList<MapLight> lights,
+        IReadOnlyList<HaloPlace> halos,
         LightColor ambient,
-        PointLightValues carried,
+        (PointLightValues Light, GlowSeed Glow) carried,
         FlickerLevel brightest,
         Palette palette,
         int columns,
         int rows)
     {
         ArgumentNullException.ThrowIfNull(lights);
+        ArgumentNullException.ThrowIfNull(halos);
         ArgumentNullException.ThrowIfNull(ambient);
-        ArgumentNullException.ThrowIfNull(carried);
+        ArgumentNullException.ThrowIfNull(carried.Light);
+        ArgumentNullException.ThrowIfNull(carried.Glow);
         ArgumentNullException.ThrowIfNull(brightest);
         ArgumentNullException.ThrowIfNull(palette);
         ArgumentOutOfRangeException.ThrowIfLessThan(columns, 1);
         ArgumentOutOfRangeException.ThrowIfLessThan(rows, 1);
 
-        long everywhere = checked(Level(ambient, palette, BasisPoints.One) + Level(carried.Color, palette, brightest.Strength));
+        long everywhere = checked(
+            Level(ambient, palette, BasisPoints.One)
+            + Level(carried.Light.Color, palette, brightest.Strength)
+            + HaloPeak(carried.Glow, palette));
         var peak = new LitPeak(0, 0, -1);
         for (int row = 0; row < rows; row += 1)
         {
@@ -80,6 +94,11 @@ public static class BrightestLight
                     level = checked(level + LevelNear(light, x, y, brightest, palette));
                 }
 
+                foreach (HaloPlace halo in halos)
+                {
+                    level = checked(level + HaloNear(halo, x, y, palette));
+                }
+
                 if (level > peak.Level)
                 {
                     peak = new LitPeak(column, row, checked((int)level));
@@ -88,6 +107,38 @@ public static class BrightestLight
         }
 
         return peak;
+    }
+
+    /// <summary>
+    /// Gives an upper bound of the linear light of one glow halo at its middle, at the top of its
+    /// pulse, in basis points (D-1075). The linear value of an sRGB channel is never above the channel.
+    /// </summary>
+    /// <param name="glow">The glow of a fire.</param>
+    /// <param name="palette">The palette, which gives the glow its color (D-846).</param>
+    /// <returns>The bound, or 0 for a fire that never glows.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ContentException">The palette holds no key of the glow (T-2).</exception>
+    public static long HaloPeak(GlowSeed glow, Palette palette)
+    {
+        ArgumentNullException.ThrowIfNull(glow);
+        ArgumentNullException.ThrowIfNull(palette);
+
+        return checked((long)glow.Strength * BrightestChannelOf(glow.Key, palette) / FullChannel);
+    }
+
+    /// <summary>
+    /// Gives the light of one halo on the tile around one point: the light of its middle when its
+    /// circle can reach a pixel of the tile, and 0 when it cannot.
+    /// </summary>
+    /// <remarks>
+    /// The distance is the largest of the column and the row distance, less half a tile. It is
+    /// never above the true distance to the nearest pixel of the tile (D-1075).
+    /// </remarks>
+    private static long HaloNear(HaloPlace halo, int x, int y, Palette palette)
+    {
+        int radius = (Math.Max(halo.Glow.Width, halo.Glow.Height) + 1) / 2;
+        int distance = Math.Max(Math.Abs(x - halo.X), Math.Abs(y - halo.Y)) - (AtlasPages.TileSize / 2);
+        return distance <= radius ? HaloPeak(halo.Glow, palette) : 0;
     }
 
     /// <summary>Gives the brightest light that can fall on art of a fight: the ambient light and the key light at full strength (D-850).</summary>

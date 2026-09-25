@@ -15,9 +15,17 @@ public sealed record PixelDifference(int X, int Y, string Baseline, string Captu
 /// with its committed baseline, and never the bytes of the two files, because the compressed
 /// bytes of a PNG depend on the encoder (F-19).
 /// </summary>
+/// <remarks>
+/// A pixel differs when one of its channels moves by more than <see cref="MostChannelStep"/>.
+/// The edge of a wall shadow can draw one level apart on two runners, and after other captures
+/// of the same session, so an exact compare failed with no change of the screen (D-1080, F-108).
+/// </remarks>
 public static class ScreenCompare
 {
-    /// <summary>Counts the pixels that a capture and its baseline do not share.</summary>
+    /// <summary>The largest step of one channel that still matches: one level of 255 (D-1080).</summary>
+    public const int MostChannelStep = 1;
+
+    /// <summary>Counts the pixels that a capture and its baseline do not share, past the step of one level.</summary>
     /// <param name="baseline">The committed baseline image.</param>
     /// <param name="capture">The image that the capture session wrote.</param>
     /// <param name="first">The first pixel that differs, in row order, or null when none does.</param>
@@ -59,7 +67,7 @@ public static class ScreenCompare
             for (int x = 0; x < baseline.Width; x++)
             {
                 int at = x * bytesPerPixel;
-                if (baselineRow.Slice(at, bytesPerPixel).SequenceEqual(captureRow.Slice(at, bytesPerPixel)))
+                if (WithinStep(baselineRow.Slice(at, bytesPerPixel), captureRow.Slice(at, bytesPerPixel)))
                 {
                     continue;
                 }
@@ -74,6 +82,23 @@ public static class ScreenCompare
         }
 
         return count;
+    }
+
+    /// <summary>Tells whether each channel of two pixels lies within <see cref="MostChannelStep"/> of the other.</summary>
+    /// <param name="baseline">The bytes of the baseline pixel.</param>
+    /// <param name="capture">The bytes of the captured pixel.</param>
+    /// <returns>True when no channel moves by more than the step.</returns>
+    private static bool WithinStep(ReadOnlySpan<byte> baseline, ReadOnlySpan<byte> capture)
+    {
+        for (int channel = 0; channel < baseline.Length; channel++)
+        {
+            if (Math.Abs(baseline[channel] - capture[channel]) > MostChannelStep)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>Writes the channels of one pixel as numbers, such as `12,34,56,255`.</summary>
