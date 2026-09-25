@@ -1,3 +1,36 @@
+## Session 300: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #80, round 1. Repository: the-thing-below. Local branch: `review/pr-80`; PR branch: `fix/pr-103-input-and-grace`. PR: #80. Role: reviewer. Base: `5c1db06`.
+
+### What this session did, and why
+
+- Reviewed effective head `29615cb` against PR-103 and its exit tests. Finding P2-1 shows that concurrent file growth bypasses the read cap.
+- Verified that the prior Gitar cleanup finding is fixed. The current Gitar check passes, and the old RG 3 claim waits for this record.
+- `make verify` passed locally with 3307 tests. CI passed each implementation check at `29615cb`, including screen-test and Gitar.
+
+### The state of the build
+
+- Base and merge base `5c1db06`; effective head `29615cb`.
+- The remote branch head before this metadata commit is `29615cb`. A fresh review-gate result follows publication.
+
+### What is in flight
+
+- This review record and handoff are committed together and pushed to `fix/pr-103-input-and-grace`.
+
+### Traps and gotchas
+
+- `FileText.Read` checks `FileInfo.Length` before `File.ReadAllBytes`. A file can grow between these operations.
+- The review verdict is Changes required. The author must correct P2-1 and request a clean re-review.
+
+### The questions that block progress
+
+None for this PR.
+
+### The next concrete action
+
+Publish the review metadata. The author then fixes P2-1 and runs a new Codex review.
+
 ## Session 299: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -326,40 +359,3 @@ None.
 ### The next concrete action
 
 Push, run the Gitar poll, and wait for green CI. Then run `make codex-review PR=79` in the background.
-
-## Session 290: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #79 (PR-102), round 2. Repository: the-thing-below. Branch: `fix/pr-102-gate-hygiene`. PR: #79. Role: author. Base: `c154ddd`.
-
-### What this session did, and why
-
-- Read the Gitar pass of `fa68db5`. It completed in 113 seconds and approved with one finding.
-- Gitar finding: the settings refusal compared with case. macOS and Windows open `.claude/Settings.local.json` as the same file. The compare now ignores case, as Gitar proposed, with case-variant tests (D-1086).
-- Gitar CI claim: `review-gate` gave one fault. The log shows RG 3 alone, because `docs/reviews/pr-79.md` waits for the review. No change.
-- CI on Windows failed `AStopAtTheLimitEndsEachChildOfTheProgram`. The fault came after 30 seconds, because Windows loses the parent link of a child of Git Bash. The read of the output now has a bound of 5 seconds after the end or the stop (D-1087, F-115). A new test covers a child that holds the output after a normal end.
-
-### The state of the build
-
-- Round 1 head `fa68db5`: every CI job passed except the Windows test and RG 3. `make smoke` passed on the Mac.
-
-### What is in flight
-
-- Round 2 head `74b8020`: Gitar approved, and its thread is resolved. Each Gitar CI claim has its answer (RG 3 alone). Every CI job passed except `screen-test` and RG 3.
-- `screen-test` failed 3 of 3 attempts in "Compare the two runs": `still-240` and `menu-status-1x` differ by one level between two captures of one job. `main` fails the same way since PR-91. The owner chose to wait for PR #78 (D-1088).
-- PR-101 merged as `5b42cf0`.
-
-### Traps and gotchas
-
-- The owner switched the shared checkout at `/Volumes/SSD-1TB/the-thing-below` to PR #78. PR #79 waits in the worktree `/Volumes/SSD-1TB/the-thing-below-pr102`.
-- PR #78 head `55ba1b2` lets the screen compare allow one level on each channel, which covers the difference of D-1088.
-- The `review-gate` job runs the workflow of `main`, so the new facts step of F-110 first runs after the merge.
-- The owner asked for a merge of `main`, not a rebase. The notes of Session 289 stand for the conflicts: phase section 7.38, design sequence item 39, and PR-101 in place of "PR #78".
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Wait for the owner to confirm the merge of PR #78. Then check out this branch in the shared checkout, merge `origin/main`, push, and restart CI. Then the Gitar poll, a green `screen-test`, and `make codex-review PR=79` in the background.
