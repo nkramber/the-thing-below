@@ -58,7 +58,8 @@ public sealed record LevelFrame(string Frame, EffectLevel Level);
 /// <remarks>
 /// The list covers the frame at 1x, and both fit modes of D-232 at 1080 and 1440 screen
 /// rows (D-568). At 1440 rows the frame reaches the screen at a whole scale of 2, so both
-/// fits give the same picture, and the pair proves that rule of D-568.
+/// fits give the same picture, and the pair proves that rule of D-568. The screen of the Steam
+/// Deck, 1280 by 800, shows the frame at 1x between two bars (D-568, G-19).
 /// <para>
 /// This type holds no Godot value, so a test reads the list from the built Game assembly
 /// with no engine (D-614). Every later screen of PR-62 adds its fixture here, as the settings screen did (D-871).
@@ -116,6 +117,25 @@ public static class ScreenCaptures
 
     /// <summary>The running screen with a notice at the top edge, inside its type-out and inside its hold (D-221, D-994).</summary>
     public const string NoticeFixture = "notice";
+
+    /// <summary>
+    /// The message of a crash over the frame of the default display, which the crash fixture plants
+    /// inside a callback of the engine (D-559, D-1102, P3-26). The capture of this fixture comes last,
+    /// because the message stands until the session ends, as after a real crash.
+    /// </summary>
+    public const string CrashFixture = "crash";
+
+    /// <summary>The end of the name of a frame at 1x, where the body is 32 (D-707).</summary>
+    public const string FrameSuffix = "-1x";
+
+    /// <summary>
+    /// The end of the name of a frame at 1080 rows, which shows the moment of the frame at 1x with a
+    /// body of 24 (D-707, G-28).
+    /// </summary>
+    public const string DesktopSuffix = "-fill-1080";
+
+    /// <summary>The frame at the screen of the Steam Deck, 1280 by 800, with a bar above and below the frame (D-568, G-19).</summary>
+    public const string DeckFrame = "fill-800";
 
     /// <summary>The frame of the menu fixture with the main list alone.</summary>
     public const string MenuListFrame = "list-1x";
@@ -247,6 +267,9 @@ public static class ScreenCaptures
     /// <summary>The width of a screen of 1440 rows, in device pixels.</summary>
     private const int LargeWidth = 2560;
 
+    /// <summary>The height of the screen of the Steam Deck, in device pixels. Its width is the width of the frame (D-92, D-568).</summary>
+    private const int DeckHeight = 800;
+
     /// <summary>The steps of the walk fixture, in the order that the session walks them (D-782).</summary>
     /// <remarks>
     /// A slide north and a slide south move the feet of the lead inside a row of tiles, and a
@@ -332,7 +355,7 @@ public static class ScreenCaptures
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
     public static IReadOnlyList<string> Fixtures { get; } =
-        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, TransitionFixture, MenuFixture, NoticeFixture];
+        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, TransitionFixture, MenuFixture, NoticeFixture, CrashFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -514,7 +537,63 @@ public static class ScreenCaptures
         captures.Add(new ScreenCapture(MenuFixture, MenuListDesktopFrame, DesktopWidth, 1080, FitMode.Fill, null));
         captures.Add(new ScreenCapture(NoticeFixture, NoticeTypeFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         captures.Add(new ScreenCapture(NoticeFixture, NoticeHoldFrame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+
+        // G-28: each window of the menu stack, each part of a fight with text, the notice, and the
+        // conflict line draw at the body of 24 too, at 1080 rows, where the fit takes that body
+        // (D-707, P3-26). Each frame shows the moment of its frame at 1x.
+        foreach (string frame in new[] { MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame })
+        {
+            captures.Add(new ScreenCapture(MenuFixture, DesktopFrameOf(frame), DesktopWidth, 1080, FitMode.Fill, null));
+        }
+
+        foreach (string frame in new[] { BattleTargetFrame, BattleLessonsFrame, BattleFormsFrame, BattleExperienceFrame, BattleLevelUpFrame })
+        {
+            captures.Add(new ScreenCapture(BattleFixture, DesktopFrameOf(frame), DesktopWidth, 1080, FitMode.Fill, null));
+        }
+
+        captures.Add(new ScreenCapture(NoticeFixture, DesktopFrameOf(NoticeHoldFrame), DesktopWidth, 1080, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(SettingsFixture, DesktopFrameOf(SettingsConflictFrame), DesktopWidth, 1080, FitMode.Fill, null));
+
+        // The screen of the Steam Deck, the floor of readability: the frame at 1x with a bar of
+        // 40 rows above and below it (D-92, D-568, G-19, P3-26).
+        captures.Add(new ScreenCapture(MapFixture, DeckFrame, ScreenFit.FrameWidth, DeckHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(BattleFixture, $"menu-{DeckFrame}", ScreenFit.FrameWidth, DeckHeight, FitMode.Fill, null));
+
+        // The message of a crash comes last, because it stands until the session ends (D-559, P3-26).
+        captures.Add(new ScreenCapture(
+            CrashFixture, "1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         return captures;
+    }
+
+    /// <summary>
+    /// Gives the moment of a frame: the name of its frame at 1x, which the code of a fixture reads.
+    /// A frame at 1080 rows shows the moment of its frame at 1x with a body of 24 (D-707, G-28).
+    /// </summary>
+    /// <param name="frame">The name of the frame, such as `lessons-fill-1080`.</param>
+    /// <returns>The name of the frame at 1x, such as `lessons-1x`, or the name itself for every other frame.</returns>
+    public static string MomentOf(string frame)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(frame);
+
+        if (!frame.EndsWith(DesktopSuffix, StringComparison.Ordinal))
+        {
+            return frame;
+        }
+
+        return frame[..^DesktopSuffix.Length] + FrameSuffix;
+    }
+
+    /// <summary>Gives the name of the frame at 1080 rows of one frame at 1x, such as `lessons-fill-1080`.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The frame is no frame at 1x (T-2).</exception>
+    private static string DesktopFrameOf(string frame)
+    {
+        if (!frame.EndsWith(FrameSuffix, StringComparison.Ordinal))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(frame), frame, $"A frame at 1080 rows takes the moment of a frame at 1x, and '{frame}' is none (T-2, G-28).");
+        }
+
+        return frame[..^FrameSuffix.Length] + DesktopSuffix;
     }
 
     /// <summary>Tells whether a frame of the battle fixture opens the lesson list of the command menu (D-1031).</summary>

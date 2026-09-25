@@ -51,6 +51,8 @@ public sealed partial class CaptureSession : Node
 
     private ContentSet content = null!;
     private Action<Exception> reportFault = null!;
+    private Action<ContentSet, Action<string>> plantCrash = null!;
+    private bool crashChecked;
     private string folder = string.Empty;
     private IReadOnlyList<ScreenCapture> captures = [];
     private FrameRoot? frame;
@@ -67,6 +69,7 @@ public sealed partial class CaptureSession : Node
     /// <param name="folder">The folder that takes one PNG for each capture.</param>
     /// <param name="captures">The captures of this session, in order: every capture, or the captures of one fixture (D-782).</param>
     /// <param name="reportFault">The reporter of a fault, which writes the crash file (D-170).</param>
+    /// <param name="plantCrash">Plants the error of the crash fixture, and gives the line of its check after it passed (P3-26).</param>
     /// <returns>The session, which draws from the next frame onward.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="ArgumentException">The folder is empty, or the list holds no capture (T-2).</exception>
@@ -75,7 +78,8 @@ public sealed partial class CaptureSession : Node
         ContentSet content,
         string folder,
         IReadOnlyList<ScreenCapture> captures,
-        Action<Exception> reportFault)
+        Action<Exception> reportFault,
+        Action<ContentSet, Action<string>> plantCrash)
     {
         ArgumentNullException.ThrowIfNull(host);
         ArgumentNullException.ThrowIfNull(content);
@@ -87,6 +91,7 @@ public sealed partial class CaptureSession : Node
         }
 
         ArgumentNullException.ThrowIfNull(reportFault);
+        ArgumentNullException.ThrowIfNull(plantCrash);
 
         var session = new CaptureSession
         {
@@ -94,6 +99,7 @@ public sealed partial class CaptureSession : Node
             folder = folder,
             captures = captures,
             reportFault = reportFault,
+            plantCrash = plantCrash,
         };
 
         host.AddChild(session);
@@ -171,6 +177,12 @@ public sealed partial class CaptureSession : Node
         }
 
         ScreenCapture capture = this.captures[this.next];
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.CrashFixture) == 0 && !this.crashChecked)
+        {
+            throw new InvalidOperationException(
+                $"The capture '{capture.FileName}' waited {FramesBeforeCapture} frames, and the crash fixture did not pass its check (P3-26, T-2).");
+        }
+
         this.Write(capture);
         GD.Print($"capture: wrote {capture.FileName}.");
 
@@ -196,6 +208,12 @@ public sealed partial class CaptureSession : Node
     private void Begin(int index)
     {
         ScreenCapture capture = this.captures[index];
+        if (index > 0 && string.CompareOrdinal(this.captures[index - 1].Fixture, ScreenCaptures.CrashFixture) == 0)
+        {
+            throw new InvalidOperationException(
+                $"The capture '{capture.FileName}' follows the crash capture, whose message stands until the session ends (D-559, P3-26, T-2).");
+        }
+
         this.GetWindow().Size = new Vector2I(capture.Width, capture.Height);
         if (capture.Walk is null)
         {
@@ -411,6 +429,14 @@ public sealed partial class CaptureSession : Node
             this.walkMap = null;
         }
 
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.CrashFixture) == 0)
+        {
+            // The reporter of the boot node builds the frame of the default display for the
+            // message, as for a crash before the screen, so this session builds no frame (P2-2, P3-26).
+            this.plantCrash(this.content, this.PassCrashCheck);
+            return;
+        }
+
         FrameRoot built = FrameRoot.AddTo(this);
         this.frame = built;
         built.SetMode(capture.Fit);
@@ -551,7 +577,7 @@ public sealed partial class CaptureSession : Node
     private void BuildMenu(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
         GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-        string frame = capture.Frame;
+        string frame = ScreenCaptures.MomentOf(capture.Frame);
         if (string.CompareOrdinal(frame, ScreenCaptures.MenuMapFrame) == 0)
         {
             foreach (string action in ScreenCaptures.DungeonRoute)
@@ -583,7 +609,7 @@ public sealed partial class CaptureSession : Node
         var list = new MainList();
         MenuEntry entry = frame switch
         {
-            ScreenCaptures.MenuListFrame or ScreenCaptures.MenuListDesktopFrame or ScreenCaptures.MenuPartyFrame => MenuEntry.Party,
+            ScreenCaptures.MenuListFrame or ScreenCaptures.MenuPartyFrame => MenuEntry.Party,
             ScreenCaptures.MenuStatusFrame => MenuEntry.Status,
             ScreenCaptures.MenuLogFrame => MenuEntry.Log,
             ScreenCaptures.MenuLessonsFrame or ScreenCaptures.MenuLessonsSwapFrame => MenuEntry.Lessons,
@@ -650,7 +676,7 @@ public sealed partial class CaptureSession : Node
         GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
         _ = DebugSeam.Run("notice", () => open.State, open.Queue);
         this.RunTicks(open, 1);
-        bool typing = string.CompareOrdinal(capture.Frame, ScreenCaptures.NoticeTypeFrame) == 0;
+        bool typing = string.CompareOrdinal(ScreenCaptures.MomentOf(capture.Frame), ScreenCaptures.NoticeTypeFrame) == 0;
         this.RunTicks(open, typing ? ScreenCaptures.NoticeTypeTicks : ScreenCaptures.NoticeHoldTicks);
 
         MapScreen drawn = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
@@ -689,7 +715,7 @@ public sealed partial class CaptureSession : Node
 
         int autoBody = BodySize.DefaultFor(built.Fit.Height, this.content.Style.SmallBody, this.content.Style.LargeBody);
         SettingsScreen screen = SettingsScreen.Build(built, @base, this.content.Strings, FixtureSettings, autoBody);
-        if (string.CompareOrdinal(capture.Frame, ScreenCaptures.SettingsConflictFrame) != 0)
+        if (string.CompareOrdinal(ScreenCaptures.MomentOf(capture.Frame), ScreenCaptures.SettingsConflictFrame) != 0)
         {
             return;
         }
@@ -738,8 +764,9 @@ public sealed partial class CaptureSession : Node
     private void BuildBattle(FrameRoot built, UiBase @base, ScreenCapture capture)
     {
         GameRun fight = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
-        if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleSparksFrame) == 0
-            || string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleWaitingFrame) == 0)
+        string moment = ScreenCaptures.MomentOf(capture.Frame);
+        if (string.CompareOrdinal(moment, ScreenCaptures.BattleSparksFrame) == 0
+            || string.CompareOrdinal(moment, ScreenCaptures.BattleWaitingFrame) == 0)
         {
             BattleWalk.ToFirstCommandOfElite(fight);
         }
@@ -748,17 +775,17 @@ public sealed partial class CaptureSession : Node
             BattleWalk.ToFirstCommand(fight);
         }
 
-        if (ScreenCaptures.TicksAfterBlowOf(capture.Frame) is int afterBlow)
+        if (ScreenCaptures.TicksAfterBlowOf(moment) is int afterBlow)
         {
             BattleWalk.ToBlowOfCharacter(fight, fight.Pace.BlowTick + afterBlow);
         }
 
-        if (ScreenCaptures.StagesSpell(capture.Frame))
+        if (ScreenCaptures.StagesSpell(moment))
         {
             BattleWalk.ToSpellOfCharacter(fight, ScreenCaptures.SpellFrameTicks);
         }
 
-        if (ScreenCaptures.ExperienceTicksOf(capture.Frame) is int intoExperience)
+        if (ScreenCaptures.ExperienceTicksOf(moment) is int intoExperience)
         {
             BattleWalk.ToExperienceOfCharacter(fight, intoExperience);
         }
@@ -769,7 +796,7 @@ public sealed partial class CaptureSession : Node
             this.content,
             fight,
             new CommandMemory(FixtureSettings.Battle.RememberCursor),
-            ScreenCaptures.LevelOf(capture.Frame),
+            ScreenCaptures.LevelOf(moment),
             this.AmbientOf(capture));
         screen.SeekParticles = true;
 
@@ -778,19 +805,19 @@ public sealed partial class CaptureSession : Node
         {
             built.ShowPasses(this.content.Light.Passes.WithMode(mode), this.content.Palette);
         }
-        if (ScreenCaptures.OpensLessons(capture.Frame))
+        if (ScreenCaptures.OpensLessons(moment))
         {
-            this.OpenLessons(screen, capture);
+            this.OpenLessons(screen, capture, moment);
         }
 
-        if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleTargetFrame) == 0
+        if (string.CompareOrdinal(moment, ScreenCaptures.BattleTargetFrame) == 0
             && screen.Read(InputActions.Confirm) is not null)
         {
             throw new InvalidOperationException(
                 $"The capture '{capture.FileName}' pressed confirm on the attack, and the menu sent an intent before a target (D-827, T-2).");
         }
 
-        if (ScreenCaptures.StagesHeavyBlow(capture.Frame))
+        if (ScreenCaptures.StagesHeavyBlow(moment))
         {
             BattleEvent blow = fight.PlayingEvent ?? throw new InvalidOperationException(
                 $"The capture '{capture.FileName}' stages a heavy blow, and the fight plays no event (D-877, T-2).");
@@ -798,7 +825,7 @@ public sealed partial class CaptureSession : Node
             return;
         }
 
-        if (ScreenCaptures.StagesLevelUp(capture.Frame))
+        if (ScreenCaptures.StagesLevelUp(moment))
         {
             // The staged level-up takes the first character from level 1 to 2 on the view alone,
             // at the ticks of the experience that plays (D-975, D-977).
@@ -817,10 +844,10 @@ public sealed partial class CaptureSession : Node
     /// Opens the lesson list of the command menu, and for the forms frame the forms of the cinder,
     /// the second lesson of the first character (D-1027, D-1031). No press sends an intent.
     /// </summary>
-    private void OpenLessons(BattleScreen screen, ScreenCapture capture)
+    private void OpenLessons(BattleScreen screen, ScreenCapture capture, string moment)
     {
         List<string> presses = [InputActions.StepEast, InputActions.Confirm];
-        if (string.CompareOrdinal(capture.Frame, ScreenCaptures.BattleFormsFrame) == 0)
+        if (string.CompareOrdinal(moment, ScreenCaptures.BattleFormsFrame) == 0)
         {
             presses.AddRange([InputActions.StepEast, InputActions.Confirm]);
         }
@@ -832,6 +859,14 @@ public sealed partial class CaptureSession : Node
                 throw new InvalidOperationException($"The capture '{capture.FileName}' pressed '{press}', and the menu sent an intent before a target (D-1031, T-2).");
             }
         }
+    }
+
+    /// <summary>Prints the line of the check of the crash fixture, and lets the session write the capture of the message (P3-26).</summary>
+    /// <param name="line">The line of the check, which names the file, the error, and the message.</param>
+    private void PassCrashCheck(string line)
+    {
+        GD.Print($"capture: the crash path is {line}.");
+        this.crashChecked = true;
     }
 
     /// <summary>

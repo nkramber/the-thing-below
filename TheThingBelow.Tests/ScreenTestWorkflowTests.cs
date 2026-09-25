@@ -128,6 +128,19 @@ public sealed class ScreenTestWorkflowTests
     }
 
     [Fact]
+    public void EachSessionFailsWithNoLineOfTheCrashFixture()
+    {
+        // P3-26. The crash fixture throws inside a callback of the engine, and each session checks
+        // what the reporter left. The capture session under Xvfb checks the message too, and the
+        // smoke session of each leg checks the file and the log line (D-117, D-559).
+        string take = string.Join("\n", WorkflowText.RunBlockOf(CiWorkflowPath, "Take the captures two times"));
+        string smoke = string.Join("\n", WorkflowText.RunBlockOf(CiWorkflowPath, "Run the headless smoke session"));
+
+        Assert.Contains("capture: the crash path is .* the message on screen", take, StringComparison.Ordinal);
+        Assert.Contains("smoke: the crash path is ", smoke, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void TheJobTakesTheCapturesTwoTimesAndComparesThem()
     {
         // Exit test 4 of PR-41. Two runs give the same frames.

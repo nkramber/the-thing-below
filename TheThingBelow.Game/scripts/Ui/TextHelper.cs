@@ -64,6 +64,20 @@ public sealed class TextHelper
         place.Text = Fill(this.strings.Text(id), id, values);
     }
 
+    /// <summary>
+    /// Gives the text that a label shows now, so a check of a session reads back what
+    /// <see cref="Put(Label, ContentId, IReadOnlyDictionary{string, string})"/> wrote (P3-26).
+    /// </summary>
+    /// <param name="place">The label.</param>
+    /// <returns>The text of the label.</returns>
+    /// <exception cref="ArgumentNullException">The label is null (T-2).</exception>
+    public static string Shown(Label place)
+    {
+        ArgumentNullException.ThrowIfNull(place);
+
+        return place.Text;
+    }
+
     /// <summary>Gives the text of a string id with each place filled in.</summary>
     /// <param name="text">The text of the string table entry.</param>
     /// <param name="id">The string id, for each error (T-2).</param>

@@ -576,6 +576,12 @@ jobs:
             echo "The smoke session wrote no success line. Read smoke.log (T-2)." >&2
             exit 1
           fi
+          # The crash fixture throws inside a callback of the engine, and the session checks the
+          # crash file and the log line of the reporter before its success line (P3-26).
+          if ! grep -q "smoke: the crash path is " smoke.log; then
+            echo "The smoke session wrote no line of the crash fixture. Read smoke.log (P3-26, T-2)." >&2
+            exit 1
+          fi
           if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR)" smoke.log; then
             echo "The smoke session wrote an error line (T-2)." >&2
             exit 1
@@ -639,7 +645,8 @@ jobs:
       XVFB_VERSION: "2:21.1.12-1ubuntu1.8"
       GODOT_ARCHIVE: Godot_v4.7.2-stable_mono_linux_x86_64.zip
       GODOT_SHA512: 1855960b27ee3ef5e66e5e228cced69d55637b24334a7411162687dcd077d8f9f645348cdb8eae984bec8135d49ed855a1e3a16476786b8bce60774fd8402d13
-      # The screen of Xvfb holds the largest capture of the list, which is 2560 by 1440.
+      # The screen of Xvfb holds the largest capture of the list, which is 2560 by 1440, and the
+      # screen of the Steam Deck, 1280 by 800, inside it.
       XVFB_SCREEN: "2560x1440x24"
     defaults:
       run:
@@ -798,7 +805,7 @@ jobs:
             # The runner has no sound card, and a session with a window opens the audio
             # driver of the system. The dummy driver keeps the job on the picture (D-172).
             xvfb-run --auto-servernum --server-args="-screen 0 $XVFB_SCREEN" \
-              "$GODOT" --path TheThingBelow.Game --audio-driver Dummy --quit-after 1200 \
+              "$GODOT" --path TheThingBelow.Game --audio-driver Dummy --quit-after 1500 \
               -- --capture "$PWD/captures-$run" 2>&1 | tee "capture-$run.log"
 
             # The renderer check comes first, because a fallback explains every later fault.
@@ -814,6 +821,13 @@ jobs:
 
             if ! grep -q "capture: the session wrote every frame." "capture-$run.log"; then
               echo "The capture session $run wrote no success line. Read capture-$run.log (T-2)." >&2
+              exit 1
+            fi
+
+            # The crash fixture checks the crash file, the log line, and the message on the
+            # screen of Xvfb before the capture of the message (P3-26).
+            if ! grep -q "capture: the crash path is .* the message on screen" "capture-$run.log"; then
+              echo "The capture session $run wrote no line of the crash fixture. Read capture-$run.log (P3-26, T-2)." >&2
               exit 1
             fi
 
