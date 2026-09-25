@@ -694,14 +694,19 @@ public sealed partial class CaptureSession : Node
             return;
         }
 
+        // Two conflicts, and the cursor on a cell of the first: each cell of both takes the warning
+        // color, the cursor shows as an outline, and the line gives "1 of 2" (D-1119, D-1120).
+        screen.Menu.Point(SettingsMenu.RowOf(InputActions.Menu), BindingSlot.Keyboard);
+        screen.Menu.Choose();
+        screen.Menu.Capture(InputBinding.OfKey(SettingsMigration.MapKey));
         int row = SettingsMenu.RowOf(InputActions.Cancel);
         screen.Menu.Point(row, BindingSlot.Gamepad);
         screen.Menu.Choose();
         screen.Menu.Capture(InputBinding.OfButton((int)JoyButton.A));
-        if (screen.Menu.CanClose)
+        if (screen.Menu.Conflicts.Count != 2)
         {
             throw new InvalidOperationException(
-                $"The capture '{capture.FileName}' put the button of confirm on the back action, and the menu found no conflict (D-862, T-2).");
+                $"The capture '{capture.FileName}' put the button of confirm on the back action and the key of the map on the menu action, and the menu found {screen.Menu.Conflicts.Count} conflicts, not 2 (D-862, D-1119, T-2).");
         }
 
         screen.Show();

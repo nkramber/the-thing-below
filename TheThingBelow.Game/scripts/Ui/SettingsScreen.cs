@@ -71,6 +71,9 @@ public sealed class SettingsScreen
     private readonly Control layer;
     private readonly List<RowNodes> rows = [];
     private readonly Label help;
+    /// <summary>The width of the cursor outline on a cell of a conflict, in frame pixels (D-1120).</summary>
+    private const int CursorOutline = 2;
+
     private readonly Color chosenColor;
     private readonly Color dimColor;
     private readonly Color warningColor;
@@ -440,13 +443,22 @@ public sealed class SettingsScreen
             this.ui.Text.Put(label, Id(id), values);
         }
 
-        this.Paint(label, chosen);
-
-        // Each cell whose binding sits in a conflict takes the warning color, so each conflict
-        // shows on the grid, and the line names one of them (D-862, D-1119).
-        if (!chosen && SettingsMenu.InConflict(bindings, action, slot))
+        // Each cell whose binding sits in a conflict takes the warning color, the cell under the
+        // cursor included, so each conflict shows on the grid. The cursor on such a cell shows
+        // as an outline in its own color (D-862, D-1119, D-1120).
+        SlotLook look = SettingsMenu.LookOf(chosen, SettingsMenu.InConflict(bindings, action, slot));
+        this.Paint(label, look == SlotLook.Cursor);
+        label.RemoveThemeColorOverride("font_outline_color");
+        label.RemoveThemeConstantOverride("outline_size");
+        if (look is SlotLook.Conflict or SlotLook.ConflictUnderCursor)
         {
             label.AddThemeColorOverride("font_color", this.warningColor);
+        }
+
+        if (look == SlotLook.ConflictUnderCursor)
+        {
+            label.AddThemeColorOverride("font_outline_color", this.chosenColor);
+            label.AddThemeConstantOverride("outline_size", CursorOutline);
         }
     }
 

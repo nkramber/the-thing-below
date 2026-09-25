@@ -201,6 +201,20 @@ public sealed class SettingsMenuTests
         Assert.False(InConflict(bindings, "step_north", keyboard: true));
     }
 
+    [Theory]
+    [InlineData(false, false, "Plain")]
+    [InlineData(true, false, "Cursor")]
+    [InlineData(false, true, "Conflict")]
+    [InlineData(true, true, "ConflictUnderCursor")]
+    public void EachCellOfAConflictTakesTheWarningLookUnderTheCursorToo(bool chosen, bool inConflict, string look)
+    {
+        // P2-1 of the review of PR #82: the cell under the cursor kept the cursor color and lost
+        // the warning color. It now takes both, the cursor as an outline (D-1119, D-1120).
+        object made = GameAssemblyFile.Type(MenuTypeName).GetMethod("LookOf")!.Invoke(null, [chosen, inConflict])!;
+
+        Assert.Equal(look, made.ToString());
+    }
+
     [Fact]
     public void AMoveWhileTheRowWaitsLeavesTheCursor()
     {

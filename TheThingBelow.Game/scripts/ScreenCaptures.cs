@@ -180,7 +180,7 @@ public static class ScreenCaptures
     /// <summary>The frame of the map fixture and of the battle fixture in the stepped mode of the passes (D-917).</summary>
     public const string SteppedFrame = "stepped-1x";
 
-    /// <summary>The frame of the settings screen with a binding conflict and its line (D-862).</summary>
+    /// <summary>The frame of the settings screen with two binding conflicts, the cursor on one, and its line (D-862, D-1119, D-1120).</summary>
     public const string SettingsConflictFrame = "conflict-1x";
 
     /// <summary>The frame of the battle fixture that shows the pointer on the first target (D-833).</summary>

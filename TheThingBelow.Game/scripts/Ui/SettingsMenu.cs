@@ -242,6 +242,23 @@ public sealed class SettingsMenu
         throw new ArgumentException($"No remap row holds the action '{action}'. The actions are {InputActions.Describe()} (T-2).", nameof(action));
     }
 
+    /// <summary>
+    /// Gives how one binding cell draws: plain, under the cursor, in a conflict, or in a conflict
+    /// under the cursor (D-1119, D-1120).
+    /// </summary>
+    /// <param name="chosen">True when the cursor stands on the cell.</param>
+    /// <param name="inConflict">True when the binding of the cell sits in a conflict.</param>
+    /// <returns>The look of the cell.</returns>
+    public static SlotLook LookOf(bool chosen, bool inConflict)
+    {
+        if (inConflict)
+        {
+            return chosen ? SlotLook.ConflictUnderCursor : SlotLook.Conflict;
+        }
+
+        return chosen ? SlotLook.Cursor : SlotLook.Plain;
+    }
+
     private static bool Holds(IReadOnlyList<string> actions, string action)
     {
         foreach (string held in actions)
@@ -477,6 +494,22 @@ public sealed class SettingsMenu
             _ => throw new ArgumentOutOfRangeException(nameof(item), item, "The row holds no value to step (T-2)."),
         };
     }
+}
+
+/// <summary>How one binding cell of the settings screen draws (D-1119, D-1120).</summary>
+public enum SlotLook
+{
+    /// <summary>The text color of the theme.</summary>
+    Plain,
+
+    /// <summary>The color of the cursor.</summary>
+    Cursor,
+
+    /// <summary>The warning color, because the binding sits in a conflict.</summary>
+    Conflict,
+
+    /// <summary>The warning color with an outline in the color of the cursor, so the conflict and the cursor both show.</summary>
+    ConflictUnderCursor,
 }
 
 /// <summary>The conflict that the line of the settings screen names (D-862, D-1119).</summary>

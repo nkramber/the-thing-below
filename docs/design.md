@@ -490,7 +490,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-143 | A steal of gear dropped the remainder of the pick, and a steal of an item called the pick inside a guard. Three damage cuts multiplied with no overflow check | 2026-09-24 | ✅ PR-105: a remainder fails with its context, and each cut is checked. The content limits of today reach neither fault |
 | F-144 | det-lint had no rule for a file or an OS call in Core, read no code under an undefined symbol, read a scene value on one line alone, and left out the content and identity tools | 2026-09-24 | ✅ PR-105: rules DL 11 and DL 12, a scene value across lines, a refusal of a binary scene, and the two tools of D-502 (D-1117) |
 | F-145 | Since PR-91 the smoke map is dark, and its draw check compared the draw with the value that set it. No test read the drawing of a patrol of another map, of the lead, or of each tile kind | 2026-09-24 | ✅ PR-105: a test reads every map, smoke draws a lit copy of the map, and the dark check reads Core (D-1118) |
-| F-146 | The remap screen named the first conflict alone, although D-862 shows each conflict | 2026-09-24 | ✅ PR-105: each cell of a conflict takes the warning color, and the line names the conflict of the row with its place (D-1119) |
+| F-146 | The remap screen named the first conflict alone, although D-862 shows each conflict | 2026-09-24 | ✅ PR-105: each cell of a conflict takes the warning color, the cursor shows as an outline there, and the line names the conflict of the row with its place (D-1119, D-1120) |
 
 ## 6. Guardrails (the safety contract for every PR)
 

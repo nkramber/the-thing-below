@@ -1835,7 +1835,7 @@ Area files: `area-core.md` sections 7.9 to 7.11, `area-exploration.md`, `area-ui
 6. `TheCoverageJobChecksTheSha512OfTheReportGeneratorPackage` passes.
 7. Each case of DL 11 and DL 12 in `DetLintCoreRuleTests` passes, and the repository gives 0 findings.
 8. `EachPatrolOfEachMapHasAMapDrawing` passes, and the smoke line of the lit map draws each enemy.
-9. `EachConflictMarksItsCellsAndTheLineNamesTheConflictOfTheRow` passes.
+9. `EachConflictMarksItsCellsAndTheLineNamesTheConflictOfTheRow` and `EachCellOfAConflictTakesTheWarningLookUnderTheCursorToo` pass, and the conflict capture shows two conflicts (D-1120).
 
 **Review focus.**
 
