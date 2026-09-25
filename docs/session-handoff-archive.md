@@ -1,4 +1,41 @@
 # Session handoff archive
+## Session 305: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR-104, round 1. Repository: the-thing-below. Branch: `fix/pr-104-boot-and-rules`. PR: the one PR intent of this branch, before GitHub gives a number. Role: author. Base: `4aad522`.
+
+### What this session did, and why
+
+- The owner answered each question of the findings in this PR (D-1098 to D-1108). G-8 does not bind this PR (D-1098).
+- P2-2: a settings file that fails to load goes aside as settings.refused.json, and the start runs on the defaults with a message. A crash before the screen shows its message on a frame of the default display.
+- P2-5: the reply of the evaluator scores the best legal strike, lesson strikes included. The cost fixture holds lessons.
+- P3-1, P3-18, P3-19, P3-20: the enemy phase has a bound, six states fail at load or resume, a tile trigger plays before a step into an enemy, and a step into a marking enemy takes the side of the beat.
+- P3-7 and P3-34: the crash message names its folder, and the absorb lines take the words of the owner.
+- P3-27: G-17 states that a reader of Core counts.
+- The simulation version rises to 28, and the identity file changes with it.
+
+### The state of the build
+
+- `make verify` passed on this Mac: 3340 tests, format, lint, the STE check, identity, content, atlas, and smoke.
+- Each new regression test failed on `4aad522`, and the two lock tests of P3-1 hung there.
+
+### What is in flight
+
+- The first push, then the Gitar pass, the Deck run of `evaluator-cost` (D-961), and the review of the other provider.
+
+### Traps and gotchas
+
+- A collection expression of a `List` in Core reads `CollectionsMarshal`, and the reference test of G-1 fails. Use a collection initializer.
+- The settings message names the whole file for a value outside its range, because the range check keeps no field.
+
+### The questions that block progress
+
+None for this PR. P2-3, P3-9, and P3-35 stay open in the report of the owner.
+
+### The next concrete action
+
+Push, then run the Gitar poll of the `gitar-review` skill.
+
 ## Session 304: 2026-09-25, Claude Code
 
 Author: Claude Code
