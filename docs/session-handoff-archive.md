@@ -1,3 +1,43 @@
+# Session handoff archive
+## Session 294: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR-103, round 1. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: the one PR intent of this branch, before GitHub gives a number. Role: author. Base: `5c1db06`.
+
+### What this session did, and why
+
+- The owner put more than one finding of the repository review of 2026-09-24 in one PR (D-1090). This PR holds P1-1, P2-6, P2-4, P3-2, and P3-5. Each one reproduced at `5c1db06`.
+- P1-1: the menu action in a fight pauses the fight, with a dim and "Paused" above the hand-off (D-1083, F-116). The playback, the hand-off, and the battle screen count the world tick, so the pause holds them. No command menu opens under the pause, and no fight ends under it.
+- P1-1, story path: the menu action, the map action, and the held step make no intent while a story scene runs.
+- P2-6: a hold of a step ends when its last source comes up. A loss of the focus holds the world and forgets each hold (D-1084, F-117).
+- P2-4: a step into a group inside its grace time starts no encounter (D-1085, F-118). P3-2: a move intent ends with its tick (F-119). The simulation version rises to 27, and the identity file changes with it.
+- P3-5: the crash message draws on a new top layer above the hand-off, and a resize after a crash builds nothing (F-120).
+- `ScreenHandOffTests.AFightOnTheTickAfterTheWaitIntentStartsItsTransition` stepped into the fled group after the wait intent, which D-1085 refuses. The test now steps into another patrol.
+
+### The state of the build
+
+- `make build`, `make test` (3272 passed), `make format`, `make lint`, `make identity`, `make content`, `make ste-check`, and `make smoke` pass on this machine. The smoke session holds its fight paused for 120 frames.
+- The remote head holds this entry.
+
+### What is in flight
+
+- The first Gitar pass and the CI of the first push.
+
+### Traps and gotchas
+
+- Perl with the `|` delimiter and a `\|` in the pattern reads an alternation, and it wrote text at the head of `Boot.cs`. Use the Edit tool for C# code.
+- The screen-test baselines hold no capture of the pause. The fight clock changes no capture while no menu opened before the fight.
+- The engine sends a focus notification before `Boot._Ready` opens the log. The first build of the focus rule crashed there, and only a session with a window showed it. The smoke session has no window, so `make sheet` found it.
+- `make sheet` fails on `main` too: 108 captures make a sheet taller than 65535 pixels. The capture session itself writes every frame.
+
+### The questions that block progress
+
+None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
+
+### The next concrete action
+
+Poll the Gitar check of the first push, and answer each Gitar item.
+
 ## Session 293: 2026-09-25, Claude Code
 
 Author: Claude Code
