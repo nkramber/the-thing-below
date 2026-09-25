@@ -22,7 +22,7 @@ Session: author PR #79 (PR-102), round 4. Repository: the-thing-below. Branch: `
 ### Traps and gotchas
 
 - A merge of `main` into a PR branch makes `make codex-review` give `fault` until `BranchCommits` reads merge commits. The owner put that fix in the PR of finding P3-9 (D-1089).
-- The owner asks the merge question only after every check of the current tip is green and its Gitar pass is complete.
+- The session asks the merge question only after every check of the current tip is green and its Gitar pass is complete.
 
 ### The questions that block progress
 
