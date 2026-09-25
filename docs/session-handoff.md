@@ -1,3 +1,35 @@
+## Session 306: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #81 (PR-104), round 1. Repository: the-thing-below. Local branch: `review/pr-81`; PR branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: reviewer. Base: `4aad522`.
+
+### What this session did, and why
+
+- Reviewed all 50 changed paths from merge base `4aad522` through effective head `f66e314`.
+- Verified the changed battle captures against the CI artifact. No visual fault appeared.
+- `make verify` passed locally with 3340 tests. The implementation CI checks passed at `f66e314`.
+- The review record gives `Blocked`: D-961 requires an owner run of `evaluator-cost` on the Steam Deck before merge, and one Gitar dashboard finding has no author answer (D-964).
+
+### The state of the build
+
+- Effective head `f66e314`. CI run `36154860584` passed the implementation checks. Metadata run `36156272679` passed its applicable checks. The live `review-gate` passes RG 3, RG 5 to RG 8, and fails RG 4 because the verdict is `Blocked`.
+
+### What is in flight
+
+- The review record and this handoff entry are committed together and pushed to `fix/pr-104-boot-and-rules`.
+- The owner Steam Deck measurement and the author answer to the Gitar dashboard finding remain pending.
+
+### Traps and gotchas
+
+- D-1099 accepts replacement of an older refused settings file. The author still needs to answer Gitar's matching dashboard item (D-964).
+
+### The questions that block progress
+
+None. The Steam Deck measurement and the Gitar answer are required evidence, not open design questions.
+
+### The next concrete action
+
+The author answers the Gitar item and the owner runs `evaluator-cost` on the Steam Deck. Then request a repeat review.
 ## Session 305: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -300,45 +332,3 @@ None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-
 ### The next concrete action
 
 Poll the Gitar check of the round 4 push, and answer each Gitar item. Commit the new screen baseline from the CI artifact, and then run `make codex-review PR=80` when each CI check but `review-gate` passes.
-
-## Session 296: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #80 (PR-103), round 3. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: #80. Role: author. Base: `5c1db06`.
-
-### What this session did, and why
-
-- Gitar approved `e804ab3` with one finding: a failed removal of an old crash file also skipped the removal of the temporary file of a torn write. The fix gives each cleanup its own try block, and `ARemovalThatFailsStillRemovesTheTemporaryFileOfATornWrite` fails on `e804ab3`. Its CI claim names the `review-gate` fault, which waits for the review record.
-- The owner asked for a gentler edge of the wall torch halo (D-1095). The halo is one less the square of the distance, to the power 4. It meets 0 at its edge with no slope, and its texture holds half floats. The curve of D-1092 stopped at 1% of its middle, and the sRGB curve of the screen showed that stop as a faint ring.
-- The owner then asked for five more findings. D-1090 now holds fifteen. The session chose five that need no owner answer, and each one reproduced at `5c1db06`:
-  - P3-12: the safe write reads its temporary file back with the reader of its kind before the rename, and a refused rename tries five times (F-126).
-  - P3-14: the record reader checks both versions of line 1 before line 2, the crash error carries the crash line, and the record format rises to 3 (F-127).
-  - P3-16: the fill of a string refuses a value with no place (F-128).
-  - P3-21: one read of Storage takes a size cap for each kind of file and a strict UTF-8 decode (F-129).
-  - P3-38: the start view of a fight reads the party from before the tick that started it (F-130).
-- Each new test fails on the old code: a mutation back to it, or the code of the round before.
-
-### The state of the build
-
-- The checks of this round ran on this machine before the push. The PR description gives the results.
-- The identity file changes in six runs, because the record format rose to 3.
-- The remote head holds this entry.
-
-### What is in flight
-
-- The Gitar pass and the CI of the round 3 push.
-- The `screen-test` job fails on the map frames of the torch and the halo, and on the item line. The author reads each changed frame of the CI artifact and commits the new baseline (D-733). Then `make codex-review PR=80`.
-- The playtest of the owner of the carried light and the halo (D-1091, D-1095).
-
-### Traps and gotchas
-
-- A resumed snapshot with an encounter of the enemy side is the short way to an ambush in a test (`BattleTurnsTests.Encountered`).
-- `Label.Text` read in Game is a player string to det-lint (DL 8). The smoke check of D-1093 reads the string id instead.
-
-### The questions that block progress
-
-None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
-
-### The next concrete action
-
-Poll the Gitar check of the round 3 push, and answer each Gitar item. Commit the new screen baseline from the CI artifact, and then run `make codex-review PR=80` when each CI check but `review-gate` passes.
