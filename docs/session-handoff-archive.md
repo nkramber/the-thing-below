@@ -1,4 +1,36 @@
 # Session handoff archive
+## Session 291: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #79 (PR-102), round 3. Repository: the-thing-below. Branch: `fix/pr-102-gate-hygiene`. PR: #79. Role: author. Base: `5b42cf0` after the merge of `main`.
+
+### What this session did, and why
+
+- The owner merged PR #78 and asked for a merge of `main`, not a rebase (D-1088).
+- PR #78 took D-1080, F-108, and Sessions 287 and 288. The ids of PR-102 thus rose by one: D-1081 to D-1088, F-109 to F-115, and Sessions 289 and 290.
+- PR-102 moved to phase section 7.38 and to item 39 of the design sequence. Each later heading and item rose by one.
+- Each "PR #78" in the records of PR-102 now reads PR-101.
+
+### The state of the build
+
+- Merge of `origin/main` at `5b42cf0`. D-1080 of PR-101 lets the screen compare allow one level on each channel, which covers the failure of D-1088.
+
+### What is in flight
+
+- This round pushes the merge. Then the Gitar poll, the CI checks with `screen-test`, and `make codex-review PR=79`.
+
+### Traps and gotchas
+
+- The owner can switch the shared checkout to another PR. Check the branch before each write.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, run the Gitar poll, and wait for green CI. Then run `make codex-review PR=79` in the background.
+
 ## Session 290: 2026-09-25, Claude Code
 
 Author: Claude Code

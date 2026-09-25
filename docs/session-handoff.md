@@ -1,3 +1,35 @@
+## Session 301: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #80 (PR-103), round 7. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: #80. Role: author. Base: `5c1db06`.
+
+### What this session did, and why
+
+- Each CI check of `29615cb` passed but `review-gate`, which faulted on RG 3 alone, and Gitar approved it with no open finding.
+- `make codex-review PR=80` gave `Changes required` for `29615cb`, with one finding, P2-1: a file that another program grew between the length check and the read of `FileText.Read` passed the cap.
+- The finding has full merit. `FileText` now opens one stream and reads it in counted chunks, and it stops at the first byte past the cap. `FileTextTests` holds the regression and the boundary. `docs/reviews/pr-80-response.md` holds the answer.
+
+### The state of the build
+
+- The tests of Storage pass on this machine, with the new `FileTextTests`.
+- The remote head holds this entry.
+
+### What is in flight
+
+- The CI and the Gitar pass of the round 7 push. Then `make codex-review PR=80` for the repeat review.
+
+### Traps and gotchas
+
+- A check of a length before a second open of the file leaves a gap for another program. Read the file through the one open stream.
+
+### The questions that block progress
+
+None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
+
+### The next concrete action
+
+Poll the Gitar check and the CI of the round 7 push. When each check but `review-gate` passes, run `make codex-review PR=80` in the background.
+
 ## Session 300: 2026-09-25, Codex
 
 Author: Codex
@@ -327,35 +359,3 @@ None.
 ### The next concrete action
 
 Commit and push the review record and handoff entry. Fetch, confirm the remote head, and read the fresh review-gate result.
-
-## Session 291: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #79 (PR-102), round 3. Repository: the-thing-below. Branch: `fix/pr-102-gate-hygiene`. PR: #79. Role: author. Base: `5b42cf0` after the merge of `main`.
-
-### What this session did, and why
-
-- The owner merged PR #78 and asked for a merge of `main`, not a rebase (D-1088).
-- PR #78 took D-1080, F-108, and Sessions 287 and 288. The ids of PR-102 thus rose by one: D-1081 to D-1088, F-109 to F-115, and Sessions 289 and 290.
-- PR-102 moved to phase section 7.38 and to item 39 of the design sequence. Each later heading and item rose by one.
-- Each "PR #78" in the records of PR-102 now reads PR-101.
-
-### The state of the build
-
-- Merge of `origin/main` at `5b42cf0`. D-1080 of PR-101 lets the screen compare allow one level on each channel, which covers the failure of D-1088.
-
-### What is in flight
-
-- This round pushes the merge. Then the Gitar poll, the CI checks with `screen-test`, and `make codex-review PR=79`.
-
-### Traps and gotchas
-
-- The owner can switch the shared checkout to another PR. Check the branch before each write.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Push, run the Gitar poll, and wait for green CI. Then run `make codex-review PR=79` in the background.
