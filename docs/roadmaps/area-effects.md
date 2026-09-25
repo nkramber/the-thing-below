@@ -346,6 +346,7 @@ Built by PR-41 and every effect PR. Phase file: `phase-2-first-playable.md`.
 | PR-59 | The glow on light sources alone, and the fog above the glow | D-188, D-910 to D-916 |
 | PR-92 | The tilt-shift blur, the vignette, and the light shafts of the HD-2D look | D-849 |
 | PR-60 | The ten transitions, the table of kinds and pools, and the fades of the hand-off | D-195, D-196, D-934 to D-941 |
+| PR-106 | The light budget counts the widest flicker of each torch, a fight counts the weather and both bursts, and each light texture builds one time | D-1129 |
 | PR-17 | The light setups, the ambient effects, and the effect files of the first places | D-362, D-520 |
 | PR-21 | The light of the puzzles of light and dark | D-41 |
 | PR-23 to PR-27 and PR-81 | The light setups and the effects of each later place, the sealed gallery included | D-313, D-575 |

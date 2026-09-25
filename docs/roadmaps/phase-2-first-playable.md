@@ -1847,11 +1847,11 @@ Area files: `area-core.md` sections 7.9 to 7.11, `area-exploration.md`, `area-ui
 
 > *In plain English:* a patch that moves a map or a story scene now keeps old saves. A patch that retunes the party ships a converter. A wipe never loads another run, and four checks now see the faults they missed.
 
-### 7.42 PR-106: the trust of the review gate and the map behind a menu
+### 7.42 PR-106: the trust of the review gate, the map behind a menu, the key names, the screen flake, the crash path, and the budgets
 
-Area files: `area-ci.md` section 7.26 and `area-exploration.md`.
+Area files: `area-ci.md` section 7.26, `area-exploration.md`, `area-ui-input.md`, and `area-effects.md`.
 
-**Scope.** The owner put two findings of the repository review of 2026-09-24 in one PR (D-1121):
+**Scope.** The owner put six findings of the repository review of 2026-09-24 in one PR (D-1121):
 
 - The `review-gate` workflow and the `codex-review` command list the commits of the first parent, and a merge lists each path that it brings (D-1125, F-147).
 - The head field of a review record holds the full hash, and RG 5 compares the whole hash (D-1125).
@@ -1859,31 +1859,34 @@ Area files: `area-ci.md` section 7.26 and `area-exploration.md`.
 - The `Gitar` check joins the required checks of `main`, and a test holds one job for each required name (D-1123, D-1125).
 - The merge runbook records the limit of the gate, and no stamp goes into a record (D-1124).
 - The map draws the start of the tick while a menu, a fight, or a story scene holds the world (D-1126, F-148).
+- The remap screen names the key of the layout through a string id, and DL 8 refuses the engine name (D-1128, F-149).
+- The screen compare names each capture one level from its baseline, and the job pins the loader and Xvfb and logs its CPU (D-1127, F-150).
+- Both sessions run a planted crash, and the captures add body 24 and 1280 by 800 (D-1130, F-151).
+- The budgets count the flicker and the spell burst, and each light texture builds one time (D-1129, F-152).
 
-**Out of scope.**
-
-- The key names of the remap screen (P3-24), and the flake of the screen test (P3-25).
-- The tests of the crash path and the captures at body 24 and at 1280 by 800 (P3-26).
-- The performance measurements (P3-36).
+**Out of scope.** The cause of the flake of the screen test, which OQ-246 holds.
 
 **Exit tests.**
 
 1. `AMergeOfAnOlderCodeCommitIsTheEffectiveHead` and `AMergeOfDocumentsAloneKeepsTheApproval` pass in a repository of git.
-2. `TheFactsStepListsTheFirstParentsAndEachPathOfAMerge` passes.
-3. Each case of `AShortHashOfTheEffectiveHeadFails` passes.
-4. Each case of `ACommitOfAHarnessSettingsFileEndsTheReviewableHeads` passes.
-5. `EachRequiredContextOfAWorkflowIsTheNameOfOneJob` and `TheGitarCheckIsRequiredAndNoWorkflowJobTakesItsName` pass.
-6. `AMenuInTheMiddleOfAStepHoldsTheDrawnPartOfTheTickAtZero` passes.
+2. `TheFactsStepListsTheFirstParentsAndEachPathOfAMerge` and each case of `AShortHashOfTheEffectiveHeadFails` pass.
+3. Each case of `ACommitOfAHarnessSettingsFileEndsTheReviewableHeads` passes.
+4. `EachRequiredContextOfAWorkflowIsTheNameOfOneJob` and `TheGitarCheckIsRequiredAndNoWorkflowJobTakesItsName` pass.
+5. `AMenuInTheMiddleOfAStepHoldsTheDrawnPartOfTheTickAtZero` passes.
+6. `TheKeyOfAFrenchLayoutShowsItsOwnLetter` and `TheEngineNameOfAKeyFails` pass.
+7. `AStepOfOneLevelPassesAndTheReportNamesIt` and `TheJobPinsAndReadsBackTheLoaderAndTheScreen` pass.
+8. The smoke and capture lines of the crash path appear, and `screen-test` holds the 19 new frames.
+9. `ATorchCountsAtTheWidestStepOfItsFire` and `AFightCountsTheWeatherTheHitBurstAndTheSpellBurstAtOnce` pass, and smoke builds each light texture one time.
 
 **Review focus.**
 
 - The live `review-gate` check reads the new commit list only after the merge, because the workflow runs from `main` (F-37).
-- No Core file changes, so the simulation version stays (G-17).
-- No capture changes, because each capture draws at the start of its tick.
+- The simulation version rises to 30, and the identity file changes with it (G-17, D-504).
+- The key names are a batch of player text (D-57). Each name of a default binding stays, so no baseline of the settings screen moves.
 
-**Questions.** None. D-1121 to D-1126 hold the answers.
+**Questions.** None. D-1121 to D-1130 hold the answers.
 
-> *In plain English:* a merge into a branch carried new code past an old approval. The gate now sees each path that a merge brings. The map also stops a small shake behind the menu.
+> *In plain English:* a merge carried new code past an old approval, and the gate now sees it. The map stops a small shake behind the menu. Keys show their own letters, the crash path runs in CI, and the budgets count the worst case.
 
 ### 7.43 PR-14: the hub map, the NPCs, and the services
 
@@ -2713,7 +2716,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 4. PR-48, PR-56, PR-93, PR-63, PR-57, PR-58, PR-94, PR-59, PR-92, PR-95, PR-60, PR-96, PR-97: the normal maps, the light, the settings, the effects, and the automated review.
 5. PR-11, PR-98, PR-67, PR-62: the enemies that think, the waiting enemies on screen, the character level, and the menu windows.
 6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
-7. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-106, PR-14, PR-65: the build of a party, the stat set, the torch, the end of the Gitar pause, the torch and pad fixes, the gate fixes, the input fixes, the boot and rule fixes, the save and guard fixes, and the gate trust fixes of the repository review, the hub, and the shop.
+7. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-106, PR-14, PR-65: the build of a party, the stat set, the torch, the end of the Gitar pause, the torch and pad fixes, the gate fixes, the input fixes, the boot and rule fixes, the save and guard fixes, and the gate, key, crash, and budget fixes of the repository review, the hub, and the shop.
 8. PR-36: the dialogue box.
 9. PR-15, PR-49: the bots, the night job, and the night gate.
 10. Owner: require the bot and `night-gate` checks on `main` after their first runs.

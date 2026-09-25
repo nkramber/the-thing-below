@@ -445,6 +445,9 @@ Built by PR-106. Phase file: `phase-2-first-playable.md` section 7.42.
 - The head field of a review record holds the full hash (D-1125).
 - A commit of a settings file of `.claude/` after an approval ends the walk of D-943 (D-1122).
 - The `Gitar` check joins the required checks of `main` (D-1123). `BranchProtectionTests` holds one job for each required name of a workflow (D-1125).
+- The screen compare names each capture one level from its baseline. The `screen-test` job pins the loader and Xvfb, and it logs its CPU (D-1127, F-150).
+- The smoke step and the capture step each fail with no line of the planted crash (D-1130, F-151).
+- DL 8 refuses the English key names of the engine (D-1128).
 
 > *In plain English:* a merge carried new code past an old approval, and a short hash named any commit that shared it. The gate now reads each merge and the full hash.
 

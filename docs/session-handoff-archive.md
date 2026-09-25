@@ -1,5 +1,38 @@
 # Session handoff archive
 
+## Session 308: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #81 (PR-104), round 2. Repository: the-thing-below. Local branch: `review/pr-81`; PR branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: reviewer. Base: `4aad522`.
+
+### What this session did, and why
+
+- Re-reviewed PR #81 at effective head `f66e314`.
+- Verified the owner Steam Deck measurement in the author response and the prior Gitar dashboard answer.
+- The Gitar CI analysis claim names review-gate jobs. The current log shows only RG 4 fails because the review verdict is `Blocked`.
+- The review remains `Blocked` until the author answers this Gitar item (D-964).
+
+### The state of the build
+
+- Effective head `f66e314`. Metadata head `5297e6c` has green implementation checks, STE, and Gitar. `review-gate` fails RG 4 because the verdict is `Blocked`.
+
+### What is in flight
+
+- This review record and handoff entry are committed and pushed to `fix/pr-104-boot-and-rules`.
+- The author must answer the Gitar CI analysis item before a repeat review.
+
+### Traps and gotchas
+
+- The Gitar CI analysis calls the RG 4 result a validation fault. The log shows the gate correctly rejects the current `Blocked` verdict.
+
+### The questions that block progress
+
+None. The author answer to the Gitar item is required evidence under D-964.
+
+### The next concrete action
+
+The author answers the Gitar CI analysis item, then requests a repeat review.
+
 ## Session 307: 2026-09-25, Claude Code
 
 Author: Claude Code

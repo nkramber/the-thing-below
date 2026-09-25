@@ -152,6 +152,8 @@ The coverage job checks its package (F-142). The steal and damage math check the
 
 2026-09-25 gate trust pass: PR-106 fixes two more findings of the repository review in one PR (D-1121). A merge of code no longer keeps an older approval, and the head of a review record is a full hash (F-147). A settings file of `.claude/` after an approval takes a new review (D-1122), and `Gitar` joins the required checks (D-1123). The map holds still behind a menu (F-148).
 
+The owner then put the four other open findings in PR-106. The remap screen names the key of the layout (F-149). The screen compare names each step of one level (F-150). Both sessions run a planted crash, and the captures add body 24 and the screen of the Deck (F-151). The budgets count the flicker and the spell burst, and each light texture builds one time (F-152).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -495,6 +497,10 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-146 | The remap screen named the first conflict alone, although D-862 shows each conflict | 2026-09-24 | ✅ PR-105: each cell of a conflict takes the warning color, the cursor shows as an outline there, and the line names the conflict of the row with its place (D-1119, D-1120) |
 | F-147 | The review gate listed no path for a clean merge, and git sorted the commits of a merged branch by date. A merge of a code commit that was older than the approved head thus kept the approval. A prefix of 7 letters named the head, and each required check matched a job by name alone | 2026-09-24 | ✅ PR-106: both tools list the commits of the first parent, and a merge lists each path that it brings. The head is a full hash, and a test holds one job for each required name (D-1125) |
 | F-148 | The tick rises under a menu, so the part of the tick ran on while a lead stood in the middle of its step. On a screen that is not 60 Hz, the map moved one art pixel forward and back behind the menu | 2026-09-24 | ✅ PR-106: the map draws the start of the tick while the world holds (D-1126) |
+| F-149 | The remap screen named each key with the English name of the engine for the physical key. The names sat outside the string table (G-7), and a French layout showed W on the key that prints Z | 2026-09-24 | ✅ PR-106: the screen names the key of the layout through a string id, and DL 8 refuses the engine name (D-1128) |
+| F-150 | The compare of D-1080 passed a step of one level with no word in the log, and the job took the newest Vulkan loader and Xvfb of any source. A real change of one level thus passed in silence | 2026-09-24 | ⚠️ PR-106: the report names each capture one level apart, and the job pins both packages and logs its CPU (D-1127). OQ-246 holds the cause |
+| F-151 | No test ran the crash path, and a search of the source text stood for it. The menu windows and the battle windows had captures at body 32 alone, and no capture showed the screen of the Steam Deck | 2026-09-24 | ✅ PR-106: both sessions run a planted crash, and the captures add body 24 and 1280 by 800 (D-1130) |
+| F-152 | The light budget read the nominal range of a torch, which flickers to 120%. A fight counted the weather and one hit burst, and a lesson shows a spell burst beside it. Game built one constant light texture again at each fight | 2026-09-24 | ✅ PR-106: both budgets count the widest case, and each texture builds one time in a session (D-1129) |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -629,7 +635,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 40. PR-103: the input fixes, the grace time, ten guards, and seven owner directions, in one PR, after PR-102 (D-1083 to D-1085, D-1090 to D-1097).
 41. PR-104: the boot message, the enemy reply, and six rule guards, in one PR, after PR-103 (D-1098 to D-1108).
 42. PR-105: the save drift rules, the wipe pick, the save hook, and six guards, in one PR, after PR-104 (D-1109 to D-1119).
-43. PR-106: the trust of the review gate and the map behind a menu, in one PR, after PR-105 (D-1121 to D-1126).
+43. PR-106: the gate trust, the map behind a menu, and four more findings, in one PR, after PR-105 (D-1121 to D-1130).
 44. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
 45. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
 46. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
