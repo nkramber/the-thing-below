@@ -1,4 +1,49 @@
 # Session handoff archive
+## Session 295: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #80 (PR-103), round 2. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: #80. Role: author. Base: `5c1db06`.
+
+### What this session did, and why
+
+- Gitar approved the first head `38f769a` with no thread. Its CI claim names the `review-gate` fault, which waits for the review record. The PR comment of this round answers it.
+- The owner asked for five more findings in this PR. D-1090 now holds ten. The session chose five that need no owner answer, and each one reproduced at `5c1db06`:
+  - P3-3: a failed removal of an older crash file or log file no longer hides the new file. `CleanupFault` carries the error, and Boot logs a warning (F-121).
+  - P3-13: a read of the resume file leaves it, and `RemoveResume` removes it after the resume (F-122).
+  - P3-15: each identity run refuses a replay or a copy that differs from the live run. The identity file stays the same (F-123).
+  - P3-28: a field name of points alone, and a font offset near the limit of an integer, fail with the file (F-124).
+  - P3-6: `FrameRoot.AddTo` builds the frame inside the try block of its caller (F-125).
+- Each new test fails on the old code: a stash of the old code, or a mutation back to it.
+- The owner then added four directions (D-1091 to D-1094):
+  - The carried light takes 17400 with a range of 300. A quarter more strength failed the glow guard of the load, and the owner chose "farther, not stronger" and a playtest (D-1091).
+  - The halo of a wall torch is 168 pixels wide at 3825, and it falls to 1% of its middle at its edge. The reader takes a side up to 192 (D-1092).
+  - The message box above the item list of a fight shows the line of the item under the cursor (D-1093).
+  - A beat that ends while the lead walks waits for the end of that step (D-1094). The torch run of the identity file changes.
+
+### The state of the build
+
+- The checks of this round ran on this machine before the push. The PR description gives the results.
+- The remote head holds this entry.
+
+### What is in flight
+
+- The Gitar pass and the CI of the round 2 push.
+- The `screen-test` job fails on the map frames of the torch and the halo. The author reads each changed frame of the CI artifact and commits the new baseline (D-733). Then `make codex-review PR=80`.
+- The playtest of the owner of the carried light (D-1091).
+
+### Traps and gotchas
+
+- Perl with brace delimiters fails on C# code that holds a brace. Use the Edit tool for code.
+- The capture session needs a window. It is the one local check of the focus rule and of `FrameRoot.AddTo` in a real window.
+
+### The questions that block progress
+
+None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
+
+### The next concrete action
+
+Poll the Gitar check of the round 2 push, and answer each Gitar item. Commit the new screen baseline from the CI artifact, and then run `make codex-review PR=80` when each CI check but `review-gate` passes.
+
 ## Session 294: 2026-09-25, Claude Code
 
 Author: Claude Code

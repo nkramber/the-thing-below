@@ -80,9 +80,28 @@ public static class WorldRules
         PartyStep step = party.Advance();
         AddPartyEntries(state, party, step, log);
 
+        // A story scene that starts on the tile holds the patrols still from this tick (D-1009).
+        // The arrival fires it before a step into an enemy on the same tick, and that step
+        // starts no encounter. The held direction steps into the enemy again after the scene
+        // (D-1103).
+        if (step.Arrived && patrols.Encounter is null && StoryRules.FireTile(state, step.At, log))
+        {
+            if (step.Bumped is ContentId passed)
+            {
+                log.Add(new LogEntry(
+                    LogLevel.Debug,
+                    "the party reached a story trigger, and its step into an enemy started no encounter",
+                    state.Tick,
+                    LogSubsystems.World,
+                    [new LogField("enemy", passed.Value), LogField.OfNumber("world-tick", state.WorldTick)]));
+            }
+
+            return;
+        }
+
         if (step.Bumped is ContentId bumped)
         {
-            patrols.StartBump(bumped);
+            patrols.StartBump(bumped, party);
             log.Add(EncounterEntry(state, "the party stepped into an enemy and an encounter started"));
         }
 
@@ -91,12 +110,6 @@ public static class WorldRules
         if (patrols.Encounter is not null)
         {
             BattleTurns.Begin(state, log);
-            return;
-        }
-
-        // A story scene that starts on the tile holds the patrols still from this tick (D-1009).
-        if (step.Arrived && StoryRules.FireTile(state, step.At, log))
-        {
             return;
         }
 

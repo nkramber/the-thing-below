@@ -24,6 +24,18 @@ public sealed class BattleRules
     /// <summary>The largest power or multiplier in basis points (D-169).</summary>
     public const int MostRate = 100_000;
 
+    /// <summary>
+    /// The highest miss ceiling in basis points. Every strike keeps at least a third of its
+    /// chance to land, so no speed gap puts a combatant out of reach (D-773, D-1107).
+    /// </summary>
+    public const int MostMissCeiling = 6666;
+
+    /// <summary>
+    /// The most lesson slots that a character holds at any level: one for each level. The
+    /// rules file and the snapshot read this one bound (D-1018).
+    /// </summary>
+    public const int MostLessonSlots = StatCurve.HighestLevel;
+
     // The names of every field, in the order of the file. One list serves the read and the
     // error of an unknown field, so the two never differ (T-1).
     private static readonly string[] Fields =
@@ -335,6 +347,7 @@ public sealed class BattleRules
         List<int> levels = reader.Require(slotLevels, depth, "lesson_slot_levels");
         reader.ReadFileEnd();
         CheckRanges(numbers, file);
+        CheckSlots(numbers["lesson_slots"], levels, file);
         return new BattleRules(numbers, table, levels);
     }
 
@@ -403,7 +416,7 @@ public sealed class BattleRules
         CheckRange(numbers, file, "miss_base", 0, BasisPoints.One);
         CheckRange(numbers, file, "miss_per_speed", 0, BasisPoints.One);
         CheckRange(numbers, file, "miss_floor", 0, BasisPoints.One);
-        CheckRange(numbers, file, "miss_ceiling", numbers["miss_floor"], BasisPoints.One);
+        CheckRange(numbers, file, "miss_ceiling", numbers["miss_floor"], MostMissCeiling);
         CheckRange(numbers, file, "defend_cut", 0, BasisPoints.One);
         CheckRange(numbers, file, "back_row_rate", 0, BasisPoints.One);
         CheckRange(numbers, file, "haste_rate", 1, MostRate);
@@ -439,6 +452,19 @@ public sealed class BattleRules
         CheckRange(numbers, file, "experience_gap", 0, StatCurve.HighestLevel - 1);
         CheckRange(numbers, file, "lesson_slots", 1, StatCurve.HighestLevel);
         CheckRange(numbers, file, "aptitude_bonus", 0, MostRate);
+    }
+
+    /// <summary>Refuses a slot count at the highest level above the one bound of the snapshot (D-1018).</summary>
+    private static void CheckSlots(int first, List<int> levels, string file)
+    {
+        int most = checked(first + levels.Count);
+        if (most > MostLessonSlots)
+        {
+            throw ContentException.ForField(
+                file,
+                "lesson_slot_levels",
+                $"the {first} slots of level 1 and the {levels.Count} slot levels give {most} slots, and a character holds {MostLessonSlots} at most (D-1018)");
+        }
     }
 
     private static void CheckRange(SortedDictionary<string, int> numbers, string file, string field, int lowest, int highest)

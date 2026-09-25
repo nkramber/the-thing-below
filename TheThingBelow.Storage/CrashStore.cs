@@ -78,6 +78,18 @@ public sealed class CrashStore
     public static CrashStore OfThisSystem() =>
         new(Path.Combine(SaveFolder.OfThisSystem(), FolderName));
 
+    /// <summary>Gives the folder of the crash files on one system as the crash message shows it, with no account name (D-170, D-1102).</summary>
+    /// <param name="system">The system.</param>
+    /// <returns>The folder, such as `%APPDATA%\the-thing-below\crashes` on Windows.</returns>
+    /// <exception cref="StorageException">The system is not one of the three (D-481, T-2).</exception>
+    public static string ShownFolderOf(SaveSystem system) =>
+        SaveFolder.ShownOf(system) + SaveFolder.SeparatorOf(system) + FolderName;
+
+    /// <summary>Gives the folder of the crash files on the system that runs this process, as the crash message shows it (D-1102).</summary>
+    /// <returns>The folder, with no account name.</returns>
+    /// <exception cref="StorageException">The system is not one of the three (D-481, T-2).</exception>
+    public static string ShownFolderOfThisSystem() => ShownFolderOf(SaveFolder.ThisSystem());
+
     /// <summary>Writes one crash file (D-170).</summary>
     /// <param name="fault">The error that stopped the game.</param>
     /// <param name="record">The record of the run, or null when no run exists (D-170).</param>

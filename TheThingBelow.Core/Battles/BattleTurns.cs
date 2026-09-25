@@ -17,7 +17,7 @@ namespace TheThingBelow.Core.Battles;
 /// <remarks>
 /// Every roll draws on the battle stream alone (G-4). A roll runs in one fixed order for each
 /// strike: the miss, then the hit factor on a hit, then the status chance of the move on a
-/// hit (D-772, D-773, D-807).
+/// hit that the target does not absorb (D-772, D-773, D-807, D-1105).
 /// <para>
 /// A win and a flee end the battle, and the map waits for the wait intent of Game before it
 /// runs again (D-522). A wipe ends the run, and Game reloads (D-397, D-776).
@@ -25,6 +25,14 @@ namespace TheThingBelow.Core.Battles;
 /// </remarks>
 public static class BattleTurns
 {
+    /// <summary>
+    /// The count of turns that the enemy phase runs at most before the turn of a character
+    /// (D-1105). A sleeper passes a turn and each enemy acts on its own push, so a legal
+    /// fight reaches a character in far fewer turns. A lock that content allows then fails
+    /// with the group, the seed, and the tick, and never hangs the tick (T-2).
+    /// </summary>
+    public const int MostTurnsBeforeACharacter = 1000;
+
     /// <summary>Starts the battle of the encounter of the map, and runs each enemy turn before the first turn of a character (D-770).</summary>
     /// <param name="state">The run, whose map holds an encounter and no battle.</param>
     /// <param name="log">The log entries of this tick (D-179).</param>
@@ -531,8 +539,18 @@ public static class BattleTurns
     /// </summary>
     private static void RunUntilCharacter(RunState state, Battle battle, List<LogEntry> log)
     {
+        int turns = 0;
         while (battle.Outcome == BattleOutcome.Running)
         {
+            // A lock that content allows would otherwise hang the tick with no crash file (T-2).
+            turns = checked(turns + 1);
+            if (turns > MostTurnsBeforeACharacter)
+            {
+                throw new SimulationException(
+                    $"the group '{battle.Group.Id.Value}' ran {MostTurnsBeforeACharacter} turns with no turn of a character, and a fight must reach one",
+                    state.Context("battle"));
+            }
+
             Combatant next = battle.Next()
                 ?? throw new SimulationException("a turn, and no combatant stands on the field (T-2)", state.Context("battle"));
             RunContext context = state.Context($"battle/{next.Target.Describe()}");
@@ -694,7 +712,7 @@ public static class BattleTurns
     private static void EnemyTurn(RunState state, Battle battle, Combatant enemy, RunContext context, List<LogEntry> log)
     {
         BattleContent content = state.BattleContent;
-        EnemyAction action = BattleEvaluator.Choose(battle, enemy, content, state.Stream(StreamId.Evaluator), context);
+        EnemyAction action = BattleEvaluator.Choose(battle, enemy, content, BattleEvaluator.StrikesOf(state, battle), state.Stream(StreamId.Evaluator), context);
         switch (action.Kind)
         {
             case EnemyActionKind.Attack:
@@ -799,6 +817,7 @@ public static class BattleTurns
             if (affinity == Affinity.Absorb)
             {
                 // D-795, D-809, and D-1055: an absorb heals the hit times the absorb rate, and no cut applies.
+                // The target takes in the whole blow, so the status of the strike rolls no chance (D-1105).
                 int heal = BattleMath.AbsorbHeal(rules, hit, context);
                 int restored = Math.Min(heal, target.FullHealth - target.Health);
                 target.Health += restored;
@@ -819,9 +838,9 @@ public static class BattleTurns
                     target.Statuses.Remove(StatusKind.Sleep);
                     state.AddEvent(new BattleEvent(BattleEventKind.StatusOff, target.Target, null, 0, StatusKind.Sleep));
                 }
-            }
 
-            RollStatus(state, battle, target, move, stream, context);
+                RollStatus(state, battle, target, move, stream, context);
+            }
         }
 
         PushBack(attacker, move.Delay, context);

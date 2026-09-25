@@ -93,6 +93,53 @@ public sealed class BattleSnapshotTextTests
     }
 
     [Fact]
+    public void ARunningBattleWithNoStandingCharacterFailsTheResume()
+    {
+        // D-1105, P3-1: a crafted snapshot of a running fight with every character down would
+        // close the input gate for good.
+        RunSnapshot snapshot = BattleRuns.IntoBattle(Seed, "group.one").Snapshot();
+        List<CombatantValues> combatants = [.. snapshot.Battle!.Combatants];
+        combatants[0] = combatants[0] with { Health = 0, Place = CombatantPlace.Down, Statuses = [] };
+        RunSnapshot broken = snapshot with { Battle = snapshot.Battle with { Combatants = combatants } };
+
+        ArgumentException error = Assert.Throws<ArgumentException>(
+            () => Simulation.Resume(Seed, broken, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
+
+        Assert.Contains("no character of the party stands", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ARunningBattleWithOneOfTwoCharactersDownResumes()
+    {
+        // The boundary of the rule above: one standing character is enough.
+        Simulation run = BattleRuns.IntoBattle(Seed, "group.fixture_elite", TestBattles.WithParty(2));
+        RunSnapshot snapshot = run.Snapshot();
+        List<CombatantValues> combatants = [.. snapshot.Battle!.Combatants];
+        combatants[1] = combatants[1] with { Health = 0, Place = CombatantPlace.Down, Statuses = [] };
+        RunSnapshot changed = snapshot with { Battle = snapshot.Battle with { Combatants = combatants } };
+
+        Simulation resumed = Simulation.Resume(Seed, changed, BattleRuns.Map("group.fixture_elite"), TestBattles.WithParty(2), TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+
+        Assert.Equal(CombatantPlace.Down, BattleRuns.BattleOf(resumed).Party[1].Place);
+    }
+
+    [Fact]
+    public void ABattleWithAnotherCountOfCharactersThanThePartyFailsTheResume()
+    {
+        // P3-18: the party of the fight and the party of the run hold the same characters.
+        Simulation run = BattleRuns.IntoBattle(Seed, "group.fixture_elite", TestBattles.WithParty(2));
+        RunSnapshot snapshot = run.Snapshot();
+        List<CombatantValues> combatants = [.. snapshot.Battle!.Combatants];
+        combatants.RemoveAt(1);
+        RunSnapshot broken = snapshot with { Battle = snapshot.Battle with { Combatants = combatants } };
+
+        ArgumentException error = Assert.Throws<ArgumentException>(
+            () => Simulation.Resume(Seed, broken, BattleRuns.Map("group.fixture_elite"), TestBattles.WithParty(2), TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
+
+        Assert.Contains("it holds 1 characters, and the party holds 2", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ARecordHoldsTheTargetAndTheItemOfAnIntent()
     {
         // D-764, D-780: the record reads the use of one item on one character.

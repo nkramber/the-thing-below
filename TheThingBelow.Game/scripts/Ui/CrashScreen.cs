@@ -6,8 +6,8 @@ using TheThingBelow.Core.Content;
 namespace TheThingBelow.Game.Ui;
 
 /// <summary>
-/// The message that a crash shows on screen (D-170, D-559). It names the crash file and the
-/// address that takes it, and the player sends the file by hand.
+/// The message that a crash shows on screen (D-170, D-559). It names the crash file, its folder,
+/// and the address that takes it, and the player sends the file by hand.
 /// </summary>
 /// <remarks>
 /// The address is a placeholder in the reserved `.invalid` top-level domain until the owner
@@ -15,8 +15,9 @@ namespace TheThingBelow.Game.Ui;
 /// public, so no personal address enters a file (D-4, D-450).
 /// <para>
 /// Every line goes through the one text helper, so det-lint reads no player string in this
-/// file (G-7, D-499). The screen shows the name of the crash file and never its folder,
-/// because a folder path names the person (D-170).
+/// file (G-7, D-499). The screen shows the folder in the short form of its system, such as
+/// `~/.local/share/the-thing-below/crashes`, and never the folder of the person, because a
+/// screenshot of the message would name the account (D-170, D-1102).
 /// </para>
 /// </remarks>
 public partial class CrashScreen : PanelContainer
@@ -26,6 +27,9 @@ public partial class CrashScreen : PanelContainer
 
     /// <summary>The string id of the line that names the crash file.</summary>
     public const string FileId = "crash.file";
+
+    /// <summary>The string id of the line that names the folder of the crash files (D-170, D-1102).</summary>
+    public const string FolderId = "crash.folder";
 
     /// <summary>The string id of the line that names the address (D-473).</summary>
     public const string SendId = "crash.send";
@@ -39,6 +43,9 @@ public partial class CrashScreen : PanelContainer
     /// <summary>The name of the place that the file line fills in.</summary>
     public const string FilePlace = "file";
 
+    /// <summary>The name of the place that the folder line fills in.</summary>
+    public const string FolderPlace = "folder";
+
     /// <summary>The name of the place that the send line fills in.</summary>
     public const string AddressPlace = "address";
 
@@ -49,13 +56,15 @@ public partial class CrashScreen : PanelContainer
     /// <param name="base">The theme, the text helper, and the atlas (D-499, D-527).</param>
     /// <param name="strings">The string table, which holds the address (G-7).</param>
     /// <param name="crashFileName">The name of the crash file, with no folder (D-170).</param>
+    /// <param name="shownFolder">The folder of the crash files, with no account name (D-1102).</param>
     /// <exception cref="ArgumentNullException">The UI base, the table, or the name is null (T-2).</exception>
     /// <exception cref="ContentException">The string table lacks a line of the message (T-2).</exception>
-    public void Build(UiBase @base, StringTable strings, string crashFileName)
+    public void Build(UiBase @base, StringTable strings, string crashFileName, string shownFolder)
     {
         ArgumentNullException.ThrowIfNull(@base);
         ArgumentNullException.ThrowIfNull(strings);
         ArgumentNullException.ThrowIfNull(crashFileName);
+        ArgumentNullException.ThrowIfNull(shownFolder);
 
         this.Theme = @base.Theme.Theme;
 
@@ -72,6 +81,13 @@ public partial class CrashScreen : PanelContainer
             Id(FileId),
             new SortedDictionary<string, string>(StringComparer.Ordinal) { [FilePlace] = crashFileName });
         lines.AddChild(file);
+
+        var folder = new Label();
+        @base.Text.Put(
+            folder,
+            Id(FolderId),
+            new SortedDictionary<string, string>(StringComparer.Ordinal) { [FolderPlace] = shownFolder });
+        lines.AddChild(folder);
 
         var send = new Label();
         @base.Text.Put(

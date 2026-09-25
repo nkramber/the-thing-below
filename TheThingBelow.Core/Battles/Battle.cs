@@ -245,6 +245,7 @@ public sealed class Battle
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
     /// <returns>The battle, before its first turn.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="SimulationException">No character of the party stands (D-1105, T-2).</exception>
     public static Battle Start(BattleContent content, MapEncounter encounter, PartyState partyState, RunContext context)
     {
         ArgumentNullException.ThrowIfNull(content);
@@ -273,6 +274,15 @@ public sealed class Battle
             }
 
             party.Add(combatant);
+        }
+
+        // A fight with every character down never reaches the turn of a character, so it
+        // would hang the enemy phase (D-1105, T-2).
+        if (!party.Exists(combatant => combatant.Place == CombatantPlace.Field))
+        {
+            throw new SimulationException(
+                $"a start of a battle against the group '{group.Id.Value}', and no character of the party stands (D-1105)",
+                context);
         }
 
         List<Combatant> enemies = [];
@@ -374,6 +384,11 @@ public sealed class Battle
         }
 
         Refuse(enemies.Count != group.Entries.Count, source, $"it holds {enemies.Count} enemies, and the group '{group.Id.Value}' holds {group.Entries.Count}");
+        Refuse(party.Count != partyState.Members.Count, source, $"it holds {party.Count} characters, and the party holds {partyState.Members.Count}");
+        Refuse(
+            values.Outcome == BattleOutcome.Running && !party.Exists(combatant => combatant.Place == CombatantPlace.Field),
+            source,
+            "it runs, and no character of the party stands (D-1105)");
         Refuse(values.Now < 0, source, $"the timeline is at {values.Now}, which is below zero");
 
         var battle = new Battle(values.Enemy, group, [.. party], [.. enemies])

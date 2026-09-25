@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Runs;
 
 namespace TheThingBelow.Core.Battles;
 
@@ -74,6 +75,7 @@ public sealed class BattleContent
         this.RefuseAbsentDropItem();
         this.RefuseWrongStartGear();
         this.RefuseWrongPack();
+        this.RefuseWrongTorch();
         this.RequireEveryEntryActs();
     }
 
@@ -534,6 +536,21 @@ public sealed class BattleContent
                         $"the waiting enemies of the group stand in a column of {height} art pixels, and the field holds a column of {BattleFixture.MostWaitingHeight} at most. Split the wave (D-963, T-2)");
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Refuses a torch of another kind than a key item. The torch rule reads the kind at each
+    /// press, so the load names the fault before the first press can meet it (D-1065, P3-18).
+    /// </summary>
+    private void RefuseWrongTorch()
+    {
+        if (this.Items.Holds(TorchRules.Torch) && this.Items.Item(TorchRules.Torch) is not KeyItem)
+        {
+            throw ContentException.ForField(
+                ItemList.Path,
+                "items",
+                $"the item '{TorchRules.Torch.Value}' is not a key item, and the torch rule reads the kind `key` (D-1065)");
         }
     }
 

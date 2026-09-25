@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Streams;
 using Xunit;
@@ -209,6 +210,58 @@ public sealed class BattleEvaluatorTests
         Assert.Equal(0, defend.Terms.Row);
     }
 
+    [Theory]
+    [InlineData(null, 0)]
+    [InlineData(0, 1)]
+    public void AStepBehindAnAllyEarnsNoRowCreditAgainstAStrikeOfAnyReach(int? mp, int row)
+    {
+        // P2-5 (D-960, D-1101): Marrek is the next character, and Cinder, a fire strike of any
+        // reach, costs 4 MP. With the MP, a step behind an ally hides from nothing. With no MP,
+        // melee alone remains, and the step takes the stepper out of reach, as before.
+        BattleContent content = Content(exact: true);
+        Simulation run = MarrekAlone(content, "group.test_careful", mp);
+        Battle battle = BattleRuns.BattleOf(run);
+
+        ScoredAction step = ScoreOf(battle, content, run, "step");
+
+        Assert.Equal(row, step.Terms.Row);
+    }
+
+    [Fact]
+    public void TheReplyTakesALessonStrikeThatOutDamagesTheBasicAttack()
+    {
+        // P2-5 (D-960, D-1101): the reply scores the best legal strike of the next character.
+        // Hew is a melee strike of 15000 on the attack, above the basic attack, and it costs no MP.
+        BattleContent content = Content(exact: true);
+        Simulation withLessons = MarrekAlone(content, "group.test_idle", null);
+        Battle battle = BattleRuns.BattleOf(withLessons);
+        IReadOnlyList<IReadOnlyList<ReplyStrike>> strikes = BattleEvaluator.StrikesOf(withLessons.State, battle);
+        List<IReadOnlyList<ReplyStrike>> basicAlone = [.. strikes];
+        basicAlone[0] = [strikes[0][0]];
+
+        long threat = Threat(battle, content, strikes, withLessons);
+        long basicThreat = Threat(battle, content, basicAlone, withLessons);
+
+        Assert.Equal(new ReplyStrike(StrikeStat.Attack, content.Rules.AttackPower, null, AbilityReach.Melee), strikes[0][0]);
+        Assert.Contains(strikes[0], strike => strike.Reach == AbilityReach.Any && strike.Element == Element.Fire);
+        Assert.True(threat > basicThreat, $"The reply with the lessons takes {threat}, and the basic attack alone takes {basicThreat}.");
+    }
+
+    [Fact]
+    public void ASilencedCharacterHoldsNoRiteInItsReply()
+    {
+        // D-806, D-1101: silence refuses a rite, so Cinder, a Harm rite, leaves the reply.
+        BattleContent content = Content(exact: true);
+        Simulation run = MarrekAlone(content, "group.test_idle", null);
+        Battle battle = BattleRuns.BattleOf(run);
+        BattleTurns.GiveStatus(run.State, battle.Party[0].Target, StatusKind.Silence, run.State.Context("test"));
+
+        IReadOnlyList<ReplyStrike> strikes = BattleEvaluator.StrikesOf(run.State, battle)[0];
+
+        Assert.DoesNotContain(strikes, strike => strike.Reach == AbilityReach.Any);
+        Assert.Contains(strikes, strike => strike.Power > content.Rules.AttackPower);
+    }
+
     [Fact]
     public void OneStateGivesOneScoreOnEachCall()
     {
@@ -218,8 +271,8 @@ public sealed class BattleEvaluatorTests
         Battle battle = BattleRuns.BattleOf(run);
         RunContext context = run.State.Context("test");
 
-        IReadOnlyList<ScoredAction> first = BattleEvaluator.Score(battle, battle.Enemies[0], content, context);
-        IReadOnlyList<ScoredAction> second = BattleEvaluator.Score(battle, battle.Enemies[0], content, context);
+        IReadOnlyList<ScoredAction> first = BattleEvaluator.Score(battle, battle.Enemies[0], content, BattleEvaluator.StrikesOf(run.State, battle), context);
+        IReadOnlyList<ScoredAction> second = BattleEvaluator.Score(battle, battle.Enemies[0], content, BattleEvaluator.StrikesOf(run.State, battle), context);
 
         Assert.Equal(first, second);
     }
@@ -240,7 +293,7 @@ public sealed class BattleEvaluatorTests
         for (ulong seed = 0; seed < SeedCount; seed += 1)
         {
             int index = RandomStreams.Open(seed, StreamId.Evaluator).NextInt(legal.Count, context);
-            EnemyAction action = BattleEvaluator.Choose(battle, grunt, content, RandomStreams.Open(seed, StreamId.Evaluator), context);
+            EnemyAction action = BattleEvaluator.Choose(battle, grunt, content, BattleEvaluator.StrikesOf(run.State, battle), RandomStreams.Open(seed, StreamId.Evaluator), context);
 
             Assert.True(legal[index].Describe() == action.Describe(), $"Seed {seed}: the draw gives '{legal[index].Describe()}', and the evaluator took '{action.Describe()}'.");
             chosen.Add(action.Describe());
@@ -258,7 +311,7 @@ public sealed class BattleEvaluatorTests
         Battle battle = BattleRuns.BattleOf(run);
 
         SimulationException error = Assert.Throws<SimulationException>(
-            () => BattleEvaluator.Choose(battle, battle.Enemies[0], content, RandomStreams.Open(1, StreamId.Battle), run.State.Context("test")));
+            () => BattleEvaluator.Choose(battle, battle.Enemies[0], content, BattleEvaluator.StrikesOf(run.State, battle), RandomStreams.Open(1, StreamId.Battle), run.State.Context("test")));
 
         Assert.Contains("D-947", error.Message, StringComparison.Ordinal);
     }
@@ -329,9 +382,51 @@ public sealed class BattleEvaluatorTests
         kind is BattleEventKind.Hit or BattleEventKind.Miss or BattleEventKind.Absorb or BattleEventKind.Heal
             or BattleEventKind.Defend or BattleEventKind.Step;
 
+    /// <summary>
+    /// Starts a fight of the evaluator content with Marrek alone on his feet: the other two
+    /// characters start down, so Marrek is the next character (D-960).
+    /// </summary>
+    private static Simulation MarrekAlone(BattleContent content, string group, int? mp)
+    {
+        GameMap map = BattleRuns.Map(group);
+        RunSnapshot start = Simulation.Start(1, map, content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
+        PartySnapshot party = start.Characters!;
+        List<CharacterValues> characters = [];
+        for (int slot = 0; slot < party.Characters.Count; slot += 1)
+        {
+            CharacterValues stored = party.Characters[slot];
+            if (slot > 0)
+            {
+                characters.Add(stored with { Health = 0, Statuses = [] });
+            }
+            else
+            {
+                characters.Add(mp is int points ? stored with { Growth = stored.Growth! with { Mp = points } } : stored);
+            }
+        }
+
+        Simulation run = Simulation.Resume(1, start with { Characters = party with { Characters = characters } }, map, content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+        run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
+        Assert.NotNull(run.State.Battle);
+        return run;
+    }
+
+    private static long Threat(Battle battle, BattleContent content, IReadOnlyList<IReadOnlyList<ReplyStrike>> strikes, Simulation run)
+    {
+        foreach (ScoredAction scored in BattleEvaluator.Score(battle, battle.Enemies[0], content, strikes, run.State.Context("test")))
+        {
+            if (string.CompareOrdinal(scored.Action.Describe(), "defend") == 0)
+            {
+                return scored.Terms.Threat;
+            }
+        }
+
+        throw new InvalidOperationException("The evaluator scored no defend.");
+    }
+
     private static ScoredAction ScoreOf(Battle battle, BattleContent content, Simulation run, string action)
     {
-        foreach (ScoredAction scored in BattleEvaluator.Score(battle, battle.Enemies[0], content, run.State.Context("test")))
+        foreach (ScoredAction scored in BattleEvaluator.Score(battle, battle.Enemies[0], content, BattleEvaluator.StrikesOf(run.State, battle), run.State.Context("test")))
         {
             if (string.CompareOrdinal(scored.Action.Describe(), action) == 0)
             {

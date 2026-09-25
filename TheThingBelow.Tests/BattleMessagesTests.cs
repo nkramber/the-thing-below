@@ -165,6 +165,23 @@ public sealed class BattleMessagesTests
         Assert.Equal("battle.hit", ((ContentId)Method("HitIdOf").Invoke(null, [Affinity.Normal])!).Value);
     }
 
+    [Fact]
+    public void AnAbsorbAtFullHealthShowsNoNumberAndAnyOtherAbsorbShowsItsHeal()
+    {
+        // P3-34 (D-1055, D-1106): a heal of an absorb is 1 at least, so an amount of 0 means a
+        // target at full health, and its line holds no number.
+        var party = new BattleTarget(BattleSide.Party, 0);
+        var enemy = new BattleTarget(BattleSide.Enemy, 0);
+
+        object full = LineOf(new BattleEvent(BattleEventKind.Absorb, party, enemy, 0, null, Affinity.Absorb), EnemyNamedFirst())!;
+        object healed = LineOf(new BattleEvent(BattleEventKind.Absorb, party, enemy, 1, null, Affinity.Absorb), EnemyNamedFirst())!;
+
+        Assert.Equal("battle.absorb_full", ((ContentId)full.GetType().GetProperty("Id")!.GetValue(full)!).Value);
+        Assert.Equal(["target"], ((IReadOnlyDictionary<string, string>)full.GetType().GetProperty("Values")!.GetValue(full)!).Keys);
+        Assert.Equal("battle.absorb", ((ContentId)healed.GetType().GetProperty("Id")!.GetValue(healed)!).Value);
+        Assert.Equal("1", ((IReadOnlyDictionary<string, string>)healed.GetType().GetProperty("Values")!.GetValue(healed)!)["amount"]);
+    }
+
     private static readonly ContentId Form = ContentId.Parse("ability.fixture_blaze", "test", "ability");
 
     /// <summary>Gives one event of each kind, each affinity of a hit, each status, and each side of a fall.</summary>
@@ -184,6 +201,10 @@ public sealed class BattleMessagesTests
         {
             events.Add(new BattleEvent(BattleEventKind.Hit, party, enemy, 12, null, affinity));
         }
+
+        // An absorb at full health restores 0 and shows its own line (D-1106).
+        events.Add(new BattleEvent(BattleEventKind.Absorb, party, enemy, 0, null, Affinity.Absorb));
+        events.Add(new BattleEvent(BattleEventKind.Absorb, enemy, party, 0, null, Affinity.Absorb));
 
         foreach (StatusKind status in Statuses.All)
         {

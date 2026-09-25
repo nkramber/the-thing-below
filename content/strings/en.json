@@ -35,7 +35,11 @@
   },
   {
    "id": "battle.absorb",
-   "text": "{target} takes it in. {amount} back."
+   "text": "{target} absorbs the hit. Regains {amount}."
+  },
+  {
+   "id": "battle.absorb_full",
+   "text": "{target} absorbs the hit. Already full."
   },
   {
    "id": "battle.asleep",
@@ -308,6 +312,10 @@
   {
    "id": "crash.file",
    "text": "It wrote a report: {file}"
+  },
+  {
+   "id": "crash.folder",
+   "text": "Folder: {folder}"
   },
   {
    "id": "crash.quit",
@@ -988,6 +996,26 @@
   {
    "id": "settings.on",
    "text": "On"
+  },
+  {
+   "id": "settings.refused_defaults",
+   "text": "The game runs on the defaults."
+  },
+  {
+   "id": "settings.refused_field",
+   "text": "It failed at: {field}"
+  },
+  {
+   "id": "settings.refused_go_on",
+   "text": "Press any button."
+  },
+  {
+   "id": "settings.refused_kept",
+   "text": "The file is kept as {file}."
+  },
+  {
+   "id": "settings.refused_title",
+   "text": "The settings file did not load."
   },
   {
    "id": "settings.remember_cursor",

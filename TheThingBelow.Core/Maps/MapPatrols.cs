@@ -310,14 +310,17 @@ public sealed class MapPatrols
 
     /// <summary>
     /// Starts the encounter of a step of the party into a body (D-747). The step takes no
-    /// beat, because the party made the approach itself.
+    /// beat, because the party made the approach itself. A step into the enemy whose mark runs
+    /// starts the encounter at once, with the side that the end of its beat gives (D-1104).
     /// </summary>
     /// <param name="enemy">The id of the enemy that the party stepped into.</param>
-    /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
+    /// <param name="party">The map state of the party, whose lead and facing give the side against a marking enemy.</param>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="InvalidOperationException">An encounter already runs (T-2).</exception>
-    public void StartBump(ContentId enemy)
+    public void StartBump(ContentId enemy, MapState party)
     {
         ArgumentNullException.ThrowIfNull(enemy);
+        ArgumentNullException.ThrowIfNull(party);
 
         if (this.Encounter is not null)
         {
@@ -327,10 +330,15 @@ public sealed class MapPatrols
 
         PatrolState patrol = this.Find(enemy);
 
+        // The enemy saw the party first, so a step into it turns no beat into a sneak. The
+        // facings give the side, as at the end of the beat (D-745, D-746, D-1104).
+        bool marking = this.Mark is SightMark running && running.Enemy == enemy;
+        EncounterSide side = marking ? BehindOf(party, patrol) : EncounterSide.Party;
+
         // The mark of another enemy ends here, because one encounter runs at a time and this
         // one started (D-531).
         this.Mark = null;
-        this.Encounter = new MapEncounter(patrol.Patrol.Id, patrol.Patrol.Group, EncounterSide.Party);
+        this.Encounter = new MapEncounter(patrol.Patrol.Id, patrol.Patrol.Group, side);
     }
 
     /// <summary>
@@ -536,6 +544,7 @@ public sealed class MapPatrols
                 source,
                 "it holds a mark and an encounter, and one encounter ends every mark");
             Refuse(!this.Holds(mark.Enemy), source, $"the mark names the enemy '{mark.Enemy.Value}', which this map does not place");
+            Refuse(this.Find(mark.Enemy).Dead, source, $"the mark names the enemy '{mark.Enemy.Value}', which is dead, and a dead enemy sees nothing (D-555)");
         }
 
         if (this.Encounter is MapEncounter encounter)
@@ -545,6 +554,7 @@ public sealed class MapPatrols
                 source,
                 $"the encounter names the enemy '{encounter.Enemy.Value}', which this map does not place");
             PatrolState patrol = this.Find(encounter.Enemy);
+            Refuse(patrol.Dead, source, $"the encounter names the enemy '{encounter.Enemy.Value}', which is dead, and a win ends its encounter (D-531, D-555)");
             Refuse(
                 string.CompareOrdinal(patrol.Patrol.Group.Value, encounter.Group.Value) != 0,
                 source,

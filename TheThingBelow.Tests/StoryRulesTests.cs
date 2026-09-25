@@ -382,6 +382,89 @@ public sealed class StoryRulesTests
         Assert.NotEqual(one.StateHash(), other.StateHash());
     }
 
+    [Fact]
+    public void ASnapshotWithAnOpenMenuAndARunningStorySceneFailsTheResume()
+    {
+        // P3-18 (D-1009): Core refuses the close of the menu while a story scene runs, so the
+        // pair would hold the run for good. The same snapshot with the menu shut resumes.
+        Simulation run = TestStory.Start(Seed);
+        run.Step([]);
+        Assert.True(run.State.Story.Running);
+        RunSnapshot snapshot = run.Snapshot();
+
+        ArgumentException error = Assert.Throws<ArgumentException>(() => TestStory.Resume(Seed, snapshot with { MenuOpen = true }));
+
+        Assert.Contains("an open menu and a running story scene", error.Message, StringComparison.Ordinal);
+        Assert.Equal(run.StateHash(), TestStory.Resume(Seed, snapshot).StateHash());
+    }
+
+    [Fact]
+    public void AnArrivalOnATriggerTilePlaysItsSceneBeforeTheStepIntoTheGuardBesideIt()
+    {
+        // D-1103, P3-19: the lead holds east onto the trigger tile, and the guard stands on the
+        // next tile. One tick arrives and steps into the guard. The scene plays first, and the
+        // held direction starts the fight after it.
+        Simulation run = BesideTheGuard("""{ "not": { "flag": "flag.test_victor" } }""");
+        WalkOnto(run, Trigger);
+
+        // The scene of one step plays to its end on the tick that fires it.
+        Assert.Null(run.State.Battle);
+        Assert.Null(run.State.Party.Patrols.Encounter);
+        Assert.True(run.State.Story.Flags.IsOn(Flag("flag.test_victor")));
+
+        run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
+
+        Assert.NotNull(run.State.Battle);
+    }
+
+    [Fact]
+    public void AnArrivalOnATriggerTileWhoseConditionFailsStepsIntoTheGuardOnTheSameTick()
+    {
+        // The boundary of the rule above: no scene fires, so the step into the guard starts
+        // the fight on the tick of the arrival (D-747).
+        Simulation run = BesideTheGuard("""{ "flag": "flag.test_victor" }""");
+        WalkOnto(run, Trigger);
+
+        Assert.False(run.State.Story.Running);
+        Assert.NotNull(run.State.Battle);
+    }
+
+    /// <summary>The tile trigger of <see cref="BesideTheGuard"/>, two tiles east of the spawn point.</summary>
+    private static readonly TilePoint Trigger = new(3, 1);
+
+    /// <summary>
+    /// The story map with the guard on the tile east of the tile trigger, no entry scene, and
+    /// the one-step victory scene on the tile trigger under the condition (D-1103).
+    /// </summary>
+    private static Simulation BesideTheGuard(string condition)
+    {
+        string text = TestStory.MapFile
+            .Replace("\"tiles\": [{ \"x\": 8, \"y\": 4 }]", "\"tiles\": [{ \"x\": 4, \"y\": 1 }]", StringComparison.Ordinal)
+            .Replace("\"condition\": { \"not\": { \"flag\": \"flag.test_met\" } }", "\"condition\": { \"flag\": \"flag.test_met\" }", StringComparison.Ordinal)
+            .Replace("\"y\": 3,", "\"y\": 1,", StringComparison.Ordinal)
+            .Replace("\"scene\": \"scene.test_fight\"", "\"scene\": \"scene.test_victory\"", StringComparison.Ordinal)
+            .Replace("\"condition\": { \"all\": [{ \"flag\": \"flag.test_met\" }, { \"not\": { \"flag\": \"flag.test_done\" } }] }", $"\"condition\": {condition}", StringComparison.Ordinal);
+        GameMap map = GameMap.Read(System.Text.Encoding.UTF8.GetBytes(text), "rules/maps/test-story.json");
+        return Simulation.Start(Seed, map, TestBattles.Content, TestBattles.Notices, TestStory.Content, DebugIntentHandlers.None);
+    }
+
+    /// <summary>Holds east, and stops on the tick that the lead stands on the tile or a battle starts.</summary>
+    private static void WalkOnto(Simulation run, TilePoint tile)
+    {
+        for (int tick = 0; tick < TickLimit; tick += 1)
+        {
+            MapState party = run.State.Party;
+            if (run.State.Battle is not null || (party.LeadAt == tile && party.Stepping is null))
+            {
+                return;
+            }
+
+            run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
+        }
+
+        throw new InvalidOperationException($"The lead did not reach {tile} in {TickLimit} ticks.");
+    }
+
     /// <summary>Plays the bot of the fixture while the condition holds, and fails on a run that never ends it.</summary>
     internal static void PlayWhile(Simulation run, Func<bool> condition)
     {

@@ -39,6 +39,38 @@ public sealed class SettingsStoreTests : IDisposable
     }
 
     [Fact]
+    public void ARefusedFileIsKeptAsideAndReplacesAnOlderKeptFile()
+    {
+        // P2-2 (D-1099): a start keeps a refused file under its own name, and the newest refused
+        // file replaces an older one, so the folder never fills.
+        Directory.CreateDirectory(this.folder);
+        File.WriteAllText(this.store.Path, "{ \"display\": {}, \"format\": 3 }");
+
+        string kept = this.store.SetAside();
+
+        Assert.Equal(Path.Combine(this.folder, SettingsStore.RefusedName), kept);
+        Assert.False(this.store.Exists());
+        Assert.Equal("{ \"display\": {}, \"format\": 3 }", File.ReadAllText(kept));
+
+        File.WriteAllText(this.store.Path, "second");
+        _ = this.store.SetAside();
+
+        Assert.Equal("second", File.ReadAllText(kept));
+        Assert.Single(Directory.GetFiles(this.folder));
+    }
+
+    [Fact]
+    public void AKeepWithNoFileFailsWithThePath()
+    {
+        Directory.CreateDirectory(this.folder);
+
+        StorageException error = Assert.Throws<StorageException>(() => this.store.SetAside());
+
+        Assert.Equal(this.store.Path, error.Path);
+        Assert.Contains(SettingsStore.RefusedName, error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AWriteMakesTheFolderAndAReadGivesTheSettings()
     {
         GameSettings settings = SettingsFixtures.Defaults();

@@ -41,7 +41,8 @@ public sealed class BattleFixtureTests
     [Theory]
     [InlineData("\"attack_delay\": 100,", "", "attack_delay", "absent")]
     [InlineData("\"attack_delay\": 100,", "\"attack_delay\": 0,", "attack_delay", "outside 1 to")]
-    [InlineData("\"miss_ceiling\": 1500,", "\"miss_ceiling\": 10001,", "miss_ceiling", "outside 0 to 10000")]
+    [InlineData("\"miss_ceiling\": 1500,", "\"miss_ceiling\": 10000,", "miss_ceiling", "outside 0 to 6666")]
+    [InlineData("\"miss_ceiling\": 1500,", "\"miss_ceiling\": 6667,", "miss_ceiling", "outside 0 to 6666")]
     [InlineData("\"hit_high\": 11000,", "\"hit_high\": 8000,", "hit_high", "outside 9000 to")]
     [InlineData("\"item_rate\": 5000", "\"item_rate\": 5000, \"crit_rate\": 1", "crit_rate", "unknown field")]
     [InlineData("\"experience_gap\": 4,", "\"experience_gap\": 40,", "experience_gap", "outside 0 to 39")]
@@ -57,6 +58,7 @@ public sealed class BattleFixtureTests
     [InlineData("[5, 12, 20, 30]", "[1, 12]", "slot level 1", "outside 2 to 40")]
     [InlineData("[5, 12, 20, 30]", "[5, 41]", "slot level 41", "outside 6 to 40")]
     [InlineData(",\n \"lesson_slot_levels\": [5, 12, 20, 30]", "", "lesson_slot_levels", "absent")]
+    [InlineData("\"lesson_slots\": 2,", "\"lesson_slots\": 37,", "lesson_slot_levels", "give 41 slots, and a character holds 40 at most")]
     public void ARulesFileThatBreaksARuleFailsWithTheField(string from, string to, string field, string reason)
     {
         string text = TestBattles.RulesFile.Replace(from, to, StringComparison.Ordinal);
@@ -65,6 +67,21 @@ public sealed class BattleFixtureTests
 
         Assert.Contains(field, error.Message, StringComparison.Ordinal);
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheRulesTakeTheMissCeilingAndTheSlotCountAtTheirBounds()
+    {
+        // P3-18, the boundary of the two rows above: a ceiling of 6666 keeps a third of each
+        // strike in reach (D-1107), and 36 slots at level 1 with 4 slot levels give 40.
+        string text = TestBattles.RulesFile
+            .Replace("\"miss_ceiling\": 1500,", "\"miss_ceiling\": 6666,", StringComparison.Ordinal)
+            .Replace("\"lesson_slots\": 2,", "\"lesson_slots\": 36,", StringComparison.Ordinal);
+
+        BattleRules rules = BattleRules.Read(Encoding.UTF8.GetBytes(text), "rules.json");
+
+        Assert.Equal(BattleRules.MostMissCeiling, rules.MissCeiling);
+        Assert.Equal(BattleRules.MostLessonSlots, rules.SlotsAt(StatCurve.HighestLevel));
     }
 
     [Theory]
