@@ -1,4 +1,37 @@
 # Session handoff archive
+
+## Session 306: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #81 (PR-104), round 1. Repository: the-thing-below. Local branch: `review/pr-81`; PR branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: reviewer. Base: `4aad522`.
+
+### What this session did, and why
+
+- Reviewed all 50 changed paths from merge base `4aad522` through effective head `f66e314`.
+- Verified the changed battle captures against the CI artifact. No visual fault appeared.
+- `make verify` passed locally with 3340 tests. The implementation CI checks passed at `f66e314`.
+- The review record gives `Blocked`: D-961 requires an owner run of `evaluator-cost` on the Steam Deck before merge, and one Gitar dashboard finding has no author answer (D-964).
+
+### The state of the build
+
+- Effective head `f66e314`. CI run `36154860584` passed the implementation checks. Metadata run `36156272679` passed its applicable checks. The live `review-gate` passes RG 3, RG 5 to RG 8, and fails RG 4 because the verdict is `Blocked`.
+
+### What is in flight
+
+- The review record and this handoff entry are committed together and pushed to `fix/pr-104-boot-and-rules`.
+- The owner Steam Deck measurement and the author answer to the Gitar dashboard finding remain pending.
+
+### Traps and gotchas
+
+- D-1099 accepts replacement of an older refused settings file. The author still needs to answer Gitar's matching dashboard item (D-964).
+
+### The questions that block progress
+
+None. The Steam Deck measurement and the Gitar answer are required evidence, not open design questions.
+
+### The next concrete action
+
+The author answers the Gitar item and the owner runs `evaluator-cost` on the Steam Deck. Then request a repeat review.
 ## Session 305: 2026-09-25, Claude Code
 
 Author: Claude Code

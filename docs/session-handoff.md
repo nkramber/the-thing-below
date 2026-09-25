@@ -1,3 +1,36 @@
+## Session 316: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #82 (PR-105), round 2. Repository: the-thing-below. Local branch: `review/pr-82`; PR branch: `fix/pr-105-save-drift`. PR: #82. Role: reviewer. Base: `640ad98`.
+
+### What this session did, and why
+
+- Re-reviewed the P2-1 correction at effective head `e17c964`.
+- The selected conflict cell now uses the warning color and a 2-pixel cursor outline (D-1119, D-1120). The screen-test artifact shows two conflicts and the line `1 of 2`.
+- The Gitar CI-analysis item has its answer. Its log names only stale RG 4 and RG 5, which this record replaces (D-964).
+
+### The state of the build
+
+- `make verify` passed on macOS arm64: 3401 tests, format, lint, STE, identity, content, atlas, and smoke. CI implementation checks passed at `e17c964`.
+- This metadata commit updates the verdict and this entry. The remote head before the commit is `e17c964`.
+
+### What is in flight
+
+- This record and this handoff entry are committed together and pushed to `fix/pr-105-save-drift`.
+- The record gives `Ready for owner merge` for `e17c964`. The owner can merge when `review-gate` reads the record and passes.
+
+### Traps and gotchas
+
+- The `review-gate` failure at RG 4 and RG 5 reads the old review record. The new metadata commit supplies the updated verdict and effective head.
+
+### The questions that block progress
+
+None for this PR.
+
+### The next concrete action
+
+Read the new `review-gate` result after the metadata push. The owner can merge when it passes.
+
 ## Session 315: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -291,36 +324,3 @@ None.
 ### The next concrete action
 
 Read the outcome of the repeat review.
-
-## Session 306: 2026-09-25, Codex
-
-Author: Codex
-Session: reviewer PR #81 (PR-104), round 1. Repository: the-thing-below. Local branch: `review/pr-81`; PR branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: reviewer. Base: `4aad522`.
-
-### What this session did, and why
-
-- Reviewed all 50 changed paths from merge base `4aad522` through effective head `f66e314`.
-- Verified the changed battle captures against the CI artifact. No visual fault appeared.
-- `make verify` passed locally with 3340 tests. The implementation CI checks passed at `f66e314`.
-- The review record gives `Blocked`: D-961 requires an owner run of `evaluator-cost` on the Steam Deck before merge, and one Gitar dashboard finding has no author answer (D-964).
-
-### The state of the build
-
-- Effective head `f66e314`. CI run `36154860584` passed the implementation checks. Metadata run `36156272679` passed its applicable checks. The live `review-gate` passes RG 3, RG 5 to RG 8, and fails RG 4 because the verdict is `Blocked`.
-
-### What is in flight
-
-- The review record and this handoff entry are committed together and pushed to `fix/pr-104-boot-and-rules`.
-- The owner Steam Deck measurement and the author answer to the Gitar dashboard finding remain pending.
-
-### Traps and gotchas
-
-- D-1099 accepts replacement of an older refused settings file. The author still needs to answer Gitar's matching dashboard item (D-964).
-
-### The questions that block progress
-
-None. The Steam Deck measurement and the Gitar answer are required evidence, not open design questions.
-
-### The next concrete action
-
-The author answers the Gitar item and the owner runs `evaluator-cost` on the Steam Deck. Then request a repeat review.
