@@ -2650,14 +2650,14 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-59 | The AI disclosure of the content survey | PR-75 |
 | OQ-64 | The tick while a menu is open. Resolved by D-650 | PR-62 |
 | OQ-74 | How the runner finds a softlock | PR-15 |
-| OQ-79 | How the screen-test job pins Mesa | PR-41 |
+| OQ-79 | How the screen-test job pins Mesa, resolved by D-729 and D-730 | PR-41 |
 | OQ-80 | The count of bot runs on each PR | PR-15 |
 | OQ-81 | How the night gate result stays current | PR-49 |
 | OQ-82 | The time of the night | PR-49 |
 | OQ-83 | How CI gets the Godot editor and the templates, resolved by D-596 | PR-54 |
 | OQ-84 | The seeds of the night | PR-49 |
 | OQ-86 | How the atlas places tiles, and how Game draws a map | PR-7, answered by D-667 |
-| OQ-89 | Pixel snap in Game | PR-7 |
+| OQ-89 | Pixel snap in Game, resolved by D-715 | PR-7 |
 | OQ-91 | The operations of a large picture on a piece, resolved by D-812 | PR-55 |
 | OQ-94 | How the budget test counts one view, resolved by D-842 | PR-56 |
 | OQ-95 | Where a torch light comes from, resolved by D-843 | PR-56 |
@@ -2669,19 +2669,19 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-101 | How fog keeps an enemy visible, resolved by D-885 | PR-58 |
 | OQ-102 | How glow stays off sprites, resolved by D-910 | PR-59 |
 | OQ-103 | Where shader code lives, resolved by D-825 | PR-10 and PR-60 |
-| OQ-104 | The font settings and the load from bytes | PR-61 |
+| OQ-104 | The font settings and the load from bytes, resolved by D-710 | PR-61 |
 | OQ-106 | Where the settings file lives, and its form, resolved by D-860 | PR-63 |
-| OQ-107 | How Game knows the last device of the player | PR-61 |
+| OQ-107 | How Game knows the last device of the player, resolved by D-711, which D-815 superseded | PR-61 |
 | OQ-108 | Where a remap lives, and what a conflict does, resolved by D-862 | PR-63 |
 | OQ-109 | The dead zone of a stick, resolved by D-861 | PR-63 |
 | OQ-110 | The cursor rules of a menu, resolved by D-872 | PR-62 |
 | OQ-111 | The scale of the dungeon map screen, resolved by D-982 | PR-62 |
 | OQ-112 | The text speeds and the type-out of the dialogue box, resolved by D-864 | PR-36 |
 | OQ-113 | The notice log, resolved by D-983 to D-985 | PR-62 |
-| OQ-114 | The rule of sight for the party and a patrol | PR-7 and PR-8 |
-| OQ-115 | How a large enemy holds its tiles and sorts | PR-8 |
-| OQ-117 | A diagonal step on the map | PR-7 |
-| OQ-118 | The limits of the camera on a small map | PR-7 |
+| OQ-114 | The rule of sight for the party and a patrol, resolved by D-718 to D-720 | PR-7 and PR-8 |
+| OQ-115 | How a large enemy holds its tiles and sorts, resolved by D-737 | PR-8 |
+| OQ-117 | A diagonal step on the map, resolved by D-716 | PR-7 |
+| OQ-118 | The limits of the camera on a small map, resolved by D-717 | PR-7 |
 | OQ-119 | What a trap does, and what a Theft drill does to it | PR-64 |
 | OQ-120 | The hazards of region one | PR-64 |
 | OQ-121 | The prices, the buy-back, and the stock of a shop | PR-65 |
@@ -2698,16 +2698,16 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-134 | The shape of a stat curve. Resolved by D-966 | PR-67 |
 | OQ-135 | The MP that a save point and a rest restore. Resolved by D-967 | PR-67 |
 | OQ-136 | The shrink of the experience of an enemy. Resolved by D-968 and D-969 | PR-67 |
-| OQ-137 | The lesson slots at each level | PR-12 |
-| OQ-138 | The points that a lesson gains from a battle | PR-12 |
-| OQ-139 | Two copies of one lesson in one party | PR-12 |
+| OQ-137 | The lesson slots at each level, resolved by D-1018 | PR-12 |
+| OQ-138 | The points that a lesson gains from a battle, resolved by D-1019 to D-1022 | PR-12 |
+| OQ-139 | Two copies of one lesson in one party, resolved by D-1023 to D-1025 | PR-12 |
 | OQ-140 | What a piece of gear changes. Resolved by D-1036 | PR-13 |
 | OQ-141 | Two accessories with one effect. Resolved by D-1037 | PR-13 |
 | OQ-142 | The stack limit of each item. Resolved by D-1038 and D-1039 | PR-13 |
 | OQ-143 | What a rarity tier changes. Resolved by D-1040 | PR-13 |
 | OQ-217 | How far the party sees in the dark. Resolved by D-1062 and D-1063 | PR-91 |
 | OQ-218 | How much farther an enemy sees a lit torch. Resolved by D-1063 | PR-91 |
-| OQ-219 | The paths of the docs-only set | PR-93 |
+| OQ-219 | The paths of the docs-only set, resolved by D-857 | PR-93 |
 | OQ-144 | The full step list of a story scene script, resolved by D-997 | PR-68 |
 | OQ-145 | How a step that takes time ends, resolved by D-1000 | PR-68 |
 | OQ-146 | The shape of a condition, resolved by D-1001 and D-1002 | PR-68 |

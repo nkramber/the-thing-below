@@ -79,7 +79,7 @@ public sealed class GameMap
     /// <summary>The string id of the name that the player reads for this map (G-7).</summary>
     public ContentId Label { get; }
 
-    /// <summary>The time of day that the file gives, which a story flag can change (D-442).</summary>
+    /// <summary>The time of day that the file gives (D-442). No rule of this build changes it.</summary>
     public TimeOfDay Time { get; }
 
     /// <summary>

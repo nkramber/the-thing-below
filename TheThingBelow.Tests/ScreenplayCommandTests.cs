@@ -20,9 +20,9 @@ public sealed class ScreenplayCommandTests
      "comment": "A line of Marrek, a pause, and a line with no speaker.",
      "id": "scene.test_screen",
      "steps": [
-      { "kind": "say", "speaker": "character.marrek", "line": "line.test_screen_door" },
-      { "kind": "wait", "ticks": 3 },
-      { "kind": "say", "speaker": "none", "line": "line.test_screen_quiet" }
+      { "id": "step.s1", "kind": "say", "speaker": "character.marrek", "line": "line.test_screen_door" },
+      { "id": "step.s2", "kind": "wait", "ticks": 3 },
+      { "id": "step.s3", "kind": "say", "speaker": "none", "line": "line.test_screen_quiet" }
      ]
     }
     """;

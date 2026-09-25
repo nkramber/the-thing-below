@@ -42,6 +42,8 @@ namespace TheThingBelow.Tests;
 /// Format 10 and 11 hold the swap place, and the read drops it, because a swap of lessons needs no
 /// place (D-1050).
 /// Format 12 and older predate the torch, and the migration puts the torch away (D-1064).
+/// Format 13 and older predate the step id of a story scene, and the resume reads the index of
+/// the step alone (D-1112).
 /// </para>
 /// </remarks>
 public sealed class SaveFixtureTests
@@ -417,7 +419,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(ScenePhase.WaitIntent, story.Phase);
         Assert.True(story.Paused);
         Assert.Equal(2, run.State.Characters.Members.Count);
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) }), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot with { Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle), Story = WithStepId(save.Snapshot.Story, "step.ambush") }), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -511,6 +513,31 @@ public sealed class SaveFixtureTests
         Assert.Equal(25, save.Header.SimulationVersion);
         Assert.Equal(true, run.Snapshot().Characters?.TorchHeld);
         Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatFourteenHoldsTheIdOfThePausedStep()
+    {
+        // PR-105 wrote format 14 from the story fixture, paused on the wait of the meeting with
+        // three ticks left (D-1112).
+        SaveDocument save = ReadFormat(14);
+        Simulation run = TestStory.Resume(save.Header.Seed, save.Snapshot);
+
+        StoryState story = run.State.Story;
+        Assert.Equal(29, save.Header.SimulationVersion);
+        Assert.Equal("step.pause", save.Snapshot.Story?.Scene?.StepId?.Value);
+        Assert.Equal((5, ScenePhase.Ticks, 3, true), (story.Step, story.Phase, story.TicksLeft, story.Paused));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatThirteenPredatesTheStepId()
+    {
+        // D-1112: a snapshot of format 13 holds no step id, and its reader refuses one.
+        string text = File.ReadAllText(PathOfFormat(13));
+
+        Assert.DoesNotContain("step_id", text, StringComparison.Ordinal);
+        Assert.Contains("\"step_id\":\"step.pause\"", File.ReadAllText(PathOfFormat(14)), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -629,6 +656,12 @@ public sealed class SaveFixtureTests
         party is null ? null : party with { TorchHeld = party.TorchHeld ?? false };
 
     /// <summary>Gives the battle of a save of format 10 or older as the migration gives it: no steal try (D-166, D-1045).</summary>
+    /// <summary>Gives the story values that a resume of a snapshot before format 14 writes: the step id of the index (D-1112).</summary>
+    private static StoryValues? WithStepId(StoryValues? story, string stepId) =>
+        story is null || story.Scene is null
+            ? story
+            : story with { Scene = story.Scene with { StepId = ContentId.Parse(stepId, "test", "step_id") } };
+
     private static BattleValues? WithSteals(BattleValues? battle) =>
         battle is null ? null : battle with { Steals = battle.Steals ?? new StealValues(0, []) };
 

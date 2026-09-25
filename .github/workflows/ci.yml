@@ -30,6 +30,9 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "true"
   GODOT_VERSION: "4.7.2-stable"
   REPORT_GENERATOR_VERSION: "5.5.11"
+  # The SHA-512 of the package file of that version. It matches the `packageHash` of the
+  # NuGet catalog entry of the version (D-511, D-1116).
+  REPORT_GENERATOR_SHA512: 5a971b175a894b20c276a7f892d4f24d0b2a5c7f16c29d1698fdc501d967e4e5ef5d60b9dc84a9ceda321994c7e288786352d1f91f5afc82ad97cf74db9edad5
 
 jobs:
   changed-paths:
@@ -230,11 +233,26 @@ jobs:
             -- --filter-not-trait "Category=Smoke" --coverlet \
             --coverlet-output-format cobertura --results-directory artifacts/coverage
 
+      # The step downloads the package file, checks its SHA-512, and installs from that folder
+      # alone, as each other download checks its SHA-512 (D-511, D-1116).
       - name: Write the Markdown summary with ReportGenerator
         run: |
           set -euo pipefail
+          package="dotnet-reportgenerator-globaltool.$REPORT_GENERATOR_VERSION.nupkg"
+          mkdir -p report-generator-download
+          curl --location --fail --silent --show-error \
+            --output "report-generator-download/$package" \
+            "https://api.nuget.org/v3-flatcontainer/dotnet-reportgenerator-globaltool/$REPORT_GENERATOR_VERSION/$package"
+          actual=$(sha512sum "report-generator-download/$package" | cut -d ' ' -f 1)
+          if [ "$actual" != "$REPORT_GENERATOR_SHA512" ]; then
+            echo "The SHA-512 of $package does not match the value of this workflow (T-2)." >&2
+            echo "  expected: $REPORT_GENERATOR_SHA512" >&2
+            echo "  actual:   $actual" >&2
+            exit 1
+          fi
+          echo "The SHA-512 of $package matches."
           dotnet tool install --global dotnet-reportgenerator-globaltool \
-            --version "$REPORT_GENERATOR_VERSION"
+            --version "$REPORT_GENERATOR_VERSION" --source "$PWD/report-generator-download"
           reportgenerator \
             "-reports:artifacts/coverage/*.cobertura.*xml" \
             "-targetdir:artifacts/coverage-report" \
@@ -737,8 +755,9 @@ jobs:
             exit 1
           fi
 
-      # Two runs give the same frames, because the capture session runs no tick and the
-      # fixture seed is fixed (T-7). The second run proves it.
+      # Two runs must give the same frames: the capture session runs a fixed count of ticks
+      # from the fixed fixture seed (T-7). The second run checks it. OQ-246 holds a flake of one
+      # level in a few frames with lights and particles.
       - name: Take the captures two times
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"

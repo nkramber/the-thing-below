@@ -355,6 +355,16 @@ public static class RunSnapshotText
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
     public static RunSnapshot ReadFormatTwelve(ref ContentReader reader) => ReadLine(ref reader, 12, null);
 
+    /// <summary>
+    /// Reads a snapshot of save format 13, whose story scene holds no step id (D-1112). The
+    /// resume reads the index of the step alone, as the build that wrote it did.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <returns>The snapshot, with no step id.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatThirteen(ref ContentReader reader) => ReadLine(ref reader, 13, null);
+
     private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {
         long? tick = null;
@@ -393,7 +403,7 @@ public static class RunSnapshotText
                     throw reader.Refuse(
                         $"the snapshot of save format {format} holds a story state, and that format predates it (D-540)");
                 case "story":
-                    story = StorySnapshotText.Read(ref reader);
+                    story = StorySnapshotText.Read(ref reader, format);
                     break;
                 case "map":
                     map = ReadMap(ref reader, format);

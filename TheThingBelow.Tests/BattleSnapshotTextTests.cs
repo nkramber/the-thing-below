@@ -178,7 +178,7 @@ public sealed class BattleSnapshotTextTests
         // D-764: a record replays on its own simulation version alone, so no reader of format 1 exists.
         Simulation run = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
         RunRecorder recorder = new(RunHeader.ForThisBuild("0123456789abcdef", Seed), run.Snapshot());
-        string text = RunRecordText.Write(recorder.Build()).Replace("{\"format\":3,", "{\"format\":1,", StringComparison.Ordinal);
+        string text = RunRecordText.Write(recorder.Build()).Replace("{\"format\":4,", "{\"format\":1,", StringComparison.Ordinal);
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunReplay.Play(RunRecordText.Read(text), "0123456789abcdef", BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None));
@@ -198,7 +198,7 @@ public sealed class BattleSnapshotTextTests
         SaveDocument slotSave = SaveOf(100);
         SaveDocument autoSave = SaveOf(250);
 
-        SaveDocument? chosen = SavePick.NewerOf(slot ? slotSave : null, autosave ? autoSave : null);
+        SaveDocument? chosen = SavePick.NewerOf(slot ? slotSave : null, autosave ? autoSave : null, Seed);
 
         SaveDocument? wanted = picked switch
         {
@@ -214,13 +214,38 @@ public sealed class BattleSnapshotTextTests
     {
         SaveDocument slot = SaveOf(100);
 
-        Assert.Same(slot, SavePick.NewerOf(slot, SaveOf(100)));
+        Assert.Same(slot, SavePick.NewerOf(slot, SaveOf(100), Seed));
     }
 
-    private static SaveDocument SaveOf(long tick)
+    [Theory]
+    [InlineData(true, false, "autosave")]
+    [InlineData(false, true, "slot")]
+    [InlineData(true, true, null)]
+    public void AWipeNeverReloadsASaveOfAnotherRun(bool slotOfOtherRun, bool autosaveOfOtherRun, string? picked)
     {
-        RunSnapshot snapshot = Simulation.Start(Seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
-        return new SaveDocument(SaveHeader.ForThisBuild("0123456789abcdef", Seed), snapshot with { Tick = tick, WorldTick = 0 });
+        // D-1114, the reproducer of the review: a slot save of an older run held a later tick,
+        // and the pick by tick alone loaded that run. A save of another seed is another run.
+        SaveDocument slot = SaveOf(900, slotOfOtherRun ? Seed + 1 : Seed);
+        SaveDocument autosave = SaveOf(100, autosaveOfOtherRun ? Seed + 1 : Seed);
+
+        SaveDocument? chosen = SavePick.NewerOf(slot, autosave, Seed);
+
+        SaveDocument? wanted = picked switch
+        {
+            "slot" => slot,
+            "autosave" => autosave,
+            _ => null,
+        };
+        Assert.Same(wanted, chosen);
+        Assert.False(SavePick.OfRun(null, Seed));
+    }
+
+    private static SaveDocument SaveOf(long tick) => SaveOf(tick, Seed);
+
+    private static SaveDocument SaveOf(long tick, ulong seed)
+    {
+        RunSnapshot snapshot = Simulation.Start(seed, BattleRuns.Map("group.one"), TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
+        return new SaveDocument(SaveHeader.ForThisBuild("0123456789abcdef", seed), snapshot with { Tick = tick, WorldTick = 0 });
     }
 
     private static RunSnapshot Read(string line)

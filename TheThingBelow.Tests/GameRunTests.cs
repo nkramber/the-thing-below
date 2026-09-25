@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
+using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Core.Saves;
 using TheThingBelow.Storage;
 using TheThingBelow.Tools.Content;
 using Xunit;
@@ -209,6 +212,80 @@ public sealed class GameRunTests
         Assert.Equal("112", field.Value);
     }
 
+    [Fact]
+    public void ASaveDropsTheIntentsBeforeItSoTheRecordOfAHeldWalkStaysBounded()
+    {
+        // F-10, D-651, D-1115: a held direction gives one line for each tick, and only a save
+        // drops the lines before it. No caller took a save before PR-105.
+        Run run = Run.Start();
+        Intent step = run.IntentOf("step_north");
+        for (int frame = 0; frame < 600; frame += 1)
+        {
+            run.Advance(OneTick, () => step);
+        }
+
+        Assert.Equal(600, run.RecordedLines);
+
+        SaveDocument save = run.Save();
+
+        Assert.Equal(0, run.RecordedLines);
+        Assert.Equal(600, save.Snapshot.Tick);
+        Assert.Equal((Seed, Content.Value.Hash, SaveFormat.Current), (save.Header.Seed, save.Header.ContentHash, save.Header.FormatVersion));
+        Assert.Equal(600, run.Record().Snapshot.Tick);
+
+        // The boundary: the ticks after the save take their lines again.
+        for (int frame = 0; frame < 10; frame += 1)
+        {
+            run.Advance(OneTick, () => step);
+        }
+
+        Assert.Equal(10, run.RecordedLines);
+        Assert.Equal(610, run.Record().EndTick);
+    }
+
+    [Fact]
+    public void AReloadDropsASaveOfAnotherRunAndStartsTheRunAgain()
+    {
+        // D-1114: the slot save of another seed holds a later tick, and the wipe never loads it.
+        Run played = Run.Start();
+        for (int frame = 0; frame < 30; frame += 1)
+        {
+            played.Advance(OneTick);
+        }
+
+        SaveDocument other = played.Save() with { Header = played.Save().Header with { Seed = Seed + 1 } };
+        List<LogEntry> log = [];
+
+        Run reloaded = Run.Reload(other, null, Seed, log);
+
+        Assert.Equal(0, reloaded.Tick);
+        Assert.Empty(log);
+    }
+
+    [Fact]
+    public void AReloadOfASaveOfAnotherBuildLogsEachChangeOfItsMap()
+    {
+        // D-1111, D-1113: a patch added an enemy to the map, so the save lacks it. The resume of
+        // another build places it on its station and logs a warning, and the same save of this
+        // build fails as before.
+        Run played = Run.Start();
+        played.Advance(OneTick);
+        SaveDocument save = played.Save();
+        MapSnapshot map = save.Snapshot.Map!;
+        SaveDocument lacking = save with { Snapshot = save.Snapshot with { Map = map with { Enemies = [.. map.Enemies!.Skip(1)] } } };
+        SaveDocument otherBuild = lacking with { Header = lacking.Header with { ContentHash = "an-older-content-hash" } };
+        List<LogEntry> log = [];
+
+        Run reloaded = Run.Reload(otherBuild, null, Seed, log);
+
+        Assert.Equal(1, reloaded.Tick);
+        LogEntry entry = Assert.Single(log);
+        Assert.Equal(LogLevel.Warning, entry.Level);
+        Assert.Contains("the save lacks", entry.Message, StringComparison.Ordinal);
+        TargetInvocationException refused = Assert.Throws<TargetInvocationException>(() => Run.Reload(lacking, null, Seed, []));
+        Assert.IsType<ArgumentException>(refused.InnerException);
+    }
+
     /// <summary>The run of the built Game assembly, through its public members.</summary>
     [Fact]
     public void TheMenuActionOpensTheMenuAndThenClosesIt()
@@ -344,7 +421,26 @@ public sealed class GameRunTests
         public object? NoticeAt(int charactersPerSecond) =>
             this.instance.GetType().GetMethod("NoticeAt")!.Invoke(this.instance, [charactersPerSecond]);
 
+        public int RecordedLines => (int)(this.instance.GetType().GetProperty("RecordedLines")!.GetValue(this.instance)
+            ?? throw new InvalidOperationException("The run holds no count of recorded lines (T-2)."));
+
         public static Run Start() => Start(DebugIntentHandlers.None);
+
+        public static Run Reload(SaveDocument? slot, SaveDocument? autosave, ulong seed, List<LogEntry> log)
+        {
+            Type type = GameAssemblyFile.Type(RunTypeName);
+            MethodInfo reload = type.GetMethod(
+                "Reload",
+                [typeof(ContentSet), typeof(SaveDocument), typeof(SaveDocument), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed), typeof(List<LogEntry>)])
+                ?? throw new InvalidOperationException("The run holds no 'Reload' method (T-2).");
+            object instance = reload.Invoke(null, [Content.Value, slot, autosave, seed, DebugIntentHandlers.None, MessageSpeed.Normal, log])
+                ?? throw new InvalidOperationException("The 'Reload' method gave no run (T-2).");
+            return new Run(type, instance);
+        }
+
+        public SaveDocument Save() =>
+            (SaveDocument)(this.instance.GetType().GetMethod("Save", Type.EmptyTypes)!.Invoke(this.instance, Type.EmptyTypes)
+                ?? throw new InvalidOperationException("The 'Save' method gave nothing (T-2)."));
 
         public static Run Start(DebugIntentHandlers handlers)
         {

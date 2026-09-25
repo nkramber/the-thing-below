@@ -233,7 +233,7 @@ public sealed class StorySnapshotTests
     }
 
     private static SceneValues Scene(string id, int step, ScenePhase phase, int ticks, params ActorValues[] actors) =>
-        new(Id(id), step, phase, ticks, actors);
+        new(Id(id), step, null, phase, ticks, actors);
 
     private static ActorValues Ally(int x) => new(Id("character.test_second"), new TilePoint(x, 1), StepDirection.West);
 

@@ -20,14 +20,14 @@ public sealed class StoryContentTests
     }
 
     [Theory]
-    [InlineData("""{ "kind": "set_flag", "flag": "flag.test_lost" }""", "steps[0].flag", "flag.test_lost")]
-    [InlineData("""{ "kind": "choose", "options": [{ "line": "line.test_yes", "flag": "flag.test_yes" }, { "line": "line.test_no", "flag": "flag.test_lost" }] }""", "steps[0].options[1].flag", "flag.test_lost")]
-    [InlineData("""{ "kind": "join", "character": "character.test_absent" }""", "steps[0].character", "character.test_absent")]
-    [InlineData("""{ "kind": "say", "speaker": "character.test_absent", "line": "line.test_greet" }""", "steps[0].speaker", "character.test_absent")]
-    [InlineData("""{ "kind": "start_battle", "group": "group.test_absent" }""", "steps[0].group", "group.test_absent")]
-    [InlineData("""{ "kind": "hide", "actor": "character.test_second" }""", "steps[0].actor", "is not on the map at this step")]
-    [InlineData("""{ "kind": "move", "actor": "character.test_second", "path": ["west"] }""", "steps[0].actor", "is not on the map at this step")]
-    [InlineData("""{ "kind": "face", "actor": "character.test_second", "facing": "west" }""", "steps[0].actor", "is not on the map at this step")]
+    [InlineData("""{ "id": "step.s1", "kind": "set_flag", "flag": "flag.test_lost" }""", "steps[0].flag", "flag.test_lost")]
+    [InlineData("""{ "id": "step.s2", "kind": "choose", "options": [{ "line": "line.test_yes", "flag": "flag.test_yes" }, { "line": "line.test_no", "flag": "flag.test_lost" }] }""", "steps[0].options[1].flag", "flag.test_lost")]
+    [InlineData("""{ "id": "step.s3", "kind": "join", "character": "character.test_absent" }""", "steps[0].character", "character.test_absent")]
+    [InlineData("""{ "id": "step.s4", "kind": "say", "speaker": "character.test_absent", "line": "line.test_greet" }""", "steps[0].speaker", "character.test_absent")]
+    [InlineData("""{ "id": "step.s5", "kind": "start_battle", "group": "group.test_absent" }""", "steps[0].group", "group.test_absent")]
+    [InlineData("""{ "id": "step.s6", "kind": "hide", "actor": "character.test_second" }""", "steps[0].actor", "is not on the map at this step")]
+    [InlineData("""{ "id": "step.s7", "kind": "move", "actor": "character.test_second", "path": ["west"] }""", "steps[0].actor", "is not on the map at this step")]
+    [InlineData("""{ "id": "step.s8", "kind": "face", "actor": "character.test_second", "facing": "west" }""", "steps[0].actor", "is not on the map at this step")]
     public void AStepThatNamesAnIdOfNoOtherFileFailsWithTheStorySceneTheStepAndTheId(string step, string field, string reason)
     {
         ContentException error = Assert.Throws<ContentException>(() => Load(Scene(step)));
@@ -40,9 +40,10 @@ public sealed class StoryContentTests
     [Fact]
     public void ASecondShowOfACastMemberOnTheMapFails()
     {
-        string show = """{ "kind": "show", "actor": "character.test_second", "at": "marker.test_story_door", "facing": "west" }""";
+        string show = """{ "id": "step.s9", "kind": "show", "actor": "character.test_second", "at": "marker.test_story_door", "facing": "west" }""";
+        string again = show.Replace("step.s9", "step.s9_again", StringComparison.Ordinal);
 
-        ContentException error = Assert.Throws<ContentException>(() => Load(Scene(show, show)));
+        ContentException error = Assert.Throws<ContentException>(() => Load(Scene(show, again)));
 
         Assert.Contains("steps[1].actor", error.Message, StringComparison.Ordinal);
         Assert.Contains("already on the map", error.Message, StringComparison.Ordinal);
@@ -51,10 +52,12 @@ public sealed class StoryContentTests
     [Fact]
     public void AShowAfterAHideOfTheSameCastMemberLoads()
     {
-        string show = """{ "kind": "show", "actor": "character.test_second", "at": "marker.test_story_door", "facing": "west" }""";
-        string hide = """{ "kind": "hide", "actor": "character.test_second" }""";
+        string show = """{ "id": "step.s10", "kind": "show", "actor": "character.test_second", "at": "marker.test_story_door", "facing": "west" }""";
+        string hide = """{ "id": "step.s11", "kind": "hide", "actor": "character.test_second" }""";
 
-        _ = Load(Scene(show, hide, show));
+        string again = show.Replace("step.s10", "step.s10_again", StringComparison.Ordinal);
+
+        _ = Load(Scene(show, hide, again));
     }
 
     [Fact]

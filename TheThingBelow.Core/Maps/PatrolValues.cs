@@ -8,8 +8,9 @@ namespace TheThingBelow.Core.Maps;
 /// </summary>
 /// <remarks>
 /// A load reads the record of the enemy from the map of this build, and it reads these values
-/// from the snapshot. Thus a save never holds the route, the size, or the group of an enemy,
-/// and a change of the content never breaks an old save (D-166, D-495).
+/// from the snapshot. Thus a save never holds the route, the size, or the group of an enemy
+/// (D-166, D-495). A save of another build matches each enemy by its id, and an enemy whose
+/// stored place its edited station no longer takes starts on that station again (D-1111).
 /// <para>
 /// The station of the enemy comes from the time of day of the map, so the snapshot holds no
 /// station either (D-743).

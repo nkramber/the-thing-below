@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
+using TheThingBelow.Core.Logging;
+using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Maps;
@@ -87,11 +89,44 @@ public sealed class MapPatrols
         IReadOnlyList<PatrolValues> values,
         SightMark? mark,
         MapEncounter? encounter,
-        string source)
+        string source) =>
+        Resume(map, values, mark, encounter, source, ResumeDrift.Of(SnapshotOrigin.ThisBuild, 0));
+
+    /// <summary>
+    /// Puts every enemy back from the values of a snapshot that this build or another build
+    /// wrote (D-166, D-750, D-1111).
+    /// </summary>
+    /// <param name="map">The map of the snapshot, from the content of this build.</param>
+    /// <param name="values">The stored values, one for each enemy that the map placed.</param>
+    /// <param name="mark">The mark of the snapshot, or no value.</param>
+    /// <param name="encounter">The encounter of the snapshot, or no value.</param>
+    /// <param name="source">What the values came from, such as `the save`, for an error (T-2).</param>
+    /// <param name="drift">The build of the snapshot, and the log of each change (D-1111).</param>
+    /// <returns>The enemies.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of this map (T-2).</exception>
+    /// <remarks>
+    /// A snapshot of this build holds one value for each enemy that the time of day of the map
+    /// places, in the order of the map file, and a list of another shape fails with the map and
+    /// the count (T-2). A snapshot of another build matches each enemy by its id instead
+    /// (D-1111). An enemy that the save lacks starts on its station. An enemy that the map no
+    /// longer places leaves, and so does its mark. An enemy whose stored place its station no
+    /// longer takes starts on its station again, and a dead enemy stays dead. An encounter
+    /// with an enemy that the map no longer places refuses the save, because its fight has no
+    /// enemy to end.
+    /// </remarks>
+    public static MapPatrols Resume(
+        GameMap map,
+        IReadOnlyList<PatrolValues> values,
+        SightMark? mark,
+        MapEncounter? encounter,
+        string source,
+        ResumeDrift drift)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(values);
         ArgumentException.ThrowIfNullOrEmpty(source);
+        ArgumentNullException.ThrowIfNull(drift);
 
         List<Patrol> placed = [];
         List<PatrolStation> stations = [];
@@ -105,24 +140,9 @@ public sealed class MapPatrols
             }
         }
 
-        Refuse(
-            values.Count != placed.Count,
-            source,
-            $"it holds {values.Count} enemies, and the map '{map.Id.Value}' places {placed.Count} at the time {TimesOfDay.NameOf(map.Time)}");
-
-        PatrolState[] states = new PatrolState[placed.Count];
-        for (int index = 0; index < placed.Count; index += 1)
-        {
-            PatrolValues stored = values[index];
-            ArgumentNullException.ThrowIfNull(stored);
-            Refuse(
-                string.CompareOrdinal(stored.Enemy.Value, placed[index].Id.Value) != 0,
-                source,
-                $"the enemy at position {index} is '{stored.Enemy.Value}', and the map '{map.Id.Value}' places '{placed[index].Id.Value}' there");
-            states[index] = PatrolState.Resume(placed[index], stations[index], map, stored, source);
-        }
-
-        var built = new MapPatrols(states, mark, encounter);
+        MapPatrols built = drift.Adjusts
+            ? ResumeById(map, placed, stations, values, mark, encounter, source, drift)
+            : ResumeInOrder(map, placed, stations, values, mark, encounter, source);
         built.CheckMarkAndEncounter(source);
         return built;
     }
@@ -529,6 +549,135 @@ public sealed class MapPatrols
         }
 
         return true;
+    }
+
+    private static MapPatrols ResumeInOrder(
+        GameMap map,
+        List<Patrol> placed,
+        List<PatrolStation> stations,
+        IReadOnlyList<PatrolValues> values,
+        SightMark? mark,
+        MapEncounter? encounter,
+        string source)
+    {
+        Refuse(
+            values.Count != placed.Count,
+            source,
+            $"it holds {values.Count} enemies, and the map '{map.Id.Value}' places {placed.Count} at the time {TimesOfDay.NameOf(map.Time)}");
+
+        PatrolState[] states = new PatrolState[placed.Count];
+        for (int index = 0; index < placed.Count; index += 1)
+        {
+            PatrolValues stored = values[index];
+            ArgumentNullException.ThrowIfNull(stored);
+            Refuse(
+                string.CompareOrdinal(stored.Enemy.Value, placed[index].Id.Value) != 0,
+                source,
+                $"the enemy at position {index} is '{stored.Enemy.Value}', and the map '{map.Id.Value}' places '{placed[index].Id.Value}' there");
+            states[index] = PatrolState.Resume(placed[index], stations[index], map, stored, source);
+        }
+
+        return new MapPatrols(states, mark, encounter);
+    }
+
+    /// <summary>Matches each stored enemy to the map of this build by its id, and logs each change (D-1111).</summary>
+    private static MapPatrols ResumeById(
+        GameMap map,
+        List<Patrol> placed,
+        List<PatrolStation> stations,
+        IReadOnlyList<PatrolValues> values,
+        SightMark? mark,
+        MapEncounter? encounter,
+        string source,
+        ResumeDrift drift)
+    {
+        string mapId = map.Id.Value;
+        for (int index = 0; index < values.Count; index += 1)
+        {
+            ArgumentNullException.ThrowIfNull(values[index]);
+            for (int earlier = 0; earlier < index; earlier += 1)
+            {
+                Refuse(
+                    string.CompareOrdinal(values[earlier].Enemy.Value, values[index].Enemy.Value) == 0,
+                    source,
+                    $"it holds the enemy '{values[index].Enemy.Value}' two times");
+            }
+        }
+
+        PatrolState[] states = new PatrolState[placed.Count];
+        List<string> restarted = [];
+        for (int index = 0; index < placed.Count; index += 1)
+        {
+            string id = placed[index].Id.Value;
+            PatrolValues? stored = StoredOf(values, id);
+            if (stored is null)
+            {
+                drift.Note(LogSubsystems.World, "the map of this build places an enemy that the save lacks, and it starts on its station", [new LogField("enemy", id), new LogField("map", mapId)]);
+                states[index] = PatrolState.Enter(placed[index], stations[index]);
+                restarted.Add(id);
+            }
+            else if (PatrolState.MisfitOf(placed[index], stations[index], map, stored) is string misfit)
+            {
+                drift.Note(LogSubsystems.World, "the station of this build takes no stored place of the enemy, and it starts on its station again", [new LogField("enemy", id), new LogField("map", mapId), new LogField("reason", misfit)]);
+                states[index] = PatrolState.EnterAgain(placed[index], stations[index], stored.Dead);
+                restarted.Add(id);
+            }
+            else
+            {
+                states[index] = PatrolState.Resume(placed[index], stations[index], map, stored, source);
+            }
+        }
+
+        foreach (PatrolValues stored in values)
+        {
+            if (!PlacesId(placed, stored.Enemy.Value))
+            {
+                drift.Note(LogSubsystems.World, "the map of this build no longer places an enemy of the save, and the enemy leaves", [new LogField("enemy", stored.Enemy.Value), new LogField("map", mapId)]);
+            }
+        }
+
+        if (encounter is MapEncounter running)
+        {
+            Refuse(
+                !PlacesId(placed, running.Enemy.Value),
+                source,
+                $"the encounter names the enemy '{running.Enemy.Value}', which the map '{mapId}' of this build no longer places, so its fight has no enemy to end (D-1111)");
+        }
+
+        SightMark? kept = mark;
+        if (mark is SightMark seen && (!PlacesId(placed, seen.Enemy.Value) || restarted.Contains(seen.Enemy.Value)))
+        {
+            drift.Note(LogSubsystems.World, "the enemy of the mark left its stored place in this build, and the mark ends", [new LogField("enemy", seen.Enemy.Value), new LogField("map", mapId)]);
+            kept = null;
+        }
+
+        return new MapPatrols(states, kept, encounter);
+    }
+
+    private static PatrolValues? StoredOf(IReadOnlyList<PatrolValues> values, string id)
+    {
+        foreach (PatrolValues stored in values)
+        {
+            if (string.CompareOrdinal(stored.Enemy.Value, id) == 0)
+            {
+                return stored;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool PlacesId(List<Patrol> placed, string id)
+    {
+        foreach (Patrol patrol in placed)
+        {
+            if (string.CompareOrdinal(patrol.Id.Value, id) == 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void CheckMarkAndEncounter(string source)

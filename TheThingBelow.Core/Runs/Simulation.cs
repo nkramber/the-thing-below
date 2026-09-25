@@ -126,6 +126,38 @@ public sealed class Simulation
         return new Simulation(RunState.Resume(seed, snapshot, map, battleContent, notices, story), debugHandlers);
     }
 
+    /// <summary>
+    /// Starts a run again from a snapshot that this build or another build wrote (D-259,
+    /// D-1111). A save calls it, because a patch can edit a map or a story scene between the
+    /// save and the load.
+    /// </summary>
+    /// <param name="seed">The seed of the run, which the save header holds (G-5).</param>
+    /// <param name="snapshot">The snapshot that the save holds.</param>
+    /// <param name="map">The map of the snapshot, from the content of this build (D-166).</param>
+    /// <param name="battleContent">The battle rules and the fixture of this build (D-766).</param>
+    /// <param name="notices">The notice file of this build (D-985).</param>
+    /// <param name="story">The story content of this build (D-166).</param>
+    /// <param name="debugHandlers">The extra intent handlers of the host (D-260).</param>
+    /// <param name="drift">The build of the snapshot. It takes the log line of each change (D-1113).</param>
+    /// <returns>The run, at the tick of the snapshot.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the map is another map (T-2).</exception>
+    public static Simulation Resume(
+        ulong seed,
+        RunSnapshot snapshot,
+        GameMap map,
+        BattleContent battleContent,
+        NoticeList notices,
+        StoryContent story,
+        DebugIntentHandlers debugHandlers,
+        ResumeDrift drift)
+    {
+        ArgumentNullException.ThrowIfNull(debugHandlers);
+        ArgumentNullException.ThrowIfNull(drift);
+
+        return new Simulation(RunState.Resume(seed, snapshot, map, battleContent, notices, story, drift), debugHandlers);
+    }
+
     /// <summary>Runs one tick of the rules.</summary>
     /// <param name="intents">The intents of this tick, in the order that the host made them.</param>
     /// <returns>The log entries of this tick, which can hold none (D-179).</returns>

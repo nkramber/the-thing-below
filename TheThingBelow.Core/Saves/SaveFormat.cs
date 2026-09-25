@@ -66,6 +66,11 @@ public static class SaveFormat
     /// PR-91 raised it to 13. The party gained the state of the torch (D-1064). A save of an older
     /// format puts the torch away, as the first get of the torch does.
     /// </para>
+    /// <para>
+    /// PR-105 raised it to 14. The story scene that runs gained the id of its step, so a resume
+    /// finds a step that an edit of the story scene moved (D-1112). A save of an older format
+    /// reads the index of the step alone.
+    /// </para>
     /// </remarks>
-    public const int Current = 13;
+    public const int Current = 14;
 }

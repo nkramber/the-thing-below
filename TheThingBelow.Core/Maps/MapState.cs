@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
+using TheThingBelow.Core.Logging;
+using TheThingBelow.Core.Runs;
 
 namespace TheThingBelow.Core.Maps;
 
@@ -115,11 +117,58 @@ public sealed class MapState
         IReadOnlyList<PatrolValues>? enemies,
         SightMark? mark,
         MapEncounter? encounter,
-        string source)
+        string source) =>
+        Resume(map, new LeadValues(leadAt, facing, stepping, stepTicks), walked, enemies, mark, encounter, source, ResumeDrift.Of(SnapshotOrigin.ThisBuild, 0));
+
+    /// <summary>
+    /// Puts the party back on a map from the values of a snapshot that this build or another
+    /// build wrote (D-166, D-651, D-1111).
+    /// </summary>
+    /// <param name="map">The map of the snapshot, which the content set of this build holds.</param>
+    /// <param name="lead">The tile, the facing, and the step of the lead.</param>
+    /// <param name="walked">The walked tiles of the snapshot.</param>
+    /// <param name="enemies">The stored values of each enemy, or no value on a snapshot of save format 2 (D-654, D-750).</param>
+    /// <param name="mark">The mark of a sight of the snapshot, or no value (D-745).</param>
+    /// <param name="encounter">The encounter of the snapshot, or no value (D-749).</param>
+    /// <param name="source">What the values came from, such as `the save`, for an error (T-2).</param>
+    /// <param name="drift">The build of the snapshot, and the log of each change (D-1111).</param>
+    /// <returns>The state.</returns>
+    /// <exception cref="ArgumentNullException">The map, the record, the source, or the drift is null (T-2).</exception>
+    /// <exception cref="ArgumentException">A value describes no state of a party on this map (T-2).</exception>
+    /// <remarks>
+    /// A snapshot of another build can follow an edit of the map (D-1111). The walked tiles
+    /// take the size of the map of this build. A lead off the map, on a tile that takes no
+    /// step, or on the body of an enemy moves to the spawn point, and a step into a tile that
+    /// takes no step ends. Each change logs a warning, and the strict checks then run.
+    /// </remarks>
+    public static MapState Resume(
+        GameMap map,
+        LeadValues lead,
+        WalkedTiles walked,
+        IReadOnlyList<PatrolValues>? enemies,
+        SightMark? mark,
+        MapEncounter? encounter,
+        string source,
+        ResumeDrift drift)
     {
         ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(lead);
         ArgumentNullException.ThrowIfNull(walked);
         ArgumentException.ThrowIfNullOrEmpty(source);
+        ArgumentNullException.ThrowIfNull(drift);
+
+        MapPatrols patrols = enemies is null
+            ? MapPatrols.Enter(map)
+            : MapPatrols.Resume(map, enemies, mark, encounter, source, drift);
+        if (drift.Adjusts)
+        {
+            walked = FitWalked(map, walked, drift);
+            lead = FitLead(map, lead, walked, patrols, drift);
+        }
+
+        TilePoint leadAt = lead.At;
+        StepDirection? stepping = lead.Stepping;
+        int stepTicks = lead.StepTicks;
 
         Refuse(!map.Holds(leadAt), source, $"the lead stands at {leadAt}, and the map '{map.Id.Value}' is {map.Width} by {map.Height} tiles");
         Refuse(
@@ -152,10 +201,6 @@ public sealed class MapState
                 $"the lead steps {StepDirections.NameOf(direction)} from {leadAt}, and the tile {target} takes no step");
         }
 
-        MapPatrols patrols = enemies is null
-            ? MapPatrols.Enter(map)
-            : MapPatrols.Resume(map, enemies, mark, encounter, source);
-
         // The body of an enemy blocks every step into it, so no state of a run holds the
         // party and an enemy on one tile (D-747, T-2).
         if (patrols.TryEnemyAt(leadAt, out PatrolState? found))
@@ -166,8 +211,66 @@ public sealed class MapState
                 $"the lead stands at {leadAt}, and the enemy '{found!.Patrol.Id.Value}' holds the body {found.Body} there");
         }
 
-        return new MapState(map, leadAt, facing, stepping, stepTicks, walked, patrols);
+        return new MapState(map, leadAt, lead.Facing, stepping, stepTicks, walked, patrols);
     }
+
+    /// <summary>Gives the walked tiles the size of the map of this build, and logs a change (D-1111).</summary>
+    private static WalkedTiles FitWalked(GameMap map, WalkedTiles walked, ResumeDrift drift)
+    {
+        if (walked.Width == map.Width && walked.Height == map.Height)
+        {
+            return walked;
+        }
+
+        drift.Note(
+            LogSubsystems.World,
+            "the map of this build has another size than the walked tiles of the save, and the walked tiles take the new size",
+            [new LogField("map", map.Id.Value), LogField.OfNumber("stored_width", walked.Width), LogField.OfNumber("stored_height", walked.Height), LogField.OfNumber("width", map.Width), LogField.OfNumber("height", map.Height)]);
+        return walked.Resized(map.Width, map.Height);
+    }
+
+    /// <summary>
+    /// Moves a lead that the map of this build no longer holds to the spawn point, and ends a
+    /// step into a tile that takes no step. Each change logs a warning (D-1111).
+    /// </summary>
+    private static LeadValues FitLead(GameMap map, LeadValues lead, WalkedTiles walked, MapPatrols patrols, ResumeDrift drift)
+    {
+        string? reason = null;
+        if (!map.Holds(lead.At))
+        {
+            reason = "the tile of the lead lies off the map of this build";
+        }
+        else if (!TileKinds.CanWalk(map.TileAt(lead.At)))
+        {
+            reason = "the tile of the lead takes no step in the map of this build";
+        }
+        else if (patrols.TryEnemyAt(lead.At, out _))
+        {
+            reason = "an enemy of this build holds the tile of the lead";
+        }
+
+        if (reason is not null)
+        {
+            drift.Note(
+                LogSubsystems.World,
+                $"{reason}, and the lead moves to the spawn point",
+                [new LogField("map", map.Id.Value), new LogField("stored_tile", lead.At.ToString()), new LogField("tile", map.Spawn.ToString())]);
+            walked.Mark(map.Spawn);
+            return new LeadValues(map.Spawn, lead.Facing, null, 0);
+        }
+
+        if (lead.Stepping is StepDirection direction && !MapRules.CanEnter(map, lead.At.Step(direction)))
+        {
+            drift.Note(
+                LogSubsystems.World,
+                "the step of the lead reaches a tile that takes no step in the map of this build, and the step ends",
+                [new LogField("map", map.Id.Value), new LogField("tile", lead.At.ToString()), new LogField("direction", StepDirections.NameOf(direction))]);
+            return lead with { Stepping = null, StepTicks = 0 };
+        }
+
+        return lead;
+    }
+
 
     /// <summary>
     /// Reads the move intent of this tick (D-493). The lead turns to that direction, and the
@@ -340,3 +443,10 @@ public sealed class MapState
         }
     }
 }
+
+/// <summary>The tile, the facing, and the step of the lead in a snapshot (D-166, D-203).</summary>
+/// <param name="At">The tile of the lead.</param>
+/// <param name="Facing">The direction that the lead faces.</param>
+/// <param name="Stepping">The direction of the step that ran, or no value.</param>
+/// <param name="StepTicks">The count of ticks of that step.</param>
+public sealed record LeadValues(TilePoint At, StepDirection Facing, StepDirection? Stepping, int StepTicks);

@@ -613,7 +613,7 @@ public sealed class ContentSetTests
             {
              "comment": "a note",
              "id": "scene.test_note",
-             "steps": [ { "kind": "say", "speaker": "none", "line": "{{line}}" } ]
+             "steps": [ { "id": "step.s1", "kind": "say", "speaker": "none", "line": "{{line}}" } ]
             }
             """);
 

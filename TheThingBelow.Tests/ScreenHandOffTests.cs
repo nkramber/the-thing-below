@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
@@ -292,9 +293,9 @@ public sealed class ScreenHandOffTests
         {
             MethodInfo reload = GameAssemblyFile.Type(RunTypeName).GetMethod(
                 "Reload",
-                [typeof(ContentSet), typeof(SaveDocument), typeof(SaveDocument), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])
+                [typeof(ContentSet), typeof(SaveDocument), typeof(SaveDocument), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed), typeof(List<LogEntry>)])
                 ?? throw new InvalidOperationException("The run holds no 'Reload' method (T-2).");
-            return new(reload.Invoke(null, [Content.Value, save, null, Seed, DebugIntentHandlers.None, MessageSpeed.Normal])
+            return new(reload.Invoke(null, [Content.Value, save, null, Seed, DebugIntentHandlers.None, MessageSpeed.Normal, new List<LogEntry>()])
                 ?? throw new InvalidOperationException("The 'Reload' method gave no run (T-2)."));
         }
 

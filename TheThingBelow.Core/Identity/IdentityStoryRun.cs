@@ -47,22 +47,22 @@ public static partial class IdentitySet
      "comment": "The friend walks in, speaks, waits, asks, joins, and leaves the map.",
      "id": "scene.identity_meet",
      "steps": [
-      { "kind": "show", "actor": "character.identity_friend", "at": "marker.identity_story_door", "facing": "west" },
-      { "kind": "camera", "at": "marker.identity_story_door" },
-      { "kind": "move", "actor": "character.identity_friend", "path": ["west", "west"] },
-      { "kind": "face", "actor": "lead", "facing": "east" },
-      { "kind": "say", "speaker": "character.identity_friend", "line": "line.identity_greet" },
-      { "kind": "wait", "ticks": 20 },
+      { "id": "step.show_friend", "kind": "show", "actor": "character.identity_friend", "at": "marker.identity_story_door", "facing": "west" },
+      { "id": "step.look_door", "kind": "camera", "at": "marker.identity_story_door" },
+      { "id": "step.friend_walks", "kind": "move", "actor": "character.identity_friend", "path": ["west", "west"] },
+      { "id": "step.lead_turns", "kind": "face", "actor": "lead", "facing": "east" },
+      { "id": "step.greet", "kind": "say", "speaker": "character.identity_friend", "line": "line.identity_greet" },
+      { "id": "step.pause", "kind": "wait", "ticks": 20 },
       {
-       "kind": "choose",
+       "id": "step.ask", "kind": "choose",
        "options": [
         { "line": "line.identity_yes", "flag": "flag.identity_trust" },
         { "line": "line.identity_no", "flag": "flag.identity_doubt" }
        ]
       },
-      { "kind": "set_flag", "flag": "flag.identity_met" },
-      { "kind": "join", "character": "character.identity_friend" },
-      { "kind": "hide", "actor": "character.identity_friend" }
+      { "id": "step.met", "kind": "set_flag", "flag": "flag.identity_met" },
+      { "id": "step.friend_joins", "kind": "join", "character": "character.identity_friend" },
+      { "id": "step.friend_leaves", "kind": "hide", "actor": "character.identity_friend" }
      ]
     }
     """;
@@ -73,11 +73,11 @@ public static partial class IdentitySet
      "comment": "A line with no speaker, a set fight, and the step after the win.",
      "id": "scene.identity_fight",
      "steps": [
-      { "kind": "say", "speaker": "none", "line": "line.identity_ambush" },
-      { "kind": "start_battle", "group": "group.identity_run" },
-      { "kind": "move", "actor": "lead", "path": ["east"] },
-      { "kind": "say", "speaker": "lead", "line": "line.identity_after" },
-      { "kind": "set_flag", "flag": "flag.identity_fought" }
+      { "id": "step.ambush", "kind": "say", "speaker": "none", "line": "line.identity_ambush" },
+      { "id": "step.fight", "kind": "start_battle", "group": "group.identity_run" },
+      { "id": "step.lead_steps", "kind": "move", "actor": "lead", "path": ["east"] },
+      { "id": "step.after", "kind": "say", "speaker": "lead", "line": "line.identity_after" },
+      { "id": "step.fought", "kind": "set_flag", "flag": "flag.identity_fought" }
      ]
     }
     """;
