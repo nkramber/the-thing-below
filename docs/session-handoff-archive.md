@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 277: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #75, round 3. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: reviewer. Base: `f1ab753`.
+
+### What this session did, and why
+
+- Re-reviewed PR #75 at effective head `8392c44`. Claude Code authored the PR, so Codex passes the provider gate (T-4, D-17).
+- Confirmed P2-1 is fixed. The regression test passed in the prior round, and current CI passed at this head.
+- Inspected D-1061, all 86 changed paths, and the current CI results. The review record now gives `Ready for owner merge`.
+
+### The state of the build
+
+- Base and merge base: `f1ab753`. Effective and remote head before this metadata commit: `8392c44`.
+- CI run `36046700241` passed the changed-path checks, screen-test, smoke, coverage, and ste-check. Review-gate waits for this record.
+
+### What is in flight
+
+- This commit holds the review record and this handoff entry. It must be pushed and verified.
+
+### Traps and gotchas
+
+- Local `dotnet test` reported no test projects for the Microsoft.Testing.Platform setup. Current CI build and test passed.
+- Gitar's status notice has no item and needs no answer (D-964). The pass was skipped under D-946.
+
+### The questions that block progress
+
+OQ-246 remains open and blocks no PR.
+
+### The next concrete action
+
+Push the metadata commit to `feat/pr-99-stats-absorb-swap`. Fetch, verify the branch status and PR head, and read the review-gate result.
+
 ## Session 276: 2026-09-24, Claude Code
 
 Author: Claude Code
