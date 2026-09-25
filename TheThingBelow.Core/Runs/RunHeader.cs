@@ -21,7 +21,8 @@ namespace TheThingBelow.Core.Runs;
 /// </para>
 /// <para>
 /// PR-14 raised it to 5. The map of the snapshot line gained the NPCs, and the streams gained the
-/// NPC stream (D-1137), as save format 15 did.
+/// NPC stream (D-1137), as save format 15 did. The intent gained its map, which the go-to-map
+/// command of the debug console names (D-1133).
 /// </para>
 /// </remarks>
 public static class RunRecordFormat

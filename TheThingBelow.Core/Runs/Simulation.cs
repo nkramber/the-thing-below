@@ -53,7 +53,12 @@ namespace TheThingBelow.Core.Runs;
 /// <para>
 /// A debug intent goes to the handlers that the host passed at the start. A host with no
 /// handler for that action refuses the intent, and the report names the intent and the tick
-/// (D-171, D-260, D-492, T-2).
+/// (D-171, D-260, D-492, T-2). A debug intent alone can name a map, and an intent of the player
+/// that names one is an error (D-1133).
+/// </para>
+/// <para>
+/// The run holds a set of maps, and the entry to a map of the set emits the autosave request of a
+/// hub for <see cref="TakeSaveRequests"/> (D-224, D-1132, D-1133).
 /// </para>
 /// <para>
 /// A step returns the log entries of that step, and Core keeps none of them. Core adds no
@@ -77,7 +82,7 @@ public sealed class Simulation
     /// <summary>The count of ticks since the start of the run (D-164).</summary>
     public long Tick => this.State.Tick;
 
-    /// <summary>Starts a run at tick zero, on one map.</summary>
+    /// <summary>Starts a run at tick zero, on one map, with no other map to enter.</summary>
     /// <param name="seed">The seed of the run (G-3, G-4).</param>
     /// <param name="map">The map that the run opens, with the party on its spawn point (D-528).</param>
     /// <param name="battleContent">The battle rules and the fixture, which hold every group that the map names (D-766).</param>
@@ -92,15 +97,32 @@ public sealed class Simulation
     public static Simulation Start(ulong seed, GameMap map, BattleContent battleContent, NoticeList notices, StoryContent story, DebugIntentHandlers debugHandlers)
     {
         ArgumentNullException.ThrowIfNull(map);
-        ArgumentNullException.ThrowIfNull(battleContent);
-        ArgumentNullException.ThrowIfNull(notices);
-        ArgumentNullException.ThrowIfNull(story);
-        ArgumentNullException.ThrowIfNull(debugHandlers);
 
-        return new Simulation(RunState.Start(seed, map, battleContent, notices, story), debugHandlers);
+        return Start(seed, MapSet.Of([map]), map.Id, battleContent, notices, story, debugHandlers);
     }
 
-    /// <summary>Starts a run again from a snapshot (D-651).</summary>
+    /// <summary>Starts a run at tick zero, on one map of a set (D-528, D-1133).</summary>
+    /// <param name="seed">The seed of the run (G-3, G-4).</param>
+    /// <param name="maps">Every map that the party can enter in the run, such as every map of the content.</param>
+    /// <param name="first">The id of the map that the run opens, with the party on its spawn point (D-528).</param>
+    /// <param name="battleContent">The battle rules and the fixture, which hold every group that a map of the set names (D-766).</param>
+    /// <param name="notices">The notice file of this build (D-989).</param>
+    /// <param name="story">The story content of this build (D-1004).</param>
+    /// <param name="debugHandlers">
+    /// The extra intent handlers of the host. A release build passes
+    /// <see cref="DebugIntentHandlers.None"/> (D-260, D-492).
+    /// </param>
+    /// <returns>The run.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The set holds no map with the first id (T-2).</exception>
+    public static Simulation Start(ulong seed, MapSet maps, ContentId first, BattleContent battleContent, NoticeList notices, StoryContent story, DebugIntentHandlers debugHandlers)
+    {
+        ArgumentNullException.ThrowIfNull(debugHandlers);
+
+        return new Simulation(RunState.Start(seed, maps, first, battleContent, notices, story), debugHandlers);
+    }
+
+    /// <summary>Starts a run again from a snapshot, with no other map to enter (D-651).</summary>
     /// <param name="seed">The seed of the run, which the record header holds (G-5).</param>
     /// <param name="snapshot">The snapshot that the record or the save holds.</param>
     /// <param name="map">
@@ -123,20 +145,39 @@ public sealed class Simulation
         StoryContent story,
         DebugIntentHandlers debugHandlers)
     {
-        ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(map);
-        ArgumentNullException.ThrowIfNull(battleContent);
-        ArgumentNullException.ThrowIfNull(notices);
-        ArgumentNullException.ThrowIfNull(story);
-        ArgumentNullException.ThrowIfNull(debugHandlers);
 
-        return new Simulation(RunState.Resume(seed, snapshot, map, battleContent, notices, story), debugHandlers);
+        return Resume(seed, snapshot, MapSet.Of([map]), battleContent, notices, story, debugHandlers);
+    }
+
+    /// <summary>Starts a run again from a snapshot that this build wrote, on a map of a set (D-651, D-1133).</summary>
+    /// <param name="seed">The seed of the run, which the record header holds (G-5).</param>
+    /// <param name="snapshot">The snapshot that the record or the save holds.</param>
+    /// <param name="maps">Every map that the party can enter in the run, the map of the snapshot included (D-166).</param>
+    /// <param name="battleContent">The battle rules and the fixture of this build (D-766).</param>
+    /// <param name="notices">The notice file of this build (D-985).</param>
+    /// <param name="story">The story content of this build (D-166).</param>
+    /// <param name="debugHandlers">The extra intent handlers of the host (D-260).</param>
+    /// <returns>The run, at the tick of the snapshot.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the set holds no map of its id (T-2).</exception>
+    public static Simulation Resume(
+        ulong seed,
+        RunSnapshot snapshot,
+        MapSet maps,
+        BattleContent battleContent,
+        NoticeList notices,
+        StoryContent story,
+        DebugIntentHandlers debugHandlers)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
+        return Resume(seed, snapshot, maps, battleContent, notices, story, debugHandlers, ResumeDrift.Of(SnapshotOrigin.ThisBuild, snapshot.Tick));
     }
 
     /// <summary>
-    /// Starts a run again from a snapshot that this build or another build wrote (D-259,
-    /// D-1111). A save calls it, because a patch can edit a map or a story scene between the
-    /// save and the load.
+    /// Starts a run again from a snapshot that this build or another build wrote, with no other
+    /// map to enter (D-259, D-1111).
     /// </summary>
     /// <param name="seed">The seed of the run, which the save header holds (G-5).</param>
     /// <param name="snapshot">The snapshot that the save holds.</param>
@@ -159,10 +200,41 @@ public sealed class Simulation
         DebugIntentHandlers debugHandlers,
         ResumeDrift drift)
     {
+        ArgumentNullException.ThrowIfNull(map);
+
+        return Resume(seed, snapshot, MapSet.Of([map]), battleContent, notices, story, debugHandlers, drift);
+    }
+
+    /// <summary>
+    /// Starts a run again from a snapshot that this build or another build wrote, on a map of a
+    /// set (D-259, D-1111, D-1133). A save calls it, because a patch can edit a map or a story
+    /// scene between the save and the load.
+    /// </summary>
+    /// <param name="seed">The seed of the run, which the save header holds (G-5).</param>
+    /// <param name="snapshot">The snapshot that the save holds.</param>
+    /// <param name="maps">Every map that the party can enter in the run, from the content of this build, the map of the snapshot included (D-166).</param>
+    /// <param name="battleContent">The battle rules and the fixture of this build (D-766).</param>
+    /// <param name="notices">The notice file of this build (D-985).</param>
+    /// <param name="story">The story content of this build (D-166).</param>
+    /// <param name="debugHandlers">The extra intent handlers of the host (D-260).</param>
+    /// <param name="drift">The build of the snapshot. It takes the log line of each change (D-1113).</param>
+    /// <returns>The run, at the tick of the snapshot.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the set holds no map of its id (T-2).</exception>
+    public static Simulation Resume(
+        ulong seed,
+        RunSnapshot snapshot,
+        MapSet maps,
+        BattleContent battleContent,
+        NoticeList notices,
+        StoryContent story,
+        DebugIntentHandlers debugHandlers,
+        ResumeDrift drift)
+    {
         ArgumentNullException.ThrowIfNull(debugHandlers);
         ArgumentNullException.ThrowIfNull(drift);
 
-        return new Simulation(RunState.Resume(seed, snapshot, map, battleContent, notices, story, drift), debugHandlers);
+        return new Simulation(RunState.Resume(seed, snapshot, maps, battleContent, notices, story, drift), debugHandlers);
     }
 
     /// <summary>Runs one tick of the rules.</summary>
@@ -248,6 +320,15 @@ public sealed class Simulation
 
             handler!(this.State, intent, context, log);
             return;
+        }
+
+        // The go-to-map command of the debug console alone names a map. The player reaches
+        // another map through the travel of PR-35, which names no map in an intent (D-1133).
+        if (intent.Map is ContentId map)
+        {
+            throw new SimulationException(
+                $"an intent of the player that names the map '{map.Value}', and the debug console alone names a map (D-1133)",
+                context);
         }
 
         if (intent.Target is not null || intent.Item is not null || intent.Option is not null || intent.Lesson is not null || intent.Actor is not null)

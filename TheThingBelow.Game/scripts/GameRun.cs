@@ -348,7 +348,7 @@ public sealed class GameRun
     /// <see cref="DebugIntentHandlers.None"/> (D-260, D-492).
     /// </param>
     /// <param name="messageSpeed">The message speed of the settings (D-866).</param>
-    /// <returns>The run, at tick zero, on the first map (D-528).</returns>
+    /// <returns>The run, at tick zero, on the first map, with every map of the content to enter (D-528, D-1133).</returns>
     /// <exception cref="ArgumentNullException">The content set or the handler set is null (T-2).</exception>
     /// <exception cref="ContentException">This build holds no first map (T-2).</exception>
     public static GameRun Start(ContentSet content, ulong seed, DebugIntentHandlers debugHandlers, MessageSpeed messageSpeed)
@@ -357,7 +357,7 @@ public sealed class GameRun
         ArgumentNullException.ThrowIfNull(debugHandlers);
 
         RunHeader header = RunHeader.ForThisBuild(content.Hash, seed);
-        Simulation simulation = Simulation.Start(seed, content.Map(MapIds.FirstMap), content.Battle, content.Notices, content.Story, debugHandlers);
+        Simulation simulation = Simulation.Start(seed, MapSet.Of(content.Maps), MapIds.FirstMap, content.Battle, content.Notices, content.Story, debugHandlers);
         return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content, messageSpeed);
     }
 
@@ -374,7 +374,7 @@ public sealed class GameRun
     /// <param name="log">Takes the log line of each change that a save of another build takes (D-1113).</param>
     /// <returns>The run, with a new record that starts at its first tick.</returns>
     /// <exception cref="ArgumentNullException">The content, the handlers, or the log are null (T-2).</exception>
-    /// <exception cref="ArgumentException">The save is not a state of a run of this build (T-2, D-1110).</exception>
+    /// <exception cref="ArgumentException">The save is not a state of a run of this build, or it names a map that this build lacks (T-2, D-1110).</exception>
     /// <remarks>
     /// A save of another build, which holds another simulation version or another content hash,
     /// takes the drift rules of D-1111 and D-1112: each enemy matches by its id, a lead off the
@@ -403,7 +403,7 @@ public sealed class GameRun
         Simulation simulation = Simulation.Resume(
             save.Header.Seed,
             snapshot,
-            content.Map(snapshot.MapIdOrFirst),
+            MapSet.Of(content.Maps),
             content.Battle,
             content.Notices,
             content.Story,

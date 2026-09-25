@@ -93,6 +93,32 @@ public sealed class RunRecordTextTests
     }
 
     [Fact]
+    public void TheMapOfADebugIntentSurvivesTheText()
+    {
+        // D-1133: the go-to-map command names its map, and record format 5 holds it.
+        RunRecord written = MapRecord("map.hub_test");
+
+        string text = RunRecordText.Write(written);
+        RunRecord read = RunRecordText.Read(text);
+
+        Assert.Contains("\"action\":\"debug.go_to_map\",\"debug\":true,\"map\":\"map.hub_test\"", text, StringComparison.Ordinal);
+        Intent intent = Assert.Single(read.Ticks[0].Intents);
+        Assert.Equal("map.hub_test", intent.Map?.Value);
+        Assert.Equal(text, RunRecordText.Write(read));
+    }
+
+    [Fact]
+    public void AMapFieldOfAnotherKindIsAnErrorOfItsLine()
+    {
+        string text = RunRecordText.Write(MapRecord("map.hub_test")).Replace("\"map\":\"map.hub_test\"", "\"map\":\"npc.hub_keeper\"", StringComparison.Ordinal);
+
+        RunRecordException error = Assert.Throws<RunRecordException>(() => RunRecordText.Read(text));
+
+        Assert.Equal(3, error.Line);
+        Assert.Contains("the id 'npc.hub_keeper' carries the kind 'npc'", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ASeedThatFillsTheSixtyFourBitsSurvivesTheText()
     {
         // A JSON number of that size loses its top bits in a reader that holds numbers as a
@@ -311,6 +337,15 @@ public sealed class RunRecordTextTests
         // The tick line then reads as the end line, and it holds no `end` field.
         Assert.Equal(3, error.Line);
         Assert.Contains("the end tick alone", error.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>Makes a record of one tick with one go-to-map intent, and no rule runs it (D-1133).</summary>
+    private static RunRecord MapRecord(string map)
+    {
+        Simulation run = Simulation.Start(Seed, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+        RunRecorder recorder = new(RunHeader.ForThisBuild(ContentHash, Seed), run.Snapshot());
+        recorder.Step(1, [Intent.OfDebugMap(Core.Content.ContentId.Parse("debug.go_to_map", "test", "action"), Core.Content.ContentId.Parse(map, "test", "map"))]);
+        return recorder.Build();
     }
 
     private static RunRecord SmallRecord()

@@ -358,6 +358,9 @@ public sealed class StoryState
         return pending;
     }
 
+    /// <summary>Notes the entry to a map, whose entry triggers the next world step reads (D-1004, D-1133).</summary>
+    internal void NoteEntry() => this.EntryPending = true;
+
     /// <summary>Holds a win against a patrol for the battle end triggers of the next world step (D-1011).</summary>
     internal void NoteWin(ContentId patrol) => this.WonPatrol = patrol;
 

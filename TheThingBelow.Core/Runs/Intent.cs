@@ -23,8 +23,9 @@ namespace TheThingBelow.Core.Runs;
 /// The pick intent of a choose step names the index of its option (D-1007). A lesson use names its
 /// lesson and its form, a cast from the menu also names its caster, and a swap names the
 /// character, the slot, and the lesson (D-1027, D-1030). A party swap names the party slot as its
-/// actor and the reserve index as its option (D-1134). Every other intent carries none of these
-/// values.
+/// actor and the reserve index as its option (D-1134). The go-to-map command of the debug console
+/// names its map, and no intent of the player names one (D-1133). Every other intent carries none
+/// of these values.
 /// </para>
 /// </remarks>
 /// <param name="Action">The id of the choice, such as `intent.open_menu`.</param>
@@ -36,7 +37,8 @@ namespace TheThingBelow.Core.Runs;
 /// <param name="Option">An index from zero: the option of a pick (D-1007), the form of a lesson use, the lesson slot of a swap, the gear slot of a change of gear, or the reserve index of a party swap (D-1027, D-1030, D-1048, D-1134). No value for the other intents.</param>
 /// <param name="Lesson">The lesson of a lesson use or a swap, or no value (D-1026).</param>
 /// <param name="Actor">The party slot of the character who casts from the menu, or whose slot a swap or a change of gear changes, or who goes to the reserve in a party swap, or no value (D-391, D-1030, D-1048, D-1134).</param>
-public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target = null, ContentId? Item = null, int? Option = null, ContentId? Lesson = null, int? Actor = null)
+/// <param name="Map">The map that a debug intent enters, or no value (D-1133). An intent of the player never names a map.</param>
+public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target = null, ContentId? Item = null, int? Option = null, ContentId? Lesson = null, int? Actor = null, ContentId? Map = null)
 {
     /// <summary>Makes an intent that the player made through a screen of the game.</summary>
     /// <param name="action">The id of the choice, such as `intent.open_menu`.</param>
@@ -84,6 +86,19 @@ public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target
         ArgumentNullException.ThrowIfNull(action);
 
         return new Intent(action, true, target, item);
+    }
+
+    /// <summary>Makes an intent of the debug console that names a map, such as the go-to-map command (D-1133).</summary>
+    /// <param name="action">The id of the command, which a host handler reads (D-260).</param>
+    /// <param name="map">The id of the map.</param>
+    /// <returns>The intent, with the debug mark.</returns>
+    /// <exception cref="ArgumentNullException">The action or the map is null (T-2).</exception>
+    public static Intent OfDebugMap(ContentId action, ContentId map)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+        ArgumentNullException.ThrowIfNull(map);
+
+        return new Intent(action, true, Map: map);
     }
 
     /// <summary>Makes the pick intent of a choose step that the player made (D-1007).</summary>
@@ -151,15 +166,16 @@ public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target
         new(IntentIds.PartySwap, false, null, null, reserve, null, slot);
 
     /// <summary>Gives the intent as one line for an error message and a log line (T-2).</summary>
-    /// <returns>The action, the item, the target, the option, and the debug mark, each when the intent carries it.</returns>
+    /// <returns>The action, the actor, the lesson, the item, the target, the option, the map, and the debug mark, each when the intent carries it.</returns>
     public string Describe()
     {
+        string map = this.Map is ContentId entered ? $" to {entered.Value}" : string.Empty;
         string target = this.Target is BattleTarget aimed ? $" at {aimed.Describe()}" : string.Empty;
         string item = this.Item is ContentId used ? $" with {used.Value}" : string.Empty;
         string option = this.Option is int picked ? $" option {picked}" : string.Empty;
         string lesson = this.Lesson is ContentId named ? $" lesson {named.Value}" : string.Empty;
         string actor = this.Actor is int slot ? $" by party {slot}" : string.Empty;
         string mark = this.IsDebug ? " (debug)" : string.Empty;
-        return $"{this.Action.Value}{actor}{lesson}{item}{target}{option}{mark}";
+        return $"{this.Action.Value}{actor}{lesson}{item}{target}{option}{map}{mark}";
     }
 }

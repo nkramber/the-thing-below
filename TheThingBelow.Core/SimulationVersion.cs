@@ -99,7 +99,10 @@ public static class SimulationVersion
     /// leaves outside its home walks home on a shortest path after it (D-1006, D-1140). The state hash and the
     /// snapshot hold the walk home of each NPC. A line can name an NPC speaker with no body on the map (D-1146). After
     /// a talk, an NPC holds its pace, or a route NPC the wait of its route tile, before it moves again, and the
-    /// confirm follows the walk of the NPCs in the world tick (D-1147).
+    /// confirm follows the walk of the NPCs in the world tick (D-1147). A run holds a set of maps, and a debug intent
+    /// that names a map puts the party on the spawn point of that map, outside a battle, an encounter, a story scene,
+    /// and a menu. The entry notes the entry triggers of the map, the map that the party leaves keeps no memory, and
+    /// the entry to a hub asks for the autosave (D-224, D-1132, D-1133).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
