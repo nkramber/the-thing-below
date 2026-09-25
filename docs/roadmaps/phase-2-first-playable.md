@@ -1895,10 +1895,10 @@ Area file: `area-exploration.md` section 7.11.
 **Scope.**
 
 - The hub as a walkable map with NPC sprites, on the same code path as a dungeon (D-112).
-- The hub content format, with the services that each hub offers (D-28, D-59). Each service sits on an NPC or on a thing of the map (D-1131).
+- The hub content format, with the services that each hub offers (D-28, D-59). Each service sits on an NPC or on a solid service point of the map (D-1131, D-1142).
 - The confirm rule of the map (D-1131). Confirm while the lead faces an NPC or a thing opens its service, or fires its talk trigger.
 - The rest, which restores health and MP and cures poison, blind, and silence (D-42, D-390, D-970).
-- The save window in the stack of PR-62. The save of a hub writes the slot save, and the entry to a hub writes the autosave (D-224, D-1132).
+- The save window in the stack of PR-62. The save of a hub writes the slot save, and the entry to a hub writes the autosave (D-224, D-1132). The main list loses its save entry (D-1143).
 - The reserve, and the party swap in the Party window anywhere outside a fight (D-58, D-1134). The party stays full, and a downed character goes out but never comes in (D-1135, D-1136).
 - A condition of PR-68 on each service, so a story flag can close one (D-543, D-544, D-556).
 - The talk trigger of PR-68 fires when the player talks with an NPC (D-1005, D-1131). A story scene step can name an NPC as a story scene actor (D-1006).
@@ -1912,6 +1912,7 @@ Area file: `area-exploration.md` section 7.11.
 - The shop and the gold (PR-65, D-530).
 - The hub lines that the dialogue box shows (PR-36).
 - The hub content of the first playable (PR-17).
+- A reserve in the shipped content, and a capture of it (PR-17, D-1144).
 - A swap inside a battle (D-1134).
 - The travel between a hub and a dungeon (PR-35, D-1133).
 - The chest, the door, and the save point on the confirm rule (PR-16, D-1131).
@@ -1923,7 +1924,7 @@ Area file: `area-exploration.md` section 7.11.
 3. The save reloads to the same state hash.
 4. The lead moves to the reserve, and the lead still walks the map with the camera on it (D-292, D-306).
 5. A rest cures poison, blind, and silence (D-390).
-6. A hub that offers no rest refuses the rest, and the screen says so.
+6. Removed by D-1141: no player path reaches a hub with no rest service.
 7. A hub file that names an absent service fails with the file and the service.
 8. A story flag closes a fixture service, and the hub refuses it (D-543).
 9. A talk with a fixture NPC fires its trigger, and a step of the story scene moves the NPC (D-1005, D-1006).
