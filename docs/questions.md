@@ -533,7 +533,7 @@ How to file a question (D-19, D-24):
 166. **OQ-166. The kinds of ground for footsteps.** Footsteps change with the ground (D-425). Which kinds does region one need? Raised 2026-09-16. Blocks PR-72.
     - Snow, rock, wood, water, and metal, the recommendation. The village, the mine, the cells, the fort, and the ice each get their own step. Each map must mark the kind of every tile.
     - Snow, rock, and wood. Three sounds cover most of region one, and the tile mark is simpler. The ice crossing and the border fort then sound like rock.
-167. **OQ-167. The tracks of the first playable.** PR-72 holds the tracks, themes, and sounds of the first playable, before PR-17 (D-549). Which tracks? Raised 2026-09-16. Blocks PR-72.
+167. **OQ-167. The tracks of the first playable.** PR-72 holds the tracks, themes, and sounds of the first playable, after PR-17 (D-549, D-1079). Which tracks? Raised 2026-09-16. Blocks PR-72.
     - The village, the mining town, the hanging cells, the three battle tracks, the main theme, and the four stings, the recommendation. That covers every place of D-362 and D-369. It is about seven tracks in one batch.
     - The three place tracks and the common battle track alone. The batch is small, and a rewrite costs little. The owner then signs off on feel at Gate 2 with no boss music (D-52).
 168. **OQ-168. Where the game version lives in the build.** The version is 0.MINOR.PATCH, and a tag has the form `v0.5.0` (D-448). The record header, the crash file, and the title screen all read it. Where does it come from? Raised 2026-09-16. Blocks PR-6 and PR-31. Resolved 2026-09-18: D-653. One constant in Core holds the version, and the export preset and the workflow read it.

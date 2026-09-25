@@ -192,7 +192,7 @@ Built by PR-38 and PR-71. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-72 and PR-73. Phase files: `phase-2-first-playable.md` and `phase-4-region-one.md`.
 
-- PR-72 holds the tracks, the themes, and the sounds of the first playable, right before PR-17 (D-549).
+- PR-72 holds the tracks, the themes, and the sounds of the first playable, after PR-17 (D-549, D-1079).
 - The first playable needs the village, the mining town, the hanging cells, and the three battle tracks (D-362, D-369, D-415).
 - PR-73 holds the rest of region one, in Phase 4 beside PR-42 (D-549). That includes the ambience of each place that Phase 4 adds, as PR-72 holds it for the first playable (D-424).
 - Region one needs about 20 tracks and ten themes (D-419, D-432, D-443, D-444).
@@ -264,12 +264,12 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 1. PR-5: the content reader and the content embed in the Game assembly (`area-core.md`).
 2. PR-45: the debug assembly that the sound room needs (`area-core.md`).
 3. PR-63: the settings screen with the audio group (`area-ui-input.md`).
-4. PR-38: the synthesizer, the two formats, the hash list, the listen command, and the first sounds.
-5. PR-69: the audio player base (D-546).
-6. PR-70: every rule of what plays when.
-7. PR-71: the sound room in a development build.
-8. PR-72: the tracks, the themes, and the sounds of the first playable (D-549).
-9. PR-17: the first playable, with its music.
+4. PR-17: the content of the first playable, before its music (D-1079).
+5. PR-38: the synthesizer, the two formats, the hash list, the listen command, and the first sounds.
+6. PR-69: the audio player base (D-546).
+7. PR-70: every rule of what plays when.
+8. PR-71: the sound room in a development build.
+9. PR-72: the tracks, the themes, and the sounds of the first playable (D-549).
 10. **← GATE 2 (first playable).** The owner signs off on feel, with the music of PR-72 (D-52).
 11. PR-73: the rest of the music and the sounds of region one, in Phase 4.
 12. **← GATE 4 (region one).**

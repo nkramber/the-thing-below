@@ -186,6 +186,11 @@ Built by PR-61, on the intents of PR-6. Phase files: `phase-1-foundations.md` an
 - The built-in `ui_*` actions drive the menu focus. A remap changes their events, and it never removes one (F-50).
 - A change to the input map does not last by itself, so PR-63 writes each remap to the settings file (F-50).
 - The dead zone of a stick is a setting, and its default follows the value that PR-63 sets, not the docs (F-50, D-226).
+- Each binding matches every device, because Godot gives a new event the device 0, and a pad of another device then matched nothing (D-1077, F-107).
+- `ui_accept` takes the A button and `ui_cancel` takes the B button, because Godot 4.7.2 gives them keys alone (D-1077, F-107).
+- Each action acts on the first press of a hold alone. A stick past the dead zone gives a press on each motion event, and a pad can show as two devices (D-1077, F-107).
+- A key press, a pad button, or a stick push hides the mouse pointer, and a move of the mouse shows it again (D-1078).
+- Game logs each pad that connects, with its device and its name. Thus a report of a pad fault names the devices (D-1077).
 
 > *In plain English:* the rules of the game never see a key or a stick. They see choices, so a replay, a robot, and a player all speak the same language.
 

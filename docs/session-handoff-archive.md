@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 274: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-99, round 2. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: author. Base: `f1ab753`.
+
+### What this session did, and why
+
+- Answered P2-1 of `docs/reviews/pr-75.md` with full merit. The heal math overflowed a `long` at the content limits before its health cap (T-2).
+- `BattleMath.HealAmount` splits the scaled share at the scale of 10^12, so the product stays in a `long` and the one rounding of D-169 holds. Each heal that did not overflow gives the same number, and the identity file does not change.
+- `StatSetTests.AHealAtTheLimitsOfTheContentCompletesAndStopsAtFullHealth` fails on `26d20cc` with `OverflowException` and passes on the correction. `docs/reviews/pr-75-response.md` records the answer.
+
+### The state of the build
+
+- `make verify` passed on the Mac: 3,153 tests, format, det-lint, STE, identity, content, atlas, and smoke.
+- Round 1 CI run `36039388273` at `26d20cc` passed each job but `review-gate`, which waited for the record.
+
+### What is in flight
+
+- The repeat review of `make codex-review PR=75 -- --skip-gitar-review` (D-946).
+
+### Traps and gotchas
+
+- `make sheet` still fails to join the frames: the sheet passes the PNG height limit. The fault is older than this PR.
+- Gitar posted a status notice alone, with no item (D-964).
+
+### The questions that block progress
+
+None. The owner has not yet approved the string batch of the PR description (D-57).
+
+### The next concrete action
+
+Push, confirm the remote head, and run the repeat review. On `approve`, ask the owner to confirm the merge with the summary of D-942.
+
 ## Session 273: 2026-09-24, Codex
 
 Author: Codex

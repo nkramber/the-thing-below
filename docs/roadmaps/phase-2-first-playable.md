@@ -12,7 +12,7 @@ Text rules: this file follows ASD-STE100 (D-10). Tables are exempt from sentence
 
 Phase 2 turns the machine of Phase 1 into a game that the owner plays. It ends at Gate 2. There the owner walks the village, one hub, and one dungeon on the desktop and on the Deck. Then the owner signs off on feel (D-51, D-92, D-362).
 
-Phase 2 is the largest phase of the plan. It holds 55 PRs, and 52 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it.
+Phase 2 is the largest phase of the plan. It holds 55 PRs, and 52 of them land before Gate 2. Each system, each tool, and each group of screens takes an id of its own (D-486, G-8). The order follows one rule: a PR lands right before the first PR that needs it. By owner choice, the audio PRs, PR-38 and PR-69 to PR-72, land right after PR-17 (D-1079).
 
 Four lines of work run through the phase. The walk comes first: the frame, the map, the camera, and the enemies on it (PR-61, PR-7, PR-8). The fight follows, with the enemy record and the screen (PR-9, PR-80, PR-66, PR-10). The light and the effects then land, each right after the first map scene or battle scene that it needs (PR-48 to PR-60, D-520). The build, the story, and the audio close the phase, and PR-17 writes the content that the owner plays.
 
@@ -1613,7 +1613,39 @@ Area file: `area-ci.md` section 7.23.
 
 > *In plain English:* each PR waits for Gitar again. After a push, the session checks for Gitar after one minute, and it checks again until Gitar finishes.
 
-### 7.37 PR-14: the hub map, the NPCs, and the services
+### 7.37 PR-101: the glow halo, the fire of the carried torch, and every pad
+
+Area files: `area-effects.md` section 7.10 and `area-ui-input.md` section 7.9.
+
+**Scope.**
+
+- A soft round halo behind the flame of each wall torch, below the glow threshold, in place of the glow rectangle over it (D-1075).
+- A flame on the torch in the hand, a denser flame stream, and the flame orange for the carried light (D-1076).
+- Each binding matches every pad, and the menus take the A and the B buttons. Each action reads the first press of a hold (D-1077, F-107).
+- A key or a pad hides the mouse pointer, and a mouse move shows it (D-1078).
+- The audio PRs move to right after PR-17 (D-1079).
+
+**Out of scope.**
+
+- A glow on the carried torch (D-912).
+- A test on a Steam Deck. The pad log names the devices of the Deck at the next test of the owner.
+
+**Exit tests.**
+
+1. The load refuses a glow halo above the threshold, and a test reads each limit of the halo.
+2. The smoke session presses each pad binding from the device 3. It also reads the press gate and the pointer.
+3. The unit tests of the press gate pass, and the screen-test job holds the new baseline.
+
+**Review focus.**
+
+- The simulation version rises to 26, because the reader of the glow changed (G-17).
+- No player string enters code. The pad log is a log line.
+
+**Questions.** None. D-1075 to D-1079 hold the answers of 2026-09-25.
+
+> *In plain English:* the wall torches glow with no box, and the torch in the hand shows a real flame. Every pad works on the Deck, the desktop, and the Mac.
+
+### 7.38 PR-14: the hub map, the NPCs, and the services
 
 Area file: `area-exploration.md` section 7.11.
 
@@ -1656,7 +1688,7 @@ Area file: `area-exploration.md` section 7.11.
 
 > *In plain English:* the hub is a place you walk through, where the party recovers and reshapes itself before the next dungeon. Every hub has a different shape.
 
-### 7.38 PR-65: the shop and the gold
+### 7.39 PR-65: the shop and the gold
 
 Area file: `area-exploration.md` section 7.12.
 
@@ -1693,7 +1725,7 @@ Area file: `area-exploration.md` section 7.12.
 
 > *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
 
-### 7.39 PR-36: the dialogue box, the portraits, and the story scene on screen
+### 7.40 PR-36: the dialogue box, the portraits, and the story scene on screen
 
 Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
@@ -1736,7 +1768,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 > *In plain English:* people walk, turn, and speak on the map you already walk on. Their words appear in a box at the bottom, with a face beside them.
 
-### 7.40 PR-15: the headless runner and the bots
+### 7.41 PR-15: the headless runner and the bots
 
 Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
@@ -1774,7 +1806,7 @@ Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
 > *In plain English:* simple robots play the game with no screen. They make the same choices a player makes, and every crash they find comes with the seed that repeats it.
 
-### 7.41 PR-49: the night job and the night gate
+### 7.42 PR-49: the night job and the night gate
 
 Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
@@ -1812,7 +1844,7 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
 > *In plain English:* every night the robots play thousands of runs on all three systems. No change merges unless a recent night ended with no crash and no dead end.
 
-### 7.42 PR-16: the dungeon parts, the death, and the save points
+### 7.43 PR-16: the dungeon parts, the death, and the save points
 
 Area file: `area-exploration.md` section 7.8.
 
@@ -1856,7 +1888,7 @@ Area file: `area-exploration.md` section 7.8.
 
 > *In plain English:* the dungeon gains its chests, doors, keys, and resting stones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
-### 7.43 PR-64: the traps, the hazards, and the statuses on the map
+### 7.44 PR-64: the traps, the hazards, and the statuses on the map
 
 Area file: `area-exploration.md` section 7.9.
 
@@ -1896,7 +1928,7 @@ Area file: `area-exploration.md` section 7.9.
 
 > *In plain English:* the dungeon itself can hurt you. Poison still hurts while you walk, and a party can go down between fights.
 
-### 7.44 PR-35: the region map
+### 7.45 PR-35: the region map
 
 Area file: `area-exploration.md` section 7.13.
 
@@ -1932,11 +1964,164 @@ Area file: `area-exploration.md` section 7.13.
 
 > *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
 
-### 7.45 PR-37: retired
+### 7.46 PR-37: retired
 
 PR-37 held the CRT shader and its toggle, which have no purpose after D-618. No later item takes the id (G-10). This entry exists so that a reader of the sequence finds the gap and its reason.
 
-### 7.46 PR-38: the audio synthesizer and the first sounds
+### 7.47 PR-51: the PNG import
+
+Area file: `area-tools.md` section 7.11.
+
+**Scope.**
+
+- The `import` command with two modes: the hand-edit mode and the generator mode (D-688).
+- The hand-edit mode, which reads a PNG that the owner edited by hand (D-107, D-515).
+- The write of the frame of its drawing file again, from the pixels of that PNG.
+- A failure of the hand-edit mode on a pixel with a color outside the palette, with the file, the pixel, and the color (T-2).
+- The generator mode, which reads a picture of the Sprite Fusion generator (D-686, F-86).
+- The removal of the blank border of that picture, and a new frame of 32 or 64 pixels (D-689, F-87).
+- The map of each pixel to the nearest color of the palette of 64, with the count of the mapped pixels (D-181, D-688, F-89).
+- A failure of the generator mode when the content does not fit the frame of 64 pixels, with the file and the size (D-689, T-2).
+
+**Out of scope.**
+
+- The atlas build (PR-34) and the normal maps (PR-48).
+- No near color, and no new palette entry in the hand-edit mode. That mode never picks one (D-688, T-2).
+- No scale of a picture in either mode. The generator mode crops the blank border and sets the frame (D-689).
+
+**Exit tests.**
+
+1. A round trip of a fixture frame through a PNG gives the same grid.
+2. A pixel outside the palette fails in the hand-edit mode, with the file, the pixel, and the color.
+3. An indexed PNG fails, because the PNG code refuses one (D-176).
+4. The rebuilt atlas matches the pixels of the new grid (F-19).
+5. A fixture of 42 pixels with content of 30 pixels gives a frame of 32 pixels.
+6. A fixture with content of 70 pixels fails with the file and the size.
+7. The generator mode maps a pixel outside the palette to the nearest color, and it reports the count.
+
+**Review focus.**
+
+- The hand-edit mode never guesses a color, which keeps the palette closed (D-181, D-688, T-2).
+- The generator mode reports the count of the pixels that it mapped, so no map is silent (T-2).
+- A hand edit exports as RGB or RGBA, and the runbook says so.
+- Neither mode scales a picture, because a scale of pixel art makes new colors and soft edges (D-689).
+
+**Questions.** None. D-688 and D-689 set the two modes.
+
+> *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
+
+### 7.48 PR-52: the map preview
+
+Area file: `area-tools.md` section 7.12.
+
+**Scope.**
+
+- The `preview` command, which renders a map file as a PNG from the atlas (D-165).
+- The attachment of each preview to the PR description, for the approval of the owner (D-514, G-25).
+
+**Out of scope.**
+
+- The edge tiles, which PR-53 adds to the preview (D-501).
+- The light and the effects of a place, which the preview never draws.
+
+**Exit tests.**
+
+1. The command renders a fixture map as a PNG.
+2. A test compares the decoded pixels of that render with the atlas and the map (F-19).
+3. A map that names an absent tile id fails with the map and the id.
+4. The preview reaches the PR description of a fixture map batch (G-25).
+
+**Review focus.**
+
+- The command uses the PNG code of PR-47 and the atlas of PR-34 (D-176, T-1).
+- From PR-53 on, the preview draws the edge tiles of each map (D-501).
+
+**Questions.** None.
+
+> *In plain English:* maps are text files too. This tool draws a map as a picture, so the owner can see and approve a place before anyone walks it.
+
+### 7.49 PR-53: the tile-edge tool
+
+Area file: `area-tools.md` section 7.13.
+
+**Scope.**
+
+- The `edges` command, which picks the edge and corner tile for each position from the terrain and the edge rules (D-204).
+- The edge rules in content, outside the rule files (D-495, D-501).
+- One edge file for each map, which the repository commits (D-501).
+- The read of the map and its edge file in Game, where Core reads the map alone (D-501, G-1).
+- The edge tiles in the map preview of PR-52.
+
+**Out of scope.**
+
+- The edge drawings themselves, which PR-17 and the later art PRs add.
+- No rule reads an edge file, so the content hash never sees one (D-495).
+
+**Exit tests.**
+
+1. A test proves that each committed edge file matches its map and the edge rules (D-501).
+2. A terrain pattern that no rule covers fails with the map, the position, and the pattern.
+3. Game draws a fixture map with its edge tiles, and a screen test captures it.
+4. A test proves that Core reads no edge file (G-1).
+
+**Review focus.**
+
+- The edge file stays outside the content hash, so a new border drawing never breaks a record (D-495, D-501).
+- The map preview of PR-52 draws the same edges as Game (T-1).
+
+**Questions.** None.
+
+> *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own.
+
+### 7.50 PR-17: the village, the first hub, and the first dungeon
+
+Area files: every area file. The content PR touches each area.
+
+**Scope.**
+
+- The village and the land near it, the mining town, and the hanging cells, as content (D-28, D-39, D-313, D-369, D-370).
+- The tile sets, the layouts, and the edge files of each map (D-110, D-501).
+- The enemies with their sprites, their profiles, and their groups (D-535).
+- The three views and the two-frame walk of each moving enemy, and a flip for each standing one (D-207, D-744).
+- The drawing of the mark of a sight, in the place of the two rectangles of PR-8 (D-208, D-744).
+- The backdrop of each place with fights, as a large picture (D-205, D-516).
+- The light setup of each map, at its time of day (D-442, D-519).
+- The ambient effects of each place (D-187, D-520).
+- The treasure, the shop stock, the NPC sprites, and the sprite set of Marrek (D-292).
+- The hurt flinch and the down pose of each party member in battle, in one art batch (D-200, D-884).
+- A placeholder story scene in the village (D-292).
+- The text of Marrek, Bergit, and Dagvar, and of the lessons of the first playable, in the voice (D-362, G-20).
+- The normal map of each new drawing (D-183, D-521).
+
+**Out of scope.**
+
+- The arc content of region one (PR-28, PR-29) and the other places (PR-23 to PR-27, PR-81).
+- The portraits of the cast (PR-28, PR-29). PR-36 uses fixture portraits.
+- The music and the sounds of the first playable. PR-72 adds them after this PR (D-1079).
+- The rest of the music of region one (PR-73).
+- A boss. The first playable ends when Dagvar joins, and PR-20 builds the phase layer on a fixture boss (D-564).
+
+**Exit tests.**
+
+1. The owner plays from the village until Dagvar joins in the hanging cells (D-362).
+2. The play runs on the desktop and on the Deck (D-92).
+3. The budget test passes for every map and every battle place of the first playable (D-523).
+4. The bots play each map with no crash and no softlock (D-64).
+5. Each map preview and each review sheet reaches the PR description (D-514, G-25).
+6. Every string comes from the string table, and the owner approves each text batch (D-57, G-7, G-20).
+7. Each new content file loads, and no id is absent.
+
+**Review focus.**
+
+- The text follows the `game-text-style` skill, and no line names an agent or a model (D-63, T-6).
+- The places follow `docs/world/places.md` (D-250, D-371).
+- The art batches carry their review sheets, and the owner approves each one (D-514, G-25).
+
+**Questions.** None. Every question of the systems above closes before this PR.
+
+> *In plain English:* the first real place to play. Everything before this was machinery.
+
+### 7.51 PR-38: the audio synthesizer and the first sounds
 
 Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
@@ -1975,7 +2160,7 @@ Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
 > *In plain English:* music and sound start as rows of numbers in a text file. A tool of ours turns those rows into sound, the same way on every computer.
 
-### 7.47 PR-69: the audio player base
+### 7.52 PR-69: the audio player base
 
 Area file: `area-audio.md` sections 7.2 and 7.3.
 
@@ -2011,7 +2196,7 @@ Area file: `area-audio.md` sections 7.2 and 7.3.
 
 > *In plain English:* this part makes sound come out. It sets the volumes, and it mutes the game when the window loses focus.
 
-### 7.48 PR-70: the rules of what plays when
+### 7.53 PR-70: the rules of what plays when
 
 Area file: `area-audio.md` sections 7.4 to 7.10.
 
@@ -2058,7 +2243,7 @@ Area file: `area-audio.md` sections 7.4 to 7.10.
 
 > *In plain English:* every place has its own music, a low bed of wind or fire under it, and its own footsteps. The music changes when the story turns the day to night.
 
-### 7.49 PR-71: the sound room
+### 7.54 PR-71: the sound room
 
 Area file: `area-audio.md` section 7.11.
 
@@ -2088,112 +2273,7 @@ Area file: `area-audio.md` section 7.11.
 
 > *In plain English:* the owner listens to every piece of music before it ships. One tool plays a batch on the desk, and this one plays it inside the game.
 
-### 7.50 PR-51: the PNG import
-
-Area file: `area-tools.md` section 7.11.
-
-**Scope.**
-
-- The `import` command with two modes: the hand-edit mode and the generator mode (D-688).
-- The hand-edit mode, which reads a PNG that the owner edited by hand (D-107, D-515).
-- The write of the frame of its drawing file again, from the pixels of that PNG.
-- A failure of the hand-edit mode on a pixel with a color outside the palette, with the file, the pixel, and the color (T-2).
-- The generator mode, which reads a picture of the Sprite Fusion generator (D-686, F-86).
-- The removal of the blank border of that picture, and a new frame of 32 or 64 pixels (D-689, F-87).
-- The map of each pixel to the nearest color of the palette of 64, with the count of the mapped pixels (D-181, D-688, F-89).
-- A failure of the generator mode when the content does not fit the frame of 64 pixels, with the file and the size (D-689, T-2).
-
-**Out of scope.**
-
-- The atlas build (PR-34) and the normal maps (PR-48).
-- No near color, and no new palette entry in the hand-edit mode. That mode never picks one (D-688, T-2).
-- No scale of a picture in either mode. The generator mode crops the blank border and sets the frame (D-689).
-
-**Exit tests.**
-
-1. A round trip of a fixture frame through a PNG gives the same grid.
-2. A pixel outside the palette fails in the hand-edit mode, with the file, the pixel, and the color.
-3. An indexed PNG fails, because the PNG code refuses one (D-176).
-4. The rebuilt atlas matches the pixels of the new grid (F-19).
-5. A fixture of 42 pixels with content of 30 pixels gives a frame of 32 pixels.
-6. A fixture with content of 70 pixels fails with the file and the size.
-7. The generator mode maps a pixel outside the palette to the nearest color, and it reports the count.
-
-**Review focus.**
-
-- The hand-edit mode never guesses a color, which keeps the palette closed (D-181, D-688, T-2).
-- The generator mode reports the count of the pixels that it mapped, so no map is silent (T-2).
-- A hand edit exports as RGB or RGBA, and the runbook says so.
-- Neither mode scales a picture, because a scale of pixel art makes new colors and soft edges (D-689).
-
-**Questions.** None. D-688 and D-689 set the two modes.
-
-> *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
-
-### 7.51 PR-52: the map preview
-
-Area file: `area-tools.md` section 7.12.
-
-**Scope.**
-
-- The `preview` command, which renders a map file as a PNG from the atlas (D-165).
-- The attachment of each preview to the PR description, for the approval of the owner (D-514, G-25).
-
-**Out of scope.**
-
-- The edge tiles, which PR-53 adds to the preview (D-501).
-- The light and the effects of a place, which the preview never draws.
-
-**Exit tests.**
-
-1. The command renders a fixture map as a PNG.
-2. A test compares the decoded pixels of that render with the atlas and the map (F-19).
-3. A map that names an absent tile id fails with the map and the id.
-4. The preview reaches the PR description of a fixture map batch (G-25).
-
-**Review focus.**
-
-- The command uses the PNG code of PR-47 and the atlas of PR-34 (D-176, T-1).
-- From PR-53 on, the preview draws the edge tiles of each map (D-501).
-
-**Questions.** None.
-
-> *In plain English:* maps are text files too. This tool draws a map as a picture, so the owner can see and approve a place before anyone walks it.
-
-### 7.52 PR-53: the tile-edge tool
-
-Area file: `area-tools.md` section 7.13.
-
-**Scope.**
-
-- The `edges` command, which picks the edge and corner tile for each position from the terrain and the edge rules (D-204).
-- The edge rules in content, outside the rule files (D-495, D-501).
-- One edge file for each map, which the repository commits (D-501).
-- The read of the map and its edge file in Game, where Core reads the map alone (D-501, G-1).
-- The edge tiles in the map preview of PR-52.
-
-**Out of scope.**
-
-- The edge drawings themselves, which PR-17 and the later art PRs add.
-- No rule reads an edge file, so the content hash never sees one (D-495).
-
-**Exit tests.**
-
-1. A test proves that each committed edge file matches its map and the edge rules (D-501).
-2. A terrain pattern that no rule covers fails with the map, the position, and the pattern.
-3. Game draws a fixture map with its edge tiles, and a screen test captures it.
-4. A test proves that Core reads no edge file (G-1).
-
-**Review focus.**
-
-- The edge file stays outside the content hash, so a new border drawing never breaks a record (D-495, D-501).
-- The map preview of PR-52 draws the same edges as Game (T-1).
-
-**Questions.** None.
-
-> *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own.
-
-### 7.53 PR-72: the music and the sounds of the first playable
+### 7.55 PR-72: the music and the sounds of the first playable
 
 Area file: `area-audio.md` section 7.12.
 
@@ -2228,54 +2308,7 @@ Area file: `area-audio.md` section 7.12.
 
 > *In plain English:* the music arrives in two batches. This is the first: enough for the first thing that the owner plays.
 
-### 7.54 PR-17: the village, the first hub, and the first dungeon
-
-Area files: every area file. The content PR touches each area.
-
-**Scope.**
-
-- The village and the land near it, the mining town, and the hanging cells, as content (D-28, D-39, D-313, D-369, D-370).
-- The tile sets, the layouts, and the edge files of each map (D-110, D-501).
-- The enemies with their sprites, their profiles, and their groups (D-535).
-- The three views and the two-frame walk of each moving enemy, and a flip for each standing one (D-207, D-744).
-- The drawing of the mark of a sight, in the place of the two rectangles of PR-8 (D-208, D-744).
-- The backdrop of each place with fights, as a large picture (D-205, D-516).
-- The light setup of each map, at its time of day (D-442, D-519).
-- The ambient effects of each place (D-187, D-520).
-- The treasure, the shop stock, the NPC sprites, and the sprite set of Marrek (D-292).
-- The hurt flinch and the down pose of each party member in battle, in one art batch (D-200, D-884).
-- A placeholder story scene in the village (D-292).
-- The text of Marrek, Bergit, and Dagvar, and of the lessons of the first playable, in the voice (D-362, G-20).
-- The normal map of each new drawing (D-183, D-521).
-
-**Out of scope.**
-
-- The arc content of region one (PR-28, PR-29) and the other places (PR-23 to PR-27, PR-81).
-- The portraits of the cast (PR-28, PR-29). PR-36 uses fixture portraits.
-- The rest of the music of region one (PR-73).
-- A boss. The first playable ends when Dagvar joins, and PR-20 builds the phase layer on a fixture boss (D-564).
-
-**Exit tests.**
-
-1. The owner plays from the village until Dagvar joins in the hanging cells (D-362).
-2. The play runs on the desktop and on the Deck (D-92).
-3. The budget test passes for every map and every battle place of the first playable (D-523).
-4. The bots play each map with no crash and no softlock (D-64).
-5. Each map preview and each review sheet reaches the PR description (D-514, G-25).
-6. Every string comes from the string table, and the owner approves each text batch (D-57, G-7, G-20).
-7. Each new content file loads, and no id is absent.
-
-**Review focus.**
-
-- The text follows the `game-text-style` skill, and no line names an agent or a model (D-63, T-6).
-- The places follow `docs/world/places.md` (D-250, D-371).
-- The art batches carry their review sheets, and the owner approves each one (D-514, G-25).
-
-**Questions.** None. Every question of the systems above closes before this PR.
-
-> *In plain English:* the first real place to play. Everything before this was machinery.
-
-### 7.55 M-3, M-4, and M-6: the measurements of the phase
+### 7.56 M-3, M-4, and M-6: the measurements of the phase
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
@@ -2304,7 +2337,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* three sets of numbers close the phase. They are the cost of the robots each night, the length of a fight, and the speed on the handheld.
 
-### 7.56 Gate 2: the first playable
+### 7.57 Gate 2: the first playable
 
 **The gate.** Gate 2 passes when every line holds:
 
@@ -2318,11 +2351,11 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 8. The `screen-test`, bot, and `night-gate` jobs are green (D-172, D-505, G-22).
 9. The budget test passes for every place of the first playable (D-523).
 
-**After the gate.** The owner pays the Steam Direct fee, and the store page goes public as Coming Soon (D-471). Sections 7.54 to 7.56 hold the work that the page needs.
+**After the gate.** The owner pays the Steam Direct fee, and the store page goes public as Coming Soon (D-471). Sections 7.58 to 7.60 hold the work that the page needs.
 
 > *In plain English:* at this point the game is a game. The owner walks a village, fights in a mine, and says whether it feels right.
 
-### 7.57 PR-74: the capture
+### 7.58 PR-74: the capture
 
 Area file: `area-release.md` section 7.6.
 
@@ -2356,7 +2389,7 @@ Area file: `area-release.md` section 7.6.
 
 > *In plain English:* the game can replay a recorded run and write every frame to disk. That gives the same picture each time, so a screenshot or a trailer shot is repeatable.
 
-### 7.58 PR-75: the store text and the owner steps
+### 7.59 PR-75: the store text and the owner steps
 
 Area file: `area-release.md` section 7.7.
 
@@ -2393,7 +2426,7 @@ Area file: `area-release.md` section 7.7.
 
 > *In plain English:* the shop page words get written and approved like any other text in the game. The owner pays the fee and answers the questions that only Valve asks.
 
-### 7.59 PR-76: the store art and the screenshots
+### 7.60 PR-76: the store art and the screenshots
 
 Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
@@ -2437,18 +2470,18 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 4. PR-48, PR-56, PR-93, PR-63, PR-57, PR-58, PR-94, PR-59, PR-92, PR-95, PR-60, PR-96, PR-97: the normal maps, the light, the settings, the effects, and the automated review.
 5. PR-11, PR-98, PR-67, PR-62: the enemies that think, the waiting enemies on screen, the character level, and the menu windows.
 6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
-7. PR-12, PR-13, PR-99, PR-91, PR-100, PR-14, PR-65: the build of a party, the stat set, the torch, the end of the Gitar pause, the hub, and the shop.
+7. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-14, PR-65: the build of a party, the stat set, the torch, the end of the Gitar pause, the torch and pad fixes, the hub, and the shop.
 8. PR-36: the dialogue box.
 9. PR-15, PR-49: the bots, the night job, and the night gate.
 10. Owner: require the bot and `night-gate` checks on `main` after their first runs.
 11. PR-16, PR-64, PR-35: the dungeon and the region map.
-12. PR-38, PR-69, PR-70, PR-71: the audio tool, the player, the rules, and the sound room.
-13. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
-14. PR-72: the music and the sounds of the first playable.
-15. PR-17: the village, the mining town, and the hanging cells.
+12. PR-51, PR-52, PR-53: the PNG import, the map preview, and the tile-edge tool.
+13. PR-17: the village, the mining town, and the hanging cells.
+14. PR-38, PR-69, PR-70, PR-71: the audio tool, the player, the rules, and the sound room (D-1079).
+15. PR-72: the music and the sounds of the first playable.
 16. M-3, M-4, M-6: the night numbers, the encounter numbers, and the Deck.
 17. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
-18. **← GATE 2 (first playable).** Section 7.54 holds each line.
+18. **← GATE 2 (first playable).** Section 7.57 holds each line.
 19. PR-74, PR-75, PR-76: the capture, the store text, and the store art.
 20. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 

@@ -1,3 +1,43 @@
+## Session 284: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR-101, round 1. Repository: the-thing-below. Branch: `fix/pr-101-torch-and-pad`. PR: PR-101, with the GitHub number from the open. Role: author. Base: `c154ddd`.
+
+### What this session did, and why
+
+- The owner asked for three fixes and one change of order in one PR. The owner accepted the two concerns in one PR, and the PR description records it.
+- The wall torch drew a box over its flame: the glow rectangle of D-915. A soft round halo behind the flame took its place, below the glow threshold. It gives 105% of the light that the rectangle spread (D-1075).
+- The carried torch got a flame of six rows in the map drawing, a denser flame stream, and the flame orange at 16000 with a range of 240 (D-1076).
+- Pad input: each binding matches every device, `ui_accept` and `ui_cancel` take the A and the B buttons, and a press gate passes the first press of each hold alone. Game logs each pad that connects (D-1077, F-107).
+- A key press, a pad button, or a stick push hides the mouse pointer, and a mouse move shows it (D-1078).
+- The audio PRs PR-38, PR-69, PR-70, PR-71, and PR-72 moved to right after PR-17 (D-1079).
+- The simulation version went to 26, because the reader of the glow changed. The identity file and 78 captures of the baseline changed with it.
+
+### The state of the build
+
+- Base `c154ddd`. The remote head is the commit of this entry.
+- On this machine: build, 3,214 tests, format, det-lint, identity, content hash, atlas, smoke, and `ste-check` pass. The capture session under Xvfb and lavapipe, with the Mesa version of CI, matched 108 of 109 captures of the base commit.
+
+### What is in flight
+
+- The Gitar pass of the head, then `make codex-review PR=<n>`.
+
+### Traps and gotchas
+
+- Godot 4.7.2 gives a new pad event the device 0 and a new key event the device 16. A binding of device 0 matched the first pad alone (F-107).
+- The default `ui_accept` and `ui_cancel` of Godot 4.7.2 hold no pad button (F-107).
+- No Steam Deck was at hand. The smoke session proves each rule with the events of a pad of device 3. The cause of the repeat of a held Start on the Deck is not proven. The pad log names the devices of the Deck at the next test.
+- `still-240.png` of the base commit differed from the baseline by one level in 296 pixels on this machine. When the screen-test job fails on one capture alone, take the capture from the artifact of the job (D-733).
+- A glow halo above the threshold clips to full light and draws a box again. The load refuses it (D-1075).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the Gitar pass of the PR head, and answer each Gitar item. This machine has no `codex` or `gh` command, so the owner runs `make codex-review PR=<n>` for the cross-provider review.
+
 ## Session 283: 2026-09-24, Codex
 
 Author: Codex
@@ -176,6 +216,7 @@ None. OQ-246 blocks no PR.
 ### The next concrete action
 
 Push this metadata commit to `feat/pr-91-torch-item`. Fetch, check the branch status, confirm the PR head with `gh pr view`, and read the new `review-gate` result.
+
 ## Session 278: 2026-09-24, Claude Code
 
 Author: Claude Code
@@ -314,36 +355,3 @@ None. OQ-247 and OQ-248 resolve in D-1052 and D-1055.
 ### The next concrete action
 
 The author needs to resolve the three CI screen differences before approval. The metadata push triggered fresh CI checks.
-
-## Session 274: 2026-09-24, Claude Code
-
-Author: Claude Code
-Session: author PR-99, round 2. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: author. Base: `f1ab753`.
-
-### What this session did, and why
-
-- Answered P2-1 of `docs/reviews/pr-75.md` with full merit. The heal math overflowed a `long` at the content limits before its health cap (T-2).
-- `BattleMath.HealAmount` splits the scaled share at the scale of 10^12, so the product stays in a `long` and the one rounding of D-169 holds. Each heal that did not overflow gives the same number, and the identity file does not change.
-- `StatSetTests.AHealAtTheLimitsOfTheContentCompletesAndStopsAtFullHealth` fails on `26d20cc` with `OverflowException` and passes on the correction. `docs/reviews/pr-75-response.md` records the answer.
-
-### The state of the build
-
-- `make verify` passed on the Mac: 3,153 tests, format, det-lint, STE, identity, content, atlas, and smoke.
-- Round 1 CI run `36039388273` at `26d20cc` passed each job but `review-gate`, which waited for the record.
-
-### What is in flight
-
-- The repeat review of `make codex-review PR=75 -- --skip-gitar-review` (D-946).
-
-### Traps and gotchas
-
-- `make sheet` still fails to join the frames: the sheet passes the PNG height limit. The fault is older than this PR.
-- Gitar posted a status notice alone, with no item (D-964).
-
-### The questions that block progress
-
-None. The owner has not yet approved the string batch of the PR description (D-57).
-
-### The next concrete action
-
-Push, confirm the remote head, and run the repeat review. On `approve`, ask the owner to confirm the merge with the summary of D-942.
