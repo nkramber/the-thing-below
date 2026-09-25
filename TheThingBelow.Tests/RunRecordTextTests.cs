@@ -223,7 +223,7 @@ public sealed class RunRecordTextTests
         lines[1] = "{\"tick\":0,\"menu\":false,\"world\":0,\"map\":{\"id\":\"map.test_room\",\"x\":2,\"y\":2,"
             + "\"facing\":\"south\",\"step_ticks\":0,\"walked\":[\"x\"],\"enemies\":[],\"npcs\":[]},"
             + "\"party\":{\"characters\":[{\"id\":\"character.marrek\",\"health\":60,\"level\":1,\"experience\":0,\"mp\":8,\"row\":\"front\",\"statuses\":[],"
-            + "\"lessons\":{\"slot_count\":2,\"slots\":[],\"points\":[]},\"gear\":[]}],\"pack\":[],\"lesson_pack\":[],\"gold\":0,\"torch_held\":false},\"notices\":[],\"story\":{\"flags\":[],\"paused\":false,\"entry\":true},\"streams\":[]}";
+            + "\"lessons\":{\"slot_count\":2,\"slots\":[],\"points\":[]},\"gear\":[]}],\"reserve\":[],\"pack\":[],\"lesson_pack\":[],\"gold\":0,\"torch_held\":false},\"notices\":[],\"story\":{\"flags\":[],\"paused\":false,\"entry\":true},\"streams\":[]}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));

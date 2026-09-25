@@ -22,8 +22,9 @@ namespace TheThingBelow.Core.Runs;
 /// row intent of the party window names its character as a target of the party side (D-558).
 /// The pick intent of a choose step names the index of its option (D-1007). A lesson use names its
 /// lesson and its form, a cast from the menu also names its caster, and a swap names the
-/// character, the slot, and the lesson (D-1027, D-1030). Every other intent carries none of
-/// these values.
+/// character, the slot, and the lesson (D-1027, D-1030). A party swap names the party slot as its
+/// actor and the reserve index as its option (D-1134). Every other intent carries none of these
+/// values.
 /// </para>
 /// </remarks>
 /// <param name="Action">The id of the choice, such as `intent.open_menu`.</param>
@@ -32,9 +33,9 @@ namespace TheThingBelow.Core.Runs;
 /// </param>
 /// <param name="Target">The side and the slot that a battle intent or a row intent aims at, or no value (D-558, D-764).</param>
 /// <param name="Item">The item of an item use, or the piece of a change of gear, or no value (D-780, D-1048).</param>
-/// <param name="Option">An index from zero: the option of a pick (D-1007), the form of a lesson use, the lesson slot of a swap, or the gear slot of a change of gear (D-1027, D-1030, D-1048). No value for the other intents.</param>
+/// <param name="Option">An index from zero: the option of a pick (D-1007), the form of a lesson use, the lesson slot of a swap, the gear slot of a change of gear, or the reserve index of a party swap (D-1027, D-1030, D-1048, D-1134). No value for the other intents.</param>
 /// <param name="Lesson">The lesson of a lesson use or a swap, or no value (D-1026).</param>
-/// <param name="Actor">The party slot of the character who casts from the menu, or whose slot a swap or a change of gear changes, or no value (D-391, D-1030, D-1048).</param>
+/// <param name="Actor">The party slot of the character who casts from the menu, or whose slot a swap or a change of gear changes, or who goes to the reserve in a party swap, or no value (D-391, D-1030, D-1048, D-1134).</param>
 public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target = null, ContentId? Item = null, int? Option = null, ContentId? Lesson = null, int? Actor = null)
 {
     /// <summary>Makes an intent that the player made through a screen of the game.</summary>
@@ -141,6 +142,13 @@ public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target
     /// <returns>The intent, with no debug mark. The item field carries the piece.</returns>
     public static Intent OfGearWear(int character, int slot, ContentId? piece) =>
         new(IntentIds.GearWear, false, null, piece, slot, null, character);
+
+    /// <summary>Makes the intent of a party swap: one character of the party goes to the reserve, and one character of the reserve comes in (D-1134, D-1136).</summary>
+    /// <param name="slot">The party slot of the character who goes out.</param>
+    /// <param name="reserve">The reserve index of the character who comes in.</param>
+    /// <returns>The intent, with no debug mark. The actor field carries the party slot, and the option field carries the reserve index.</returns>
+    public static Intent OfPartySwap(int slot, int reserve) =>
+        new(IntentIds.PartySwap, false, null, null, reserve, null, slot);
 
     /// <summary>Gives the intent as one line for an error message and a log line (T-2).</summary>
     /// <returns>The action, the item, the target, the option, and the debug mark, each when the intent carries it.</returns>

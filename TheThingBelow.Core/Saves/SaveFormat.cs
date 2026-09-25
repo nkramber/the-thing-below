@@ -72,10 +72,11 @@ public static class SaveFormat
     /// reads the index of the step alone.
     /// </para>
     /// <para>
-    /// PR-14 raised it to 15. The map gained the stored values of each NPC, and the streams gained
-    /// the NPC stream (D-1137). A save of an older format puts each NPC of its map on its start
-    /// tile, and it opens the NPC stream at its first value from the seed of the header, because no
-    /// build before PR-14 drew from it.
+    /// PR-14 raised it to 15. The map gained the stored values of each NPC, the streams gained
+    /// the NPC stream, and the party gained the reserve (D-1136, D-1137). A save of an older format
+    /// puts each NPC of its map on its start tile, it opens the NPC stream at its first value from
+    /// the seed of the header, because no build before PR-14 drew from it, and it starts the
+    /// reserve empty.
     /// </para>
     /// </remarks>
     public const int Current = 15;

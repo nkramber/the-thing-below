@@ -94,13 +94,18 @@ public static class Experience
     }
 
     /// <summary>
-    /// Gives the experience of each character of the party at the end of a battle won, and
-    /// raises the level of each one that reaches a new level (D-34, D-973). The events follow
-    /// the win: the experience of each character, then each level-up (D-422, D-975).
+    /// Gives the experience of each character at the end of a battle won, and raises the level
+    /// of each one that reaches a new level (D-34, D-973). The events follow the win: the
+    /// experience of each character of the party, then each level-up (D-422, D-975).
     /// </summary>
     /// <param name="state">The run, whose party took the health of the fight back.</param>
     /// <param name="battle">The battle won.</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <remarks>
+    /// Each character of the reserve earns half, and a downed one earns none (D-73, D-974). The
+    /// reserve takes no event, because the battle summary names the party alone until OQ-249
+    /// has its answer.
+    /// </remarks>
     internal static void Award(RunState state, Battle battle, RunContext context)
     {
         BattleContent content = state.BattleContent;
@@ -109,14 +114,7 @@ public static class Experience
         {
             PartyMember member = state.Characters.Members[slot];
             ExperienceStanding standing = member.Down ? ExperienceStanding.Down : ExperienceStanding.Fought;
-            int shrunk = 0;
-            foreach (Combatant enemy in battle.Enemies)
-            {
-                EnemyRecord record = content.Enemy(enemy.Id);
-                shrunk = checked(shrunk + Shrunk(record.Experience, member.Level, record.Level, content.Rules));
-            }
-
-            int earned = EarnedBy(shrunk, standing);
+            int earned = EarnedBy(ShrunkFor(member, battle, content), standing);
             if (earned == 0)
             {
                 continue;
@@ -142,5 +140,28 @@ public static class Experience
         {
             state.AddEvent(new BattleEvent(BattleEventKind.LevelUp, new BattleTarget(BattleSide.Party, slot), null, level));
         }
+
+        foreach (PartyMember waiting in state.Characters.Reserve)
+        {
+            ExperienceStanding standing = waiting.Down ? ExperienceStanding.Down : ExperienceStanding.Reserve;
+            int earned = EarnedBy(ShrunkFor(waiting, battle, content), standing);
+            if (earned > 0)
+            {
+                _ = waiting.Gain(earned, content.Rules, context);
+            }
+        }
+    }
+
+    /// <summary>The sum of the experience of each enemy of the battle, each shrunk by the gap to the level of the character (D-968).</summary>
+    private static int ShrunkFor(PartyMember member, Battle battle, BattleContent content)
+    {
+        int shrunk = 0;
+        foreach (Combatant enemy in battle.Enemies)
+        {
+            EnemyRecord record = content.Enemy(enemy.Id);
+            shrunk = checked(shrunk + Shrunk(record.Experience, member.Level, record.Level, content.Rules));
+        }
+
+        return shrunk;
     }
 }

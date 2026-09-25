@@ -147,8 +147,9 @@ public static class SaveText
     /// map. Its reader gives a snapshot with no map, and `RunState.Resume` then puts the
     /// party on the spawn point of the first map (D-166, D-654). Format 2 holds the map and
     /// no enemy, and its migration puts each enemy on the start tile of its station (D-750).
-    /// Format 14 and older hold no NPC and no NPC stream. The resume puts each NPC on its start
-    /// tile, and the NPC stream joins at its first value, from the seed of the header (D-1137).
+    /// Format 14 and older hold no NPC, no NPC stream, and no reserve. The resume puts each NPC on
+    /// its start tile, the NPC stream joins at its first value, from the seed of the header, and
+    /// the reserve starts empty (D-1136, D-1137).
     /// <para>
     /// The PR that next changes the snapshot raises <see cref="SaveFormat.Current"/>, adds a
     /// reader of each older version, and commits a fixture save of the version that it

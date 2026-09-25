@@ -278,7 +278,7 @@ public sealed class RunState
             return PartyState.Start(battleContent);
         }
 
-        return PartyState.Resume(battleContent, stored.Characters, stored.Pack, stored.LessonPack, stored.Gold, stored.TorchHeld, "this run");
+        return PartyState.Resume(battleContent, stored.Characters, stored.Reserve, stored.Pack, stored.LessonPack, stored.Gold, stored.TorchHeld, "this run");
     }
 
     /// <summary>
@@ -386,7 +386,7 @@ public sealed class RunState
                 this.Party.Patrols.Mark,
                 this.Party.Patrols.Encounter,
                 this.Party.Npcs.Values()),
-            new PartySnapshot(this.Characters.CharacterValues(), this.Characters.PackValues(), this.Characters.LessonPackValues(), this.Characters.Gold, this.Characters.TorchHeld),
+            new PartySnapshot(this.Characters.CharacterValues(), this.Characters.PackValues(), this.Characters.LessonPackValues(), this.Characters.Gold, this.Characters.TorchHeld, this.Characters.ReserveValues()),
             this.Battle?.Values(),
             this.NoticeLog.Values(),
             this.Story.Values(),
@@ -522,6 +522,41 @@ public sealed class RunState
 
         PartyMember member = this.Characters.Members[target.Slot];
         member.Row = BattleSides.Other(member.Row);
+    }
+
+    /// <summary>
+    /// Swaps one character of the party with one character of the reserve, from the Party window
+    /// of a menu, anywhere outside a fight (D-1134, D-1136). The map stays as it is: the lead
+    /// walks the map in the party or in the reserve (D-292, D-306).
+    /// </summary>
+    /// <param name="slot">The party slot of the character who goes to the reserve.</param>
+    /// <param name="reserve">The reserve index of the character who comes in.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <exception cref="ArgumentNullException">The context is null (T-2).</exception>
+    /// <exception cref="SimulationException">
+    /// No menu is open, a battle holds the run, an encounter leads into a battle, or the party
+    /// rules refuse the swap, such as a downed reserve character (D-1134, D-1135, T-2).
+    /// </exception>
+    public void SwapReserve(int slot, int reserve, RunContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (!this.MenuOpen)
+        {
+            throw new SimulationException("a party swap while no menu is open, and the Party window of a menu makes it (D-1134)", context);
+        }
+
+        if (this.Battle is not null)
+        {
+            throw new SimulationException("a party swap while a battle holds the run, and no swap happens inside a battle (D-1134)", context);
+        }
+
+        if (this.Party.Patrols.Encounter is not null)
+        {
+            throw new SimulationException("a party swap while an encounter leads into a battle, and no swap happens inside a battle (D-1134)", context);
+        }
+
+        this.Characters.SwapReserve(slot, reserve, context);
     }
 
     /// <summary>Holds one posted notice for Game, and adds it to the log when content marks it (D-221, D-983).</summary>

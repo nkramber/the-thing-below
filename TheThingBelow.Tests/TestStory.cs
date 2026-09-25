@@ -37,7 +37,8 @@ public static class TestStory
       { "id": "flag.test_victor", "note": "The party beat the guard." },
       { "id": "flag.test_marrek_side", "note": "The side aptitude of Marrek is open." },
       { "id": "flag.test_second_side", "note": "The side aptitude of the second character is open." },
-      { "id": "flag.test_third_side", "note": "The side aptitude of the third character is open." }
+      { "id": "flag.test_third_side", "note": "The side aptitude of the third character is open." },
+      { "id": "flag.test_fourth_side", "note": "The side aptitude of the fourth character is open." }
      ]
     }
     """;

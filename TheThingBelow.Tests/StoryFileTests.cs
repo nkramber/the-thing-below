@@ -17,7 +17,7 @@ public sealed class StoryFileTests
     public void TheFlagFileReadsEachFlagInTheOrderOfTheFile()
     {
         Assert.Equal(
-            ["flag.test_met", "flag.test_yes", "flag.test_no", "flag.test_done", "flag.test_victor", "flag.test_marrek_side", "flag.test_second_side", "flag.test_third_side"],
+            ["flag.test_met", "flag.test_yes", "flag.test_no", "flag.test_done", "flag.test_victor", "flag.test_marrek_side", "flag.test_second_side", "flag.test_third_side", "flag.test_fourth_side"],
             Values(TestStory.Flags.Ids()));
         Assert.Equal("The ally met Marrek.", TestStory.Flags.Records[0].Note);
         Assert.True(TestStory.Flags.Declares(ContentId.Parse("flag.test_no", "test", "flag")));

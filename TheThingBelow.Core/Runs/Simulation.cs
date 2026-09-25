@@ -297,6 +297,15 @@ public sealed class Simulation
             return;
         }
 
+        if (Is(intent, IntentIds.PartySwap))
+        {
+            int slot = intent.Actor ?? throw new SimulationException("a party swap that names no party slot (D-1134)", context);
+            int reserve = intent.Option ?? throw new SimulationException("a party swap that names no reserve index (D-1134)", context);
+            this.State.SwapReserve(slot, reserve, context);
+            log.Add(new LogEntry(LogLevel.Info, "a character of the reserve swapped into the party", this.State.Tick, LogSubsystems.Run, [new LogField("intent", intent.Describe())]));
+            return;
+        }
+
         if (TryStepOf(intent, out StepDirection direction))
         {
             // The rule reads the intent here, and the world step of this tick starts the
@@ -426,16 +435,17 @@ public sealed class Simulation
         bool swap = Is(intent, IntentIds.LessonSwap);
         bool menuItem = Is(intent, IntentIds.MenuItem);
         bool wear = Is(intent, IntentIds.GearWear);
+        bool partySwap = Is(intent, IntentIds.PartySwap);
         bool unread =
             (intent.Target is not null && !attack && !item && !row && !use && !cast && !menuItem) ||
             (intent.Item is not null && !item && !menuItem && !wear) ||
-            (intent.Option is not null && !pick && !use && !cast && !swap && !wear) ||
+            (intent.Option is not null && !pick && !use && !cast && !swap && !wear && !partySwap) ||
             (intent.Lesson is not null && !use && !cast && !swap) ||
-            (intent.Actor is not null && !cast && !swap && !wear);
+            (intent.Actor is not null && !cast && !swap && !wear && !partySwap);
         if (unread)
         {
             throw new SimulationException(
-                "an intent that carries a target, an item, an option, a lesson, or an actor that no rule of its action reads (D-558, D-764, D-780, D-1007, D-1027, D-1030)",
+                "an intent that carries a target, an item, an option, a lesson, or an actor that no rule of its action reads (D-558, D-764, D-780, D-1007, D-1027, D-1030, D-1134)",
                 context);
         }
     }

@@ -24,7 +24,7 @@ public enum MapThingKind
     /// <summary>A trap, which a Theft drill reveals and disarms (D-386).</summary>
     Trap,
 
-    /// <summary>A save point, where the party saves and swaps the reserve (D-58).</summary>
+    /// <summary>A save point, where the party saves (D-58). The party swap works anywhere outside a fight, so a save point marks no swap place (D-1134).</summary>
     SavePoint,
 
     /// <summary>The tile where the party starts on this map. One map holds one (D-528).</summary>

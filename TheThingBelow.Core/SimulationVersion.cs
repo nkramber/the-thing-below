@@ -84,7 +84,12 @@ public static class SimulationVersion
     /// tile, and a chaser takes the step closest to its target (D-1137, D-1138). An NPC is solid: no NPC steps onto
     /// the lead, a wall, a thing, another NPC, or an enemy, no enemy steps onto an NPC, and a step of the lead into an
     /// NPC turns the lead alone. A story scene ends the step of each NPC (D-1139). The state hash and the snapshot
-    /// hold each NPC and the NPC stream.
+    /// hold each NPC and the NPC stream. The party gains a reserve: a join into a full party goes to the reserve, and
+    /// the party swap trades one character of the party with one of the reserve while a menu is open outside a fight
+    /// and an encounter (D-1134, D-1136). A downed character can go out, and a downed reserve character never comes
+    /// in (D-1135). A rest and a save point restore the reserve too. After a battle won, each reserve character earns
+    /// half the experience and half the lesson points, and a downed reserve character earns none (D-73, D-357,
+    /// D-974, D-1022). The state hash and the snapshot hold the reserve.
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number

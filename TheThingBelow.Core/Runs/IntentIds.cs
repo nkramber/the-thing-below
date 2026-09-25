@@ -113,4 +113,11 @@ public static class IntentIds
 
     /// <summary>The player put the torch away, on the walk (D-1064, D-1071).</summary>
     public static readonly ContentId PutTorchAway = ContentId.Parse("intent.put_torch_away", Source, nameof(PutTorchAway));
+
+    /// <summary>
+    /// The Party window swapped one character of the party with one character of the reserve,
+    /// anywhere outside a fight (D-1134, D-1136). The intent names the party slot as its actor and
+    /// the reserve index as its option.
+    /// </summary>
+    public static readonly ContentId PartySwap = ContentId.Parse("intent.party_swap", Source, nameof(PartySwap));
 }

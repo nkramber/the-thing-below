@@ -12,7 +12,7 @@ namespace TheThingBelow.Core.Battles;
 /// The text of the party and the battle inside one snapshot line, from save format 4 (D-531,
 /// D-652, D-765). `RunSnapshotText` calls it for the two objects. Save format 5 adds the
 /// statuses of each character and each combatant, and drops the push rate, which haste and
-/// slow now set (D-792, D-800).
+/// slow now set (D-792, D-800). Save format 15 adds the reserve of the party (D-1136).
 /// </summary>
 public static class BattleSnapshotText
 {
@@ -33,26 +33,17 @@ public static class BattleSnapshotText
         writer.WriteStartArray("characters");
         foreach (CharacterValues character in party.Characters)
         {
-            writer.WriteStartObject();
-            writer.WriteString("id", character.Character.Value);
-            writer.WriteNumber("health", character.Health);
-            GrowthValues growth = character.Growth ?? throw new ArgumentException($"The character '{character.Character.Value}' holds no level, and a snapshot of this build writes the level of each character (D-966).", nameof(party));
-            writer.WriteNumber("level", growth.Level);
-            writer.WriteNumber("experience", growth.Experience);
-            writer.WriteNumber("mp", growth.Mp);
-            writer.WriteString("row", BattleSides.NameOf(character.Row));
-            writer.WriteStartArray("statuses");
-            foreach (StatusKind status in character.Statuses)
-            {
-                writer.WriteStringValue(Statuses.NameOf(status));
-            }
+            WriteCharacter(writer, character, nameof(party));
+        }
 
-            writer.WriteEndArray();
-            LessonValues lessons = character.Lessons ?? throw new ArgumentException($"The character '{character.Character.Value}' holds no lessons, and a snapshot of this build writes the lessons of each character (D-1018).", nameof(party));
-            WriteLessons(writer, lessons);
-            IReadOnlyList<ContentId?> gear = character.Gear ?? throw new ArgumentException($"The character '{character.Character.Value}' holds no gear slots, and a snapshot of this build writes the gear of each character (D-44).", nameof(party));
-            WriteGear(writer, gear);
-            writer.WriteEndObject();
+        writer.WriteEndArray();
+
+        // Save format 15 adds the reserve (D-1136).
+        IReadOnlyList<CharacterValues> reserve = party.Reserve ?? throw new ArgumentException("The party holds no reserve list, and a snapshot of this build writes it (D-1136).", nameof(party));
+        writer.WriteStartArray("reserve");
+        foreach (CharacterValues character in reserve)
+        {
+            WriteCharacter(writer, character, nameof(party));
         }
 
         writer.WriteEndArray();
@@ -79,6 +70,34 @@ public static class BattleSnapshotText
         writer.WriteNumber("gold", gold);
         bool torchHeld = party.TorchHeld ?? throw new ArgumentException("The party holds no state of the torch, and a snapshot of this build writes it (D-1064).", nameof(party));
         writer.WriteBoolean("torch_held", torchHeld);
+        writer.WriteEndObject();
+    }
+
+    /// <summary>Writes one character of the party or of the reserve as one object of its array (D-765, D-1136).</summary>
+    /// <param name="writer">The writer of the snapshot line.</param>
+    /// <param name="character">The stored values of the character.</param>
+    /// <param name="parameter">The name of the argument that holds the party, for an error (T-2).</param>
+    private static void WriteCharacter(Utf8JsonWriter writer, CharacterValues character, string parameter)
+    {
+        writer.WriteStartObject();
+        writer.WriteString("id", character.Character.Value);
+        writer.WriteNumber("health", character.Health);
+        GrowthValues growth = character.Growth ?? throw new ArgumentException($"The character '{character.Character.Value}' holds no level, and a snapshot of this build writes the level of each character (D-966).", parameter);
+        writer.WriteNumber("level", growth.Level);
+        writer.WriteNumber("experience", growth.Experience);
+        writer.WriteNumber("mp", growth.Mp);
+        writer.WriteString("row", BattleSides.NameOf(character.Row));
+        writer.WriteStartArray("statuses");
+        foreach (StatusKind status in character.Statuses)
+        {
+            writer.WriteStringValue(Statuses.NameOf(status));
+        }
+
+        writer.WriteEndArray();
+        LessonValues lessons = character.Lessons ?? throw new ArgumentException($"The character '{character.Character.Value}' holds no lessons, and a snapshot of this build writes the lessons of each character (D-1018).", parameter);
+        WriteLessons(writer, lessons);
+        IReadOnlyList<ContentId?> gear = character.Gear ?? throw new ArgumentException($"The character '{character.Character.Value}' holds no gear slots, and a snapshot of this build writes the gear of each character (D-44).", parameter);
+        WriteGear(writer, gear);
         writer.WriteEndObject();
     }
 
@@ -201,12 +220,13 @@ public static class BattleSnapshotText
 
     /// <summary>Reads the object `party`.</summary>
     /// <param name="reader">The reader of the snapshot line.</param>
-    /// <param name="format">The save format of the line, 4 or later. Format 4 holds no status, and each character then holds none (D-792).</param>
+    /// <param name="format">The save format of the line, 4 or later. Format 4 holds no status, and each character then holds none (D-792). Format 14 and older hold no reserve, and the party then holds none (D-1136).</param>
     /// <returns>The party.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     public static PartySnapshot ReadParty(ref ContentReader reader, int format)
     {
         List<CharacterValues>? characters = null;
+        List<CharacterValues>? reserve = null;
         List<PackValues>? pack = null;
         List<ContentId>? lessonPack = null;
         bool? swapPlace = null;
@@ -242,6 +262,16 @@ public static class BattleSnapshotText
                 case "torch_held" when format >= 13:
                     torchHeld = reader.ReadBoolean();
                     break;
+                // Save format 15 adds the reserve (D-1136).
+                case "reserve" when format >= 15:
+                    reserve = [];
+                    int reserveDepth = reader.ReadArrayStart();
+                    while (reader.ReadNextElement(reserveDepth, reserve.Count))
+                    {
+                        reserve.Add(ReadCharacter(ref reader, format));
+                    }
+
+                    break;
                 case "characters":
                     characters = [];
                     int charactersDepth = reader.ReadArrayStart();
@@ -276,7 +306,8 @@ public static class BattleSnapshotText
             reader.Require(pack, depth, "pack"),
             format >= 10 ? reader.Require(lessonPack, depth, "lesson_pack") : null,
             format >= 11 ? reader.RequireInt(gold, depth, "gold") : null,
-            format >= 13 ? reader.RequireValue(torchHeld, depth, "torch_held") : null);
+            format >= 13 ? reader.RequireValue(torchHeld, depth, "torch_held") : null,
+            format >= 15 ? reader.Require(reserve, depth, "reserve") : null);
     }
 
     /// <summary>

@@ -30,10 +30,14 @@ internal static partial class SnapshotLines
     /// <returns>The line in the shape of save format 12.</returns>
     public static string AsFormatTwelve(string line) => PartyTorch().Replace(AsFormatFourteen(line), string.Empty);
 
-    /// <summary>Drops the NPCs of the map and the NPC stream, which save format 15 added (D-1137).</summary>
-    /// <param name="line">A snapshot line of this build.</param>
+    /// <summary>Drops the NPCs of the map, the NPC stream, and the empty reserve, which save format 15 added (D-1136, D-1137).</summary>
+    /// <param name="line">A snapshot line of this build, whose reserve is empty. No older format holds a reserve.</param>
     /// <returns>The line in the shape of save format 14.</returns>
-    public static string AsFormatFourteen(string line) => NpcStream().Replace(MapNpcs().Replace(line, string.Empty), string.Empty);
+    public static string AsFormatFourteen(string line)
+    {
+        string noReserve = EmptyReserve().Replace(line, string.Empty);
+        return NpcStream().Replace(MapNpcs().Replace(noReserve, string.Empty), string.Empty);
+    }
 
     // The arrays hold objects with no nested array, so the first `]` ends each one.
     [GeneratedRegex(""","lessons":\{"slot_count":\d+,"slots":\[[^\]]*\],"points":\[[^\]]*\]\}""")]
@@ -53,6 +57,9 @@ internal static partial class SnapshotLines
 
     [GeneratedRegex(""","npcs":\[[^\]]*\]""")]
     private static partial Regex MapNpcs();
+
+    [GeneratedRegex(""","reserve":\[\]""")]
+    private static partial Regex EmptyReserve();
 
     [GeneratedRegex(""",\{"stream":6,"state":"0x[0-9a-f]+","increment":"0x[0-9a-f]+"\}""")]
     private static partial Regex NpcStream();

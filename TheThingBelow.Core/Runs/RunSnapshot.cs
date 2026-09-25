@@ -53,13 +53,14 @@ public sealed record MapSnapshot(
     MapEncounter? Encounter,
     IReadOnlyList<NpcValues>? Npcs);
 
-/// <summary>The characters of the party, their pack, and their gold in a snapshot (D-765, D-1043).</summary>
+/// <summary>The characters of the party and of the reserve, their pack, and their gold in a snapshot (D-765, D-1043, D-1136).</summary>
 /// <param name="Characters">Each character, in slot order.</param>
 /// <param name="Pack">Each item and each piece of spare gear of the pack, in the ordinal order of the ids (D-1038).</param>
 /// <param name="LessonPack">The owned lessons that no character carries, from save format 10 (D-1024). Null in a snapshot of an older format.</param>
 /// <param name="Gold">The gold of the party, from save format 11 (D-1043). Null in a snapshot of an older format, and the resume then starts at zero.</param>
 /// <param name="TorchHeld">True while the party holds the torch out, from save format 13 (D-1064). Null in a snapshot of an older format, and the resume then puts the torch away.</param>
-public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IReadOnlyList<PackValues> Pack, IReadOnlyList<ContentId>? LessonPack, int? Gold, bool? TorchHeld);
+/// <param name="Reserve">Each character of the reserve, in reserve order, from save format 15 (D-1136). Null in a snapshot of an older format, which predates the reserve, and the resume then starts the reserve empty.</param>
+public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IReadOnlyList<PackValues> Pack, IReadOnlyList<ContentId>? LessonPack, int? Gold, bool? TorchHeld, IReadOnlyList<CharacterValues>? Reserve);
 
 /// <summary>
 /// The whole state of a run at the end of one tick. A record holds one snapshot and the

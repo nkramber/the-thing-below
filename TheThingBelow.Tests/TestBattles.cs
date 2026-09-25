@@ -71,8 +71,8 @@ internal static class TestBattles
     """;
 
     /// <summary>
-    /// The fixture of the tests. It holds three characters, and the party starts with Marrek
-    /// alone. The groups live in <see cref="GroupsFile"/> (D-957).
+    /// The fixture of the tests. It holds four characters, and the party starts with Marrek
+    /// alone. The fourth character fills the reserve of a full party (D-1136). The groups live in <see cref="GroupsFile"/> (D-957).
     /// </summary>
     public static readonly string FixtureFile = $$"""
     {
@@ -80,7 +80,8 @@ internal static class TestBattles
      "characters": [
       { "id": "character.marrek", "row": "front", "join_level": 1, "main_aptitude": "blade", "side_aptitude": "guard", "side_flag": "flag.test_marrek_side", "curve": {{MarrekCurve()}} },
       { "id": "character.test_second", "row": "front", "join_level": 1, "main_aptitude": "harm", "side_aptitude": "mend", "side_flag": "flag.test_second_side", "curve": {{StatCurve.FlatText(new StatRow(50, 12, 10, 10, 3, 3, 110))}} },
-      { "id": "character.test_third", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "boon", "side_flag": "flag.test_third_side", "curve": {{StatCurve.FlatText(new StatRow(40, 16, 8, 8, 2, 2, 120))}} }
+      { "id": "character.test_third", "row": "back", "join_level": 1, "main_aptitude": "mend", "side_aptitude": "boon", "side_flag": "flag.test_third_side", "curve": {{StatCurve.FlatText(new StatRow(40, 16, 8, 8, 2, 2, 120))}} },
+      { "id": "character.test_fourth", "row": "front", "join_level": 1, "main_aptitude": "guard", "side_aptitude": "theft", "side_flag": "flag.test_fourth_side", "curve": {{StatCurve.FlatText(new StatRow(45, 6, 11, 11, 4, 2, 105))}} }
      ],
      "start_party": ["character.marrek"],
      "pack": [{ "item": "item.fixture_draught", "count": 3 }],
@@ -397,7 +398,8 @@ internal static class TestBattles
      "flags": [
       { "id": "flag.test_marrek_side", "note": "The side aptitude of Marrek is open." },
       { "id": "flag.test_second_side", "note": "The side aptitude of the second character is open." },
-      { "id": "flag.test_third_side", "note": "The side aptitude of the third character is open." }
+      { "id": "flag.test_third_side", "note": "The side aptitude of the third character is open." },
+      { "id": "flag.test_fourth_side", "note": "The side aptitude of the fourth character is open." }
      ]
     }
     """;
