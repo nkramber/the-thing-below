@@ -1,3 +1,37 @@
+## Session 320: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #83 (PR-106). Repository: the-thing-below. Local branch: `review/pr-83`; PR branch: `fix/pr-106-gate-trust`. PR: #83. Role: reviewer. Base: `d875322`.
+
+### What this session did, and why
+
+- Reviewed the full change at effective head `b93b796` and wrote `docs/reviews/pr-83.md`.
+- Verified the Gitar CI-analysis answer. RG 3 alone failed because the review record was not on the PR before this review (F-37, D-964).
+- `make verify` passed with 3,492 tests. CI passed the implementation checks on all three systems.
+- Inspected all 127 frames in the CI artifact. The new Deck, body-24, settings, and crash frames show no visual fault.
+
+### The state of the build
+
+- The remote head before this metadata commit is `b93b796`. The local build and implementation CI pass at that head.
+
+### What is in flight
+
+- This review record and this entry are committed together and pushed to `fix/pr-106-gate-trust`.
+- The review gives `Ready for owner merge` for `b93b796`. The live `review-gate` check must read the published record.
+
+### Traps and gotchas
+
+- The `review-gate` check fails RG 3 before the review record reaches the PR. RG 4 and RG 5 then skip (F-37).
+- The Gitar code approval has no item. The CI-analysis item has the author's answer, and needs no further reply (D-964).
+
+### The questions that block progress
+
+OQ-246 remains open for the cause of a one-level screen-test flake. PR-106 adds diagnostics and package pins (D-1080, D-1127).
+
+### The next concrete action
+
+Read the live `review-gate` result after the metadata push, then end this review session.
+
 ## Session 319: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -298,36 +332,4 @@ None for this PR. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 stay open in the r
 ### The next concrete action
 
 Push the branch, open the PR, and follow the `gitar-review` skill.
-
-## Session 310: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #81 (PR-104), round 3. Repository: the-thing-below. Branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: author. Base: `4aad522`.
-
-### What this session did, and why
-
-- The repeat review gave `Blocked` for one Gitar item: the CI analysis of the RG 4 faults, which each `Blocked` record causes. The PR comment answers each review-gate job of the analysis.
-- The third review gives `Ready for owner merge` for the effective head `f66e314` in `docs/reviews/pr-81.md`, with no open finding. Each check of the record commit `e278b02` passed, `review-gate` included.
-- The report of the owner marks the nine findings of this PR as `COMPLETE - PR #81`: P2-2, P2-5, P3-1, P3-7, P3-18, P3-19, P3-20, P3-27, and P3-34.
-- The owner confirmed the merge after the summary in four sections (D-933, D-942).
-
-### The state of the build
-
-- The effective head is `f66e314`, and the review approves it. This entry is a commit of the metadata set, so the approval stands (D-610).
-
-### What is in flight
-
-- The Gitar pass of this commit, and then the gated auto-merge.
-
-### Traps and gotchas
-
-- Each `Blocked` record makes `review-gate` fail at RG 4, and the CI analysis of Gitar then names that fault. Answer it on the PR before the next review.
-
-### The questions that block progress
-
-None for this PR. P2-3, P3-4, P3-8, P3-9, P3-17, P3-22 to P3-26, P3-33, P3-35 to P3-37, and P3-39 stay open in the report.
-
-### The next concrete action
-
-After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
 
