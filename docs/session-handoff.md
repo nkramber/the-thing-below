@@ -1,3 +1,39 @@
+## Session 313: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #82 (PR-105), round 1. Repository: the-thing-below. Local branch: `review/pr-82`; PR branch: `fix/pr-105-save-drift`. Role: reviewer. Base: `640ad98`.
+
+### What this session did, and why
+
+- Reviewed effective head `0e71601` and inspected all 74 changed paths.
+- P2-1 finds that the selected remap conflict stays yellow, but D-1119 requires each conflict cell to use the warning color.
+- Verified the Gitar CI-analysis answer against the RG 3 log. The CI failure names the missing review record, which this session supplies.
+- Updated the PR Documents row to name `docs/reviews/pr-82.md`.
+
+### The state of the build
+
+- `make verify` passed on macOS arm64: 3397 tests, format, lint, STE, identity, content, atlas, and smoke.
+- CI passed the implementation checks at effective head `0e71601`. `review-gate` failed RG 3 before this record existed.
+
+### What is in flight
+
+- This review record and this handoff entry are committed together and pushed to `fix/pr-105-save-drift`.
+- The current Gitar dashboard approves the head. Its CI-analysis item has the author answer, and no review thread stays open (D-964).
+- The author must answer P2-1, correct the selected conflict color, and request a repeat review.
+
+### Traps and gotchas
+
+- The CI artifact shows the chosen Back binding in yellow and the conflicting Confirm binding in red. D-1119 requires the warning color on both conflict cells.
+- Saves before format 14 lack a story step id and use the stored index, as D-1112 directs.
+
+### The questions that block progress
+
+None. P2-1 blocks approval. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 remain outside PR-105.
+
+### The next concrete action
+
+The author answers P2-1 with the `pr-review` skill, then pushes one correction round for repeat review.
+
 ## Session 312: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -296,37 +332,3 @@ None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-
 ### The next concrete action
 
 After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
-
-## Session 303: 2026-09-25, Codex
-
-Author: Codex
-Session: reviewer PR #80 (PR-103), round 2. Repository: the-thing-below. Local branch: `review/pr-80`; PR branch: `fix/pr-103-input-and-grace`. PR: #80. Role: reviewer. Base: `5c1db06`.
-
-### What this session did, and why
-
-- Re-reviewed effective head `3559ee4` and verified P2-1 against its original reproducer and exact-cap boundary. Both `FileTextTests` pass.
-- Gitar's buffer-capacity suggestion is fixed in `3559ee4`. The review record gives `Ready for owner merge` for the effective head (T-4, D-17, D-929, D-964).
-
-### The state of the build
-
-- CI run `36107505237` passed every implementation check at `3559ee4`.
-- CI run `36107505237` passed each implementation check at effective head `3559ee4`. A metadata run passed every applicable gate at the first publication. This final metadata update changes no implementation path.
-
-### What is in flight
-
-- The review record and handoff entry are committed together and pushed to `fix/pr-103-input-and-grace`.
-- The fresh metadata checks for the final publication are in flight.
-
-### Traps and gotchas
-
-- The capped read uses one extra byte to detect growth past the limit. The capacity hint does not replace that counted check (F-129).
-- A failing `review-gate` before publication reads the previous review record, not the verdict in this commit (D-15, D-610).
-
-### The questions that block progress
-
-None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
-
-### The next concrete action
-
-Fetch the branch and read the fresh metadata checks. Then the author can continue with `docs/runbooks/merge.md`.
-
