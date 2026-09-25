@@ -179,7 +179,7 @@ public sealed class Patrol
                 $"the enemy '{id.Value}' takes the size '{size}', and an enemy takes one of {EnemySizes.EveryName} (D-206)");
         }
 
-        if (!TryDirection(facing, out StepDirection parsedFacing))
+        if (!StepDirections.TryOf(facing, out StepDirection parsedFacing))
         {
             throw reader.Refuse(
                 $"the enemy '{id.Value}' faces '{facing}', and a facing is north, south, east, or west (D-716)");
@@ -436,20 +436,5 @@ public sealed class Patrol
         }
 
         return new TilePoint(reader.RequireInt(x, depth, "x"), reader.RequireInt(y, depth, "y"));
-    }
-
-    private static bool TryDirection(string name, out StepDirection direction)
-    {
-        foreach (StepDirection candidate in StepDirections.All)
-        {
-            if (string.CompareOrdinal(StepDirections.NameOf(candidate), name) == 0)
-            {
-                direction = candidate;
-                return true;
-            }
-        }
-
-        direction = StepDirection.North;
-        return false;
     }
 }

@@ -34,6 +34,26 @@ public sealed class StepDirectionsTests
         Assert.Equal(name, StepDirections.NameOf(direction));
     }
 
+    [Theory]
+    [InlineData("north", StepDirection.North)]
+    [InlineData("south", StepDirection.South)]
+    [InlineData("east", StepDirection.East)]
+    [InlineData("west", StepDirection.West)]
+    public void EachNameGivesItsDirection(string name, StepDirection direction)
+    {
+        Assert.True(StepDirections.TryOf(name, out StepDirection parsed));
+        Assert.Equal(direction, parsed);
+    }
+
+    [Theory]
+    [InlineData("up")]
+    [InlineData("North")]
+    [InlineData("")]
+    public void ANameOfNoDirectionGivesNone(string name)
+    {
+        Assert.False(StepDirections.TryOf(name, out _));
+    }
+
     [Fact]
     public void AValueThatNamesNoDirectionIsAnError()
     {

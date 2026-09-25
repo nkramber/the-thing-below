@@ -179,8 +179,10 @@ public sealed class StoryFileTests
     [Fact]
     public void ATalkTriggerReadsItsNpc()
     {
-        // D-1005: PR-68 reads the talk kind, and PR-14 fires it with the NPCs.
-        GameMap map = MapWith("""{ "id": "trigger.test_talk", "kind": "talk", "npc": "npc.test_elder", "scene": "scene.test_meet", "condition": { "always": true } }""");
+        // D-1005: PR-68 reads the talk kind, and PR-14 fires it with the NPCs of the map.
+        GameMap map = MapWith(
+            """{ "id": "trigger.test_talk", "kind": "talk", "npc": "npc.test_elder", "scene": "scene.test_meet", "condition": { "always": true } }""",
+            """{ "id": "npc.test_elder", "facing": "south", "step_ticks": 32, "move": "route", "tiles": [{ "x": 5, "y": 2, "wait_ticks": 0 }] }""");
 
         SceneTrigger talk = Assert.Single(map.Triggers);
         Assert.Equal(TriggerKind.Talk, talk.Kind);
@@ -194,6 +196,7 @@ public sealed class StoryFileTests
     [InlineData("""{ "id": "trigger.a", "kind": "battle_end", "patrol": "patrol.test_absent", "scene": "scene.test_meet", "condition": { "always": true } }""", "places no such patrol")]
     [InlineData("""{ "id": "trigger.a", "kind": "battle_end", "scene": "scene.test_meet", "condition": { "always": true } }""", ".patrol)")]
     [InlineData("""{ "id": "trigger.a", "kind": "talk", "scene": "scene.test_meet", "condition": { "always": true } }""", ".npc)")]
+    [InlineData("""{ "id": "trigger.a", "kind": "talk", "npc": "npc.test_absent", "scene": "scene.test_meet", "condition": { "always": true } }""", "names the NPC 'npc.test_absent', and this map places no such NPC")]
     [InlineData("""{ "id": "trigger.a", "kind": "entry", "scene": "scene.test_meet" }""", ".condition)")]
     [InlineData("""{ "id": "trigger.a", "kind": "leave", "scene": "scene.test_meet", "condition": { "always": true } }""", "one of tile, talk, entry, battle_end")]
     [InlineData("""{ "id": "trigger.a", "kind": "entry", "scene": "scene.test_meet", "condition": { "always": true } }, { "id": "trigger.a", "kind": "entry", "scene": "scene.test_meet", "condition": { "always": true } }""", "two triggers of this map take the id")]
@@ -230,10 +233,11 @@ public sealed class StoryFileTests
     private static string SceneOf(string step) =>
         $$"""{ "comment": "c", "id": "scene.test", "steps": [{{step}}] }""";
 
-    private static GameMap MapWith(string triggers)
+    private static GameMap MapWith(string triggers, string npcs = "")
     {
-        int start = TestStory.MapFile.IndexOf("\"triggers\": [", StringComparison.Ordinal);
-        string text = TestStory.MapFile[..start] + $$"""
+        string map = TestStory.MapFile.Replace("\"npcs\": []", $"\"npcs\": [{npcs}]", StringComparison.Ordinal);
+        int start = map.IndexOf("\"triggers\": [", StringComparison.Ordinal);
+        string text = map[..start] + $$"""
             "triggers": [{{triggers}}]
             }
             """;

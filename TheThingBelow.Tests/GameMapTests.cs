@@ -290,6 +290,69 @@ public sealed class GameMapTests
             () => TestMaps.Of("dark-text.json", Map().Replace("\"dark\": false", "\"dark\": \"yes\"", StringComparison.Ordinal)));
     }
 
+    [Theory]
+    [InlineData("hub", MapKind.Hub)]
+    [InlineData("dungeon", MapKind.Dungeon)]
+    public void TheKindFieldGivesTheKindOfTheMap(string field, MapKind kind)
+    {
+        // D-112: a hub and a dungeon take one reader and one code path.
+        GameMap map = TestMaps.Of("kind.json", Map().Replace("\"kind\": \"dungeon\"", $"\"kind\": \"{field}\"", StringComparison.Ordinal));
+
+        Assert.Equal(kind, map.Kind);
+    }
+
+    [Fact]
+    public void AKindThatNamesNoMapKindFailsTheLoad()
+    {
+        ContentException error = Assert.Throws<ContentException>(
+            () => TestMaps.Of("kind-town.json", Map().Replace("\"kind\": \"dungeon\"", "\"kind\": \"town\"", StringComparison.Ordinal)));
+
+        Assert.Contains("the kind 'town', and a map takes one of hub, dungeon", error.Message, StringComparison.Ordinal);
+        Assert.Contains("kind-town.json", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AMapWithNoKindFieldFailsTheLoad()
+    {
+        // G-6: an absent field is an error, and never a map of a default kind.
+        ContentException error = Assert.Throws<ContentException>(
+            () => TestMaps.Of("no-kind.json", Map().Replace("\"kind\": \"dungeon\", ", string.Empty, StringComparison.Ordinal)));
+
+        Assert.Contains("kind", error.Message, StringComparison.Ordinal);
+        Assert.Contains("absent", error.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(MapKind.Hub, "hub")]
+    [InlineData(MapKind.Dungeon, "dungeon")]
+    public void EachMapKindReadsBackItsName(MapKind kind, string name)
+    {
+        Assert.Equal(name, MapKinds.NameOf(kind));
+        Assert.True(MapKinds.TryOf(name, out MapKind parsed));
+        Assert.Equal(kind, parsed);
+        Assert.Throws<ArgumentOutOfRangeException>(() => MapKinds.NameOf((MapKind)9));
+    }
+
+    [Fact]
+    public void TheFirstDungeonIsADungeonWithNoNpcAndNoService()
+    {
+        Assert.Equal(MapKind.Dungeon, TestMaps.FixtureDungeon.Kind);
+        Assert.Empty(TestMaps.FixtureDungeon.Npcs);
+        Assert.Empty(TestMaps.FixtureDungeon.Services);
+    }
+
+    [Fact]
+    public void AServicePointSitsOnFloorAndIsTheOneSolidThing()
+    {
+        // D-1142: PR-16 adds the chest and the door to the solid things.
+        Assert.Equal(TileKind.Floor, MapThingKinds.TileOf(MapThingKind.ServicePoint));
+        Assert.Equal("service_point", MapThingKinds.NameOf(MapThingKind.ServicePoint));
+        foreach (MapThingKind kind in MapThingKinds.All)
+        {
+            Assert.Equal(kind == MapThingKind.ServicePoint, MapThingKinds.IsSolid(kind));
+        }
+    }
+
     [Fact]
     public void TheFirstDungeonIsDark()
     {
@@ -327,6 +390,7 @@ public sealed class GameMapTests
          "label": "label.bad",
          "time": "{{time}}",
          "dark": false,
+         "kind": "dungeon", "npcs": [], "services": [],
          "terrain": [
         {{terrain}}
          ],

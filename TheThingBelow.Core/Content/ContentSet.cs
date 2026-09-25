@@ -348,11 +348,13 @@ public sealed class ContentSet
             battle.RequireGroupsOf(map);
         }
 
-        // Each trigger of a map names a story scene, its flags, and its markers (D-1004).
+        // Each trigger of a map names a story scene, its flags, and its markers (D-1004), and
+        // the condition of each service names its flags (D-543, D-1131).
         StoryContent story = StoryContent.Load(flags ?? throw AbsentFile(FlagList.Path), scenes, battle);
         foreach (GameMap map in maps.Values)
         {
             story.RequireScenesOf(map);
+            story.RequireServicesOf(map);
         }
 
         LightContent light = LightContent.Load(lightFiles, maps, readPalette, readAtlas);

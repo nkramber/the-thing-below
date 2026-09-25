@@ -94,6 +94,7 @@ public static partial class IdentitySet
      "label": "label.identity_story",
      "time": "day",
      "dark": false,
+     "kind": "dungeon", "npcs": [], "services": [],
      "terrain": [
       "#########",
       "#.......#",

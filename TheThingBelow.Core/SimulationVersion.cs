@@ -76,6 +76,10 @@ public static class SimulationVersion
     /// PR-106 raised it to 30: the light budget counts each torch at the widest step of its fire (D-891), and the
     /// particle budget of a fight counts the weather, the largest hit burst, and the largest spell burst at once
     /// (D-1032).
+    /// PR-14 raised it to 31: a map file names its kind, a hub or a dungeon, and it holds its NPCs and its services
+    /// (D-112, D-1131, D-1137, D-1138). The load checks the range, the route, and the start of each NPC, the host and
+    /// the flags of each service, and the NPC of each talk trigger, and it refuses a service on a dungeon. A service
+    /// point is a solid thing that blocks each step onto its tile (D-1142).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -84,5 +88,5 @@ public static class SimulationVersion
     /// hash differs from this build takes the drift rules of D-1111 and D-1112. A change of this
     /// number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 30;
+    public const int Current = 31;
 }

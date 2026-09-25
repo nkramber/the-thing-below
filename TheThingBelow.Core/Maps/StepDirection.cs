@@ -38,6 +38,31 @@ public static class StepDirections
         StepDirection.West,
     ];
 
+    /// <summary>The names of every direction, for the error of an unknown name (T-2).</summary>
+    public const string EveryName = "north, south, east, west";
+
+    /// <summary>Gives the direction of one name, as a map file writes a facing (D-716).</summary>
+    /// <param name="name">The name, such as `north`.</param>
+    /// <param name="direction">The direction of that name, when the name names one.</param>
+    /// <returns>True when the name names a direction.</returns>
+    /// <exception cref="ArgumentNullException">The name is null (T-2).</exception>
+    public static bool TryOf(string name, out StepDirection direction)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+
+        foreach (StepDirection candidate in All)
+        {
+            if (string.CompareOrdinal(NameOf(candidate), name) == 0)
+            {
+                direction = candidate;
+                return true;
+            }
+        }
+
+        direction = StepDirection.North;
+        return false;
+    }
+
     /// <summary>Gives the name of one direction, for an error and for a log field (T-2).</summary>
     /// <param name="direction">The direction.</param>
     /// <returns>The name, such as `north`.</returns>

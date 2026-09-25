@@ -50,6 +50,30 @@ public sealed class MapRulesTests
     }
 
     [Fact]
+    public void AServicePointBlocksAStepOntoItsTile()
+    {
+        // D-1142: a service point is solid, and the ground under it is floor.
+        GameMap inn = HubMaps.Inn;
+        var bed = new TilePoint(8, 1);
+
+        Assert.Equal(TileKind.Floor, inn.TileAt(bed));
+        Assert.True(inn.HoldsSolidThing(bed));
+        Assert.False(MapRules.CanEnter(inn, bed));
+        Assert.True(MapRules.CanEnter(inn, new TilePoint(7, 1)));
+    }
+
+    [Fact]
+    public void AThingThatIsNotSolidBlocksNoStep()
+    {
+        GameMap map = HubMaps.Of(things: HubMaps.Marker);
+
+        Assert.False(map.HoldsSolidThing(new TilePoint(1, 6)));
+        Assert.True(MapRules.CanEnter(map, new TilePoint(1, 6)));
+        Assert.True(MapRules.CanEnter(map, map.Spawn));
+        Assert.False(map.HoldsSolidThing(new TilePoint(-1, 6)));
+    }
+
+    [Fact]
     public void ThePartyEntersNoTileOutsideTheMap()
     {
         Assert.False(MapRules.CanEnter(TestMaps.Room, new TilePoint(-1, 2)));

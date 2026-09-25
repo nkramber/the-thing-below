@@ -158,6 +158,7 @@ public static class LightFixtures
              "label": "label.lit",
              "time": "night",
              "dark": false,
+             "kind": "dungeon", "npcs": [], "services": [],
              "terrain": [ {{rows}} ],
              "things": [ { "id": "spawn_point.lit_start", "kind": "spawn_point", "x": 1, "y": 1 } ],
              "enemies": [], "triggers": []

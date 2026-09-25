@@ -106,7 +106,7 @@ public sealed class RunState
     /// <param name="story">The story content of this build, which holds every story scene that a trigger of the map starts (D-1004).</param>
     /// <returns>The state, with every stream at its first value, an empty notice log, no flag on, and the entry of the map to read.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="ContentException">A group or a trigger of the map names content that this build lacks (T-2).</exception>
+    /// <exception cref="ContentException">A group, a trigger, or a service of the map names content that this build lacks (T-2).</exception>
     public static RunState Start(ulong seed, GameMap map, BattleContent battleContent, NoticeList notices, StoryContent story)
     {
         ArgumentNullException.ThrowIfNull(map);
@@ -115,6 +115,7 @@ public sealed class RunState
         ArgumentNullException.ThrowIfNull(story);
         battleContent.RequireGroupsOf(map);
         story.RequireScenesOf(map);
+        story.RequireServicesOf(map);
 
         RandomStream[] streams = new RandomStream[RandomStreams.All.Count];
         for (int index = 0; index < streams.Length; index += 1)
@@ -195,6 +196,7 @@ public sealed class RunState
         ArgumentNullException.ThrowIfNull(drift);
         battleContent.RequireGroupsOf(map);
         story.RequireScenesOf(map);
+        story.RequireServicesOf(map);
         snapshot.Check("this run");
 
         RandomStream[] streams = new RandomStream[snapshot.Streams.Count];

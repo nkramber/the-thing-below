@@ -171,6 +171,37 @@ public sealed class ResumeDriftTests
     }
 
     [Fact]
+    public void AnotherBuildMovesALeadOffANewServicePointToTheSpawnPoint()
+    {
+        // D-1142: a build that adds a service point under the saved lead moves the lead, as an
+        // added wall does (D-1111).
+        GameMap inn = HubMaps.Inn;
+        var lead = new TilePoint(8, 1);
+        WalkedTiles walked = WalkedTiles.Empty(inn.Width, inn.Height);
+        walked.Mark(lead);
+        ResumeDrift drift = Other();
+
+        MapState party = MapState.Resume(inn, new LeadValues(lead, StepDirection.North, null, 0), walked, null, null, null, "the save", drift);
+
+        Assert.Equal(inn.Spawn, party.LeadAt);
+        LogEntry entry = Assert.Single(drift.Entries);
+        Assert.Contains("a solid thing of this build holds the tile of the lead", entry.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ThisBuildRefusesALeadOnAServicePoint()
+    {
+        GameMap inn = HubMaps.Inn;
+        WalkedTiles walked = WalkedTiles.Empty(inn.Width, inn.Height);
+        walked.Mark(new TilePoint(8, 1));
+
+        ArgumentException error = Assert.Throws<ArgumentException>(() => MapState.Resume(
+            inn, new LeadValues(new TilePoint(8, 1), StepDirection.North, null, 0), walked, null, null, null, "the save", This()));
+
+        Assert.Contains("the lead stands at (8, 1), which holds a solid thing", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ThisBuildStillRefusesALeadOffTheMap()
     {
         GameMap after = SmallerPatrolMap();
@@ -393,6 +424,7 @@ public sealed class ResumeDriftTests
          "label": "label.patrol_test",
          "time": "day",
          "dark": false,
+         "kind": "dungeon", "npcs": [], "services": [],
          "terrain": [
           "######",
           "#....#",

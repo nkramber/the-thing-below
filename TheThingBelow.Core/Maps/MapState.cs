@@ -176,6 +176,10 @@ public sealed class MapState
             source,
             $"the lead stands at {leadAt}, which is a {TileKinds.NameOf(map.TileAt(leadAt))} tile");
         Refuse(
+            map.HoldsSolidThing(leadAt),
+            source,
+            $"the lead stands at {leadAt}, which holds a solid thing (D-1142)");
+        Refuse(
             walked.Width != map.Width || walked.Height != map.Height,
             source,
             $"the walked tiles are {walked.Width} by {walked.Height}, and the map '{map.Id.Value}' is {map.Width} by {map.Height}");
@@ -243,6 +247,10 @@ public sealed class MapState
         else if (!TileKinds.CanWalk(map.TileAt(lead.At)))
         {
             reason = "the tile of the lead takes no step in the map of this build";
+        }
+        else if (map.HoldsSolidThing(lead.At))
+        {
+            reason = "a solid thing of this build holds the tile of the lead";
         }
         else if (patrols.TryEnemyAt(lead.At, out _))
         {

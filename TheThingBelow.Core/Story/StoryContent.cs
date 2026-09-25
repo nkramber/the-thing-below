@@ -150,6 +150,21 @@ public sealed class StoryContent
         }
     }
 
+    /// <summary>Fails when the condition of a service of the map names an undeclared flag (D-543, T-2).</summary>
+    /// <param name="map">The map.</param>
+    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
+    /// <exception cref="ContentException">A condition names an undeclared flag. The error names the map and the service.</exception>
+    /// <remarks>A story flag closes a service through this condition (D-543, D-1131).</remarks>
+    public void RequireServicesOf(GameMap map)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+
+        foreach (MapService service in map.Services)
+        {
+            service.Condition.RequireDeclared(this.Flags, map.File, $"services.{service.Id.Value}.condition");
+        }
+    }
+
     /// <summary>Fails when a step names a string id that the table lacks (G-7, T-2).</summary>
     /// <param name="strings">The string table.</param>
     /// <exception cref="ArgumentNullException">The table is null (T-2).</exception>
