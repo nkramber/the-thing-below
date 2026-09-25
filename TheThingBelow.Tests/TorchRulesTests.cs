@@ -186,6 +186,24 @@ public sealed class TorchRulesTests
         Simulation.Start(Seed, map, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
 
     /// <summary>Starts a run whose pack holds the torch, which the fixture of the tests lacks.</summary>
+    [Fact]
+    public void ATorchOfAnotherKindFailsTheLoadOfTheContent()
+    {
+        // P3-18 (D-1065): the load names the kind of the torch, and no press waits to meet it.
+        BattleContent content = TestBattles.Content;
+        string items = TestBattles.ItemsFile.Replace(
+            "{ \"id\": \"item.torch\", \"kind\": \"key\", \"limit\": 1 }",
+            "{ \"id\": \"item.torch\", \"kind\": \"heal\", \"limit\": 3, \"delay\": 60, \"amount\": 10 }",
+            StringComparison.Ordinal);
+        ItemList list = ItemList.Read(System.Text.Encoding.UTF8.GetBytes(items), ItemList.Path);
+
+        ContentException error = Assert.Throws<ContentException>(() => new BattleContent(
+            content.Rules, content.Fixture, content.Enemies, content.Abilities, content.Lessons, list, content.Gear, content.GroupFiles, content.Profiles));
+
+        Assert.Contains(ItemList.Path, error.Message, StringComparison.Ordinal);
+        Assert.Contains("'item.torch' is not a key item", error.Message, StringComparison.Ordinal);
+    }
+
     private static Simulation StartWithTorch(GameMap map)
     {
         Simulation run = Start(map);

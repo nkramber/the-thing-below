@@ -81,7 +81,10 @@ public static class BattleMessages
             BattleEventKind.Started => Line("battle.started"),
             BattleEventKind.Hit => Line(HitIdOf(played.Affinity), Target(played, view, strings), Amount(played)),
             BattleEventKind.Miss => Line("battle.miss", Actor(played, view, strings)),
-            BattleEventKind.Absorb => Line("battle.absorb", Target(played, view, strings), Amount(played)),
+            // A heal of an absorb is 1 at least, so 0 means that the target stood at full health (D-1055, D-1106).
+            BattleEventKind.Absorb => played.Amount == 0
+                ? Line("battle.absorb_full", Target(played, view, strings))
+                : Line("battle.absorb", Target(played, view, strings), Amount(played)),
             BattleEventKind.Defend => Line("battle.defend", Actor(played, view, strings)),
             BattleEventKind.Step => Line(StepIdOf(view.At(played.Actor).Row), Actor(played, view, strings)),
             BattleEventKind.Item => Line("battle.item", Target(played, view, strings), Amount(played)),

@@ -43,6 +43,17 @@ public sealed class CrashStoreTests : IDisposable
         }
     }
 
+    [Theory]
+    [InlineData(SaveSystem.Windows, "%APPDATA%\\the-thing-below\\crashes")]
+    [InlineData(SaveSystem.MacOs, "~/Library/Application Support/the-thing-below/crashes")]
+    [InlineData(SaveSystem.Linux, "~/.local/share/the-thing-below/crashes")]
+    public void TheShownFolderOfEachSystemNamesNoAccount(SaveSystem system, string shown)
+    {
+        // P3-7 (D-170, D-1102): the message names the folder in the short form of its system, so
+        // a screenshot of it names no account.
+        Assert.Equal(shown, CrashStore.ShownFolderOf(system));
+    }
+
     [Fact]
     public void TheCrashesFolderSitsInTheFolderOfTheGame()
     {

@@ -24,10 +24,10 @@ namespace TheThingBelow.Game;
 /// callback itself. A crash writes the crash file through Storage, writes one log line, and
 /// quits with <see cref="CrashExitCode"/> (D-170, D-559, T-2).
 /// <para>
-/// A crash shows <see cref="CrashScreen"/> with the name of the crash file and the address
-/// of D-473, through the one text helper of D-499 (D-559, D-712). The session then quits on
-/// the next input event. A session with no display quits at once, so the smoke job of CI
-/// still ends with the crash code (D-117, T-2).
+/// A crash shows <see cref="CrashScreen"/> with the name of the crash file, its folder with no
+/// account name (D-1102), and the address of D-473, through the one text helper of D-499
+/// (D-559, D-712). The session then quits on the next input event. A session with no display
+/// quits at once, so the smoke job of CI still ends with the crash code (D-117, T-2).
 /// </para>
 /// </remarks>
 public partial class Boot : Node
@@ -103,6 +103,8 @@ public partial class Boot : Node
     private PauseView? pause;
     private SettingsStore? settingsStore;
     private GameSettings? settings;
+    private SettingsRefusal? refusedSettings;
+    private SettingsNotice? settingsNotice;
     private CommandMemory? memory;
     private Control? console;
     private readonly PressGate gate = new();
@@ -146,8 +148,8 @@ public partial class Boot : Node
         try
         {
             // A window with no focus holds the world, and it runs no tick until the focus comes
-            // back (D-1084).
-            if (this.focused)
+            // back (D-1084). The message of a refused settings file holds it too (D-1099).
+            if (this.focused && this.settingsNotice is null)
             {
                 this.WriteLog(this.run.Advance(delta, this.HeldStepIntent));
             }
@@ -265,6 +267,7 @@ public partial class Boot : Node
         GameInputMap.Build(chosen.Controls);
         ApplyWindow(chosen.Display.Window);
         this.BuildScreen(loaded);
+        this.ShowSettingsNotice();
         this.ReportWindowMode(chosen.Display.Window);
         this.GetWindow().SizeChanged += this.OnWindowSizeChanged;
         Input.Singleton.JoyConnectionChanged += this.OnPadConnectionChanged;
@@ -571,7 +574,11 @@ public partial class Boot : Node
         this.noticeBox = null;
         this.pause = null;
         this.console = null;
+        this.settingsNotice = null;
         this.BuildScreen(loaded);
+
+        // The message of a refused settings file stands until a press, so a new frame shows it again (D-1099).
+        this.ShowSettingsNotice();
     }
 
     /// <summary>
@@ -890,6 +897,20 @@ public partial class Boot : Node
             if (signal.IsPressed())
             {
                 GetTree().Quit(CrashExitCode);
+            }
+
+            return;
+        }
+
+        if (this.settingsNotice is SettingsNotice notice)
+        {
+            // The message of a refused settings file takes every event, and a press closes it
+            // and lets the world go on (D-1099).
+            if (signal.IsPressed() && !signal.IsEcho())
+            {
+                notice.QueueFree();
+                this.settingsNotice = null;
+                this.refusedSettings = null;
             }
 
             return;
@@ -1289,14 +1310,14 @@ public partial class Boot : Node
     /// <returns>True when the message is on screen, and false when the session must quit now.</returns>
     /// <remarks>
     /// A session with no display, such as the smoke job of CI, shows nothing and quits with
-    /// the crash code (D-117). A crash before the UI base loaded does the same, because the
-    /// message needs the string table and the theme (T-2).
+    /// the crash code (D-117). A crash before the content loaded does the same, because the
+    /// message needs the string table (T-2). A crash after the content loaded and before the
+    /// screen, such as a settings file that the system refused, builds a frame of the default
+    /// display for the message, so the start never ends with no text (P2-2, D-170).
     /// </remarks>
     private bool ShowCrashMessage(string? path)
     {
         if (path is null
-            || this.ui is null
-            || this.frame is null
             || this.content is null
             || string.CompareOrdinal(DisplayServer.GetName(), HeadlessDisplay) == 0)
         {
@@ -1305,11 +1326,13 @@ public partial class Boot : Node
 
         try
         {
+            (FrameRoot shownFrame, UiBase shownUi) = this.FrameForMessage(this.content);
+
             // The message draws above the pass of the hand-off, so a crash during a transition
-            // still shows its text (D-559).
+            // still shows its text (D-559). It names the folder with no account name (D-1102).
             var message = new CrashScreen();
-            this.frame.Top.AddChild(message);
-            message.Build(this.ui, this.content.Strings, Path.GetFileName(path));
+            shownFrame.Top.AddChild(message);
+            message.Build(shownUi, this.content.Strings, Path.GetFileName(path), CrashStore.ShownFolderOfThisSystem());
             return true;
         }
         catch (Exception second)
@@ -1319,6 +1342,26 @@ public partial class Boot : Node
             GD.PrintErr($"the game could not show the message of the crash file '{path}': {second}");
             return false;
         }
+    }
+
+    /// <summary>
+    /// Gives the frame and the UI base that the message of a crash draws on: those of the screen,
+    /// or a frame and a UI base of the default display when the crash came before the screen
+    /// built them (P2-2, D-170). The default display needs no settings file.
+    /// </summary>
+    /// <param name="loaded">The content, which holds the style and the string table.</param>
+    /// <returns>The frame and the UI base.</returns>
+    private (FrameRoot Frame, UiBase Ui) FrameForMessage(ContentSet loaded)
+    {
+        DisplaySettings display = GameSettings.Defaults(GameInputMap.DefaultBindings()).Display;
+        FrameRoot target = this.frame ?? FrameRoot.AddTo(this);
+        if (this.frame is null)
+        {
+            target.SetMode(FitModeOf(display.Fit));
+        }
+
+        UiBase shown = this.ui ?? UiBase.Load(loaded, BodyOf(display.Body, target.Fit.Height, loaded.Style));
+        return (target, shown);
     }
 
     /// <summary>
@@ -1395,20 +1438,32 @@ public partial class Boot : Node
 
     /// <summary>
     /// Reads the settings file, or writes the defaults when no file exists, which is the first
-    /// start (D-860, D-868).
+    /// start (D-860, D-868). A file that fails to load goes aside, and the session runs on the
+    /// defaults (D-1099, D-1100).
     /// </summary>
     /// <param name="store">The store of the settings file of the person.</param>
     /// <returns>The settings of this session.</returns>
-    /// <exception cref="StorageException">The file breaks a rule, or the system refused it (T-2).</exception>
+    /// <exception cref="StorageException">The system refused the move of a refused file or the write of the defaults (T-2).</exception>
     /// <remarks>
-    /// A file that breaks a rule stops the start with the path and the field, and it never falls
-    /// back to the defaults in silence, because the player would lose each choice (T-2, D-570).
+    /// The fallback is loud, and never silent (T-2, D-570): the file stays as
+    /// <see cref="SettingsStore.RefusedName"/>, a warning line holds the whole error, and the first
+    /// screen shows the field and the kept file until the player presses a button. A file of a
+    /// newer build takes the same path, so an update never breaks a start (D-1100).
     /// </remarks>
     private GameSettings LoadSettings(SettingsStore store)
     {
         if (store.Exists())
         {
-            return store.Read();
+            try
+            {
+                GameSettings read = store.Read();
+                GameInputMap.CheckActions(read.Controls.Bindings);
+                return read;
+            }
+            catch (Exception refused) when (refused is StorageException or InvalidOperationException)
+            {
+                return this.SetSettingsAside(store, refused);
+            }
         }
 
         GameSettings defaults = GameSettings.Defaults(GameInputMap.DefaultBindings());
@@ -1421,6 +1476,62 @@ public partial class Boot : Node
             [new LogField("path", store.Path)])]);
         return defaults;
     }
+
+    /// <summary>
+    /// Keeps a refused settings file aside, writes the defaults, and notes the refusal for the
+    /// message of the first screen (D-1099, D-1100).
+    /// </summary>
+    /// <param name="store">The store of the settings file.</param>
+    /// <param name="refused">The error of the read or of the check of the actions.</param>
+    /// <returns>The defaults, which this session runs on.</returns>
+    /// <exception cref="StorageException">The system refused the move or the write (T-2).</exception>
+    private GameSettings SetSettingsAside(SettingsStore store, Exception refused)
+    {
+        string kept = store.SetAside();
+        GameSettings defaults = GameSettings.Defaults(GameInputMap.DefaultBindings());
+        store.Write(defaults);
+        string field = SettingsFallback.FieldOf(refused);
+        this.refusedSettings = new SettingsRefusal(field, Path.GetFileName(kept));
+        this.WriteLog([new LogEntry(
+            LogLevel.Warning,
+            "the settings file did not load, and the session kept it and runs on the defaults",
+            0,
+            LogSubsystems.Game,
+            [
+                new LogField("path", store.Path),
+                new LogField("kept", kept),
+                new LogField("field", field),
+                new LogField("error", refused.Message),
+            ])]);
+        return defaults;
+    }
+
+    /// <summary>
+    /// Shows the message of a refused settings file on the first screen, above the hand-off, and
+    /// holds the world until a press (D-1099). A start with no refusal, or a message that the player closed, shows nothing.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The screen or the UI base is not built (T-2).</exception>
+    private void ShowSettingsNotice()
+    {
+        if (this.refusedSettings is not SettingsRefusal refusal)
+        {
+            return;
+        }
+
+        FrameRoot built = this.frame ?? throw new InvalidOperationException(
+            "The message of a refused settings file shows, and the frame is not built (T-2).");
+        UiBase shown = this.ui ?? throw new InvalidOperationException(
+            "The message of a refused settings file shows, and the UI base is not built (T-2).");
+        var notice = new SettingsNotice();
+        built.Top.AddChild(notice);
+        notice.Build(shown, refusal.Field, refusal.KeptFileName);
+        this.settingsNotice = notice;
+    }
+
+    /// <summary>A settings file that a start refused: the field that failed, and the name of the kept file (D-1099).</summary>
+    /// <param name="Field">The field of the file that failed.</param>
+    /// <param name="KeptFileName">The name of the kept file, with no folder (D-170).</param>
+    private sealed record SettingsRefusal(string Field, string KeptFileName);
 
     /// <summary>
     /// Fails when the user folder of Godot and the save folder of Storage differ (D-465, F-33).

@@ -64,6 +64,26 @@ public static class SaveFolder
     public static string SavesOfThisSystem() =>
         SavesOf(ThisSystem(), ReadWindowsVariable(), ReadHome(), ReadLinuxVariable());
 
+    /// <summary>
+    /// Gives the folder of the game on one system as a screen shows it: the data folder in the
+    /// short form of that system, which names no account (D-170, D-1102). A person reads the
+    /// path on screen and in a screenshot, so it holds no folder of the person.
+    /// </summary>
+    /// <param name="system">The system.</param>
+    /// <returns>The folder, such as `~/.local/share/the-thing-below` on Linux.</returns>
+    /// <exception cref="StorageException">The system is not one of the three (D-481, T-2).</exception>
+    /// <remarks>
+    /// Linux shows the default of the XDG specification. A person who sets `XDG_DATA_HOME` knows
+    /// the folder that it names.
+    /// </remarks>
+    public static string ShownOf(SaveSystem system) => system switch
+    {
+        SaveSystem.Windows => Join(system, $"%{WindowsVariable}%", Name),
+        SaveSystem.MacOs => Join(system, "~", "Library", "Application Support", Name),
+        SaveSystem.Linux => Join(system, "~", ".local", "share", Name),
+        _ => throw StorageException.ForSystem(system.ToString(), "the system is not one of the three systems of the game (D-481)"),
+    };
+
     /// <summary>Gives the folder of the game on one system, from the environment of it.</summary>
     /// <param name="system">The system.</param>
     /// <param name="appData">The value of `APPDATA`, which Windows alone reads.</param>
@@ -157,7 +177,10 @@ public static class SaveFolder
 
     private static string? ReadLinuxVariable() => Environment.GetEnvironmentVariable(LinuxDataVariable);
 
-    private static SaveSystem ThisSystem()
+    /// <summary>Gives the system that runs this process.</summary>
+    /// <returns>The system.</returns>
+    /// <exception cref="StorageException">The system is not one of the three (D-481, T-2).</exception>
+    internal static SaveSystem ThisSystem()
     {
         if (OperatingSystem.IsWindows())
         {

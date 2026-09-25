@@ -90,7 +90,7 @@ public static class GameInputMap
     public static void Build(ControlSettings controls)
     {
         ArgumentNullException.ThrowIfNull(controls);
-        CheckNames(controls.Bindings);
+        CheckActions(controls.Bindings);
 
         float deadZone = controls.DeadZone / HundredthsOfFullPush;
         foreach (string action in InputActions.Names)
@@ -184,8 +184,14 @@ public static class GameInputMap
         }
     }
 
-    private static void CheckNames(ControlBindings bindings)
+    /// <summary>Refuses bindings that lack an action of the game or hold an action that the game lacks (D-570, D-862).</summary>
+    /// <param name="bindings">The bindings of the settings.</param>
+    /// <exception cref="ArgumentNullException">The bindings are null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">An action is absent or unknown (T-2).</exception>
+    public static void CheckActions(ControlBindings bindings)
     {
+        ArgumentNullException.ThrowIfNull(bindings);
+
         List<string> absent = [];
         foreach (string action in InputActions.Names)
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Streams;
 
 namespace TheThingBelow.Core.Battles;
@@ -58,7 +59,7 @@ public sealed record ScoredAction(EnemyAction Action, ScoreTerms Terms, long Sco
 /// <param name="Threat">The expected health that the reply of D-960 takes from this side.</param>
 /// <param name="Healing">The health that the action restores to this side.</param>
 /// <param name="Timeline">The push of the action on its user, in ticks.</param>
-/// <param name="Row">The change in the count of this side that the melee of the other side cannot reach.</param>
+/// <param name="Row">The change in the count of this side that no strike of the next character reaches (D-1101).</param>
 public sealed record ScoreTerms(long Damage, long Kills, long Threat, long Healing, long Timeline, long Row);
 
 /// <summary>
@@ -111,22 +112,29 @@ public static class BattleEvaluator
     /// <param name="battle">The battle.</param>
     /// <param name="enemy">The enemy, on the field.</param>
     /// <param name="content">The battle content, which holds the profile of the enemy.</param>
+    /// <param name="strikes">The strikes of each character, by party slot, from <see cref="StrikesOf"/> (D-1101).</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
     /// <returns>Each action with its terms and its score.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The strikes hold another count of slots than the party (T-2).</exception>
     /// <exception cref="SimulationException">A value of the rules or of the state is out of its range (T-2).</exception>
-    public static IReadOnlyList<ScoredAction> Score(Battle battle, Combatant enemy, BattleContent content, RunContext context)
+    public static IReadOnlyList<ScoredAction> Score(Battle battle, Combatant enemy, BattleContent content, IReadOnlyList<IReadOnlyList<ReplyStrike>> strikes, RunContext context)
     {
         ArgumentNullException.ThrowIfNull(battle);
         ArgumentNullException.ThrowIfNull(enemy);
         ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(strikes);
         ArgumentNullException.ThrowIfNull(context);
+        if (strikes.Count != battle.Party.Count)
+        {
+            throw new ArgumentException($"The strikes name {strikes.Count} characters, and the party of the fight holds {battle.Party.Count} (T-2).", nameof(strikes));
+        }
 
         ScoreWeights weights = content.Profile(battle.Group.Entries[enemy.Slot].Profile).Weights;
         List<ScoredAction> scored = [];
         foreach (EnemyAction action in LegalActions(battle, enemy, content))
         {
-            ScoreTerms terms = TermsOf(battle, enemy, action, content.Rules, context);
+            ScoreTerms terms = TermsOf(battle, enemy, action, content.Rules, strikes, context);
             scored.Add(new ScoredAction(action, terms, Sum(weights, terms)));
         }
 
@@ -140,12 +148,13 @@ public static class BattleEvaluator
     /// <param name="battle">The battle.</param>
     /// <param name="enemy">The enemy whose turn it is.</param>
     /// <param name="content">The battle content.</param>
+    /// <param name="strikes">The strikes of each character, by party slot, from <see cref="StrikesOf"/> (D-1101).</param>
     /// <param name="stream">The stream of the evaluator (D-947).</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
     /// <returns>The action.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="SimulationException">The stream is not the stream of the evaluator, or the enemy has no legal action (T-2).</exception>
-    public static EnemyAction Choose(Battle battle, Combatant enemy, BattleContent content, RandomStream stream, RunContext context)
+    public static EnemyAction Choose(Battle battle, Combatant enemy, BattleContent content, IReadOnlyList<IReadOnlyList<ReplyStrike>> strikes, RandomStream stream, RunContext context)
     {
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(context);
@@ -157,7 +166,7 @@ public static class BattleEvaluator
 
         List<EnemyAction> best = [];
         long bestScore = long.MinValue;
-        foreach (ScoredAction scored in Score(battle, enemy, content, context))
+        foreach (ScoredAction scored in Score(battle, enemy, content, strikes, context))
         {
             if (scored.Score > bestScore)
             {
@@ -177,6 +186,55 @@ public static class BattleEvaluator
         }
 
         return best.Count == 1 ? best[0] : best[stream.NextInt(best.Count, context)];
+    }
+
+    /// <summary>
+    /// Gives the strikes that each character can use on its next turn, by party slot (D-960,
+    /// D-1101): the basic attack, then each form of each equipped lesson that is a strike and
+    /// that the rules allow now, in slot order and form order. A form takes the aptitude bonus
+    /// of its lesson, as a use of it does (D-1028).
+    /// </summary>
+    /// <param name="state">The run, whose party holds the lessons, the points, and the MP.</param>
+    /// <param name="battle">The battle, whose combatants hold silence (D-806).</param>
+    /// <returns>One list for each character of the fight. Each list starts with the basic attack.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    public static IReadOnlyList<IReadOnlyList<ReplyStrike>> StrikesOf(RunState state, Battle battle)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(battle);
+
+        BattleRules rules = state.BattleContent.Rules;
+        List<IReadOnlyList<ReplyStrike>> all = [];
+        foreach (Combatant character in battle.Party)
+        {
+            PartyMember member = state.Characters.Members[character.Slot];
+            bool silenced = character.Statuses.Holds(StatusKind.Silence);
+            // A collection initializer, because a collection expression of a list reads `CollectionsMarshal`, which G-1 keeps out of Core.
+            List<ReplyStrike> strikes = new() { new ReplyStrike(StrikeStat.Attack, rules.AttackPower, null, AbilityReach.Melee) };
+            foreach (ContentId? lesson in member.Slots)
+            {
+                if (lesson is not ContentId held)
+                {
+                    continue;
+                }
+
+                LessonRecord record = state.BattleContent.Lessons.Lesson(held);
+                int rate = BasisPoints.One + LessonRules.BonusOf(member.Record, record.Kind, rules, state.Story.Flags);
+                for (int form = 0; form < record.Forms.Count; form += 1)
+                {
+                    if (LessonRules.RefusalOfForm(state, character.Slot, held, form, silenced) is null
+                        && LessonRules.FormAbility(state, held, form) is StrikeAbility strike)
+                    {
+                        RunContext context = state.Context($"evaluator/{character.Target.Describe()}");
+                        strikes.Add(new ReplyStrike(strike.Stat, BasisPoints.Apply(strike.Power, rate, context), strike.Element, strike.Reach));
+                    }
+                }
+            }
+
+            all.Add(strikes);
+        }
+
+        return all;
     }
 
     /// <summary>Gives the combatants that one ability reaches: the other side for a strike, and this side for a heal (D-377, D-955).</summary>
@@ -230,7 +288,7 @@ public static class BattleEvaluator
     /// alone: the row and the defend of the actor, and the health of a healed ally. The reply
     /// reads that sketch.
     /// </summary>
-    private static ScoreTerms TermsOf(Battle battle, Combatant enemy, EnemyAction action, BattleRules rules, RunContext context)
+    private static ScoreTerms TermsOf(Battle battle, Combatant enemy, EnemyAction action, BattleRules rules, IReadOnlyList<IReadOnlyList<ReplyStrike>> strikes, RunContext context)
     {
         var sketch = new Sketch(enemy);
         long damage = 0;
@@ -272,8 +330,12 @@ public static class BattleEvaluator
                 throw new SimulationException($"a score of the action {action.Describe()}, which names no rule (T-2)", context);
         }
 
-        long row = Unreached(battle, sketch) - Unreached(battle, new Sketch(enemy));
-        long threat = Threat(battle, rules, sketch, struck, kills, context);
+        // The row term counts the enemies that no strike of the next character reaches, so a
+        // step to the back row earns nothing against a strike of any reach (D-1101).
+        Combatant? next = NextCharacter(battle, null);
+        IReadOnlyList<ReplyStrike> nextStrikes = next is null ? [] : strikes[next.Slot];
+        long row = Unreached(battle, sketch, nextStrikes) - Unreached(battle, new Sketch(enemy), nextStrikes);
+        long threat = Threat(battle, rules, sketch, struck, kills, strikes, context);
         long timeline = Battle.Push(delay, enemy.Speed, enemy.PushRate, context);
         return new ScoreTerms(damage, kills, threat, healing, timeline, row);
     }
@@ -302,11 +364,12 @@ public static class BattleEvaluator
     }
 
     /// <summary>
-    /// Gives the threat of D-960: the expected health that the basic attack of the next
-    /// character takes from the enemy that it reaches best. When the strike of the action can
-    /// put that character down, the next character after it takes the share of the kill.
+    /// Gives the threat of D-960: the expected health that the best strike of the next
+    /// character takes from the enemy that it reaches best (D-1101). When the strike of the
+    /// action can put that character down, the next character after it takes the share of the
+    /// kill.
     /// </summary>
-    private static long Threat(Battle battle, BattleRules rules, Sketch sketch, Combatant? struck, long kills, RunContext context)
+    private static long Threat(Battle battle, BattleRules rules, Sketch sketch, Combatant? struck, long kills, IReadOnlyList<IReadOnlyList<ReplyStrike>> strikes, RunContext context)
     {
         Combatant? next = NextCharacter(battle, null);
         if (next is null)
@@ -314,31 +377,45 @@ public static class BattleEvaluator
             return 0;
         }
 
-        long threat = ReplyOf(battle, rules, sketch, next, context);
+        long threat = ReplyOf(battle, rules, sketch, next, strikes[next.Slot], context);
         if (struck is null || !ReferenceEquals(struck, next) || kills == 0)
         {
             return threat;
         }
 
         Combatant? after = NextCharacter(battle, next);
-        long afterThreat = after is null ? 0 : ReplyOf(battle, rules, sketch, after, context);
+        long afterThreat = after is null ? 0 : ReplyOf(battle, rules, sketch, after, strikes[after.Slot], context);
         return ((threat * (BasisPoints.One - kills)) + (afterThreat * kills)) / BasisPoints.One;
     }
 
-    /// <summary>Gives the expected health that the best basic attack of one character takes from this side, on the sketch (D-960).</summary>
-    private static long ReplyOf(Battle battle, BattleRules rules, Sketch sketch, Combatant character, RunContext context)
+    /// <summary>
+    /// Gives the expected health that the best strike of one character takes from this side,
+    /// on the sketch (D-960, D-1101). Each strike reads its stat, its power, its element, and
+    /// its reach, and an absorb takes no health from this side.
+    /// </summary>
+    private static long ReplyOf(Battle battle, BattleRules rules, Sketch sketch, Combatant character, IReadOnlyList<ReplyStrike> strikes, RunContext context)
     {
         long best = 0;
-        foreach (Combatant target in Reached(battle, sketch))
+        int middle = (rules.HitLow + rules.HitHigh) / 2;
+        foreach (ReplyStrike strike in strikes)
         {
-            long hitChance = BasisPoints.One - BattleMath.MissChance(rules, character, target);
-            int middle = (rules.HitLow + rules.HitHigh) / 2;
-            long hit = BattleMath.Hit(character, target, StrikeStat.Attack, rules.AttackPower, middle);
-            bool defending = ReferenceEquals(target, sketch.Actor) ? sketch.ActorDefends || target.Defending : target.Defending;
-            int damage = BattleMath.Damage(rules, character, target, hit, Affinity.Normal, false, true, defending, context);
-            int health = ReferenceEquals(target, sketch.Healed) ? target.Health + sketch.HealedAmount : target.Health;
-            long expected = Math.Min(damage, health) * hitChance / BasisPoints.One;
-            best = Math.Max(best, expected);
+            bool melee = strike.Reach == AbilityReach.Melee;
+            foreach (Combatant target in ReachedBy(battle, sketch, strike))
+            {
+                Affinity affinity = strike.Element is Element element ? target.Elements.Of(element) : Affinity.Normal;
+                if (affinity == Affinity.Absorb)
+                {
+                    continue;
+                }
+
+                long hitChance = BasisPoints.One - BattleMath.MissChance(rules, character, target);
+                long hit = BattleMath.Hit(character, target, strike.Stat, strike.Power, middle);
+                bool defending = ReferenceEquals(target, sketch.Actor) ? sketch.ActorDefends || target.Defending : target.Defending;
+                int damage = BattleMath.Damage(rules, character, target, hit, affinity, strike.Element is not null, melee, defending, context);
+                int health = ReferenceEquals(target, sketch.Healed) ? target.Health + sketch.HealedAmount : target.Health;
+                long expected = Math.Min(damage, health) * hitChance / BasisPoints.One;
+                best = Math.Max(best, expected);
+            }
         }
 
         return best;
@@ -396,15 +473,27 @@ public static class BattleEvaluator
         return front.Count > 0 ? front : back;
     }
 
-    private static long Unreached(Battle battle, Sketch sketch)
+    /// <summary>Gives the enemies that one strike reaches on the sketch: the melee targets, or each enemy on the field for a strike of any reach (D-377, D-955).</summary>
+    private static List<Combatant> ReachedBy(Battle battle, Sketch sketch, ReplyStrike strike) =>
+        strike.Reach == AbilityReach.Melee ? Reached(battle, sketch) : OnField(battle.Enemies);
+
+    /// <summary>Gives the count of the enemies on the field that no strike of the list reaches on the sketch (D-377, D-1101).</summary>
+    private static long Unreached(Battle battle, Sketch sketch, IReadOnlyList<ReplyStrike> strikes)
     {
-        long standing = 0;
-        foreach (Combatant enemy in battle.Enemies)
+        bool melee = false;
+        foreach (ReplyStrike strike in strikes)
         {
-            standing += enemy.Place == CombatantPlace.Field ? 1 : 0;
+            // A strike of any reach reaches every enemy on the field.
+            if (strike.Reach != AbilityReach.Melee)
+            {
+                return 0;
+            }
+
+            melee = true;
         }
 
-        return standing - Reached(battle, sketch).Count;
+        long standing = OnField(battle.Enemies).Count;
+        return melee ? standing - Reached(battle, sketch).Count : standing;
     }
 
     private static BattleTarget TargetOf(EnemyAction action, RunContext context) =>

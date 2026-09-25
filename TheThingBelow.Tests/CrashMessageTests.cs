@@ -76,14 +76,15 @@ public sealed class CrashMessageTests
         // with no value is an error (T-2).
         Assert.Contains($"{{{Constant("FilePlace")}}}", Text(Constant("FileId")), StringComparison.Ordinal);
         Assert.Contains($"{{{Constant("AddressPlace")}}}", Text(Constant("SendId")), StringComparison.Ordinal);
+        Assert.Contains($"{{{Constant("FolderPlace")}}}", Text(Constant("FolderId")), StringComparison.Ordinal);
     }
 
     [Fact]
     public void TheMessageNamesNoFolderOfThePerson()
     {
-        // D-170. The screen shows the name of the crash file and never its folder, because a
-        // folder path names the person.
-        foreach (string field in new[] { "TitleId", "FileId", "SendId", "QuitId" })
+        // D-170, D-1102. The folder line fills the folder in the short form of its system, and
+        // no line of the table holds a path of its own, because a folder path names the person.
+        foreach (string field in new[] { "TitleId", "FileId", "FolderId", "SendId", "QuitId" })
         {
             string text = Text(Constant(field));
             Assert.DoesNotContain("/", text, StringComparison.Ordinal);

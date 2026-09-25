@@ -133,6 +133,28 @@ public sealed class ElementTests
     }
 
     [Fact]
+    public void AnAbsorbedHitGivesNoStatusAndAHitOfTheSameMoveDoes()
+    {
+        // D-1105, P3-1: an absorbed hit takes in the whole blow, so its sure poison rolls no
+        // chance. The same move of an element that the grunt takes as normal poisons it.
+        Simulation run = BattleRuns.IntoBattle(Seed, "group.one", TestBattles.WithGrunt(Element.Fire, Affinity.Absorb, [], exact: true));
+        BattleTarget grunt = new(BattleSide.Enemy, 0);
+        run.Step([BattleRuns.AttackFirst(run)]);
+        _ = run.TakeBattleEvents();
+        StatusChance poison = new(StatusKind.Poison, 10000);
+
+        BattleTurns.StrikeWith(run.State, new BattleMove(100, 10000, StrikeStat.Attack, Element.Fire, poison), grunt, run.State.Context("test"), []);
+
+        Assert.Contains(run.TakeBattleEvents(), each => each.Kind == BattleEventKind.Absorb);
+        Assert.False(BattleRuns.BattleOf(run).Enemies[0].Statuses.Holds(StatusKind.Poison));
+
+        BattleTurns.StrikeWith(run.State, new BattleMove(100, 10000, StrikeStat.Attack, Element.Ice, poison), grunt, run.State.Context("test"), []);
+
+        Assert.Contains(run.TakeBattleEvents(), each => each.Kind == BattleEventKind.Hit);
+        Assert.True(BattleRuns.BattleOf(run).Enemies[0].Statuses.Holds(StatusKind.Poison));
+    }
+
+    [Fact]
     public void TheRatesApplyInTheOrderOfTheOwner()
     {
         // D-809: 11 times weak is 16, the back row halves it to 8, and shell halves it to 4.

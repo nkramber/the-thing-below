@@ -87,7 +87,7 @@ Built by PR-66. Phase file: `phase-2-first-playable.md`.
 - The defend cut stays one cut, and it cuts a physical hit and a magic hit alike (D-1054).
 - A heal is its base plus a share of the magic of the caster. It rolls the hit factor, on the progression stream outside a fight (D-1057 to D-1059).
 - A move holds one element or none, and a status with its chance or none (D-793, D-796). The basic attack holds neither.
-- One hit takes the rate of its affinity, then the back row, the defend, and the shell cut. An absorb heals a quarter of the hit, at least 1, and no cut applies to it (D-795, D-809, D-1055).
+- One hit takes the rate of its affinity, then the back row, the defend, and the shell cut. An absorb heals a quarter of the hit, at least 1, and no cut applies to it (D-795, D-809, D-1055). An absorbed hit rolls no status (D-1105).
 - A hit rolls the miss, then the hit factor, then the status chance, on the battle stream (D-807).
 - Each status holds the tick of its end on the timeline, and a second copy resets the end. Haste and slow cancel each other (D-798, D-800).
 - Poison, bleed, and regen act at the start of each turn of the holder. A sleeper passes its turn, and a strike wakes it. A stun pushes the next turn once (D-799, D-802, D-803, D-810).
@@ -122,10 +122,10 @@ Built by PR-11. Phase file: `phase-2-first-playable.md`.
 
 - The evaluator scores every legal action of an enemy by its simulated outcome: damage, kills, threat, healing, timeline shift, and row placement (D-65, D-377).
 - It simulates each legal action and the strongest answer of the other side, one action ahead with one reply (D-534).
-- The reply is the best action of the next character on the timeline (D-960). Each score takes the expected outcome, and no roll (D-959).
+- The reply is the best legal strike of the next character on the timeline (D-960, D-1101). That strike is the basic attack, or an open lesson strike with its MP and no silence. Each score takes the expected outcome, and no roll (D-959).
 - The score adds each weight times its term (D-958). The damage term is the expected health that the action takes, and the kill term counts the expected kills in basis points.
 - The heal term is the health that a heal restores. The threat term is the expected health that the reply takes, and the score subtracts it (D-960).
-- The timeline term is the push of the action in ticks, and the score subtracts it. The row term counts the change of the enemies that melee cannot reach.
+- The timeline term is the push of the action in ticks, and the score subtracts it. The row term counts the change of the enemies that no strike of the next character reaches (D-1101).
 - The cost grows with the count of legal actions times the answers (F-53). One enemy turn takes at most 1 ms at the 95th percentile on the Steam Deck (D-961, G-14).
 - The evaluator uses one seeded stream, and its order of work never changes (G-4, T-7). On a tie of two scores, the evaluator draws one action from its own stream (D-947).
 - A profile reweights the terms of the score (D-65). PR-11 ships the weights alone, and the first trait comes with the first enemy that needs one (D-958).
@@ -229,6 +229,7 @@ Built by PR-9, PR-11, and PR-15. Phase files: `phase-2-first-playable.md` and ev
 | PR-12 | The lessons and the aptitudes that a fight uses | D-272, D-358 |
 | PR-13 | The gear and the items that a fight spends, the steal, and the drops | D-44, D-382, D-1036 to D-1046 |
 | PR-99 | The stat set and the heal of an absorbed hit | D-1041 |
+| PR-104 | The reply scores the best legal strike, the enemy phase has a bound, an absorbed hit rolls no status, and the miss ceiling takes 6666 at most | D-1101, D-1105, D-1107 |
 | PR-17 | The enemies and the groups of the first places | D-313, D-362 |
 | PR-90 | The balance harness, which measures each encounter | D-822 |
 | PR-30 | The balance pass over every number | D-35, G-14 |

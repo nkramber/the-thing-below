@@ -552,9 +552,9 @@ public static class BattleSnapshotText
         }
 
         int slotCount = reader.RequireInt(count, depth, "slot_count");
-        if (slotCount < 0 || slotCount > StatCurve.HighestLevel)
+        if (slotCount < 0 || slotCount > BattleRules.MostLessonSlots)
         {
-            throw reader.RefuseField(depth, "slot_count", $"the slot count {slotCount} is outside 0 to {StatCurve.HighestLevel} (D-1018)");
+            throw reader.RefuseField(depth, "slot_count", $"the slot count {slotCount} is outside 0 to {BattleRules.MostLessonSlots} (D-1018)");
         }
 
         var slots = new ContentId?[slotCount];

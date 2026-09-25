@@ -155,6 +155,23 @@ public sealed class MapPatrolsTests
     }
 
     [Fact]
+    public void AStepIntoTheEnemyWhoseMarkRunsTakesTheSideOfTheBeat()
+    {
+        // D-1104, P3-20: the patrol saw the party first. A step into it during the beat starts
+        // the encounter at once, and the facings give the side: each faces the other, so no
+        // side acts first. The old rule gave the party a sneak.
+        Simulation run = Start(PatrolMaps.Of(PatrolMaps.Enemy(facing: "south", stations: NextToSpawn)));
+        run.Step([]);
+        Assert.NotNull(run.State.Party.Patrols.Mark);
+
+        run.Step([Intent.OfPlayer(IntentIds.MoveNorth)]);
+
+        MapEncounter encounter = Assert.IsType<MapEncounter>(run.State.Party.Patrols.Encounter);
+        Assert.Equal(EncounterSide.None, encounter.Behind);
+        Assert.Null(run.State.Party.Patrols.Mark);
+    }
+
+    [Fact]
     public void AStepIntoABodyTakesNoBeat()
     {
         // The beat of D-208 is the telegraph of the patrol, so the approach of the party
@@ -704,6 +721,30 @@ public sealed class MapPatrolsTests
             "the save"));
 
         Assert.Contains("the mark names the enemy 'patrol.other'", error.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void ASnapshotWithAMarkOrAnEncounterOfADeadEnemyFailsTheResume(bool mark)
+    {
+        // P3-18: a dead enemy sees nothing, and a win ends its encounter (D-531, D-555).
+        GameMap map = PatrolMaps.Of(PatrolMaps.Enemy(stations: Southwest));
+        ContentId enemy = map.Patrols[0].Id;
+
+        ArgumentException error = Assert.Throws<ArgumentException>(() => MapState.Resume(
+            map,
+            map.Spawn,
+            StepDirection.South,
+            null,
+            0,
+            WalkedOf(map),
+            [Standing(map) with { Dead = true }],
+            mark ? new SightMark(enemy, 4) : null,
+            mark ? null : new MapEncounter(enemy, map.Patrols[0].Group, EncounterSide.None),
+            "the save"));
+
+        Assert.Contains($"'{enemy.Value}', which is dead", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]

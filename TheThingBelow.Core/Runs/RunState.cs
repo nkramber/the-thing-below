@@ -183,6 +183,15 @@ public sealed class RunState
         MapState party = ResumeMap(snapshot, map);
         PartyState characters = ResumeCharacters(snapshot, battleContent);
         StoryState storyState = ResumeStory(snapshot, story, map);
+
+        // Core refuses every intent but the few of a story scene while one runs, the close of the
+        // menu included, so the pair would hold the run for good (D-1009, P3-18).
+        if (snapshot.MenuOpen && storyState.Running)
+        {
+            throw new ArgumentException(
+                "The snapshot of this run holds an open menu and a running story scene, and no rule makes both (D-1009, T-2).",
+                nameof(snapshot));
+        }
         return new RunState(
             seed,
             streams,

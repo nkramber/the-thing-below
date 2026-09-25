@@ -21,6 +21,12 @@ public sealed class SettingsStore
     /// <summary>The largest settings file that the game reads, in bytes: 64 KiB.</summary>
     public const long MostBytes = 64L * 1024;
 
+    /// <summary>
+    /// The name that a settings file takes when a start refuses it (D-1099). The newest refused
+    /// file replaces an older one, so the folder never fills.
+    /// </summary>
+    public const string RefusedName = "settings.refused.json";
+
     private readonly string folder;
 
     /// <summary>Makes the store of the settings file in one folder.</summary>
@@ -35,6 +41,32 @@ public sealed class SettingsStore
 
     /// <summary>The full path of the settings file.</summary>
     public string Path => System.IO.Path.Combine(this.folder, FileName);
+
+    /// <summary>Gives the path that a refused settings file takes (D-1099).</summary>
+    public string RefusedPath => System.IO.Path.Combine(this.folder, RefusedName);
+
+    /// <summary>
+    /// Keeps a refused settings file under <see cref="RefusedName"/>, beside the folder of the
+    /// saves, and replaces an older refused file (D-1099, D-1100). The player can then mend the
+    /// file and take it back.
+    /// </summary>
+    /// <returns>The path of the kept file.</returns>
+    /// <exception cref="StorageException">No settings file exists, or the system refused the move (T-2).</exception>
+    public string SetAside()
+    {
+        string path = this.Path;
+        string kept = this.RefusedPath;
+        try
+        {
+            File.Move(path, kept, overwrite: true);
+        }
+        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
+        {
+            throw StorageException.ForPath(path, $"the game could not keep the refused settings file as '{RefusedName}'", fault);
+        }
+
+        return kept;
+    }
 
     /// <summary>Makes the store of the person on this system (D-465, D-860).</summary>
     /// <returns>The store.</returns>

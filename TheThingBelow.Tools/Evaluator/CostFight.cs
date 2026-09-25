@@ -12,7 +12,9 @@ namespace TheThingBelow.Tools.Evaluator;
 /// <summary>
 /// The worst fight of D-961: six enemies on the field against three characters. Each enemy
 /// holds a melee strike, a strike of any reach, and a heal, so each turn scores the most
-/// legal actions that the rules of PR-11 give (D-955). The command holds its own copy, so a
+/// legal actions that the rules of PR-11 give (D-955). Each character carries a melee lesson
+/// strike and a fire lesson strike of any reach in its two slots, so each reply scores three
+/// strikes (D-1101). The command holds its own copy, so a
 /// content change never moves the size of the fight. The numbers of the rules come from the
 /// checkout.
 /// </summary>
@@ -32,7 +34,11 @@ public static class CostFight
      "start_party": ["character.cost_first", "character.cost_second", "character.cost_third"],
      "pack": [{ "item": "item.cost_draught", "count": 3 }],
      "start_gear": [],
-     "start_lessons": [],
+     "start_lessons": [
+      { "character": "character.cost_first", "lessons": ["lesson.cost_cut_first", "lesson.cost_flare_first"] },
+      { "character": "character.cost_second", "lessons": ["lesson.cost_cut_second", "lesson.cost_flare_second"] },
+      { "character": "character.cost_third", "lessons": ["lesson.cost_cut_third", "lesson.cost_flare_third"] }
+     ],
      "lesson_pack": []
     }
     """;
@@ -58,8 +64,21 @@ public static class CostFight
 
     private const string LessonText = """
     {
-     "comment": "The lessons of the cost fight. It holds none.",
-     "lessons": []
+     "comment": "The lessons of the cost fight: a melee strike and a fire strike of any reach for each character.",
+     "lessons": [
+      { "id": "lesson.cost_cut_first", "kind": "blade", "forms": [
+       { "ability": "ability.cost_cut_first", "points": 0, "mp": 0, "description": "lesson.cost_cut_first" } ] },
+      { "id": "lesson.cost_flare_first", "kind": "harm", "forms": [
+       { "ability": "ability.cost_flare_first", "points": 0, "mp": 4, "description": "lesson.cost_flare_first" } ] },
+      { "id": "lesson.cost_cut_second", "kind": "blade", "forms": [
+       { "ability": "ability.cost_cut_second", "points": 0, "mp": 0, "description": "lesson.cost_cut_second" } ] },
+      { "id": "lesson.cost_flare_second", "kind": "harm", "forms": [
+       { "ability": "ability.cost_flare_second", "points": 0, "mp": 4, "description": "lesson.cost_flare_second" } ] },
+      { "id": "lesson.cost_cut_third", "kind": "blade", "forms": [
+       { "ability": "ability.cost_cut_third", "points": 0, "mp": 0, "description": "lesson.cost_cut_third" } ] },
+      { "id": "lesson.cost_flare_third", "kind": "harm", "forms": [
+       { "ability": "ability.cost_flare_third", "points": 0, "mp": 4, "description": "lesson.cost_flare_third" } ] }
+     ]
     }
     """;
 
@@ -69,6 +88,12 @@ public static class CostFight
      "abilities": [
       { "id": "ability.cost_bash", "kind": "strike", "delay": 130, "power": 14000, "stat": "attack", "element": "none", "reach": "melee", "status": "none" },
       { "id": "ability.cost_shot", "kind": "strike", "delay": 110, "power": 9000, "stat": "magic", "element": "fire", "reach": "any", "status": "none" },
+      { "id": "ability.cost_cut_first", "kind": "strike", "delay": 110, "power": 15000, "stat": "attack", "element": "none", "reach": "melee", "status": "none" },
+      { "id": "ability.cost_flare_first", "kind": "strike", "delay": 120, "power": 14000, "stat": "magic", "element": "fire", "reach": "any", "status": "none" },
+      { "id": "ability.cost_cut_second", "kind": "strike", "delay": 110, "power": 15000, "stat": "attack", "element": "none", "reach": "melee", "status": "none" },
+      { "id": "ability.cost_flare_second", "kind": "strike", "delay": 120, "power": 14000, "stat": "magic", "element": "fire", "reach": "any", "status": "none" },
+      { "id": "ability.cost_cut_third", "kind": "strike", "delay": 110, "power": 15000, "stat": "attack", "element": "none", "reach": "melee", "status": "none" },
+      { "id": "ability.cost_flare_third", "kind": "strike", "delay": 120, "power": 14000, "stat": "magic", "element": "fire", "reach": "any", "status": "none" },
       { "id": "ability.cost_mend", "kind": "heal", "delay": 110, "base": 12, "power": 5000 }
      ]
     }

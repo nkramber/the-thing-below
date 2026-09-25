@@ -261,6 +261,7 @@ Built by PR-41 and every UI PR. Phase file: `phase-2-first-playable.md`.
 | PR-13 | The gear window, the item window, and the stats with the gear in the status window | D-44, D-1036, D-1039, D-1048, D-1049 |
 | PR-99 | MAG and RES on each screen, the line of trial stats in the gear window, and the lesson swap anywhere outside a fight | D-1050, D-1056, D-1060 |
 | PR-103 | The pause of a fight, with a dim and "Paused" above the hand-off, the crash message above the hand-off, and the line of the item under the cursor in a fight | D-1083, D-1084, D-1093 |
+| PR-104 | The message of a refused settings file, the crash message on a frame of the default display with its folder, and the two absorb lines | D-1099, D-1102, D-1106 |
 | PR-14 and PR-16 | The service and save screens, one for each system | D-211 |
 | PR-36 | The dialogue box, the name plate, and the choices | D-114, D-223 |
 | PR-35 | The region map screen | D-113 |

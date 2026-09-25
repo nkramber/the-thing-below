@@ -30,7 +30,6 @@ public static class TorchRules
     /// A menu is open, a battle holds the run, the pack holds no torch, or the torch already has
     /// that state (T-2).
     /// </exception>
-    /// <exception cref="ContentException">The item file holds no torch, or holds it in a kind other than `key` (D-1065).</exception>
     /// <remarks>
     /// Game sends the intent on the walk alone, so an intent at any other time points at a fault
     /// in the screen that made it (D-1071, T-2). The rule of a story scene refuses the intent
@@ -45,11 +44,6 @@ public static class TorchRules
         if (state.MenuOpen || state.Battle is not null)
         {
             throw new SimulationException($"an intent that {change} while a menu is open or a battle holds the run, and the torch works on the walk alone (D-1071)", context);
-        }
-
-        if (state.BattleContent.Item(Torch) is not KeyItem)
-        {
-            throw ContentException.ForField(ItemList.Path, "items", $"the item '{Torch.Value}' is not a key item, and the torch rule reads the kind `key` (D-1065)");
         }
 
         if (state.Characters.CountOf(Torch) < 1)

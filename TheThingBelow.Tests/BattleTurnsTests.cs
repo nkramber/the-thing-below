@@ -498,6 +498,57 @@ public sealed class BattleTurnsTests
         return Simulation.Resume(Seed, held, map, content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
     }
 
+    [Fact]
+    public void AnEnemyPhaseThatReachesNoCharacterFailsWithTheGroupAndNeverHangs()
+    {
+        // D-1105, P3-1: every combatant sleeps far past the end of the test, so no turn of a
+        // character comes. The bound ends the tick with the group, and the old loop never ended.
+        Simulation run = BattleRuns.IntoBattle(Seed, "group.one", TestBattles.Exact);
+        RunSnapshot snapshot = run.Snapshot();
+        BattleValues battle = snapshot.Battle!;
+        long ends = checked(battle.Now + 1_000_000_000_000L);
+        List<CombatantValues> asleep = [];
+        foreach (CombatantValues combatant in battle.Combatants)
+        {
+            asleep.Add(combatant with { Statuses = [new StatusValues(StatusKind.Sleep, ends)] });
+        }
+
+        Simulation resumed = Simulation.Resume(
+            Seed,
+            snapshot with { Battle = battle with { Combatants = asleep } },
+            BattleRuns.Map("group.one"),
+            TestBattles.Exact,
+            TestBattles.Notices,
+            TestBattles.Story,
+            DebugIntentHandlers.None);
+
+        SimulationException error = Assert.Throws<SimulationException>(() => resumed.Step([Intent.OfPlayer(IntentIds.BattleDefend)]));
+
+        Assert.Contains("group.one", error.Message, StringComparison.Ordinal);
+        Assert.Contains($"{BattleTurns.MostTurnsBeforeACharacter} turns", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AStepIntoAGroupWithEveryCharacterDownFailsWithTheGroup()
+    {
+        // D-1105, P3-1: a fight with no standing character never reaches the turn of a character.
+        GameMap map = BattleRuns.Map("group.one");
+        RunSnapshot start = Simulation.Start(Seed, map, TestBattles.Exact, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None).Snapshot();
+        PartySnapshot party = start.Characters!;
+        List<CharacterValues> down = [];
+        foreach (CharacterValues character in party.Characters)
+        {
+            down.Add(character with { Health = 0, Statuses = [] });
+        }
+
+        Simulation run = Simulation.Resume(Seed, start with { Characters = party with { Characters = down } }, map, TestBattles.Exact, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+
+        SimulationException error = Assert.Throws<SimulationException>(() => run.Step([Intent.OfPlayer(IntentIds.MoveEast)]));
+
+        Assert.Contains("group.one", error.Message, StringComparison.Ordinal);
+        Assert.Contains("no character of the party stands", error.Message, StringComparison.Ordinal);
+    }
+
     private static void Assume(bool holds)
     {
         Assert.True(holds, "The test run ended before the case it reads.");

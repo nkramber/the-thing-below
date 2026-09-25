@@ -63,6 +63,13 @@ public static class SimulationVersion
     /// with its tick when a battle, a menu, or a story scene holds the world (D-1085), an encounter waits for the end of the
     /// step of the lead (D-1094), the reader takes a glow halo up to 192 pixels wide (D-1092), and a content field name of
     /// points alone fails with its file, and the record reader checks its versions before its snapshot and reads format 3.
+    /// PR-104 raised it to 28: the reply of the evaluator scores the best legal strike of the next character, lesson
+    /// strikes included, and its row term reads their reach (D-1101). A step onto a tile trigger plays its story scene
+    /// before a step into an enemy on the same tick (D-1103), and a step into the enemy whose mark runs takes the side
+    /// of the beat (D-1104). An absorbed hit rolls no status, the enemy phase runs 1000 turns at most, and no fight
+    /// starts or resumes with no character on its feet (D-1105). The load refuses a miss ceiling above 6666 (D-1107),
+    /// more lesson slots than the snapshot holds, and a torch that is not a key item, and the resume refuses a mark or
+    /// an encounter of a dead enemy, a fight of another party count, and an open menu in a story scene.
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -70,5 +77,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 27;
+    public const int Current = 28;
 }
