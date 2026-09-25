@@ -1,5 +1,38 @@
 # Session handoff archive
 
+## Session 307: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #81 (PR-104), round 2. Repository: the-thing-below. Branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: author. Base: `4aad522`.
+
+### What this session did, and why
+
+- The screen test of `830f146` found three fight captures that moved: the enemies read the lessons of Marrek, so the fight ends on another tick (D-1101). The author read each frame, and `f66e314` takes them as new baselines (D-733, D-784).
+- The owner asked for the Deck run of D-961. On the Steam Deck in Release, one enemy turn took a p95 of 128 us and 120 us in two runs, below the limit of 1000 us.
+- Gitar approved `f66e314` with no thread. Each Gitar item has its answer on the PR.
+- The review of the other provider found no defect and gave `Blocked` for the Deck run and a Gitar note. `docs/reviews/pr-81-response.md` answers both.
+
+### The state of the build
+
+- Every check of `f66e314` passed but `review-gate`, which waited for the record. The effective head is `f66e314`.
+
+### What is in flight
+
+- The repeat review through `make codex-review PR=81`.
+
+### Traps and gotchas
+
+- A rule change of the evaluator moves the fight captures, and the screen test then fails until new baselines land.
+- The review commit dropped the title line of `docs/session-handoff-archive.md`, as on PR #80. This commit puts it back.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the outcome of the repeat review.
+
 ## Session 306: 2026-09-25, Codex
 
 Author: Codex
