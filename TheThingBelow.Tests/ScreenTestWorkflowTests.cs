@@ -55,6 +55,35 @@ public sealed class ScreenTestWorkflowTests
         Assert.Contains("exit 1", text, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// OQ-246, D-1127: the job installed the Vulkan loader and Xvfb at the newest version of
+    /// any source, so a package of the picture could move between two jobs of one commit.
+    /// </summary>
+    [Fact]
+    public void TheJobPinsAndReadsBackTheLoaderAndTheScreen()
+    {
+        string workflow = Workflow();
+        string text = string.Join("\n", WorkflowText.RunBlockOf(CiWorkflowPath, "Install the pinned Mesa"));
+
+        Assert.Contains("LIBVULKAN_VERSION: \"1.3.275.0-1build1\"", workflow, StringComparison.Ordinal);
+        Assert.Contains("XVFB_VERSION: \"2:21.1.12-1ubuntu1.8\"", workflow, StringComparison.Ordinal);
+        Assert.Contains("\"libvulkan1=$LIBVULKAN_VERSION\"", text, StringComparison.Ordinal);
+        Assert.Contains("\"xvfb=$XVFB_VERSION\"", text, StringComparison.Ordinal);
+        Assert.Contains("\"xserver-common=$XVFB_VERSION\"", text, StringComparison.Ordinal);
+        Assert.Contains("the pin of D-1127", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>OQ-246, D-1127: lavapipe compiles for the CPU of the runner, so the job logs it.</summary>
+    [Fact]
+    public void TheJobLogsTheCpuOfTheRunner()
+    {
+        string text = string.Join("\n", WorkflowText.RunBlockOf(CiWorkflowPath, "Log the CPU of the runner"));
+
+        Assert.Contains("lscpu", text, StringComparison.Ordinal);
+        Assert.Contains("avx512f", text, StringComparison.Ordinal);
+        Assert.Contains("GITHUB_STEP_SUMMARY", text, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void TheJobFailsOnAFallbackToAnotherRenderer()
     {

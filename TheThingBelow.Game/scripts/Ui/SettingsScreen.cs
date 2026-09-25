@@ -207,6 +207,27 @@ public sealed class SettingsScreen
 
     private static string Number(int value) => value.ToString(CultureInfo.InvariantCulture);
 
+    /// <summary>
+    /// Gives the string id and the values of the name of one key. A binding holds the physical
+    /// key, and the name reads the key of the layout of the player (D-1128).
+    /// </summary>
+    /// <remarks>
+    /// A screen with no keyboard layout, such as the headless smoke session, gives no key of
+    /// the layout. The name then reads the physical key, which is the key of the US layout.
+    /// </remarks>
+    private static (string Id, Dictionary<string, string> Values) KeyText(Godot.Key physical)
+    {
+        Godot.Key layout = DisplayServer.KeyboardGetKeycodeFromPhysical(physical);
+        (string id, IReadOnlyList<(string Place, string Value)> places) = KeyNames.Of((long)(layout == Godot.Key.None ? physical : layout));
+        var values = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach ((string place, string value) in places)
+        {
+            values.Add(place, value);
+        }
+
+        return (id, values);
+    }
+
     private static string OnOff(bool on) => on ? "settings.on" : "settings.off";
 
     private static string SpeedId(int place) => place switch
@@ -259,7 +280,7 @@ public sealed class SettingsScreen
         switch (binding.Kind)
         {
             case BindingKind.Key:
-                return ("settings.binding_key", Values(("key", OS.GetKeycodeString((Godot.Key)binding.Code))));
+                return KeyText((Godot.Key)binding.Code);
             case BindingKind.Button when binding.Code <= (int)JoyButton.Touchpad:
                 return ($"settings.button_{Number(binding.Code)}", Values());
             case BindingKind.Button:

@@ -121,6 +121,16 @@ public static class ScreensCommand
             int count = ScreenCompare.Differences(committed, taken, out PixelDifference? difference);
             if (count == 0)
             {
+                // The compare passes a step of one level, so the report names each capture that
+                // holds one, and the log of CI keeps the evidence of OQ-246 (D-1080).
+                int near = ScreenCompare.NearDifferences(committed, taken);
+                if (near > 0)
+                {
+                    output.WriteLine(
+                        $"{Name}: the capture '{name}' holds {near} pixel(s) one level from its baseline, " +
+                        $"which the compare passes (D-1080, OQ-246).");
+                }
+
                 continue;
             }
 

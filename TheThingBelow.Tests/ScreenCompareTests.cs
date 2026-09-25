@@ -113,6 +113,20 @@ public sealed class ScreenCompareTests
         Assert.Contains("Rgb", thrown.Message, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData(10, 0)]
+    [InlineData(11, 4)]
+    [InlineData(12, 0)]
+    public void OnlyAStepOfOneLevelCountsAsNear(byte captured, int near)
+    {
+        // OQ-246, D-1080: the compare passes a step of one level, and the report names it. An
+        // equal pixel is not near, and a step of two levels is a difference and not near.
+        PngImage baseline = Image(2, 2, 10);
+        PngImage capture = Image(2, 2, captured);
+
+        Assert.Equal(near, ScreenCompare.NearDifferences(baseline, capture));
+    }
+
     private static PngImage Image(int width, int height, byte level) =>
         new(width, height, PngColorKind.Rgba, Pixels(width, height, level));
 

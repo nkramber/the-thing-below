@@ -633,6 +633,10 @@ jobs:
       # and that PR writes the new baseline too, because Mesa can change a pixel (D-172).
       MESA_SNAPSHOT: "20260901T000000Z"
       MESA_VERSION: "25.2.8-0ubuntu0.24.04.2"
+      # The Vulkan loader and the software screen come from the same snapshot, with a pin of
+      # their own, so no package of the picture moves between two jobs (OQ-246, D-1127).
+      LIBVULKAN_VERSION: "1.3.275.0-1build1"
+      XVFB_VERSION: "2:21.1.12-1ubuntu1.8"
       GODOT_ARCHIVE: Godot_v4.7.2-stable_mono_linux_x86_64.zip
       GODOT_SHA512: 1855960b27ee3ef5e66e5e228cced69d55637b24334a7411162687dcd077d8f9f645348cdb8eae984bec8135d49ed855a1e3a16476786b8bce60774fd8402d13
       # The screen of Xvfb holds the largest capture of the list, which is 2560 by 1440.
@@ -667,7 +671,8 @@ jobs:
           sudo apt-get install --yes --no-install-recommends \
             "mesa-vulkan-drivers=$MESA_VERSION" \
             "libgl1-mesa-dri=$MESA_VERSION" \
-            libvulkan1 xvfb
+            "libvulkan1=$LIBVULKAN_VERSION" \
+            "xvfb=$XVFB_VERSION" "xserver-common=$XVFB_VERSION"
 
           # A dependency rule can pull another version, so the job reads back each one and
           # fails when it differs from the pin (D-729, T-2).
@@ -678,6 +683,16 @@ jobs:
               exit 1
             fi
             echo "The package $package is $actual, which matches the pin of D-730."
+          done
+          for pin in "libvulkan1=$LIBVULKAN_VERSION" "xvfb=$XVFB_VERSION" "xserver-common=$XVFB_VERSION"; do
+            package="${pin%%=*}"
+            expected="${pin#*=}"
+            actual=$(dpkg-query --show --showformat='${Version}' "$package")
+            if [ "$actual" != "$expected" ]; then
+              echo "The package $package is $actual, and the pin of D-1127 is $expected (T-2)." >&2
+              exit 1
+            fi
+            echo "The package $package is $actual, which matches the pin of D-1127."
           done
 
           # The Vulkan loader reads its drivers from this file. A path that no file holds
@@ -700,6 +715,17 @@ jobs:
         with:
           path: godot-download
           key: godot-${{ env.GODOT_VERSION }}-${{ env.GODOT_ARCHIVE }}
+
+      # Lavapipe compiles its shaders for the CPU of the runner, so the job logs the CPU and
+      # the vector flags that the compiler reads. A frame that moves by one level can then be
+      # set against the CPU of its job (OQ-246, D-1127).
+      - name: Log the CPU of the runner
+        run: |
+          set -euo pipefail
+          model=$(lscpu | sed -n 's/^Model name: *//p')
+          flags=$(grep -m1 '^flags' /proc/cpuinfo | tr ' ' '\n' | grep -xE 'sse4_2|avx|avx2|fma|f16c|avx512f|avx512vl' | sort | tr '\n' ' ')
+          echo "The CPU of this runner is '$model', with $(nproc) cores and the vector flags: $flags"
+          echo "screen-test CPU: '$model', $(nproc) cores, flags: $flags" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Get the Godot editor and check its SHA-512
         run: |

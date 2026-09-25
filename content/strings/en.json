@@ -958,6 +958,142 @@
    "text": "Left and right change. Confirm remaps."
   },
   {
+   "id": "settings.key_alt",
+   "text": "Alt"
+  },
+  {
+   "id": "settings.key_backspace",
+   "text": "Backspace"
+  },
+  {
+   "id": "settings.key_caps_lock",
+   "text": "Caps Lock"
+  },
+  {
+   "id": "settings.key_ctrl",
+   "text": "Ctrl"
+  },
+  {
+   "id": "settings.key_delete",
+   "text": "Delete"
+  },
+  {
+   "id": "settings.key_down",
+   "text": "Down arrow"
+  },
+  {
+   "id": "settings.key_end",
+   "text": "End"
+  },
+  {
+   "id": "settings.key_enter",
+   "text": "Enter"
+  },
+  {
+   "id": "settings.key_escape",
+   "text": "Escape"
+  },
+  {
+   "id": "settings.key_function",
+   "text": "F{number}"
+  },
+  {
+   "id": "settings.key_home",
+   "text": "Home"
+  },
+  {
+   "id": "settings.key_insert",
+   "text": "Insert"
+  },
+  {
+   "id": "settings.key_keypad_add",
+   "text": "Num +"
+  },
+  {
+   "id": "settings.key_keypad_digit",
+   "text": "Num {digit}"
+  },
+  {
+   "id": "settings.key_keypad_divide",
+   "text": "Num /"
+  },
+  {
+   "id": "settings.key_keypad_enter",
+   "text": "Num Enter"
+  },
+  {
+   "id": "settings.key_keypad_multiply",
+   "text": "Num *"
+  },
+  {
+   "id": "settings.key_keypad_period",
+   "text": "Num ."
+  },
+  {
+   "id": "settings.key_keypad_subtract",
+   "text": "Num -"
+  },
+  {
+   "id": "settings.key_left",
+   "text": "Left arrow"
+  },
+  {
+   "id": "settings.key_menu",
+   "text": "Menu key"
+  },
+  {
+   "id": "settings.key_meta",
+   "text": "Cmd / Win"
+  },
+  {
+   "id": "settings.key_num_lock",
+   "text": "Num Lock"
+  },
+  {
+   "id": "settings.key_other",
+   "text": "Key {code}"
+  },
+  {
+   "id": "settings.key_page_down",
+   "text": "Page Down"
+  },
+  {
+   "id": "settings.key_page_up",
+   "text": "Page Up"
+  },
+  {
+   "id": "settings.key_pause",
+   "text": "Pause"
+  },
+  {
+   "id": "settings.key_print",
+   "text": "Print Screen"
+  },
+  {
+   "id": "settings.key_right",
+   "text": "Right arrow"
+  },
+  {
+   "id": "settings.key_scroll_lock",
+   "text": "Scroll Lock"
+  },
+  {
+   "id": "settings.key_shift",
+   "text": "Shift"
+  },
+  {
+   "id": "settings.key_space",
+   "text": "Space"
+  },
+  {
+   "id": "settings.key_tab",
+   "text": "Tab"
+  },
+  {
+   "id": "settings.key_up",
+   "text": "Up arrow"
+  },
+  {
    "id": "settings.level_full",
    "text": "Full"
   },
