@@ -16,13 +16,16 @@ Session: author PR #79 (PR-102), round 2. Repository: the-thing-below. Branch: `
 
 ### What is in flight
 
-- This round pushes the two fixes. Then the Gitar poll, a reply on the thread, and `make codex-review PR=79`.
+- Round 2 head `74b8020`: Gitar approved, and its thread is resolved. Each Gitar CI claim has its answer (RG 3 alone). Every CI job passed except `screen-test` and RG 3.
+- `screen-test` failed 3 of 3 attempts in "Compare the two runs": `still-240` and `menu-status-1x` differ by one level between two captures of one job. `main` fails the same way since PR-91. The owner chose to wait for PR #78 (D-1087).
 - PR #78 (PR-101) is still open.
 
 ### Traps and gotchas
 
+- The owner switched the shared checkout at `/Volumes/SSD-1TB/the-thing-below` to PR #78. PR #79 waits in the worktree `/Volumes/SSD-1TB/the-thing-below-pr102`.
+- PR #78 head `55ba1b2` lets the screen compare allow one level on each channel, which covers the difference of D-1087.
 - The `review-gate` job runs the workflow of `main`, so the new facts step of F-109 first runs after the merge.
-- The rebase notes of Session 287 stand: phase section 7.38, design sequence item 39, and PR-101 in place of "PR #78".
+- The owner asked for a merge of `main`, not a rebase. The notes of Session 287 stand for the conflicts: phase section 7.38, design sequence item 39, and PR-101 in place of "PR #78".
 
 ### The questions that block progress
 
@@ -30,7 +33,7 @@ None.
 
 ### The next concrete action
 
-Push, run the Gitar poll, reply on the Gitar thread with the fix commit, then run `make codex-review PR=79` in the background.
+Wait for the owner to confirm the merge of PR #78. Then check out this branch in the shared checkout, merge `origin/main`, push, and restart CI. Then the Gitar poll, a green `screen-test`, and `make codex-review PR=79` in the background.
 
 ## Session 287: 2026-09-25, Claude Code
 
