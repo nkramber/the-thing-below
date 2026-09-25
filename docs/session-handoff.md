@@ -1,3 +1,34 @@
+## Session 312: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #82 (PR-105), round 2. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
+
+### What this session did, and why
+
+- Gitar approved the round 1 head `1cd661d` with no thread. Its CI analysis named the RG 3 fault of `review-gate`, and a PR comment answers it: the review record comes with the review of the other provider.
+- Each CI check of `1cd661d` passed but `screen-test` and `review-gate`. The coverage job checked the SHA-512 of the ReportGenerator package (D-1116).
+- `screen-test` found one changed frame, `settings-conflict-1x`, in 956 pixels. The author read the frame of the artifact: the confirm cell of the gamepad takes the warning color, the chosen cell of back stays yellow, and the line holds no count for one conflict (D-1119). This round takes that frame as the baseline (D-733).
+
+### The state of the build
+
+- The round 1 head is `1cd661d`. This round adds the new baseline and this entry.
+
+### What is in flight
+
+- The Gitar pass of this push, the CI of the new head, and then `make codex-review PR=82`.
+
+### Traps and gotchas
+
+- The baseline is outside the metadata set, so it moves the effective head, and it needs a new Gitar pass.
+
+### The questions that block progress
+
+None for this PR. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 stay open in the report.
+
+### The next concrete action
+
+When every check but `review-gate` passes, run `make codex-review PR=82` in the background.
+
 ## Session 311: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -298,35 +329,4 @@ None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-
 ### The next concrete action
 
 Fetch the branch and read the fresh metadata checks. Then the author can continue with `docs/runbooks/merge.md`.
-
-## Session 302: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #80 (PR-103), round 8. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: #80. Role: author. Base: `5c1db06`.
-
-### What this session did, and why
-
-- Each CI check of `8175992` passed but `review-gate`. Its faults are RG 4 and RG 5: the review record still names `29615cb` with `Changes required`, and the repeat review clears both.
-- Gitar approved `8175992` with one suggestion: the buffer of `FileText.ReadStream` had no set size, so it doubled as it filled, and a file near its cap took up to twice its size in memory. The suggestion has merit. The buffer now takes the length of the stream, and the counted loop still holds the cap.
-
-### The state of the build
-
-- The tests of Storage and the format check pass on this machine.
-- The remote head holds this entry.
-
-### What is in flight
-
-- The CI and the Gitar pass of the round 8 push. Then `make codex-review PR=80` for the repeat review.
-
-### Traps and gotchas
-
-- The reviewer adds its own handoff entry, so the author reads the top session number again before it writes an entry.
-
-### The questions that block progress
-
-None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
-
-### The next concrete action
-
-Poll the Gitar check and the CI of the round 8 push. When each check but `review-gate` passes, run `make codex-review PR=80` in the background.
 
