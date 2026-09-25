@@ -17,7 +17,13 @@ namespace TheThingBelow.Game.Ui;
 /// <para>
 /// The built-in `ui_*` actions drive the focus of a menu, and they keep their default
 /// buttons, so every menu answers whatever the remap does (D-862, F-50). They take the dead
-/// zone of the settings alone (D-861).
+/// zone of the settings, and the pad buttons of <see cref="MenuPadButtons"/>, alone (D-861,
+/// D-1077).
+/// </para>
+/// <para>
+/// Godot gives a new event the device 0, and the input map then matches the first pad alone.
+/// Every event of this map takes <see cref="AllDevices"/>, so each pad plays the game, the
+/// Steam Deck and a USB or Bluetooth pad alike (D-1077, F-107).
 /// </para>
 /// <para>
 /// The keyboard and the gamepad play every screen, and the mouse works on menus alone
@@ -28,6 +34,23 @@ public static class GameInputMap
 {
     /// <summary>The count of hundredths in the full push of a stick (D-861).</summary>
     private const float HundredthsOfFullPush = 100f;
+
+    /// <summary>The device number of an event that matches every device, which is `InputMap.ALL_DEVICES` of Godot (F-107).</summary>
+    public const int AllDevices = -1;
+
+    /// <summary>
+    /// The pad button of each menu action that lacks one in Godot 4.7.2: the A button chooses
+    /// and the B button goes back, as the confirm action and the cancel action do (D-1077, F-107).
+    /// </summary>
+    /// <remarks>
+    /// The default `ui_accept` of Godot holds Enter and Space alone, and `ui_cancel` holds
+    /// Escape alone. Each menu thus read no pad button but the D-pad and the stick.
+    /// </remarks>
+    public static readonly IReadOnlyList<(string Action, JoyButton Button)> MenuPadButtons =
+    [
+        ("ui_accept", JoyButton.A),
+        ("ui_cancel", JoyButton.B),
+    ];
 
     /// <summary>Gives the default bindings of each action of the game (D-84, D-862).</summary>
     /// <returns>The bindings of a first start, with no conflict.</returns>
@@ -91,11 +114,37 @@ public static class GameInputMap
                 InputMap.ActionSetDeadzone(action, deadZone);
             }
         }
+
+        AddMenuPadButtons();
+    }
+
+    /// <summary>Adds each pad button of <see cref="MenuPadButtons"/> to its menu action (D-1077).</summary>
+    /// <exception cref="InvalidOperationException">The input map lacks a menu action (T-2).</exception>
+    /// <remarks>
+    /// <see cref="Build"/> runs again after each remap, and the menu actions stay in the map, so
+    /// the method adds a button only when the action lacks it.
+    /// </remarks>
+    private static void AddMenuPadButtons()
+    {
+        foreach ((string action, JoyButton button) in MenuPadButtons)
+        {
+            if (!InputMap.HasAction(action))
+            {
+                throw new InvalidOperationException(
+                    $"The input map lacks the menu action '{action}', which takes the pad button {button} (D-1077, T-2).");
+            }
+
+            InputEvent made = EventOf(InputBinding.OfButton((int)button));
+            if (!InputMap.ActionHasEvent(action, made))
+            {
+                InputMap.ActionAddEvent(action, made);
+            }
+        }
     }
 
     /// <summary>Makes the Godot event that one binding stands for.</summary>
     /// <param name="binding">The binding of the settings file.</param>
-    /// <returns>A key, a button, or a stick event, with no device, so any pad matches.</returns>
+    /// <returns>A key, a button, or a stick event of <see cref="AllDevices"/>, so any pad matches (D-1077).</returns>
     /// <exception cref="ArgumentOutOfRangeException">The binding has no kind (T-2).</exception>
     public static InputEvent EventOf(InputBinding binding)
     {
@@ -103,9 +152,9 @@ public static class GameInputMap
 
         return binding.Kind switch
         {
-            BindingKind.Key => new InputEventKey { PhysicalKeycode = (Godot.Key)binding.Code },
-            BindingKind.Button => new InputEventJoypadButton { ButtonIndex = (JoyButton)binding.Code },
-            BindingKind.Stick => new InputEventJoypadMotion { Axis = (JoyAxis)binding.Code, AxisValue = binding.Direction },
+            BindingKind.Key => new InputEventKey { PhysicalKeycode = (Godot.Key)binding.Code, Device = AllDevices },
+            BindingKind.Button => new InputEventJoypadButton { ButtonIndex = (JoyButton)binding.Code, Device = AllDevices },
+            BindingKind.Stick => new InputEventJoypadMotion { Axis = (JoyAxis)binding.Code, AxisValue = binding.Direction, Device = AllDevices },
             _ => throw new ArgumentOutOfRangeException(
                 nameof(binding), binding.Kind, $"The binding {binding} has no kind of input (T-2)."),
         };

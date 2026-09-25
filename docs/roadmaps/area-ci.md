@@ -236,7 +236,7 @@ Built by PR-41. Phase file: `phase-2-first-playable.md`.
 - PR-10 adds the `battle` fixture: the command menu at 1x and at 1080 rows, and the pointer on the first target (D-827, D-833). One more frame shows a blow of a character with its flash and its number. The run walks into the fixture fight one tick at a time, so each capture shows the same tick.
 - PR-92 adds the map and a fight in the stepped mode of the passes of the HD-2D look (D-917).
 - The `--fixture <name>` argument takes one fixture alone, and `make walk` runs the walk on the machine of the owner (D-782). The author reads each frame before the hand-over (D-784).
-- The `screens` command of Tools compares decoded pixels with the committed baseline of `screens/baseline` (F-19, D-736, `area-tools.md` section 7.14). One changed pixel fails the job.
+- The `screens` command of Tools compares decoded pixels with the committed baseline of `screens/baseline` (F-19, D-736, `area-tools.md` section 7.14). One pixel with a step of two levels or more on one channel fails the job. A step of one level passes, because a flake of one level came from the runner and from the order of the captures (D-1080, F-108).
 - Two runs give the same frames, because the fixture seed is fixed (T-7). The walk gives the run the time of exactly one tick for each frame (D-782). The job takes the captures two times and compares them.
 - Every run keeps the captures as an artifact, and the author commits a new baseline by hand (D-733).
 - An error line in the log of the session fails the job (T-2). A shader that fails to compile reports in the log alone.

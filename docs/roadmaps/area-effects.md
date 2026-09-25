@@ -266,10 +266,13 @@ Built by PR-59. Phase file: `phase-2-first-playable.md`.
 - A pixel glows when its brightest channel of linear light passes the threshold. The threshold is above full white, so no art with no light glows.
 - Godot adds light to a pixel with no upper clamp, so a bright light on a pale sprite can pass the threshold (F-47). The load reads an upper bound of the lit art of each map and each fight. It refuses a light setup that reaches the threshold (D-910).
 - The bound reads full white art and the brightest channel of each light. It takes the strongest level of every fire, and the carried light on every tile. A seed loop proves that it holds the light curve of Game on each pixel.
-- Each fire holds a glow rectangle: a palette key, a strength in linear light, a size, and a place from the light (D-913). A strength of 0 gives no glow.
-- The first step of the glow of Godot averages about 8 by 8 art pixels. The wall torch thus holds a rectangle of 8 by 8 at 16 times its color (D-915).
-- The rectangle pulses on a slow cosine of the tick, with a phase from the id of its source (D-913). The torch light keeps its steps (D-891), and the glow never flickers.
-- The load refuses a rectangle that falls to the threshold at the low of its pulse (T-2).
+- Each fire holds a glow halo: a palette key, a strength in linear light, a size, and a place from the light (D-913, D-1075). A strength of 0 gives no glow.
+- The halo is a soft round light behind the flame. It adds its light to the world, and the torch and each figure south of it draw over it. Thus the flame keeps each of its pixels (D-1075).
+- The glow rectangle of D-915 drew above the threshold, over the flame, and it read as a box over each torch. The halo took its place (D-1075).
+- The wall torch holds a halo 112 pixels wide at 45% of the light of its color. It gives 95% of the light that the rectangle spread around the torch (D-1075).
+- The halo pulses on a slow cosine of the tick, with a phase from the id of its source (D-913). The torch light keeps its steps (D-891), and the glow never flickers.
+- The load refuses a halo that passes the threshold at the top of its pulse, because such a halo clips to full light (D-1075, T-2).
+- The halo adds onto the lit art under it. Thus the bound of lit art adds the middle of each halo to each tile in its circle. The carried halo adds to each tile (D-1075, F-47).
 - A source above full white draws clipped to full white in each channel, so the core of a flame shows a pale yellow.
 - The frame has no HDR 2D, so the view of the world turns each pixel into sRGB in a shader (F-103).
 - The fog and the hit bursts draw in an overlay view with no HDR 2D, above the glow (D-916). The fog thus blends as in PR-94, and it never glows. Each mark draws in the mark view of D-919.

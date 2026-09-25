@@ -164,8 +164,8 @@ public sealed class TorchFireTests
 
     [Theory]
     [InlineData("\"strength\": 0, \"width\"", "\"strength\": 160001, \"width\"", "0 to 160000")]
-    [InlineData("\"width\": 1", "\"width\": 0", "1 to 16")]
-    [InlineData("\"height\": 1", "\"height\": 17", "1 to 16")]
+    [InlineData("\"width\": 1", "\"width\": 0", "1 to 128")]
+    [InlineData("\"height\": 1", "\"height\": 129", "1 to 128")]
     [InlineData("\"height\": 1, \"x\": 0", "\"height\": 1, \"x\": 65", "-64 to 64")]
     [InlineData("\"glow\": { \"color\": \"k\"", "\"glow\": { \"color\": \"kk\"", "one palette key")]
     public void AGlowValueOutsideItsLimitFailsWithTheReason(string from, string to, string reason)

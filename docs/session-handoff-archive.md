@@ -1,4 +1,175 @@
 # Session handoff archive
+## Session 278: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-91, round 1. Repository: the-thing-below. Branch: `feat/pr-91-torch-item`. PR: #76. Role: author. Base: `15aad83`.
+
+### What this session did, and why
+
+- Asked the owner OQ-217, OQ-218, and each open question of the scope. D-1062 to D-1071 record the answers, and OQ-217 and OQ-218 close.
+- Core: the `dark` field of each map file, the sight of the party on a dark map, the torch bonus of each patrol, the torch intents, the torch state in the save of format 13, and simulation version 25.
+- Game: the `torch` action on the T key and the Y button, with the settings file at format 3. The torch in the hand, the carried light that follows the torch, and `SightFade` for each enemy of a dark map.
+- The console lost its `torch` command (D-1071). The identity set gained the `torch` run.
+- The author read the frames of `make walk`, the pit fixture, and the settings fixture on this machine.
+- Gitar found that a held torch let a patrol see the party while the screen still faded the patrol in. The range now grows in 24 ticks, inside the beat of 30, and the mark draws with a fading patrol. A regression test holds it.
+- The owner set D-1072: when the fix of Gitar differs or has a flaw, the session applies its own fix with no question.
+
+### The state of the build
+
+- Local head before this entry: `04fa13c`. `make verify` parts passed on this machine: build, 3197 tests, format, lint, STE, identity, content, atlas, and smoke.
+- CI run `36061445475` passed each job but `screen-test` and `review-gate`. The screen-test flake of OQ-246 took reruns, then the job reached the baseline step.
+- The new baselines come from that artifact: 90 changed captures and `pit-torch-1x`. The battle frames move one level, because the patrols of the fixture now see 2 tiles and the fight starts later (D-1067). The smoke fight ends at tick 2443, and at tick 2186 on `main`.
+
+### What is in flight
+
+- PR #76 is open. The fix of the Gitar finding waits for CI, then `make codex-review PR=76 -- --skip-gitar-review` runs.
+
+### Traps and gotchas
+
+- `make sheet` with no fixture writes every capture and then fails in the join of the sheet: the joined picture passes the height limit of 65535 pixels. Take one fixture at a time with `FIXTURE=`.
+- `make sheet` clears `artifacts/captures` on each run.
+- A Perl substitution with `|` as its delimiter reads an escaped `\|\|` in its pattern as an empty choice. Use another delimiter.
+
+### The questions that block progress
+
+None. OQ-246 stays open and blocks no PR.
+
+### The next concrete action
+
+When CI of the fix commit passes each job but `review-gate`, run `make codex-review PR=76 -- --skip-gitar-review` in the background (D-926, D-1061).
+## Session 277: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #75, round 3. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: reviewer. Base: `f1ab753`.
+
+### What this session did, and why
+
+- Re-reviewed PR #75 at effective head `8392c44`. Claude Code authored the PR, so Codex passes the provider gate (T-4, D-17).
+- Confirmed P2-1 is fixed. The regression test passed in the prior round, and current CI passed at this head.
+- Inspected D-1061, all 86 changed paths, and the current CI results. The review record now gives `Ready for owner merge`.
+
+### The state of the build
+
+- Base and merge base: `f1ab753`. Effective and remote head before this metadata commit: `8392c44`.
+- CI run `36046700241` passed the changed-path checks, screen-test, smoke, coverage, and ste-check. Review-gate waits for this record.
+
+### What is in flight
+
+- This commit holds the review record and this handoff entry. It must be pushed and verified.
+
+### Traps and gotchas
+
+- Local `dotnet test` reported no test projects for the Microsoft.Testing.Platform setup. Current CI build and test passed.
+- Gitar's status notice has no item and needs no answer (D-964). The pass was skipped under D-946.
+
+### The questions that block progress
+
+OQ-246 remains open and blocks no PR.
+
+### The next concrete action
+
+Push the metadata commit to `feat/pr-99-stats-absorb-swap`. Fetch, verify the branch status and PR head, and read the review-gate result.
+
+## Session 276: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-99, round 3. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: author. Base: `f1ab753`.
+
+### What this session did, and why
+
+- The repeat review of Session 275 gave `Blocked` on `15945f2`. P2-1 was fixed, and screen-test had failed on the three frames of OQ-246.
+- The review ran after a failed screen-test. The owner set D-1061: the review starts only when each check but `review-gate` passes, and a flake gets reruns first.
+- The owner approved the string batch as written (D-57), and the PR description says so.
+- Screen-test attempt 3 of run `36041907957` passed on `15945f2`. The CI run `36044147120` of the review commit `d6c4f3a` was cancelled, and its rerun passed each job.
+
+### The state of the build
+
+- Remote head before this commit: `d6c4f3a`. Every check but `review-gate` passed on it.
+
+### What is in flight
+
+- The repeat review, after the CI of this commit passes.
+
+### Traps and gotchas
+
+- A rerun of an old run can cancel the run of a newer commit of the PR, because the runs share a concurrency group. Read the run of the PR head with `gh pr checks`.
+- A chain of a watch and a review must stop on a red check (D-1061).
+
+### The questions that block progress
+
+None. OQ-246 stays open and blocks no PR.
+
+### The next concrete action
+
+Wait for every check but `review-gate` to pass on this commit. Then run `make codex-review PR=75 -- --skip-gitar-review`.
+
+## Session 275: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #75, round 2. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: reviewer. Base: `f1ab753`.
+
+### What this session did, and why
+
+- Re-reviewed the heal correction from `26d20cc` to `15945f2`.
+- Verified that the regression test passes at the content limits. The old product overflowed before the health cap.
+- `make verify` passed on macOS arm64 with 3,153 tests.
+- Updated `docs/reviews/pr-75.md`. P2-1 is fixed in `15945f2`.
+
+### The state of the build
+
+- Base and merge base: `f1ab753`. Effective head: `15945f2`. Remote metadata tip before this follow-up update: `3cdfad6`.
+- CI run `36041907957` passed implementation checks except `screen-test`, which failed on three captures. The rerun repeated the same differences. The remote still points to `15945f2`.
+
+### What is in flight
+
+- The review record and this entry were pushed in metadata commit `3cdfad6`. The PR still needs its three screen-test differences resolved.
+
+### Traps and gotchas
+
+- The screen differences are a few channel values. The three capture frames look unchanged against their baselines.
+- Gitar's only comment says “Gitar is working”. It has no item and does not block the verdict (D-964). The pass was skipped under D-946.
+
+### The questions that block progress
+
+None. OQ-247 and OQ-248 resolve in D-1052 and D-1055.
+
+### The next concrete action
+
+The author needs to resolve the three CI screen differences before approval. The metadata push triggered fresh CI checks.
+
+## Session 274: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-99, round 2. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: author. Base: `f1ab753`.
+
+### What this session did, and why
+
+- Answered P2-1 of `docs/reviews/pr-75.md` with full merit. The heal math overflowed a `long` at the content limits before its health cap (T-2).
+- `BattleMath.HealAmount` splits the scaled share at the scale of 10^12, so the product stays in a `long` and the one rounding of D-169 holds. Each heal that did not overflow gives the same number, and the identity file does not change.
+- `StatSetTests.AHealAtTheLimitsOfTheContentCompletesAndStopsAtFullHealth` fails on `26d20cc` with `OverflowException` and passes on the correction. `docs/reviews/pr-75-response.md` records the answer.
+
+### The state of the build
+
+- `make verify` passed on the Mac: 3,153 tests, format, det-lint, STE, identity, content, atlas, and smoke.
+- Round 1 CI run `36039388273` at `26d20cc` passed each job but `review-gate`, which waited for the record.
+
+### What is in flight
+
+- The repeat review of `make codex-review PR=75 -- --skip-gitar-review` (D-946).
+
+### Traps and gotchas
+
+- `make sheet` still fails to join the frames: the sheet passes the PNG height limit. The fault is older than this PR.
+- Gitar posted a status notice alone, with no item (D-964).
+
+### The questions that block progress
+
+None. The owner has not yet approved the string batch of the PR description (D-57).
+
+### The next concrete action
+
+Push, confirm the remote head, and run the repeat review. On `approve`, ask the owner to confirm the merge with the summary of D-942.
+
 ## Session 273: 2026-09-24, Codex
 
 Author: Codex
