@@ -63,6 +63,23 @@ public static class StepDirections
         return false;
     }
 
+    /// <summary>Gives the direction that points back the other way (D-1139).</summary>
+    /// <param name="direction">The direction.</param>
+    /// <returns>South for north, north for south, west for east, and east for west.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The value names no direction (T-2).</exception>
+    /// <remarks>An NPC that the lead talks with faces the opposite of the facing of the lead.</remarks>
+    public static StepDirection Opposite(StepDirection direction) => direction switch
+    {
+        StepDirection.North => StepDirection.South,
+        StepDirection.South => StepDirection.North,
+        StepDirection.East => StepDirection.West,
+        StepDirection.West => StepDirection.East,
+        _ => throw new ArgumentOutOfRangeException(
+            nameof(direction),
+            direction,
+            "the value names no step direction (D-716)"),
+    };
+
     /// <summary>Gives the name of one direction, for an error and for a log field (T-2).</summary>
     /// <param name="direction">The direction.</param>
     /// <returns>The name, such as `north`.</returns>

@@ -12,9 +12,16 @@ namespace TheThingBelow.Core.Story;
 /// </summary>
 /// <remarks>
 /// A story scene of PR-68 holds no branch, so the load walks its steps once and knows which
-/// cast member stands on the map at each step (D-1006, D-1007). A hide, a move, or a face of a
-/// cast member that no earlier show put on the map fails the load, and so does a second show.
-/// The rules check the tiles in play, because the place of an actor depends on the run.
+/// actor a show put on the map at each step (D-1006, D-1007). A hide, a move, or a face of a cast
+/// member that no earlier show put on the map fails the load, and so does a second show, or a
+/// hide of an actor that no show put there. The rules check the tiles in play, because the place
+/// of an actor depends on the run.
+/// <para>
+/// An NPC actor depends on the map of the trigger (D-1006). A move, a face, or a line of an NPC
+/// needs an NPC that the map places or that an earlier show put on the map. A show of an NPC needs
+/// a scene-only NPC, which the map does not place. <see cref="RequireScenesOf"/> checks both for
+/// each map that starts the story scene.
+/// </para>
 /// </remarks>
 public sealed class StoryContent
 {
@@ -113,7 +120,8 @@ public sealed class StoryContent
 
     /// <summary>
     /// Fails when a trigger of the map names an absent story scene or an undeclared flag, or
-    /// when its story scene names a marker that the map lacks (D-528, D-543, T-2).
+    /// when its story scene names a marker that the map lacks, or an NPC actor that breaks the rules
+    /// of this map (D-528, D-543, D-1006, T-2).
     /// </summary>
     /// <param name="map">The map.</param>
     /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
@@ -147,6 +155,8 @@ public sealed class StoryContent
                         $"the trigger starts '{scene.Id.Value}', whose step {index} names the marker '{named.Value}', and this map holds no such marker (D-528, D-1006)");
                 }
             }
+
+            RequireNpcActorsOf(map, field, scene);
         }
     }
 
@@ -201,9 +211,59 @@ public sealed class StoryContent
         }
     }
 
+    /// <summary>
+    /// Walks the steps of one story scene that a trigger of the map starts, and refuses an NPC actor
+    /// that breaks the rules of the map (D-1006). A show names a scene-only NPC, which the map does
+    /// not place. A move, a face, and a line of an NPC name an NPC that the map places or that an
+    /// earlier show put on the map.
+    /// </summary>
+    private static void RequireNpcActorsOf(GameMap map, string field, StoryScene scene)
+    {
+        // The scene-only NPCs on the map, in the order of their shows (D-1006).
+        List<string> shown = [];
+        for (int index = 0; index < scene.Steps.Count; index += 1)
+        {
+            ContentId? named = null;
+            switch (scene.Steps[index])
+            {
+                case ShowStep show when SceneActor.IsNpcId(show.Actor):
+                    if (map.PlacesNpc(show.Actor))
+                    {
+                        throw ContentException.ForField(
+                            map.File,
+                            field,
+                            $"the trigger starts '{scene.Id.Value}', whose step {index} shows the NPC '{show.Actor.Value}', which this map places. A show puts a scene-only NPC on the map, and a move or a face names an NPC of the map (D-1006)");
+                    }
+
+                    shown.Add(show.Actor.Value);
+                    break;
+                case HideStep hide:
+                    _ = shown.Remove(hide.Actor.Value);
+                    break;
+                case MoveStep move:
+                    named = move.Actor.Id;
+                    break;
+                case FaceStep face:
+                    named = face.Actor.Id;
+                    break;
+                case SayStep say:
+                    named = say.Speaker?.Id;
+                    break;
+            }
+
+            if (SceneActor.IsNpcId(named) && !shown.Contains(named!.Value) && !map.PlacesNpc(named))
+            {
+                throw ContentException.ForField(
+                    map.File,
+                    field,
+                    $"the trigger starts '{scene.Id.Value}', whose step {index} names the NPC '{named.Value}', which this map does not place and no earlier show put on the map (D-1006)");
+            }
+        }
+    }
+
     private static void CheckScene(StoryScene scene, FlagList flags, BattleContent battle)
     {
-        // The cast members on the map, in the order of their shows (D-1006).
+        // The cast members and the scene-only NPCs on the map, in the order of their shows (D-1006).
         List<string> shown = [];
         for (int index = 0; index < scene.Steps.Count; index += 1)
         {
@@ -217,7 +277,8 @@ public sealed class StoryContent
                     RequireOnMap(scene, field, face.Actor, battle, shown);
                     break;
                 case SayStep say:
-                    if (say.Speaker?.Character is ContentId speaker)
+                    // The map of each trigger checks a line of an NPC (D-1006).
+                    if (say.Speaker?.Id is ContentId speaker && !SceneActor.IsNpcId(speaker))
                     {
                         RequireCast(scene, $"{field}.speaker", speaker, battle);
                     }
@@ -237,17 +298,25 @@ public sealed class StoryContent
                     RequireCast(scene, $"{field}.character", join.Character, battle);
                     break;
                 case ShowStep show:
-                    RequireCast(scene, $"{field}.actor", show.Character, battle);
-                    if (shown.Contains(show.Character.Value))
+                    if (!SceneActor.IsNpcId(show.Actor))
                     {
-                        throw ContentException.ForField(scene.File, $"{field}.actor", $"the cast member '{show.Character.Value}' is already on the map, and a second show needs a hide first (D-1006)");
+                        RequireCast(scene, $"{field}.actor", show.Actor, battle);
                     }
 
-                    shown.Add(show.Character.Value);
+                    if (shown.Contains(show.Actor.Value))
+                    {
+                        throw ContentException.ForField(scene.File, $"{field}.actor", $"the actor '{show.Actor.Value}' is already on the map, and a second show needs a hide first (D-1006)");
+                    }
+
+                    shown.Add(show.Actor.Value);
                     break;
                 case HideStep hide:
-                    RequireOnMap(scene, field, new SceneActor(hide.Character), battle, shown);
-                    _ = shown.Remove(hide.Character.Value);
+                    if (!shown.Contains(hide.Actor.Value))
+                    {
+                        throw ContentException.ForField(scene.File, $"{field}.actor", $"the actor '{hide.Actor.Value}' is not on the map at this step, and a hide takes an actor that a show step put there. An NPC of the map stays on it (D-1006)");
+                    }
+
+                    _ = shown.Remove(hide.Actor.Value);
                     break;
                 case StartBattleStep start:
                     RequireGroup(scene, $"{field}.group", start.Group, battle);
@@ -261,9 +330,13 @@ public sealed class StoryContent
         }
     }
 
+    /// <summary>
+    /// Refuses a move or a face of a cast member that no show put on the map (D-1006). The lead is
+    /// always there, and the map of each trigger checks an NPC.
+    /// </summary>
     private static void RequireOnMap(StoryScene scene, string field, SceneActor actor, BattleContent battle, List<string> shown)
     {
-        if (actor.Character is not ContentId character)
+        if (actor.Id is not ContentId character || actor.IsNpc)
         {
             return;
         }

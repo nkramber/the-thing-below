@@ -37,6 +37,12 @@ public sealed class RunState
     // state, so no snapshot and no hash reads them (D-168, D-221).
     private readonly List<NoticeRecord> posted = [];
 
+    // The services that a confirm opened, and the saves that a rule asked for, wait here until
+    // Game takes them. They are output, and not state, so no snapshot and no hash reads them
+    // (D-168, D-1131, D-1132).
+    private readonly List<MapService> opened = [];
+    private readonly List<SaveRequestKind> saves = [];
+
     private RunState(
         ulong seed,
         RandomStream[] streams,
@@ -469,6 +475,51 @@ public sealed class RunState
         this.Party.Want(direction);
     }
 
+    /// <summary>Reads a confirm intent of this tick, which the world step then applies (D-1131).</summary>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <exception cref="ArgumentNullException">The context is null (T-2).</exception>
+    /// <exception cref="SimulationException">A menu is open or a battle holds the run (T-2).</exception>
+    /// <remarks>
+    /// A menu and a battle each take every input of the player on their own screen, so a confirm
+    /// of the map from one points at a fault in the screen that made it (D-162, T-2). The world
+    /// step applies the confirm only while the lead stands, and a confirm that no world step
+    /// reads ends with the tick and a log line (D-1131).
+    /// </remarks>
+    public void WantConfirm(RunContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (this.MenuOpen)
+        {
+            throw new SimulationException("a confirm of the map while the menu is open, and a menu pauses the world (D-162, D-1131)", context);
+        }
+
+        if (this.Battle is not null)
+        {
+            throw new SimulationException("a confirm of the map while a battle holds the run, and the battle screen takes the confirm there (D-1131)", context);
+        }
+
+        this.Party.WantConfirm();
+    }
+
+    /// <summary>Takes every service that a confirm opened since the last take, in the order of the opens (D-1131).</summary>
+    /// <returns>The services, which the run no longer holds. Game opens the window of each one.</returns>
+    public IReadOnlyList<MapService> TakeOpenedServices()
+    {
+        MapService[] taken = [.. this.opened];
+        this.opened.Clear();
+        return taken;
+    }
+
+    /// <summary>Takes every save that a rule asked for since the last take, in the order of the asks (D-1132).</summary>
+    /// <returns>The kinds of the saves, which the run no longer holds. Game writes each one through `GameRun.Save`.</returns>
+    public IReadOnlyList<SaveRequestKind> TakeSaveRequests()
+    {
+        SaveRequestKind[] taken = [.. this.saves];
+        this.saves.Clear();
+        return taken;
+    }
+
     /// <summary>Takes every battle event since the last take, in the order of the rules (D-532).</summary>
     /// <returns>The events, which the run no longer holds.</returns>
     public IReadOnlyList<BattleEvent> TakeEvents()
@@ -568,6 +619,12 @@ public sealed class RunState
             this.NoticeLog.Add(notice.Id);
         }
     }
+
+    /// <summary>Holds one service that a confirm opened, for Game (D-1131).</summary>
+    internal void AddOpenedService(MapService service) => this.opened.Add(service);
+
+    /// <summary>Holds one save that a rule asked for, for Game (D-1132).</summary>
+    internal void RequestSave(SaveRequestKind kind) => this.saves.Add(kind);
 
     /// <summary>Sets the battle, or ends it with null (D-531).</summary>
     internal void SetBattle(Battle? battle) => this.Battle = battle;

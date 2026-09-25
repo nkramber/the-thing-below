@@ -209,6 +209,7 @@ public static class RunSnapshotText
             writer.WriteNumber("target", npc.Target);
             writer.WriteBoolean("forward", npc.Forward);
             writer.WriteNumber("wait_ticks", npc.WaitTicks);
+            writer.WriteBoolean("walks_home", npc.WalksHome);
             writer.WriteEndObject();
         }
 
@@ -718,6 +719,7 @@ public static class RunSnapshotText
         int? target = null;
         bool? forward = null;
         int? waitTicks = null;
+        bool? walksHome = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -751,6 +753,9 @@ public static class RunSnapshotText
                 case "wait_ticks":
                     waitTicks = reader.ReadInt();
                     break;
+                case "walks_home":
+                    walksHome = reader.ReadBoolean();
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -765,7 +770,8 @@ public static class RunSnapshotText
             reader.RequireInt(stepTicks, depth, "step_ticks"),
             reader.RequireInt(target, depth, "target"),
             reader.RequireValue(forward, depth, "forward"),
-            reader.RequireInt(waitTicks, depth, "wait_ticks"));
+            reader.RequireInt(waitTicks, depth, "wait_ticks"),
+            reader.RequireValue(walksHome, depth, "walks_home"));
     }
 
     private static List<PatrolValues> ReadEnemies(ref ContentReader reader)

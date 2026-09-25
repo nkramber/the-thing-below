@@ -21,6 +21,10 @@ namespace TheThingBelow.Core.Maps;
 /// <param name="Target">The index of the route tile that a route NPC walks toward (D-739).</param>
 /// <param name="Forward">True while a route NPC walks up the list of route tiles (D-739).</param>
 /// <param name="WaitTicks">The count of world ticks before the next choice or the next leg (D-1138).</param>
+/// <param name="WalksHome">
+/// True while the NPC walks back to its home after a story scene moved it out (D-1140). The NPC
+/// then stands outside its home, so the check of its range waits until it arrives.
+/// </param>
 public sealed record NpcValues(
     ContentId Npc,
     int X,
@@ -30,4 +34,5 @@ public sealed record NpcValues(
     int StepTicks,
     int Target,
     bool Forward,
-    int WaitTicks);
+    int WaitTicks,
+    bool WalksHome);

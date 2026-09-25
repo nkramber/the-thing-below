@@ -20,7 +20,8 @@ namespace TheThingBelow.Core.Runs;
 /// or not the player moves (D-162, D-1137).
 /// <para>
 /// The tick runs in one fixed order: the beat of a mark, the party, the encounter of a step
-/// into a body, and then the NPCs, the enemies, and the sight (D-168, D-1137). An encounter
+/// into a body, the confirm, and then the NPCs, the enemies, and the sight (D-168, D-1131,
+/// D-1137). An encounter
 /// starts its battle on the same tick. While the encounter runs, no map system ticks, so the
 /// patrols, the NPCs, and the grace time all stand still (D-531). A snapshot of save format 3
 /// can hold an encounter with no battle, and the next world step starts that battle (D-765).
@@ -30,6 +31,11 @@ namespace TheThingBelow.Core.Runs;
 /// (D-1009). With no story scene, the tick first reads the entry trigger and the battle end
 /// trigger that wait, and it reads the tile trigger of a tile that the party reached after
 /// the encounter of the same step (D-1004).
+/// </para>
+/// <para>
+/// The confirm of the player acts only while the lead stands (D-1131). A talk that starts a
+/// story scene or a service that opens holds the world from that tick, so no NPC and no enemy
+/// walks after it. A confirm during a step of the lead ends with a log line.
 /// </para>
 /// <para>
 /// A step of the party and a step of an enemy each take the debug level, and a sight and an
@@ -111,6 +117,18 @@ public static class WorldRules
         {
             BattleTurns.Begin(state, log);
             return;
+        }
+
+        if (party.TakeConfirm())
+        {
+            if (party.Stepping is not null)
+            {
+                log.Add(new LogEntry(LogLevel.Debug, "a confirm of the map came while the lead stepped, and it ended with the tick", state.Tick, LogSubsystems.World, [LogField.OfNumber("world-tick", state.WorldTick)]));
+            }
+            else if (ConfirmRules.Confirm(state, log))
+            {
+                return;
+            }
         }
 
         AddNpcEntries(state, party, log);

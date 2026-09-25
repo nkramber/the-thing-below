@@ -89,7 +89,15 @@ public static class SimulationVersion
     /// and an encounter (D-1134, D-1136). A downed character can go out, and a downed reserve character never comes
     /// in (D-1135). A rest and a save point restore the reserve too. After a battle won, each reserve character earns
     /// half the experience and half the lesson points, and a downed reserve character earns none (D-73, D-357,
-    /// D-974, D-1022). The state hash and the snapshot hold the reserve.
+    /// D-974, D-1022). The state hash and the snapshot hold the reserve. The confirm of the player acts on the tile
+    /// that the lead faces while it stands: an NPC there ends its step and turns to the lead, and then its talk
+    /// trigger fires or its service opens, and a service point opens its service (D-1131, D-1139, D-1142). A service
+    /// whose condition fails posts a notice and stays closed, and an open service opens the menu (D-543). The rest
+    /// intent fills and cures the party and the reserve at the open rest service, and the save intent emits a request
+    /// for the slot save at the open save service (D-390, D-1132, D-1141). A move step and a face step of a story scene
+    /// can name an NPC of the map, a show step can put a scene-only NPC on a marker, and an NPC that a story scene
+    /// leaves outside its home walks home on a shortest path after it (D-1006, D-1140). The state hash and the
+    /// snapshot hold the walk home of each NPC.
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number

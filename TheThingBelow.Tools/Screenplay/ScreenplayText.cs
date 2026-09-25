@@ -65,8 +65,8 @@ public static class ScreenplayText
             ChooseStep choose => ChooseText(choose, names),
             SetFlagStep flag => Action($"Sets {flag.Flag.Value}."),
             JoinStep join => Action($"{names.Cast(join.Character, "character")} joins the party."),
-            ShowStep show => Action($"{names.Cast(show.Character, "actor")} appears at {show.Marker.Value}, facing {StepDirections.NameOf(show.Facing)}."),
-            HideStep hide => Action($"{names.Cast(hide.Character, "actor")} leaves."),
+            ShowStep show => Action($"{names.Cast(show.Actor, "actor")} appears at {show.Marker.Value}, facing {StepDirections.NameOf(show.Facing)}."),
+            HideStep hide => Action($"{names.Cast(hide.Actor, "actor")} leaves."),
             CameraStep camera => Action($"The view moves to {camera.Marker.Value}."),
             StartBattleStep battle => Action($"Battle: {battle.Group.Value}."),
             _ => throw ContentException.ForField(scene.File, scene.StepField(index), $"the step kind '{SceneStepKinds.NameOf(scene.Steps[index].Kind)}' has no screenplay text (T-2)"),
@@ -137,10 +137,10 @@ public static class ScreenplayText
         public string Line(ContentId id, string field) => this.Text(id, field);
 
         public string Speaker(SceneActor speaker) =>
-            speaker.Character is null ? LeadSpeaker : this.Cast(speaker.Character, "speaker").ToUpperInvariant();
+            speaker.Id is null ? LeadSpeaker : this.Cast(speaker.Id, "speaker").ToUpperInvariant();
 
         public string Actor(SceneActor actor) =>
-            actor.Character is null ? LeadActor : this.Cast(actor.Character, "actor");
+            actor.Id is null ? LeadActor : this.Cast(actor.Id, "actor");
 
         public string Cast(ContentId character, string field)
         {

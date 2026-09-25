@@ -114,7 +114,7 @@ public sealed class NpcStateTests
     {
         Npc npc = Only(who == "dog" ? HubMaps.Wanderer() : HubMaps.Walker());
         StepDirection? direction = stepping is null ? null : StepDirection.East;
-        var values = new NpcValues(npc.Id, x, y, npc.Facing, direction, stepTicks, target, true, wait);
+        var values = new NpcValues(npc.Id, x, y, npc.Facing, direction, stepTicks, target, true, wait, false);
 
         ArgumentException error = Assert.Throws<ArgumentException>(() => NpcState.Resume(npc, HubMaps.Yard, values, "the save"));
 
@@ -127,7 +127,7 @@ public sealed class NpcStateTests
     public void AStoredValueThatARunMakesResumesAsItWas()
     {
         Npc npc = Only(HubMaps.Walker());
-        var values = new NpcValues(npc.Id, 3, 3, StepDirection.South, StepDirection.South, 9, 2, true, 0);
+        var values = new NpcValues(npc.Id, 3, 3, StepDirection.South, StepDirection.South, 9, 2, true, 0, false);
 
         NpcState barmaid = NpcState.Resume(npc, HubMaps.Yard, values, "the save");
 

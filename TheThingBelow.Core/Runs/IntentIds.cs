@@ -120,4 +120,16 @@ public static class IntentIds
     /// the reserve index as its option.
     /// </summary>
     public static readonly ContentId PartySwap = ContentId.Parse("intent.party_swap", Source, nameof(PartySwap));
+
+    /// <summary>
+    /// The rest window of a hub rested the party and the reserve, at the rest service that the lead
+    /// faces while the menu is open (D-390, D-1131, D-1141).
+    /// </summary>
+    public static readonly ContentId HubRest = ContentId.Parse("intent.hub_rest", Source, nameof(HubRest));
+
+    /// <summary>
+    /// The save window of a hub asked for the slot save, at the save service that the lead faces
+    /// while the menu is open (D-1131, D-1132).
+    /// </summary>
+    public static readonly ContentId HubSave = ContentId.Parse("intent.hub_save", Source, nameof(HubSave));
 }

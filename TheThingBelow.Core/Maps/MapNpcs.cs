@@ -23,6 +23,10 @@ namespace TheThingBelow.Core.Maps;
 /// (D-1137, G-4). Thus the count of draws of one tick follows the count of wander NPCs whose
 /// pace ends, and never the shape of a range or a blocked step (T-7).
 /// </para>
+/// <para>
+/// An NPC that a story scene moved out of its home walks home in place of its move, on the
+/// shortest path of <see cref="NpcPaths"/>, and it takes no draw (D-1140).
+/// </para>
 /// </remarks>
 public sealed class MapNpcs
 {
@@ -138,6 +142,52 @@ public sealed class MapNpcs
         return false;
     }
 
+    /// <summary>Finds the NPC whose tile is one tile now, with no regard to the end of its step (D-1139).</summary>
+    /// <param name="at">The tile.</param>
+    /// <param name="found">The NPC, or null when no NPC stands on that tile.</param>
+    /// <returns>True when an NPC stands on that tile.</returns>
+    /// <remarks>
+    /// A talk reads the tile of an NPC at its tick, and Core holds an NPC on its tile through its
+    /// step. Thus an NPC that steps into the faced tile is not there yet, and an NPC that steps out
+    /// of it is still there (D-203, D-1139).
+    /// </remarks>
+    public bool TryNpcStandingOn(TilePoint at, out NpcState? found)
+    {
+        foreach (NpcState npc in this.npcs)
+        {
+            if (npc.At == at)
+            {
+                found = npc;
+                return true;
+            }
+        }
+
+        found = null;
+        return false;
+    }
+
+    /// <summary>Finds one NPC of the map by its id, for a step of a story scene that names it (D-1006).</summary>
+    /// <param name="id">The id of the NPC.</param>
+    /// <param name="found">The NPC, or null when the map places no NPC with that id.</param>
+    /// <returns>True when the map places the NPC.</returns>
+    /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
+    public bool TryFind(ContentId id, out NpcState? found)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        foreach (NpcState npc in this.npcs)
+        {
+            if (string.CompareOrdinal(npc.Npc.Id.Value, id.Value) == 0)
+            {
+                found = npc;
+                return true;
+            }
+        }
+
+        found = null;
+        return false;
+    }
+
     /// <summary>Tells whether an NPC holds a tile of one body of an enemy, or steps into one (D-1139).</summary>
     /// <param name="body">The body.</param>
     /// <returns>True when a tile of the body holds an NPC or the end of its step.</returns>
@@ -163,9 +213,11 @@ public sealed class MapNpcs
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
     /// <exception cref="ArgumentException">The stream is not the NPC stream (G-4, T-2).</exception>
     /// <exception cref="OverflowException">A count passes the range of an `int` (T-2).</exception>
+    /// <exception cref="SimulationException">An NPC that walks home finds no path home (D-1140, T-2).</exception>
     /// <remarks>
     /// Each NPC counts its wait and its step, and it chooses only while it stands and its wait
-    /// is zero. A wander NPC takes one draw of <see cref="WanderChoices"/> values: a direction or
+    /// is zero. An NPC outside its home takes the first step of its shortest path home, and a
+    /// blocked step waits one step and searches again (D-1140). A wander NPC takes one draw of <see cref="WanderChoices"/> values: a direction or
     /// a pause. A step that leaves its range or that a body blocks becomes a pause. A route NPC
     /// steps toward its route tile, and a blocked step tries again on the next tick. A chaser
     /// takes the clear step inside its range that brings it closest to its target, the first in
@@ -201,6 +253,12 @@ public sealed class MapNpcs
 
             if (npc.WaitTicks > 0 || npc.Stepping is not null)
             {
+                continue;
+            }
+
+            if (npc.WalksHome)
+            {
+                this.WalkHome(map, party, npc, context);
                 continue;
             }
 
@@ -411,6 +469,30 @@ public sealed class MapNpcs
         }
     }
 
+    /// <summary>
+    /// Takes the first step of the shortest path home of an NPC outside its home. The search
+    /// ignores each body that moves, so a body on the path blocks the step, and the NPC waits one
+    /// step and searches again (D-1140).
+    /// </summary>
+    private void WalkHome(GameMap map, MapState party, NpcState npc, RunContext context)
+    {
+        if (!NpcPaths.TryFirstStepHome(map, npc.Npc, npc.At, out StepDirection first, out _))
+        {
+            throw new SimulationException(
+                $"the NPC '{npc.Npc.Id.Value}' walks home from {npc.At}, and no path of open ground leads to its home. A story scene moved it there (D-1140)",
+                context);
+        }
+
+        npc.Turn(first);
+        if (this.Clear(map, party, npc, first))
+        {
+            npc.Begin(first);
+            return;
+        }
+
+        npc.WaitBlocked();
+    }
+
     /// <summary>Steps a route NPC toward its route tile. A blocked step tries again on the next tick (D-739, D-1139).</summary>
     private void WalkRoute(GameMap map, MapState party, NpcState npc)
     {
@@ -464,7 +546,8 @@ public sealed class MapNpcs
     /// <summary>
     /// Tells whether one NPC can step in one direction (D-1139). The ground, a thing, the range of
     /// a wander NPC or a chaser, the lead, each other NPC, and the body of each live enemy block
-    /// the step. The end of a step that runs blocks it too.
+    /// the step. The end of a step that runs blocks it too. The range blocks no step of the walk
+    /// home, which starts outside it (D-1140).
     /// </summary>
     private bool Clear(GameMap map, MapState party, NpcState npc, StepDirection direction)
     {
@@ -474,7 +557,7 @@ public sealed class MapNpcs
             return false;
         }
 
-        if (npc.Npc.Move != NpcMove.Route && !npc.Npc.RangeHolds(next))
+        if (npc.Npc.Move != NpcMove.Route && !npc.WalksHome && !npc.Npc.RangeHolds(next))
         {
             return false;
         }

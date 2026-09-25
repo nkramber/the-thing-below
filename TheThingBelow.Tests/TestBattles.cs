@@ -366,21 +366,25 @@ internal static class TestBattles
     public const string BrutePath = "rules/enemies/fixture-brute.json";
 
     /// <summary>
-    /// The notice file of the tests: one notice that logs and one that does not (D-983, D-989).
-    /// A content set that holds it needs <see cref="NoticeStrings"/> in its string table (G-7).
+    /// The notice file of the tests: one notice that logs and one that does not (D-983, D-989),
+    /// and the three notices that the services of a hub post (D-1131, D-1132). A content set that
+    /// holds it needs <see cref="NoticeStrings"/> in its string table (G-7).
     /// </summary>
     public const string NoticesFile = """
     {
      "comment": "The notices of the tests.",
      "notices": [
       { "id": "notice.test_kept", "log": true },
-      { "id": "notice.test_plain", "log": false }
+      { "id": "notice.test_plain", "log": false },
+      { "id": "notice.service_closed", "log": false },
+      { "id": "notice.rested", "log": false },
+      { "id": "notice.saved", "log": false }
      ]
     }
     """;
 
-    /// <summary>The string entries of the two notices of <see cref="NoticesFile"/>, for the string table of a test content set (G-7).</summary>
-    public const string NoticeStrings = """{ "id": "notice.test_kept", "text": "A kept line." }, { "id": "notice.test_plain", "text": "A plain line." }""";
+    /// <summary>The string entries of the notices of <see cref="NoticesFile"/>, for the string table of a test content set (G-7).</summary>
+    public const string NoticeStrings = """{ "id": "notice.rested", "text": "Rested." }, { "id": "notice.saved", "text": "Saved." }, { "id": "notice.service_closed", "text": "Closed." }, { "id": "notice.test_kept", "text": "A kept line." }, { "id": "notice.test_plain", "text": "A plain line." }""";
 
     /// <summary>The notice file of the tests, as a run reads it (D-989).</summary>
     public static readonly NoticeList Notices = NoticeList.Read(Encoding.UTF8.GetBytes(NoticesFile), NoticeList.Path);

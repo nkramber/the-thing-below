@@ -26,6 +26,11 @@ namespace TheThingBelow.Core.Maps;
 /// The route values hold the leg of the route, and they stay at zero and at true for a wander
 /// NPC and a chaser, as for an enemy of an area (D-741).
 /// </para>
+/// <para>
+/// A story scene can move an NPC out of its home (D-1006). The NPC then walks home after the
+/// story scene, one step at a time on a shortest path, and it moves in its normal way when it
+/// arrives (D-1140). A route NPC that arrives on its route rejoins it.
+/// </para>
 /// </remarks>
 public sealed class NpcState
 {
@@ -37,7 +42,8 @@ public sealed class NpcState
         int stepTicks,
         int target,
         bool forward,
-        int waitTicks)
+        int waitTicks,
+        bool walksHome)
     {
         this.Npc = npc;
         this.At = at;
@@ -47,6 +53,7 @@ public sealed class NpcState
         this.Target = target;
         this.Forward = forward;
         this.WaitTicks = waitTicks;
+        this.WalksHome = walksHome;
     }
 
     /// <summary>The record of this NPC, as the map file holds it (D-1137).</summary>
@@ -85,6 +92,12 @@ public sealed class NpcState
     /// </summary>
     public int WaitTicks { get; private set; }
 
+    /// <summary>
+    /// True while this NPC walks back to its home after a story scene moved it out (D-1140). The
+    /// NPC stands outside its home then, and it takes no wander, route, or chase step.
+    /// </summary>
+    public bool WalksHome { get; private set; }
+
     /// <summary>The tile where the step that runs ends, or no value while the NPC stands (D-203).</summary>
     public TilePoint? StepEnd => this.Stepping is StepDirection running ? this.At.Step(running) : null;
 
@@ -102,7 +115,7 @@ public sealed class NpcState
         bool route = npc.Move == NpcMove.Route;
         int target = route && npc.Route.Count > 1 ? 1 : 0;
         int wait = route ? npc.Route[0].WaitTicks : 0;
-        return new NpcState(npc, npc.Start, npc.Facing, null, 0, target, true, wait);
+        return new NpcState(npc, npc.Start, npc.Facing, null, 0, target, true, wait, false);
     }
 
     /// <summary>Puts one NPC back from the values of a snapshot (D-166, D-259).</summary>
@@ -137,7 +150,8 @@ public sealed class NpcState
             values.StepTicks,
             values.Target,
             values.Forward,
-            values.WaitTicks);
+            values.WaitTicks,
+            values.WalksHome);
     }
 
     /// <summary>
@@ -173,24 +187,37 @@ public sealed class NpcState
             return $"the NPC '{name}' holds {values.StepTicks} step ticks, and the range of its step is 0 to {npc.StepTicks - 1}";
         }
 
-        int mostWait = MostWaitOf(npc);
+        // A blocked step of the walk home waits one step (D-1140).
+        int mostWait = values.WalksHome ? Math.Max(MostWaitOf(npc), npc.StepTicks) : MostWaitOf(npc);
         if (values.WaitTicks < 0 || values.WaitTicks > mostWait)
         {
             return $"the NPC '{name}' waits {values.WaitTicks} ticks, and the range of its wait is 0 to {mostWait} (D-1138)";
         }
 
-        string? place = npc.Move == NpcMove.Route
-            ? RouteMisfitOf(npc, values, at, name)
-            : RangeMisfitOf(npc, values, at, name);
+        string? place;
+        if (values.WalksHome)
+        {
+            place = HomeMisfitOf(npc, values, at, name);
+        }
+        else if (npc.Move == NpcMove.Route)
+        {
+            place = RouteMisfitOf(npc, values, at, name);
+        }
+        else
+        {
+            place = RangeMisfitOf(npc, values, at, name);
+        }
+
         if (place is not null)
         {
             return place;
         }
 
+        // The walk home leaves the range on its way, so a step of it reads the ground alone (D-1140).
         if (values.Stepping is StepDirection stepping)
         {
             TilePoint end = at.Step(stepping);
-            if (!IsOpen(map, end) || (npc.Move != NpcMove.Route && !npc.RangeHolds(end)))
+            if (!IsOpen(map, end) || (npc.Move != NpcMove.Route && !values.WalksHome && !npc.RangeHolds(end)))
             {
                 return $"the NPC '{name}' steps {StepDirections.NameOf(stepping)} to {end}, which it never walks onto (D-1138, D-1139)";
             }
@@ -255,6 +282,16 @@ public sealed class NpcState
         this.At = this.At.Step(running);
         this.Stepping = null;
         this.StepTicks = 0;
+        if (this.WalksHome)
+        {
+            if (this.Npc.HomeHolds(this.At))
+            {
+                this.ArriveHome();
+            }
+
+            return true;
+        }
+
         if (this.Npc.Move == NpcMove.Route && this.At == this.Npc.Route[this.Target].At)
         {
             this.WaitTicks = this.Npc.Route[this.Target].WaitTicks;
@@ -271,6 +308,48 @@ public sealed class NpcState
         this.WaitTicks = this.Npc.PaceTicks
             ?? throw new InvalidOperationException(
                 $"The NPC '{this.Npc.Id.Value}' walks a route, and a route waits at its tiles in place of a pace (D-1138, T-2).");
+    }
+
+    /// <summary>Waits one step after a step of the walk home that a body blocked, and then the NPC searches again (D-1140).</summary>
+    public void WaitBlocked() => this.WaitTicks = this.Npc.StepTicks;
+
+    /// <summary>
+    /// Ends the step that runs, and turns this NPC to the lead that talks with it (D-1139). The NPC
+    /// stays on <see cref="At"/>, the tile that a talk reads.
+    /// </summary>
+    /// <param name="toward">The direction from this NPC to the lead.</param>
+    public void FaceTalker(StepDirection toward)
+    {
+        this.EndStep();
+        this.Turn(toward);
+    }
+
+    /// <summary>Moves this NPC one tile in a move step of a story scene, with no step to draw (D-1006, D-1012).</summary>
+    /// <param name="at">The tile, which the story scene proved is free.</param>
+    /// <param name="facing">The direction of the step, which the NPC then faces.</param>
+    /// <remarks>The story scene calls <see cref="SettleAfterScene"/> when the path of the move ends.</remarks>
+    public void MoveInScene(TilePoint at, StepDirection facing)
+    {
+        this.EndStep();
+        this.At = at;
+        this.Facing = facing;
+    }
+
+    /// <summary>
+    /// Settles this NPC at the end of the path of a move step (D-1140). Outside its home, it walks
+    /// home after the story scene. Inside its home, a route NPC rejoins its route. The wait ends in
+    /// both cases, so the NPC moves on the first world tick after the story scene.
+    /// </summary>
+    public void SettleAfterScene()
+    {
+        this.WaitTicks = 0;
+        if (this.Npc.HomeHolds(this.At))
+        {
+            this.ArriveHome();
+            return;
+        }
+
+        this.WalksHome = true;
     }
 
     /// <summary>Starts a step of this NPC in one direction (D-821).</summary>
@@ -333,7 +412,7 @@ public sealed class NpcState
     /// <summary>Gives the stored values of this NPC (D-259).</summary>
     /// <returns>The values, which a snapshot holds.</returns>
     public NpcValues Values() =>
-        new(this.Npc.Id, this.At.X, this.At.Y, this.Facing, this.Stepping, this.StepTicks, this.Target, this.Forward, this.WaitTicks);
+        new(this.Npc.Id, this.At.X, this.At.Y, this.Facing, this.Stepping, this.StepTicks, this.Target, this.Forward, this.WaitTicks, this.WalksHome);
 
     /// <summary>Adds every value of this NPC to the state hash (G-5).</summary>
     /// <param name="hasher">The hasher of the state.</param>
@@ -352,6 +431,7 @@ public sealed class NpcState
         hasher.AddInt32(this.Target);
         hasher.AddBoolean(this.Forward);
         hasher.AddInt32(this.WaitTicks);
+        hasher.AddBoolean(this.WalksHome);
     }
 
     /// <summary>
@@ -372,6 +452,36 @@ public sealed class NpcState
         }
 
         return most;
+    }
+
+    /// <summary>
+    /// Ends the walk home on a tile of the home (D-1140). A route NPC rejoins its route on the
+    /// first leg that holds the tile: on a route tile, it waits there and takes the next leg, as on
+    /// an arrival. Between two route tiles, it walks on toward the tile of its direction (D-739).
+    /// </summary>
+    private void ArriveHome()
+    {
+        this.WalksHome = false;
+        if (this.Npc.Move != NpcMove.Route)
+        {
+            return;
+        }
+
+        IReadOnlyList<RouteStop> route = this.Npc.Route;
+        int leg = this.Npc.RouteLegOf(this.At)
+            ?? throw new InvalidOperationException($"The NPC '{this.Npc.Id.Value}' arrived home at {this.At}, and no leg of its route holds that tile (D-1140, T-2).");
+        for (int stop = 0; stop < route.Count; stop += 1)
+        {
+            if (route[stop].At == this.At)
+            {
+                this.Target = stop;
+                this.WaitTicks = route[stop].WaitTicks;
+                this.TakeNextLeg();
+                return;
+            }
+        }
+
+        this.Target = this.Forward ? leg + 1 : leg;
     }
 
     /// <summary>
@@ -407,6 +517,21 @@ public sealed class NpcState
 
         this.Forward = true;
         this.Target = 1;
+    }
+
+    private static string? HomeMisfitOf(Npc npc, NpcValues values, TilePoint at, string name)
+    {
+        if (npc.HomeHolds(at))
+        {
+            return $"the NPC '{name}' walks home, and it stands at {at}, which its home holds. The walk home ends on arrival (D-1140)";
+        }
+
+        if (values.Target < 0 || values.Target >= Math.Max(npc.Route.Count, 1) || (npc.Move != NpcMove.Route && (values.Target != 0 || !values.Forward)))
+        {
+            return $"the NPC '{name}' walks home, and it holds the route leg {values.Target} and the direction {values.Forward}";
+        }
+
+        return null;
     }
 
     private static string? RangeMisfitOf(Npc npc, NpcValues values, TilePoint at, string name)

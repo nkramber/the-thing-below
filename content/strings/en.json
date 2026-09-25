@@ -738,6 +738,18 @@
    "text": "Someone cut a mark in the stone. It is fresh."
   },
   {
+   "id": "notice.rested",
+   "text": "The party rests. Wounds close."
+  },
+  {
+   "id": "notice.saved",
+   "text": "Saved."
+  },
+  {
+   "id": "notice.service_closed",
+   "text": "Not now."
+  },
+  {
    "id": "pause.title",
    "text": "Paused"
   },

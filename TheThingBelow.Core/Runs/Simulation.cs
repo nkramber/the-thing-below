@@ -19,8 +19,15 @@ namespace TheThingBelow.Core.Runs;
 /// tick is the one time line of a run and no intent needs a second order value (D-650).
 /// <para>
 /// The four step intents move the party one tile, and the world step of the same tick starts
-/// that step (D-493, D-716). The confirm intent and the cancel intent reach no rule of this
-/// build, and PR-16 gives them the door, the chest, and the save point of a map (D-493).
+/// that step (D-493, D-716). The confirm intent acts on the tile that the lead faces in the world
+/// step of the same tick: it talks with an NPC or opens a service of a hub, and PR-16 adds the
+/// door, the chest, and the save point (D-1131). A confirm that no world step reads ends with the
+/// tick and a log line. The cancel intent reaches no rule of this build (D-493).
+/// </para>
+/// <para>
+/// The rest intent and the save intent of a hub act at the open service of their kind (D-1131,
+/// D-1141). A save emits a save request, which Game takes with <see cref="TakeSaveRequests"/>,
+/// and a confirm that opens a service emits it for <see cref="TakeOpenedServices"/> (D-1132).
 /// </para>
 /// <para>
 /// The row intent of the party window moves one character to the other row while a menu is
@@ -188,6 +195,13 @@ public sealed class Simulation
             WorldRules.Step(this.State, log);
         }
 
+        // A confirm that a menu, a pause, a battle, an encounter, or a story scene of this tick
+        // left unread ends here, and never acts on a later tick (D-1131, T-7).
+        if (this.State.Party.TakeConfirm())
+        {
+            log.Add(new LogEntry(LogLevel.Debug, "a confirm of the map found the world held, and it ended with the tick", this.State.Tick, LogSubsystems.World, []));
+        }
+
         // A move intent lasts its own tick alone. A battle, a menu, or a story scene can hold the
         // world for this tick, and the direction then ends here and starts no later step (T-7).
         this.State.Party.EndTick();
@@ -202,6 +216,14 @@ public sealed class Simulation
     /// <summary>Takes every notice that a rule posted since the last take, in the order of the posts (D-221).</summary>
     /// <returns>The notices. Game queues them and shows them in order (D-994).</returns>
     public IReadOnlyList<NoticeRecord> TakeNotices() => this.State.TakeNotices();
+
+    /// <summary>Takes every service that a confirm opened since the last take (D-1131).</summary>
+    /// <returns>The services, in the order of the opens. Game opens the window of each one.</returns>
+    public IReadOnlyList<MapService> TakeOpenedServices() => this.State.TakeOpenedServices();
+
+    /// <summary>Takes every save that a rule asked for since the last take (D-1132).</summary>
+    /// <returns>The kinds of the saves, in the order of the asks. Game writes each one through `GameRun.Save`.</returns>
+    public IReadOnlyList<SaveRequestKind> TakeSaveRequests() => this.State.TakeSaveRequests();
 
     /// <summary>Stores the whole state of the run (F-10, D-651).</summary>
     /// <returns>The snapshot.</returns>
@@ -281,6 +303,25 @@ public sealed class Simulation
 
         if (this.TryTorchIntent(intent, context, log))
         {
+            return;
+        }
+
+        if (Is(intent, IntentIds.Confirm))
+        {
+            // The world step of this tick reads the confirm, as it starts a step (D-1131).
+            this.State.WantConfirm(context);
+            return;
+        }
+
+        if (Is(intent, IntentIds.HubRest))
+        {
+            ServiceRules.Rest(this.State, context, log);
+            return;
+        }
+
+        if (Is(intent, IntentIds.HubSave))
+        {
+            ServiceRules.Save(this.State, context, log);
             return;
         }
 

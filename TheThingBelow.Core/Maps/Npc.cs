@@ -176,6 +176,42 @@ public sealed class Npc
         return false;
     }
 
+    /// <summary>
+    /// Tells whether one tile lies in the home of this NPC, where it walks in its normal way: a
+    /// rectangle of a wander NPC or a chaser, or a tile of a leg of a route (D-1138, D-1140).
+    /// </summary>
+    /// <param name="at">The tile.</param>
+    /// <returns>True when the home of this NPC holds the tile.</returns>
+    /// <remarks>An NPC that a story scene moved out of its home walks back after the story scene (D-1140).</remarks>
+    public bool HomeHolds(TilePoint at) => this.Move == NpcMove.Route ? this.RouteLegOf(at) is not null : this.RangeHolds(at);
+
+    /// <summary>
+    /// Gives the first leg of the route that holds one tile, in the order of the file: the index
+    /// <c>i</c> of the leg from route tile <c>i</c> to route tile <c>i + 1</c> (D-739, D-1140).
+    /// </summary>
+    /// <param name="at">The tile.</param>
+    /// <returns>
+    /// The index of the leg, or 0 for the one tile of a route of one tile, or no value when no leg
+    /// holds the tile. A wander NPC and a chaser have no route, so they give no value.
+    /// </returns>
+    public int? RouteLegOf(TilePoint at)
+    {
+        if (this.route.Length == 1)
+        {
+            return this.route[0].At == at ? 0 : null;
+        }
+
+        for (int leg = 0; leg + 1 < this.route.Length; leg += 1)
+        {
+            if (LegHolds(this.route[leg].At, this.route[leg + 1].At, at))
+            {
+                return leg;
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>Reads the `npcs` array of a map file (D-1137).</summary>
     /// <param name="reader">The reader of the map file, at the start of the array.</param>
     /// <returns>Each NPC, in the order of the file.</returns>
@@ -422,5 +458,24 @@ public sealed class Npc
         }
 
         return new RouteStop(new TilePoint(reader.RequireInt(x, depth, "x"), reader.RequireInt(y, depth, "y")), wait);
+    }
+
+    /// <summary>
+    /// Tells whether a straight leg from one route tile to the next holds a tile, both ends
+    /// included. The load proves that each leg lies on one axis (D-739).
+    /// </summary>
+    private static bool LegHolds(TilePoint from, TilePoint to, TilePoint at)
+    {
+        if (from.X == to.X && at.X == from.X)
+        {
+            return at.Y >= Math.Min(from.Y, to.Y) && at.Y <= Math.Max(from.Y, to.Y);
+        }
+
+        if (from.Y == to.Y && at.Y == from.Y)
+        {
+            return at.X >= Math.Min(from.X, to.X) && at.X <= Math.Max(from.X, to.X);
+        }
+
+        return false;
     }
 }

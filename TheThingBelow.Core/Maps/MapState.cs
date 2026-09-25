@@ -34,6 +34,10 @@ public sealed class MapState
 {
     private StepDirection? wanted;
 
+    // The confirm of this tick, which the world step reads once (D-1131). It lasts its own tick
+    // alone, as the wanted direction does, so no snapshot and no hash reads it.
+    private bool confirmWanted;
+
     private MapState(
         GameMap map,
         TilePoint leadAt,
@@ -334,6 +338,19 @@ public sealed class MapState
         }
     }
 
+    /// <summary>Reads the confirm intent of this tick, which the world step then applies (D-1131).</summary>
+    /// <remarks>Two confirm intents in one tick leave one confirm, as two move intents leave one step (T-7).</remarks>
+    public void WantConfirm() => this.confirmWanted = true;
+
+    /// <summary>Takes the confirm of this tick, which the world step reads once (D-1131).</summary>
+    /// <returns>True when a confirm intent of this tick waited.</returns>
+    public bool TakeConfirm()
+    {
+        bool wanted = this.confirmWanted;
+        this.confirmWanted = false;
+        return wanted;
+    }
+
     /// <summary>Runs the party for one world tick: the step that runs, and then the next one.</summary>
     /// <returns>What the tick did to the party (D-203, D-747).</returns>
     /// <exception cref="OverflowException">A count passes the range of an `int` (T-2).</exception>
@@ -409,15 +426,19 @@ public sealed class MapState
     }
 
     /// <summary>
-    /// Ends the wanted direction of this tick (D-493). The run calls it at the end of each tick,
-    /// also a tick in which a menu, a battle, or a story scene held the world, so a move intent
-    /// never starts a step on a later tick (T-7).
+    /// Ends the wanted direction and the confirm of this tick (D-493, D-1131). The run calls it at
+    /// the end of each tick, also a tick in which a menu, a battle, or a story scene held the
+    /// world, so a move intent never starts a step and a confirm never acts on a later tick (T-7).
     /// </summary>
     /// <remarks>
     /// The snapshot and the state hash leave the wanted direction out, so a direction that lived
     /// past its tick made a resumed run differ from the live run with equal hashes (G-5).
     /// </remarks>
-    internal void EndTick() => this.wanted = null;
+    internal void EndTick()
+    {
+        this.wanted = null;
+        this.confirmWanted = false;
+    }
 
     /// <summary>
     /// Ends the step that runs and the wanted step, so the lead stands still on its tile while a
