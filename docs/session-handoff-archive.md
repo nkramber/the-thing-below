@@ -1,4 +1,39 @@
 # Session handoff archive
+## Session 299: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #80 (PR-103), round 6. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: #80. Role: author. Base: `5c1db06`.
+
+### What this session did, and why
+
+- Every CI check of `401c36d` passed but `screen-test` and `review-gate`. The `review-gate` fault is RG 3 alone: the review record waits for the review of the other provider.
+- `screen-test` found 101 of 108 captures changed. The author read a frame of each group against its baseline (D-784):
+  - The map, walk, still, scroll, pit, menu, notice, settings, and transition frames draw the map. Each one loses the halo of the wall torch (D-1097), and the carried light changes (D-1091).
+  - The battle frames move their backdrop drift and their effects a few pixels, because the fight counts the world tick now (D-1083), and a menu of the capture walk holds that tick back.
+- The captures of CI run 36104175330 are the new baseline (D-733). The `screens` command of Tools gives a match for each of the 108 captures.
+- Gitar approved `401c36d` with no open finding.
+
+### The state of the build
+
+- Each CI check of `401c36d` but `screen-test` and `review-gate` passed. This round changes the baseline alone.
+- The remote head holds this entry.
+
+### What is in flight
+
+- The CI and the Gitar pass of the round 6 push. Then `make codex-review PR=80`.
+
+### Traps and gotchas
+
+- `gh pr checks --watch` ends at the first failed check, so a failed `review-gate` ends the watch early. Poll until no check is pending.
+- No capture shows the pause of a fight or the line of an item. The smoke session reads both.
+
+### The questions that block progress
+
+None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
+
+### The next concrete action
+
+Poll the Gitar check and the CI of the round 6 push. When each check but `review-gate` passes, run `make codex-review PR=80` in the background.
 ## Session 298: 2026-09-25, Claude Code
 
 Author: Claude Code
