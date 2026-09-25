@@ -65,6 +65,10 @@ jobs:
       # above 128 KiB, and the diff of `docs/decisions.md` in a PR of plans passes that (F-110).
       # Each list of paths takes `--no-renames`, so a rename lists the path that it left (F-109).
       # The loop reads a file and not a pipe, so `set -e` stops the step on a failed `git show`.
+      # The commit list follows the first parent alone, in the order of the branch, and a merge
+      # lists each path that it changes against its first parent. By default git lists no path
+      # for a clean merge, and it sorts the commits of a merged branch by date, so a merge of
+      # code kept an older approval (F-147). The `codex-review` command lists them the same way.
       - name: Write the facts of the PR
         env:
           NUMBER: ${{ github.event.pull_request.number }}
@@ -78,10 +82,10 @@ jobs:
 
           git diff --no-renames --name-only "$MERGE_BASE" refs/remotes/pr/head \
             | jq -R -s -c 'split("\n") | map(select(length > 0))' > "$facts/files.json"
-          git log --reverse --format=%H "$MERGE_BASE..refs/remotes/pr/head" > "$facts/commit-list.txt"
+          git log --reverse --first-parent --format=%H "$MERGE_BASE..refs/remotes/pr/head" > "$facts/commit-list.txt"
           : > "$facts/commits.jsonl"
           while read -r sha; do
-            git show --no-renames --name-only --format= "$sha" \
+            git show --diff-merges=first-parent --no-renames --name-only --format= "$sha" \
               | jq -R -s -c --arg sha "$sha" \
                   '{sha: $sha, files: (split("\n") | map(select(length > 0)))}' \
               >> "$facts/commits.jsonl"

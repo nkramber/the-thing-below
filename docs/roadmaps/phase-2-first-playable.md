@@ -1847,7 +1847,45 @@ Area files: `area-core.md` sections 7.9 to 7.11, `area-exploration.md`, `area-ui
 
 > *In plain English:* a patch that moves a map or a story scene now keeps old saves. A patch that retunes the party ships a converter. A wipe never loads another run, and four checks now see the faults they missed.
 
-### 7.42 PR-14: the hub map, the NPCs, and the services
+### 7.42 PR-106: the trust of the review gate and the map behind a menu
+
+Area files: `area-ci.md` section 7.26 and `area-exploration.md`.
+
+**Scope.** The owner put two findings of the repository review of 2026-09-24 in one PR (D-1121):
+
+- The `review-gate` workflow and the `codex-review` command list the commits of the first parent, and a merge lists each path that it brings (D-1125, F-147).
+- The head field of a review record holds the full hash, and RG 5 compares the whole hash (D-1125).
+- A commit of a settings file of `.claude/` after an approval needs a new review (D-1122).
+- The `Gitar` check joins the required checks of `main`, and a test holds one job for each required name (D-1123, D-1125).
+- The merge runbook records the limit of the gate, and no stamp goes into a record (D-1124).
+- The map draws the start of the tick while a menu, a fight, or a story scene holds the world (D-1126, F-148).
+
+**Out of scope.**
+
+- The key names of the remap screen (P3-24), and the flake of the screen test (P3-25).
+- The tests of the crash path and the captures at body 24 and at 1280 by 800 (P3-26).
+- The performance measurements (P3-36).
+
+**Exit tests.**
+
+1. `AMergeOfAnOlderCodeCommitIsTheEffectiveHead` and `AMergeOfDocumentsAloneKeepsTheApproval` pass in a repository of git.
+2. `TheFactsStepListsTheFirstParentsAndEachPathOfAMerge` passes.
+3. Each case of `AShortHashOfTheEffectiveHeadFails` passes.
+4. Each case of `ACommitOfAHarnessSettingsFileEndsTheReviewableHeads` passes.
+5. `EachRequiredContextOfAWorkflowIsTheNameOfOneJob` and `TheGitarCheckIsRequiredAndNoWorkflowJobTakesItsName` pass.
+6. `AMenuInTheMiddleOfAStepHoldsTheDrawnPartOfTheTickAtZero` passes.
+
+**Review focus.**
+
+- The live `review-gate` check reads the new commit list only after the merge, because the workflow runs from `main` (F-37).
+- No Core file changes, so the simulation version stays (G-17).
+- No capture changes, because each capture draws at the start of its tick.
+
+**Questions.** None. D-1121 to D-1126 hold the answers.
+
+> *In plain English:* a merge into a branch carried new code past an old approval. The gate now sees each path that a merge brings. The map also stops a small shake behind the menu.
+
+### 7.43 PR-14: the hub map, the NPCs, and the services
 
 Area file: `area-exploration.md` section 7.11.
 
@@ -1890,7 +1928,7 @@ Area file: `area-exploration.md` section 7.11.
 
 > *In plain English:* the hub is a place you walk through, where the party recovers and reshapes itself before the next dungeon. Every hub has a different shape.
 
-### 7.43 PR-65: the shop and the gold
+### 7.44 PR-65: the shop and the gold
 
 Area file: `area-exploration.md` section 7.12.
 
@@ -1927,7 +1965,7 @@ Area file: `area-exploration.md` section 7.12.
 
 > *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
 
-### 7.44 PR-36: the dialogue box, the portraits, and the story scene on screen
+### 7.45 PR-36: the dialogue box, the portraits, and the story scene on screen
 
 Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
@@ -1970,7 +2008,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 > *In plain English:* people walk, turn, and speak on the map you already walk on. Their words appear in a box at the bottom, with a face beside them.
 
-### 7.45 PR-15: the headless runner and the bots
+### 7.46 PR-15: the headless runner and the bots
 
 Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
@@ -2008,7 +2046,7 @@ Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
 > *In plain English:* simple robots play the game with no screen. They make the same choices a player makes, and every crash they find comes with the seed that repeats it.
 
-### 7.46 PR-49: the night job and the night gate
+### 7.47 PR-49: the night job and the night gate
 
 Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
@@ -2046,7 +2084,7 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
 > *In plain English:* every night the robots play thousands of runs on all three systems. No change merges unless a recent night ended with no crash and no dead end.
 
-### 7.47 PR-16: the dungeon parts, the death, and the save points
+### 7.48 PR-16: the dungeon parts, the death, and the save points
 
 Area file: `area-exploration.md` section 7.8.
 
@@ -2093,7 +2131,7 @@ Area file: `area-exploration.md` section 7.8.
 
 > *In plain English:* the dungeon gains its chests, doors, keys, and resting stones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
-### 7.48 PR-64: the traps, the hazards, and the statuses on the map
+### 7.49 PR-64: the traps, the hazards, and the statuses on the map
 
 Area file: `area-exploration.md` section 7.9.
 
@@ -2133,7 +2171,7 @@ Area file: `area-exploration.md` section 7.9.
 
 > *In plain English:* the dungeon itself can hurt you. Poison still hurts while you walk, and a party can go down between fights.
 
-### 7.49 PR-35: the region map
+### 7.50 PR-35: the region map
 
 Area file: `area-exploration.md` section 7.13.
 
@@ -2169,11 +2207,11 @@ Area file: `area-exploration.md` section 7.13.
 
 > *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
 
-### 7.50 PR-37: retired
+### 7.51 PR-37: retired
 
 PR-37 held the CRT shader and its toggle, which have no purpose after D-618. No later item takes the id (G-10). This entry exists so that a reader of the sequence finds the gap and its reason.
 
-### 7.51 PR-51: the PNG import
+### 7.52 PR-51: the PNG import
 
 Area file: `area-tools.md` section 7.11.
 
@@ -2215,7 +2253,7 @@ Area file: `area-tools.md` section 7.11.
 
 > *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
 
-### 7.52 PR-52: the map preview
+### 7.53 PR-52: the map preview
 
 Area file: `area-tools.md` section 7.12.
 
@@ -2245,7 +2283,7 @@ Area file: `area-tools.md` section 7.12.
 
 > *In plain English:* maps are text files too. This tool draws a map as a picture, so the owner can see and approve a place before anyone walks it.
 
-### 7.53 PR-53: the tile-edge tool
+### 7.54 PR-53: the tile-edge tool
 
 Area file: `area-tools.md` section 7.13.
 
@@ -2278,7 +2316,7 @@ Area file: `area-tools.md` section 7.13.
 
 > *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own.
 
-### 7.54 PR-17: the village, the first hub, and the first dungeon
+### 7.55 PR-17: the village, the first hub, and the first dungeon
 
 Area files: every area file. The content PR touches each area.
 
@@ -2326,7 +2364,7 @@ Area files: every area file. The content PR touches each area.
 
 > *In plain English:* the first real place to play. Everything before this was machinery.
 
-### 7.55 PR-38: the audio synthesizer and the first sounds
+### 7.56 PR-38: the audio synthesizer and the first sounds
 
 Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
@@ -2365,7 +2403,7 @@ Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
 > *In plain English:* music and sound start as rows of numbers in a text file. A tool of ours turns those rows into sound, the same way on every computer.
 
-### 7.56 PR-69: the audio player base
+### 7.57 PR-69: the audio player base
 
 Area file: `area-audio.md` sections 7.2 and 7.3.
 
@@ -2401,7 +2439,7 @@ Area file: `area-audio.md` sections 7.2 and 7.3.
 
 > *In plain English:* this part makes sound come out. It sets the volumes, and it mutes the game when the window loses focus.
 
-### 7.57 PR-70: the rules of what plays when
+### 7.58 PR-70: the rules of what plays when
 
 Area file: `area-audio.md` sections 7.4 to 7.10.
 
@@ -2448,7 +2486,7 @@ Area file: `area-audio.md` sections 7.4 to 7.10.
 
 > *In plain English:* every place has its own music, a low bed of wind or fire under it, and its own footsteps. The music changes when the story turns the day to night.
 
-### 7.58 PR-71: the sound room
+### 7.59 PR-71: the sound room
 
 Area file: `area-audio.md` section 7.11.
 
@@ -2478,7 +2516,7 @@ Area file: `area-audio.md` section 7.11.
 
 > *In plain English:* the owner listens to every piece of music before it ships. One tool plays a batch on the desk, and this one plays it inside the game.
 
-### 7.59 PR-72: the music and the sounds of the first playable
+### 7.60 PR-72: the music and the sounds of the first playable
 
 Area file: `area-audio.md` section 7.12.
 
@@ -2513,7 +2551,7 @@ Area file: `area-audio.md` section 7.12.
 
 > *In plain English:* the music arrives in two batches. This is the first: enough for the first thing that the owner plays.
 
-### 7.60 M-3, M-4, and M-6: the measurements of the phase
+### 7.61 M-3, M-4, and M-6: the measurements of the phase
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
@@ -2542,7 +2580,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* three sets of numbers close the phase. They are the cost of the robots each night, the length of a fight, and the speed on the handheld.
 
-### 7.61 Gate 2: the first playable
+### 7.62 Gate 2: the first playable
 
 **The gate.** Gate 2 passes when every line holds:
 
@@ -2556,11 +2594,11 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 8. The `screen-test`, bot, and `night-gate` jobs are green (D-172, D-505, G-22).
 9. The budget test passes for every place of the first playable (D-523).
 
-**After the gate.** The owner pays the Steam Direct fee, and the store page goes public as Coming Soon (D-471). Sections 7.60 to 7.62 hold the work that the page needs.
+**After the gate.** The owner pays the Steam Direct fee, and the store page goes public as Coming Soon (D-471). Sections 7.63 to 7.65 hold the work that the page needs.
 
 > *In plain English:* at this point the game is a game. The owner walks a village, fights in a mine, and says whether it feels right.
 
-### 7.62 PR-74: the capture
+### 7.63 PR-74: the capture
 
 Area file: `area-release.md` section 7.6.
 
@@ -2594,7 +2632,7 @@ Area file: `area-release.md` section 7.6.
 
 > *In plain English:* the game can replay a recorded run and write every frame to disk. That gives the same picture each time, so a screenshot or a trailer shot is repeatable.
 
-### 7.63 PR-75: the store text and the owner steps
+### 7.64 PR-75: the store text and the owner steps
 
 Area file: `area-release.md` section 7.7.
 
@@ -2631,7 +2669,7 @@ Area file: `area-release.md` section 7.7.
 
 > *In plain English:* the shop page words get written and approved like any other text in the game. The owner pays the fee and answers the questions that only Valve asks.
 
-### 7.64 PR-76: the store art and the screenshots
+### 7.65 PR-76: the store art and the screenshots
 
 Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
@@ -2675,7 +2713,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 4. PR-48, PR-56, PR-93, PR-63, PR-57, PR-58, PR-94, PR-59, PR-92, PR-95, PR-60, PR-96, PR-97: the normal maps, the light, the settings, the effects, and the automated review.
 5. PR-11, PR-98, PR-67, PR-62: the enemies that think, the waiting enemies on screen, the character level, and the menu windows.
 6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
-7. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-14, PR-65: the build of a party, the stat set, the torch, the end of the Gitar pause, the torch and pad fixes, the gate fixes, the input fixes, the boot and rule fixes, and the save and guard fixes of the repository review, the hub, and the shop.
+7. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-106, PR-14, PR-65: the build of a party, the stat set, the torch, the end of the Gitar pause, the torch and pad fixes, the gate fixes, the input fixes, the boot and rule fixes, the save and guard fixes, and the gate trust fixes of the repository review, the hub, and the shop.
 8. PR-36: the dialogue box.
 9. PR-15, PR-49: the bots, the night job, and the night gate.
 10. Owner: require the bot and `night-gate` checks on `main` after their first runs.
@@ -2686,7 +2724,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 15. PR-72: the music and the sounds of the first playable.
 16. M-3, M-4, M-6: the night numbers, the encounter numbers, and the Deck.
 17. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
-18. **← GATE 2 (first playable).** Section 7.59 holds each line.
+18. **← GATE 2 (first playable).** Section 7.62 holds each line.
 19. PR-74, PR-75, PR-76: the capture, the store text, and the store art.
 20. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 

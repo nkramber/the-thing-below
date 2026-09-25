@@ -437,6 +437,17 @@ Built by PR-105. Phase file: `phase-2-first-playable.md` section 7.41.
 
 > *In plain English:* four checks had blind spots. A download had no checksum, and code under a switch took no rule. A scene line wrapped, and a dark map hid its enemies. Each check now looks there.
 
+### 7.26 The trust of the review gate
+
+Built by PR-106. Phase file: `phase-2-first-playable.md` section 7.42.
+
+- The `review-gate` workflow and the `codex-review` command list the commits of the first parent, and a merge lists each path that it brings (D-1125, F-147).
+- The head field of a review record holds the full hash (D-1125).
+- A commit of a settings file of `.claude/` after an approval ends the walk of D-943 (D-1122).
+- The `Gitar` check joins the required checks of `main` (D-1123). `BranchProtectionTests` holds one job for each required name of a workflow (D-1125).
+
+> *In plain English:* a merge carried new code past an old approval, and a short hash named any commit that shared it. The gate now reads each merge and the full hash.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The CI work keeps this order inside it:
@@ -462,10 +473,11 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 19. PR-97: the Gitar pause and the flag that skips the Gitar check, right after PR-96 (D-945, superseded by D-1073, and D-946).
 20. PR-100: the end of the Gitar pause and the Gitar poll, right after PR-91 (D-1073, D-1074).
 21. PR-102: the gate fixes of the repository review, right after PR-101 (D-1081, D-1086, D-1087).
-22. PR-15: the bot runs on every leg (D-505).
-23. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
-24. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-25. **← GATE 2 (first playable).**
+22. PR-106: the trust of the review gate and the required Gitar check, right after PR-105 (D-1121 to D-1125).
+23. PR-15: the bot runs on every leg (D-505).
+24. PR-49: the night job and the night gate. The live gate first runs after the first night (D-500).
+25. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+26. **← GATE 2 (first playable).**
 
 ## 9. Open questions
 

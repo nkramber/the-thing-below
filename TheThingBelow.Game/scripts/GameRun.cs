@@ -200,6 +200,22 @@ public sealed class GameRun
     /// <summary>The part of the next tick that the frames reached, in thousandths (D-820).</summary>
     public int TickPart => this.loop.TickPart;
 
+    /// <summary>
+    /// The part of the next tick at which the map draws each slide, in thousandths (D-820). It
+    /// is 0 while a menu, a fight, an encounter, or a story scene holds the world for the next
+    /// tick.
+    /// </summary>
+    /// <remarks>
+    /// The tick rises under a menu (D-650), so <see cref="TickPart"/> runs from 0 to 999 again
+    /// on each tick while no step moves. A lead held in the middle of a step then slid one art
+    /// pixel forward and back on a screen that is not 60 Hz, and the camera moved the whole
+    /// view with it (F-148).
+    /// </remarks>
+    public int DrawnTickPart => this.WorldHeldNextTick ? 0 : this.TickPart;
+
+    /// <summary>True when the rules run no step of the map on the next tick: a menu, a fight, an encounter, or a story scene holds it (D-162, D-531, D-1009).</summary>
+    public bool WorldHeldNextTick => this.MenuOpenNextTick || this.InBattle || this.StoryRunning;
+
     /// <summary>The party on its map, which the map scene draws (D-106, D-203).</summary>
     /// <remarks>
     /// Game reads the tile of the lead and the ticks of the step that runs, and it slides

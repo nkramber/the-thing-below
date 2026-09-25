@@ -208,6 +208,6 @@ public sealed class CodexReviewFindingRoundsTests
     /// <returns>The Markdown text of the record.</returns>
     public static string Record(string findings)
     {
-        return $"# PR-63 review\n\n## Identity\n\n- Head: `{Round1[..7]}`\n\n## Findings\n\n{findings}\n\n## Out of scope\n\nNone.\n";
+        return $"# PR-63 review\n\n## Identity\n\n- Head: `{Round1}`\n\n## Findings\n\n{findings}\n\n## Out of scope\n\nNone.\n";
     }
 }

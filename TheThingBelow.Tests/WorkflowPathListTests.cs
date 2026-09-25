@@ -65,6 +65,25 @@ public sealed class WorkflowPathListTests
     }
 
     /// <summary>
+    /// The regression test of F-147. The commit list sorted the commits of a merged branch by
+    /// date, and `git show` listed no path for a clean merge, so a merge of code kept an older
+    /// approval. `ReviewGateMergeTests` runs the same options of the `codex-review` command in a
+    /// repository.
+    /// </summary>
+    [Fact]
+    public void TheFactsStepListsTheFirstParentsAndEachPathOfAMerge()
+    {
+        string[] block = WorkflowText.RunBlockOf(ReviewGateWorkflowPath, FactsStepName);
+        string[] log = block.Where(line => line.Contains("git log", StringComparison.Ordinal)).ToArray();
+        string[] show = block.Where(line => line.Contains("git show", StringComparison.Ordinal)).ToArray();
+
+        Assert.Single(log);
+        Assert.Contains("--first-parent", log[0], StringComparison.Ordinal);
+        Assert.Single(show);
+        Assert.Contains("--diff-merges=first-parent", show[0], StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// The regression test of F-110. Linux refuses one argument above 128 KiB, and the step
     /// passed the diff of `docs/decisions.md` to jq as one argument.
     /// </summary>

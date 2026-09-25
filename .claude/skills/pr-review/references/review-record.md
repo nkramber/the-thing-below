@@ -14,7 +14,7 @@ The `review-gate` job reads this file (D-15), and so does the `codex-review` com
 | Part | Exact form | Rule |
 |---|---|---|
 | The file name | `docs/reviews/pr-<number>.md` | The number is the GitHub PR number, not the roadmap id. |
-| The head field | `- Head: ` and the hash in backticks, in the `## Identity` list | The hash is the effective head. A short hash is permitted. The rule reads that list alone. |
+| The head field | `- Head: ` and the hash in backticks, in the `## Identity` list | The hash is the effective head, in full: 40 letters. A short hash fails (D-1125). The rule reads that list alone. |
 | The verdict | The verdict line of the `## Verdict` section, such as `**Ready for owner merge.**` | The line starts with one of the three names in bold. Write the name exactly, and add no word to it. The section gives one bold span, and that span is the name (D-612). |
 | The rounds of a finding | The line `Open at: ` in each finding, with each effective head in backticks | The `codex-review` command reads it for the three-strike stop (D-929). The `review-gate` check does not read it. |
 
@@ -179,5 +179,7 @@ Reassess the new diff, then update the head field and the verdict together.
 Rule 3 does not fail when the last commit changes only the metadata paths.
 Rule 3 does not fail when each commit after the approved head changes only paths of the skip set (D-857, D-943).
 A new review still names the effective head, because it reads that head.
+
+Rule 3 fails when a later commit changes a settings file of `.claude/` (D-1122). It reads the commits of the first parent alone, and a merge lists each path that it brings (D-1125).
 
 The check cannot run on the PR that creates it or changes it, because GitHub starts `pull_request_target` only from `main` (F-37). Such a PR proves the command in Tests, and the live check reads the new rules on the next PR (D-500).

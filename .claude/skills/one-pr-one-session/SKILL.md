@@ -113,7 +113,7 @@ No PR exists only to record the merge, the handoff, the review record, or the do
 
 A commit that changes only the metadata set never moves the effective head. That set holds the two review files of this PR and the two handoff files (D-610).
 
-After an approval, a commit that changes paths of the skip set alone keeps the approval, and the PR needs no new review (D-943). That commit still gets its Gitar pass, and the author answers each comment and each claim of the pass (D-944). `docs/runbooks/merge.md` gives the steps.
+After an approval, a commit that changes paths of the skip set alone keeps the approval, and the PR needs no new review (D-943). A commit of a settings file of `.claude/` needs a new review (D-1122). That commit still gets its Gitar pass, and the author answers each comment and each claim of the pass (D-944). `docs/runbooks/merge.md` gives the steps.
 
 ## 5. Completion gate
 

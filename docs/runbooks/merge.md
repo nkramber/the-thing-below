@@ -19,7 +19,7 @@ A Gitar finding can come with a fix of Gitar. The session applies its own fix wh
 
 ## A commit of documents alone
 
-After an approval, a commit that changes paths of the skip set alone keeps the approval (D-943). The skip set holds `docs/`, all of `.claude/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `LICENSE`, and the PR template (D-857). The `review-gate` check stays green, and the PR needs no new run of `make codex-review`. A change of a decision row keeps the approval too.
+After an approval, a commit that changes paths of the skip set alone keeps the approval (D-943). The skip set holds `docs/`, all of `.claude/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `LICENSE`, and the PR template (D-857). The `review-gate` check stays green, and the PR needs no new run of `make codex-review`. A change of a decision row keeps the approval too. A commit of `.claude/settings.json` or .claude/settings.local.json needs a new review, because each file can hold a hook that runs a command (D-1122).
 
 Such a commit still gets its Gitar pass, and the author answers each comment and each claim of the pass (D-944). Do these steps for a commit of documents alone after the approval:
 
@@ -128,3 +128,9 @@ A setting of the repository is outward-facing. A session changes one only after 
 - `required_conversation_resolution` covers each review thread of Gitar. A top-level comment of Gitar is no thread, and the author answers it under the `gitar-review` skill.
 - A required context matches by name. Each context reports on a docs-only head and on a code head, because each gate job of `ci.yml` runs with `if: always()`. The `review-gate` workflow runs on each event of the PR.
 - The `export` workflow runs on a change of its paths alone, so it is not a required context (D-512, D-692). A required context that never reports blocks each merge.
+- The `Gitar` context comes from the Gitar app, and it reports on each head (D-1123). A Gitar outage holds each merge until the check completes.
+- A required context matches by name alone. `BranchProtectionTests` fails a context whose name is the name of no job of a workflow or of two jobs (D-1125).
+
+## The limit of the review gate
+
+The `review-gate` check reads the review record, its verdict, and the full hash of its head (D-1125). It cannot prove which provider wrote the record, because both providers commit as one account. No stamp goes into the record, because no check can read the transcript of a review (D-1124). The provider of the review thus rests on `make codex-review` and on the merge confirmation of the owner (D-933).

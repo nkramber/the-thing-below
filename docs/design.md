@@ -150,6 +150,8 @@ The third part of PR-103 holds five more findings. A write reads its temporary f
 
 The coverage job checks its package (F-142). The steal and damage math check their remainder and overflow (F-143). det-lint closes four holes (F-144), and a map draws what it holds (F-145). The remap screen marks each conflict (F-146). The pass also corrects stale marks of F-2, F-70, F-74, F-85, and F-91, and stale comments of the code.
 
+2026-09-25 gate trust pass: PR-106 fixes two more findings of the repository review in one PR (D-1121). A merge of code no longer keeps an older approval, and the head of a review record is a full hash (F-147). A settings file of `.claude/` after an approval takes a new review (D-1122), and `Gitar` joins the required checks (D-1123). The map holds still behind a menu (F-148).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -491,6 +493,8 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-144 | det-lint had no rule for a file or an OS call in Core, read no code under an undefined symbol, read a scene value on one line alone, and left out the content and identity tools | 2026-09-24 | ✅ PR-105: rules DL 11 and DL 12, a scene value across lines, a refusal of a binary scene, and the two tools of D-502 (D-1117) |
 | F-145 | Since PR-91 the smoke map is dark, and its draw check compared the draw with the value that set it. No test read the drawing of a patrol of another map, of the lead, or of each tile kind | 2026-09-24 | ✅ PR-105: a test reads every map, smoke draws a lit copy of the map, and the dark check reads Core (D-1118) |
 | F-146 | The remap screen named the first conflict alone, although D-862 shows each conflict | 2026-09-24 | ✅ PR-105: each cell of a conflict takes the warning color, the cursor shows as an outline there, and the line names the conflict of the row with its place (D-1119, D-1120) |
+| F-147 | The review gate listed no path for a clean merge, and git sorted the commits of a merged branch by date. A merge of a code commit that was older than the approved head thus kept the approval. A prefix of 7 letters named the head, and each required check matched a job by name alone | 2026-09-24 | ✅ PR-106: both tools list the commits of the first parent, and a merge lists each path that it brings. The head is a full hash, and a test holds one job for each required name (D-1125) |
+| F-148 | The tick rises under a menu, so the part of the tick ran on while a lead stood in the middle of its step. On a screen that is not 60 Hz, the map moved one art pixel forward and back behind the menu | 2026-09-24 | ✅ PR-106: the map draws the start of the tick while the world holds (D-1126) |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -625,33 +629,34 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 40. PR-103: the input fixes, the grace time, ten guards, and seven owner directions, in one PR, after PR-102 (D-1083 to D-1085, D-1090 to D-1097).
 41. PR-104: the boot message, the enemy reply, and six rule guards, in one PR, after PR-103 (D-1098 to D-1108).
 42. PR-105: the save drift rules, the wipe pick, the save hook, and six guards, in one PR, after PR-104 (D-1109 to D-1119).
-43. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
-44. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
-45. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
-46. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).
-47. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
-48. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-49. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
-50. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
-51. PR-35: the region map of nodes and routes (D-113).
-52. PR-51: the PNG import for a hand edit (D-107, D-497).
-53. PR-52: the map preview as a PNG (D-165, D-497).
-54. PR-53: the tile-edge tool and the edge files (D-204, D-501).
-55. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
-56. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command, right after PR-17 (D-432, D-438, D-1079).
-57. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
-58. PR-70: every rule of what plays when (D-413, D-546).
-59. PR-71: the sound room in a development build (D-439, D-546).
-60. PR-72: the music, the themes, and the sounds of the first playable (D-549).
-61. M-3: the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
-62. M-4: the turns of each encounter and the party downs of each dungeon, by policy.
-63. M-6: the frame time and the readability on the Deck, at the scale of OQ-183 (D-161, D-621).
-64. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
-65. **← GATE 2 (first playable).**
-66. PR-74: the capture, which replays a record into frames and audio (D-476, D-551).
-67. PR-75: the store text and the checklist of the owner steps (D-452, D-550).
-68. PR-76: the store art and the five screenshots (D-475, D-550).
-69. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
+43. PR-106: the trust of the review gate and the map behind a menu, in one PR, after PR-105 (D-1121 to D-1126).
+44. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
+45. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
+46. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
+47. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).
+48. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
+49. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+50. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
+51. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
+52. PR-35: the region map of nodes and routes (D-113).
+53. PR-51: the PNG import for a hand edit (D-107, D-497).
+54. PR-52: the map preview as a PNG (D-165, D-497).
+55. PR-53: the tile-edge tool and the edge files (D-204, D-501).
+56. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
+57. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command, right after PR-17 (D-432, D-438, D-1079).
+58. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
+59. PR-70: every rule of what plays when (D-413, D-546).
+60. PR-71: the sound room in a development build (D-439, D-546).
+61. PR-72: the music, the themes, and the sounds of the first playable (D-549).
+62. M-3: the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
+63. M-4: the turns of each encounter and the party downs of each dungeon, by policy.
+64. M-6: the frame time and the readability on the Deck, at the scale of OQ-183 (D-161, D-621).
+65. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
+66. **← GATE 2 (first playable).**
+67. PR-74: the capture, which replays a record into frames and audio (D-476, D-551).
+68. PR-75: the store text and the checklist of the owner steps (D-452, D-550).
+69. PR-76: the store art and the five screenshots (D-475, D-550).
+70. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 
 PR-37 is retired. The CRT pass of the first plan has no purpose after D-618, and no later item takes the id (G-10).
 
@@ -741,7 +746,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 16. PR-48, PR-56, PR-93, PR-63, PR-57, PR-58, PR-94, PR-59, PR-92, PR-95, PR-60, PR-96, PR-97.
 17. PR-11, PR-98, PR-67, PR-62.
 18. PR-68, PR-50.
-19. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-14, PR-65.
+19. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-106, PR-14, PR-65.
 20. PR-36.
 21. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
 22. Owner: require the bot and `night-gate` checks on `main` after their first runs.

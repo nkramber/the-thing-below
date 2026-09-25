@@ -235,7 +235,10 @@ public static class OverrideRules
         return "A path outside the eligible set takes the review of the other provider (D-16, D-71)";
     }
 
-    private static bool IsHarnessSettings(string path)
+    /// <summary>Reads whether one path is a settings file of the harness, in any case of its letters.</summary>
+    /// <param name="path">A path from the root of the checkout, with forward slashes, as git gives it.</param>
+    /// <returns>True when the path names <see cref="HarnessSettingsPath"/> or <see cref="HarnessLocalSettingsPath"/>.</returns>
+    public static bool IsHarnessSettings(string path)
     {
         // macOS and Windows resolve a case variant of the path to the same settings file, so the
         // compare ignores case (D-700, D-1086).

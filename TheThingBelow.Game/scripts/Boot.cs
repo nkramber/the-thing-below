@@ -163,7 +163,7 @@ public partial class Boot : Node
             this.FollowBattleScreen();
             if (this.battle is null)
             {
-                this.map?.ShowParty(this.run.Party, this.run.TickPart, this.run.Tick, this.run.TorchHeld);
+                this.map?.ShowParty(this.run.Party, this.run.DrawnTickPart, this.run.Tick, this.run.TorchHeld);
                 this.map?.ShowWeather(this.run.Tick, seek: false);
             }
 

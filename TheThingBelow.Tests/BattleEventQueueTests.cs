@@ -145,6 +145,48 @@ public sealed class BattleEventQueueTests
     }
 
     [Fact]
+    public void AMenuInTheMiddleOfAStepHoldsTheDrawnPartOfTheTickAtZero()
+    {
+        // Finding P3-37 of the repository review (F-148): the tick rises under a menu, so the
+        // part of the tick ran from 0 to 999 on each tick while the lead stood in the middle of
+        // its step. The map drew the lead one art pixel forward and back on a screen that is
+        // not 60 Hz.
+        GameRunView run = GameRunView.Start();
+        run.Queue(Intent.OfPlayer(WalkOf(run.Party)));
+        for (int frame = 0; frame < 3; frame += 1)
+        {
+            run.Advance(OneTick);
+        }
+
+        Assert.NotNull(run.Party.Stepping);
+        run.Advance(OneTick / 2);
+        Assert.True(run.TickPart > 0, $"The walk drew the part {run.TickPart} half a tick after a tick.");
+        Assert.Equal(run.TickPart, run.DrawnTickPart);
+
+        run.Queue(Intent.OfPlayer(IntentIds.OpenMenu));
+        Assert.Equal(0, run.DrawnTickPart);
+        run.Advance(OneTick);
+        Assert.True(run.MenuOpen);
+        int stepTicks = run.Party.StepTicks;
+        Assert.InRange(stepTicks, 1, MapRules.TicksPerStep - 1);
+
+        // Frames of a 144 Hz screen: the part of the tick moves on each frame, and the drawn
+        // part stays at the start of the held tick.
+        for (int frame = 0; frame < 144; frame += 1)
+        {
+            run.Advance(1.0 / 144);
+            Assert.Equal(0, run.DrawnTickPart);
+            Assert.Equal(stepTicks, run.Party.StepTicks);
+        }
+
+        run.Queue(Intent.OfPlayer(IntentIds.CloseMenu));
+        run.Advance(OneTick);
+        run.Advance(OneTick / 2);
+        Assert.False(run.MenuOpen);
+        Assert.Equal(run.TickPart, run.DrawnTickPart);
+    }
+
+    [Fact]
     public void ThePauseOfAFightTakesOneMenuIntentBeforeEachTick()
     {
         // D-1083: Game sends no second menu intent before the rules apply the first, because a
@@ -495,6 +537,10 @@ public sealed class BattleEventQueueTests
         }
 
         public long FightTick => (long)this.Read("FightTick");
+
+        public int TickPart => (int)this.Read("TickPart");
+
+        public int DrawnTickPart => (int)this.Read("DrawnTickPart");
 
         public bool FightPaused => (bool)this.Read("FightPaused");
 
