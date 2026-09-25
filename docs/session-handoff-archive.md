@@ -1,3 +1,36 @@
+## Session 293: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #79 (PR-102), round 4. Repository: the-thing-below. Branch: `fix/pr-102-gate-hygiene`. PR: #79. Role: author. Base: `5b42cf0`.
+
+### What this session did, and why
+
+- Gitar approved the merge head `9501183` with no new finding. The CI claim of RG 3 has its answer.
+- Every CI check passed on `9501183` except RG 3, `screen-test` included.
+- `make codex-review PR=79` ran. The record `docs/reviews/pr-79.md` gives `Ready for owner merge` for `9501183` with no finding, and `review-gate` passed on `81769c3`.
+- The command gave `fault`: it named `f81f010` as the effective head. `BranchCommits` runs `git log --name-only`, and git lists no path for a merge commit by default. With `--first-parent -m`, the merge lists the files of PR-101. The gate reads the merge through `git show` and passed.
+- The report of the owner marks P2-1, P3-10, P3-11, P3-29, P3-30, P3-31, and P3-32 as complete in PR #79, and P1-2 as the decision D-1082.
+
+### The state of the build
+
+- Effective head `9501183`. The remote head holds this metadata commit.
+
+### What is in flight
+
+- The merge question to the owner (D-933, D-942).
+
+### Traps and gotchas
+
+- A merge of `main` into a PR branch makes `make codex-review` give `fault` until `BranchCommits` reads merge commits. The owner put that fix in the PR of finding P3-9 (D-1089).
+- The session asks the merge question only after every check of the current tip is green and its Gitar pass is complete.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for green CI and the Gitar pass of the tip, then ask the owner to confirm the merge. Then turn on the auto-merge under `docs/runbooks/merge.md`.
 # Session handoff archive
 ## Session 292: 2026-09-25, Codex
 
