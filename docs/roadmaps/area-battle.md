@@ -230,6 +230,7 @@ Built by PR-9, PR-11, and PR-15. Phase files: `phase-2-first-playable.md` and ev
 | PR-13 | The gear and the items that a fight spends, the steal, and the drops | D-44, D-382, D-1036 to D-1046 |
 | PR-99 | The stat set and the heal of an absorbed hit | D-1041 |
 | PR-104 | The reply scores the best legal strike, the enemy phase has a bound, an absorbed hit rolls no status, and the miss ceiling takes 6666 at most | D-1101, D-1105, D-1107 |
+| PR-105 | A steal checks the remainder of its pick, and each damage cut checks its overflow | D-641 |
 | PR-17 | The enemies and the groups of the first places | D-313, D-362 |
 | PR-90 | The balance harness, which measures each encounter | D-822 |
 | PR-30 | The balance pass over every number | D-35, G-14 |

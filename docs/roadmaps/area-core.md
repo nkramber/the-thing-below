@@ -153,7 +153,7 @@ Built by PR-6. Phase file: `phase-1-foundations.md`.
 
 - The record header holds the format version, the simulation version, the content hash, the seed, the initial state, and the game version (G-5, D-448).
 - The record holds the intents of each tick, and a debug intent carries a mark (D-171, D-492, D-493).
-- The record keeps a snapshot and the intents after it, so its size stays bounded (F-10). The record takes a new snapshot at each save (D-651), and it is JSON text (D-652).
+- The record keeps a snapshot and the intents after it, so its size stays bounded (F-10). The record takes a new snapshot at each save (D-651), and it is JSON text (D-652). `GameRun.Save` takes that snapshot, and PR-16 calls it at each save (D-1115).
 - A replay of a record on the same simulation version and content hash reproduces the state hash (G-5). A mismatch stops with a report that names both values (T-2).
 - Replay and the bots run in Tools and Tests with no Godot (D-100, D-493). The replay viewer of development builds plays a record in Game (D-175).
 - The replay-identity job runs a fixed set of records on every CI leg and compares each hash with the committed identity file (G-5, D-481, D-504). The file `area-ci.md` holds the job, and each later Core PR adds a fixture run and its expected hash.
@@ -172,9 +172,9 @@ Built by PR-4, PR-6, and PR-43. Phase file: `phase-1-foundations.md`.
 | Content hash | The record header (PR-6) | A change to a rule file (D-495) | The replay of a record |
 | Game version | The record header, the crash file, and the title screen (PR-6, PR-44, PR-33) | Each build that ships (D-448, D-454) | Nothing. It is a label for people |
 
-A load of a save reads the snapshot alone, so a new simulation version never refuses a save (D-259). A replay needs the build that made the record, so the crash file names the game version (D-259, D-448).
+A load of a save reads the snapshot alone (D-259). A save of another build follows an edit of a map or a story scene, and each change writes a warning line (D-1111 to D-1113). A change of a party rule refuses the save until the migration of that patch reads it (D-1110). A replay needs the build that made the record, so the crash file names the game version (D-259, D-448).
 
-> *In plain English:* five numbers tell the game what an old file needs. A patch can change the rules and still load every save, and a bug report still names the exact build.
+> *In plain English:* five numbers tell the game what an old file needs. A patch can move a map or a story scene and still load every save. A patch that retunes the party ships a converter, and a bug report still names the exact build.
 
 ### 7.11 Snapshots and saves
 
@@ -189,6 +189,8 @@ Built by PR-43. Phase file: `phase-1-foundations.md`.
 - Godot and Storage must give one user folder, and Game compares the two at the start of every session (D-657, F-33).
 - From PR-43 on, every Core PR that changes the snapshot bumps its format version and adds a migration and a fixture save (D-166).
 - The full game imports the last snapshot of the prologue in Phase 6 (D-163). Each snapshot format of the prologue stays ready for that import.
+- Each step of a story scene takes an id. The snapshot stores it from save format 14, so a resume finds a moved step (D-1112).
+- A wipe reloads a save of its own run alone: the pick drops a save of another seed (D-1114).
 
 > *In plain English:* a save is a full picture of the game at one moment. The game writes it safely, so a crash during a save never destroys the old one. A save from an older build still loads, because each change to its shape ships with a converter and a test.
 

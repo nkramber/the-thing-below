@@ -146,6 +146,10 @@ The third part of PR-103 holds five more findings. A write reads its temporary f
 
 2026-09-25 boot and rule pass: PR-104 fixes eight more findings of the repository review in one PR (D-1098). A settings file that fails to load goes aside, and the start runs on the defaults with a message (F-131). The reply of the evaluator scores the best legal strike (F-132). The enemy phase has a bound (F-133), and the crash message names its folder (F-134). Six rule guards and the order of a trigger and a step close F-135 to F-138.
 
+2026-09-25 save and guard pass: PR-105 fixes nine more findings of the repository review in one PR (D-1109). A save of another build follows an edit of a map or a story scene (F-139). A change of a party rule refuses the save until a migration reads it. A wipe reloads a save of its own run alone (F-140). `GameRun.Save` bounds the run record (F-141).
+
+The coverage job checks its package (F-142). The steal and damage math check their remainder and overflow (F-143). det-lint closes four holes (F-144), and a map draws what it holds (F-145). The remap screen marks each conflict (F-146). The pass also corrects stale marks of F-2, F-70, F-74, F-85, and F-91, and stale comments of the code.
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.
@@ -349,7 +353,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-7 | D-36 leaves a fallen character down until a hub, and a three-character party (D-31) then fights with two. No decision balances the short-handed party | 2026-09-12 | ⚠ D-58 gives a reserve and a swap at save points. Binds PR-16 and M-4 |
 | F-8 | D-42 empties a caster's MP across a dungeon, and no decision gives a job a no-MP action | 2026-09-12 | ⚠ Binds PR-9 and PR-12. D-359 gives every character a basic attack with no MP cost |
 | F-9 | D-48 sets the floor at 120 by 40, and a default macOS Terminal window is 80 by 24 | 2026-09-12 | ✅ doc. D-80 superseded D-48, D-103 superseded D-80, D-228 superseded D-103, and D-98 ended the terminal, so PR-7 has no size message |
-| F-10 | D-62 puts the run record in the save, and a record grows without bound over 20 to 40 hours (D-30) | 2026-09-12 | ✅ PR-6 wrote the compaction rule: the record takes a new snapshot at each save, and it drops every intent before it (D-651) |
+| F-10 | D-62 puts the run record in the save, and a record grows without bound over 20 to 40 hours (D-30) | 2026-09-12 | ✅ PR-6 wrote the compaction rule: the record takes a new snapshot at each save, and it drops every intent before it (D-651). ⚠ No save called it before PR-105. `GameRun.Save` calls it now, and PR-16 calls that at each save (D-1115). A held walk adds about 15 MB of record each hour until then |
 | F-11 | The interim checker read an HTML comment as prose. A fixture comment with a semicolon, a modal, a passive, and 30 words raised four findings. The automated pass of PR #1 found it | 2026-09-12 | ✅ PR-2. The command removes a one-line comment, and the rule MD 1 fails a comment across lines |
 | F-12 | The session wrote in `CLAUDE.md`, the PR template, the skill, and OQ-1 that gitar was absent, on no evidence. The pass ran on PR #1 within a minute | 2026-09-12 | ✅ doc. D-66. Every claim about a tool needs a check |
 | F-13 | The first interview fixed the language before the medium. Two pivots in one day, D-78 and D-98, reopened 30 decisions | 2026-09-12 | ✅ doc. D-99. L-14 |
@@ -479,6 +483,14 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-136 | A tick that reached a tile trigger and stepped into an enemy started the fight and lost the trigger, because the lead already stood on the tile after the fight | 2026-09-24 | ✅ PR-104: the story scene plays first, and the step starts no encounter (D-1103) |
 | F-137 | A step into the enemy whose mark ran gave the party the first move, so a patrol that saw the party first gave it a sneak (D-745, D-747) | 2026-09-24 | ✅ PR-104: the facings give the side, as at the end of the beat (D-1104) |
 | F-138 | An absorbed hit on a target at full health read "0 back", although D-1055 promises no heal of 0 | 2026-09-24 | ✅ PR-104: the line reads "Already full" with no number, in the words of the owner (D-1106) |
+| F-139 | A save held the values of the content of its build. A retune of a party rule or an edit of a map refused the save, and an inserted step of a story scene resumed at another step in silence | 2026-09-24 | ✅ PR-105: a save of another build matches each enemy by its id and each step by its id, and a party rule change refuses the save until a migration reads it (D-1110 to D-1113) |
+| F-140 | A wipe reloaded the save with the later tick, whatever run wrote it, and the smoke session read the save folder of the machine | 2026-09-24 | ✅ PR-105: the pick drops a save of another seed, and smoke reads a new empty folder (D-1114) |
+| F-141 | No save called the compaction of the run record, so a held walk grew the record by about 15 MB each hour, in memory and in each crash file | 2026-09-24 | ✅ PR-105: `GameRun.Save` takes the snapshot and drops the older intents, and PR-16 calls it (D-1115) |
+| F-142 | The coverage job installed ReportGenerator with a pinned version and no checksum, against D-511 | 2026-09-24 | ✅ PR-105: the job checks the SHA-512 of the package file and installs from that folder alone (D-1116) |
+| F-143 | A steal of gear dropped the remainder of the pick, and a steal of an item called the pick inside a guard. Three damage cuts multiplied with no overflow check | 2026-09-24 | ✅ PR-105: a remainder fails with its context, and each cut is checked. The content limits of today reach neither fault |
+| F-144 | det-lint had no rule for a file or an OS call in Core, read no code under an undefined symbol, read a scene value on one line alone, and left out the content and identity tools | 2026-09-24 | ✅ PR-105: rules DL 11 and DL 12, a scene value across lines, a refusal of a binary scene, and the two tools of D-502 (D-1117) |
+| F-145 | Since PR-91 the smoke map is dark, and its draw check compared the draw with the value that set it. No test read the drawing of a patrol of another map, of the lead, or of each tile kind | 2026-09-24 | ✅ PR-105: a test reads every map, smoke draws a lit copy of the map, and the dark check reads Core (D-1118) |
+| F-146 | The remap screen named the first conflict alone, although D-862 shows each conflict | 2026-09-24 | ✅ PR-105: each cell of a conflict takes the warning color, and the line names the conflict of the row with its place (D-1119) |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -496,7 +508,7 @@ The tenets are the constitution. When a tenet conflicts with speed or convenienc
 
 ### 6.2 Guardrails
 
-1. **G-1.** Core has no engine dependency and no file, network, clock, or OS dependency. A test asserts the reference list (D-100).
+1. **G-1.** Core has no engine dependency and no file, network, clock, or OS dependency. A test asserts the reference list (D-100). Rule DL 11 of det-lint refuses each such call (D-1117).
 2. **G-2.** No `float`, `double`, or `decimal` in Core. Fixed-point integers carry every rate. The `det-lint` tool enforces it (D-6).
 3. **G-3.** No `System.Random`, `DateTime`, `Stopwatch`, or `Environment.TickCount` in Core. The seed and the tick are the only sources of randomness and time (D-6).
 4. **G-4.** One seeded stream per subsystem, and a fixed iteration order wherever the order reaches the state (D-6).
@@ -612,33 +624,34 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 39. PR-102: the gate fixes of the repository review of 2026-09-24, in one PR, after PR-101 (D-1081, D-1086, D-1087).
 40. PR-103: the input fixes, the grace time, ten guards, and seven owner directions, in one PR, after PR-102 (D-1083 to D-1085, D-1090 to D-1097).
 41. PR-104: the boot message, the enemy reply, and six rule guards, in one PR, after PR-103 (D-1098 to D-1108).
-42. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
-43. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
-44. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
-45. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).
-46. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
-47. Owner: require the bot and `night-gate` checks on `main` after their first runs.
-48. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
-49. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
-50. PR-35: the region map of nodes and routes (D-113).
-51. PR-51: the PNG import for a hand edit (D-107, D-497).
-52. PR-52: the map preview as a PNG (D-165, D-497).
-53. PR-53: the tile-edge tool and the edge files (D-204, D-501).
-54. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
-55. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command, right after PR-17 (D-432, D-438, D-1079).
-56. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
-57. PR-70: every rule of what plays when (D-413, D-546).
-58. PR-71: the sound room in a development build (D-439, D-546).
-59. PR-72: the music, the themes, and the sounds of the first playable (D-549).
-60. M-3: the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
-61. M-4: the turns of each encounter and the party downs of each dungeon, by policy.
-62. M-6: the frame time and the readability on the Deck, at the scale of OQ-183 (D-161, D-621).
-63. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
-64. **← GATE 2 (first playable).**
-65. PR-74: the capture, which replays a record into frames and audio (D-476, D-551).
-66. PR-75: the store text and the checklist of the owner steps (D-452, D-550).
-67. PR-76: the store art and the five screenshots (D-475, D-550).
-68. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
+42. PR-105: the save drift rules, the wipe pick, the save hook, and six guards, in one PR, after PR-104 (D-1109 to D-1119).
+43. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
+44. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
+45. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
+46. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).
+47. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
+48. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+49. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
+50. PR-64: the traps, the hazards, and the statuses that last on the map (D-390, D-529).
+51. PR-35: the region map of nodes and routes (D-113).
+52. PR-51: the PNG import for a hand edit (D-107, D-497).
+53. PR-52: the map preview as a PNG (D-165, D-497).
+54. PR-53: the tile-edge tool and the edge files (D-204, D-501).
+55. PR-17: the village, the mining town, and the hanging cells as content (D-362, D-369, D-370).
+56. PR-38: the synthesizer, the two note formats, the render hashes, and the `listen` command, right after PR-17 (D-432, D-438, D-1079).
+57. PR-69: the audio player, the four buses, and the mute (D-435, D-546).
+58. PR-70: every rule of what plays when (D-413, D-546).
+59. PR-71: the sound room in a development build (D-439, D-546).
+60. PR-72: the music, the themes, and the sounds of the first playable (D-549).
+61. M-3: the wall time of each leg, and the crash and softlock counts of seven nights (D-507, D-509).
+62. M-4: the turns of each encounter and the party downs of each dungeon, by policy.
+63. M-6: the frame time and the readability on the Deck, at the scale of OQ-183 (D-161, D-621).
+64. Owner: set the M-4 band from the M-4 numbers, before the sign-off (D-571).
+65. **← GATE 2 (first playable).**
+66. PR-74: the capture, which replays a record into frames and audio (D-476, D-551).
+67. PR-75: the store text and the checklist of the owner steps (D-452, D-550).
+68. PR-76: the store art and the five screenshots (D-475, D-550).
+69. Owner: pay the Steam Direct fee, and put the store page public as Coming Soon (D-471).
 
 PR-37 is retired. The CRT pass of the first plan has no purpose after D-618, and no later item takes the id (G-10).
 
@@ -728,7 +741,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 16. PR-48, PR-56, PR-93, PR-63, PR-57, PR-58, PR-94, PR-59, PR-92, PR-95, PR-60, PR-96, PR-97.
 17. PR-11, PR-98, PR-67, PR-62.
 18. PR-68, PR-50.
-19. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-14, PR-65.
+19. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-14, PR-65.
 20. PR-36.
 21. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
 22. Owner: require the bot and `night-gate` checks on `main` after their first runs.

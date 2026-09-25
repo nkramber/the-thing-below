@@ -1466,6 +1466,7 @@ public partial class Boot : Node
         GD.Print($"smoke: the crash file is {DescribeCrashFile(session)}.");
         GD.Print($"smoke: the UI base is {DescribeUiBase(content)}.");
         GD.Print($"smoke: the map is {DescribeMap(content, session)}.");
+        GD.Print($"smoke: the lit map is {DescribeLitMap(content, files, session)}.");
         GD.Print($"smoke: the picture is {DescribePicture(content)}.");
         GD.Print($"smoke: the console is {this.DescribeConsole(session)}.");
         GD.Print($"smoke: the battle is {this.DescribeBattle(content, session, new SaveStore(smokeSaves))}.");
@@ -1981,6 +1982,50 @@ public partial class Boot : Node
         return $"'{map.Id.Value}' at {map.Width} by {map.Height} tiles, "
             + $"the party at {session.Party.LeadAt}, the view at ({view.X}, {view.Y}), "
             + $"{sprites}, {torch}, {lights}, {weather}, {lights2}, {room}, and {ground}";
+    }
+
+    /// <summary>
+    /// Draws a copy of the first map that is not dark, and fails when a live enemy draws no sprite
+    /// (D-814, D-1118). The first map is dark since PR-91, and on a dark map the fade of the sight
+    /// sets each sprite, so the check of that map alone could not see a lost enemy.
+    /// </summary>
+    /// <param name="loaded">The content set of this build.</param>
+    /// <param name="files">The content files of this build, which hold the map file.</param>
+    /// <param name="session">The run of the smoke session, whose map this check copies.</param>
+    /// <returns>The count of enemies and the count that draws.</returns>
+    /// <exception cref="InvalidOperationException">The map file holds no dark flag, or a live enemy draws no sprite (T-2).</exception>
+    private static string DescribeLitMap(ContentSet loaded, IReadOnlyList<ContentFile> files, GameRun session)
+    {
+        GameMap dark = session.Party.Map;
+        const string DarkFlag = "\"dark\": true";
+        string text = System.Text.Encoding.UTF8.GetString(FileOf(files, dark.File).Bytes);
+        if (!text.Contains(DarkFlag, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException($"The map file '{dark.File}' holds no '{DarkFlag}', so the lit copy would test nothing (D-1118, T-2).");
+        }
+
+        GameMap lit = GameMap.Read(System.Text.Encoding.UTF8.GetBytes(text.Replace(DarkFlag, "\"dark\": false", StringComparison.Ordinal)), dark.File);
+        MapState party = MapState.Enter(lit);
+        UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
+        var drawn = new MapScreen();
+        drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, party, loaded, loaded.Effects.Ambient.WeatherOf(lit.Id), loaded.Light.Passes);
+        drawn.ShowParty(party, 0, session.Tick, torchHeld: false);
+        string sprites = drawn.DescribeSprites(party);
+        drawn.QueueFree();
+        return sprites;
+    }
+
+    private static ContentFile FileOf(IReadOnlyList<ContentFile> files, string path)
+    {
+        foreach (ContentFile file in files)
+        {
+            if (string.Equals(file.Path, path, StringComparison.Ordinal))
+            {
+                return file;
+            }
+        }
+
+        throw new InvalidOperationException($"The content of this build holds no file '{path}' (T-2).");
     }
 
     /// <summary>

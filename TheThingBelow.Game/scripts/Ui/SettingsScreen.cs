@@ -441,29 +441,48 @@ public sealed class SettingsScreen
         }
 
         this.Paint(label, chosen);
+
+        // Each cell whose binding sits in a conflict takes the warning color, so each conflict
+        // shows on the grid, and the line names one of them (D-862, D-1119).
+        if (!chosen && SettingsMenu.InConflict(bindings, action, slot))
+        {
+            label.AddThemeColorOverride("font_color", this.warningColor);
+        }
     }
 
     private void ShowHelp()
     {
-        IReadOnlyList<BindingConflict> conflicts = this.Menu.Conflicts;
-        if (conflicts.Count == 0)
+        if (this.Menu.ConflictToName() is not ShownConflict shown)
         {
             this.ui.Text.Put(this.help, Id("settings.help"));
             this.Paint(this.help, false);
             return;
         }
 
-        BindingConflict first = conflicts[0];
-        (string inputId, Dictionary<string, string> inputValues) = BindingText(first.Binding);
+        BindingConflict named = shown.Conflict;
+        (string inputId, Dictionary<string, string> inputValues) = BindingText(named.Binding);
         ContentId input = Id(inputId);
         string inputText = TextHelper.Fill(this.strings.Text(input), input, inputValues);
-        this.ui.Text.Put(
-            this.help,
-            Id("settings.conflict"),
-            Values(
-                ("input", inputText),
-                ("first", this.strings.Text(Id($"settings.action_{first.Actions[0]}"))),
-                ("second", this.strings.Text(Id($"settings.action_{first.Actions[1]}")))));
+        (string Key, string Value)[] pairs =
+        [
+            ("input", inputText),
+            ("first", this.strings.Text(Id($"settings.action_{named.Actions[0]}"))),
+            ("second", this.strings.Text(Id($"settings.action_{named.Actions[1]}"))),
+        ];
+
+        // With more than one conflict, the line gives the place of this one, such as 1 of 2 (D-1119).
+        if (shown.Count == 1)
+        {
+            this.ui.Text.Put(this.help, Id("settings.conflict"), Values(pairs));
+        }
+        else
+        {
+            this.ui.Text.Put(
+                this.help,
+                Id("settings.conflict_of"),
+                Values([.. pairs, ("place", Number(shown.Place)), ("count", Number(shown.Count))]));
+        }
+
         this.help.AddThemeColorOverride("font_color", this.warningColor);
     }
 

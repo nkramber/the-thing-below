@@ -158,6 +158,50 @@ public sealed class SettingsMenuTests
     }
 
     [Fact]
+    public void EachConflictMarksItsCellsAndTheLineNamesTheConflictOfTheRow()
+    {
+        // D-862, D-1119, the reproducer of the review: the screen named the first of two
+        // conflicts alone. Back takes the button of confirm, and the menu takes the key of the map.
+        Menu menu = Menu.Open();
+        menu.Point(RowOfAction("cancel"), keyboard: false);
+        menu.Choose();
+        menu.Capture(InputBinding.OfButton(SettingsFixtures.ButtonA));
+        menu.Point(RowOfAction("menu"), keyboard: true);
+        menu.Choose();
+        menu.Capture(InputBinding.OfKey(SettingsMigration.MapKey));
+        ControlBindings bindings = menu.Settings.Controls.Bindings;
+
+        Assert.Equal(("map", 2, 2), menu.NamedConflict());
+        Assert.True(InConflict(bindings, "cancel", keyboard: false));
+        Assert.True(InConflict(bindings, "confirm", keyboard: false));
+        Assert.True(InConflict(bindings, "menu", keyboard: true));
+        Assert.True(InConflict(bindings, "map", keyboard: true));
+        Assert.False(InConflict(bindings, "cancel", keyboard: true));
+        Assert.False(InConflict(bindings, "torch", keyboard: true));
+
+        // The boundary: a row with no conflict names the first conflict.
+        menu.Point(RowOfAction("torch"), keyboard: true);
+        Assert.Equal(("cancel", 1, 2), menu.NamedConflict());
+    }
+
+    [Fact]
+    public void AConflictOnAHiddenSecondBindingIsNamedForItsRow()
+    {
+        // A row shows the first key alone. The confirm key takes Up, the second key of walk north,
+        // so the cell of walk north shows W and stays plain, and the line still names the conflict.
+        Menu menu = Menu.Open();
+        menu.Point(RowOfAction("confirm"), keyboard: true);
+        menu.Choose();
+        menu.Capture(InputBinding.OfKey(4194320));
+        menu.Point(RowOfAction("step_north"), keyboard: true);
+        ControlBindings bindings = menu.Settings.Controls.Bindings;
+
+        Assert.Equal(("confirm", 1, 1), menu.NamedConflict());
+        Assert.True(InConflict(bindings, "confirm", keyboard: true));
+        Assert.False(InConflict(bindings, "step_north", keyboard: true));
+    }
+
+    [Fact]
     public void AMoveWhileTheRowWaitsLeavesTheCursor()
     {
         Menu menu = Menu.Open();
@@ -204,6 +248,12 @@ public sealed class SettingsMenuTests
 
     private static T Read<T>(object value, string name) => (T)value.GetType().GetProperty(name)!.GetValue(value)!;
 
+    private static bool InConflict(ControlBindings bindings, string action, bool keyboard)
+    {
+        object slot = Enum.Parse(GameAssemblyFile.Type(SlotTypeName), keyboard ? "Keyboard" : "Gamepad");
+        return (bool)GameAssemblyFile.Type(MenuTypeName).GetMethod("InConflict")!.Invoke(null, [bindings, action, slot])!;
+    }
+
     /// <summary>The settings menu, read from the Game assembly with no engine (D-614).</summary>
     private sealed class Menu
     {
@@ -231,6 +281,14 @@ public sealed class SettingsMenuTests
         public void Choose() => this.Call("Choose");
 
         public bool Capture(InputBinding binding) => (bool)this.Call("Capture", binding)!;
+
+        /// <summary>Gives the first action, the place, and the count of the conflict that the line names.</summary>
+        public (string First, int Place, int Count) NamedConflict()
+        {
+            object shown = this.Call("ConflictToName")!;
+            BindingConflict conflict = Read<BindingConflict>(shown, "Conflict");
+            return (conflict.Actions[0], Read<int>(shown, "Place"), Read<int>(shown, "Count"));
+        }
 
         public void Point(int row, bool keyboard)
         {

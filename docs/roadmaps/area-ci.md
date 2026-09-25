@@ -427,6 +427,16 @@ Built by PR-102. Phase file: `phase-2-first-playable.md` section 7.38.
 
 > *In plain English:* a moved file, a large list of decisions, or a quick run of merges slipped past a check. Each check now sees these cases.
 
+### 7.25 The guard fixes of PR-105
+
+Built by PR-105. Phase file: `phase-2-first-playable.md` section 7.41.
+
+- The coverage job checks the SHA-512 of the ReportGenerator package, and each tool install reads a checked folder alone (D-1116, F-142).
+- det-lint refuses a file, network, or OS call in Core and the debug commands (DL 11), and text that a directive disables (DL 12). DL 9 reads a scene value across lines and refuses a binary scene. The content and identity tools join the list of D-502 (D-1117, F-144).
+- The smoke session draws a lit copy of the first map, and each live enemy must draw there (D-1118, F-145).
+
+> *In plain English:* four checks had blind spots. A download had no checksum, and code under a switch took no rule. A scene line wrapped, and a dark map hid its enemies. Each check now looks there.
+
 ## 8. Sequence
 
 The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-488). The CI work keeps this order inside it:

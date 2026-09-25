@@ -1,3 +1,38 @@
+## Session 311: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #82 (PR-105), round 1. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
+
+### What this session did, and why
+
+- The owner assigned the open findings of the repository review of 2026-09-24, with no limit of one concern (D-1109). The owner answered each question of P2-3, P3-22, P3-4, P3-33, and P3-23 (D-1110 to D-1116, D-1119).
+- A save of another build follows an edit of a map or a story scene, and a party rule change refuses it (D-1110 to D-1113). Each story step takes an id, and save format 14 and record format 4 hold it.
+- A wipe reloads a save of its own run alone (D-1114). `GameRun.Save` bounds the run record (D-1115). The coverage job checks its package (D-1116).
+- After six findings, the owner asked for three more: det-lint (D-1117), the draw checks (D-1118), and the remap conflicts (D-1119).
+- P3-35 and P3-39 needed no answer: a steal checks its remainder, each damage cut checks its overflow, and stale marks and comments match the code.
+
+### The state of the build
+
+- The simulation version is 29, and the identity file changed in 9 runs. `make verify` passed on the Mac: 3397 tests, format, det-lint, the STE check, identity, content, atlas, and smoke.
+- The remote head is `640ad98` until the first push of this branch.
+
+### What is in flight
+
+- The first push, the Gitar pass, and then `make codex-review`.
+
+### Traps and gotchas
+
+- The capture session of this Mac stops at the first 1080 frame, because the display is smaller. Read the conflict frame in the artifact of the CI screen-test job.
+- `settings-conflict-1x` changes: the confirm cell takes the warning color. Take the new baseline from that artifact (D-733).
+
+### The questions that block progress
+
+None for this PR. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 stay open in the report.
+
+### The next concrete action
+
+Push the branch, open the PR, and follow the `gitar-review` skill.
+
 ## Session 310: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -295,34 +330,3 @@ None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-
 
 Poll the Gitar check and the CI of the round 8 push. When each check but `review-gate` passes, run `make codex-review PR=80` in the background.
 
-## Session 301: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #80 (PR-103), round 7. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: #80. Role: author. Base: `5c1db06`.
-
-### What this session did, and why
-
-- Each CI check of `29615cb` passed but `review-gate`, which faulted on RG 3 alone, and Gitar approved it with no open finding.
-- `make codex-review PR=80` gave `Changes required` for `29615cb`, with one finding, P2-1: a file that another program grew between the length check and the read of `FileText.Read` passed the cap.
-- The finding has full merit. `FileText` now opens one stream and reads it in counted chunks, and it stops at the first byte past the cap. `FileTextTests` holds the regression and the boundary. `docs/reviews/pr-80-response.md` holds the answer.
-
-### The state of the build
-
-- The tests of Storage pass on this machine, with the new `FileTextTests`.
-- The remote head holds this entry.
-
-### What is in flight
-
-- The CI and the Gitar pass of the round 7 push. Then `make codex-review PR=80` for the repeat review.
-
-### Traps and gotchas
-
-- A check of a length before a second open of the file leaves a gap for another program. Read the file through the one open stream.
-
-### The questions that block progress
-
-None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
-
-### The next concrete action
-
-Poll the Gitar check and the CI of the round 7 push. When each check but `review-gate` passes, run `make codex-review PR=80` in the background.

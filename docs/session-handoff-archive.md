@@ -1,4 +1,36 @@
 # Session handoff archive
+## Session 301: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #80 (PR-103), round 7. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: #80. Role: author. Base: `5c1db06`.
+
+### What this session did, and why
+
+- Each CI check of `29615cb` passed but `review-gate`, which faulted on RG 3 alone, and Gitar approved it with no open finding.
+- `make codex-review PR=80` gave `Changes required` for `29615cb`, with one finding, P2-1: a file that another program grew between the length check and the read of `FileText.Read` passed the cap.
+- The finding has full merit. `FileText` now opens one stream and reads it in counted chunks, and it stops at the first byte past the cap. `FileTextTests` holds the regression and the boundary. `docs/reviews/pr-80-response.md` holds the answer.
+
+### The state of the build
+
+- The tests of Storage pass on this machine, with the new `FileTextTests`.
+- The remote head holds this entry.
+
+### What is in flight
+
+- The CI and the Gitar pass of the round 7 push. Then `make codex-review PR=80` for the repeat review.
+
+### Traps and gotchas
+
+- A check of a length before a second open of the file leaves a gap for another program. Read the file through the one open stream.
+
+### The questions that block progress
+
+None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
+
+### The next concrete action
+
+Poll the Gitar check and the CI of the round 7 push. When each check but `review-gate` passes, run `make codex-review PR=80` in the background.
+
 ## Session 300: 2026-09-25, Codex
 
 Author: Codex
