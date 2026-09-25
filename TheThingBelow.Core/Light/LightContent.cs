@@ -453,6 +453,10 @@ public sealed class LightContent
     /// Refuses a light setup whose lights can push lit art to the glow threshold, because that
     /// art would glow (D-910, F-47). The bound of <see cref="BrightestLight"/> reads full white art.
     /// </summary>
+    /// <remarks>
+    /// Each glow halo of a map adds its light onto the lit tiles under it, so the bound reads each
+    /// halo too (D-1075).
+    /// </remarks>
     private void RefuseGlowOnArt(SortedDictionary<string, GameMap> maps, Palette palette)
     {
         FlickerLevel brightest = this.BrightestFlicker();
@@ -460,12 +464,20 @@ public sealed class LightContent
         {
             GameMap map = maps[setup.Map.Value];
             IReadOnlyList<MapLight> lights = this.LightsOf(setup.Map, setup.Time);
-            LitPeak peak = BrightestLight.OnMap(lights, setup.Ambient, this.Carried.Light, brightest, palette, map.Width, map.Height);
+            LitPeak peak = BrightestLight.OnMap(
+                lights,
+                this.HalosOf(setup.Map, lights),
+                setup.Ambient,
+                (this.Carried.Light, this.Carried.Fire.Glow),
+                brightest,
+                palette,
+                map.Width,
+                map.Height);
             if (peak.Level >= this.Glow.Threshold)
             {
                 throw ContentException.ForFile(
                     setup.File,
-                    $"the light at the tile ({peak.Column}, {peak.Row}) of the map '{setup.Map.Value}' can light white art to {peak.Level} basis points, the carried light included, and the threshold of `{Glow.Path}` is {this.Glow.Threshold}, so that art would glow (D-910, F-47)");
+                    $"the light at the tile ({peak.Column}, {peak.Row}) of the map '{setup.Map.Value}' can light white art to {peak.Level} basis points, the carried light and each glow halo included, and the threshold of `{Glow.Path}` is {this.Glow.Threshold}, so that art would glow (D-910, D-1075, F-47)");
             }
 
             int fight = BrightestLight.InFight(setup.Ambient, setup.Battle, palette);
@@ -501,8 +513,7 @@ public sealed class LightContent
     /// </remarks>
     private void RefuseBrightHalo(GlowSeed seed, Palette palette, string file)
     {
-        long channel = BrightestLight.BrightestChannelOf(seed.Key, palette);
-        long most = checked((long)seed.Strength * channel / BrightestLight.FullChannel);
+        long most = BrightestLight.HaloPeak(seed, palette);
         if (most >= this.Glow.Threshold)
         {
             throw ContentException.ForField(
@@ -512,6 +523,32 @@ public sealed class LightContent
         }
     }
 
+
+    /// <summary>Gives the glow halo of each decor piece of one map, at the place of its light (D-1075).</summary>
+    /// <param name="map">The id of the map.</param>
+    /// <param name="lights">The lights of the map at one time of day, which give the place of each piece light.</param>
+    /// <returns>The halo of each piece whose light the list holds, in the order of the lights.</returns>
+    public IReadOnlyList<HaloPlace> HalosOf(ContentId map, IReadOnlyList<MapLight> lights)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(lights);
+
+        DecorFile decor = this.DecorOf(map);
+        var halos = new List<HaloPlace>();
+        foreach (MapLight light in lights)
+        {
+            foreach (DecorPiece piece in decor.Pieces)
+            {
+                if (string.CompareOrdinal(piece.Id.Value, light.Id.Value) == 0)
+                {
+                    GlowSeed glow = this.KindOf(piece.Kind).Fire.Glow;
+                    halos.Add(new HaloPlace(checked(light.X + glow.X), checked(light.Y + glow.Y), glow));
+                }
+            }
+        }
+
+        return halos;
+    }
 
     /// <summary>Gives the strongest strength and the widest range of every fire of the build, which each light of the bound takes (D-891).</summary>
     private FlickerLevel BrightestFlicker()

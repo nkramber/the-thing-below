@@ -18,7 +18,7 @@ public sealed class BrightestLightTests
     public void AMapWithNoLightGivesTheAmbientAndTheCarriedLightOnEachTile()
     {
         // D-847: the carried light can stand on any tile, so each tile takes its full strength.
-        LitPeak peak = BrightestLight.OnMap([], White(5000), Light(White(10000), 64), Steady, Palette(), 4, 3);
+        LitPeak peak = BrightestLight.OnMap([], [], White(5000), (Light(White(10000), 64), NoGlow), Steady, Palette(), 4, 3);
 
         Assert.Equal(15000, peak.Level);
     }
@@ -26,7 +26,7 @@ public sealed class BrightestLightTests
     [Fact]
     public void ALightGivesItsFullStrengthOnItsOwnTile()
     {
-        LitPeak peak = BrightestLight.OnMap([Lamp(80, 80, 20000, 64)], White(0), Light(White(0), 64), Steady, Palette(), 5, 5);
+        LitPeak peak = BrightestLight.OnMap([Lamp(80, 80, 20000, 64)], [], White(0), (Light(White(0), 64), NoGlow), Steady, Palette(), 5, 5);
 
         Assert.Equal(new LitPeak(2, 2, 20000), peak);
     }
@@ -38,7 +38,7 @@ public sealed class BrightestLightTests
         // one row, and the column 3 between them takes 15000 from each: 48 of 64 pixels of reach.
         IReadOnlyList<MapLight> lights = [Lamp(80, 80, 20000, 64), Lamp(144, 80, 20000, 64)];
 
-        LitPeak peak = BrightestLight.OnMap(lights, White(0), Light(White(0), 64), Steady, Palette(), 7, 5);
+        LitPeak peak = BrightestLight.OnMap(lights, [], White(0), (Light(White(0), 64), NoGlow), Steady, Palette(), 7, 5);
 
         Assert.Equal(3, peak.Column);
         Assert.Equal(30000, peak.Level);
@@ -48,7 +48,7 @@ public sealed class BrightestLightTests
     public void TheStrongestLevelOfAFireRaisesEachLight()
     {
         // D-891: a torch steps up to 120 percent of its file, and the bound takes that level.
-        LitPeak peak = BrightestLight.OnMap([Lamp(80, 80, 20000, 64)], White(0), Light(White(0), 64), new FlickerLevel(12000, 10000), Palette(), 5, 5);
+        LitPeak peak = BrightestLight.OnMap([Lamp(80, 80, 20000, 64)], [], White(0), (Light(White(0), 64), NoGlow), new FlickerLevel(12000, 10000), Palette(), 5, 5);
 
         Assert.Equal(24000, peak.Level);
     }
@@ -57,9 +57,42 @@ public sealed class BrightestLightTests
     public void ALightCountsItsBrightestChannel()
     {
         // The gray of the palette holds 128 of 255 in each channel.
-        LitPeak peak = BrightestLight.OnMap([Lamp(80, 80, 20000, 64, 'g')], White(0), Light(White(0), 64), Steady, Palette(), 5, 5);
+        LitPeak peak = BrightestLight.OnMap([Lamp(80, 80, 20000, 64, 'g')], [], White(0), (Light(White(0), 64), NoGlow), Steady, Palette(), 5, 5);
 
         Assert.Equal(10040, peak.Level);
+    }
+
+    [Fact]
+    public void AHaloAddsItsMiddleToEachTileThatItsCircleReaches()
+    {
+        // D-1075: a halo adds its light onto the art under it. The halo of 64 pixels at (80, 80)
+        // reaches the tile of (48, 48), whose nearest pixel lies 16 pixels from its middle, and
+        // not the tile of (16, 16), whose nearest pixel lies 48 pixels away on each axis.
+        HaloPlace halo = new(80, 80, new GlowSeed('w', 5000, 64, 64, 0, 0));
+
+        LitPeak peak = BrightestLight.OnMap([], [halo], White(0), (Light(White(0), 64), NoGlow), Steady, Palette(), 5, 5);
+
+        Assert.Equal(new LitPeak(1, 1, 5000), peak);
+    }
+
+    [Fact]
+    public void AHaloAddsOntoTheLightOfTheTile()
+    {
+        // D-1075, F-47: the lamp gives 20000 at its middle, and the halo there adds 5000 more.
+        HaloPlace halo = new(80, 80, new GlowSeed('w', 5000, 64, 64, 0, 0));
+
+        LitPeak peak = BrightestLight.OnMap([Lamp(80, 80, 20000, 64)], [halo], White(0), (Light(White(0), 64), NoGlow), Steady, Palette(), 5, 5);
+
+        Assert.Equal(new LitPeak(2, 2, 25000), peak);
+    }
+
+    [Fact]
+    public void TheCarriedHaloReachesEachTile()
+    {
+        // D-847, D-1075: the carried torch can stand at any place, so its halo counts on each tile.
+        LitPeak peak = BrightestLight.OnMap([], [], White(0), (Light(White(0), 64), new GlowSeed('w', 3000, 32, 32, 0, 0)), Steady, Palette(), 4, 3);
+
+        Assert.Equal(new LitPeak(0, 0, 3000), peak);
     }
 
     [Fact]
@@ -89,7 +122,7 @@ public sealed class BrightestLightTests
                 lights.Add(Lamp(random.Next(0, Columns * 32), random.Next(0, Rows * 32), random.Next(1000, 40001), random.Next(8, 200)));
             }
 
-            LitPeak peak = BrightestLight.OnMap(lights, White(0), Light(White(0), 64), Steady, Palette(), Columns, Rows);
+            LitPeak peak = BrightestLight.OnMap(lights, [], White(0), (Light(White(0), 64), NoGlow), Steady, Palette(), Columns, Rows);
             double brightest = BrightestPixelOf(lights, Columns * 32, Rows * 32);
 
             Assert.True(brightest <= peak.Level, $"seed {seed}: a pixel takes {brightest:0.0} basis points, above the bound {peak.Level} (D-910, F-47)");
@@ -107,10 +140,12 @@ public sealed class BrightestLightTests
         GameMap map = set.Map(dungeon);
         LightSetup setup = set.Light.SetupOf(dungeon, TimeOfDay.Night);
 
+        IReadOnlyList<MapLight> lights = set.Light.LightsOf(dungeon, TimeOfDay.Night);
         LitPeak peak = BrightestLight.OnMap(
-            set.Light.LightsOf(dungeon, TimeOfDay.Night),
+            lights,
+            set.Light.HalosOf(dungeon, lights),
             setup.Ambient,
-            set.Light.Carried.Light,
+            (set.Light.Carried.Light, set.Light.Carried.Fire.Glow),
             BrightestLevelOf(set.Light),
             set.Palette,
             map.Width,
@@ -173,6 +208,9 @@ public sealed class BrightestLightTests
     private static PointLightValues Light(LightColor color, int range) => new(color, range, 16);
 
     private static LightColor White(int strength) => new('w', strength);
+
+    /// <summary>The glow of a fire that never glows (D-912).</summary>
+    private static GlowSeed NoGlow => new('w', 0, 1, 1, 0, 0);
 
     /// <summary>A palette of full white and a gray of 128 in each channel.</summary>
     private static Palette Palette() => Core.Content.Palette.Read(
