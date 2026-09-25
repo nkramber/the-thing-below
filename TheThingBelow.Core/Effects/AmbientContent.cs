@@ -16,7 +16,7 @@ namespace TheThingBelow.Core.Effects;
 /// <list type="bullet">
 /// <item>Each map that a file serves exists, and a map takes one shipped weather or none (D-202).</item>
 /// <item>Each color names a key of the palette (D-181).</item>
-/// <item>The particles of a map, with its weather, its torches, and the carried light, keep inside the effect budget. So do the particles of a fight on the map, with its largest hit burst (D-523).</item>
+/// <item>The particles of a map, with its weather, its torches, and the carried light, keep inside the effect budget. So do the particles of a fight on the map, with its largest hit burst and its largest spell burst (D-523, D-1032).</item>
 /// <item>Each map keeps inside the row of full-screen passes: the glow, the tilt-shift blur, the vignette, its light shafts, and the fog of its weather, as one pass for all its layers (D-523, D-898, D-918, D-920).</item>
 /// <item>The full strength of each layer of fog keeps each enemy of each map that it serves visible (D-885, D-886).</item>
 /// </list>
@@ -66,7 +66,8 @@ public sealed class AmbientContent
     /// <summary>Reads every ambient file, and checks each one against the maps, the palette, the budget, and the enemies.</summary>
     /// <param name="files">The ambient files, which <see cref="AmbientEffect.IsAmbientFile"/> picked.</param>
     /// <param name="world">The maps, the fight, the light, the drawings, and the palette that the checks read.</param>
-    /// <param name="hits">The hit effects, for the largest burst of a fight.</param>
+    /// <param name="hits">The hit effects, for the largest hit burst of a fight.</param>
+    /// <param name="spells">The spell effects, for the largest spell burst of a fight (D-1032).</param>
     /// <param name="ids">The id of each effect file read before, by its path, so one id names one effect (D-166).</param>
     /// <returns>The ambient content.</returns>
     /// <exception cref="ContentException">A file breaks a rule of its reader, or a check across files fails (T-2).</exception>
@@ -74,11 +75,13 @@ public sealed class AmbientContent
         IReadOnlyList<ContentFile> files,
         AmbientWorld world,
         IReadOnlyList<HitEffect> hits,
+        IReadOnlyList<SpellEffect> spells,
         SortedDictionary<string, string> ids)
     {
         ArgumentNullException.ThrowIfNull(files);
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(hits);
+        ArgumentNullException.ThrowIfNull(spells);
         ArgumentNullException.ThrowIfNull(ids);
 
         var all = new List<AmbientEffect>();
@@ -97,14 +100,15 @@ public sealed class AmbientContent
 
         all.Sort(static (first, second) => string.CompareOrdinal(first.File, second.File));
         SortedDictionary<string, AmbientEffect> weatherOf = WeatherOfEachMap(all, world.Maps);
-        int burst = LargestBurst(hits);
+        int hitBurst = LargestHitBurst(hits);
+        int spellBurst = LargestSpellBurst(spells);
         foreach (AmbientEffect effect in all)
         {
             RefuseAbsentColor(effect, world.Palette);
             foreach (ContentId map in effect.Maps)
             {
                 GameMap served = world.Maps[map.Value];
-                RefuseOverBudget(effect, served, world, burst);
+                RefuseOverBudget(effect, served, world, hitBurst, spellBurst);
                 RefusePassesOverBudget(served, effect, world.Light);
                 RefuseFaintEnemy(effect, served, world);
             }
@@ -165,12 +169,23 @@ public sealed class AmbientContent
         return weatherOf;
     }
 
-    private static int LargestBurst(IReadOnlyList<HitEffect> hits)
+    private static int LargestHitBurst(IReadOnlyList<HitEffect> hits)
     {
         int largest = 0;
         foreach (HitEffect hit in hits)
         {
             largest = Math.Max(largest, hit.Particles);
+        }
+
+        return largest;
+    }
+
+    private static int LargestSpellBurst(IReadOnlyList<SpellEffect> spells)
+    {
+        int largest = 0;
+        foreach (SpellEffect spell in spells)
+        {
+            largest = Math.Max(largest, spell.Particles);
         }
 
         return largest;
@@ -202,20 +217,28 @@ public sealed class AmbientContent
     /// <summary>
     /// Refuses a weather whose particles pass the budget on a map (D-523, T-2). The
     /// map count holds every torch of the map, the carried light, and the weather. A fight shows
-    /// the weather and one hit burst at a time.
+    /// the weather and one hit burst at a time, and a lesson event plays the burst of its spell
+    /// with the hit burst of its target (D-1032).
     /// </summary>
-    private static void RefuseOverBudget(AmbientEffect effect, GameMap map, AmbientWorld world, int burst)
+    private static void RefuseOverBudget(AmbientEffect effect, GameMap map, AmbientWorld world, int hitBurst, int spellBurst)
     {
         EffectBudget budget = world.Light.Budget;
         int onMap = checked(effect.Particles + TorchParticlesOf(map, world.Light));
-        int inFight = checked(effect.Particles + burst);
-        int live = Math.Max(onMap, inFight);
-        if (live > budget.LiveParticles)
+        if (onMap > budget.LiveParticles)
         {
             throw ContentException.ForField(
                 effect.File,
                 "emitters",
-                $"the map '{map.Id.Value}' shows {live} live particles with this weather, and the row `live_particles` of `{EffectBudget.Path}` allows {budget.LiveParticles} (D-523)");
+                $"the map '{map.Id.Value}' shows {onMap} live particles with this weather, and the row `live_particles` of `{EffectBudget.Path}` allows {budget.LiveParticles} (D-523)");
+        }
+
+        int inFight = checked(effect.Particles + hitBurst + spellBurst);
+        if (inFight > budget.LiveParticles)
+        {
+            throw ContentException.ForField(
+                effect.File,
+                "emitters",
+                $"a fight on the map '{map.Id.Value}' shows {inFight} live particles: {effect.Particles} of this weather, {hitBurst} of the largest hit burst, and {spellBurst} of the largest spell burst, and the row `live_particles` of `{EffectBudget.Path}` allows {budget.LiveParticles} (D-523, D-1032)");
         }
     }
 

@@ -131,7 +131,7 @@ public sealed class EffectContent
             }
             else if (AmbientEffect.IsAmbientFile(file.Path))
             {
-                // An ambient file needs the hit files for the budget of a fight, so it reads last.
+                // An ambient file needs the hit files and the spell files for the budget of a fight, so it reads last.
                 ambientFiles.Add(file);
             }
             else if (TransitionContent.IsTransitionContent(file.Path))
@@ -178,7 +178,7 @@ public sealed class EffectContent
             hitOf,
             spells,
             spellOf,
-            AmbientContent.Load(ambientFiles, world, hits, ids),
+            AmbientContent.Load(ambientFiles, world, hits, spells, ids),
             TransitionContent.Load(transitionFiles, world.Maps, palette, ids));
     }
 
@@ -250,11 +250,6 @@ public sealed class EffectContent
         }
     }
 
-    /// <summary>
-    /// Refuses a burst whose particles pass the row of the budget (D-523, T-2). The screen
-    /// plays one event at a time, and it ends the burst of an event when the next one starts,
-    /// so one burst is the most that a fight shows at once.
-    /// </summary>
     /// <summary>
     /// Gives the spell file of each form of a rite, and refuses a file that serves another ability,
     /// two files of one ability, and a form of a rite with no file (D-1032).
@@ -345,6 +340,12 @@ public sealed class EffectContent
         }
     }
 
+    /// <summary>
+    /// Refuses a burst whose particles pass the row of the budget (D-523, T-2). The screen
+    /// plays one event at a time, and it ends the burst of an event when the next one starts,
+    /// so one hit burst is the most that a fight shows at once. A lesson event adds the burst of
+    /// its spell, and the check of the ambient files counts the weather and both bursts (D-1032).
+    /// </summary>
     private static void RefuseOverBudget(List<HitEffect> hits, EffectBudget budget)
     {
         foreach (HitEffect hit in hits)

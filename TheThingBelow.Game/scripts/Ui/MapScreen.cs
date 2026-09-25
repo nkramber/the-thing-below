@@ -354,8 +354,8 @@ public partial class MapScreen : Node2D
             this.AddChild(WallOccluder(wall));
         }
 
-        ImageTexture texture = WorldLights.BuildTexture(WorldLights.LightFalloff);
-        ImageTexture halo = WorldLights.BuildHaloTexture(GlowPass.HaloPower);
+        ImageTexture texture = WorldLights.LightTexture(WorldLights.LightFalloff);
+        ImageTexture halo = WorldLights.HaloTexture(GlowPass.HaloPower);
         const int EveryShadow = WorldLights.WallShadows | WorldLights.FigureShadows | WorldLights.LeadShadows;
         DecorFile decor = content.Light.DecorOf(map.Id);
         foreach (MapLight light in content.Light.LightsOf(map.Id, map.Time))

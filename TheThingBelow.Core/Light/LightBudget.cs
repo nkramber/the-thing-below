@@ -17,6 +17,8 @@ public sealed record LightCount(int Left, int Top, int Count);
 /// <remarks>
 /// A light reaches a window when the square of its range meets the window. Godot culls a light
 /// by that square too, so the count matches the lights that the engine gives each canvas item.
+/// The load gives each torch the range of the widest step of its fire, so the count holds each
+/// step (D-891).
 /// <para>
 /// The carried light follows the lead, so it can stand in any view and over any canvas item.
 /// Each count adds it (D-847).

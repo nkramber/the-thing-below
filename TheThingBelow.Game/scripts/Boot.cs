@@ -1473,9 +1473,28 @@ public partial class Boot : Node
         GD.Print($"smoke: the settings screen is {this.DescribeSettings(content)}.");
         GD.Print($"smoke: the menus are {this.DescribeMenus(content)}.");
         GD.Print($"smoke: the pads are {DescribePads()}.");
+        GD.Print($"smoke: the light textures are {DescribeLightTextures()}.");
         Directory.Delete(smokeSaves, true);
         GD.Print("smoke: the session ends with no error.");
         GetTree().Quit(SuccessExitCode);
+    }
+
+    /// <summary>
+    /// Reads the builds of the light texture and the halo texture in the session, and fails on a
+    /// second build of either one (G-14). The session builds two maps and a fight with its spell
+    /// flash, and each one takes the shared texture of <see cref="WorldLights"/>.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A texture was built more than once, or never (T-2).</exception>
+    private static string DescribeLightTextures()
+    {
+        if (WorldLights.LightTextureBuilds != 1 || WorldLights.HaloTextureBuilds != 1)
+        {
+            throw new InvalidOperationException(
+                $"The session built the light texture {WorldLights.LightTextureBuilds} times and the halo texture {WorldLights.HaloTextureBuilds} times, and each map, each fight, and each spell flash shares one of each (G-14, T-2).");
+        }
+
+        string time = WorldLights.TextureBuildTime.TotalMilliseconds.ToString("F1", CultureInfo.InvariantCulture);
+        return $"one build of the light texture and one of the halo texture, in {time} ms, for two maps and a fight";
     }
 
     /// <summary>Gives the settings of the smoke session: the defaults, and never the file of the person (D-860).</summary>
