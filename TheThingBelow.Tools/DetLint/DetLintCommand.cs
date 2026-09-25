@@ -48,6 +48,10 @@ public static class DetLintCommand
         {
             [$"{ToolsProject}/Atlas"] = "PR-34",
             [$"{ToolsProject}/Audio"] = "PR-38",
+
+            // The content hash and the identity file each compare on every leg too (D-504, D-648).
+            [$"{ToolsProject}/Content"] = "PR-5",
+            [$"{ToolsProject}/Identity"] = "PR-4",
             [$"{ToolsProject}/NormalMaps"] = "PR-48",
             [$"{ToolsProject}/Pictures"] = "PR-55",
             [$"{ToolsProject}/Png"] = "PR-47",
@@ -189,9 +193,9 @@ public static class DetLintCommand
     }
 
     /// <summary>
-    /// Reads the commands of the debug assembly with the float, clock, and OS random rules
-    /// (D-171, D-724, T-7). A handler of a debug command changes the state of a run inside a
-    /// tick, so it takes the determinism rules of a rule of Core (G-2, G-3).
+    /// Reads the commands of the debug assembly with the float, clock, OS random, and file and
+    /// OS rules (D-171, D-724, T-7). A handler of a debug command changes the state of a run
+    /// inside a tick, so it takes the determinism rules of a rule of Core (G-1, G-2, G-3).
     /// </summary>
     /// <remarks>
     /// The scan compiles the files of that folder alone, against the framework set of this
@@ -204,15 +208,23 @@ public static class DetLintCommand
             "det-lint.debug",
             ProjectFiles.ReadCode(root, DebugCommandsFolder),
             ReferenceSet.Framework(),
-            CoreRules.ComparedOutputTools());
+            CoreRules.DebugCommands());
 
-    /// <summary>Reads each Godot scene file of Game with the text rule (D-499).</summary>
+    /// <summary>
+    /// Reads each Godot scene file of Game with the text rule (D-499). A binary scene file or
+    /// resource file gives a finding, because the rule cannot read its text (D-825).
+    /// </summary>
     private static IReadOnlyList<LintFinding> CheckScenes(string root)
     {
         List<LintFinding> findings = [];
         foreach (string scene in ProjectFiles.ReadScenes(root, GameProject))
         {
             findings.AddRange(SceneTextRule.Check(scene, File.ReadAllLines(Path.Combine(root, scene))));
+        }
+
+        foreach (string binary in ProjectFiles.ReadBinaryScenes(root, GameProject))
+        {
+            findings.Add(SceneTextRule.RefuseBinary(binary));
         }
 
         return findings;

@@ -38,7 +38,7 @@ public sealed class RunRecordTextTests
         string header = RunRecordText.Write(SmallRecord()).Split('\n')[0];
 
         Assert.Equal(
-            "{\"format\":3,\"simulation\":" + SimulationVersion.Current +
+            "{\"format\":4,\"simulation\":" + SimulationVersion.Current +
             ",\"content\":\"a-content-hash\",\"seed\":\"0x0000000001352836\",\"game\":\"" +
             GameVersion.Current + "\"}",
             header);
@@ -159,24 +159,25 @@ public sealed class RunRecordTextTests
     public void ARecordOfAnOlderFormatReportsItsFormatBeforeItsSnapshot()
     {
         // PR-68 and PR-12 gave an intent new fields and left the format at 2, so the format rose
-        // to 3, and a record of format 2 names its format.
+        // to 3, and PR-105 raised it to 4 for the step id of a story scene (D-1112). A record of
+        // an older format names its format.
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
-        lines[0] = lines[0].Replace("{\"format\":3,", "{\"format\":2,", StringComparison.Ordinal);
+        lines[0] = lines[0].Replace("{\"format\":4,", "{\"format\":3,", StringComparison.Ordinal);
         lines[1] = "{\"tick\":0}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
 
         Assert.Equal(1, error.Line);
-        Assert.Contains("format version 2", error.Message, StringComparison.Ordinal);
-        Assert.Equal(3, RunRecordFormat.Current);
+        Assert.Contains("format version 3", error.Message, StringComparison.Ordinal);
+        Assert.Equal(4, RunRecordFormat.Current);
     }
 
     [Fact]
     public void AnAbsentFieldOfTheHeaderIsAnErrorThatNamesTheLineAndTheField()
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
-        lines[0] = "{\"format\":3,\"simulation\":3,\"content\":\"a\",\"seed\":\"0x0000000000000001\"}";
+        lines[0] = "{\"format\":4,\"simulation\":3,\"content\":\"a\",\"seed\":\"0x0000000000000001\"}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
@@ -207,7 +208,7 @@ public sealed class RunRecordTextTests
     public void ASeedOfAnotherFormIsAnError(string seed)
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
-        lines[0] = "{\"format\":3,\"simulation\":3,\"content\":\"a\",\"seed\":" + seed + ",\"game\":\"0.1.0\"}";
+        lines[0] = "{\"format\":4,\"simulation\":3,\"content\":\"a\",\"seed\":" + seed + ",\"game\":\"0.1.0\"}";
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));
@@ -279,7 +280,7 @@ public sealed class RunRecordTextTests
     public void AFieldOfTheHeaderTwoTimesIsAnErrorThatNamesTheLine()
     {
         string[] lines = RunRecordText.Write(SmallRecord()).TrimEnd('\n').Split('\n');
-        lines[0] = lines[0].Replace("{\"format\":3,", "{\"format\":3,\"format\":1,", StringComparison.Ordinal);
+        lines[0] = lines[0].Replace("{\"format\":4,", "{\"format\":4,\"format\":1,", StringComparison.Ordinal);
 
         RunRecordException error = Assert.Throws<RunRecordException>(
             () => RunRecordText.Read(string.Join('\n', lines) + "\n"));

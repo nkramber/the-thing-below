@@ -902,6 +902,10 @@
    "text": "{input} is on {first} and {second}. Move one."
   },
   {
+   "id": "settings.conflict_of",
+   "text": "{input} is on {first} and {second}. Move one. {place} of {count}."
+  },
+  {
    "id": "settings.dead_zone",
    "text": "Stick dead zone"
   },

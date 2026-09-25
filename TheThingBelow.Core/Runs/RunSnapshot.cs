@@ -18,7 +18,8 @@ public sealed record StreamPosition(StreamId Stream, ulong State, ulong Incremen
 /// <summary>The party on one map at the moment of a snapshot (D-166, D-528, D-567).</summary>
 /// <remarks>
 /// The snapshot holds the id of the map and never its content, so a load reads the map of
-/// this build and a content change never breaks a save (D-166, D-495).
+/// this build (D-166, D-495). A save of another build matches each enemy by its id, and it
+/// moves a lead that the edited map no longer holds to the spawn point (D-1111).
 /// </remarks>
 /// <param name="Map">The id of the map that the party stands on (D-528).</param>
 /// <param name="LeadX">The column of the lead (D-106).</param>

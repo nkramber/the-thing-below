@@ -474,9 +474,9 @@ public sealed class BattleEventQueueTests
         public static GameRunView Reload(SaveDocument? slot, SaveDocument? autosave)
         {
             Type type = GameAssemblyFile.Type("TheThingBelow.Game.GameRun");
-            MethodInfo reload = type.GetMethod("Reload", [typeof(ContentSet), typeof(SaveDocument), typeof(SaveDocument), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])
+            MethodInfo reload = type.GetMethod("Reload", [typeof(ContentSet), typeof(SaveDocument), typeof(SaveDocument), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed), typeof(List<LogEntry>)])
                 ?? throw new InvalidOperationException("The run holds no 'Reload' method (T-2).");
-            return new GameRunView(type, reload.Invoke(null, [Content.Value, slot, autosave, Seed, DebugIntentHandlers.None, MessageSpeed.Normal])!);
+            return new GameRunView(type, reload.Invoke(null, [Content.Value, slot, autosave, Seed, DebugIntentHandlers.None, MessageSpeed.Normal, new List<LogEntry>()])!);
         }
 
         public void Queue(Intent intent)

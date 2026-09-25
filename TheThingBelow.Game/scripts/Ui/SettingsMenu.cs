@@ -167,6 +167,61 @@ public sealed class SettingsMenu
     /// <summary>True when no conflict stays, so the screen can close and write the file (D-862).</summary>
     public bool CanClose => this.Conflicts.Count == 0;
 
+    /// <summary>
+    /// The conflict that the line of the screen names: the conflict of the action under the
+    /// cursor, or else the first, with its place among all conflicts (D-862, D-1119). Each other
+    /// conflict shows as a marked cell of the grid.
+    /// </summary>
+    /// <returns>The conflict, its place from 1, and the count, or no value when no conflict stays.</returns>
+    public ShownConflict? ConflictToName()
+    {
+        IReadOnlyList<BindingConflict> conflicts = this.Conflicts;
+        if (conflicts.Count == 0)
+        {
+            return null;
+        }
+
+        string? action = this.Current.Action;
+        for (int index = 0; index < conflicts.Count; index += 1)
+        {
+            if (action is not null && Holds(conflicts[index].Actions, action))
+            {
+                return new ShownConflict(conflicts[index], index + 1, conflicts.Count);
+            }
+        }
+
+        return new ShownConflict(conflicts[0], 1, conflicts.Count);
+    }
+
+    /// <summary>
+    /// Tells whether the binding that one slot of one action shows sits in a conflict, so the
+    /// screen marks that cell (D-862, D-1119).
+    /// </summary>
+    /// <param name="bindings">The bindings.</param>
+    /// <param name="action">The action of the row.</param>
+    /// <param name="slot">The slot of the cell.</param>
+    /// <returns>True when a conflict holds the shown binding and the action.</returns>
+    public static bool InConflict(ControlBindings bindings, string action, BindingSlot slot)
+    {
+        ArgumentNullException.ThrowIfNull(bindings);
+        ArgumentException.ThrowIfNullOrEmpty(action);
+
+        if (BindingIn(bindings, action, slot) is not InputBinding shown)
+        {
+            return false;
+        }
+
+        foreach (BindingConflict conflict in bindings.FindConflicts())
+        {
+            if (conflict.Binding.Equals(shown) && Holds(conflict.Actions, action))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /// <summary>The row of the cursor.</summary>
     public SettingsRow Current => Rows[this.Cursor];
 
@@ -185,6 +240,36 @@ public sealed class SettingsMenu
         }
 
         throw new ArgumentException($"No remap row holds the action '{action}'. The actions are {InputActions.Describe()} (T-2).", nameof(action));
+    }
+
+    /// <summary>
+    /// Gives how one binding cell draws: plain, under the cursor, in a conflict, or in a conflict
+    /// under the cursor (D-1119, D-1120).
+    /// </summary>
+    /// <param name="chosen">True when the cursor stands on the cell.</param>
+    /// <param name="inConflict">True when the binding of the cell sits in a conflict.</param>
+    /// <returns>The look of the cell.</returns>
+    public static SlotLook LookOf(bool chosen, bool inConflict)
+    {
+        if (inConflict)
+        {
+            return chosen ? SlotLook.ConflictUnderCursor : SlotLook.Conflict;
+        }
+
+        return chosen ? SlotLook.Cursor : SlotLook.Plain;
+    }
+
+    private static bool Holds(IReadOnlyList<string> actions, string action)
+    {
+        foreach (string held in actions)
+        {
+            if (string.CompareOrdinal(held, action) == 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Gives the binding that one slot of one action shows.</summary>
@@ -410,3 +495,25 @@ public sealed class SettingsMenu
         };
     }
 }
+
+/// <summary>How one binding cell of the settings screen draws (D-1119, D-1120).</summary>
+public enum SlotLook
+{
+    /// <summary>The text color of the theme.</summary>
+    Plain,
+
+    /// <summary>The color of the cursor.</summary>
+    Cursor,
+
+    /// <summary>The warning color, because the binding sits in a conflict.</summary>
+    Conflict,
+
+    /// <summary>The warning color with an outline in the color of the cursor, so the conflict and the cursor both show.</summary>
+    ConflictUnderCursor,
+}
+
+/// <summary>The conflict that the line of the settings screen names (D-862, D-1119).</summary>
+/// <param name="Conflict">The binding and the actions that hold it.</param>
+/// <param name="Place">The place of the conflict among all conflicts, from 1.</param>
+/// <param name="Count">The count of conflicts.</param>
+public sealed record ShownConflict(BindingConflict Conflict, int Place, int Count);

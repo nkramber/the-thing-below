@@ -8,9 +8,9 @@ namespace TheThingBelow.Core.Light;
 /// (D-847). No rule reads it, so the file lies outside the rule folder (D-495).
 /// </summary>
 /// <remarks>
-/// A switch of Game turns the light on or off, and it is off in play. The lit screen-test
-/// fixture and the `torch` command of the console turn it on, and PR-91 connects the switch to
-/// the torch item (D-847, D-848, D-851).
+/// A switch of Game turns the light on or off. The torch state of the run sets the switch in
+/// play, and the lit screen-test fixture turns it on (D-847, D-848, D-1064). PR-91 connected the
+/// switch to the torch item, and D-1071 removed the `torch` command of the console.
 /// </remarks>
 public sealed class CarriedLight
 {

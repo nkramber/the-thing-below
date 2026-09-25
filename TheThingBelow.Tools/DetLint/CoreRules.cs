@@ -107,8 +107,29 @@ public static class CoreRules
         members: [],
         memberNames: []);
 
-    /// <summary>Every rule of Core: DL 1 to DL 7, and DL 10.</summary>
-    /// <returns>The eight rules, in the order of their ids.</returns>
+    /// <summary>
+    /// DL 11: no file, no network, and no OS service. The reference test of Core cannot see such
+    /// a call, because `System.Runtime` holds `File`, `Environment`, and `OperatingSystem` too.
+    /// A line end of the OS in hashed text would give another hash on another leg (G-1, T-7).
+    /// </summary>
+    public static readonly BannedSymbolRule FileAndSystem = new(
+        "DL 11",
+        "Core reads no file, no network, and no OS service, and it writes no line end of the OS. The host passes each byte and each value in (G-1, D-100, T-7).",
+        types:
+        [
+            "System.AppContext",
+            "System.Console",
+            "System.Diagnostics.Process",
+            "System.Environment",
+            "System.OperatingSystem",
+            "System.Runtime.InteropServices.RuntimeInformation",
+        ],
+        namespaces: ["System.IO", "System.Net", "Microsoft.Win32"],
+        members: [],
+        memberNames: ["AppendLine", "WriteLine"]);
+
+    /// <summary>Every rule of Core: DL 1 to DL 7, DL 10, and DL 11.</summary>
+    /// <returns>The nine rules, in the order of their ids.</returns>
     public static IReadOnlyList<ILintRule> All() =>
     [
         FloatTypes,
@@ -119,7 +140,15 @@ public static class CoreRules
         new StringOrderRule(),
         new CollectionWalkRule(),
         Threads,
+        FileAndSystem,
     ];
+
+    /// <summary>
+    /// The rules of the debug commands, which change a run inside a tick: the float types, the
+    /// clock, the OS random, and the file and OS rule (D-724, G-1).
+    /// </summary>
+    /// <returns>The four rules, in the order of their ids.</returns>
+    public static IReadOnlyList<ILintRule> DebugCommands() => [FloatTypes, Clock, OsRandom, FileAndSystem];
 
     /// <summary>
     /// The rules that a tool of D-502 takes: the float types, the clock, and the OS random.

@@ -45,6 +45,7 @@ public sealed class GameRun
     private readonly ScreenHandOff handOff;
     private readonly StringTable strings;
     private readonly NoticeQueue notices;
+    private readonly string contentHash;
     private ContentId? lastCommon;
     private BattleView? view;
     private BattleEvent? playing;
@@ -60,6 +61,7 @@ public sealed class GameRun
         this.handOff = new ScreenHandOff(content.Effects.Transitions.Table.FadeTicks);
         this.strings = content.Strings;
         this.notices = new NoticeQueue(content.Style.Notice);
+        this.contentHash = content.Hash;
         this.MessageSpeed = messageSpeed;
     }
 
@@ -90,6 +92,9 @@ public sealed class GameRun
 
     /// <summary>The count of ticks that the record holds a line for (F-10).</summary>
     public int RecordedLines => this.recorder.LineCount;
+
+    /// <summary>The seed of the run, which the header of each save and each record holds (G-3, G-5).</summary>
+    public ulong Seed => this.simulation.State.Seed;
 
     /// <summary>True while a menu is open, which pauses the world (D-162, D-650).</summary>
     /// <remarks>
@@ -341,34 +346,44 @@ public sealed class GameRun
     }
 
     /// <summary>
-    /// Starts the run again after a wipe: from the newer of the slot save and the autosave, or
-    /// from the start of a new run when neither exists (D-231, D-776).
+    /// Starts the run again after a wipe: from the newer save of the same run, or from the start
+    /// of the run when no save of it exists (D-231, D-776, D-1114).
     /// </summary>
     /// <param name="content">The content set of this build.</param>
     /// <param name="slot">The slot save, or no value.</param>
     /// <param name="autosave">The autosave, or no value.</param>
-    /// <param name="seed">The seed of a new run, when no save exists.</param>
+    /// <param name="seed">The seed of the run that wiped. A save of another seed is another run, and the pick drops it (D-1114).</param>
     /// <param name="debugHandlers">The debug handlers of the host (D-260).</param>
     /// <param name="messageSpeed">The message speed of the settings (D-866).</param>
+    /// <param name="log">Takes the log line of each change that a save of another build takes (D-1113).</param>
     /// <returns>The run, with a new record that starts at its first tick.</returns>
-    /// <exception cref="ArgumentNullException">The content or the handlers are null (T-2).</exception>
+    /// <exception cref="ArgumentNullException">The content, the handlers, or the log are null (T-2).</exception>
+    /// <exception cref="ArgumentException">The save is not a state of a run of this build (T-2, D-1110).</exception>
+    /// <remarks>
+    /// A save of another build, which holds another simulation version or another content hash,
+    /// takes the drift rules of D-1111 and D-1112: each enemy matches by its id, a lead off the
+    /// edited map moves to the spawn point, and a moved step of a story scene resumes by its id.
+    /// </remarks>
     public static GameRun Reload(
         ContentSet content,
         SaveDocument? slot,
         SaveDocument? autosave,
         ulong seed,
         DebugIntentHandlers debugHandlers,
-        MessageSpeed messageSpeed)
+        MessageSpeed messageSpeed,
+        List<LogEntry> log)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(debugHandlers);
+        ArgumentNullException.ThrowIfNull(log);
 
-        if (SavePick.NewerOf(slot, autosave) is not SaveDocument save)
+        if (SavePick.NewerOf(slot, autosave, seed) is not SaveDocument save)
         {
             return Start(content, seed, debugHandlers, messageSpeed);
         }
 
         RunSnapshot snapshot = save.Snapshot;
+        ResumeDrift drift = ResumeDrift.Of(save.Header.OriginFor(content.Hash), snapshot.Tick);
         Simulation simulation = Simulation.Resume(
             save.Header.Seed,
             snapshot,
@@ -376,9 +391,24 @@ public sealed class GameRun
             content.Battle,
             content.Notices,
             content.Story,
-            debugHandlers);
+            debugHandlers,
+            drift);
+        log.AddRange(drift.Entries);
         RunHeader header = RunHeader.ForThisBuild(content.Hash, save.Header.Seed);
         return new GameRun(simulation, new RunRecorder(header, simulation.Snapshot()), content, messageSpeed);
+    }
+
+    /// <summary>
+    /// Takes the save of the run at the end of the last tick, and the record drops every intent
+    /// before it, so the record of a long run stays bounded (F-10, D-651, D-1115). PR-16 writes
+    /// the document to its file at each save point and each autosave.
+    /// </summary>
+    /// <returns>The save: the header of this build and the snapshot of the run.</returns>
+    public SaveDocument Save()
+    {
+        RunSnapshot snapshot = this.simulation.Snapshot();
+        this.recorder.Save(snapshot);
+        return new SaveDocument(SaveHeader.ForThisBuild(this.contentHash, this.Seed), snapshot);
     }
 
     /// <summary>

@@ -1798,7 +1798,56 @@ G-17 now states that a reader of Core counts (D-1108).
 
 > *In plain English:* a broken settings file stopped the game with no word. Now the game keeps the file aside, says so, and starts. Enemies now fear a caster's spell, and six odd states fail with a clear error.
 
-### 7.41 PR-14: the hub map, the NPCs, and the services
+### 7.41 PR-105: the save drift rules, the wipe pick, the save hook, and six guards of the repository review
+
+Area files: `area-core.md` sections 7.9 to 7.11, `area-exploration.md`, `area-ui-input.md`, `area-battle.md`, and `area-ci.md` section 7.25.
+
+**Scope.** The owner put nine findings of the repository review of 2026-09-24 in one PR (D-1109):
+
+- A save of another build matches each enemy by its id, and it finds a moved story step by its id (D-1111, D-1112, F-139).
+- A lead off an edited map moves to the spawn point (D-1111).
+- A change of a party rule refuses a save until the migration of that patch reads it (D-1110, F-139).
+- A test holds a digest of those rules (D-1110).
+- Each change of a save of another build writes a warning line of the log (D-1113).
+- A wipe reloads a save of its own run alone, and smoke reads a new empty save folder (D-1114, F-140).
+- `GameRun.Save` bounds the run record (D-1115, F-141).
+- The coverage job checks the SHA-512 of its package (D-1116, F-142).
+- A steal checks its remainder, and each damage cut checks its overflow (F-143).
+- det-lint refuses a file or OS call, disabled text, a scene value across lines, and a binary scene (D-1117, F-144).
+- A test reads the drawing of each patrol, the lead, and each tile kind, and smoke draws a lit copy of the map (D-1118, F-145).
+- The remap screen marks each conflict, and its line names the conflict of the row (D-1119, F-146).
+- Stale marks of the design, rows of section 9, and comments of the code match the merged work.
+
+**Out of scope.**
+
+- The trust of the review gate (P3-9), and the key names of the remap screen (P3-24).
+- The flake of the screen test (P3-25), and the tests of the crash path (P3-26).
+- The performance measurements (P3-36) and the shimmer of a paused step (P3-37).
+- The first migration of a party rule, which PR-30 writes with its retune (D-1110).
+
+**Exit tests.**
+
+1. `AnotherBuildFindsAStepThatAnInsertedStepMovedAndLogsIt` and `AStepIdThatTheStorySceneNoLongerHoldsRefusesTheSave` pass.
+2. `AnotherBuildPlacesANewEnemyOnItsStationAndLogsIt` and `ThisBuildStillRefusesASaveWithAnotherEnemyCount` pass.
+3. `ThePartyRuleNumbersThatASaveReadsMatchTheirDigest` passes, and `AnotherBuildStillRefusesAPartyThatAChangedLevelTableBreaks` passes.
+4. `AWipeNeverReloadsASaveOfAnotherRun` and `AReloadDropsASaveOfAnotherRunAndStartsTheRunAgain` pass.
+5. `ASaveDropsTheIntentsBeforeItSoTheRecordOfAHeldWalkStaysBounded` passes.
+6. `TheCoverageJobChecksTheSha512OfTheReportGeneratorPackage` passes.
+7. Each case of DL 11 and DL 12 in `DetLintCoreRuleTests` passes, and the repository gives 0 findings.
+8. `EachPatrolOfEachMapHasAMapDrawing` passes, and the smoke line of the lit map draws each enemy.
+9. `EachConflictMarksItsCellsAndTheLineNamesTheConflictOfTheRow` and `EachCellOfAConflictTakesTheWarningLookUnderTheCursorToo` pass, and the conflict capture shows two conflicts (D-1120).
+
+**Review focus.**
+
+- The simulation version rises to 29, and the identity file changes with it (G-17, D-504).
+- Save format 14 and record format 4 hold the step id (D-1112).
+- The one new player string is the line of a conflict with its place (D-57).
+
+**Questions.** None. D-1109 to D-1119 hold the answers.
+
+> *In plain English:* a patch that moves a map or a story scene now keeps old saves. A patch that retunes the party ships a converter. A wipe never loads another run, and four checks now see the faults they missed.
+
+### 7.42 PR-14: the hub map, the NPCs, and the services
 
 Area file: `area-exploration.md` section 7.11.
 
@@ -1841,7 +1890,7 @@ Area file: `area-exploration.md` section 7.11.
 
 > *In plain English:* the hub is a place you walk through, where the party recovers and reshapes itself before the next dungeon. Every hub has a different shape.
 
-### 7.42 PR-65: the shop and the gold
+### 7.43 PR-65: the shop and the gold
 
 Area file: `area-exploration.md` section 7.12.
 
@@ -1878,7 +1927,7 @@ Area file: `area-exploration.md` section 7.12.
 
 > *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
 
-### 7.43 PR-36: the dialogue box, the portraits, and the story scene on screen
+### 7.44 PR-36: the dialogue box, the portraits, and the story scene on screen
 
 Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
@@ -1921,7 +1970,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 > *In plain English:* people walk, turn, and speak on the map you already walk on. Their words appear in a box at the bottom, with a face beside them.
 
-### 7.44 PR-15: the headless runner and the bots
+### 7.45 PR-15: the headless runner and the bots
 
 Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
@@ -1959,7 +2008,7 @@ Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
 
 > *In plain English:* simple robots play the game with no screen. They make the same choices a player makes, and every crash they find comes with the seed that repeats it.
 
-### 7.45 PR-49: the night job and the night gate
+### 7.46 PR-49: the night job and the night gate
 
 Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
@@ -1997,7 +2046,7 @@ Area files: `area-tools.md` section 7.9, `area-ci.md` sections 7.14 and 7.15.
 
 > *In plain English:* every night the robots play thousands of runs on all three systems. No change merges unless a recent night ended with no crash and no dead end.
 
-### 7.46 PR-16: the dungeon parts, the death, and the save points
+### 7.47 PR-16: the dungeon parts, the death, and the save points
 
 Area file: `area-exploration.md` section 7.8.
 
@@ -2030,6 +2079,9 @@ Area file: `area-exploration.md` section 7.8.
 7. A story event that reopens a fixture place brings its enemies and its MP restore back (D-555).
 8. A chest over the stack limit keeps the rest, and the save records it (D-385).
 9. A chest with an owned lesson gives its fallback item (D-1024).
+10. Each save point and each autosave calls `GameRun.Save`, and the record after a save holds no intent before it (D-1115).
+11. A save of an older build loads under the rules of D-1110 to D-1112.
+12. A wipe reloads a save of its own run alone (D-1114).
 
 **Review focus.**
 
@@ -2041,7 +2093,7 @@ Area file: `area-exploration.md` section 7.8.
 
 > *In plain English:* the dungeon gains its chests, doors, keys, and resting stones. A thief can pick some locks, and the story keeps its own doors shut until you find the key.
 
-### 7.47 PR-64: the traps, the hazards, and the statuses on the map
+### 7.48 PR-64: the traps, the hazards, and the statuses on the map
 
 Area file: `area-exploration.md` section 7.9.
 
@@ -2081,7 +2133,7 @@ Area file: `area-exploration.md` section 7.9.
 
 > *In plain English:* the dungeon itself can hurt you. Poison still hurts while you walk, and a party can go down between fights.
 
-### 7.48 PR-35: the region map
+### 7.49 PR-35: the region map
 
 Area file: `area-exploration.md` section 7.13.
 
@@ -2117,11 +2169,11 @@ Area file: `area-exploration.md` section 7.13.
 
 > *In plain English:* between places the party travels on a map of the region, along roads that the story opens and closes.
 
-### 7.49 PR-37: retired
+### 7.50 PR-37: retired
 
 PR-37 held the CRT shader and its toggle, which have no purpose after D-618. No later item takes the id (G-10). This entry exists so that a reader of the sequence finds the gap and its reason.
 
-### 7.50 PR-51: the PNG import
+### 7.51 PR-51: the PNG import
 
 Area file: `area-tools.md` section 7.11.
 
@@ -2163,7 +2215,7 @@ Area file: `area-tools.md` section 7.11.
 
 > *In plain English:* the owner can fix a sprite in a paint program, and this tool writes the edited image as a text grid again. It refuses any color that the palette lacks. A second mode reads a picture from the art tool, trims it, and pulls each color to the closest palette color.
 
-### 7.51 PR-52: the map preview
+### 7.52 PR-52: the map preview
 
 Area file: `area-tools.md` section 7.12.
 
@@ -2193,7 +2245,7 @@ Area file: `area-tools.md` section 7.12.
 
 > *In plain English:* maps are text files too. This tool draws a map as a picture, so the owner can see and approve a place before anyone walks it.
 
-### 7.52 PR-53: the tile-edge tool
+### 7.53 PR-53: the tile-edge tool
 
 Area file: `area-tools.md` section 7.13.
 
@@ -2226,7 +2278,7 @@ Area file: `area-tools.md` section 7.13.
 
 > *In plain English:* a map names the ground, such as snow or rock, and this tool picks the right border tile for each edge. The picks live in a file of their own.
 
-### 7.53 PR-17: the village, the first hub, and the first dungeon
+### 7.54 PR-17: the village, the first hub, and the first dungeon
 
 Area files: every area file. The content PR touches each area.
 
@@ -2274,7 +2326,7 @@ Area files: every area file. The content PR touches each area.
 
 > *In plain English:* the first real place to play. Everything before this was machinery.
 
-### 7.54 PR-38: the audio synthesizer and the first sounds
+### 7.55 PR-38: the audio synthesizer and the first sounds
 
 Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
@@ -2313,7 +2365,7 @@ Area file: `area-audio.md` sections 7.1, 7.2, and 7.11.
 
 > *In plain English:* music and sound start as rows of numbers in a text file. A tool of ours turns those rows into sound, the same way on every computer.
 
-### 7.55 PR-69: the audio player base
+### 7.56 PR-69: the audio player base
 
 Area file: `area-audio.md` sections 7.2 and 7.3.
 
@@ -2349,7 +2401,7 @@ Area file: `area-audio.md` sections 7.2 and 7.3.
 
 > *In plain English:* this part makes sound come out. It sets the volumes, and it mutes the game when the window loses focus.
 
-### 7.56 PR-70: the rules of what plays when
+### 7.57 PR-70: the rules of what plays when
 
 Area file: `area-audio.md` sections 7.4 to 7.10.
 
@@ -2396,7 +2448,7 @@ Area file: `area-audio.md` sections 7.4 to 7.10.
 
 > *In plain English:* every place has its own music, a low bed of wind or fire under it, and its own footsteps. The music changes when the story turns the day to night.
 
-### 7.57 PR-71: the sound room
+### 7.58 PR-71: the sound room
 
 Area file: `area-audio.md` section 7.11.
 
@@ -2426,7 +2478,7 @@ Area file: `area-audio.md` section 7.11.
 
 > *In plain English:* the owner listens to every piece of music before it ships. One tool plays a batch on the desk, and this one plays it inside the game.
 
-### 7.58 PR-72: the music and the sounds of the first playable
+### 7.59 PR-72: the music and the sounds of the first playable
 
 Area file: `area-audio.md` section 7.12.
 
@@ -2461,7 +2513,7 @@ Area file: `area-audio.md` section 7.12.
 
 > *In plain English:* the music arrives in two batches. This is the first: enough for the first thing that the owner plays.
 
-### 7.59 M-3, M-4, and M-6: the measurements of the phase
+### 7.60 M-3, M-4, and M-6: the measurements of the phase
 
 Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
@@ -2490,7 +2542,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* three sets of numbers close the phase. They are the cost of the robots each night, the length of a fight, and the speed on the handheld.
 
-### 7.60 Gate 2: the first playable
+### 7.61 Gate 2: the first playable
 
 **The gate.** Gate 2 passes when every line holds:
 
@@ -2508,7 +2560,7 @@ Area file: none. The cost model in section 4 of `docs/design.md` holds each row.
 
 > *In plain English:* at this point the game is a game. The owner walks a village, fights in a mine, and says whether it feels right.
 
-### 7.61 PR-74: the capture
+### 7.62 PR-74: the capture
 
 Area file: `area-release.md` section 7.6.
 
@@ -2542,7 +2594,7 @@ Area file: `area-release.md` section 7.6.
 
 > *In plain English:* the game can replay a recorded run and write every frame to disk. That gives the same picture each time, so a screenshot or a trailer shot is repeatable.
 
-### 7.62 PR-75: the store text and the owner steps
+### 7.63 PR-75: the store text and the owner steps
 
 Area file: `area-release.md` section 7.7.
 
@@ -2579,7 +2631,7 @@ Area file: `area-release.md` section 7.7.
 
 > *In plain English:* the shop page words get written and approved like any other text in the game. The owner pays the fee and answers the questions that only Valve asks.
 
-### 7.63 PR-76: the store art and the screenshots
+### 7.64 PR-76: the store art and the screenshots
 
 Area files: `area-release.md` section 7.8, `area-art.md` section 7.5.
 
@@ -2623,7 +2675,7 @@ The global order lives in section 8 of `docs/design.md`, and PR #11 set it (D-48
 4. PR-48, PR-56, PR-93, PR-63, PR-57, PR-58, PR-94, PR-59, PR-92, PR-95, PR-60, PR-96, PR-97: the normal maps, the light, the settings, the effects, and the automated review.
 5. PR-11, PR-98, PR-67, PR-62: the enemies that think, the waiting enemies on screen, the character level, and the menu windows.
 6. PR-68, PR-50: the story scenes, the flags, and the screenplay tool, before the first PR that reads a flag (D-556).
-7. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-14, PR-65: the build of a party, the stat set, the torch, the end of the Gitar pause, the torch and pad fixes, the gate fixes, the input fixes, and the boot and rule fixes of the repository review, the hub, and the shop.
+7. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-14, PR-65: the build of a party, the stat set, the torch, the end of the Gitar pause, the torch and pad fixes, the gate fixes, the input fixes, the boot and rule fixes, and the save and guard fixes of the repository review, the hub, and the shop.
 8. PR-36: the dialogue box.
 9. PR-15, PR-49: the bots, the night job, and the night gate.
 10. Owner: require the bot and `night-gate` checks on `main` after their first runs.
@@ -2650,14 +2702,14 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-59 | The AI disclosure of the content survey | PR-75 |
 | OQ-64 | The tick while a menu is open. Resolved by D-650 | PR-62 |
 | OQ-74 | How the runner finds a softlock | PR-15 |
-| OQ-79 | How the screen-test job pins Mesa | PR-41 |
+| OQ-79 | How the screen-test job pins Mesa, resolved by D-729 and D-730 | PR-41 |
 | OQ-80 | The count of bot runs on each PR | PR-15 |
 | OQ-81 | How the night gate result stays current | PR-49 |
 | OQ-82 | The time of the night | PR-49 |
 | OQ-83 | How CI gets the Godot editor and the templates, resolved by D-596 | PR-54 |
 | OQ-84 | The seeds of the night | PR-49 |
 | OQ-86 | How the atlas places tiles, and how Game draws a map | PR-7, answered by D-667 |
-| OQ-89 | Pixel snap in Game | PR-7 |
+| OQ-89 | Pixel snap in Game, resolved by D-715 | PR-7 |
 | OQ-91 | The operations of a large picture on a piece, resolved by D-812 | PR-55 |
 | OQ-94 | How the budget test counts one view, resolved by D-842 | PR-56 |
 | OQ-95 | Where a torch light comes from, resolved by D-843 | PR-56 |
@@ -2669,19 +2721,19 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-101 | How fog keeps an enemy visible, resolved by D-885 | PR-58 |
 | OQ-102 | How glow stays off sprites, resolved by D-910 | PR-59 |
 | OQ-103 | Where shader code lives, resolved by D-825 | PR-10 and PR-60 |
-| OQ-104 | The font settings and the load from bytes | PR-61 |
+| OQ-104 | The font settings and the load from bytes, resolved by D-710 | PR-61 |
 | OQ-106 | Where the settings file lives, and its form, resolved by D-860 | PR-63 |
-| OQ-107 | How Game knows the last device of the player | PR-61 |
+| OQ-107 | How Game knows the last device of the player, resolved by D-711, which D-815 superseded | PR-61 |
 | OQ-108 | Where a remap lives, and what a conflict does, resolved by D-862 | PR-63 |
 | OQ-109 | The dead zone of a stick, resolved by D-861 | PR-63 |
 | OQ-110 | The cursor rules of a menu, resolved by D-872 | PR-62 |
 | OQ-111 | The scale of the dungeon map screen, resolved by D-982 | PR-62 |
 | OQ-112 | The text speeds and the type-out of the dialogue box, resolved by D-864 | PR-36 |
 | OQ-113 | The notice log, resolved by D-983 to D-985 | PR-62 |
-| OQ-114 | The rule of sight for the party and a patrol | PR-7 and PR-8 |
-| OQ-115 | How a large enemy holds its tiles and sorts | PR-8 |
-| OQ-117 | A diagonal step on the map | PR-7 |
-| OQ-118 | The limits of the camera on a small map | PR-7 |
+| OQ-114 | The rule of sight for the party and a patrol, resolved by D-718 to D-720 | PR-7 and PR-8 |
+| OQ-115 | How a large enemy holds its tiles and sorts, resolved by D-737 | PR-8 |
+| OQ-117 | A diagonal step on the map, resolved by D-716 | PR-7 |
+| OQ-118 | The limits of the camera on a small map, resolved by D-717 | PR-7 |
 | OQ-119 | What a trap does, and what a Theft drill does to it | PR-64 |
 | OQ-120 | The hazards of region one | PR-64 |
 | OQ-121 | The prices, the buy-back, and the stock of a shop | PR-65 |
@@ -2698,16 +2750,16 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-134 | The shape of a stat curve. Resolved by D-966 | PR-67 |
 | OQ-135 | The MP that a save point and a rest restore. Resolved by D-967 | PR-67 |
 | OQ-136 | The shrink of the experience of an enemy. Resolved by D-968 and D-969 | PR-67 |
-| OQ-137 | The lesson slots at each level | PR-12 |
-| OQ-138 | The points that a lesson gains from a battle | PR-12 |
-| OQ-139 | Two copies of one lesson in one party | PR-12 |
+| OQ-137 | The lesson slots at each level, resolved by D-1018 | PR-12 |
+| OQ-138 | The points that a lesson gains from a battle, resolved by D-1019 to D-1022 | PR-12 |
+| OQ-139 | Two copies of one lesson in one party, resolved by D-1023 to D-1025 | PR-12 |
 | OQ-140 | What a piece of gear changes. Resolved by D-1036 | PR-13 |
 | OQ-141 | Two accessories with one effect. Resolved by D-1037 | PR-13 |
 | OQ-142 | The stack limit of each item. Resolved by D-1038 and D-1039 | PR-13 |
 | OQ-143 | What a rarity tier changes. Resolved by D-1040 | PR-13 |
 | OQ-217 | How far the party sees in the dark. Resolved by D-1062 and D-1063 | PR-91 |
 | OQ-218 | How much farther an enemy sees a lit torch. Resolved by D-1063 | PR-91 |
-| OQ-219 | The paths of the docs-only set | PR-93 |
+| OQ-219 | The paths of the docs-only set, resolved by D-857 | PR-93 |
 | OQ-144 | The full step list of a story scene script, resolved by D-997 | PR-68 |
 | OQ-145 | How a step that takes time ends, resolved by D-1000 | PR-68 |
 | OQ-146 | The shape of a condition, resolved by D-1001 and D-1002 | PR-68 |

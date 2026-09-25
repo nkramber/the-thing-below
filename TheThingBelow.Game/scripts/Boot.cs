@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Godot;
 using TheThingBelow.Core;
@@ -482,7 +483,9 @@ public partial class Boot : Node
 
         GameSettings chosen = this.settings ?? throw new InvalidOperationException(
             "A wipe reloads the run, and the session read no settings (T-2).");
-        GameRun reloaded = ReloadRun(loaded, chosen.Battle.Messages);
+        GameRun wiped = this.run ?? throw new InvalidOperationException(
+            "A wipe reloads the run, and the session holds no run (T-2).");
+        GameRun reloaded = this.ReloadRun(loaded, SaveStore.OfThisSystem(), wiped, chosen.Battle.Messages);
         this.run = reloaded;
 
         // The menu of the old run ends with it, and the new run builds its own (D-776).
@@ -715,17 +718,55 @@ public partial class Boot : Node
             ])]);
     }
 
-    /// <summary>Gives the run after a wipe: the newer save, or a new run when no save exists (D-231, D-776).</summary>
+    /// <summary>
+    /// Gives the run after a wipe: the newer save of the same run, or the run again from its start
+    /// when no save of it exists (D-231, D-776, D-1114). The log takes a line for each save of
+    /// another run, and a line for each change of a save of another build (D-1113).
+    /// </summary>
     /// <param name="loaded">The content set of this build.</param>
+    /// <param name="saves">The folder of the saves: the folder of the person, or a new folder of the smoke session.</param>
+    /// <param name="wiped">The run that wiped, whose seed names the run.</param>
     /// <param name="messageSpeed">The message speed of the settings (D-866).</param>
     /// <returns>The run.</returns>
-    private static GameRun ReloadRun(ContentSet loaded, MessageSpeed messageSpeed)
+    private GameRun ReloadRun(ContentSet loaded, SaveStore saves, GameRun wiped, MessageSpeed messageSpeed)
     {
-        SaveStore saves = SaveStore.OfThisSystem();
-        SaveDocument? slot = saves.Exists(SaveKind.Slot) ? saves.Read(SaveKind.Slot) : null;
-        SaveDocument? autosave = saves.Exists(SaveKind.Autosave) ? saves.Read(SaveKind.Autosave) : null;
-        return GameRun.Reload(loaded, slot, autosave, FixtureSeed, DebugSeam.Handlers(), messageSpeed);
+        SaveDocument? slot = this.ReadSaveOfRun(saves, SaveKind.Slot, wiped);
+        SaveDocument? autosave = this.ReadSaveOfRun(saves, SaveKind.Autosave, wiped);
+        List<LogEntry> drift = [];
+        GameRun reloaded = GameRun.Reload(loaded, slot, autosave, wiped.Seed, DebugSeam.Handlers(), messageSpeed, drift);
+        this.WriteLog(drift);
+        return reloaded;
     }
+
+    /// <summary>Reads one save, and logs and drops a save of another run (D-1114).</summary>
+    /// <param name="saves">The folder of the saves.</param>
+    /// <param name="kind">The save to read.</param>
+    /// <param name="wiped">The run that wiped.</param>
+    /// <returns>The save of the run, or no value.</returns>
+    private SaveDocument? ReadSaveOfRun(SaveStore saves, SaveKind kind, GameRun wiped)
+    {
+        if (!saves.Exists(kind))
+        {
+            return null;
+        }
+
+        SaveDocument save = saves.Read(kind);
+        if (SavePick.OfRun(save, wiped.Seed))
+        {
+            return save;
+        }
+
+        this.WriteLog([new LogEntry(
+            LogLevel.Warning,
+            "a save of another run stays in its folder, and the wipe does not reload it",
+            wiped.Tick,
+            LogSubsystems.Game,
+            [new LogField("save", SaveStore.FileNameOf(kind)), new LogField("save_seed", SeedText(save.Header.Seed)), new LogField("run_seed", SeedText(wiped.Seed))])]);
+        return null;
+    }
+
+    /// <summary>Gives a seed as the hex text of a record header (G-5).</summary>
+    private static string SeedText(ulong seed) => "0x" + seed.ToString("x16", CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Builds the debug console of a development build, and adds it to the frame layer above
@@ -1411,6 +1452,10 @@ public partial class Boot : Node
         GD.Print($"smoke: the frame is {GetFrameSize()}.");
         GD.Print($"smoke: the save folder is {SaveFolder.OfThisSystem()}.");
 
+        // The wipe of the smoke fight reads a new folder with no save, so no save of the person
+        // reaches the result of a check (D-1114).
+        string smokeSaves = Directory.CreateTempSubdirectory("the-thing-below-smoke-").FullName;
+
         IReadOnlyList<ContentFile> files = EmbeddedContent.Read();
         ContentSet content = ContentSet.Load(files);
         GD.Print($"smoke: the content is {files.Count} files with the hash {content.Hash}.");
@@ -1421,12 +1466,14 @@ public partial class Boot : Node
         GD.Print($"smoke: the crash file is {DescribeCrashFile(session)}.");
         GD.Print($"smoke: the UI base is {DescribeUiBase(content)}.");
         GD.Print($"smoke: the map is {DescribeMap(content, session)}.");
+        GD.Print($"smoke: the lit map is {DescribeLitMap(content, files, session)}.");
         GD.Print($"smoke: the picture is {DescribePicture(content)}.");
         GD.Print($"smoke: the console is {this.DescribeConsole(session)}.");
-        GD.Print($"smoke: the battle is {this.DescribeBattle(content, session)}.");
+        GD.Print($"smoke: the battle is {this.DescribeBattle(content, session, new SaveStore(smokeSaves))}.");
         GD.Print($"smoke: the settings screen is {this.DescribeSettings(content)}.");
         GD.Print($"smoke: the menus are {this.DescribeMenus(content)}.");
         GD.Print($"smoke: the pads are {DescribePads()}.");
+        Directory.Delete(smokeSaves, true);
         GD.Print("smoke: the session ends with no error.");
         GetTree().Quit(SuccessExitCode);
     }
@@ -1938,6 +1985,50 @@ public partial class Boot : Node
     }
 
     /// <summary>
+    /// Draws a copy of the first map that is not dark, and fails when a live enemy draws no sprite
+    /// (D-814, D-1118). The first map is dark since PR-91, and on a dark map the fade of the sight
+    /// sets each sprite, so the check of that map alone could not see a lost enemy.
+    /// </summary>
+    /// <param name="loaded">The content set of this build.</param>
+    /// <param name="files">The content files of this build, which hold the map file.</param>
+    /// <param name="session">The run of the smoke session, whose map this check copies.</param>
+    /// <returns>The count of enemies and the count that draws.</returns>
+    /// <exception cref="InvalidOperationException">The map file holds no dark flag, or a live enemy draws no sprite (T-2).</exception>
+    private static string DescribeLitMap(ContentSet loaded, IReadOnlyList<ContentFile> files, GameRun session)
+    {
+        GameMap dark = session.Party.Map;
+        const string DarkFlag = "\"dark\": true";
+        string text = System.Text.Encoding.UTF8.GetString(FileOf(files, dark.File).Bytes);
+        if (!text.Contains(DarkFlag, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException($"The map file '{dark.File}' holds no '{DarkFlag}', so the lit copy would test nothing (D-1118, T-2).");
+        }
+
+        GameMap lit = GameMap.Read(System.Text.Encoding.UTF8.GetBytes(text.Replace(DarkFlag, "\"dark\": false", StringComparison.Ordinal)), dark.File);
+        MapState party = MapState.Enter(lit);
+        UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
+        var drawn = new MapScreen();
+        drawn.Build(GameAtlas.Load(loaded.Atlas), ui.Theme, party, loaded, loaded.Effects.Ambient.WeatherOf(lit.Id), loaded.Light.Passes);
+        drawn.ShowParty(party, 0, session.Tick, torchHeld: false);
+        string sprites = drawn.DescribeSprites(party);
+        drawn.QueueFree();
+        return sprites;
+    }
+
+    private static ContentFile FileOf(IReadOnlyList<ContentFile> files, string path)
+    {
+        foreach (ContentFile file in files)
+        {
+            if (string.Equals(file.Path, path, StringComparison.Ordinal))
+            {
+                return file;
+            }
+        }
+
+        throw new InvalidOperationException($"The content of this build holds no file '{path}' (T-2).");
+    }
+
+    /// <summary>
     /// Draws the party with the torch put away and then held out, and fails when the carried
     /// light or the torch in the hand does not follow (exit test 7 of PR-91, D-1064, D-1066). The
     /// torch stays held out, so the check of the lights reads the carried light too.
@@ -2154,6 +2245,7 @@ public partial class Boot : Node
     /// </summary>
     /// <param name="loaded">The content set of this build.</param>
     /// <param name="session">The run of the smoke session.</param>
+    /// <param name="saves">The new folder with no save that the wipe reads, never the folder of the person (D-1114).</param>
     /// <returns>The frames, the outcome, the nodes of the screen, and the tick after the battle, as one line.</returns>
     /// <exception cref="InvalidOperationException">
     /// No battle starts, no battle ends inside the frame limit, or the menu sent no command (T-2).
@@ -2165,7 +2257,7 @@ public partial class Boot : Node
     /// the path of a real command (D-117). A headless session draws no pixel, so the `battle`
     /// fixture of the screen-test job reads the pixels (F-23).
     /// </remarks>
-    private string DescribeBattle(ContentSet loaded, GameRun session)
+    private string DescribeBattle(ContentSet loaded, GameRun session, SaveStore saves)
     {
         GameRun open = session;
         string outcome = "none";
@@ -2193,7 +2285,7 @@ public partial class Boot : Node
 
             if (open.WipeReady)
             {
-                open = ReloadRun(loaded, open.MessageSpeed);
+                open = this.ReloadRun(loaded, saves, open, open.MessageSpeed);
                 break;
             }
 

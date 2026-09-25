@@ -21,6 +21,12 @@ public static class SourceScan
     public const string CompileRule = "DL 0";
 
     /// <summary>
+    /// The id of the rule that reports text that a directive disables, such as a block under
+    /// `#if DEBUG`. The compiler reads such a block as text alone, so no other rule reads it.
+    /// </summary>
+    public const string DisabledTextRule = "DL 12";
+
+    /// <summary>
     /// The symbols that `Directory.Build.props` defines for every project. The scan parses
     /// with the same symbols, so a block behind `#if` takes the rules too. A test reads the
     /// props file and fails when the two lists differ (T-2).
@@ -73,6 +79,7 @@ public static class SourceScan
         List<LintFinding> findings = [];
         foreach (SyntaxTree tree in trees)
         {
+            findings.AddRange(ReadDisabledText(tree));
             SemanticModel model = compilation.GetSemanticModel(tree);
             foreach (SyntaxNode node in tree.GetRoot().DescendantNodesAndSelf())
             {
@@ -84,6 +91,32 @@ public static class SourceScan
         }
 
         return Sorted(findings);
+    }
+
+    /// <summary>
+    /// Gives one finding for each block of text that a directive disables. The scan defines
+    /// <see cref="PreprocessorSymbols"/> alone, so a block under another symbol, under a
+    /// negation, or under `#else` holds code that no rule reads (G-1, T-2).
+    /// </summary>
+    private static List<LintFinding> ReadDisabledText(SyntaxTree tree)
+    {
+        List<LintFinding> findings = [];
+        foreach (SyntaxTrivia trivia in tree.GetRoot().DescendantTrivia())
+        {
+            if (!trivia.IsKind(SyntaxKind.DisabledTextTrivia))
+            {
+                continue;
+            }
+
+            int line = trivia.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
+            findings.Add(new LintFinding(
+                tree.FilePath,
+                line,
+                DisabledTextRule,
+                $"a directive disables this text, so no rule of det-lint reads it. The scan defines {string.Join(", ", PreprocessorSymbols)} alone. Remove the directive (G-1, T-2)."));
+        }
+
+        return findings;
     }
 
     private static List<LintFinding> ReadCompileErrors(CSharpCompilation compilation)

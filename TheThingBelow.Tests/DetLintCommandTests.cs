@@ -214,6 +214,43 @@ public sealed class DetLintCommandTests
         Assert.Equal(string.Empty, errors.ToString());
     }
 
+    [Fact]
+    public void AFileCallInTheDebugCommandsAndABinarySceneOfGameAreFindings()
+    {
+        // D-1117: a debug command changes a run inside a tick, so it reads no file, and a
+        // binary scene holds text that the scene rule cannot read.
+        using DetLintCheckout checkout = DetLintCheckout.Build();
+        checkout.Write(
+            $"{DetLintCommand.DebugCommandsFolder}/Load.cs",
+            """
+            namespace TheThingBelow.Debug.Commands;
+            public static class Load
+            {
+                public static string Text() => System.IO.File.ReadAllText("state.txt");
+            }
+            """);
+        checkout.Write("TheThingBelow.Game/Screen.scn", "RSRC");
+        checkout.Write("TheThingBelow.Game/Strings.resx", "<root />");
+        using StringWriter output = new StringWriter();
+        using StringWriter errors = new StringWriter();
+
+        int exitCode = DetLintCommand.Run(Arguments(checkout), output, errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains($"{DetLintCommand.DebugCommandsFolder}/Load.cs:4: rule DL 11:", output.ToString(), StringComparison.Ordinal);
+        Assert.Contains("TheThingBelow.Game/Screen.scn:1: rule DL 9:", output.ToString(), StringComparison.Ordinal);
+        Assert.DoesNotContain("Strings.resx", output.ToString(), StringComparison.Ordinal);
+        Assert.Contains("2 finding(s)", output.ToString(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheContentAndIdentityToolsTakeTheRulesOfComparedOutput()
+    {
+        // D-502, D-1117: each leg compares the content hash and the identity file.
+        Assert.Equal("PR-5", DetLintCommand.ComparedOutputTools["TheThingBelow.Tools/Content"]);
+        Assert.Equal("PR-4", DetLintCommand.ComparedOutputTools["TheThingBelow.Tools/Identity"]);
+    }
+
     /// <summary>
     /// The scan of the debug commands compiles against a set with no Godot assembly, so a
     /// Godot type in that folder fails the compile. Thus the commands stay engine-free, and a

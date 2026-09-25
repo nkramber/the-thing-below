@@ -15,11 +15,15 @@ namespace TheThingBelow.Core.Runs;
 /// PR-103 raised it to 3. PR-68 and PR-12 gave an intent its option, its lesson, and its actor,
 /// and neither raised the number, so a record of that time reads as format 2 in error.
 /// </para>
+/// <para>
+/// PR-105 raised it to 4. The story scene of the snapshot line gained the id of its step
+/// (D-1112), as save format 14 did.
+/// </para>
 /// </remarks>
 public static class RunRecordFormat
 {
     /// <summary>The format version that this build writes.</summary>
-    public const int Current = 3;
+    public const int Current = 4;
 }
 
 /// <summary>

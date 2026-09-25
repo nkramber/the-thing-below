@@ -134,56 +134,15 @@ public sealed class PatrolState
         ArgumentNullException.ThrowIfNull(values);
         ArgumentException.ThrowIfNullOrEmpty(source);
 
-        var at = new TilePoint(values.X, values.Y);
-        EnemyBody body = new(at, patrol.Size);
-        string name = patrol.Id.Value;
-
-        Refuse(
-            !MapRules.CanPlace(map, body),
-            source,
-            $"the enemy '{name}' holds the body {body}, and that body takes no step on the map '{map.Id.Value}'");
-        Refuse(
-            values.GraceTicks < 0 || values.GraceTicks > MapRules.GraceTicks,
-            source,
-            $"the enemy '{name}' holds {values.GraceTicks} grace ticks, and the range is 0 to {MapRules.GraceTicks}");
-        Refuse(
-            values.Stepping is null && values.StepTicks != 0,
-            source,
-            $"the enemy '{name}' stands on no step, and its step ticks are {values.StepTicks}");
-        Refuse(
-            values.Stepping is not null && (values.StepTicks < 0 || values.StepTicks >= patrol.StepTicks),
-            source,
-            $"the enemy '{name}' holds {values.StepTicks} step ticks, and the range of its step is 0 to {patrol.StepTicks - 1}");
-
-        if (station.Area is TileArea area)
+        if (MisfitOf(patrol, station, map, values) is string misfit)
         {
-            Refuse(
-                !area.HoldsBody(body),
-                source,
-                $"the enemy '{name}' holds the body {body}, and its area is {area}");
-            Refuse(
-                values.Target != 0 || !values.Forward,
-                source,
-                $"the enemy '{name}' walks an area, and it holds the route leg {values.Target} and the direction {values.Forward}");
-        }
-        else
-        {
-            CheckRoute(station, values, at, name, source);
-        }
-
-        if (values.Stepping is StepDirection stepping)
-        {
-            EnemyBody next = body.Step(stepping);
-            Refuse(
-                !MapRules.CanPlace(map, next),
-                source,
-                $"the enemy '{name}' steps {StepDirections.NameOf(stepping)} to the body {next}, which takes no step");
+            Refuse(true, source, misfit);
         }
 
         return new PatrolState(
             patrol,
             station,
-            at,
+            new TilePoint(values.X, values.Y),
             values.Facing,
             values.Stepping,
             values.StepTicks,
@@ -191,6 +150,84 @@ public sealed class PatrolState
             values.Forward,
             values.GraceTicks,
             values.Dead);
+    }
+
+    /// <summary>
+    /// Puts one enemy on the start tile of its station again, as a run starts it, and keeps
+    /// its death. A resume of a save of another build calls it for an enemy whose stored place
+    /// the edited map no longer takes (D-1111).
+    /// </summary>
+    /// <param name="patrol">The record of the enemy, from the map of this build.</param>
+    /// <param name="station">The station that the time of day of the map picked.</param>
+    /// <param name="dead">True when the save holds the enemy as dead (D-555).</param>
+    /// <returns>The state, at the start tile of the station.</returns>
+    /// <exception cref="ArgumentNullException">The record or the station is null (T-2).</exception>
+    public static PatrolState EnterAgain(Patrol patrol, PatrolStation station, bool dead)
+    {
+        PatrolState entered = Enter(patrol, station);
+        entered.Dead = dead;
+        return entered;
+    }
+
+    /// <summary>
+    /// Gives the first reason why stored values describe no state of this enemy on this map,
+    /// or no value when they fit (T-2, D-1111).
+    /// </summary>
+    /// <param name="patrol">The record of the enemy, from the map of this build.</param>
+    /// <param name="station">The station that the time of day of the map picked.</param>
+    /// <param name="map">The map, for the check of the body and of the step.</param>
+    /// <param name="values">The values of the snapshot.</param>
+    /// <returns>The reason, or null.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    public static string? MisfitOf(Patrol patrol, PatrolStation station, GameMap map, PatrolValues values)
+    {
+        ArgumentNullException.ThrowIfNull(patrol);
+        ArgumentNullException.ThrowIfNull(station);
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(values);
+
+        var at = new TilePoint(values.X, values.Y);
+        EnemyBody body = new(at, patrol.Size);
+        string name = patrol.Id.Value;
+
+        if (!MapRules.CanPlace(map, body))
+        {
+            return $"the enemy '{name}' holds the body {body}, and that body takes no step on the map '{map.Id.Value}'";
+        }
+
+        if (values.GraceTicks < 0 || values.GraceTicks > MapRules.GraceTicks)
+        {
+            return $"the enemy '{name}' holds {values.GraceTicks} grace ticks, and the range is 0 to {MapRules.GraceTicks}";
+        }
+
+        if (values.Stepping is null && values.StepTicks != 0)
+        {
+            return $"the enemy '{name}' stands on no step, and its step ticks are {values.StepTicks}";
+        }
+
+        if (values.Stepping is not null && (values.StepTicks < 0 || values.StepTicks >= patrol.StepTicks))
+        {
+            return $"the enemy '{name}' holds {values.StepTicks} step ticks, and the range of its step is 0 to {patrol.StepTicks - 1}";
+        }
+
+        string? place = station.Area is TileArea area
+            ? AreaMisfitOf(area, values, body, name)
+            : RouteMisfitOf(station, values, at, name);
+        if (place is not null)
+        {
+            return place;
+        }
+
+        if (values.Stepping is StepDirection stepping)
+        {
+            EnemyBody next = body.Step(stepping);
+            if (!MapRules.CanPlace(map, next))
+            {
+                return $"the enemy '{name}' steps {StepDirections.NameOf(stepping)} to the body {next}, which takes no step";
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -340,44 +377,59 @@ public sealed class PatrolState
         this.Target = 1;
     }
 
-    private static void CheckRoute(
+    private static string? AreaMisfitOf(TileArea area, PatrolValues values, EnemyBody body, string name)
+    {
+        if (!area.HoldsBody(body))
+        {
+            return $"the enemy '{name}' holds the body {body}, and its area is {area}";
+        }
+
+        if (values.Target != 0 || !values.Forward)
+        {
+            return $"the enemy '{name}' walks an area, and it holds the route leg {values.Target} and the direction {values.Forward}";
+        }
+
+        return null;
+    }
+
+    private static string? RouteMisfitOf(
         PatrolStation station,
         PatrolValues values,
         TilePoint at,
-        string name,
-        string source)
+        string name)
     {
         IReadOnlyList<TilePoint> route = station.Tiles;
-        Refuse(
-            values.Target < 0 || values.Target >= route.Count,
-            source,
-            $"the enemy '{name}' walks toward the route tile {values.Target}, and its route holds {route.Count} tiles");
+        if (values.Target < 0 || values.Target >= route.Count)
+        {
+            return $"the enemy '{name}' walks toward the route tile {values.Target}, and its route holds {route.Count} tiles";
+        }
 
         if (route.Count == 1)
         {
-            Refuse(
-                at != route[0],
-                source,
-                $"the enemy '{name}' stands at {at}, and its route holds the one tile {route[0]}");
-            if (values.Stepping is StepDirection stepping)
+            if (at != route[0])
             {
-                Refuse(
-                    true,
-                    source,
-                    $"the enemy '{name}' stands on a route of one tile, and it steps {StepDirections.NameOf(stepping)}");
+                return $"the enemy '{name}' stands at {at}, and its route holds the one tile {route[0]}";
             }
 
-            return;
+            if (values.Stepping is StepDirection stepping)
+            {
+                return $"the enemy '{name}' stands on a route of one tile, and it steps {StepDirections.NameOf(stepping)}";
+            }
+
+            return null;
         }
 
-        Refuse(
-            at == route[values.Target],
-            source,
-            $"the enemy '{name}' stands on the route tile {values.Target}, and a walk takes the next leg on arrival (D-739)");
-        Refuse(
-            !PatrolStation.TryLeg(at, route[values.Target], out _, out _),
-            source,
-            $"the enemy '{name}' stands at {at}, and the route tile {values.Target} is {route[values.Target]}. The two lie on no straight leg");
+        if (at == route[values.Target])
+        {
+            return $"the enemy '{name}' stands on the route tile {values.Target}, and a walk takes the next leg on arrival (D-739)";
+        }
+
+        if (!PatrolStation.TryLeg(at, route[values.Target], out _, out _))
+        {
+            return $"the enemy '{name}' stands at {at}, and the route tile {values.Target} is {route[values.Target]}. The two lie on no straight leg";
+        }
+
+        return null;
     }
 
     private static void Refuse(bool broken, string source, string reason)

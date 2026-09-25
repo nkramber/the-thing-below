@@ -15,6 +15,11 @@ namespace TheThingBelow.Core.Story;
 /// The object holds `flags`, `paused`, and `entry` always. It holds `won` while a win waits
 /// for its battle end triggers, and `scene` while a story scene runs. An absent `won` or
 /// `scene` means that none holds, as an absent `stepping` means that the lead stands (D-652).
+/// <para>
+/// From save format 14, the `scene` object holds `step_id` beside `step`, so a resume finds a
+/// step that an edit of the story scene moved (D-1112). A snapshot of an older format holds the
+/// index alone.
+/// </para>
 /// </remarks>
 public static class StorySnapshotText
 {
@@ -52,9 +57,10 @@ public static class StorySnapshotText
 
     /// <summary>Reads the `story` field of a snapshot object.</summary>
     /// <param name="reader">The reader, at the value of the field.</param>
+    /// <param name="format">The save format of the snapshot, 9 or later (D-166).</param>
     /// <returns>The values, which `StoryState.Resume` checks against the content of this build.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
-    public static StoryValues Read(ref ContentReader reader)
+    public static StoryValues Read(ref ContentReader reader, int format)
     {
         List<ContentId>? flags = null;
         bool? paused = null;
@@ -80,7 +86,7 @@ public static class StorySnapshotText
                     won = reader.ReadContentId(Patrol.IdKind);
                     break;
                 case "scene":
-                    scene = ReadScene(ref reader);
+                    scene = ReadScene(ref reader, format);
                     break;
                 default:
                     throw reader.UnknownField(field);
@@ -100,6 +106,9 @@ public static class StorySnapshotText
         writer.WriteStartObject("scene");
         writer.WriteString("id", scene.Scene.Value);
         writer.WriteNumber("step", scene.Step);
+        writer.WriteString(
+            "step_id",
+            (scene.StepId ?? throw new ArgumentException($"The story scene '{scene.Scene.Value}' holds no step id, and this build writes save format 14, which holds one (D-1112, T-2).", nameof(scene))).Value);
         writer.WriteString("phase", ScenePhases.NameOf(scene.Phase));
         writer.WriteNumber("ticks_left", scene.TicksLeft);
         writer.WriteStartArray("actors");
@@ -129,10 +138,11 @@ public static class StorySnapshotText
         return flags;
     }
 
-    private static SceneValues ReadScene(ref ContentReader reader)
+    private static SceneValues ReadScene(ref ContentReader reader, int format)
     {
         ContentId? id = null;
         int? step = null;
+        ContentId? stepId = null;
         string? phase = null;
         int? ticksLeft = null;
         List<ActorValues>? actors = null;
@@ -147,6 +157,13 @@ public static class StorySnapshotText
                     break;
                 case "step":
                     step = reader.ReadInt();
+                    break;
+
+                // Save format 13 and older predate the step id (D-1112).
+                case "step_id" when format < 14:
+                    throw reader.Refuse($"the snapshot of save format {format} holds a step id, and that format predates it (D-1112)");
+                case "step_id":
+                    stepId = reader.ReadContentId(StoryScene.StepKind);
                     break;
                 case "phase":
                     phase = reader.ReadString();
@@ -171,6 +188,7 @@ public static class StorySnapshotText
         return new SceneValues(
             reader.Require(id, depth, "id"),
             reader.RequireInt(step, depth, "step"),
+            format < 14 ? null : reader.Require(stepId, depth, "step_id"),
             parsed,
             reader.RequireInt(ticksLeft, depth, "ticks_left"),
             reader.Require(actors, depth, "actors"));

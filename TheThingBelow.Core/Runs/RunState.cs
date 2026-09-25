@@ -163,10 +163,36 @@ public sealed class RunState
     public static RunState Resume(ulong seed, RunSnapshot snapshot, GameMap map, BattleContent battleContent, NoticeList notices, StoryContent story)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
+
+        return Resume(seed, snapshot, map, battleContent, notices, story, ResumeDrift.Of(SnapshotOrigin.ThisBuild, snapshot.Tick));
+    }
+
+    /// <summary>
+    /// Builds the state of a run from a snapshot that this build or another build wrote
+    /// (D-166, D-259, D-1111).
+    /// </summary>
+    /// <param name="seed">The seed of the run.</param>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <param name="map">The map of the snapshot, from the content of this build.</param>
+    /// <param name="battleContent">The battle rules and the fixture of this build (D-766).</param>
+    /// <param name="notices">The notice file of this build (D-985).</param>
+    /// <param name="story">The story content of this build (D-166).</param>
+    /// <param name="drift">
+    /// The build of the snapshot. A snapshot of another build can follow an edit of a map or a
+    /// story scene, and the drift logs each change (D-1111, D-1112). The party takes no change
+    /// (D-1110).
+    /// </param>
+    /// <returns>The state, with every stream at the position of the snapshot.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The snapshot is not a state of a run, or the map is another map (T-2).</exception>
+    public static RunState Resume(ulong seed, RunSnapshot snapshot, GameMap map, BattleContent battleContent, NoticeList notices, StoryContent story, ResumeDrift drift)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(battleContent);
         ArgumentNullException.ThrowIfNull(notices);
         ArgumentNullException.ThrowIfNull(story);
+        ArgumentNullException.ThrowIfNull(drift);
         battleContent.RequireGroupsOf(map);
         story.RequireScenesOf(map);
         snapshot.Check("this run");
@@ -180,9 +206,9 @@ public sealed class RunState
                 Pcg32.FromSnapshot(position.State, position.Increment));
         }
 
-        MapState party = ResumeMap(snapshot, map);
+        MapState party = ResumeMap(snapshot, map, drift);
         PartyState characters = ResumeCharacters(snapshot, battleContent);
-        StoryState storyState = ResumeStory(snapshot, story, map);
+        StoryState storyState = ResumeStory(snapshot, story, map, drift);
 
         // Core refuses every intent but the few of a story scene while one runs, the close of the
         // menu included, so the pair would hold the run for good (D-1009, P3-18).
@@ -207,7 +233,7 @@ public sealed class RunState
             storyState);
     }
 
-    private static MapState ResumeMap(RunSnapshot snapshot, GameMap map)
+    private static MapState ResumeMap(RunSnapshot snapshot, GameMap map, ResumeDrift drift)
     {
         if (string.CompareOrdinal(snapshot.MapIdOrFirst.Value, map.Id.Value) != 0)
         {
@@ -227,15 +253,13 @@ public sealed class RunState
         // each enemy of the map starts on the start tile of its station (D-654, D-750).
         return MapState.Resume(
             map,
-            new TilePoint(party.LeadX, party.LeadY),
-            party.Facing,
-            party.Stepping,
-            party.StepTicks,
+            new LeadValues(new TilePoint(party.LeadX, party.LeadY), party.Facing, party.Stepping, party.StepTicks),
             WalkedTiles.OfRows(party.Walked, "this run"),
             party.Enemies,
             party.Mark,
             party.Encounter,
-            "this run");
+            "this run",
+            drift);
     }
 
     /// <summary>
@@ -256,10 +280,10 @@ public sealed class RunState
     /// Gives the story state of a snapshot. A snapshot before save format 9 holds none, and its
     /// migration starts with no flag on, no story scene, and no entry to read (D-166, D-1004).
     /// </summary>
-    private static StoryState ResumeStory(RunSnapshot snapshot, StoryContent story, GameMap map)
+    private static StoryState ResumeStory(RunSnapshot snapshot, StoryContent story, GameMap map, ResumeDrift drift)
     {
         StoryValues stored = snapshot.Story ?? new StoryValues([], null, false, false, null);
-        return StoryState.Resume(story, stored, map, "this run");
+        return StoryState.Resume(story, stored, map, "this run", drift);
     }
 
     /// <summary>

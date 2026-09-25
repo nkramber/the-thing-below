@@ -95,27 +95,54 @@ public sealed class StoryFileTests
 
     [Theory]
     [InlineData("""{ "kind": "dance" }""", "one of move, face")]
-    [InlineData("""{ "kind": "wait", "ticks": 0 }""", "a wait lasts one tick or more")]
-    [InlineData("""{ "kind": "wait", "ticks": 5, "line": "line.test_greet" }""", "reads no field 'line'")]
-    [InlineData("""{ "kind": "move", "actor": "lead", "path": [] }""", "the path holds no direction")]
-    [InlineData("""{ "kind": "move", "actor": "lead", "path": ["up"] }""", "the direction is 'up'")]
-    [InlineData("""{ "kind": "move", "actor": "enemy.test", "path": ["north"] }""", "PR-14 adds the NPC")]
-    [InlineData("""{ "kind": "face", "actor": "lead" }""", ".facing)")]
-    [InlineData("""{ "kind": "say", "speaker": "notice.test_kept", "line": "line.test_greet" }""", "the speaker 'notice.test_kept'")]
-    [InlineData("""{ "kind": "say", "line": "line.test_greet" }""", ".speaker)")]
-    [InlineData("""{ "kind": "choose", "options": [{ "line": "line.test_yes", "flag": "flag.test_yes" }] }""", "holds 1 options")]
-    [InlineData("""{ "kind": "choose", "options": [{ "line": "line.test_yes", "flag": "flag.test_yes" }, { "line": "line.test_no", "flag": "flag.test_yes" }] }""", "two options set the flag")]
-    [InlineData("""{ "kind": "show", "actor": "lead", "at": "marker.test_story_door", "facing": "west" }""", "the lead stays on the map")]
-    [InlineData("""{ "kind": "hide", "actor": "lead" }""", "the lead stays on the map")]
-    [InlineData("""{ "kind": "camera", "at": "door.test_room_east" }""", "the kind 'marker'")]
-    [InlineData("""{ "kind": "start_battle", "group": "enemy.fixture_grunt" }""", "the kind 'group'")]
-    [InlineData("""{ "kind": "set_flag" }""", ".flag)")]
+    [InlineData("""{ "id": "step.s1", "kind": "wait", "ticks": 0 }""", "a wait lasts one tick or more")]
+    [InlineData("""{ "id": "step.s2", "kind": "wait", "ticks": 5, "line": "line.test_greet" }""", "reads no field 'line'")]
+    [InlineData("""{ "id": "step.s3", "kind": "move", "actor": "lead", "path": [] }""", "the path holds no direction")]
+    [InlineData("""{ "id": "step.s4", "kind": "move", "actor": "lead", "path": ["up"] }""", "the direction is 'up'")]
+    [InlineData("""{ "id": "step.s5", "kind": "move", "actor": "enemy.test", "path": ["north"] }""", "PR-14 adds the NPC")]
+    [InlineData("""{ "id": "step.s6", "kind": "face", "actor": "lead" }""", ".facing)")]
+    [InlineData("""{ "id": "step.s7", "kind": "say", "speaker": "notice.test_kept", "line": "line.test_greet" }""", "the speaker 'notice.test_kept'")]
+    [InlineData("""{ "id": "step.s8", "kind": "say", "line": "line.test_greet" }""", ".speaker)")]
+    [InlineData("""{ "id": "step.s9", "kind": "choose", "options": [{ "line": "line.test_yes", "flag": "flag.test_yes" }] }""", "holds 1 options")]
+    [InlineData("""{ "id": "step.s10", "kind": "choose", "options": [{ "line": "line.test_yes", "flag": "flag.test_yes" }, { "line": "line.test_no", "flag": "flag.test_yes" }] }""", "two options set the flag")]
+    [InlineData("""{ "id": "step.s11", "kind": "show", "actor": "lead", "at": "marker.test_story_door", "facing": "west" }""", "the lead stays on the map")]
+    [InlineData("""{ "id": "step.s12", "kind": "hide", "actor": "lead" }""", "the lead stays on the map")]
+    [InlineData("""{ "id": "step.s13", "kind": "camera", "at": "door.test_room_east" }""", "the kind 'marker'")]
+    [InlineData("""{ "id": "step.s14", "kind": "start_battle", "group": "enemy.fixture_grunt" }""", "the kind 'group'")]
+    [InlineData("""{ "id": "step.s15", "kind": "set_flag" }""", ".flag)")]
+    [InlineData("""{ "kind": "wait", "ticks": 5 }""", ".id)")]
+    [InlineData("""{ "id": "step.end", "kind": "wait", "ticks": 5 }""", "marks the end of a story scene")]
+    [InlineData("""{ "id": "scene.s16", "kind": "wait", "ticks": 5 }""", "the kind 'step'")]
     public void AMalformedStepFailsWithTheReason(string step, string reason)
     {
         ContentException error = Assert.Throws<ContentException>(() => TestStory.Scene(SceneOf(step), "test"));
 
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
         Assert.Contains(ScenePath, error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TwoStepsWithOneIdFail()
+    {
+        // D-1112: a snapshot names a step by its id, so each id names one step alone.
+        ContentException error = Assert.Throws<ContentException>(() => TestStory.Scene(
+            """{ "comment": "c", "id": "scene.test", "steps": [{ "id": "step.one", "kind": "wait", "ticks": 5 }, { "id": "step.one", "kind": "wait", "ticks": 6 }] }""",
+            "test"));
+
+        Assert.Contains("two steps take the id 'step.one'", error.Message, StringComparison.Ordinal);
+        Assert.Contains("steps[1]", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void EachStepKeepsItsIdAtItsIndex()
+    {
+        StoryScene scene = TestStory.Scene(TestStory.FightFile, "fight");
+
+        Assert.Equal(["step.ambush", "step.fight", "step.lead_steps", "step.after", "step.done"], Values(scene.StepIds));
+        Assert.True(scene.TryIndexOfStep(ContentId.Parse("step.after", "test", "id"), out int found));
+        Assert.Equal(3, found);
+        Assert.False(scene.TryIndexOfStep(ContentId.Parse("step.gone", "test", "id"), out int none));
+        Assert.Equal(-1, none);
     }
 
     [Fact]

@@ -742,16 +742,32 @@ public partial class MapScreen : Node2D
             CheckSprite(this.enemies[index], $"the enemy '{patrol.Patrol.Id.Value}'");
 
             // On a map that is not dark, a live enemy draws at any distance and a dead one never
-            // draws (D-814). On a dark map, a live enemy draws while the dark leaves a share of it (D-1062).
-            bool wanted = !patrol.Dead && (!party.Map.Dark || this.shares[index] > 0);
+            // draws (D-814). On a dark map, a live enemy draws while the dark leaves a share of it
+            // (D-1062). The bounds below read Core alone and never the shares of the fade, so a
+            // fade that hides a live enemy on a lit map, or shows one past the widest sight, fails
+            // here (D-1118).
+            bool mustDraw = !patrol.Dead && !party.Map.Dark;
+            bool mayDraw = !patrol.Dead && (!party.Map.Dark || WithinWidestSight(party, patrol));
+            bool visible = this.enemies[index].Visible;
             Refuse(
-                this.enemies[index].Visible != wanted,
-                $"the enemy '{patrol.Patrol.Id.Value}' draws {this.enemies[index].Visible}, is dead {patrol.Dead}, and holds the share {this.shares[index]} on a map that is dark {party.Map.Dark} (D-814, D-1062)");
+                (mustDraw && !visible) || (visible && !mayDraw),
+                $"the enemy '{patrol.Patrol.Id.Value}' draws {visible}, is dead {patrol.Dead}, and holds the share {this.shares[index]} on a map that is dark {party.Map.Dark} (D-814, D-1062, D-1118)");
             drawn += this.enemies[index].Visible ? 1 : 0;
         }
 
         string mark = this.mark.Visible ? "a mark" : "no mark";
         return $"the lead at {this.lead.Position}, {this.enemies.Length} enemies with {drawn} drawn, and {mark}";
+    }
+
+    /// <summary>
+    /// Tells whether an enemy lies inside the widest sight of the party on a dark map: the range
+    /// of the torch, one tile of fade past it, and one tile of a step that runs (D-1062, D-1063).
+    /// </summary>
+    private static bool WithinWidestSight(MapState party, PatrolState patrol)
+    {
+        TilePoint nearest = patrol.Body.Nearest(party.LeadAt);
+        int reach = Math.Max(Math.Abs(nearest.X - party.LeadAt.X), Math.Abs(nearest.Y - party.LeadAt.Y));
+        return reach <= MapRules.PartySightRange(party.Map, torchHeld: true) + 2;
     }
 
     private static void CheckSprite(Sprite2D sprite, string what)

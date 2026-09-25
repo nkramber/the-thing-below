@@ -38,7 +38,9 @@ Load this skill before you write or review C# in this repo (D-21, D-99). It appl
 - Every `Core` behavior change bumps the simulation version constant (G-17).
 - Check every arithmetic operation that a content value can drive with `checked`. An overflow is an error with context, never a wrap.
 - No thread, no task, and no SIMD vector in `Core`. det-lint fails each one (DL 10, T-7).
-- No reflection, no `dynamic`, no LINQ in a hot loop, no conditional compilation in `Core`.
+- No reflection, no `dynamic`, no LINQ in a hot loop, no conditional compilation in `Core`. det-lint fails each text that a directive disables (DL 12, D-1117).
+- No file, network, or OS service in `Core` or the debug commands. det-lint fails `System.IO`, `Environment`, `OperatingSystem`, `RuntimeInformation`, and `AppContext` (DL 11, G-1).
+- det-lint also fails `AppendLine` and `WriteLine` there, because each one writes the line end of the OS (DL 11, D-1117).
 - No hash from `GetHashCode` or from the .NET hash classes in `Core`. Use the hash function that `Core` holds (F-35).
 - Order strings by an ordinal comparison alone. A `SortedDictionary` with string keys takes `StringComparer.Ordinal`, because the default order follows the culture of the machine (F-39).
 - Debug intents and their handlers live in a separate debug assembly that only development builds reference (D-260).

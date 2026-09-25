@@ -31,11 +31,24 @@ public sealed class StoryScene
     /// <summary>The word that marks a line with no speaker in a say step (D-997).</summary>
     public const string NoSpeaker = "none";
 
-    private StoryScene(string file, ContentId id, IReadOnlyList<SceneStep> steps)
+    /// <summary>The kind of a step id, which is unique inside its story scene (D-1112).</summary>
+    public const string StepKind = "step";
+
+    /// <summary>
+    /// The step id that a snapshot stores when the story scene ran past its last step. No step
+    /// of a story scene file takes it (D-1112).
+    /// </summary>
+    public const string EndStepId = "step.end";
+
+    /// <summary>The id of <see cref="EndStepId"/>, which a snapshot stores past the last step (D-1112).</summary>
+    public static readonly ContentId EndStep = ContentId.Parse(EndStepId, "code", nameof(EndStep));
+
+    private StoryScene(string file, ContentId id, IReadOnlyList<SceneStep> steps, IReadOnlyList<ContentId> stepIds)
     {
         this.File = file;
         this.Id = id;
         this.Steps = steps;
+        this.StepIds = stepIds;
     }
 
     /// <summary>The path of the file, under `content/`, for every error (T-2).</summary>
@@ -46,6 +59,12 @@ public sealed class StoryScene
 
     /// <summary>The steps, in the order that Core runs them (D-540).</summary>
     public IReadOnlyList<SceneStep> Steps { get; }
+
+    /// <summary>
+    /// The id of each step, at the index of its step. An edit of the file never changes the id
+    /// of a step, so a resume finds a moved step by its id (D-1112, D-166).
+    /// </summary>
+    public IReadOnlyList<ContentId> StepIds { get; }
 
     /// <summary>Tells whether a path of this repository is a story scene file.</summary>
     /// <param name="path">The path under `content/`, with `/` separators.</param>
@@ -70,6 +89,7 @@ public sealed class StoryScene
         string? comment = null;
         ContentId? id = null;
         List<SceneStep>? steps = null;
+        List<ContentId> stepIds = [];
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -83,7 +103,7 @@ public sealed class StoryScene
                     id = reader.ReadContentId(Kind);
                     break;
                 case "steps":
-                    steps = ReadSteps(ref reader);
+                    steps = ReadSteps(ref reader, stepIds);
                     break;
                 default:
                     throw reader.UnknownField(field);
@@ -97,9 +117,31 @@ public sealed class StoryScene
             throw reader.RefuseField(depth, "steps", "the story scene holds no step, and a story scene holds one or more (D-173)");
         }
 
-        var scene = new StoryScene(file, reader.Require(id, depth, "id"), read);
+        var scene = new StoryScene(file, reader.Require(id, depth, "id"), read, stepIds);
         reader.ReadFileEnd();
         return scene;
+    }
+
+    /// <summary>Finds the index of the step that holds one id (D-1112).</summary>
+    /// <param name="stepId">The id of the step.</param>
+    /// <param name="index">The index of that step, or -1 when no step holds the id.</param>
+    /// <returns>True when a step of this story scene holds the id.</returns>
+    /// <exception cref="ArgumentNullException">The id is null (T-2).</exception>
+    public bool TryIndexOfStep(ContentId stepId, out int index)
+    {
+        ArgumentNullException.ThrowIfNull(stepId);
+
+        for (int at = 0; at < this.StepIds.Count; at += 1)
+        {
+            if (string.CompareOrdinal(this.StepIds[at].Value, stepId.Value) == 0)
+            {
+                index = at;
+                return true;
+            }
+        }
+
+        index = -1;
+        return false;
     }
 
     /// <summary>Gives the field path of one step, for an error (T-2).</summary>
@@ -107,19 +149,19 @@ public sealed class StoryScene
     /// <returns>The path, such as `scene.x.steps[3]`.</returns>
     public string StepField(int index) => $"{this.Id.Value}.steps[{index}]";
 
-    private static List<SceneStep> ReadSteps(ref ContentReader reader)
+    private static List<SceneStep> ReadSteps(ref ContentReader reader, List<ContentId> stepIds)
     {
         List<SceneStep> steps = [];
         int depth = reader.ReadArrayStart();
         while (reader.ReadNextElement(depth, steps.Count))
         {
-            steps.Add(ReadStep(ref reader));
+            steps.Add(ReadStep(ref reader, stepIds));
         }
 
         return steps;
     }
 
-    private static SceneStep ReadStep(ref ContentReader reader)
+    private static SceneStep ReadStep(ref ContentReader reader, List<ContentId> stepIds)
     {
         StepFields fields = new();
         int depth = reader.ReadObjectStart();
@@ -135,6 +177,7 @@ public sealed class StoryScene
         }
 
         fields.RefuseFieldsOutside(ref reader, depth, kind);
+        stepIds.Add(StepIdOf(ref reader, depth, fields, stepIds));
         return kind switch
         {
             SceneStepKind.Move => new MoveStep(reader.Require(fields.Actor, depth, "actor"), PathOf(ref reader, depth, fields)),
@@ -152,10 +195,36 @@ public sealed class StoryScene
         };
     }
 
+    /// <summary>
+    /// Reads the id of one step. The id is unique inside the story scene, and no step takes
+    /// the id that marks the end, so a snapshot names each step with no doubt (D-1112).
+    /// </summary>
+    private static ContentId StepIdOf(ref ContentReader reader, int depth, StepFields fields, List<ContentId> earlier)
+    {
+        ContentId stepId = reader.Require(fields.Id, depth, "id");
+        if (string.CompareOrdinal(stepId.Value, EndStepId) == 0)
+        {
+            throw reader.RefuseField(depth, "id", $"the step takes the id '{EndStepId}', which marks the end of a story scene in a snapshot (D-1112)");
+        }
+
+        foreach (ContentId other in earlier)
+        {
+            if (string.CompareOrdinal(other.Value, stepId.Value) == 0)
+            {
+                throw reader.RefuseField(depth, "id", $"two steps take the id '{stepId.Value}', and each step of a story scene takes its own id (D-1112)");
+            }
+        }
+
+        return stepId;
+    }
+
     private static void ReadStepField(ref ContentReader reader, string field, StepFields fields)
     {
         switch (field)
         {
+            case "id":
+                fields.Id = reader.ReadContentId(StepKind);
+                break;
             case "kind":
                 fields.Kind = reader.ReadString();
                 break;
@@ -360,6 +429,8 @@ public sealed class StoryScene
     {
         public List<string> Names { get; } = [];
 
+        public ContentId? Id { get; set; }
+
         public string? Kind { get; set; }
 
         public SceneActor? Actor { get; set; }
@@ -390,7 +461,7 @@ public sealed class StoryScene
             string[] allowed = FieldsOf(kind);
             foreach (string name in this.Names)
             {
-                if (string.CompareOrdinal(name, "kind") == 0 || Array.IndexOf(allowed, name) >= 0)
+                if (string.CompareOrdinal(name, "kind") == 0 || string.CompareOrdinal(name, "id") == 0 || Array.IndexOf(allowed, name) >= 0)
                 {
                     continue;
                 }

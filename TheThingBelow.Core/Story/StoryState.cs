@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
+using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Runs;
 
 namespace TheThingBelow.Core.Story;
 
@@ -77,10 +79,14 @@ public sealed record ActorValues(ContentId Character, TilePoint At, StepDirectio
 /// <summary>The stored values of the story scene that runs (D-540, D-166).</summary>
 /// <param name="Scene">The id of the story scene.</param>
 /// <param name="Step">The index of the step now.</param>
+/// <param name="StepId">
+/// The id of the step now, or <see cref="StoryScene.EndStepId"/> past the last step. The value
+/// is absent in a snapshot before save format 14, whose resume reads the index alone (D-1112).
+/// </param>
 /// <param name="Phase">Where the step stands.</param>
 /// <param name="TicksLeft">The ticks of a wait step that remain, and zero in every other phase.</param>
 /// <param name="Actors">The shown cast members, in the order of their shows.</param>
-public sealed record SceneValues(ContentId Scene, int Step, ScenePhase Phase, int TicksLeft, IReadOnlyList<ActorValues> Actors);
+public sealed record SceneValues(ContentId Scene, int Step, ContentId? StepId, ScenePhase Phase, int TicksLeft, IReadOnlyList<ActorValues> Actors);
 
 /// <summary>The stored values of the story state (D-540, D-542, D-166).</summary>
 /// <param name="Flags">The flags that are on, in ordinal order.</param>
@@ -179,26 +185,53 @@ public sealed class StoryState
     /// The caller checks that a story scene in its battle phase holds a battle, because the
     /// battle lives outside this state (D-999).
     /// </remarks>
-    public static StoryState Resume(StoryContent content, StoryValues values, GameMap map, string source)
+    public static StoryState Resume(StoryContent content, StoryValues values, GameMap map, string source) =>
+        Resume(content, values, map, source, ResumeDrift.Of(SnapshotOrigin.ThisBuild, 0));
+
+    /// <summary>
+    /// Puts the story state back from the values of a snapshot that this build or another build
+    /// wrote (D-166, D-1112).
+    /// </summary>
+    /// <param name="content">The story content of this build.</param>
+    /// <param name="values">The stored values.</param>
+    /// <param name="map">The map of the run, which holds each tile and each patrol.</param>
+    /// <param name="source">What the values came from, such as `the save`, for an error (T-2).</param>
+    /// <param name="drift">
+    /// The build of the snapshot. A snapshot of another build finds a moved step by its id,
+    /// and it drops a win against a patrol that the map no longer places. The drift logs each
+    /// change (D-1111, D-1112).
+    /// </param>
+    /// <returns>The state.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no story state of this content and this map (T-2).</exception>
+    public static StoryState Resume(StoryContent content, StoryValues values, GameMap map, string source, ResumeDrift drift)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(values);
         ArgumentNullException.ThrowIfNull(map);
         ArgumentException.ThrowIfNullOrEmpty(source);
+        ArgumentNullException.ThrowIfNull(drift);
 
         var state = new StoryState(content, FlagSet.Resume(values.Flags, content.Flags, source), values.EntryPending);
         Refuse(values.Paused && values.Scene is null, source, "it is paused with no story scene, and the pause holds a story scene alone (D-1010)");
         Refuse(values.EntryPending && values.Scene is not null, source, "it holds an entry to read and a story scene that runs, and an entry trigger reads the map before any story scene");
-        if (values.WonPatrol is ContentId won)
+        if (values.WonPatrol is ContentId won && !PlacesPatrol(map, won) && drift.Adjusts)
         {
-            Refuse(!PlacesPatrol(map, won), source, $"it holds a win against '{won.Value}', and the map places no such patrol (D-1011)");
-            state.WonPatrol = won;
+            drift.Note(
+                LogSubsystems.Story,
+                "the save holds a win against a patrol that the map of this build no longer places, and its battle end triggers do not fire",
+                [new LogField("patrol", won.Value), new LogField("map", map.Id.Value)]);
+        }
+        else if (values.WonPatrol is ContentId kept)
+        {
+            Refuse(!PlacesPatrol(map, kept), source, $"it holds a win against '{kept.Value}', and the map places no such patrol (D-1011)");
+            state.WonPatrol = kept;
         }
 
         state.Paused = values.Paused;
         if (values.Scene is SceneValues scene)
         {
-            state.ResumeScene(scene, map, source);
+            state.ResumeScene(scene, map, source, drift);
         }
 
         return state;
@@ -209,7 +242,7 @@ public sealed class StoryState
     public StoryValues Values()
     {
         SceneValues? scene = this.Scene is StoryScene running
-            ? new SceneValues(running.Id, this.Step, this.Phase, this.TicksLeft, this.Actors)
+            ? new SceneValues(running.Id, this.Step, this.StepIdNow(running), this.Phase, this.TicksLeft, this.Actors)
             : null;
         return new StoryValues(this.Flags.Values(FlagList.Path), scene, this.Paused, this.EntryPending, this.WonPatrol);
     }
@@ -371,7 +404,57 @@ public sealed class StoryState
         }
     }
 
-    private void ResumeScene(SceneValues values, GameMap map, string source)
+    /// <summary>Gives the id of the step now, or the end id past the last step (D-1112).</summary>
+    private ContentId StepIdNow(StoryScene running) =>
+        this.Step < running.Steps.Count ? running.StepIds[this.Step] : StoryScene.EndStep;
+
+    /// <summary>
+    /// Finds the index of the stored step in the story scene of this build (D-1112). A snapshot
+    /// before save format 14 holds the index alone. A snapshot of another build finds a moved
+    /// step by its id, and a step id that the story scene no longer holds refuses the save, so
+    /// no resume continues at another step in silence (T-2).
+    /// </summary>
+    private static int StepOf(SceneValues values, StoryScene scene, string source, ResumeDrift drift)
+    {
+        int count = scene.Steps.Count;
+        string name = scene.Id.Value;
+        if (values.StepId is not ContentId stepId)
+        {
+            Refuse(values.Step < 0 || values.Step > count, source, $"the step is {values.Step}, and '{name}' holds {count} steps");
+            return values.Step;
+        }
+
+        Refuse(values.Step < 0, source, $"the step is {values.Step}, and a step index is zero or more");
+        int found;
+        if (string.CompareOrdinal(stepId.Value, StoryScene.EndStepId) == 0)
+        {
+            found = count;
+        }
+        else
+        {
+            Refuse(
+                !scene.TryIndexOfStep(stepId, out found),
+                source,
+                $"it runs the step '{stepId.Value}' of '{name}', and no step of that story scene in this build takes that id (D-1112)");
+        }
+
+        if (found == values.Step)
+        {
+            return found;
+        }
+
+        Refuse(
+            !drift.Adjusts,
+            source,
+            $"it runs the step '{stepId.Value}' at index {values.Step}, and '{name}' holds that step at index {found}");
+        drift.Note(
+            LogSubsystems.Story,
+            "the story scene of the save moved its step in this build, and the resume found the step by its id",
+            [new LogField("scene", name), new LogField("step", stepId.Value), LogField.OfNumber("stored_index", values.Step), LogField.OfNumber("index", found)]);
+        return found;
+    }
+
+    private void ResumeScene(SceneValues values, GameMap map, string source, ResumeDrift drift)
     {
         ArgumentNullException.ThrowIfNull(values.Scene);
         ArgumentNullException.ThrowIfNull(values.Actors);
@@ -383,12 +466,11 @@ public sealed class StoryState
 
         StoryScene scene = found!;
 
-        Refuse(values.Step < 0 || values.Step > scene.Steps.Count, source, $"the step is {values.Step}, and '{scene.Id.Value}' holds {scene.Steps.Count} steps");
+        int step = StepOf(values, scene, source, drift);
         this.Begin(scene);
-        this.Step = values.Step;
-        this.CheckPhase(values, scene, source);
+        this.Step = step;
         this.Phase = values.Phase;
-        this.TicksLeft = values.TicksLeft;
+        this.TicksLeft = this.CheckPhase(values, step, scene, source, drift);
         foreach (ActorValues actor in values.Actors)
         {
             ArgumentNullException.ThrowIfNull(actor);
@@ -400,18 +482,21 @@ public sealed class StoryState
         }
     }
 
-    /// <summary>Refuses a phase that the kind of the step never takes (T-2).</summary>
-    private void CheckPhase(SceneValues values, StoryScene scene, string source)
+    /// <summary>
+    /// Refuses a phase that the kind of the step never takes (T-2), and gives the ticks left of
+    /// the step. A wait of another build that got shorter ends at its new length (D-1112).
+    /// </summary>
+    private int CheckPhase(SceneValues values, int stepIndex, StoryScene scene, string source, ResumeDrift drift)
     {
-        bool pastEnd = values.Step == scene.Steps.Count;
+        bool pastEnd = stepIndex == scene.Steps.Count;
         Refuse(pastEnd && values.Phase != ScenePhase.Ready, source, $"the step is past the last step, and its phase is '{ScenePhases.NameOf(values.Phase)}'");
         Refuse(values.Phase != ScenePhase.Ticks && values.TicksLeft != 0, source, $"the phase '{ScenePhases.NameOf(values.Phase)}' holds {values.TicksLeft} ticks left, and a wait step alone counts ticks");
         if (pastEnd || values.Phase == ScenePhase.Ready)
         {
-            return;
+            return values.TicksLeft;
         }
 
-        SceneStep step = scene.Steps[values.Step];
+        SceneStep step = scene.Steps[stepIndex];
         ScenePhase wanted = SceneStepKinds.EndOf(step.Kind) switch
         {
             SceneStepEnd.WaitIntent => ScenePhase.WaitIntent,
@@ -423,11 +508,23 @@ public sealed class StoryState
         Refuse(
             values.Phase != wanted,
             source,
-            $"step {values.Step} of '{scene.Id.Value}' is a '{SceneStepKinds.NameOf(step.Kind)}' step, and its phase is '{ScenePhases.NameOf(values.Phase)}'");
-        if (step is WaitStep wait)
+            $"step {stepIndex} of '{scene.Id.Value}' is a '{SceneStepKinds.NameOf(step.Kind)}' step, and its phase is '{ScenePhases.NameOf(values.Phase)}'");
+        if (step is not WaitStep wait)
         {
-            Refuse(values.TicksLeft < 1 || values.TicksLeft > wait.Ticks, source, $"the wait holds {values.TicksLeft} ticks left, and the range is 1 to {wait.Ticks}");
+            return values.TicksLeft;
         }
+
+        if (values.TicksLeft > wait.Ticks && drift.Adjusts)
+        {
+            drift.Note(
+                LogSubsystems.Story,
+                "the wait of the save is longer than the wait of this build, and it ends at the new length",
+                [new LogField("scene", scene.Id.Value), new LogField("step", scene.StepIds[stepIndex].Value), LogField.OfNumber("stored_ticks", values.TicksLeft), LogField.OfNumber("ticks", wait.Ticks)]);
+            return wait.Ticks;
+        }
+
+        Refuse(values.TicksLeft < 1 || values.TicksLeft > wait.Ticks, source, $"the wait holds {values.TicksLeft} ticks left, and the range is 1 to {wait.Ticks}");
+        return values.TicksLeft;
     }
 
     private ShownActor? Find(ContentId character)

@@ -114,6 +114,33 @@ public sealed class WalkedTiles
         return new WalkedTiles(width, height, walked, count);
     }
 
+    /// <summary>
+    /// Gives a copy of the record on a map of another size (D-1111). Each tile inside both
+    /// sizes keeps its state, a tile of the new size alone is fresh, and a tile of the old size
+    /// alone leaves.
+    /// </summary>
+    /// <param name="width">The width of the map of this build, in tiles.</param>
+    /// <param name="height">The height of the map of this build, in tiles.</param>
+    /// <returns>The copy.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">A side is below one, or above the limit of a map (T-2).</exception>
+    public WalkedTiles Resized(int width, int height)
+    {
+        WalkedTiles copy = Empty(width, height);
+        for (int row = 0; row < Math.Min(height, this.Height); row += 1)
+        {
+            for (int column = 0; column < Math.Min(width, this.Width); column += 1)
+            {
+                var at = new TilePoint(column, row);
+                if (this.WasWalked(at))
+                {
+                    copy.Mark(at);
+                }
+            }
+        }
+
+        return copy;
+    }
+
     /// <summary>Tells whether the party walked one tile.</summary>
     /// <param name="at">The tile.</param>
     /// <returns>True when the record holds that tile.</returns>

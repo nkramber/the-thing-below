@@ -48,22 +48,22 @@ public static class TestStory
      "comment": "The ally walks in, speaks, waits, asks, joins, and leaves the map.",
      "id": "scene.test_meet",
      "steps": [
-      { "kind": "show", "actor": "character.test_second", "at": "marker.test_story_door", "facing": "west" },
-      { "kind": "camera", "at": "marker.test_story_door" },
-      { "kind": "move", "actor": "character.test_second", "path": ["west", "west"] },
-      { "kind": "face", "actor": "lead", "facing": "east" },
-      { "kind": "say", "speaker": "character.test_second", "line": "line.test_greet" },
-      { "kind": "wait", "ticks": 5 },
+      { "id": "step.show_ally", "kind": "show", "actor": "character.test_second", "at": "marker.test_story_door", "facing": "west" },
+      { "id": "step.look_door", "kind": "camera", "at": "marker.test_story_door" },
+      { "id": "step.ally_walks", "kind": "move", "actor": "character.test_second", "path": ["west", "west"] },
+      { "id": "step.lead_turns", "kind": "face", "actor": "lead", "facing": "east" },
+      { "id": "step.greet", "kind": "say", "speaker": "character.test_second", "line": "line.test_greet" },
+      { "id": "step.pause", "kind": "wait", "ticks": 5 },
       {
-       "kind": "choose",
+       "id": "step.ask", "kind": "choose",
        "options": [
         { "line": "line.test_yes", "flag": "flag.test_yes" },
         { "line": "line.test_no", "flag": "flag.test_no" }
        ]
       },
-      { "kind": "set_flag", "flag": "flag.test_met" },
-      { "kind": "join", "character": "character.test_second" },
-      { "kind": "hide", "actor": "character.test_second" }
+      { "id": "step.met", "kind": "set_flag", "flag": "flag.test_met" },
+      { "id": "step.ally_joins", "kind": "join", "character": "character.test_second" },
+      { "id": "step.ally_leaves", "kind": "hide", "actor": "character.test_second" }
      ]
     }
     """;
@@ -74,11 +74,11 @@ public static class TestStory
      "comment": "A line with no speaker, a set fight, a step, and a line of the lead.",
      "id": "scene.test_fight",
      "steps": [
-      { "kind": "say", "speaker": "none", "line": "line.test_ambush" },
-      { "kind": "start_battle", "group": "group.one" },
-      { "kind": "move", "actor": "lead", "path": ["east"] },
-      { "kind": "say", "speaker": "lead", "line": "line.test_after" },
-      { "kind": "set_flag", "flag": "flag.test_done" }
+      { "id": "step.ambush", "kind": "say", "speaker": "none", "line": "line.test_ambush" },
+      { "id": "step.fight", "kind": "start_battle", "group": "group.one" },
+      { "id": "step.lead_steps", "kind": "move", "actor": "lead", "path": ["east"] },
+      { "id": "step.after", "kind": "say", "speaker": "lead", "line": "line.test_after" },
+      { "id": "step.done", "kind": "set_flag", "flag": "flag.test_done" }
      ]
     }
     """;
@@ -89,7 +89,7 @@ public static class TestStory
      "comment": "The party beat the guard.",
      "id": "scene.test_victory",
      "steps": [
-      { "kind": "set_flag", "flag": "flag.test_victor" }
+      { "id": "step.victor", "kind": "set_flag", "flag": "flag.test_victor" }
      ]
     }
     """;

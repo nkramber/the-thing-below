@@ -312,7 +312,7 @@ public sealed class StoryRulesTests
             {
              "comment": "Two joins, the second into a full party.",
              "id": "scene.test_meet",
-             "steps": [{ "kind": "join", "character": "character.test_second" }, { "kind": "join", "character": "character.test_second" }]
+             "steps": [{ "id": "step.s1", "kind": "join", "character": "character.test_second" }, { "id": "step.s2", "kind": "join", "character": "character.test_second" }]
             }
             """,
             "full");
@@ -331,7 +331,7 @@ public sealed class StoryRulesTests
             {
              "comment": "The lead walks into the north wall.",
              "id": "scene.test_meet",
-             "steps": [{ "kind": "move", "actor": "lead", "path": ["north"] }]
+             "steps": [{ "id": "step.s3", "kind": "move", "actor": "lead", "path": ["north"] }]
             }
             """,
             "wall");
@@ -353,8 +353,8 @@ public sealed class StoryRulesTests
              "comment": "The ally appears on the door, where the lead stands.",
              "id": "scene.test_meet",
              "steps": [
-              { "kind": "move", "actor": "lead", "path": ["east", "east", "east", "east", "east", "east"] },
-              { "kind": "show", "actor": "character.test_second", "at": "marker.test_story_door", "facing": "west" }
+              { "id": "step.s4", "kind": "move", "actor": "lead", "path": ["east", "east", "east", "east", "east", "east"] },
+              { "id": "step.s5", "kind": "show", "actor": "character.test_second", "at": "marker.test_story_door", "facing": "west" }
              ]
             }
             """,

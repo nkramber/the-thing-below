@@ -45,7 +45,9 @@ public static class MapTileSet
             TextureRegionSize = new Vector2I(TilePixels, TilePixels),
         };
 
-        foreach (TileKind kind in new[] { TileKind.Floor, TileKind.Wall, TileKind.Doorway })
+        // Each kind of Core takes a tile, so a new kind needs no change here, and a test of Tests
+        // reads the drawing of each kind in the atlas (D-1118).
+        foreach (TileKind kind in Enum.GetValues<TileKind>())
         {
             Vector2I cell = CellOf(atlas, kind);
 

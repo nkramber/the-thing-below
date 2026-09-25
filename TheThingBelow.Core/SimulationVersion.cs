@@ -70,12 +70,16 @@ public static class SimulationVersion
     /// starts or resumes with no character on its feet (D-1105). The load refuses a miss ceiling above 6666 (D-1107),
     /// more lesson slots than the snapshot holds, and a torch that is not a key item, and the resume refuses a mark or
     /// an encounter of a dead enemy, a fight of another party count, and an open menu in a story scene.
+    /// PR-105 raised it to 29: each step of a story scene takes an id, and the snapshot stores it (D-1112). A resume
+    /// of a save of another build matches each enemy by its id, moves a lead off the edited map to the spawn point,
+    /// and finds a moved step by its id (D-1111).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
-    /// reports the two numbers and refuses the record (G-5, `RunHeader`). A save carries it
-    /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
-    /// change of this number also changes the expected hashes of the identity file (D-504).
+    /// reports the two numbers and refuses the record (G-5, `RunHeader`). A load reads the
+    /// snapshot of a save on the rules of this build (D-259), and a save whose number or content
+    /// hash differs from this build takes the drift rules of D-1111 and D-1112. A change of this
+    /// number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 28;
+    public const int Current = 29;
 }

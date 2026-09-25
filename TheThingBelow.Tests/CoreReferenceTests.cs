@@ -18,8 +18,10 @@ namespace TheThingBelow.Tests;
 public sealed class CoreReferenceTests
 {
     /// <summary>
-    /// The assemblies that Core can reference. Each one is a base library of .NET with no
-    /// engine, file, network, clock, or OS code. A new name needs a decision entry (G-13).
+    /// The assemblies that Core can reference. A new name needs a decision entry (G-13).
+    /// `System.Runtime` also holds the file types, `Environment`, and `OperatingSystem`, so a
+    /// call of one adds no reference and passes this test. Rule DL 11 of det-lint refuses each
+    /// such call in Core (G-1, D-1117).
     /// </summary>
     private static readonly IReadOnlySet<string> AllowedReferences =
         new SortedSet<string>(StringComparer.Ordinal)

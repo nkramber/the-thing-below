@@ -124,15 +124,24 @@ public static class LootRules
                 state.AddEvent(new BattleEvent(BattleEventKind.StealGold, thief.Target, aimed, gold.Gold));
                 break;
             case StealGear gear:
-                // The pick checked the room, so the piece fits (D-1051).
-                _ = state.Characters.Pick(gear.Gear, 1, content);
+                // The pick checked the room, so the piece fits (D-1051). A remainder would drop
+                // the piece and still count the steal, so it fails with its context (T-2).
+                if (state.Characters.Pick(gear.Gear, 1, content) != 0)
+                {
+                    throw new SimulationException($"the steal of '{gear.Gear.Value}' from '{profile.Id.Value}' found no room, and the pick of the entry checked the room (D-1051, T-2)", context);
+                }
+
                 battle.NoteStolen(new StolenEntry(aimed.Slot, pick));
                 state.AddEvent(new BattleEvent(BattleEventKind.StealGear, thief.Target, aimed, 0, null, Affinity.Normal, gear.Gear));
                 break;
-            case StealItem item when state.Characters.Pick(item.Item, 1, content) > 0:
-                state.AddEvent(new BattleEvent(BattleEventKind.StealFull, thief.Target, aimed, 0, null, Affinity.Normal, item.Item));
-                break;
             case StealItem item:
+                // A full stack keeps the item with the enemy, and the steal counts no success (D-1044).
+                if (state.Characters.Pick(item.Item, 1, content) != 0)
+                {
+                    state.AddEvent(new BattleEvent(BattleEventKind.StealFull, thief.Target, aimed, 0, null, Affinity.Normal, item.Item));
+                    break;
+                }
+
                 battle.NoteStolen(new StolenEntry(aimed.Slot, pick));
                 state.AddEvent(new BattleEvent(BattleEventKind.StealItem, thief.Target, aimed, 0, null, Affinity.Normal, item.Item));
                 break;

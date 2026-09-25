@@ -82,7 +82,7 @@ public sealed class ScreenplayTextTests
     public void APathPrintsAsRunsOfOneDirection()
     {
         StoryScene scene = TestStory.Scene(
-            """{ "comment": "c", "id": "scene.test_walk", "steps": [ { "kind": "move", "actor": "lead", "path": ["north", "north", "east", "north"] } ] }""",
+            """{ "comment": "c", "id": "scene.test_walk", "steps": [ { "id": "step.s1", "kind": "move", "actor": "lead", "path": ["north", "north", "east", "north"] } ] }""",
             "walk");
 
         string text = ScreenplayText.Write(scene, Strings);
@@ -97,7 +97,7 @@ public sealed class ScreenplayTextTests
             Encoding.UTF8.GetBytes("""{ "comment": "c", "strings": [ { "id": "line.test_two", "text": "One.\nTwo." } ] }"""),
             StringTable.Path);
         StoryScene scene = TestStory.Scene(
-            """{ "comment": "c", "id": "scene.test_two", "steps": [ { "kind": "say", "speaker": "lead", "line": "line.test_two" } ] }""",
+            """{ "comment": "c", "id": "scene.test_two", "steps": [ { "id": "step.s2", "kind": "say", "speaker": "lead", "line": "line.test_two" } ] }""",
             "two");
 
         string text = ScreenplayText.Write(scene, strings);

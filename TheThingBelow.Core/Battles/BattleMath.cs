@@ -21,7 +21,7 @@ internal static class BattleMath
     internal static int MissChance(BattleRules rules, Combatant attacker, Combatant target)
     {
         long gap = (long)target.Speed - attacker.Speed;
-        int chance = Clamp(rules.MissBase + (gap * rules.MissPerSpeed), rules.MissFloor, rules.MissCeiling);
+        int chance = Clamp(checked(rules.MissBase + (gap * rules.MissPerSpeed)), rules.MissFloor, rules.MissCeiling);
         if (attacker.Statuses.Holds(StatusKind.Blind))
         {
             chance = Math.Min(BasisPoints.One, chance + rules.BlindMiss);
@@ -121,17 +121,17 @@ internal static class BattleMath
 
         if (melee && attacker.Row == BattleRow.Back)
         {
-            damage = damage * rules.BackRowRate / BasisPoints.One;
+            damage = checked(damage * rules.BackRowRate) / BasisPoints.One;
         }
 
         if (defending)
         {
-            damage = damage * (BasisPoints.One - rules.DefendCut) / BasisPoints.One;
+            damage = checked(damage * (BasisPoints.One - rules.DefendCut)) / BasisPoints.One;
         }
 
         if (elemental && target.Statuses.Holds(StatusKind.Shell))
         {
-            damage = damage * (BasisPoints.One - rules.ShellCut) / BasisPoints.One;
+            damage = checked(damage * (BasisPoints.One - rules.ShellCut)) / BasisPoints.One;
         }
 
         return damage < 1 ? 1 : ToHealth(damage, context);
