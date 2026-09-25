@@ -24,7 +24,7 @@ namespace TheThingBelow.Core.Light;
 /// <item>Each piece and each light shaft hangs on a wall with a floor or a doorway to its south (D-844, D-918).</item>
 /// <item>Each change names a piece of its map, and each added light lies on its map (D-843).</item>
 /// <item>Each color names a key of the palette, the color of each glow, each shaft, and the vignette included (D-846, D-181).</item>
-/// <item>Each map keeps inside the effect budget and the limit of Godot (D-842, F-46).</item>
+/// <item>Each map keeps inside the effect budget and the limit of Godot, with each torch at the widest step of its fire (D-842, D-891, F-46).</item>
 /// <item>The brightest lit art of each map and each fight stays below the glow threshold, so light alone glows (D-910, F-47).</item>
 /// <item>Each glow halo stays below the glow threshold at the top of its pulse, so it never draws as a box (D-1075, T-2).</item>
 /// </list>
@@ -583,7 +583,7 @@ public sealed class LightContent
         foreach (LightSetup setup in this.setups.Values)
         {
             GameMap map = maps[setup.Map.Value];
-            IReadOnlyList<MapLight> lights = this.LightsOf(setup.Map, setup.Time);
+            List<MapLight> lights = this.WidestReachesOf(setup.Map, this.LightsOf(setup.Map, setup.Time));
             int width = checked(map.Width * AtlasPages.TileSize);
             int height = checked(map.Height * AtlasPages.TileSize);
 
@@ -596,6 +596,39 @@ public sealed class LightContent
             LightCount sprite = LightBudget.WorstWindow(lights, width, height, LightBudget.LargestSprite, LightBudget.LargestSprite);
             RefuseCount(setup, sprite, Carried, 1, EffectBudget.GodotLightsPerItem, "the largest sprite of a map, which Godot draws as one canvas item", "the lights that Godot draws on one canvas item (F-46)");
         }
+    }
+
+    /// <summary>
+    /// Gives each light of one map at the widest reach that it steps to: a light of a decor piece
+    /// takes the widest range level of the fire of its kind, and an added light, which has no
+    /// fire, keeps its range (D-843, D-891).
+    /// </summary>
+    /// <remarks>
+    /// Each step of a fire scales the range of both Godot lights of a torch, up to
+    /// <see cref="TorchFire.MostPart"/>, and Godot culls a light by the range of that step. A count
+    /// at the range of the file thus left out a torch that reaches a view or a canvas item on a wide
+    /// step. The reach rounds up, because a part of a pixel still meets the next column.
+    /// </remarks>
+    private List<MapLight> WidestReachesOf(ContentId map, IReadOnlyList<MapLight> lights)
+    {
+        DecorFile decor = this.DecorOf(map);
+        var widest = new List<MapLight>();
+        foreach (MapLight light in lights)
+        {
+            int part = BasisPoints.One;
+            foreach (DecorPiece piece in decor.Pieces)
+            {
+                if (string.CompareOrdinal(piece.Id.Value, light.Id.Value) == 0)
+                {
+                    part = this.KindOf(piece.Kind).Fire.WidestRange();
+                }
+            }
+
+            int reach = checked(((light.Light.Range * part) + BasisPoints.One - 1) / BasisPoints.One);
+            widest.Add(light with { Light = light.Light with { Range = reach } });
+        }
+
+        return widest;
     }
 
     /// <remarks>

@@ -133,7 +133,7 @@ public static class GlowPass
     /// <param name="id">The id of the source, which names the node (T-2).</param>
     /// <param name="seed">The glow of the fire of the source.</param>
     /// <param name="palette">The palette, which gives the key its color (D-181).</param>
-    /// <param name="halo">The round texture of every halo, from <see cref="WorldLights.BuildHaloTexture"/> with <see cref="HaloPower"/>.</param>
+    /// <param name="halo">The round texture of every halo, from <see cref="WorldLights.HaloTexture"/> with <see cref="HaloPower"/>.</param>
     /// <param name="parent">The world of the screen.</param>
     /// <returns>The node, or null when the source never glows.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>

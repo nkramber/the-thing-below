@@ -28,8 +28,11 @@ public static class ReviewRecordRules
     /// <summary>One span of bold text, such as the verdict name of the verdict line.</summary>
     private static readonly Regex BoldSpan = new Regex(@"\*\*([^*]+?)\*\*", Options);
 
-    /// <summary>The shortest hash that names one commit without doubt.</summary>
-    private const int ShortestHash = 7;
+    /// <summary>
+    /// The length of a full commit hash. A prefix of 7 letters holds 28 bits, and another commit
+    /// can share it, so the rule reads the full hash alone (F-147).
+    /// </summary>
+    public const int FullHashLength = 40;
 
     /// <summary>Gives the path of the review record of one pull request.</summary>
     /// <param name="number">The GitHub number of the pull request.</param>
@@ -218,16 +221,16 @@ public static class ReviewRecordRules
                 $"the `## Identity` list of `{path}` holds no head field. It needs a line `- Head: ` with the hash in backticks.");
         }
 
-        if (recorded.Length < ShortestHash)
+        if (recorded.Length != FullHashLength)
         {
             return new GateCheck(
                 "RG 5",
                 GateResult.Fault,
-                $"the head field of `{path}` is `{recorded}`, which is shorter than {ShortestHash} letters.");
+                $"the head field of `{path}` is `{recorded}`, and it needs the full hash of {FullHashLength} letters (F-147).");
         }
 
         CommitFacts effectiveHead = reviewableHeads[0];
-        if (effectiveHead.Sha.StartsWith(recorded, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(effectiveHead.Sha, recorded, StringComparison.OrdinalIgnoreCase))
         {
             return new GateCheck(
                 "RG 5",
@@ -237,7 +240,7 @@ public static class ReviewRecordRules
 
         for (int index = 1; index < reviewableHeads.Count; index++)
         {
-            if (reviewableHeads[index].Sha.StartsWith(recorded, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(reviewableHeads[index].Sha, recorded, StringComparison.OrdinalIgnoreCase))
             {
                 return new GateCheck(
                     "RG 5",

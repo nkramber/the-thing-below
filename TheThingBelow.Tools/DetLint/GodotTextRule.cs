@@ -47,6 +47,15 @@ public sealed class GodotTextRule : ILintRule
     };
 
     /// <summary>
+    /// The members that give an English word of the engine, such as the name `QuoteLeft` of a
+    /// key. Game shows the name of a key through a string id (D-1128, finding P3-24).
+    /// </summary>
+    private static readonly HashSet<string> EngineWordCalls = new(StringComparer.Ordinal)
+    {
+        "GetKeycodeString",
+    };
+
+    /// <summary>
     /// The members that set a property by its name. A call with a name that holds `text` or
     /// `title` draws player text without a member of the words (D-614).
     /// </summary>
@@ -99,7 +108,7 @@ public sealed class GodotTextRule : ILintRule
     public static bool DrawsText(string name)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
-        return DrawCalls.Contains(name) || HoldsWord(name, "Text") || HoldsWord(name, "Title");
+        return DrawCalls.Contains(name) || EngineWordCalls.Contains(name) || HoldsWord(name, "Text") || HoldsWord(name, "Title");
     }
 
     /// <summary>

@@ -72,7 +72,7 @@ public sealed class SpellFlash
         // The light takes its values from each spell as it plays. It starts off, with a range and
         // a height that Godot can draw (F-46).
         var start = new PointLightValues(new LightColor('k', 0), 1, 1);
-        PointLight2D light = WorldLights.Point(LightName, palette, start, WorldLights.BuildTexture(WorldLights.LightFalloff), WorldLights.GroundItems, 0);
+        PointLight2D light = WorldLights.Point(LightName, palette, start, WorldLights.LightTexture(WorldLights.LightFalloff), WorldLights.GroundItems, 0);
         light.Visible = false;
         world.AddChild(light);
 

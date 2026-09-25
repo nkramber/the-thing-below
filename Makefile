@@ -13,7 +13,7 @@ SMOKE_FRAME_LIMIT := 600
 
 # The frame limit of the capture session. Each capture waits 8 frames for the window, so the
 # limit holds every capture of the list, and the screen-test job of CI holds the same number.
-SHEET_FRAME_LIMIT := 1200
+SHEET_FRAME_LIMIT := 1500
 
 # The flag of the codex-review target that skips the check of the Gitar pass (D-946). The flag
 # comes after `--` on the command line of make, so make reads it as a goal.

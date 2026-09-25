@@ -52,6 +52,12 @@ public sealed class CodexReviewBranchCommitsTests
         Assert.Equal("log", arguments[0]);
         Assert.Contains("--reverse", arguments);
         Assert.Contains("--name-only", arguments);
+        Assert.Contains("--no-renames", arguments);
+
+        // A merge lists its paths against its first parent, and the list keeps the order of the
+        // branch (D-1089, F-147). `ReviewGateMergeTests` runs these arguments in a repository.
+        Assert.Contains("--first-parent", arguments);
+        Assert.Contains("--diff-merges=first-parent", arguments);
         Assert.Contains($"--format={BranchCommits.CommitMarker}%H", arguments);
         Assert.Equal("abc1234..origin/feat/pr-95-codex-review", arguments[^1]);
     }

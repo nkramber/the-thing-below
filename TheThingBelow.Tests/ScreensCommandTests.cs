@@ -169,6 +169,38 @@ public sealed class ScreensCommandTests : IDisposable
         Assert.Contains(ScreensCommand.CapturesOption, errors.ToString(), StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void AStepOfOneLevelPassesAndTheReportNamesIt()
+    {
+        // OQ-246, D-1080: the compare passes a step of one level. The report names the capture
+        // and the count, so a real change of one level never passes in silence.
+        string captures = this.Folder("captures", 10);
+        string baseline = this.Folder("baseline", 10);
+        WriteOnePixel(Path.Combine(captures, "map-1x.png"), 10, 11);
+        using StringWriter output = new();
+        using StringWriter errors = new();
+
+        int exitCode = ScreensCommand.Run(
+            ["--captures", captures, "--baseline", baseline], output, errors);
+
+        Assert.Equal(string.Empty, errors.ToString());
+        Assert.Equal(0, exitCode);
+        Assert.Contains("the capture 'map-1x.png' holds 1 pixel(s) one level from its baseline", output.ToString(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void EqualFoldersNameNoCaptureAsNear()
+    {
+        string captures = this.Folder("captures", 10);
+        string baseline = this.Folder("baseline", 10);
+        using StringWriter output = new();
+        using StringWriter errors = new();
+
+        ScreensCommand.Run(["--captures", captures, "--baseline", baseline], output, errors);
+
+        Assert.DoesNotContain("one level", output.ToString(), StringComparison.Ordinal);
+    }
+
     /// <summary>Makes a folder with one picture named `map-1x.png`.</summary>
     /// <param name="name">The name of the folder under the root of this test.</param>
     /// <param name="level">The red, green, and blue of every pixel.</param>

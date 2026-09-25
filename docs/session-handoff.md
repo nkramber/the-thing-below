@@ -1,3 +1,141 @@
+## Session 321: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #83 (PR-106), round 3. Repository: the-thing-below. Branch: `fix/pr-106-gate-trust`. PR: #83. Role: author. Base: `d875322`.
+
+### What this session did, and why
+
+- The review of `make codex-review` gives `Ready for owner merge` for the effective head `b93b796` in `docs/reviews/pr-83.md`, with no open finding.
+- Each check of `b93b796` passed, and the `review-gate` check waited for the record alone. Gitar approved the head with no thread.
+- The report of the owner marks the six findings of this PR as `COMPLETE - PR #83`: P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37. No finding of the report stays open.
+
+### The state of the build
+
+- The effective head is `b93b796`, and the review approves it. This entry is a commit of the metadata set, so the approval stands (D-610).
+
+### What is in flight
+
+- The Gitar pass of this commit, the `review-gate` check, and the merge confirmation of the owner (D-933).
+- The owner sets the `Gitar` context in the live protection of `main` (D-1123).
+
+### Traps and gotchas
+
+- The live `review-gate` check of this PR runs the old workflow of `main` (F-37). The first-parent list reads its first PR after the merge.
+
+### The questions that block progress
+
+None. OQ-246 holds the cause of the screen flake.
+
+### The next concrete action
+
+After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
+
+## Session 320: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #83 (PR-106). Repository: the-thing-below. Local branch: `review/pr-83`; PR branch: `fix/pr-106-gate-trust`. PR: #83. Role: reviewer. Base: `d875322`.
+
+### What this session did, and why
+
+- Reviewed the full change at effective head `b93b796` and wrote `docs/reviews/pr-83.md`.
+- Verified the Gitar CI-analysis answer. RG 3 alone failed because the review record was not on the PR before this review (F-37, D-964).
+- `make verify` passed with 3,492 tests. CI passed the implementation checks on all three systems.
+- Inspected all 127 frames in the CI artifact. The new Deck, body-24, settings, and crash frames show no visual fault.
+
+### The state of the build
+
+- The remote head before this metadata commit is `b93b796`. The local build and implementation CI pass at that head.
+
+### What is in flight
+
+- This review record and this entry are committed together and pushed to `fix/pr-106-gate-trust`.
+- The review gives `Ready for owner merge` for `b93b796`. The live `review-gate` check must read the published record.
+
+### Traps and gotchas
+
+- The `review-gate` check fails RG 3 before the review record reaches the PR. RG 4 and RG 5 then skip (F-37).
+- The Gitar code approval has no item. The CI-analysis item has the author's answer, and needs no further reply (D-964).
+
+### The questions that block progress
+
+OQ-246 remains open for the cause of a one-level screen-test flake. PR-106 adds diagnostics and package pins (D-1080, D-1127).
+
+### The next concrete action
+
+Read the live `review-gate` result after the metadata push, then end this review session.
+
+## Session 319: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #83 (PR-106), round 2. Repository: the-thing-below. Branch: `fix/pr-106-gate-trust`. PR: #83. Role: author. Base: `d875322`.
+
+### What this session did, and why
+
+- The first CI run of `5839bf8` held the 19 new frames with no baseline. The author read each frame of the artifact, and each one holds its text (D-784).
+- The shared light texture of D-1129 moved 15 lit frames by one or two levels. A rerun on another CPU gave the same bytes in all 127 frames, so the 15 frames take new baselines too. OQ-246 records the evidence.
+- The Gitar pass approved with no thread. Its CI analysis found that `ReviewGateMergeTests` could not remove the read-only object files of git on Windows. The test now clears the flag first.
+- D-1123 now says that the owner sets the `Gitar` context of the live protection.
+
+### The state of the build
+
+- The remote head is the push of this round. All 127 captures match the baseline on the Mac compare of the artifact.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=83`.
+- The owner sets the `Gitar` context in the live protection of `main` (D-1123).
+
+### Traps and gotchas
+
+- A change that shares a light texture moves lit frames by one level. The report of D-1127 names each one.
+
+### The questions that block progress
+
+None. OQ-246 holds the cause of the screen flake.
+
+### The next concrete action
+
+Answer the items of the Gitar CI analysis on the PR, then run `make codex-review PR=83` when CI is green.
+
+## Session 318: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR-106, round 1. Repository: the-thing-below. Branch: `fix/pr-106-gate-trust`. PR: the one PR of PR-106. Role: author. Base: `d875322`.
+
+### What this session did, and why
+
+- The owner put the six open findings of the repository review of 2026-09-24 in one PR (D-1121). G-8 stands for every other PR.
+- P3-9: both tools list the commits of the first parent, a merge lists its paths, and a record names the full hash (D-1125). A settings file of `.claude/` after an approval needs a new review (D-1122). `Gitar` joins the required checks (D-1123), and no stamp goes into a record (D-1124).
+- P3-37: the map draws the start of the tick while the world holds (D-1126).
+- P3-24: the remap screen names the key of the layout through a string id (D-1128).
+- P3-25: the screen compare names each step of one level, and the job pins the loader and Xvfb and logs its CPU (D-1127).
+- P3-26: both sessions run a planted crash, and 19 new captures add body 24 and 1280 by 800 (D-1130).
+- P3-36: the budgets count the flicker and the spell burst, and each light texture builds one time (D-1129). The simulation version rises to 30.
+
+### The state of the build
+
+- On the Mac, build, format, lint, identity, content, atlas, and smoke pass. `make test` fails 19 cases of `TheBaselineHoldsThisCapture`, one for each new capture with no baseline.
+- The remote head is the push of this round.
+
+### What is in flight
+
+- The baselines of the 19 new captures come from the `screen-captures` artifact of the first CI run. The author reads each frame before the commit (D-784).
+- The owner sets the `Gitar` context in the live protection of `main` (D-1123).
+
+### Traps and gotchas
+
+- The live `review-gate` check of this PR runs the workflow of `main`, so it reads the old commit list (F-37).
+- A worktree of an agent under `.claude/worktrees/` is a git repository. The local exclude file of this checkout lists the folder.
+- The headless display writes an error line on a read of the keyboard layout, so the remap screen reads the physical key there.
+
+### The questions that block progress
+
+None. OQ-246 holds the cause of the screen flake.
+
+### The next concrete action
+
+Take the 19 baselines from the artifact, read each frame, commit them, and push. Then run the Gitar pass and `make codex-review`.
+
 ## Session 317: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -191,136 +329,4 @@ None for this PR. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 stay open in the r
 ### The next concrete action
 
 When every check but `review-gate` passes, run `make codex-review PR=82` in the background.
-
-## Session 311: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #82 (PR-105), round 1. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
-
-### What this session did, and why
-
-- The owner assigned the open findings of the repository review of 2026-09-24, with no limit of one concern (D-1109). The owner answered each question of P2-3, P3-22, P3-4, P3-33, and P3-23 (D-1110 to D-1116, D-1119).
-- A save of another build follows an edit of a map or a story scene, and a party rule change refuses it (D-1110 to D-1113). Each story step takes an id, and save format 14 and record format 4 hold it.
-- A wipe reloads a save of its own run alone (D-1114). `GameRun.Save` bounds the run record (D-1115). The coverage job checks its package (D-1116).
-- After six findings, the owner asked for three more: det-lint (D-1117), the draw checks (D-1118), and the remap conflicts (D-1119).
-- P3-35 and P3-39 needed no answer: a steal checks its remainder, each damage cut checks its overflow, and stale marks and comments match the code.
-
-### The state of the build
-
-- The simulation version is 29, and the identity file changed in 9 runs. `make verify` passed on the Mac: 3397 tests, format, det-lint, the STE check, identity, content, atlas, and smoke.
-- The remote head is `640ad98` until the first push of this branch.
-
-### What is in flight
-
-- The first push, the Gitar pass, and then `make codex-review`.
-
-### Traps and gotchas
-
-- The capture session of this Mac stops at the first 1080 frame, because the display is smaller. Read the conflict frame in the artifact of the CI screen-test job.
-- `settings-conflict-1x` changes: the confirm cell takes the warning color. Take the new baseline from that artifact (D-733).
-
-### The questions that block progress
-
-None for this PR. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 stay open in the report.
-
-### The next concrete action
-
-Push the branch, open the PR, and follow the `gitar-review` skill.
-
-## Session 310: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #81 (PR-104), round 3. Repository: the-thing-below. Branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: author. Base: `4aad522`.
-
-### What this session did, and why
-
-- The repeat review gave `Blocked` for one Gitar item: the CI analysis of the RG 4 faults, which each `Blocked` record causes. The PR comment answers each review-gate job of the analysis.
-- The third review gives `Ready for owner merge` for the effective head `f66e314` in `docs/reviews/pr-81.md`, with no open finding. Each check of the record commit `e278b02` passed, `review-gate` included.
-- The report of the owner marks the nine findings of this PR as `COMPLETE - PR #81`: P2-2, P2-5, P3-1, P3-7, P3-18, P3-19, P3-20, P3-27, and P3-34.
-- The owner confirmed the merge after the summary in four sections (D-933, D-942).
-
-### The state of the build
-
-- The effective head is `f66e314`, and the review approves it. This entry is a commit of the metadata set, so the approval stands (D-610).
-
-### What is in flight
-
-- The Gitar pass of this commit, and then the gated auto-merge.
-
-### Traps and gotchas
-
-- Each `Blocked` record makes `review-gate` fail at RG 4, and the CI analysis of Gitar then names that fault. Answer it on the PR before the next review.
-
-### The questions that block progress
-
-None for this PR. P2-3, P3-4, P3-8, P3-9, P3-17, P3-22 to P3-26, P3-33, P3-35 to P3-37, and P3-39 stay open in the report.
-
-### The next concrete action
-
-After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
-
-## Session 309: 2026-09-25, Codex
-
-Author: Codex
-Session: reviewer PR #81 (PR-104), round 3. Repository: the-thing-below. Local branch: `review/pr-81`; PR branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: reviewer. Base: `4aad522`.
-
-### What this session did, and why
-
-- Re-reviewed PR #81 at effective head `f66e314`.
-- Verified the Steam Deck measurement and each author answer to the Gitar dashboard and CI analysis items.
-- The CI analysis names three review-gate jobs. Each fails RG 4 because the review record says `Blocked`.
-- The implementation checks pass, and the review record now gives `Ready for owner merge`.
-
-### The state of the build
-
-- Effective head `f66e314`. Metadata head `c18ed2f` has green implementation checks, STE, and Gitar. The review-gate job fails RG 4 because the prior record says `Blocked`.
-
-### What is in flight
-
-- This review record and handoff entry will be committed together and pushed to `fix/pr-104-boot-and-rules`.
-
-### Traps and gotchas
-
-- RG 4 correctly rejects the earlier `Blocked` verdict. The next gate run must read this updated record.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review metadata, then verify the remote head and review-gate result.
-
-## Session 308: 2026-09-25, Codex
-
-Author: Codex
-Session: reviewer PR #81 (PR-104), round 2. Repository: the-thing-below. Local branch: `review/pr-81`; PR branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: reviewer. Base: `4aad522`.
-
-### What this session did, and why
-
-- Re-reviewed PR #81 at effective head `f66e314`.
-- Verified the owner Steam Deck measurement in the author response and the prior Gitar dashboard answer.
-- The Gitar CI analysis claim names review-gate jobs. The current log shows only RG 4 fails because the review verdict is `Blocked`.
-- The review remains `Blocked` until the author answers this Gitar item (D-964).
-
-### The state of the build
-
-- Effective head `f66e314`. Metadata head `5297e6c` has green implementation checks, STE, and Gitar. `review-gate` fails RG 4 because the verdict is `Blocked`.
-
-### What is in flight
-
-- This review record and handoff entry are committed and pushed to `fix/pr-104-boot-and-rules`.
-- The author must answer the Gitar CI analysis item before a repeat review.
-
-### Traps and gotchas
-
-- The Gitar CI analysis calls the RG 4 result a validation fault. The log shows the gate correctly rejects the current `Blocked` verdict.
-
-### The questions that block progress
-
-None. The author answer to the Gitar item is required evidence under D-964.
-
-### The next concrete action
-
-The author answers the Gitar CI analysis item, then requests a repeat review.
 

@@ -75,6 +75,25 @@ public sealed record TorchFire(int StepTicks, IReadOnlyList<FlickerLevel> Levels
     /// <summary>The seed of the hash of each step. A new value changes the pattern of every torch.</summary>
     private const ulong StepSeed = 0x746F726368UL;
 
+    /// <summary>Gives the largest range part of the levels: the widest reach that the light steps to, which the light budget counts (D-842, D-891).</summary>
+    /// <returns>The part, in basis points of the range of the file.</returns>
+    /// <exception cref="InvalidOperationException">The fire holds no level (T-2).</exception>
+    public int WidestRange()
+    {
+        if (this.Levels.Count == 0)
+        {
+            throw new InvalidOperationException("The fire holds no level, and a fire steps between 1 or more levels (D-891, T-2).");
+        }
+
+        int widest = 0;
+        foreach (FlickerLevel level in this.Levels)
+        {
+            widest = Math.Max(widest, level.Range);
+        }
+
+        return widest;
+    }
+
     /// <summary>Gives the torch light on one tick.</summary>
     /// <param name="light">The id of the light: the id of the decor piece, or the name of the carried light.</param>
     /// <param name="tick">The tick, from 0.</param>

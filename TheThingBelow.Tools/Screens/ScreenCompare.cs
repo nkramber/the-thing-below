@@ -84,6 +84,54 @@ public static class ScreenCompare
         return count;
     }
 
+    /// <summary>
+    /// Counts the pixels that differ from the baseline by one level alone: at least one channel
+    /// moves, and no channel moves past <see cref="MostChannelStep"/>. The compare passes them,
+    /// so the report names them, and a real change of one level never passes in silence (D-1080,
+    /// OQ-246).
+    /// </summary>
+    /// <param name="baseline">The committed baseline image.</param>
+    /// <param name="capture">The image that the capture session wrote, of the same size and color kind.</param>
+    /// <returns>The count of pixels within the step that are not equal.</returns>
+    /// <exception cref="ArgumentNullException">An image is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The two images hold another size or another color kind (T-2).</exception>
+    public static int NearDifferences(PngImage baseline, PngImage capture)
+    {
+        ArgumentNullException.ThrowIfNull(baseline);
+        ArgumentNullException.ThrowIfNull(capture);
+        if (baseline.Width != capture.Width || baseline.Height != capture.Height || baseline.Colors != capture.Colors)
+        {
+            throw new ArgumentException(
+                $"The baseline is {baseline.Width} by {baseline.Height} {baseline.Colors} pixels, and the capture is " +
+                $"{capture.Width} by {capture.Height} {capture.Colors} pixels (T-2).",
+                nameof(capture));
+        }
+
+        int bytesPerPixel = baseline.BytesPerPixel;
+        int count = 0;
+        for (int y = 0; y < baseline.Height; y++)
+        {
+            ReadOnlySpan<byte> baselineRow = baseline.Row(y);
+            ReadOnlySpan<byte> captureRow = capture.Row(y);
+            if (baselineRow.SequenceEqual(captureRow))
+            {
+                continue;
+            }
+
+            for (int x = 0; x < baseline.Width; x++)
+            {
+                ReadOnlySpan<byte> committed = baselineRow.Slice(x * bytesPerPixel, bytesPerPixel);
+                ReadOnlySpan<byte> taken = captureRow.Slice(x * bytesPerPixel, bytesPerPixel);
+                if (!committed.SequenceEqual(taken) && WithinStep(committed, taken))
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
     /// <summary>Tells whether each channel of two pixels lies within <see cref="MostChannelStep"/> of the other.</summary>
     /// <param name="baseline">The bytes of the baseline pixel.</param>
     /// <param name="capture">The bytes of the captured pixel.</param>

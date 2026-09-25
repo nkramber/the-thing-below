@@ -281,7 +281,7 @@ public sealed class BattleScreen
         this.world.AddChild(WorldLights.Ambient(this.content.Palette, setup.Ambient));
 
         // No wall stands in a fight, so the key light casts no shadow (D-850).
-        PointLight2D key = WorldLights.Point("key_light", this.content.Palette, setup.Battle, WorldLights.BuildTexture(WorldLights.LightFalloff), WorldLights.GroundItems, 0);
+        PointLight2D key = WorldLights.Point("key_light", this.content.Palette, setup.Battle, WorldLights.LightTexture(WorldLights.LightFalloff), WorldLights.GroundItems, 0);
         key.Position = KeyLightPlace;
         this.world.AddChild(key);
     }

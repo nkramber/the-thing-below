@@ -249,6 +249,7 @@ Built by PR-35. Phase file: `phase-2-first-playable.md`.
 | PR-103 | A step into a group inside its grace time starts no encounter, a move intent ends with its tick, and an encounter waits for the end of a step of the lead | D-1085, D-1094 |
 | PR-104 | A tile trigger plays before a step into an enemy on the same tick, a step into the enemy whose mark runs takes the side of the beat, and a resume refuses a mark or an encounter of a dead enemy | D-1103, D-1104 |
 | PR-105 | A save of another build matches each enemy by its id, moves a lead off the edited map to the spawn point, and finds a moved story step by its id. A wipe reloads a save of its own run alone, and a test reads the drawing of each patrol | D-1111, D-1112, D-1114, D-1118 |
+| PR-106 | The map draws the start of the tick while a menu, a fight, or a story scene holds the world, so a lead in the middle of a step holds still | D-1126 |
 | PR-16 | The treasure, the doors, the keys, and the save points | D-41, D-529 |
 | PR-64 | The traps, the hazards, and the statuses that last on the map | D-390 to D-393, D-529 |
 | PR-14 | The hub map, the NPCs, the rest, the save, and the party swap | D-59, D-112, D-530 |

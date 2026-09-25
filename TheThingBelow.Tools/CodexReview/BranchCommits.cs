@@ -16,10 +16,27 @@ public static class BranchCommits
     /// <summary>Gives the arguments of the `git log` run that lists the commits of a range, oldest first.</summary>
     /// <param name="range">The range, such as `abc1234..origin/feat/pr-95-codex-review`.</param>
     /// <returns>The arguments after the program name.</returns>
+    /// <remarks>
+    /// The list follows the first parent alone, in the order of the branch, and a merge lists
+    /// each path that it changes against its first parent. By default git lists no path for a
+    /// clean merge, and it sorts the commits of a merged branch by date, so a merge of code
+    /// kept an older head (D-1089, F-147). The `review-gate` workflow lists the commits the
+    /// same way.
+    /// </remarks>
     public static IReadOnlyList<string> LogArguments(string range)
     {
         ArgumentException.ThrowIfNullOrEmpty(range);
-        return ["log", "--reverse", "--no-renames", $"--format={CommitMarker}%H", "--name-only", range];
+        return
+        [
+            "log",
+            "--reverse",
+            "--first-parent",
+            "--diff-merges=first-parent",
+            "--no-renames",
+            $"--format={CommitMarker}%H",
+            "--name-only",
+            range,
+        ];
     }
 
     /// <summary>Reads the output of the `git log` run of <see cref="LogArguments"/>.</summary>

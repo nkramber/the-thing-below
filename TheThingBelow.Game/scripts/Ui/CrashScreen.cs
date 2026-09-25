@@ -52,6 +52,8 @@ public partial class CrashScreen : PanelContainer
     /// <summary>The count of frame pixels between two lines of the message.</summary>
     public const int LineGapPixels = 8;
 
+    private readonly List<Label> shown = [];
+
     /// <summary>Builds the message of one crash.</summary>
     /// <param name="base">The theme, the text helper, and the atlas (D-499, D-527).</param>
     /// <param name="strings">The string table, which holds the address (G-7).</param>
@@ -74,6 +76,7 @@ public partial class CrashScreen : PanelContainer
         var title = new Label { ThemeTypeVariation = UiTheme.TitleVariation };
         @base.Text.Put(title, Id(TitleId));
         lines.AddChild(title);
+        this.shown.Add(title);
 
         var file = new Label();
         @base.Text.Put(
@@ -81,6 +84,7 @@ public partial class CrashScreen : PanelContainer
             Id(FileId),
             new SortedDictionary<string, string>(StringComparer.Ordinal) { [FilePlace] = crashFileName });
         lines.AddChild(file);
+        this.shown.Add(file);
 
         var folder = new Label();
         @base.Text.Put(
@@ -88,6 +92,7 @@ public partial class CrashScreen : PanelContainer
             Id(FolderId),
             new SortedDictionary<string, string>(StringComparer.Ordinal) { [FolderPlace] = shownFolder });
         lines.AddChild(folder);
+        this.shown.Add(folder);
 
         var send = new Label();
         @base.Text.Put(
@@ -98,12 +103,30 @@ public partial class CrashScreen : PanelContainer
                 [AddressPlace] = strings.Text(Id(AddressId)),
             });
         lines.AddChild(send);
+        this.shown.Add(send);
 
         var quit = new Label();
         @base.Text.Put(quit, Id(QuitId));
         lines.AddChild(quit);
+        this.shown.Add(quit);
 
         this.AddChild(lines);
+    }
+
+    /// <summary>
+    /// Gives the text of each line that the message shows, from the top, so the crash fixture reads
+    /// back the name of the file and the folder (P3-26, D-1102).
+    /// </summary>
+    /// <returns>The text of each line.</returns>
+    public IReadOnlyList<string> ShownLines()
+    {
+        var lines = new List<string>(this.shown.Count);
+        foreach (Label line in this.shown)
+        {
+            lines.Add(TextHelper.Shown(line));
+        }
+
+        return lines;
     }
 
     /// <summary>Gives the content id of one line of the message.</summary>

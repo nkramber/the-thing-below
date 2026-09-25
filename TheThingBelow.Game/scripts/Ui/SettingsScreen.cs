@@ -39,6 +39,9 @@ public sealed class SettingsScreen
     /// <summary>The width of a label of a value row, in frame pixels.</summary>
     private const int NameWidth = 300;
 
+    /// <summary>The name of the display of a session with no screen, such as the smoke session.</summary>
+    private const string HeadlessDisplay = "headless";
+
     /// <summary>The width of the value of a value row, in frame pixels.</summary>
     private const int ValueWidth = 260;
 
@@ -207,6 +210,30 @@ public sealed class SettingsScreen
 
     private static string Number(int value) => value.ToString(CultureInfo.InvariantCulture);
 
+    /// <summary>
+    /// Gives the string id and the values of the name of one key. A binding holds the physical
+    /// key, and the name reads the key of the layout of the player (D-1128).
+    /// </summary>
+    /// <remarks>
+    /// The headless display of the smoke session has no keyboard layout, and a read of it writes
+    /// an error line, so the name reads the physical key there, which is the key of the US
+    /// layout. A display that gives no key of the layout takes the physical key too.
+    /// </remarks>
+    private static (string Id, Dictionary<string, string> Values) KeyText(Godot.Key physical)
+    {
+        Godot.Key layout = string.CompareOrdinal(DisplayServer.GetName(), HeadlessDisplay) == 0
+            ? Godot.Key.None
+            : DisplayServer.KeyboardGetKeycodeFromPhysical(physical);
+        (string id, IReadOnlyList<(string Place, string Value)> places) = KeyNames.Of((long)(layout == Godot.Key.None ? physical : layout));
+        var values = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach ((string place, string value) in places)
+        {
+            values.Add(place, value);
+        }
+
+        return (id, values);
+    }
+
     private static string OnOff(bool on) => on ? "settings.on" : "settings.off";
 
     private static string SpeedId(int place) => place switch
@@ -259,7 +286,7 @@ public sealed class SettingsScreen
         switch (binding.Kind)
         {
             case BindingKind.Key:
-                return ("settings.binding_key", Values(("key", OS.GetKeycodeString((Godot.Key)binding.Code))));
+                return KeyText((Godot.Key)binding.Code);
             case BindingKind.Button when binding.Code <= (int)JoyButton.Touchpad:
                 return ($"settings.button_{Number(binding.Code)}", Values());
             case BindingKind.Button:

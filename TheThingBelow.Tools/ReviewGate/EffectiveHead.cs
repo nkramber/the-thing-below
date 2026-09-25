@@ -80,14 +80,29 @@ public static class EffectiveHead
             }
 
             // A commit outside the skip set ends the walk. A review of an earlier commit never
-            // read it, so no earlier commit can keep an approval.
-            if (DocumentsAlonePaths.FirstPathOutside(commit.Files) is not null)
+            // read it, so no earlier commit can keep an approval. A settings file of the harness
+            // can hold a hook that runs a command, so a commit of it ends the walk too, although
+            // the skip set holds it (D-1122).
+            if (DocumentsAlonePaths.FirstPathOutside(commit.Files) is not null || ChangesHarnessSettings(commit))
             {
                 break;
             }
         }
 
         return heads;
+    }
+
+    private static bool ChangesHarnessSettings(CommitFacts commit)
+    {
+        foreach (string file in commit.Files)
+        {
+            if (OverrideRules.IsHarnessSettings(file))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool ChangesOutside(CommitFacts commit, HashSet<string> metadata)

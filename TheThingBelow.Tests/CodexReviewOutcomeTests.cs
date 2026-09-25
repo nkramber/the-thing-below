@@ -153,7 +153,7 @@ public sealed class CodexReviewOutcomeTests
     {
         return
             "# PR-63 review\n\n" +
-            $"## Identity\n\n- PR: 63\n- Head: `{head[..7]}`\n\n" +
+            $"## Identity\n\n- PR: 63\n- Head: `{head}`\n\n" +
             $"## Findings\n\n{findings}\n\n" +
             "## Out of scope\n\nNone.\n\n" +
             $"## Verdict\n\n**{verdict}.** This verdict applies to head `{head[..7]}`.\n";

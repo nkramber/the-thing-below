@@ -59,12 +59,51 @@ public sealed class ReviewGateHeadTests
         [
             new CommitFacts(Code, ["TheThingBelow.Core/Rules.cs"]),
             new CommitFacts(Metadata, ["docs/reviews/pr-21.md", "docs/session-handoff.md"]),
-            new CommitFacts(Documents, ["docs/decisions.md", ".claude/settings.json", "LICENSE"]),
+            new CommitFacts(Documents, ["docs/decisions.md", ".claude/skills/pr-review/SKILL.md", "LICENSE"]),
         ];
 
         IReadOnlyList<CommitFacts> heads = EffectiveHead.ReviewableHeads(commits, 21);
 
         Assert.Equal([Documents, Code], heads.Select(head => head.Sha));
+    }
+
+    /// <summary>
+    /// The regression test of D-1122. A settings file of the harness can hold a hook, so a
+    /// commit of it after an approval needs a new review, although the skip set holds it.
+    /// </summary>
+    [Theory]
+    [InlineData(".claude/settings.json")]
+    [InlineData(".claude/settings.local.json")]
+    [InlineData(".claude/Settings.JSON")]
+    public void ACommitOfAHarnessSettingsFileEndsTheReviewableHeads(string settings)
+    {
+        const string Documents = "3333333333333333333333333333333333333333";
+        const string Settings = "4444444444444444444444444444444444444444";
+        List<CommitFacts> commits =
+        [
+            new CommitFacts(Code, ["TheThingBelow.Core/Rules.cs"]),
+            new CommitFacts(Settings, ["docs/design.md", settings]),
+            new CommitFacts(Documents, ["docs/design.md"]),
+        ];
+
+        IReadOnlyList<CommitFacts> heads = EffectiveHead.ReviewableHeads(commits, 21);
+
+        Assert.Equal([Documents, Settings], heads.Select(head => head.Sha));
+    }
+
+    [Fact]
+    public void ACommitOfAnotherFileOfTheHarnessFolderKeepsTheApproval()
+    {
+        const string Skill = "3333333333333333333333333333333333333333";
+        List<CommitFacts> commits =
+        [
+            new CommitFacts(Code, ["TheThingBelow.Core/Rules.cs"]),
+            new CommitFacts(Skill, [".claude/settings.json.md", ".claude/agents/design-critic.md"]),
+        ];
+
+        IReadOnlyList<CommitFacts> heads = EffectiveHead.ReviewableHeads(commits, 21);
+
+        Assert.Equal([Skill, Code], heads.Select(head => head.Sha));
     }
 
     [Fact]
@@ -409,22 +448,31 @@ public sealed class ReviewGateRecordRuleTests
     }
 
     [Fact]
-    public void AShortHashOfTheEffectiveHeadPasses()
+    public void TheFullHashOfTheEffectiveHeadPassesInEitherCase()
     {
-        string text = ReviewGateFixture.Record(Head[..8], "Ready for owner merge");
+        const string Lettered = "abcdef0123456789abcdef0123456789abcdef01";
+        string text = ReviewGateFixture.Record(Lettered.ToUpperInvariant(), "Ready for owner merge");
 
         GateCheck check = ReviewRecordRules.CheckHead(
             "docs/reviews/pr-21.md",
             text,
-            [new CommitFacts(Head, ["docs/design.md"])]);
+            [new CommitFacts(Lettered, ["docs/design.md"])]);
 
         Assert.Equal(GateResult.Pass, check.Result);
     }
 
-    [Fact]
-    public void AHashShorterThanSevenLettersFails()
+    /// <summary>
+    /// The regression test of F-147. A prefix of 7 letters holds 28 bits, and the rule passed
+    /// each commit that shared it. The full hash less one letter is the nearest boundary.
+    /// </summary>
+    [Theory]
+    [InlineData(5)]
+    [InlineData(7)]
+    [InlineData(8)]
+    [InlineData(39)]
+    public void AShortHashOfTheEffectiveHeadFails(int length)
     {
-        string text = ReviewGateFixture.Record(Head[..5], "Ready for owner merge");
+        string text = ReviewGateFixture.Record(Head[..length], "Ready for owner merge");
 
         GateCheck check = ReviewRecordRules.CheckHead(
             "docs/reviews/pr-21.md",
@@ -432,7 +480,20 @@ public sealed class ReviewGateRecordRuleTests
             [new CommitFacts(Head, ["docs/design.md"])]);
 
         Assert.Equal(GateResult.Fault, check.Result);
-        Assert.Contains("shorter than 7", check.Detail, StringComparison.Ordinal);
+        Assert.Contains("full hash of 40 letters", check.Detail, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AHashLongerThanACommitHashFails()
+    {
+        string text = ReviewGateFixture.Record(Head + "0", "Ready for owner merge");
+
+        GateCheck check = ReviewRecordRules.CheckHead(
+            "docs/reviews/pr-21.md",
+            text,
+            [new CommitFacts(Head, ["docs/design.md"])]);
+
+        Assert.Equal(GateResult.Fault, check.Result);
     }
 
     [Fact]

@@ -59,7 +59,7 @@ public sealed class ReviewGateCommandTests
             [
                 new CommitFacts(ReviewGateFixture.OlderSha, ["TheThingBelow.Core/Rules.cs"]),
                 new CommitFacts(ReviewGateFixture.MetadataSha, ["docs/reviews/pr-21.md", "docs/session-handoff.md"]),
-                new CommitFacts(ReviewGateFixture.HeadSha, ["docs/design.md", "docs/decisions.md", ".claude/settings.json"]),
+                new CommitFacts(ReviewGateFixture.HeadSha, ["docs/design.md", "docs/decisions.md", ".claude/skills/pr-review/SKILL.md"]),
             ],
         });
         fixture.WriteRecord(ReviewGateFixture.Record(ReviewGateFixture.OlderSha, "Ready for owner merge"));
@@ -69,6 +69,28 @@ public sealed class ReviewGateCommandTests
         Assert.Equal(0, exitCode);
         Assert.Contains("RG 5 pass", report, StringComparison.Ordinal);
         Assert.Contains("documents alone (D-943)", report, StringComparison.Ordinal);
+    }
+
+    // Regression of D-1122: a commit of a settings file of the harness after the approval kept
+    // the approval, although the file can hold a hook that runs a command.
+    [Fact]
+    public void ACommitOfTheHarnessSettingsAfterTheApprovalNeedsANewReview()
+    {
+        using ReviewGateFixture fixture = ReviewGateFixture.Build();
+        fixture.WriteFacts(ReviewGateFixture.PassingFacts() with
+        {
+            Commits =
+            [
+                new CommitFacts(ReviewGateFixture.OlderSha, ["TheThingBelow.Core/Rules.cs"]),
+                new CommitFacts(ReviewGateFixture.HeadSha, ["docs/design.md", ".claude/settings.json"]),
+            ],
+        });
+        fixture.WriteRecord(ReviewGateFixture.Record(ReviewGateFixture.OlderSha, "Ready for owner merge"));
+
+        (int exitCode, string report) = Run(fixture);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains("RG 5 fault", report, StringComparison.Ordinal);
     }
 
     [Fact]

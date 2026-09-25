@@ -238,6 +238,43 @@ public sealed class LightContentTests
         Assert.Contains("allows 15", error.Message, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData(10000, true)]
+    [InlineData(11100, true)]
+    [InlineData(11101, false)]
+    [InlineData(11200, false)]
+    public void ATorchCountsAtTheWidestStepOfItsFire(int widest, bool loads)
+    {
+        // D-842, D-891, F-46: the torch at the tile (12, 0) lights from the column 400 with a range
+        // of 100 pixels, so the range of its file ends at the column 500, west of the quadrant at
+        // 512. The quadrant holds 14 added lights and the carried light: 15, the limit of Godot. A
+        // step of 11100 reaches 111 pixels, to the column 511. A step of 11101 reaches 111.01 pixels,
+        // which meets the column 512, so the quadrant holds 16. The count at the range of the file
+        // loaded each step.
+        string kind = LightFixtures.KindBody
+            .Replace("\"range\": 96,", "\"range\": 100,", StringComparison.Ordinal)
+            .Replace("{ \"strength\": 10000, \"range\": 10000 }", $"{{ \"strength\": 10000, \"range\": {widest} }}", StringComparison.Ordinal);
+        Assert.Contains("\"range\": 100,", kind, StringComparison.Ordinal);
+        Assert.Contains($"\"range\": {widest} }}", kind, StringComparison.Ordinal);
+        List<ContentFile> files = LightFixtures.Files(
+            LightFixtures.DecorBody(LightFixtures.Piece("wide", 12, 0)),
+            LightFixtures.SetupBody(added: QuadrantLights()),
+            LightFixtures.BudgetBody(40));
+        files[0] = LightFixtures.File(LightFixtures.KindPath, kind);
+
+        if (loads)
+        {
+            LightContent light = LightFixtures.Load(files);
+            Assert.Equal(15, light.LightsOf(Map, TimeOfDay.Night).Count);
+            return;
+        }
+
+        ContentException error = Assert.Throws<ContentException>(() => LightFixtures.Load(files));
+        Assert.Equal(LightFixtures.SetupPath, error.File);
+        Assert.Contains("16 lights, the carried light included, reach a quadrant of the ground layer", error.Message, StringComparison.Ordinal);
+        Assert.Contains("at (512, 0)", error.Message, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void TwoTorchesSideBySideCanLightArtToTheThresholdAndFail()
     {
@@ -355,6 +392,23 @@ public sealed class LightContentTests
         for (int index = 0; index < count; index += 1)
         {
             lights.Add(LightFixtures.Added($"lamp_{index}", 1 + index, 3, range: 8));
+        }
+
+        return string.Join(", ", lights);
+    }
+
+    /// <summary>
+    /// Makes 14 added lights of a range of 1 pixel on the columns 17 and 18 of rows 1 to 7: all in
+    /// the east quadrant of the ground layer, which starts at the column 512, and none within reach
+    /// of the west one.
+    /// </summary>
+    private static string QuadrantLights()
+    {
+        var lights = new List<string>();
+        for (int row = 1; row <= 7; row += 1)
+        {
+            lights.Add(LightFixtures.Added($"east_{row}_a", 17, row, range: 1));
+            lights.Add(LightFixtures.Added($"east_{row}_b", 18, row, range: 1));
         }
 
         return string.Join(", ", lights);

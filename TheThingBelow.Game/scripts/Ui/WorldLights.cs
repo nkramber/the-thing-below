@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Godot;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Content;
@@ -51,6 +53,68 @@ public static class WorldLights
     /// </summary>
     public const float LightFalloff = 1.5f;
 
+    /// <summary>The light texture of each falloff that a caller asked for, by that falloff (G-14).</summary>
+    private static readonly Dictionary<float, ImageTexture> LightTextureOfFalloff = [];
+
+    /// <summary>The halo texture of each power that a caller asked for, by that power (G-14).</summary>
+    private static readonly Dictionary<float, ImageTexture> HaloTextureOfPower = [];
+
+    /// <summary>The count of builds of a light texture in this process, which the smoke session checks (G-14).</summary>
+    public static int LightTextureBuilds { get; private set; }
+
+    /// <summary>The count of builds of a halo texture in this process, which the smoke session checks (G-14).</summary>
+    public static int HaloTextureBuilds { get; private set; }
+
+    /// <summary>The time of every build of a light texture or a halo texture in this process (G-14).</summary>
+    public static TimeSpan TextureBuildTime { get; private set; }
+
+    /// <summary>
+    /// Gives the light texture of one falloff: built on the first call, and shared by each later
+    /// call, because the texture never changes (G-14).
+    /// </summary>
+    /// <param name="falloff">The power of the fall with the distance to the edge, such as <see cref="LightFalloff"/>.</param>
+    /// <returns>The texture.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The power is not above 0 (T-2).</exception>
+    /// <exception cref="InvalidOperationException">Godot made no texture from the image, or freed the shared texture (T-2, F-45).</exception>
+    /// <remarks>
+    /// Each build set 65,536 pixels, one at a time, in 2.9 ms on an Apple silicon Mac. A map, a
+    /// fight, and the spell flash of each fight each built one, so a fight start paid for two.
+    /// </remarks>
+    public static ImageTexture LightTexture(float falloff)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(falloff);
+
+        if (LightTextureOfFalloff.TryGetValue(falloff, out ImageTexture? shared))
+        {
+            return Live(shared, $"the light texture of the falloff {falloff}");
+        }
+
+        ImageTexture built = BuildTexture(falloff);
+        LightTextureOfFalloff.Add(falloff, built);
+        return built;
+    }
+
+    /// <summary>
+    /// Gives the round texture of a glow halo of one power: built on the first call, and shared by
+    /// each later call, because the texture never changes (D-1095, G-14).
+    /// </summary>
+    /// <param name="power">The power of the curve, above 1, such as <see cref="GlowPass.HaloPower"/>.</param>
+    /// <returns>The texture, with an alpha of half floats.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The power is not above 1 (T-2).</exception>
+    /// <exception cref="InvalidOperationException">Godot made no texture from the image, or freed the shared texture (T-2, F-45).</exception>
+    /// <remarks>Each build took 3.1 ms on an Apple silicon Mac, and each map built one.</remarks>
+    public static ImageTexture HaloTexture(float power)
+    {
+        if (HaloTextureOfPower.TryGetValue(power, out ImageTexture? shared))
+        {
+            return Live(shared, $"the halo texture of the power {power}");
+        }
+
+        ImageTexture built = BuildHaloTexture(power);
+        HaloTextureOfPower.Add(power, built);
+        return built;
+    }
+
     /// <summary>
     /// Gives the light of a glow halo at one distance from its middle, as a part of the light of
     /// its middle (D-1092, D-1095): one less the square of the distance, to a power. The curve
@@ -86,8 +150,10 @@ public static class WorldLights
     /// because the sRGB curve lifts the faint end of linear light. Half floats hold that end (D-1095).
     /// </remarks>
     /// <exception cref="InvalidOperationException">Godot made no texture from the image (T-2, F-45).</exception>
-    public static ImageTexture BuildHaloTexture(float power)
+    private static ImageTexture BuildHaloTexture(float power)
     {
+        long start = Stopwatch.GetTimestamp();
+        HaloTextureBuilds += 1;
         var picture = Image.CreateEmpty(TextureSize, TextureSize, false, Image.Format.Rgbah);
         float half = TextureSize / 2f;
         for (int y = 0; y < TextureSize; y += 1)
@@ -102,6 +168,7 @@ public static class WorldLights
 
         // The call reports a failure in the log alone, so the result takes a check (F-45, T-2).
         ImageTexture? texture = ImageTexture.CreateFromImage(picture);
+        TextureBuildTime += Stopwatch.GetElapsedTime(start);
         return texture ?? throw new InvalidOperationException(
             "Godot made no halo texture from the image, and a halo with no texture draws nothing (T-2, F-46).");
     }
@@ -109,12 +176,11 @@ public static class WorldLights
     /// <summary>Builds a round texture: full light at the center, and none at the edge of the circle.</summary>
     /// <param name="falloff">The power of the fall with the distance to the edge, such as <see cref="LightFalloff"/>.</param>
     /// <returns>The texture.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The power is not above 0 (T-2).</exception>
     /// <exception cref="InvalidOperationException">Godot made no texture from the image (T-2, F-45).</exception>
-    public static ImageTexture BuildTexture(float falloff)
+    private static ImageTexture BuildTexture(float falloff)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(falloff);
-
+        long start = Stopwatch.GetTimestamp();
+        LightTextureBuilds += 1;
         var picture = Image.CreateEmpty(TextureSize, TextureSize, false, Image.Format.Rgba8);
         float half = TextureSize / 2f;
         for (int y = 0; y < TextureSize; y += 1)
@@ -130,8 +196,17 @@ public static class WorldLights
 
         // The call reports a failure in the log alone, so the result takes a check (F-45, T-2).
         ImageTexture? texture = ImageTexture.CreateFromImage(picture);
+        TextureBuildTime += Stopwatch.GetElapsedTime(start);
         return texture ?? throw new InvalidOperationException(
             "Godot made no light texture from the image, and a light with no texture draws nothing (T-2, F-46).");
+    }
+
+    /// <summary>Gives a shared texture, and fails when Godot freed it, because a light with a freed texture draws nothing (T-2, F-46).</summary>
+    private static ImageTexture Live(ImageTexture shared, string what)
+    {
+        return GodotObject.IsInstanceValid(shared)
+            ? shared
+            : throw new InvalidOperationException($"Godot freed {what}, and each light shares it for the whole process (T-2, F-46, G-14).");
     }
 
     /// <summary>Gives the color of a palette key, at full strength (D-846).</summary>
@@ -176,7 +251,7 @@ public static class WorldLights
     /// <param name="id">The id of the piece or the light, which the node takes as its name for each error.</param>
     /// <param name="palette">The palette.</param>
     /// <param name="values">The color, the range, and the height of the light.</param>
-    /// <param name="texture">The light texture of <see cref="BuildTexture"/>.</param>
+    /// <param name="texture">The light texture of <see cref="LightTexture"/>.</param>
     /// <param name="items">The light mask of the items that the light lights.</param>
     /// <param name="shadows">The occluder mask of the shadows that the light takes, or 0 for no shadow.</param>
     /// <returns>The light.</returns>
@@ -216,7 +291,7 @@ public static class WorldLights
     /// <param name="id">The id of the piece or the light.</param>
     /// <param name="palette">The palette.</param>
     /// <param name="values">The color, the range, and the height of the source.</param>
-    /// <param name="texture">The light texture of <see cref="BuildTexture"/>.</param>
+    /// <param name="texture">The light texture of <see cref="LightTexture"/>.</param>
     /// <param name="groundShadows">The occluder mask of the shadows that the ground light takes.</param>
     /// <returns>The two lights.</returns>
     /// <exception cref="ContentException">The palette holds no such key (T-2).</exception>

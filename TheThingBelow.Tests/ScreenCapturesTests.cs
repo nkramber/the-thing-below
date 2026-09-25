@@ -130,6 +130,38 @@ public sealed class ScreenCapturesTests
         "transition-color-split-reduced-1x.png",
     ];
 
+    /// <summary>
+    /// The captures at the body of 24 of each menu window, each part of a fight with text, the notice,
+    /// and the conflict line, at 1080 rows (G-28, D-707, P3-26).
+    /// </summary>
+    private static readonly string[] SmallBodyNames =
+    [
+        "menu-party-fill-1080.png",
+        "menu-status-fill-1080.png",
+        "menu-log-fill-1080.png",
+        "menu-map-fill-1080.png",
+        "menu-lessons-fill-1080.png",
+        "menu-lessons-swap-fill-1080.png",
+        "menu-gear-fill-1080.png",
+        "menu-gear-pack-fill-1080.png",
+        "menu-items-fill-1080.png",
+        "battle-target-fill-1080.png",
+        "battle-lessons-fill-1080.png",
+        "battle-forms-fill-1080.png",
+        "battle-experience-fill-1080.png",
+        "battle-level-up-fill-1080.png",
+        "notice-hold-fill-1080.png",
+        "settings-conflict-fill-1080.png",
+    ];
+
+    /// <summary>The captures at the screen of the Steam Deck, and the message of a crash (G-19, D-559, P3-26).</summary>
+    private static readonly string[] DeckAndCrashNames =
+    [
+        "map-fill-800.png",
+        "battle-menu-fill-800.png",
+        "crash-1x.png",
+    ];
+
     // This property stays below `StillNames`, because its build reads that array, and a static
     // member takes its value in the order of the file (T-2).
     /// <summary>Every file that one run of the capture session writes, in the order of the list.</summary>
@@ -159,7 +191,9 @@ public sealed class ScreenCapturesTests
         // D-1030, D-1031, D-1032).
         // PR-13 adds the gear window, its pack list, and the item window to the menu names (D-44, D-1048).
         // PR-91 adds the pit room with an enemy inside the fade of the dark (D-1062, exit test 8 of PR-91).
-        Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + 1 + MenuNames.Length, FileNames().Count);
+        // PR-106 adds each window and each part of a fight at the body of 24, the screen of the
+        // Steam Deck, and the message of a crash (G-19, G-28, P3-26).
+        Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + 1 + MenuNames.Length + SmallBodyNames.Length + DeckAndCrashNames.Length, FileNames().Count);
     }
 
     [Fact]
@@ -262,8 +296,60 @@ public sealed class ScreenCapturesTests
         }
 
         Assert.Equal(
-            new HashSet<string> { "1280 by 720", "1920 by 1080", "2560 by 1440" },
+            new HashSet<string> { "1280 by 720", "1280 by 800", "1920 by 1080", "2560 by 1440" },
             screens);
+    }
+
+    [Fact]
+    public void TheScreenOfTheSteamDeckShowsAMapAndAFight()
+    {
+        // G-19, D-568: the Steam Deck is the floor of readability, and its screen of 1280 by 800
+        // shows the frame at 1x between two bars (P3-26).
+        var deck = new List<string>();
+        foreach (object capture in Captures())
+        {
+            if (Read<int>(capture, "Width") == 1280 && Read<int>(capture, "Height") == 800)
+            {
+                deck.Add(Read<string>(capture, "FileName"));
+            }
+        }
+
+        Assert.Equal(["map-fill-800.png", "battle-menu-fill-800.png"], deck);
+    }
+
+    [Fact]
+    public void EachFrameOfTheSmallBodyShowsTheMomentOfItsFrameAt1x()
+    {
+        // G-28, D-707: a frame at 1080 rows takes the body of 24, and it shows the same moment as
+        // its frame at 1x, which takes the body of 32 (P3-26).
+        MethodInfo momentOf = GameAssemblyFile.Type(CapturesTypeName).GetMethod("MomentOf")!;
+        List<string> names = FileNames();
+        foreach (string name in SmallBodyNames)
+        {
+            string frame = name[(name.IndexOf('-', StringComparison.Ordinal) + 1)..^".png".Length];
+            string moment = (string)momentOf.Invoke(null, [frame])!;
+            string fixture = name[..name.IndexOf('-', StringComparison.Ordinal)];
+
+            Assert.Equal(frame.Replace("-fill-1080", "-1x", StringComparison.Ordinal), moment);
+            Assert.Contains($"{fixture}-{moment}.png", names);
+        }
+
+        Assert.Equal("fill-1080", (string)momentOf.Invoke(null, ["fill-1080"])!);
+        Assert.Equal("blow-1x", (string)momentOf.Invoke(null, ["blow-1x"])!);
+    }
+
+    [Fact]
+    public void TheCaptureOfTheCrashMessageComesLast()
+    {
+        // D-559, P3-26: the message of a crash stands until the session ends, so no capture may
+        // follow it, and it draws at 1x, the floor of the Steam Deck.
+        List<object> all = [.. Captures()];
+        object last = all[^1];
+
+        Assert.Equal("crash-1x.png", Read<string>(last, "FileName"));
+        Assert.Equal(1280, Read<int>(last, "Width"));
+        Assert.Equal(720, Read<int>(last, "Height"));
+        Assert.Single(OfFixture("crash"));
     }
 
     [Theory]
@@ -407,6 +493,16 @@ public sealed class ScreenCapturesTests
         }
 
         foreach (string name in MenuNames)
+        {
+            names.Add(name);
+        }
+
+        foreach (string name in SmallBodyNames)
+        {
+            names.Add(name);
+        }
+
+        foreach (string name in DeckAndCrashNames)
         {
             names.Add(name);
         }

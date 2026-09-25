@@ -91,6 +91,9 @@ public partial class Boot : Node
     /// <summary>The name that Godot gives the display server of a session with no window.</summary>
     private const string HeadlessDisplay = "headless";
 
+    /// <summary>The message of the log line of a crash (D-179), which the crash fixture reads back (P3-26).</summary>
+    private const string CrashLogMessage = "the game stopped with an error, and it wrote a crash file";
+
     private LogStore? log;
     private GameRun? run;
     private ContentSet? content;
@@ -113,6 +116,9 @@ public partial class Boot : Node
     private readonly MousePointer pointer = new();
     private bool crashed;
     private bool focused = true;
+
+    /// <summary>The crash of the crash fixture, from its plant to its check, or null in every other session (P3-26).</summary>
+    private PlantedCrash? planted;
 
     /// <summary>Makes the node, whose held steps read the sources of the gate (D-1084).</summary>
     public Boot()
@@ -163,7 +169,7 @@ public partial class Boot : Node
             this.FollowBattleScreen();
             if (this.battle is null)
             {
-                this.map?.ShowParty(this.run.Party, this.run.TickPart, this.run.Tick, this.run.TorchHeld);
+                this.map?.ShowParty(this.run.Party, this.run.DrawnTickPart, this.run.Tick, this.run.TorchHeld);
                 this.map?.ShowWeather(this.run.Tick, seek: false);
             }
 
@@ -253,7 +259,7 @@ public partial class Boot : Node
         if (captureFolder is not null)
         {
             CaptureSession.Start(
-                this, LoadContent(), captureFolder, CapturesOf(userArguments), this.ReportCrash);
+                this, LoadContent(), captureFolder, CapturesOf(userArguments), this.ReportCrash, this.PlantCrash);
             return;
         }
 
@@ -1289,18 +1295,25 @@ public partial class Boot : Node
     /// The run stops before the write, so no later frame steps a state that an error left. A
     /// crash before the log file exists writes the crash file alone, because the folder of the
     /// person is the reason of such a crash (T-2).
+    /// <para>
+    /// The error of the crash fixture takes the same path, with the store and the time of the
+    /// fixture, and the session then goes on to check what this method left (P3-26).
+    /// </para>
     /// </remarks>
     private void ReportCrash(Exception fault)
     {
         GameRun? stopped = this.run;
         this.run = null;
 
-        DateTime time = DateTime.UtcNow;
+        // The first error after the plant is the planted one. Each later error takes the path of
+        // a real crash, the error of a failed check included (T-2).
+        PlantedCrash? plant = this.planted is { Reported: false } ? this.planted : null;
+        DateTime time = plant?.Time ?? DateTime.UtcNow;
         string? path = null;
         StorageException? cleanup = null;
         try
         {
-            CrashStore crashes = CrashStore.OfThisSystem();
+            CrashStore crashes = plant?.Store ?? CrashStore.OfThisSystem();
             path = crashes.Write(fault, stopped?.Record(), time);
             cleanup = crashes.CleanupFault;
             GD.PrintErr($"the game stopped with an error, and it wrote the crash file '{path}'.");
@@ -1333,7 +1346,17 @@ public partial class Boot : Node
             }
         }
 
-        if (this.ShowCrashMessage(path))
+        bool shown = this.ShowCrashMessage(path, this.content ?? plant?.Content);
+        if (plant is not null)
+        {
+            // The crash fixture reads what this method left, and the session goes on (P3-26).
+            plant.Reported = true;
+            plant.Path = path;
+            plant.Shown = shown;
+            return;
+        }
+
+        if (shown)
         {
             this.crashed = true;
             return;
@@ -1348,6 +1371,7 @@ public partial class Boot : Node
     /// it, and the session quits on the next press.
     /// </summary>
     /// <param name="path">The path of the crash file, or null when the write failed.</param>
+    /// <param name="loaded">The content of the session, or of the crash fixture, or null before it loaded.</param>
     /// <returns>True when the message is on screen, and false when the session must quit now.</returns>
     /// <remarks>
     /// A session with no display, such as the smoke job of CI, shows nothing and quits with
@@ -1356,10 +1380,10 @@ public partial class Boot : Node
     /// screen, such as a settings file that the system refused, builds a frame of the default
     /// display for the message, so the start never ends with no text (P2-2, D-170).
     /// </remarks>
-    private bool ShowCrashMessage(string? path)
+    private bool ShowCrashMessage(string? path, ContentSet? loaded)
     {
         if (path is null
-            || this.content is null
+            || loaded is null
             || string.CompareOrdinal(DisplayServer.GetName(), HeadlessDisplay) == 0)
         {
             return false;
@@ -1367,13 +1391,13 @@ public partial class Boot : Node
 
         try
         {
-            (FrameRoot shownFrame, UiBase shownUi) = this.FrameForMessage(this.content);
+            (FrameRoot shownFrame, UiBase shownUi) = this.FrameForMessage(loaded);
 
             // The message draws above the pass of the hand-off, so a crash during a transition
             // still shows its text (D-559). It names the folder with no account name (D-1102).
             var message = new CrashScreen();
             shownFrame.Top.AddChild(message);
-            message.Build(shownUi, this.content.Strings, Path.GetFileName(path), CrashStore.ShownFolderOfThisSystem());
+            message.Build(shownUi, loaded.Strings, Path.GetFileName(path), CrashStore.ShownFolderOfThisSystem());
             return true;
         }
         catch (Exception second)
@@ -1433,7 +1457,7 @@ public partial class Boot : Node
     private static LogEntry CrashEntry(Exception fault, string file, GameRun? stopped) =>
         new(
             LogLevel.Error,
-            "the game stopped with an error, and it wrote a crash file",
+            CrashLogMessage,
             stopped?.Tick ?? 0,
             LogSubsystems.Game,
             [
@@ -1473,9 +1497,35 @@ public partial class Boot : Node
         GD.Print($"smoke: the settings screen is {this.DescribeSettings(content)}.");
         GD.Print($"smoke: the menus are {this.DescribeMenus(content)}.");
         GD.Print($"smoke: the pads are {DescribePads()}.");
+        GD.Print($"smoke: the light textures are {DescribeLightTextures()}.");
         Directory.Delete(smokeSaves, true);
-        GD.Print("smoke: the session ends with no error.");
-        GetTree().Quit(SuccessExitCode);
+
+        // The crash path runs last, inside a callback of the engine on the next frame, as the
+        // error of a real crash does. The success line waits for its check (P3-26, T-2).
+        this.PlantCrash(content, line =>
+        {
+            GD.Print($"smoke: the crash path is {line}.");
+            GD.Print("smoke: the session ends with no error.");
+            GetTree().Quit(SuccessExitCode);
+        });
+    }
+
+    /// <summary>
+    /// Reads the builds of the light texture and the halo texture in the session, and fails on a
+    /// second build of either one (G-14). The session builds two maps and a fight with its spell
+    /// flash, and each one takes the shared texture of <see cref="WorldLights"/>.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A texture was built more than once, or never (T-2).</exception>
+    private static string DescribeLightTextures()
+    {
+        if (WorldLights.LightTextureBuilds != 1 || WorldLights.HaloTextureBuilds != 1)
+        {
+            throw new InvalidOperationException(
+                $"The session built the light texture {WorldLights.LightTextureBuilds} times and the halo texture {WorldLights.HaloTextureBuilds} times, and each map, each fight, and each spell flash shares one of each (G-14, T-2).");
+        }
+
+        string time = WorldLights.TextureBuildTime.TotalMilliseconds.ToString("F1", CultureInfo.InvariantCulture);
+        return $"one build of the light texture and one of the halo texture, in {time} ms, for two maps and a fight";
     }
 
     /// <summary>Gives the settings of the smoke session: the defaults, and never the file of the person (D-860).</summary>
@@ -1701,6 +1751,207 @@ public partial class Boot : Node
 
         return $"{Path.GetFileName(path)} with a record that ends at tick {report.Record.EndTick}, "
             + $"and the count of files in the folder is {crashes.Names().Count}";
+    }
+
+    /// <summary>
+    /// Plants the crash of the crash fixture: a <see cref="CrashProbe"/> throws inside its first
+    /// callback, and <see cref="ReportCrash"/> takes the error (P3-26, T-3). The probe then runs
+    /// <see cref="CheckPlantedCrash"/> and gives its line to the session.
+    /// </summary>
+    /// <param name="loaded">The content of the session, which the message reads (G-7).</param>
+    /// <param name="passed">Takes the line of the check, and goes on with the session.</param>
+    /// <exception cref="InvalidOperationException">The session planted a crash before (T-2).</exception>
+    /// <remarks>
+    /// The crash file goes into a new folder of its own, and never into the crash folder of the
+    /// person, because that folder keeps the newest files alone (D-659). The new folder holds no
+    /// file of an earlier run, so the file takes the same name on every run, and the message
+    /// that names it gives one picture (D-172).
+    /// </remarks>
+    private void PlantCrash(ContentSet loaded, Action<string> passed)
+    {
+        ArgumentNullException.ThrowIfNull(loaded);
+        ArgumentNullException.ThrowIfNull(passed);
+        if (this.planted is not null)
+        {
+            throw new InvalidOperationException("The session plants one crash, and it planted one before (P3-26, T-2).");
+        }
+
+        string folder = Directory.CreateTempSubdirectory("the-thing-below-crash-").FullName;
+        this.planted = new PlantedCrash(new CrashStore(folder), CrashProbe.PlantedTime, loaded);
+        CrashProbe.Plant(this, this.ReportCrash, () => passed(this.CheckPlantedCrash()));
+    }
+
+    /// <summary>
+    /// Checks what <see cref="ReportCrash"/> left for the planted crash: the crash file that names
+    /// the error, the log line that names the file, and the message on screen with the folder of
+    /// the crash files (P3-26, D-170, D-179, D-559, D-1102). Then it removes the folder of the file.
+    /// </summary>
+    /// <returns>The name of the file, the error, and the state of the message, as one line.</returns>
+    /// <exception cref="InvalidOperationException">A part of the crash path is absent or wrong (T-2).</exception>
+    private string CheckPlantedCrash()
+    {
+        PlantedCrash plant = this.planted ?? throw new InvalidOperationException(
+            "The crash fixture checks its crash, and the session planted none (T-2).");
+        if (!plant.Reported)
+        {
+            throw new InvalidOperationException("The crash fixture threw its error, and the reporter never took it (P3-26, T-2).");
+        }
+
+        string path = plant.Path ?? throw new InvalidOperationException(
+            $"The reporter took the planted error, and it wrote no crash file into '{plant.Store.Folder}' (D-170, T-2).");
+        string file = Path.GetFileName(path);
+
+        CrashReport report = plant.Store.Read(path);
+        if (string.CompareOrdinal(report.ErrorType, nameof(InvalidOperationException)) != 0
+            || !report.Error.Contains(CrashProbe.PlantedMessage, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                $"The crash file '{file}' names the error {report.ErrorType}: {report.Error}, and the probe threw "
+                + $"{nameof(InvalidOperationException)}: {CrashProbe.PlantedMessage} (D-170, T-2).");
+        }
+
+        // The session holds no run, so the file holds no record (D-661, exit test 8 of PR-44).
+        if (report.Record is not null)
+        {
+            throw new InvalidOperationException($"The crash file '{file}' holds a record, and the session held no run (D-661, T-2).");
+        }
+
+        this.CheckCrashLogLine(file);
+        string message = this.CheckCrashMessage(plant, file);
+        Directory.Delete(plant.Store.Folder, true);
+        return $"{file} with the error {report.ErrorType}, the log line of the file, and {message}";
+    }
+
+    /// <summary>Finds the log line of the planted crash in the log file of the session (D-179).</summary>
+    /// <param name="file">The name of the crash file, which the line names.</param>
+    /// <exception cref="InvalidOperationException">No log file is open, or no line names the file (T-2).</exception>
+    private void CheckCrashLogLine(string file)
+    {
+        LogStore store = this.log ?? throw new InvalidOperationException(
+            "The crash fixture reads the log file, and the session opened none (T-2).");
+
+        foreach (LogLine line in store.Read())
+        {
+            LogEntry entry = line.Entry;
+            if (entry.Level != LogLevel.Error || string.CompareOrdinal(entry.Message, CrashLogMessage) != 0)
+            {
+                continue;
+            }
+
+            bool namesType = false;
+            bool namesFile = false;
+            foreach (LogField field in entry.Fields)
+            {
+                namesType |= field.Name == "type" && field.Value == nameof(InvalidOperationException);
+                namesFile |= field.Name == "file" && field.Value == file;
+            }
+
+            if (namesType && namesFile)
+            {
+                return;
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"The log file '{store.SessionFile}' holds no error line '{CrashLogMessage}' with the type "
+            + $"{nameof(InvalidOperationException)} and the file '{file}' (D-179, T-2).");
+    }
+
+    /// <summary>
+    /// Checks the message of the planted crash. A session with a display shows one message with
+    /// the name of the file and the folder with no account name, and a session with no display
+    /// shows none (D-117, D-559, D-1102).
+    /// </summary>
+    /// <param name="plant">The planted crash.</param>
+    /// <param name="file">The name of the crash file.</param>
+    /// <returns>The state of the message, as a part of a line.</returns>
+    /// <exception cref="InvalidOperationException">The message is absent, hidden, or wrong (T-2).</exception>
+    private string CheckCrashMessage(PlantedCrash plant, string file)
+    {
+        var screens = new List<CrashScreen>();
+        CrashScreensUnder(this, screens);
+        if (string.CompareOrdinal(DisplayServer.GetName(), HeadlessDisplay) == 0)
+        {
+            if (plant.Shown || screens.Count != 0)
+            {
+                throw new InvalidOperationException(
+                    $"The session has no display, and the reporter showed the message {plant.Shown} with {screens.Count} nodes (D-117, T-2).");
+            }
+
+            return "no message, because the session has no display";
+        }
+
+        if (!plant.Shown || screens.Count != 1 || !screens[0].IsVisibleInTree())
+        {
+            throw new InvalidOperationException(
+                $"The reporter showed the message {plant.Shown}, the tree holds {screens.Count} messages, "
+                + "and the session has a display, so one message shows (D-559, T-2).");
+        }
+
+        string folder = CrashStore.ShownFolderOfThisSystem();
+        string home = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+        IReadOnlyList<string> lines = screens[0].ShownLines();
+        bool namesFile = false;
+        bool namesFolder = false;
+        foreach (string line in lines)
+        {
+            namesFile |= line.Contains(file, StringComparison.Ordinal);
+            namesFolder |= line.Contains(folder, StringComparison.Ordinal);
+            if (home.Length > 0 && line.Contains(home, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException($"The line '{line}' of the message names the folder of the person (D-1102, T-2).");
+            }
+        }
+
+        if (!namesFile || !namesFolder)
+        {
+            throw new InvalidOperationException(
+                $"The message shows the lines '{string.Join(" | ", lines)}', and it names the file '{file}' {namesFile} "
+                + $"and the folder '{folder}' {namesFolder} (D-559, D-1102, T-2).");
+        }
+
+        return $"the message on screen with the folder {folder}";
+    }
+
+    /// <summary>Adds each crash message under one node to a list, in the order of the tree.</summary>
+    /// <param name="node">The node where the search starts.</param>
+    /// <param name="found">The list that takes each message.</param>
+    private static void CrashScreensUnder(Node node, List<CrashScreen> found)
+    {
+        foreach (Node child in node.GetChildren())
+        {
+            if (child is CrashScreen screen)
+            {
+                found.Add(screen);
+            }
+
+            CrashScreensUnder(child, found);
+        }
+    }
+
+    /// <summary>The crash that the crash fixture plants, and what the reporter left for it (P3-26).</summary>
+    /// <param name="store">The store of a new folder of the fixture, and never the crash folder of the person (D-659).</param>
+    /// <param name="time">The fixed time of the crash, which the name of the file carries (D-172).</param>
+    /// <param name="content">The content that the message reads (G-7).</param>
+    private sealed class PlantedCrash(CrashStore store, DateTime time, ContentSet content)
+    {
+        /// <summary>The store that takes the crash file.</summary>
+        public CrashStore Store { get; } = store;
+
+        /// <summary>The time of the crash.</summary>
+        public DateTime Time { get; } = time;
+
+        /// <summary>The content that the message reads.</summary>
+        public ContentSet Content { get; } = content;
+
+        /// <summary>True after the reporter took the planted error.</summary>
+        public bool Reported { get; set; }
+
+        /// <summary>The path of the crash file that the reporter wrote, or null when the write failed.</summary>
+        public string? Path { get; set; }
+
+        /// <summary>True when the reporter showed the message.</summary>
+        public bool Shown { get; set; }
     }
 
     /// <summary>

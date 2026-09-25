@@ -1,5 +1,137 @@
 # Session handoff archive
 
+## Session 311: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #82 (PR-105), round 1. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
+
+### What this session did, and why
+
+- The owner assigned the open findings of the repository review of 2026-09-24, with no limit of one concern (D-1109). The owner answered each question of P2-3, P3-22, P3-4, P3-33, and P3-23 (D-1110 to D-1116, D-1119).
+- A save of another build follows an edit of a map or a story scene, and a party rule change refuses it (D-1110 to D-1113). Each story step takes an id, and save format 14 and record format 4 hold it.
+- A wipe reloads a save of its own run alone (D-1114). `GameRun.Save` bounds the run record (D-1115). The coverage job checks its package (D-1116).
+- After six findings, the owner asked for three more: det-lint (D-1117), the draw checks (D-1118), and the remap conflicts (D-1119).
+- P3-35 and P3-39 needed no answer: a steal checks its remainder, each damage cut checks its overflow, and stale marks and comments match the code.
+
+### The state of the build
+
+- The simulation version is 29, and the identity file changed in 9 runs. `make verify` passed on the Mac: 3397 tests, format, det-lint, the STE check, identity, content, atlas, and smoke.
+- The remote head is `640ad98` until the first push of this branch.
+
+### What is in flight
+
+- The first push, the Gitar pass, and then `make codex-review`.
+
+### Traps and gotchas
+
+- The capture session of this Mac stops at the first 1080 frame, because the display is smaller. Read the conflict frame in the artifact of the CI screen-test job.
+- `settings-conflict-1x` changes: the confirm cell takes the warning color. Take the new baseline from that artifact (D-733).
+
+### The questions that block progress
+
+None for this PR. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 stay open in the report.
+
+### The next concrete action
+
+Push the branch, open the PR, and follow the `gitar-review` skill.
+
+## Session 310: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #81 (PR-104), round 3. Repository: the-thing-below. Branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: author. Base: `4aad522`.
+
+### What this session did, and why
+
+- The repeat review gave `Blocked` for one Gitar item: the CI analysis of the RG 4 faults, which each `Blocked` record causes. The PR comment answers each review-gate job of the analysis.
+- The third review gives `Ready for owner merge` for the effective head `f66e314` in `docs/reviews/pr-81.md`, with no open finding. Each check of the record commit `e278b02` passed, `review-gate` included.
+- The report of the owner marks the nine findings of this PR as `COMPLETE - PR #81`: P2-2, P2-5, P3-1, P3-7, P3-18, P3-19, P3-20, P3-27, and P3-34.
+- The owner confirmed the merge after the summary in four sections (D-933, D-942).
+
+### The state of the build
+
+- The effective head is `f66e314`, and the review approves it. This entry is a commit of the metadata set, so the approval stands (D-610).
+
+### What is in flight
+
+- The Gitar pass of this commit, and then the gated auto-merge.
+
+### Traps and gotchas
+
+- Each `Blocked` record makes `review-gate` fail at RG 4, and the CI analysis of Gitar then names that fault. Answer it on the PR before the next review.
+
+### The questions that block progress
+
+None for this PR. P2-3, P3-4, P3-8, P3-9, P3-17, P3-22 to P3-26, P3-33, P3-35 to P3-37, and P3-39 stay open in the report.
+
+### The next concrete action
+
+After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
+
+## Session 309: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #81 (PR-104), round 3. Repository: the-thing-below. Local branch: `review/pr-81`; PR branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: reviewer. Base: `4aad522`.
+
+### What this session did, and why
+
+- Re-reviewed PR #81 at effective head `f66e314`.
+- Verified the Steam Deck measurement and each author answer to the Gitar dashboard and CI analysis items.
+- The CI analysis names three review-gate jobs. Each fails RG 4 because the review record says `Blocked`.
+- The implementation checks pass, and the review record now gives `Ready for owner merge`.
+
+### The state of the build
+
+- Effective head `f66e314`. Metadata head `c18ed2f` has green implementation checks, STE, and Gitar. The review-gate job fails RG 4 because the prior record says `Blocked`.
+
+### What is in flight
+
+- This review record and handoff entry will be committed together and pushed to `fix/pr-104-boot-and-rules`.
+
+### Traps and gotchas
+
+- RG 4 correctly rejects the earlier `Blocked` verdict. The next gate run must read this updated record.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review metadata, then verify the remote head and review-gate result.
+
+## Session 308: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #81 (PR-104), round 2. Repository: the-thing-below. Local branch: `review/pr-81`; PR branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: reviewer. Base: `4aad522`.
+
+### What this session did, and why
+
+- Re-reviewed PR #81 at effective head `f66e314`.
+- Verified the owner Steam Deck measurement in the author response and the prior Gitar dashboard answer.
+- The Gitar CI analysis claim names review-gate jobs. The current log shows only RG 4 fails because the review verdict is `Blocked`.
+- The review remains `Blocked` until the author answers this Gitar item (D-964).
+
+### The state of the build
+
+- Effective head `f66e314`. Metadata head `5297e6c` has green implementation checks, STE, and Gitar. `review-gate` fails RG 4 because the verdict is `Blocked`.
+
+### What is in flight
+
+- This review record and handoff entry are committed and pushed to `fix/pr-104-boot-and-rules`.
+- The author must answer the Gitar CI analysis item before a repeat review.
+
+### Traps and gotchas
+
+- The Gitar CI analysis calls the RG 4 result a validation fault. The log shows the gate correctly rejects the current `Blocked` verdict.
+
+### The questions that block progress
+
+None. The author answer to the Gitar item is required evidence under D-964.
+
+### The next concrete action
+
+The author answers the Gitar CI analysis item, then requests a repeat review.
+
 ## Session 307: 2026-09-25, Claude Code
 
 Author: Claude Code

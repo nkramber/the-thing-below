@@ -73,6 +73,27 @@ public sealed class DetLintGodotTextTests
         Assert.Contains("DrawString", findings[0].Detail, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// The regression test of finding P3-24. The remap screen showed the English engine name of
+    /// each key, and DL 8 read no word `Text` in the name of the call (D-1128).
+    /// </summary>
+    [Fact]
+    public void TheEngineNameOfAKeyFails()
+    {
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckGame(
+            """
+            using Godot;
+            namespace TheThingBelow.Game;
+            public static class Fixture
+            {
+                public static string NameOf(Key key) => OS.GetKeycodeString(key);
+            }
+            """);
+
+        Assert.Equal(["DL 8"], DetLintFixture.RuleIds(findings));
+        Assert.Contains("GetKeycodeString", findings[0].Detail, StringComparison.Ordinal);
+    }
+
     /// <summary>A call that sets a property by its name draws text without a member of the words (D-614).</summary>
     [Fact]
     public void ASetCallWithATextNameFails()
@@ -179,6 +200,7 @@ public sealed class DetLintGodotTextTests
     [InlineData("TooltipText", true)]
     [InlineData("Title", true)]
     [InlineData("DrawString", true)]
+    [InlineData("GetKeycodeString", true)]
     [InlineData("Texture", false)]
     [InlineData("TextureFilter", false)]
     [InlineData("Titles", false)]

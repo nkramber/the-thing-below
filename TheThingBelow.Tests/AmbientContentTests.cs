@@ -83,6 +83,33 @@ public sealed class AmbientContentTests
         Assert.Contains("live_particles", error.Message, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData(116, true)]
+    [InlineData(115, false)]
+    public void AFightCountsTheWeatherTheHitBurstAndTheSpellBurstAtOnce(int liveParticles, bool loads)
+    {
+        // D-523, D-1032: a lesson event plays the burst of its spell with the hit burst of its
+        // target. The weather of 4 times 24 motes, the hit burst of 10, and the spell burst of 10
+        // give 116. The map shows the weather and the carried fire of 6: 102. The count of the
+        // weather and the hit burst alone gave 106 and loaded a row of 115.
+        IReadOnlyList<ContentFile> ambient = [File(AmbientFixtures.Path, AmbientFixtures.Body())];
+
+        if (loads)
+        {
+            EffectContent effects = AmbientFixtures.Load(ambient, liveParticles: liveParticles);
+            Assert.Equal(96, effects.Ambient.WeatherOf(MapId())!.Particles);
+            return;
+        }
+
+        ContentException error = Assert.Throws<ContentException>(() => AmbientFixtures.Load(ambient, liveParticles: liveParticles));
+        Assert.Equal(AmbientFixtures.Path, error.File);
+        Assert.Equal("emitters", error.Field);
+        Assert.Contains(
+            "a fight on the map 'map.lit' shows 116 live particles: 96 of this weather, 10 of the largest hit burst, and 10 of the largest spell burst, and the row `live_particles` of `effects/budget.json` allows 115",
+            error.Message,
+            StringComparison.Ordinal);
+    }
+
     [Fact]
     public void AFogOfThreeLayersAndEveryOtherPassKeepInsideTheBudgetOfSixPasses()
     {
