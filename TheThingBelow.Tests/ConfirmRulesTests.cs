@@ -145,6 +145,38 @@ public sealed class ConfirmRulesTests
         Assert.Contains("the NPC has no talk that holds and no service, and PR-36 adds its hub lines", HubWalks.Messages(log));
     }
 
+    [Fact]
+    public void AfterATalkWithNothingToSayAChaserStandsForExactlyItsPaceThenMoves()
+    {
+        // D-1147: the child chases the post at (3, 3), so it steps east from (1, 2) on its first
+        // tick. The talk ends that step and holds it 40 ticks, its pace, and it steps on the 40th.
+        string post = """{ "id": "npc.hub_post", "facing": "north", "step_ticks": 32, "move": "route", "tiles": [{ "x": 3, "y": 3, "wait_ticks": 0 }] }""";
+        string child = """{ "id": "npc.hub_child", "facing": "west", "step_ticks": 32, "move": "chase", "x": 1, "y": 2, "areas": [{ "x": 1, "y": 2, "width": 3, "height": 1 }], "pace_ticks": 40, "target": "npc.hub_post" }""";
+        Simulation run = Start(HubMaps.Of(npcs: $"{child}, {post}"));
+        run.Step([]);
+        NpcState chaser = run.State.Party.Npcs.All[0];
+        Assert.Equal(StepDirection.East, chaser.Stepping);
+
+        HubWalks.Confirm(run);
+
+        AssertHeldThenMoves(run, chaser, 40);
+    }
+
+    [Fact]
+    public void AfterATalkARouteNpcOnARouteTileHoldsTheWaitOfThatTile()
+    {
+        // D-1147: the porter waits 25 ticks at (1, 2) when it enters. A talk on the second tick
+        // starts the wait of that route tile again, so the porter steps 25 ticks after the talk.
+        string waiting = """{ "id": "npc.hub_porter", "facing": "east", "step_ticks": 32, "move": "route", "tiles": [{ "x": 1, "y": 2, "wait_ticks": 25 }, { "x": 3, "y": 2, "wait_ticks": 0 }] }""";
+        Simulation run = Start(HubMaps.Of(npcs: waiting));
+        run.Step([]);
+        NpcState porter = Assert.Single(run.State.Party.Npcs.All);
+
+        HubWalks.Confirm(run);
+
+        AssertHeldThenMoves(run, porter, 25);
+    }
+
     [Theory]
     [InlineData("chest")]
     [InlineData("save_point")]
@@ -262,6 +294,21 @@ public sealed class ConfirmRulesTests
         Assert.Contains("a confirm of the map found the world held, and it ended with the tick", HubWalks.Messages(log));
         Assert.False(run.State.MenuOpen);
         Assert.Empty(run.TakeOpenedServices());
+    }
+
+    /// <summary>Steps the run with no input, and checks that the NPC stands for the hold of a talk and steps on its last tick (D-1147).</summary>
+    private static void AssertHeldThenMoves(Simulation run, NpcState npc, int hold)
+    {
+        Assert.Equal(hold, npc.WaitTicks);
+        TilePoint at = npc.At;
+        for (int tick = 1; tick < hold; tick += 1)
+        {
+            run.Step([]);
+            Assert.True(npc.Stepping is null && npc.At == at, $"The NPC moved {tick} ticks after the talk, and its hold is {hold} ticks.");
+        }
+
+        run.Step([]);
+        Assert.NotNull(npc.Stepping);
     }
 
     /// <summary>A hub with the keeper, whose rest the flag of these tests closes.</summary>

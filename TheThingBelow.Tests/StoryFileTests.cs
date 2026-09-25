@@ -239,7 +239,6 @@ public sealed class StoryFileTests
     [InlineData("""{ "id": "step.s1", "kind": "show", "actor": "npc.hub_keeper", "at": "marker.hub_corner", "facing": "east" }""", "shows the NPC 'npc.hub_keeper', which this map places")]
     [InlineData("""{ "id": "step.s1", "kind": "move", "actor": "npc.hub_stranger", "path": ["east"] }""", "names the NPC 'npc.hub_stranger', which this map does not place and no earlier show put on the map")]
     [InlineData("""{ "id": "step.s1", "kind": "face", "actor": "npc.hub_stranger", "facing": "east" }""", "names the NPC 'npc.hub_stranger', which this map does not place")]
-    [InlineData("""{ "id": "step.s1", "kind": "say", "speaker": "npc.hub_stranger", "line": "line.test_greet" }""", "names the NPC 'npc.hub_stranger', which this map does not place")]
     public void AnNpcActorThatBreaksTheRulesOfItsMapFailsWithTheMapAndTheStep(string step, string reason)
     {
         // D-1006: an NPC of the map acts where it stands, and a show names a scene-only NPC.
@@ -250,6 +249,26 @@ public sealed class StoryFileTests
         Assert.Contains(reason, error.Message, StringComparison.Ordinal);
         Assert.Contains("hub-test.json", error.Message, StringComparison.Ordinal);
         Assert.Contains("step 0", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ALineOfAnNpcWithNoBodyOnTheMapLoads()
+    {
+        // D-1146: a voice through a door speaks with no body on the map, so the load checks the
+        // kind of the id alone.
+        StoryContent story = NpcStory("""{ "id": "step.s1", "kind": "say", "speaker": "npc.hub_voice", "line": "line.test_greet" }""");
+
+        story.RequireScenesOf(NpcMap());
+        Assert.Equal("npc.hub_voice", Assert.IsType<SayStep>(Assert.Single(story.Scenes).Steps[0]).Speaker?.Id?.Value);
+    }
+
+    [Fact]
+    public void ALineWithASpeakerOfAnotherKindFails()
+    {
+        // D-997 and D-1146: a speaker is `none`, `lead`, a cast member, or an NPC, and no other kind.
+        ContentException error = Assert.Throws<ContentException>(() => NpcStory("""{ "id": "step.s1", "kind": "say", "speaker": "patrol.hub_voice", "line": "line.test_greet" }"""));
+
+        Assert.Contains("the speaker 'patrol.hub_voice' is not", error.Message, StringComparison.Ordinal);
     }
 
     [Theory]

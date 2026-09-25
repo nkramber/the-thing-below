@@ -314,14 +314,21 @@ public sealed class NpcState
     public void WaitBlocked() => this.WaitTicks = this.Npc.StepTicks;
 
     /// <summary>
-    /// Ends the step that runs, and turns this NPC to the lead that talks with it (D-1139). The NPC
-    /// stays on <see cref="At"/>, the tile that a talk reads.
+    /// Ends the step that runs, turns this NPC to the lead that talks with it, and holds it before
+    /// its next move (D-1139, D-1147). The NPC stays on <see cref="At"/>, the tile that a talk reads.
     /// </summary>
     /// <param name="toward">The direction from this NPC to the lead.</param>
+    /// <remarks>
+    /// The hold is the pace of a wander NPC or a chaser. A route NPC that stands on a route tile
+    /// holds the wait of that tile, and one between two route tiles holds the wait of the tile that
+    /// it walks toward (D-1147). The hold counts world ticks, so a window of the talk adds its own
+    /// time on top.
+    /// </remarks>
     public void FaceTalker(StepDirection toward)
     {
         this.EndStep();
         this.Turn(toward);
+        this.WaitTicks = this.HoldAfterTalk();
     }
 
     /// <summary>Moves this NPC one tile in a move step of a story scene, with no step to draw (D-1006, D-1012).</summary>
@@ -452,6 +459,25 @@ public sealed class NpcState
         }
 
         return most;
+    }
+
+    /// <summary>Gives the ticks that this NPC waits after a talk (D-1147).</summary>
+    private int HoldAfterTalk()
+    {
+        if (this.Npc.PaceTicks is int pace)
+        {
+            return pace;
+        }
+
+        foreach (RouteStop stop in this.Npc.Route)
+        {
+            if (stop.At == this.At)
+            {
+                return stop.WaitTicks;
+            }
+        }
+
+        return this.Npc.Route[this.Target].WaitTicks;
     }
 
     /// <summary>

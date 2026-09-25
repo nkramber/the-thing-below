@@ -97,7 +97,9 @@ public static class SimulationVersion
     /// for the slot save at the open save service (D-390, D-1132, D-1141). A move step and a face step of a story scene
     /// can name an NPC of the map, a show step can put a scene-only NPC on a marker, and an NPC that a story scene
     /// leaves outside its home walks home on a shortest path after it (D-1006, D-1140). The state hash and the
-    /// snapshot hold the walk home of each NPC.
+    /// snapshot hold the walk home of each NPC. A line can name an NPC speaker with no body on the map (D-1146). After
+    /// a talk, an NPC holds its pace, or a route NPC the wait of its route tile, before it moves again, and the
+    /// confirm follows the walk of the NPCs in the world tick (D-1147).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number

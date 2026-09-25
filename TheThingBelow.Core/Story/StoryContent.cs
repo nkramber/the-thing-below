@@ -17,9 +17,10 @@ namespace TheThingBelow.Core.Story;
 /// hide of an actor that no show put there. The rules check the tiles in play, because the place
 /// of an actor depends on the run.
 /// <para>
-/// An NPC actor depends on the map of the trigger (D-1006). A move, a face, or a line of an NPC
-/// needs an NPC that the map places or that an earlier show put on the map. A show of an NPC needs
-/// a scene-only NPC, which the map does not place. <see cref="RequireScenesOf"/> checks both for
+/// An NPC actor depends on the map of the trigger (D-1006). A move or a face of an NPC needs an
+/// NPC that the map places or that an earlier show put on the map. A show of an NPC needs a
+/// scene-only NPC, which the map does not place. A line can name an NPC speaker with no body on
+/// the map, such as a voice through a door, so the load checks the kind of its id alone (D-1146). <see cref="RequireScenesOf"/> checks both for
 /// each map that starts the story scene.
 /// </para>
 /// </remarks>
@@ -214,8 +215,8 @@ public sealed class StoryContent
     /// <summary>
     /// Walks the steps of one story scene that a trigger of the map starts, and refuses an NPC actor
     /// that breaks the rules of the map (D-1006). A show names a scene-only NPC, which the map does
-    /// not place. A move, a face, and a line of an NPC name an NPC that the map places or that an
-    /// earlier show put on the map.
+    /// not place. A move and a face of an NPC name an NPC that the map places or that an earlier
+    /// show put on the map. A line of an NPC needs no body on the map (D-1146).
     /// </summary>
     private static void RequireNpcActorsOf(GameMap map, string field, StoryScene scene)
     {
@@ -246,9 +247,6 @@ public sealed class StoryContent
                 case FaceStep face:
                     named = face.Actor.Id;
                     break;
-                case SayStep say:
-                    named = say.Speaker?.Id;
-                    break;
             }
 
             if (SceneActor.IsNpcId(named) && !shown.Contains(named!.Value) && !map.PlacesNpc(named))
@@ -277,7 +275,7 @@ public sealed class StoryContent
                     RequireOnMap(scene, field, face.Actor, battle, shown);
                     break;
                 case SayStep say:
-                    // The map of each trigger checks a line of an NPC (D-1006).
+                    // A line of an NPC needs no body on the map, so the reader checks the kind of its id alone (D-1146).
                     if (say.Speaker?.Id is ContentId speaker && !SceneActor.IsNpcId(speaker))
                     {
                         RequireCast(scene, $"{field}.speaker", speaker, battle);

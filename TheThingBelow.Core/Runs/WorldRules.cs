@@ -20,7 +20,7 @@ namespace TheThingBelow.Core.Runs;
 /// or not the player moves (D-162, D-1137).
 /// <para>
 /// The tick runs in one fixed order: the beat of a mark, the party, the encounter of a step
-/// into a body, the confirm, and then the NPCs, the enemies, and the sight (D-168, D-1131,
+/// into a body, the NPCs, the confirm, and then the enemies and the sight (D-168, D-1131,
 /// D-1137). An encounter
 /// starts its battle on the same tick. While the encounter runs, no map system ticks, so the
 /// patrols, the NPCs, and the grace time all stand still (D-531). A snapshot of save format 3
@@ -33,9 +33,11 @@ namespace TheThingBelow.Core.Runs;
 /// the encounter of the same step (D-1004).
 /// </para>
 /// <para>
-/// The confirm of the player acts only while the lead stands (D-1131). A talk that starts a
-/// story scene or a service that opens holds the world from that tick, so no NPC and no enemy
-/// walks after it. A confirm during a step of the lead ends with a log line.
+/// The confirm of the player acts only while the lead stands (D-1131). It follows the walk of
+/// the NPCs, so the hold of a talk starts after the NPC walk of its tick, and the NPC moves again
+/// on the world tick that ends its hold (D-1147). A talk that starts a story scene or a service
+/// that opens holds the world from that tick, so no enemy walks after it. A confirm during a step
+/// of the lead ends with a log line.
 /// </para>
 /// <para>
 /// A step of the party and a step of an enemy each take the debug level, and a sight and an
@@ -119,6 +121,7 @@ public static class WorldRules
             return;
         }
 
+        AddNpcEntries(state, party, log);
         if (party.TakeConfirm())
         {
             if (party.Stepping is not null)
@@ -131,7 +134,6 @@ public static class WorldRules
             }
         }
 
-        AddNpcEntries(state, party, log);
         AddEnemyEntries(state, patrols, party, log);
     }
 

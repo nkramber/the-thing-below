@@ -9,8 +9,9 @@ namespace TheThingBelow.Core.Runs;
 
 /// <summary>The confirm rule of the map: the player confirms while the lead faces a tile (D-1131).</summary>
 /// <remarks>
-/// The faced tile is the tile in front of the lead. An NPC that stands there ends its step and
-/// turns to face the lead, and then its talk trigger fires when one holds (D-1005, D-1139). With
+/// The faced tile is the tile in front of the lead. An NPC that stands there ends its step, turns
+/// to face the lead, and holds before its next move, and then its talk trigger fires when one
+/// holds (D-1005, D-1139, D-1147). With
 /// no such trigger, the service of the NPC opens. With neither, a log line says so, and PR-36
 /// adds the hub lines that the dialogue box shows.
 /// <para>
