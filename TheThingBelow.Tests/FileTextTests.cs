@@ -22,7 +22,7 @@ public sealed class FileTextTests
         var endless = new EndlessStream();
 
         StorageException error = Assert.Throws<StorageException>(
-            () => FileText.ReadStream(endless, "a-test-file.json", Cap, "the file of a test"));
+            () => FileText.ReadStream(endless, "a-test-file.json", Cap, "the file of a test", 0));
 
         Assert.Equal("a-test-file.json", error.Path);
         Assert.Contains($"holds more than {Cap} bytes", error.Message, StringComparison.Ordinal);
@@ -34,7 +34,7 @@ public sealed class FileTextTests
     {
         using MemoryStream full = new(new byte[Cap]);
 
-        Assert.Equal((int)Cap, FileText.ReadStream(full, "a-test-file.json", Cap, "the file of a test").Length);
+        Assert.Equal((int)Cap, FileText.ReadStream(full, "a-test-file.json", Cap, "the file of a test", Cap).Length);
     }
 
     /// <summary>A stream that gives a byte of the letter a on each read, with no end.</summary>

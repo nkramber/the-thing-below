@@ -38,7 +38,7 @@ internal static class FileText
                 throw StorageException.ForPath(path, $"{what} holds {file.Length} bytes, and the game reads {mostBytes} bytes at most");
             }
 
-            return ReadStream(file, path, mostBytes, what);
+            return ReadStream(file, path, mostBytes, what, file.Length);
         }
         catch (Exception fault) when (StorageFaults.IsFileFault(fault))
         {
@@ -46,11 +46,12 @@ internal static class FileText
         }
     }
 
-    /// <summary>Reads the text of one open stream, and holds no more than the cap in memory.</summary>
+    /// <summary>Reads the text of one open stream, and holds no more than the cap in memory, in a buffer of the size of the stream.</summary>
     /// <param name="stream">The stream, which can grow while the read runs.</param>
     /// <param name="path">The full path of the file, for the error.</param>
     /// <param name="mostBytes">The largest size that the kind of the file takes, in bytes.</param>
     /// <param name="what">The kind of the file, for the error.</param>
+    /// <param name="sizeHint">The length of the stream when the read starts, which sizes the buffer, or 0 when the stream gives none.</param>
     /// <returns>The text.</returns>
     /// <exception cref="StorageException">The stream holds more bytes than the cap, or a byte is not UTF-8 (T-2).</exception>
     /// <remarks>
@@ -58,9 +59,11 @@ internal static class FileText
     /// after the check, and the read took each byte. The read therefore counts each byte, and it
     /// stops at the first byte past the cap.
     /// </remarks>
-    internal static string ReadStream(Stream stream, string path, long mostBytes, string what)
+    internal static string ReadStream(Stream stream, string path, long mostBytes, string what, long sizeHint)
     {
-        using MemoryStream bytes = new();
+        // A buffer of no set size doubles as it fills, and a file near its cap took twice its size
+        // in memory. The buffer takes the length of the stream, and the counted loop still holds the cap.
+        using MemoryStream bytes = new((int)Math.Clamp(sizeHint, 0, Math.Min(mostBytes, int.MaxValue)));
         byte[] chunk = new byte[ChunkBytes];
         long total = 0;
         int read;

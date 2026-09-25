@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 292: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #79, round 1. Repository: the-thing-below. Local branch: `review/pr-79`; PR branch: `fix/pr-102-gate-hygiene`. PR: #79 (PR-102). Role: reviewer. Base: `5b42cf0`.
+
+### What this session did, and why
+
+- Reviewed all 29 changed paths from merge base `5b42cf0` through effective head `9501183`.
+- Verified the Gitar case-variant fix and the author answers to the RG 3 CI claims.
+- No in-scope defect was found. The review record gives `Ready for owner merge` for `9501183`.
+
+### The state of the build
+
+- The remote code head is `9501183`. `make verify` passed on macOS arm64: 3,256 tests and all local gates.
+- CI passed build, test, format, smoke, det-lint, replay identity, export, screen-test, and STE. RG 3 failed because the review record was absent.
+
+### What is in flight
+
+- This review record and handoff entry will be committed together and pushed to the PR branch.
+- A fresh `review-gate` check must read the published record.
+
+### Traps and gotchas
+
+- The RG 3 failure is the expected state before this review record reaches the PR head.
+- The Gitar clean approval has no item and needs no answer (D-964).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff entry. Fetch, confirm the remote head, and read the fresh review-gate result.
+
 ## Session 291: 2026-09-25, Claude Code
 
 Author: Claude Code
