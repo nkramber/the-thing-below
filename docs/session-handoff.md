@@ -1,3 +1,39 @@
+## Session 299: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #80 (PR-103), round 6. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: #80. Role: author. Base: `5c1db06`.
+
+### What this session did, and why
+
+- Every CI check of `401c36d` passed but `screen-test` and `review-gate`. The `review-gate` fault is RG 3 alone: the review record waits for the review of the other provider.
+- `screen-test` found 101 of 108 captures changed. The author read a frame of each group against its baseline (D-784):
+  - The map, walk, still, scroll, pit, menu, notice, settings, and transition frames draw the map. Each one loses the halo of the wall torch (D-1097), and the carried light changes (D-1091).
+  - The battle frames move their backdrop drift and their effects a few pixels, because the fight counts the world tick now (D-1083), and a menu of the capture walk holds that tick back.
+- The captures of CI run 36104175330 are the new baseline (D-733). The `screens` command of Tools gives a match for each of the 108 captures.
+- Gitar approved `401c36d` with no open finding.
+
+### The state of the build
+
+- Each CI check of `401c36d` but `screen-test` and `review-gate` passed. This round changes the baseline alone.
+- The remote head holds this entry.
+
+### What is in flight
+
+- The CI and the Gitar pass of the round 6 push. Then `make codex-review PR=80`.
+
+### Traps and gotchas
+
+- `gh pr checks --watch` ends at the first failed check, so a failed `review-gate` ends the watch early. Poll until no check is pending.
+- No capture shows the pause of a fight or the line of an item. The smoke session reads both.
+
+### The questions that block progress
+
+None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
+
+### The next concrete action
+
+Poll the Gitar check and the CI of the round 6 push. When each check but `review-gate` passes, run `make codex-review PR=80` in the background.
+
 ## Session 298: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -327,40 +363,3 @@ None.
 ### The next concrete action
 
 Wait for the owner to confirm the merge of PR #78. Then check out this branch in the shared checkout, merge `origin/main`, push, and restart CI. Then the Gitar poll, a green `screen-test`, and `make codex-review PR=79` in the background.
-
-## Session 289: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #79 (PR-102), round 1. Repository: the-thing-below. Branch: `fix/pr-102-gate-hygiene`. PR: #79. Role: author. Base: `c154ddd`.
-
-### What this session did, and why
-
-- The owner gave a repository review report, outside the repository, with answers. For this task, a PR holds several findings (D-1081).
-- The owner chose the gate findings alone, because PR #78 changes the input code of P1-1 and P2-6.
-- Fixed P2-1 (F-109), P3-10 (F-110), P3-11 (F-111), P3-30 (F-112), P3-29 (F-113), P3-31 (F-114, D-1086), and P3-32 (F-115, D-1087).
-- Recorded the answers on P1-2 (D-1082), P1-1 (D-1083), P2-6 (D-1084), and P2-4 (D-1085). No Game or Core code changed.
-- A scratch repository reproduced P2-1 and P3-10 on the old step, and the new step passed. The 20 new test cases failed on the old code.
-
-### The state of the build
-
-- Base `c154ddd`. `make build test format lint identity content atlas` passed locally: 3235 tests. `make smoke` did not run, and CI runs it.
-
-### What is in flight
-
-- This round opens PR #79, and it waits for Gitar, then `make codex-review PR=79`.
-- PR #78 (PR-101) is open. It uses D-1075 to D-1079, F-107, Sessions 284 to 286, and phase section 7.37.
-
-### Traps and gotchas
-
-- When PR #78 merges first, rebase. PR-102 moves to phase section 7.38 and to item 39 of the design sequence. Renumber each later item.
-- Cite PR-101 in place of "PR #78" after that merge. A citation of PR-101 fails REF 1 until then.
-- `.claude/settings.local.json` takes no backticks in a document, because REF 2 finds no such file.
-- `CLAUDE.md` holds 16355 of 16384 bytes.
-
-### The questions that block progress
-
-None for PR-102. The owner asked for suggestions to approve on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34. The PR that takes each finding asks them.
-
-### The next concrete action
-
-Push, open PR #79, and run the Gitar poll of the `gitar-review` skill in the background.

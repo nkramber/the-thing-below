@@ -1,4 +1,41 @@
 # Session handoff archive
+## Session 289: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #79 (PR-102), round 1. Repository: the-thing-below. Branch: `fix/pr-102-gate-hygiene`. PR: #79. Role: author. Base: `c154ddd`.
+
+### What this session did, and why
+
+- The owner gave a repository review report, outside the repository, with answers. For this task, a PR holds several findings (D-1081).
+- The owner chose the gate findings alone, because PR #78 changes the input code of P1-1 and P2-6.
+- Fixed P2-1 (F-109), P3-10 (F-110), P3-11 (F-111), P3-30 (F-112), P3-29 (F-113), P3-31 (F-114, D-1086), and P3-32 (F-115, D-1087).
+- Recorded the answers on P1-2 (D-1082), P1-1 (D-1083), P2-6 (D-1084), and P2-4 (D-1085). No Game or Core code changed.
+- A scratch repository reproduced P2-1 and P3-10 on the old step, and the new step passed. The 20 new test cases failed on the old code.
+
+### The state of the build
+
+- Base `c154ddd`. `make build test format lint identity content atlas` passed locally: 3235 tests. `make smoke` did not run, and CI runs it.
+
+### What is in flight
+
+- This round opens PR #79, and it waits for Gitar, then `make codex-review PR=79`.
+- PR #78 (PR-101) is open. It uses D-1075 to D-1079, F-107, Sessions 284 to 286, and phase section 7.37.
+
+### Traps and gotchas
+
+- When PR #78 merges first, rebase. PR-102 moves to phase section 7.38 and to item 39 of the design sequence. Renumber each later item.
+- Cite PR-101 in place of "PR #78" after that merge. A citation of PR-101 fails REF 1 until then.
+- `.claude/settings.local.json` takes no backticks in a document, because REF 2 finds no such file.
+- `CLAUDE.md` holds 16355 of 16384 bytes.
+
+### The questions that block progress
+
+None for PR-102. The owner asked for suggestions to approve on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34. The PR that takes each finding asks them.
+
+### The next concrete action
+
+Push, open PR #79, and run the Gitar poll of the `gitar-review` skill in the background.
+
 ## Session 288: 2026-09-25, Codex
 
 Author: Codex
