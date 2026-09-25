@@ -1,3 +1,36 @@
+## Session 293: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #79 (PR-102), round 4. Repository: the-thing-below. Branch: `fix/pr-102-gate-hygiene`. PR: #79. Role: author. Base: `5b42cf0`.
+
+### What this session did, and why
+
+- Gitar approved the merge head `9501183` with no new finding. The CI claim of RG 3 has its answer.
+- Every CI check passed on `9501183` except RG 3, `screen-test` included.
+- `make codex-review PR=79` ran. The record `docs/reviews/pr-79.md` gives `Ready for owner merge` for `9501183` with no finding, and `review-gate` passed on `81769c3`.
+- The command gave `fault`: it named `f81f010` as the effective head. `BranchCommits` runs `git log --name-only`, and git lists no path for a merge commit by default. With `--first-parent -m`, the merge lists the files of PR-101. The gate reads the merge through `git show` and passed.
+- The report of the owner marks P2-1, P3-10, P3-11, P3-29, P3-30, P3-31, and P3-32 as complete in PR #79, and P1-2 as the decision D-1082.
+
+### The state of the build
+
+- Effective head `9501183`. The remote head holds this metadata commit.
+
+### What is in flight
+
+- The merge question to the owner (D-933, D-942).
+
+### Traps and gotchas
+
+- A merge of `main` into a PR branch makes `make codex-review` give `fault` until `BranchCommits` reads merge commits.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Ask the owner to confirm the merge. Then turn on the auto-merge under `docs/runbooks/merge.md`.
+
 ## Session 292: 2026-09-25, Codex
 
 Author: Codex
@@ -312,38 +345,3 @@ None.
 ### The next concrete action
 
 Read the Gitar pass of the PR head, and answer each Gitar item. This machine has no `codex` or `gh` command, so the owner runs `make codex-review PR=<n>` for the cross-provider review.
-
-## Session 283: 2026-09-24, Codex
-
-Author: Codex
-Session: reviewer PR #77, round 2. Repository: the-thing-below. Branch: `docs/pr-100-gitar-resume`. PR: #77 (PR-100). Role: reviewer. Base: `58dadb5`.
-
-### What this session did, and why
-
-- Re-reviewed PR #77 at effective head `066901e` after the author fixed P2-1.
-- Verified that command E reads the Gitar completion time and rejects a check after 900 seconds (D-1074).
-- Checked the current Gitar pass and the CI results. The Gitar dashboard approves the head with no finding (D-964).
-- Updated `docs/reviews/pr-77.md`. It closes P2-1 and gives `Ready for owner merge` for `066901e`.
-
-### The state of the build
-
-- Base and merge base: `58dadb5`. Effective and remote head before this metadata commit: `066901e`.
-- CI run `36071384377` passed build, test, format, smoke, det-lint, replay identity, screen-test, coverage, changed-paths, and STE. Matrix jobs skipped for this documentation change.
-- `review-gate` run `36071381473` failed only because the review record held the prior verdict. It must read this record after publication.
-
-### What is in flight
-
-- This metadata commit holds the repeat review and this entry. Fresh `review-gate` evidence must pass after publication.
-
-### Traps and gotchas
-
-- The review record keeps `Changes required` under `Earlier verdicts` and one current verdict under `Verdict`.
-- Session 273 moves to `docs/session-handoff-archive.md` to keep 10 entries in this file.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and this entry to `docs/pr-100-gitar-resume`. Fetch, confirm the remote head, and read the new `review-gate` result.
