@@ -115,6 +115,15 @@ public sealed class ShownCombatant
     }
 }
 
+/// <summary>One character as it stood before the tick that started a fight, which the start view reads (D-776).</summary>
+/// <param name="Record">The record of the character.</param>
+/// <param name="Level">The level.</param>
+/// <param name="Mp">The MP.</param>
+/// <param name="Health">The health.</param>
+/// <param name="Row">The row.</param>
+/// <param name="Statuses">A copy of the statuses.</param>
+public sealed record StartMember(CharacterRecord Record, int Level, int Mp, int Health, BattleRow Row, IReadOnlyList<StatusKind> Statuses);
+
 /// <summary>
 /// The fight as the screen shows it: each combatant with the health, the row, the place, and
 /// the statuses of the events that the screen played (D-111, D-532).
@@ -151,33 +160,42 @@ public sealed class BattleView
     /// enemy at full health in the row of its group entry (D-535, D-760).
     /// </summary>
     /// <param name="state">The run, with the battle that started.</param>
+    /// <param name="party">The characters as they stood before the tick that started the fight, which <see cref="PartyOf"/> gave.</param>
     /// <returns>The view before the first event after the start.</returns>
-    /// <exception cref="ArgumentNullException">The state is null (T-2).</exception>
-    /// <exception cref="InvalidOperationException">No battle runs (T-2).</exception>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">No battle runs, or the count of characters differs (T-2).</exception>
     /// <remarks>
-    /// The party state keeps the values of the start until the fight ends, because the rules
-    /// copy the health and the statuses back at the end alone (D-776). A group entry names the
-    /// row and the wait of each enemy (D-760).
+    /// The rules copy the health and the statuses back to the party at the end of a fight alone
+    /// (D-776). An ambush that downs each character before the first turn of a character ends the
+    /// fight in the tick that starts it, so the party state then holds the wipe, and a view from it
+    /// showed everyone down before the blows played. The view thus reads the values of the party
+    /// from before that tick. A group entry names the row and the wait of each enemy (D-760).
     /// </remarks>
-    public static BattleView AtStart(RunState state)
+    public static BattleView AtStart(RunState state, IReadOnlyList<StartMember> party)
     {
         ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(party);
 
         Battle battle = state.Battle ?? throw new InvalidOperationException(
             $"The battle screen builds the start of a fight at tick {state.Tick}, and no battle runs (T-2).");
+        if (party.Count != battle.Party.Count)
+        {
+            throw new InvalidOperationException(
+                $"The battle screen builds the start of a fight at tick {state.Tick} from {party.Count} characters, and the fight holds {battle.Party.Count} (T-2).");
+        }
 
         var shownParty = new ShownCombatant[battle.Party.Count];
         for (int slot = 0; slot < shownParty.Length; slot += 1)
         {
             Combatant combatant = battle.Party[slot];
-            PartyMember member = state.Characters.Members[slot];
+            StartMember member = party[slot];
             shownParty[slot] = new ShownCombatant(
                 combatant.Target,
                 combatant.Id,
                 combatant.FullHealth,
                 member.Health,
                 member.Row,
-                member.Down ? CombatantPlace.Down : CombatantPlace.Field,
+                member.Health == 0 ? CombatantPlace.Down : CombatantPlace.Field,
                 member.Statuses);
             shownParty[slot].Grow(member.Record, member.Level, member.Mp);
         }
@@ -198,6 +216,24 @@ public sealed class BattleView
         }
 
         return new BattleView(shownParty, shownEnemies);
+    }
+
+    /// <summary>Copies the values of each character that the start view of a fight reads (D-776).</summary>
+    /// <param name="state">The run, on the walk.</param>
+    /// <returns>The values, in slot order.</returns>
+    /// <exception cref="ArgumentNullException">The state is null (T-2).</exception>
+    public static IReadOnlyList<StartMember> PartyOf(RunState state)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+
+        var party = new StartMember[state.Characters.Members.Count];
+        for (int slot = 0; slot < party.Length; slot += 1)
+        {
+            PartyMember member = state.Characters.Members[slot];
+            party[slot] = new StartMember(member.Record, member.Level, member.Mp, member.Health, member.Row, [.. member.Statuses]);
+        }
+
+        return party;
     }
 
     /// <summary>

@@ -48,6 +48,7 @@ public sealed class GameRun
     private ContentId? lastCommon;
     private BattleView? view;
     private BattleEvent? playing;
+    private IReadOnlyList<StartMember>? startParty;
     private long playingSince;
 
     private GameRun(Simulation simulation, RunRecorder recorder, ContentSet content, MessageSpeed messageSpeed)
@@ -165,8 +166,22 @@ public sealed class GameRun
     public bool TorchWorks =>
         !this.MenuOpenNextTick &&
         !this.InBattle &&
-        !this.simulation.State.Story.Running &&
+        !this.StoryRunning &&
         this.simulation.State.Characters.CountOf(TorchRules.Torch) > 0;
+
+    /// <summary>True while a story scene runs, which takes no step and no menu intent of the player (D-1009).</summary>
+    public bool StoryRunning => this.simulation.State.Story.Running;
+
+    /// <summary>
+    /// True when the menu action and the map action open a window: on the walk, with no menu, no
+    /// fight, no encounter, and no story scene (D-162, D-986, D-1009).
+    /// </summary>
+    /// <remarks>
+    /// The rules refuse the open of the menu while a story scene runs, so the host opens no
+    /// window then (T-2). No map of this build holds a trigger yet, and the first one would
+    /// otherwise crash at the menu button.
+    /// </remarks>
+    public bool MenuWorks => !this.MenuOpenNextTick && !this.InBattle && !this.StoryRunning;
 
     /// <summary>
     /// The state of the run, which a report command of the debug console reads (D-171, D-724).
@@ -202,7 +217,7 @@ public sealed class GameRun
     public BattleEvent? PlayingEvent => this.playing;
 
     /// <summary>The ticks since the screen started <see cref="PlayingEvent"/> (D-829).</summary>
-    public int PlayingTicks => this.playing is null ? 0 : (int)Math.Min(int.MaxValue, this.simulation.Tick - this.playingSince);
+    public int PlayingTicks => this.playing is null ? 0 : (int)Math.Min(int.MaxValue, this.FightTick - this.playingSince);
 
     /// <summary>Ends the hold of the event that the screen plays, so the next one plays on the next tick (D-866).</summary>
     /// <remarks>
@@ -217,7 +232,7 @@ public sealed class GameRun
             return false;
         }
 
-        this.playingSince = this.simulation.Tick - BattleTimes.HoldTicksOf(this.pace, this.playing.Kind, this.MessageSpeed);
+        this.playingSince = this.FightTick - BattleTimes.HoldTicksOf(this.pace, this.playing.Kind, this.MessageSpeed);
         return true;
     }
 
@@ -225,12 +240,69 @@ public sealed class GameRun
     /// True when the screen has played every event and a character has the turn. Game takes
     /// the next command of the player only then, so this is the input gate of a battle (D-532).
     /// </summary>
+    /// <remarks>
+    /// A pause of the fight closes the gate, because the rules refuse a battle intent while the
+    /// menu is open, and a command then crashed the session (D-162, D-1083).
+    /// </remarks>
     public bool TakesBattleCommand =>
         this.EventsPlayed
+        && !this.MenuOpenNextTick
         && this.simulation.State.Battle is Battle battle
         && battle.Outcome == BattleOutcome.Running
         && battle.Next() is Combatant next
         && next.Side == BattleSide.Party;
+
+    /// <summary>
+    /// The clock of a fight on screen: the count of ticks in which the world ran (D-650). The
+    /// playback of the events, the hand-off, and the battle screen read it, so the pause of a
+    /// fight holds each of them (D-1083).
+    /// </summary>
+    /// <remarks>
+    /// The tick of the run rises under a menu, and a fight that counted it played its events
+    /// on under the pause and then opened the command menu (D-1083).
+    /// </remarks>
+    public long FightTick => this.simulation.State.WorldTick;
+
+    /// <summary>True while the menu pauses a fight or its encounter, with the queued intents of this frame applied (D-1083).</summary>
+    public bool FightPaused => this.InBattle && this.MenuOpenNextTick;
+
+    /// <summary>
+    /// Gives the intent that the menu action or the back action makes in a fight (D-1083). The
+    /// menu action pauses the fight, and the menu action or the back action ends the pause.
+    /// </summary>
+    /// <param name="action">The name of the action, such as `menu`.</param>
+    /// <returns>The open or the close of the menu, or no value when the action makes no intent now.</returns>
+    /// <exception cref="ArgumentException">The name is empty (T-2).</exception>
+    /// <remarks>
+    /// The method gives no intent while the queue holds a menu intent that the rules have yet to
+    /// apply, because a second open meets the refusal of the rules (D-1083, T-2). It gives none
+    /// while the queue holds the wait intent of the end of the fight either, because the fight
+    /// would end under the pause, and the map would come back held with no window. A story
+    /// scene takes no menu intent (D-1009), so the method gives none while one runs.
+    /// </remarks>
+    public Intent? PauseIntentOf(string action)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(action);
+
+        bool menu = string.CompareOrdinal(action, InputActions.Menu) == 0;
+        bool back = string.CompareOrdinal(action, InputActions.Cancel) == 0;
+        if ((!menu && !back)
+            || !this.InBattle
+            || this.simulation.State.Story.Running
+            || this.Queued(IntentIds.OpenMenu)
+            || this.Queued(IntentIds.CloseMenu)
+            || this.Queued(IntentIds.WaitBattleEnd))
+        {
+            return null;
+        }
+
+        if (this.MenuOpen)
+        {
+            return Intent.OfPlayer(IntentIds.CloseMenu);
+        }
+
+        return menu ? Intent.OfPlayer(IntentIds.OpenMenu) : null;
+    }
 
     /// <summary>True when the screen has played the events of a wipe, and the host reloads (D-397, D-776).</summary>
     public bool WipeReady =>
@@ -244,7 +316,7 @@ public sealed class GameRun
     /// <summary>True when no event plays, or the one that plays reached its end (D-829).</summary>
     private bool PlayedOut =>
         this.playing is null
-        || this.simulation.Tick - this.playingSince >= BattleTimes.HoldTicksOf(this.pace, this.playing.Kind, this.MessageSpeed);
+        || this.FightTick - this.playingSince >= BattleTimes.HoldTicksOf(this.pace, this.playing.Kind, this.MessageSpeed);
 
     /// <summary>Starts a run over a content set.</summary>
     /// <param name="content">The content of this build, which gives the content hash (D-648).</param>
@@ -368,6 +440,10 @@ public sealed class GameRun
                 intents.Add(held);
             }
 
+            // The start view of a fight reads the party from before the tick that starts it, because
+            // an ambush that wipes the party ends the fight inside that tick (D-776).
+            IReadOnlyList<StartMember>? before = this.simulation.State.Battle is null ? BattleView.PartyOf(this.simulation.State) : null;
+
             this.recorder.Step(this.simulation.Tick + 1, intents);
             log.AddRange(this.simulation.Step(intents));
 
@@ -388,6 +464,8 @@ public sealed class GameRun
             IReadOnlyList<BattleEvent> taken = this.simulation.TakeBattleEvents();
             if (StartsFight(taken))
             {
+                this.startParty = before ?? throw new InvalidOperationException(
+                    $"A fight started at tick {this.simulation.Tick} while another fight held the run (D-531, T-2).");
                 log.Add(this.StartTransition());
             }
 
@@ -431,7 +509,7 @@ public sealed class GameRun
     private void PlayBattleEvents(List<LogEntry> log)
     {
         this.FollowBattle();
-        this.handOff.Follow(this.simulation.Tick);
+        this.handOff.Follow(this.FightTick);
         if (this.handOff.HoldsEvents)
         {
             return;
@@ -442,7 +520,8 @@ public sealed class GameRun
             BattleEvent played = this.events.PlayNext();
             if (played.Kind == BattleEventKind.Started)
             {
-                this.view = BattleView.AtStart(this.simulation.State);
+                this.view = BattleView.AtStart(this.simulation.State, this.startParty ?? throw new InvalidOperationException(
+                    $"The screen plays the start of a fight at tick {this.simulation.Tick}, and the run kept no party of the tick before it (D-776, T-2)."));
             }
 
             BattleView shown = this.view ?? throw new InvalidOperationException(
@@ -451,7 +530,7 @@ public sealed class GameRun
 
             shown.Apply(played);
             this.playing = played;
-            this.playingSince = this.simulation.Tick;
+            this.playingSince = this.FightTick;
             log.Add(new LogEntry(
                 LogLevel.Info,
                 "the screen played a battle event",
@@ -472,7 +551,7 @@ public sealed class GameRun
         // fade ends (D-522, D-938). A fight that a load resumed had no transition, so it fades back too.
         if (this.handOff.Phase == HandOffPhase.None)
         {
-            this.handOff.StartBack(this.simulation.Tick);
+            this.handOff.StartBack(this.FightTick);
             log.Add(this.HandOffEntry("the screen started the fade back to the map", LogEntry.NoFields));
             return;
         }
@@ -483,16 +562,28 @@ public sealed class GameRun
         }
 
         // A frame can run no tick, and the queue then still holds the wait intent of an
-        // earlier frame. A second one in one tick meets the refusal of the rules (T-2).
-        foreach (Intent waiting in this.queued)
+        // earlier frame. A second one in one tick meets the refusal of the rules (T-2). The fight
+        // also ends under no pause, because the map would come back held with no window (D-1083).
+        if (this.Queued(IntentIds.WaitBattleEnd) || this.MenuOpenNextTick)
         {
-            if (string.CompareOrdinal(waiting.Action.Value, IntentIds.WaitBattleEnd.Value) == 0)
-            {
-                return;
-            }
+            return;
         }
 
         this.queued.Add(Intent.OfPlayer(IntentIds.WaitBattleEnd));
+    }
+
+    /// <summary>Tells whether the queue of this frame holds an intent of one action.</summary>
+    private bool Queued(ContentId action)
+    {
+        foreach (Intent waiting in this.queued)
+        {
+            if (string.CompareOrdinal(waiting.Action.Value, action.Value) == 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -518,7 +609,7 @@ public sealed class GameRun
     {
         this.view = null;
         this.playing = null;
-        this.handOff.End(this.simulation.Tick);
+        this.handOff.End(this.FightTick);
     }
 
     /// <summary>Tells whether the events of one tick start a fight, which a transition leads into (D-939).</summary>
@@ -558,7 +649,7 @@ public sealed class GameRun
             this.lastCommon = picked.Id;
         }
 
-        this.handOff.StartInto(picked, tick);
+        this.handOff.StartInto(picked, this.FightTick);
         return this.HandOffEntry(
             "the screen started the transition into a fight",
             [new LogField("kind", EncounterKinds.NameOf(kind)), new LogField("transition", picked.Id.Value)]);

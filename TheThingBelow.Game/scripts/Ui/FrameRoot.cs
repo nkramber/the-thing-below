@@ -73,8 +73,38 @@ public partial class FrameRoot : Node
     /// <summary>The pass of the hand-off, above the UI, which covers the whole frame (D-195, D-210, D-939).</summary>
     public TransitionPass HandOffPass { get; private set; } = null!;
 
-    /// <summary>Builds the frame, the world viewport, and the view on the screen.</summary>
-    public override void _Ready()
+    /// <summary>
+    /// The place of each UI node that draws above the hand-off: the pause of a fight and the
+    /// message of a crash (D-559, D-1083).
+    /// </summary>
+    /// <remarks>
+    /// The pass of the hand-off covers the whole frame, so a pause or a crash during a transition
+    /// drew under it, and the player saw a still cover with no text.
+    /// </remarks>
+    public Control Top { get; private set; } = null!;
+
+    /// <summary>Adds a new frame under a node, and builds the frame, the world viewport, and the view on the screen.</summary>
+    /// <param name="parent">The node that takes the frame, which is in the tree.</param>
+    /// <returns>The built frame.</returns>
+    /// <exception cref="ArgumentNullException">The parent is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">Godot loaded no shader of a pass (T-2).</exception>
+    /// <remarks>
+    /// The build ran in `_Ready` before. The engine calls that method, and the .NET bridge of
+    /// Godot prints an error of it and runs on. A shader that failed to load then left a half
+    /// frame, and the crash file named a later error. The caller now builds the frame inside its
+    /// own try block, so the crash file names the first error (T-2, G-18).
+    /// </remarks>
+    public static FrameRoot AddTo(Node parent)
+    {
+        ArgumentNullException.ThrowIfNull(parent);
+
+        var built = new FrameRoot();
+        parent.AddChild(built);
+        built.Build();
+        return built;
+    }
+
+    private void Build()
     {
         this.BuildWorld();
         this.BuildOverlay();
@@ -302,6 +332,15 @@ public partial class FrameRoot : Node
 
         // The transition covers the whole frame, the UI included, so it draws last (D-195, D-210).
         this.HandOffPass = TransitionPass.Build(this.frameViewport);
+
+        // The pause of a fight and the message of a crash draw above the transition (D-559, D-1083).
+        this.Top = new Control
+        {
+            Position = Vector2.Zero,
+            Size = new Vector2(ScreenFit.FrameWidth, ScreenFit.FrameHeight),
+            MouseFilter = Control.MouseFilterEnum.Ignore,
+        };
+        this.frameViewport.AddChild(this.Top);
         this.AddChild(this.frameViewport);
     }
 

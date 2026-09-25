@@ -72,6 +72,7 @@ internal static class FolderFiles
     /// <param name="extension">The file type, with its point, such as `.json`.</param>
     /// <param name="keep">The count of files that stay. It is 1 at least.</param>
     /// <param name="newest">The full path of the file that the caller made now, which stays.</param>
+    /// <param name="remove">Removes one file: `File.Delete` in the game, and a failing removal in a test.</param>
     /// <exception cref="ArgumentOutOfRangeException">The count is below 1 (T-2).</exception>
     /// <exception cref="StorageException">The system refused the read or a removal (T-2).</exception>
     /// <remarks>
@@ -81,7 +82,7 @@ internal static class FolderFiles
     /// machine runs behind the stamps of the older files, so a write never removes its own
     /// file (T-2).
     /// </remarks>
-    internal static void KeepNewest(string folder, string prefix, string extension, int keep, string newest)
+    internal static void KeepNewest(string folder, string prefix, string extension, int keep, string newest, Action<string> remove)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(keep, 1);
         ArgumentException.ThrowIfNullOrEmpty(newest);
@@ -103,7 +104,7 @@ internal static class FolderFiles
             string path = Path.Combine(folder, names[index]);
             try
             {
-                File.Delete(path);
+                remove(path);
             }
             catch (Exception fault) when (StorageFaults.IsFileFault(fault))
             {

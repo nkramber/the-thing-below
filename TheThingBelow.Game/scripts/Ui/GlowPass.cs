@@ -49,10 +49,11 @@ public static class GlowPass
     public const float LuminanceCap = 32f;
 
     /// <summary>
-    /// The power of the fall of a glow halo: 2.5, so the halo falls fast near the flame and then
-    /// slowly, as the spread of the old glow rectangle did (D-1075).
+    /// The power of the curve of a glow halo: 4. The halo keeps about a third of its middle at half
+    /// its radius, falls to 1% at about 82% of its radius, and meets 0 at its edge with no slope
+    /// (D-1092, D-1095).
     /// </summary>
-    public const float HaloFalloff = 2.5f;
+    public const float HaloPower = 4f;
 
     /// <summary>The seed of the hash of the phase of each pulse. A new value moves the pulse of every glow.</summary>
     private const ulong PulseSeed = 0x676C6F77UL;
@@ -132,7 +133,7 @@ public static class GlowPass
     /// <param name="id">The id of the source, which names the node (T-2).</param>
     /// <param name="seed">The glow of the fire of the source.</param>
     /// <param name="palette">The palette, which gives the key its color (D-181).</param>
-    /// <param name="halo">The round texture of every halo, from <see cref="WorldLights.BuildTexture"/> with <see cref="HaloFalloff"/>.</param>
+    /// <param name="halo">The round texture of every halo, from <see cref="WorldLights.BuildHaloTexture"/> with <see cref="HaloPower"/>.</param>
     /// <param name="parent">The world of the screen.</param>
     /// <returns>The node, or null when the source never glows.</returns>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>

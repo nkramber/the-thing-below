@@ -769,9 +769,34 @@ public static partial class IdentitySet
 
         StateHasher hasher = new();
         hasher.AddUInt64(simulation.StateHash());
-        hasher.AddUInt64(replayed.StateHash());
+        hasher.AddUInt64(RequireSameHash("replay", simulation, replayed.StateHash()));
         hasher.AddText(text);
         return hasher.Finish();
+    }
+
+    /// <summary>
+    /// Refuses a replay or a resumed copy whose state hash differs from the live run (G-5).
+    /// </summary>
+    /// <param name="run">The name of the identity run, for the error.</param>
+    /// <param name="live">The live run.</param>
+    /// <param name="other">The state hash of the replay or of the resumed copy.</param>
+    /// <returns>The state hash of the other run, which equals the hash of the live run.</returns>
+    /// <exception cref="SimulationException">The two hashes differ (T-2).</exception>
+    /// <remarks>
+    /// Each run hashed both values into one number. A divergence that every leg shared then became
+    /// the new expected value of `--write`, and the identity file pinned it (T-7).
+    /// </remarks>
+    public static ulong RequireSameHash(string run, Simulation live, ulong other)
+    {
+        ulong expected = live.StateHash();
+        if (other != expected)
+        {
+            throw new SimulationException(
+                $"the {run} run: the copy reached the state hash 0x{other:X16}, and the live run reached 0x{expected:X16} (G-5)",
+                live.State.Context("identity"));
+        }
+
+        return other;
     }
 
     /// <summary>
@@ -887,7 +912,7 @@ public static partial class IdentitySet
             RunRecordText.Read(text), ReplayContentHash, map, content, ReplayNotices(), NoStory(), DebugIntentHandlers.None);
 
         hasher.AddUInt64(simulation.StateHash());
-        hasher.AddUInt64(replayed.StateHash());
+        hasher.AddUInt64(RequireSameHash("battle replay", simulation, replayed.StateHash()));
         hasher.AddText(text);
         return hasher.Finish();
     }
@@ -1042,8 +1067,13 @@ public static partial class IdentitySet
             }
         }
 
+        // The run takes its copy at a fixed turn, so a copy that is absent is an error and never a
+        // hash of 0 (T-2).
+        Simulation resumed = copy ?? throw new SimulationException(
+            $"the statuses run ended before turn {StatusTurnLimit / 4}, so it took no copy of the snapshot",
+            simulation.State.Context("identity"));
         hasher.AddUInt64(simulation.StateHash());
-        hasher.AddUInt64(copy?.StateHash() ?? 0);
+        hasher.AddUInt64(RequireSameHash("statuses", simulation, resumed.StateHash()));
         return hasher.Finish();
     }
 

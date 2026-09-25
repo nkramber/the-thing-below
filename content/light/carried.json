@@ -1,8 +1,8 @@
 {
- "comment": "The carried light: the light on the lead that follows its drawn place on each frame (D-847). The light draws while the party holds the torch out, and never while the torch is put away (D-848, D-1064). The x and the y put the light at the top of the torch in the hand of the lead, from the west edge and the feet of the lead (D-1069). The drawing of the lead draws a flame on the top of the torch, and the fire adds the moving flame and the embers over it. The light steps between its levels as a wall torch does (D-890, D-891, D-1076). The light takes the flame orange of a wall torch at less strength, so the lit floor stays warm and never goes to white (D-1076). The glow keeps a strength of 0, because the flame draws over the lead, and a glow there reads as a sprite that glows (D-188, D-912).",
+ "comment": "The carried light: the light on the lead that follows its drawn place on each frame (D-847). The light draws while the party holds the torch out, and never while the torch is put away (D-848, D-1064). The x and the y put the light at the top of the torch in the hand of the lead, from the west edge and the feet of the lead (D-1069). The drawing of the lead draws a flame on the top of the torch, and the fire adds the moving flame and the embers over it. The light steps between its levels as a wall torch does (D-890, D-891, D-1076). The light takes the flame orange of a wall torch at less strength, so the lit floor stays warm and never goes to white (D-1076). The strength is 17400, about 9% above the 16000 of D-1076, and the range is 300, a quarter above the 240 of D-1076. A strength a quarter above would light the art beside a wall torch over the glow threshold (D-1091). The glow keeps a strength of 0, because the flame draws over the lead, and a glow there reads as a sprite that glows (D-188, D-912).",
  "color": "j",
- "strength": 16000,
- "range": 240,
+ "strength": 17400,
+ "range": 300,
  "height": 24,
  "x": 6,
  "y": -23,

@@ -355,6 +355,105 @@ public sealed class MapPatrolsTests
     }
 
     [Fact]
+    public void AStepIntoAGroupInsideItsGraceTimeStartsNoEncounterAndOneAfterIt()
+    {
+        // Finding P2-4 of the repository review: a step into the fled group started a fight with
+        // the party first on the next tick. During the grace time, the body still blocks the
+        // step, and no encounter starts (D-381, D-1085). After it, a step starts one (D-747).
+        Simulation run = Bumped();
+        FleeAndWait(run);
+        TilePoint lead = run.State.Party.LeadAt;
+        int ticks = 0;
+
+        while (Only(run).GraceTicks > 0)
+        {
+            run.Step([Intent.OfPlayer(IntentIds.MoveNorth)]);
+            ticks += 1;
+            Assert.Null(run.State.Party.Patrols.Encounter);
+            Assert.Null(run.State.Party.Stepping);
+            Assert.Equal(lead, run.State.Party.LeadAt);
+        }
+
+        Assert.Equal(MapRules.GraceTicks - 1, ticks);
+
+        run.Step([Intent.OfPlayer(IntentIds.MoveNorth)]);
+
+        MapEncounter encounter = Assert.IsType<MapEncounter>(run.State.Party.Patrols.Encounter);
+        Assert.Equal(EncounterSide.Party, encounter.Behind);
+    }
+
+    [Fact]
+    public void AStepIntoAGroupOnTheLastTickOfItsGraceTimeStartsNoEncounter()
+    {
+        // The boundary of D-1085: the grace time counts down in the world step, after the step
+        // of the party, so a step on the tick that ends the count still meets the grace.
+        Simulation run = Bumped();
+        FleeAndWait(run);
+        while (Only(run).GraceTicks > 1)
+        {
+            run.Step([]);
+        }
+
+        run.Step([Intent.OfPlayer(IntentIds.MoveNorth)]);
+
+        Assert.Equal(0, Only(run).GraceTicks);
+        Assert.Null(run.State.Party.Patrols.Encounter);
+    }
+
+    [Fact]
+    public void AMoveIntentDuringABattleStartsNoStepWhenTheBattleEnds()
+    {
+        // Finding P3-2 of the repository review: the wanted direction outlived its tick while a
+        // battle held the world, and the tick of the wait intent started a step from it. The
+        // snapshot leaves the direction out, so a resumed run went another way (T-7, G-5).
+        Simulation run = Fought();
+        run.Step([Intent.OfPlayer(IntentIds.MoveWest)]);
+
+        FleeAndWait(run);
+
+        Assert.Null(run.State.Party.Stepping);
+    }
+
+    [Fact]
+    public void AMoveIntentBeforeTheMenuOpensStartsNoStepWhenTheMenuCloses()
+    {
+        // The second path of finding P3-2: a move and the open of the menu in one tick.
+        Simulation run = Start(PatrolMaps.Of(PatrolMaps.Enemy(stations: Southwest)));
+        run.Step([Intent.OfPlayer(IntentIds.MoveNorth), Intent.OfPlayer(IntentIds.OpenMenu)]);
+
+        run.Step([Intent.OfPlayer(IntentIds.CloseMenu)]);
+
+        Assert.Null(run.State.Party.Stepping);
+    }
+
+    [Fact]
+    public void ARunResumedFromASnapshotInsideABattleMatchesTheLiveRun()
+    {
+        // G-5 with a move intent during the battle: the live run and a copy that a snapshot
+        // resumed reach one state hash after the battle ends.
+        Simulation live = Fought();
+        live.Step([Intent.OfPlayer(IntentIds.MoveWest)]);
+        Simulation copy = Simulation.Resume(
+            Seed,
+            live.Snapshot(),
+            live.State.Party.Map,
+            TestBattles.SureFlee,
+            TestBattles.Notices,
+            TestBattles.Story,
+            DebugAssemblyFile.Handlers());
+
+        FleeAndWait(live);
+        FleeAndWait(copy);
+        for (int tick = 0; tick < 20; tick += 1)
+        {
+            live.Step([]);
+            copy.Step([]);
+        }
+
+        Assert.Equal(live.StateHash(), copy.StateHash());
+    }
+
+    [Fact]
     public void AnEnemyInsideItsGraceTimeSeesNothing()
     {
         // D-381: no battle with that group starts for the grace time, from either side.
@@ -453,14 +552,74 @@ public sealed class MapPatrolsTests
         run.Step([]);
         Assert.NotNull(run.State.Party.Patrols.Mark);
 
-        for (int tick = 1; tick <= MapRules.BeatTicks; tick += 1)
+        // The party steps north through the beat, so the encounter waits for the end of that step
+        // (D-1094).
+        for (int tick = 1; tick <= MapRules.BeatTicks + MapRules.TicksPerStep && run.State.Party.Patrols.Encounter is null; tick += 1)
         {
             run.Step([Intent.OfPlayer(IntentIds.MoveNorth)]);
         }
 
         MapEncounter encounter = Assert.IsType<MapEncounter>(run.State.Party.Patrols.Encounter);
+        Assert.Null(run.State.Party.Stepping);
         Assert.Equal(StepDirection.North, run.State.Party.Facing);
         Assert.Equal(EncounterSide.None, encounter.Behind);
+    }
+
+    [Fact]
+    public void AnEncounterWaitsUntilTheLeadStopsMoving()
+    {
+        // D-1094: the beat ends while the lead walks, and the fight waits for the end of that
+        // step. The lead then starts no new step, although the player holds the direction.
+        Simulation run = Start(PatrolMaps.Of(PatrolMaps.Enemy(facing: "south", stations: Watcher)));
+        run.Step([]);
+        Assert.NotNull(run.State.Party.Patrols.Mark);
+        while (run.State.Party.Patrols.Mark is SightMark { TicksLeft: > 2 })
+        {
+            run.Step([]);
+        }
+
+        // One step starts one tick before the beat ends, so the beat ends in the middle of it.
+        run.Step([Intent.OfPlayer(IntentIds.MoveWest)]);
+        Assert.NotNull(run.State.Party.Stepping);
+        run.Step([Intent.OfPlayer(IntentIds.MoveWest)]);
+        Assert.NotNull(run.State.Party.Stepping);
+        Assert.Null(run.State.Party.Patrols.Encounter);
+        Assert.Equal(0, run.State.Party.Patrols.Mark!.TicksLeft);
+
+        int ticks = 0;
+        while (run.State.Party.Patrols.Encounter is null)
+        {
+            Assert.True(ticks <= MapRules.TicksPerStep, $"No encounter started {ticks} ticks after the beat ended (D-1094).");
+            run.Step([Intent.OfPlayer(IntentIds.MoveWest)]);
+            ticks += 1;
+            if (run.State.Party.Patrols.Encounter is null && run.State.Party.Stepping is null)
+            {
+                // The lead reached its tile, and it starts no new step while the fight is due.
+                Assert.Equal(0, run.State.Party.StepTicks);
+            }
+        }
+
+        Assert.Null(run.State.Party.Stepping);
+        Assert.Equal(0, run.State.Party.StepTicks);
+    }
+
+    [Fact]
+    public void AnEncounterOfALeadThatStandsStillStartsWhenTheBeatEnds()
+    {
+        // The boundary of D-1094: a lead that stands still meets the fight on the last tick of
+        // the beat, as before.
+        Simulation run = Start(PatrolMaps.Of(PatrolMaps.Enemy(facing: "south", stations: Watcher)));
+        run.Step([]);
+
+        for (int tick = 1; tick < MapRules.BeatTicks; tick += 1)
+        {
+            run.Step([]);
+            Assert.Null(run.State.Party.Patrols.Encounter);
+        }
+
+        run.Step([]);
+
+        Assert.NotNull(run.State.Party.Patrols.Encounter);
     }
 
     [Fact]
@@ -787,6 +946,26 @@ public sealed class MapPatrolsTests
             Assert.True(run.Tick <= MapRules.BeatTicks + 2, "The encounter never started (D-745).");
         }
 
+        return run;
+    }
+
+    /// <summary>
+    /// Runs a map to the encounter of a step of the party into a body (D-747), with the rules
+    /// that let every flee work (D-767). The enemy faces away, so it sees no approach.
+    /// </summary>
+    private static Simulation Bumped()
+    {
+        Simulation run = Simulation.Start(
+            Seed,
+            PatrolMaps.Of(PatrolMaps.Enemy(facing: "north", stations: NextToSpawn)),
+            TestBattles.SureFlee,
+            TestBattles.Notices,
+            TestBattles.Story,
+            DebugAssemblyFile.Handlers());
+
+        run.Step([Intent.OfPlayer(IntentIds.MoveNorth)]);
+        MapEncounter encounter = Assert.IsType<MapEncounter>(run.State.Party.Patrols.Encounter);
+        Assert.Equal(EncounterSide.Party, encounter.Behind);
         return run;
     }
 

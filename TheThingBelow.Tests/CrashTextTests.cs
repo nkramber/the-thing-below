@@ -205,6 +205,24 @@ public sealed class CrashTextTests
     }
 
     [Fact]
+    public void ARecordOfAnOlderVersionKeepsTheCrashLineInItsError()
+    {
+        // Finding P3-14 of the repository review: an older crash file reported only that its
+        // lines were not a record, and its readable crash line was lost to the triage (T-2).
+        CrashReport report = Report(WithRecord());
+        string[] lines = CrashText.Write(report).TrimEnd('\n').Split('\n');
+        lines[1] = lines[1].Replace($"\"simulation\":{SimulationVersion.Current},", $"\"simulation\":{SimulationVersion.Current - 1},", StringComparison.Ordinal);
+        lines[2] = "{\"tick\":0}";
+
+        CrashException error = Assert.Throws<CrashException>(
+            () => CrashText.Read(string.Join('\n', lines) + "\n", "the-file.json"));
+
+        Assert.Contains($"simulation version {SimulationVersion.Current - 1}", error.Message, StringComparison.Ordinal);
+        Assert.Contains("The crash line reads: " + report.ErrorType, error.Message, StringComparison.Ordinal);
+        Assert.Contains(report.Time, error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AFileWithACarriageReturnIsAnError()
     {
         string text = CrashText.Write(Report(WithRecord())).Replace("\n", "\r\n", StringComparison.Ordinal);

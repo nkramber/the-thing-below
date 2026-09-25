@@ -178,6 +178,13 @@ public sealed class BattleScreen
     /// <summary>The command menu of the turn, or no value while no character waits for a command.</summary>
     public BattleCommands? Commands => this.commands;
 
+    /// <summary>
+    /// The string id of the line of a form or an item that the message box above the command menu
+    /// shows, or no value while it shows the line of the last event (D-1027, D-1093). The smoke
+    /// session reads it.
+    /// </summary>
+    public ContentId? ShownDescription => this.shownDescription;
+
     /// <summary>Builds the battle screen of one fight into a frame.</summary>
     /// <param name="frame">The frame, with its world viewport and its UI layer.</param>
     /// <param name="ui">The atlas, the theme, and the text helper.</param>
@@ -354,7 +361,7 @@ public sealed class BattleScreen
         BattleView view = run.BattleView ?? throw new InvalidOperationException(
             $"The battle screen draws at tick {run.Tick}, and the run holds no view of a fight (D-532, T-2).");
 
-        this.backdrop.Position = new Vector2(BattleTimes.DriftAt(this.pace, run.Tick), 0);
+        this.backdrop.Position = new Vector2(BattleTimes.DriftAt(this.pace, run.FightTick), 0);
         this.FollowCommands(run);
 
         // The shake reads the ticks of the event, and the rest of the picture reads the ticks
@@ -363,7 +370,7 @@ public sealed class BattleScreen
         int picture = playing is null ? ticks : BattleTimes.PictureTicks(this.pace, playing, ticks);
         int shake = playing is null ? 0 : BattleTimes.ShakeAt(this.pace, playing, ticks, this.Effects);
         this.world.Position = new Vector2(shake, 0);
-        this.weather.Show(Vector2.Zero, FrameRoot.WorldWidth, FrameRoot.WorldHeight, run.Tick);
+        this.weather.Show(Vector2.Zero, FrameRoot.WorldWidth, FrameRoot.WorldHeight, run.FightTick);
         for (int slot = 0; slot < view.Party.Count; slot += 1)
         {
             this.ShowCombatant(view, view.Party[slot], this.party[slot], playing, picture);
@@ -377,8 +384,8 @@ public sealed class BattleScreen
 
         this.ShowWaitingColumn(view);
 
-        this.ShowBurst(view, playing, picture, run.Tick - ticks);
-        this.ShowSpell(view, playing, run.Tick, ticks);
+        this.ShowBurst(view, playing, picture, run.FightTick - ticks);
+        this.ShowSpell(view, playing, run.FightTick, ticks);
         this.ShowMessage(view, playing);
         this.ShowNumber(view, playing, picture);
         this.ShowSummary(view, playing, picture);
@@ -703,6 +710,13 @@ public sealed class BattleScreen
 
     private void FollowCommands(GameRun run)
     {
+        // The pause opens no command menu, and a menu that stood open keeps its choice under the
+        // dim until the pause ends (D-1083).
+        if (run.FightPaused)
+        {
+            return;
+        }
+
         if (!run.TakesBattleCommand)
         {
             this.commands = null;
@@ -1035,7 +1049,7 @@ public sealed class BattleScreen
 
         string key = $"{open.Stage}:{open.Cursor}:{string.Join(",", entries.ConvertAll(entry => entry.Id.Value + entry.Allowed))}";
         this.ShowCommandRow(key, entries, open.Stage == CommandStage.Target ? 0 : open.Cursor);
-        this.ShowFormDescription(open);
+        this.ShowDescription(open);
     }
 
     /// <summary>Gives the entry of one form: its name and its MP cost, or its name alone for a drill (D-1027).</summary>
@@ -1048,15 +1062,23 @@ public sealed class BattleScreen
     }
 
     /// <summary>
-    /// Shows the description of the form under the cursor on the message line while the form
-    /// stage is open, and puts the line of the last event back when it closes (D-1027).
+    /// Shows the description of the form or the item under the cursor in the message box above the
+    /// command menu while that stage is open, and puts the line of the last event back when it
+    /// closes (D-1027, D-1093).
     /// </summary>
-    private void ShowFormDescription(BattleCommands open)
+    private void ShowDescription(BattleCommands open)
     {
-        if (open.Stage == CommandStage.Form)
+        // The line of an item is its own string id, as the item window of the menu reads it (D-1093).
+        ContentId? under = open.Stage switch
         {
-            ContentId description = open.Forms[open.Cursor].Description;
-            if (!ReferenceEquals(this.shownDescription, description))
+            CommandStage.Form => open.Forms[open.Cursor].Description,
+            CommandStage.Item => open.Items[open.Cursor].Id,
+            _ => null,
+        };
+
+        if (under is ContentId description)
+        {
+            if (this.shownDescription is null || string.CompareOrdinal(this.shownDescription.Value, description.Value) != 0)
             {
                 this.shownDescription = description;
                 this.ui.Text.Put(this.message, description);

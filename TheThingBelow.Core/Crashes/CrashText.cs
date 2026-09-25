@@ -97,7 +97,7 @@ public static class CrashText
                 file, "line 1 says that the file holds a record, and the file holds no line after it");
         }
 
-        return head.Report with { Record = ReadRecord(lines, file) };
+        return head.Report with { Record = ReadRecord(lines, file, head.Report) };
     }
 
     private static string WriteCrashLine(CrashReport report)
@@ -201,7 +201,12 @@ public static class CrashText
         return new Head(report, reader.RequireValue(record, depth, "record"));
     }
 
-    private static RunRecord ReadRecord(IReadOnlyList<string> lines, string file)
+    /// <remarks>
+    /// A record that this build cannot read, such as one of an older simulation version, still
+    /// leaves the crash line readable. The error thus carries the crash line, so the triage of an
+    /// older crash file reads its error (T-2).
+    /// </remarks>
+    private static RunRecord ReadRecord(IReadOnlyList<string> lines, string file, CrashReport crash)
     {
         StringBuilder text = new();
         for (int index = 1; index < lines.Count; index += 1)
@@ -216,7 +221,10 @@ public static class CrashText
         catch (RunRecordException error)
         {
             throw CrashException.ForFile(
-                file, $"the lines after line 1 are not a record: {error.Message}", error);
+                file,
+                $"the lines after line 1 are not a record: {error.Message}. The crash line reads: {crash.ErrorType} at {crash.Time}, "
+                + $"simulation version {crash.SimulationVersion}, game {crash.GameVersion}: {crash.Error}",
+                error);
         }
     }
 

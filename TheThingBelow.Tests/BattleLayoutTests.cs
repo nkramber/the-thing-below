@@ -250,7 +250,7 @@ public sealed class BattleLayoutTests
         // grunts alone, because the patrol of the test map takes the size of a common enemy.
         BattleContent content = TestBattles.OfGroups(TestBattles.WaveGroupsFile(["enemy.fixture_grunt", "enemy.fixture_grunt", "enemy.fixture_grunt"]));
         Simulation run = BattleRuns.IntoBattle(3, "group.wave", content);
-        object view = GameAssemblyFile.Type(ViewTypeName).GetMethod("AtStart")!.Invoke(null, [run.State])!;
+        object view = GameAssemblyFile.Type(ViewTypeName).GetMethod("AtStart")!.Invoke(null, [run.State, GameAssemblyFile.Type(ViewTypeName).GetMethod("PartyOf")!.Invoke(null, [run.State])])!;
         Assert.Equal([1, 2, 3], WaitingSlots(view));
 
         for (int turn = 0; turn < BattleRuns.TickLimit; turn += 1)

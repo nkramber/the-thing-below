@@ -18,6 +18,12 @@ namespace TheThingBelow.Game.Ui;
 /// held keys make a diagonal (D-716).
 /// </para>
 /// <para>
+/// Two sources can hold one action, such as the W key and the Up key, or a stick and the D-pad.
+/// The release of one source leaves the action held while <see cref="PressGate"/> reads another
+/// source on it, so a stick that falls below its dead zone never ends a hold of the D-pad
+/// (D-1084).
+/// </para>
+/// <para>
 /// <see cref="Press"/>, <see cref="Release"/>, and <see cref="Newest"/> hold no Godot value,
 /// so a test reads them with no engine (D-614).
 /// </para>
@@ -26,6 +32,17 @@ public sealed class HeldSteps
 {
     // The oldest held action sits first, and the newest sits last (G-4).
     private readonly List<string> held = [];
+    private readonly PressGate sources;
+
+    /// <summary>Makes an empty set of held actions.</summary>
+    /// <param name="sources">The gate, which reads the press and the release of each source before this set (D-1077).</param>
+    /// <exception cref="ArgumentNullException">The gate is null (T-2).</exception>
+    public HeldSteps(PressGate sources)
+    {
+        ArgumentNullException.ThrowIfNull(sources);
+
+        this.sources = sources;
+    }
 
     /// <summary>The step action that the player pressed last, or no value while none is down.</summary>
     public string? Newest => this.held.Count == 0 ? null : this.held[^1];
@@ -71,15 +88,15 @@ public sealed class HeldSteps
         return true;
     }
 
-    /// <summary>Records that the player released one step action.</summary>
+    /// <summary>Records that one source released one step action, and ends the hold when no other source holds it.</summary>
     /// <param name="action">The name of the action, such as `step_north`.</param>
-    /// <returns>True when the action was held before.</returns>
+    /// <returns>True when the hold of the action ended.</returns>
     /// <exception cref="ArgumentException">The name is empty (T-2).</exception>
     public bool Release(string action)
     {
         ArgumentException.ThrowIfNullOrEmpty(action);
 
-        return this.held.Remove(action);
+        return !this.sources.Holds(action) && this.held.Remove(action);
     }
 
     /// <summary>Forgets every held action, which a screen change needs (T-2).</summary>

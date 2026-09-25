@@ -262,7 +262,11 @@ public sealed class GearView : IMenuView
     /// </summary>
     private void PutTrial(Label cell, int worn, int trial)
     {
-        this.ui.Text.Put(cell, TrialIdOf(worn, trial), Values(("change", Number(Math.Abs(trial - worn))), ("value", Number(trial))));
+        // A stat that holds shows its value alone, and its line takes no change (F-128).
+        IReadOnlyDictionary<string, string> values = trial == worn
+            ? Values(("value", Number(trial)))
+            : Values(("change", Number(Math.Abs(trial - worn))), ("value", Number(trial)));
+        this.ui.Text.Put(cell, TrialIdOf(worn, trial), values);
         Color color = trial > worn ? this.gainColor : trial < worn ? this.lossColor : this.dimColor;
         MenuNodes.Paint(cell, color);
     }

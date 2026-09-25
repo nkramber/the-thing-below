@@ -35,20 +35,42 @@ public sealed class CrashStore
     /// <summary>The count of crash files that the folder keeps (D-659).</summary>
     public const int KeepCount = 10;
 
+    /// <summary>The largest crash file that the game reads, in bytes: 256 MiB. A crash file holds the record of the run, which grows with the play of a long session.</summary>
+    public const long MostBytes = 256L * 1024 * 1024;
+
     private readonly string folder;
+    private readonly Action<string> remove;
 
     /// <summary>Makes a store of the crash files in one folder.</summary>
     /// <param name="folder">The full path of the folder of the crash files.</param>
     /// <exception cref="ArgumentException">The folder has no character (T-2).</exception>
     public CrashStore(string folder)
+        : this(folder, File.Delete)
+    {
+    }
+
+    /// <summary>Makes a store with its own removal of an old file, so a test can make the removal fail.</summary>
+    /// <param name="folder">The full path of the folder of the crash files.</param>
+    /// <param name="remove">Removes one old crash file (D-659).</param>
+    /// <exception cref="ArgumentException">The folder has no character (T-2).</exception>
+    /// <exception cref="ArgumentNullException">The removal is null (T-2).</exception>
+    internal CrashStore(string folder, Action<string> remove)
     {
         ArgumentException.ThrowIfNullOrEmpty(folder);
+        ArgumentNullException.ThrowIfNull(remove);
 
         this.folder = folder;
+        this.remove = remove;
     }
 
     /// <summary>The folder that holds the crash files.</summary>
     public string Folder => this.folder;
+
+    /// <summary>
+    /// The error of the removal of the older files after the last write, or null when that removal
+    /// worked (D-659). The crash file of that write exists either way.
+    /// </summary>
+    public StorageException? CleanupFault { get; private set; }
 
     /// <summary>Makes the store of the crash files of the person on this system (D-465, D-658).</summary>
     /// <returns>The store.</returns>
@@ -63,7 +85,7 @@ public sealed class CrashStore
     /// <returns>The full path of the file that the game wrote.</returns>
     /// <exception cref="ArgumentNullException">The error is null (T-2).</exception>
     /// <exception cref="ArgumentException">The time is not a UTC time (T-2).</exception>
-    /// <exception cref="StorageException">The system refused the folder, the write, or a removal (T-2).</exception>
+    /// <exception cref="StorageException">The system refused the folder or the write. A failed removal of an older file goes to <see cref="CleanupFault"/> (T-2).</exception>
     public string Write(Exception fault, RunRecord? record, DateTime time)
     {
         ArgumentNullException.ThrowIfNull(fault);
@@ -83,10 +105,31 @@ public sealed class CrashStore
 
         // The safe write of D-178 gives the file in one step, so a reader of the folder never
         // finds a part of a crash file, also when the crash came from a full disk (T-2).
-        SafeWrite.Replace(path, CrashText.Write(hidden));
+        SafeWrite.Replace(path, CrashText.Write(hidden), text => CrashText.Read(text, path));
 
-        FolderFiles.KeepNewest(this.folder, FilePrefix, FileExtension, KeepCount, path);
-        FolderFiles.RemoveTemporaryFiles(this.folder, FilePrefix, FileExtension);
+        // The limit of D-659 never cancels the crash file that exists now. A removal that fails
+        // goes to the caller through `CleanupFault`, and the caller logs it (T-2).
+        // Each cleanup runs on its own, so a locked old file never keeps the temporary file of a
+        // torn write, and the first fault goes to the caller.
+        this.CleanupFault = null;
+        try
+        {
+            FolderFiles.KeepNewest(this.folder, FilePrefix, FileExtension, KeepCount, path, this.remove);
+        }
+        catch (StorageException cleanup)
+        {
+            this.CleanupFault = cleanup;
+        }
+
+        try
+        {
+            FolderFiles.RemoveTemporaryFiles(this.folder, FilePrefix, FileExtension);
+        }
+        catch (StorageException cleanup)
+        {
+            this.CleanupFault ??= cleanup;
+        }
+
         return path;
     }
 
@@ -105,14 +148,7 @@ public sealed class CrashStore
             throw StorageException.ForPath(path, "the game found no crash file");
         }
 
-        try
-        {
-            return CrashText.Read(Encoding.UTF8.GetString(File.ReadAllBytes(path)), path);
-        }
-        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
-        {
-            throw StorageException.ForPath(path, "the game could not read the file of a crash", fault);
-        }
+        return CrashText.Read(FileText.Read(path, MostBytes, "the file of a crash"), path);
     }
 
     /// <summary>Gives the names of the crash files, the newest one first (D-659).</summary>

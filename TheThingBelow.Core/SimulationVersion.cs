@@ -59,6 +59,10 @@ public static class SimulationVersion
     /// torch out or puts it away on the walk (D-1062 to D-1064, D-1071).
     /// PR-101 raised it to 26: the glow of a fire is a soft halo up to 128 pixels wide, and the load refuses a halo
     /// that passes the glow threshold in place of one that stays below it (D-1075).
+    /// PR-103 raised it to 27: a step into a group inside its grace time starts no encounter, a move intent ends
+    /// with its tick when a battle, a menu, or a story scene holds the world (D-1085), an encounter waits for the end of the
+    /// step of the lead (D-1094), the reader takes a glow halo up to 192 pixels wide (D-1092), and a content field name of
+    /// points alone fails with its file, and the record reader checks its versions before its snapshot and reads format 3.
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -66,5 +70,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 26;
+    public const int Current = 27;
 }

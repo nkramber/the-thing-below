@@ -103,6 +103,26 @@ public sealed class CrashMessageTests
     }
 
     [Fact]
+    public void TheFrameBuildsInsideTheTryBlockOfItsCaller()
+    {
+        // Finding P3-6 of the repository review: the frame built in `_Ready`, and the .NET bridge
+        // of Godot printed an error of that callback and ran on. A shader that failed to load thus
+        // left a half frame, and the crash file named a later error (T-2, G-18). The frame now
+        // builds in `FrameRoot.AddTo`, which each caller runs inside its own try block.
+        string frame = File.ReadAllText(RepositoryRoot.PathTo("TheThingBelow.Game/scripts/Ui/FrameRoot.cs"));
+        Assert.DoesNotContain("override void _Ready", frame, StringComparison.Ordinal);
+        Assert.Contains("public static FrameRoot AddTo(Node parent)", frame, StringComparison.Ordinal);
+
+        foreach (string file in Directory.GetFiles(RepositoryRoot.PathTo("TheThingBelow.Game/scripts"), "*.cs", SearchOption.AllDirectories))
+        {
+            string text = File.ReadAllText(file);
+            Assert.False(
+                text.Contains("new FrameRoot()", StringComparison.Ordinal) && !file.EndsWith("FrameRoot.cs", StringComparison.Ordinal),
+                $"{file} builds a frame outside FrameRoot.AddTo, so an error of the build reaches no try block (T-2).");
+        }
+    }
+
+    [Fact]
     public void ASessionWithNoDisplayQuitsWithTheCrashCode()
     {
         // D-117, T-2. The smoke job of CI runs with no window, so a crash there must end the

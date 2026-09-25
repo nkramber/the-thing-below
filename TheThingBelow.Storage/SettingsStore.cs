@@ -18,6 +18,9 @@ public sealed class SettingsStore
     /// <summary>The name of the settings file (D-860).</summary>
     public const string FileName = "settings.json";
 
+    /// <summary>The largest settings file that the game reads, in bytes: 64 KiB.</summary>
+    public const long MostBytes = 64L * 1024;
+
     private readonly string folder;
 
     /// <summary>Makes the store of the settings file in one folder.</summary>
@@ -55,17 +58,7 @@ public sealed class SettingsStore
             throw StorageException.ForPath(path, "the game found no settings file");
         }
 
-        string text;
-        try
-        {
-            text = Encoding.UTF8.GetString(File.ReadAllBytes(path));
-        }
-        catch (Exception fault) when (StorageFaults.IsFileFault(fault))
-        {
-            throw StorageException.ForPath(path, "the game could not read the settings file", fault);
-        }
-
-        return SettingsText.Read(text, path);
+        return SettingsText.Read(FileText.Read(path, MostBytes, "the settings file"), path);
     }
 
     /// <summary>Writes the settings file, and keeps the old one until the write is whole (D-178).</summary>
@@ -99,6 +92,6 @@ public sealed class SettingsStore
             throw StorageException.ForPath(this.folder, "the game could not make the folder of the settings file", fault);
         }
 
-        SafeWrite.Replace(this.Path, text);
+        SafeWrite.Replace(this.Path, text, written => SettingsText.Read(written, this.Path));
     }
 }

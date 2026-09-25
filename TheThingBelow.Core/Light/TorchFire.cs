@@ -33,8 +33,8 @@ public sealed record GlowSeed(char Key, int Strength, int Width, int Height, int
     /// <summary>The highest strength, in basis points: 16 times the palette color. Godot caps the light that the glow reads at 12.</summary>
     public const int MostStrength = 16 * BasisPoints.One;
 
-    /// <summary>The largest side of the halo, in art pixels: four tiles (D-1075).</summary>
-    public const int MostSide = 128;
+    /// <summary>The largest side of the halo, in art pixels: six tiles (D-1075, D-1092).</summary>
+    public const int MostSide = 192;
 
     /// <summary>The farthest middle of the halo from the place of the light, in art pixels: two tiles.</summary>
     public const int MostOffset = 64;

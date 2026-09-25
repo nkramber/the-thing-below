@@ -201,6 +201,49 @@ public sealed class CrashStoreTests : IDisposable
         Assert.Equal(CrashStore.KeepCount, names.Count);
         Assert.Equal("crash-20260918-015553.json", names[0]);
         Assert.Equal("crash-20260918-014653.json", names[^1]);
+        Assert.Null(this.store.CleanupFault);
+    }
+
+    [Fact]
+    public void ARemovalThatFailsKeepsTheCrashFileAndReportsTheFault()
+    {
+        // Finding P3-3 of the repository review: a removal of an older file that failed made the
+        // write throw after the crash file existed, and the crash screen then named no file. The
+        // write returns its path, and the fault of the removal goes to the caller (D-659, T-2).
+        CrashStore locked = new(Path.Combine(this.folder, CrashStore.FolderName), path => throw new IOException($"the file '{path}' is open"));
+        for (int minute = 0; minute < CrashStore.KeepCount; minute += 1)
+        {
+            locked.Write(CoreFault(), null, Moment.AddMinutes(minute));
+            Assert.Null(locked.CleanupFault);
+        }
+
+        string written = locked.Write(CoreFault(), null, Moment.AddMinutes(CrashStore.KeepCount));
+
+        Assert.True(File.Exists(written));
+        StorageException cleanup = Assert.IsType<StorageException>(locked.CleanupFault);
+        Assert.EndsWith("crash-20260918-014253.json", cleanup.Path, StringComparison.Ordinal);
+        Assert.Contains("D-659", cleanup.Message, StringComparison.Ordinal);
+        Assert.Equal(CrashStore.KeepCount + 1, locked.Names().Count);
+    }
+
+    [Fact]
+    public void ARemovalThatFailsStillRemovesTheTemporaryFileOfATornWrite()
+    {
+        // A finding of the Gitar pass on PR #80: both cleanups shared one try block, so a locked old
+        // file also kept the temporary file of a torn write on every later crash (D-178, D-659).
+        CrashStore locked = new(Path.Combine(this.folder, CrashStore.FolderName), path => throw new IOException($"the file '{path}' is open"));
+        for (int minute = 0; minute < CrashStore.KeepCount; minute += 1)
+        {
+            locked.Write(CoreFault(), null, Moment.AddMinutes(minute));
+        }
+
+        string torn = Path.Combine(locked.Folder, "crash-20260918-014200.json" + SafeWrite.TemporarySuffix);
+        File.WriteAllText(torn, "{");
+
+        locked.Write(CoreFault(), null, Moment.AddMinutes(CrashStore.KeepCount));
+
+        Assert.False(File.Exists(torn));
+        Assert.EndsWith("crash-20260918-014253.json", Assert.IsType<StorageException>(locked.CleanupFault).Path, StringComparison.Ordinal);
     }
 
     [Fact]

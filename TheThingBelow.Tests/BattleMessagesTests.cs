@@ -48,6 +48,34 @@ public sealed class BattleMessagesTests
     }
 
     [Fact]
+    public void EachLineOfEachEventFillsEachPlaceWithTheValuesOfTheCode()
+    {
+        // Finding P3-16 of the repository review: no test tied the places of a line to the values
+        // that the code gives. Each line goes through the fill of the text helper, which refuses a
+        // place with no value and a value with no place (T-2).
+        MethodInfo fill = GameAssemblyFile.Type("TheThingBelow.Game.Ui.TextHelper").GetMethod("Fill")!;
+        StringTable strings = Content.Value.Strings;
+        foreach (BattleEvent played in EveryEvent())
+        {
+            if (LineOf(played, EnemyNamedFirst()) is not object line)
+            {
+                continue;
+            }
+
+            ContentId id = (ContentId)line.GetType().GetProperty("Id")!.GetValue(line)!;
+            var values = (IReadOnlyDictionary<string, string>)line.GetType().GetProperty("Values")!.GetValue(line)!;
+            try
+            {
+                Assert.NotEmpty((string)fill.Invoke(null, [strings.Text(id), id, values])!);
+            }
+            catch (TargetInvocationException thrown) when (thrown.InnerException is ContentException fault)
+            {
+                Assert.Fail($"The event '{played.Kind}' gives the line '{id.Value}' the values [{string.Join(", ", values.Keys)}]: {fault.Message}");
+            }
+        }
+    }
+
+    [Fact]
     public void EveryLineHoldsFortyCharactersWithTheLongestNames()
     {
         // D-241: a battle message holds 40 characters. The test fills each place with the
@@ -179,7 +207,7 @@ public sealed class BattleMessagesTests
             Content.Value.Story,
             DebugIntentHandlers.None);
         run.Step([Intent.OfPlayer(IntentIds.MoveEast)]);
-        return GameAssemblyFile.Type("TheThingBelow.Game.Ui.BattleView").GetMethod("AtStart")!.Invoke(null, [run.State])!;
+        return GameAssemblyFile.Type("TheThingBelow.Game.Ui.BattleView").GetMethod("AtStart")!.Invoke(null, [run.State, GameAssemblyFile.Type("TheThingBelow.Game.Ui.BattleView").GetMethod("PartyOf")!.Invoke(null, [run.State])])!;
     }
 
     private static object? LineOf(BattleEvent played, object view) =>

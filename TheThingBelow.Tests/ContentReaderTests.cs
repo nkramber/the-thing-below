@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using TheThingBelow.Core.Content;
 using Xunit;
@@ -31,6 +32,44 @@ public sealed class ContentReaderTests
         Assert.Equal("fixture.lamp", entry.Id.Value);
         Assert.Equal("label.lamp", entry.Label.Value);
         Assert.Equal(10000, entry.Weight);
+    }
+
+    [Theory]
+    [InlineData("""{ "": 1 }""")]
+    [InlineData("""{ ".": 1 }""")]
+    [InlineData("""{ "...": 1 }""")]
+    public void AFieldNameOfNoCharacterOrOfPointsAloneFailsWithTheFile(string json)
+    {
+        // Finding P3-28 of the repository review: the empty name raised an argument error with no
+        // file, because the name gave no segment of the path (T-2).
+        ContentException error = ReadAndFail(json);
+
+        Assert.Equal(File, error.File);
+        Assert.Equal(ContentException.WholeFile, error.Field);
+        Assert.Contains("a character other than a point", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AnEmptyFieldNameInsideAnElementNamesTheElement()
+    {
+        ContentException error = ReadAndFail(
+            """
+            {
+             "comment": "a note",
+             "fixtures": [{ "": 1 }]
+            }
+            """);
+
+        Assert.Equal("fixtures[0]", error.Field);
+    }
+
+    [Fact]
+    public void AFieldNameWithAPointAndALetterStillReadsAsAnUnknownField()
+    {
+        // The boundary: a point inside a name is a character of that name.
+        ContentException error = ReadAndFail("""{ "a.b": 1 }""");
+
+        Assert.Contains("unknown field", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]

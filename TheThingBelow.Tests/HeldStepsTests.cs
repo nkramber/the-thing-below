@@ -18,6 +18,11 @@ public sealed class HeldStepsTests
     private const string North = "step_north";
     private const string South = "step_south";
     private const string East = "step_east";
+    private const string GateTypeName = "TheThingBelow.Game.Ui.PressGate";
+    private const string KeyW = "key 87";
+    private const string KeyUp = "key 4194320";
+    private const string PadUp = "pad 0 button 11";
+    private const string StickY = "pad 0 axis 1";
 
     [Fact]
     public void NoActionIsHeldAtTheStart()
@@ -106,6 +111,51 @@ public sealed class HeldStepsTests
     }
 
     [Fact]
+    public void AReleaseOfOneSourceLeavesTheActionHeldWhileAnotherSourceHoldsIt()
+    {
+        // Finding P2-6 of the repository review: W and Up both hold step_north, and the release
+        // of Up ended the hold while W stayed down (D-1084).
+        object gate = NewGate();
+        object held = New(gate);
+        GatePress(gate, North, KeyW);
+        Press(held, North);
+        GatePress(gate, North, KeyUp);
+
+        GateRelease(gate, North, KeyUp);
+        Assert.False(Release(held, North));
+        Assert.Equal(North, Newest(held));
+
+        GateRelease(gate, North, KeyW);
+        Assert.True(Release(held, North));
+        Assert.Null(Newest(held));
+    }
+
+    [Fact]
+    public void AStickBelowItsDeadZoneLeavesAHoldOfTheDirectionPad()
+    {
+        // A stick event below the dead zone reads as a release of the action, and it ended the
+        // hold of the direction pad on the same action (D-1084).
+        object gate = NewGate();
+        object held = New(gate);
+        GatePress(gate, North, PadUp);
+        Press(held, North);
+
+        GateRelease(gate, North, StickY);
+        Assert.False(Release(held, North));
+
+        Assert.Equal(North, Newest(held));
+    }
+
+    [Fact]
+    public void ANullGateIsAnError()
+    {
+        TargetInvocationException error = Assert.Throws<TargetInvocationException>(
+            () => Activator.CreateInstance(GameAssemblyFile.Type(TypeName), [null]));
+
+        Assert.IsType<ArgumentNullException>(error.InnerException);
+    }
+
+    [Fact]
     public void AnEmptyActionNameIsAnError()
     {
         object held = New();
@@ -116,9 +166,21 @@ public sealed class HeldStepsTests
         Assert.IsType<ArgumentException>(error.InnerException);
     }
 
-    private static object New() =>
-        Activator.CreateInstance(GameAssemblyFile.Type(TypeName))
+    private static object New() => New(NewGate());
+
+    private static object New(object gate) =>
+        Activator.CreateInstance(GameAssemblyFile.Type(TypeName), [gate])
         ?? throw new InvalidOperationException("The Game assembly made no held-step set (T-2).");
+
+    private static object NewGate() =>
+        Activator.CreateInstance(GameAssemblyFile.Type(GateTypeName))
+        ?? throw new InvalidOperationException("The Game assembly made no press gate (T-2).");
+
+    private static void GatePress(object gate, string action, string source) =>
+        GameAssemblyFile.Type(GateTypeName).GetMethod("Press")!.Invoke(gate, [action, source]);
+
+    private static void GateRelease(object gate, string action, string source) =>
+        GameAssemblyFile.Type(GateTypeName).GetMethod("Release")!.Invoke(gate, [action, source]);
 
     private static bool Press(object held, string action) => (bool)Method("Press").Invoke(held, [action])!;
 

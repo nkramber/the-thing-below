@@ -117,6 +117,105 @@ public sealed class BattleEventQueueTests
     }
 
     [Fact]
+    public void AMenuIntentInTheMiddleOfAFightHoldsThePlaybackAndOpensNoCommandGate()
+    {
+        // Finding P1-1 of the repository review: the menu intent of a fight opened the menu of the
+        // rules, the playback ran on, and the command gate opened under the menu. The next command
+        // then met the refusal of the rules and crashed the session (D-162). The pause holds the
+        // fight, and the gate stays closed until the pause ends (D-1083).
+        GameRunView run = GameRunView.Start();
+        WalkToPlayback(run);
+
+        run.Queue(Intent.OfPlayer(IntentIds.OpenMenu));
+        run.Advance(OneTick);
+        long fightTick = run.FightTick;
+        int playingTicks = run.PlayingTicks;
+        for (int frame = 0; frame < 600; frame += 1)
+        {
+            run.Advance(OneTick);
+            Assert.True(run.FightPaused, $"The pause ended by itself at frame {frame}.");
+            Assert.False(run.TakesBattleCommand, $"The command gate opened under the pause at frame {frame} (D-1083).");
+        }
+
+        Assert.Equal(fightTick, run.FightTick);
+        Assert.Equal(playingTicks, run.PlayingTicks);
+
+        run.Queue(Assert.IsType<Intent>(run.PauseIntentOf("cancel")));
+        FightToTheEnd(run);
+    }
+
+    [Fact]
+    public void ThePauseOfAFightTakesOneMenuIntentBeforeEachTick()
+    {
+        // D-1083: Game sends no second menu intent before the rules apply the first, because a
+        // second open meets the refusal of the rules. The back action ends the pause alone.
+        GameRunView run = GameRunView.Start();
+        Assert.Null(run.PauseIntentOf("menu"));
+        WalkToPlayback(run);
+
+        Assert.Null(run.PauseIntentOf("cancel"));
+        Intent open = Assert.IsType<Intent>(run.PauseIntentOf("menu"));
+        Assert.Equal(IntentIds.OpenMenu.Value, open.Action.Value);
+        run.Queue(open);
+        Assert.Null(run.PauseIntentOf("menu"));
+        Assert.Null(run.PauseIntentOf("cancel"));
+
+        run.Advance(OneTick);
+
+        Assert.True(run.MenuOpen);
+        Assert.Null(run.PauseIntentOf("confirm"));
+        Assert.Equal(IntentIds.CloseMenu.Value, Assert.IsType<Intent>(run.PauseIntentOf("menu")).Action.Value);
+        Intent close = Assert.IsType<Intent>(run.PauseIntentOf("cancel"));
+        Assert.Equal(IntentIds.CloseMenu.Value, close.Action.Value);
+        run.Queue(close);
+        Assert.Null(run.PauseIntentOf("menu"));
+
+        run.Advance(OneTick);
+
+        Assert.False(run.MenuOpen);
+        Assert.False(run.FightPaused);
+    }
+
+    [Fact]
+    public void NoFightEndsUnderThePause()
+    {
+        // The variant of finding P1-1: a fight that ended under the menu brought the map back held,
+        // with no window. The pause holds the fade back, and the wait intent waits for its end.
+        GameRunView run = GameRunView.Start();
+        WalkToPlayback(run);
+        FightTo(run, "Back");
+
+        run.Queue(Assert.IsType<Intent>(run.PauseIntentOf("menu")));
+        for (int frame = 0; frame < 600; frame += 1)
+        {
+            run.Advance(OneTick);
+            Assert.True(run.InBattle, $"The fight ended under the pause at frame {frame} (D-1083).");
+            Assert.Equal("Back", run.HandOffPhase);
+        }
+
+        run.Queue(Assert.IsType<Intent>(run.PauseIntentOf("menu")));
+        FightToTheEnd(run);
+        Assert.False(run.MenuOpen);
+    }
+
+    [Fact]
+    public void NoPauseStartsWhileTheWaitIntentOfTheEndWaits()
+    {
+        // The wait intent and an open of the menu in one tick end the fight under the menu. The
+        // pause gives no intent while the queue holds the wait intent (D-1083).
+        GameRunView run = GameRunView.Start();
+        WalkToPlayback(run);
+        FightTo(run, "Waiting");
+
+        Assert.Null(run.PauseIntentOf("menu"));
+
+        run.Advance(OneTick);
+
+        Assert.False(run.InBattle);
+        Assert.False(run.MenuOpen);
+    }
+
+    [Fact]
     public void AConfirmSkipEndsTheHoldOfTheEventThatPlays()
     {
         // D-866: a press of confirm shows the next battle message. The skip changes no state
@@ -237,6 +336,59 @@ public sealed class BattleEventQueueTests
     }
 
     /// <summary>The walk of the smoke session: east along the hall, then south, then west (D-767).</summary>
+    /// <summary>Walks the run into the hall patrol, and runs it until an event of the fight plays in the middle of its hold (D-767).</summary>
+    private static void WalkToPlayback(GameRunView run)
+    {
+        int frame = 0;
+        for (; frame < FrameLimit && !(run.InBattle && run.PlayingEvent is not null && run.PlayingTicks > 0); frame += 1)
+        {
+            if (!run.InBattle)
+            {
+                run.Queue(Intent.OfPlayer(WalkOf(run.Party)));
+            }
+
+            run.Advance(OneTick);
+        }
+
+        Assert.True(run.InBattle && run.PlayingTicks > 0, $"The walk reached no playback of a fight in {FrameLimit} frames (D-767).");
+        Assert.False(run.TakesBattleCommand);
+    }
+
+    /// <summary>Fights the battle of the run with the attack of each character, until the hand-off reaches one phase (D-938).</summary>
+    private static void FightTo(GameRunView run, string phase)
+    {
+        for (int frame = 0; frame < FrameLimit && string.CompareOrdinal(run.HandOffPhase, phase) != 0; frame += 1)
+        {
+            Assert.False(run.WipeReady, "The fixture fight ended in a wipe, and it reached no fade back (D-776).");
+            AttackAtTheGate(run);
+            run.Advance(OneTick);
+        }
+
+        Assert.Equal(phase, run.HandOffPhase);
+    }
+
+    /// <summary>Fights the battle of the run with the attack of each character to its end (D-532).</summary>
+    private static void FightToTheEnd(GameRunView run)
+    {
+        for (int frame = 0; frame < FrameLimit && run.InBattle && !run.WipeReady; frame += 1)
+        {
+            AttackAtTheGate(run);
+            run.Advance(OneTick);
+        }
+
+        Assert.True(!run.InBattle || run.WipeReady, $"The battle reached no end in {FrameLimit} frames (T-2).");
+    }
+
+    /// <summary>Queues the attack of the character of the turn when the command gate is open.</summary>
+    private static void AttackAtTheGate(GameRunView run)
+    {
+        if (run.TakesBattleCommand)
+        {
+            Battle battle = run.State.Battle!;
+            run.Queue(Intent.OfPlayer(IntentIds.BattleAttack, battle.MeleeTargets(BattleSide.Enemy)[0].Target, null));
+        }
+    }
+
     private static ContentId WalkOf(MapState party)
     {
         if (party.LeadAt.X < 26 && party.LeadAt.Y < 7)
@@ -340,6 +492,29 @@ public sealed class BattleEventQueueTests
             MethodInfo advance = this.type.GetMethod("Advance", [typeof(double), typeof(Func<Intent>)])
                 ?? throw new InvalidOperationException("The run holds no 'Advance' method (T-2).");
             return (IReadOnlyList<LogEntry>)advance.Invoke(this.instance, [seconds, null])!;
+        }
+
+        public long FightTick => (long)this.Read("FightTick");
+
+        public bool FightPaused => (bool)this.Read("FightPaused");
+
+        public bool MenuOpen => (bool)this.Read("MenuOpen");
+
+        /// <summary>The name of the phase of the hand-off, such as `Back` (D-938).</summary>
+        public string HandOffPhase
+        {
+            get
+            {
+                object handOff = this.Read("HandOff");
+                return handOff.GetType().GetProperty("Phase")!.GetValue(handOff)!.ToString()!;
+            }
+        }
+
+        public Intent? PauseIntentOf(string action)
+        {
+            MethodInfo pause = this.type.GetMethod("PauseIntentOf", [typeof(string)])
+                ?? throw new InvalidOperationException("The run holds no 'PauseIntentOf' method (T-2).");
+            return (Intent?)pause.Invoke(this.instance, [action]);
         }
 
         private object Read(string name)

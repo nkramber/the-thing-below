@@ -51,11 +51,63 @@ public static class WorldLights
     /// </summary>
     public const float LightFalloff = 1.5f;
 
+    /// <summary>
+    /// Gives the light of a glow halo at one distance from its middle, as a part of the light of
+    /// its middle (D-1092, D-1095): one less the square of the distance, to a power. The curve
+    /// falls slowly near the middle, and it meets 0 at the edge with no slope, so the edge shows
+    /// no ring.
+    /// </summary>
+    /// <param name="distance">The distance from the middle, where 1 is the edge of the circle.</param>
+    /// <param name="power">The power of the curve, such as <see cref="GlowPass.HaloPower"/>. A power above 1 meets the edge with no slope.</param>
+    /// <returns>The part of the light of the middle, from 0 to 1.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The distance is below 0, or the power is not above 1 (T-2).</exception>
+    /// <remarks>
+    /// The curve of D-1092 fell to 1% at the edge and then stopped. The world adds light in linear
+    /// light, and the sRGB curve of the screen shows 1% of linear light near 10% of the brightness,
+    /// so that stop drew a faint ring on a dark wall.
+    /// </remarks>
+    public static float HaloShareAt(float distance, float power)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(distance);
+        if (power <= 1f)
+        {
+            throw new ArgumentOutOfRangeException(nameof(power), power, "The curve of a halo takes a power above 1, so it meets its edge with no slope (D-1095).");
+        }
+
+        return distance >= 1f ? 0f : MathF.Pow(1f - (distance * distance), power);
+    }
+
+    /// <summary>Builds the round texture of a glow halo, with the curve of <see cref="HaloShareAt"/> (D-1092, D-1095).</summary>
+    /// <param name="power">The power of the curve, above 1.</param>
+    /// <returns>The texture, with an alpha of half floats.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The power is not above 1 (T-2).</exception>
+    /// <remarks>
+    /// An alpha of 8 bits steps by 1/255, and near the edge each step shows as a band on the screen,
+    /// because the sRGB curve lifts the faint end of linear light. Half floats hold that end (D-1095).
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">Godot made no texture from the image (T-2, F-45).</exception>
+    public static ImageTexture BuildHaloTexture(float power)
+    {
+        var picture = Image.CreateEmpty(TextureSize, TextureSize, false, Image.Format.Rgbah);
+        float half = TextureSize / 2f;
+        for (int y = 0; y < TextureSize; y += 1)
+        {
+            for (int x = 0; x < TextureSize; x += 1)
+            {
+                float dx = (x + 0.5f - half) / half;
+                float dy = (y + 0.5f - half) / half;
+                picture.SetPixel(x, y, new Color(1f, 1f, 1f, HaloShareAt(MathF.Sqrt((dx * dx) + (dy * dy)), power)));
+            }
+        }
+
+        // The call reports a failure in the log alone, so the result takes a check (F-45, T-2).
+        ImageTexture? texture = ImageTexture.CreateFromImage(picture);
+        return texture ?? throw new InvalidOperationException(
+            "Godot made no halo texture from the image, and a halo with no texture draws nothing (T-2, F-46).");
+    }
+
     /// <summary>Builds a round texture: full light at the center, and none at the edge of the circle.</summary>
-    /// <param name="falloff">
-    /// The power of the fall with the distance to the edge: <see cref="LightFalloff"/> for a light,
-    /// and a higher power for a halo, which falls faster near its middle (D-1075).
-    /// </param>
+    /// <param name="falloff">The power of the fall with the distance to the edge, such as <see cref="LightFalloff"/>.</param>
     /// <returns>The texture.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The power is not above 0 (T-2).</exception>
     /// <exception cref="InvalidOperationException">Godot made no texture from the image (T-2, F-45).</exception>

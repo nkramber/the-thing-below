@@ -11,11 +11,15 @@ namespace TheThingBelow.Core.Runs;
 /// <para>
 /// PR-9 raised it to 2. An intent gained its target and its item (D-764, D-780).
 /// </para>
+/// <para>
+/// PR-103 raised it to 3. PR-68 and PR-12 gave an intent its option, its lesson, and its actor,
+/// and neither raised the number, so a record of that time reads as format 2 in error.
+/// </para>
 /// </remarks>
 public static class RunRecordFormat
 {
     /// <summary>The format version that this build writes.</summary>
-    public const int Current = 2;
+    public const int Current = 3;
 }
 
 /// <summary>
@@ -67,6 +71,24 @@ public sealed record RunHeader(
     {
         ArgumentException.ThrowIfNullOrEmpty(contentHash);
 
+        this.CheckVersions();
+
+        if (string.CompareOrdinal(this.ContentHash, contentHash) != 0)
+        {
+            throw RunRecordException.ForLine(
+                1,
+                $"the record names the content hash {this.ContentHash}, and this build loaded the content hash {contentHash} (G-5)");
+        }
+    }
+
+    /// <summary>Compares the format version and the simulation version with this build (G-17, D-652).</summary>
+    /// <exception cref="RunRecordException">A version differs. The message names both values (T-2).</exception>
+    /// <remarks>
+    /// The reader of a record calls this method after line 1 and before line 2. A snapshot of an
+    /// older version failed on a field that this build added, and the error hid the version (T-2).
+    /// </remarks>
+    public void CheckVersions()
+    {
         if (this.FormatVersion != RunRecordFormat.Current)
         {
             throw RunRecordException.ForLine(
@@ -79,13 +101,6 @@ public sealed record RunHeader(
             throw RunRecordException.ForLine(
                 1,
                 $"the record comes from simulation version {this.SimulationVersion}, and this build runs simulation version {TheThingBelow.Core.SimulationVersion.Current} (G-17)");
-        }
-
-        if (string.CompareOrdinal(this.ContentHash, contentHash) != 0)
-        {
-            throw RunRecordException.ForLine(
-                1,
-                $"the record names the content hash {this.ContentHash}, and this build loaded the content hash {contentHash} (G-5)");
         }
     }
 }

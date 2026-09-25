@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using TheThingBelow.Core;
 using TheThingBelow.Core.Identity;
+using TheThingBelow.Core.Runs;
 using TheThingBelow.Tools;
 using TheThingBelow.Tools.Identity;
 using Xunit;
@@ -15,6 +16,24 @@ namespace TheThingBelow.Tests;
 /// </summary>
 public sealed class ReplayIdentityTests
 {
+    [Fact]
+    public void AReplayThatDivergesFromTheLiveRunStopsTheIdentityRun()
+    {
+        // Finding P3-15 of the repository review: each run folded the live hash and the replayed
+        // hash into one value, so a divergence that each leg shared became the new expected value
+        // of `--write`. The run now refuses two different hashes (G-5, T-2).
+        Simulation live = Simulation.Start(
+            20260918, TestMaps.Room, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+        ulong hash = live.StateHash();
+
+        SimulationException error = Assert.Throws<SimulationException>(
+            () => IdentitySet.RequireSameHash("replay", live, hash + 1));
+
+        Assert.Contains("the replay run", error.Message, StringComparison.Ordinal);
+        Assert.Contains($"0x{hash:X16}", error.Message, StringComparison.Ordinal);
+        Assert.Equal(hash, IdentitySet.RequireSameHash("replay", live, hash));
+    }
+
     [Fact]
     public void EveryRunOfTheSetMatchesTheCommittedIdentityFile()
     {

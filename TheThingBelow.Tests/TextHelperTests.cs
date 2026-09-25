@@ -76,6 +76,31 @@ public sealed class TextHelperTests
     }
 
     [Fact]
+    public void AValueWithNoPlaceInTheTextIsAnError()
+    {
+        // Finding P3-16 of the repository review: a text edit that renamed `{amount}` to `{amt}`
+        // failed, and a text edit that removed `{amount}` dropped the number in silence (T-2).
+        ContentException renamed = Assert.Throws<ContentException>(
+            () => Fill("{target} takes {amt}.", "battle.hit", new() { ["target"] = "Vess", ["amount"] = "41" }));
+        ContentException removed = Assert.Throws<ContentException>(
+            () => Fill("{target} takes it.", "battle.hit", new() { ["target"] = "Vess", ["amount"] = "41" }));
+
+        Assert.Contains("'amt'", renamed.Message, StringComparison.Ordinal);
+        Assert.Contains("'amount', and the text holds no such place", removed.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AValueForATextWithNoPlaceIsAnError()
+    {
+        // The boundary: a text with no place takes no value.
+        ContentException error = Assert.Throws<ContentException>(
+            () => Fill("Paused", "pause.title", new() { ["amount"] = "41" }));
+
+        Assert.Contains("'amount'", error.Message, StringComparison.Ordinal);
+        Assert.Equal("Paused", Fill("Paused", "pause.title", new()));
+    }
+
+    [Fact]
     public void EveryPlaceOfTheStringTableHasAName()
     {
         // G-7. A place with an empty name could never take a value (T-2).

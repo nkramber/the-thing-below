@@ -92,6 +92,50 @@ public sealed class GlowPassTests
         Assert.Equal(0u, marks & 1u);
     }
 
+    [Fact]
+    public void TheHaloFallsOnASlowCurveAndMeetsItsEdgeWithNoRing()
+    {
+        // D-1092 and D-1095: the middle holds the full light, and a third of it stays at half the
+        // radius. The curve of D-1092 fell to 1% at the edge and stopped there, and the sRGB curve of
+        // the screen showed that stop as a faint ring. The curve now reaches 1% at about 82% of the
+        // radius, and it meets 0 at the edge with no slope.
+        float power = (float)GameAssemblyFile.Type("TheThingBelow.Game.Ui.GlowPass").GetField("HaloPower")!.GetValue(null)!;
+
+        Assert.Equal(1f, HaloShareAt(0f, power));
+        Assert.InRange(HaloShareAt(0.5f, power), 0.31f, 0.33f);
+        Assert.InRange(HaloShareAt(0.82f, power), 0.011f, 0.012f);
+        Assert.Equal(0f, HaloShareAt(1f, power));
+        Assert.Equal(0f, HaloShareAt(1.001f, power));
+
+        // The last hundredth of the radius holds less light than one part in a million, where the
+        // curve of D-1092 held 1%.
+        Assert.True(HaloShareAt(0.99f, power) < 0.000001f, $"the halo holds {HaloShareAt(0.99f, power)} of its middle next to its edge (D-1095)");
+
+        float before = 1f;
+        for (int step = 1; step <= 100; step += 1)
+        {
+            float share = HaloShareAt(step / 100f, power);
+            Assert.True(share < before, $"the halo rose at the distance {step / 100f} (D-1092)");
+            Assert.True(before - share < 0.05f, $"the halo stepped down by {before - share} at the distance {step / 100f} (D-1092)");
+            before = share;
+        }
+    }
+
+    [Fact]
+    public void AHaloCurveOfPowerOneOrLessIsAnError()
+    {
+        // A power of 1 or less meets the edge with a slope, and the ring of D-1095 comes back (T-2).
+        System.Reflection.TargetInvocationException error = Assert.Throws<System.Reflection.TargetInvocationException>(() => HaloShareAt(0.5f, 1f));
+
+        Assert.IsType<ArgumentOutOfRangeException>(error.InnerException);
+    }
+
+    private static float HaloShareAt(float distance, float power)
+    {
+        MethodInfo method = GameAssemblyFile.Type("TheThingBelow.Game.Ui.WorldLights").GetMethod("HaloShareAt")!;
+        return (float)method.Invoke(null, [distance, power])!;
+    }
+
     private static float PulseOf(Glow glow, string id, long tick)
     {
         MethodInfo method = GameAssemblyFile.Type("TheThingBelow.Game.Ui.GlowPass").GetMethod("PulseOf")!;
