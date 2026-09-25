@@ -1707,6 +1707,7 @@ The owner also added four directions (D-1090):
 - The message box above the item list of a fight shows the line of the item under the cursor (D-1093).
 - A beat that ends while the lead walks waits for the end of that step (D-1094).
 - The halo meets 0 at its edge with no slope, and its texture holds half floats (D-1095).
+- The halo softens to a strength of 2678, 30% below 3825 (D-1096).
 
 The owner then asked for five more findings (D-1090):
 
@@ -1749,7 +1750,7 @@ The owner then asked for five more findings (D-1090):
 - The simulation version rises to 27, and the identity file changes with it (G-17, D-504).
 - The line "Paused" is the one new player string (D-57).
 
-**Questions.** None. D-1083 to D-1085 and D-1090 to D-1095 hold the answers.
+**Questions.** None. D-1083 to D-1085 and D-1090 to D-1096 hold the answers.
 
 > *In plain English:* a press of the menu button in a fight crashed the game. Now it pauses the fight. A step into a fled enemy starts no instant fight, and a window with no focus stops the walk. Five smaller guards keep crash files, the resume file, and the load errors honest.
 

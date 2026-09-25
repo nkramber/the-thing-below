@@ -159,7 +159,7 @@ public sealed class TorchFireTests
         // D-1091: the carried light is about 9% brighter than the 16000 of D-1076, and it reaches a
         // quarter farther than its 240. A quarter more strength fails the glow guard of the load.
         // D-1092: the halo of a wall torch spreads half again as far as its 112 pixels, at 85% of
-        // its 4500.
+        // its 4500. D-1096: the halo then softens by 30% more, to 70% of 3825, rounded up.
         ContentSet set = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
         GlowSeed halo = set.Light.KindOf(ContentId.Parse("decor.wall_torch", "test", "id")).Fire.Glow;
 
@@ -167,7 +167,7 @@ public sealed class TorchFireTests
         Assert.Equal(240 * 125 / 100, set.Light.Carried.Light.Range);
         Assert.Equal(112 * 3 / 2, halo.Width);
         Assert.Equal(112 * 3 / 2, halo.Height);
-        Assert.Equal(4500 * 85 / 100, halo.Strength);
+        Assert.Equal(((4500 * 85 / 100 * 70) + 99) / 100, halo.Strength);
         Assert.True(halo.Width <= GlowSeed.MostSide, "the side bound of the reader takes the wider halo (D-1092)");
     }
 

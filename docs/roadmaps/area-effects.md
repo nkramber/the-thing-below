@@ -270,7 +270,7 @@ Built by PR-59. Phase file: `phase-2-first-playable.md`.
 - The halo is a soft round light behind the flame. It adds its light to the world, and the torch and each figure south of it draw over it. Thus the flame keeps each of its pixels (D-1075).
 - The glow rectangle of D-915 drew above the threshold, over the flame, and it read as a box over each torch. The halo took its place (D-1075).
 - The wall torch holds a halo 112 pixels wide at 45% of the light of its color. It gives 95% of the light that the rectangle spread around the torch (D-1075).
-- PR-103 widens that halo to 168 pixels at 38.25% of its color (D-1092). Its light is one less the square of the distance, to the power 4. It meets 0 at its edge with no slope, so it shows no ring (D-1095).
+- PR-103 widens that halo to 168 pixels (D-1092), at 26.78% of its color (D-1096). Its light is one less the square of the distance, to the power 4. It meets 0 at its edge with no slope, so it shows no ring (D-1095).
 - PR-103 gives the carried light 17400 with a range of 300. A quarter more strength lit the art beside a wall torch over the threshold (D-1091).
 - The halo pulses on a slow cosine of the tick, with a phase from the id of its source (D-913). The torch light keeps its steps (D-891), and the glow never flickers.
 - The load refuses a halo that passes the threshold at the top of its pulse, because such a halo clips to full light (D-1075, T-2).

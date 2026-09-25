@@ -138,7 +138,7 @@ The owner also answered four findings of the review. The `codex-review` command 
 
 The second part of PR-103 holds five guards. A failed removal of an older crash file or log file no longer hides the new file (F-121). A read of the resume file leaves it until the run resumes (F-122). Each identity run refuses a replay that differs from the live run (F-123). A field name of points alone, and a font offset near the limit of an integer, fail with the file (F-124). The frame builds inside the try block of its caller (F-125).
 
-The owner added four directions to PR-103. The carried light takes 17400 with a range of 300 (D-1091). The halo of a wall torch spreads to 168 pixels, 15% weaker at its middle, and falls to 1% at its edge (D-1092). The message box above the item list of a fight shows the line of the item under the cursor (D-1093). No fight starts while the lead walks between two tiles (D-1094). The halo then fades to nothing at its edge with no ring (D-1095).
+The owner added four directions to PR-103. The carried light takes 17400 with a range of 300 (D-1091). The halo of a wall torch spreads to 168 pixels, 15% weaker at its middle, and falls to 1% at its edge (D-1092). The message box above the item list of a fight shows the line of the item under the cursor (D-1093). No fight starts while the lead walks between two tiles (D-1094). The halo then fades to nothing at its edge with no ring (D-1095), and it softens to 2678, 30% below 3825 (D-1096).
 
 The third part of PR-103 holds five more findings. A write reads its temporary file back with the reader of its kind before the rename, and a refused rename tries again (F-126). The record reader checks the versions of line 1 before line 2, and the record format rises to 3 (F-127). A string fill refuses a value with no place (F-128). A read of a file of the game takes a size cap and a strict UTF-8 decode (F-129). The start view of a fight reads the party from before the tick that started it (F-130).
 
@@ -598,7 +598,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 37. PR-100: the end of the Gitar pause and the Gitar poll after a push, right after PR-91 (D-1073, D-1074).
 38. PR-101: the glow halo, the carried flame, every pad, and the pointer, after PR-100 (D-1075 to D-1078).
 39. PR-102: the gate fixes of the repository review of 2026-09-24, in one PR, after PR-101 (D-1081, D-1086, D-1087).
-40. PR-103: the input fixes, the grace time, ten guards, and five owner directions, in one PR, after PR-102 (D-1083 to D-1085, D-1090 to D-1095).
+40. PR-103: the input fixes, the grace time, ten guards, and six owner directions, in one PR, after PR-102 (D-1083 to D-1085, D-1090 to D-1096).
 41. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
 42. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
 43. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).

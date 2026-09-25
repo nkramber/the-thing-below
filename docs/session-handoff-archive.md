@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 287: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR-101, round 4. Repository: the-thing-below. Branch: `fix/pr-101-torch-and-pad`. PR: #78 (PR-101). Role: author. Base: `c154ddd`.
+
+### What this session did, and why
+
+- The screen-test job of `d8b967e` failed on `map-fire-1x.png` again, with the other value of the same 232 pixels. The baseline of round 3 came from one CI run, and the next run drew the other value.
+- The local capture session gave both values: the map fixture alone gave one, and the full list gave the other, each time. The base commit `c154ddd` held the same flaw in `map-fire-1x` and `map-stepped-1x`. The pixels lie on the columns of the wall shadows beside the doorways (F-108). This is the flake of OQ-246.
+- The owner chose both options: the compare allows one level now, and the cause stays open (D-1080). `ScreenCompare` passes a pixel when each channel lies within one level, and two new tests hold the rule.
+- D-1080 revises D-172 and D-1061 in part. OQ-246 is answered in part.
+
+### The state of the build
+
+- Base `c154ddd`. The Gitar pass approved `d8b967e`. The remote head is the commit of this entry.
+- On this machine: build, 3,219 tests, and format pass. The new compare passes both CI values of `map-fire-1x` and the local full list.
+
+### What is in flight
+
+- The Gitar pass and the CI checks of this head. Then the owner runs `make codex-review PR=78`.
+
+### Traps and gotchas
+
+- The state of one capture reaches the next capture. A frame of one fixture alone can differ by one level from the same frame in the full list.
+- A step of two levels still fails the job, so a real change of a screen still needs a new baseline from the artifact (D-733).
+
+### The questions that block progress
+
+None. OQ-246 stays open for the cause, and it blocks no PR.
+
+### The next concrete action
+
+Read the Gitar pass and the screen-test job of this head. When both pass, tell the owner to run `make codex-review PR=78`.
+
 ## Session 286: 2026-09-25, Claude Code
 
 Author: Claude Code
