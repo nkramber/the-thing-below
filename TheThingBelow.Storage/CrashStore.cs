@@ -36,19 +36,38 @@ public sealed class CrashStore
     public const int KeepCount = 10;
 
     private readonly string folder;
+    private readonly Action<string> remove;
 
     /// <summary>Makes a store of the crash files in one folder.</summary>
     /// <param name="folder">The full path of the folder of the crash files.</param>
     /// <exception cref="ArgumentException">The folder has no character (T-2).</exception>
     public CrashStore(string folder)
+        : this(folder, File.Delete)
+    {
+    }
+
+    /// <summary>Makes a store with its own removal of an old file, so a test can make the removal fail.</summary>
+    /// <param name="folder">The full path of the folder of the crash files.</param>
+    /// <param name="remove">Removes one old crash file (D-659).</param>
+    /// <exception cref="ArgumentException">The folder has no character (T-2).</exception>
+    /// <exception cref="ArgumentNullException">The removal is null (T-2).</exception>
+    internal CrashStore(string folder, Action<string> remove)
     {
         ArgumentException.ThrowIfNullOrEmpty(folder);
+        ArgumentNullException.ThrowIfNull(remove);
 
         this.folder = folder;
+        this.remove = remove;
     }
 
     /// <summary>The folder that holds the crash files.</summary>
     public string Folder => this.folder;
+
+    /// <summary>
+    /// The error of the removal of the older files after the last write, or null when that removal
+    /// worked (D-659). The crash file of that write exists either way.
+    /// </summary>
+    public StorageException? CleanupFault { get; private set; }
 
     /// <summary>Makes the store of the crash files of the person on this system (D-465, D-658).</summary>
     /// <returns>The store.</returns>
@@ -63,7 +82,7 @@ public sealed class CrashStore
     /// <returns>The full path of the file that the game wrote.</returns>
     /// <exception cref="ArgumentNullException">The error is null (T-2).</exception>
     /// <exception cref="ArgumentException">The time is not a UTC time (T-2).</exception>
-    /// <exception cref="StorageException">The system refused the folder, the write, or a removal (T-2).</exception>
+    /// <exception cref="StorageException">The system refused the folder or the write. A failed removal of an older file goes to <see cref="CleanupFault"/> (T-2).</exception>
     public string Write(Exception fault, RunRecord? record, DateTime time)
     {
         ArgumentNullException.ThrowIfNull(fault);
@@ -85,8 +104,19 @@ public sealed class CrashStore
         // finds a part of a crash file, also when the crash came from a full disk (T-2).
         SafeWrite.Replace(path, CrashText.Write(hidden));
 
-        FolderFiles.KeepNewest(this.folder, FilePrefix, FileExtension, KeepCount, path);
-        FolderFiles.RemoveTemporaryFiles(this.folder, FilePrefix, FileExtension);
+        // The limit of D-659 never cancels the crash file that exists now. A removal that fails
+        // goes to the caller through `CleanupFault`, and the caller logs it (T-2).
+        this.CleanupFault = null;
+        try
+        {
+            FolderFiles.KeepNewest(this.folder, FilePrefix, FileExtension, KeepCount, path, this.remove);
+            FolderFiles.RemoveTemporaryFiles(this.folder, FilePrefix, FileExtension);
+        }
+        catch (StorageException cleanup)
+        {
+            this.CleanupFault = cleanup;
+        }
+
         return path;
     }
 

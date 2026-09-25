@@ -92,15 +92,16 @@ public sealed class SaveStore
         SafeWrite.Replace(path, SaveText.Write(document));
     }
 
-    /// <summary>Reads one save, and removes the resume file after a whole read (D-258).</summary>
+    /// <summary>Reads one save, and leaves the file (D-258).</summary>
     /// <param name="kind">The save.</param>
     /// <returns>The header and the snapshot of the save.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The game holds no such save (T-2).</exception>
     /// <exception cref="StorageException">The file is absent, or the system refused it (T-2).</exception>
     /// <exception cref="SaveException">The text of the file breaks a rule of a save (T-2).</exception>
     /// <remarks>
-    /// A read of a resume file that fails leaves the file, so the player can send it with a
-    /// report. A whole read removes it, and a second read thus fails (D-258).
+    /// A read never removes the resume file. A file that parses can still fail the resume, for
+    /// example against the content of a newer build, and the player then sends it with a report.
+    /// The caller removes it with <see cref="RemoveResume"/> after the run resumed (D-258, T-2).
     /// </remarks>
     public SaveDocument Read(SaveKind kind)
     {
@@ -113,14 +114,20 @@ public sealed class SaveStore
             throw StorageException.ForPath(path, $"the game found no file for {Describe(kind)}{extra}");
         }
 
-        SaveDocument document = SaveText.Read(ReadText(path), path);
+        return SaveText.Read(ReadText(path), path);
+    }
 
-        if (kind == SaveKind.Resume)
+    /// <summary>Removes the resume file after the run resumed from it, so one resume file serves one load (D-258).</summary>
+    /// <exception cref="StorageException">The file is absent, or the system refused the removal (T-2).</exception>
+    public void RemoveResume()
+    {
+        string path = this.PathOf(SaveKind.Resume);
+        if (!File.Exists(path))
         {
-            Remove(path);
+            throw StorageException.ForPath(path, "the game found no resume file to remove after the resume (D-258)");
         }
 
-        return document;
+        Remove(path);
     }
 
     private static string Describe(SaveKind kind) => kind switch
@@ -152,7 +159,7 @@ public sealed class SaveStore
         }
         catch (Exception fault) when (StorageFaults.IsFileFault(fault))
         {
-            throw StorageException.ForPath(path, "the game read the resume file and could not remove it (D-258)", fault);
+            throw StorageException.ForPath(path, "the run resumed from the resume file, and the game could not remove it (D-258)", fault);
         }
     }
 

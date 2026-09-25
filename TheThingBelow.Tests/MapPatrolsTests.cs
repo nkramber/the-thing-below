@@ -552,14 +552,74 @@ public sealed class MapPatrolsTests
         run.Step([]);
         Assert.NotNull(run.State.Party.Patrols.Mark);
 
-        for (int tick = 1; tick <= MapRules.BeatTicks; tick += 1)
+        // The party steps north through the beat, so the encounter waits for the end of that step
+        // (D-1094).
+        for (int tick = 1; tick <= MapRules.BeatTicks + MapRules.TicksPerStep && run.State.Party.Patrols.Encounter is null; tick += 1)
         {
             run.Step([Intent.OfPlayer(IntentIds.MoveNorth)]);
         }
 
         MapEncounter encounter = Assert.IsType<MapEncounter>(run.State.Party.Patrols.Encounter);
+        Assert.Null(run.State.Party.Stepping);
         Assert.Equal(StepDirection.North, run.State.Party.Facing);
         Assert.Equal(EncounterSide.None, encounter.Behind);
+    }
+
+    [Fact]
+    public void AnEncounterWaitsUntilTheLeadStopsMoving()
+    {
+        // D-1094: the beat ends while the lead walks, and the fight waits for the end of that
+        // step. The lead then starts no new step, although the player holds the direction.
+        Simulation run = Start(PatrolMaps.Of(PatrolMaps.Enemy(facing: "south", stations: Watcher)));
+        run.Step([]);
+        Assert.NotNull(run.State.Party.Patrols.Mark);
+        while (run.State.Party.Patrols.Mark is SightMark { TicksLeft: > 2 })
+        {
+            run.Step([]);
+        }
+
+        // One step starts one tick before the beat ends, so the beat ends in the middle of it.
+        run.Step([Intent.OfPlayer(IntentIds.MoveWest)]);
+        Assert.NotNull(run.State.Party.Stepping);
+        run.Step([Intent.OfPlayer(IntentIds.MoveWest)]);
+        Assert.NotNull(run.State.Party.Stepping);
+        Assert.Null(run.State.Party.Patrols.Encounter);
+        Assert.Equal(0, run.State.Party.Patrols.Mark!.TicksLeft);
+
+        int ticks = 0;
+        while (run.State.Party.Patrols.Encounter is null)
+        {
+            Assert.True(ticks <= MapRules.TicksPerStep, $"No encounter started {ticks} ticks after the beat ended (D-1094).");
+            run.Step([Intent.OfPlayer(IntentIds.MoveWest)]);
+            ticks += 1;
+            if (run.State.Party.Patrols.Encounter is null && run.State.Party.Stepping is null)
+            {
+                // The lead reached its tile, and it starts no new step while the fight is due.
+                Assert.Equal(0, run.State.Party.StepTicks);
+            }
+        }
+
+        Assert.Null(run.State.Party.Stepping);
+        Assert.Equal(0, run.State.Party.StepTicks);
+    }
+
+    [Fact]
+    public void AnEncounterOfALeadThatStandsStillStartsWhenTheBeatEnds()
+    {
+        // The boundary of D-1094: a lead that stands still meets the fight on the last tick of
+        // the beat, as before.
+        Simulation run = Start(PatrolMaps.Of(PatrolMaps.Enemy(facing: "south", stations: Watcher)));
+        run.Step([]);
+
+        for (int tick = 1; tick < MapRules.BeatTicks; tick += 1)
+        {
+            run.Step([]);
+            Assert.Null(run.State.Party.Patrols.Encounter);
+        }
+
+        run.Step([]);
+
+        Assert.NotNull(run.State.Party.Patrols.Encounter);
     }
 
     [Fact]

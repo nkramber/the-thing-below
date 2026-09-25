@@ -51,11 +51,53 @@ public static class WorldLights
     /// </summary>
     public const float LightFalloff = 1.5f;
 
+    /// <summary>
+    /// Gives the light of a glow halo at one distance from its middle, as a part of the light of
+    /// its middle (D-1092): the edge share to the power of the square of the distance. The curve
+    /// falls slowly near the middle, reaches the edge share at the edge, and gives 0 past it.
+    /// </summary>
+    /// <param name="distance">The distance from the middle, where 1 is the edge of the circle.</param>
+    /// <param name="edgeShare">The light at the edge, such as <see cref="GlowPass.HaloEdgeShare"/>.</param>
+    /// <returns>The part of the light of the middle, from 0 to 1.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The distance is below 0, or the share is not above 0 and below 1 (T-2).</exception>
+    public static float HaloShareAt(float distance, float edgeShare)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(distance);
+        if (edgeShare <= 0f || edgeShare >= 1f)
+        {
+            throw new ArgumentOutOfRangeException(nameof(edgeShare), edgeShare, "The edge of a halo takes a part of its middle above 0 and below 1 (D-1092).");
+        }
+
+        return distance > 1f ? 0f : MathF.Pow(edgeShare, distance * distance);
+    }
+
+    /// <summary>Builds the round texture of a glow halo, with the curve of <see cref="HaloShareAt"/> (D-1092).</summary>
+    /// <param name="edgeShare">The light at the edge, as a part of the light of the middle.</param>
+    /// <returns>The texture.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The share is not above 0 and below 1 (T-2).</exception>
+    /// <exception cref="InvalidOperationException">Godot made no texture from the image (T-2, F-45).</exception>
+    public static ImageTexture BuildHaloTexture(float edgeShare)
+    {
+        var picture = Image.CreateEmpty(TextureSize, TextureSize, false, Image.Format.Rgba8);
+        float half = TextureSize / 2f;
+        for (int y = 0; y < TextureSize; y += 1)
+        {
+            for (int x = 0; x < TextureSize; x += 1)
+            {
+                float dx = (x + 0.5f - half) / half;
+                float dy = (y + 0.5f - half) / half;
+                picture.SetPixel(x, y, new Color(1f, 1f, 1f, HaloShareAt(MathF.Sqrt((dx * dx) + (dy * dy)), edgeShare)));
+            }
+        }
+
+        // The call reports a failure in the log alone, so the result takes a check (F-45, T-2).
+        ImageTexture? texture = ImageTexture.CreateFromImage(picture);
+        return texture ?? throw new InvalidOperationException(
+            "Godot made no halo texture from the image, and a halo with no texture draws nothing (T-2, F-46).");
+    }
+
     /// <summary>Builds a round texture: full light at the center, and none at the edge of the circle.</summary>
-    /// <param name="falloff">
-    /// The power of the fall with the distance to the edge: <see cref="LightFalloff"/> for a light,
-    /// and a higher power for a halo, which falls faster near its middle (D-1075).
-    /// </param>
+    /// <param name="falloff">The power of the fall with the distance to the edge, such as <see cref="LightFalloff"/>.</param>
     /// <returns>The texture.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The power is not above 0 (T-2).</exception>
     /// <exception cref="InvalidOperationException">Godot made no texture from the image (T-2, F-45).</exception>

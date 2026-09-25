@@ -233,6 +233,10 @@ public partial class Boot : Node
         this.log = LogStore.OfThisSystem(MinimumLevelOf(userArguments));
         this.log.Open(DateTime.UtcNow);
         this.WriteLog([StartEntry()]);
+        if (this.log.CleanupFault is StorageException logCleanup)
+        {
+            this.WriteLog([CleanupEntry(logCleanup, 0)]);
+        }
 
         CheckSaveFolder();
 
@@ -424,8 +428,7 @@ public partial class Boot : Node
     /// </remarks>
     private void BuildScreen(ContentSet loaded)
     {
-        var built = new FrameRoot();
-        this.AddChild(built);
+        FrameRoot built = FrameRoot.AddTo(this);
         this.frame = built;
 
         GameSettings chosen = this.settings ?? throw new InvalidOperationException(
@@ -1232,9 +1235,12 @@ public partial class Boot : Node
 
         DateTime time = DateTime.UtcNow;
         string? path = null;
+        StorageException? cleanup = null;
         try
         {
-            path = CrashStore.OfThisSystem().Write(fault, stopped?.Record(), time);
+            CrashStore crashes = CrashStore.OfThisSystem();
+            path = crashes.Write(fault, stopped?.Record(), time);
+            cleanup = crashes.CleanupFault;
             GD.PrintErr($"the game stopped with an error, and it wrote the crash file '{path}'.");
         }
         catch (Exception second)
@@ -1249,6 +1255,14 @@ public partial class Boot : Node
             try
             {
                 this.log?.Write([CrashEntry(fault, Path.GetFileName(path), stopped)], time);
+
+                // The crash file exists, and an older file stayed. The limit of D-659 never hides
+                // the file that this crash wrote (T-2).
+                if (cleanup is not null)
+                {
+                    GD.PrintErr($"the game wrote the crash file '{path}', and it could not remove an older file: {cleanup.Message}");
+                    this.log?.Write([CleanupEntry(cleanup, stopped?.Tick ?? 0)], time);
+                }
             }
             catch (Exception second)
             {
@@ -1306,6 +1320,24 @@ public partial class Boot : Node
             return false;
         }
     }
+
+    /// <summary>
+    /// The warning line of an older file that the limit of D-659 could not remove: the name of
+    /// that file, with no folder, and the type of the error of the system (D-170, D-179).
+    /// </summary>
+    /// <param name="cleanup">The error of the removal.</param>
+    /// <param name="tick">The tick of the run, or 0 before a run exists.</param>
+    /// <returns>The log entry.</returns>
+    private static LogEntry CleanupEntry(StorageException cleanup, long tick) =>
+        new(
+            LogLevel.Warning,
+            "the game kept an older file, because the system refused its removal (D-659)",
+            tick,
+            LogSubsystems.Game,
+            [
+                new LogField("file", Path.GetFileName(cleanup.Path)),
+                new LogField("error", cleanup.InnerException?.GetType().Name ?? nameof(StorageException)),
+            ]);
 
     /// <summary>
     /// The log line of a crash: the type of the error and the name of the crash file (D-179).
@@ -1647,8 +1679,7 @@ public partial class Boot : Node
     private string DescribeMenus(ContentSet loaded)
     {
         GameInputMap.Build(SmokeSettings().Controls);
-        var built = new FrameRoot();
-        this.AddChild(built);
+        FrameRoot built = FrameRoot.AddTo(this);
         UiBase shownBase = UiBase.Load(loaded, loaded.Style.SmallBody);
         GameRun session = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
         int closes = 0;
@@ -1708,8 +1739,7 @@ public partial class Boot : Node
     /// <exception cref="InvalidOperationException">The lap ended on another row than the first (T-2).</exception>
     private string DescribeSettings(ContentSet loaded)
     {
-        var built = new FrameRoot();
-        this.AddChild(built);
+        FrameRoot built = FrameRoot.AddTo(this);
         UiBase shownBase = UiBase.Load(loaded, loaded.Style.SmallBody);
         GameSettings defaults = SmokeSettings();
         SettingsScreen screen = SettingsScreen.Build(built, shownBase, loaded.Strings, defaults, loaded.Style.SmallBody);
@@ -1954,8 +1984,7 @@ public partial class Boot : Node
     {
         // A key that the console does not take goes on to the input map, as in a play session.
         GameInputMap.Build(SmokeSettings().Controls);
-        var built = new FrameRoot();
-        this.AddChild(built);
+        FrameRoot built = FrameRoot.AddTo(this);
         this.frame = built;
         this.BuildConsole(built, session);
         Control made = this.console ?? throw new InvalidOperationException(
@@ -2036,11 +2065,11 @@ public partial class Boot : Node
             this.WriteLog(open.Advance(SmokeFrameSeconds));
         }
 
-        var built = new FrameRoot();
-        this.AddChild(built);
+        FrameRoot built = FrameRoot.AddTo(this);
         UiBase shownBase = UiBase.Load(loaded, loaded.Style.SmallBody);
         var pause = new PauseView(built, shownBase);
         string paused = "no pause";
+        string itemLine = "no item line";
         BattleScreen? screen = null;
         int commands = 0;
         string nodes = "no screen";
@@ -2074,6 +2103,12 @@ public partial class Boot : Node
                 paused = this.CheckFightPause(open, screen, pause, built);
             }
 
+            // The item line of D-1093 runs once, at the first command gate that offers an item.
+            if (screen?.Commands is BattleCommands offered && offered.Allows(BattleAction.Item) && string.CompareOrdinal(itemLine, "no item line") == 0)
+            {
+                itemLine = CheckItemDescription(screen, open, loaded);
+            }
+
             if (screen?.Commands is not null)
             {
                 commands += 1;
@@ -2088,15 +2123,71 @@ public partial class Boot : Node
 
         // A wipe reloads a run that stands on the map, and a win or a flee ends on the map
         // after the wait intent. A run still in the battle ran out of frames (T-2).
-        if (string.CompareOrdinal(outcome, "none") == 0 || open.InBattle || commands == 0 || string.CompareOrdinal(paused, "no pause") == 0)
+        if (string.CompareOrdinal(outcome, "none") == 0
+            || open.InBattle
+            || commands == 0
+            || string.CompareOrdinal(paused, "no pause") == 0
+            || string.CompareOrdinal(itemLine, "no item line") == 0)
         {
             throw new InvalidOperationException(
                 $"The smoke battle reached no end in {SmokeBattleFrames} frames: the outcome is '{outcome}', the menu sent "
-                + $"{commands} commands, the party is at {open.Party.LeadAt}, and the pause is '{paused}' (D-767, D-827, D-1083, T-2).");
+                + $"{commands} commands, the party is at {open.Party.LeadAt}, the pause is '{paused}', and the item line is "
+                + $"'{itemLine}' (D-767, D-827, D-1083, D-1093, T-2).");
         }
 
         return $"'{outcome}' after {frame} frames and {commands} commands of the menu, with {nodes}, the pause {paused}, "
-            + $"and the run is at tick {open.Tick} with the party at {open.Party.LeadAt}";
+            + $"the item line {itemLine}, and the run is at tick {open.Tick} with the party at {open.Party.LeadAt}";
+    }
+
+    /// <summary>
+    /// Opens the item list of the command menu, and reads the line of the item under the cursor
+    /// in the message box above it (D-1093). The check then closes the list and puts the cursor
+    /// back on the attack, so the next press of the smoke fight attacks as before.
+    /// </summary>
+    /// <param name="screen">The battle screen, whose command menu offers an item.</param>
+    /// <param name="open">The run of the fight.</param>
+    /// <param name="loaded">The content set, whose string table holds the line of the item.</param>
+    /// <returns>The string id of the line that the box showed.</returns>
+    /// <exception cref="InvalidOperationException">The box showed another line, or kept the line after the list closed (T-2).</exception>
+    private static string CheckItemDescription(BattleScreen screen, GameRun open, ContentSet loaded)
+    {
+        BattleCommands commands = screen.Commands ?? throw new InvalidOperationException(
+            $"The item line check at tick {open.Tick} found no command menu (T-2).");
+        MoveCursorTo(commands, BattleAction.Item);
+        screen.Read(InputActions.Confirm);
+        screen.Show(open);
+        if (commands.Stage != CommandStage.Item)
+        {
+            throw new InvalidOperationException($"The item action opened the stage '{commands.Stage}' at tick {open.Tick} (D-1093, T-2).");
+        }
+
+        ContentId wanted = commands.Items[commands.Cursor].Id;
+        if (screen.ShownDescription is not ContentId shown || string.CompareOrdinal(shown.Value, wanted.Value) != 0)
+        {
+            throw new InvalidOperationException(
+                $"The item list showed the line '{screen.ShownDescription?.Value ?? "of the last event"}' above it, and the item under the cursor is '{wanted.Value}' (D-1093, T-2).");
+        }
+
+        // The string table holds the line, so a missing line fails here and not in play (G-7).
+        _ = loaded.Strings.Text(wanted);
+        screen.Read(InputActions.Cancel);
+        screen.Show(open);
+        if (screen.ShownDescription is not null)
+        {
+            throw new InvalidOperationException($"The line of the item stayed after the item list closed at tick {open.Tick} (D-1027, T-2).");
+        }
+
+        MoveCursorTo(commands, BattleAction.Attack);
+        return $"'{wanted.Value}'";
+    }
+
+    /// <summary>Moves the cursor of the action stage to one action.</summary>
+    private static void MoveCursorTo(BattleCommands commands, BattleAction action)
+    {
+        for (int step = 0; step < BattleCommands.Actions.Count && BattleCommands.Actions[commands.Cursor] != action; step += 1)
+        {
+            commands.Move(1);
+        }
     }
 
     /// <summary>

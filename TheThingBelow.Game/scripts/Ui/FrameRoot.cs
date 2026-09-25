@@ -83,8 +83,28 @@ public partial class FrameRoot : Node
     /// </remarks>
     public Control Top { get; private set; } = null!;
 
-    /// <summary>Builds the frame, the world viewport, and the view on the screen.</summary>
-    public override void _Ready()
+    /// <summary>Adds a new frame under a node, and builds the frame, the world viewport, and the view on the screen.</summary>
+    /// <param name="parent">The node that takes the frame, which is in the tree.</param>
+    /// <returns>The built frame.</returns>
+    /// <exception cref="ArgumentNullException">The parent is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">Godot loaded no shader of a pass (T-2).</exception>
+    /// <remarks>
+    /// The build ran in `_Ready` before. The engine calls that method, and the .NET bridge of
+    /// Godot prints an error of it and runs on. A shader that failed to load then left a half
+    /// frame, and the crash file named a later error. The caller now builds the frame inside its
+    /// own try block, so the crash file names the first error (T-2, G-18).
+    /// </remarks>
+    public static FrameRoot AddTo(Node parent)
+    {
+        ArgumentNullException.ThrowIfNull(parent);
+
+        var built = new FrameRoot();
+        parent.AddChild(built);
+        built.Build();
+        return built;
+    }
+
+    private void Build()
     {
         this.BuildWorld();
         this.BuildOverlay();

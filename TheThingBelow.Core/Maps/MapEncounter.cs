@@ -72,7 +72,7 @@ public static class EncounterSides
 /// </para>
 /// </remarks>
 /// <param name="Enemy">The id of the patrol that saw the party (D-752).</param>
-/// <param name="TicksLeft">The count of world ticks of the beat that remain.</param>
+/// <param name="TicksLeft">The count of world ticks of the beat that remain, or 0 while the encounter waits for the end of a step of the lead (D-1094).</param>
 public sealed record SightMark(ContentId Enemy, int TicksLeft);
 
 /// <summary>

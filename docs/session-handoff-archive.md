@@ -1,4 +1,39 @@
 # Session handoff archive
+## Session 285: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR-101, round 2. Repository: the-thing-below. Branch: `fix/pr-101-torch-and-pad`. PR: #78 (PR-101). Role: author. Base: `c154ddd`.
+
+### What this session did, and why
+
+- The Gitar pass of `ed7f21c` approved with one finding: the halo adds onto lit art, and the bound of lit art left the halo out (F-47). The finding has full merit.
+- `BrightestLight.OnMap` now takes the halo of each fire of the map. A halo adds its middle to each tile that its circle can reach, and the carried halo adds to each tile (D-1075).
+- The new bound refused the fixture dungeon: two halos reach the tile (6, 0), for 70691 of 70000. The halo of the wall torch went from 5000 to 4500, and the bound now gives 69707. The halo gives 95% of the light of the old rectangle.
+- The 78 captures of the baseline changed again, and the author read the pit frames. The other frames change by the halo alone.
+- `review-gate` failed on RG 3 alone, because no review record exists. A comment on the PR says so.
+
+### The state of the build
+
+- Base `c154ddd`. The reviewed Gitar head `ed7f21c`. The remote head is the commit of this entry.
+- On this machine: build, 3,217 tests, format, det-lint, identity, and the screen comparison pass. The simulation version stays 26.
+
+### What is in flight
+
+- The Gitar pass of this head. Then the owner runs `make codex-review PR=78`.
+
+### Traps and gotchas
+
+- The bound of lit art counts the full middle of a halo over its whole circle. Two torches 128 pixels apart both reach the tile between them. A brighter halo or a closer pair of torches fails the load.
+- This machine has no `codex` or `gh` command. The GitHub tools of the session read the checks and the comments.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the Gitar pass of the new head, reply on the Gitar thread with the fix commit, and answer each new Gitar item. The owner runs `make codex-review PR=78`.
+
 ## Session 284: 2026-09-25, Claude Code
 
 Author: Claude Code

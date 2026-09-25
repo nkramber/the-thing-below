@@ -1,3 +1,48 @@
+## Session 295: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #80 (PR-103), round 2. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: #80. Role: author. Base: `5c1db06`.
+
+### What this session did, and why
+
+- Gitar approved the first head `38f769a` with no thread. Its CI claim names the `review-gate` fault, which waits for the review record. The PR comment of this round answers it.
+- The owner asked for five more findings in this PR. D-1090 now holds ten. The session chose five that need no owner answer, and each one reproduced at `5c1db06`:
+  - P3-3: a failed removal of an older crash file or log file no longer hides the new file. `CleanupFault` carries the error, and Boot logs a warning (F-121).
+  - P3-13: a read of the resume file leaves it, and `RemoveResume` removes it after the resume (F-122).
+  - P3-15: each identity run refuses a replay or a copy that differs from the live run. The identity file stays the same (F-123).
+  - P3-28: a field name of points alone, and a font offset near the limit of an integer, fail with the file (F-124).
+  - P3-6: `FrameRoot.AddTo` builds the frame inside the try block of its caller (F-125).
+- Each new test fails on the old code: a stash of the old code, or a mutation back to it.
+- The owner then added four directions (D-1091 to D-1094):
+  - The carried light takes 17400 with a range of 300. A quarter more strength failed the glow guard of the load, and the owner chose "farther, not stronger" and a playtest (D-1091).
+  - The halo of a wall torch is 168 pixels wide at 3825, and it falls to 1% of its middle at its edge. The reader takes a side up to 192 (D-1092).
+  - The message box above the item list of a fight shows the line of the item under the cursor (D-1093).
+  - A beat that ends while the lead walks waits for the end of that step (D-1094). The torch run of the identity file changes.
+
+### The state of the build
+
+- The checks of this round ran on this machine before the push. The PR description gives the results.
+- The remote head holds this entry.
+
+### What is in flight
+
+- The Gitar pass and the CI of the round 2 push.
+- The `screen-test` job fails on the map frames of the torch and the halo. The author reads each changed frame of the CI artifact and commits the new baseline (D-733). Then `make codex-review PR=80`.
+- The playtest of the owner of the carried light (D-1091).
+
+### Traps and gotchas
+
+- Perl with brace delimiters fails on C# code that holds a brace. Use the Edit tool for code.
+- The capture session needs a window. It is the one local check of the focus rule and of `FrameRoot.AddTo` in a real window.
+
+### The questions that block progress
+
+None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
+
+### The next concrete action
+
+Poll the Gitar check of the round 2 push, and answer each Gitar item. Commit the new screen baseline from the CI artifact, and then run `make codex-review PR=80` when each CI check but `review-gate` passes.
+
 ## Session 294: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -310,38 +355,3 @@ None.
 ### The next concrete action
 
 Read the screen-test job and the Gitar pass of this head. When both pass, tell the owner to run `make codex-review PR=78`.
-
-## Session 285: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR-101, round 2. Repository: the-thing-below. Branch: `fix/pr-101-torch-and-pad`. PR: #78 (PR-101). Role: author. Base: `c154ddd`.
-
-### What this session did, and why
-
-- The Gitar pass of `ed7f21c` approved with one finding: the halo adds onto lit art, and the bound of lit art left the halo out (F-47). The finding has full merit.
-- `BrightestLight.OnMap` now takes the halo of each fire of the map. A halo adds its middle to each tile that its circle can reach, and the carried halo adds to each tile (D-1075).
-- The new bound refused the fixture dungeon: two halos reach the tile (6, 0), for 70691 of 70000. The halo of the wall torch went from 5000 to 4500, and the bound now gives 69707. The halo gives 95% of the light of the old rectangle.
-- The 78 captures of the baseline changed again, and the author read the pit frames. The other frames change by the halo alone.
-- `review-gate` failed on RG 3 alone, because no review record exists. A comment on the PR says so.
-
-### The state of the build
-
-- Base `c154ddd`. The reviewed Gitar head `ed7f21c`. The remote head is the commit of this entry.
-- On this machine: build, 3,217 tests, format, det-lint, identity, and the screen comparison pass. The simulation version stays 26.
-
-### What is in flight
-
-- The Gitar pass of this head. Then the owner runs `make codex-review PR=78`.
-
-### Traps and gotchas
-
-- The bound of lit art counts the full middle of a halo over its whole circle. Two torches 128 pixels apart both reach the tile between them. A brighter halo or a closer pair of torches fails the load.
-- This machine has no `codex` or `gh` command. The GitHub tools of the session read the checks and the comments.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Read the Gitar pass of the new head, reply on the Gitar thread with the fix commit, and answer each new Gitar item. The owner runs `make codex-review PR=78`.

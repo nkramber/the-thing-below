@@ -92,6 +92,36 @@ public sealed class GlowPassTests
         Assert.Equal(0u, marks & 1u);
     }
 
+    [Fact]
+    public void TheHaloFallsOnASlowCurveToAHundredthOfItsMiddleAtItsEdge()
+    {
+        // D-1092: the middle holds the full light, the edge holds 1% of it, and past the edge the
+        // halo gives nothing. The old fall of power 2.5 gave 18% at half the radius, and the new
+        // curve gives about 32%, so the step off is more gradual.
+        float edge = (float)GameAssemblyFile.Type("TheThingBelow.Game.Ui.GlowPass").GetField("HaloEdgeShare")!.GetValue(null)!;
+
+        Assert.Equal(0.01f, edge);
+        Assert.Equal(1f, HaloShareAt(0f, edge));
+        Assert.InRange(HaloShareAt(1f, edge), 0.0099f, 0.0101f);
+        Assert.Equal(0f, HaloShareAt(1.001f, edge));
+        Assert.InRange(HaloShareAt(0.5f, edge), 0.31f, 0.33f);
+
+        float before = 1f;
+        for (int step = 1; step <= 100; step += 1)
+        {
+            float share = HaloShareAt(step / 100f, edge);
+            Assert.True(share < before, $"the halo rose at the distance {step / 100f} (D-1092)");
+            Assert.True(before - share < 0.05f, $"the halo stepped down by {before - share} at the distance {step / 100f} (D-1092)");
+            before = share;
+        }
+    }
+
+    private static float HaloShareAt(float distance, float edgeShare)
+    {
+        MethodInfo method = GameAssemblyFile.Type("TheThingBelow.Game.Ui.WorldLights").GetMethod("HaloShareAt")!;
+        return (float)method.Invoke(null, [distance, edgeShare])!;
+    }
+
     private static float PulseOf(Glow glow, string id, long tick)
     {
         MethodInfo method = GameAssemblyFile.Type("TheThingBelow.Game.Ui.GlowPass").GetMethod("PulseOf")!;

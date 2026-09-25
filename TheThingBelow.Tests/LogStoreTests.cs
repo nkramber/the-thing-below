@@ -176,6 +176,37 @@ public sealed class LogStoreTests : IDisposable
     }
 
     [Fact]
+    public void ARemovalThatFailsStillOpensTheFileOfTheSession()
+    {
+        // Finding P3-3 of the repository review: one older log file that the system refused to
+        // remove stopped every start. The open keeps its file, and the fault of the removal goes
+        // to the caller (D-659, T-2).
+        string logs = Path.Combine(this.folder, LogStore.FolderName);
+        for (int minute = 0; minute < LogStore.KeepCount; minute += 1)
+        {
+            new LogStore(logs, LogLevel.Info).Open(Moment.AddMinutes(minute));
+        }
+
+        LogStore locked = new(logs, LogLevel.Info, path => throw new UnauthorizedAccessException($"the file '{path}' is read-only"));
+        string path = locked.Open(Moment.AddMinutes(LogStore.KeepCount));
+
+        Assert.True(File.Exists(path));
+        Assert.Equal(path, locked.SessionFile);
+        StorageException cleanup = Assert.IsType<StorageException>(locked.CleanupFault);
+        Assert.EndsWith("session-20260918-014253.json", cleanup.Path, StringComparison.Ordinal);
+        Assert.Equal(1, locked.Write([new LogEntry(LogLevel.Info, "a line after the fault", 0, LogSubsystems.Game, [])], Moment));
+    }
+
+    [Fact]
+    public void AnOpenWithNoRemovalReportsNoFault()
+    {
+        string path = this.store.Open(Moment);
+
+        Assert.True(File.Exists(path));
+        Assert.Null(this.store.CleanupFault);
+    }
+
+    [Fact]
     public void AnOpenWithAClockBehindTheOlderFilesKeepsItsOwnFile()
     {
         // A clock that runs behind the stamps of the older files, after a correction of the

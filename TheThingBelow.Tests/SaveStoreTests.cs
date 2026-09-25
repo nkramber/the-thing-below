@@ -152,6 +152,7 @@ public sealed class SaveStoreTests : IDisposable
         this.store.Write(SaveKind.Resume, SaveRuns.SaveAfter(60));
 
         Assert.Equal(60, this.store.Read(SaveKind.Resume).Snapshot.Tick);
+        this.store.RemoveResume();
 
         Assert.False(this.store.Exists(SaveKind.Resume));
         StorageException error = Assert.Throws<StorageException>(() => this.store.Read(SaveKind.Resume));
@@ -160,12 +161,35 @@ public sealed class SaveStoreTests : IDisposable
     }
 
     [Fact]
-    public void AReadOfTheResumeFileLeavesTheOtherSaves()
+    public void AResumeFileThatParsesStaysUntilTheRunResumes()
+    {
+        // Finding P3-13 of the repository review: the read removed a resume file that parsed, and
+        // a resume that then failed lost the only copy of the quit save (D-258, T-2).
+        this.store.Write(SaveKind.Resume, SaveRuns.SaveAfter(60));
+
+        this.store.Read(SaveKind.Resume);
+
+        Assert.True(this.store.Exists(SaveKind.Resume));
+        Assert.Equal(60, this.store.Read(SaveKind.Resume).Snapshot.Tick);
+    }
+
+    [Fact]
+    public void ARemovalOfAnAbsentResumeFileNamesThePath()
+    {
+        StorageException error = Assert.Throws<StorageException>(() => this.store.RemoveResume());
+
+        Assert.Equal(this.store.PathOf(SaveKind.Resume), error.Path);
+        Assert.Contains("D-258", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ARemovalOfTheResumeFileLeavesTheOtherSaves()
     {
         this.store.Write(SaveKind.Slot, SaveRuns.SaveAfter(20));
         this.store.Write(SaveKind.Resume, SaveRuns.SaveAfter(60));
 
         this.store.Read(SaveKind.Resume);
+        this.store.RemoveResume();
 
         Assert.True(this.store.Exists(SaveKind.Slot));
     }

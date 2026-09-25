@@ -112,6 +112,25 @@ public sealed class FontStrikeTests
     }
 
     [Fact]
+    public void ATableStartNearTheLimitOfAnIntegerFailsWithTheFile()
+    {
+        // Finding P3-28 of the repository review: the start plus 8 wrapped to a number below zero,
+        // the check passed, and a later read threw an index error with no file (T-2). The start
+        // of the size table sits at byte 8 of its directory record, which starts at byte 12.
+        byte[] bytes = UiContentFixtures.FontBytes(16);
+        bytes[20] = 0x7f;
+        bytes[21] = 0xff;
+        bytes[22] = 0xff;
+        bytes[23] = 0xfc;
+
+        ContentException error = Assert.Throws<ContentException>(
+            () => FontStrikes.Read(bytes, FontStrikes.BodyPath));
+
+        Assert.Equal(FontStrikes.BodyPath, error.File);
+        Assert.Contains("2147483644", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ACountOfStrikesBeyondTheFileFails()
     {
         // T-2. A count from a file never asks for the memory of that many records.

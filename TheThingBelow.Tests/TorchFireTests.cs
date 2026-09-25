@@ -154,6 +154,24 @@ public sealed class TorchFireTests
     }
 
     [Fact]
+    public void TheCarriedLightAndTheHaloOfAWallTorchHoldTheValuesOfTheOwner()
+    {
+        // D-1091: the carried light is about 9% brighter than the 16000 of D-1076, and it reaches a
+        // quarter farther than its 240. A quarter more strength fails the glow guard of the load.
+        // D-1092: the halo of a wall torch spreads half again as far as its 112 pixels, at 85% of
+        // its 4500.
+        ContentSet set = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
+        GlowSeed halo = set.Light.KindOf(ContentId.Parse("decor.wall_torch", "test", "id")).Fire.Glow;
+
+        Assert.Equal(17400, set.Light.Carried.Light.Color.Strength);
+        Assert.Equal(240 * 125 / 100, set.Light.Carried.Light.Range);
+        Assert.Equal(112 * 3 / 2, halo.Width);
+        Assert.Equal(112 * 3 / 2, halo.Height);
+        Assert.Equal(4500 * 85 / 100, halo.Strength);
+        Assert.True(halo.Width <= GlowSeed.MostSide, "the side bound of the reader takes the wider halo (D-1092)");
+    }
+
+    [Fact]
     public void AFireReadsItsGlow()
     {
         // D-912, D-913: the fixture fire holds a glow of strength 0, so it never glows.
@@ -164,8 +182,8 @@ public sealed class TorchFireTests
 
     [Theory]
     [InlineData("\"strength\": 0, \"width\"", "\"strength\": 160001, \"width\"", "0 to 160000")]
-    [InlineData("\"width\": 1", "\"width\": 0", "1 to 128")]
-    [InlineData("\"height\": 1", "\"height\": 129", "1 to 128")]
+    [InlineData("\"width\": 1", "\"width\": 0", "1 to 192")]
+    [InlineData("\"height\": 1", "\"height\": 193", "1 to 192")]
     [InlineData("\"height\": 1, \"x\": 0", "\"height\": 1, \"x\": 65", "-64 to 64")]
     [InlineData("\"glow\": { \"color\": \"k\"", "\"glow\": { \"color\": \"kk\"", "one palette key")]
     public void AGlowValueOutsideItsLimitFailsWithTheReason(string from, string to, string reason)

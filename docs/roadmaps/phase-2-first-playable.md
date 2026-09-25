@@ -1687,13 +1687,25 @@ Area file: `area-ci.md` section 7.24.
 
 Area files: `area-ui-input.md` section 7.14 and `area-exploration.md` section 7.14.
 
-**Scope.** The owner put five findings of the repository review of 2026-09-24 in one PR (D-1090):
+**Scope.** The owner put ten findings of the repository review of 2026-09-24 in one PR (D-1090):
 
 - The menu action in a fight pauses the fight. A dim and "Paused" show above the hand-off, and the fight holds (D-1083, F-116).
 - A hold of a step ends when its last source comes up. A loss of the focus holds the world and forgets each hold (D-1084, F-117).
 - A step into a group inside its grace time starts no encounter (D-1085, F-118).
 - A move intent ends with its tick (F-119).
 - The message of a crash draws above the hand-off, and a resize after a crash builds nothing (F-120).
+- A failed removal of an older crash file or log file no longer hides the new file (F-121).
+- A read of the resume file leaves it until the run resumes (F-122).
+- Each identity run refuses a replay or a copy that differs from the live run (F-123).
+- A field name of points alone, and a font offset near the limit of an integer, fail with the file (F-124).
+- The frame builds inside the try block of its caller (F-125).
+
+The owner also added four directions (D-1090):
+
+- The carried light takes 17400 with a range of 300 (D-1091).
+- The halo of a wall torch is 168 pixels wide at 3825, and it falls to 1% of its middle at its edge (D-1092).
+- The message box above the item list of a fight shows the line of the item under the cursor (D-1093).
+- A beat that ends while the lead walks waits for the end of that step (D-1094).
 
 **Out of scope.**
 
@@ -1708,15 +1720,23 @@ Area files: `area-ui-input.md` section 7.14 and `area-exploration.md` section 7.
 4. `AStepIntoAGroupInsideItsGraceTimeStartsNoEncounterAndOneAfterIt` and `AStepIntoAGroupOnTheLastTickOfItsGraceTimeStartsNoEncounter` pass.
 5. `AMoveIntentDuringABattleStartsNoStepWhenTheBattleEnds` and `ARunResumedFromASnapshotInsideABattleMatchesTheLiveRun` pass.
 6. `ACrashedSessionNeverBuildsTheScreenAgainOnAResize` passes.
+7. `ARemovalThatFailsKeepsTheCrashFileAndReportsTheFault` and `ARemovalThatFailsStillOpensTheFileOfTheSession` pass.
+8. `AResumeFileThatParsesStaysUntilTheRunResumes` passes.
+9. `AReplayThatDivergesFromTheLiveRunStopsTheIdentityRun` passes, and the identity file stays the same.
+10. `AFieldNameOfNoCharacterOrOfPointsAloneFailsWithTheFile` and `ATableStartNearTheLimitOfAnIntegerFailsWithTheFile` pass.
+11. `TheFrameBuildsInsideTheTryBlockOfItsCaller` passes, and the smoke session and the capture session build each frame.
+12. `TheCarriedLightAndTheHaloOfAWallTorchHoldTheValuesOfTheOwner` and `TheHaloFallsOnASlowCurveToAHundredthOfItsMiddleAtItsEdge` pass, and the load guard of the lit art passes.
+13. The smoke fight opens the item list and reads the line of the item in the message box.
+14. `AnEncounterWaitsUntilTheLeadStopsMoving` and `AnEncounterOfALeadThatStandsStillStartsWhenTheBeatEnds` pass.
 
 **Review focus.**
 
 - The simulation version rises to 27, and the identity file changes with it (G-17, D-504).
 - The line "Paused" is the one new player string (D-57).
 
-**Questions.** None. D-1083 to D-1085 and D-1090 hold the answers.
+**Questions.** None. D-1083 to D-1085 and D-1090 to D-1094 hold the answers.
 
-> *In plain English:* a press of the menu button in a fight crashed the game. Now it pauses the fight. A step into a fled enemy starts no instant fight, and a window with no focus stops the walk.
+> *In plain English:* a press of the menu button in a fight crashed the game. Now it pauses the fight. A step into a fled enemy starts no instant fight, and a window with no focus stops the walk. Five smaller guards keep crash files, the resume file, and the load errors honest.
 
 ### 7.40 PR-14: the hub map, the NPCs, and the services
 

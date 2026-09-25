@@ -41,6 +41,7 @@ public sealed class LogStore
 
     private readonly string folder;
     private readonly LogLevel minimum;
+    private readonly Action<string> remove;
     private string? file;
 
     /// <summary>Makes a store of the log files in one folder.</summary>
@@ -49,8 +50,22 @@ public sealed class LogStore
     /// <exception cref="ArgumentException">The folder has no character (T-2).</exception>
     /// <exception cref="ArgumentOutOfRangeException">The level is no level (T-2).</exception>
     public LogStore(string folder, LogLevel minimum)
+        : this(folder, minimum, File.Delete)
+    {
+    }
+
+    /// <summary>Makes a store with its own removal of an old file, so a test can make the removal fail.</summary>
+    /// <param name="folder">The full path of the folder of the log files.</param>
+    /// <param name="minimum">The lowest level that the file holds (D-660).</param>
+    /// <param name="remove">Removes one old log file (D-659).</param>
+    /// <exception cref="ArgumentException">The folder has no character (T-2).</exception>
+    /// <exception cref="ArgumentNullException">The removal is null (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The level is no level (T-2).</exception>
+    internal LogStore(string folder, LogLevel minimum, Action<string> remove)
     {
         ArgumentException.ThrowIfNullOrEmpty(folder);
+        ArgumentNullException.ThrowIfNull(remove);
+        this.remove = remove;
         if (minimum < LogLevel.Debug || minimum > LogLevel.Error)
         {
             throw new ArgumentOutOfRangeException(
@@ -66,6 +81,12 @@ public sealed class LogStore
 
     /// <summary>The lowest level that the file of this store holds (D-660).</summary>
     public LogLevel Minimum => this.minimum;
+
+    /// <summary>
+    /// The error of the removal of the older files after <see cref="Open"/>, or null when that
+    /// removal worked (D-659). The log file of the session exists either way.
+    /// </summary>
+    public StorageException? CleanupFault { get; private set; }
 
     /// <summary>The full path of the file of this session, after <see cref="Open"/> ran.</summary>
     /// <exception cref="StorageException">No call to <see cref="Open"/> made the file (T-2).</exception>
@@ -84,8 +105,8 @@ public sealed class LogStore
     /// <returns>The full path of the file.</returns>
     /// <exception cref="ArgumentException">The time is not a UTC time (T-2).</exception>
     /// <exception cref="StorageException">
-    /// The session opened a file already, or the system refused the folder, the file, or a
-    /// removal (T-2).
+    /// The session opened a file already, or the system refused the folder or the file. A failed
+    /// removal of an older file goes to <see cref="CleanupFault"/> (T-2).
     /// </exception>
     /// <remarks>
     /// The file exists after this call, with no line in it. A session that writes no line thus
@@ -114,7 +135,18 @@ public sealed class LogStore
         }
 
         this.file = path;
-        FolderFiles.KeepNewest(this.folder, FilePrefix, FileExtension, KeepCount, path);
+
+        // The limit of D-659 never stops a start. A removal that fails goes to the caller
+        // through `CleanupFault`, and the caller logs it (T-2).
+        try
+        {
+            FolderFiles.KeepNewest(this.folder, FilePrefix, FileExtension, KeepCount, path, this.remove);
+        }
+        catch (StorageException cleanup)
+        {
+            this.CleanupFault = cleanup;
+        }
+
         return path;
     }
 

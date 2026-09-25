@@ -167,7 +167,7 @@ public sealed class FontStrikes
             }
 
             int start = (int)ReadUInt32(bytes, record + 8, file, $"the start of the '{SizeTableTag}' table");
-            if (start < 0 || start + 8 > bytes.Length)
+            if (start < 0 || (long)start + 8 > bytes.Length)
             {
                 throw ContentException.ForField(
                     file,
@@ -284,7 +284,7 @@ public sealed class FontStrikes
 
     private static void RequireBytes(ReadOnlySpan<byte> bytes, int start, int length, string file, string what)
     {
-        if (start < 0 || start + length > bytes.Length)
+        if (start < 0 || (long)start + length > bytes.Length)
         {
             throw ContentException.ForFile(
                 file,

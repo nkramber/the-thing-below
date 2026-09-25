@@ -286,10 +286,19 @@ public sealed class MapPatrols
             return false;
         }
 
-        int left = checked(running.TicksLeft - 1);
+        int left = Math.Max(0, checked(running.TicksLeft - 1));
         if (left > 0)
         {
             this.Mark = new SightMark(running.Enemy, left);
+            return false;
+        }
+
+        // The encounter waits for the end of the step of the lead, so no fight starts with the
+        // lead between two tiles. The mark holds 0 ticks until then, and the lead starts no new
+        // step (D-1094).
+        if (party.Stepping is not null)
+        {
+            this.Mark = new SightMark(running.Enemy, 0);
             return false;
         }
 
@@ -519,9 +528,9 @@ public sealed class MapPatrols
         if (this.Mark is SightMark mark)
         {
             Refuse(
-                mark.TicksLeft < 1 || mark.TicksLeft > MapRules.BeatTicks,
+                mark.TicksLeft < 0 || mark.TicksLeft > MapRules.BeatTicks,
                 source,
-                $"the mark of the enemy '{mark.Enemy.Value}' holds {mark.TicksLeft} ticks, and the range of a beat is 1 to {MapRules.BeatTicks}");
+                $"the mark of the enemy '{mark.Enemy.Value}' holds {mark.TicksLeft} ticks, and the range of a beat is 0 to {MapRules.BeatTicks}, where 0 waits for the end of a step (D-1094)");
             Refuse(
                 this.Encounter is not null,
                 source,

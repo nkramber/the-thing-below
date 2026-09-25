@@ -239,7 +239,10 @@ public sealed class MapState
             }
         }
 
-        if (this.Stepping is null && this.wanted is StepDirection next)
+        // A beat that ended waits for the lead to stand still, and the encounter starts on the
+        // next tick, so the lead starts no new step here (D-1094).
+        bool encounterDue = this.Patrols.Mark is SightMark { TicksLeft: 0 };
+        if (this.Stepping is null && !encounterDue && this.wanted is StepDirection next)
         {
             // The lead turns whether or not it can move, so a push against a wall turns it
             // and the player reads the direction of the party from the sprite (D-207).

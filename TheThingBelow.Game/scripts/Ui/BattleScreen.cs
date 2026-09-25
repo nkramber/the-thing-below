@@ -178,6 +178,13 @@ public sealed class BattleScreen
     /// <summary>The command menu of the turn, or no value while no character waits for a command.</summary>
     public BattleCommands? Commands => this.commands;
 
+    /// <summary>
+    /// The string id of the line of a form or an item that the message box above the command menu
+    /// shows, or no value while it shows the line of the last event (D-1027, D-1093). The smoke
+    /// session reads it.
+    /// </summary>
+    public ContentId? ShownDescription => this.shownDescription;
+
     /// <summary>Builds the battle screen of one fight into a frame.</summary>
     /// <param name="frame">The frame, with its world viewport and its UI layer.</param>
     /// <param name="ui">The atlas, the theme, and the text helper.</param>
@@ -1042,7 +1049,7 @@ public sealed class BattleScreen
 
         string key = $"{open.Stage}:{open.Cursor}:{string.Join(",", entries.ConvertAll(entry => entry.Id.Value + entry.Allowed))}";
         this.ShowCommandRow(key, entries, open.Stage == CommandStage.Target ? 0 : open.Cursor);
-        this.ShowFormDescription(open);
+        this.ShowDescription(open);
     }
 
     /// <summary>Gives the entry of one form: its name and its MP cost, or its name alone for a drill (D-1027).</summary>
@@ -1055,15 +1062,23 @@ public sealed class BattleScreen
     }
 
     /// <summary>
-    /// Shows the description of the form under the cursor on the message line while the form
-    /// stage is open, and puts the line of the last event back when it closes (D-1027).
+    /// Shows the description of the form or the item under the cursor in the message box above the
+    /// command menu while that stage is open, and puts the line of the last event back when it
+    /// closes (D-1027, D-1093).
     /// </summary>
-    private void ShowFormDescription(BattleCommands open)
+    private void ShowDescription(BattleCommands open)
     {
-        if (open.Stage == CommandStage.Form)
+        // The line of an item is its own string id, as the item window of the menu reads it (D-1093).
+        ContentId? under = open.Stage switch
         {
-            ContentId description = open.Forms[open.Cursor].Description;
-            if (!ReferenceEquals(this.shownDescription, description))
+            CommandStage.Form => open.Forms[open.Cursor].Description,
+            CommandStage.Item => open.Items[open.Cursor].Id,
+            _ => null,
+        };
+
+        if (under is ContentId description)
+        {
+            if (this.shownDescription is null || string.CompareOrdinal(this.shownDescription.Value, description.Value) != 0)
             {
                 this.shownDescription = description;
                 this.ui.Text.Put(this.message, description);

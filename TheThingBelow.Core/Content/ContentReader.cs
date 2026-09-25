@@ -109,6 +109,17 @@ public ref struct ContentReader
         }
 
         field = this.ReadTokenText("a field name");
+
+        // A name that is empty, or that holds points alone, gives no segment of the path, and
+        // the error then broke its own contract with no file (T-2). The error names the parent.
+        if (field.Trim('.').Length == 0)
+        {
+            throw ContentException.ForField(
+                this.file,
+                this.CurrentField(),
+                $"a field named '{field}', and a field name needs a character other than a point");
+        }
+
         this.path.Add($".{field}");
         if (!this.fieldsSeen[depth].Add(field))
         {

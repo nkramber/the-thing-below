@@ -134,7 +134,11 @@ The rules AGENTS 1 and DOCS 1 of ste-check read the exact text, as their tests d
 
 The owner also answered four findings of the review. The `codex-review` command keeps its setup (D-1082). The menu action in a fight pauses the fight with a dimmed screen (D-1083). A loss of focus pauses the world until the focus comes back (D-1084). A step into a group in its grace time starts no encounter (D-1085).
 
-2026-09-25 input pass: PR-103 fixes five findings of the repository review of 2026-09-24 in one PR, as the owner directed (D-1090). The menu action in a fight pauses the fight, and a dim and "Paused" show above the hand-off (D-1083, F-116). A hold of a step ends when its last source comes up, and a loss of the focus holds the world (D-1084, F-117). A step into a group inside its grace time starts no fight (D-1085, F-118). A move intent ends with its tick (F-119). The message of a crash draws above the hand-off, and a resize after a crash builds nothing (F-120).
+2026-09-25 input pass: PR-103 fixes ten findings of the repository review of 2026-09-24 in one PR, as the owner directed (D-1090). The menu action in a fight pauses the fight, and a dim and "Paused" show above the hand-off (D-1083, F-116). A hold of a step ends when its last source comes up, and a loss of the focus holds the world (D-1084, F-117). A step into a group inside its grace time starts no fight (D-1085, F-118). A move intent ends with its tick (F-119). The message of a crash draws above the hand-off, and a resize after a crash builds nothing (F-120).
+
+The second part of PR-103 holds five guards. A failed removal of an older crash file or log file no longer hides the new file (F-121). A read of the resume file leaves it until the run resumes (F-122). Each identity run refuses a replay that differs from the live run (F-123). A field name of points alone, and a font offset near the limit of an integer, fail with the file (F-124). The frame builds inside the try block of its caller (F-125).
+
+The owner added four directions to PR-103. The carried light takes 17400 with a range of 300 (D-1091). The halo of a wall torch spreads to 168 pixels, 15% weaker at its middle, and falls to 1% at its edge (D-1092). The message box above the item list of a fight shows the line of the item under the cursor (D-1093). No fight starts while the lead walks between two tiles (D-1094).
 
 External facts, each with the date of its check:
 
@@ -451,6 +455,11 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-118 | A step of the party into a group inside its grace time after a flee started a fight at once, with the party first. The sight of the group waited for the grace time, and the step did not (D-381) | 2026-09-24 | ✅ PR-103: the body blocks the step, and no encounter starts until the grace time ends (D-1085) |
 | F-119 | A move intent lasted until the next world step, and a battle, a menu, or a story scene held that step. The step then started on a later tick. The snapshot and the state hash leave the direction out, so a resumed run went another way with an equal hash (G-5) | 2026-09-24 | ✅ PR-103: the direction ends with its tick |
 | F-120 | The message of a crash drew under the pass of the hand-off, so a crash during a transition showed a still cover with no text. A change of the window size after a crash built the screen with no run, crashed again, and replaced the first message | 2026-09-24 | ✅ PR-103: the message draws on a top layer above the pass, and a resize after a crash builds nothing |
+| F-121 | The crash store and the log store removed the files after the newest ten after each write, and a removal that the system refused threw. The crash screen then named no file, although the file existed, and one stuck log file stopped every start (D-659) | 2026-09-24 | ✅ PR-103: each write returns its file, and a failed removal goes to the caller as a warning line |
+| F-122 | A read of the resume file removed it when it parsed. A resume that then failed, such as against the content of a newer build, lost the only copy of the quit save (D-258) | 2026-09-24 | ✅ PR-103: the read leaves the file, and the caller removes it after the run resumed |
+| F-123 | The identity runs of a replay and of a resumed copy hashed both state hashes into one value and compared nothing. A divergence that every leg shared became the new expected value of `--write`. The statuses run put in 0 when it took no copy (G-5) | 2026-09-24 | ✅ PR-103: each run refuses two different hashes, and an absent copy is an error |
+| F-124 | A field name that was empty or held points alone gave no segment of the path, and the error broke its own contract with an argument error and no file. A font offset near the limit of an integer wrapped the bounds check to a number below zero, and a later read threw an index error | 2026-09-24 | ✅ PR-103: the reader refuses the name with the parent path, and the font checks use 64-bit sums |
+| F-125 | The frame built in `_Ready`, which the engine calls. The .NET bridge of Godot prints an error of that callback and runs on, so a shader that failed to load left a half frame, and the crash file named a later error (G-18) | 2026-09-24 | ✅ PR-103: `FrameRoot.AddTo` builds the frame inside the try block of its caller |
 
 ## 6. Guardrails (the safety contract for every PR)
 
@@ -582,7 +591,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 37. PR-100: the end of the Gitar pause and the Gitar poll after a push, right after PR-91 (D-1073, D-1074).
 38. PR-101: the glow halo, the carried flame, every pad, and the pointer, after PR-100 (D-1075 to D-1078).
 39. PR-102: the gate fixes of the repository review of 2026-09-24, in one PR, after PR-101 (D-1081, D-1086, D-1087).
-40. PR-103: the input fixes and the grace time of the repository review of 2026-09-24, in one PR, after PR-102 (D-1083 to D-1085, D-1090).
+40. PR-103: the input fixes, the grace time, five guards, and four owner directions, in one PR, after PR-102 (D-1083 to D-1085, D-1090 to D-1094).
 41. PR-14: the hub map, the NPCs, the rest, the save, and the party and lesson swaps (D-59, D-112, D-356).
 42. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
 43. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).

@@ -411,8 +411,7 @@ public sealed partial class CaptureSession : Node
             this.walkMap = null;
         }
 
-        var built = new FrameRoot();
-        this.AddChild(built);
+        FrameRoot built = FrameRoot.AddTo(this);
         this.frame = built;
         built.SetMode(capture.Fit);
 
