@@ -1,3 +1,37 @@
+## Session 288: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR-101, round 1. Repository: the-thing-below. Local branch: `review/pr-78`; PR branch: `fix/pr-101-torch-and-pad`. PR: #78. Role: reviewer. Base: `c154ddd`.
+
+### What this session did, and why
+
+- Reviewed the effective head `55ba1b2` of PR #78 against the PR-101 roadmap and its exit tests. No in-scope defect was found.
+- Verified the Gitar halo finding's fix at `7aef6dc`. The current Gitar CI analysis reported the missing RG 3 review record; this session adds that record. The clean approval has no item (D-964).
+- Read all 78 changed screen-test artifact frames from CI run `36094314170`. No visual fault was found.
+
+### The state of the build
+
+- Base and merge base `c154ddd`; effective head and remote code head `55ba1b2` before this metadata commit.
+- `make verify` passed on this machine: build, 3,219 tests, format, det-lint, ste-check, replay identity, content hash, atlas, and smoke.
+- CI run `36094314170` passed the implementation checks and Gitar. `review-gate` failed at RG 3 before this review record existed; a fresh result follows publication.
+
+### What is in flight
+
+- This review record and handoff are committed together and pushed to the PR branch. The remote head and fresh `review-gate` result must be verified.
+
+### Traps and gotchas
+
+- The failure of `review-gate` at the implementation head is the expected missing-record state. The metadata commit adds the record and must trigger a fresh gate.
+- No physical Steam Deck was available. The smoke session covers device 3 input events, and the game logs pad device ids for a later Deck check (D-1077).
+
+### The questions that block progress
+
+OQ-246 remains open for the cause of the one-level screen-test variance. D-1080 sets the one-level compare and leaves the cause for later; OQ-246 blocks no PR.
+
+### The next concrete action
+
+Push the metadata commit to `fix/pr-101-torch-and-pad`, fetch, confirm the branch has no ahead commit and `gh pr view` names the pushed head, then read the fresh review-gate and Gitar results.
+
 ## Session 287: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -317,42 +351,3 @@ None. OQ-246 blocks no PR.
 ### The next concrete action
 
 Push this metadata commit to `feat/pr-91-torch-item`. Fetch, check the branch status, confirm the PR head with `gh pr view`, and read the new `review-gate` result.
-
-## Session 278: 2026-09-24, Claude Code
-
-Author: Claude Code
-Session: author PR-91, round 1. Repository: the-thing-below. Branch: `feat/pr-91-torch-item`. PR: #76. Role: author. Base: `15aad83`.
-
-### What this session did, and why
-
-- Asked the owner OQ-217, OQ-218, and each open question of the scope. D-1062 to D-1071 record the answers, and OQ-217 and OQ-218 close.
-- Core: the `dark` field of each map file, the sight of the party on a dark map, the torch bonus of each patrol, the torch intents, the torch state in the save of format 13, and simulation version 25.
-- Game: the `torch` action on the T key and the Y button, with the settings file at format 3. The torch in the hand, the carried light that follows the torch, and `SightFade` for each enemy of a dark map.
-- The console lost its `torch` command (D-1071). The identity set gained the `torch` run.
-- The author read the frames of `make walk`, the pit fixture, and the settings fixture on this machine.
-- Gitar found that a held torch let a patrol see the party while the screen still faded the patrol in. The range now grows in 24 ticks, inside the beat of 30, and the mark draws with a fading patrol. A regression test holds it.
-- The owner set D-1072: when the fix of Gitar differs or has a flaw, the session applies its own fix with no question.
-
-### The state of the build
-
-- Local head before this entry: `04fa13c`. `make verify` parts passed on this machine: build, 3197 tests, format, lint, STE, identity, content, atlas, and smoke.
-- CI run `36061445475` passed each job but `screen-test` and `review-gate`. The screen-test flake of OQ-246 took reruns, then the job reached the baseline step.
-- The new baselines come from that artifact: 90 changed captures and `pit-torch-1x`. The battle frames move one level, because the patrols of the fixture now see 2 tiles and the fight starts later (D-1067). The smoke fight ends at tick 2443, and at tick 2186 on `main`.
-
-### What is in flight
-
-- PR #76 is open. The fix of the Gitar finding waits for CI, then `make codex-review PR=76 -- --skip-gitar-review` runs.
-
-### Traps and gotchas
-
-- `make sheet` with no fixture writes every capture and then fails in the join of the sheet: the joined picture passes the height limit of 65535 pixels. Take one fixture at a time with `FIXTURE=`.
-- `make sheet` clears `artifacts/captures` on each run.
-- A Perl substitution with `|` as its delimiter reads an escaped `\|\|` in its pattern as an empty choice. Use another delimiter.
-
-### The questions that block progress
-
-None. OQ-246 stays open and blocks no PR.
-
-### The next concrete action
-
-When CI of the fix commit passes each job but `review-gate`, run `make codex-review PR=76 -- --skip-gitar-review` in the background (D-926, D-1061).
