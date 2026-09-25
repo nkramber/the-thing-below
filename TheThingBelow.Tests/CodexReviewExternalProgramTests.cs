@@ -112,7 +112,9 @@ public sealed class CodexReviewExternalProgramTests
 
     /// <summary>
     /// A child of the program holds the output pipe open after the program itself hangs. The stop
-    /// takes the whole tree, so the read of the pipe ends too.
+    /// takes the whole tree. Windows loses the parent link of a child of Git Bash, so the child
+    /// can run on there, and the bound on the read ends the wait. CI on Windows waited the whole
+    /// 30 seconds of the child before that bound.
     /// </summary>
     [Fact]
     public void AStopAtTheLimitEndsEachChildOfTheProgram()
@@ -124,6 +126,23 @@ public sealed class CodexReviewExternalProgramTests
 
         Assert.Contains("each process that it started", fault.Message, StringComparison.Ordinal);
         Assert.True(clock.Elapsed < TimeSpan.FromSeconds(20), $"The stop took {clock.Elapsed}, and the limit is 1 second.");
+    }
+
+    /// <summary>
+    /// The program ends at once, and a child that it left holds the output pipe. The old read
+    /// waited as long as the child ran, and no limit applied after the end of the program.
+    /// </summary>
+    [Fact]
+    public void AnOutputThatAChildHoldsOpenAfterTheEndIsAFault()
+    {
+        Stopwatch clock = Stopwatch.StartNew();
+
+        InvalidOperationException fault = Assert.Throws<InvalidOperationException>(
+            () => ExternalProgram.Run("sh", ["-c", "sleep 30 & exit 0"], Path.GetTempPath(), null, TimeSpan.FromSeconds(20)));
+
+        Assert.Contains("stayed open", fault.Message, StringComparison.Ordinal);
+        Assert.Contains("D-1086", fault.Message, StringComparison.Ordinal);
+        Assert.True(clock.Elapsed < TimeSpan.FromSeconds(20), $"The read took {clock.Elapsed}, and the bound is {ExternalProgram.DrainLimit}.");
     }
 
     [Fact]
@@ -146,6 +165,7 @@ public sealed class CodexReviewExternalProgramTests
     public void EachLimitOfTheCommandIsTheValueOfD1086()
     {
         Assert.Equal(TimeSpan.FromMinutes(5), ExternalProgram.StepLimit);
+        Assert.Equal(TimeSpan.FromSeconds(5), ExternalProgram.DrainLimit);
         Assert.Equal(TimeSpan.FromMinutes(10), CodexReviewCommand.InstallLimit);
         Assert.Equal(TimeSpan.FromMinutes(10), CodexReviewCommand.ProbeLimit);
         Assert.Equal(TimeSpan.FromMinutes(90), CodexReviewCommand.ReviewLimit);

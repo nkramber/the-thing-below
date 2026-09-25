@@ -28,6 +28,12 @@ public static class ExternalProgram
     /// </summary>
     public static readonly TimeSpan StepLimit = TimeSpan.FromMinutes(5);
 
+    /// <summary>
+    /// The time that the read of the output can take after the program ends or stops (D-1086).
+    /// A pipe that stays open past it belongs to a process that the program left behind.
+    /// </summary>
+    public static readonly TimeSpan DrainLimit = TimeSpan.FromSeconds(5);
+
     /// <summary>Runs one program to its end, with the environment of this process.</summary>
     /// <param name="program">The program name or its full path.</param>
     /// <param name="arguments">Each argument, with no shell between them.</param>
@@ -119,19 +125,30 @@ public static class ExternalProgram
         {
             // A child of the program can hold the pipes open, so the stop takes the whole tree.
             process.Kill(entireProcessTree: true);
-            process.WaitForExit();
+            process.WaitForExit(DrainLimit);
         }
 
-        string error = errorText.GetAwaiter().GetResult();
-        string output = outputText.GetAwaiter().GetResult();
+        // A process outside the tree can still hold a pipe open. Windows loses the parent link
+        // of a child of Git Bash, and a program can leave a child that runs on. The read of the
+        // two streams thus gets its own bound, or it waits as long as that process runs (F-114).
+        Task both = Task.WhenAll(errorText, outputText);
+        bool drained = ReferenceEquals(Task.WhenAny(both, Task.Delay(DrainLimit)).GetAwaiter().GetResult(), both);
         if (!ended)
         {
+            string error = drained ? errorText.GetAwaiter().GetResult().Trim() : "Its output stayed open after the stop.";
             throw new InvalidOperationException(
                 $"`{Describe(program, arguments)}` ran past its limit of {Seconds(limit)} seconds in '{workingDirectory}', " +
-                $"so the command stopped it and each process that it started (D-1086, T-2). {error.Trim()}");
+                $"so the command stopped it and each process that it started (D-1086, T-2). {error}");
         }
 
-        return new ProgramResult(process.ExitCode, output, error);
+        if (!drained)
+        {
+            throw new InvalidOperationException(
+                $"`{Describe(program, arguments)}` ended in '{workingDirectory}', and its output stayed open for {Seconds(DrainLimit)} seconds more. " +
+                "A process that it started holds the output, so the command stopped the read (D-1086, T-2).");
+        }
+
+        return new ProgramResult(process.ExitCode, outputText.GetAwaiter().GetResult(), errorText.GetAwaiter().GetResult());
     }
 
     /// <summary>Runs one program with <see cref="StepLimit"/>, and fails when its exit code is not 0.</summary>

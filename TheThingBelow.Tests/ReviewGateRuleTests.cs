@@ -137,6 +137,9 @@ public sealed class ReviewGateOverrideRuleTests
     [InlineData("LICENSE")]
     [InlineData(".claude/settings.json")]
     [InlineData(".claude/settings.local.json")]
+    [InlineData(".claude/Settings.local.json")]
+    [InlineData(".claude/SETTINGS.json")]
+    [InlineData(".Claude/settings.json")]
     public void EachPathOutsideTheEligibleSetFails(string path)
     {
         PullRequestFacts facts = ReviewGateFixture.LabeledFacts() with { Files = [path] };

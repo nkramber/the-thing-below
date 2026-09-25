@@ -1,3 +1,37 @@
+## Session 288: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #79 (PR-102), round 2. Repository: the-thing-below. Branch: `fix/pr-102-gate-hygiene`. PR: #79. Role: author. Base: `c154ddd`.
+
+### What this session did, and why
+
+- Read the Gitar pass of `fa68db5`. It completed in 113 seconds and approved with one finding.
+- Gitar finding: the settings refusal compared with case. macOS and Windows open `.claude/Settings.local.json` as the same file. The compare now ignores case, as Gitar proposed, with case-variant tests (D-1085).
+- Gitar CI claim: `review-gate` gave one fault. The log shows RG 3 alone, because `docs/reviews/pr-79.md` waits for the review. No change.
+- CI on Windows failed `AStopAtTheLimitEndsEachChildOfTheProgram`. The fault came after 30 seconds, because Windows loses the parent link of a child of Git Bash. The read of the output now has a bound of 5 seconds after the end or the stop (D-1086, F-114). A new test covers a child that holds the output after a normal end.
+
+### The state of the build
+
+- Round 1 head `fa68db5`: every CI job passed except the Windows test and RG 3. `make smoke` passed on the Mac.
+
+### What is in flight
+
+- This round pushes the two fixes. Then the Gitar poll, a reply on the thread, and `make codex-review PR=79`.
+- PR #78 (PR-101) is still open.
+
+### Traps and gotchas
+
+- The `review-gate` job runs the workflow of `main`, so the new facts step of F-109 first runs after the merge.
+- The rebase notes of Session 287 stand: phase section 7.38, design sequence item 39, and PR-101 in place of "PR #78".
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, run the Gitar poll, reply on the Gitar thread with the fix commit, then run `make codex-review PR=79` in the background.
+
 ## Session 287: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -317,37 +351,3 @@ None. OQ-246 stays open and blocks no PR.
 ### The next concrete action
 
 Wait for every check but `review-gate` to pass on this commit. Then run `make codex-review PR=75 -- --skip-gitar-review`.
-
-## Session 275: 2026-09-24, Codex
-
-Author: Codex
-Session: reviewer PR #75, round 2. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: reviewer. Base: `f1ab753`.
-
-### What this session did, and why
-
-- Re-reviewed the heal correction from `26d20cc` to `15945f2`.
-- Verified that the regression test passes at the content limits. The old product overflowed before the health cap.
-- `make verify` passed on macOS arm64 with 3,153 tests.
-- Updated `docs/reviews/pr-75.md`. P2-1 is fixed in `15945f2`.
-
-### The state of the build
-
-- Base and merge base: `f1ab753`. Effective head: `15945f2`. Remote metadata tip before this follow-up update: `3cdfad6`.
-- CI run `36041907957` passed implementation checks except `screen-test`, which failed on three captures. The rerun repeated the same differences. The remote still points to `15945f2`.
-
-### What is in flight
-
-- The review record and this entry were pushed in metadata commit `3cdfad6`. The PR still needs its three screen-test differences resolved.
-
-### Traps and gotchas
-
-- The screen differences are a few channel values. The three capture frames look unchanged against their baselines.
-- Gitar's only comment says “Gitar is working”. It has no item and does not block the verdict (D-964). The pass was skipped under D-946.
-
-### The questions that block progress
-
-None. OQ-247 and OQ-248 resolve in D-1052 and D-1055.
-
-### The next concrete action
-
-The author needs to resolve the three CI screen differences before approval. The metadata push triggered fresh CI checks.

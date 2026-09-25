@@ -237,9 +237,11 @@ public static class OverrideRules
 
     private static bool IsHarnessSettings(string path)
     {
+        // macOS and Windows resolve a case variant of the path to the same settings file, so the
+        // compare ignores case (D-700, D-1085).
         foreach (string settings in HarnessSettingsPaths)
         {
-            if (string.Equals(path, settings, StringComparison.Ordinal))
+            if (string.Equals(path, settings, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }

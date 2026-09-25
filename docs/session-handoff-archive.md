@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 275: 2026-09-24, Codex
+
+Author: Codex
+Session: reviewer PR #75, round 2. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: reviewer. Base: `f1ab753`.
+
+### What this session did, and why
+
+- Re-reviewed the heal correction from `26d20cc` to `15945f2`.
+- Verified that the regression test passes at the content limits. The old product overflowed before the health cap.
+- `make verify` passed on macOS arm64 with 3,153 tests.
+- Updated `docs/reviews/pr-75.md`. P2-1 is fixed in `15945f2`.
+
+### The state of the build
+
+- Base and merge base: `f1ab753`. Effective head: `15945f2`. Remote metadata tip before this follow-up update: `3cdfad6`.
+- CI run `36041907957` passed implementation checks except `screen-test`, which failed on three captures. The rerun repeated the same differences. The remote still points to `15945f2`.
+
+### What is in flight
+
+- The review record and this entry were pushed in metadata commit `3cdfad6`. The PR still needs its three screen-test differences resolved.
+
+### Traps and gotchas
+
+- The screen differences are a few channel values. The three capture frames look unchanged against their baselines.
+- Gitar's only comment says “Gitar is working”. It has no item and does not block the verdict (D-964). The pass was skipped under D-946.
+
+### The questions that block progress
+
+None. OQ-247 and OQ-248 resolve in D-1052 and D-1055.
+
+### The next concrete action
+
+The author needs to resolve the three CI screen differences before approval. The metadata push triggered fresh CI checks.
+
 ## Session 274: 2026-09-24, Claude Code
 
 Author: Claude Code
