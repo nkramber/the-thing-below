@@ -1,8 +1,8 @@
 {
- "comment": "The carried light: the light on the lead that follows its drawn place on each frame (D-847). The light draws while the party holds the torch out, and never while the torch is put away (D-848, D-1064). The x and the y put the light at the top of the torch in the hand of the lead, from the west edge and the feet of the lead (D-1069). The fire is the flame and the embers of the torch in the hand, and the light steps between its levels as a wall torch does (D-890, D-891). The glow keeps a strength of 0, because the flame draws over the lead, and a glow there reads as a sprite that glows (D-188, D-912).",
- "color": "A",
- "strength": 21000,
- "range": 216,
+ "comment": "The carried light: the light on the lead that follows its drawn place on each frame (D-847). The light draws while the party holds the torch out, and never while the torch is put away (D-848, D-1064). The x and the y put the light at the top of the torch in the hand of the lead, from the west edge and the feet of the lead (D-1069). The drawing of the lead draws a flame on the top of the torch, and the fire adds the moving flame and the embers over it. The light steps between its levels as a wall torch does (D-890, D-891, D-1076). The light takes the flame orange of a wall torch at less strength, so the lit floor stays warm and never goes to white (D-1076). The glow keeps a strength of 0, because the flame draws over the lead, and a glow there reads as a sprite that glows (D-188, D-912).",
+ "color": "j",
+ "strength": 16000,
+ "range": 240,
  "height": 24,
  "x": 6,
  "y": -23,
@@ -15,8 +15,8 @@
   ],
   "jump": 1,
   "emitters": [
-   { "amount": 8, "lifetime_ticks": 12, "colors": ["a", "A", "j"], "size": 1, "x": 0, "y": -2, "half_width": 1, "half_height": 0, "direction": -90, "spread": 14, "slowest_speed": 14, "fastest_speed": 24, "gravity": -20 },
-   { "amount": 3, "lifetime_ticks": 40, "colors": ["X", "j"], "size": 1, "x": 0, "y": -4, "half_width": 1, "half_height": 0, "direction": -90, "spread": 35, "slowest_speed": 8, "fastest_speed": 20, "gravity": -6 }
+   { "amount": 16, "lifetime_ticks": 14, "colors": ["a", "A", "j"], "size": 1, "x": 0, "y": -3, "half_width": 2, "half_height": 1, "direction": -90, "spread": 14, "slowest_speed": 12, "fastest_speed": 24, "gravity": -20 },
+   { "amount": 4, "lifetime_ticks": 40, "colors": ["X", "j"], "size": 1, "x": 0, "y": -6, "half_width": 1, "half_height": 0, "direction": -90, "spread": 35, "slowest_speed": 8, "fastest_speed": 20, "gravity": -6 }
   ],
   "glow": { "color": "j", "strength": 0, "width": 1, "height": 1, "x": 0, "y": 0 }
  }

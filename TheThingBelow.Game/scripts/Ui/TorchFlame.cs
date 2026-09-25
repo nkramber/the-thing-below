@@ -24,7 +24,7 @@ public sealed class TorchFlame
     private readonly PointLight2D ground;
     private readonly PointLight2D figures;
     private readonly ParticleStreams streams;
-    private readonly ColorRect? glowSeed;
+    private readonly Sprite2D? glowSeed;
     private readonly Glow glow;
     private readonly float baseEnergy;
     private readonly float baseScale;
@@ -36,7 +36,7 @@ public sealed class TorchFlame
         PointLight2D ground,
         PointLight2D figures,
         ParticleStreams streams,
-        ColorRect? glowSeed,
+        Sprite2D? glowSeed,
         Glow glow)
     {
         this.Id = id;
@@ -98,7 +98,7 @@ public sealed class TorchFlame
     /// <param name="fire">The fire of the file of the torch.</param>
     /// <param name="lights">The pair of Godot lights of the torch (D-853).</param>
     /// <param name="palette">The palette (D-181).</param>
-    /// <param name="glow">The glow file, which holds the pulse of the glow (D-913).</param>
+    /// <param name="glow">The glow file, which holds the pulse of the glow (D-913), and the texture of the halo (D-1075).</param>
     /// <param name="visible">The region of the parent that each node holds, so the flame never stops (F-98).</param>
     /// <param name="parent">The node that takes the particle nodes: the world of the screen.</param>
     /// <returns>The fire on screen.</returns>
@@ -109,7 +109,7 @@ public sealed class TorchFlame
         TorchFire fire,
         (PointLight2D Ground, PointLight2D Figures) lights,
         Palette palette,
-        Glow glow,
+        (Glow File, Texture2D Halo) glow,
         Rect2 visible,
         Node2D parent)
     {
@@ -117,7 +117,8 @@ public sealed class TorchFlame
         ArgumentNullException.ThrowIfNull(fire);
         ArgumentNullException.ThrowIfNull(lights.Ground);
         ArgumentNullException.ThrowIfNull(lights.Figures);
-        ArgumentNullException.ThrowIfNull(glow);
+        ArgumentNullException.ThrowIfNull(glow.File);
+        ArgumentNullException.ThrowIfNull(glow.Halo);
 
         return new TorchFlame(
             id,
@@ -125,8 +126,8 @@ public sealed class TorchFlame
             lights.Ground,
             lights.Figures,
             ParticleStreams.Build(id, fire.Emitters, palette, lit: false, FlameZIndex, visible, parent),
-            GlowPass.BuildSeed(id, fire.Glow, palette, FlameZIndex + 1, parent),
-            glow);
+            GlowPass.BuildSeed(id, fire.Glow, palette, glow.Halo, parent),
+            glow.File);
     }
 
     /// <summary>Puts the torch at one place, in art pixels of the parent: the place of its light with no jump.</summary>

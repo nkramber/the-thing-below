@@ -57,6 +57,8 @@ public static class SimulationVersion
     /// PR-91 raised it to 25: a map file names each dark map, the party sees 2 tiles there with the torch put away and
     /// 6 tiles with it held out, a held torch gives each patrol of a dark map 4 tiles more, and the party holds the
     /// torch out or puts it away on the walk (D-1062 to D-1064, D-1071).
+    /// PR-101 raised it to 26: the glow of a fire is a soft halo up to 128 pixels wide, and the load refuses a halo
+    /// that passes the glow threshold in place of one that stays below it (D-1075).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -64,5 +66,5 @@ public static class SimulationVersion
     /// as a label alone: a load reads the snapshot on the rules of this build (D-259). A
     /// change of this number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 25;
+    public const int Current = 26;
 }

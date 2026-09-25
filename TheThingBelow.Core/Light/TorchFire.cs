@@ -18,25 +18,25 @@ public sealed record FlickerLevel(int Strength, int Range);
 public sealed record FlickerStep(FlickerLevel Level, int JumpX, int JumpY);
 
 /// <summary>
-/// The glow of a fire: a small rectangle of one palette color over the flame, which draws above
-/// the glow threshold and pulses on a slow wave of the tick (D-913, D-915). It draws in the world,
-/// and no sprite or tile draws that bright, so light alone glows (D-188, F-47).
+/// The glow of a fire: a soft round halo of one palette color behind the flame, which adds its
+/// light to the world and pulses on a slow wave of the tick (D-913, D-1075). The halo stays below
+/// the glow threshold, so it never draws as a box of full light (D-915, D-1075, F-47).
 /// </summary>
 /// <param name="Key">The palette key of the glow (D-181).</param>
-/// <param name="Strength">The linear light of the rectangle, in basis points of its palette color, or 0 for a fire that never glows (D-912).</param>
-/// <param name="Width">The width of the rectangle, in art pixels.</param>
-/// <param name="Height">The height of the rectangle, in art pixels.</param>
-/// <param name="X">The column of the middle of the rectangle, in art pixels from the place of the light.</param>
-/// <param name="Y">The row of the middle of the rectangle, in art pixels from the place of the light.</param>
+/// <param name="Strength">The linear light at the middle of the halo, in basis points of its palette color, or 0 for a fire that never glows (D-912).</param>
+/// <param name="Width">The width of the halo, in art pixels.</param>
+/// <param name="Height">The height of the halo, in art pixels.</param>
+/// <param name="X">The column of the middle of the halo, in art pixels from the place of the light.</param>
+/// <param name="Y">The row of the middle of the halo, in art pixels from the place of the light.</param>
 public sealed record GlowSeed(char Key, int Strength, int Width, int Height, int X, int Y)
 {
     /// <summary>The highest strength, in basis points: 16 times the palette color. Godot caps the light that the glow reads at 12.</summary>
     public const int MostStrength = 16 * BasisPoints.One;
 
-    /// <summary>The largest side of the rectangle, in art pixels.</summary>
-    public const int MostSide = 16;
+    /// <summary>The largest side of the halo, in art pixels: four tiles (D-1075).</summary>
+    public const int MostSide = 128;
 
-    /// <summary>The farthest middle of the rectangle from the place of the light, in art pixels: two tiles.</summary>
+    /// <summary>The farthest middle of the halo from the place of the light, in art pixels: two tiles.</summary>
     public const int MostOffset = 64;
 }
 

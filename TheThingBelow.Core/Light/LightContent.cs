@@ -26,7 +26,7 @@ namespace TheThingBelow.Core.Light;
 /// <item>Each color names a key of the palette, the color of each glow, each shaft, and the vignette included (D-846, D-181).</item>
 /// <item>Each map keeps inside the effect budget and the limit of Godot (D-842, F-46).</item>
 /// <item>The brightest lit art of each map and each fight stays below the glow threshold, so light alone glows (D-910, F-47).</item>
-/// <item>Each glow rectangle passes the glow threshold at the low of its pulse (D-912, D-913, T-2).</item>
+/// <item>Each glow halo stays below the glow threshold at the top of its pulse, so it never draws as a box (D-1075, T-2).</item>
 /// </list>
 /// </remarks>
 public sealed class LightContent
@@ -247,7 +247,7 @@ public sealed class LightContent
         content.RefuseAbsentColor(palette);
         content.RefuseOverBudget(maps);
         content.RefuseGlowOnArt(maps, palette);
-        content.RefuseDarkGlow(palette);
+        content.RefuseBrightGlow(palette);
         return content;
     }
 
@@ -480,40 +480,35 @@ public sealed class LightContent
     }
 
     /// <summary>
-    /// Refuses a glow rectangle too weak to pass the threshold at the low of its pulse, because it
-    /// would give no glow there, in silence (D-912, D-913, T-2).
+    /// Refuses a glow halo bright enough to pass the threshold at the top of its pulse, because it
+    /// would clip to full light and draw as a box (D-1075, T-2).
     /// </summary>
-    private void RefuseDarkGlow(Palette palette)
+    private void RefuseBrightGlow(Palette palette)
     {
         foreach (DecorKind kind in this.kinds.Values)
         {
-            this.RefuseDarkSeed(kind.Fire.Glow, palette, kind.File);
+            this.RefuseBrightHalo(kind.Fire.Glow, palette, kind.File);
         }
 
-        this.RefuseDarkSeed(this.Carried.Fire.Glow, palette, CarriedLight.Path);
+        this.RefuseBrightHalo(this.Carried.Fire.Glow, palette, CarriedLight.Path);
     }
 
     /// <remarks>
-    /// The linear value of an sRGB channel is never below its cube, so the check reads the cube
-    /// of the brightest channel, and a glow that passes it passes on screen too.
+    /// The linear value of an sRGB channel is never above the channel itself, so the check reads
+    /// the brightest channel at the top of the pulse, and a halo that passes it stays below the
+    /// threshold on screen too. A halo above the threshold clips to full light, and the glow
+    /// of Godot then spreads it, which drew a box over each torch (D-1075).
     /// </remarks>
-    private void RefuseDarkSeed(GlowSeed seed, Palette palette, string file)
+    private void RefuseBrightHalo(GlowSeed seed, Palette palette, string file)
     {
-        const long FullCube = (long)BrightestLight.FullChannel * BrightestLight.FullChannel * BrightestLight.FullChannel;
-        if (seed.Strength == 0)
-        {
-            return;
-        }
-
         long channel = BrightestLight.BrightestChannelOf(seed.Key, palette);
-        long low = checked((long)seed.Strength * (BasisPoints.One - this.Glow.PulseDepth) / BasisPoints.One);
-        long least = checked(low * channel * channel * channel / FullCube);
-        if (least <= this.Glow.Threshold)
+        long most = checked((long)seed.Strength * channel / BrightestLight.FullChannel);
+        if (most >= this.Glow.Threshold)
         {
             throw ContentException.ForField(
                 file,
                 "fire.glow.strength",
-                $"the glow {seed.Strength} gives its color at least {least} basis points at the low of its pulse, and the threshold of `{Glow.Path}` is {this.Glow.Threshold}, so the fire might not glow (D-912, D-913, T-2)");
+                $"the glow {seed.Strength} gives its color up to {most} basis points at the top of its pulse, and the threshold of `{Glow.Path}` is {this.Glow.Threshold}, so the halo would draw as a box of full light (D-1075, T-2)");
         }
     }
 
