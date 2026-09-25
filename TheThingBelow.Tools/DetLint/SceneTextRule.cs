@@ -18,10 +18,11 @@ public static class SceneTextRule
         "A scene file holds layout alone. Draw each player string from the string table (D-499, G-6, G-7).";
 
     // Godot writes a quote inside a string value as `\"`, so the value part reads an escaped
-    // character as one unit. A pattern that stops at the first quote misses such a value.
+    // character as one unit. A pattern that stops at the first quote misses such a value. A
+    // value can hold a line end, which Godot writes as is, so the pattern reads the whole file.
     private static readonly Regex Assignment = new(
-        "^\\s*(?<name>[A-Za-z0-9_/]+)\\s*=\\s*\"(?<value>(?:[^\"\\\\]|\\\\.)*)\"\\s*$",
-        RegexOptions.CultureInvariant,
+        "^[ \\t]*(?<name>[A-Za-z0-9_/]+)[ \\t]*=[ \\t]*\"(?<value>(?:[^\"\\\\]|\\\\.)*)\"[ \\t]*$",
+        RegexOptions.CultureInvariant | RegexOptions.Multiline,
         TimeSpan.FromSeconds(1));
 
     /// <summary>Reads the lines of one scene file and gives each text value that it holds.</summary>
@@ -33,15 +34,10 @@ public static class SceneTextRule
         ArgumentException.ThrowIfNullOrEmpty(path);
         ArgumentNullException.ThrowIfNull(lines);
 
+        string text = string.Join('\n', lines);
         List<LintFinding> findings = [];
-        for (int index = 0; index < lines.Count; index++)
+        foreach (Match match in Assignment.Matches(text))
         {
-            Match match = Assignment.Match(lines[index]);
-            if (!match.Success)
-            {
-                continue;
-            }
-
             string name = match.Groups["name"].Value;
             string value = match.Groups["value"].Value;
             if (value.Length == 0 || !IsTextProperty(name))
@@ -51,12 +47,40 @@ public static class SceneTextRule
 
             findings.Add(new LintFinding(
                 path,
-                index + 1,
+                LineOf(text, match.Index),
                 Id,
                 $"the property `{name}` holds the text \"{value}\". {Reason}"));
         }
 
         return findings;
+    }
+
+    /// <summary>Gives the finding of a binary scene file or resource file, whose text no rule reads (D-825).</summary>
+    /// <param name="path">The path of the file, for the finding.</param>
+    /// <returns>The finding, at line 1.</returns>
+    public static LintFinding RefuseBinary(string path)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(path);
+
+        return new LintFinding(
+            path,
+            1,
+            Id,
+            $"the file is a binary scene or resource, and this rule reads text alone. Write the scene as a `.tscn` file. {Reason}");
+    }
+
+    private static int LineOf(string text, int index)
+    {
+        int line = 1;
+        for (int at = 0; at < index; at++)
+        {
+            if (text[at] == '\n')
+            {
+                line++;
+            }
+        }
+
+        return line;
     }
 
     /// <summary>Tells whether the name of a scene property names player text.</summary>

@@ -61,6 +61,16 @@ public sealed class DetLintCoreRuleTests
     [InlineData("System.Text.Json.JsonSerializer.Serialize(1).Length", "DL 4")]
     [InlineData("\"a\".GetHashCode()", "DL 5")]
     [InlineData("System.Security.Cryptography.SHA256.HashData([]).Length", "DL 5")]
+    [InlineData("System.IO.File.ReadAllText(\"x\").Length", "DL 11")]
+    [InlineData("System.IO.Path.Combine(\"a\", \"b\").Length", "DL 11")]
+    [InlineData("System.Environment.ProcessorCount", "DL 11")]
+    [InlineData("System.Environment.NewLine.Length", "DL 11")]
+    [InlineData("System.Environment.GetEnvironmentVariable(\"HOME\")!.Length", "DL 11")]
+    [InlineData("System.OperatingSystem.IsWindows() ? 1 : 0", "DL 11")]
+    [InlineData("(long)System.Runtime.InteropServices.RuntimeInformation.OSArchitecture", "DL 11")]
+    [InlineData("System.AppContext.BaseDirectory.Length", "DL 11")]
+    [InlineData("new System.Text.StringBuilder().AppendLine(\"a\").Length", "DL 11")]
+    [InlineData("new System.Net.Http.HttpClient().Timeout.Ticks", "DL 11")]
     public void AForbiddenPathInCoreFails(string expression, string rule)
     {
         IReadOnlyList<LintFinding> findings = DetLintFixture.CheckCore(
@@ -390,5 +400,48 @@ public sealed class DetLintCoreRuleTests
 
         Assert.Equal([SourceScan.CompileRule], DetLintFixture.RuleIds(findings));
         Assert.Contains("could not compile", findings[0].Detail, System.StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ACallOfAFileTypeThroughAUsingStaticFails()
+    {
+        // D-1117: the file rule reads the type that holds a member, so a `using static` of
+        // `System.IO.File` fails as a qualified call does.
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckCore(
+            """
+            using static System.IO.File;
+            namespace TheThingBelow.Core;
+            public static class Fixture
+            {
+                public static bool Here() => Exists("x");
+            }
+            """);
+
+        Assert.Contains("DL 11", DetLintFixture.RuleIds(findings));
+    }
+
+    [Fact]
+    public void CodeUnderAnUndefinedSymbolFailsAndCodeUnderTheDefinedSymbolTakesTheRules()
+    {
+        // D-1117: the scan defines `CONTRACTS_FULL` alone, and the compiler reads a block
+        // under another symbol as text. Such a block once passed every rule with a double in it.
+        IReadOnlyList<LintFinding> findings = DetLintFixture.CheckCore(
+            """
+            namespace TheThingBelow.Core;
+            public static class Fixture
+            {
+            #if DEBUG
+                public static double Hidden() => 2;
+            #endif
+            #if CONTRACTS_FULL
+                public static double Seen() => 2;
+            #else
+                public static int Other() => 2;
+            #endif
+            }
+            """);
+
+        Assert.Equal(["DL 12", "DL 1", "DL 12"], DetLintFixture.RuleIds(findings));
+        Assert.Equal([5, 8, 10], [findings[0].Line, findings[1].Line, findings[2].Line]);
     }
 }

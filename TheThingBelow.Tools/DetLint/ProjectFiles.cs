@@ -41,6 +41,33 @@ public static class ProjectFiles
         return scenes;
     }
 
+    /// <summary>
+    /// Gives the path of each binary scene file and each binary resource file of one project:
+    /// a `.scn` file and a `.res` file (D-825).
+    /// </summary>
+    /// <param name="root">The root of the checkout.</param>
+    /// <param name="project">The folder of the project, from the root.</param>
+    /// <returns>Each path, relative to the root, with a forward slash between the parts.</returns>
+    public static IReadOnlyList<string> ReadBinaryScenes(string root, string project)
+    {
+        List<string> files = [];
+        foreach (string extension in new[] { ".scn", ".res" })
+        {
+            foreach (string file in Files(root, project, "*" + extension))
+            {
+                // A pattern of three letters after the dot also matches a longer extension on
+                // Windows, such as `.resx`, so the name check reads the whole extension.
+                if (string.Equals(Path.GetExtension(file), extension, StringComparison.Ordinal))
+                {
+                    files.Add(Relative(root, file));
+                }
+            }
+        }
+
+        files.Sort(StringComparer.Ordinal);
+        return files;
+    }
+
     /// <summary>Tells whether a path of the checkout is inside a folder of the checkout.</summary>
     /// <param name="path">The path of a file, with a forward slash between the parts.</param>
     /// <param name="folder">The folder, with a forward slash between the parts.</param>

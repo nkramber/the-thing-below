@@ -87,4 +87,32 @@ public sealed class DetLintSceneTextTests
     {
         Assert.Equal(holdsText, SceneTextRule.IsTextProperty(name));
     }
+
+    [Fact]
+    public void ATextValueAcrossLinesFailsAtTheLineOfItsName()
+    {
+        // D-1117: Godot writes a line end inside a string value as is, and the rule once read
+        // one line alone, so such a value passed.
+        IReadOnlyList<LintFinding> findings = SceneTextRule.Check(
+            "TheThingBelow.Game/Fixture.tscn",
+            [
+                "[node name=\"Title\" type=\"Label\"]",
+                "text = \"Enter",
+                "the mine.\"",
+                "texture = \"res://icon.png\"",
+            ]);
+
+        LintFinding finding = Assert.Single(findings);
+        Assert.Equal(2, finding.Line);
+        Assert.Contains("the mine.", finding.Detail, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ABinarySceneFileFailsWithItsPath()
+    {
+        LintFinding finding = SceneTextRule.RefuseBinary("TheThingBelow.Game/Screen.scn");
+
+        Assert.Equal(("TheThingBelow.Game/Screen.scn", 1, "DL 9"), (finding.File, finding.Line, finding.Rule));
+        Assert.Contains("binary scene or resource", finding.Detail, StringComparison.Ordinal);
+    }
 }
