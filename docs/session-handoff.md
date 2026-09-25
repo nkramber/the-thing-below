@@ -1,3 +1,36 @@
+## Session 307: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #81 (PR-104), round 2. Repository: the-thing-below. Branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: author. Base: `4aad522`.
+
+### What this session did, and why
+
+- The screen test of `830f146` found three fight captures that moved: the enemies read the lessons of Marrek, so the fight ends on another tick (D-1101). The author read each frame, and `f66e314` takes them as new baselines (D-733, D-784).
+- The owner asked for the Deck run of D-961. On the Steam Deck in Release, one enemy turn took a p95 of 128 us and 120 us in two runs, below the limit of 1000 us.
+- Gitar approved `f66e314` with no thread. Each Gitar item has its answer on the PR.
+- The review of the other provider found no defect and gave `Blocked` for the Deck run and a Gitar note. `docs/reviews/pr-81-response.md` answers both.
+
+### The state of the build
+
+- Every check of `f66e314` passed but `review-gate`, which waited for the record. The effective head is `f66e314`.
+
+### What is in flight
+
+- The repeat review through `make codex-review PR=81`.
+
+### Traps and gotchas
+
+- A rule change of the evaluator moves the fight captures, and the screen test then fails until new baselines land.
+- The review commit dropped the title line of `docs/session-handoff-archive.md`, as on PR #80. This commit puts it back.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the outcome of the repeat review.
+
 ## Session 306: 2026-09-25, Codex
 
 Author: Codex
@@ -299,36 +332,3 @@ None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-
 ### The next concrete action
 
 Poll the Gitar check of the round 5 push, and answer each Gitar item. Commit the new screen baseline from the CI artifact, and then run `make codex-review PR=80` when each CI check but `review-gate` passes.
-
-## Session 297: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #80 (PR-103), round 4. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: #80. Role: author. Base: `5c1db06`.
-
-### What this session did, and why
-
-- The owner sent a screenshot of a wall torch and asked for a glow 30% softer (D-1096). The halo of a wall torch takes a strength of 2678 in place of 3825. The size and the curve of D-1095 stand.
-- Round 3 pushed `1c0c3c2`. The Gitar thread of round 2 has its reply with the fix commit, and it is resolved. The CI claim of round 2 has its answer.
-
-### The state of the build
-
-- The light tests, the content hash, and the STE check pass on this machine. The rest of the checks of round 3 ran on `1c0c3c2`, and this round changes one content value and its test.
-- The remote head holds this entry.
-
-### What is in flight
-
-- The Gitar pass and the CI of the round 4 push.
-- The `screen-test` job fails on the map frames of the torch and the halo, and on the item line. The author reads each changed frame of the CI artifact and commits the new baseline (D-733). Then `make codex-review PR=80`.
-- The playtest of the owner of the carried light and the halo (D-1091, D-1095, D-1096).
-
-### Traps and gotchas
-
-- The halo adds linear light, so a change of its strength reads larger on a dark wall than on the floor.
-
-### The questions that block progress
-
-None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
-
-### The next concrete action
-
-Poll the Gitar check of the round 4 push, and answer each Gitar item. Commit the new screen baseline from the CI artifact, and then run `make codex-review PR=80` when each CI check but `review-gate` passes.
