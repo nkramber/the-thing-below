@@ -151,7 +151,7 @@ public sealed class NoticeLogTests
 
         try
         {
-            _ = RunSnapshotText.ReadFormatSeven(ref reader);
+            _ = RunSnapshotText.ReadFormatSeven(ref reader, Seed);
             Assert.Fail("The read of format 7 took a notice log.");
         }
         catch (ContentException error)

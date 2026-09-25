@@ -415,19 +415,22 @@ public sealed class LessonRulesTests
         Assert.NotEqual(older, withPlace);
 
         var eleven = new ContentReader(System.Text.Encoding.UTF8.GetBytes(withPlace), "the test");
-        RunSnapshot dropped = RunSnapshotText.ReadFormatEleven(ref eleven);
+        RunSnapshot dropped = RunSnapshotText.ReadFormatEleven(ref eleven, Seed);
         PartySnapshot party = dropped.Characters ?? throw new InvalidOperationException("The snapshot holds no party (T-2).");
         Assert.Null(party.TorchHeld);
-        Assert.Equal(line, RunSnapshotText.Write(dropped with { Characters = party with { TorchHeld = false } }));
+        Assert.Equal(line, RunSnapshotText.Write(dropped with { Characters = party with { TorchHeld = false }, Map = dropped.Map! with { Npcs = [] } }));
 
         ContentException absent = Assert.Throws<ContentException>(() =>
         {
             var reader = new ContentReader(System.Text.Encoding.UTF8.GetBytes(older), "the test");
-            _ = RunSnapshotText.ReadFormatEleven(ref reader);
+            _ = RunSnapshotText.ReadFormatEleven(ref reader, Seed);
         });
         Assert.Contains("swap_place", absent.Message, StringComparison.Ordinal);
 
-        ContentException unknown = Assert.Throws<ContentException>(() => ReadLine(withPlace));
+        // The line of this build holds the NPCs, which format 15 added, so the swap place goes into
+        // that line (D-1137).
+        string currentWithPlace = line.Replace(",\"gold\":", ",\"swap_place\":true,\"gold\":", StringComparison.Ordinal);
+        ContentException unknown = Assert.Throws<ContentException>(() => ReadLine(currentWithPlace));
         Assert.Contains("swap_place", unknown.Message, StringComparison.Ordinal);
     }
 

@@ -35,6 +35,11 @@ public sealed record StreamPosition(StreamId Stream, ulong State, ulong Incremen
 /// </param>
 /// <param name="Mark">The mark of a sight that ran, or no value (D-745).</param>
 /// <param name="Encounter">The encounter that ran, or no value (D-749).</param>
+/// <param name="Npcs">
+/// The stored values of each NPC that the map places, in the order of the map file (D-1137).
+/// The value is absent on a snapshot before save format 15, which predates the NPCs, and the
+/// migration then puts each NPC on its start tile.
+/// </param>
 public sealed record MapSnapshot(
     ContentId Map,
     int LeadX,
@@ -45,7 +50,8 @@ public sealed record MapSnapshot(
     IReadOnlyList<string> Walked,
     IReadOnlyList<PatrolValues>? Enemies,
     SightMark? Mark,
-    MapEncounter? Encounter);
+    MapEncounter? Encounter,
+    IReadOnlyList<NpcValues>? Npcs);
 
 /// <summary>The characters of the party, their pack, and their gold in a snapshot (D-765, D-1043).</summary>
 /// <param name="Characters">Each character, in slot order.</param>
@@ -200,6 +206,14 @@ public sealed record RunSnapshot(
         {
             ArgumentNullException.ThrowIfNull(enemy);
             ArgumentNullException.ThrowIfNull(enemy.Enemy);
+        }
+
+        // The values of one NPC take their full check in `MapNpcs.Resume`, which holds the map of
+        // this build and can read the record of each NPC (T-2, D-1137).
+        foreach (NpcValues npc in map.Npcs ?? [])
+        {
+            ArgumentNullException.ThrowIfNull(npc);
+            ArgumentNullException.ThrowIfNull(npc.Npc);
         }
 
         Refuse(

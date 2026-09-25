@@ -79,7 +79,12 @@ public static class SimulationVersion
     /// PR-14 raised it to 31: a map file names its kind, a hub or a dungeon, and it holds its NPCs and its services
     /// (D-112, D-1131, D-1137, D-1138). The load checks the range, the route, and the start of each NPC, the host and
     /// the flags of each service, and the NPC of each talk trigger, and it refuses a service on a dungeon. A service
-    /// point is a solid thing that blocks each step onto its tile (D-1142).
+    /// point is a solid thing that blocks each step onto its tile (D-1142). Each NPC walks on the world tick on a
+    /// stream of its own: a wander NPC draws a direction or a pause on each pace tick, a route NPC waits at each route
+    /// tile, and a chaser takes the step closest to its target (D-1137, D-1138). An NPC is solid: no NPC steps onto
+    /// the lead, a wall, a thing, another NPC, or an enemy, no enemy steps onto an NPC, and a step of the lead into an
+    /// NPC turns the lead alone. A story scene ends the step of each NPC (D-1139). The state hash and the snapshot
+    /// hold each NPC and the NPC stream.
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number

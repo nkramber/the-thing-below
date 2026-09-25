@@ -27,6 +27,7 @@ public static class RandomStreams
         StreamId.Progression,
         StreamId.Story,
         StreamId.Evaluator,
+        StreamId.Npc,
     ];
 
     /// <summary>The seed of the hash that makes each stream seed. It never changes.</summary>
@@ -90,7 +91,7 @@ public static class RandomStreams
         {
             StreamId.Exploration or StreamId.Battle or
             StreamId.Progression or StreamId.Story or
-            StreamId.Evaluator => true,
+            StreamId.Evaluator or StreamId.Npc => true,
             _ => false,
         };
 

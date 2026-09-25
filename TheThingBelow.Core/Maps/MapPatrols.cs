@@ -503,7 +503,7 @@ public sealed class MapPatrols
 
     /// <summary>
     /// Tells whether one enemy can step in one direction. The terrain, the area, the party,
-    /// and every other body each block the step (D-206, D-741, D-747).
+    /// each NPC, and every other body each block the step (D-206, D-741, D-747, D-1139).
     /// </summary>
     private bool Clear(GameMap map, MapState party, PatrolState patrol, StepDirection direction)
     {
@@ -526,6 +526,12 @@ public sealed class MapPatrols
         // The party stands on a whole tile through its step, and it reaches the next tile on
         // the last tick of that step. Thus the tile of its end blocks an enemy too (D-203).
         if (party.Stepping is StepDirection walking && next.Holds(party.LeadAt.Step(walking)))
+        {
+            return false;
+        }
+
+        // An NPC is solid, and no enemy walks through one (D-1139).
+        if (party.Npcs.Blocks(next))
         {
             return false;
         }

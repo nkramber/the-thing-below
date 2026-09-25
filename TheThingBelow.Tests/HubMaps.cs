@@ -31,6 +31,13 @@ public static class HubMaps
     /// <summary>A hub with the keeper and the bed, and a service on each.</summary>
     public static GameMap Inn => Of(npcs: Keeper, services: $"{RestOnKeeper}, {SaveOnBed}", things: Bed);
 
+    /// <summary>
+    /// A hub with one NPC of each move: the keeper who stands, the barmaid who walks a route with
+    /// waits, the dog who wanders, and the child who chases the dog (D-1138). The dog and the child
+    /// share the rectangle of 3 by 2 tiles at (6, 5).
+    /// </summary>
+    public static GameMap Yard => Of(npcs: $"{Keeper}, {Walker()}, {Wanderer()}, {Chaser()}");
+
     /// <summary>Makes the text of one wander NPC, with a default for each field (D-1138).</summary>
     /// <param name="id">The id of the NPC, of the kind `npc`.</param>
     /// <param name="x">The column of the start tile.</param>

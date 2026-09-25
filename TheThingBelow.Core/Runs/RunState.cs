@@ -252,7 +252,9 @@ public sealed class RunState
         MapSnapshot party = snapshot.Map;
 
         // A snapshot of save format 2 predates the enemies, so its enemy list is absent and
-        // each enemy of the map starts on the start tile of its station (D-654, D-750).
+        // each enemy of the map starts on the start tile of its station (D-654, D-750). A
+        // snapshot before save format 15 predates the NPCs, and each NPC starts on its start
+        // tile (D-1137).
         return MapState.Resume(
             map,
             new LeadValues(new TilePoint(party.LeadX, party.LeadY), party.Facing, party.Stepping, party.StepTicks),
@@ -260,6 +262,7 @@ public sealed class RunState
             party.Enemies,
             party.Mark,
             party.Encounter,
+            party.Npcs,
             "this run",
             drift);
     }
@@ -381,7 +384,8 @@ public sealed class RunState
                 this.Party.Walked.Rows(),
                 this.Party.Patrols.Values(),
                 this.Party.Patrols.Mark,
-                this.Party.Patrols.Encounter),
+                this.Party.Patrols.Encounter,
+                this.Party.Npcs.Values()),
             new PartySnapshot(this.Characters.CharacterValues(), this.Characters.PackValues(), this.Characters.LessonPackValues(), this.Characters.Gold, this.Characters.TorchHeld),
             this.Battle?.Values(),
             this.NoticeLog.Values(),

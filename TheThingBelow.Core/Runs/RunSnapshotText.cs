@@ -137,6 +137,7 @@ public static class RunSnapshotText
         WriteEnemies(writer, map.Enemies);
         WriteMark(writer, map.Mark);
         WriteEncounter(writer, map.Encounter);
+        WriteNpcs(writer, map.Npcs);
         writer.WriteEndObject();
     }
 
@@ -172,6 +173,42 @@ public static class RunSnapshotText
             writer.WriteBoolean("forward", enemy.Forward);
             writer.WriteNumber("grace_ticks", enemy.GraceTicks);
             writer.WriteBoolean("dead", enemy.Dead);
+            writer.WriteEndObject();
+        }
+
+        writer.WriteEndArray();
+    }
+
+    /// <summary>
+    /// Writes the stored values of each NPC of the map (D-1137). This build writes save format 15,
+    /// so the field is always present, and it holds an empty array on a map that places no NPC.
+    /// </summary>
+    private static void WriteNpcs(Utf8JsonWriter writer, IReadOnlyList<NpcValues>? npcs)
+    {
+        if (npcs is null)
+        {
+            throw new ArgumentException(
+                "A snapshot that this build writes holds an NPC list. A snapshot with none comes from save format 14 or older, and this build never writes one (T-2, D-166).",
+                nameof(npcs));
+        }
+
+        writer.WriteStartArray("npcs");
+        foreach (NpcValues npc in npcs)
+        {
+            writer.WriteStartObject();
+            writer.WriteString("id", npc.Npc.Value);
+            writer.WriteNumber("x", npc.X);
+            writer.WriteNumber("y", npc.Y);
+            writer.WriteString("facing", StepDirections.NameOf(npc.Facing));
+            if (npc.Stepping is StepDirection stepping)
+            {
+                writer.WriteString("stepping", StepDirections.NameOf(stepping));
+            }
+
+            writer.WriteNumber("step_ticks", npc.StepTicks);
+            writer.WriteNumber("target", npc.Target);
+            writer.WriteBoolean("forward", npc.Forward);
+            writer.WriteNumber("wait_ticks", npc.WaitTicks);
             writer.WriteEndObject();
         }
 
@@ -246,7 +283,7 @@ public static class RunSnapshotText
     /// station.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
-    /// <param name="seed">The seed of the header, which opens the stream of the evaluator (D-947).</param>
+    /// <param name="seed">The seed of the header, which opens the stream of the evaluator and the NPC stream (D-947, D-1137).</param>
     /// <returns>The snapshot, with no enemy list.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
@@ -257,7 +294,7 @@ public static class RunSnapshotText
     /// migration runs in `RunState.Resume`, which starts the party of the fixture at full health.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
-    /// <param name="seed">The seed of the header, which opens the stream of the evaluator (D-947).</param>
+    /// <param name="seed">The seed of the header, which opens the stream of the evaluator and the NPC stream (D-947, D-1137).</param>
     /// <returns>The snapshot, with no party and no battle.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
@@ -268,7 +305,7 @@ public static class RunSnapshotText
     /// combatant (D-792). Each character and each combatant then holds no status.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
-    /// <param name="seed">The seed of the header, which opens the stream of the evaluator (D-947).</param>
+    /// <param name="seed">The seed of the header, which opens the stream of the evaluator and the NPC stream (D-947, D-1137).</param>
     /// <returns>The snapshot, with no status.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed, or a push rate names haste or slow (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
@@ -279,7 +316,7 @@ public static class RunSnapshotText
     /// snapshot gains that stream at its first value, because no build before PR-11 drew from it.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
-    /// <param name="seed">The seed of the header, which opens the stream of the evaluator (D-947).</param>
+    /// <param name="seed">The seed of the header, which opens the stream of the evaluator and the NPC stream (D-947, D-1137).</param>
     /// <returns>The snapshot, with every stream of this build.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
@@ -290,80 +327,99 @@ public static class RunSnapshotText
     /// The resume starts each character at its join level with full MP (D-363).
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the NPC stream (D-1137).</param>
     /// <returns>The snapshot, with no level of a character.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatSix(ref ContentReader reader) => ReadLine(ref reader, 6, null);
+    public static RunSnapshot ReadFormatSix(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 6, seed);
 
     /// <summary>
     /// Reads a snapshot of save format 7, which holds no notice log (D-985). The resume starts
     /// the log empty.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the NPC stream (D-1137).</param>
     /// <returns>The snapshot, with no notice log.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatSeven(ref ContentReader reader) => ReadLine(ref reader, 7, null);
+    public static RunSnapshot ReadFormatSeven(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 7, seed);
 
     /// <summary>
     /// Reads a snapshot of save format 8, which holds no story state (D-540). The resume starts
     /// with no flag on and no story scene.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the NPC stream (D-1137).</param>
     /// <returns>The snapshot, with no story state.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatEight(ref ContentReader reader) => ReadLine(ref reader, 8, null);
+    public static RunSnapshot ReadFormatEight(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 8, seed);
 
     /// <summary>
     /// Reads a snapshot of save format 9, which holds no lesson, no lesson pack, and no swap place
     /// (D-1018, D-1024, D-1030). The resume gives the start lessons of the fixture.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the NPC stream (D-1137).</param>
     /// <returns>The snapshot, with no lesson.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatNine(ref ContentReader reader) => ReadLine(ref reader, 9, null);
+    public static RunSnapshot ReadFormatNine(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 9, seed);
 
     /// <summary>
     /// Reads a snapshot of save format 10, which holds no gear slot, no spare gear, and no gold
     /// (D-44, D-1038, D-1043). The resume gives the start gear of the fixture, and no gold.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the NPC stream (D-1137).</param>
     /// <returns>The snapshot, with no gear.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatTen(ref ContentReader reader) => ReadLine(ref reader, 10, null);
+    public static RunSnapshot ReadFormatTen(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 10, seed);
 
     /// <summary>
     /// Reads a snapshot of save format 11, which holds the swap place of D-1030. The read checks
     /// the field and drops it, because a swap of lessons needs no place (D-1050).
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the NPC stream (D-1137).</param>
     /// <returns>The snapshot.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatEleven(ref ContentReader reader) => ReadLine(ref reader, 11, null);
+    public static RunSnapshot ReadFormatEleven(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 11, seed);
 
     /// <summary>
     /// Reads a snapshot of save format 12, which holds no state of the torch (D-1064). The resume
     /// puts the torch away.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the NPC stream (D-1137).</param>
     /// <returns>The snapshot, with no state of the torch.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatTwelve(ref ContentReader reader) => ReadLine(ref reader, 12, null);
+    public static RunSnapshot ReadFormatTwelve(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 12, seed);
 
     /// <summary>
     /// Reads a snapshot of save format 13, whose story scene holds no step id (D-1112). The
     /// resume reads the index of the step alone, as the build that wrote it did.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the NPC stream (D-1137).</param>
     /// <returns>The snapshot, with no step id.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
-    public static RunSnapshot ReadFormatThirteen(ref ContentReader reader) => ReadLine(ref reader, 13, null);
+    public static RunSnapshot ReadFormatThirteen(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 13, seed);
+
+    /// <summary>
+    /// Reads a snapshot of save format 14, which holds no NPC and no NPC stream (D-1137). The resume
+    /// puts each NPC of the map on its start tile, and the NPC stream joins at its first value.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the NPC stream (D-1137).</param>
+    /// <returns>The snapshot, with no NPC list.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatFourteen(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 14, seed);
 
     private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {
@@ -472,7 +528,7 @@ public static class RunSnapshotText
     /// spawn point of the first map.
     /// </summary>
     /// <param name="reader">The reader of the line, which names the save file.</param>
-    /// <param name="seed">The seed of the header, which opens the stream of the evaluator (D-947).</param>
+    /// <param name="seed">The seed of the header, which opens the stream of the evaluator and the NPC stream (D-947, D-1137).</param>
     /// <returns>The snapshot, with no map.</returns>
     /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
@@ -552,6 +608,7 @@ public static class RunSnapshotText
         List<PatrolValues>? enemies = null;
         SightMark? mark = null;
         MapEncounter? encounter = null;
+        List<NpcValues>? npcs = null;
         int? x = null;
         int? y = null;
         string? facing = null;
@@ -594,6 +651,13 @@ public static class RunSnapshotText
                 case "encounter":
                     encounter = ReadEncounter(ref reader);
                     break;
+                // Save format 14 and older predate the NPCs (D-1137).
+                case "npcs" when format < 15:
+                    throw reader.Refuse(
+                        $"the map of save format {format} holds an NPC list, and that format predates the NPCs (D-1137)");
+                case "npcs":
+                    npcs = ReadNpcs(ref reader);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -611,6 +675,12 @@ public static class RunSnapshotText
                 $"the map of save format {format} holds an enemy list, a mark, or an encounter, and that format predates the enemies (D-750)");
         }
 
+        // Save format 15 and each later format hold the NPC list (D-1137).
+        if (format >= 15)
+        {
+            _ = reader.Require(npcs, depth, "npcs");
+        }
+
         return new MapSnapshot(
             reader.Require(id, depth, "id"),
             reader.RequireInt(x, depth, "x"),
@@ -621,7 +691,81 @@ public static class RunSnapshotText
             reader.Require(walked, depth, "walked"),
             enemies,
             mark,
-            encounter);
+            encounter,
+            npcs);
+    }
+
+    private static List<NpcValues> ReadNpcs(ref ContentReader reader)
+    {
+        List<NpcValues> npcs = [];
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, npcs.Count))
+        {
+            npcs.Add(ReadNpc(ref reader));
+        }
+
+        return npcs;
+    }
+
+    private static NpcValues ReadNpc(ref ContentReader reader)
+    {
+        ContentId? id = null;
+        int? x = null;
+        int? y = null;
+        string? facing = null;
+        string? stepping = null;
+        int? stepTicks = null;
+        int? target = null;
+        bool? forward = null;
+        int? waitTicks = null;
+
+        int depth = reader.ReadObjectStart();
+        while (reader.ReadNextField(depth, out string field))
+        {
+            switch (field)
+            {
+                case "id":
+                    id = reader.ReadContentId(Npc.IdKind);
+                    break;
+                case "x":
+                    x = reader.ReadInt();
+                    break;
+                case "y":
+                    y = reader.ReadInt();
+                    break;
+                case "facing":
+                    facing = reader.ReadString();
+                    break;
+                case "stepping":
+                    stepping = reader.ReadString();
+                    break;
+                case "step_ticks":
+                    stepTicks = reader.ReadInt();
+                    break;
+                case "target":
+                    target = reader.ReadInt();
+                    break;
+                case "forward":
+                    forward = reader.ReadBoolean();
+                    break;
+                case "wait_ticks":
+                    waitTicks = reader.ReadInt();
+                    break;
+                default:
+                    throw reader.UnknownField(field);
+            }
+        }
+
+        return new NpcValues(
+            reader.Require(id, depth, "id"),
+            reader.RequireInt(x, depth, "x"),
+            reader.RequireInt(y, depth, "y"),
+            ReadDirection(ref reader, reader.Require(facing, depth, "facing"), "facing"),
+            stepping is null ? null : ReadDirection(ref reader, stepping, "stepping"),
+            reader.RequireInt(stepTicks, depth, "step_ticks"),
+            reader.RequireInt(target, depth, "target"),
+            reader.RequireValue(forward, depth, "forward"),
+            reader.RequireInt(waitTicks, depth, "wait_ticks"));
     }
 
     private static List<PatrolValues> ReadEnemies(ref ContentReader reader)
@@ -793,22 +937,33 @@ public static class RunSnapshotText
 
     /// <summary>
     /// Gives the streams of a snapshot of this build. Save format 5 and older predate the stream
-    /// of the evaluator, so that stream joins at its first value, from the seed of the header
-    /// (D-947). A snapshot of this build holds every stream, and the check of the snapshot
-    /// refuses a count other than that of <see cref="RandomStreams.All"/> (T-2).
+    /// of the evaluator, and save format 14 and older predate the NPC stream. Each stream that a
+    /// format predates joins at its first value, from the seed of the header, because no build of
+    /// that format drew from it (D-947, D-1137). A snapshot of this build holds every stream, and
+    /// the check of the snapshot refuses a count other than that of <see cref="RandomStreams.All"/> (T-2).
     /// </summary>
     private static IReadOnlyList<StreamPosition> StreamsOf(List<StreamPosition> streams, int format, ulong? seed)
     {
-        if (format >= 6)
+        if (format >= 15)
         {
             return streams;
         }
 
-        ulong headerSeed = seed ?? throw new ArgumentException($"A snapshot of save format {format} needs the seed of its header to open the stream of the evaluator (D-947).", nameof(seed));
-        RandomStream evaluator = RandomStreams.Open(headerSeed, StreamId.Evaluator);
+        ulong headerSeed = seed ?? throw new ArgumentException($"A snapshot of save format {format} needs the seed of its header to open the streams that it predates (D-947, D-1137).", nameof(seed));
         var migrated = new List<StreamPosition>(streams);
-        migrated.Add(new StreamPosition(evaluator.Stream, evaluator.Generator.State, evaluator.Generator.Increment));
+        if (format <= 5)
+        {
+            migrated.Add(FirstPositionOf(headerSeed, StreamId.Evaluator));
+        }
+
+        migrated.Add(FirstPositionOf(headerSeed, StreamId.Npc));
         return migrated;
+    }
+
+    private static StreamPosition FirstPositionOf(ulong seed, StreamId stream)
+    {
+        RandomStream opened = RandomStreams.Open(seed, stream);
+        return new StreamPosition(opened.Stream, opened.Generator.State, opened.Generator.Increment);
     }
 
     private static List<StreamPosition> ReadStreams(ref ContentReader reader)

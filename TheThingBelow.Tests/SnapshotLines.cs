@@ -25,10 +25,15 @@ internal static partial class SnapshotLines
         return BattleSteals().Replace(noGold, string.Empty);
     }
 
-    /// <summary>Drops the state of the torch, which save format 13 added (D-1064).</summary>
+    /// <summary>Drops the state of the torch, which save format 13 added (D-1064), and the NPCs of save format 15.</summary>
     /// <param name="line">A snapshot line of this build.</param>
     /// <returns>The line in the shape of save format 12.</returns>
-    public static string AsFormatTwelve(string line) => PartyTorch().Replace(line, string.Empty);
+    public static string AsFormatTwelve(string line) => PartyTorch().Replace(AsFormatFourteen(line), string.Empty);
+
+    /// <summary>Drops the NPCs of the map and the NPC stream, which save format 15 added (D-1137).</summary>
+    /// <param name="line">A snapshot line of this build.</param>
+    /// <returns>The line in the shape of save format 14.</returns>
+    public static string AsFormatFourteen(string line) => NpcStream().Replace(MapNpcs().Replace(line, string.Empty), string.Empty);
 
     // The arrays hold objects with no nested array, so the first `]` ends each one.
     [GeneratedRegex(""","lessons":\{"slot_count":\d+,"slots":\[[^\]]*\],"points":\[[^\]]*\]\}""")]
@@ -45,6 +50,12 @@ internal static partial class SnapshotLines
 
     [GeneratedRegex(""","torch_held":(true|false)""")]
     private static partial Regex PartyTorch();
+
+    [GeneratedRegex(""","npcs":\[[^\]]*\]""")]
+    private static partial Regex MapNpcs();
+
+    [GeneratedRegex(""",\{"stream":6,"state":"0x[0-9a-f]+","increment":"0x[0-9a-f]+"\}""")]
+    private static partial Regex NpcStream();
 
     [GeneratedRegex(""","steals":\{"tries":\d+,"taken":\[[^\]]*\]\}""")]
     private static partial Regex BattleSteals();

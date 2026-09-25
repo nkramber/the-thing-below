@@ -19,11 +19,15 @@ namespace TheThingBelow.Core.Runs;
 /// PR-105 raised it to 4. The story scene of the snapshot line gained the id of its step
 /// (D-1112), as save format 14 did.
 /// </para>
+/// <para>
+/// PR-14 raised it to 5. The map of the snapshot line gained the NPCs, and the streams gained the
+/// NPC stream (D-1137), as save format 15 did.
+/// </para>
 /// </remarks>
 public static class RunRecordFormat
 {
     /// <summary>The format version that this build writes.</summary>
-    public const int Current = 4;
+    public const int Current = 5;
 }
 
 /// <summary>

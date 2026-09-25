@@ -71,6 +71,12 @@ public static class SaveFormat
     /// finds a step that an edit of the story scene moved (D-1112). A save of an older format
     /// reads the index of the step alone.
     /// </para>
+    /// <para>
+    /// PR-14 raised it to 15. The map gained the stored values of each NPC, and the streams gained
+    /// the NPC stream (D-1137). A save of an older format puts each NPC of its map on its start
+    /// tile, and it opens the NPC stream at its first value from the seed of the header, because no
+    /// build before PR-14 drew from it.
+    /// </para>
     /// </remarks>
-    public const int Current = 14;
+    public const int Current = 15;
 }
