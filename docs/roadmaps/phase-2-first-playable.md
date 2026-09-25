@@ -24,7 +24,7 @@ The register in section 5 of `docs/design.md` holds every finding. These rows bi
 
 | # | Finding | Binds |
 |---|---|---|
-| F-7 | A three-character party fights short-handed after a down | PR-16 and M-4: the reserve and the swap of D-58 |
+| F-7 | A three-character party fights short-handed after a down | PR-14 and M-4: the reserve and the swap anywhere outside a fight (D-58, D-1134) |
 | F-8 | An empty MP pool left a caster with no action | PR-9 and PR-12: the basic attack of D-359 |
 | F-67 | A 32-pixel sprite at 1x covers 4.0 mm on the Deck | PR-7 and M-6: the scale of the frame comes from the probe of D-621 (OQ-183) |
 | F-23 | A headless session draws nothing, so no CI job can capture a screen | PR-41: the Linux job under Xvfb with a pinned Mesa (D-172) |
@@ -1264,7 +1264,7 @@ Area file: `area-ui-input.md` sections 7.6 and 7.7.
 
 **Out of scope.**
 
-- The content of the lesson, gear, item, service, and save windows, which PR-12, PR-13, PR-14, and PR-16 add (D-525).
+- The content of the lesson, gear, item, service, and save windows, which PR-12, PR-13, and PR-14 add (D-525, D-1132).
 - The settings screen (PR-63) and the dialogue box (PR-36).
 
 **Exit tests.**
@@ -1895,12 +1895,16 @@ Area file: `area-exploration.md` section 7.11.
 **Scope.**
 
 - The hub as a walkable map with NPC sprites, on the same code path as a dungeon (D-112).
-- The hub content format, with the services that each hub offers (D-28, D-59).
-- The rest, which restores health and MP and cures poison, blind, and silence (D-42, D-390).
-- The save and the party swap at the hub (D-59, D-62). PR-99 opens the lesson swap anywhere outside a fight, so the hub marks no swap place (D-1050).
+- The hub content format, with the services that each hub offers (D-28, D-59). Each service sits on an NPC or on a thing of the map (D-1131).
+- The confirm rule of the map (D-1131). Confirm while the lead faces an NPC or a thing opens its service, or fires its talk trigger.
+- The rest, which restores health and MP and cures poison, blind, and silence (D-42, D-390, D-970).
+- The save window in the stack of PR-62. The save of a hub writes the slot save, and the entry to a hub writes the autosave (D-224, D-1132).
+- The reserve, and the party swap in the Party window anywhere outside a fight (D-58, D-1134). The party stays full, and a downed character goes out but never comes in (D-1135, D-1136).
 - A condition of PR-68 on each service, so a story flag can close one (D-543, D-544, D-556).
-- The talk trigger of PR-68 fires when the player talks with an NPC (D-1005). A story scene step can name an NPC as a story scene actor (D-1006).
-- The service screens in the window stack of PR-62.
+- The talk trigger of PR-68 fires when the player talks with an NPC (D-1005, D-1131). A story scene step can name an NPC as a story scene actor (D-1006).
+- The movement of an NPC: a wander range, a route with waits, and a chase (D-1137, D-1138). An NPC is solid, and a talk stops it and turns it to the lead (D-1139).
+- An NPC outside its range walks home after a story scene (D-1140).
+- A debug command that moves the party to a map by its id (D-1133).
 - The village as a start area with no shop and no rest (D-369).
 
 **Out of scope.**
@@ -1908,11 +1912,14 @@ Area file: `area-exploration.md` section 7.11.
 - The shop and the gold (PR-65, D-530).
 - The hub lines that the dialogue box shows (PR-36).
 - The hub content of the first playable (PR-17).
+- A swap inside a battle (D-1134).
+- The travel between a hub and a dungeon (PR-35, D-1133).
+- The chest, the door, and the save point on the confirm rule (PR-16, D-1131).
 
 **Exit tests.**
 
 1. A fixture group of four characters, three of them in the party, walks the hub and rests (D-362).
-2. The group swaps the reserve and a lesson, then saves (D-356).
+2. The group swaps the reserve on a dungeon map, then saves at the hub (D-1132, D-1134).
 3. The save reloads to the same state hash.
 4. The lead moves to the reserve, and the lead still walks the map with the camera on it (D-292, D-306).
 5. A rest cures poison, blind, and silence (D-390).
@@ -1920,16 +1927,27 @@ Area file: `area-exploration.md` section 7.11.
 7. A hub file that names an absent service fails with the file and the service.
 8. A story flag closes a fixture service, and the hub refuses it (D-543).
 9. A talk with a fixture NPC fires its trigger, and a step of the story scene moves the NPC (D-1005, D-1006).
+10. A downed character goes to the reserve, and a downed reserve character never comes in (D-1135).
+11. A swap moves one character out and one in. A character who joins a full party goes to the reserve (D-1136).
+12. No swap happens in a battle (D-1134).
+13. A seed loop keeps each NPC in its rectangles. A route waits at each tile, and a chaser closes on its target (D-1138).
+14. An NPC never steps onto the lead, a wall, a thing, or another NPC. The lead never walks through an NPC (D-1139).
+15. A talk turns a moving NPC to the lead, and the NPC stands still while the window is open (D-1139).
+16. After a story scene, an NPC outside its range walks home on a shortest path. A replay gives the same state hash (D-1140).
+17. The entry to a hub writes the autosave, and each save of a hub calls `GameRun.Save` (D-224, D-1115, D-1132).
+18. The debug command moves the party to the fixture hub, and a screen capture draws the hub (D-1133).
 
 **Review focus.**
 
 - One code path draws a hub and a dungeon (D-112, T-1).
 - The hanging cells are a dungeon under a hub, and the same map rules cover it (D-244).
 - The party swap keeps the lead on the map in every case (D-292, D-306).
+- The NPCs of a map walk on one stream of their own (D-1137, T-7). The search of the walk home gives one path on every platform (D-1140).
+- The confirm rule leaves a clear place for the chest, the door, and the save point of PR-16 (D-1131).
 
 **Questions.** None. OQ-121 blocks the shop of PR-65.
 
-> *In plain English:* the hub is a place you walk through, where the party recovers and reshapes itself before the next dungeon. Every hub has a different shape.
+> *In plain English:* the hub is a place you walk through, where the party recovers, saves, and meets people. The people walk their rooms, and a talk stops them. Every hub has a different shape.
 
 ### 7.44 PR-65: the shop and the gold
 
@@ -2094,14 +2112,15 @@ Area file: `area-exploration.md` section 7.8.
 **Scope.**
 
 - The treasure, the locked doors, and the keys (D-41).
-- The save points, which save and swap the party (D-36, D-58). PR-99 opens the lesson swap anywhere outside a fight, so a save point marks no swap place (D-1050).
+- The save points, which save the party (D-36). The party and the lessons swap anywhere outside a fight, so a save point marks no swap place (D-1050, D-1134).
 - The MP that a save point restores once for the place, and the health that it does not (D-389, D-555).
 - The Theft drill that opens a lock that the map marks as pickable, where a story lock always needs its key (D-386).
 - The chest that keeps what the party cannot carry (D-385).
 - The fallback item of a chest that holds an owned lesson (D-1024).
 - The dungeon exit, which returns the party to the region map, and its mark on the dungeon map screen of PR-62 (D-567, D-993).
 - The killed enemy that stays dead until a story event reopens the place (D-555).
-- The save window in the stack of PR-62.
+- The save window of PR-14 at a save point (D-1132).
+- The chest, the door, and the save point on the confirm rule of PR-14 (D-1131).
 
 **Out of scope.**
 
@@ -2118,7 +2137,7 @@ Area file: `area-exploration.md` section 7.8.
 5. A Theft drill opens a pickable lock, and it never opens a story lock (D-386).
 6. A killed enemy stays dead after the party leaves the dungeon and returns (D-555).
 7. A story event that reopens a fixture place brings its enemies and its MP restore back (D-555).
-8. A chest over the stack limit keeps the rest, and the save records it (D-385).
+10. Each save point calls `GameRun.Save`, and the record after a save holds no intent before it (D-1115, D-1132).
 9. A chest with an owned lesson gives its fallback item (D-1024).
 10. Each save point and each autosave calls `GameRun.Save`, and the record after a save holds no intent before it (D-1115).
 11. A save of an older build loads under the rules of D-1110 to D-1112.
@@ -2126,7 +2145,7 @@ Area file: `area-exploration.md` section 7.8.
 
 **Review focus.**
 
-- The reserve and the swap at a save point answer F-7, and the balance holds with fresh MP (D-356).
+- The reserve and the swap anywhere answer F-7, and the balance holds with fresh MP (D-356, D-1134).
 - The exit to the region map waits for PR-35, and the PR states what it does until then.
 - The snapshot carries the open chests, the open doors, and the dead enemies.
 
