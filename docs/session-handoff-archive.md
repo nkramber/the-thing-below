@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 300: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #80, round 1. Repository: the-thing-below. Local branch: `review/pr-80`; PR branch: `fix/pr-103-input-and-grace`. PR: #80. Role: reviewer. Base: `5c1db06`.
+
+### What this session did, and why
+
+- Reviewed effective head `29615cb` against PR-103 and its exit tests. Finding P2-1 shows that concurrent file growth bypasses the read cap.
+- Verified that the prior Gitar cleanup finding is fixed. The current Gitar check passes, and the old RG 3 claim waits for this record.
+- `make verify` passed locally with 3307 tests. CI passed each implementation check at `29615cb`, including screen-test and Gitar.
+
+### The state of the build
+
+- Base and merge base `5c1db06`; effective head `29615cb`.
+- The remote branch head before this metadata commit is `29615cb`. A fresh review-gate result follows publication.
+
+### What is in flight
+
+- This review record and handoff are committed together and pushed to `fix/pr-103-input-and-grace`.
+
+### Traps and gotchas
+
+- `FileText.Read` checks `FileInfo.Length` before `File.ReadAllBytes`. A file can grow between these operations.
+- The review verdict is Changes required. The author must correct P2-1 and request a clean re-review.
+
+### The questions that block progress
+
+None for this PR.
+
+### The next concrete action
+
+Publish the review metadata. The author then fixes P2-1 and runs a new Codex review.
+
 ## Session 299: 2026-09-25, Claude Code
 
 Author: Claude Code
