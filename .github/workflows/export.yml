@@ -30,11 +30,13 @@ on:
 permissions:
   contents: read
 
-# Every push to `main` shares one group, because `github.ref` is the same for each merge.
-# A cancel there drops the build artifact of the earlier merge, and D-449 asks for the export
-# of every merge. Thus a cancel applies to a pull request alone, and two merges run in order.
+# A pull request shares one group, and a new push cancels the run of the older head. Each push
+# to `main` takes a group of its own commit, because D-449 asks for the export of every merge.
+# GitHub keeps one waiting run in a group and cancels an older waiting run, even with no cancel
+# of the run in progress. One group for `main` thus dropped the export of the middle merge of
+# three quick merges (F-111).
 concurrency:
-  group: export-${{ github.workflow }}-${{ github.ref }}
+  group: export-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
@@ -203,17 +205,27 @@ jobs:
 
       # A clean checkout holds no `.godot` folder, and the export reads the imported files.
       # The option `--import` works in an editor build alone, and it implies `--quit`.
+      #
+      # `set -e` ends the step on a nonzero code, before the log reaches the job output. Thus
+      # the step keeps the code, prints the log, and reads the code after that (F-112, T-2).
       - name: Import the project
         run: |
           set -euo pipefail
-          "$GODOT" --headless --path TheThingBelow.Game --import > import.log 2>&1
+          status=0
+          "$GODOT" --headless --path TheThingBelow.Game --import > import.log 2>&1 || status=$?
+          cat import.log
           if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR)" import.log; then
-            echo "The import wrote an error line. Read import.log (T-2)." >&2
+            echo "The import wrote an error line. Read the log above (T-2)." >&2
+            exit 1
+          fi
+          if [ "$status" != "0" ]; then
+            echo "The import ended with the exit code $status. Read the log above (T-2)." >&2
             exit 1
           fi
 
       # The export runs `dotnet publish` on the Game project itself, so the assembly and its
-      # embedded content reach the build with no include filter (D-508, F-42, F-73).
+      # embedded content reach the build with no include filter (D-508, F-42, F-73). The step
+      # keeps the exit code of the export and prints the log before it reads the code (F-112).
       - name: Export the build of this leg
         env:
           PRESET: ${{ matrix.preset }}
@@ -222,13 +234,19 @@ jobs:
           set -euo pipefail
           rm -rf export
           mkdir -p export
+          status=0
           "$GODOT" --headless --path TheThingBelow.Game \
-            --export-release "$PRESET" "$PWD/export/$EXPORT_FILE" > export.log 2>&1
+            --export-release "$PRESET" "$PWD/export/$EXPORT_FILE" > export.log 2>&1 || status=$?
+          cat export.log
 
           # The editor prints the export errors and gives a nonzero code, and this grep names
           # the fault in the log too (T-2).
           if grep -E "^ERROR" export.log; then
-            echo "The export of the preset '$PRESET' wrote an error line. Read export.log (T-2)." >&2
+            echo "The export of the preset '$PRESET' wrote an error line. Read the log above (T-2)." >&2
+            exit 1
+          fi
+          if [ "$status" != "0" ]; then
+            echo "The export of the preset '$PRESET' ended with the exit code $status. Read the log above (T-2)." >&2
             exit 1
           fi
           if [ ! -e "export/$EXPORT_FILE" ]; then

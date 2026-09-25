@@ -75,6 +75,16 @@ public static class AgentFileRules
                 $"the file holds {agentsLines.Count} lines, and `{ClaudePath}` holds {claudeLines.Count}")];
         }
 
+        // A read of lines drops each line end, so two files that differ in a line end alone, or
+        // in the end of the last line, pass the loop above. The test of D-20 compares the whole
+        // text, so this rule compares each byte too (F-113).
+        if (!documents.ReadBytes(ClaudePath).AsSpan().SequenceEqual(documents.ReadBytes(AgentsPath)))
+        {
+            return [DifferenceAt(
+                Math.Max(agentsLines.Count, 1),
+                $"each line matches `{ClaudePath}`, and the bytes differ in a line end or in the end of the file")];
+        }
+
         return [];
     }
 

@@ -60,6 +60,11 @@ jobs:
 
       # Each value of the PR goes through the environment, and never into the text of the
       # script. A description cannot become a command that way.
+      #
+      # Each value that grows with the PR goes to jq through a file. Linux refuses one argument
+      # above 128 KiB, and the diff of `docs/decisions.md` in a PR of plans passes that (F-110).
+      # Each list of paths takes `--no-renames`, so a rename lists the path that it left (F-109).
+      # The loop reads a file and not a pipe, so `set -e` stops the step on a failed `git show`.
       - name: Write the facts of the PR
         env:
           NUMBER: ${{ github.event.pull_request.number }}
@@ -67,24 +72,31 @@ jobs:
           LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
         run: |
           set -euo pipefail
-          files=$(git diff --name-only "$MERGE_BASE" refs/remotes/pr/head \
-            | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          commits=$(git log --reverse --format=%H "$MERGE_BASE..refs/remotes/pr/head" \
-            | while read -r sha; do
-                git show --name-only --format= "$sha" \
-                  | jq -R -s -c --arg sha "$sha" \
-                      '{sha: $sha, files: (split("\n") | map(select(length > 0)))}'
-              done | jq -s -c '.')
-          decisions=$(git diff "$MERGE_BASE" refs/remotes/pr/head -- docs/decisions.md)
+          facts="$RUNNER_TEMP/pr-facts"
+          rm -rf "$facts"
+          mkdir -p "$facts"
+
+          git diff --no-renames --name-only "$MERGE_BASE" refs/remotes/pr/head \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))' > "$facts/files.json"
+          git log --reverse --format=%H "$MERGE_BASE..refs/remotes/pr/head" > "$facts/commit-list.txt"
+          : > "$facts/commits.jsonl"
+          while read -r sha; do
+            git show --no-renames --name-only --format= "$sha" \
+              | jq -R -s -c --arg sha "$sha" \
+                  '{sha: $sha, files: (split("\n") | map(select(length > 0)))}' \
+              >> "$facts/commits.jsonl"
+          done < "$facts/commit-list.txt"
+          git diff --no-renames "$MERGE_BASE" refs/remotes/pr/head -- docs/decisions.md > "$facts/decisions.diff"
+          printf '%s' "${BODY:-}" > "$facts/body.txt"
 
           jq -n \
             --argjson number "$NUMBER" \
-            --arg body "${BODY:-}" \
+            --rawfile body "$facts/body.txt" \
             --argjson labels "$LABELS" \
-            --argjson files "$files" \
-            --argjson commits "$commits" \
-            --arg decisionsDiff "$decisions" \
-            '{number: $number, body: $body, labels: $labels, files: $files,
+            --slurpfile files "$facts/files.json" \
+            --slurpfile commits "$facts/commits.jsonl" \
+            --rawfile decisionsDiff "$facts/decisions.diff" \
+            '{number: $number, body: $body, labels: $labels, files: $files[0],
               commits: $commits, decisionsDiff: $decisionsDiff}' \
             > "$RUNNER_TEMP/pull-request.json"
 

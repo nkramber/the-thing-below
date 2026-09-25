@@ -67,6 +67,8 @@ dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj -- codex-rev
 
 A review takes longer than the limit of 10 minutes of a tool call. In Claude Code, start the command in the background, and the harness calls the session again when the command ends. Do not poll the command.
 
+Each program of the command runs under a time limit (D-1087). The review gets 90 minutes, and each git or gh call gets 5 minutes. At a limit, the command stops the program and gives `fault` with the command that stopped. The worktree stays for a read. Start the command again after you find the cause.
+
 The check of the Gitar pass reads the machine part alone. The dashboard has an edit after the push of the effective head, no Gitar check runs, and no review thread of Gitar is open. The author answers each claim of the dashboard text before the run, with the `gitar-review` skill.
 
 ## The three-strike stop

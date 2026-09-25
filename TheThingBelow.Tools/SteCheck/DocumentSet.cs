@@ -148,6 +148,15 @@ public sealed class DocumentSet
         return lines;
     }
 
+    /// <summary>Reads each byte of a document of the checkout, line ends included.</summary>
+    /// <param name="path">A path from the root, with forward slashes.</param>
+    /// <returns>The bytes of the file. <see cref="ReadLines"/> drops each line end, and this read keeps them.</returns>
+    public byte[] ReadBytes(string path)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(path);
+        return File.ReadAllBytes(Path.Combine(Root, path.Replace('/', Path.DirectorySeparatorChar)));
+    }
+
     private void ReadTrackedFiles(IReadOnlyList<string> trackedFiles)
     {
         // The index is the file set, so the list of skipped folders has no part here: git

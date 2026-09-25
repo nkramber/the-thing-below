@@ -57,6 +57,39 @@ public sealed class SteCheckAgentFileTests
         Assert.Contains(detail, found.Detail, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// The regression test of F-113. The old rule read the lines alone, so a change of the last
+    /// line end, or of each line end, passed ste-check and failed `AgentFileTests` on `main`.
+    /// </summary>
+    [Theory]
+    [InlineData("# Rules\nA rule.\n", "# Rules\nA rule.", 2)]
+    [InlineData("# Rules\nA rule.", "# Rules\nA rule.\n", 2)]
+    [InlineData("# Rules\nA rule.\n", "# Rules\r\nA rule.\r\n", 2)]
+    [InlineData("# Rules\nA rule.\n", "# Rules\nA rule.\n\n", 3)]
+    public void TwoFilesThatDifferInALineEndAloneGiveAFinding(string claudeText, string agentsText, int line)
+    {
+        using SteCheckCheckout checkout = SteCheckCheckout.Build();
+        File.WriteAllText(Path.Combine(checkout.Root, "CLAUDE.md"), claudeText);
+        File.WriteAllText(Path.Combine(checkout.Root, "AGENTS.md"), agentsText);
+
+        IReadOnlyList<Finding> findings = AgentFileRules.Check(DocumentSet.Read(checkout.Root));
+
+        Finding found = Assert.Single(findings);
+        Assert.Equal(AgentFileRules.RuleId, found.Rule);
+        Assert.Equal("AGENTS.md", found.File);
+        Assert.Equal(line, found.Line);
+    }
+
+    [Fact]
+    public void TwoFilesWithTheSameBytesGiveNoFinding()
+    {
+        using SteCheckCheckout checkout = SteCheckCheckout.Build();
+        File.WriteAllText(Path.Combine(checkout.Root, "CLAUDE.md"), "# Rules\r\nA rule.");
+        File.WriteAllText(Path.Combine(checkout.Root, "AGENTS.md"), "# Rules\r\nA rule.");
+
+        Assert.Empty(AgentFileRules.Check(DocumentSet.Read(checkout.Root)));
+    }
+
     [Theory]
     [InlineData("AGENTS.md")]
     [InlineData("CLAUDE.md")]

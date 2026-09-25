@@ -1,3 +1,177 @@
+## Session 293: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #79 (PR-102), round 4. Repository: the-thing-below. Branch: `fix/pr-102-gate-hygiene`. PR: #79. Role: author. Base: `5b42cf0`.
+
+### What this session did, and why
+
+- Gitar approved the merge head `9501183` with no new finding. The CI claim of RG 3 has its answer.
+- Every CI check passed on `9501183` except RG 3, `screen-test` included.
+- `make codex-review PR=79` ran. The record `docs/reviews/pr-79.md` gives `Ready for owner merge` for `9501183` with no finding, and `review-gate` passed on `81769c3`.
+- The command gave `fault`: it named `f81f010` as the effective head. `BranchCommits` runs `git log --name-only`, and git lists no path for a merge commit by default. With `--first-parent -m`, the merge lists the files of PR-101. The gate reads the merge through `git show` and passed.
+- The report of the owner marks P2-1, P3-10, P3-11, P3-29, P3-30, P3-31, and P3-32 as complete in PR #79, and P1-2 as the decision D-1082.
+
+### The state of the build
+
+- Effective head `9501183`. The remote head holds this metadata commit.
+
+### What is in flight
+
+- The merge question to the owner (D-933, D-942).
+
+### Traps and gotchas
+
+- A merge of `main` into a PR branch makes `make codex-review` give `fault` until `BranchCommits` reads merge commits. The owner put that fix in the PR of finding P3-9 (D-1089).
+- The session asks the merge question only after every check of the current tip is green and its Gitar pass is complete.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for green CI and the Gitar pass of the tip, then ask the owner to confirm the merge. Then turn on the auto-merge under `docs/runbooks/merge.md`.
+
+## Session 292: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #79, round 1. Repository: the-thing-below. Local branch: `review/pr-79`; PR branch: `fix/pr-102-gate-hygiene`. PR: #79 (PR-102). Role: reviewer. Base: `5b42cf0`.
+
+### What this session did, and why
+
+- Reviewed all 29 changed paths from merge base `5b42cf0` through effective head `9501183`.
+- Verified the Gitar case-variant fix and the author answers to the RG 3 CI claims.
+- No in-scope defect was found. The review record gives `Ready for owner merge` for `9501183`.
+
+### The state of the build
+
+- The remote code head is `9501183`. `make verify` passed on macOS arm64: 3,256 tests and all local gates.
+- CI passed build, test, format, smoke, det-lint, replay identity, export, screen-test, and STE. RG 3 failed because the review record was absent.
+
+### What is in flight
+
+- This review record and handoff entry will be committed together and pushed to the PR branch.
+- A fresh `review-gate` check must read the published record.
+
+### Traps and gotchas
+
+- The RG 3 failure is the expected state before this review record reaches the PR head.
+- The Gitar clean approval has no item and needs no answer (D-964).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review record and handoff entry. Fetch, confirm the remote head, and read the fresh review-gate result.
+
+## Session 291: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #79 (PR-102), round 3. Repository: the-thing-below. Branch: `fix/pr-102-gate-hygiene`. PR: #79. Role: author. Base: `5b42cf0` after the merge of `main`.
+
+### What this session did, and why
+
+- The owner merged PR #78 and asked for a merge of `main`, not a rebase (D-1088).
+- PR #78 took D-1080, F-108, and Sessions 287 and 288. The ids of PR-102 thus rose by one: D-1081 to D-1088, F-109 to F-115, and Sessions 289 and 290.
+- PR-102 moved to phase section 7.38 and to item 39 of the design sequence. Each later heading and item rose by one.
+- Each "PR #78" in the records of PR-102 now reads PR-101.
+
+### The state of the build
+
+- Merge of `origin/main` at `5b42cf0`. D-1080 of PR-101 lets the screen compare allow one level on each channel, which covers the failure of D-1088.
+
+### What is in flight
+
+- This round pushes the merge. Then the Gitar poll, the CI checks with `screen-test`, and `make codex-review PR=79`.
+
+### Traps and gotchas
+
+- The owner can switch the shared checkout to another PR. Check the branch before each write.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Push, run the Gitar poll, and wait for green CI. Then run `make codex-review PR=79` in the background.
+
+## Session 290: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #79 (PR-102), round 2. Repository: the-thing-below. Branch: `fix/pr-102-gate-hygiene`. PR: #79. Role: author. Base: `c154ddd`.
+
+### What this session did, and why
+
+- Read the Gitar pass of `fa68db5`. It completed in 113 seconds and approved with one finding.
+- Gitar finding: the settings refusal compared with case. macOS and Windows open `.claude/Settings.local.json` as the same file. The compare now ignores case, as Gitar proposed, with case-variant tests (D-1086).
+- Gitar CI claim: `review-gate` gave one fault. The log shows RG 3 alone, because `docs/reviews/pr-79.md` waits for the review. No change.
+- CI on Windows failed `AStopAtTheLimitEndsEachChildOfTheProgram`. The fault came after 30 seconds, because Windows loses the parent link of a child of Git Bash. The read of the output now has a bound of 5 seconds after the end or the stop (D-1087, F-115). A new test covers a child that holds the output after a normal end.
+
+### The state of the build
+
+- Round 1 head `fa68db5`: every CI job passed except the Windows test and RG 3. `make smoke` passed on the Mac.
+
+### What is in flight
+
+- Round 2 head `74b8020`: Gitar approved, and its thread is resolved. Each Gitar CI claim has its answer (RG 3 alone). Every CI job passed except `screen-test` and RG 3.
+- `screen-test` failed 3 of 3 attempts in "Compare the two runs": `still-240` and `menu-status-1x` differ by one level between two captures of one job. `main` fails the same way since PR-91. The owner chose to wait for PR #78 (D-1088).
+- PR-101 merged as `5b42cf0`.
+
+### Traps and gotchas
+
+- The owner switched the shared checkout at `/Volumes/SSD-1TB/the-thing-below` to PR #78. PR #79 waits in the worktree `/Volumes/SSD-1TB/the-thing-below-pr102`.
+- PR #78 head `55ba1b2` lets the screen compare allow one level on each channel, which covers the difference of D-1088.
+- The `review-gate` job runs the workflow of `main`, so the new facts step of F-110 first runs after the merge.
+- The owner asked for a merge of `main`, not a rebase. The notes of Session 289 stand for the conflicts: phase section 7.38, design sequence item 39, and PR-101 in place of "PR #78".
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Wait for the owner to confirm the merge of PR #78. Then check out this branch in the shared checkout, merge `origin/main`, push, and restart CI. Then the Gitar poll, a green `screen-test`, and `make codex-review PR=79` in the background.
+
+## Session 289: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #79 (PR-102), round 1. Repository: the-thing-below. Branch: `fix/pr-102-gate-hygiene`. PR: #79. Role: author. Base: `c154ddd`.
+
+### What this session did, and why
+
+- The owner gave a repository review report, outside the repository, with answers. For this task, a PR holds several findings (D-1081).
+- The owner chose the gate findings alone, because PR #78 changes the input code of P1-1 and P2-6.
+- Fixed P2-1 (F-109), P3-10 (F-110), P3-11 (F-111), P3-30 (F-112), P3-29 (F-113), P3-31 (F-114, D-1086), and P3-32 (F-115, D-1087).
+- Recorded the answers on P1-2 (D-1082), P1-1 (D-1083), P2-6 (D-1084), and P2-4 (D-1085). No Game or Core code changed.
+- A scratch repository reproduced P2-1 and P3-10 on the old step, and the new step passed. The 20 new test cases failed on the old code.
+
+### The state of the build
+
+- Base `c154ddd`. `make build test format lint identity content atlas` passed locally: 3235 tests. `make smoke` did not run, and CI runs it.
+
+### What is in flight
+
+- This round opens PR #79, and it waits for Gitar, then `make codex-review PR=79`.
+- PR #78 (PR-101) is open. It uses D-1075 to D-1079, F-107, Sessions 284 to 286, and phase section 7.37.
+
+### Traps and gotchas
+
+- When PR #78 merges first, rebase. PR-102 moves to phase section 7.38 and to item 39 of the design sequence. Renumber each later item.
+- Cite PR-101 in place of "PR #78" after that merge. A citation of PR-101 fails REF 1 until then.
+- `.claude/settings.local.json` takes no backticks in a document, because REF 2 finds no such file.
+- `CLAUDE.md` holds 16355 of 16384 bytes.
+
+### The questions that block progress
+
+None for PR-102. The owner asked for suggestions to approve on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34. The PR that takes each finding asks them.
+
+### The next concrete action
+
+Push, open PR #79, and run the Gitar poll of the `gitar-review` skill in the background.
+
 ## Session 288: 2026-09-25, Codex
 
 Author: Codex
@@ -172,182 +346,3 @@ None.
 ### The next concrete action
 
 Read the Gitar pass of the PR head, and answer each Gitar item. This machine has no `codex` or `gh` command, so the owner runs `make codex-review PR=<n>` for the cross-provider review.
-
-## Session 283: 2026-09-24, Codex
-
-Author: Codex
-Session: reviewer PR #77, round 2. Repository: the-thing-below. Branch: `docs/pr-100-gitar-resume`. PR: #77 (PR-100). Role: reviewer. Base: `58dadb5`.
-
-### What this session did, and why
-
-- Re-reviewed PR #77 at effective head `066901e` after the author fixed P2-1.
-- Verified that command E reads the Gitar completion time and rejects a check after 900 seconds (D-1074).
-- Checked the current Gitar pass and the CI results. The Gitar dashboard approves the head with no finding (D-964).
-- Updated `docs/reviews/pr-77.md`. It closes P2-1 and gives `Ready for owner merge` for `066901e`.
-
-### The state of the build
-
-- Base and merge base: `58dadb5`. Effective and remote head before this metadata commit: `066901e`.
-- CI run `36071384377` passed build, test, format, smoke, det-lint, replay identity, screen-test, coverage, changed-paths, and STE. Matrix jobs skipped for this documentation change.
-- `review-gate` run `36071381473` failed only because the review record held the prior verdict. It must read this record after publication.
-
-### What is in flight
-
-- This metadata commit holds the repeat review and this entry. Fresh `review-gate` evidence must pass after publication.
-
-### Traps and gotchas
-
-- The review record keeps `Changes required` under `Earlier verdicts` and one current verdict under `Verdict`.
-- Session 273 moves to `docs/session-handoff-archive.md` to keep 10 entries in this file.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push the review record and this entry to `docs/pr-100-gitar-resume`. Fetch, confirm the remote head, and read the new `review-gate` result.
-
-## Session 282: 2026-09-24, Claude Code
-
-Author: Claude Code
-Session: author PR-100, round 2. Repository: the-thing-below. Branch: `docs/pr-100-gitar-resume`. PR: #77 (PR-100). Role: author. Base: `58dadb5`.
-
-### What this session did, and why
-
-- The Gitar poll of round 1 printed `completed at 375 s`. The Gitar code review approved with no thread.
-- Answered the one Gitar item, a claim of the CI analysis on `review-gate`. RG 3 and RG 7 failed because the review record did not exist yet. No change.
-- `make codex-review PR=77` ran with no skip flag and gave `Changes required` with P2-1: command E accepted a check that completed after 15 minutes.
-- Answered P2-1 with full merit in `docs/reviews/pr-77-response.md`. Command E now reads the completion time and prints `not complete` for a check that completed after 900 seconds.
-
-### The state of the build
-
-- Base `58dadb5`. The reviewed head `87cf4cc`, and the review record `7bc72b7`. The remote head is the commit of this entry.
-- `ste-check` gives 0 findings. Each other CI check was green on `87cf4cc`.
-
-### What is in flight
-
-- The Gitar pass of this head, with command E. Then `make codex-review PR=77` for round 2.
-
-### Traps and gotchas
-
-- `done` is a shell keyword, so command E names the completion age `took`.
-- A Gitar check of round 1 started about three minutes after the push. The fallback of D-1074 comments `Gitar review` only when no check exists at three minutes.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Run command E of the `gitar-review` skill in the background for PR #77. Answer each Gitar item, then run `make codex-review PR=77` in the background.
-
-## Session 281: 2026-09-24, Codex
-
-Author: Codex
-Session: reviewer PR #77, round 1. Repository: the-thing-below. Branch: `docs/pr-100-gitar-resume`. PR: #77 (PR-100). Role: reviewer. Base: `58dadb5`.
-
-### What this session did, and why
-
-- Reviewed PR #77 from merge base `58dadb5` through effective head `87cf4cc`.
-- Confirmed Claude Code authored the PR, so Codex passes the provider gate (T-4, D-17).
-- Inspected all 15 changed paths and checked the Gitar poll, decision updates, roadmap, and handoff changes against their contracts.
-- Verified the Gitar CI claim. RG 3 and RG 7 failed because the review record was absent; this metadata commit adds it (D-577, D-581, D-964).
-- Found that command E can accept a Gitar check that completed after the 15-minute limit (D-1074). The review record gives `Changes required` for `87cf4cc`.
-
-### The state of the build
-
-- Base and merge base: `58dadb5`. Effective and remote head before this metadata commit: `87cf4cc`.
-- CI run `36070042782` passed the applicable build, test, format, smoke, det-lint, replay identity, screen, coverage, changed-paths, and STE checks. The matrix jobs skipped for this documentation change.
-- `review-gate` run `36070042856` failed because the review record was absent. The new run must read this record.
-
-### What is in flight
-
-- This metadata commit holds the review record and this entry. The author must address P2-1 before the PR can receive approval.
-
-### Traps and gotchas
-
-- Command E checks `completed` before it checks the 900-second limit, and it omits `completed_at`.
-- The Gitar CI claim is answered in the PR discussion. The row becomes true when this review record lands.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Commit and push this review record and handoff entry to `docs/pr-100-gitar-resume`. Fetch, verify the remote head, and read the fresh `review-gate` result.
-
-## Session 280: 2026-09-24, Claude Code
-
-Author: Claude Code
-Session: author PR-100, round 1. Repository: the-thing-below. Branch: `docs/pr-100-gitar-resume`. PR: #77 (PR-100). Role: author. Base: `58dadb5`.
-
-### What this session did, and why
-
-- The owner ended the Gitar pause and asked for a Gitar poll after each push. D-1073 supersedes D-945, and D-1074 sets the poll.
-- The owner answered four questions: PR-100 on a docs branch, a `Gitar review` comment when no Gitar check exists three minutes after the push, a stop at 15 minutes, and a direct answer of each finding with no stop.
-- The owner said again that the fix of the session wins when it is better than the fix of Gitar. D-1072 stands in full, and its Effect column quotes the words.
-- Removed each line of the pause and the steps that ended it in `docs/runbooks/merge.md`. The marker command lists no line.
-- Rewrote the push wait and command E of the `gitar-review` skill. Command E waits 60 seconds, then reads the Gitar check every 20 seconds. Its result line is `completed`, `no check`, `not complete`, or `read failed`.
-- Updated `CLAUDE.md`, `AGENTS.md`, `docs/runbooks/session-context.md`, the design status header, both sequences, and the blocks in `phase-2-first-playable.md` section 7.36 and `area-ci.md` section 7.23.
-- Named D-1073 beside each live citation of D-945, for rule REF 3.
-
-### The state of the build
-
-- Base `58dadb5`. The remote head is the commit of this entry.
-- `ste-check` gives 0 findings. Command E printed `completed` for PR #76 and `read failed` for a PR that does not exist.
-- No code changes. The `codex-review` command already refuses a Gitar pass that is not complete.
-
-### What is in flight
-
-- The Gitar pass of this head, with command E. Then `make codex-review PR=77`. The PR changes decision rows, so the `review-override` label does not apply (D-401).
-
-### Traps and gotchas
-
-- The `gitar-review` skill of each other repository still holds the wait of three minutes. This PR changes this repository alone.
-- The check-runs API gives 30 runs on each page. Command E filters by `check_name=Gitar`, so a code head with many CI legs still shows the Gitar check.
-
-### The questions that block progress
-
-None.
-
-### The next concrete action
-
-Run command E of the `gitar-review` skill in the background for PR #77. Answer each Gitar item, then run `make codex-review PR=77` in the background.
-
-## Session 279: 2026-09-24, Codex
-
-Author: Codex
-Session: reviewer PR #76, round 1. Repository: the-thing-below. Branch: `feat/pr-91-torch-item`. PR: #76. Role: reviewer. Base: `15aad83`.
-
-### What this session did, and why
-
-- Reviewed PR #76 at effective head `4b4681c`. Claude Code authored the substantive commits, so Codex passes the provider gate (T-4, D-17).
-- Inspected all 184 changed paths, including Core sight and torch rules, Game fades and input, save and settings migration, tests, content, screen baselines, and project documents.
-- Confirmed the Gitar sight finding fix: the range grows in 24 ticks, the mark stays visible during the fade, and the regression test covers guards 3 to 6 tiles away (D-720, D-1062, D-1063).
-- Confirmed the Gitar CI analysis item is answered by the corrected `docs/runbooks/merge.md` row in the PR description (D-577, D-581, D-964).
-- Published `docs/reviews/pr-76.md` with `Ready for owner merge` for `4b4681c`.
-
-### The state of the build
-
-- Base and merge base: `15aad83`. Effective and remote head before this metadata commit: `4b4681c`.
-- `make verify` passed on macOS arm64: 3,202 tests, format, det-lint, STE, replay identity, content, atlas, and smoke.
-- CI run `36066356708` passed all implementation checks. `review-gate` waited for this review record. The Gitar code and CI items have answers.
-
-### What is in flight
-
-- This commit holds the review record and this entry. It must be pushed and verified.
-
-### Traps and gotchas
-
-- OQ-246 records a one-level screen-test flake and blocks no PR.
-- `make sheet` with no fixture can exceed the PNG height limit. Use `FIXTURE=` for one fixture at a time (D-735).
-
-### The questions that block progress
-
-None. OQ-246 blocks no PR.
-
-### The next concrete action
-
-Push this metadata commit to `feat/pr-91-torch-item`. Fetch, check the branch status, confirm the PR head with `gh pr view`, and read the new `review-gate` result.

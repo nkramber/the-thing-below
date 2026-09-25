@@ -40,6 +40,33 @@ public static class DocumentRowRules
     /// <returns>The row name, or null when the line is not a row.</returns>
     public static string? TemplateRowOf(string line)
     {
+        string? cell = TemplateCellOf(line);
+        return cell is null ? null : NameOf(cell);
+    }
+
+    /// <summary>Reads the row name of one table line of the Documents gate of the skill.</summary>
+    /// <param name="line">One line, such as "| `docs/design.md` | intent |".</param>
+    /// <returns>The row name, or null when the line is not a row with a path.</returns>
+    public static string? SkillRowOf(string line)
+    {
+        string? cell = SkillCellOf(line);
+        return cell is null ? null : NameOf(cell);
+    }
+
+    /// <summary>
+    /// Gives the written form of a row: each path in backticks, joined by "and". The gate test
+    /// of the skill looks for this exact cell, so DOCS 1 reads this form (F-113).
+    /// </summary>
+    /// <param name="row">The row name, as `DocumentRules.RequiredRows` holds it.</param>
+    /// <returns>The form, such as "`CLAUDE.md` and `AGENTS.md`".</returns>
+    public static string CellOf(string row)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(row);
+        return "`" + string.Join("` and `", row.Split(" and ")) + "`";
+    }
+
+    private static string? TemplateCellOf(string line)
+    {
         ArgumentNullException.ThrowIfNull(line);
         string text = line.Trim();
         if (!text.StartsWith("- ", StringComparison.Ordinal) || !text.EndsWith(':'))
@@ -47,13 +74,10 @@ public static class DocumentRowRules
             return null;
         }
 
-        return text[2..^1].Replace("`", string.Empty, StringComparison.Ordinal).Trim();
+        return text[2..^1].Trim();
     }
 
-    /// <summary>Reads the row name of one table line of the Documents gate of the skill.</summary>
-    /// <param name="line">One line, such as "| `docs/design.md` | intent |".</param>
-    /// <returns>The row name, or null when the line is not a row with a path.</returns>
-    public static string? SkillRowOf(string line)
+    private static string? SkillCellOf(string line)
     {
         ArgumentNullException.ThrowIfNull(line);
         string text = line.Trim();
@@ -68,39 +92,41 @@ public static class DocumentRowRules
             return null;
         }
 
-        return cells[1].Replace("`", string.Empty, StringComparison.Ordinal).Trim();
+        return cells[1].Trim();
     }
+
+    private static string NameOf(string cell) => cell.Replace("`", string.Empty, StringComparison.Ordinal).Trim();
 
     private static IReadOnlyList<string> ReadTemplateRows(DocumentSet documents)
     {
         IReadOnlyList<string> lines = ReadSection(documents, TemplatePath, DocumentRules.SectionHeading);
-        List<string> rows = [];
+        List<string> cells = [];
         foreach (string line in lines)
         {
-            string? row = TemplateRowOf(line);
-            if (row is not null)
+            string? cell = TemplateCellOf(line);
+            if (cell is not null)
             {
-                rows.Add(row);
+                cells.Add(cell);
             }
         }
 
-        return rows;
+        return cells;
     }
 
     private static IReadOnlyList<string> ReadSkillRows(DocumentSet documents)
     {
         IReadOnlyList<string> lines = ReadSection(documents, SkillPath, SkillHeading);
-        List<string> rows = [];
+        List<string> cells = [];
         foreach (string line in lines)
         {
-            string? row = SkillRowOf(line);
-            if (row is not null)
+            string? cell = SkillCellOf(line);
+            if (cell is not null)
             {
-                rows.Add(row);
+                cells.Add(cell);
             }
         }
 
-        return rows;
+        return cells;
     }
 
     private static IReadOnlyList<string> ReadSection(DocumentSet documents, string path, string heading)
@@ -115,30 +141,43 @@ public static class DocumentRowRules
             ?? throw new InvalidOperationException($"The file '{path}' holds no `{heading}` section (T-2).");
     }
 
-    private static void Compare(List<Finding> findings, string path, IReadOnlyList<string> rows)
+    /// <summary>Compares the written cell of each row with the gate, first by name, then by form.</summary>
+    private static void Compare(List<Finding> findings, string path, IReadOnlyList<string> cells)
     {
         IReadOnlyList<string> wanted = DocumentRules.RequiredRows;
-        int count = Math.Min(rows.Count, wanted.Count);
+        int count = Math.Min(cells.Count, wanted.Count);
         for (int index = 0; index < count; index += 1)
         {
-            if (!string.Equals(rows[index], wanted[index], StringComparison.Ordinal))
+            string name = NameOf(cells[index]);
+            if (!string.Equals(name, wanted[index], StringComparison.Ordinal))
             {
                 findings.Add(new Finding(
                     path,
                     1,
                     "DOCS 1",
-                    $"row {index + 1} of the Documents rows is `{rows[index]}`, and the review gate holds `{wanted[index]}` there (D-579, D-581)"));
+                    $"row {index + 1} of the Documents rows is `{name}`, and the review gate holds `{wanted[index]}` there (D-579, D-581)"));
+                return;
+            }
+
+            string form = CellOf(wanted[index]);
+            if (!string.Equals(cells[index], form, StringComparison.Ordinal))
+            {
+                findings.Add(new Finding(
+                    path,
+                    1,
+                    "DOCS 1",
+                    $"row {index + 1} of the Documents rows reads {cells[index]}, and the gate test reads the form {form} (D-581, F-113)"));
                 return;
             }
         }
 
-        if (rows.Count != wanted.Count)
+        if (cells.Count != wanted.Count)
         {
             findings.Add(new Finding(
                 path,
                 1,
                 "DOCS 1",
-                $"the file holds {rows.Count} Documents rows, and the review gate holds {wanted.Count} (D-579, D-581)"));
+                $"the file holds {cells.Count} Documents rows, and the review gate holds {wanted.Count} (D-579, D-581)"));
         }
     }
 }

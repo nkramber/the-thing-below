@@ -134,13 +134,51 @@ public sealed class ExportWorkflowTests
     {
         string text = File.ReadAllText(RepositoryRoot.PathTo(ExportWorkflowPath));
 
-        // Every push to `main` shares one concurrency group, because `github.ref` is the same
-        // for each merge. A cancel there drops the build artifact of the earlier merge, and
-        // D-449 asks for the export of every merge.
+        // A cancel of a push to `main` drops the build artifact of that merge, and D-449 asks
+        // for the export of every merge.
         Assert.Contains(
             "cancel-in-progress: ${{ github.event_name == 'pull_request' }}",
             text,
             StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// The regression test of F-111. GitHub keeps one waiting run in a group and cancels an
+    /// older waiting run, even with no cancel of the run in progress. One group for `main`
+    /// thus dropped the export of the middle merge of three quick merges.
+    /// </summary>
+    [Theory]
+    [InlineData(ExportWorkflowPath, "export-")]
+    [InlineData(CiWorkflowPath, "ci-")]
+    public void EachPushToMainTakesAGroupOfItsOwnCommit(string workflowPath, string prefix)
+    {
+        string text = File.ReadAllText(RepositoryRoot.PathTo(workflowPath));
+
+        Assert.Contains(
+            $"  group: {prefix}${{{{ github.workflow }}}}-${{{{ github.event_name == 'pull_request' && github.ref || github.sha }}}}\n",
+            text.ReplaceLineEndings("\n"),
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// The regression test of F-112. Under `set -e`, a nonzero code of the editor ended the
+    /// step before it printed the log, so a failed export showed no reason.
+    /// </summary>
+    [Theory]
+    [InlineData("Import the project", "> import.log 2>&1", "cat import.log")]
+    [InlineData("Export the build of this leg", "> export.log 2>&1", "cat export.log")]
+    public void EachEditorStepKeepsItsCodeAndPrintsItsLogFirst(string stepName, string redirect, string print)
+    {
+        string[] lines = WorkflowText.RunBlockOf(ExportWorkflowPath, stepName);
+
+        int run = Array.FindIndex(lines, line => line.Contains(redirect, StringComparison.Ordinal));
+        Assert.True(run >= 0, $"The step '{stepName}' holds no line with '{redirect}' (T-2).");
+        Assert.Contains("|| status=$?", lines[run], StringComparison.Ordinal);
+
+        int printed = Array.FindIndex(lines, run, line => line.Trim() == print);
+        int checkedCode = Array.FindIndex(lines, run, line => line.Contains("if [ \"$status\" != \"0\" ]; then", StringComparison.Ordinal));
+        Assert.True(printed > run, $"The step '{stepName}' does not print its log after the editor runs (F-112).");
+        Assert.True(checkedCode > printed, $"The step '{stepName}' reads the code of the editor before it prints the log (F-112).");
     }
 
     [Fact]

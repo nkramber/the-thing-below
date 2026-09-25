@@ -37,6 +37,19 @@ public static class CodexReviewCommand
     /// <summary>The folder under the root that takes each transcript. Git ignores `artifacts/`.</summary>
     public const string TranscriptFolder = "artifacts/codex-review";
 
+    /// <summary>
+    /// The time limit of the review itself (D-1087). The longest review of PR #63 to PR #77 took
+    /// 17 minutes, so the limit is more than five times that. At the limit the command stops
+    /// the review and gives a fault that names the command, and the worktree stays for a read.
+    /// </summary>
+    public static readonly TimeSpan ReviewLimit = TimeSpan.FromMinutes(90);
+
+    /// <summary>The time limit of the npm install of the CLI, which downloads the package (D-927, D-1087).</summary>
+    public static readonly TimeSpan InstallLimit = TimeSpan.FromMinutes(10);
+
+    /// <summary>The time limit of the model probe, which sends one short prompt (D-926, D-1087).</summary>
+    public static readonly TimeSpan ProbeLimit = TimeSpan.FromMinutes(10);
+
     /// <summary>Reads the options and runs one review.</summary>
     /// <param name="args">The arguments after the command name.</param>
     /// <param name="output">The writer that takes the report.</param>
@@ -140,7 +153,7 @@ public static class CodexReviewCommand
         output.WriteLine($"{Name}: the review runs in '{worktree}'. The transcript is '{transcript}'.");
 
         string prompt = CodexCli.ReviewPrompt(number, checkout.Branch, localBranch, skipGitarReview);
-        ProgramResult run = RunCodex(codex, CodexCli.ReviewArguments(worktree, lastMessage, prompt), worktree, transcript);
+        ProgramResult run = RunCodex(codex, CodexCli.ReviewArguments(worktree, lastMessage, prompt), worktree, transcript, ReviewLimit);
         File.WriteAllText(errorLog, run.Error);
 
         ExternalProgram.RunChecked("git", ["fetch", "--quiet", "origin"], root);
@@ -164,7 +177,7 @@ public static class CodexReviewCommand
 
     private static string InstallCli(string root)
     {
-        ExternalProgram.RunChecked("npm", ["install", "--global", $"{CodexCli.Package}@latest"], root);
+        ExternalProgram.RunChecked("npm", ["install", "--global", $"{CodexCli.Package}@latest"], root, InstallLimit);
         string prefix = ExternalProgram.RunChecked("npm", ["prefix", "--global"], root);
         string codex = Path.Combine(prefix, "bin", "codex");
         if (!File.Exists(codex))
@@ -173,7 +186,7 @@ public static class CodexReviewCommand
                 $"npm installed `{CodexCli.Package}`, and '{codex}' does not exist. Read `npm prefix --global` (D-927).");
         }
 
-        ProgramResult versionRun = RunCodex(codex, ["--version"], root, null);
+        ProgramResult versionRun = RunCodex(codex, ["--version"], root, null, ExternalProgram.StepLimit);
         if (versionRun.ExitCode != 0)
         {
             throw new InvalidOperationException(
@@ -192,7 +205,7 @@ public static class CodexReviewCommand
 
     private static void CheckLogin(string codex, string root)
     {
-        ProgramResult status = RunCodex(codex, CodexCli.LoginStatusArguments, root, null);
+        ProgramResult status = RunCodex(codex, CodexCli.LoginStatusArguments, root, null, ExternalProgram.StepLimit);
         if (!CodexCli.IsChatGptLogin(status))
         {
             throw new InvalidOperationException(
@@ -202,9 +215,9 @@ public static class CodexReviewCommand
     }
 
     /// <summary>Runs the Codex CLI with no API key in its environment. Each Codex call of the command goes through here (D-932).</summary>
-    private static ProgramResult RunCodex(string codex, IReadOnlyList<string> arguments, string folder, string? outputFile)
+    private static ProgramResult RunCodex(string codex, IReadOnlyList<string> arguments, string folder, string? outputFile, TimeSpan limit)
     {
-        return ExternalProgram.Run(codex, arguments, folder, outputFile, CodexCli.ApiKeyVariables);
+        return ExternalProgram.Run(codex, arguments, folder, outputFile, limit, CodexCli.ApiKeyVariables);
     }
 
     private static void ProbeModel(string codex)
@@ -217,7 +230,7 @@ public static class CodexReviewCommand
 
         Directory.CreateDirectory(folder);
         string answerFile = Path.Combine(folder, "answer.txt");
-        ProgramResult probe = RunCodex(codex, CodexCli.ProbeArguments(folder, answerFile), folder, null);
+        ProgramResult probe = RunCodex(codex, CodexCli.ProbeArguments(folder, answerFile), folder, null, ProbeLimit);
         if (probe.ExitCode != 0)
         {
             throw new InvalidOperationException(
@@ -247,7 +260,7 @@ public static class CodexReviewCommand
         string baseBranch = ReadField(pr, "baseRefName", numberText);
 
         ExternalProgram.RunChecked("git", ["fetch", "--quiet", "origin"], root);
-        ProgramResult symbolic = ExternalProgram.Run("git", ["symbolic-ref", "--quiet", "--short", "HEAD"], root, null);
+        ProgramResult symbolic = ExternalProgram.Run("git", ["symbolic-ref", "--quiet", "--short", "HEAD"], root, null, ExternalProgram.StepLimit);
         string? localBranch = symbolic.ExitCode == 0 ? symbolic.Output.Trim() : null;
         string localHead = ExternalProgram.RunChecked("git", ["rev-parse", "HEAD"], root);
         string remoteHead = ExternalProgram.RunChecked("git", ["rev-parse", $"origin/{branch}"], root);
@@ -377,7 +390,7 @@ public static class CodexReviewCommand
     private static string? ReadRemoteFile(string root, string branch, string path)
     {
         string spec = $"origin/{branch}:{path}";
-        ProgramResult exists = ExternalProgram.Run("git", ["cat-file", "-e", spec], root, null);
+        ProgramResult exists = ExternalProgram.Run("git", ["cat-file", "-e", spec], root, null, ExternalProgram.StepLimit);
         if (exists.ExitCode != 0)
         {
             return null;
