@@ -2,6 +2,10 @@
 .idea/
 .vscode/
 
+# The local settings of the harness on one machine. It can hold hooks and permissions, so the
+# review gate refuses it under the label too (D-700, D-1085).
+.claude/settings.local.json
+
 # OS
 .DS_Store
 Thumbs.db

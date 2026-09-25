@@ -17,11 +17,12 @@ on:
 permissions:
   contents: read
 
-# Every push to `main` shares one group, because `github.ref` is the same for each merge. A
-# cancel there leaves a merge with no record of its checks, so a cancel applies to a pull
-# request alone, as the export workflow does.
+# A PR shares one group, and a new push cancels the run of the older head. Each push to `main`
+# takes a group of its own commit. GitHub keeps one waiting run in a group and cancels an older
+# waiting run, even with no cancel of the run in progress. One group for `main` thus dropped the
+# middle run of three quick merges, and that merge lost the record of its checks (F-110).
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
@@ -77,8 +78,11 @@ jobs:
 
           # Three points give the paths that the PR changes from the merge base. Two points
           # would compare the two trees, and a branch behind `main` would then read every
-          # path that `main` changed since the branch point as a path of the PR.
-          git diff --name-only "$BASE_REF...$HEAD_REF" > "$facts/pr-paths.txt"
+          # path that `main` changed since the branch point as a path of the PR. Git finds
+          # renames by default, and a rename then lists its new path alone. Each list of paths
+          # thus takes `--no-renames`, so a move into `docs/` still lists the path that it left
+          # (F-108).
+          git diff --no-renames --name-only "$BASE_REF...$HEAD_REF" > "$facts/pr-paths.txt"
           echo "The PR changes these paths:"
           cat "$facts/pr-paths.txt"
 
@@ -97,7 +101,7 @@ jobs:
             exit 0
           fi
 
-          git diff --name-only "$BEFORE_REF" "$HEAD_REF" > "$facts/push-paths.txt"
+          git diff --no-renames --name-only "$BEFORE_REF" "$HEAD_REF" > "$facts/push-paths.txt"
           echo "The push changes these paths from $BEFORE_REF:"
           cat "$facts/push-paths.txt"
 

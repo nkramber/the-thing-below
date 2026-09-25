@@ -136,6 +136,7 @@ public sealed class ReviewGateOverrideRuleTests
     [InlineData("content/items.json")]
     [InlineData("LICENSE")]
     [InlineData(".claude/settings.json")]
+    [InlineData(".claude/settings.local.json")]
     public void EachPathOutsideTheEligibleSetFails(string path)
     {
         PullRequestFacts facts = ReviewGateFixture.LabeledFacts() with { Files = [path] };
@@ -159,6 +160,43 @@ public sealed class ReviewGateOverrideRuleTests
         Assert.Equal(GateResult.Fault, check.Result);
         Assert.Contains("`.claude/settings.json`", check.Detail, StringComparison.Ordinal);
         Assert.Contains("D-700", check.Detail, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// The regression test of D-1085 and F-113. The local settings file holds the same hooks as
+    /// the shared one, and the old rule took it as a path of `.claude/`.
+    /// </summary>
+    [Fact]
+    public void TheLocalSettingsFileOfTheHarnessTakesTheReview()
+    {
+        PullRequestFacts facts = ReviewGateFixture.LabeledFacts() with
+        {
+            Files = ["docs/design.md", OverrideRules.HarnessLocalSettingsPath],
+        };
+
+        GateCheck check = OverrideRules.CheckPaths(facts);
+
+        Assert.Equal(GateResult.Fault, check.Result);
+        Assert.Contains("`.claude/settings.local.json`", check.Detail, StringComparison.Ordinal);
+        Assert.Contains("D-1085", check.Detail, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(".claude/settings.local.json.md")]
+    [InlineData(".claude/skills/settings.local.json")]
+    public void ANameNearTheLocalSettingsFileStaysEligible(string path)
+    {
+        PullRequestFacts facts = ReviewGateFixture.LabeledFacts() with { Files = [path] };
+
+        Assert.Equal(GateResult.Pass, OverrideRules.CheckPaths(facts).Result);
+    }
+
+    [Fact]
+    public void GitIgnoresTheLocalSettingsFile()
+    {
+        string[] lines = File.ReadAllLines(RepositoryRoot.PathTo(".gitignore"));
+
+        Assert.Contains(OverrideRules.HarnessLocalSettingsPath, lines);
     }
 
     [Fact]

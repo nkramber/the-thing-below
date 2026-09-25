@@ -148,7 +148,7 @@ Process terms:
 
 | Term | Use for | Do not use |
 |---|---|---|
-| docs-only PR | a PR whose paths are all in the override set: `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/` without `.claude/settings.json`, and the PR template (D-16, D-513, D-700) | documentation PR, when the text means this set |
+| docs-only PR | a PR whose paths are all in the override set: `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.claude/` without `.claude/settings.json` and .claude/settings.local.json, and the PR template (D-16, D-513, D-700, D-1085) | documentation PR, when the text means this set |
 | skip set | the paths that skip the build and test jobs of CI: `docs/`, `.claude/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `LICENSE`, and the PR template (D-600, D-857) | docs-only set, which names the override set |
 | Documents section | the part of the PR description with one line for each required document (D-577, D-581) | documentation-impact matrix, doc checklist |
 | hand-over point | the end of the work of a session on its PR: the verdict `Ready for owner merge` for the effective head, or the label (D-576, D-582) | handoff, which names the entry in `docs/session-handoff.md` |

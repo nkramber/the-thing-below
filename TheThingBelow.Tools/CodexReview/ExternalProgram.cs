@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,6 +22,12 @@ public sealed record ProgramResult(int ExitCode, string Output, string Error);
 /// </summary>
 public static class ExternalProgram
 {
+    /// <summary>
+    /// The time limit of one git, gh, or npm call that reads or writes a small amount of data
+    /// (D-1086). Each such call of a review took seconds.
+    /// </summary>
+    public static readonly TimeSpan StepLimit = TimeSpan.FromMinutes(5);
+
     /// <summary>Runs one program to its end, with the environment of this process.</summary>
     /// <param name="program">The program name or its full path.</param>
     /// <param name="arguments">Each argument, with no shell between them.</param>
@@ -29,15 +36,17 @@ public static class ExternalProgram
     /// The file that takes the standard output as the program writes it, or null to keep the
     /// output in the result.
     /// </param>
+    /// <param name="limit">The time that the program can run before the command stops it (D-1086).</param>
     /// <returns>The exit code and the text of the two streams.</returns>
-    /// <exception cref="InvalidOperationException">The program did not start (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The program did not start, or it ran past its limit (T-2).</exception>
     public static ProgramResult Run(
         string program,
         IReadOnlyList<string> arguments,
         string workingDirectory,
-        string? outputFile)
+        string? outputFile,
+        TimeSpan limit)
     {
-        return Run(program, arguments, workingDirectory, outputFile, []);
+        return Run(program, arguments, workingDirectory, outputFile, limit, []);
     }
 
     /// <summary>
@@ -52,20 +61,26 @@ public static class ExternalProgram
     /// The file that takes the standard output as the program writes it, or null to keep the
     /// output in the result.
     /// </param>
+    /// <param name="limit">The time that the program can run before the command stops it (D-1086).</param>
     /// <param name="removedVariables">The name of each variable that the program does not get.</param>
     /// <returns>The exit code and the text of the two streams.</returns>
-    /// <exception cref="InvalidOperationException">The program did not start (T-2).</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The program did not start, or it ran past its limit. At the limit, the command stops the
+    /// program and each process that it started, and the message names the command (T-2).
+    /// </exception>
     public static ProgramResult Run(
         string program,
         IReadOnlyList<string> arguments,
         string workingDirectory,
         string? outputFile,
+        TimeSpan limit,
         IReadOnlyList<string> removedVariables)
     {
         ArgumentNullException.ThrowIfNull(removedVariables);
         ArgumentException.ThrowIfNullOrEmpty(program);
         ArgumentNullException.ThrowIfNull(arguments);
         ArgumentException.ThrowIfNullOrEmpty(workingDirectory);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(limit, TimeSpan.Zero);
 
         ProcessStartInfo start = new ProcessStartInfo(program)
         {
@@ -91,36 +106,61 @@ public static class ExternalProgram
         using Process process = Start(start, program, workingDirectory);
         process.StandardInput.Close();
 
-        // Both streams drain at the same time, or a full pipe stops the program.
+        // Both streams drain at the same time, or a full pipe stops the program. Neither read
+        // blocks this thread, so the wait below keeps the limit even when the program hangs.
+        using FileStream? file = outputFile is null ? null : File.Create(outputFile);
         Task<string> errorText = process.StandardError.ReadToEndAsync();
-        string output = string.Empty;
-        if (outputFile is null)
+        Task<string> outputText = file is null
+            ? process.StandardOutput.ReadToEndAsync()
+            : CopyOutput(process.StandardOutput.BaseStream, file);
+
+        bool ended = process.WaitForExit(limit);
+        if (!ended)
         {
-            output = process.StandardOutput.ReadToEnd();
-        }
-        else
-        {
-            using FileStream file = File.Create(outputFile);
-            process.StandardOutput.BaseStream.CopyTo(file);
+            // A child of the program can hold the pipes open, so the stop takes the whole tree.
+            process.Kill(entireProcessTree: true);
+            process.WaitForExit();
         }
 
         string error = errorText.GetAwaiter().GetResult();
-        process.WaitForExit();
+        string output = outputText.GetAwaiter().GetResult();
+        if (!ended)
+        {
+            throw new InvalidOperationException(
+                $"`{Describe(program, arguments)}` ran past its limit of {Seconds(limit)} seconds in '{workingDirectory}', " +
+                $"so the command stopped it and each process that it started (D-1086, T-2). {error.Trim()}");
+        }
+
         return new ProgramResult(process.ExitCode, output, error);
     }
 
-    /// <summary>Runs one program, and fails when its exit code is not 0.</summary>
+    /// <summary>Runs one program with <see cref="StepLimit"/>, and fails when its exit code is not 0.</summary>
     /// <param name="program">The program name or its full path.</param>
     /// <param name="arguments">Each argument, with no shell between them.</param>
     /// <param name="workingDirectory">The folder in which the program runs.</param>
     /// <returns>The standard output, with the white space at each end removed.</returns>
     /// <exception cref="InvalidOperationException">
-    /// The program did not start, or it gave an exit code other than 0. The message names the
-    /// command, the folder, the code, and the error text (T-2).
+    /// The program did not start, it ran past its limit, or it gave an exit code other than 0.
+    /// The message names the command, the folder, the code, and the error text (T-2).
     /// </exception>
     public static string RunChecked(string program, IReadOnlyList<string> arguments, string workingDirectory)
     {
-        ProgramResult result = Run(program, arguments, workingDirectory, null);
+        return RunChecked(program, arguments, workingDirectory, StepLimit);
+    }
+
+    /// <summary>Runs one program with its own limit, and fails when its exit code is not 0.</summary>
+    /// <param name="program">The program name or its full path.</param>
+    /// <param name="arguments">Each argument, with no shell between them.</param>
+    /// <param name="workingDirectory">The folder in which the program runs.</param>
+    /// <param name="limit">The time that the program can run before the command stops it (D-1086).</param>
+    /// <returns>The standard output, with the white space at each end removed.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// The program did not start, it ran past its limit, or it gave an exit code other than 0.
+    /// The message names the command, the folder, the code, and the error text (T-2).
+    /// </exception>
+    public static string RunChecked(string program, IReadOnlyList<string> arguments, string workingDirectory, TimeSpan limit)
+    {
+        ProgramResult result = Run(program, arguments, workingDirectory, null, limit);
         if (result.ExitCode != 0)
         {
             throw new InvalidOperationException(
@@ -139,6 +179,16 @@ public static class ExternalProgram
         ArgumentNullException.ThrowIfNull(arguments);
         return arguments.Count == 0 ? program : $"{program} {string.Join(' ', arguments)}";
     }
+
+    /// <summary>Copies the output stream into the file, and gives an empty text, because the file took the output.</summary>
+    private static async Task<string> CopyOutput(Stream output, FileStream file)
+    {
+        await output.CopyToAsync(file).ConfigureAwait(false);
+        return string.Empty;
+    }
+
+    private static string Seconds(TimeSpan limit) =>
+        ((long)limit.TotalSeconds).ToString(CultureInfo.InvariantCulture);
 
     private static Process Start(ProcessStartInfo start, string program, string workingDirectory)
     {

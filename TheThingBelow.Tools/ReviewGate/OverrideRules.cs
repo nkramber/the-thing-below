@@ -18,8 +18,8 @@ public static class OverrideRules
     public const string DecisionsPath = "docs/decisions.md";
 
     /// <summary>
-    /// The folders of the eligible set. Each path under one of them is eligible, except
-    /// <see cref="HarnessSettingsPath"/>.
+    /// The folders of the eligible set. Each path under one of them is eligible, except each
+    /// path of <see cref="HarnessSettingsPaths"/>.
     /// </summary>
     public static readonly IReadOnlyList<string> EligibleFolders = ["docs/", ".claude/"];
 
@@ -40,6 +40,16 @@ public static class OverrideRules
     /// a hook that runs a command in each session, so it takes the guard of a workflow file.
     /// </summary>
     public const string HarnessSettingsPath = ".claude/settings.json";
+
+    /// <summary>
+    /// The local settings file of the harness. It holds the same hooks and permissions as
+    /// <see cref="HarnessSettingsPath"/>, so a commit of it takes the same guard. Git ignores
+    /// it, and a forced add still reaches this rule (D-1085).
+    /// </summary>
+    public const string HarnessLocalSettingsPath = ".claude/settings.local.json";
+
+    /// <summary>The settings files of the harness, which the eligible set leaves out (D-700, D-1085).</summary>
+    public static readonly IReadOnlyList<string> HarnessSettingsPaths = [HarnessSettingsPath, HarnessLocalSettingsPath];
 
     /// <summary>Reads the label set of the pull request.</summary>
     /// <param name="facts">The facts of the pull request.</param>
@@ -184,8 +194,9 @@ public static class OverrideRules
 
     private static bool IsEligible(string file)
     {
-        // This one file of `.claude/` takes the review, so the refusal comes before the folder match (D-700).
-        if (string.Equals(file, HarnessSettingsPath, StringComparison.Ordinal))
+        // The settings files of `.claude/` take the review, so the refusal comes before the
+        // folder match (D-700, D-1085).
+        if (IsHarnessSettings(file))
         {
             return false;
         }
@@ -216,12 +227,25 @@ public static class OverrideRules
             return "Each gate lives in a workflow file, so a workflow change takes the review (D-560)";
         }
 
-        if (string.Equals(path, HarnessSettingsPath, StringComparison.Ordinal))
+        if (IsHarnessSettings(path))
         {
-            return "The settings file of the harness can hold a hook that runs a command, so it takes the review (D-700)";
+            return "A settings file of the harness can hold a hook that runs a command, so it takes the review (D-700, D-1085)";
         }
 
         return "A path outside the eligible set takes the review of the other provider (D-16, D-71)";
+    }
+
+    private static bool IsHarnessSettings(string path)
+    {
+        foreach (string settings in HarnessSettingsPaths)
+        {
+            if (string.Equals(path, settings, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static string Describe(IReadOnlyList<string> paths)
