@@ -27,6 +27,12 @@ public sealed class ReviewGateMergeTests : IDisposable
 
     public void Dispose()
     {
+        // Git writes each object file as read-only, and Windows refuses the delete of such a file.
+        foreach (string file in Directory.EnumerateFiles(this.root, "*", SearchOption.AllDirectories))
+        {
+            File.SetAttributes(file, FileAttributes.Normal);
+        }
+
         Directory.Delete(this.root, recursive: true);
     }
 

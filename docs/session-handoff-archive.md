@@ -1,5 +1,37 @@
 # Session handoff archive
 
+## Session 309: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #81 (PR-104), round 3. Repository: the-thing-below. Local branch: `review/pr-81`; PR branch: `fix/pr-104-boot-and-rules`. PR: #81. Role: reviewer. Base: `4aad522`.
+
+### What this session did, and why
+
+- Re-reviewed PR #81 at effective head `f66e314`.
+- Verified the Steam Deck measurement and each author answer to the Gitar dashboard and CI analysis items.
+- The CI analysis names three review-gate jobs. Each fails RG 4 because the review record says `Blocked`.
+- The implementation checks pass, and the review record now gives `Ready for owner merge`.
+
+### The state of the build
+
+- Effective head `f66e314`. Metadata head `c18ed2f` has green implementation checks, STE, and Gitar. The review-gate job fails RG 4 because the prior record says `Blocked`.
+
+### What is in flight
+
+- This review record and handoff entry will be committed together and pushed to `fix/pr-104-boot-and-rules`.
+
+### Traps and gotchas
+
+- RG 4 correctly rejects the earlier `Blocked` verdict. The next gate run must read this updated record.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Commit and push the review metadata, then verify the remote head and review-gate result.
+
 ## Session 308: 2026-09-25, Codex
 
 Author: Codex
