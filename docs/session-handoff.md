@@ -1,3 +1,35 @@
+## Session 286: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR-101, round 3. Repository: the-thing-below. Branch: `fix/pr-101-torch-and-pad`. PR: #78 (PR-101). Role: author. Base: `c154ddd`.
+
+### What this session did, and why
+
+- The Gitar pass of `7aef6dc` approved, and Gitar closed its finding of round 1 as fixed.
+- The screen-test job of `7aef6dc` failed on `map-fire-1x.png` alone: 232 pixels, one level each. The render of this machine and of CI differ there by one level. The baseline takes the capture of the job artifact 10846167929 (D-733). The other 107 captures of the artifact match the baseline.
+- Each other CI check of `7aef6dc` passed or was in progress. `review-gate` waits for the review record alone.
+
+### The state of the build
+
+- Base `c154ddd`. The reviewed Gitar head `7aef6dc`. The remote head is the commit of this entry.
+- The job artifact of CI downloads through the proxy of this machine with the API address of the artifact.
+
+### What is in flight
+
+- The Gitar pass and the screen-test job of this head. Then the owner runs `make codex-review PR=78`.
+
+### Traps and gotchas
+
+- `map-fire-1x.png` and `still-240.png` can differ by one level between this machine and CI. Take a changed capture from the artifact of the job, never from this machine alone.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Read the screen-test job and the Gitar pass of this head. When both pass, tell the owner to run `make codex-review PR=78`.
+
 ## Session 285: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -323,36 +355,3 @@ OQ-246 remains open and blocks no PR.
 ### The next concrete action
 
 Push the metadata commit to `feat/pr-99-stats-absorb-swap`. Fetch, verify the branch status and PR head, and read the review-gate result.
-
-## Session 276: 2026-09-24, Claude Code
-
-Author: Claude Code
-Session: author PR-99, round 3. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: author. Base: `f1ab753`.
-
-### What this session did, and why
-
-- The repeat review of Session 275 gave `Blocked` on `15945f2`. P2-1 was fixed, and screen-test had failed on the three frames of OQ-246.
-- The review ran after a failed screen-test. The owner set D-1061: the review starts only when each check but `review-gate` passes, and a flake gets reruns first.
-- The owner approved the string batch as written (D-57), and the PR description says so.
-- Screen-test attempt 3 of run `36041907957` passed on `15945f2`. The CI run `36044147120` of the review commit `d6c4f3a` was cancelled, and its rerun passed each job.
-
-### The state of the build
-
-- Remote head before this commit: `d6c4f3a`. Every check but `review-gate` passed on it.
-
-### What is in flight
-
-- The repeat review, after the CI of this commit passes.
-
-### Traps and gotchas
-
-- A rerun of an old run can cancel the run of a newer commit of the PR, because the runs share a concurrency group. Read the run of the PR head with `gh pr checks`.
-- A chain of a watch and a review must stop on a red check (D-1061).
-
-### The questions that block progress
-
-None. OQ-246 stays open and blocks no PR.
-
-### The next concrete action
-
-Wait for every check but `review-gate` to pass on this commit. Then run `make codex-review PR=75 -- --skip-gitar-review`.

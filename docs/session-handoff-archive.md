@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 276: 2026-09-24, Claude Code
+
+Author: Claude Code
+Session: author PR-99, round 3. Repository: the-thing-below. Branch: `feat/pr-99-stats-absorb-swap`. PR: #75. Role: author. Base: `f1ab753`.
+
+### What this session did, and why
+
+- The repeat review of Session 275 gave `Blocked` on `15945f2`. P2-1 was fixed, and screen-test had failed on the three frames of OQ-246.
+- The review ran after a failed screen-test. The owner set D-1061: the review starts only when each check but `review-gate` passes, and a flake gets reruns first.
+- The owner approved the string batch as written (D-57), and the PR description says so.
+- Screen-test attempt 3 of run `36041907957` passed on `15945f2`. The CI run `36044147120` of the review commit `d6c4f3a` was cancelled, and its rerun passed each job.
+
+### The state of the build
+
+- Remote head before this commit: `d6c4f3a`. Every check but `review-gate` passed on it.
+
+### What is in flight
+
+- The repeat review, after the CI of this commit passes.
+
+### Traps and gotchas
+
+- A rerun of an old run can cancel the run of a newer commit of the PR, because the runs share a concurrency group. Read the run of the PR head with `gh pr checks`.
+- A chain of a watch and a review must stop on a red check (D-1061).
+
+### The questions that block progress
+
+None. OQ-246 stays open and blocks no PR.
+
+### The next concrete action
+
+Wait for every check but `review-gate` to pass on this commit. Then run `make codex-review PR=75 -- --skip-gitar-review`.
+
 ## Session 275: 2026-09-24, Codex
 
 Author: Codex
