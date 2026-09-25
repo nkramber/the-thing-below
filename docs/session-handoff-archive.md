@@ -1,4 +1,37 @@
 # Session handoff archive
+## Session 298: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #80 (PR-103), round 5. Repository: the-thing-below. Branch: `fix/pr-103-input-and-grace`. PR: #80. Role: author. Base: `5c1db06`.
+
+### What this session did, and why
+
+- The owner asked to remove the glow of the wall torches for a playtest, and the session set its strength to 0 in the working tree alone. After the playtest, the owner chose no glow (D-1097).
+- The wall torch now holds a glow of strength 0, so it draws no halo (D-912). The halo code, the size of 168 pixels, and the curve of D-1095 stay for a later fire that glows. D-1097 supersedes D-1096 and revises D-1075 and D-1092 in part.
+- `NeitherTheWallTorchNorTheCarriedTorchGlows` replaces the test that the wall torch glows, and `TheReaderTakesAHaloOfSixTilesAtMost` keeps the reader bound of D-1092.
+- Gitar approved `a8e9cdb` with no open finding. Its CI claim names RG 3 alone: the review record waits for the review of the other provider.
+
+### The state of the build
+
+- `make build`, `make test` (3307), `make format`, `make content`, `make ste-check`, and `make smoke` pass on this machine.
+- The remote head holds this entry.
+
+### What is in flight
+
+- The Gitar pass and the CI of the round 5 push.
+- The `screen-test` job fails on the map frames of the torch, and on the item line. The author reads each changed frame of the CI artifact and commits the new baseline (D-733). Then `make codex-review PR=80`.
+
+### Traps and gotchas
+
+- The citation of a superseded decision names the decision that superseded it, or ste-check fails on REF 3.
+
+### The questions that block progress
+
+None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-9, P3-18, P3-19, P3-20, P3-27, and P3-34, and each next PR asks them first.
+
+### The next concrete action
+
+Poll the Gitar check of the round 5 push, and answer each Gitar item. Commit the new screen baseline from the CI artifact, and then run `make codex-review PR=80` when each CI check but `review-gate` passes.
 ## Session 297: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -31,6 +64,7 @@ None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-
 ### The next concrete action
 
 Poll the Gitar check of the round 4 push, and answer each Gitar item. Commit the new screen baseline from the CI artifact, and then run `make codex-review PR=80` when each CI check but `review-gate` passes.
+
 
 ## Session 296: 2026-09-25, Claude Code
 
