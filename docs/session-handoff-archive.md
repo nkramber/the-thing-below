@@ -1,5 +1,38 @@
 # Session handoff archive
 
+## Session 319: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #83 (PR-106), round 2. Repository: the-thing-below. Branch: `fix/pr-106-gate-trust`. PR: #83. Role: author. Base: `d875322`.
+
+### What this session did, and why
+
+- The first CI run of `5839bf8` held the 19 new frames with no baseline. The author read each frame of the artifact, and each one holds its text (D-784).
+- The shared light texture of D-1129 moved 15 lit frames by one or two levels. A rerun on another CPU gave the same bytes in all 127 frames, so the 15 frames take new baselines too. OQ-246 records the evidence.
+- The Gitar pass approved with no thread. Its CI analysis found that `ReviewGateMergeTests` could not remove the read-only object files of git on Windows. The test now clears the flag first.
+- D-1123 now says that the owner sets the `Gitar` context of the live protection.
+
+### The state of the build
+
+- The remote head is the push of this round. All 127 captures match the baseline on the Mac compare of the artifact.
+
+### What is in flight
+
+- The Gitar pass of this push, then `make codex-review PR=83`.
+- The owner sets the `Gitar` context in the live protection of `main` (D-1123).
+
+### Traps and gotchas
+
+- A change that shares a light texture moves lit frames by one level. The report of D-1127 names each one.
+
+### The questions that block progress
+
+None. OQ-246 holds the cause of the screen flake.
+
+### The next concrete action
+
+Answer the items of the Gitar CI analysis on the PR, then run `make codex-review PR=83` when CI is green.
+
 ## Session 318: 2026-09-25, Claude Code
 
 Author: Claude Code

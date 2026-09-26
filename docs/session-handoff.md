@@ -1,3 +1,38 @@
+## Session 329: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #85 (PR-65), round 3. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: #85. Role: author. Base: `8e81487`.
+
+### What this session did, and why
+
+- The owner read the frames of round 2 and changed the popups and the change cells (D-1168). D-1060 is revised in part.
+- "Equip it now?" is a small box in the middle of the screen. The popup of the characters stands in the middle of the screen, as wide as its columns and as tall as its rows, with a gap under its title.
+- A cell of a change shows the whole stat first and the change after it, such as "8 +2". The strings `menu.gear_gain` and `menu.gear_loss` change, so the gear window shows the same form.
+- The session read the shop frames and the gear frames of `make sheet FIXTURE=menu`.
+
+### The state of the build
+
+- Every local check passes. Ten tests fail alone: the baselines of the ten shop frames, which come from the `screen-captures` artifact of CI.
+- Gitar approved round 2 with no thread. The remote head is the push of this round.
+
+### What is in flight
+
+- The approval of the owner for the frames of round 3 in the PR description.
+- Then the baselines of the CI artifact, the answer to the CI claim of Gitar (RG 3 before the review), and `make codex-review`.
+
+### Traps and gotchas
+
+- The level-up text of a fight ("+3 ATK") shows the gain alone, with no whole stat, so D-1168 leaves it as it is.
+- Perl substitutions with braces in C# text fail. Use the Edit tool for each change of C# text.
+
+### The questions that block progress
+
+The owner approves the shop frames before the review (D-1164). The text batch waits for the approval of the owner (D-57).
+
+### The next concrete action
+
+Wait for the approval of the owner. Then commit the baselines of the CI artifact, and run `make codex-review PR=85`.
+
 ## Session 328: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -296,36 +331,3 @@ OQ-246 remains open for the cause of a one-level screen-test flake. PR-106 adds 
 ### The next concrete action
 
 Read the live `review-gate` result after the metadata push, then end this review session.
-
-## Session 319: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #83 (PR-106), round 2. Repository: the-thing-below. Branch: `fix/pr-106-gate-trust`. PR: #83. Role: author. Base: `d875322`.
-
-### What this session did, and why
-
-- The first CI run of `5839bf8` held the 19 new frames with no baseline. The author read each frame of the artifact, and each one holds its text (D-784).
-- The shared light texture of D-1129 moved 15 lit frames by one or two levels. A rerun on another CPU gave the same bytes in all 127 frames, so the 15 frames take new baselines too. OQ-246 records the evidence.
-- The Gitar pass approved with no thread. Its CI analysis found that `ReviewGateMergeTests` could not remove the read-only object files of git on Windows. The test now clears the flag first.
-- D-1123 now says that the owner sets the `Gitar` context of the live protection.
-
-### The state of the build
-
-- The remote head is the push of this round. All 127 captures match the baseline on the Mac compare of the artifact.
-
-### What is in flight
-
-- The Gitar pass of this push, then `make codex-review PR=83`.
-- The owner sets the `Gitar` context in the live protection of `main` (D-1123).
-
-### Traps and gotchas
-
-- A change that shares a light texture moves lit frames by one level. The report of D-1127 names each one.
-
-### The questions that block progress
-
-None. OQ-246 holds the cause of the screen flake.
-
-### The next concrete action
-
-Answer the items of the Gitar CI analysis on the PR, then run `make codex-review PR=83` when CI is green.

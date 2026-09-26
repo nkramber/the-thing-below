@@ -451,7 +451,7 @@
   },
   {
    "id": "menu.gear_gain",
-   "text": "+{change}  {value}"
+   "text": "{value} +{change}"
   },
   {
    "id": "menu.gear_help",
@@ -459,7 +459,7 @@
   },
   {
    "id": "menu.gear_loss",
-   "text": "-{change}  {value}"
+   "text": "{value} -{change}"
   },
   {
    "id": "menu.gear_pack",

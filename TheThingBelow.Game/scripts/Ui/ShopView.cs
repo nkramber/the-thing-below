@@ -33,6 +33,12 @@ public sealed class ShopView : IMenuView
     /// <summary>The most lines of the popup under its title: two rows for each character of a full party (D-31, D-1167).</summary>
     private const int PopupRows = BattleFixture.MostCharacters * 2;
 
+    /// <summary>The characters of the name column of the popup of the characters: a name, or the name of a worn piece (D-1168).</summary>
+    private const int NameCharacters = 12;
+
+    /// <summary>The characters of one stat cell of the popup: a stat of 999 and a change of 99, and a gap (D-1168).</summary>
+    private const int CellCharacters = 8;
+
     /// <summary>The string id of the name of each stat that gear changes, in the order of the cells (D-1052, D-1056).</summary>
     private static readonly string[] StatNames = ["battle.stat_atk", "battle.stat_mag", "battle.stat_def", "battle.stat_res", "battle.stat_spd"];
 
@@ -42,7 +48,11 @@ public sealed class ShopView : IMenuView
     private readonly Control layer;
     private readonly Control listWindow;
     private readonly Control statsPanel;
-    private readonly Control popup;
+    private readonly Control askPopup;
+    private readonly Label askTitle;
+    private readonly List<Label> askLines = [];
+    private readonly Control whoPopup;
+    private readonly Panel whoPanel;
     private readonly List<Label> modeLines = [];
     private readonly GoldPanel gold;
     private readonly Label title;
@@ -138,17 +148,29 @@ public sealed class ShopView : IMenuView
         MenuNodes.Paint(this.countLine, this.chosenColor);
         this.help = MenuNodes.Line(this.listWindow, left, bottom, inner, line);
 
-        // The popup of the equip step stands over the middle of the list window (D-1167).
-        this.popup = SubLayer(this.layer);
-        FrameBox pop = PopupBox(body, ui.Theme.TitleSize);
-        MenuNodes.Panel(this.popup, pop);
-        int popLeft = pop.X + MenuLayout.Pad;
-        int cell = PopupCellWidth();
-        int popName = pop.Width - (MenuLayout.Pad * 2) - (cell * StatNames.Length);
-        this.popupTitle = MenuNodes.Line(this.popup, popLeft, pop.Y + MenuLayout.Pad, pop.Width - (MenuLayout.Pad * 2), line);
+        // The question of the equip step is a small box in the middle of the screen (D-1168).
+        this.askPopup = SubLayer(this.layer);
+        FrameBox ask = AskBox(body);
+        MenuNodes.Panel(this.askPopup, ask);
+        this.askTitle = MenuNodes.Line(this.askPopup, ask.X + MenuLayout.Pad, ask.Y + MenuLayout.Pad, ask.Width - (MenuLayout.Pad * 2), line);
+        ui.Text.Put(this.askTitle, Id("menu.shop_equip_ask"));
+        foreach (string choice in new[] { "menu.yes", "menu.no" })
+        {
+            Label label = MenuNodes.Line(this.askPopup, ask.X + MenuLayout.Pad, ask.Y + MenuLayout.Pad + (line * (this.askLines.Count + 2)), ask.Width - (MenuLayout.Pad * 2), line);
+            ui.Text.Put(label, Id(choice));
+            this.askLines.Add(label);
+        }
+
+        // The characters of the equip step stand in a box in the middle of the screen, as wide as
+        // its columns. Each show places the box and its lines for the rows that it holds (D-1168).
+        this.whoPopup = SubLayer(this.layer);
+        this.whoPanel = new Panel { MouseFilter = Control.MouseFilterEnum.Ignore };
+        this.whoPopup.AddChild(this.whoPanel);
+        int glyph = body / 2;
+        this.popupTitle = MenuNodes.Line(this.whoPopup, 0, 0, (NameCharacters + (CellCharacters * StatNames.Length)) * glyph, line);
         for (int stat = 0; stat < StatNames.Length; stat += 1)
         {
-            Label name = MenuNodes.Line(this.popup, popLeft + popName + (cell * stat), pop.Y + MenuLayout.Pad + line, cell, line);
+            Label name = MenuNodes.Line(this.whoPopup, 0, 0, CellCharacters * glyph, line);
             ui.Text.Put(name, Id(StatNames[stat]));
             MenuNodes.Paint(name, this.dimColor);
             this.popupStatNames.Add(name);
@@ -156,12 +178,11 @@ public sealed class ShopView : IMenuView
 
         for (int row = 0; row < PopupRows; row += 1)
         {
-            int y = pop.Y + MenuLayout.Pad + (line * (row + 2));
-            this.popupNames.Add(MenuNodes.Line(this.popup, popLeft, y, popName, line));
+            this.popupNames.Add(MenuNodes.Line(this.whoPopup, 0, 0, NameCharacters * glyph, line));
             List<Label> cells = [];
             for (int stat = 0; stat < StatNames.Length; stat += 1)
             {
-                cells.Add(MenuNodes.Line(this.popup, popLeft + popName + (cell * stat), y, cell, line));
+                cells.Add(MenuNodes.Line(this.whoPopup, 0, 0, CellCharacters * glyph, line));
             }
 
             this.popupCells.Add(cells);
@@ -173,10 +194,10 @@ public sealed class ShopView : IMenuView
     /// <summary>The cursor of the window.</summary>
     public ShopCursor Cursor { get; }
 
-    /// <summary>Gives the count of characters that one stat cell of the popup holds at a body size (D-1167).</summary>
+    /// <summary>Gives the count of characters that one stat cell of the popup holds at a body size (D-1167, D-1168).</summary>
     /// <param name="body">The body size, in frame pixels (D-707).</param>
     /// <returns>The count of whole characters.</returns>
-    public static int StatCellCharacters(int body) => UiMetrics.CharactersAcross(body, PopupCellWidth());
+    public static int StatCellCharacters(int body) => UiMetrics.CharactersAcross(body, CellCharacters * (body / 2));
 
     /// <summary>Gives the string id of the label of one choice of the shop menu (G-7).</summary>
     /// <param name="mode">The choice.</param>
@@ -233,7 +254,8 @@ public sealed class ShopView : IMenuView
 
         this.gold.Show();
         this.listWindow.Visible = cursor.Stage != ShopStage.Mode;
-        this.popup.Visible = cursor.Stage is ShopStage.EquipAsk or ShopStage.EquipWho or ShopStage.EquipSlot;
+        this.askPopup.Visible = cursor.Stage == ShopStage.EquipAsk;
+        this.whoPopup.Visible = cursor.Stage is ShopStage.EquipWho or ShopStage.EquipSlot;
         this.ShowStats();
         if (cursor.Stage == ShopStage.Mode)
         {
@@ -246,9 +268,14 @@ public sealed class ShopView : IMenuView
         ContentId? refusal = cursor.Refusal();
         this.ui.Text.Put(this.help, refusal ?? cursor.EquipPiece ?? cursor.Thing ?? ModeHelpOf(cursor.Mode));
         MenuNodes.Paint(this.help, refusal is null ? this.dimColor : this.warningColor);
-        if (this.popup.Visible)
+        if (this.askPopup.Visible)
         {
-            this.ShowPopup();
+            this.ShowAsk();
+        }
+
+        if (this.whoPopup.Visible)
+        {
+            this.ShowWho();
         }
     }
 
@@ -278,17 +305,12 @@ public sealed class ShopView : IMenuView
         return label;
     }
 
-    /// <summary>Gives the place of the popup: as wide as the list window, with one line of title, one of the stat names, and <see cref="PopupRows"/> rows. Its top stands in the gap above the third line of the list, so it cuts no line of text.</summary>
-    private static FrameBox PopupBox(int body, int titleSize)
+    /// <summary>Gives the place of the question of the equip step: as wide as the main list, with the question, a gap, yes, and no, in the middle of the screen (D-1168).</summary>
+    private static FrameBox AskBox(int body)
     {
-        FrameBox box = MenuLayout.TaskBox();
-        int height = (MenuLayout.Pad * 2) + (MenuLayout.LineOf(body) * (PopupRows + 2));
-        int line = MenuLayout.LineOf(body);
-        int top = MenuLayout.FirstLineTop(body, titleSize) + (line * 2) - MenuLayout.LineGap;
-        return new FrameBox(box.X, top, box.Width, height);
+        int height = (MenuLayout.Pad * 2) + (MenuLayout.LineOf(body) * 4);
+        return new FrameBox((ScreenFit.FrameWidth - MenuLayout.MainListWidth) / 2, (ScreenFit.FrameHeight - height) / 2, MenuLayout.MainListWidth, height);
     }
-
-    private static int PopupCellWidth() => (MenuLayout.TaskBox().Width - (MenuLayout.Pad * 2)) / (StatNames.Length + 1);
 
     private static ContentId Id(string value) => ContentId.Parse(value, StringTable.Path, nameof(ShopView));
 
@@ -395,30 +417,43 @@ public sealed class ShopView : IMenuView
         this.ui.Text.Put(this.countLine, Id("menu.shop_count"), Values(("count", Number(cursor.Count)), ("total", Number(checked(each * cursor.Count)))));
     }
 
+    /// <summary>Shows the question of the equip step, with the cursor on yes or no (D-1167, D-1168).</summary>
+    private void ShowAsk()
+    {
+        for (int index = 0; index < this.askLines.Count; index += 1)
+        {
+            MenuNodes.Paint(this.askLines[index], index == this.Cursor.AskCursor ? this.chosenColor : null);
+        }
+    }
+
     /// <summary>
-    /// Shows the popup of the equip step: the question, the list of the characters with the change
-    /// of each slot that the piece can take, or the two full accessory slots with the change of the
-    /// slot under the cursor alone (D-1167).
+    /// Shows the popup of the characters: each character with the change of each slot that the
+    /// piece can take, or the two full accessory slots with the change of the slot under the cursor
+    /// alone. The box stands in the middle of the screen, as tall as its rows (D-1167, D-1168).
     /// </summary>
-    private void ShowPopup()
+    private void ShowWho()
     {
         ShopCursor cursor = this.Cursor;
-        foreach (Label name in this.popupStatNames)
+        IReadOnlyList<PartyMember> members = this.state.Characters.Members;
+        int rows = 0;
+        if (cursor.Stage == ShopStage.EquipWho)
         {
-            name.Visible = cursor.Stage != ShopStage.EquipAsk;
+            foreach (PartyMember member in members)
+            {
+                rows += cursor.SlotsFor(member).Count;
+            }
+        }
+        else
+        {
+            rows = cursor.SlotsFor(members[cursor.WhoCursor]).Count;
         }
 
+        this.PlaceWho(rows);
         int row = 0;
         switch (cursor.Stage)
         {
-            case ShopStage.EquipAsk:
-                this.ui.Text.Put(this.popupTitle, Id("menu.shop_equip_ask"));
-                this.PutChoice(row++, Id("menu.yes"), cursor.AskCursor == ShopCursor.Yes);
-                this.PutChoice(row++, Id("menu.no"), cursor.AskCursor == ShopCursor.No);
-                break;
             case ShopStage.EquipWho:
                 this.ui.Text.Put(this.popupTitle, Id("menu.shop_equip_who"));
-                IReadOnlyList<PartyMember> members = this.state.Characters.Members;
                 for (int who = 0; who < members.Count; who += 1)
                 {
                     IReadOnlyList<int> slots = cursor.SlotsFor(members[who]);
@@ -432,7 +467,7 @@ public sealed class ShopView : IMenuView
                 break;
             default:
                 this.ui.Text.Put(this.popupTitle, Id("menu.shop_replace"));
-                PartyMember wearer = this.state.Characters.Members[cursor.WhoCursor];
+                PartyMember wearer = members[cursor.WhoCursor];
                 IReadOnlyList<int> full = cursor.SlotsFor(wearer);
                 for (int place = 0; place < full.Count; place += 1)
                 {
@@ -491,6 +526,41 @@ public sealed class ShopView : IMenuView
                 : Values(("change", Number(Math.Abs(trial[stat] - worn[stat]))), ("value", Number(trial[stat])));
             this.ui.Text.Put(cell, GearView.TrialIdOf(worn[stat], trial[stat]), values);
             MenuNodes.Paint(cell, trial[stat] > worn[stat] ? this.gainColor : trial[stat] < worn[stat] ? this.lossColor : this.dimColor);
+        }
+    }
+
+    /// <summary>
+    /// Places the popup of the characters in the middle of the screen for a count of rows: the title,
+    /// a gap, the names of the stats, and the rows, as wide as the name column and the stat cells (D-1168).
+    /// </summary>
+    private void PlaceWho(int rows)
+    {
+        int body = this.ui.Theme.BodySize;
+        int line = MenuLayout.LineOf(body);
+        int glyph = body / 2;
+        int nameWidth = NameCharacters * glyph;
+        int cellWidth = CellCharacters * glyph;
+        int width = (MenuLayout.Pad * 2) + nameWidth + (cellWidth * StatNames.Length);
+        int height = (MenuLayout.Pad * 2) + (line * (rows + 3));
+        int x = (ScreenFit.FrameWidth - width) / 2;
+        int y = (ScreenFit.FrameHeight - height) / 2;
+        this.whoPanel.Position = new Vector2(x, y);
+        this.whoPanel.Size = new Vector2(width, height);
+        int left = x + MenuLayout.Pad;
+        int top = y + MenuLayout.Pad;
+        this.popupTitle.Position = new Vector2(left, top);
+        for (int stat = 0; stat < StatNames.Length; stat += 1)
+        {
+            this.popupStatNames[stat].Position = new Vector2(left + nameWidth + (cellWidth * stat), top + (line * 2));
+        }
+
+        for (int row = 0; row < PopupRows; row += 1)
+        {
+            this.popupNames[row].Position = new Vector2(left, top + (line * (row + 3)));
+            for (int stat = 0; stat < StatNames.Length; stat += 1)
+            {
+                this.popupCells[row][stat].Position = new Vector2(left + nameWidth + (cellWidth * stat), top + (line * (row + 3)));
+            }
         }
     }
 
