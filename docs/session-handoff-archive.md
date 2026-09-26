@@ -1,5 +1,36 @@
 # Session handoff archive
 
+## Session 315: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #82 (PR-105), round 4. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
+
+### What this session did, and why
+
+- Gitar approved `af1d924` with no thread. Its CI analysis named `review-gate`, and a PR comment answers it: RG 4 and RG 5 read the record of `0e71601`, which the next review replaces.
+- Each CI check of `af1d924` passed but `screen-test` and `review-gate`. `screen-test` found `settings-conflict-1x` alone, in 2054 pixels, and its two runs matched.
+- The author read the frame of the artifact: four red cells for two conflicts, the cell of back in red with a yellow outline, and the line "1 of 2" (D-1119, D-1120). This round takes the frame as the baseline (D-733).
+
+### The state of the build
+
+- `make verify` passed at `af1d924` on the Mac. This round adds the baseline and this entry.
+
+### What is in flight
+
+- The Gitar pass and the CI of this push, and then `make codex-review PR=82`.
+
+### Traps and gotchas
+
+- The baseline moves the effective head, so it needs its own Gitar pass.
+
+### The questions that block progress
+
+None for this PR.
+
+### The next concrete action
+
+When every check but `review-gate` passes, run `make codex-review PR=82` in the background.
+
 ## Session 314: 2026-09-25, Claude Code
 
 Author: Claude Code

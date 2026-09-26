@@ -1,3 +1,36 @@
+## Session 325: 2026-09-26, Codex
+
+Author: Codex
+Session: reviewer PR #84 (PR-14). Repository: the-thing-below. Local branch: `review/pr-84`; PR branch: `feat/pr-14-hub`. PR: #84. Role: reviewer. Base: `c7e6191`.
+
+### What this session did, and why
+
+- Reviewed effective head `6c7837f` and wrote `docs/reviews/pr-84.md`.
+- Verified the Gitar CI-analysis answer: RG 3 alone failed because the review record was absent. The author answered the item, and the CI log confirms the cause (D-964).
+- `make verify` passed with 3,803 tests. Inspected the CI screen captures for the hub, Rest, Save, Party, and main-list frames (D-784).
+- Corrected the PR Documents row to name `docs/reviews/pr-84.md`.
+
+### The state of the build
+
+- The effective head is `6c7837f`, and all implementation checks pass. `review-gate` failed RG 3 before the review record reached the PR.
+
+### What is in flight
+
+- The review record and this entry are committed together and pushed to `feat/pr-14-hub`.
+- The live `review-gate` must read the published record. Gitar may analyze this metadata commit.
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
+
+### The questions that block progress
+
+OQ-249 remains open for PR-17.
+
+### The next concrete action
+
+Read the live `review-gate` result after the metadata push, then end this review session.
+
 ## Session 324: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -298,34 +331,3 @@ None for this PR.
 ### The next concrete action
 
 Read the new `review-gate` result after the metadata push. The owner can merge when it passes.
-
-## Session 315: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #82 (PR-105), round 4. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
-
-### What this session did, and why
-
-- Gitar approved `af1d924` with no thread. Its CI analysis named `review-gate`, and a PR comment answers it: RG 4 and RG 5 read the record of `0e71601`, which the next review replaces.
-- Each CI check of `af1d924` passed but `screen-test` and `review-gate`. `screen-test` found `settings-conflict-1x` alone, in 2054 pixels, and its two runs matched.
-- The author read the frame of the artifact: four red cells for two conflicts, the cell of back in red with a yellow outline, and the line "1 of 2" (D-1119, D-1120). This round takes the frame as the baseline (D-733).
-
-### The state of the build
-
-- `make verify` passed at `af1d924` on the Mac. This round adds the baseline and this entry.
-
-### What is in flight
-
-- The Gitar pass and the CI of this push, and then `make codex-review PR=82`.
-
-### Traps and gotchas
-
-- The baseline moves the effective head, so it needs its own Gitar pass.
-
-### The questions that block progress
-
-None for this PR.
-
-### The next concrete action
-
-When every check but `review-gate` passes, run `make codex-review PR=82` in the background.
