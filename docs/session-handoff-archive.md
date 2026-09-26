@@ -1,4 +1,39 @@
 # Session handoff archive
+## Session 330: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #85 (PR-65), round 4. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: #85. Role: author. Base: `8e81487`.
+
+### What this session did, and why
+
+- The owner read the gear window of round 3 and removed a redundancy (D-1169). D-1060 is revised in part again.
+- The line above the values of the gear window shows the stat names alone, dim. Each value stands under its name, with its change after it.
+- A value that holds takes the plain color, in the gear window and in the popup of the shop, because the names above stand dim. A gain stays green, and a loss stays red.
+- The gear window no longer takes the string table. The session read the gear and shop frames of `make sheet FIXTURE=menu`.
+
+### The state of the build
+
+- Every local check passes. Ten tests fail alone: the baselines of the ten shop frames, which come from the `screen-captures` artifact of CI.
+- Gitar approved round 3 with no thread. The remote head is the push of this round.
+
+### What is in flight
+
+- The approval of the owner for the frames of round 4 in the PR description.
+- Then the baselines of the CI artifact, the answer to the CI claim of Gitar (RG 3 before the review), and `make codex-review`.
+
+### Traps and gotchas
+
+- The plain color of a value that holds is a choice of the session under D-1169. The owner reads it in the frames.
+- Perl substitutions with braces in C# text fail. Use the Edit tool for each change of C# text.
+
+### The questions that block progress
+
+The owner approves the frames before the review (D-1164). The text batch waits for the approval of the owner (D-57).
+
+### The next concrete action
+
+Wait for the approval of the owner. Then commit the baselines of the CI artifact, and run `make codex-review PR=85`.
+
 ## Session 329: 2026-09-26, Claude Code
 
 Author: Claude Code

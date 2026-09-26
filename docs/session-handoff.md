@@ -1,3 +1,35 @@
+## Session 340: 2026-09-26, Codex
+
+Author: Codex
+Session: review PR #87. Repository: the-thing-below. Branch: `review/pr-87`. PR: #87. Role: reviewer. Base: `f383aa9`.
+
+### What this session did, and why
+
+- Reviewed effective head `66dcf4d`. P2-1 finds that 60-tick softlock sampling can miss a softlocked state between samples (D-1179).
+- Verified the Gitar CI-analysis item against the review-gate log. RG 3 waits for the review record, and the author answered the claim about unchecked boxes (D-964).
+- Added `docs/reviews/pr-87.md` and corrected the PR Documents row.
+
+### The state of the build
+
+- `make verify` passes with 4,003 tests. CI run `36278779725` passed all substantive jobs on every leg. Review-gate run `36278780411` waits for the review record. The remote head before this metadata commit is `66dcf4d`.
+
+### What is in flight
+
+- The PR needs a correction for P2-1 and a repeat review.
+
+### Traps and gotchas
+
+- The runner checks softlocks every 60 played ticks. The exit condition of D-1179 applies to each state.
+- A clean Gitar approval has no item and does not block the verdict (D-964).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+Correct P2-1, add its regression test, and request a repeat review of PR #87.
+
 ## Session 339: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -293,41 +325,6 @@ Session: author PR #85 (PR-65), round 5. Repository: the-thing-below. Branch: `f
 ### Traps and gotchas
 
 - The name column of the gear window holds 10 characters. A longer name of PR-17 needs a wider column.
-- Perl substitutions with braces in C# text fail. Use the Edit tool for each change of C# text.
-
-### The questions that block progress
-
-The owner approves the frames before the review (D-1164). The text batch waits for the approval of the owner (D-57).
-
-### The next concrete action
-
-Wait for the approval of the owner. Then commit the baselines of the CI artifact, and run `make codex-review PR=85`.
-
-## Session 330: 2026-09-26, Claude Code
-
-Author: Claude Code
-Session: author PR #85 (PR-65), round 4. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: #85. Role: author. Base: `8e81487`.
-
-### What this session did, and why
-
-- The owner read the gear window of round 3 and removed a redundancy (D-1169). D-1060 is revised in part again.
-- The line above the values of the gear window shows the stat names alone, dim. Each value stands under its name, with its change after it.
-- A value that holds takes the plain color, in the gear window and in the popup of the shop, because the names above stand dim. A gain stays green, and a loss stays red.
-- The gear window no longer takes the string table. The session read the gear and shop frames of `make sheet FIXTURE=menu`.
-
-### The state of the build
-
-- Every local check passes. Ten tests fail alone: the baselines of the ten shop frames, which come from the `screen-captures` artifact of CI.
-- Gitar approved round 3 with no thread. The remote head is the push of this round.
-
-### What is in flight
-
-- The approval of the owner for the frames of round 4 in the PR description.
-- Then the baselines of the CI artifact, the answer to the CI claim of Gitar (RG 3 before the review), and `make codex-review`.
-
-### Traps and gotchas
-
-- The plain color of a value that holds is a choice of the session under D-1169. The owner reads it in the frames.
 - Perl substitutions with braces in C# text fail. Use the Edit tool for each change of C# text.
 
 ### The questions that block progress
