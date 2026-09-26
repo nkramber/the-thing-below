@@ -76,6 +76,12 @@ Game terms from the roadmap interview of 2026-09-12:
 | drop list | the items that a profile can give at a win, each with its own chance (D-1042) | loot table, drop table |
 | steal list | the items, the gold, and the gear that a profile carries for a steal (D-383, D-1051) | pocket, loot list |
 | gold | the currency (D-60) | money, coins, gil |
+| shop | a service of a hub that sells its stock for gold and buys from the pack, which one entry of the shop file defines (D-1149) | store, merchant, vendor |
+| stock | the entries that one shop sells, each with a price and a count or `unlimited` (D-1149, D-1152) | inventory, wares |
+| price | the gold of one of a thing in the stock of one shop, or of one rest (D-1149, D-1156) | cost, fee |
+| value | the number on an item or gear record that a sale reads (D-1150) | worth, base price |
+| shop type | the rate of a sale for each category that a shop buys, in basis points (D-1151) | shop class, merchant kind |
+| sale | the party gives a thing to a shop for gold (D-1150) | sell-back, trade-in |
 | character level | the level from experience (D-34) | level, alone |
 | stat curve | the table of the health, the MP, the attack, the magic, the defense, the resistance, and the speed of one character, one row for each level (D-537, D-966, D-1052) | growth table, stat table |
 | magic | the stat that a magic hit and a heal read (D-1052, D-1053, D-1057) | intelligence, spirit, power |
