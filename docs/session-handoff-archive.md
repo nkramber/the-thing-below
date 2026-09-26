@@ -1,4 +1,40 @@
 # Session handoff archive
+## Session 328: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #85 (PR-65), round 2. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: #85. Role: author. Base: `8e81487`.
+
+### What this session did, and why
+
+- The owner read the shop frames in the PR description and changed the list window (D-1165 to D-1167). The records revise D-1158, D-1159, and D-1164 in part.
+- The list stands under the title, each value stands in a column, and a piece shows its own stats at the bottom left. The gold reads "250 gold".
+- An entry at its stack limit leaves the list (Core, D-1166). An entry that the gold cannot pay takes no dim and no line.
+- After a buy of gear, a popup asks "Equip it now?" for each copy. Yes lists the party with the red and green change, and two full accessory slots ask "Replace which one?".
+- The captures add `shop-equip` and `shop-who` at both body sizes. The session read each shop frame of `make sheet FIXTURE=menu`, the frames of 1080 rows included.
+
+### The state of the build
+
+- Every local check passes. Ten tests fail alone: the baselines of the ten shop frames, which come from the `screen-captures` artifact of CI.
+- Gitar approved round 1 with no thread. The remote head is the push of this round.
+
+### What is in flight
+
+- The approval of the owner for the new shop frames in the PR description.
+- Then the baselines of the CI artifact, the answer to the CI claim of Gitar (RG 3 before the review), and `make codex-review`.
+
+### Traps and gotchas
+
+- Perl substitutions with braces in C# text fail. Use the Edit tool for each change of C# text.
+- The fixture party is Marrek alone, so the character list of the equip step shows one row.
+
+### The questions that block progress
+
+The owner approves the shop frames before the review (D-1164). The text batch waits for the approval of the owner (D-57).
+
+### The next concrete action
+
+Wait for the approval of the owner. Then commit the baselines of the CI artifact, and run `make codex-review PR=85`.
+
 ## Session 327: 2026-09-26, Claude Code
 
 Author: Claude Code

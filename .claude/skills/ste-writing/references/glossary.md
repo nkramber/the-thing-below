@@ -274,3 +274,14 @@ Screenplay terms from PR-50 on 2026-09-23:
 | Screenplay section | the part of the PR description between the two marker lines of the screenplay tool (D-1016) | screenplay block, story section |
 | action line | the one line of the screenplay for a step that is not a say step (D-1017) | stage direction |
 | base folder | the folder that holds the content of the base commit, which the screenplay tool reads to find the batch (D-1015) | old content, base checkout |
+
+Bot terms from PR-15 of 2026-09-26:
+
+| Term | Use for | Do not use |
+|---|---|---|
+| bot run | one run that a bot policy plays in the headless runner, from a seed and a start map (D-64, D-1185) | playtest, bot game, simulation run |
+| policy | the rule of a bot that picks the intent of each tick: random or greedy (D-64, D-1183) | strategy, AI, brain |
+| accepted intent | an intent of the player that the state takes on the next tick, as the query of Core lists it (D-1179) | legal move, valid action, allowed input |
+| softlock | a state where no accepted intent changes the state other than the tick (D-1179) | dead end, stuck state, hang |
+| goal flag | the story flag that ends a bot run as complete (D-1181) | win flag, end flag |
+| tick budget | the count of played ticks after which a bot run with no other end ends as budget (D-1184) | time limit, step cap |
