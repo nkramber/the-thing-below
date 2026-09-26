@@ -1,5 +1,36 @@
 # Session handoff archive
 
+## Session 314: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #82 (PR-105), round 3. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
+
+### What this session did, and why
+
+- The review of `0e71601` in `docs/reviews/pr-82.md` gave `Changes required` for P2-1: the conflict cell under the cursor kept the cursor color, against D-1119.
+- The owner chose the look (D-1120): the warning color with an outline of 2 pixels in the cursor color. `SettingsMenu.LookOf` and `ShowSlot` apply it, and a test holds the four looks.
+- The conflict capture now makes two conflicts, with the cursor on the cell of back. `docs/reviews/pr-82-response.md` answers the finding.
+
+### The state of the build
+
+- `make verify` passed at this head on the Mac. The effective head moves with this round.
+
+### What is in flight
+
+- The Gitar pass and the CI of this push. The `screen-test` job will flag `settings-conflict-1x`, and the next round takes the new frame as its baseline (D-733).
+
+### Traps and gotchas
+
+- The capture session of this Mac stops at the first 1080 frame, so read the conflict frame in the CI artifact.
+
+### The questions that block progress
+
+None for this PR.
+
+### The next concrete action
+
+Read the new conflict frame of the artifact, take it as the baseline, push, and run `make codex-review PR=82` after green CI.
+
 ## Session 313: 2026-09-25, Codex
 
 Author: Codex

@@ -1,3 +1,33 @@
+## Session 324: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #84 (PR-14), round 3. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
+
+### What this session did, and why
+
+- Gitar approved `ac14bc2`. The screen compare of `ac14bc2` matched 134 frames and missed the 4 baselines of `menu-rest` and `menu-save` alone.
+- The author read those 4 frames of the artifact (D-784). The lead faces the keeper under the Rest window, and the lead faces the waystone under the Save window, with no clip. This round commits the 4 baselines (D-733).
+
+### The state of the build
+
+- The head of this push holds every baseline. Each check but `review-gate` waits for this push.
+
+### What is in flight
+
+- The checks and the Gitar pass of this push, then `make codex-review PR=84` (D-926).
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
+
+### The questions that block progress
+
+None. OQ-249 blocks PR-17.
+
+### The next concrete action
+
+When each check but `review-gate` passes and Gitar completes, run `make codex-review PR=84` in the background.
+
 ## Session 323: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -299,34 +329,3 @@ None for this PR.
 ### The next concrete action
 
 When every check but `review-gate` passes, run `make codex-review PR=82` in the background.
-
-## Session 314: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #82 (PR-105), round 3. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
-
-### What this session did, and why
-
-- The review of `0e71601` in `docs/reviews/pr-82.md` gave `Changes required` for P2-1: the conflict cell under the cursor kept the cursor color, against D-1119.
-- The owner chose the look (D-1120): the warning color with an outline of 2 pixels in the cursor color. `SettingsMenu.LookOf` and `ShowSlot` apply it, and a test holds the four looks.
-- The conflict capture now makes two conflicts, with the cursor on the cell of back. `docs/reviews/pr-82-response.md` answers the finding.
-
-### The state of the build
-
-- `make verify` passed at this head on the Mac. The effective head moves with this round.
-
-### What is in flight
-
-- The Gitar pass and the CI of this push. The `screen-test` job will flag `settings-conflict-1x`, and the next round takes the new frame as its baseline (D-733).
-
-### Traps and gotchas
-
-- The capture session of this Mac stops at the first 1080 frame, so read the conflict frame in the CI artifact.
-
-### The questions that block progress
-
-None for this PR.
-
-### The next concrete action
-
-Read the new conflict frame of the artifact, take it as the baseline, push, and run `make codex-review PR=82` after green CI.
