@@ -1946,7 +1946,7 @@ Area file: `area-exploration.md` section 7.11.
 - The NPCs of a map walk on one stream of their own (D-1137, T-7). The search of the walk home gives one path on every platform (D-1140).
 - The confirm rule leaves a clear place for the chest, the door, and the save point of PR-16 (D-1131).
 
-**Questions.** None. OQ-121 blocks the shop of PR-65.
+**Questions.** None. D-1149 to D-1155 resolved OQ-121, the question of the shop of PR-65.
 
 > *In plain English:* the hub is a place you walk through, where the party recovers, saves, and meets people. The people walk their rooms, and a talk stops them. Every hub has a different shape.
 
@@ -1956,34 +1956,47 @@ Area file: `area-exploration.md` section 7.12.
 
 **Scope.**
 
-- The gold economy: gold from enemies and from treasure, which buys gear, items, and rest (D-60).
-- The gold that a fight gives, as a message line after the summary of PR-67 (D-835, D-975).
-- The shop screen in the window stack of PR-62.
-- The shop stock in content, with its prices and its buy-back rule (D-60, OQ-121).
-- A shop that sells a lesson too, and hides an owned lesson (D-365, D-1024).
+- The gold economy: gold from enemies, which buys gear, items, lessons, and rest (D-60). PR-16 adds the gold of a chest (D-1161).
+- The gold range of each enemy, which the battle stream rolls at a win, and its message line after the summary of PR-67 (D-835, D-975, D-1157).
+- The shop service of a hub, on an NPC or a service point, with its condition (D-543, D-1131).
+- The shop screen in the window stack of PR-62: the buy, the sale, the count, and the gear stats of each fighter (D-1158, D-1159).
+- The stock of each shop in content: a price on each entry, and a count or `unlimited` (D-1149, D-1152).
+- The shop types in content, with a rate for each category (D-1151).
+- The value on each item and gear record, and the sale rules (D-1150, D-1154, D-1155).
+- A lesson entry with no count, which the shop hides while the party owns the lesson (D-1024, D-1153).
 - A shop that a story flag closes or opens, such as the shops of the mining town (D-319, D-331).
+- The price of each rest service (D-1156).
+- The gold in the main menu, the shop, and the rest window (D-1160).
 
 **Out of scope.**
 
+- The gold of a chest (PR-16, D-1161).
 - The people of the story who teach or give a lesson (PR-42 and the content PRs).
-- The balance of the prices (PR-30, G-14).
+- The balance of the prices, the values, the rates, and the gold ranges (PR-30, G-14).
 
 **Exit tests.**
 
-1. A fixture party buys gear, an item, and a lesson, and the gold falls by the price.
-2. A buy-back follows the rule of OQ-121.
-3. A purchase over the stack limit fails, and the screen says why (D-385).
-4. A story flag closes a shop, and the shop refuses the party (D-319).
-5. The snapshot holds the gold and the stock that remains.
-6. A shop hides an owned lesson, and it shows the lesson again after the loss of the lesson (D-1024, D-1025).
+1. A fixture party buys gear, an item, and a lesson, and the gold falls by each price (D-1149).
+2. A sale pays the value times the rate of the shop type, rounded down, and at least 1 gold (D-1150, D-1155).
+3. A shop type with a rate of 0 refuses the sale of that category (D-1151).
+4. Worn gear, a key item, and a lesson never sell (D-1154).
+5. A buy with no room in the pack fails, and the screen says why (D-385, D-1158).
+6. A buy of a counted entry lowers its count, and an entry at 0 leaves the list (D-1152).
+7. A story flag closes a shop, and the shop refuses the party (D-319).
+8. The snapshot and the save hold the gold and each count that remains (D-1152).
+9. A shop hides an owned lesson, and it shows the lesson again after the loss of the lesson (D-1024, D-1025, D-1153).
+10. A win adds the rolled gold of each fallen enemy, and a replay gives the same gold (D-1157, T-7).
+11. A fled fight gives no gold (D-60, D-1157).
+12. A rest takes its price, and a rest with too little gold fails with a notice (D-1156).
 
 **Review focus.**
 
 - The condition of a shop uses the one condition form of PR-68 (D-543).
-- The stock and the prices sit in content, never in code (D-116, G-6).
+- The stock, the prices, the values, and the rates sit in content, never in code (D-116, G-6).
+- The gold draw keeps one fixed place in the order of the battle stream (D-1157, T-7).
 - The balance pass of PR-30 tunes each number later (G-14).
 
-**Questions.** OQ-121.
+**Questions.** None. D-1149 to D-1155 resolved OQ-121.
 
 > *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
 
@@ -2118,6 +2131,7 @@ Area file: `area-exploration.md` section 7.8.
 - The Theft drill that opens a lock that the map marks as pickable, where a story lock always needs its key (D-386).
 - The chest that keeps what the party cannot carry (D-385).
 - The fallback item of a chest that holds an owned lesson (D-1024).
+- The gold of a chest, which adds to the gold of the party (D-1161).
 - The dungeon exit, which returns the party to the region map, and its mark on the dungeon map screen of PR-62 (D-567, D-993).
 - The killed enemy that stays dead until a story event reopens the place (D-555).
 - The save window of PR-14 at a save point (D-1132).
@@ -2143,6 +2157,7 @@ Area file: `area-exploration.md` section 7.8.
 10. Each save point and each autosave calls `GameRun.Save`, and the record after a save holds no intent before it (D-1115).
 11. A save of an older build loads under the rules of D-1110 to D-1112.
 12. A wipe reloads a save of its own run alone (D-1114).
+13. A chest with gold adds its gold to the party, and the save holds the open chest (D-1161).
 
 **Review focus.**
 
@@ -2797,7 +2812,7 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-118 | The limits of the camera on a small map, resolved by D-717 | PR-7 |
 | OQ-119 | What a trap does, and what a Theft drill does to it | PR-64 |
 | OQ-120 | The hazards of region one | PR-64 |
-| OQ-121 | The prices, the buy-back, and the stock of a shop | PR-65 |
+| OQ-121 | The prices, the buy-back, and the stock of a shop, resolved by D-1149 to D-1155 | PR-65 |
 | OQ-122 | The format of the region map, and the cost of a route | PR-35 |
 | OQ-124 | A defend action. Resolved by D-755 | PR-9 |
 | OQ-125 | How many turns the timeline strip shows. Resolved by D-756 | PR-9 and PR-10 |
