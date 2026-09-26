@@ -33,16 +33,31 @@ public sealed class ServiceChoice
 
     /// <summary>Opens the cursor on the service.</summary>
     /// <param name="kind">The kind of the service that a confirm opened.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The value names no kind of service (T-2).</exception>
-    public ServiceChoice(ServiceKind kind)
+    /// <param name="price">The gold of one rest for a rest, and no value for a save (D-1156).</param>
+    /// <exception cref="ArgumentOutOfRangeException">The value names no kind of service, or a rest holds no price or a save holds one (T-2).</exception>
+    public ServiceChoice(ServiceKind kind, int? price)
     {
         if (kind != ServiceKind.Rest && kind != ServiceKind.Save)
         {
             throw new ArgumentOutOfRangeException(nameof(kind), kind, "The window opens for a rest service or a save service (D-1131, T-2).");
         }
 
+        if ((kind == ServiceKind.Rest) != (price is not null))
+        {
+            throw new ArgumentOutOfRangeException(nameof(price), price, "A rest takes a price, and a save takes none (D-1156, T-2).");
+        }
+
         this.Kind = kind;
+        this.Price = price;
     }
+
+    /// <summary>The gold of one rest, or no value for a save (D-1156).</summary>
+    public int? Price { get; }
+
+    /// <summary>Tells whether the choice under the cursor is a rest that the gold cannot pay (D-1156).</summary>
+    /// <param name="gold">The gold of the party.</param>
+    /// <returns>True when a confirm takes no rest, and the line of help says why.</returns>
+    public bool Refuses(int gold) => this.Current == ServiceOption.Use && this.Price is int price && gold < price;
 
     /// <summary>Every choice, in the order of the window: the service, then leave.</summary>
     public static IReadOnlyList<ServiceOption> Options => AllOptions;

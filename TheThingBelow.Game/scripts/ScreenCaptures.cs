@@ -137,6 +137,9 @@ public static class ScreenCaptures
     /// <summary>The word of the debug command that puts the party on a map, which the Debug assembly holds (D-723, D-1133).</summary>
     public const string GoToCommand = "goto";
 
+    /// <summary>The word of the debug command that sets the gold of the party, which the Debug assembly holds (D-723, D-1162).</summary>
+    public const string GoldCommand = "gold";
+
     /// <summary>
     /// The ticks that the hub fixture runs after the entry to the hub, before its frame. The
     /// barmaid waits 90 ticks at the bar, so the frame shows her inside her first step, and
@@ -191,6 +194,18 @@ public static class ScreenCaptures
 
     /// <summary>The frame of the menu fixture with the window of the save service on the fixture hub (D-1132).</summary>
     public const string MenuSaveFrame = "save-1x";
+
+    /// <summary>The frame of the menu fixture with the buy list of the trader, the cursor on the hood, and the change of each fighter (D-1159, D-1164).</summary>
+    public const string MenuShopBuyFrame = "shop-buy-1x";
+
+    /// <summary>The frame of the menu fixture with the count of a buy of 2 draughts and its total (D-1158).</summary>
+    public const string MenuShopCountFrame = "shop-count-1x";
+
+    /// <summary>The frame of the menu fixture with the sale list of the pack at the trader, and the gold that each thing pays (D-1150, D-1151).</summary>
+    public const string MenuShopSellFrame = "shop-sell-1x";
+
+    /// <summary>The gold that the `gold` command gives the party before each frame of the menu fixture that shows the gold (D-1160, D-1162).</summary>
+    public const int MenuGold = 250;
 
     /// <summary>The gear slot that <see cref="MenuGearPackFrame"/> opens: the first accessory slot.</summary>
     public const int GearPackSlot = 4;
@@ -335,6 +350,29 @@ public static class ScreenCaptures
 
     /// <summary>The tile of the lead at the end of <see cref="WaystoneRoute"/>, facing east to the waystone.</summary>
     public static TilePoint WaystoneStand { get; } = new(13, 2);
+
+    /// <summary>
+    /// The steps from the spawn point of the fixture hub at (4, 6) to <see cref="TraderStand"/>,
+    /// which faces the trader at (17, 2) from the south (D-1149). The shop frames walk them.
+    /// </summary>
+    /// <remarks>
+    /// The route takes the first steps of <see cref="WaystoneRoute"/>, then goes east on row 3,
+    /// north of both rectangles of the dog and the child, so no NPC stands in the way (D-1138). The
+    /// last step north runs into the trader, which turns the lead with no step (D-1139).
+    /// </remarks>
+    public static IReadOnlyList<string> TraderRoute { get; } =
+    [
+        InputActions.StepNorth,
+        InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+        InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+        InputActions.StepNorth, InputActions.StepNorth,
+        InputActions.StepEast, InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+        InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+        InputActions.StepNorth,
+    ];
+
+    /// <summary>The tile of the lead at the end of <see cref="TraderRoute"/>, facing north to the trader.</summary>
+    public static TilePoint TraderStand { get; } = new(17, 3);
 
     /// <summary>The steps from the spawn point to the pit room, in the order that the session walks them (D-852).</summary>
     /// <remarks>The party goes east to the corridor of column 6, then south through both doorways into the room below.</remarks>
@@ -588,7 +626,7 @@ public static class ScreenCaptures
 
         // PR-62: the menu stack at 1x, the floor of the Steam Deck, and the main list at 1080 rows,
         // which takes the smaller body (D-707). The notice draws inside its type-out and its hold.
-        foreach (string frame in new[] { MenuListFrame, MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame, MenuRestFrame, MenuSaveFrame })
+        foreach (string frame in new[] { MenuListFrame, MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame, MenuRestFrame, MenuSaveFrame, MenuShopBuyFrame, MenuShopCountFrame, MenuShopSellFrame })
         {
             captures.Add(new ScreenCapture(MenuFixture, frame, ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
         }
@@ -600,7 +638,7 @@ public static class ScreenCaptures
         // G-28: each window of the menu stack, each part of a fight with text, the notice, and the
         // conflict line draw at the body of 24 too, at 1080 rows, where the fit takes that body
         // (D-707, P3-26). Each frame shows the moment of its frame at 1x.
-        foreach (string frame in new[] { MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame, MenuRestFrame, MenuSaveFrame })
+        foreach (string frame in new[] { MenuPartyFrame, MenuStatusFrame, MenuLogFrame, MenuMapFrame, MenuLessonsFrame, MenuLessonsSwapFrame, MenuGearFrame, MenuGearPackFrame, MenuItemsFrame, MenuRestFrame, MenuSaveFrame, MenuShopBuyFrame, MenuShopCountFrame, MenuShopSellFrame })
         {
             captures.Add(new ScreenCapture(MenuFixture, DesktopFrameOf(frame), DesktopWidth, 1080, FitMode.Fill, null));
         }

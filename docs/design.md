@@ -156,6 +156,10 @@ The coverage job checks its package (F-142). The steal and damage math check the
 
 The owner then put the four other open findings in PR-106. The remap screen names the key of the layout (F-149). The screen compare names each step of one level (F-150). Both sessions run a planted crash, and the captures add body 24 and the screen of the Deck (F-151). The budgets count the flicker and the spell burst, and each light texture builds one time (F-152).
 
+2026-09-26 shop pass: PR-65 builds the shop and the gold economy. Each entry of a stock holds its price, and a count or `unlimited` (D-1149, D-1152). A shop pays the value of a record at the rate of its shop type, and a rate of 0 refuses the category (D-1150, D-1151). A lesson entry holds no count, and the party sells spare gear and used-up items alone (D-1153 to D-1155). A rest takes its price, and a win rolls the gold of each fallen enemy (D-1156, D-1157).
+
+The shop window takes a count, and it shows the change of each fighter for a piece of gear (D-1158, D-1159). The gold shows in the main menu, the shop, and the rest window (D-1160). PR-16 adds the gold of a chest (D-1161). A debug command sets the gold, and a save of another build follows an edit of a stock (D-1162, D-1163).
+
 External facts, each with the date of its check:
 
 - The GitHub repository `nkramber/the-thing-below` is public. Its name changed from the working title on 2026-09-14 (D-410). Source: `gh repo view`, run 2026-09-14.

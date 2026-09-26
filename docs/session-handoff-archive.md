@@ -1,5 +1,37 @@
 # Session handoff archive
 
+## Session 317: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #82 (PR-105), round 5. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
+
+### What this session did, and why
+
+- The repeat review gives `Ready for owner merge` for the effective head `e17c964` in `docs/reviews/pr-82.md`. P2-1 is fixed in `af1d924` (D-1120).
+- Each check of the record commit `74abf43` passed, `review-gate` included, and Gitar approved it with no item.
+- The report of the owner marks the nine findings of this PR as `COMPLETE - PR #82`: P2-3, P3-4, P3-8, P3-17, P3-22, P3-23, P3-33, P3-35, and P3-39.
+- The owner confirmed the merge after the summary in four sections (D-933, D-942).
+
+### The state of the build
+
+- The effective head is `e17c964`, and the review approves it. This entry is a commit of the metadata set, so the approval stands (D-610).
+
+### What is in flight
+
+- The Gitar pass of this commit, and then the gated auto-merge.
+
+### Traps and gotchas
+
+- A stale record makes RG 4 and RG 5 fail, and the CI analysis of Gitar names them. Answer each one on the PR before the next review.
+
+### The questions that block progress
+
+None for this PR. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 stay open in the report.
+
+### The next concrete action
+
+After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
+
 ## Session 316: 2026-09-25, Codex
 
 Author: Codex

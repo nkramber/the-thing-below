@@ -478,6 +478,10 @@
    "text": "Slots"
   },
   {
+   "id": "menu.gold",
+   "text": "Gold {gold}"
+  },
+  {
    "id": "menu.item_count",
    "text": "{count}/{limit}"
   },
@@ -614,6 +618,14 @@
    "text": "Sleep here. Wounds close."
   },
   {
+   "id": "menu.rest_priced",
+   "text": "Rest, {price} gold"
+  },
+  {
+   "id": "menu.rest_short",
+   "text": "Not enough gold."
+  },
+  {
    "id": "menu.row",
    "text": "Row"
   },
@@ -636,6 +648,62 @@
   {
    "id": "menu.settings",
    "text": "Settings"
+  },
+  {
+   "id": "menu.shop_buy",
+   "text": "Buy"
+  },
+  {
+   "id": "menu.shop_buy_help",
+   "text": "See what they sell."
+  },
+  {
+   "id": "menu.shop_count",
+   "text": "How many? < {count} >  {total} gold"
+  },
+  {
+   "id": "menu.shop_empty",
+   "text": "Nothing here."
+  },
+  {
+   "id": "menu.shop_entry",
+   "text": "{price} gold  {count}/{limit}"
+  },
+  {
+   "id": "menu.shop_entry_left",
+   "text": "{price} gold  {count}/{limit}  {left} left"
+  },
+  {
+   "id": "menu.shop_lesson",
+   "text": "{price} gold"
+  },
+  {
+   "id": "menu.shop_no_gold",
+   "text": "Not enough gold."
+  },
+  {
+   "id": "menu.shop_no_room",
+   "text": "No room for more."
+  },
+  {
+   "id": "menu.shop_not_bought",
+   "text": "They do not buy that."
+  },
+  {
+   "id": "menu.shop_sale",
+   "text": "{each} gold  x{count}"
+  },
+  {
+   "id": "menu.shop_sell",
+   "text": "Sell"
+  },
+  {
+   "id": "menu.shop_sell_help",
+   "text": "Offer what you carry."
+  },
+  {
+   "id": "menu.shop_unwanted",
+   "text": "Not wanted  x{count}"
   },
   {
    "id": "menu.slot_accessory",

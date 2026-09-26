@@ -57,6 +57,47 @@ public sealed class MenuLayoutTests
     [Theory]
     [InlineData(24)]
     [InlineData(32)]
+    public void EachLineOfTheShopWindowTheGoldAndThePricedRestFits(int body)
+    {
+        // D-1156, D-1158 to D-1160, D-1164: the shop menu and the gold panel stand as wide as the main
+        // list, and each line of the list window fits the task line with the largest numbers of a
+        // region: a price of 9999, a count of 10, and a gold of 999999.
+        int list = UiCharacters(body, (int)GameValue.Constant(Layout, "MainListWidth") - (Pad() * 2));
+        foreach (object mode in (IEnumerable)GameValue.StaticProperty("ShopCursor", "Modes")!)
+        {
+            string label = Text((ContentId)GameValue.Static("ShopView", "ModeIdOf", mode)!);
+            Assert.True(label.Length <= 16 && label.Length <= list, $"The label '{label}' passes 16 characters or the {list} of the shop menu at a body of {body}.");
+        }
+
+        Assert.True(Fill("menu.gold", "gold", "999999").Length <= list, $"The gold line passes the {list} characters of its panel at a body of {body}.");
+        Assert.True(Fill("menu.rest_priced", "price", "999").Length <= 16, "The priced rest passes 16 characters.");
+
+        int task = (int)GameValue.Static(Layout, "TaskLineCharacters", body)!;
+        int right = task - (task * 45 / 100);
+        string[] rights =
+        [
+            Fill("menu.shop_entry_left", "price", "9999", "count", "10", "limit", "10", "left", "10"),
+            Fill("menu.shop_sale", "each", "9999", "count", "10"),
+            Fill("menu.shop_unwanted", "count", "10"),
+        ];
+        foreach (string text in rights)
+        {
+            Assert.True(text.Length <= right, $"The entry '{text}' passes the {right} characters of the right column at a body of {body}.");
+        }
+
+        foreach (string id in new[] { "menu.shop_buy_help", "menu.shop_sell_help", "menu.shop_no_room", "menu.shop_no_gold", "menu.shop_not_bought", "menu.shop_empty", "menu.rest_short" })
+        {
+            Assert.True(Text(Id(id)).Length <= task, $"The line of '{id}' passes the {task} characters of the window at a body of {body}.");
+        }
+
+        Assert.True(Fill("menu.shop_count", "count", "10", "total", "99990").Length <= task, $"The count line passes the {task} characters at a body of {body}.");
+        int cell = (int)GameValue.Static("ShopView", "StatCellCharacters", body)!;
+        Assert.True(Fill("menu.gear_gain", "change", "99", "value", "999").Length < cell, $"A stat cell of {cell} characters holds no change of 99 on 999 at a body of {body}.");
+    }
+
+    [Theory]
+    [InlineData(24)]
+    [InlineData(32)]
     public void ThePartyWindowHoldsTheReserveOfTheFirstRegionAndEachOfItsLinesFits(int body)
     {
         // D-58, D-1136: two characters wait in the reserve by the end of region one, and each line

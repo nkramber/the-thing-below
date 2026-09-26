@@ -1967,6 +1967,7 @@ Area file: `area-exploration.md` section 7.12.
 - A shop that a story flag closes or opens, such as the shops of the mining town (D-319, D-331).
 - The price of each rest service (D-1156).
 - The gold in the main menu, the shop, and the rest window (D-1160).
+- The `gold` command of the debug console, which the captures and the smoke session use (D-1162).
 
 **Out of scope.**
 
@@ -1987,7 +1988,7 @@ Area file: `area-exploration.md` section 7.12.
 9. A shop hides an owned lesson, and it shows the lesson again after the loss of the lesson (D-1024, D-1025, D-1153).
 10. A win adds the rolled gold of each fallen enemy, and a replay gives the same gold (D-1157, T-7).
 11. A fled fight gives no gold (D-60, D-1157).
-12. A rest takes its price, and a rest with too little gold fails with a notice (D-1156).
+12. A rest takes its price, and the rest window refuses a rest past the gold and says why (D-1156).
 
 **Review focus.**
 

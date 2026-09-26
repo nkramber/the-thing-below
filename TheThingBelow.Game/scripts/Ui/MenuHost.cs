@@ -44,6 +44,7 @@ public sealed class MenuHost
     private GearCursor? gearCursor;
     private ItemCursor? itemCursor;
     private ServiceChoice? serviceChoice;
+    private ShopCursor? shopCursor;
 
     /// <summary>Makes the host of the menu of one run, with no window open.</summary>
     /// <param name="frame">The frame, whose UI layer takes each window.</param>
@@ -110,19 +111,38 @@ public sealed class MenuHost
     /// rules opened the menu with the service, so the host sends no open intent, and the close of
     /// the window sends the close intent (D-162).
     /// </summary>
-    /// <param name="kind">The kind of the service.</param>
-    /// <exception cref="InvalidOperationException">A window is already open, or the run holds no open menu (T-2).</exception>
+    /// <param name="service">The service, whose kind picks the window, and which names the price of a rest and the shop of a shop (D-1149, D-1156).</param>
+    /// <exception cref="InvalidOperationException">A window is already open, the run holds no open menu, or a shop service names no shop (T-2).</exception>
     /// <exception cref="ArgumentOutOfRangeException">The value names no kind of service (T-2).</exception>
-    public void OpenService(ServiceKind kind)
+    public void OpenService(MapService service)
     {
+        ArgumentNullException.ThrowIfNull(service);
+
+        ServiceKind kind = service.Kind;
         if (!this.run.MenuOpen)
         {
             throw new InvalidOperationException(
                 $"The window of a {ServiceKinds.NameOf(kind)} service opens at tick {this.run.Tick}, and the run holds no open menu, which the confirm on the host opens (D-1131, T-2).");
         }
 
-        MenuWindowKind window = kind == ServiceKind.Rest ? MenuWindowKind.Rest : MenuWindowKind.Save;
-        this.serviceChoice = new ServiceChoice(kind);
+        MenuWindowKind window = kind switch
+        {
+            ServiceKind.Rest => MenuWindowKind.Rest,
+            ServiceKind.Save => MenuWindowKind.Save,
+            ServiceKind.Shop => MenuWindowKind.Shop,
+            _ => throw new ArgumentOutOfRangeException(nameof(service), kind, "The menu opens no window for such a service (T-2)."),
+        };
+        if (kind == ServiceKind.Shop)
+        {
+            ContentId shop = service.Shop ?? throw new InvalidOperationException(
+                $"The shop service '{service.Id.Value}' names no shop, and the reader refuses such a service (D-1149, T-2).");
+            this.shopCursor = new ShopCursor(this.run.State, this.content.Battle.Shops.Shop(shop));
+        }
+        else
+        {
+            this.serviceChoice = new ServiceChoice(kind, kind == ServiceKind.Rest ? service.Price : null);
+        }
+
         this.path.Open(window);
         this.views.Add(this.Build(window, null));
         this.writeLog([new LogEntry(LogLevel.Info, "the menu opened the window of a service", this.run.Tick, LogSubsystems.Game, [WindowField(window)])]);
@@ -258,6 +278,12 @@ public sealed class MenuHost
             this.Back();
         }
 
+        // The shop window made a buy or a sale, and it stays open for the next one (D-1149, D-1158).
+        if (top == MenuWindowKind.Shop && this.views[^1] is ShopView shop && shop.TakeIntent() is Intent traded)
+        {
+            this.run.Queue(traded);
+        }
+
         // The lesson window made the intent of a whole choice: a swap or a cast (D-391, D-1030).
         if (top == MenuWindowKind.Lessons && this.views[^1] is LessonsView lessons && lessons.TakeIntent() is Intent made)
         {
@@ -329,7 +355,7 @@ public sealed class MenuHost
 
     private IMenuView Build(MenuWindowKind kind, GameSettings? changed) => kind switch
     {
-        MenuWindowKind.MainList => new MainListView(this.frame, this.ui, this.mainList),
+        MenuWindowKind.MainList => new MainListView(this.frame, this.ui, this.mainList, this.run.State),
         MenuWindowKind.Party => new PartyView(this.frame, this.ui, this.partyList ?? throw new InvalidOperationException(
             $"The party window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
         MenuWindowKind.Lessons => new LessonsView(this.frame, this.ui, this.content.Strings, this.run.State, this.lessonCursor ?? throw new InvalidOperationException(
@@ -349,8 +375,10 @@ public sealed class MenuHost
                 BodySize.DefaultFor(this.frame.Fit.Height, this.content.Style.SmallBody, this.content.Style.LargeBody)),
             InputActions.Menu),
         MenuWindowKind.DungeonMap => new DungeonMapView(this.frame, this.ui, this.run.Party),
-        MenuWindowKind.Rest or MenuWindowKind.Save => new ServiceView(this.frame, this.ui, this.serviceChoice ?? throw new InvalidOperationException(
+        MenuWindowKind.Rest or MenuWindowKind.Save => new ServiceView(this.frame, this.ui, this.run.State, this.serviceChoice ?? throw new InvalidOperationException(
             $"The window '{kind}' builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
+        MenuWindowKind.Shop => new ShopView(this.frame, this.ui, this.run.State, this.shopCursor ?? throw new InvalidOperationException(
+            $"The shop window builds at tick {this.run.Tick}, and the host made no cursor for it (T-2).")),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "The menu builds no such window (T-2)."),
     };
 }

@@ -1,3 +1,40 @@
+## Session 327: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR-65, round 1. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: the one PR of PR-65, with no GitHub number before the push. Role: author. Base: `8e81487`.
+
+### What this session did, and why
+
+- The owner answered OQ-121 and the questions that the work raised: D-1149 to D-1164. OQ-121 is resolved.
+- Core: the shop file with the types and the stocks, a value on each item and gear record, the shop kind of a service, and the price of a rest. The buy and the sale rules, the stock of each shop in the save, and the gold of a fight.
+- The save format rises to 16, and the simulation version rises to 32 (G-17). The `gold` debug command sets the gold (D-1162).
+- Game: the shop window, the gold panel, the priced rest, and the gold line of a win. The captures add the buy list, the count, and the sale list at both body sizes.
+- The session read each frame at 1x of `make sheet FIXTURE=menu`: the shop frames, the rest, and the main list. The frames read well.
+
+### The state of the build
+
+- Every local check passes: build, test, format, det-lint, atlas, STE, and the smoke session. Six tests fail alone: the baselines of the new shop frames, which come from the `screen-captures` artifact of CI.
+- The remote head is the push of this round. The content hash and the replay identity file hold the new values.
+
+### What is in flight
+
+- The CI run of the first push. Take the six shop baselines and each changed menu baseline from the CI artifact, read each one, and commit them.
+- The Gitar pass, then `make codex-review`.
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at the first frame of 1080 rows, because the screen gives 1920 by 955. Read the frames at 1080 rows in the CI artifact.
+- Each menu frame except the map now sends `gold 250` first, so each menu baseline changes.
+- The fixture shop lists the bolt, which the start pack holds, so the list hides it (D-1153). The Core tests sell a lesson that the party lacks.
+
+### The questions that block progress
+
+None. The owner reads the shop captures before the review (D-1164). The text batch of the shop waits for the approval of the owner (D-57).
+
+### The next concrete action
+
+Open the PR, run the Gitar poll, and commit the baselines of the CI artifact.
+
 ## Session 326: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -295,35 +332,3 @@ None. OQ-246 holds the cause of the screen flake.
 ### The next concrete action
 
 Take the 19 baselines from the artifact, read each frame, commit them, and push. Then run the Gitar pass and `make codex-review`.
-
-## Session 317: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #82 (PR-105), round 5. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
-
-### What this session did, and why
-
-- The repeat review gives `Ready for owner merge` for the effective head `e17c964` in `docs/reviews/pr-82.md`. P2-1 is fixed in `af1d924` (D-1120).
-- Each check of the record commit `74abf43` passed, `review-gate` included, and Gitar approved it with no item.
-- The report of the owner marks the nine findings of this PR as `COMPLETE - PR #82`: P2-3, P3-4, P3-8, P3-17, P3-22, P3-23, P3-33, P3-35, and P3-39.
-- The owner confirmed the merge after the summary in four sections (D-933, D-942).
-
-### The state of the build
-
-- The effective head is `e17c964`, and the review approves it. This entry is a commit of the metadata set, so the approval stands (D-610).
-
-### What is in flight
-
-- The Gitar pass of this commit, and then the gated auto-merge.
-
-### Traps and gotchas
-
-- A stale record makes RG 4 and RG 5 fail, and the CI analysis of Gitar names them. Answer each one on the PR before the next review.
-
-### The questions that block progress
-
-None for this PR. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 stay open in the report.
-
-### The next concrete action
-
-After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.

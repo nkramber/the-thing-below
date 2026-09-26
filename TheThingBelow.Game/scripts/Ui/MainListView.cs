@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Runs;
 
 namespace TheThingBelow.Game.Ui;
 
 /// <summary>
-/// The main list on screen: one line for each entry, and the cursor (D-211, D-992, D-1143).
+/// The main list on screen: one line for each entry, the cursor, and the gold of the party under
+/// the list (D-211, D-992, D-1143, D-1160).
 /// </summary>
 /// <remarks>
 /// The list stands at the left edge of the frame, so the map stays visible to its right, and
@@ -19,17 +21,20 @@ public sealed class MainListView : IMenuView
     private readonly Control layer;
     private readonly List<Label> lines = [];
     private readonly Color chosenColor;
+    private readonly GoldPanel gold;
 
     /// <summary>Builds the main list over the frame, with the cursor on the first entry.</summary>
     /// <param name="frame">The frame, whose UI layer takes the list.</param>
     /// <param name="ui">The atlas, the theme, and the text helper.</param>
     /// <param name="list">The cursor, which the list keeps when the screen builds again.</param>
+    /// <param name="state">The state of the run, whose gold the panel under the list shows (D-1160).</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    public MainListView(FrameRoot frame, UiBase ui, MainList list)
+    public MainListView(FrameRoot frame, UiBase ui, MainList list, RunState state)
     {
         ArgumentNullException.ThrowIfNull(frame);
         ArgumentNullException.ThrowIfNull(ui);
         ArgumentNullException.ThrowIfNull(list);
+        ArgumentNullException.ThrowIfNull(state);
 
         this.ui = ui;
         this.List = list;
@@ -48,6 +53,7 @@ public sealed class MainListView : IMenuView
             this.lines.Add(label);
         }
 
+        this.gold = new GoldPanel(this.layer, ui, state, box);
         this.Show();
     }
 
@@ -91,6 +97,8 @@ public sealed class MainListView : IMenuView
             Color? color = index == this.List.Cursor ? this.chosenColor : null;
             MenuNodes.Paint(this.lines[index], color);
         }
+
+        this.gold.Show();
     }
 
     /// <inheritdoc/>

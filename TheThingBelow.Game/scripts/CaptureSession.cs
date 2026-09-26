@@ -405,15 +405,19 @@ public sealed partial class CaptureSession : Node
     private void ConfirmHost(GameRun run, ServiceKind kind)
     {
         GoToHub(run);
-        bool rest = kind == ServiceKind.Rest;
-        foreach (string action in rest ? ScreenCaptures.KeeperRoute : ScreenCaptures.WaystoneRoute)
+        (IReadOnlyList<string> route, TilePoint stand, StepDirection facing) = kind switch
+        {
+            ServiceKind.Rest => (ScreenCaptures.KeeperRoute, ScreenCaptures.KeeperStand, StepDirection.North),
+            ServiceKind.Save => (ScreenCaptures.WaystoneRoute, ScreenCaptures.WaystoneStand, StepDirection.East),
+            ServiceKind.Shop => (ScreenCaptures.TraderRoute, ScreenCaptures.TraderStand, StepDirection.North),
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "The fixture hub holds no host of such a service (T-2)."),
+        };
+        foreach (string action in route)
         {
             this.StepOnce(run, action);
         }
 
         // A step into an NPC turns the lead with no step (D-1139), so the route checks where it ended.
-        TilePoint stand = rest ? ScreenCaptures.KeeperStand : ScreenCaptures.WaystoneStand;
-        StepDirection facing = rest ? StepDirection.North : StepDirection.East;
         if (run.Party.LeadAt != stand || run.Party.Facing != facing)
         {
             throw new InvalidOperationException(
@@ -428,8 +432,9 @@ public sealed partial class CaptureSession : Node
     /// Opens the window of the one service that the confirm opened, through the menu host, as the
     /// play session does after a tick (D-1131, D-1132).
     /// </summary>
+    /// <returns>The host, whose view on top is the window of the service.</returns>
     /// <exception cref="InvalidOperationException">The confirm opened no service, or more than one (T-2).</exception>
-    private static void OpenService(FrameRoot built, UiBase @base, GameRun run, ContentSet content)
+    private static MenuHost OpenService(FrameRoot built, UiBase @base, GameRun run, ContentSet content)
     {
         IReadOnlyList<MapService> opened = run.TakeOpenedServices();
         if (opened.Count != 1)
@@ -446,7 +451,52 @@ public sealed partial class CaptureSession : Node
             () => FixtureSettings,
             _ => throw new InvalidOperationException("The capture of a service window closed a settings screen, and it opens none (T-2)."),
             RefuseErrors);
-        host.OpenService(opened[0].Kind);
+        host.OpenService(opened[0]);
+        return host;
+    }
+
+    /// <summary>
+    /// Puts the cursor of the shop window on the moment of one shop frame, as a player's presses do:
+    /// the buy list on the hood, a count of 2 draughts, or the sale list (D-1158, D-1159).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The window on top is no shop window, or the list lacks the thing of the frame (T-2).</exception>
+    private static void StageShop(MenuHost host, string frame)
+    {
+        ShopView view = host.Top as ShopView ?? throw new InvalidOperationException($"The frame '{frame}' opened a window that is no shop window (T-2).");
+        ShopCursor cursor = view.Cursor;
+        if (string.CompareOrdinal(frame, ScreenCaptures.MenuShopSellFrame) == 0)
+        {
+            cursor.Move(1);
+        }
+
+        _ = cursor.Confirm();
+        if (string.CompareOrdinal(frame, ScreenCaptures.MenuShopSellFrame) != 0)
+        {
+            string thing = string.CompareOrdinal(frame, ScreenCaptures.MenuShopBuyFrame) == 0 ? "gear.fixture_hood" : "item.fixture_draught";
+            cursor.Point(PlaceOf(cursor, thing, frame));
+        }
+
+        if (string.CompareOrdinal(frame, ScreenCaptures.MenuShopCountFrame) == 0 && (cursor.Confirm() is not null || cursor.Stage != ShopStage.Count))
+        {
+            throw new InvalidOperationException($"The frame '{frame}' confirmed the draught, and the window did not open the count (D-1158, T-2).");
+        }
+
+        cursor.Step(1);
+        view.Show();
+    }
+
+    /// <summary>Gives the place of one thing in the buy list of the shop window.</summary>
+    private static int PlaceOf(ShopCursor cursor, string thing, string frame)
+    {
+        for (int place = 0; place < cursor.BuyEntries.Count; place += 1)
+        {
+            if (string.CompareOrdinal(cursor.BuyEntries[place].Thing.Value, thing) == 0)
+            {
+                return place;
+            }
+        }
+
+        throw new InvalidOperationException($"The buy list of the frame '{frame}' shows no '{thing}' (T-2).");
     }
 
     /// <summary>Fails on an error line of the menu host, and drops its other lines, because the capture session writes no log file (T-2).</summary>
@@ -712,12 +762,26 @@ public sealed partial class CaptureSession : Node
             }
         }
 
-        // The window of a hub service opens by the path of a play session: the lead walks to the host,
-        // faces it, and confirms, and the rules open the service (D-1131, D-1132).
-        bool service = string.CompareOrdinal(frame, ScreenCaptures.MenuRestFrame) == 0 || string.CompareOrdinal(frame, ScreenCaptures.MenuSaveFrame) == 0;
-        if (service)
+        // Each window that shows the gold shows the gold of the command, so a capture of the rest and
+        // the shop shows a party that can pay (D-1160, D-1162). The dungeon map shows no gold.
+        if (string.CompareOrdinal(frame, ScreenCaptures.MenuMapFrame) != 0)
         {
-            this.ConfirmHost(open, string.CompareOrdinal(frame, ScreenCaptures.MenuRestFrame) == 0 ? ServiceKind.Rest : ServiceKind.Save);
+            _ = DebugSeam.Run($"{ScreenCaptures.GoldCommand} {ScreenCaptures.MenuGold}", () => open.State, open.Queue);
+            this.RunTicks(open, 1);
+        }
+
+        // The window of a hub service opens by the path of a play session: the lead walks to the host,
+        // faces it, and confirms, and the rules open the service (D-1131, D-1132, D-1149).
+        ServiceKind? serviceKind = frame switch
+        {
+            ScreenCaptures.MenuRestFrame => ServiceKind.Rest,
+            ScreenCaptures.MenuSaveFrame => ServiceKind.Save,
+            ScreenCaptures.MenuShopBuyFrame or ScreenCaptures.MenuShopCountFrame or ScreenCaptures.MenuShopSellFrame => ServiceKind.Shop,
+            _ => null,
+        };
+        if (serviceKind is ServiceKind kind)
+        {
+            this.ConfirmHost(open, kind);
         }
 
         // The map stays visible beside the main list, so each particle takes the tick of the run and
@@ -731,9 +795,14 @@ public sealed partial class CaptureSession : Node
             return;
         }
 
-        if (service)
+        if (serviceKind is ServiceKind opened)
         {
-            OpenService(built, @base, open, this.content);
+            MenuHost host = OpenService(built, @base, open, this.content);
+            if (opened == ServiceKind.Shop)
+            {
+                StageShop(host, frame);
+            }
+
             return;
         }
 
@@ -753,7 +822,7 @@ public sealed partial class CaptureSession : Node
             list.Move(1);
         }
 
-        _ = new MainListView(built, @base, list);
+        _ = new MainListView(built, @base, list, open.State);
         if (string.CompareOrdinal(frame, ScreenCaptures.MenuPartyFrame) == 0)
         {
             _ = new PartyView(built, @base, new PartyList(open.State));

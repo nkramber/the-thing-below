@@ -307,7 +307,7 @@ public sealed class ShopRulesTests
     }
 
     /// <summary>Starts a run on the inn with a gold count, walks to the keeper, and opens the store.</summary>
-    private static Simulation OpenStore(int gold, Func<PartySnapshot, PartySnapshot>? change = null, BattleContent? content = null) =>
+    internal static Simulation OpenStore(int gold, Func<PartySnapshot, PartySnapshot>? change = null, BattleContent? content = null) =>
         Open(HubMaps.Store, gold, change, content ?? TestBattles.Content);
 
     /// <summary>Starts a run on the inn whose keeper rests the party for 10 gold, and opens the rest.</summary>

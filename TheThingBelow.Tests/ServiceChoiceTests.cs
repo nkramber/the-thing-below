@@ -18,7 +18,7 @@ public sealed class ServiceChoiceTests
     {
         Assert.Equal(["Use", "Leave"], Options());
 
-        GameValue choice = GameValue.New("ServiceChoice", ServiceKind.Save);
+        GameValue choice = GameValue.New("ServiceChoice", ServiceKind.Save, null);
         Assert.Equal("Use", choice.Name("Current"));
         Assert.Equal(ServiceKind.Save, choice.Read<ServiceKind>("Kind"));
     }
@@ -28,7 +28,7 @@ public sealed class ServiceChoiceTests
     [InlineData(ServiceKind.Save, "intent.hub_save")]
     public void AConfirmOnTheServiceGivesItsIntentOfThePlayer(ServiceKind kind, string action)
     {
-        GameValue choice = GameValue.New("ServiceChoice", kind);
+        GameValue choice = GameValue.New("ServiceChoice", kind, kind == ServiceKind.Rest ? (int?)10 : null);
 
         var intent = (Intent)choice.Call("Confirm")!;
 
@@ -41,7 +41,7 @@ public sealed class ServiceChoiceTests
     [Fact]
     public void AConfirmOnLeaveGivesNoIntent()
     {
-        GameValue choice = GameValue.New("ServiceChoice", ServiceKind.Rest);
+        GameValue choice = GameValue.New("ServiceChoice", ServiceKind.Rest, 10);
         choice.Call("Move", 1);
 
         Assert.Equal("Leave", choice.Name("Current"));
@@ -52,7 +52,7 @@ public sealed class ServiceChoiceTests
     public void TheCursorWrapsAndTheMouseMovesTheSameCursor()
     {
         // D-872: one cursor for the keyboard, the gamepad, and the mouse.
-        GameValue choice = GameValue.New("ServiceChoice", ServiceKind.Rest);
+        GameValue choice = GameValue.New("ServiceChoice", ServiceKind.Rest, 10);
 
         choice.Call("Move", -1);
         Assert.Equal(1, choice.Read<int>("Cursor"));
@@ -66,11 +66,32 @@ public sealed class ServiceChoiceTests
     [Fact]
     public void AStepOtherThanOneAPointOutsideTheChoicesAndAnUnknownKindAreErrors()
     {
-        GameValue choice = GameValue.New("ServiceChoice", ServiceKind.Rest);
+        GameValue choice = GameValue.New("ServiceChoice", ServiceKind.Rest, 10);
 
         Assert.Throws<ArgumentOutOfRangeException>(() => choice.Call("Move", 2));
         Assert.Throws<ArgumentOutOfRangeException>(() => choice.Call("Point", 2));
-        Assert.Throws<ArgumentOutOfRangeException>(() => GameValue.New("ServiceChoice", (ServiceKind)9));
+        Assert.Throws<ArgumentOutOfRangeException>(() => GameValue.New("ServiceChoice", (ServiceKind)9, null));
+    }
+
+    [Fact]
+    public void ARestPastTheGoldRefusesAndLeaveNeverDoes()
+    {
+        // Exit test 12 of PR-65 (D-1156): the window refuses a rest that the gold cannot pay.
+        GameValue rest = GameValue.New("ServiceChoice", ServiceKind.Rest, 10);
+        GameValue save = GameValue.New("ServiceChoice", ServiceKind.Save, null);
+
+        Assert.True((bool)rest.Call("Refuses", 9)!);
+        Assert.False((bool)rest.Call("Refuses", 10)!);
+        Assert.False((bool)save.Call("Refuses", 0)!);
+        rest.Call("Move", 1);
+        Assert.False((bool)rest.Call("Refuses", 0)!);
+    }
+
+    [Fact]
+    public void ARestTakesAPriceAndASaveTakesNone()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => GameValue.New("ServiceChoice", ServiceKind.Rest, null));
+        Assert.Throws<ArgumentOutOfRangeException>(() => GameValue.New("ServiceChoice", ServiceKind.Save, 5));
     }
 
     [Theory]
