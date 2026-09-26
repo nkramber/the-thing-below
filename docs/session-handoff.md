@@ -12,12 +12,11 @@ Session: reviewer PR #84 (PR-14). Repository: the-thing-below. Local branch: `re
 
 ### The state of the build
 
-- The effective head is `6c7837f`, and all implementation checks pass. `review-gate` failed RG 3 before the review record reached the PR.
+- The effective head is `6c7837f`. The metadata tip is `ba92a31`, and its fresh `review-gate` check passed. All implementation checks passed on the effective head.
 
 ### What is in flight
 
-- The review record and this entry are committed together and pushed to `feat/pr-14-hub`.
-- The live `review-gate` must read the published record. Gitar may analyze this metadata commit.
+- This entry and the review record are published on `feat/pr-14-hub`. The fresh Gitar pass has no item, and the live `review-gate` passed.
 
 ### Traps and gotchas
 
@@ -29,7 +28,7 @@ OQ-249 remains open for PR-17.
 
 ### The next concrete action
 
-Read the live `review-gate` result after the metadata push, then end this review session.
+Verify the final metadata push, then end this review session.
 
 ## Session 324: 2026-09-26, Claude Code
 
