@@ -249,7 +249,7 @@ Built by PR-41. Phase file: `phase-2-first-playable.md`.
 Built by PR-15. Phase file: `phase-2-first-playable.md`.
 
 - Each leg runs the headless runner of `area-tools.md` section 7.8 with both policies over a fixed seed range (D-64, D-505).
-- Each policy plays the largest count of runs that fits in 5 minutes on the slowest leg. PR-15 measures the count and records it (D-1180, G-14).
+- Each policy plays the largest count of runs that fits in 5 minutes on the slowest leg (D-1180, G-14). PR-15 timed macos-26 as the slowest leg, and set 7,000 greedy runs and 6,500 random runs.
 - The job is the family `bots`, with one leg for each system and the gate job `bots` (section 7.19). A docs-only change skips it (D-858).
 - The owner adds `bots` to the required checks after its first run, as for each later check (section 7.16).
 - A crash or a softlock fails the job with the seed, the policy, and the leg (T-2). The job uploads the run record of that run (T-7). D-1179 sets how the runner finds a softlock.

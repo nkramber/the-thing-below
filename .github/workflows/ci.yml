@@ -464,9 +464,11 @@ jobs:
     env:
       LEG: ${{ matrix.leg }}
       # The counts of D-1180: the most runs of each policy that fit in 5 minutes of bot play on
-      # the slowest leg. PR-15 measured them (G-14).
-      GREEDY_RUNS: "1000"
-      RANDOM_RUNS: "1000"
+      # the slowest leg (G-14). PR-15 timed 1,000 runs of each policy in run 36278255713. The
+      # slowest leg, macos-26, took 20 seconds for the greedy runs and 22 for the random runs.
+      # Each policy takes half of the 5 minutes, less a margin for the noise of a runner.
+      GREEDY_RUNS: "7000"
+      RANDOM_RUNS: "6500"
     steps:
       - name: Check out the branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
