@@ -1,3 +1,33 @@
+## Session 326: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #84 (PR-14), round 4. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
+
+### What this session did, and why
+
+- The review of `make codex-review` gives `Ready for owner merge` for the effective head `6c7837f` in `docs/reviews/pr-84.md`, with no open finding.
+- Each check of `6c7837f` passed, and Gitar approved it with no thread. The author answered each claim of the CI analysis of Gitar.
+
+### The state of the build
+
+- The effective head is `6c7837f`, and the review approves it. This entry is a commit of the metadata set, so the approval stands (D-610).
+
+### What is in flight
+
+- The checks of this commit, and the merge confirmation of the owner (D-933, D-942).
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
+
+### The questions that block progress
+
+None. OQ-249 blocks PR-17.
+
+### The next concrete action
+
+After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
+
 ## Session 325: 2026-09-26, Codex
 
 Author: Codex
@@ -297,36 +327,3 @@ None for this PR. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 stay open in the r
 ### The next concrete action
 
 After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
-
-## Session 316: 2026-09-25, Codex
-
-Author: Codex
-Session: reviewer PR #82 (PR-105), round 2. Repository: the-thing-below. Local branch: `review/pr-82`; PR branch: `fix/pr-105-save-drift`. PR: #82. Role: reviewer. Base: `640ad98`.
-
-### What this session did, and why
-
-- Re-reviewed the P2-1 correction at effective head `e17c964`.
-- The selected conflict cell now uses the warning color and a 2-pixel cursor outline (D-1119, D-1120). The screen-test artifact shows two conflicts and the line `1 of 2`.
-- The Gitar CI-analysis item has its answer. Its log names only stale RG 4 and RG 5, which this record replaces (D-964).
-
-### The state of the build
-
-- `make verify` passed on macOS arm64: 3401 tests, format, lint, STE, identity, content, atlas, and smoke. CI implementation checks passed at `e17c964`.
-- This metadata commit updates the verdict and this entry. The remote head before the commit is `e17c964`.
-
-### What is in flight
-
-- This record and this handoff entry are committed together and pushed to `fix/pr-105-save-drift`.
-- The record gives `Ready for owner merge` for `e17c964`. The owner can merge when `review-gate` reads the record and passes.
-
-### Traps and gotchas
-
-- The `review-gate` failure at RG 4 and RG 5 reads the old review record. The new metadata commit supplies the updated verdict and effective head.
-
-### The questions that block progress
-
-None for this PR.
-
-### The next concrete action
-
-Read the new `review-gate` result after the metadata push. The owner can merge when it passes.

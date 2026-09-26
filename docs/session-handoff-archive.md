@@ -1,5 +1,38 @@
 # Session handoff archive
 
+## Session 316: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #82 (PR-105), round 2. Repository: the-thing-below. Local branch: `review/pr-82`; PR branch: `fix/pr-105-save-drift`. PR: #82. Role: reviewer. Base: `640ad98`.
+
+### What this session did, and why
+
+- Re-reviewed the P2-1 correction at effective head `e17c964`.
+- The selected conflict cell now uses the warning color and a 2-pixel cursor outline (D-1119, D-1120). The screen-test artifact shows two conflicts and the line `1 of 2`.
+- The Gitar CI-analysis item has its answer. Its log names only stale RG 4 and RG 5, which this record replaces (D-964).
+
+### The state of the build
+
+- `make verify` passed on macOS arm64: 3401 tests, format, lint, STE, identity, content, atlas, and smoke. CI implementation checks passed at `e17c964`.
+- This metadata commit updates the verdict and this entry. The remote head before the commit is `e17c964`.
+
+### What is in flight
+
+- This record and this handoff entry are committed together and pushed to `fix/pr-105-save-drift`.
+- The record gives `Ready for owner merge` for `e17c964`. The owner can merge when `review-gate` reads the record and passes.
+
+### Traps and gotchas
+
+- The `review-gate` failure at RG 4 and RG 5 reads the old review record. The new metadata commit supplies the updated verdict and effective head.
+
+### The questions that block progress
+
+None for this PR.
+
+### The next concrete action
+
+Read the new `review-gate` result after the metadata push. The owner can merge when it passes.
+
 ## Session 315: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -626,7 +659,6 @@ None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-
 ### The next concrete action
 
 Poll the Gitar check of the round 4 push, and answer each Gitar item. Commit the new screen baseline from the CI artifact, and then run `make codex-review PR=80` when each CI check but `review-gate` passes.
-
 
 ## Session 296: 2026-09-25, Claude Code
 
@@ -3116,7 +3148,6 @@ None. OQ-241 blocks no PR yet.
 ### The next concrete action
 
 The other provider reviews PR #62.
-
 
 ## Session 227: 2026-09-23, Claude Code
 
