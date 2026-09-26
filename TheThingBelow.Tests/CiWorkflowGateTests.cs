@@ -29,6 +29,7 @@ public sealed class CiWorkflowGateTests
     {
         { "build-test-format-gate", "build-test-format" },
         { "replay-identity-gate", "replay-identity" },
+        { "bots-gate", "bots" },
         { "smoke-gate", "smoke" },
         { "coverage-gate", "coverage" },
         { "det-lint-gate", "det-lint" },
@@ -37,6 +38,7 @@ public sealed class CiWorkflowGateTests
 
     [Theory]
     [InlineData("changed paths")]
+    [InlineData("bots")]
     [InlineData("build, test, and format")]
     [InlineData("coverage report")]
     [InlineData("det-lint")]

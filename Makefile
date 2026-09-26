@@ -21,10 +21,10 @@ SKIP_GITAR_REVIEW := --skip-gitar-review
 CODEX_REVIEW_FLAGS := $(filter $(SKIP_GITAR_REVIEW),$(MAKECMDGOALS))
 
 
-.PHONY: verify where hooks build test lint format ste-check identity content atlas smoke sheet walk run clean codex-review screenplay evaluator-cost $(SKIP_GITAR_REVIEW)
+.PHONY: verify where hooks build test lint format ste-check identity bots content atlas smoke sheet walk run clean codex-review screenplay evaluator-cost $(SKIP_GITAR_REVIEW)
 
 ## verify: every check that this machine can run.
-verify: build test format lint ste-check identity content atlas smoke
+verify: build test format lint ste-check identity bots content atlas smoke
 
 ## build: build every project of the solution.
 build:
@@ -60,6 +60,16 @@ ste-check:
 # output of the Tools project, so the `build` target runs before it.
 identity:
 	dotnet run --project $(TOOLS_PROJECT) --no-build -- replay-identity --root .
+
+## bots: play the random and greedy bot runs, as the bot job of CI does (D-64, D-1180).
+#
+# This machine plays BOT_RUNS runs of each policy, fewer than a CI leg, so `verify` stays
+# short. The command reads the build output of the Tools project. A failed run writes its
+# record to artifacts/bots/records.
+BOT_RUNS ?= 100
+bots:
+	dotnet run --project $(TOOLS_PROJECT) --no-build -- bots --root . --policy greedy --runs $(BOT_RUNS) --out artifacts/bots
+	dotnet run --project $(TOOLS_PROJECT) --no-build -- bots --root . --policy random --runs $(BOT_RUNS) --out artifacts/bots
 
 ## content: load every content file and compare the content hash (G-5, D-495, D-648).
 #
