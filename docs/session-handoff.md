@@ -1,3 +1,34 @@
+## Session 333: 2026-09-26, Codex
+
+Author: Codex
+Session: reviewer PR #85 (PR-65). Repository: the-thing-below. Branch: `review/pr-85`, pushed to `feat/pr-65-shop`. Role: reviewer. Base: `8e81487`.
+
+### What this session did, and why
+
+- The review found no defect in the shop, gold, save, replay, or screen changes. The record gives `Ready for owner merge` for effective head `4edc5e5` (T-4, D-17).
+- The latest Gitar CI analysis named ten missing shop baselines. The head contains all ten, and the current screen-test passes. The record answers this claim and the earlier RG 3 claim (D-964).
+- The review inspected all 130 changed paths and the CI screen artifact. No visual fault appeared (D-784).
+
+### The state of the build
+
+- `make verify` passes with 3,905 tests. CI run `36266126601` passes all build, test, format, replay, screen, smoke, and STE checks at effective head `4edc5e5d3ee4f1fbe93bed28fb19e0b5ae98d42a`. The metadata commit is the remote head after push.
+
+### What is in flight
+
+- The PR waits for the owner merge (D-930).
+
+### Traps and gotchas
+
+- `review-gate` failed RG 3 before this record existed. Check the fresh result after the metadata push.
+- Gitar's missing-baseline claim was true before the latest head. The ten CI baselines and the screen-test now pass.
+
+### The questions that block progress
+
+None. OQ-121 is resolved by D-1149 to D-1155.
+
+### The next concrete action
+
+The owner reads the review record and confirms the merge.
 ## Session 332: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -301,35 +332,3 @@ None. OQ-249 blocks PR-17.
 ### The next concrete action
 
 When each check but `review-gate` passes and Gitar completes, run `make codex-review PR=84` in the background.
-
-## Session 323: 2026-09-26, Claude Code
-
-Author: Claude Code
-Session: author PR #84 (PR-14), round 2. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
-
-### What this session did, and why
-
-- Gitar approved `609e122` with no thread. Its CI analysis named one `review-gate` fault, RG 3, the absent review record, and a PR comment answers it.
-- The `screen-captures` artifact of `609e122` differed in 25 frames. The author read the hub frames, the Rest and Save frames, and the menu frames (D-784). The 9 menu frames differ by the same pixel count, which is the Save line of the main list (D-1143).
-- The Rest and Save captures drew their window with the lead at the spawn. `d03a305` walks the lead to face the keeper and the waystone, and it sends a real confirm.
-- This round commits 21 baselines from that artifact: the 3 hub frames and the 18 menu frames (D-733).
-
-### The state of the build
-
-- The head of this push holds the work. The 4 baselines of `menu-rest` and `menu-save` wait for the artifact of this push.
-
-### What is in flight
-
-- The artifact of this push gives the 4 last baselines. Then the Gitar pass, and `make codex-review PR=84`.
-
-### Traps and gotchas
-
-- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
-
-### The questions that block progress
-
-None. OQ-249 blocks PR-17.
-
-### The next concrete action
-
-Read the `menu-rest` and `menu-save` frames of the artifact of this push, and commit their 4 baselines.

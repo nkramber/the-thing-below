@@ -1,4 +1,35 @@
 # Session handoff archive
+## Session 323: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #84 (PR-14), round 2. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
+
+### What this session did, and why
+
+- Gitar approved `609e122` with no thread. Its CI analysis named one `review-gate` fault, RG 3, the absent review record, and a PR comment answers it.
+- The `screen-captures` artifact of `609e122` differed in 25 frames. The author read the hub frames, the Rest and Save frames, and the menu frames (D-784). The 9 menu frames differ by the same pixel count, which is the Save line of the main list (D-1143).
+- The Rest and Save captures drew their window with the lead at the spawn. `d03a305` walks the lead to face the keeper and the waystone, and it sends a real confirm.
+- This round commits 21 baselines from that artifact: the 3 hub frames and the 18 menu frames (D-733).
+
+### The state of the build
+
+- The head of this push holds the work. The 4 baselines of `menu-rest` and `menu-save` wait for the artifact of this push.
+
+### What is in flight
+
+- The artifact of this push gives the 4 last baselines. Then the Gitar pass, and `make codex-review PR=84`.
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
+
+### The questions that block progress
+
+None. OQ-249 blocks PR-17.
+
+### The next concrete action
+
+Read the `menu-rest` and `menu-save` frames of the artifact of this push, and commit their 4 baselines.
 
 ## Session 322: 2026-09-26, Claude Code
 
