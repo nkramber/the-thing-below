@@ -26,14 +26,6 @@ namespace TheThingBelow.Tools.Bots;
 /// </remarks>
 public sealed class BotRun
 {
-    /// <summary>
-    /// The count of played ticks between two softlock checks. A softlock holds from its tick on,
-    /// so a check each second of play finds it, and the run costs about one percent of the check
-    /// on each tick. PR-15 measured three greedy runs: 23 seconds with a check on each tick,
-    /// under one second with none (G-14, D-1179).
-    /// </summary>
-    public const int SoftlockCheckTicks = 60;
-
     private static readonly IReadOnlyList<Intent> NoIntents = [];
 
     private readonly ContentSet content;
@@ -132,7 +124,7 @@ public sealed class BotRun
         }
 
         IReadOnlyList<Intent> accepted = this.accepted(this.simulation);
-        if (this.played % SoftlockCheckTicks == 0 && SoftlockCheck.Holds(this.content, this.simulation, accepted))
+        if (SoftlockCheck.Holds(this.content, this.simulation, accepted))
         {
             return $"at tick {this.simulation.Tick}, no intent of the {accepted.Count} that the state accepts changes the state (D-1179): {Describe(accepted)}";
         }

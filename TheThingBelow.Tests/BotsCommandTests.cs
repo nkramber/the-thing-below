@@ -149,6 +149,25 @@ public sealed class BotsCommandTests : IDisposable
         Assert.StartsWith("random seed=4 ", File.ReadAllLines(Path.Combine(this.folder, "results-random.txt"))[0], StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void ASoftlockThatClearsOnTheNextTickFailsTheJobAtItsTick()
+    {
+        // P2-1 of the review of PR #87: the runner checks each state, so a softlock at a tick
+        // that no sample reads, and that clears on the next tick, still ends the run there. The
+        // replay reads the same source and repeats the softlock.
+        using StringWriter output = new();
+        using StringWriter errors = new();
+
+        int exitCode = BotsCommand.Play(Content.Value, this.Plan(BotPolicyKind.Greedy, 1, 5), NoIntentAtTick7, BotsCommand.PolicyOf, output, errors);
+
+        Assert.Equal(Program.FaultExitCode, exitCode);
+        Assert.Contains($"the greedy bot run of seed 5 on the leg {Leg} ended as softlock at tick 7", errors.ToString(), StringComparison.Ordinal);
+        using StringWriter replayOutput = new();
+        using StringWriter replayErrors = new();
+        Assert.Equal(Program.FaultExitCode, BotsCommand.Replay(Content.Value, this.RecordPath("greedy-5"), NoIntentAtTick7, replayOutput, replayErrors));
+        Assert.Contains("repeats the softlock at tick 7", replayErrors.ToString(), StringComparison.Ordinal);
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(this.folder))
@@ -158,6 +177,9 @@ public sealed class BotsCommandTests : IDisposable
     }
 
     private static IReadOnlyList<Intent> NoIntent(Simulation simulation) => [];
+
+    /// <summary>A planted source: no intent at tick 7 alone, and the query of Core at each other tick.</summary>
+    private static IReadOnlyList<Intent> NoIntentAtTick7(Simulation simulation) => simulation.Tick == 7 ? [] : simulation.Accepted();
 
     private BotPlan Plan(BotPolicyKind policy, int runs, ulong firstSeed) => new(policy, runs, firstSeed, this.folder, Leg);
 

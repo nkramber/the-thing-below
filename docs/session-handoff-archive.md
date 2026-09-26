@@ -1,4 +1,39 @@
 # Session handoff archive
+## Session 331: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #85 (PR-65), round 5. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: #85. Role: author. Base: `8e81487`.
+
+### What this session did, and why
+
+- The owner read the gear window of round 4 and changed the line of the character (D-1170).
+- The level stands in a column of its own close to the name, after a hyphen: "Marrek  -  Level 1". The string `menu.dash` holds the hyphen.
+- An empty line stands between that line and the line of the stat names, so the head of the gear window takes five lines.
+- The session read the gear frames of `make sheet FIXTURE=menu` at 1x and at 1080 rows.
+
+### The state of the build
+
+- Every local check passes. Ten tests fail alone: the baselines of the ten shop frames, which come from the `screen-captures` artifact of CI.
+- Gitar approved round 4 with no thread. The remote head is the push of this round.
+
+### What is in flight
+
+- The approval of the owner for the frames of round 5 in the PR description.
+- Then the baselines of the CI artifact, the answer to the CI claim of Gitar (RG 3 before the review), and `make codex-review`.
+
+### Traps and gotchas
+
+- The name column of the gear window holds 10 characters. A longer name of PR-17 needs a wider column.
+- Perl substitutions with braces in C# text fail. Use the Edit tool for each change of C# text.
+
+### The questions that block progress
+
+The owner approves the frames before the review (D-1164). The text batch waits for the approval of the owner (D-57).
+
+### The next concrete action
+
+Wait for the approval of the owner. Then commit the baselines of the CI artifact, and run `make codex-review PR=85`.
+
 ## Session 330: 2026-09-26, Claude Code
 
 Author: Claude Code
