@@ -5,6 +5,7 @@ using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
+using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Shops;
 using TheThingBelow.Core.Story;
 
@@ -46,6 +47,7 @@ public sealed class ContentSet
         BattleContent battle,
         NoticeList notices,
         StoryContent story,
+        BotRules bots,
         LightContent light,
         EffectContent effects,
         SortedDictionary<string, RuleFixtureEntry> ruleEntries,
@@ -62,6 +64,7 @@ public sealed class ContentSet
         this.Battle = battle;
         this.Notices = notices;
         this.Story = story;
+        this.Bots = bots;
         this.Light = light;
         this.Effects = effects;
         this.ruleEntries = ruleEntries;
@@ -92,6 +95,9 @@ public sealed class ContentSet
 
     /// <summary>The flag file and every story scene of this build (D-542, D-1003).</summary>
     public StoryContent Story { get; }
+
+    /// <summary>The bot rules of the headless runner: the goal flag and the tick budget (D-1181, D-1184).</summary>
+    public BotRules Bots { get; }
 
     /// <summary>The decor, the light setups, the carried light, and the effect budget (D-523, D-843, D-844, D-847).</summary>
     public LightContent Light { get; }
@@ -144,6 +150,7 @@ public sealed class ContentSet
         ShopList? shops = null;
         NoticeList? notices = null;
         FlagList? flags = null;
+        BotRules? bots = null;
         List<StoryScene> scenes = [];
         List<EnemyRecord> enemies = [];
         List<GroupFile> groups = [];
@@ -242,6 +249,12 @@ public sealed class ContentSet
                 // branch of the rule fixtures below (D-1003).
                 flags = FlagList.Read(file.Bytes, file.Path);
                 AddIds(file.Path, flags.Ids(), sources);
+            }
+            else if (string.CompareOrdinal(file.Path, BotRules.Path) == 0)
+            {
+                // The bot rules file lies under the rule folder, so this branch comes before the
+                // branch of the rule fixtures below (D-1181).
+                bots = BotRules.Read(file.Bytes, file.Path);
             }
             else if (StoryScene.IsSceneFile(file.Path))
             {
@@ -362,6 +375,8 @@ public sealed class ContentSet
         // Each trigger of a map names a story scene, its flags, and its markers (D-1004), and
         // the condition of each service names its flags (D-543, D-1131).
         StoryContent story = StoryContent.Load(flags ?? throw AbsentFile(FlagList.Path), scenes, battle);
+        BotRules readBots = bots ?? throw AbsentFile(BotRules.Path);
+        readBots.RequireGoalOf(story.Flags);
         foreach (GameMap map in maps.Values)
         {
             story.RequireScenesOf(map);
@@ -377,6 +392,7 @@ public sealed class ContentSet
             battle,
             notices ?? throw AbsentFile(NoticeList.Path),
             story,
+            readBots,
             light,
             EffectContent.Load(effectFiles, new AmbientWorld(maps, battle, light, drawings, readPalette)),
             ruleEntries,

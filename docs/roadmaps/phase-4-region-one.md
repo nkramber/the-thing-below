@@ -400,6 +400,7 @@ Area files: `area-tools.md` section 7.16, `area-ci.md` section 7.14.
 **Out of scope.**
 
 - A change of a number. PR-30 moves the numbers against the harness (D-822).
+- The turns and the outcome of each battle of the random and greedy bots, which PR-15 reports (D-1182). The `balance` command can read them.
 - The balance of later regions, which their own phases hold.
 
 **Exit tests.**

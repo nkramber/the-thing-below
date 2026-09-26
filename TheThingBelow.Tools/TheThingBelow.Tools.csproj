@@ -20,9 +20,12 @@
     The `replay-identity` command computes the state hash of every run of the identity set,
     so it calls Core. Core references no project, and every other project can reference it
     (G-1, D-100, D-504).
+    The `bots` command writes the saves and the records of its runs through Storage, which
+    holds every file of a run (D-494, D-1181).
   -->
   <ItemGroup>
     <ProjectReference Include="../TheThingBelow.Core/TheThingBelow.Core.csproj" />
+    <ProjectReference Include="../TheThingBelow.Storage/TheThingBelow.Storage.csproj" />
   </ItemGroup>
 
 </Project>

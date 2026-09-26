@@ -82,6 +82,7 @@ public sealed class ToolsCommandLineTests
         Assert.Contains("content-hash: ready", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("codex-review: ready", errors.ToString(), StringComparison.Ordinal);
         Assert.Contains("screenplay: ready", errors.ToString(), StringComparison.Ordinal);
+        Assert.Contains("bots: ready", errors.ToString(), StringComparison.Ordinal);
     }
 
     [Fact]

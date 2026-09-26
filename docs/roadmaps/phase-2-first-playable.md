@@ -2063,41 +2063,49 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 
 ### 7.46 PR-15: the headless runner and the bots
 
-Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13.
+Area files: `area-tools.md` section 7.8, `area-ci.md` section 7.13, `area-core.md` section 7.8.
 
 **Scope.**
 
 - The headless runner in Tools, which plays a run from a seed and a policy with no Godot (D-64, D-100).
-- The two policies: random and greedy (D-64).
-- The run record of each run, through Storage (D-494).
-- The four end states: complete, softlock, crash, and budget, each failure with its seed (D-64, OQ-74).
-- The bot job, which runs both policies on each of the three legs (D-505, OQ-80).
+- The query of the intents that the state accepts, in Core, with no change of a rule (D-1179).
+- The two policies: random and greedy (D-64, D-1183).
+- The bot rules file in content: the goal flag and the tick budget (D-1181, D-1184).
+- The run record and the saves of each run, through Storage (D-494, D-1181).
+- The reload after a wipe, as Game does it (D-1114, D-1181).
+- The four end states: complete, softlock, crash, and budget, each failure with its seed (D-64, D-1179).
+- The turns and the outcome of each battle, and the summary of each policy and leg (D-1182).
+- The bot job, which runs both policies on each of the three legs (D-505, D-1180).
 - The upload of the run record of a failed run (T-7).
 - The line for the bot job in the PR gate (G-16).
 
 **Out of scope.**
 
 - The night job and the night gate (PR-49, D-496).
-- The `playtest-bot` agent, which already exists and drives this runner (D-21).
+- The careful policy, the `balance` command, the bands, and the check of the night job (PR-90, D-822, D-1182).
+- The `playtest-bot` agent, which already exists and drives this runner (D-21). PR-15 changes its status line alone.
 
 **Exit tests.**
 
-1. A few hundred runs of each policy complete on each leg, with no crash and no softlock.
+1. Each policy plays its measured count of runs on each leg, with no crash and no softlock (D-1180).
 2. A planted softlock fails the job with its seed, its policy, and its leg.
 3. A planted crash fails the job the same way.
 4. The job uploads the run record of each failed run, and a replay of it repeats the failure.
 5. A policy makes the same intents that Game makes, and a test proves it (D-493).
 6. The runner draws its random numbers outside the rule streams (G-4).
+7. A greedy run reaches the goal flag, and a wipe reloads the newer save of the run (D-1181, D-1183).
+8. The PR records the measured count of runs and the tick budget (D-1180, D-1184, G-14).
 
 **Review focus.**
 
-- The answer of OQ-74 sets how the runner finds a softlock.
-- The answer of OQ-80 sets the count of runs on each leg, against the CI time of D-505.
+- The query of the accepted intents changes no rule, and the simulation version stays (D-1179, G-17).
+- The count of runs fits in 5 minutes of bot play on the slowest leg (D-1180).
 - The bots play every story scene, because a bot answers each wait intent (D-540).
+- No battle number fails the job (D-1182).
 
-**Questions.** OQ-74 and OQ-80.
+**Questions.** None. D-1179 answers OQ-74, and D-1180 answers OQ-80.
 
-> *In plain English:* simple robots play the game with no screen. They make the same choices a player makes, and every crash they find comes with the seed that repeats it.
+> *In plain English:* simple robots play the game with no screen. They make the same choices a player makes, and every crash they find comes with the seed that repeats it. They also count the turns of each battle.
 
 ### 7.47 PR-49: the night job and the night gate
 
@@ -2795,9 +2803,9 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-57 | The studio name | PR-61 and PR-75 |
 | OQ-59 | The AI disclosure of the content survey | PR-75 |
 | OQ-64 | The tick while a menu is open. Resolved by D-650 | PR-62 |
-| OQ-74 | How the runner finds a softlock | PR-15 |
+| OQ-74 | How the runner finds a softlock. Resolved by D-1179 | PR-15 |
 | OQ-79 | How the screen-test job pins Mesa, resolved by D-729 and D-730 | PR-41 |
-| OQ-80 | The count of bot runs on each PR | PR-15 |
+| OQ-80 | The count of bot runs on each PR. Resolved by D-1180 | PR-15 |
 | OQ-81 | How the night gate result stays current | PR-49 |
 | OQ-82 | The time of the night | PR-49 |
 | OQ-83 | How CI gets the Godot editor and the templates, resolved by D-596 | PR-54 |

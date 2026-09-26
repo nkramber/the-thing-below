@@ -249,8 +249,11 @@ Built by PR-41. Phase file: `phase-2-first-playable.md`.
 Built by PR-15. Phase file: `phase-2-first-playable.md`.
 
 - Each leg runs the headless runner of `area-tools.md` section 7.8 with both policies over a fixed seed range (D-64, D-505).
-- OQ-80 holds the count of runs for each policy on each leg.
-- A crash or a softlock fails the job with the seed, the policy, and the leg (T-2). The job uploads the run record of that run (T-7). OQ-74 holds how the runner finds a softlock.
+- Each policy plays the largest count of runs that fits in 5 minutes on the slowest leg (D-1180, G-14). PR-15 timed macos-26 as the slowest leg, and set 7,000 greedy runs and 6,500 random runs.
+- The job is the family `bots`, with one leg for each system and the gate job `bots` (section 7.19). A docs-only change skips it (D-858).
+- PR-15 adds `bots` to the required checks of `main`, after four green runs of the job (D-1186).
+- A crash or a softlock fails the job with the seed, the policy, and the leg (T-2). The job uploads the run record of that run (T-7). D-1179 sets how the runner finds a softlock.
+- The job summary gives the turns and the outcomes of the battles of each policy and leg. No number fails the job (D-1182).
 - PR #11 added a line for the bot job to the PR gate, with PR-15 as its creator (G-16).
 
 > *In plain English:* on every change, simple robots play a few hundred games on each of the three systems. A crash or a dead end on any system stops the change, with the seed that repeats it.
@@ -351,6 +354,7 @@ A required status check matches by name. A job that a condition skips reports Su
 |---|---|---|
 | `build-test-format` | `build, test, and format (<leg>)` | `build, test, and format` |
 | `replay-identity` | `replay-identity (<leg>)` | `replay-identity` |
+| `bots` | `bots (<leg>)` | `bots` |
 | `smoke` | `smoke (<leg>)` | `smoke` |
 | `coverage` | `coverage report (run)` | `coverage report` |
 | `det-lint` | `det-lint (run)` | `det-lint` |
@@ -489,8 +493,7 @@ The register is `docs/questions.md` (D-19). These questions block CI PRs, and ea
 - OQ-75, OQ-76, OQ-77, OQ-78, and OQ-83 are resolved. D-592 to D-596 hold the answers, and PR-1 builds them.
 - D-614 answers OQ-70, and the lint reads the Godot assembly of the Game build output.
 - OQ-79: how the screen-test job pins Mesa. Closed 2026-09-20 by D-729, and D-730 holds the pin.
-- OQ-74: how the runner finds a softlock. Blocks PR-15.
-- OQ-80: the count of bot runs on each PR. Blocks PR-15.
+- D-1179 answers OQ-74, and D-1180 answers OQ-80. PR-15 builds both.
 - OQ-81: how the night gate result stays current until the merge. Blocks PR-49.
 - OQ-82: the time of the night. Blocks PR-49.
 - OQ-84: the seeds of the night. Blocks PR-49.

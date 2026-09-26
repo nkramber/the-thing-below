@@ -27,6 +27,7 @@ public static class PreviousHeadChecks
     /// </summary>
     public static readonly IReadOnlyList<string> SkippedCheckNames =
     [
+        "bots",
         "build, test, and format",
         "coverage report",
         "det-lint",

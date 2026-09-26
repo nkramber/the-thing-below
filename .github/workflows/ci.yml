@@ -447,6 +447,107 @@ jobs:
           echo "Read the check run of each leg for the failure." >&2
           exit 1
 
+  bots:
+    name: bots (${{ matrix.leg }})
+    needs: changed-paths
+    # The gate job of this job reports the required check (D-595, D-682, D-858).
+    if: needs.changed-paths.outputs.documents-alone != 'true'
+    runs-on: ${{ matrix.leg }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        leg: [ubuntu-24.04, windows-2025, macos-26]
+    defaults:
+      run:
+        shell: bash
+    env:
+      LEG: ${{ matrix.leg }}
+      # The counts of D-1180: the most runs of each policy that fit in 5 minutes of bot play on
+      # the slowest leg (G-14). PR-15 timed 1,000 runs of each policy in run 36278255713. The
+      # slowest leg, macos-26, took 20 seconds for the greedy runs and 22 for the random runs.
+      # Each policy takes half of the 5 minutes, less a margin for the noise of a runner.
+      GREEDY_RUNS: "7000"
+      RANDOM_RUNS: "6500"
+    steps:
+      - name: Check out the branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install the .NET SDK of global.json
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Build the solution
+        run: dotnet build TheThingBelow.slnx --configuration Release
+
+      # Each policy plays a fixed seed range, so each leg plays the same runs. A crash or a
+      # softlock fails the step with the seed, the policy, and the leg, and the summary joins
+      # the page of the run (D-64, D-505, D-1179, D-1182).
+      - name: Play the greedy bot runs
+        run: |
+          set -euo pipefail
+          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj \
+            --configuration Release --no-build -- bots --root . --policy greedy \
+            --runs "$GREEDY_RUNS" --first-seed 1 --leg "$LEG" --out artifacts/bots \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+      # The random runs play after a failure of the greedy runs too, so one push reports both.
+      - name: Play the random bot runs
+        if: success() || failure()
+        run: |
+          set -euo pipefail
+          dotnet run --project TheThingBelow.Tools/TheThingBelow.Tools.csproj \
+            --configuration Release --no-build -- bots --root . --policy random \
+            --runs "$RANDOM_RUNS" --first-seed 1 --leg "$LEG" --out artifacts/bots \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+      # The record of each failed run replays the failure with the `--replay` option of the
+      # command (T-7).
+      - name: Keep the records of the failed runs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bot-records-${{ matrix.leg }}
+          path: artifacts/bots/records
+          if-no-files-found: warn
+
+  bots-gate:
+    # This gate reports the stable name of the three legs of this family, as the
+    # `replay-identity` gate job above does (F-85, D-682, D-683).
+    name: bots
+    needs: [changed-paths, bots]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read the result of the three legs
+        env:
+          FAMILY: "bots"
+          PATHS_RESULT: ${{ needs.changed-paths.result }}
+          LEGS_RESULT: ${{ needs.bots.result }}
+          DOCUMENTS_ALONE: ${{ needs.changed-paths.outputs.documents-alone }}
+        run: |
+          set -euo pipefail
+
+          # A fault in `changed-paths` skips the legs too. A skip that no condition asked
+          # for never passes this gate (T-2).
+          if [ "$PATHS_RESULT" != "success" ]; then
+            echo "The changed paths job ended with '$PATHS_RESULT' (T-2)." >&2
+            exit 1
+          fi
+
+          # D-595 and D-856 skip the legs on a docs-only PR or a docs-only push.
+          if [ "$LEGS_RESULT" = "success" ] ||
+             { [ "$LEGS_RESULT" = "skipped" ] && [ "$DOCUMENTS_ALONE" = "true" ]; }; then
+            echo "The $FAMILY legs ended with '$LEGS_RESULT', and this gate passes."
+            exit 0
+          fi
+
+          echo "The $FAMILY legs ended with '$LEGS_RESULT' (T-2)." >&2
+          echo "Read the check run of each leg for the failure." >&2
+          exit 1
+
   smoke:
     name: smoke (${{ matrix.leg }})
     needs: changed-paths

@@ -508,7 +508,7 @@ Status: ✅ done (code merged, or "doc" for a document-only correction) · 🔧 
 | F-151 | No test ran the crash path, and a search of the source text stood for it. The menu windows and the battle windows had captures at body 32 alone, and no capture showed the screen of the Steam Deck | 2026-09-24 | ✅ PR-106: both sessions run a planted crash, and the captures add body 24 and 1280 by 800 (D-1130) |
 | F-152 | The light budget read the nominal range of a torch, which flickers to 120%. A fight counted the weather and one hit burst, and a lesson shows a spell burst beside it. Game built one constant light texture again at each fight | 2026-09-24 | ✅ PR-106: both budgets count the widest case, and each texture builds one time in a session (D-1129) |
 | F-153 | A window title of the playtest of PR-65 drew with a soft edge of two pixels on each stroke. A title doubles the strike of its bitmap font, and the frame viewport drew it with a linear filter. A `SubViewport` made in code takes the linear filter of `canvas_item_default_texture_filter`, and the project setting of the default filter reaches the root viewport alone. A pixel map of `menu-items-1x.png` showed the soft edge on 2026-09-26 | 2026-09-26 | ✅ PR-36: the frame viewport sets the Nearest filter, and a test reads the setting (D-1172) |
-
+| F-154 | The bot runs of PR-15 could reach no goal. Game starts each run in the fixture dungeon (D-1133), which holds no story scene, no NPC, and no service, and the hub holds the one flag that a scene sets. A measure of 2,000 greedy runs also found 12 hub seeds that wipe in the fight of the rats before any save, start again from the seed, and wipe the same way until the budget | 2026-09-26 | ✅ PR-15: the bot runs start in the dungeon and on the hub in turn, and a loop of that kind ends as budget, not as softlock (D-1179, D-1185) |\n
 ## 6. Guardrails (the safety contract for every PR)
 
 ### 6.1 Tenets
@@ -646,7 +646,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 44. PR-14: the hub map, the NPCs and their movement, the rest, the save, and the party swap (D-59, D-112, D-1131 to D-1140).
 45. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
 46. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
-47. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).
+47. PR-15: the headless runner, the two bot policies, the battle numbers, and the bot job (D-64, D-505, D-1179 to D-1184).
 48. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
 49. Owner: require the bot and `night-gate` checks on `main` after their first runs.
 50. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
@@ -762,7 +762,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 19. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-106, PR-14, PR-65.
 20. PR-36.
 21. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
-22. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+22. PR-15 adds the `bots` check to the protection of `main` (D-1186). Owner: require the `night-gate` check after its first run.
 23. PR-16, PR-64, PR-35.
 24. PR-51, PR-52, PR-53.
 25. PR-17.

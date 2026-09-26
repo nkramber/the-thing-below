@@ -196,8 +196,12 @@ Built by PR-15. Phase file: `phase-2-first-playable.md`.
 
 - The runner plays runs in Tools with no Godot, from a seed and a policy (D-64, D-100). A policy makes the same intents that Game makes (D-493).
 - The two policies are random and greedy (D-64). A policy takes its random numbers from a source outside the rule streams (G-4, `area-core.md` section 7.4).
-- Each run writes its run record through Storage (D-494). It ends as complete, softlock, crash, or budget, and each failure names its seed. OQ-74 holds how the runner finds a softlock.
-- A few hundred runs play on each PR, on every CI leg (D-64, D-505). OQ-80 holds the count, and `area-ci.md` holds the job.
+- The random policy picks one accepted intent. The greedy policy walks to the nearest target that it did not reach, and it wins a battle fast (D-1183).
+- Each run writes its run record and its saves through Storage (D-494). On a wipe, the runner reloads the newer save of the run, as Game does (D-1114, D-1181).
+- A run ends as complete, softlock, crash, or budget, and each failure names its seed. The goal flag and the tick budget live in the bot rules file of content (D-1181, D-1184).
+- A run ends as softlock when no intent that the state accepts changes the state other than the tick (D-1179). Core answers the query of the accepted intents.
+- The result of each run lists the turns and the outcome of each battle (D-1182). The balance harness of PR-90 adds the bands (D-822).
+- Each policy plays the runs that fit in 5 minutes on each PR, on every CI leg (D-505, D-1180). `area-ci.md` holds the job.
 - The `playtest-bot` agent drives the runner and reports what it finds (D-21).
 
 > *In plain English:* simple robots play the game with no screen. They make the same choices that a player makes, and every crash they find comes with the seed that repeats it.
@@ -299,6 +303,7 @@ Built by PR-90. Phase file: `phase-4-region-one.md`.
 
 - A third policy plays as a careful player, beside the random and greedy policies of PR-15 (D-64, D-822).
 - The `balance` command plays a loop of seeds and reports the metrics of each encounter, dungeon, item, and lesson (D-822). OQ-216 holds the metrics.
+- PR-15 already reports the turns and the outcome of each battle of the random and greedy bots (D-1182).
 - A content file holds one band for each metric, and the owner sets each band from the first report (D-571, D-822).
 - The report uses integer math, so every CI leg gives the same numbers (D-502).
 
@@ -338,6 +343,6 @@ The register is `docs/questions.md` (D-19). These questions block Tools PRs, and
 - D-614 answers OQ-70, and the text rule reads the Godot assembly of the Game build output.
 - D-615 answers OQ-71, and det-lint fails a walk of either type in Core.
 - D-663 answers OQ-72, and Tools holds a CRC-32 of its own. D-664 and D-665 answer OQ-195 and OQ-196.
-- OQ-74: how the runner finds a softlock. Blocks PR-15.
+- D-1179 answers OQ-74, and D-1180 answers OQ-80. PR-15 builds both.
 - OQ-216: the metrics, the bands, and the policy of the balance harness. Blocks PR-90.
 - OQ-3: the required checks on `main`. Waits for PR-3.

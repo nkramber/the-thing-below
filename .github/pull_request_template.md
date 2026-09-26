@@ -15,7 +15,7 @@ Each line holds before the merge: the gated auto-merge or the owner merge (`CLAU
 - [ ] The `replay-identity` job is green on every CI leg (G-5, D-481).
 - [ ] The `screen-test` job is green (D-172, F-23, D-731).
 - [ ] A screen change: the author read each frame of `make sheet` or `make walk` that the change reaches. The PR records the result (D-784). A PR that changes no screen says so.
-- [ ] The bot job is green on every CI leg (D-64, D-505). PR-15 creates it.
+- [ ] The `bots` job is green on every CI leg (D-64, D-505, D-1179, D-1180).
 - [ ] The `night-gate` job is green (G-22). PR-49 creates it.
 - [ ] The `ste-check` job is green: the writing, reference, session number, size, and Documents row rules (G-12, D-605, D-607, D-611, D-696).
 - [ ] The automated pass of gitar approved the head, or each Gitar item of the pass has its answer (D-14, D-66, D-964). The review is current under the `gitar-review` skill.
