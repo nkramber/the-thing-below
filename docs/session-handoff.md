@@ -1,7 +1,7 @@
 ## Session 334: 2026-09-26, Claude Code
 
 Author: Claude Code
-Session: author PR-36, round 1. Repository: the-thing-below. Branch: `feat/pr-36-dialogue`. PR: the PR-36 intent, and GitHub gives the number at the open. Role: author. Base: `6f02d3d`.
+Session: author PR-36, round 1. Repository: the-thing-below. Branch: `feat/pr-36-dialogue`. PR: #86. Role: author. Base: `6f02d3d`.
 
 ### What this session did, and why
 
@@ -14,11 +14,11 @@ Session: author PR-36, round 1. Repository: the-thing-below. Branch: `feat/pr-36
 
 ### The state of the build
 
-- `make verify` passes locally, except the five new `scene-*` baselines, which come from the CI artifact (D-733). The remote head is the push of this round.
+- `make verify` passes locally. CI run `36271514085` failed on the baselines alone. This round commits 108 changed baselines and 5 new `scene-*` baselines from its `screen-captures` artifact (D-733). The remote head is the push of this round.
 
 ### What is in flight
 
-- The first push, the Gitar pass, and the CI captures. Then the baselines of the changed frames from the `screen-captures` artifact.
+- Gitar approved `e9ff621` with no finding. Its CI analysis named the baselines, RG 3, and the coverage job, and a PR comment answers each claim. The baseline push needs a new Gitar pass and green CI.
 
 ### Traps and gotchas
 
@@ -32,7 +32,7 @@ None. OQ-250, the pause of the fight of a story scene, blocks no PR yet.
 
 ### The next concrete action
 
-Commit the baselines from the CI artifact, answer each Gitar item, then run `make codex-review PR=<n>`.
+When CI is green except `review-gate` and Gitar completes, run `make codex-review PR=86` in the background.
 
 ## Session 333: 2026-09-26, Codex
 
