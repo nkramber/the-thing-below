@@ -194,12 +194,12 @@ public sealed class TorchRulesTests
         BattleContent content = TestBattles.Content;
         string items = TestBattles.ItemsFile.Replace(
             "{ \"id\": \"item.torch\", \"kind\": \"key\", \"limit\": 1 }",
-            "{ \"id\": \"item.torch\", \"kind\": \"heal\", \"limit\": 3, \"delay\": 60, \"amount\": 10 }",
+            "{ \"id\": \"item.torch\", \"kind\": \"heal\", \"limit\": 3, \"delay\": 60, \"value\": 10, \"amount\": 10 }",
             StringComparison.Ordinal);
         ItemList list = ItemList.Read(System.Text.Encoding.UTF8.GetBytes(items), ItemList.Path);
 
         ContentException error = Assert.Throws<ContentException>(() => new BattleContent(
-            content.Rules, content.Fixture, content.Enemies, content.Abilities, content.Lessons, list, content.Gear, content.GroupFiles, content.Profiles));
+            content.Rules, content.Fixture, content.Enemies, content.Abilities, content.Lessons, list, content.Gear, content.GroupFiles, content.Profiles, content.Shops));
 
         Assert.Contains(ItemList.Path, error.Message, StringComparison.Ordinal);
         Assert.Contains("'item.torch' is not a key item", error.Message, StringComparison.Ordinal);

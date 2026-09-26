@@ -4,6 +4,7 @@ using System.Text;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Notices;
+using TheThingBelow.Core.Shops;
 using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Tests;
@@ -201,12 +202,44 @@ internal static class TestBattles
     {
      "comment": "The item file of the tests.",
      "items": [
-      { "id": "item.fixture_draught", "kind": "heal", "limit": 5, "delay": 100, "amount": 30 },
-      { "id": "item.test_tonic", "kind": "restore", "limit": 4, "delay": 100, "amount": 10 },
-      { "id": "item.test_salts", "kind": "cure", "limit": 5, "delay": 90, "statuses": ["poison", "silence"] },
-      { "id": "item.test_root", "kind": "revive", "limit": 3, "delay": 120, "amount": 25 },
+      { "id": "item.fixture_draught", "kind": "heal", "limit": 5, "delay": 100, "value": 12, "amount": 30 },
+      { "id": "item.test_tonic", "kind": "restore", "limit": 4, "delay": 100, "value": 10, "amount": 10 },
+      { "id": "item.test_salts", "kind": "cure", "limit": 5, "delay": 90, "value": 10, "statuses": ["poison", "silence"] },
+      { "id": "item.test_root", "kind": "revive", "limit": 3, "delay": 120, "value": 10, "amount": 25 },
       { "id": "item.test_token", "kind": "key", "limit": 1 },
       { "id": "item.torch", "kind": "key", "limit": 1 }
+     ]
+    }
+    """;
+
+    /// <summary>
+    /// The shop file of the tests (D-1149 to D-1155). The trader buys no body armor and no
+    /// cure, and it pays a quarter for an accessory. The store sells an item with no limit,
+    /// a counted item, two counted pieces, a lesson that the fixture owns, and the pilfer, which it
+    /// does not own.
+    /// </summary>
+    public const string ShopsFile = """
+    {
+     "comment": "The shops of the tests.",
+     "types": [
+      {
+       "id": "shop_type.test_trader",
+       "rates": { "weapon": 5000, "off_hand": 5000, "head": 5000, "body": 0, "accessory": 2500, "heal": 5000, "restore": 5000, "cure": 0, "revive": 5000 }
+      }
+     ],
+     "shops": [
+      {
+       "id": "shop.test_store",
+       "type": "shop_type.test_trader",
+       "stock": [
+        { "item": "item.fixture_draught", "price": 20, "count": "unlimited" },
+        { "item": "item.test_salts", "price": 30, "count": 2 },
+        { "gear": "gear.test_helm", "price": 50, "count": 1 },
+        { "gear": "gear.test_blade", "price": 80, "count": 3 },
+        { "lesson": "lesson.fixture_bolt", "price": 100 },
+        { "lesson": "lesson.test_pilfer", "price": 120 }
+       ]
+      }
      ]
     }
     """;
@@ -220,13 +253,13 @@ internal static class TestBattles
     {
      "comment": "The gear file of the tests.",
      "gear": [
-      { "id": "gear.test_blade", "slot": "weapon", "limit": 2, "attack": 5, "magic": 0, "defense": 0, "resistance": 0, "speed": -3, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.test_shield", "slot": "off_hand", "limit": 1, "attack": 0, "magic": 0, "defense": 3, "resistance": 0, "speed": 0, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.test_helm", "slot": "head", "limit": 1, "attack": 0, "magic": 0, "defense": 1, "resistance": 0, "speed": 0, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.test_mail", "slot": "body", "limit": 1, "attack": 0, "magic": 0, "defense": 4, "resistance": 0, "speed": -99, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.test_resist_ring", "slot": "accessory", "limit": 3, "attack": 0, "magic": 0, "defense": 0, "resistance": 0, "speed": 0, "elements": { "fire": "resist", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.test_absorb_ring", "slot": "accessory", "limit": 3, "attack": 0, "magic": 0, "defense": 0, "resistance": 0, "speed": 0, "elements": { "fire": "absorb", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.test_weak_charm", "slot": "accessory", "limit": 3, "attack": 1, "magic": 2, "defense": 0, "resistance": -1, "speed": 2, "elements": { "fire": "weak", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } }
+      { "id": "gear.test_blade", "slot": "weapon", "limit": 2, "value": 20, "attack": 5, "magic": 0, "defense": 0, "resistance": 0, "speed": -3, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_shield", "slot": "off_hand", "limit": 1, "value": 20, "attack": 0, "magic": 0, "defense": 3, "resistance": 0, "speed": 0, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_helm", "slot": "head", "limit": 1, "value": 20, "attack": 0, "magic": 0, "defense": 1, "resistance": 0, "speed": 0, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_mail", "slot": "body", "limit": 1, "value": 20, "attack": 0, "magic": 0, "defense": 4, "resistance": 0, "speed": -99, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_resist_ring", "slot": "accessory", "limit": 3, "value": 20, "attack": 0, "magic": 0, "defense": 0, "resistance": 0, "speed": 0, "elements": { "fire": "resist", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_absorb_ring", "slot": "accessory", "limit": 3, "value": 20, "attack": 0, "magic": 0, "defense": 0, "resistance": 0, "speed": 0, "elements": { "fire": "absorb", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.test_weak_charm", "slot": "accessory", "limit": 3, "value": 20, "attack": 1, "magic": 2, "defense": 0, "resistance": -1, "speed": 2, "elements": { "fire": "weak", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } }
      ]
     }
     """;
@@ -242,6 +275,8 @@ internal static class TestBattles
      "size": "common",
      "level": 1,
      "experience": 6,
+     "gold_low": 3,
+     "gold_high": 6,
      "health": 30,
      "attack": 8,
      "magic": 8,
@@ -262,6 +297,8 @@ internal static class TestBattles
      "size": "elite",
      "level": 3,
      "experience": 20,
+     "gold_low": 10,
+     "gold_high": 16,
      "health": 80,
      "attack": 14,
      "magic": 14,
@@ -409,7 +446,7 @@ internal static class TestBattles
     """;
 
     /// <summary>Gives the battle files of a content set, with the text of the tests (D-757, D-766, D-785, D-786).</summary>
-    /// <returns>The rules file, the fixture file, the ability file, the two enemy records, the group file, the profile, the notice file (D-989), the flag file with no flag (D-1003), and the effect files that serve those combatants (D-879).</returns>
+    /// <returns>The rules file, the fixture file, the ability file, the two enemy records, the group file, the profile, the notice file (D-989), the flag file with no flag (D-1003), the shop file (D-1149), and the effect files that serve those combatants (D-879).</returns>
     public static IReadOnlyList<ContentFile> Files() =>
     [
         new ContentFile(BattleRules.Path, Encoding.UTF8.GetBytes(RulesFile)),
@@ -418,6 +455,7 @@ internal static class TestBattles
         new ContentFile(LessonList.Path, Encoding.UTF8.GetBytes(LessonsFile)),
         new ContentFile(ItemList.Path, Encoding.UTF8.GetBytes(ItemsFile)),
         new ContentFile(GearList.Path, Encoding.UTF8.GetBytes(GearFile)),
+        new ContentFile(ShopList.Path, Encoding.UTF8.GetBytes(ShopsFile)),
         new ContentFile(BrutePath, Encoding.UTF8.GetBytes(BruteFile)),
         new ContentFile(GruntPath, Encoding.UTF8.GetBytes(GruntFile)),
         new ContentFile(FixtureGroupsPath, Encoding.UTF8.GetBytes(FixtureGroupsFile)),
@@ -655,7 +693,7 @@ internal static class TestBattles
         return Build(FixtureWithParty(3), changes, grunt, groups, profiles);
     }
 
-    private static BattleContent Build(string fixture, (string Field, int Value)[] changes, string? grunt = null, string? groups = null, string[]? profiles = null, string? lessons = null, string? abilities = null, string? attacker = null)
+    private static BattleContent Build(string fixture, (string Field, int Value)[] changes, string? grunt = null, string? groups = null, string[]? profiles = null, string? lessons = null, string? abilities = null, string? attacker = null, string? shops = null)
     {
         string rules = RulesFile;
         foreach ((string field, int value) in changes)
@@ -681,7 +719,8 @@ internal static class TestBattles
                 GroupFile.Read(Encoding.UTF8.GetBytes(FixtureGroupsFile), FixtureGroupsPath),
                 GroupFile.Read(Encoding.UTF8.GetBytes(groups ?? GroupsFile), GroupsPath),
             ],
-            ProfilesOf(profiles ?? [], attacker ?? AttackerProfileFile));
+            ProfilesOf(profiles ?? [], attacker ?? AttackerProfileFile),
+            ShopList.Read(Encoding.UTF8.GetBytes(shops ?? ShopsFile), ShopList.Path));
     }
 
     private static List<ProfileRecord> ProfilesOf(string[] more, string attacker)

@@ -5,6 +5,7 @@ using System.Text;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
+using TheThingBelow.Core.Shops;
 using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Tools.Evaluator;
@@ -50,6 +51,8 @@ public static class CostFight
      "size": "common",
      "level": 1,
      "experience": 10,
+     "gold_low": 5,
+     "gold_high": 5,
      "health": 40,
      "attack": 8,
      "magic": 6,
@@ -135,7 +138,7 @@ public static class CostFight
     private const string ItemText = """
     {
      "comment": "The item file of the cost fight.",
-     "items": [{ "id": "item.cost_draught", "kind": "heal", "limit": 5, "delay": 100, "amount": 30 }]
+     "items": [{ "id": "item.cost_draught", "kind": "heal", "limit": 5, "delay": 100, "value": 10, "amount": 30 }]
     }
     """;
 
@@ -216,8 +219,12 @@ public static class CostFight
             ItemList.Read(Encoding.UTF8.GetBytes(ItemText), "cost-items.json"),
             GearList.Read(Encoding.UTF8.GetBytes(GearText), "cost-gear.json"),
             new List<GroupFile> { GroupFile.Read(Encoding.UTF8.GetBytes(GroupText), $"{GroupFile.Folder}cost.json") },
-            [ProfileRecord.Read(Encoding.UTF8.GetBytes(ProfileText), "cost-profile.json")]);
+            [ProfileRecord.Read(Encoding.UTF8.GetBytes(ProfileText), "cost-profile.json")],
+            ShopList.Read(Encoding.UTF8.GetBytes(ShopText), "cost-shops.json"));
     }
+
+    /// <summary>The shop file of the cost fight, which holds no shop (D-1149).</summary>
+    private const string ShopText = """{ "comment": "The cost fight holds no shop.", "types": [], "shops": [] }""";
 
     /// <summary>Gives the notice file of the cost fight, which posts no notice (D-989).</summary>
     /// <returns>The notice file.</returns>

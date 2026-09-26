@@ -216,7 +216,7 @@ public sealed class NpcHomeTests
         GameMap map = HubMaps.Of(
             npcs: HubMaps.Wanderer(),
             things: """{ "id": "service_point.hub_east", "kind": "service_point", "x": 2, "y": 1 }, { "id": "service_point.hub_south", "kind": "service_point", "x": 1, "y": 2 }""",
-            services: """{ "id": "service.hub_rest", "kind": "rest", "thing": "service_point.hub_east", "condition": { "always": true } }, { "id": "service.hub_save", "kind": "save", "thing": "service_point.hub_south", "condition": { "always": true } }""");
+            services: """{ "id": "service.hub_rest", "kind": "rest", "price": 0, "thing": "service_point.hub_east", "condition": { "always": true } }, { "id": "service.hub_save", "kind": "save", "thing": "service_point.hub_south", "condition": { "always": true } }""");
         MapState party = MapState.Enter(map);
         NpcState dog = party.Npcs.All[0];
         dog.MoveInScene(new TilePoint(1, 1), StepDirection.North);

@@ -298,13 +298,16 @@ public sealed class ExperienceTests
             null,
             "the test");
 
-    /// <summary>Gives the events after the win of the fight, which the run took since its last take.</summary>
+    /// <summary>
+    /// Gives the events after the win of the fight, which the run took since its last take. The
+    /// gold line of the loot leaves the list, because the loot tests read it (D-1157).
+    /// </summary>
     private static List<BattleEvent> EventsAfterTheWin(Simulation run)
     {
         List<BattleEvent> taken = [.. run.TakeBattleEvents()];
         int won = taken.FindIndex(played => played.Kind == BattleEventKind.Won);
         Assert.True(won >= 0, "The events hold no win.");
-        return taken[(won + 1)..];
+        return taken[(won + 1)..].FindAll(played => played.Kind != BattleEventKind.WinGold);
     }
 
     /// <summary>Starts a run, changes the stored party of its first tick, and steps it into a battle.</summary>

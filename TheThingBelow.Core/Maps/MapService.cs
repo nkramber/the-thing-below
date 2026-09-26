@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Shops;
 using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Maps;
 
 /// <summary>What one service of a hub does (D-28, D-59, D-1131).</summary>
-/// <remarks>PR-65 adds the shop (D-530).</remarks>
 public enum ServiceKind
 {
     /// <summary>The rest, which fills the health and the MP and cures the statuses that last past a fight (D-42, D-390, D-970).</summary>
@@ -14,16 +14,19 @@ public enum ServiceKind
 
     /// <summary>The save, which writes the slot save (D-1132).</summary>
     Save,
+
+    /// <summary>The shop, which buys and sells for gold (D-530, D-1149).</summary>
+    Shop,
 }
 
 /// <summary>The names of the service kinds, as a map file writes them (D-1131).</summary>
 public static class ServiceKinds
 {
     /// <summary>Every kind, in one fixed order for a walk of them (G-4).</summary>
-    public static readonly ServiceKind[] All = [ServiceKind.Rest, ServiceKind.Save];
+    public static readonly ServiceKind[] All = [ServiceKind.Rest, ServiceKind.Save, ServiceKind.Shop];
 
     /// <summary>The names of every kind, for the error of an unknown name (T-2).</summary>
-    public const string EveryName = "rest, save";
+    public const string EveryName = "rest, save, shop";
 
     /// <summary>Gives the kind of one name.</summary>
     /// <param name="name">The name, such as `rest`.</param>
@@ -55,13 +58,15 @@ public static class ServiceKinds
     {
         ServiceKind.Rest => "rest",
         ServiceKind.Save => "save",
+        ServiceKind.Shop => "shop",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no service kind (D-1131)"),
     };
 }
 
 /// <summary>
-/// One service of a hub: what it does, the NPC or the service point that holds it, and its
-/// condition (D-543, D-1131, D-1142).
+/// One service of a hub: what it does, the NPC or the service point that holds it, its
+/// condition, the price of a rest, and the shop of a shop service (D-543, D-1131, D-1142,
+/// D-1149, D-1156).
 /// </summary>
 /// <remarks>
 /// Confirm while the lead faces the host opens the service, when its condition holds (D-1131).
@@ -74,7 +79,9 @@ public static class ServiceKinds
 /// <param name="Npc">The NPC that holds the service, or no value when a thing holds it.</param>
 /// <param name="Thing">The service point that holds the service, or no value when an NPC holds it (D-1142).</param>
 /// <param name="Condition">The condition that opens the service, which the always leaf writes for a service that no flag gates (D-1002).</param>
-public sealed record MapService(ContentId Id, ServiceKind Kind, ContentId? Npc, ContentId? Thing, Condition Condition)
+/// <param name="Price">The gold of one rest, from 0, for a rest. No value for another kind (D-1156).</param>
+/// <param name="Shop">The shop of the shop file, for a shop. No value for another kind (D-1149).</param>
+public sealed record MapService(ContentId Id, ServiceKind Kind, ContentId? Npc, ContentId? Thing, Condition Condition, int? Price, ContentId? Shop)
 {
     /// <summary>The kind of the id of a service (D-646).</summary>
     public const string IdKind = "service";
@@ -87,7 +94,8 @@ public sealed record MapService(ContentId Id, ServiceKind Kind, ContentId? Npc, 
     /// <returns>Each service, in the order of the file.</returns>
     /// <exception cref="ContentException">
     /// An entry breaks a rule of the reader: an unknown kind, which the error names with the file
-    /// and the service, or a host that is not exactly one NPC or one thing (G-6, T-2).
+    /// and the service, a host that is not exactly one NPC or one thing, or a price or a shop that the kind lacks or does not
+    /// take (G-6, T-2, D-1149, D-1156).
     /// </exception>
     /// <remarks>
     /// The map checks each host against its own NPCs and things. The content set checks the
@@ -112,6 +120,8 @@ public sealed record MapService(ContentId Id, ServiceKind Kind, ContentId? Npc, 
         ContentId? npc = null;
         ContentId? thing = null;
         Condition? condition = null;
+        int? price = null;
+        ContentId? shop = null;
 
         int depth = reader.ReadObjectStart();
         while (reader.ReadNextField(depth, out string field))
@@ -135,6 +145,12 @@ public sealed record MapService(ContentId Id, ServiceKind Kind, ContentId? Npc, 
                 case "condition":
                     condition = Condition.Read(ref reader);
                     break;
+                case "price":
+                    price = reader.ReadInt();
+                    break;
+                case "shop":
+                    shop = reader.ReadContentId(ShopList.Kind);
+                    break;
                 default:
                     throw reader.UnknownField(field);
             }
@@ -155,6 +171,27 @@ public sealed record MapService(ContentId Id, ServiceKind Kind, ContentId? Npc, 
                 $"the service '{readId.Value}' holds {(npc is null ? "no field 'npc' and no field 'thing'" : "the fields 'npc' and 'thing'")}, and one NPC or one thing holds a service (D-1131, D-1142)");
         }
 
-        return new MapService(readId, parsed, npc, thing, reader.Require(condition, depth, "condition"));
+        RequireFieldOfKind(ref reader, depth, readId, parsed, ServiceKind.Rest, price is not null, "price");
+        if (price < 0)
+        {
+            throw reader.RefuseField(depth, "price", $"the rest '{readId.Value}' takes the price {price}, and a price is 0 or more (D-1156)");
+        }
+
+        RequireFieldOfKind(ref reader, depth, readId, parsed, ServiceKind.Shop, shop is not null, "shop");
+        return new MapService(readId, parsed, npc, thing, reader.Require(condition, depth, "condition"), price, shop);
+    }
+
+    /// <summary>Requires a field on a service of the kind that owns it, and refuses it on a service of another kind (T-2).</summary>
+    private static void RequireFieldOfKind(ref ContentReader reader, int depth, ContentId id, ServiceKind kind, ServiceKind owner, bool present, string field)
+    {
+        if (kind == owner && !present)
+        {
+            throw reader.RefuseField(depth, field, $"the field is absent, and the {ServiceKinds.NameOf(owner)} '{id.Value}' needs it (D-1149, D-1156)");
+        }
+
+        if (kind != owner && present)
+        {
+            throw reader.RefuseField(depth, field, $"the {ServiceKinds.NameOf(kind)} '{id.Value}' takes no field '{field}', which a {ServiceKinds.NameOf(owner)} alone reads (D-1149, D-1156)");
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
+using TheThingBelow.Core.Shops;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
@@ -337,6 +338,8 @@ public static partial class IdentitySet
      "size": "common",
      "level": 1,
      "experience": 8,
+     "gold_low": 4,
+     "gold_high": 8,
      "health": 30,
      "attack": 5,
      "magic": 8,
@@ -435,6 +438,8 @@ public static partial class IdentitySet
      "size": "common",
      "level": 1,
      "experience": 6,
+     "gold_low": 3,
+     "gold_high": 6,
      "health": 20,
      "attack": 6,
      "magic": 2,
@@ -455,6 +460,8 @@ public static partial class IdentitySet
      "size": "common",
      "level": 2,
      "experience": 15,
+     "gold_low": 8,
+     "gold_high": 12,
      "health": 45,
      "attack": 11,
      "magic": 4,
@@ -472,20 +479,23 @@ public static partial class IdentitySet
     {
      "comment": "The item file of the identity set. PR-13 added it, and PR-91 added the torch.",
      "items": [
-      { "id": "item.identity_draught", "kind": "heal", "limit": 10, "delay": 100, "amount": 30 },
+      { "id": "item.identity_draught", "kind": "heal", "limit": 10, "delay": 100, "value": 10, "amount": 30 },
       { "id": "item.torch", "kind": "key", "limit": 1 }
      ]
     }
     """;
 
     /// <summary>The gear file of this set (D-1036). PR-13 added it: a weapon, a ring that resists fire, and a charm that is weak to fire.</summary>
+    /// <summary>The shop file of the set, which holds no shop (D-1149).</summary>
+    private const string ShopFile = """{ "comment": "The identity set holds no shop.", "types": [], "shops": [] }""";
+
     private const string GearFile = """
     {
      "comment": "The gear file of the identity set. PR-13 added it.",
      "gear": [
-      { "id": "gear.identity_blade", "slot": "weapon", "limit": 1, "attack": 3, "magic": 0, "defense": 0, "resistance": 0, "speed": -2, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.identity_ring", "slot": "accessory", "limit": 1, "attack": 0, "magic": 0, "defense": 1, "resistance": 2, "speed": 0, "elements": { "fire": "resist", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
-      { "id": "gear.identity_charm", "slot": "accessory", "limit": 1, "attack": 0, "magic": 2, "defense": 0, "resistance": 0, "speed": 4, "elements": { "fire": "weak", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } }
+      { "id": "gear.identity_blade", "slot": "weapon", "limit": 1, "value": 20, "attack": 3, "magic": 0, "defense": 0, "resistance": 0, "speed": -2, "elements": { "fire": "normal", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.identity_ring", "slot": "accessory", "limit": 1, "value": 20, "attack": 0, "magic": 0, "defense": 1, "resistance": 2, "speed": 0, "elements": { "fire": "resist", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } },
+      { "id": "gear.identity_charm", "slot": "accessory", "limit": 1, "value": 20, "attack": 0, "magic": 2, "defense": 0, "resistance": 0, "speed": 4, "elements": { "fire": "weak", "ice": "normal", "lightning": "normal", "earth": "normal", "wind": "normal", "water": "normal", "holy": "normal", "dark": "normal" } }
      ]
     }
     """;
@@ -867,7 +877,8 @@ public static partial class IdentitySet
             [
                 ProfileRecord.Read(Encoding.UTF8.GetBytes(BruteProfileFile), "identity-set-brute-profile.json"),
                 ProfileRecord.Read(Encoding.UTF8.GetBytes(MenderProfileFile), "identity-set-mender-profile.json"),
-            ]);
+            ],
+            ShopList.Read(Encoding.UTF8.GetBytes(ShopFile), "identity-set-shops.json"));
 
     /// <summary>The notice file of every run of this set (D-989), from its own copy for the reason of <see cref="ReplayBattleContent"/>.</summary>
     private static NoticeList ReplayNotices() => NoticeList.Read(Encoding.UTF8.GetBytes(NoticeFile), "identity-set-notices.json");

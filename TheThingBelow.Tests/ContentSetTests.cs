@@ -608,11 +608,11 @@ public sealed class ContentSetTests
     }
 
     [Fact]
-    public void TheShippedContentHoldsTheFixtureHubWithEachMoveAndBothServices()
+    public void TheShippedContentHoldsTheFixtureHubWithEachMoveAndEachService()
     {
         // Exit test 18 of PR-14 (D-1133): the debug command and the capture reach this hub. It
         // holds one NPC of each move and a service on an NPC and on a service point (D-1131,
-        // D-1138, D-1142).
+        // D-1138, D-1142). The trader holds the shop, and the rest takes its price (D-1149, D-1156).
         ContentSet set = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
 
         GameMap hub = set.Map(ContentId.Parse("map.fixture_hub", "test", "id"));
@@ -620,7 +620,7 @@ public sealed class ContentSetTests
         Assert.Equal(MapKind.Hub, hub.Kind);
         Assert.False(hub.Dark);
         Assert.Equal(
-            [NpcMove.Route, NpcMove.Route, NpcMove.Wander, NpcMove.Chase],
+            [NpcMove.Route, NpcMove.Route, NpcMove.Wander, NpcMove.Chase, NpcMove.Route],
             hub.Npcs.Select(npc => npc.Move));
         Assert.Single(hub.Npcs[0].Route);
         Assert.True(hub.Npcs[1].Route.Count > 1);
@@ -629,6 +629,11 @@ public sealed class ContentSetTests
         MapService rest = Assert.Single(hub.Services, service => service.Kind == ServiceKind.Rest);
         MapService save = Assert.Single(hub.Services, service => service.Kind == ServiceKind.Save);
         Assert.Equal(hub.Npcs[0].Id.Value, rest.Npc?.Value);
+        Assert.Equal(10, rest.Price);
+        MapService shop = Assert.Single(hub.Services, service => service.Kind == ServiceKind.Shop);
+        Assert.Equal(hub.Npcs[4].Id.Value, shop.Npc?.Value);
+        Assert.Equal("shop.fixture_hub_trader", shop.Shop?.Value);
+        Assert.Single(hub.Npcs[4].Route);
         MapThing point = Assert.Single(hub.Things, thing => thing.Kind == MapThingKind.ServicePoint);
         Assert.Equal(point.Id.Value, save.Thing?.Value);
         Assert.Equal(hub.Time, set.Light.SetupOf(hub.Id, hub.Time).Time);

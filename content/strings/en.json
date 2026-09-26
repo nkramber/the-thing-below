@@ -302,6 +302,10 @@
    "text": "+{amount} {stat}"
   },
   {
+   "id": "battle.win_gold",
+   "text": "The party takes {amount} gold."
+  },
+  {
    "id": "battle.wiped",
    "text": "Nobody gets up."
   },

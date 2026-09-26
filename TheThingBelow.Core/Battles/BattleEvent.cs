@@ -113,6 +113,9 @@ public enum BattleEventKind
 
     /// <summary>A steal took a piece of gear. The target is the enemy, and the ability names the piece (D-1051).</summary>
     StealGear,
+
+    /// <summary>A win gave gold, the sum of the rolls of each fallen enemy. The actor is the party, and the amount is the gold (D-1157).</summary>
+    WinGold,
 }
 
 /// <summary>One event of a battle (D-168, D-532).</summary>
@@ -183,6 +186,7 @@ public static class BattleEvents
         BattleEventKind.Drop => "drop",
         BattleEventKind.DropLost => "drop lost",
         BattleEventKind.StealGear => "steal gear",
+        BattleEventKind.WinGold => "win gold",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "the value names no battle event (D-532)"),
     };
 }
