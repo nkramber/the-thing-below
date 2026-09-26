@@ -1,3 +1,33 @@
+## Session 342: 2026-09-26, Codex
+
+Author: Codex
+Session: repeat review PR #87 after the P2-1 correction. Repository: the-thing-below. Branch: `review/pr-87`. PR: #87. Role: reviewer. Base: `f383aa9`.
+
+### What this session did, and why
+
+- Verified that the runner checks each state and that the tick 7 regression test records and replays the softlock (D-1179, T-3).
+- Marked P2-1 fixed in `docs/reviews/pr-87.md`. Verified the current Gitar CI-analysis claim against run `36279907132`; the log names RG 4 and RG 5 from the prior review record (D-964).
+
+### The state of the build
+
+- The local build, 17 focused tests, format, and STE check pass. CI run `36279906549` passes substantive jobs on every leg. The remote head before this metadata commit is `f812808`.
+
+### What is in flight
+
+- This metadata commit and its push. The PR then waits for the owner merge.
+
+### Traps and gotchas
+
+- Review-gate run `36279907132` reads the prior review record. RG 4 and RG 5 wait for this update.
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+The owner reads the updated record and confirms the merge.
+
 ## Session 341: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -299,36 +329,3 @@ None. OQ-121 is resolved by D-1149 to D-1155.
 ### The next concrete action
 
 The owner reads the review record and confirms the merge.
-## Session 332: 2026-09-26, Claude Code
-
-Author: Claude Code
-Session: author PR #85 (PR-65), round 6. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: #85. Role: author. Base: `8e81487`.
-
-### What this session did, and why
-
-- The owner asked for an empty line between the line of the values and the caption of the list in the gear window (D-1171). The head of the gear window takes six lines.
-- The owner then approved the frames of the shop and of the gear window, and directed the Codex review after a green CI run (D-1171).
-- The session read the gear frames of `make sheet FIXTURE=menu`.
-
-### The state of the build
-
-- Every local check passes. Ten tests fail alone: the baselines of the ten shop frames, which come from the `screen-captures` artifact of CI.
-- Gitar approved round 5 with no thread. The remote head is the push of this round.
-
-### What is in flight
-
-- The CI run of this push, then the baselines of its `screen-captures` artifact: each new shop frame and each menu frame that changed.
-- The answer to the CI claim of Gitar (RG 3 before the review), and `make codex-review PR=85` after a green CI run.
-
-### Traps and gotchas
-
-- The review-gate check fails on RG 3 alone until the review record lands. Each other check turns green with the baselines.
-- Perl substitutions with braces in C# text fail. Use the Edit tool for each change of C# text.
-
-### The questions that block progress
-
-None. The text batch in the PR waits for the approval of the owner at the merge summary (D-57).
-
-### The next concrete action
-
-Commit the baselines of the CI artifact, push, wait for green checks, and run `make codex-review PR=85`.

@@ -1,4 +1,38 @@
 # Session handoff archive
+## Session 332: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #85 (PR-65), round 6. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: #85. Role: author. Base: `8e81487`.
+
+### What this session did, and why
+
+- The owner asked for an empty line between the line of the values and the caption of the list in the gear window (D-1171). The head of the gear window takes six lines.
+- The owner then approved the frames of the shop and of the gear window, and directed the Codex review after a green CI run (D-1171).
+- The session read the gear frames of `make sheet FIXTURE=menu`.
+
+### The state of the build
+
+- Every local check passes. Ten tests fail alone: the baselines of the ten shop frames, which come from the `screen-captures` artifact of CI.
+- Gitar approved round 5 with no thread. The remote head is the push of this round.
+
+### What is in flight
+
+- The CI run of this push, then the baselines of its `screen-captures` artifact: each new shop frame and each menu frame that changed.
+- The answer to the CI claim of Gitar (RG 3 before the review), and `make codex-review PR=85` after a green CI run.
+
+### Traps and gotchas
+
+- The review-gate check fails on RG 3 alone until the review record lands. Each other check turns green with the baselines.
+- Perl substitutions with braces in C# text fail. Use the Edit tool for each change of C# text.
+
+### The questions that block progress
+
+None. The text batch in the PR waits for the approval of the owner at the merge summary (D-57).
+
+### The next concrete action
+
+Commit the baselines of the CI artifact, push, wait for green checks, and run `make codex-review PR=85`.
+
 ## Session 331: 2026-09-26, Claude Code
 
 Author: Claude Code
