@@ -1,3 +1,35 @@
+## Session 335: 2026-09-26, Codex
+
+Author: Codex
+Session: reviewer PR #86. Repository: the-thing-below. Branch: `review/pr-86`. PR: #86. Role: reviewer. Base: `6f02d3d`.
+
+### What this session did, and why
+
+- The review found P2-1: a repeated line id can leave the previous speaker's portrait and name on screen (D-223, D-997).
+- The review records `Changes required` for effective head `cd1d452` (T-4, D-17).
+- The `docs/reviews/` Documents row now names `docs/reviews/pr-86.md` (D-581).
+
+### The state of the build
+
+- `make verify` passes on macOS with 3,937 tests. CI run `36271984962` passes every job except `review-gate`, which awaited this review record. The remote head before the metadata commit is `cd1d452`.
+
+### What is in flight
+
+- The author must correct P2-1, add its regression test, and request a repeat review.
+
+### Traps and gotchas
+
+- The CI capture artifact is the visual source for screen review (D-733). The local renderer does not reproduce its baselines.
+- The clean Gitar approval has no item. The CI analysis claim is RG 3 alone (D-964).
+
+### The questions that block progress
+
+None. OQ-250 concerns the pause of a story-scene fight and blocks no PR yet.
+
+### The next concrete action
+
+The author corrects P2-1 and requests a repeat review of PR #86.
+
 ## Session 334: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -306,35 +338,3 @@ None. OQ-249 blocks PR-17.
 ### The next concrete action
 
 After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
-
-## Session 325: 2026-09-26, Codex
-
-Author: Codex
-Session: reviewer PR #84 (PR-14). Repository: the-thing-below. Local branch: `review/pr-84`; PR branch: `feat/pr-14-hub`. PR: #84. Role: reviewer. Base: `c7e6191`.
-
-### What this session did, and why
-
-- Reviewed effective head `6c7837f` and wrote `docs/reviews/pr-84.md`.
-- Verified the Gitar CI-analysis answer: RG 3 alone failed because the review record was absent. The author answered the item, and the CI log confirms the cause (D-964).
-- `make verify` passed with 3,803 tests. Inspected the CI screen captures for the hub, Rest, Save, Party, and main-list frames (D-784).
-- Corrected the PR Documents row to name `docs/reviews/pr-84.md`.
-
-### The state of the build
-
-- The effective head is `6c7837f`. The metadata tip is `ba92a31`, and its fresh `review-gate` check passed. All implementation checks passed on the effective head.
-
-### What is in flight
-
-- This entry and the review record are published on `feat/pr-14-hub`. The fresh Gitar pass has no item, and the live `review-gate` passed.
-
-### Traps and gotchas
-
-- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
-
-### The questions that block progress
-
-OQ-249 remains open for PR-17.
-
-### The next concrete action
-
-Verify the final metadata push, then end this review session.
