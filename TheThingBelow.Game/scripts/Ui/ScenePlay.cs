@@ -59,6 +59,7 @@ public sealed class ScenePlay
     private SceneStep? stepOnScreen;
     private ContentId? lastLine;
     private SceneActor? lastSpeaker;
+    private int lastLineStep = -1;
 
     /// <summary>Builds the follower of story scenes, with no story scene on screen.</summary>
     /// <param name="strings">The string table, which gives the length of each line for its type-out (D-709).</param>
@@ -83,6 +84,15 @@ public sealed class ScenePlay
     /// <summary>The line of the dialogue box, or no value when the box hides (D-223, D-1175).</summary>
     /// <remarks>A choice keeps the last line of the story scene in the box (D-1175).</remarks>
     public ContentId? Line { get; private set; }
+
+    /// <summary>The story scene on screen, or no value.</summary>
+    public ContentId? Scene => this.scene;
+
+    /// <summary>
+    /// The index of the say step whose line shows, or -1 when the box hides. Two say steps can show
+    /// one line with two speakers, so the box draws again on each new step (D-223, D-997).
+    /// </summary>
+    public int LineStep { get; private set; } = -1;
 
     /// <summary>The speaker of <see cref="Line"/>, or no value for a line with no speaker (D-997).</summary>
     public SceneActor? Speaker { get; private set; }
@@ -338,6 +348,7 @@ public sealed class ScenePlay
         {
             this.lastLine = null;
             this.lastSpeaker = null;
+            this.lastLineStep = -1;
             this.cameraHeld = false;
             this.view ??= this.LeadView(party);
         }
@@ -361,16 +372,20 @@ public sealed class ScenePlay
                 this.Speaker = say.Speaker;
                 this.lastLine = say.Line;
                 this.lastSpeaker = say.Speaker;
+                this.LineStep = story.Step;
+                this.lastLineStep = story.Step;
                 break;
             case ChooseStep choose when this.phase == ScenePhase.Pick:
                 // The last line of the story scene stays in the box over the choice (D-1175).
                 this.Line = this.lastLine;
                 this.Speaker = this.lastSpeaker;
+                this.LineStep = this.lastLineStep;
                 this.Options = choose.Options;
                 break;
             default:
                 this.Line = null;
                 this.Speaker = null;
+                this.LineStep = -1;
                 break;
         }
     }
@@ -410,6 +425,8 @@ public sealed class ScenePlay
         this.step = -1;
         this.lastLine = null;
         this.lastSpeaker = null;
+        this.lastLineStep = -1;
+        this.LineStep = -1;
         this.stepOnScreen = null;
         this.Line = null;
         this.Speaker = null;

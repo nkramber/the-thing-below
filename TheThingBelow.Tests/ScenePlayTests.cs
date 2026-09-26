@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
@@ -70,6 +71,42 @@ public sealed class ScenePlayTests
         Assert.False(play.Run.State.Story.Flags.IsOn(Id("flag.fixture_hub_yes")));
         play.Until(() => !play.Run.State.Story.Running && play.View is null, play.PressWhenTyped);
         Assert.Contains(play.Run.Record().Ticks.SelectMany(tick => tick.Intents), intent => intent.Option == 1 && string.CompareOrdinal(intent.Action.Value, IntentIds.StoryPick.Value) == 0);
+    }
+
+    [Fact]
+    public void ASecondSpeakerOfTheSameLineDrawsItsPortraitAndItsNameAgain()
+    {
+        // A regression test of P2-1 of the review of PR-86 (D-223, D-997): the box drew the speaker
+        // again on a new line id alone, so a second speaker of the same line kept the first portrait.
+        // The content gives the line of the stranger to the barmaid on the next step.
+        List<ContentFile> files = [.. ContentFolder.Read(RepositoryRoot.Find())];
+        int place = files.FindIndex(file => file.Path.EndsWith("fixture-hub-stranger.json", StringComparison.Ordinal));
+        string text = Encoding.UTF8.GetString(files[place].Bytes).Replace(
+            """{ "id": "step.stranger_presses", "kind": "say", "speaker": "npc.fixture_hub_stranger", "line": "line.fixture_hub_stranger_ask" }""",
+            """{ "id": "step.stranger_presses", "kind": "say", "speaker": "npc.fixture_hub_barmaid", "line": "line.fixture_hub_stranger_brother" }""",
+            StringComparison.Ordinal);
+        Assert.Contains("npc.fixture_hub_barmaid\", \"line\": \"line.fixture_hub_stranger_brother", text, StringComparison.Ordinal);
+        files[place] = new ContentFile(files[place].Path, Encoding.UTF8.GetBytes(text));
+        Play play = Play.AtTheStranger(ContentSet.Load(files));
+        GameValue change = GameValue.New("DialogueChange");
+
+        play.Until(() => play.Speaker?.Id?.Value == Stranger.Value, () =>
+        {
+            _ = change.Call("Take", play.Follower);
+            play.PressWhenTyped();
+        });
+        Assert.Equal("line.fixture_hub_stranger_brother", play.Line?.Value);
+        _ = change.Call("Take", play.Follower);
+
+        play.Until(() => play.Speaker?.Id?.Value == "npc.fixture_hub_barmaid", () =>
+        {
+            play.PressWhenTyped();
+        });
+        object parts = change.Call("Take", play.Follower)!;
+
+        Assert.Equal("line.fixture_hub_stranger_brother", play.Line?.Value);
+        Assert.True((bool)parts.GetType().GetProperty("Speaker")!.GetValue(parts)!, "The second speaker of the same line drew no portrait and no name.");
+        Assert.True((bool)parts.GetType().GetProperty("Line")!.GetValue(parts)!, "The new say step drew its line in no new type-out.");
     }
 
     [Fact]
@@ -223,12 +260,15 @@ public sealed class ScenePlayTests
         private readonly object run;
         private readonly GameValue play;
 
-        private Play(Type runType, object run)
+        private Play(Type runType, object run, ContentSet content)
         {
             this.runType = runType;
             this.run = run;
-            this.play = GameValue.New("ScenePlay", Content.Value.Strings, 640, 360);
+            this.play = GameValue.New("ScenePlay", content.Strings, 640, 360);
         }
+
+        /// <summary>The follower of the story scene, for a class of Game that reads it.</summary>
+        public object Follower => this.play.Value;
 
         public RunView Run => new(this.runType, this.run);
 
@@ -252,12 +292,15 @@ public sealed class ScenePlayTests
         }
 
         /// <summary>Starts a run, and enters the fixture hub with the debug command `goto` (D-1133).</summary>
-        public static Play AtHub()
+        public static Play AtHub() => AtHub(Content.Value);
+
+        /// <summary>Starts a run on one content set, and enters the fixture hub with the debug command `goto` (D-1133).</summary>
+        public static Play AtHub(ContentSet content)
         {
             Type type = GameAssemblyFile.Type("TheThingBelow.Game.GameRun");
             MethodInfo start = type.GetMethod("Start", [typeof(ContentSet), typeof(ulong), typeof(DebugIntentHandlers), typeof(MessageSpeed)])
                 ?? throw new InvalidOperationException("The run holds no 'Start' method (T-2).");
-            var made = new Play(type, start.Invoke(null, [Content.Value, Seed, DebugAssemblyFile.Handlers(), MessageSpeed.Normal])!);
+            var made = new Play(type, start.Invoke(null, [content, Seed, DebugAssemblyFile.Handlers(), MessageSpeed.Normal])!, content);
             _ = DebugAssemblyFile.Run("goto map.fixture_hub", () => made.Run.State, made.Queue);
             made.Frame();
             Assert.Equal("map.fixture_hub", made.Run.State.Party.Map.Id.Value);
@@ -265,9 +308,12 @@ public sealed class ScenePlayTests
         }
 
         /// <summary>Walks from the spawn point at (4, 6) to the trigger at (4, 7), and waits for the first line.</summary>
-        public static Play AtTheStranger()
+        public static Play AtTheStranger() => AtTheStranger(Content.Value);
+
+        /// <summary>Walks from the spawn point at (4, 6) to the trigger at (4, 7) on one content set, and waits for the first line.</summary>
+        public static Play AtTheStranger(ContentSet content)
         {
-            Play made = AtHub();
+            Play made = AtHub(content);
             made.Walk(IntentIds.MoveSouth, 1);
             made.Until(() => made.Line is not null, () => { });
             return made;

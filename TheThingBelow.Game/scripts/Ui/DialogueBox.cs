@@ -28,8 +28,7 @@ public sealed class DialogueBox
     private readonly List<Label> choices = [];
     private readonly Color chosenColor;
     private readonly int body;
-    private ContentId? shownLine;
-    private string? shownSpeaker;
+    private readonly DialogueChange change = new();
     private IReadOnlyList<ChooseOption>? shownOptions;
 
     /// <summary>Builds the dialogue box over the frame, hidden.</summary>
@@ -97,17 +96,26 @@ public sealed class DialogueBox
     {
         ArgumentNullException.ThrowIfNull(play);
 
-        if (hidden || play.Line is not ContentId shown)
+        if (hidden)
         {
             this.layer.Visible = false;
-            this.shownLine = null;
             return;
         }
 
-        if (this.shownLine is null || string.CompareOrdinal(this.shownLine.Value, shown.Value) != 0)
+        DialogueParts parts = this.change.Take(play);
+        if (play.Line is not ContentId shown)
+        {
+            this.layer.Visible = false;
+            return;
+        }
+
+        if (parts.Line)
         {
             this.ui.Text.Put(this.line, shown);
-            this.shownLine = shown;
+        }
+
+        if (parts.Speaker)
+        {
             this.ShowSpeaker(play.Speaker);
         }
 
@@ -158,25 +166,18 @@ public sealed class DialogueBox
         return window;
     }
 
-    /// <summary>Shows the portrait and the name plate of the speaker, or hides them for a line with no speaker (D-223, D-997).</summary>
+    /// <summary>Shows the portrait and the name plate of the speaker, or hides them for a line with no speaker (D-223, D-997). <see cref="Show"/> calls it when <see cref="DialogueChange"/> gives a new speaker.</summary>
     private void ShowSpeaker(SceneActor? speaker)
     {
         if (speaker is null)
         {
             this.portraitWindow.Visible = false;
-            this.shownSpeaker = null;
             return;
         }
 
-        string key = speaker.Describe();
-        if (string.CompareOrdinal(this.shownSpeaker, key) != 0)
-        {
-            AtlasEntry entry = this.ui.Atlas.Index.Entry(ScenePlay.ArtIdOf(speaker), ScenePlay.PortraitUse);
-            this.portrait.Texture = this.ui.Atlas.Frame(entry.Id, 0);
-            this.ui.Text.Put(this.name, ScenePlay.NameIdOf(speaker));
-            this.shownSpeaker = key;
-        }
-
+        AtlasEntry entry = this.ui.Atlas.Index.Entry(ScenePlay.ArtIdOf(speaker), ScenePlay.PortraitUse);
+        this.portrait.Texture = this.ui.Atlas.Frame(entry.Id, 0);
+        this.ui.Text.Put(this.name, ScenePlay.NameIdOf(speaker));
         this.portraitWindow.Visible = true;
     }
 
