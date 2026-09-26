@@ -1,4 +1,41 @@
 # Session handoff archive
+## Session 327: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR-65, round 1. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: the one PR of PR-65, with no GitHub number before the push. Role: author. Base: `8e81487`.
+
+### What this session did, and why
+
+- The owner answered OQ-121 and the questions that the work raised: D-1149 to D-1164. OQ-121 is resolved.
+- Core: the shop file with the types and the stocks, a value on each item and gear record, the shop kind of a service, and the price of a rest. The buy and the sale rules, the stock of each shop in the save, and the gold of a fight.
+- The save format rises to 16, and the simulation version rises to 32 (G-17). The `gold` debug command sets the gold (D-1162).
+- Game: the shop window, the gold panel, the priced rest, and the gold line of a win. The captures add the buy list, the count, and the sale list at both body sizes.
+- The session read each frame at 1x of `make sheet FIXTURE=menu`: the shop frames, the rest, and the main list. The frames read well.
+
+### The state of the build
+
+- Every local check passes: build, test, format, det-lint, atlas, STE, and the smoke session. Six tests fail alone: the baselines of the new shop frames, which come from the `screen-captures` artifact of CI.
+- The remote head is the push of this round. The content hash and the replay identity file hold the new values.
+
+### What is in flight
+
+- The CI run of the first push. Take the six shop baselines and each changed menu baseline from the CI artifact, read each one, and commit them.
+- The Gitar pass, then `make codex-review`.
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at the first frame of 1080 rows, because the screen gives 1920 by 955. Read the frames at 1080 rows in the CI artifact.
+- Each menu frame except the map now sends `gold 250` first, so each menu baseline changes.
+- The fixture shop lists the bolt, which the start pack holds, so the list hides it (D-1153). The Core tests sell a lesson that the party lacks.
+
+### The questions that block progress
+
+None. The owner reads the shop captures before the review (D-1164). The text batch of the shop waits for the approval of the owner (D-57).
+
+### The next concrete action
+
+Open the PR, run the Gitar poll, and commit the baselines of the CI artifact.
+
 ## Session 326: 2026-09-26, Claude Code
 
 Author: Claude Code
