@@ -5,8 +5,8 @@ using TheThingBelow.Core.Content;
 namespace TheThingBelow.Game.Ui;
 
 /// <summary>
-/// The pause of a fight: a dim over the whole frame, and "Paused" in the middle (D-1083). The
-/// pause of a story scene takes the same look when PR-36 draws it (D-1009, D-1010).
+/// The pause of a fight or of a story scene: a dim over the whole frame, and "Paused" in the
+/// middle (D-1009, D-1010, D-1083).
 /// </summary>
 /// <remarks>
 /// The view sits on the top layer of the frame, above the pass of the hand-off, so a pause

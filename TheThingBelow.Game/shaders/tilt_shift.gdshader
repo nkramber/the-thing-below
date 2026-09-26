@@ -5,9 +5,9 @@
 //
 // A band at the top and a band at the bottom of the view blur the scene, and the blur grows
 // from no blur at the inner edge of a band to the full radius at the edge of the view. The
-// middle of the view stays sharp. The view reads the scene with a linear filter, and each sharp
-// pixel reads the middle of its art pixel, so the filter never softens it. The shader never
-// reads TIME (F-100).
+// rows around the focus stay sharp, and the focus follows the row of the lead (D-1173). The
+// view reads the scene with a linear filter, and each sharp pixel reads the middle of its art
+// pixel, so the filter never softens it. The shader never reads TIME (F-100).
 shader_type canvas_item;
 render_mode unshaded;
 
@@ -27,16 +27,21 @@ uniform int band = 0;
 // The radius of the blur at the edge of the view, in art pixels. A radius of 0 draws no blur.
 uniform int radius = 0;
 
-// Gives the part of the full blur at one row of the scene: 0 in the middle of the view, and 1
-// at the top edge and at the bottom edge.
+// The row of the scene that the sharp area centers on, in art pixels. The middle of the view, 180,
+// gives the bands of the file at the top and at the bottom. A higher focus moves both bands down.
+uniform int focus = 180;
+
+// Gives the part of the full blur at one row of the scene: 0 at the focus, and 1 one band past
+// the sharp area. With the focus in the middle, that is the top edge and the bottom edge.
 float depth_of(float row) {
 	if (band <= 0) {
 		return 0.0;
 	}
 
 	float size = float(band);
-	float top = (size - row) / size;
-	float bottom = (row - (SCENE.y - size)) / size;
+	float shifted = row - float(focus) + (SCENE.y * 0.5);
+	float top = (size - shifted) / size;
+	float bottom = (shifted - (SCENE.y - size)) / size;
 	return clamp(max(top, bottom), 0.0, 1.0);
 }
 

@@ -105,6 +105,8 @@ public partial class Boot : Node
     private MenuHost? menus;
     private NoticeBox? noticeBox;
     private PauseView? pause;
+    private DialogueBox? dialogue;
+    private ScenePlay? scenePlay;
     private SettingsStore? settingsStore;
     private GameSettings? settings;
     private SettingsRefusal? refusedSettings;
@@ -168,16 +170,22 @@ public partial class Boot : Node
                 this.ReloadAfterWipe();
             }
 
+            this.FollowScene(this.run);
             this.FollowMapScreen(this.run);
             this.FollowBattleScreen();
             if (this.battle is null)
             {
-                this.map?.ShowParty(this.run.Party, this.run.DrawnTickPart, this.run.Tick, this.run.TorchHeld);
+                this.map?.ShowParty(this.run.Party, this.run.DrawnTickPart, this.run.Tick, this.run.TorchHeld, this.scenePlay, this.run.State.Story);
                 this.map?.ShowWeather(this.run.Tick, seek: false);
             }
 
             this.ShowHandOff(this.run);
-            this.pause?.Show(this.run.FightPaused);
+            this.pause?.Show(this.run.FightPaused || this.run.State.Story.Paused);
+            if (this.scenePlay is ScenePlay play)
+            {
+                this.dialogue?.Show(play, hidden: this.battle is not null || this.run.MenuOpen);
+            }
+
             this.ShowMenuAndNotice(this.run);
         }
         catch (Exception fault)
@@ -504,6 +512,7 @@ public partial class Boot : Node
         // The capture session of the screen-test job builds the same map (D-172, D-734).
         this.map = MapFixture.Build(built, built_ui, open, loaded);
         this.noticeBox = new NoticeBox(built, built_ui);
+        this.dialogue = new DialogueBox(built, built_ui);
         this.pause = new PauseView(built, built_ui);
 
         // A new frame keeps the windows of the menu open, so a change of the fit from the
@@ -545,6 +554,7 @@ public partial class Boot : Node
 
         // The menu of the old run ends with it, and the new run builds its own (D-776).
         this.menus = null;
+        this.scenePlay = null;
         this.RebuildScreen(loaded);
         this.WriteLog([new LogEntry(
             LogLevel.Info,
@@ -666,6 +676,7 @@ public partial class Boot : Node
         this.map = null;
         this.battle = null;
         this.noticeBox = null;
+        this.dialogue = null;
         this.pause = null;
         this.console = null;
         this.settingsNotice = null;
@@ -947,11 +958,12 @@ public partial class Boot : Node
 
     /// <summary>
     /// Tells whether the quit key ends this session: a development build with a run on the
-    /// map and no menu (D-813). A release build reads the key as cancel alone.
+    /// map, no menu, and no story scene (D-813). A release build reads the key as cancel alone.
     /// </summary>
     /// <returns>True when the quit key ends the session.</returns>
+    /// <remarks>The back action ends the pause of a story scene, and Escape is a key of that action (D-1010).</remarks>
     private bool QuitAllowed() =>
-        DebugSeam.IsDevelopmentBuild && this.run is not null && !this.run.MenuOpenNextTick;
+        DebugSeam.IsDevelopmentBuild && this.run is not null && !this.run.MenuOpenNextTick && !this.run.StoryRunning;
 
     /// <summary>Does what the route of one key event asks (D-725, D-813).</summary>
     /// <param name="route">The route, other than <see cref="KeyRoute.Game"/>.</param>
@@ -1099,6 +1111,14 @@ public partial class Boot : Node
             return;
         }
 
+        // A story scene out of its fight takes every action: the confirm, the cursor of a choice,
+        // and the pause (D-1009, D-1010). A fight of a story scene is a fight (D-999).
+        if (run.StoryRunning && !run.InBattle)
+        {
+            this.ReadStory(run, signal);
+            return;
+        }
+
         // While a character has the turn, the command menu takes every action. A move of its
         // cursor makes no intent, and a whole choice makes one (D-493, D-827).
         if (this.battle?.Commands is not null)
@@ -1183,6 +1203,83 @@ public partial class Boot : Node
             }
 
             return;
+        }
+    }
+
+    /// <summary>
+    /// Follows the story scene after the ticks of this frame, at the text speed of the settings, and
+    /// queues the wait intent of each step that Game animated to its end (D-540, D-864, D-1000).
+    /// </summary>
+    /// <param name="open">The run.</param>
+    /// <exception cref="InvalidOperationException">The session read no settings or loaded no content (T-2).</exception>
+    private void FollowScene(GameRun open)
+    {
+        GameSettings chosen = this.settings ?? throw new InvalidOperationException(
+            $"The story scene follows the run at tick {open.Tick}, and the session read no settings (T-2).");
+        ContentSet loaded = this.content ?? throw new InvalidOperationException(
+            $"The story scene follows the run at tick {open.Tick}, and the session loaded no content (T-2).");
+
+        ScenePlay play = this.scenePlay ??= new ScenePlay(loaded.Strings, FrameRoot.WorldWidth, FrameRoot.WorldHeight);
+        play.CharactersPerSecond = TextSpeeds.CharactersPerSecond(chosen.Access.Text);
+        play.Follow(open);
+    }
+
+    /// <summary>
+    /// Reads one event of a story scene (D-864, D-1009, D-1174, D-1175). The menu action pauses, and
+    /// the menu action or the back action ends the pause. Confirm shows the whole line, ends it, or
+    /// picks the option under the cursor. The mouse points at a choice and clicks it (D-219).
+    /// </summary>
+    /// <param name="run">The run, with a story scene out of its fight.</param>
+    /// <param name="signal">The event of this frame.</param>
+    /// <exception cref="InvalidOperationException">The session built no frame, no box, or no follower of the story scene (T-2).</exception>
+    private void ReadStory(GameRun run, InputEvent signal)
+    {
+        ScenePlay play = this.scenePlay ?? throw new InvalidOperationException(
+            $"A story scene reads input at tick {run.Tick}, and the session follows no story scene (T-2).");
+        DialogueBox box = this.dialogue ?? throw new InvalidOperationException(
+            $"A story scene reads input at tick {run.Tick}, and the session built no dialogue box (T-2).");
+        FrameRoot built = this.frame ?? throw new InvalidOperationException(
+            $"A story scene reads input at tick {run.Tick}, and the session built no frame (T-2).");
+
+        if (signal is InputEventMouse)
+        {
+            if (box.ReadMouse(signal, built.Fit, play) && play.Confirm(run) is Intent picked)
+            {
+                run.Queue(picked);
+            }
+
+            return;
+        }
+
+        bool menu = signal.IsActionPressed(InputActions.Menu);
+        bool back = signal.IsActionPressed(InputActions.Cancel) || signal.IsActionPressed("ui_cancel");
+        if (menu || (back && play.Paused))
+        {
+            if (play.PauseOf(run, menu) is Intent made)
+            {
+                run.Queue(made);
+                this.WriteLog([new LogEntry(
+                    LogLevel.Info,
+                    play.Paused ? "the player ended the pause of the story scene" : "the player paused the story scene",
+                    run.Tick,
+                    LogSubsystems.Game,
+                    [new LogField("intent", made.Action.Value)])]);
+            }
+
+            return;
+        }
+
+        if (signal.IsActionPressed("ui_up"))
+        {
+            play.MoveCursor(-1);
+        }
+        else if (signal.IsActionPressed("ui_down"))
+        {
+            play.MoveCursor(1);
+        }
+        else if ((signal.IsActionPressed(InputActions.Confirm) || signal.IsActionPressed("ui_accept")) && play.Confirm(run) is Intent made)
+        {
+            run.Queue(made);
         }
     }
 

@@ -86,6 +86,7 @@ Area files: `area-story.md` section 7.7, `area-progression.md` section 7.6.
 - The personal task of each character, and the story flag that unlocks a side aptitude (D-282, D-538).
 - The close of a missed task at the end of its region, and the result in the save (D-375).
 - The quest window in the stack of PR-62.
+- The hub lines that the dialogue box of PR-36 shows, and the change of a hub line with a story flag (D-329, D-1176).
 
 **Out of scope.**
 

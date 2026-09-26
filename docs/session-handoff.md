@@ -1,3 +1,138 @@
+## Session 337: 2026-09-26, Codex
+
+Author: Codex
+Session: repeat review PR #86 (PR-36). Repository: the-thing-below. Local branch: `review/pr-86`; PR branch: `feat/pr-36-dialogue`. PR: #86. Role: reviewer. Base: `6f02d3d`.
+
+### What this session did, and why
+
+- Re-reviewed effective head `6b1b7d5`. The same line now redraws for each say step, and the portrait and name redraw when the speaker changes (D-223, D-997).
+- The regression test reaches two speakers of the same line id. It passes with the correction. P2-1 is fixed in `docs/reviews/pr-86.md`.
+- The CI-analysis claim of Gitar names RG 4 and RG 5. The workflow log confirms that the prior review record still held the old verdict and head (D-964).
+- The record keeps the earlier `Changes required` verdict and gives `Ready for owner merge` for the current effective head (T-4, D-17).
+
+### The state of the build
+
+- `make verify` passes with 3,938 tests, format, det-lint, STE, replay identity, content hash, atlas, and smoke. CI run `36273874604` passes all checks except `review-gate`, which waits for this review record. The remote head before the metadata commit is `6b1b7d5`.
+
+### What is in flight
+
+- This session commits the review record and handoff as one metadata commit, then verifies the push.
+- The PR waits for the owner merge (D-930).
+
+### Traps and gotchas
+
+- The correction changes no capture content. The CI artifact of run `36271984962` remains the visual evidence for the earlier screen changes (D-733).
+- The clean Gitar approval has no item. The actionable CI analysis names RG 4 and RG 5 (D-964).
+
+### The questions that block progress
+
+None. OQ-250 blocks no PR yet.
+
+### The next concrete action
+
+The owner reads the review record and confirms the merge.
+
+## Session 336: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #86 (PR-36), round 2. Repository: the-thing-below. Branch: `feat/pr-36-dialogue`. PR: #86. Role: author. Base: `6f02d3d`.
+
+### What this session did, and why
+
+- The review of `cd1d452` gave `Changes required` for P2-1: the box drew the speaker again on a new line id alone, so a second speaker of the same line kept the first portrait (D-223, D-997).
+- Full merit. `DialogueChange` now decides each redraw with no engine type: the line on each new say step, and the speaker on each change. `ScenePlay.LineStep` names the say step of the line.
+- `ScenePlayTests.ASecondSpeakerOfTheSameLineDrawsItsPortraitAndItsNameAgain` failed on the old rule and passes now. `docs/reviews/pr-86-response.md` records the answer.
+- Gitar approved `e9ff621` and `cd1d452` with no thread. Its CI analysis made four claims, and two PR comments answer them: the baselines, RG 3 two times, and the coverage job.
+
+### The state of the build
+
+- The full suite passes: 3,938 tests. `dotnet format` and det-lint report no finding. CI run `36271984962` passed every job of `cd1d452` but `review-gate`. The remote head is the push of this round.
+
+### What is in flight
+
+- The Gitar pass and CI of this round, then `make codex-review PR=86`.
+
+### Traps and gotchas
+
+- The correction draws no capture differently, so each baseline stands.
+- `DialogueChange` resets when the box hides, so the next line draws in full.
+
+### The questions that block progress
+
+None. OQ-250 blocks no PR yet.
+
+### The next concrete action
+
+When CI is green but `review-gate` and Gitar completes, run `make codex-review PR=86` in the background.
+
+## Session 335: 2026-09-26, Codex
+
+Author: Codex
+Session: reviewer PR #86. Repository: the-thing-below. Branch: `review/pr-86`. PR: #86. Role: reviewer. Base: `6f02d3d`.
+
+### What this session did, and why
+
+- The review found P2-1: a repeated line id can leave the previous speaker's portrait and name on screen (D-223, D-997).
+- The review records `Changes required` for effective head `cd1d452` (T-4, D-17).
+- The `docs/reviews/` Documents row now names `docs/reviews/pr-86.md` (D-581).
+
+### The state of the build
+
+- `make verify` passes on macOS with 3,937 tests. CI run `36271984962` passes every job except `review-gate`, which awaited this review record. The remote head before the metadata commit is `cd1d452`.
+
+### What is in flight
+
+- The author must correct P2-1, add its regression test, and request a repeat review.
+
+### Traps and gotchas
+
+- The CI capture artifact is the visual source for screen review (D-733). The local renderer does not reproduce its baselines.
+- The clean Gitar approval has no item. The CI analysis claim is RG 3 alone (D-964).
+
+### The questions that block progress
+
+None. OQ-250 concerns the pause of a story-scene fight and blocks no PR yet.
+
+### The next concrete action
+
+The author corrects P2-1 and requests a repeat review of PR #86.
+
+## Session 334: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR-36, round 1. Repository: the-thing-below. Branch: `feat/pr-36-dialogue`. PR: #86. Role: author. Base: `6f02d3d`.
+
+### What this session did, and why
+
+- The owner answered OQ-150 and OQ-151, folded the playtest fixes of PR-65 into PR-36, and set the text batch and the scope (D-1172 to D-1178). OQ-250 is new.
+- Core: a choice holds two to four options, and the simulation version rises to 33 (D-1175, G-17).
+- Game: `ScenePlay` follows each step from the ticks and sends one wait intent at its end. `DialogueBox` draws the line, the portrait, the name plate, and the choices. The map walks each actor, and the story pause dims the frame (D-1009, D-1013).
+- A set fight takes its transition with no encounter: the boss flag, then the largest body of the group (D-788, D-937).
+- Fixes: WASD and Backspace in menus, the "Quantity" label, sharp titles (F-153), the empty line of a service window, and the blur band on the lead or the camera marker (D-1173, D-1177).
+- Content: two fixture story scenes on tiles of the fixture hub, three fixture portraits, and the new portraits atlas page.
+
+### The state of the build
+
+- `make verify` passes locally. CI run `36271514085` failed on the baselines alone. This round commits 108 changed baselines and 5 new `scene-*` baselines from its `screen-captures` artifact (D-733). The remote head is the push of this round.
+
+### What is in flight
+
+- Gitar approved `e9ff621` with no finding. Its CI analysis named the baselines, RG 3, and the coverage job, and a PR comment answers each claim. The baseline push needs a new Gitar pass and green CI.
+
+### Traps and gotchas
+
+- Core runs a whole move at once. `ScenePlay.TryWalk` walks the actor back from its end tile along the path.
+- Core refuses an intent that no step waits for. `ScenePlay` checks the queue and the queued pause before each intent.
+- The stranger trigger stands at (4, 7), off every walk to a service. A test walks each capture route and fails if a route crosses a trigger.
+
+### The questions that block progress
+
+None. OQ-250, the pause of the fight of a story scene, blocks no PR yet.
+
+### The next concrete action
+
+When CI is green except `review-gate` and Gitar completes, run `make codex-review PR=86` in the background.
+
 ## Session 333: 2026-09-26, Codex
 
 Author: Codex
@@ -203,132 +338,3 @@ The owner approves the shop frames before the review (D-1164). The text batch wa
 ### The next concrete action
 
 Wait for the approval of the owner. Then commit the baselines of the CI artifact, and run `make codex-review PR=85`.
-
-## Session 327: 2026-09-26, Claude Code
-
-Author: Claude Code
-Session: author PR-65, round 1. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: the one PR of PR-65, with no GitHub number before the push. Role: author. Base: `8e81487`.
-
-### What this session did, and why
-
-- The owner answered OQ-121 and the questions that the work raised: D-1149 to D-1164. OQ-121 is resolved.
-- Core: the shop file with the types and the stocks, a value on each item and gear record, the shop kind of a service, and the price of a rest. The buy and the sale rules, the stock of each shop in the save, and the gold of a fight.
-- The save format rises to 16, and the simulation version rises to 32 (G-17). The `gold` debug command sets the gold (D-1162).
-- Game: the shop window, the gold panel, the priced rest, and the gold line of a win. The captures add the buy list, the count, and the sale list at both body sizes.
-- The session read each frame at 1x of `make sheet FIXTURE=menu`: the shop frames, the rest, and the main list. The frames read well.
-
-### The state of the build
-
-- Every local check passes: build, test, format, det-lint, atlas, STE, and the smoke session. Six tests fail alone: the baselines of the new shop frames, which come from the `screen-captures` artifact of CI.
-- The remote head is the push of this round. The content hash and the replay identity file hold the new values.
-
-### What is in flight
-
-- The CI run of the first push. Take the six shop baselines and each changed menu baseline from the CI artifact, read each one, and commit them.
-- The Gitar pass, then `make codex-review`.
-
-### Traps and gotchas
-
-- `make sheet` stops on this Mac at the first frame of 1080 rows, because the screen gives 1920 by 955. Read the frames at 1080 rows in the CI artifact.
-- Each menu frame except the map now sends `gold 250` first, so each menu baseline changes.
-- The fixture shop lists the bolt, which the start pack holds, so the list hides it (D-1153). The Core tests sell a lesson that the party lacks.
-
-### The questions that block progress
-
-None. The owner reads the shop captures before the review (D-1164). The text batch of the shop waits for the approval of the owner (D-57).
-
-### The next concrete action
-
-Open the PR, run the Gitar poll, and commit the baselines of the CI artifact.
-
-## Session 326: 2026-09-26, Claude Code
-
-Author: Claude Code
-Session: author PR #84 (PR-14), round 4. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
-
-### What this session did, and why
-
-- The review of `make codex-review` gives `Ready for owner merge` for the effective head `6c7837f` in `docs/reviews/pr-84.md`, with no open finding.
-- Each check of `6c7837f` passed, and Gitar approved it with no thread. The author answered each claim of the CI analysis of Gitar.
-
-### The state of the build
-
-- The effective head is `6c7837f`, and the review approves it. This entry is a commit of the metadata set, so the approval stands (D-610).
-
-### What is in flight
-
-- The checks of this commit, and the merge confirmation of the owner (D-933, D-942).
-
-### Traps and gotchas
-
-- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
-
-### The questions that block progress
-
-None. OQ-249 blocks PR-17.
-
-### The next concrete action
-
-After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
-
-## Session 325: 2026-09-26, Codex
-
-Author: Codex
-Session: reviewer PR #84 (PR-14). Repository: the-thing-below. Local branch: `review/pr-84`; PR branch: `feat/pr-14-hub`. PR: #84. Role: reviewer. Base: `c7e6191`.
-
-### What this session did, and why
-
-- Reviewed effective head `6c7837f` and wrote `docs/reviews/pr-84.md`.
-- Verified the Gitar CI-analysis answer: RG 3 alone failed because the review record was absent. The author answered the item, and the CI log confirms the cause (D-964).
-- `make verify` passed with 3,803 tests. Inspected the CI screen captures for the hub, Rest, Save, Party, and main-list frames (D-784).
-- Corrected the PR Documents row to name `docs/reviews/pr-84.md`.
-
-### The state of the build
-
-- The effective head is `6c7837f`. The metadata tip is `ba92a31`, and its fresh `review-gate` check passed. All implementation checks passed on the effective head.
-
-### What is in flight
-
-- This entry and the review record are published on `feat/pr-14-hub`. The fresh Gitar pass has no item, and the live `review-gate` passed.
-
-### Traps and gotchas
-
-- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
-
-### The questions that block progress
-
-OQ-249 remains open for PR-17.
-
-### The next concrete action
-
-Verify the final metadata push, then end this review session.
-
-## Session 324: 2026-09-26, Claude Code
-
-Author: Claude Code
-Session: author PR #84 (PR-14), round 3. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
-
-### What this session did, and why
-
-- Gitar approved `ac14bc2`. The screen compare of `ac14bc2` matched 134 frames and missed the 4 baselines of `menu-rest` and `menu-save` alone.
-- The author read those 4 frames of the artifact (D-784). The lead faces the keeper under the Rest window, and the lead faces the waystone under the Save window, with no clip. This round commits the 4 baselines (D-733).
-
-### The state of the build
-
-- The head of this push holds every baseline. Each check but `review-gate` waits for this push.
-
-### What is in flight
-
-- The checks and the Gitar pass of this push, then `make codex-review PR=84` (D-926).
-
-### Traps and gotchas
-
-- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
-
-### The questions that block progress
-
-None. OQ-249 blocks PR-17.
-
-### The next concrete action
-
-When each check but `review-gate` passes and Gitar completes, run `make codex-review PR=84` in the background.

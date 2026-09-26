@@ -73,7 +73,7 @@ public sealed class ServiceView : IMenuView
             this.lines.Add(label);
         }
 
-        this.help = MenuNodes.Line(this.layer, left, box.Y + MenuLayout.Pad + (ServiceChoice.Options.Count * line), inner, line);
+        this.help = MenuNodes.Line(this.layer, left, box.Y + MenuLayout.Pad + (MenuLayout.ServiceHelpRow * line), inner, line);
         MenuNodes.Paint(this.help, this.dimColor);
         this.gold = choice.Kind == ServiceKind.Rest ? new GoldPanel(this.layer, ui, state, box) : null;
         this.Show();

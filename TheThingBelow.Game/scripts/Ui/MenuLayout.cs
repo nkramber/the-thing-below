@@ -58,11 +58,14 @@ public static class MenuLayout
     public static FrameBox MainListBox(int body) =>
         new(UiMetrics.EdgePixels, UiMetrics.EdgePixels, MainListWidth, (Pad * 2) + (LineOf(body) * MainList.Entries.Count));
 
-    /// <summary>Gives the place of the window of a hub service: one line for each choice, and the line of help (D-1131, D-1132).</summary>
+    /// <summary>The row of the line of help in the window of a hub service: an empty line stands between it and the last choice (D-1172).</summary>
+    public static readonly int ServiceHelpRow = ServiceChoice.Options.Count + 1;
+
+    /// <summary>Gives the place of the window of a hub service: one line for each choice, an empty line, and the line of help (D-1131, D-1132, D-1172).</summary>
     /// <param name="body">The body size, in frame pixels.</param>
     /// <returns>The box at the top left of the frame, where the main list stands when it is open.</returns>
     public static FrameBox ServiceBox(int body) =>
-        new(UiMetrics.EdgePixels, UiMetrics.EdgePixels, ServiceWidth, (Pad * 2) + (LineOf(body) * (ServiceChoice.Options.Count + 1)));
+        new(UiMetrics.EdgePixels, UiMetrics.EdgePixels, ServiceWidth, (Pad * 2) + (LineOf(body) * (ServiceHelpRow + 1)));
 
     /// <summary>Gives the place of the shop menu, where the main list stands: one line for each choice (D-1164).</summary>
     /// <param name="body">The body size, in frame pixels.</param>
@@ -105,6 +108,56 @@ public static class MenuLayout
     /// <returns>The box, in the middle of the top edge.</returns>
     public static FrameBox NoticePlace(int body) =>
         new((ScreenFit.FrameWidth - NoticeWidth) / 2, UiMetrics.EdgePixels, NoticeWidth, LineOf(body) + (NoticePad * 2));
+
+    /// <summary>The count of lines of the dialogue box: a dialogue line holds three lines at most (D-635).</summary>
+    public const int DialogueLines = 3;
+
+    /// <summary>The side of a portrait on screen: 64 art pixels at 2x (D-234).</summary>
+    public const int PortraitPixels = 128;
+
+    /// <summary>The width of the window of the portrait and the name plate: ten characters of a name at a body of 32.</summary>
+    public const int PortraitWidth = 192;
+
+    /// <summary>The width of the window of the choices, above the right end of the dialogue box (D-1175).</summary>
+    public const int ChoiceWidth = 640;
+
+    /// <summary>Gives the place of the dialogue box at the bottom of the frame: three lines across the width of the frame (D-114, D-223, D-635).</summary>
+    /// <param name="body">The body size, in frame pixels.</param>
+    /// <returns>The box, from the left edge to the right edge.</returns>
+    public static FrameBox DialogueBox(int body)
+    {
+        int height = (NoticePad * 2) + (LineOf(body) * DialogueLines);
+        return new(UiMetrics.EdgePixels, ScreenFit.FrameHeight - UiMetrics.EdgePixels - height, ScreenFit.FrameWidth - (UiMetrics.EdgePixels * 2), height);
+    }
+
+    /// <summary>Gives the place of the window of the portrait, with the name plate over the portrait, above the left end of the dialogue box (D-223).</summary>
+    /// <param name="body">The body size, in frame pixels.</param>
+    /// <returns>The box.</returns>
+    public static FrameBox PortraitBox(int body)
+    {
+        int height = (NoticePad * 2) + LineOf(body) + LineGap + PortraitPixels;
+        return new(UiMetrics.EdgePixels, DialogueBox(body).Y - WindowGap - height, PortraitWidth, height);
+    }
+
+    /// <summary>Gives the place of the window of the choices, above the right end of the dialogue box: one row for each option (D-1175).</summary>
+    /// <param name="body">The body size, in frame pixels.</param>
+    /// <param name="options">The count of options, from two to four.</param>
+    /// <returns>The box.</returns>
+    public static FrameBox ChoiceBox(int body, int options)
+    {
+        int height = (Pad * 2) + (LineOf(body) * options);
+        return new(ScreenFit.FrameWidth - UiMetrics.EdgePixels - ChoiceWidth, DialogueBox(body).Y - WindowGap - height, ChoiceWidth, height);
+    }
+
+    /// <summary>Gives the count of characters that one line of the dialogue box holds at a body size (D-635).</summary>
+    /// <param name="body">The body size, in frame pixels.</param>
+    /// <returns>The count of whole characters.</returns>
+    public static int DialogueCharacters(int body) => UiMetrics.CharactersAcross(body, DialogueBox(body).Width - (NoticePad * 2));
+
+    /// <summary>Gives the count of characters that one row of the window of the choices holds at a body size.</summary>
+    /// <param name="body">The body size, in frame pixels.</param>
+    /// <returns>The count of whole characters.</returns>
+    public static int ChoiceCharacters(int body) => UiMetrics.CharactersAcross(body, ChoiceWidth - (Pad * 2));
 
     /// <summary>Gives the count of characters that one line of a task window holds at a body size.</summary>
     /// <param name="body">The body size, in frame pixels.</param>

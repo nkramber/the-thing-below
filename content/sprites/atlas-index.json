@@ -4,6 +4,7 @@
   { "kind": "tiles", "number": 1, "width": 2048, "height": 32 },
   { "kind": "map_sprites", "number": 1, "width": 352, "height": 32 },
   { "kind": "battle_sprites", "number": 1, "width": 160, "height": 64 },
+  { "kind": "portraits", "number": 1, "width": 192, "height": 64 },
   { "kind": "ui", "number": 1, "width": 320, "height": 24 },
   { "kind": "pieces", "number": 1, "width": 192, "height": 64 }
  ],
@@ -51,7 +52,8 @@
    "height": 32,
    "draws": [
     { "content": "cast.bergit", "use": "map_front" },
-    { "content": "npc.fixture_hub_trader", "use": "map_front" }
+    { "content": "npc.fixture_hub_trader", "use": "map_front" },
+    { "content": "npc.fixture_hub_guard", "use": "map_front" }
    ],
    "frames": [
     { "x": 0, "y": 0, "ticks": 0 }
@@ -64,7 +66,8 @@
    "height": 32,
    "draws": [
     { "content": "cast.dagvar", "use": "map_front" },
-    { "content": "npc.fixture_hub_keeper", "use": "map_front" }
+    { "content": "npc.fixture_hub_keeper", "use": "map_front" },
+    { "content": "npc.fixture_hub_stranger", "use": "map_front" }
    ],
    "frames": [
     { "x": 32, "y": 0, "ticks": 0 }
@@ -225,6 +228,42 @@
    "height": 32,
    "draws": [
     { "content": "character.marrek", "use": "battle_attack" }
+   ],
+   "frames": [
+    { "x": 128, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.fixture_barmaid_portrait",
+   "page": "portraits",
+   "width": 64,
+   "height": 64,
+   "draws": [
+    { "content": "npc.fixture_hub_barmaid", "use": "portrait" }
+   ],
+   "frames": [
+    { "x": 0, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.fixture_stranger_portrait",
+   "page": "portraits",
+   "width": 64,
+   "height": 64,
+   "draws": [
+    { "content": "npc.fixture_hub_stranger", "use": "portrait" }
+   ],
+   "frames": [
+    { "x": 64, "y": 0, "ticks": 0 }
+   ]
+  },
+  {
+   "id": "drawing.marrek_portrait",
+   "page": "portraits",
+   "width": 64,
+   "height": 64,
+   "draws": [
+    { "content": "cast.marrek", "use": "portrait" }
    ],
    "frames": [
     { "x": 128, "y": 0, "ticks": 0 }

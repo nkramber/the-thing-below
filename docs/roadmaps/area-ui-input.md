@@ -168,9 +168,9 @@ Built by PR-36, on the base of PR-61. Phase file: `phase-2-first-playable.md`.
 
 - The box sits at the bottom, with the portrait, a name plate, and the choices (D-109, D-114, D-223).
 - One line of the box holds 156 characters at the UI scale of 1x, and 76 at 2x, so the limit is 76 (D-635, F-69).
-- The text types out at the chosen speed, in silence, and the box holds its layout as it types (D-223, D-709). The three speeds and the skip follow D-864.
-- The text speed and the skip are accessibility settings of PR-63 (D-214).
-- A choice in the box becomes an intent, and Core holds its result (D-493, PR-36).
+- The text types out at the chosen speed, in silence, and the box holds its layout as it types (D-223, D-709). The three speeds and the skip follow D-864 and D-1174.
+- The text speed is an accessibility setting of PR-63 (D-214). The skip is the press of confirm of D-864, and no setting holds it (D-1174).
+- A choice becomes an intent, and Core holds its result (D-493, PR-36). The choices open in a menu window above the box, four at most (D-1175).
 - `area-story.md` holds the story scene format and the runner that drive the box. Core runs each step, and Game draws it (D-540).
 
 > *In plain English:* people speak in a box at the bottom of the screen, with a face beside the words. The words appear at the speed the player picks, with no beeps.
@@ -188,6 +188,7 @@ Built by PR-61, on the intents of PR-6. Phase files: `phase-1-foundations.md` an
 - The dead zone of a stick is a setting, and its default follows the value that PR-63 sets, not the docs (F-50, D-226).
 - Each binding matches every device, because Godot gives a new event the device 0, and a pad of another device then matched nothing (D-1077, F-107).
 - `ui_accept` takes the A button and `ui_cancel` takes the B button, because Godot 4.7.2 gives them keys alone (D-1077, F-107).
+- The WASD keys join the four `ui_*` directions, and Backspace joins `ui_cancel`, as fixed keys (D-1172).
 - Each action acts on the first press of a hold alone. A stick past the dead zone gives a press on each motion event, and a pad can show as two devices (D-1077, F-107).
 - A key press, a pad button, or a stick push hides the mouse pointer, and a move of the mouse shows it again (D-1078).
 - Game logs each pad that connects, with its device and its name. Thus a report of a pad fault names the devices (D-1077).

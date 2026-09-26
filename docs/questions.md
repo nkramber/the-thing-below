@@ -482,12 +482,14 @@ How to file a question (D-19, D-24):
     - Yes, a step names an enemy group, and the party of the player fights it, the recommendation. A set fight after a story scene needs no tile, and D-351 holds because the player still picks the three. A story scene then reaches into the battle rules.
     - No, the map holds a trigger that a flag opens, and the story scene sets that flag. The story scene rules and the battle rules stay apart. Every set fight needs a tile and a flag, which is more content for each beat.
     - Resolved 2026-09-23: D-998 and D-999. A step names an enemy group, and the story scene goes on after a win.
-150. **OQ-150. How the player skips a story scene.** The text speed and the skip are accessibility settings (D-214, PR-63). What does the skip do? Raised 2026-09-16. Blocks PR-36.
+150. **OQ-150. How the player skips a story scene.** The text speed and the skip are accessibility settings (D-214, PR-63). What does the skip do? Raised 2026-09-16. Blocked PR-36.
     - A held button fills each line at once and moves to the next step, the recommendation. A second read of a story scene costs little, and the player never loses a choice. A long story scene still takes many presses.
     - A skip that jumps to the end of the whole story scene. A replay of a lost fight costs no time at all. Each choice inside the story scene then needs a default, which the story must set.
-151. **OQ-151. How the choices lay out in the dialogue box.** A choice sits in the box at the bottom (D-114, D-223). OQ-112 holds the line text, and this question holds the choices alone. How many, and where? Raised 2026-09-16. Blocks PR-36.
+    - Resolved 2026-09-26: D-1174. No scene skip. The press of confirm of D-864 is the one skip.
+151. **OQ-151. How the choices lay out in the dialogue box.** A choice sits in the box at the bottom (D-114, D-223). OQ-112 holds the line text, and this question holds the choices alone. How many, and where? Raised 2026-09-16. Blocked PR-36.
     - Up to four choices, in a list above the box, the recommendation. Four fit the height of D-568, and a list reads the same on the Deck and on a desktop. A story scene with five results needs two questions.
     - Up to three choices, inside the box under the line. The box stays one shape, and no panel covers the map. Three is a tight limit for a set choice with a middle answer.
+    - Resolved 2026-09-26: D-1175. Up to four choices, in a menu window above the box, the recommendation.
 152. **OQ-152. What a quest holds.** The quest state holds every task, the personal tasks included (D-538). What is one quest? Raised 2026-09-16. Blocks PR-19.
     - An id, a state of not started, active, done, or closed, and the text of each state, the recommendation. The board and the menu read one value, and a missed task closes with no new rule (D-375). A quest with three steps needs three flags beside it.
     - An id and a list of steps, each with its own condition and text. A long task reads as progress, and the menu shows the next step. Every quest then carries a small state machine of its own.
@@ -820,3 +822,6 @@ How to file a question (D-19, D-24):
     - A line for each reserve character in the summary, the recommendation. The player sees the half share and each level of the reserve.
     - A line for the level of a reserve character alone. The summary stays short, and a level still shows.
     - No line. The Status window shows each level, and the summary stays as it is.
+250. **OQ-250. The pause of the fight of a story scene.** The menu action pauses a fight (D-1083), and a story scene takes no menu intent (D-1009). A start battle step starts a fight inside a story scene (D-998). That fight then has no pause. PR-36 found this. Raised 2026-09-26. Blocks no PR yet.
+    - The fight pause works in the fight of a story scene, the recommendation. Core lets the menu intent of the pause through while the story scene waits for its battle. Every fight pauses the same way.
+    - The fight of a story scene takes no pause. The rule of D-1009 stays whole. A long set fight then has no pause.

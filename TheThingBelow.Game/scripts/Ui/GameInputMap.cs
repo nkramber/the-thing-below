@@ -17,8 +17,8 @@ namespace TheThingBelow.Game.Ui;
 /// <para>
 /// The built-in `ui_*` actions drive the focus of a menu, and they keep their default
 /// buttons, so every menu answers whatever the remap does (D-862, F-50). They take the dead
-/// zone of the settings, and the pad buttons of <see cref="MenuPadButtons"/>, alone (D-861,
-/// D-1077).
+/// zone of the settings, the pad buttons of <see cref="MenuPadButtons"/>, and the keys of <see cref="MenuKeys"/>, alone (D-861,
+/// D-1077, D-1172).
 /// </para>
 /// <para>
 /// Godot gives a new event the device 0, and the input map then matches the first pad alone.
@@ -50,6 +50,23 @@ public static class GameInputMap
     [
         ("ui_accept", JoyButton.A),
         ("ui_cancel", JoyButton.B),
+    ];
+
+    /// <summary>
+    /// The keys that each menu action takes beside the defaults of Godot: WASD moves the cursor as
+    /// the arrow keys do, and Backspace goes back as Escape does (D-1172).
+    /// </summary>
+    /// <remarks>
+    /// The step actions of the map take WASD, and the cancel action takes Backspace, so a menu that
+    /// read the defaults alone refused the keys that walk the map (D-862).
+    /// </remarks>
+    public static readonly IReadOnlyList<(string Action, Godot.Key Key)> MenuKeys =
+    [
+        ("ui_up", Godot.Key.W),
+        ("ui_left", Godot.Key.A),
+        ("ui_down", Godot.Key.S),
+        ("ui_right", Godot.Key.D),
+        ("ui_cancel", Godot.Key.Backspace),
     ];
 
     /// <summary>Gives the default bindings of each action of the game (D-84, D-862).</summary>
@@ -116,6 +133,7 @@ public static class GameInputMap
         }
 
         AddMenuPadButtons();
+        AddMenuKeys();
     }
 
     /// <summary>Adds each pad button of <see cref="MenuPadButtons"/> to its menu action (D-1077).</summary>
@@ -135,6 +153,27 @@ public static class GameInputMap
             }
 
             InputEvent made = EventOf(InputBinding.OfButton((int)button));
+            if (!InputMap.ActionHasEvent(action, made))
+            {
+                InputMap.ActionAddEvent(action, made);
+            }
+        }
+    }
+
+    /// <summary>Adds each key of <see cref="MenuKeys"/> to its menu action (D-1172).</summary>
+    /// <exception cref="InvalidOperationException">The input map lacks a menu action (T-2).</exception>
+    /// <remarks>The method adds a key only when the action lacks it, as <see cref="AddMenuPadButtons"/> does.</remarks>
+    private static void AddMenuKeys()
+    {
+        foreach ((string action, Godot.Key key) in MenuKeys)
+        {
+            if (!InputMap.HasAction(action))
+            {
+                throw new InvalidOperationException(
+                    $"The input map lacks the menu action '{action}', which takes the key {key} (D-1172, T-2).");
+            }
+
+            InputEvent made = EventOf(InputBinding.OfKey((int)key));
             if (!InputMap.ActionHasEvent(action, made))
             {
                 InputMap.ActionAddEvent(action, made);

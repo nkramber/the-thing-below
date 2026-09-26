@@ -1,4 +1,133 @@
 # Session handoff archive
+## Session 327: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR-65, round 1. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: the one PR of PR-65, with no GitHub number before the push. Role: author. Base: `8e81487`.
+
+### What this session did, and why
+
+- The owner answered OQ-121 and the questions that the work raised: D-1149 to D-1164. OQ-121 is resolved.
+- Core: the shop file with the types and the stocks, a value on each item and gear record, the shop kind of a service, and the price of a rest. The buy and the sale rules, the stock of each shop in the save, and the gold of a fight.
+- The save format rises to 16, and the simulation version rises to 32 (G-17). The `gold` debug command sets the gold (D-1162).
+- Game: the shop window, the gold panel, the priced rest, and the gold line of a win. The captures add the buy list, the count, and the sale list at both body sizes.
+- The session read each frame at 1x of `make sheet FIXTURE=menu`: the shop frames, the rest, and the main list. The frames read well.
+
+### The state of the build
+
+- Every local check passes: build, test, format, det-lint, atlas, STE, and the smoke session. Six tests fail alone: the baselines of the new shop frames, which come from the `screen-captures` artifact of CI.
+- The remote head is the push of this round. The content hash and the replay identity file hold the new values.
+
+### What is in flight
+
+- The CI run of the first push. Take the six shop baselines and each changed menu baseline from the CI artifact, read each one, and commit them.
+- The Gitar pass, then `make codex-review`.
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at the first frame of 1080 rows, because the screen gives 1920 by 955. Read the frames at 1080 rows in the CI artifact.
+- Each menu frame except the map now sends `gold 250` first, so each menu baseline changes.
+- The fixture shop lists the bolt, which the start pack holds, so the list hides it (D-1153). The Core tests sell a lesson that the party lacks.
+
+### The questions that block progress
+
+None. The owner reads the shop captures before the review (D-1164). The text batch of the shop waits for the approval of the owner (D-57).
+
+### The next concrete action
+
+Open the PR, run the Gitar poll, and commit the baselines of the CI artifact.
+
+## Session 326: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #84 (PR-14), round 4. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
+
+### What this session did, and why
+
+- The review of `make codex-review` gives `Ready for owner merge` for the effective head `6c7837f` in `docs/reviews/pr-84.md`, with no open finding.
+- Each check of `6c7837f` passed, and Gitar approved it with no thread. The author answered each claim of the CI analysis of Gitar.
+
+### The state of the build
+
+- The effective head is `6c7837f`, and the review approves it. This entry is a commit of the metadata set, so the approval stands (D-610).
+
+### What is in flight
+
+- The checks of this commit, and the merge confirmation of the owner (D-933, D-942).
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
+
+### The questions that block progress
+
+None. OQ-249 blocks PR-17.
+
+### The next concrete action
+
+After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
+
+## Session 325: 2026-09-26, Codex
+
+Author: Codex
+Session: reviewer PR #84 (PR-14). Repository: the-thing-below. Local branch: `review/pr-84`; PR branch: `feat/pr-14-hub`. PR: #84. Role: reviewer. Base: `c7e6191`.
+
+### What this session did, and why
+
+- Reviewed effective head `6c7837f` and wrote `docs/reviews/pr-84.md`.
+- Verified the Gitar CI-analysis answer: RG 3 alone failed because the review record was absent. The author answered the item, and the CI log confirms the cause (D-964).
+- `make verify` passed with 3,803 tests. Inspected the CI screen captures for the hub, Rest, Save, Party, and main-list frames (D-784).
+- Corrected the PR Documents row to name `docs/reviews/pr-84.md`.
+
+### The state of the build
+
+- The effective head is `6c7837f`. The metadata tip is `ba92a31`, and its fresh `review-gate` check passed. All implementation checks passed on the effective head.
+
+### What is in flight
+
+- This entry and the review record are published on `feat/pr-14-hub`. The fresh Gitar pass has no item, and the live `review-gate` passed.
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
+
+### The questions that block progress
+
+OQ-249 remains open for PR-17.
+
+### The next concrete action
+
+Verify the final metadata push, then end this review session.
+
+## Session 324: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #84 (PR-14), round 3. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
+
+### What this session did, and why
+
+- Gitar approved `ac14bc2`. The screen compare of `ac14bc2` matched 134 frames and missed the 4 baselines of `menu-rest` and `menu-save` alone.
+- The author read those 4 frames of the artifact (D-784). The lead faces the keeper under the Rest window, and the lead faces the waystone under the Save window, with no clip. This round commits the 4 baselines (D-733).
+
+### The state of the build
+
+- The head of this push holds every baseline. Each check but `review-gate` waits for this push.
+
+### What is in flight
+
+- The checks and the Gitar pass of this push, then `make codex-review PR=84` (D-926).
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
+
+### The questions that block progress
+
+None. OQ-249 blocks PR-17.
+
+### The next concrete action
+
+When each check but `review-gate` passes and Gitar completes, run `make codex-review PR=84` in the background.
+
 ## Session 323: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -596,6 +725,7 @@ None. The Steam Deck measurement and the Gitar answer are required evidence, not
 ### The next concrete action
 
 The author answers the Gitar item and the owner runs `evaluator-cost` on the Steam Deck. Then request a repeat review.
+
 ## Session 305: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -831,6 +961,7 @@ None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-
 ### The next concrete action
 
 Poll the Gitar check and the CI of the round 6 push. When each check but `review-gate` passes, run `make codex-review PR=80` in the background.
+
 ## Session 298: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -864,6 +995,7 @@ None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-
 ### The next concrete action
 
 Poll the Gitar check of the round 5 push, and answer each Gitar item. Commit the new screen baseline from the CI artifact, and then run `make codex-review PR=80` when each CI check but `review-gate` passes.
+
 ## Session 297: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -939,6 +1071,7 @@ None for this PR. The owner asked for suggestions on P2-2, P2-3, P2-5, P3-7, P3-
 
 Poll the Gitar check of the round 3 push, and answer each Gitar item. Commit the new screen baseline from the CI artifact, and then run `make codex-review PR=80` when each CI check but `review-gate` passes.
 # Session handoff archive
+
 ## Session 295: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -1057,6 +1190,7 @@ None.
 
 Wait for green CI and the Gitar pass of the tip, then ask the owner to confirm the merge. Then turn on the auto-merge under `docs/runbooks/merge.md`.
 # Session handoff archive
+
 ## Session 292: 2026-09-25, Codex
 
 Author: Codex
@@ -1159,6 +1293,7 @@ None.
 ### The next concrete action
 
 Wait for the owner to confirm the merge of PR #78. Then check out this branch in the shared checkout, merge `origin/main`, push, and restart CI. Then the Gitar poll, a green `screen-test`, and `make codex-review PR=79` in the background.
+
 ## Session 289: 2026-09-25, Claude Code
 
 Author: Claude Code
@@ -1439,6 +1574,7 @@ None.
 ### The next concrete action
 
 Run command E of the `gitar-review` skill in the background for PR #77. Answer each Gitar item, then run `make codex-review PR=77` in the background.
+
 ## Session 281: 2026-09-24, Codex
 
 Author: Codex
@@ -1587,6 +1723,7 @@ None. OQ-246 stays open and blocks no PR.
 ### The next concrete action
 
 When CI of the fix commit passes each job but `review-gate`, run `make codex-review PR=76 -- --skip-gitar-review` in the background (D-926, D-1061).
+
 ## Session 277: 2026-09-24, Codex
 
 Author: Codex
@@ -1756,6 +1893,7 @@ None. OQ-247 and OQ-248 resolve in D-1052 and D-1055.
 ### The next concrete action
 
 Correct P2-1, push the correction with a new handoff entry, then run a repeat review of PR #75.
+
 ## Session 272: 2026-09-24, Claude Code
 
 Author: Claude Code
@@ -2328,6 +2466,7 @@ None. OQ-243 is resolved by D-963.
 ### The next concrete action
 
 Commit and push the review record and handoff together. Fetch, then verify the remote head and the new `review-gate` result.
+
 ## Session 256: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -3051,6 +3190,7 @@ None. OQ-242 waits for the owner and blocks nothing in PR-60.
 ### The next concrete action
 
 Run `make codex-review PR=64` on the effective head `875fe53`, and answer its outcome.
+
 ## Session 236: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -3279,6 +3419,7 @@ None. OQ-241 asks which later PR adds ceiling shafts and blocks no progress here
 ### The next concrete action
 
 The owner merges PR #62.
+
 ## Session 230: 2026-09-23, Claude Code
 
 Author: Claude Code
@@ -3570,6 +3711,7 @@ None.
 
 Follow the `gitar-review` skill on the new head. Then the other provider repeats the review of PR #60.
 # Session handoff archive
+
 ## Session 222: 2026-09-23, Codex
 
 Author: Codex
@@ -5287,6 +5429,7 @@ None.
 ### The next concrete action
 
 Copy the baselines from the CI artifact, read each frame, and answer gitar.
+
 ## Session 173: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -5954,6 +6097,7 @@ None.
 ### The next concrete action
 
 Correct P2-1 with a regression test, then request a repeat review of the new effective head.
+
 ## Session 154: 2026-09-21, Claude Code
 
 Author: Claude Code
@@ -6613,6 +6757,7 @@ None. OQ-198 and OQ-199 remain open but do not block this review.
 ### The next concrete action
 
 Correct P1-1, push the author correction, and rerun the review at the new effective head.
+
 ## Session 137: 2026-09-19, Claude Code
 
 Author: Claude Code
@@ -6997,6 +7142,7 @@ None for this PR. OQ-3 remains an owner question for Gate 1.
 ### The next concrete action
 
 Push the correction, answer the pass of gitar, and ask Codex for the repeat review.
+
 ## Session 127: 2026-09-19, Codex
 
 Author: Codex
@@ -7705,6 +7851,7 @@ None.
 ### The next concrete action
 
 Codex reviews PR #28 again and writes the verdict for `2b1f7f8`.
+
 ## Session 109: 2026-09-18, Codex
 
 Author: Codex
@@ -8517,6 +8664,7 @@ None for this PR. Future checks remain named with their creating PR in the PR ga
 ### The next concrete action
 
 The review is published at `d7f6fb3`, and all checks pass. The owner can merge PR #22.
+
 ## Session 87: 2026-09-17, Claude Code
 
 Author: Claude Code
@@ -9174,6 +9322,7 @@ None for PR #19. OQ-179 blocks PR-5, OQ-180 blocks PR-81, and OQ-181 blocks PR-3
 ### Next concrete action
 
 Get the repeat review of PR #19 from Codex at the effective head `6f82d26`.
+
 ## Session 70: 2026-09-17, Codex
 
 Author: Codex

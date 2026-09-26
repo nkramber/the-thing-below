@@ -640,16 +640,37 @@ public sealed class ContentSetTests
     }
 
     [Fact]
-    public void TheFixtureHubHoldsNoStoryTrigger()
+    public void TheFixtureHubPlaysItsTwoStoryScenesFromTilesOffEachWalkToAService()
     {
-        // Game sends no end of a story step before PR-36, so a trigger on the hub would hold the
-        // run in its story scene for good. The hub gains its triggers with the hub lines of PR-36.
+        // PR-36: the fixture hub holds the two fixture story scenes on tiles. The walks of the
+        // service captures cross no trigger tile, so no story scene holds a service frame.
         ContentSet set = ContentSet.Load(ContentFolder.Read(RepositoryRoot.Find()));
 
         GameMap hub = set.Map(ContentId.Parse("map.fixture_hub", "test", "id"));
 
-        Assert.Empty(hub.Triggers);
+        Assert.Equal(["trigger.fixture_hub_stranger", "trigger.fixture_hub_rats"], hub.Triggers.Select(trigger => trigger.Id.Value));
+        Assert.Equal([new TilePoint(4, 7), new TilePoint(18, 10)], hub.Triggers.Select(trigger => trigger.At!.Value));
+        foreach (string route in new[] { "KeeperRoute", "WaystoneRoute", "TraderRoute" })
+        {
+            var actions = (IEnumerable<string>)GameAssemblyFile.Type("TheThingBelow.Game.ScreenCaptures").GetProperty(route)!.GetValue(null)!;
+            TilePoint at = hub.Spawn;
+            foreach (string action in actions)
+            {
+                at = at.Step(DirectionOf(action));
+                Assert.DoesNotContain(hub.Triggers, trigger => trigger.At == at);
+            }
+        }
     }
+
+    /// <summary>Gives the direction of one step action, such as `step_north`.</summary>
+    private static StepDirection DirectionOf(string action) => action switch
+    {
+        "step_north" => StepDirection.North,
+        "step_south" => StepDirection.South,
+        "step_east" => StepDirection.East,
+        "step_west" => StepDirection.West,
+        _ => throw new ArgumentOutOfRangeException(nameof(action), action, "The route holds an action that is no step (T-2)."),
+    };
 
     /// <summary>The text of one story scene file with one line, for a test of the content set (D-173).</summary>
     private static ContentFile SceneFile(string line) =>

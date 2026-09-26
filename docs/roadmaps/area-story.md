@@ -86,12 +86,12 @@ Built by PR-68, and used by PR-18, PR-14, PR-35, and PR-19. Phase file: `phase-2
 Built by PR-36, on the base of PR-61. Phase file: `phase-2-first-playable.md`.
 
 - The dialogue box sits at the bottom, with the portrait, a name plate, and the choices (D-109, D-114, D-223). The file `area-ui-input.md` holds the box.
-- The text types out at the chosen speed, in silence (D-223). The speed and the skip are accessibility settings of PR-63 (D-214).
+- The text types out at the chosen speed, in silence (D-223). The speed is an accessibility setting of PR-63 (D-214). A press of confirm shows the full line at once (D-864, D-1174).
 - Game moves a story scene sprite from the tick of Core, never from a timer of Godot, as it moves the camera (G-23, F-52).
 - Game sends a choice as an intent, and Core sets the flag of the result (D-493, D-540).
 - One portrait for each cast member and each named NPC, as a 64 by 64 grid (D-109, D-234, D-270). PR-36 uses fixture portraits, because PR-28 and PR-29 draw the cast.
 - The player speaks the dialogue choices of the lead, and the map always follows the lead (D-267, D-292).
-- OQ-150 holds the skip, and OQ-151 holds the layout of the choices.
+- A press of confirm shows the full line at once, and no input skips a whole story scene (D-1174). The choices open in a menu window above the box, four at most (D-1175).
 
 > *In plain English:* people walk, turn, and speak on the map you already walk on. Their words appear in a box at the bottom, with a face beside them.
 
@@ -271,8 +271,8 @@ The register is `docs/questions.md` (D-19). These questions block story PRs, and
 - OQ-147: where content declares each flag id. Resolved 2026-09-23 by D-1003.
 - OQ-148: what fires a story scene trigger. Resolved 2026-09-23 by D-1004.
 - OQ-149: whether a story scene step starts a battle. Resolved 2026-09-23 by D-998 and D-999.
-- OQ-150: how the player skips a story scene. Blocks PR-36.
-- OQ-151: how the choices lay out in the dialogue box. Blocks PR-36.
+- OQ-150: how the player skips a story scene. Resolved 2026-09-26 by D-1174.
+- OQ-151: how the choices lay out in the dialogue box. Resolved 2026-09-26 by D-1175.
 - OQ-152: what a quest holds. Blocks PR-19.
 - OQ-153: what the rumor board shows. Blocks PR-19.
 - OQ-154: what ends a region for a missed task. Blocks PR-19.

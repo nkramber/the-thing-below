@@ -24,12 +24,13 @@ public sealed class StoryFileTests
     }
 
     [Fact]
-    public void TheCheckoutFlagFileHoldsTheFlagOfTheSideAptitudeAlone()
+    public void TheCheckoutFlagFileHoldsTheFixtureFlagsAlone()
     {
-        // PR-12 adds the fixture flag of the side aptitude of Marrek (D-538, D-556).
+        // PR-12 adds the fixture flag of the side aptitude of Marrek (D-538, D-556), and PR-36 the
+        // three flags of the fixture story scenes of the hub.
         FlagList flags = FlagList.Read(System.IO.File.ReadAllBytes(RepositoryRoot.PathTo("content/rules/flags.json")), FlagList.Path);
 
-        Assert.Equal(["flag.fixture_marrek_side"], Values(flags.Ids()));
+        Assert.Equal(["flag.fixture_marrek_side", "flag.fixture_hub_yes", "flag.fixture_hub_no", "flag.fixture_hub_rats"], Values(flags.Ids()));
     }
 
     [Theory]
@@ -103,7 +104,8 @@ public sealed class StoryFileTests
     [InlineData("""{ "id": "step.s6", "kind": "face", "actor": "lead" }""", ".facing)")]
     [InlineData("""{ "id": "step.s7", "kind": "say", "speaker": "notice.test_kept", "line": "line.test_greet" }""", "the speaker 'notice.test_kept'")]
     [InlineData("""{ "id": "step.s8", "kind": "say", "line": "line.test_greet" }""", ".speaker)")]
-    [InlineData("""{ "id": "step.s9", "kind": "choose", "options": [{ "line": "line.test_yes", "flag": "flag.test_yes" }] }""", "holds 1 options")]
+    [InlineData("""{ "id": "step.s9", "kind": "choose", "options": [{ "line": "line.test_yes", "flag": "flag.test_yes" }] }""", "holds 1 options, and a choice holds 2 to 4")]
+    [InlineData("""{ "id": "step.s17", "kind": "choose", "options": [{ "line": "line.test_yes", "flag": "flag.test_a" }, { "line": "line.test_yes", "flag": "flag.test_b" }, { "line": "line.test_yes", "flag": "flag.test_c" }, { "line": "line.test_yes", "flag": "flag.test_d" }, { "line": "line.test_yes", "flag": "flag.test_e" }] }""", "holds 5 options, and a choice holds 2 to 4")]
     [InlineData("""{ "id": "step.s10", "kind": "choose", "options": [{ "line": "line.test_yes", "flag": "flag.test_yes" }, { "line": "line.test_no", "flag": "flag.test_yes" }] }""", "two options set the flag")]
     [InlineData("""{ "id": "step.s11", "kind": "show", "actor": "lead", "at": "marker.test_story_door", "facing": "west" }""", "the lead stays on the map")]
     [InlineData("""{ "id": "step.s12", "kind": "hide", "actor": "lead" }""", "the lead stays on the map")]
