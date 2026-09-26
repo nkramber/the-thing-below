@@ -1,5 +1,5 @@
 {
- "comment": "The fixture story scene of PR-36 in the fixture hub. The party steps into the south-west corner of the inn, the barmaid speaks, and a stranger and a guard walk in from the north-west corner of the inn, which no NPC of the map reaches. The stranger asks, the lead answers, the barmaid has the last word, and both walk out again. It tests every kind of step that Game draws but the start battle step (D-1006, D-1013, D-1175). PR-17 writes the story scenes of the first playable.",
+ "comment": "The fixture story scene of PR-36 in the fixture hub. The party steps one tile south of the spawn point, the barmaid speaks, and a stranger and a guard walk in from the north-west corner of the inn, which no NPC of the map reaches. The stranger asks, the lead answers, the barmaid has the last word, and both walk out again. It tests every kind of step that Game draws but the start battle step (D-1006, D-1013, D-1175). PR-17 writes the story scenes of the first playable.",
  "id": "scene.fixture_hub_stranger",
  "steps": [
   { "id": "step.barmaid_calls", "kind": "say", "speaker": "npc.fixture_hub_barmaid", "line": "line.fixture_hub_barmaid_door" },

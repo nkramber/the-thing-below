@@ -5,6 +5,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Game.Ui;
 
@@ -116,6 +117,8 @@ public partial class MapScreen : Node2D
     private AmbientLayer weather = null!;
     private ShaftPass? shafts;
     private Vector2 view;
+    private GameAtlas atlas = null!;
+    private readonly SortedDictionary<string, Sprite2D> actors = new(StringComparer.Ordinal);
 
     /// <summary>True for a capture, which seeks each stream to the tick of the frame (D-172).</summary>
     public bool SeekParticles { get; set; }
@@ -173,6 +176,7 @@ public partial class MapScreen : Node2D
         this.ground = BuildGround(atlas, party.Map);
         this.AddChild(this.ground);
 
+        this.atlas = atlas;
         ContentId leadId = ContentId.Parse(LeadContentId, AtlasIndex.Path, nameof(LeadContentId));
         this.lead = BuildSprite(atlas, leadId);
         this.leadPlain = this.lead.Texture;
@@ -227,19 +231,28 @@ public partial class MapScreen : Node2D
     /// <param name="tickPart">The part of the next tick that the frame reached, from 0 to 999 (D-820).</param>
     /// <param name="tick">The tick of the run, which each fade of the dark counts (D-1062).</param>
     /// <param name="torchHeld">True while the party holds the torch out (D-1064).</param>
+    /// <param name="scene">The story scene on screen, which walks its actors and holds the view, or no value on the walk (D-1012, D-1013).</param>
+    /// <param name="story">The story state, whose shown actors draw, or no value on the walk (D-1006).</param>
     /// <exception cref="ArgumentNullException">The party is null (T-2).</exception>
     /// <exception cref="ArgumentOutOfRangeException">The tick is below zero (T-2).</exception>
+    /// <exception cref="ContentException">The atlas holds no map drawing of a shown actor (T-2, D-519).</exception>
     /// <remarks>
     /// Every value is a whole art pixel of the world viewport, so no sprite draws between
     /// two pixels and no Godot snap setting is on (D-715).
     /// </remarks>
-    public void ShowParty(MapState party, int tickPart, long tick, bool torchHeld)
+    public void ShowParty(MapState party, int tickPart, long tick, bool torchHeld, ScenePlay? scene = null, StoryState? story = null)
     {
         ArgumentNullException.ThrowIfNull(party);
         ArgumentOutOfRangeException.ThrowIfNegative(tick);
 
         int leadX = MapCamera.LeadX(party, tickPart);
         int leadY = MapCamera.LeadY(party, tickPart);
+        if (scene is not null && scene.TryWalk(null, party.LeadAt, out int walkX, out int walkY))
+        {
+            leadX = walkX;
+            leadY = walkY;
+        }
+
         this.lead.Position = new Vector2(leadX, FeetOf(leadY, 1));
         this.lead.Texture = torchHeld ? this.leadTorch : this.leadPlain;
         this.ShowCarriedLight(torchHeld);
@@ -248,13 +261,14 @@ public partial class MapScreen : Node2D
         this.carriedFigures.Position = carriedAt;
         this.carriedFlame.MoveTo(carriedAt);
         this.ShowEnemies(party, tickPart, tick, torchHeld);
-        this.ShowNpcs(party, tickPart, tick);
+        this.ShowNpcs(party, tickPart, tick, scene);
         this.ShowPoints(party, tickPart, tick);
+        this.ShowActors(story?.Actors ?? [], scene);
 
-        CameraPlace view = MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tickPart);
+        CameraPlace view = scene?.View ?? MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tickPart);
         this.view = new Vector2(view.X, view.Y);
         this.Position = new Vector2(-view.X, -view.Y);
-        this.FocusRow = MapCamera.FocusRowOf(leadY, view.Y, FrameRoot.WorldHeight);
+        this.FocusRow = MapCamera.FocusRowOf(scene?.SubjectY ?? leadY, view.Y, FrameRoot.WorldHeight);
         this.Frame?.FocusBlur(this.FocusRow);
     }
 
@@ -649,7 +663,7 @@ public partial class MapScreen : Node2D
     /// and a walk of two frames, replace it when the art lands, and this method then picks the
     /// view of the facing.
     /// </remarks>
-    private void ShowNpcs(MapState party, int tickPart, long tick)
+    private void ShowNpcs(MapState party, int tickPart, long tick, ScenePlay? scene)
     {
         IReadOnlyList<NpcState> people = party.Npcs.All;
         int leadX = MapCamera.LeadX(party, tickPart);
@@ -659,6 +673,12 @@ public partial class MapScreen : Node2D
             NpcState npc = people[index];
             int x = MapCamera.NpcX(npc, tickPart);
             int y = MapCamera.NpcY(npc, tickPart);
+            if (scene is not null && scene.TryWalk(npc.Npc.Id, npc.At, out int walkX, out int walkY))
+            {
+                x = walkX;
+                y = walkY;
+            }
+
             int slot = this.enemies.Length + index;
             int share = SightFade.Full;
             if (this.fade is not null)
@@ -695,6 +715,52 @@ public partial class MapScreen : Node2D
     }
 
     /// <summary>Draws one NPC or one service point at a share of the fade, from its feet (F-94, D-737).</summary>
+    /// <summary>
+    /// Draws each cast member and scene-only NPC that a show step put on the map, and removes the
+    /// sprite of each one that left (D-1006). A move step walks each one from the ticks (D-1012).
+    /// </summary>
+    private void ShowActors(IReadOnlyList<ActorValues> shown, ScenePlay? scene)
+    {
+        var kept = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (ActorValues actor in shown)
+        {
+            if (!this.actors.TryGetValue(actor.Actor.Value, out Sprite2D? sprite))
+            {
+                sprite = BuildSprite(this.atlas, ScenePlay.ArtIdOfActor(actor.Actor));
+                sprite.AddChild(FeetShadow(sprite, WorldLights.FigureShadows));
+                this.AddChild(sprite);
+                this.actors.Add(actor.Actor.Value, sprite);
+            }
+
+            int x = actor.At.X * MapCamera.TilePixels;
+            int y = actor.At.Y * MapCamera.TilePixels;
+            if (scene is not null && scene.TryWalk(actor.Actor, actor.At, out int walkX, out int walkY))
+            {
+                x = walkX;
+                y = walkY;
+            }
+
+            sprite.FlipH = actor.Facing == StepDirection.East;
+            sprite.Position = new Vector2(x, FeetOf(y, 1));
+            kept.Add(actor.Actor.Value);
+        }
+
+        var gone = new List<string>();
+        foreach (string id in this.actors.Keys)
+        {
+            if (!kept.Contains(id))
+            {
+                gone.Add(id);
+            }
+        }
+
+        foreach (string id in gone)
+        {
+            this.actors[id].QueueFree();
+            this.actors.Remove(id);
+        }
+    }
+
     private void ShowFigure(Sprite2D sprite, int slot, int share, Vector2 feet)
     {
         this.shares[slot] = share;

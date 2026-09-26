@@ -822,3 +822,6 @@ How to file a question (D-19, D-24):
     - A line for each reserve character in the summary, the recommendation. The player sees the half share and each level of the reserve.
     - A line for the level of a reserve character alone. The summary stays short, and a level still shows.
     - No line. The Status window shows each level, and the summary stays as it is.
+250. **OQ-250. The pause of the fight of a story scene.** The menu action pauses a fight (D-1083), and a story scene takes no menu intent (D-1009). A start battle step starts a fight inside a story scene (D-998). That fight then has no pause. PR-36 found this. Raised 2026-09-26. Blocks no PR yet.
+    - The fight pause works in the fight of a story scene, the recommendation. Core lets the menu intent of the pause through while the story scene waits for its battle. Every fight pauses the same way.
+    - The fight of a story scene takes no pause. The rule of D-1009 stays whole. A long set fight then has no pause.

@@ -179,6 +179,16 @@ public sealed class ScreenCapturesTests
         "hub-fill-1080.png",
     ];
 
+    /// <summary>The captures of the story scene of the fixture hub: the line, the choice, and the pause (exit tests 2 and 7 of PR-36).</summary>
+    private static readonly string[] SceneNames =
+    [
+        "scene-line-1x.png",
+        "scene-choice-1x.png",
+        "scene-pause-1x.png",
+        "scene-line-fill-1080.png",
+        "scene-choice-fill-1080.png",
+    ];
+
     /// <summary>The captures at the screen of the Steam Deck, and the message of a crash (G-19, D-559, P3-26).</summary>
     private static readonly string[] DeckAndCrashNames =
     [
@@ -223,7 +233,8 @@ public sealed class ScreenCapturesTests
         // both body sizes to the menu names (D-1131, D-1132).
         // PR-65 adds the buy list, the count, the sale list, and the equip step of the shop window at both body sizes
         // to the menu names (D-1158, D-1165, D-1167).
-        Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + 1 + MenuNames.Length + SmallBodyNames.Length + HubNames.Length + DeckAndCrashNames.Length, FileNames().Count);
+        // PR-36 adds the dialogue box with a portrait, the choices, and the pause of a story scene (exit tests 2 and 7).
+        Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + 1 + MenuNames.Length + SmallBodyNames.Length + HubNames.Length + SceneNames.Length + DeckAndCrashNames.Length, FileNames().Count);
     }
 
     [Fact]
@@ -533,6 +544,11 @@ public sealed class ScreenCapturesTests
         }
 
         foreach (string name in HubNames)
+        {
+            names.Add(name);
+        }
+
+        foreach (string name in SceneNames)
         {
             names.Add(name);
         }

@@ -54,6 +54,7 @@ public sealed class ScenePlay
     private int elapsed;
     private bool filled;
     private bool cameraHeld;
+    private int markerY;
     private CameraPlace? view;
     private SceneStep? stepOnScreen;
     private ContentId? lastLine;
@@ -97,6 +98,12 @@ public sealed class ScenePlay
 
     /// <summary>The place of the view while a story scene holds it, or no value when the view follows the lead as on the walk (D-1013).</summary>
     public CameraPlace? View => this.view;
+
+    /// <summary>
+    /// The pixel of the north edge of the tile that the view holds while a camera step moved it, or no
+    /// value while the view follows the lead. The sharp band of the blur centers on it (D-1013, D-1173).
+    /// </summary>
+    public int? SubjectY => this.cameraHeld && this.scene is not null ? this.markerY : null;
 
     /// <summary>
     /// The count of characters of <see cref="Line"/> on screen, or no value when the whole line
@@ -158,7 +165,7 @@ public sealed class ScenePlay
         ArgumentNullException.ThrowIfNull(run);
 
         StoryState story = run.State.Story;
-        int ticks = this.lastTick < 0 ? 0 : (int)Math.Min(run.Tick - this.lastTick, int.MaxValue);
+        int ticks = this.lastTick < 0 ? 0 : (int)Math.Clamp(run.Tick - this.lastTick, 0, int.MaxValue);
         this.lastTick = run.Tick;
         this.Paused = story.Paused;
         if (story.Scene is not StoryScene running)
@@ -383,6 +390,7 @@ public sealed class ScenePlay
         if (this.phase == ScenePhase.WaitIntent && this.stepOnScreen is CameraStep camera)
         {
             this.cameraHeld = true;
+            this.markerY = this.MarkerTile(party, camera).Y * MapCamera.TilePixels;
             this.view = Toward(this.view ?? this.LeadView(party), this.MarkerView(party, camera), ticks);
             return;
         }
@@ -433,12 +441,18 @@ public sealed class ScenePlay
 
     private CameraPlace MarkerView(MapState party, CameraStep camera)
     {
+        TilePoint at = this.MarkerTile(party, camera);
+        return MapCamera.OfPixels(party.Map, this.viewWidth, this.viewHeight, at.X * MapCamera.TilePixels, at.Y * MapCamera.TilePixels);
+    }
+
+    private TilePoint MarkerTile(MapState party, CameraStep camera)
+    {
         if (!party.Map.TryMarker(camera.Marker, out TilePoint at))
         {
             throw new InvalidOperationException($"The camera step of the story scene '{this.scene?.Value}' names the marker '{camera.Marker.Value}', and the map '{party.Map.Id.Value}' lacks it (D-1013, T-2).");
         }
 
-        return MapCamera.OfPixels(party.Map, this.viewWidth, this.viewHeight, at.X * MapCamera.TilePixels, at.Y * MapCamera.TilePixels);
+        return at;
     }
 
     /// <summary>Moves one place toward another by the pixels of the ticks on each axis, and never past it.</summary>

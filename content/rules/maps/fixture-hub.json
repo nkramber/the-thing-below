@@ -1,5 +1,5 @@
 {
- "comment": "The fixture hub of PR-14 (D-112, D-1131, D-1137). The inn lies to the west and the yard to the east, with one doorway between them. The keeper stands at the end of the bar and holds the rest service, at a price of 10 gold (D-740, D-1156). The waystone of the yard is a solid service point, and it holds the save service (D-1142). The trader stands in the north-east of the yard, clear of the path to the waystone and of the rectangles of the dog, and holds the shop service (D-1149). The barmaid walks from the bar to the tables and waits at each end (D-1138). The dog wanders the two rectangles of the yard, and the child chases the dog inside the same rectangles. The south-west corner of the inn plays the story scene of the stranger until the lead answers him, off every walk to a service, and the straw in the south-east corner of the yard plays the fight with the rats one time (PR-36). The stranger and the guard appear on the two markers in the north-west corner of the inn, which no NPC walks. The debug command `goto map.fixture_hub` puts the party here (D-1133). PR-17 writes the hubs of the first playable.",
+ "comment": "The fixture hub of PR-14 (D-112, D-1131, D-1137). The inn lies to the west and the yard to the east, with one doorway between them. The keeper stands at the end of the bar and holds the rest service, at a price of 10 gold (D-740, D-1156). The waystone of the yard is a solid service point, and it holds the save service (D-1142). The trader stands in the north-east of the yard, clear of the path to the waystone and of the rectangles of the dog, and holds the shop service (D-1149). The barmaid walks from the bar to the tables and waits at each end (D-1138). The dog wanders the two rectangles of the yard, and the child chases the dog inside the same rectangles. The tile south of the spawn point plays the story scene of the stranger until the lead answers him, off every walk to a service, and the straw in the south-east corner of the yard plays the fight with the rats one time (PR-36). The stranger and the guard appear on the two markers in the north-west corner of the inn, which no NPC walks. The debug command `goto map.fixture_hub` puts the party here (D-1133). PR-17 writes the hubs of the first playable.",
  "id": "map.fixture_hub",
  "region": "region.fixture",
  "label": "label.fixture_hub",
@@ -90,8 +90,8 @@
   {
    "id": "trigger.fixture_hub_stranger",
    "kind": "tile",
-   "x": 1,
-   "y": 9,
+   "x": 4,
+   "y": 7,
    "scene": "scene.fixture_hub_stranger",
    "condition": { "not": { "any": [{ "flag": "flag.fixture_hub_yes" }, { "flag": "flag.fixture_hub_no" }] } }
   },

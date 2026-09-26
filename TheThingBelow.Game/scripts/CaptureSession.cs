@@ -8,6 +8,7 @@ using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
+using TheThingBelow.Core.Runs;
 using TheThingBelow.Game.Ui;
 using TheThingBelow.Storage;
 
@@ -367,6 +368,78 @@ public sealed partial class CaptureSession : Node
         this.RunTicks(open, ScreenCaptures.HubTicks);
         drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
         drawn.ShowWeather(open.Tick, seek: true);
+    }
+
+    /// <summary>
+    /// Builds the story scene of the stranger on the fixture hub: the lead walks
+    /// <see cref="ScreenCaptures.StrangerRoute"/> onto the trigger, and a player who reads each line
+    /// presses confirm to the frame of the capture (exit tests 2 and 7 of PR-36).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The story scene reached no frame of the capture in its ticks, or a tick wrote an error (T-2).</exception>
+    private void BuildScene(FrameRoot built, UiBase @base, ScreenCapture capture)
+    {
+        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        MapScreen first = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
+        GoToHub(open);
+        MapScreen drawn = MapFixture.Follow(first, built, @base, open, this.content);
+        foreach (string action in ScreenCaptures.StrangerRoute)
+        {
+            this.StepOnce(open, action);
+        }
+
+        var play = new ScenePlay(this.content.Strings, FrameRoot.WorldWidth, FrameRoot.WorldHeight)
+        {
+            CharactersPerSecond = TextSpeeds.CharactersPerSecond(FixtureSettings.Access.Text),
+        };
+        var box = new DialogueBox(built, @base);
+        var pause = new PauseView(built, @base);
+        this.PlayScene(open, play, () => play.Line is not null);
+
+        // The line frame shows the whole line: the first press of confirm ends the type-out (D-864).
+        string moment = ScreenCaptures.MomentOf(capture.Frame);
+        _ = play.Confirm(open);
+        if (string.CompareOrdinal(moment, ScreenCaptures.SceneLineFrame) != 0)
+        {
+            this.PlayScene(open, play, () => play.Options is not null);
+            play.MoveCursor(1);
+        }
+
+        if (string.CompareOrdinal(moment, ScreenCaptures.ScenePauseFrame) == 0)
+        {
+            open.Queue(play.PauseOf(open, menu: true) ?? throw new InvalidOperationException(
+                $"The story scene took no pause at tick {open.Tick} (D-1010, T-2)."));
+            this.RunTicks(open, 1);
+            play.Follow(open);
+        }
+
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld, play, open.State.Story);
+        drawn.ShowWeather(open.Tick, seek: true);
+        box.Show(play, hidden: false);
+        pause.Show(open.State.Story.Paused);
+    }
+
+    /// <summary>Runs the story scene one tick at a time, with a press of confirm on each whole line, until the condition holds (PR-36).</summary>
+    /// <exception cref="InvalidOperationException">The condition held on no tick of the limit, or a tick wrote an error (T-2).</exception>
+    private void PlayScene(GameRun run, ScenePlay play, Func<bool> done)
+    {
+        const int Limit = 3000;
+        for (int tick = 0; tick < Limit; tick += 1)
+        {
+            if (done())
+            {
+                return;
+            }
+
+            if (play.Line is not null && play.Options is null && play.Characters is null && play.Confirm(run) is Intent made)
+            {
+                run.Queue(made);
+            }
+
+            this.RunTicks(run, 1);
+            play.Follow(run);
+        }
+
+        throw new InvalidOperationException($"The story scene of the capture reached no frame in {Limit} ticks, at tick {run.Tick} (PR-36, T-2).");
     }
 
     /// <summary>
@@ -732,6 +805,12 @@ public sealed partial class CaptureSession : Node
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.HubFixture) == 0)
         {
             this.BuildHub(built, @base);
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.SceneFixture) == 0)
+        {
+            this.BuildScene(built, @base, capture);
             return;
         }
 

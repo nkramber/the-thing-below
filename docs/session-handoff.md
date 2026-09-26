@@ -1,3 +1,39 @@
+## Session 334: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR-36, round 1. Repository: the-thing-below. Branch: `feat/pr-36-dialogue`. PR: the PR-36 intent, and GitHub gives the number at the open. Role: author. Base: `6f02d3d`.
+
+### What this session did, and why
+
+- The owner answered OQ-150 and OQ-151, folded the playtest fixes of PR-65 into PR-36, and set the text batch and the scope (D-1172 to D-1178). OQ-250 is new.
+- Core: a choice holds two to four options, and the simulation version rises to 33 (D-1175, G-17).
+- Game: `ScenePlay` follows each step from the ticks and sends one wait intent at its end. `DialogueBox` draws the line, the portrait, the name plate, and the choices. The map walks each actor, and the story pause dims the frame (D-1009, D-1013).
+- A set fight takes its transition with no encounter: the boss flag, then the largest body of the group (D-788, D-937).
+- Fixes: WASD and Backspace in menus, the "Quantity" label, sharp titles (F-153), the empty line of a service window, and the blur band on the lead or the camera marker (D-1173, D-1177).
+- Content: two fixture story scenes on tiles of the fixture hub, three fixture portraits, and the new portraits atlas page.
+
+### The state of the build
+
+- `make verify` passes locally, except the five new `scene-*` baselines, which come from the CI artifact (D-733). The remote head is the push of this round.
+
+### What is in flight
+
+- The first push, the Gitar pass, and the CI captures. Then the baselines of the changed frames from the `screen-captures` artifact.
+
+### Traps and gotchas
+
+- Core runs a whole move at once. `ScenePlay.TryWalk` walks the actor back from its end tile along the path.
+- Core refuses an intent that no step waits for. `ScenePlay` checks the queue and the queued pause before each intent.
+- The stranger trigger stands at (4, 7), off every walk to a service. A test walks each capture route and fails if a route crosses a trigger.
+
+### The questions that block progress
+
+None. OQ-250, the pause of the fight of a story scene, blocks no PR yet.
+
+### The next concrete action
+
+Commit the baselines from the CI artifact, answer each Gitar item, then run `make codex-review PR=<n>`.
+
 ## Session 333: 2026-09-26, Codex
 
 Author: Codex
@@ -302,33 +338,3 @@ OQ-249 remains open for PR-17.
 ### The next concrete action
 
 Verify the final metadata push, then end this review session.
-
-## Session 324: 2026-09-26, Claude Code
-
-Author: Claude Code
-Session: author PR #84 (PR-14), round 3. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
-
-### What this session did, and why
-
-- Gitar approved `ac14bc2`. The screen compare of `ac14bc2` matched 134 frames and missed the 4 baselines of `menu-rest` and `menu-save` alone.
-- The author read those 4 frames of the artifact (D-784). The lead faces the keeper under the Rest window, and the lead faces the waystone under the Save window, with no clip. This round commits the 4 baselines (D-733).
-
-### The state of the build
-
-- The head of this push holds every baseline. Each check but `review-gate` waits for this push.
-
-### What is in flight
-
-- The checks and the Gitar pass of this push, then `make codex-review PR=84` (D-926).
-
-### Traps and gotchas
-
-- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
-
-### The questions that block progress
-
-None. OQ-249 blocks PR-17.
-
-### The next concrete action
-
-When each check but `review-gate` passes and Gitar completes, run `make codex-review PR=84` in the background.

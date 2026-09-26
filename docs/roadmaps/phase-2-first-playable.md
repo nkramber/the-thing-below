@@ -1910,7 +1910,7 @@ Area file: `area-exploration.md` section 7.11.
 **Out of scope.**
 
 - The shop and the gold (PR-65, D-530).
-- The hub lines that the dialogue box shows (PR-36).
+- The hub lines that the dialogue box shows (PR-19, D-1176).
 - The hub content of the first playable (PR-17).
 - A reserve in the shipped content, and a capture of it (PR-17, D-1144).
 - A swap inside a battle (D-1134).
@@ -2019,18 +2019,21 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 - The pause screen of a story scene: the display dims, and one line in the middle shows the pause (D-1009, D-1010).
 - The camera step, and the view back on the lead at the end of a story scene (D-1013).
 - The start of the battle of a start battle step, which no patrol of the map starts (D-998).
+- The transition of that battle, with no encounter of the map: the boss flag, then the largest body of the group (D-788, D-937).
 - The five playtest fixes of PR-65 (D-1172):
   - WASD and Backspace in every menu.
   - The quantity label of the item window.
   - Sharp window titles.
   - An empty line above the help line of a service window.
-  - The sharp band of the tilt-shift blur on the row of the lead (D-1173).
+  - The sharp band of the tilt-shift blur on the row of the lead, or on the marker of a camera step (D-1173, D-1177).
 
 **Out of scope.**
 
 - The story scene format and the runner (PR-68, D-541).
 - The portraits of the cast (PR-28, PR-29).
 - The music cue of a story scene (PR-70, D-548).
+- The hub lines that the dialogue box shows (PR-19, D-1176).
+- The pause of the fight of a story scene (OQ-250).
 
 **Exit tests.**
 

@@ -1,4 +1,34 @@
 # Session handoff archive
+## Session 324: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #84 (PR-14), round 3. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
+
+### What this session did, and why
+
+- Gitar approved `ac14bc2`. The screen compare of `ac14bc2` matched 134 frames and missed the 4 baselines of `menu-rest` and `menu-save` alone.
+- The author read those 4 frames of the artifact (D-784). The lead faces the keeper under the Rest window, and the lead faces the waystone under the Save window, with no clip. This round commits the 4 baselines (D-733).
+
+### The state of the build
+
+- The head of this push holds every baseline. Each check but `review-gate` waits for this push.
+
+### What is in flight
+
+- The checks and the Gitar pass of this push, then `make codex-review PR=84` (D-926).
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
+
+### The questions that block progress
+
+None. OQ-249 blocks PR-17.
+
+### The next concrete action
+
+When each check but `review-gate` passes and Gitar completes, run `make codex-review PR=84` in the background.
+
 ## Session 323: 2026-09-26, Claude Code
 
 Author: Claude Code

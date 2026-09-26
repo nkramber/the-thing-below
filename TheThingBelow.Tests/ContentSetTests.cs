@@ -649,7 +649,7 @@ public sealed class ContentSetTests
         GameMap hub = set.Map(ContentId.Parse("map.fixture_hub", "test", "id"));
 
         Assert.Equal(["trigger.fixture_hub_stranger", "trigger.fixture_hub_rats"], hub.Triggers.Select(trigger => trigger.Id.Value));
-        Assert.Equal([new TilePoint(1, 9), new TilePoint(18, 10)], hub.Triggers.Select(trigger => trigger.At!.Value));
+        Assert.Equal([new TilePoint(4, 7), new TilePoint(18, 10)], hub.Triggers.Select(trigger => trigger.At!.Value));
         foreach (string route in new[] { "KeeperRoute", "WaystoneRoute", "TraderRoute" })
         {
             var actions = (IEnumerable<string>)GameAssemblyFile.Type("TheThingBelow.Game.ScreenCaptures").GetProperty(route)!.GetValue(null)!;

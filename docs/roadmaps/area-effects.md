@@ -387,7 +387,7 @@ Built by PR-56 and PR-92. Phase file: `phase-2-first-playable.md`.
 - The art target is the look of Octopath Traveler, in 2D (D-849). The game stays a flat 2D view, with no 3D scene.
 - PR-56 gives the base of the look: a dark ambient light, warm pools of torch light, normal-mapped sprites, and hard shadows (D-183, D-843).
 - PR-59 gives the glow on light alone, as a smooth bloom (D-188, D-911, D-915).
-- PR-92 adds three full-screen passes: a tilt-shift blur at the top and the bottom of the frame, a vignette, and light shafts (D-849). The sharp band of the blur follows the row of the lead (D-1173).
+- PR-92 adds three full-screen passes: a tilt-shift blur at the top and the bottom of the frame, a vignette, and light shafts (D-849). The sharp band of the blur follows the lead, or the marker of a camera step of a story scene (D-1173, D-1177).
 - Each pass takes a smooth mode and a stepped mode, and the owner reads both and picks one (D-917). The file `content/effects/hd2d.json` holds the mode, the blur, and the vignette.
 - The stepped mode fades in 2 to 8 steps over blocks of 1 to 8 art pixels, as the fog does. The smooth mode fades with no steps, and its colors can leave the palette.
 - A light shaft is a shaft kind in `content/decor/shafts/`, and the decor file of a map places each shaft on a wall (D-918). A map holds 8 shafts at most, the size of the arrays of the shader.

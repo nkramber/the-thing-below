@@ -226,6 +226,69 @@ public sealed class MenuLayoutTests
         Assert.Equal((Pad() * 2) + (line * 4), Read(GameValue.Static(Layout, "ServiceBox", body)!, "Height"));
     }
 
+    [Fact]
+    public void TheDialogueBoxHoldsTheLineLimitAtTheLargerBody()
+    {
+        // D-635: the box holds 76 characters at a body of 32, the limit of a dialogue line.
+        Assert.Equal(76, (int)GameValue.Static(Layout, "DialogueCharacters", 32)!);
+        Assert.True((int)GameValue.Static(Layout, "DialogueCharacters", 24)! >= 76);
+    }
+
+    [Theory]
+    [InlineData(24)]
+    [InlineData(32)]
+    public void TheDialogueWindowsStayInsideTheFrameAndApart(int body)
+    {
+        // Review focus of PR-36 (D-568, D-1175): four choices fit the frame, and the window of the
+        // portrait and the window of the choices stand apart above the box.
+        object box = GameValue.Static(Layout, "DialogueBox", body)!;
+        object portrait = GameValue.Static(Layout, "PortraitBox", body)!;
+        object choices = GameValue.Static(Layout, "ChoiceBox", body, 4)!;
+        foreach (object place in new[] { box, portrait, choices })
+        {
+            int x = Read(place, "X");
+            int y = Read(place, "Y");
+            Assert.True(x >= 0 && y >= 0 && x + Read(place, "Width") <= 1280 && y + Read(place, "Height") <= 720, $"The box {place} leaves the frame.");
+            Assert.True(place == box || y + Read(place, "Height") <= Read(box, "Y"), $"The box {place} covers the dialogue box.");
+        }
+
+        Assert.True(Read(portrait, "X") + Read(portrait, "Width") < Read(choices, "X"), "The portrait and the choices overlap.");
+    }
+
+    [Fact]
+    public void EachLineOptionAndNameOfTheStoryScenesFitsItsPlace()
+    {
+        // G-7, D-635: a line wraps into three lines of the box at a body of 32, an option fits one row
+        // of the window of the choices, and a name fits the name plate over the portrait.
+        int across = (int)GameValue.Static(Layout, "DialogueCharacters", 32)!;
+        int option = (int)GameValue.Static(Layout, "ChoiceCharacters", 32)!;
+        int name = ((int)GameValue.Constant(Layout, "PortraitWidth") - 32) / 16;
+        foreach (TheThingBelow.Core.Story.StoryScene scene in Content.Value.Story.Scenes)
+        {
+            foreach (TheThingBelow.Core.Story.SceneStep step in scene.Steps)
+            {
+                if (step is TheThingBelow.Core.Story.SayStep say)
+                {
+                    string text = Text(say.Line);
+                    Assert.True(WrappedLines(text, across) <= 3, $"The line '{say.Line.Value}' takes more than three lines of {across} characters.");
+                    if (say.Speaker is TheThingBelow.Core.Story.SceneActor speaker)
+                    {
+                        ContentId plate = (ContentId)GameValue.Static("ScenePlay", "NameIdOf", speaker)!;
+                        Assert.True(Text(plate).Length <= name, $"The name '{plate.Value}' fills more than {name} characters.");
+                    }
+                }
+
+                if (step is TheThingBelow.Core.Story.ChooseStep choose)
+                {
+                    foreach (TheThingBelow.Core.Story.ChooseOption each in choose.Options)
+                    {
+                        Assert.True(Text(each.Line).Length <= option, $"The option '{each.Line.Value}' fills more than {option} characters.");
+                    }
+                }
+            }
+        }
+    }
+
     [Theory]
     [InlineData(24, 48, 20)]
     [InlineData(32, 64, 15)]
@@ -258,6 +321,28 @@ public sealed class MenuLayoutTests
     private static ContentId Id(string value) => ContentId.Parse(value, StringTable.Path, "test");
 
     private static string Text(ContentId id) => Content.Value.Strings.Text(id);
+
+    /// <summary>Gives the count of lines of a text that wraps at whole words into lines of one width.</summary>
+    private static int WrappedLines(string text, int width)
+    {
+        int lines = 1;
+        int used = 0;
+        foreach (string word in text.Split(' '))
+        {
+            int needed = used == 0 ? word.Length : used + 1 + word.Length;
+            if (needed > width)
+            {
+                lines += 1;
+                used = word.Length;
+            }
+            else
+            {
+                used = needed;
+            }
+        }
+
+        return lines;
+    }
 
     private static string Fill(string id, params string[] pairs)
     {

@@ -264,12 +264,11 @@ public sealed class ScenePlayTests
             return made;
         }
 
-        /// <summary>Walks from the spawn point at (4, 6) to the trigger at (1, 9), and waits for the first line.</summary>
+        /// <summary>Walks from the spawn point at (4, 6) to the trigger at (4, 7), and waits for the first line.</summary>
         public static Play AtTheStranger()
         {
             Play made = AtHub();
-            made.Walk(IntentIds.MoveWest, 3);
-            made.Walk(IntentIds.MoveSouth, 3);
+            made.Walk(IntentIds.MoveSouth, 1);
             made.Until(() => made.Line is not null, () => { });
             return made;
         }
