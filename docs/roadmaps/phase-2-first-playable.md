@@ -2014,10 +2014,17 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 - The draw of each story scene step: a sprite that moves and faces, from the tick of Core (D-540, F-52).
 - The choice as an intent, whose result Core holds (D-493, D-540).
 - Fixture portraits as 64 by 64 grids, because PR-28 and PR-29 draw the cast (D-234).
-- The skip, which the accessibility settings of PR-63 hold (D-214, OQ-150).
+- The choices in a menu window above the box, two to four, and a content check that refuses a fifth option (D-1175).
+- The skip: a press of confirm shows the full line at once, and no input skips a whole story scene (D-1174).
 - The pause screen of a story scene: the display dims, and one line in the middle shows the pause (D-1009, D-1010).
 - The camera step, and the view back on the lead at the end of a story scene (D-1013).
 - The start of the battle of a start battle step, which no patrol of the map starts (D-998).
+- The five playtest fixes of PR-65 (D-1172):
+  - WASD and Backspace in every menu.
+  - The quantity label of the item window.
+  - Sharp window titles.
+  - No empty line above the help line of a service window.
+  - The sharp band of the tilt-shift blur on the row of the lead (D-1173).
 
 **Out of scope.**
 
@@ -2031,18 +2038,23 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 2. A screen test captures the box with a portrait and with choices.
 3. A test proves that Game moves a story scene sprite from the tick, never from a timer (G-23, F-52).
 4. The type-out follows the fixed layout of D-709 at each speed of D-864.
-5. The skip follows the rule of OQ-150, and the player never loses a choice.
+5. Confirm shows the full line, then goes to the next step. The player never loses a choice (D-1174).
 6. Each string comes from the string table, and det-lint proves it.
 7. A screen test captures the pause screen, and the start button ends the pause (D-1010).
 8. A fixture story scene starts its battle on screen, and the story scene goes on after the win (D-998, D-999).
+9. A test proves that WASD and Backspace drive each menu as the arrow keys and Esc do (D-1172).
+10. A screen test captures the item window with its quantity label, and the rest window with no empty line (D-1172).
+11. A test proves that the sharp band follows the lead on a small map and a clamped edge (D-1173).
+12. The content check refuses a choose step with a fifth option (D-1175).
 
 **Review focus.**
 
-- The answer of OQ-151 lays the choices out, and the count fits the height of the frame of D-568.
+- The choice window of D-1175 holds four rows at a body of 32, and it fits the frame of D-568 (D-707).
+- The window titles draw sharp at 1280 by 720 and at 1920 by 1080 (D-568).
 - The player speaks the choices of the lead, and the map always follows the lead (D-267, D-292).
 - The box types in silence, and no beep plays (D-223).
 
-**Questions.** OQ-150 and OQ-151. D-864 answers OQ-112.
+**Questions.** None. D-1174 answers OQ-150, D-1175 answers OQ-151, and D-864 answers OQ-112.
 
 > *In plain English:* people walk, turn, and speak on the map you already walk on. Their words appear in a box at the bottom, with a face beside them.
 
@@ -2845,8 +2857,8 @@ The register is `docs/questions.md` (D-19). These questions block an item of Pha
 | OQ-147 | Where content declares each flag id, resolved by D-1003 | PR-68 |
 | OQ-148 | What fires a story scene trigger, resolved by D-1004 | PR-68 |
 | OQ-149 | Whether a story scene step starts a battle, resolved by D-998 and D-999 | PR-68 |
-| OQ-150 | How the player skips a story scene | PR-36 |
-| OQ-151 | How the choices lay out in the dialogue box | PR-36 |
+| OQ-150 | How the player skips a story scene, resolved by D-1174 | PR-36 |
+| OQ-151 | How the choices lay out in the dialogue box, resolved by D-1175 | PR-36 |
 | OQ-156 | The instrument voices of the synthesizer | PR-38 |
 | OQ-157 | The schema of the tracker rows | PR-38 |
 | OQ-158 | The sample rate, the bit depth, and the channels | PR-38 |
