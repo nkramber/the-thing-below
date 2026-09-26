@@ -646,7 +646,7 @@ Phase file: `docs/roadmaps/phase-2-first-playable.md`. This is the largest phase
 44. PR-14: the hub map, the NPCs and their movement, the rest, the save, and the party swap (D-59, D-112, D-1131 to D-1140).
 45. PR-65: the shop and the gold economy, after PR-13 (D-60, D-530).
 46. PR-36: the dialogue box, the portraits, and the story scene on screen (D-114, D-223).
-47. PR-15: the headless runner, the two bot policies, and the bot job (D-64, D-505).
+47. PR-15: the headless runner, the two bot policies, the battle numbers, and the bot job (D-64, D-505, D-1179 to D-1184).
 48. PR-49: the night job and the `night-gate` command, right after PR-15 (D-496, D-507).
 49. Owner: require the bot and `night-gate` checks on `main` after their first runs.
 50. PR-16: the treasure, the doors, the keys, and the save points (D-41, D-555).
