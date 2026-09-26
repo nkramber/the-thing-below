@@ -1,3 +1,35 @@
+## Session 323: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #84 (PR-14), round 2. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: #84. Role: author. Base: `c7e6191`.
+
+### What this session did, and why
+
+- Gitar approved `609e122` with no thread. Its CI analysis named one `review-gate` fault, RG 3, the absent review record, and a PR comment answers it.
+- The `screen-captures` artifact of `609e122` differed in 25 frames. The author read the hub frames, the Rest and Save frames, and the menu frames (D-784). The 9 menu frames differ by the same pixel count, which is the Save line of the main list (D-1143).
+- The Rest and Save captures drew their window with the lead at the spawn. `d03a305` walks the lead to face the keeper and the waystone, and it sends a real confirm.
+- This round commits 21 baselines from that artifact: the 3 hub frames and the 18 menu frames (D-733).
+
+### The state of the build
+
+- The head of this push holds the work. The 4 baselines of `menu-rest` and `menu-save` wait for the artifact of this push.
+
+### What is in flight
+
+- The artifact of this push gives the 4 last baselines. Then the Gitar pass, and `make codex-review PR=84`.
+
+### Traps and gotchas
+
+- `make sheet` stops on this Mac at `map-fill-1080`, because the screen gives 1920 by 955. Read the frames of the CI artifact.
+
+### The questions that block progress
+
+None. OQ-249 blocks PR-17.
+
+### The next concrete action
+
+Read the `menu-rest` and `menu-save` frames of the artifact of this push, and commit their 4 baselines.
+
 ## Session 322: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -298,39 +330,3 @@ None for this PR.
 ### The next concrete action
 
 Read the new conflict frame of the artifact, take it as the baseline, push, and run `make codex-review PR=82` after green CI.
-
-## Session 313: 2026-09-25, Codex
-
-Author: Codex
-Session: reviewer PR #82 (PR-105), round 1. Repository: the-thing-below. Local branch: `review/pr-82`; PR branch: `fix/pr-105-save-drift`. Role: reviewer. Base: `640ad98`.
-
-### What this session did, and why
-
-- Reviewed effective head `0e71601` and inspected all 74 changed paths.
-- P2-1 finds that the selected remap conflict stays yellow, but D-1119 requires each conflict cell to use the warning color.
-- Verified the Gitar CI-analysis answer against the RG 3 log. The CI failure names the missing review record, which this session supplies.
-- Updated the PR Documents row to name `docs/reviews/pr-82.md`.
-
-### The state of the build
-
-- `make verify` passed on macOS arm64: 3397 tests, format, lint, STE, identity, content, atlas, and smoke.
-- CI passed the implementation checks at effective head `0e71601`. `review-gate` failed RG 3 before this record existed.
-
-### What is in flight
-
-- This review record and this handoff entry are committed together and pushed to `fix/pr-105-save-drift`.
-- The current Gitar dashboard approves the head. Its CI-analysis item has the author answer, and no review thread stays open (D-964).
-- The author must answer P2-1, correct the selected conflict color, and request a repeat review.
-
-### Traps and gotchas
-
-- The CI artifact shows the chosen Back binding in yellow and the conflicting Confirm binding in red. D-1119 requires the warning color on both conflict cells.
-- Saves before format 14 lack a story step id and use the stored index, as D-1112 directs.
-
-### The questions that block progress
-
-None. P2-1 blocks approval. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 remain outside PR-105.
-
-### The next concrete action
-
-The author answers P2-1 with the `pr-review` skill, then pushes one correction round for repeat review.
