@@ -1,3 +1,38 @@
+## Session 330: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #85 (PR-65), round 4. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: #85. Role: author. Base: `8e81487`.
+
+### What this session did, and why
+
+- The owner read the gear window of round 3 and removed a redundancy (D-1169). D-1060 is revised in part again.
+- The line above the values of the gear window shows the stat names alone, dim. Each value stands under its name, with its change after it.
+- A value that holds takes the plain color, in the gear window and in the popup of the shop, because the names above stand dim. A gain stays green, and a loss stays red.
+- The gear window no longer takes the string table. The session read the gear and shop frames of `make sheet FIXTURE=menu`.
+
+### The state of the build
+
+- Every local check passes. Ten tests fail alone: the baselines of the ten shop frames, which come from the `screen-captures` artifact of CI.
+- Gitar approved round 3 with no thread. The remote head is the push of this round.
+
+### What is in flight
+
+- The approval of the owner for the frames of round 4 in the PR description.
+- Then the baselines of the CI artifact, the answer to the CI claim of Gitar (RG 3 before the review), and `make codex-review`.
+
+### Traps and gotchas
+
+- The plain color of a value that holds is a choice of the session under D-1169. The owner reads it in the frames.
+- Perl substitutions with braces in C# text fail. Use the Edit tool for each change of C# text.
+
+### The questions that block progress
+
+The owner approves the frames before the review (D-1164). The text batch waits for the approval of the owner (D-57).
+
+### The next concrete action
+
+Wait for the approval of the owner. Then commit the baselines of the CI artifact, and run `make codex-review PR=85`.
+
 ## Session 329: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -297,37 +332,3 @@ None. OQ-246 holds the cause of the screen flake.
 ### The next concrete action
 
 After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
-
-## Session 320: 2026-09-25, Codex
-
-Author: Codex
-Session: reviewer PR #83 (PR-106). Repository: the-thing-below. Local branch: `review/pr-83`; PR branch: `fix/pr-106-gate-trust`. PR: #83. Role: reviewer. Base: `d875322`.
-
-### What this session did, and why
-
-- Reviewed the full change at effective head `b93b796` and wrote `docs/reviews/pr-83.md`.
-- Verified the Gitar CI-analysis answer. RG 3 alone failed because the review record was not on the PR before this review (F-37, D-964).
-- `make verify` passed with 3,492 tests. CI passed the implementation checks on all three systems.
-- Inspected all 127 frames in the CI artifact. The new Deck, body-24, settings, and crash frames show no visual fault.
-
-### The state of the build
-
-- The remote head before this metadata commit is `b93b796`. The local build and implementation CI pass at that head.
-
-### What is in flight
-
-- This review record and this entry are committed together and pushed to `fix/pr-106-gate-trust`.
-- The review gives `Ready for owner merge` for `b93b796`. The live `review-gate` check must read the published record.
-
-### Traps and gotchas
-
-- The `review-gate` check fails RG 3 before the review record reaches the PR. RG 4 and RG 5 then skip (F-37).
-- The Gitar code approval has no item. The CI-analysis item has the author's answer, and needs no further reply (D-964).
-
-### The questions that block progress
-
-OQ-246 remains open for the cause of a one-level screen-test flake. PR-106 adds diagnostics and package pins (D-1080, D-1127).
-
-### The next concrete action
-
-Read the live `review-gate` result after the metadata push, then end this review session.

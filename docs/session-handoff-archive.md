@@ -1,5 +1,39 @@
 # Session handoff archive
 
+## Session 320: 2026-09-25, Codex
+
+Author: Codex
+Session: reviewer PR #83 (PR-106). Repository: the-thing-below. Local branch: `review/pr-83`; PR branch: `fix/pr-106-gate-trust`. PR: #83. Role: reviewer. Base: `d875322`.
+
+### What this session did, and why
+
+- Reviewed the full change at effective head `b93b796` and wrote `docs/reviews/pr-83.md`.
+- Verified the Gitar CI-analysis answer. RG 3 alone failed because the review record was not on the PR before this review (F-37, D-964).
+- `make verify` passed with 3,492 tests. CI passed the implementation checks on all three systems.
+- Inspected all 127 frames in the CI artifact. The new Deck, body-24, settings, and crash frames show no visual fault.
+
+### The state of the build
+
+- The remote head before this metadata commit is `b93b796`. The local build and implementation CI pass at that head.
+
+### What is in flight
+
+- This review record and this entry are committed together and pushed to `fix/pr-106-gate-trust`.
+- The review gives `Ready for owner merge` for `b93b796`. The live `review-gate` check must read the published record.
+
+### Traps and gotchas
+
+- The `review-gate` check fails RG 3 before the review record reaches the PR. RG 4 and RG 5 then skip (F-37).
+- The Gitar code approval has no item. The CI-analysis item has the author's answer, and needs no further reply (D-964).
+
+### The questions that block progress
+
+OQ-246 remains open for the cause of a one-level screen-test flake. PR-106 adds diagnostics and package pins (D-1080, D-1127).
+
+### The next concrete action
+
+Read the live `review-gate` result after the metadata push, then end this review session.
+
 ## Session 319: 2026-09-25, Claude Code
 
 Author: Claude Code

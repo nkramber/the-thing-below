@@ -525,7 +525,7 @@ public sealed class ShopView : IMenuView
                 ? Values(("value", Number(trial[stat])))
                 : Values(("change", Number(Math.Abs(trial[stat] - worn[stat]))), ("value", Number(trial[stat])));
             this.ui.Text.Put(cell, GearView.TrialIdOf(worn[stat], trial[stat]), values);
-            MenuNodes.Paint(cell, trial[stat] > worn[stat] ? this.gainColor : trial[stat] < worn[stat] ? this.lossColor : this.dimColor);
+            MenuNodes.Paint(cell, trial[stat] > worn[stat] ? this.gainColor : trial[stat] < worn[stat] ? this.lossColor : null);
         }
     }
 

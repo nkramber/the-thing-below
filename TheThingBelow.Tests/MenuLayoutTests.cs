@@ -187,11 +187,11 @@ public sealed class MenuLayoutTests
     [InlineData(32)]
     public void EachCellOfTheStatsOfTheGearWindowFitsAtTheHighestValues(int body)
     {
-        // D-1060: a cell holds a stat of 999 with its name, or a change of 99 with the stat.
+        // D-1060, D-1168, D-1169: a cell holds the name of a stat, or a stat of 999 with a change of 99.
         int fits = (int)GameValue.Static("GearView", "StatCellCharacters", body)!;
         string[] cells =
         [
-            Fill("menu.stat", "stat", Text(Id("battle.stat_res")), "value", "999"),
+            Text(Id("battle.stat_res")),
             Fill("menu.gear_gain", "change", "99", "value", "999"),
             Fill("menu.gear_loss", "change", "99", "value", "999"),
             Fill("menu.gear_same", "value", "999"),

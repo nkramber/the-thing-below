@@ -10,19 +10,20 @@ namespace TheThingBelow.Game.Ui;
 
 /// <summary>
 /// The gear window: one character at a time, with the stats that the gear gives, the six gear
-/// slots, and the pieces of the pack that fit a slot (D-44, D-1036, D-1048). A second line of
-/// stats compares the piece under the cursor with the worn piece (D-1060).
+/// slots, and the pieces of the pack that fit a slot (D-44, D-1036, D-1048). A line of stat names
+/// stands above a line of values, which compares the piece under the cursor with the worn piece
+/// (D-1060, D-1168, D-1169).
 /// </summary>
 /// <remarks>
 /// The window makes one intent for each whole choice and never changes the run itself. The
 /// change lands on the next tick, and the window shows it on the frame after (D-493, T-7). An
 /// empty slot shows a dash (D-44). The last line holds the line of the piece under the cursor.
-/// Each line of stats holds one cell for each of the five stats that gear changes, so the cells
-/// of the two lines stand in columns (D-1052).
+/// Each of the two lines holds one cell for each of the five stats that gear changes, so each
+/// value stands under its name (D-1052, D-1169).
 /// </remarks>
 public sealed class GearView : IMenuView
 {
-    /// <summary>The lines above the list: the character, the worn stats, the trial stats, and the caption of the list.</summary>
+    /// <summary>The lines above the list: the character, the stat names, the stats with the piece under the cursor, and the caption of the list (D-1169).</summary>
     private const int HeadLines = 4;
 
     /// <summary>The share of the inner width of the window that the left column of the list takes, in hundredths.</summary>
@@ -32,7 +33,6 @@ public sealed class GearView : IMenuView
     private static readonly string[] StatNames = ["battle.stat_atk", "battle.stat_mag", "battle.stat_def", "battle.stat_res", "battle.stat_spd"];
 
     private readonly UiBase ui;
-    private readonly StringTable strings;
     private readonly RunState state;
     private readonly Control layer;
     private readonly Label name;
@@ -53,20 +53,17 @@ public sealed class GearView : IMenuView
     /// <summary>Builds the gear window beside the main list.</summary>
     /// <param name="frame">The frame, whose UI layer takes the window.</param>
     /// <param name="ui">The atlas, the theme, and the text helper.</param>
-    /// <param name="strings">The string table, which gives the name of each stat (D-979, D-1056).</param>
     /// <param name="state">The state of the run, which the window reads on each frame and never changes.</param>
     /// <param name="cursor">The cursor, which the window keeps when the screen builds again.</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    public GearView(FrameRoot frame, UiBase ui, StringTable strings, RunState state, GearCursor cursor)
+    public GearView(FrameRoot frame, UiBase ui, RunState state, GearCursor cursor)
     {
         ArgumentNullException.ThrowIfNull(frame);
         ArgumentNullException.ThrowIfNull(ui);
-        ArgumentNullException.ThrowIfNull(strings);
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(cursor);
 
         this.ui = ui;
-        this.strings = strings;
         this.state = state;
         this.Cursor = cursor;
         this.chosenColor = ui.Theme.ColorOf("text_chosen");
@@ -172,8 +169,9 @@ public sealed class GearView : IMenuView
         int[] trialValues = ValuesOf(this.Cursor.TrialStats());
         for (int stat = 0; stat < StatNames.Length; stat += 1)
         {
-            string name = this.strings.Text(Id(StatNames[stat]));
-            this.ui.Text.Put(this.wornCells[stat], Id("menu.stat"), Values(("stat", name), ("value", Number(wornValues[stat]))));
+            // The line above the values holds the stat names alone, and each value stands under its name (D-1169).
+            this.ui.Text.Put(this.wornCells[stat], Id(StatNames[stat]));
+            MenuNodes.Paint(this.wornCells[stat], this.dimColor);
             this.PutTrial(this.trialCells[stat], wornValues[stat], trialValues[stat]);
         }
 
@@ -256,9 +254,9 @@ public sealed class GearView : IMenuView
     }
 
     /// <summary>
-    /// Puts one cell of the trial line: grey when the stat holds, green with the gain when it
-    /// rises, and red with the loss when it falls. The cell shows the whole stat with the piece
-    /// under the cursor (D-1060).
+    /// Puts one cell of the trial line: the plain color when the stat holds, green with the gain
+    /// when it rises, and red with the loss when it falls. The cell shows the whole stat with the
+    /// piece under the cursor, and the change after it (D-1060, D-1168, D-1169).
     /// </summary>
     private void PutTrial(Label cell, int worn, int trial)
     {
@@ -267,7 +265,8 @@ public sealed class GearView : IMenuView
             ? Values(("value", Number(trial)))
             : Values(("change", Number(Math.Abs(trial - worn))), ("value", Number(trial)));
         this.ui.Text.Put(cell, TrialIdOf(worn, trial), values);
-        Color color = trial > worn ? this.gainColor : trial < worn ? this.lossColor : this.dimColor;
+        // The names above stand dim, so a value that holds takes the plain color (D-1169).
+        Color? color = trial > worn ? this.gainColor : trial < worn ? this.lossColor : null;
         MenuNodes.Paint(cell, color);
     }
 

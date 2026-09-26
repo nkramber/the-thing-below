@@ -877,7 +877,7 @@ public sealed partial class CaptureSession : Node
                 }
             }
 
-            _ = new GearView(built, @base, this.content.Strings, open.State, cursor);
+            _ = new GearView(built, @base, open.State, cursor);
         }
         else if (string.CompareOrdinal(frame, ScreenCaptures.MenuItemsFrame) == 0)
         {
