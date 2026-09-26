@@ -2023,7 +2023,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
   - WASD and Backspace in every menu.
   - The quantity label of the item window.
   - Sharp window titles.
-  - No empty line above the help line of a service window.
+  - An empty line above the help line of a service window.
   - The sharp band of the tilt-shift blur on the row of the lead (D-1173).
 
 **Out of scope.**
@@ -2043,7 +2043,7 @@ Area files: `area-story.md` section 7.4, `area-ui-input.md` section 7.8.
 7. A screen test captures the pause screen, and the start button ends the pause (D-1010).
 8. A fixture story scene starts its battle on screen, and the story scene goes on after the win (D-998, D-999).
 9. A test proves that WASD and Backspace drive each menu as the arrow keys and Esc do (D-1172).
-10. A screen test captures the item window with its quantity label, and the rest window with no empty line (D-1172).
+10. A screen test captures the item window with its quantity label, and the rest window with its empty line (D-1172).
 11. A test proves that the sharp band follows the lead on a small map and a clamped edge (D-1173).
 12. The content check refuses a choose step with a fifth option (D-1175).
 

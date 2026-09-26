@@ -498,6 +498,10 @@
    "text": "The pack holds nothing to use."
   },
   {
+   "id": "menu.item_quantity",
+   "text": "Quantity"
+  },
+  {
    "id": "menu.item_target",
    "text": "On whom"
   },

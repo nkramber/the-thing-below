@@ -50,6 +50,7 @@ public static class MapFixture
         frame.ShowPasses(passes, content.Palette);
         var drawn = new MapScreen();
         frame.World.AddChild(drawn);
+        drawn.Frame = frame;
         drawn.Build(@base.Atlas, @base.Theme, party, content, ambient ?? content.Effects.Ambient.WeatherOf(party.Map.Id), passes);
         drawn.ShowParty(party, 0, run.Tick, run.TorchHeld);
         drawn.SeekParticles = seekParticles;

@@ -396,9 +396,9 @@ public sealed class StoryScene
     private static List<ChooseOption> OptionsOf(ref ContentReader reader, int depth, StepFields fields)
     {
         List<ChooseOption> options = reader.Require(fields.Options, depth, "options");
-        if (options.Count < 2)
+        if (options.Count < ChooseStep.FewestOptions || options.Count > ChooseStep.MostOptions)
         {
-            throw reader.RefuseField(depth, "options", $"the choice holds {options.Count} options, and a choice holds two or more (D-1007)");
+            throw reader.RefuseField(depth, "options", $"the choice holds {options.Count} options, and a choice holds {ChooseStep.FewestOptions} to {ChooseStep.MostOptions} (D-1007, D-1175)");
         }
 
         for (int index = 0; index < options.Count; index += 1)

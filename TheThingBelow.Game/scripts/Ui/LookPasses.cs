@@ -38,6 +38,12 @@ public static class LookPasses
     /// <summary>The name of the uniform of the radius of the blur at the edge of the view.</summary>
     public const string RadiusName = "radius";
 
+    /// <summary>The name of the uniform of the row that the sharp area of the blur centers on (D-1173).</summary>
+    public const string FocusName = "focus";
+
+    /// <summary>The focus of the blur in the middle of the view, which a fight keeps (D-849, D-1173).</summary>
+    public const int MiddleFocus = 180;
+
     /// <summary>The name of the uniform of the palette color of the vignette.</summary>
     public const string ColorName = "color";
 
@@ -74,6 +80,7 @@ public static class LookPasses
         SetMode(blur, passes);
         blur.SetShaderParameter(BandName, passes.BlurBand);
         blur.SetShaderParameter(RadiusName, passes.BlurRadius);
+        blur.SetShaderParameter(FocusName, MiddleFocus);
 
         SetMode(vignette, passes);
         vignette.SetShaderParameter(ColorName, ColorOf(palette, passes.VignetteKey, Hd2dPasses.Path));

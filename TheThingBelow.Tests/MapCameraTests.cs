@@ -90,6 +90,43 @@ public sealed class MapCameraTests
     }
 
     [Fact]
+    public void TheSharpBandStaysInTheMiddleWhileTheViewFollowsTheLead()
+    {
+        // D-1173: in the middle of a large map the lead stands in the middle of the view.
+        MapState party = At(TestMaps.Large, new TilePoint(TestMaps.Large.Width / 2, TestMaps.Large.Height / 2));
+
+        Assert.Equal(ViewHeight / 2, Focus(party));
+        Assert.Equal(180, (int)GameValue.Constant("LookPasses", "MiddleFocus"));
+    }
+
+    [Fact]
+    public void TheSharpBandFollowsTheLeadOnAMapSmallerThanTheView()
+    {
+        // A regression test of the playtest of PR-65 (D-1173): the view of a small map stands
+        // still (D-717), and the lead walked into the blur at the top and the bottom of the frame.
+        MapState party = MapState.Enter(TestMaps.Small);
+        (_, int y) = Place(party);
+
+        Assert.Equal((TestMaps.Small.Spawn.Y * TilePixels) + (TilePixels / 2) - y, Focus(party));
+    }
+
+    [Fact]
+    public void TheSharpBandFollowsTheLeadAtAClampedEdgeOfALargeMap()
+    {
+        // D-1173: at the north edge the view clamps, and the lead stands above the middle.
+        MapState party = At(TestMaps.Large, new TilePoint(1, 1));
+
+        Assert.Equal(TilePixels + (TilePixels / 2), Focus(party));
+    }
+
+    [Fact]
+    public void TheSharpBandNeverLeavesTheView()
+    {
+        Assert.Equal(0, Call<int>("FocusRowOf", 0, 100, ViewHeight));
+        Assert.Equal(ViewHeight, Call<int>("FocusRowOf", 900, 0, ViewHeight));
+    }
+
+    [Fact]
     public void TheLeadSlidesForwardOnEveryTickOfAStepAndNeverPastTheNextTile()
     {
         // D-203: Core keeps the lead on a whole tile, and Game draws the slide. Every value
@@ -247,6 +284,10 @@ public sealed class MapCameraTests
     }
 
     private static int LeadX(MapState party) => Call<int>("LeadX", party, 0);
+
+    /// <summary>Gives the row of the view that the blur centers on, as the map screen computes it (D-1173).</summary>
+    private static int Focus(MapState party) =>
+        Call<int>("FocusRowOf", Call<int>("LeadY", party, 0), Place(party).Y, ViewHeight);
 
     /// <summary>Gives the place of the view as its two pixels, through the Game assembly.</summary>
     private static (int X, int Y) Place(MapState party)

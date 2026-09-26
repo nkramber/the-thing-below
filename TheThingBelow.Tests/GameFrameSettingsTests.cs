@@ -145,6 +145,23 @@ public sealed class GameFrameSettingsTests
         Assert.Empty(found);
     }
 
+    [Fact]
+    public void TheFrameDrawsEachCanvasItemWithTheNearestFilter()
+    {
+        // A regression test of the blurred window titles of the playtest of PR-65 (D-1172). A title
+        // doubles the strike of its font, and a new viewport draws with a linear filter, because
+        // the project setting reaches the root viewport alone.
+        string frame = System.IO.File.ReadAllText(RepositoryRoot.PathTo("TheThingBelow.Game/scripts/Ui/FrameRoot.cs"));
+        int start = frame.IndexOf("this.frameViewport = new SubViewport", StringComparison.Ordinal);
+        int end = frame.IndexOf("};", start, StringComparison.Ordinal);
+
+        Assert.True(start >= 0 && end > start, "FrameRoot builds no frame viewport.");
+        Assert.Contains(
+            "CanvasItemDefaultTextureFilter = Viewport.DefaultCanvasItemTextureFilter.Nearest,",
+            frame[start..end],
+            StringComparison.Ordinal);
+    }
+
     private static IReadOnlyDictionary<string, string> Section(string name) =>
         GodotConfigFile.Read(ProjectPath)[name];
 

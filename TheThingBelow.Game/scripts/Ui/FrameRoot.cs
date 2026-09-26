@@ -154,6 +154,23 @@ public partial class FrameRoot : Node
         LookPasses.Show(this.blur, this.vignette, passes, palette);
     }
 
+    /// <summary>Centers the sharp area of the tilt-shift blur on one row of the view (D-1173).</summary>
+    /// <param name="row">The row, in art pixels, from 0 to the height of the world.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The row is outside the view (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The frame is not in the tree yet, so it holds no passes (T-2).</exception>
+    public void FocusBlur(int row)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(row);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(row, WorldHeight);
+
+        if (this.blur is null)
+        {
+            throw new InvalidOperationException("The frame holds no passes before it enters the tree, so it can focus no blur (T-2).");
+        }
+
+        this.blur.SetShaderParameter(LookPasses.FocusName, row);
+    }
+
     /// <summary>Changes the fit of the frame, which the fit of the display settings sets (D-232, D-860).</summary>
     /// <param name="mode">The fit to take from now on.</param>
     public void SetMode(FitMode mode)
@@ -290,6 +307,10 @@ public partial class FrameRoot : Node
             Size = new Vector2I(ScreenFit.FrameWidth, ScreenFit.FrameHeight),
             RenderTargetUpdateMode = SubViewport.UpdateMode.Always,
             Oversampling = false,
+
+            // A new viewport draws each canvas item with a linear filter, and the project setting
+            // reaches the root alone. A title doubles its strike, so a linear filter blurred it (D-1172).
+            CanvasItemDefaultTextureFilter = Viewport.DefaultCanvasItemTextureFilter.Nearest,
         };
 
         // The scene fills the frame at 2x, so one art pixel covers 2 by 2 frame pixels

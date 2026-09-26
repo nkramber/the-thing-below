@@ -214,6 +214,19 @@ public sealed class MenuLayoutTests
     }
 
     [Theory]
+    [InlineData(24)]
+    [InlineData(32)]
+    public void AnEmptyLineStandsAboveTheHelpOfAServiceWindow(int body)
+    {
+        // D-1172, from the playtest of PR-65: the rest and the save windows hold two choices, an
+        // empty line, and the line of help. The old window put the help right under "Leave".
+        int line = body + 4;
+
+        Assert.Equal(3, (int)GameValue.Constant(Layout, "ServiceHelpRow"));
+        Assert.Equal((Pad() * 2) + (line * 4), Read(GameValue.Static(Layout, "ServiceBox", body)!, "Height"));
+    }
+
+    [Theory]
     [InlineData(24, 48, 20)]
     [InlineData(32, 64, 15)]
     public void TheLogWindowShowsALineCountForEachBodySize(int body, int title, int lines)

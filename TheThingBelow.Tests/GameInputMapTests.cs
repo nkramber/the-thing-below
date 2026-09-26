@@ -21,4 +21,23 @@ public sealed class GameInputMapTests
         Assert.Empty(bindings.FindConflicts());
         Assert.Equal(SettingsFixtures.GameBindings(), bindings);
     }
+
+    [Fact]
+    public void EachMenuTakesWasdAndBackspace()
+    {
+        // D-1172, from the playtest of PR-65: WASD moves the cursor of every menu as the arrow
+        // keys do, and Backspace goes back as Escape does. Godot gives the `ui_*` actions neither.
+        var keys = (System.Collections.IEnumerable)GameAssemblyFile.Type("TheThingBelow.Game.Ui.GameInputMap")
+            .GetField("MenuKeys")!
+            .GetValue(null)!;
+
+        var found = new System.Collections.Generic.List<string>();
+        foreach (object entry in keys)
+        {
+            var pair = (System.Runtime.CompilerServices.ITuple)entry;
+            found.Add($"{pair[0]} {pair[1]}");
+        }
+
+        Assert.Equal(["ui_up W", "ui_left A", "ui_down S", "ui_right D", "ui_cancel Backspace"], found);
+    }
 }

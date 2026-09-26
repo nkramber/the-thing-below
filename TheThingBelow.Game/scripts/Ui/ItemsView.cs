@@ -30,6 +30,7 @@ public sealed class ItemsView : IMenuView
     private readonly RunState state;
     private readonly Control layer;
     private readonly Label caption;
+    private readonly Label quantity;
     private readonly Label help;
     private readonly List<Label> lefts = [];
     private readonly List<Label> rights = [];
@@ -69,6 +70,11 @@ public sealed class ItemsView : IMenuView
         int first = MenuLayout.FirstLineTop(body, ui.Theme.TitleSize);
         this.caption = MenuNodes.Line(this.layer, left, first, inner, line);
         MenuNodes.Paint(this.caption, this.dimColor);
+
+        // The caption of the column of the owned count and the limit, such as "3/5" (D-1172).
+        this.quantity = MenuNodes.Line(this.layer, left + leftWidth, first, inner - leftWidth, line);
+        MenuNodes.Paint(this.quantity, this.dimColor);
+        this.ui.Text.Put(this.quantity, Id("menu.item_quantity"));
 
         // The list takes each line between the caption and the last line of the window.
         int listLines = MenuLayout.LogLines(body, ui.Theme.TitleSize) - HeadLines - 1;
@@ -112,6 +118,7 @@ public sealed class ItemsView : IMenuView
     {
         this.Cursor.Settle();
         this.ui.Text.Put(this.caption, Id(this.Cursor.Stage == ItemStage.Item ? "menu.item_list" : "menu.item_target"));
+        this.quantity.Visible = this.Cursor.Stage == ItemStage.Item;
 
         List<Entry> entries = this.Entries();
         int shown = this.lefts.Count;

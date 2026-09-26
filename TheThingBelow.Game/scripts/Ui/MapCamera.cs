@@ -171,6 +171,18 @@ public static class MapCamera
         return Math.Clamp(wanted, 0, mapPixels - viewPixels);
     }
 
+    /// <summary>Gives the row of the view that the sharp band of the tilt-shift blur centers on (D-1173).</summary>
+    /// <param name="subjectPixels">The pixel of the top edge of the tile of the lead, in the map.</param>
+    /// <param name="viewPixels">The pixel of the top edge of the view, from <see cref="Of"/>.</param>
+    /// <param name="viewHeight">The height of the view, in art pixels.</param>
+    /// <returns>The row of the middle of the tile of the lead in the view, from 0 to the height of the view.</returns>
+    /// <remarks>
+    /// On a map smaller than the view, the view stands still, and at a clamped edge of a larger map the
+    /// lead leaves the middle of the view. A band in the middle then blurred the lead (D-717, D-1173).
+    /// </remarks>
+    public static int FocusRowOf(int subjectPixels, int viewPixels, int viewHeight) =>
+        Math.Clamp(subjectPixels + (TilePixels / 2) - viewPixels, 0, viewHeight);
+
     /// <summary>Gives the pixel of one axis of a thing that slides between two tiles (D-203).</summary>
     /// <param name="tile">The tile of the thing on that axis, which Core holds (D-106).</param>
     /// <param name="step">The step on that axis: -1, 0, or 1.</param>

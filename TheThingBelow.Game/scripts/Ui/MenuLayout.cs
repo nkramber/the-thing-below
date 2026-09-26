@@ -58,11 +58,14 @@ public static class MenuLayout
     public static FrameBox MainListBox(int body) =>
         new(UiMetrics.EdgePixels, UiMetrics.EdgePixels, MainListWidth, (Pad * 2) + (LineOf(body) * MainList.Entries.Count));
 
-    /// <summary>Gives the place of the window of a hub service: one line for each choice, and the line of help (D-1131, D-1132).</summary>
+    /// <summary>The row of the line of help in the window of a hub service: an empty line stands between it and the last choice (D-1172).</summary>
+    public static readonly int ServiceHelpRow = ServiceChoice.Options.Count + 1;
+
+    /// <summary>Gives the place of the window of a hub service: one line for each choice, an empty line, and the line of help (D-1131, D-1132, D-1172).</summary>
     /// <param name="body">The body size, in frame pixels.</param>
     /// <returns>The box at the top left of the frame, where the main list stands when it is open.</returns>
     public static FrameBox ServiceBox(int body) =>
-        new(UiMetrics.EdgePixels, UiMetrics.EdgePixels, ServiceWidth, (Pad * 2) + (LineOf(body) * (ServiceChoice.Options.Count + 1)));
+        new(UiMetrics.EdgePixels, UiMetrics.EdgePixels, ServiceWidth, (Pad * 2) + (LineOf(body) * (ServiceHelpRow + 1)));
 
     /// <summary>Gives the place of the shop menu, where the main list stands: one line for each choice (D-1164).</summary>
     /// <param name="body">The body size, in frame pixels.</param>

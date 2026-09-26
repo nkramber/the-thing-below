@@ -109,6 +109,7 @@ public static class SimulationVersion
     /// the price of the entry, and sells a count of one used-up item or spare piece of the pack for the value of the
     /// record at the rate of its shop type, at least 1 gold (D-1149 to D-1155, D-1158). A buy of a counted entry
     /// lowers its count, and the state hash and the snapshot hold each count that a buy changed (D-1152).
+    /// PR-36 raised it to 33. A choose step holds two to four options, and the load refuses a fifth (D-1175).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -117,5 +118,5 @@ public static class SimulationVersion
     /// hash differs from this build takes the drift rules of D-1111 and D-1112. A change of this
     /// number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 32;
+    public const int Current = 33;
 }

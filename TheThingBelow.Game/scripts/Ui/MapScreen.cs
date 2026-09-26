@@ -127,6 +127,15 @@ public partial class MapScreen : Node2D
     public ContentId MapId { get; private set; } = null!;
 
     /// <summary>
+    /// The frame whose tilt-shift blur centers on the lead, or no value for a map that draws outside
+    /// the frame, such as a check of the smoke session (D-1173).
+    /// </summary>
+    public FrameRoot? Frame { get; set; }
+
+    /// <summary>The row of the view that the sharp area of the blur centers on, from the last <see cref="ShowParty"/> (D-1173).</summary>
+    public int FocusRow { get; private set; } = LookPasses.MiddleFocus;
+
+    /// <summary>
     /// Builds the tiles of one map, the sprite of the lead, one sprite for each enemy, each NPC,
     /// and each service point, and the mark of a sight (D-208, D-738, D-1137, D-1142).
     /// </summary>
@@ -245,6 +254,8 @@ public partial class MapScreen : Node2D
         CameraPlace view = MapCamera.Of(party, FrameRoot.WorldWidth, FrameRoot.WorldHeight, tickPart);
         this.view = new Vector2(view.X, view.Y);
         this.Position = new Vector2(-view.X, -view.Y);
+        this.FocusRow = MapCamera.FocusRowOf(leadY, view.Y, FrameRoot.WorldHeight);
+        this.Frame?.FocusBlur(this.FocusRow);
     }
 
     /// <summary>

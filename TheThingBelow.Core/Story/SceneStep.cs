@@ -210,8 +210,15 @@ public sealed record SayStep(SceneActor? Speaker, ContentId Line) : SceneStep(Sc
 public sealed record ChooseOption(ContentId Line, ContentId Flag);
 
 /// <summary>A choice of the player (D-1007).</summary>
-/// <param name="Options">Two options or more, in the order of the file.</param>
-public sealed record ChooseStep(IReadOnlyList<ChooseOption> Options) : SceneStep(SceneStepKind.Choose);
+/// <param name="Options">Two to four options, in the order of the file (D-1175).</param>
+public sealed record ChooseStep(IReadOnlyList<ChooseOption> Options) : SceneStep(SceneStepKind.Choose)
+{
+    /// <summary>The fewest options of a choice (D-1007).</summary>
+    public const int FewestOptions = 2;
+
+    /// <summary>The most options of a choice: the choice window holds four rows (D-1175).</summary>
+    public const int MostOptions = 4;
+}
 
 /// <summary>A flag turns on (D-542).</summary>
 /// <param name="Flag">The flag.</param>

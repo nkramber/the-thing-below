@@ -168,7 +168,7 @@ public sealed class GameShaderTests
         string blur = CodeOf(File.ReadAllText(Path.Combine(root, "tilt_shift.gdshader")));
         string vignette = CodeOf(File.ReadAllText(Path.Combine(root, "vignette.gdshader")));
 
-        foreach (string field in new[] { "BandName", "RadiusName" })
+        foreach (string field in new[] { "BandName", "RadiusName", "FocusName" })
         {
             Assert.Matches($@"uniform \w+ {(string)look.GetField(field)!.GetValue(null)!}\b", blur);
         }
