@@ -1,0 +1,9 @@
+{
+ "comment": "The light of the fixture hub by day (D-442). The ambient light is the one canvas modulate of the world, and the hub holds no torch and no added light (D-843). A battle that begins here takes the ambient light and the key light of `battle` (D-850), and no fight begins on a hub, because a hub holds no enemy. Each color is a palette key with a strength in basis points (D-846).",
+ "map": "map.fixture_hub",
+ "time": "day",
+ "ambient": { "color": "L", "strength": 10000 },
+ "battle": { "color": "A", "strength": 24000, "range": 720, "height": 96 },
+ "changes": [],
+ "added": []
+}

@@ -1,0 +1,48 @@
+{
+ "id": "drawing.fixture_dog_map_front",
+ "page": "map_sprites",
+ "width": 32,
+ "height": 32,
+ "draws": [
+  { "content": "npc.fixture_hub_dog", "use": "map_front" }
+ ],
+ "frames": [
+  {
+   "ticks": 0,
+   "rows": [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "......kkk.......................",
+    ".....kBBBk......................",
+    "....kBBBtkk.....................",
+    "..kkttBttttk....................",
+    ".kttttttttttk...................",
+    "kkttkttttttttk..................",
+    "kbtttttttttttk...............kk.",
+    ".kSSttttttttttkkkkkkkkkkkkkkkBk.",
+    "..kkSSttttttttttttttttttttBkkBk.",
+    "....kSSttttttttttttttttttttBBk..",
+    ".....kSSttttttttttttttttttBBk...",
+    ".....kSSSStttttttttttttttBBBk...",
+    ".....kSSSSSSttttttttttttBBBk....",
+    "......kSSSSSSSSSSStttttBBBk.....",
+    "......ktBk.kttk....kttkBBk......",
+    "......ktBk.kttk....kttkkBk......",
+    "......kBBk.kBBk....kBBkkBk......",
+    "......kkkk.kkkk....kkkkkkk......"
+   ]
+  }
+ ]
+}

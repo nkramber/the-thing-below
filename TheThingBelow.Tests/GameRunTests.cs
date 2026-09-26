@@ -369,6 +369,35 @@ public sealed class GameRunTests
         Assert.False(run.TorchWorks);
     }
 
+    [Fact]
+    public void TheCommandOfTheHubCapturePutsThePartyOnTheHubAndTheFrameFallsInsideTheFirstStepOfTheBarmaid()
+    {
+        // Exit test 18 of PR-14 (D-1133): the capture of the hub and the smoke session type the
+        // command of `ScreenCaptures`, and the frame after `HubTicks` shows the barmaid inside her
+        // first step, past her wait at the bar, and the lead on the spawn point (D-203, D-1138).
+        Type captures = GameAssemblyFile.Type("TheThingBelow.Game.ScreenCaptures");
+        string command = (string)captures.GetField("GoToCommand")!.GetRawConstantValue()!;
+        string hub = (string)captures.GetField("HubMap")!.GetRawConstantValue()!;
+        int hubTicks = (int)captures.GetField("HubTicks")!.GetRawConstantValue()!;
+        Run run = Run.Start(DebugAssemblyFile.Handlers());
+
+        _ = DebugAssemblyFile.Run($"{command} {hub}", () => run.State, run.Queue);
+        run.Advance(OneTick);
+
+        MapState party = run.State.Party;
+        Assert.Equal(hub, party.Map.Id.Value);
+        Assert.Equal(MapKind.Hub, party.Map.Kind);
+        for (int tick = 0; tick < hubTicks; tick += 1)
+        {
+            Assert.DoesNotContain(run.Advance(OneTick), entry => entry.Level == LogLevel.Error);
+        }
+
+        NpcState barmaid = run.State.Party.Npcs.All.Single(npc => npc.Npc.Id.Value == "npc.fixture_hub_barmaid");
+        Assert.NotNull(barmaid.Stepping);
+        Assert.Equal(barmaid.Npc.Route[0].At, barmaid.At);
+        Assert.Equal(party.Map.Spawn, run.State.Party.LeadAt);
+    }
+
     private sealed class Run
     {
         private readonly object instance;

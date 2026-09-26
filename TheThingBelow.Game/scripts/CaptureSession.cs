@@ -351,6 +351,51 @@ public sealed partial class CaptureSession : Node
     }
 
     /// <summary>
+    /// Builds the running screen on the fixture hub: the run starts on the first map, the debug
+    /// command `goto` puts the party on the hub, and the NPCs walk <see cref="ScreenCaptures.HubTicks"/>
+    /// ticks before the frame (exit test 18 of PR-14, D-1133). The map on screen follows the party
+    /// onto the hub by the path of a play session (<see cref="MapFixture.Follow"/>).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The command put the party on no hub, or a tick wrote an error (T-2).</exception>
+    private void BuildHub(FrameRoot built, UiBase @base)
+    {
+        GameRun open = GameRun.Start(this.content, Boot.FixtureSeed, DebugSeam.Handlers(), FixtureSettings.Battle.Messages);
+        MapScreen first = MapFixture.Build(built, @base, open, this.content, seekParticles: true);
+        GoToHub(open);
+        MapScreen drawn = MapFixture.Follow(first, built, @base, open, this.content);
+        this.RunTicks(open, ScreenCaptures.HubTicks);
+        drawn.ShowParty(open.Party, 0, open.Tick, open.TorchHeld);
+        drawn.ShowWeather(open.Tick, seek: true);
+    }
+
+    /// <summary>
+    /// Types the debug command `goto` with the id of the fixture hub, and runs the tick that
+    /// applies it (D-1133). The capture of the hub and the smoke session take this path.
+    /// </summary>
+    /// <param name="run">The run, on a map with no battle, no story scene, and no open menu.</param>
+    /// <exception cref="ArgumentNullException">The run is null (T-2).</exception>
+    /// <exception cref="InvalidOperationException">The tick wrote an error, or the party stands on another map after it (T-2).</exception>
+    public static void GoToHub(GameRun run)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+
+        _ = DebugSeam.Run($"{ScreenCaptures.GoToCommand} {ScreenCaptures.HubMap}", () => run.State, run.Queue);
+        foreach (LogEntry entry in run.Advance(OneTickSeconds))
+        {
+            if (entry.Level == LogLevel.Error)
+            {
+                throw new InvalidOperationException($"The tick {run.Tick} of the command '{ScreenCaptures.GoToCommand}' wrote an error: {entry.Message} (T-2).");
+            }
+        }
+
+        if (string.CompareOrdinal(run.Party.Map.Id.Value, ScreenCaptures.HubMap) != 0)
+        {
+            throw new InvalidOperationException(
+                $"The command '{ScreenCaptures.GoToCommand} {ScreenCaptures.HubMap}' left the party on the map '{run.Party.Map.Id.Value}' at tick {run.Tick} (D-1133, T-2).");
+        }
+    }
+
+    /// <summary>
     /// Holds the torch out through the torch action, as the player does, so a lit fixture shows
     /// the carried light and the torch in the hand (D-1064, D-1071). The run takes one tick.
     /// </summary>
@@ -545,6 +590,12 @@ public sealed partial class CaptureSession : Node
         if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.NoticeFixture) == 0)
         {
             this.BuildNotice(built, @base, capture);
+            return;
+        }
+
+        if (string.CompareOrdinal(capture.Fixture, ScreenCaptures.HubFixture) == 0)
+        {
+            this.BuildHub(built, @base);
             return;
         }
 

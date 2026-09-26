@@ -154,6 +154,17 @@ public sealed class ScreenCapturesTests
         "settings-conflict-fill-1080.png",
     ];
 
+    /// <summary>
+    /// The captures of the fixture hub after the debug command `goto`: at 1x, at the screen of the
+    /// Steam Deck, and at 1080 rows (exit test 18 of PR-14, D-1133, G-19).
+    /// </summary>
+    private static readonly string[] HubNames =
+    [
+        "hub-1x.png",
+        "hub-fill-800.png",
+        "hub-fill-1080.png",
+    ];
+
     /// <summary>The captures at the screen of the Steam Deck, and the message of a crash (G-19, D-559, P3-26).</summary>
     private static readonly string[] DeckAndCrashNames =
     [
@@ -193,7 +204,9 @@ public sealed class ScreenCapturesTests
         // PR-91 adds the pit room with an enemy inside the fade of the dark (D-1062, exit test 8 of PR-91).
         // PR-106 adds each window and each part of a fight at the body of 24, the screen of the
         // Steam Deck, and the message of a crash (G-19, G-28, P3-26).
-        Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + 1 + MenuNames.Length + SmallBodyNames.Length + DeckAndCrashNames.Length, FileNames().Count);
+        // PR-14 adds the fixture hub at 1x, at the screen of the Steam Deck, and at 1080 rows
+        // (exit test 18 of PR-14).
+        Assert.Equal(10 + 34 + 1 + 19 + 3 + 14 + 2 + 11 + 1 + MenuNames.Length + SmallBodyNames.Length + HubNames.Length + DeckAndCrashNames.Length, FileNames().Count);
     }
 
     [Fact]
@@ -314,7 +327,7 @@ public sealed class ScreenCapturesTests
             }
         }
 
-        Assert.Equal(["map-fill-800.png", "battle-menu-fill-800.png"], deck);
+        Assert.Equal(["hub-fill-800.png", "map-fill-800.png", "battle-menu-fill-800.png"], deck);
     }
 
     [Fact]
@@ -498,6 +511,11 @@ public sealed class ScreenCapturesTests
         }
 
         foreach (string name in SmallBodyNames)
+        {
+            names.Add(name);
+        }
+
+        foreach (string name in HubNames)
         {
             names.Add(name);
         }

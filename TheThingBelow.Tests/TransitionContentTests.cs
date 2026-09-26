@@ -42,7 +42,7 @@ public sealed class TransitionContentTests
 
         TransitionRegion one = Assert.Single(content.Table.Regions);
         Assert.Equal("region.one", one.Id.Value);
-        Assert.Equal("map.fixture_dungeon", Assert.Single(one.Maps).Value);
+        Assert.Equal(["map.fixture_dungeon", "map.fixture_hub"], Ids(one.Maps));
         Assert.Equal(
             ["transition.pixel_dissolve", "transition.mosaic", "transition.crt_power_off", "transition.snow_whiteout", "transition.blinds", "transition.scanline_sweep"],
             Ids(one.Pool));

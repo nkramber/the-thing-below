@@ -56,4 +56,39 @@ public static class MapFixture
         drawn.ShowWeather(0, seekParticles);
         return drawn;
     }
+
+    /// <summary>
+    /// Keeps the map on screen while the party stays on it, and builds the map again when the
+    /// party enters another map, such as after the debug command `goto` (D-1133). The old map
+    /// leaves the tree at once, so it draws no later frame.
+    /// </summary>
+    /// <param name="drawn">The map on screen now.</param>
+    /// <param name="frame">The frame that holds the world viewport.</param>
+    /// <param name="base">The atlas and the theme.</param>
+    /// <param name="run">The run, whose party names its map.</param>
+    /// <param name="content">The content set, for the decor and the light (D-843).</param>
+    /// <returns>The same map while the party stays on it, or the map that the party entered.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <remarks>
+    /// Each sprite of the old map belongs to an enemy, an NPC, or a thing of that map, so the
+    /// screen builds every node of the new map. One code path draws a hub and a dungeon (D-112).
+    /// </remarks>
+    public static MapScreen Follow(MapScreen drawn, FrameRoot frame, UiBase @base, GameRun run, ContentSet content)
+    {
+        ArgumentNullException.ThrowIfNull(drawn);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(@base);
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(content);
+
+        if (string.CompareOrdinal(drawn.MapId.Value, run.Party.Map.Id.Value) == 0)
+        {
+            return drawn;
+        }
+
+        // `QueueFree` alone keeps the old map on screen until the end of this frame (T-2).
+        drawn.GetParent().RemoveChild(drawn);
+        drawn.QueueFree();
+        return Build(frame, @base, run, content, seekParticles: drawn.SeekParticles);
+    }
 }

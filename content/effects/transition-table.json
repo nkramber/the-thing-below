@@ -11,7 +11,7 @@
  "regions": [
   {
    "region": "region.one",
-   "maps": ["map.fixture_dungeon"],
+   "maps": ["map.fixture_dungeon", "map.fixture_hub"],
    "pool": [
     "transition.pixel_dissolve",
     "transition.mosaic",

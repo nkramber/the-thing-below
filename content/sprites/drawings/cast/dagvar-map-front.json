@@ -4,7 +4,8 @@
  "width": 32,
  "height": 32,
  "draws": [
-  { "content": "cast.dagvar", "use": "map_front" }
+  { "content": "cast.dagvar", "use": "map_front" },
+  { "content": "npc.fixture_hub_keeper", "use": "map_front" }
  ],
  "frames": [
   {

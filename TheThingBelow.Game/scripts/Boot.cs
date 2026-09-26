@@ -166,6 +166,7 @@ public partial class Boot : Node
                 this.ReloadAfterWipe();
             }
 
+            this.FollowMapScreen(this.run);
             this.FollowBattleScreen();
             if (this.battle is null)
             {
@@ -503,6 +504,42 @@ public partial class Boot : Node
             reloaded.Tick,
             LogSubsystems.Game,
             [LogField.OfNumber("tick", reloaded.Tick)])]);
+    }
+
+    /// <summary>
+    /// Builds the map on screen again when the party enters another map, such as after the debug
+    /// command `goto`, and logs the entry (D-1133).
+    /// </summary>
+    /// <param name="open">The run.</param>
+    /// <exception cref="InvalidOperationException">The map screen exists, and the session built no frame, no UI base, or no content (T-2).</exception>
+    private void FollowMapScreen(GameRun open)
+    {
+        MapScreen? drawn = this.map;
+        if (drawn is null)
+        {
+            return;
+        }
+
+        FrameRoot built = this.frame ?? throw new InvalidOperationException(
+            $"The map screen draws at tick {open.Tick}, and the session built no frame (T-2).");
+        UiBase shown = this.ui ?? throw new InvalidOperationException(
+            $"The map screen draws at tick {open.Tick}, and the session built no UI base (T-2).");
+        ContentSet loaded = this.content ?? throw new InvalidOperationException(
+            $"The map screen draws at tick {open.Tick}, and the session loaded no content (T-2).");
+
+        MapScreen followed = MapFixture.Follow(drawn, built, shown, open, loaded);
+        if (followed == drawn)
+        {
+            return;
+        }
+
+        this.map = followed;
+        this.WriteLog([new LogEntry(
+            LogLevel.Info,
+            "the map screen drew the map that the party entered",
+            open.Tick,
+            LogSubsystems.Game,
+            [new LogField("from", drawn.MapId.Value), new LogField("map", followed.MapId.Value)])]);
     }
 
     /// <summary>
@@ -1493,6 +1530,7 @@ public partial class Boot : Node
         GD.Print($"smoke: the lit map is {DescribeLitMap(content, files, session)}.");
         GD.Print($"smoke: the picture is {DescribePicture(content)}.");
         GD.Print($"smoke: the console is {this.DescribeConsole(session)}.");
+        GD.Print($"smoke: the hub is {this.DescribeHub(content)}.");
         GD.Print($"smoke: the battle is {this.DescribeBattle(content, session, new SaveStore(smokeSaves))}.");
         GD.Print($"smoke: the settings screen is {this.DescribeSettings(content)}.");
         GD.Print($"smoke: the menus are {this.DescribeMenus(content)}.");
@@ -2415,6 +2453,82 @@ public partial class Boot : Node
         return $"{names.Count} commands with {answers} answer lines, {shown} lines on the screen "
             + $"after a typed line, "
             + $"and they marked {marked} more tiles as walked";
+    }
+
+    /// <summary>
+    /// Moves a run of its own to the fixture hub with the debug command `goto`, as the capture of
+    /// the hub does, and walks the NPCs and the party there (exit test 18 of PR-14, D-1133). The map
+    /// on screen follows the party onto the hub by the path of a play session, and each NPC and the
+    /// waystone draw. A release export holds no debug command, so the line says so (D-260).
+    /// </summary>
+    /// <param name="loaded">The content set of this build.</param>
+    /// <returns>The map on screen after the command, the NPCs that moved, and the sprites.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// The map on screen stayed on the first map, no NPC moved, a step of the lead never ended, or
+    /// a sprite is wrong (T-2).
+    /// </exception>
+    private string DescribeHub(ContentSet loaded)
+    {
+        if (!DebugSeam.IsDevelopmentBuild)
+        {
+            return $"absent, because this build has no feature '{DebugSeam.DevelopmentFeature}' and no command '{ScreenCaptures.GoToCommand}' (D-260, D-1133)";
+        }
+
+        const int WalkTicks = 120;
+        GameRun walked = GameRun.Start(loaded, FixtureSeed, DebugSeam.Handlers(), SmokeSettings().Battle.Messages);
+        FrameRoot built = FrameRoot.AddTo(this);
+        UiBase ui = UiBase.Load(loaded, loaded.Style.SmallBody);
+        MapScreen first = MapFixture.Build(built, ui, walked, loaded);
+        CaptureSession.GoToHub(walked);
+        MapScreen drawn = MapFixture.Follow(first, built, ui, walked, loaded);
+        if (drawn == first || string.CompareOrdinal(drawn.MapId.Value, ScreenCaptures.HubMap) != 0)
+        {
+            throw new InvalidOperationException(
+                $"The party entered '{walked.Party.Map.Id.Value}', and the map on screen draws '{drawn.MapId.Value}' (D-1133, T-2).");
+        }
+
+        var starts = new List<string>();
+        foreach (NpcState npc in walked.Party.Npcs.All)
+        {
+            starts.Add(npc.At.ToString());
+        }
+
+        for (int tick = 0; tick < WalkTicks; tick += 1)
+        {
+            this.WriteLog(walked.Advance(SmokeFrameSeconds));
+            drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld);
+        }
+
+        int moved = 0;
+        for (int index = 0; index < starts.Count; index += 1)
+        {
+            moved += string.Equals(starts[index], walked.Party.Npcs.All[index].At.ToString(), StringComparison.Ordinal) ? 0 : 1;
+        }
+
+        if (moved == 0)
+        {
+            throw new InvalidOperationException(
+                $"No NPC of the hub moved in {WalkTicks} ticks, and the dog wanders on each pace (D-1138, T-2).");
+        }
+
+        walked.Queue(walked.IntentOf(InputActions.StepEast));
+        for (int tick = 0; tick < ScreenCaptures.TicksOfOneStep; tick += 1)
+        {
+            this.WriteLog(walked.Advance(SmokeFrameSeconds));
+            drawn.ShowParty(walked.Party, 0, walked.Tick, walked.TorchHeld);
+        }
+
+        if (walked.Party.Stepping is not null || walked.Party.LeadAt == walked.Party.Map.Spawn)
+        {
+            throw new InvalidOperationException(
+                $"The step east of the lead on the hub never ended, and the lead stands at {walked.Party.LeadAt} (T-2).");
+        }
+
+        string sprites = drawn.DescribeSprites(walked.Party);
+        this.RemoveChild(built);
+        built.QueueFree();
+        return $"'{drawn.MapId.Value}' at {walked.Party.Map.Width} by {walked.Party.Map.Height} tiles, "
+            + $"{moved} of {starts.Count} NPCs moved in {WalkTicks} ticks, and {sprites}";
     }
 
     /// <summary>

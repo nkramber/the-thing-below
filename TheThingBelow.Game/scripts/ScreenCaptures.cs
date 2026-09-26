@@ -125,6 +125,25 @@ public static class ScreenCaptures
     /// </summary>
     public const string CrashFixture = "crash";
 
+    /// <summary>
+    /// The running screen on the fixture hub, which the debug command `goto` reaches: the keeper,
+    /// the barmaid, the dog, the child, and the waystone (exit test 18 of PR-14, D-1133).
+    /// </summary>
+    public const string HubFixture = "hub";
+
+    /// <summary>The id of the map that the hub fixture shows (D-1133).</summary>
+    public const string HubMap = "map.fixture_hub";
+
+    /// <summary>The word of the debug command that puts the party on a map, which the Debug assembly holds (D-723, D-1133).</summary>
+    public const string GoToCommand = "goto";
+
+    /// <summary>
+    /// The ticks that the hub fixture runs after the entry to the hub, before its frame. The
+    /// barmaid waits 90 ticks at the bar, so the frame shows her inside her first step, and
+    /// the dog and the child inside their walk (D-203, D-1138).
+    /// </summary>
+    public const int HubTicks = 104;
+
     /// <summary>The end of the name of a frame at 1x, where the body is 32 (D-707).</summary>
     public const string FrameSuffix = "-1x";
 
@@ -355,7 +374,7 @@ public static class ScreenCaptures
 
     /// <summary>The name of each fixture, in the order that the session draws it.</summary>
     public static IReadOnlyList<string> Fixtures { get; } =
-        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, TransitionFixture, MenuFixture, NoticeFixture, CrashFixture];
+        [MapFixture, UiFixture, WalkFixture, PictureFixture, BattleFixture, SettingsFixture, PitFixture, ScrollFixture, StillFixture, TransitionFixture, MenuFixture, NoticeFixture, HubFixture, CrashFixture];
 
     /// <summary>Gives the file name of every capture, in the order of <see cref="All"/>.</summary>
     /// <returns>One file name for each capture.</returns>
@@ -553,6 +572,14 @@ public static class ScreenCaptures
 
         captures.Add(new ScreenCapture(NoticeFixture, DesktopFrameOf(NoticeHoldFrame), DesktopWidth, 1080, FitMode.Fill, null));
         captures.Add(new ScreenCapture(SettingsFixture, DesktopFrameOf(SettingsConflictFrame), DesktopWidth, 1080, FitMode.Fill, null));
+
+        // PR-14: the fixture hub at 1x, at the screen of the Steam Deck, the floor of readability
+        // of each NPC and of the waystone, and at 1080 rows (exit test 18 of PR-14, D-568, G-19).
+        // The frame of 1080 rows comes last, so a screen below 1080 rows still writes the first two
+        // with `make sheet FIXTURE=hub` (D-782).
+        captures.Add(new ScreenCapture(HubFixture, "1x", ScreenFit.FrameWidth, ScreenFit.FrameHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(HubFixture, DeckFrame, ScreenFit.FrameWidth, DeckHeight, FitMode.Fill, null));
+        captures.Add(new ScreenCapture(HubFixture, "fill-1080", DesktopWidth, 1080, FitMode.Fill, null));
 
         // The screen of the Steam Deck, the floor of readability: the frame at 1x with a bar of
         // 40 rows above and below it (D-92, D-568, G-19, P3-26).

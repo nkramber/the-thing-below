@@ -4,7 +4,8 @@
  "width": 32,
  "height": 32,
  "draws": [
-  { "content": "cast.ottild", "use": "map_front" }
+  { "content": "cast.ottild", "use": "map_front" },
+  { "content": "npc.fixture_hub_barmaid", "use": "map_front" }
  ],
  "frames": [
   {
