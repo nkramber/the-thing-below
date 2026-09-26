@@ -130,7 +130,7 @@ The fixture dungeon turns dark (D-1067). The T key and the Y button work the tor
 
 2026-09-25 review gate pass: PR-102 fixes seven gate findings of the repository review of 2026-09-24 in one PR, as the owner directed (D-1081). Each git list of paths in a workflow takes `--no-renames`, so a move into `docs/` no longer skips CI (F-109). The review gate gives each large value to jq through a file (F-110). Each push to `main` gets a concurrency group of its own (F-111). An export step prints its log before it fails (F-112).
 
-2026-09-25 hub pass: a player reaches each service of a hub through an NPC or a thing. PR-14 adds the confirm rule of the map (D-1131). PR-14 builds the save window, the save of a hub, and the autosave of a hub (D-1132). The party swaps anywhere outside a fight, and it stays full (D-1134 to D-1136). NPCs wander, walk a route, or chase, and they walk home after a story scene (D-1137 to D-1140).
+2026-09-25 hub pass: a player reaches each service of a hub through an NPC or a thing. PR-14 adds the confirm rule of the map (D-1131). PR-14 builds the save window, the save of a hub, and the autosave of a hub (D-1132). The party swaps anywhere outside a fight, and it stays full (D-1134 to D-1136). NPCs wander, walk a route, or chase, and they walk home after a story scene (D-1137 to D-1140). D-1141 to D-1148 settle exit test 6, the service point, the save entry, the reserve, and four details.
 
 The rules AGENTS 1 and DOCS 1 of ste-check read the exact text, as their tests do (F-113). The local settings file of the harness takes the review (D-1086, F-114). Each program of the `codex-review` command runs under a time limit (D-1087, F-115).
 

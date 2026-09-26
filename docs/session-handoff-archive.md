@@ -1,5 +1,36 @@
 # Session handoff archive
 
+## Session 312: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #82 (PR-105), round 2. Repository: the-thing-below. Branch: `fix/pr-105-save-drift`. PR: #82. Role: author. Base: `640ad98`.
+
+### What this session did, and why
+
+- Gitar approved the round 1 head `1cd661d` with no thread. Its CI analysis named the RG 3 fault of `review-gate`, and a PR comment answers it: the review record comes with the review of the other provider.
+- Each CI check of `1cd661d` passed but `screen-test` and `review-gate`. The coverage job checked the SHA-512 of the ReportGenerator package (D-1116).
+- `screen-test` found one changed frame, `settings-conflict-1x`, in 956 pixels. The author read the frame of the artifact: the confirm cell of the gamepad takes the warning color, the chosen cell of back stays yellow, and the line holds no count for one conflict (D-1119). This round takes that frame as the baseline (D-733).
+
+### The state of the build
+
+- The round 1 head is `1cd661d`. This round adds the new baseline and this entry.
+
+### What is in flight
+
+- The Gitar pass of this push, the CI of the new head, and then `make codex-review PR=82`.
+
+### Traps and gotchas
+
+- The baseline is outside the metadata set, so it moves the effective head, and it needs a new Gitar pass.
+
+### The questions that block progress
+
+None for this PR. P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37 stay open in the report.
+
+### The next concrete action
+
+When every check but `review-gate` passes, run `make codex-review PR=82` in the background.
+
 ## Session 311: 2026-09-25, Claude Code
 
 Author: Claude Code
