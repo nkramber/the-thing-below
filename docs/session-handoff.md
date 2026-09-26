@@ -1,3 +1,37 @@
+## Session 332: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #85 (PR-65), round 6. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: #85. Role: author. Base: `8e81487`.
+
+### What this session did, and why
+
+- The owner asked for an empty line between the line of the values and the caption of the list in the gear window (D-1171). The head of the gear window takes six lines.
+- The owner then approved the frames of the shop and of the gear window, and directed the Codex review after a green CI run (D-1171).
+- The session read the gear frames of `make sheet FIXTURE=menu`.
+
+### The state of the build
+
+- Every local check passes. Ten tests fail alone: the baselines of the ten shop frames, which come from the `screen-captures` artifact of CI.
+- Gitar approved round 5 with no thread. The remote head is the push of this round.
+
+### What is in flight
+
+- The CI run of this push, then the baselines of its `screen-captures` artifact: each new shop frame and each menu frame that changed.
+- The answer to the CI claim of Gitar (RG 3 before the review), and `make codex-review PR=85` after a green CI run.
+
+### Traps and gotchas
+
+- The review-gate check fails on RG 3 alone until the review record lands. Each other check turns green with the baselines.
+- Perl substitutions with braces in C# text fail. Use the Edit tool for each change of C# text.
+
+### The questions that block progress
+
+None. The text batch in the PR waits for the approval of the owner at the merge summary (D-57).
+
+### The next concrete action
+
+Commit the baselines of the CI artifact, push, wait for green checks, and run `make codex-review PR=85`.
+
 ## Session 331: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -299,39 +333,3 @@ None. OQ-249 blocks PR-17.
 ### The next concrete action
 
 Read the `menu-rest` and `menu-save` frames of the artifact of this push, and commit their 4 baselines.
-
-## Session 322: 2026-09-26, Claude Code
-
-Author: Claude Code
-Session: author PR-14, round 1. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: the one PR of PR-14, which this push opens. Role: author. Base: `c7e6191`.
-
-### What this session did, and why
-
-- The owner confirmed the scope of PR-14 and answered 18 questions, D-1131 to D-1148. The roadmaps, the design, the glossary, `docs/world/cast.md`, and `docs/runbooks/dev-machine.md` follow them. OQ-249 holds the experience of the reserve on screen, and it blocks PR-17.
-- Core: the map kind, the NPCs and their movement, the solid service point, the services with a condition, the confirm rule, the rest, the save request, the reserve and the swap anywhere outside a fight, the NPC as a story scene actor, the walk home, and the entry to a map with the autosave of a hub.
-- Debug: the `goto <map id>` command (D-1133). Game: the NPCs on the map screen, the service windows, the reserve in the Party window, the save writes, and no save entry in the main list (D-1143).
-- Versions: simulation 31, save format 15, record format 5.
-
-### The state of the build
-
-- The head of this push holds the work. Each local check passes except 7 baseline cases: `hub-1x`, `hub-fill-800`, `hub-fill-1080`, and `menu-rest` and `menu-save` at `-1x` and `-fill-1080`.
-- The main list lost a line, so each capture of a menu window changes, such as `menu-list` and `menu-party`. The CI compare names each one.
-
-### What is in flight
-
-- The `screen-captures` artifact of the CI screen-test job gives each new and changed baseline (D-733). Read each frame, and commit the baselines.
-- Then the Gitar pass, and the review of `make codex-review`.
-
-### Traps and gotchas
-
-- `make sheet` crashes on this Mac at `map-fill-1080`: the screen gives 1920 by 955, not 1920 by 1080. Read the frames of the CI artifact.
-- A `goto` resets the walked tiles and the dead enemies of the map that the party leaves. PR-35 owns the memory of each map.
-- The fixture hub holds no story trigger, because Game sends no `story_step_end` before PR-36.
-
-### The questions that block progress
-
-None. OQ-249 blocks PR-17.
-
-### The next concrete action
-
-Take the baselines from the `screen-captures` artifact, read each frame, and commit them. Then run the Gitar poll of the `gitar-review` skill.

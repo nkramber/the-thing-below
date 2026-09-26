@@ -23,8 +23,8 @@ namespace TheThingBelow.Game.Ui;
 /// </remarks>
 public sealed class GearView : IMenuView
 {
-    /// <summary>The lines above the list: the character, an empty line, the stat names, the stats with the piece under the cursor, and the caption of the list (D-1169, D-1170).</summary>
-    private const int HeadLines = 5;
+    /// <summary>The lines above the list: the character, an empty line, the stat names, the stats with the piece under the cursor, an empty line, and the caption of the list (D-1169 to D-1171).</summary>
+    private const int HeadLines = 6;
 
     /// <summary>The characters of the column of the name, before the hyphen and the level (D-1170).</summary>
     private const int NameCharacters = 10;
@@ -102,7 +102,7 @@ public sealed class GearView : IMenuView
             this.trialCells.Add(MenuNodes.Line(this.layer, left + (cell * stat), first + (line * 3), cell, line));
         }
 
-        this.caption = MenuNodes.Line(this.layer, left, first + (line * 4), inner, line);
+        this.caption = MenuNodes.Line(this.layer, left, first + (line * 5), inner, line);
         MenuNodes.Paint(this.caption, this.dimColor);
 
         // The list takes each line between the caption and the last line of the window.

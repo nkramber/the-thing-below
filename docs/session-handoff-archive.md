@@ -1,5 +1,41 @@
 # Session handoff archive
 
+## Session 322: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR-14, round 1. Repository: the-thing-below. Branch: `feat/pr-14-hub`. PR: the one PR of PR-14, which this push opens. Role: author. Base: `c7e6191`.
+
+### What this session did, and why
+
+- The owner confirmed the scope of PR-14 and answered 18 questions, D-1131 to D-1148. The roadmaps, the design, the glossary, `docs/world/cast.md`, and `docs/runbooks/dev-machine.md` follow them. OQ-249 holds the experience of the reserve on screen, and it blocks PR-17.
+- Core: the map kind, the NPCs and their movement, the solid service point, the services with a condition, the confirm rule, the rest, the save request, the reserve and the swap anywhere outside a fight, the NPC as a story scene actor, the walk home, and the entry to a map with the autosave of a hub.
+- Debug: the `goto <map id>` command (D-1133). Game: the NPCs on the map screen, the service windows, the reserve in the Party window, the save writes, and no save entry in the main list (D-1143).
+- Versions: simulation 31, save format 15, record format 5.
+
+### The state of the build
+
+- The head of this push holds the work. Each local check passes except 7 baseline cases: `hub-1x`, `hub-fill-800`, `hub-fill-1080`, and `menu-rest` and `menu-save` at `-1x` and `-fill-1080`.
+- The main list lost a line, so each capture of a menu window changes, such as `menu-list` and `menu-party`. The CI compare names each one.
+
+### What is in flight
+
+- The `screen-captures` artifact of the CI screen-test job gives each new and changed baseline (D-733). Read each frame, and commit the baselines.
+- Then the Gitar pass, and the review of `make codex-review`.
+
+### Traps and gotchas
+
+- `make sheet` crashes on this Mac at `map-fill-1080`: the screen gives 1920 by 955, not 1920 by 1080. Read the frames of the CI artifact.
+- A `goto` resets the walked tiles and the dead enemies of the map that the party leaves. PR-35 owns the memory of each map.
+- The fixture hub holds no story trigger, because Game sends no `story_step_end` before PR-36.
+
+### The questions that block progress
+
+None. OQ-249 blocks PR-17.
+
+### The next concrete action
+
+Take the baselines from the `screen-captures` artifact, read each frame, and commit them. Then run the Gitar poll of the `gitar-review` skill.
+
 ## Session 321: 2026-09-25, Claude Code
 
 Author: Claude Code
