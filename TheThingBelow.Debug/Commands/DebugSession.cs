@@ -91,6 +91,17 @@ public sealed class DebugSession
             return [$"> {shown}", $"the record takes the intent '{command.Action!.Value}' to '{map!.Value}' on the next tick"];
         }
 
+        if (command.TakesAmount)
+        {
+            if (words.Length != 2 || !int.TryParse(words[1], NumberStyles.None, CultureInfo.InvariantCulture, out int amount))
+            {
+                return [$"> {shown}", $"the command '{command.Name}' takes an amount, a whole number from 0 (D-1162)"];
+            }
+
+            this.queue(Intent.OfDebugAmount(command.Action!, amount));
+            return [$"> {shown}", $"the record takes the intent '{command.Action!.Value}' with {amount} on the next tick"];
+        }
+
         if (!TryTarget(command, words, out BattleTarget? target, out string fault))
         {
             return [$"> {shown}", fault];

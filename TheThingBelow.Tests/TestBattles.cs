@@ -546,6 +546,11 @@ internal static class TestBattles
     /// <returns>The battle content.</returns>
     public static BattleContent WithParty(int size) => Of(FixtureWithParty(size));
 
+    /// <summary>The battle content of the tests, with other text for the shop file (D-1149).</summary>
+    /// <param name="shops">The text of the shop file.</param>
+    /// <returns>The battle content.</returns>
+    public static BattleContent WithShops(string shops) => Build(FixtureFile, [], shops: shops);
+
     /// <summary>
     /// Gives the battle content of the tests with a thief: Marrek carries the hew and the steal
     /// drill of the tests, and every hit takes the factor 10000 with no miss (D-950, D-1045).

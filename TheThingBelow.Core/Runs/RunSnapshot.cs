@@ -4,6 +4,7 @@ using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
+using TheThingBelow.Core.Shops;
 using TheThingBelow.Core.Story;
 using TheThingBelow.Core.Streams;
 
@@ -103,6 +104,7 @@ public sealed record PartySnapshot(IReadOnlyList<CharacterValues> Characters, IR
 /// <param name="Notices">The notice log, oldest first, or no value on a snapshot before save format 8 (D-985).</param>
 /// <param name="Story">The flags, the story scene that runs, and the events that fire a trigger, or no value on a snapshot before save format 9 (D-540, D-542).</param>
 /// <param name="Streams">The position of every stream, in the order of `RandomStreams.All`.</param>
+/// <param name="Stock">The count that remains of each counted entry of a stock that a buy changed, or no value on a snapshot before save format 16 (D-1152).</param>
 public sealed record RunSnapshot(
     long Tick,
     bool MenuOpen,
@@ -112,7 +114,8 @@ public sealed record RunSnapshot(
     BattleValues? Battle,
     IReadOnlyList<ContentId>? Notices,
     StoryValues? Story,
-    IReadOnlyList<StreamPosition> Streams)
+    IReadOnlyList<StreamPosition> Streams,
+    IReadOnlyList<StockValues>? Stock)
 {
     /// <summary>
     /// The id of the map to load for this snapshot (D-166). A snapshot of save format 1

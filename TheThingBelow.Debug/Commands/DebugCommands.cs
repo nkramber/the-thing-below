@@ -32,7 +32,9 @@ namespace TheThingBelow.Debug.Commands;
 /// swap of lessons needs no place (D-1030, D-1050). PR-13 added the `stock` command,
 /// which fills the pack for a test of the gear window and the item window (D-1038). PR-14 added
 /// the `goto` command, which takes the id of a map and puts the party on its spawn point, so a
-/// build reaches a hub before the travel of PR-35 (D-1133).
+/// build reaches a hub before the travel of PR-35 (D-1133). PR-65 added the `gold` command, which
+/// sets the gold of the party, so a capture and the smoke session reach the shop and the rest with
+/// gold (D-1162).
 /// </para>
 /// </remarks>
 public static class DebugCommands
@@ -79,6 +81,9 @@ public static class DebugCommands
     /// <summary>The name of the command that puts the party on the spawn point of one map (D-1133).</summary>
     public const string GoToName = "goto";
 
+    /// <summary>The name of the command that sets the gold of the party (D-1162).</summary>
+    public const string GoldName = "gold";
+
     // The order of this list is the order of `help`, and it never follows a hash of a name
     // (G-4). The list is short, so a walk of it reads better than a map of one entry (T-1).
     private static readonly IReadOnlyList<DebugCommand> Commands =
@@ -107,6 +112,7 @@ public static class DebugCommands
         DebugCommand.OfIntent(AsideName, "posts the first notice of the notice file that does not log", DebugCommandIds.NoticePlain, PostPlain),
         DebugCommand.OfIntent(StockName, "puts one copy of each item and each piece of gear in the pack, to each stack limit (D-1038)", DebugCommandIds.Stock, Stock),
         DebugCommand.OfMapIntent(GoToName, "puts the party on the spawn point of the map of one id (D-1133)", DebugCommandIds.GoToMap, GoToMap),
+        DebugCommand.OfAmountIntent(GoldName, "sets the gold of the party to one amount (D-1162)", DebugCommandIds.SetGold, SetGold),
         DebugCommand.OfReport(BattleName, "gives each combatant, the turn, and the strip", BattleOf),
         DebugCommand.OfReport(HashName, "gives the state hash of the run", HashOf),
         DebugCommand.OfReport(WhereName, "gives the tick and the place of the party", PlaceOf),
@@ -256,6 +262,43 @@ public static class DebugCommands
             state.Tick,
             LogSubsystems.Run,
             [new LogField("map", map.Value), new LogField("kind", MapKinds.NameOf(state.Party.Map.Kind))]));
+    }
+
+    /// <summary>
+    /// Sets the gold of the party to the amount that the intent holds, so a build reaches the
+    /// shop and the rest with gold (D-1162). The command works in each place, because the gold
+    /// reaches no rule of a battle, a story scene, or a menu until a spend.
+    /// </summary>
+    /// <exception cref="SimulationException">The intent holds no amount or an amount below 0, which points at a fault of the record (T-2).</exception>
+    private static void SetGold(RunState state, Intent intent, RunContext context, List<LogEntry> log)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(intent);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(log);
+
+        int amount = intent.Option ?? throw new SimulationException("a set-gold intent that holds no amount (D-1162)", context);
+        if (amount < 0)
+        {
+            throw new SimulationException($"a set-gold intent with the amount {amount}, which is below 0 (D-1162)", context);
+        }
+
+        int before = state.Characters.Gold;
+        if (amount > before)
+        {
+            state.Characters.AddGold(amount - before, context);
+        }
+        else if (amount < before)
+        {
+            state.Characters.SpendGold(before - amount, context);
+        }
+
+        log.Add(new LogEntry(
+            LogLevel.Info,
+            "the command set the gold of the party",
+            state.Tick,
+            LogSubsystems.Run,
+            [LogField.OfNumber("before", before), LogField.OfNumber("gold", amount)]));
     }
 
     /// <summary>

@@ -5,6 +5,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
+using TheThingBelow.Core.Shops;
 using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Runs;
@@ -406,6 +407,20 @@ public sealed class Simulation
             return;
         }
 
+        if (Is(intent, IntentIds.ShopBuy))
+        {
+            ContentId thing = intent.Lesson ?? intent.Item ?? throw new SimulationException("a buy that names no item, piece, or lesson (D-1149)", context);
+            ShopRules.Buy(this.State, thing, intent.Option ?? throw new SimulationException("a buy that holds no count (D-1158)", context), context, log);
+            return;
+        }
+
+        if (Is(intent, IntentIds.ShopSell))
+        {
+            ContentId thing = intent.Item ?? throw new SimulationException("a sale that names no item or piece (D-1150)", context);
+            ShopRules.Sell(this.State, thing, intent.Option ?? throw new SimulationException("a sale that holds no count (D-1158)", context), context, log);
+            return;
+        }
+
         if (string.CompareOrdinal(intent.Action.Value, IntentIds.PartyRow.Value) == 0)
         {
             BattleTarget target = intent.Target ?? throw new SimulationException("a row change that names no character (D-558)", context);
@@ -558,16 +573,18 @@ public sealed class Simulation
         bool menuItem = Is(intent, IntentIds.MenuItem);
         bool wear = Is(intent, IntentIds.GearWear);
         bool partySwap = Is(intent, IntentIds.PartySwap);
+        bool buy = Is(intent, IntentIds.ShopBuy);
+        bool sell = Is(intent, IntentIds.ShopSell);
         bool unread =
             (intent.Target is not null && !attack && !item && !row && !use && !cast && !menuItem) ||
-            (intent.Item is not null && !item && !menuItem && !wear) ||
-            (intent.Option is not null && !pick && !use && !cast && !swap && !wear && !partySwap) ||
-            (intent.Lesson is not null && !use && !cast && !swap) ||
+            (intent.Item is not null && !item && !menuItem && !wear && !buy && !sell) ||
+            (intent.Option is not null && !pick && !use && !cast && !swap && !wear && !partySwap && !buy && !sell) ||
+            (intent.Lesson is not null && !use && !cast && !swap && !buy) ||
             (intent.Actor is not null && !cast && !swap && !wear && !partySwap);
         if (unread)
         {
             throw new SimulationException(
-                "an intent that carries a target, an item, an option, a lesson, or an actor that no rule of its action reads (D-558, D-764, D-780, D-1007, D-1027, D-1030, D-1134)",
+                "an intent that carries a target, an item, an option, a lesson, or an actor that no rule of its action reads (D-558, D-764, D-780, D-1007, D-1027, D-1030, D-1134, D-1158)",
                 context);
         }
     }

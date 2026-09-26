@@ -31,6 +31,12 @@ public static class HubMaps
     /// <summary>A hub with the keeper and the bed, and a service on each.</summary>
     public static GameMap Inn => Of(npcs: Keeper, services: $"{RestOnKeeper}, {SaveOnBed}", things: Bed);
 
+    /// <summary>The store of the tests on the keeper, which no flag gates (D-1149).</summary>
+    public const string ShopOnKeeper = """{ "id": "service.hub_shop", "kind": "shop", "shop": "shop.test_store", "npc": "npc.hub_keeper", "condition": { "always": true } }""";
+
+    /// <summary>A hub with the keeper, who holds the store of <see cref="TestBattles.ShopsFile"/>.</summary>
+    public static GameMap Store => Of(npcs: Keeper, services: ShopOnKeeper);
+
     /// <summary>
     /// A hub with one NPC of each move: the keeper who stands, the barmaid who walks a route with
     /// waits, the dog who wanders, and the child who chases the dog (D-1138). The dog and the child

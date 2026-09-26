@@ -79,6 +79,11 @@ public static class SaveFormat
     /// the seed of the header, because no build before PR-14 drew from it, and it starts the
     /// reserve empty.
     /// </para>
+    /// <para>
+    /// PR-65 raised it to 16. The snapshot gained the stock that remains of each counted entry of a
+    /// shop that a buy changed (D-1152). A save of an older format starts each stock at the count of
+    /// its shop file.
+    /// </para>
     /// </remarks>
-    public const int Current = 15;
+    public const int Current = 16;
 }

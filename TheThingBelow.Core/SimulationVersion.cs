@@ -103,6 +103,12 @@ public static class SimulationVersion
     /// that names a map puts the party on the spawn point of that map, outside a battle, an encounter, a story scene,
     /// and a menu. The entry notes the entry triggers of the map, the map that the party leaves keeps no memory, and
     /// the entry to a hub asks for the autosave (D-224, D-1132, D-1133).
+    /// PR-65 raised it to 32. Each enemy record holds a gold range, and a win draws one gold amount for each fallen
+    /// enemy on the battle stream, right after the drops of that enemy, and adds the sum to the party (D-1157). A
+    /// rest takes the price of its service (D-1156). A shop service buys a count of one shown entry of its stock for
+    /// the price of the entry, and sells a count of one used-up item or spare piece of the pack for the value of the
+    /// record at the rate of its shop type, at least 1 gold (D-1149 to D-1155, D-1158). A buy of a counted entry
+    /// lowers its count, and the state hash and the snapshot hold each count that a buy changed (D-1152).
     /// </summary>
     /// <remarks>
     /// A run record carries this number, and a replay of a record with another number
@@ -111,5 +117,5 @@ public static class SimulationVersion
     /// hash differs from this build takes the drift rules of D-1111 and D-1112. A change of this
     /// number also changes the expected hashes of the identity file (D-504).
     /// </remarks>
-    public const int Current = 31;
+    public const int Current = 32;
 }

@@ -5,6 +5,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
+using TheThingBelow.Core.Shops;
 using TheThingBelow.Core.Story;
 using TheThingBelow.Core.Streams;
 
@@ -58,8 +59,10 @@ public sealed class RunState
         Battle? battle,
         NoticeList notices,
         NoticeLog noticeLog,
-        StoryState story)
+        StoryState story,
+        ShopState shops)
     {
+        this.Shops = shops;
         this.Maps = maps;
         this.Story = story;
         this.BattleContent = battleContent;
@@ -77,6 +80,9 @@ public sealed class RunState
 
     /// <summary>The seed that started the run (G-3).</summary>
     public ulong Seed { get; }
+
+    /// <summary>The stock that remains in each shop (D-1152).</summary>
+    public ShopState Shops { get; }
 
     /// <summary>The count of ticks since the start of the run (D-164, D-650).</summary>
     public long Tick { get; private set; }
@@ -174,7 +180,8 @@ public sealed class RunState
             null,
             notices,
             NoticeLog.Empty(),
-            StoryState.Start(story));
+            StoryState.Start(story),
+            ShopState.Start());
     }
 
     /// <summary>
@@ -262,7 +269,8 @@ public sealed class RunState
             ResumeBattle(snapshot, party, characters, battleContent, storyState),
             notices,
             snapshot.Notices is null ? NoticeLog.Empty() : NoticeLog.Resume(snapshot.Notices, notices, "this run"),
-            storyState);
+            storyState,
+            ShopState.Resume(battleContent.Shops, snapshot.Stock, "this run", drift));
     }
 
     /// <summary>
@@ -427,7 +435,8 @@ public sealed class RunState
             this.Battle?.Values(),
             this.NoticeLog.Values(),
             this.Story.Values(),
-            ReadPositions(this.streams));
+            ReadPositions(this.streams),
+            this.Shops.Values());
 
     /// <summary>Computes the state hash that a replay and the identity job compare (G-5).</summary>
     /// <returns>The hash of every value of this state.</returns>
@@ -450,6 +459,7 @@ public sealed class RunState
         this.Battle?.Hash(hasher);
         this.NoticeLog.Hash(hasher);
         this.Story.Hash(hasher);
+        this.Shops.Hash(hasher);
 
         foreach (RandomStream stream in this.streams)
         {

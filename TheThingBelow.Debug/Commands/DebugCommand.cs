@@ -36,10 +36,12 @@ public sealed class DebugCommand
         DebugIntentHandler? handler,
         Func<RunState, string>? report,
         BattleSide? targetSide,
-        bool takesMap)
+        bool takesMap,
+        bool takesAmount)
     {
         this.TargetSide = targetSide;
         this.TakesMap = takesMap;
+        this.TakesAmount = takesAmount;
         this.Name = name;
         this.Summary = summary;
         this.Action = action;
@@ -65,6 +67,9 @@ public sealed class DebugCommand
     /// <summary>True when the command takes the id of a map as its argument (D-1133).</summary>
     public bool TakesMap { get; }
 
+    /// <summary>True when the command takes an amount, a whole number from 0, as its argument (D-1162).</summary>
+    public bool TakesAmount { get; }
+
     /// <summary>Makes a command that changes the run through a debug intent (D-171).</summary>
     /// <param name="name">The word that the person types, such as `reveal`.</param>
     /// <param name="summary">One line for `help`.</param>
@@ -84,7 +89,7 @@ public sealed class DebugCommand
         ArgumentNullException.ThrowIfNull(action);
         ArgumentNullException.ThrowIfNull(handler);
 
-        return new DebugCommand(name, summary, action, handler, null, null, false);
+        return new DebugCommand(name, summary, action, handler, null, null, false, false);
     }
 
     /// <summary>Makes a battle command that takes the slot of its target as its argument (D-767).</summary>
@@ -108,7 +113,7 @@ public sealed class DebugCommand
         ArgumentNullException.ThrowIfNull(action);
         ArgumentNullException.ThrowIfNull(handler);
 
-        return new DebugCommand(name, summary, action, handler, null, targetSide, false);
+        return new DebugCommand(name, summary, action, handler, null, targetSide, false, false);
     }
 
     /// <summary>Makes a command that takes the id of a map as its argument (D-1133).</summary>
@@ -130,7 +135,29 @@ public sealed class DebugCommand
         ArgumentNullException.ThrowIfNull(action);
         ArgumentNullException.ThrowIfNull(handler);
 
-        return new DebugCommand(name, summary, action, handler, null, null, true);
+        return new DebugCommand(name, summary, action, handler, null, null, true, false);
+    }
+
+    /// <summary>Makes a command that takes an amount, a whole number from 0, as its argument (D-1162).</summary>
+    /// <param name="name">The word that the person types, such as `gold`.</param>
+    /// <param name="summary">One line for `help`.</param>
+    /// <param name="action">The id of the intent, which <see cref="DebugCommandIds"/> holds.</param>
+    /// <param name="handler">The rule of the command, which the seam of D-260 calls.</param>
+    /// <returns>The command.</returns>
+    /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
+    /// <exception cref="ArgumentException">The name or the summary is empty (T-2).</exception>
+    public static DebugCommand OfAmountIntent(
+        string name,
+        string summary,
+        ContentId action,
+        DebugIntentHandler handler)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        ArgumentException.ThrowIfNullOrEmpty(summary);
+        ArgumentNullException.ThrowIfNull(action);
+        ArgumentNullException.ThrowIfNull(handler);
+
+        return new DebugCommand(name, summary, action, handler, null, null, false, true);
     }
 
     /// <summary>Makes a command that reads the run and changes nothing (D-724).</summary>
@@ -146,7 +173,7 @@ public sealed class DebugCommand
         ArgumentException.ThrowIfNullOrEmpty(summary);
         ArgumentNullException.ThrowIfNull(report);
 
-        return new DebugCommand(name, summary, null, null, report, null, false);
+        return new DebugCommand(name, summary, null, null, report, null, false, false);
     }
 
     /// <summary>True when the command sends an intent that the run record holds (D-171).</summary>

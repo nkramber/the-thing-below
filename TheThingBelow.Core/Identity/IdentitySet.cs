@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Text;
 using TheThingBelow.Core.Battles;
 using TheThingBelow.Core.Content;
-using TheThingBelow.Core.Shops;
 using TheThingBelow.Core.Hashing;
 using TheThingBelow.Core.Logging;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Core.Shops;
 using TheThingBelow.Core.Story;
 using TheThingBelow.Core.Streams;
 

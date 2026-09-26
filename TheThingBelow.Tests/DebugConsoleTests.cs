@@ -43,6 +43,8 @@ public sealed class DebugConsoleTests
     /// <summary>The permanent id of the go-to-map command (D-727, D-1133).</summary>
     private const string GoToId = "debug.go_to_map";
 
+    private const string SetGoldId = "debug.set_gold";
+
     /// <summary>The seed of the runs of these tests.</summary>
     private const ulong Seed = 20260920;
 
@@ -56,9 +58,11 @@ public sealed class DebugConsoleTests
         // a debug handler (D-260, D-492).
         DebugIntentHandlers handlers = DebugAssemblyFile.Handlers();
 
-        Assert.Equal(3 + BattleIds.Length + NoticeIds.Length, handlers.Count);
+        Assert.Equal(4 + BattleIds.Length + NoticeIds.Length, handlers.Count);
         Assert.True(handlers.TryFind(Id(GoToId), out DebugIntentHandler? goTo));
         Assert.NotNull(goTo);
+        Assert.True(handlers.TryFind(Id(SetGoldId), out DebugIntentHandler? gold));
+        Assert.NotNull(gold);
         Assert.True(handlers.TryFind(Id(RevealId), out DebugIntentHandler? found));
         Assert.NotNull(found);
         foreach (string battleId in BattleIds)
@@ -452,6 +456,51 @@ public sealed class DebugConsoleTests
     }
 
     [Fact]
+    public void TheGoldCommandSendsItsAmountInOneDebugIntentAndChangesNoStateItself()
+    {
+        // D-1162: the intent carries the amount, so the record holds it (D-171, T-7).
+        Simulation run = Start();
+        List<Intent> queued = [];
+
+        IReadOnlyList<string> answer = DebugAssemblyFile.Run("gold 250", () => run.State, queued.Add);
+
+        Intent sent = Assert.Single(queued);
+        Assert.Equal((SetGoldId, true, 250), (sent.Action.Value, sent.IsDebug, sent.Option));
+        Assert.Equal(0, run.State.Characters.Gold);
+        Assert.Contains("with 250 on the next tick", string.Join(" ", answer), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheGoldIntentSetsTheGoldUpAndDown()
+    {
+        // D-1162: the command sets the gold, and the log names the gold before it.
+        Simulation run = Start();
+
+        run.Step([Intent.OfDebugAmount(Id(SetGoldId), 300)]);
+        Assert.Equal(300, run.State.Characters.Gold);
+        IReadOnlyList<LogEntry> log = run.Step([Intent.OfDebugAmount(Id(SetGoldId), 40)]);
+        Assert.Equal(40, run.State.Characters.Gold);
+        run.Step([Intent.OfDebugAmount(Id(SetGoldId), 40)]);
+
+        Assert.Equal(40, run.State.Characters.Gold);
+        LogEntry entry = Assert.Single(log, line => string.Equals(line.Message, "the command set the gold of the party", StringComparison.Ordinal));
+        Assert.Contains(entry.Fields, field => field.Name == "before" && field.Value == "300");
+    }
+
+    [Theory]
+    [InlineData("gold")]
+    [InlineData("gold -5")]
+    [InlineData("gold many")]
+    public void TheGoldCommandNeedsAnAmount(string line)
+    {
+        Simulation run = Start();
+
+        string answer = string.Join(" ", DebugAssemblyFile.Run(line, () => run.State, Refuse));
+
+        Assert.Contains("the command 'gold' takes an amount, a whole number from 0", answer, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AnEmptyLineGivesNoLineAndSendsNoIntent()
     {
         Simulation run = Start();
@@ -472,8 +521,9 @@ public sealed class DebugConsoleTests
             Assert.True(names.Add(name), $"Two commands take the name '{name}' (T-2).");
         }
 
-        // PR-99 removed the `swap` command (D-1050), and PR-14 added the `goto` command (D-1133).
-        Assert.Equal(14, names.Count);
+        // PR-99 removed the `swap` command (D-1050), PR-14 added the `goto` command (D-1133), and
+        // PR-65 added the `gold` command (D-1162).
+        Assert.Equal(15, names.Count);
     }
 
     private static Simulation Start() =>

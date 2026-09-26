@@ -8,6 +8,7 @@ using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Saves;
+using TheThingBelow.Core.Shops;
 using TheThingBelow.Core.Story;
 using TheThingBelow.Core.Streams;
 
@@ -47,6 +48,7 @@ public static class RunSnapshotText
             WriteBattle(writer, snapshot.Battle);
             WriteNotices(writer, snapshot.Notices);
             WriteStory(writer, snapshot.Story);
+            WriteStock(writer, snapshot.Stock);
             writer.WriteStartArray("streams");
             foreach (StreamPosition position in snapshot.Streams)
             {
@@ -422,6 +424,17 @@ public static class RunSnapshotText
     /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
     public static RunSnapshot ReadFormatFourteen(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 14, seed);
 
+    /// <summary>
+    /// Reads a snapshot of save format 15, which holds no stock of a shop (D-1152). The resume
+    /// starts each stock at the count of its shop file.
+    /// </summary>
+    /// <param name="reader">The reader of the line, which names the save file.</param>
+    /// <param name="seed">The seed of the header, which opens the NPC stream (D-1137).</param>
+    /// <returns>The snapshot, with no stock.</returns>
+    /// <exception cref="ContentException">A field is absent, unknown, or malformed (T-2).</exception>
+    /// <exception cref="ArgumentException">The values describe no state of a run (T-2).</exception>
+    public static RunSnapshot ReadFormatFifteen(ref ContentReader reader, ulong seed) => ReadLine(ref reader, 15, seed);
+
     private static RunSnapshot ReadLine(ref ContentReader reader, int format, ulong? seed)
     {
         long? tick = null;
@@ -432,6 +445,7 @@ public static class RunSnapshotText
         BattleValues? battle = null;
         List<ContentId>? notices = null;
         StoryValues? story = null;
+        List<StockValues>? stock = null;
         List<StreamPosition>? streams = null;
 
         int depth = reader.ReadObjectStart();
@@ -476,6 +490,13 @@ public static class RunSnapshotText
                 case "battle":
                     battle = BattleSnapshotText.ReadBattle(ref reader, format);
                     break;
+                // Save format 15 and older predate the stock of a shop (D-1152).
+                case "stock" when format < 16:
+                    throw reader.Refuse(
+                        $"the snapshot of save format {format} holds a stock, and that format predates it (D-1152)");
+                case "stock":
+                    stock = ReadStock(ref reader);
+                    break;
                 case "streams":
                     streams = ReadStreams(ref reader);
                     break;
@@ -508,6 +529,12 @@ public static class RunSnapshotText
             _ = reader.Require(story, depth, "story");
         }
 
+        // Save format 16 and each later format hold the stock of each shop (D-1152).
+        if (format >= 16)
+        {
+            _ = reader.Require(stock, depth, "stock");
+        }
+
         RunSnapshot snapshot = new(
             reader.RequireValue(tick, depth, "tick"),
             reader.RequireValue(menu, depth, "menu"),
@@ -517,7 +544,8 @@ public static class RunSnapshotText
             battle,
             notices,
             story,
-            StreamsOf(reader.Require(streams, depth, "streams"), format, seed));
+            StreamsOf(reader.Require(streams, depth, "streams"), format, seed),
+            stock);
 
         snapshot.Check(reader.File);
         return snapshot;
@@ -585,10 +613,73 @@ public static class RunSnapshotText
             null,
             null,
             null,
-            StreamsOf(reader.Require(streams, depth, "streams"), 1, seed));
+            StreamsOf(reader.Require(streams, depth, "streams"), 1, seed),
+            null);
 
         snapshot.Check(reader.File);
         return snapshot;
+    }
+
+    /// <summary>
+    /// Writes the count that remains of each counted entry that a buy changed (D-1152). This build
+    /// writes save format 16, so the field is always present, and it holds an empty array before
+    /// the first buy of a counted entry.
+    /// </summary>
+    private static void WriteStock(Utf8JsonWriter writer, IReadOnlyList<StockValues>? stock)
+    {
+        if (stock is null)
+        {
+            throw new ArgumentException(
+                "A snapshot that this build writes holds the stock of each shop. A snapshot with none comes from save format 15 or older, and this build never writes one (T-2, D-166).",
+                nameof(stock));
+        }
+
+        writer.WriteStartArray("stock");
+        foreach (StockValues value in stock)
+        {
+            writer.WriteStartObject();
+            writer.WriteString("shop", value.Shop.Value);
+            writer.WriteString("thing", value.Thing.Value);
+            writer.WriteNumber("left", value.Left);
+            writer.WriteEndObject();
+        }
+
+        writer.WriteEndArray();
+    }
+
+    /// <summary>Reads the stock of each shop. The resume checks each value against the shop file (D-1152, T-2).</summary>
+    private static List<StockValues> ReadStock(ref ContentReader reader)
+    {
+        List<StockValues> stock = [];
+        int depth = reader.ReadArrayStart();
+        while (reader.ReadNextElement(depth, stock.Count))
+        {
+            ContentId? shop = null;
+            ContentId? thing = null;
+            int? left = null;
+            int fields = reader.ReadObjectStart();
+            while (reader.ReadNextField(fields, out string field))
+            {
+                switch (field)
+                {
+                    case "shop":
+                        shop = reader.ReadContentId(ShopList.Kind);
+                        break;
+                    case "thing":
+                        thing = reader.ReadContentId();
+                        break;
+                    case "left":
+                        left = reader.ReadInt();
+                        break;
+                    default:
+                        throw reader.UnknownField(field);
+                }
+            }
+
+            stock.Add(new StockValues(reader.Require(shop, fields, "shop"), reader.Require(thing, fields, "thing"), reader.RequireInt(left, fields, "left")));
+        }
+
+        return stock;
     }
 
     private static List<ContentId> ReadNotices(ref ContentReader reader)
