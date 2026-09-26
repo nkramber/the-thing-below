@@ -1,3 +1,38 @@
+## Session 331: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR #85 (PR-65), round 5. Repository: the-thing-below. Branch: `feat/pr-65-shop`. PR: #85. Role: author. Base: `8e81487`.
+
+### What this session did, and why
+
+- The owner read the gear window of round 4 and changed the line of the character (D-1170).
+- The level stands in a column of its own close to the name, after a hyphen: "Marrek  -  Level 1". The string `menu.dash` holds the hyphen.
+- An empty line stands between that line and the line of the stat names, so the head of the gear window takes five lines.
+- The session read the gear frames of `make sheet FIXTURE=menu` at 1x and at 1080 rows.
+
+### The state of the build
+
+- Every local check passes. Ten tests fail alone: the baselines of the ten shop frames, which come from the `screen-captures` artifact of CI.
+- Gitar approved round 4 with no thread. The remote head is the push of this round.
+
+### What is in flight
+
+- The approval of the owner for the frames of round 5 in the PR description.
+- Then the baselines of the CI artifact, the answer to the CI claim of Gitar (RG 3 before the review), and `make codex-review`.
+
+### Traps and gotchas
+
+- The name column of the gear window holds 10 characters. A longer name of PR-17 needs a wider column.
+- Perl substitutions with braces in C# text fail. Use the Edit tool for each change of C# text.
+
+### The questions that block progress
+
+The owner approves the frames before the review (D-1164). The text batch waits for the approval of the owner (D-57).
+
+### The next concrete action
+
+Wait for the approval of the owner. Then commit the baselines of the CI artifact, and run `make codex-review PR=85`.
+
 ## Session 330: 2026-09-26, Claude Code
 
 Author: Claude Code
@@ -300,35 +335,3 @@ None. OQ-249 blocks PR-17.
 ### The next concrete action
 
 Take the baselines from the `screen-captures` artifact, read each frame, and commit them. Then run the Gitar poll of the `gitar-review` skill.
-
-## Session 321: 2026-09-25, Claude Code
-
-Author: Claude Code
-Session: author PR #83 (PR-106), round 3. Repository: the-thing-below. Branch: `fix/pr-106-gate-trust`. PR: #83. Role: author. Base: `d875322`.
-
-### What this session did, and why
-
-- The review of `make codex-review` gives `Ready for owner merge` for the effective head `b93b796` in `docs/reviews/pr-83.md`, with no open finding.
-- Each check of `b93b796` passed, and the `review-gate` check waited for the record alone. Gitar approved the head with no thread.
-- The report of the owner marks the six findings of this PR as `COMPLETE - PR #83`: P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37. No finding of the report stays open.
-
-### The state of the build
-
-- The effective head is `b93b796`, and the review approves it. This entry is a commit of the metadata set, so the approval stands (D-610).
-
-### What is in flight
-
-- The Gitar pass of this commit, the `review-gate` check, and the merge confirmation of the owner (D-933).
-- The owner sets the `Gitar` context in the live protection of `main` (D-1123).
-
-### Traps and gotchas
-
-- The live `review-gate` check of this PR runs the old workflow of `main` (F-37). The first-parent list reads its first PR after the merge.
-
-### The questions that block progress
-
-None. OQ-246 holds the cause of the screen flake.
-
-### The next concrete action
-
-After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.

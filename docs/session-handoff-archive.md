@@ -1,5 +1,37 @@
 # Session handoff archive
 
+## Session 321: 2026-09-25, Claude Code
+
+Author: Claude Code
+Session: author PR #83 (PR-106), round 3. Repository: the-thing-below. Branch: `fix/pr-106-gate-trust`. PR: #83. Role: author. Base: `d875322`.
+
+### What this session did, and why
+
+- The review of `make codex-review` gives `Ready for owner merge` for the effective head `b93b796` in `docs/reviews/pr-83.md`, with no open finding.
+- Each check of `b93b796` passed, and the `review-gate` check waited for the record alone. Gitar approved the head with no thread.
+- The report of the owner marks the six findings of this PR as `COMPLETE - PR #83`: P3-9, P3-24, P3-25, P3-26, P3-36, and P3-37. No finding of the report stays open.
+
+### The state of the build
+
+- The effective head is `b93b796`, and the review approves it. This entry is a commit of the metadata set, so the approval stands (D-610).
+
+### What is in flight
+
+- The Gitar pass of this commit, the `review-gate` check, and the merge confirmation of the owner (D-933).
+- The owner sets the `Gitar` context in the live protection of `main` (D-1123).
+
+### Traps and gotchas
+
+- The live `review-gate` check of this PR runs the old workflow of `main` (F-37). The first-parent list reads its first PR after the merge.
+
+### The questions that block progress
+
+None. OQ-246 holds the cause of the screen flake.
+
+### The next concrete action
+
+After the merge, write the transitional prompt of step 6 of the `one-pr-one-session` skill.
+
 ## Session 320: 2026-09-25, Codex
 
 Author: Codex

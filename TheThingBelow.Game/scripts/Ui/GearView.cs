@@ -23,8 +23,14 @@ namespace TheThingBelow.Game.Ui;
 /// </remarks>
 public sealed class GearView : IMenuView
 {
-    /// <summary>The lines above the list: the character, the stat names, the stats with the piece under the cursor, and the caption of the list (D-1169).</summary>
-    private const int HeadLines = 4;
+    /// <summary>The lines above the list: the character, an empty line, the stat names, the stats with the piece under the cursor, and the caption of the list (D-1169, D-1170).</summary>
+    private const int HeadLines = 5;
+
+    /// <summary>The characters of the column of the name, before the hyphen and the level (D-1170).</summary>
+    private const int NameCharacters = 10;
+
+    /// <summary>The characters of the column of the hyphen between the name and the level (D-1170).</summary>
+    private const int DashCharacters = 3;
 
     /// <summary>The share of the inner width of the window that the left column of the list takes, in hundredths.</summary>
     private const int LeftShare = 45;
@@ -81,16 +87,22 @@ public sealed class GearView : IMenuView
         int inner = box.Width - (MenuLayout.Pad * 2);
         int leftWidth = inner * LeftShare / 100;
         int first = MenuLayout.FirstLineTop(body, ui.Theme.TitleSize);
-        this.name = MenuNodes.Line(this.layer, left, first, leftWidth, line);
-        this.level = MenuNodes.Line(this.layer, left + leftWidth, first, inner - leftWidth, line);
+        // The level stands in a column of its own close to the name, after a hyphen, and an empty
+        // line stands under them (D-1170).
+        int glyph = body / 2;
+        this.name = MenuNodes.Line(this.layer, left, first, NameCharacters * glyph, line);
+        Label dash = MenuNodes.Line(this.layer, left + (NameCharacters * glyph), first, DashCharacters * glyph, line);
+        ui.Text.Put(dash, Id("menu.dash"));
+        int levelLeft = left + ((NameCharacters + DashCharacters) * glyph);
+        this.level = MenuNodes.Line(this.layer, levelLeft, first, left + inner - levelLeft, line);
         int cell = inner / StatNames.Length;
         for (int stat = 0; stat < StatNames.Length; stat += 1)
         {
-            this.wornCells.Add(MenuNodes.Line(this.layer, left + (cell * stat), first + line, cell, line));
-            this.trialCells.Add(MenuNodes.Line(this.layer, left + (cell * stat), first + (line * 2), cell, line));
+            this.wornCells.Add(MenuNodes.Line(this.layer, left + (cell * stat), first + (line * 2), cell, line));
+            this.trialCells.Add(MenuNodes.Line(this.layer, left + (cell * stat), first + (line * 3), cell, line));
         }
 
-        this.caption = MenuNodes.Line(this.layer, left, first + (line * 3), inner, line);
+        this.caption = MenuNodes.Line(this.layer, left, first + (line * 4), inner, line);
         MenuNodes.Paint(this.caption, this.dimColor);
 
         // The list takes each line between the caption and the last line of the window.

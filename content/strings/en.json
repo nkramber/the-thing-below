@@ -442,6 +442,10 @@
    "text": "—"
   },
   {
+   "id": "menu.dash",
+   "text": "-"
+  },
+  {
    "id": "menu.experience",
    "text": "XP {amount}"
   },
