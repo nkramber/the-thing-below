@@ -34,6 +34,8 @@ public sealed class EnemyRecordTests
         Assert.Equal(BrutePath, brute.File);
         Assert.Equal(EnemySize.Common, grunt.Size);
         Assert.Equal(EnemySize.Elite, brute.Size);
+        Assert.Equal((3, 6), (grunt.GoldLow, grunt.GoldHigh));
+        Assert.Equal((10, 16), (brute.GoldLow, brute.GoldHigh));
     }
 
     [Fact]
@@ -62,6 +64,8 @@ public sealed class EnemyRecordTests
     [InlineData("size")]
     [InlineData("level")]
     [InlineData("experience")]
+    [InlineData("gold_low")]
+    [InlineData("gold_high")]
     [InlineData("health")]
     [InlineData("attack")]
     [InlineData("defense")]
@@ -121,6 +125,8 @@ public sealed class EnemyRecordTests
     [InlineData("\"level\": 3", "\"level\": 0", "outside 1 to 40")]
     [InlineData("\"level\": 3", "\"level\": 41", "outside 1 to 40")]
     [InlineData("\"experience\": 20", "\"experience\": -1", "outside 0 to")]
+    [InlineData("\"gold_low\": 10", "\"gold_low\": -1", "outside 0 to")]
+    [InlineData("\"gold_high\": 16", "\"gold_high\": 9", "below the low gold 10")]
     public void ARecordThatBreaksARuleFailsWithTheFile(string from, string to, string reason)
     {
         string text = TestBattles.BruteFile.Replace(from, to, StringComparison.Ordinal);

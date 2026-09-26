@@ -7,7 +7,7 @@ using Xunit;
 
 namespace TheThingBelow.Tests;
 
-/// <summary>The steal of a Theft drill and the drops of a win (D-383, D-949, D-1042 to D-1045).</summary>
+/// <summary>The steal of a Theft drill, and the drops and the gold of a win (D-383, D-949, D-1042 to D-1045, D-1157).</summary>
 public sealed class LootRulesTests
 {
     private const int Seeds = 1000;
@@ -290,6 +290,83 @@ public sealed class LootRulesTests
         Assert.Equal(1, battle.StealTries);
         Assert.Empty(battle.Stolen);
     }
+
+    [Fact]
+    public void AWinAddsTheRolledGoldOfEachFallenEnemyInOneLineAfterTheDrops()
+    {
+        // D-1157: two grunts of 3 to 6 gold each give 6 to 12. One line names the sum after each
+        // drop, and a replay of the seed gives the same gold (T-7).
+        BattleContent content = TestBattles.WithDrops("[{ \"item\": \"item.fixture_draught\", \"chance\": 10000 }]");
+        var amounts = new SortedSet<int>();
+        for (ulong seed = 1; seed <= 50; seed += 1)
+        {
+            List<BattleEvent> events = WinEvents(seed, content, out int gold);
+            Assert.True(gold is >= 6 and <= 12, $"Seed {seed}: the gold {gold} is outside 6 to 12.");
+            BattleEvent line = Assert.Single(events, played => played.Kind == BattleEventKind.WinGold);
+            Assert.Equal(gold, line.Amount);
+            Assert.True(events.FindLastIndex(played => played.Kind == BattleEventKind.Drop) < events.IndexOf(line), $"Seed {seed}: the gold line comes before a drop.");
+            _ = WinEvents(seed, content, out int again);
+            Assert.True(gold == again, $"Seed {seed}: a replay gave {again} gold, not {gold}.");
+            amounts.Add(gold);
+        }
+
+        Assert.True(amounts.Count > 1, "Every seed gave the same gold, so no roll ran.");
+    }
+
+    [Fact]
+    public void ARangeWithALowEqualToTheHighGivesAFixedAmount()
+    {
+        // D-1157: each grunt gives 5, so two grunts give 10 on every seed.
+        BattleContent content = TestBattles.WithLessonFiles(grunt: Grunt(5, 5), exact: true);
+        for (ulong seed = 1; seed <= 20; seed += 1)
+        {
+            _ = WinEvents(seed, content, out int gold);
+            Assert.True(gold == 10, $"Seed {seed}: the gold is {gold}, not 10.");
+        }
+    }
+
+    [Fact]
+    public void AWinWithNoGoldShowsNoGoldLine()
+    {
+        // D-1157: a sum of 0 adds no gold and shows no line, and each grunt still takes its draw.
+        BattleContent content = TestBattles.WithLessonFiles(grunt: Grunt(0, 0), exact: true);
+
+        List<BattleEvent> events = WinEvents(3, content, out int gold);
+
+        Assert.Equal(0, gold);
+        Assert.DoesNotContain(events, played => played.Kind == BattleEventKind.WinGold);
+    }
+
+    [Fact]
+    public void AFledFightGivesNoGold()
+    {
+        // D-60, D-1157: a retreat trades the gold of the fight for safety.
+        Simulation run = BattleRuns.IntoBattle(1, "group.one", TestBattles.SureFlee);
+        _ = run.TakeBattleEvents();
+
+        run.Step([Intent.OfPlayer(IntentIds.BattleFlee)]);
+
+        Assert.Equal(BattleOutcome.Fled, BattleRuns.BattleOf(run).Outcome);
+        Assert.Equal(0, run.State.Characters.Gold);
+        Assert.DoesNotContain(BattleEventKind.WinGold, BattleRuns.Kinds(run));
+    }
+
+    /// <summary>Wins a fight of the pair of grunts, and gives the events of the fight and the gold of the party after it.</summary>
+    private static List<BattleEvent> WinEvents(ulong seed, BattleContent content, out int gold)
+    {
+        Simulation run = BattleRuns.IntoBattle(seed, "group.test_pair", content);
+        Assert.True(run.State.Characters.Gold == 0, $"Seed {seed}: the party starts with gold.");
+        _ = run.TakeBattleEvents();
+        Assert.True(BattleRuns.FightToEnd(run, seed) == BattleOutcome.Won, $"Seed {seed}: the fight did not end in a win.");
+        gold = run.State.Characters.Gold;
+        return [.. run.TakeBattleEvents()];
+    }
+
+    /// <summary>Gives the grunt record of the tests with another gold range (D-1157).</summary>
+    private static string Grunt(int low, int high) =>
+        TestBattles.GruntFile
+            .Replace("\"gold_low\": 3,", $"\"gold_low\": {low},", StringComparison.Ordinal)
+            .Replace("\"gold_high\": 6,", $"\"gold_high\": {high},", StringComparison.Ordinal);
 
     /// <summary>Steals from one enemy on the turn of Marrek, and gives the kinds of the events of that step.</summary>
     private static List<BattleEventKind> Steal(Simulation run, BattleTarget enemy)

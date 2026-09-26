@@ -386,7 +386,7 @@ How to file a question (D-19, D-24):
 120. **OQ-120. The hazards of region one.** A hazard is part of the place, not a trap that somebody set (D-41). Which hazards does region one hold? Raised 2026-09-16. Blocks PR-64.
     - Three, the recommendation: deep snow that slows a step, ice that slides a step, and bad air in the mine. The bad air hurts each tick. Each fits a place of region one (D-153, D-244). Each needs its own rule and its own tests.
     - One, bad air in the mine alone. The work stays small. The ice crossing and the pass then hold no hazard of their own.
-121. **OQ-121. The shop.** A shop buys and sells gear, items, and some lessons for gold (D-60, D-365). What are its rules? Raised 2026-09-16. Blocks PR-65.
+121. **OQ-121. The shop.** A shop buys and sells gear, items, and some lessons for gold (D-60, D-365). What are its rules? Raised 2026-09-16. Blocks PR-65. Resolved 2026-09-26: the owner chose a price on each entry of a stock (D-1149). D-1150 to D-1155 set the sale, the shop type, the stock, and what sells.
     - A price for each item in content, a sale at half that price, and a fixed stock for each shop, the recommendation. The prices stay authored, and PR-30 tunes them. A shop that sells out needs a rule for its stock.
     - A price in content, a sale at half, and a stock that never runs out. The rules are the simplest. A player can buy every item at once with enough gold.
 122. **OQ-122. The region map.** The party moves node to node on the region map, and a story flag opens or closes a route (D-113, D-329). What form does the content take, and what does a route cost? Raised 2026-09-16. Blocks PR-35.

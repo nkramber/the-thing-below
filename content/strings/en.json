@@ -302,6 +302,10 @@
    "text": "+{amount} {stat}"
   },
   {
+   "id": "battle.win_gold",
+   "text": "The party takes {amount} gold."
+  },
+  {
    "id": "battle.wiped",
    "text": "Nobody gets up."
   },
@@ -438,6 +442,10 @@
    "text": "—"
   },
   {
+   "id": "menu.dash",
+   "text": "-"
+  },
+  {
    "id": "menu.experience",
    "text": "XP {amount}"
   },
@@ -447,7 +455,7 @@
   },
   {
    "id": "menu.gear_gain",
-   "text": "+{change}  {value}"
+   "text": "{value} +{change}"
   },
   {
    "id": "menu.gear_help",
@@ -455,7 +463,7 @@
   },
   {
    "id": "menu.gear_loss",
-   "text": "-{change}  {value}"
+   "text": "{value} -{change}"
   },
   {
    "id": "menu.gear_pack",
@@ -472,6 +480,10 @@
   {
    "id": "menu.gear_slots",
    "text": "Slots"
+  },
+  {
+   "id": "menu.gold",
+   "text": "{gold} gold"
   },
   {
    "id": "menu.item_count",
@@ -586,6 +598,10 @@
    "text": "Next -"
   },
   {
+   "id": "menu.no",
+   "text": "No"
+  },
+  {
    "id": "menu.party",
    "text": "Party"
   },
@@ -610,6 +626,14 @@
    "text": "Sleep here. Wounds close."
   },
   {
+   "id": "menu.rest_priced",
+   "text": "Rest, {price} gold"
+  },
+  {
+   "id": "menu.rest_short",
+   "text": "Not enough gold."
+  },
+  {
    "id": "menu.row",
    "text": "Row"
   },
@@ -632,6 +656,62 @@
   {
    "id": "menu.settings",
    "text": "Settings"
+  },
+  {
+   "id": "menu.shop_buy",
+   "text": "Buy"
+  },
+  {
+   "id": "menu.shop_buy_help",
+   "text": "See what they sell."
+  },
+  {
+   "id": "menu.shop_count",
+   "text": "How many? < {count} >  {total} gold"
+  },
+  {
+   "id": "menu.shop_empty",
+   "text": "Nothing here."
+  },
+  {
+   "id": "menu.shop_equip_ask",
+   "text": "Equip it now?"
+  },
+  {
+   "id": "menu.shop_equip_who",
+   "text": "Who wears it?"
+  },
+  {
+   "id": "menu.shop_held",
+   "text": "x{count}"
+  },
+  {
+   "id": "menu.shop_left",
+   "text": "{left} left"
+  },
+  {
+   "id": "menu.shop_not_bought",
+   "text": "They do not buy that."
+  },
+  {
+   "id": "menu.shop_price",
+   "text": "{price} gold"
+  },
+  {
+   "id": "menu.shop_replace",
+   "text": "Replace which one?"
+  },
+  {
+   "id": "menu.shop_sell",
+   "text": "Sell"
+  },
+  {
+   "id": "menu.shop_sell_help",
+   "text": "Offer what you carry."
+  },
+  {
+   "id": "menu.shop_unwanted",
+   "text": "Not wanted"
   },
   {
    "id": "menu.slot_accessory",
@@ -676,6 +756,10 @@
   {
    "id": "menu.swap_help",
    "text": "Pick who comes in. The downed stay out."
+  },
+  {
+   "id": "menu.yes",
+   "text": "Yes"
   },
   {
    "id": "name.fixture_ash_ring",

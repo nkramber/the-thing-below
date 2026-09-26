@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Godot;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
@@ -20,26 +21,34 @@ namespace TheThingBelow.Game.Ui;
 public sealed class ServiceView : IMenuView
 {
     private readonly UiBase ui;
+    private readonly RunState state;
     private readonly Control layer;
     private readonly Label help;
     private readonly List<Label> lines = [];
     private readonly Color chosenColor;
+    private readonly Color dimColor;
+    private readonly GoldPanel? gold;
     private Intent? made;
 
     /// <summary>Builds the window of a service, with the cursor on the service.</summary>
     /// <param name="frame">The frame, whose UI layer takes the window.</param>
     /// <param name="ui">The atlas, the theme, and the text helper.</param>
+    /// <param name="state">The state of the run, whose gold a rest reads (D-1156, D-1160).</param>
     /// <param name="choice">The cursor, which the window keeps when the screen builds again.</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    public ServiceView(FrameRoot frame, UiBase ui, ServiceChoice choice)
+    /// <remarks>A rest with a price names the price on its line, and the gold of the party stands in a panel under the window (D-1156, D-1160).</remarks>
+    public ServiceView(FrameRoot frame, UiBase ui, RunState state, ServiceChoice choice)
     {
         ArgumentNullException.ThrowIfNull(frame);
         ArgumentNullException.ThrowIfNull(ui);
+        ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(choice);
 
         this.ui = ui;
+        this.state = state;
         this.Choice = choice;
         this.chosenColor = ui.Theme.ColorOf("text_chosen");
+        this.dimColor = ui.Theme.ColorOf("text_dim");
         this.layer = MenuNodes.Layer(frame, ui);
 
         int body = ui.Theme.BodySize;
@@ -51,12 +60,22 @@ public sealed class ServiceView : IMenuView
         for (int index = 0; index < ServiceChoice.Options.Count; index += 1)
         {
             Label label = MenuNodes.Line(this.layer, left, box.Y + MenuLayout.Pad + (index * line), inner, line);
-            ui.Text.Put(label, LabelOf(choice.Kind, ServiceChoice.Options[index]));
+            ServiceOption option = ServiceChoice.Options[index];
+            if (option == ServiceOption.Use && choice.Price is int price && price > 0)
+            {
+                ui.Text.Put(label, Id("menu.rest_priced"), new Dictionary<string, string>(StringComparer.Ordinal) { ["price"] = price.ToString(CultureInfo.InvariantCulture) });
+            }
+            else
+            {
+                ui.Text.Put(label, LabelOf(choice.Kind, option));
+            }
+
             this.lines.Add(label);
         }
 
         this.help = MenuNodes.Line(this.layer, left, box.Y + MenuLayout.Pad + (ServiceChoice.Options.Count * line), inner, line);
-        MenuNodes.Paint(this.help, ui.Theme.ColorOf("text_dim"));
+        MenuNodes.Paint(this.help, this.dimColor);
+        this.gold = choice.Kind == ServiceKind.Rest ? new GoldPanel(this.layer, ui, state, box) : null;
         this.Show();
     }
 
@@ -110,12 +129,15 @@ public sealed class ServiceView : IMenuView
     /// <inheritdoc/>
     public void Show()
     {
+        bool refused = this.Choice.Refuses(this.state.Characters.Gold);
         for (int index = 0; index < this.lines.Count; index += 1)
         {
             MenuNodes.Paint(this.lines[index], index == this.Choice.Cursor ? this.chosenColor : null);
         }
 
-        this.ui.Text.Put(this.help, HelpOf(this.Choice.Kind, this.Choice.Current));
+        this.ui.Text.Put(this.help, refused ? Id("menu.rest_short") : HelpOf(this.Choice.Kind, this.Choice.Current));
+        MenuNodes.Paint(this.help, refused ? this.ui.Theme.ColorOf("text_warning") : this.dimColor);
+        this.gold?.Show();
     }
 
     /// <inheritdoc/>
@@ -163,9 +185,17 @@ public sealed class ServiceView : IMenuView
         return ViewOutcome.Stay;
     }
 
-    /// <summary>Confirms the choice under the cursor: the service closes the window with its intent, and leave closes it with none.</summary>
+    /// <summary>
+    /// Confirms the choice under the cursor: the service closes the window with its intent, and leave
+    /// closes it with none. A rest that the gold cannot pay stays, and the line of help says why (D-1156).
+    /// </summary>
     private ViewOutcome Confirm()
     {
+        if (this.Choice.Refuses(this.state.Characters.Gold))
+        {
+            return ViewOutcome.Stay;
+        }
+
         this.made = this.Choice.Confirm();
         return this.made is null ? ViewOutcome.Back : ViewOutcome.Chose;
     }

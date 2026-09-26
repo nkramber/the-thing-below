@@ -27,13 +27,14 @@ public enum GearSlotKind
 /// <param name="Id">The id, of the kind `gear`.</param>
 /// <param name="Slot">The kind of gear slot that the piece fits.</param>
 /// <param name="Limit">The most copies that the party owns, worn copies included, from 1 to 3 (D-1038, D-1039).</param>
+/// <param name="Value">The value that a shop reads for a sale, from 1 (D-1150).</param>
 /// <param name="Attack">The amount that the piece adds to attack, from -99 to 99 (D-1047).</param>
 /// <param name="Magic">The amount that the piece adds to magic, from -99 to 99 (D-1047, D-1052).</param>
 /// <param name="Defense">The amount that the piece adds to defense, from -99 to 99 (D-1047).</param>
 /// <param name="Resistance">The amount that the piece adds to resistance, from -99 to 99 (D-1047, D-1052).</param>
 /// <param name="Speed">The amount that the piece adds to speed, from -99 to 99 (D-1047).</param>
 /// <param name="Elements">The element level of the piece for each element. A plain piece holds normal for each (D-794, D-1036).</param>
-public sealed record GearRecord(ContentId Id, GearSlotKind Slot, int Limit, int Attack, int Magic, int Defense, int Resistance, int Speed, ElementTable Elements);
+public sealed record GearRecord(ContentId Id, GearSlotKind Slot, int Limit, int Value, int Attack, int Magic, int Defense, int Resistance, int Speed, ElementTable Elements);
 
 /// <summary>
 /// The gear file: each piece of gear (D-44, D-1036). The file is `content/rules/gear.json`.
@@ -182,6 +183,7 @@ public sealed class GearList
         ContentId? id = null;
         GearSlotKind? slot = null;
         int? limit = null;
+        int? value = null;
         int? attack = null;
         int? magic = null;
         int? defense = null;
@@ -202,6 +204,9 @@ public sealed class GearList
                     break;
                 case "limit":
                     limit = ReadInRange(ref reader, 1, HighestLimit, "D-1038");
+                    break;
+                case "value":
+                    value = BattleFixture.ReadStat(ref reader, 1);
                     break;
                 case "attack":
                     attack = ReadInRange(ref reader, -MostAmount, MostAmount, "D-1047");
@@ -230,6 +235,7 @@ public sealed class GearList
             reader.Require(id, depth, "id"),
             reader.RequireValue(slot, depth, "slot"),
             reader.RequireInt(limit, depth, "limit"),
+            reader.RequireInt(value, depth, "value"),
             reader.RequireInt(attack, depth, "attack"),
             reader.RequireInt(magic, depth, "magic"),
             reader.RequireInt(defense, depth, "defense"),

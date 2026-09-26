@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TheThingBelow.Core.Content;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Runs;
+using TheThingBelow.Core.Shops;
 
 namespace TheThingBelow.Core.Battles;
 
@@ -24,6 +25,7 @@ public sealed class BattleContent
     /// <param name="gear">The gear file (D-1036).</param>
     /// <param name="groups">The group files, one for each region, in the order of the paths (D-957).</param>
     /// <param name="profiles">The profiles, one for each file, in the order of the paths (D-956).</param>
+    /// <param name="shops">The shop file, whose stocks name items, gear, and lessons (D-1149).</param>
     /// <exception cref="ContentException">
     /// Two records take one id, two files take one region, a record names an absent ability,
     /// a group names an absent enemy or profile, the waiting column of a group is taller than the
@@ -41,7 +43,8 @@ public sealed class BattleContent
         ItemList items,
         GearList gear,
         IReadOnlyList<GroupFile> groups,
-        IReadOnlyList<ProfileRecord> profiles)
+        IReadOnlyList<ProfileRecord> profiles,
+        ShopList shops)
     {
         ArgumentNullException.ThrowIfNull(rules);
         ArgumentNullException.ThrowIfNull(fixture);
@@ -52,6 +55,7 @@ public sealed class BattleContent
         ArgumentNullException.ThrowIfNull(gear);
         ArgumentNullException.ThrowIfNull(groups);
         ArgumentNullException.ThrowIfNull(profiles);
+        ArgumentNullException.ThrowIfNull(shops);
 
         this.Rules = rules;
         this.Fixture = fixture;
@@ -62,6 +66,7 @@ public sealed class BattleContent
         this.Gear = gear;
         this.GroupFiles = groups;
         this.Profiles = profiles;
+        this.Shops = shops;
 
         this.RefuseRepeatedEnemy();
         this.RefuseAbsentAbility();
@@ -73,6 +78,7 @@ public sealed class BattleContent
         this.RefuseTallWaitingColumn();
         this.RefuseAbsentStealItem();
         this.RefuseAbsentDropItem();
+        this.RefuseAbsentStock();
         this.RefuseWrongStartGear();
         this.RefuseWrongPack();
         this.RefuseWrongTorch();
@@ -105,6 +111,9 @@ public sealed class BattleContent
 
     /// <summary>Every profile, in the order of the paths (D-956).</summary>
     public IReadOnlyList<ProfileRecord> Profiles { get; }
+
+    /// <summary>The shop file: the shop types and the shops (D-1149, D-1151).</summary>
+    public ShopList Shops { get; }
 
     /// <summary>
     /// Refuses an enemy of a group whose check fight gives no legal action (D-948, D-962).
@@ -273,6 +282,26 @@ public sealed class BattleContent
                     map.File,
                     patrol.Id.Value,
                     $"the patrol takes the size '{EnemySizes.NameOf(patrol.Size)}', and the largest enemy of the group '{patrol.Group.Value}' is '{largest.Id.Value}' with the size '{EnemySizes.NameOf(largest.Size)}' (D-754, D-788)");
+            }
+        }
+    }
+
+    /// <summary>Checks that each shop service of a map names a shop of the shop file (T-2, D-1149).</summary>
+    /// <param name="map">The map.</param>
+    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
+    /// <exception cref="ContentException">A shop service names an absent shop. The error names the map file and the service.</exception>
+    public void RequireShopsOf(GameMap map)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+
+        foreach (MapService service in map.Services)
+        {
+            if (service.Shop is ContentId shop && !this.Shops.Holds(shop))
+            {
+                throw ContentException.ForField(
+                    map.File,
+                    service.Id.Value,
+                    $"the service names the shop '{shop.Value}', and '{ShopList.Path}' holds no such shop (T-2, D-1149)");
             }
         }
     }
@@ -593,6 +622,31 @@ public sealed class BattleContent
                         profile.File,
                         entry.Item.Value,
                         $"the drop list of '{profile.Id.Value}' names this item, and '{ItemList.Path}' holds no such item (T-2, D-1042)");
+                }
+            }
+        }
+    }
+
+    /// <summary>Refuses an entry of a stock that names an absent item, piece, or lesson (T-2, D-1149).</summary>
+    private void RefuseAbsentStock()
+    {
+        foreach (ShopRecord shop in this.Shops.Shops)
+        {
+            foreach (StockEntry entry in shop.Stock)
+            {
+                (bool held, string path) = entry.Kind switch
+                {
+                    StockKind.Item => (this.Items.Holds(entry.Thing), ItemList.Path),
+                    StockKind.Gear => (this.Gear.Holds(entry.Thing), GearList.Path),
+                    StockKind.Lesson => (this.Lessons.Holds(entry.Thing), LessonList.Path),
+                    _ => throw new InvalidOperationException($"The stock entry '{entry.Thing.Value}' of '{shop.Id.Value}' takes no known kind (T-2)."),
+                };
+                if (!held)
+                {
+                    throw ContentException.ForField(
+                        this.Shops.File,
+                        entry.Thing.Value,
+                        $"the stock of '{shop.Id.Value}' names this id, and '{path}' holds no such entry (T-2, D-1149)");
                 }
             }
         }

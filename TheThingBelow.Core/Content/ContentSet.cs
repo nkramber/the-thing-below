@@ -5,6 +5,7 @@ using TheThingBelow.Core.Effects;
 using TheThingBelow.Core.Light;
 using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
+using TheThingBelow.Core.Shops;
 using TheThingBelow.Core.Story;
 
 namespace TheThingBelow.Core.Content;
@@ -140,6 +141,7 @@ public sealed class ContentSet
         LessonList? lessons = null;
         ItemList? items = null;
         GearList? gear = null;
+        ShopList? shops = null;
         NoticeList? notices = null;
         FlagList? flags = null;
         List<StoryScene> scenes = [];
@@ -219,6 +221,13 @@ public sealed class ContentSet
                 // branch of the rule fixtures below (D-1036).
                 gear = GearList.Read(file.Bytes, file.Path);
                 AddIds(file.Path, gear.Ids, sources);
+            }
+            else if (string.CompareOrdinal(file.Path, ShopList.Path) == 0)
+            {
+                // The shop file lies under the rule folder, so this branch comes before the
+                // branch of the rule fixtures below (D-1149).
+                shops = ShopList.Read(file.Bytes, file.Path);
+                AddIds(file.Path, ShopIds(shops), sources);
             }
             else if (string.CompareOrdinal(file.Path, NoticeList.Path) == 0)
             {
@@ -339,13 +348,15 @@ public sealed class ContentSet
             items ?? throw AbsentFile(ItemList.Path),
             gear ?? throw AbsentFile(GearList.Path),
             groups,
-            profiles);
+            profiles,
+            shops ?? throw AbsentFile(ShopList.Path));
 
         // Each map names a group of its region. The check runs before the effect files, whose
         // ambient check reads the enemies of each group that a map names (D-957).
         foreach (GameMap map in maps.Values)
         {
             battle.RequireGroupsOf(map);
+            battle.RequireShopsOf(map);
         }
 
         // Each trigger of a map names a story scene, its flags, and its markers (D-1004), and
@@ -543,6 +554,23 @@ public sealed class ContentSet
                 id.Value,
                 $"the content id '{id.Value}' is already the id of an entry of '{first}', and an id is permanent (D-166)");
         }
+    }
+
+    /// <summary>Gives the id of each shop type and each shop, in the order of the file (D-1149, D-1151).</summary>
+    private static List<ContentId> ShopIds(ShopList shops)
+    {
+        List<ContentId> ids = [];
+        foreach (ShopType type in shops.Types)
+        {
+            ids.Add(type.Id);
+        }
+
+        foreach (ShopRecord shop in shops.Shops)
+        {
+            ids.Add(shop.Id);
+        }
+
+        return ids;
     }
 
     private static void AddIds(string path, IReadOnlyList<ContentId> ids, SortedDictionary<string, string> sources)

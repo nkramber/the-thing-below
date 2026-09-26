@@ -21,13 +21,15 @@ public sealed class EnemyRecord
     /// <summary>The kind of an enemy id (D-646).</summary>
     public const string Kind = "enemy";
 
-    private EnemyRecord(string file, ContentId id, EnemySize size, int level, int experience, int health, int attack, int magic, int defense, int resistance, int speed, IReadOnlyList<ContentId> abilities, ElementTable elements, IReadOnlyList<StatusKind> immune)
+    private EnemyRecord(string file, ContentId id, EnemySize size, int level, int experience, int goldLow, int goldHigh, int health, int attack, int magic, int defense, int resistance, int speed, IReadOnlyList<ContentId> abilities, ElementTable elements, IReadOnlyList<StatusKind> immune)
     {
         this.File = file;
         this.Id = id;
         this.Size = size;
         this.Level = level;
         this.Experience = experience;
+        this.GoldLow = goldLow;
+        this.GoldHigh = goldHigh;
         this.Health = health;
         this.Attack = attack;
         this.Magic = magic;
@@ -53,6 +55,12 @@ public sealed class EnemyRecord
 
     /// <summary>The base experience, which a character at the level of the enemy or below it earns in full (D-968).</summary>
     public int Experience { get; }
+
+    /// <summary>The least gold that a win over this enemy gives, from 0 (D-1157).</summary>
+    public int GoldLow { get; }
+
+    /// <summary>The most gold that a win over this enemy gives, from the low gold. A low equal to the high gives a fixed amount (D-1157).</summary>
+    public int GoldHigh { get; }
 
     /// <summary>The full health.</summary>
     public int Health { get; }
@@ -106,6 +114,8 @@ public sealed class EnemyRecord
         EnemySize? size = null;
         int? level = null;
         int? experience = null;
+        int? goldLow = null;
+        int? goldHigh = null;
         int? health = null;
         int? attack = null;
         int? magic = null;
@@ -135,6 +145,12 @@ public sealed class EnemyRecord
                     break;
                 case "experience":
                     experience = BattleFixture.ReadStat(ref reader, 0);
+                    break;
+                case "gold_low":
+                    goldLow = BattleFixture.ReadStat(ref reader, 0);
+                    break;
+                case "gold_high":
+                    goldHigh = BattleFixture.ReadStat(ref reader, 0);
                     break;
                 case "health":
                     health = BattleFixture.ReadStat(ref reader, 1);
@@ -169,12 +185,21 @@ public sealed class EnemyRecord
         }
 
         _ = reader.Require(comment, depth, "comment");
+        int readLow = reader.RequireInt(goldLow, depth, "gold_low");
+        int readHigh = reader.RequireInt(goldHigh, depth, "gold_high");
+        if (readHigh < readLow)
+        {
+            throw reader.RefuseField(depth, "gold_high", $"the high gold {readHigh} is below the low gold {readLow} (D-1157)");
+        }
+
         var record = new EnemyRecord(
             file,
             reader.Require(id, depth, "id"),
             reader.RequireValue(size, depth, "size"),
             reader.RequireInt(level, depth, "level"),
             reader.RequireInt(experience, depth, "experience"),
+            readLow,
+            readHigh,
             reader.RequireInt(health, depth, "health"),
             reader.RequireInt(attack, depth, "attack"),
             reader.RequireInt(magic, depth, "magic"),

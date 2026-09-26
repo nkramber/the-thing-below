@@ -38,6 +38,9 @@ public enum MenuWindowKind
 
     /// <summary>The save window of the save service of a hub, which a confirm on its host opens (D-1132).</summary>
     Save,
+
+    /// <summary>The shop window of the shop service of a hub, which a confirm on its host opens (D-1149, D-1164).</summary>
+    Shop,
 }
 
 /// <summary>
@@ -47,8 +50,8 @@ public enum MenuWindowKind
 /// <remarks>
 /// The main list and the dungeon map screen each open a menu from the walk. A task window
 /// opens over the main list alone, and the dungeon map screen opens alone, because the map
-/// action works on the walk (D-986). The rest window and the save window open alone too, because
-/// a confirm on the host of a service opens them from the walk (D-1131, D-1132). Any other order
+/// action works on the walk (D-986). The rest window, the save window, and the shop window open alone
+/// too, because a confirm on the host of a service opens them from the walk (D-1131, D-1132, D-1149). Any other order
 /// points at a fault in the host (T-2).
 /// <para>
 /// This type holds no Godot value, so a test reads it with no engine (D-614).
@@ -75,7 +78,7 @@ public sealed class MenuPath
     /// <exception cref="InvalidOperationException">The window cannot open in this place of the stack (T-2).</exception>
     public void Open(MenuWindowKind kind)
     {
-        bool first = kind is MenuWindowKind.MainList or MenuWindowKind.DungeonMap or MenuWindowKind.Rest or MenuWindowKind.Save;
+        bool first = kind is MenuWindowKind.MainList or MenuWindowKind.DungeonMap or MenuWindowKind.Rest or MenuWindowKind.Save or MenuWindowKind.Shop;
         if (first && this.windows.Count > 0)
         {
             throw new InvalidOperationException(

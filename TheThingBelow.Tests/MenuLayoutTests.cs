@@ -57,6 +57,47 @@ public sealed class MenuLayoutTests
     [Theory]
     [InlineData(24)]
     [InlineData(32)]
+    public void EachLineOfTheShopWindowTheGoldAndThePricedRestFits(int body)
+    {
+        // D-1156, D-1158, D-1160, D-1165, D-1167: the shop menu, the gold panel, and the stats panel
+        // stand as wide as the main list. Each column of the list window and each line of the popup
+        // fit with the largest numbers of a region: a price of 9999, a count of 10, and a gold of 999999.
+        int list = UiCharacters(body, (int)GameValue.Constant(Layout, "MainListWidth") - (Pad() * 2));
+        foreach (object mode in (IEnumerable)GameValue.StaticProperty("ShopCursor", "Modes")!)
+        {
+            string label = Text((ContentId)GameValue.Static("ShopView", "ModeIdOf", mode)!);
+            Assert.True(label.Length <= 16 && label.Length <= list, $"The label '{label}' passes 16 characters or the {list} of the shop menu at a body of {body}.");
+        }
+
+        Assert.True(Fill("menu.gold", "gold", "999999").Length <= list, $"The gold line passes the {list} characters of its panel at a body of {body}.");
+        Assert.True(Fill("menu.stat", "stat", "ATK", "value", "-99").Length <= list, $"A stat line passes the {list} characters of the stats panel at a body of {body}.");
+        Assert.True(Fill("menu.rest_priced", "price", "999").Length <= 16, "The priced rest passes 16 characters.");
+
+        int task = (int)GameValue.Static(Layout, "TaskLineCharacters", body)!;
+        int column = task * 25 / 100;
+        foreach (string text in new[] { Fill("menu.shop_price", "price", "9999"), Text(Id("menu.shop_unwanted")) })
+        {
+            Assert.True(text.Length < column, $"The price '{text}' passes the {column} characters of its column at a body of {body}.");
+        }
+
+        foreach (string text in new[] { Fill("menu.shop_left", "left", "10"), Fill("menu.shop_held", "count", "10") })
+        {
+            Assert.True(text.Length <= task - (task * 70 / 100), $"The amount '{text}' passes its column at a body of {body}.");
+        }
+
+        foreach (string id in new[] { "menu.shop_buy_help", "menu.shop_sell_help", "menu.shop_not_bought", "menu.shop_empty", "menu.rest_short", "menu.shop_equip_ask", "menu.shop_equip_who", "menu.shop_replace", "menu.yes", "menu.no" })
+        {
+            Assert.True(Text(Id(id)).Length <= task, $"The line of '{id}' passes the {task} characters of the window at a body of {body}.");
+        }
+
+        Assert.True(Fill("menu.shop_count", "count", "10", "total", "99990").Length <= task, $"The count line passes the {task} characters at a body of {body}.");
+        int cell = (int)GameValue.Static("ShopView", "StatCellCharacters", body)!;
+        Assert.True(Fill("menu.gear_gain", "change", "99", "value", "999").Length < cell, $"A stat cell of {cell} characters holds no change of 99 on 999 at a body of {body}.");
+    }
+
+    [Theory]
+    [InlineData(24)]
+    [InlineData(32)]
     public void ThePartyWindowHoldsTheReserveOfTheFirstRegionAndEachOfItsLinesFits(int body)
     {
         // D-58, D-1136: two characters wait in the reserve by the end of region one, and each line
@@ -146,11 +187,11 @@ public sealed class MenuLayoutTests
     [InlineData(32)]
     public void EachCellOfTheStatsOfTheGearWindowFitsAtTheHighestValues(int body)
     {
-        // D-1060: a cell holds a stat of 999 with its name, or a change of 99 with the stat.
+        // D-1060, D-1168, D-1169: a cell holds the name of a stat, or a stat of 999 with a change of 99.
         int fits = (int)GameValue.Static("GearView", "StatCellCharacters", body)!;
         string[] cells =
         [
-            Fill("menu.stat", "stat", Text(Id("battle.stat_res")), "value", "999"),
+            Text(Id("battle.stat_res")),
             Fill("menu.gear_gain", "change", "99", "value", "999"),
             Fill("menu.gear_loss", "change", "99", "value", "999"),
             Fill("menu.gear_same", "value", "999"),

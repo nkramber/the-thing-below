@@ -530,10 +530,13 @@ public sealed class GameRunTests
     public void AConfirmOnTheKeeperOpensTheRestServiceAndTheRestClosesTheMenu()
     {
         // D-390, D-1131: the confirm opens the service in the rules, and the window of Game sends the
-        // rest intent and then the close. A rest writes no save.
+        // rest intent and then the close. A rest writes no save. The keeper asks 10 gold, which the
+        // gold command gives the party first (D-1156, D-1162).
         Run run = Run.Start(DebugAssemblyFile.Handlers());
         GoToHub(run);
         _ = run.TakeSaves();
+        run.Queue(Intent.OfDebugAmount(ContentId.Parse("debug.set_gold", "test", "debug"), 25));
+        run.Advance(OneTick);
 
         // The keeper stands at (6, 3) behind the bar, so the lead faces him from (6, 4).
         StepTiles(run, "step_north", 1);
@@ -546,7 +549,7 @@ public sealed class GameRunTests
         MapService opened = Assert.Single(run.TakeOpenedServices());
         Assert.Equal(ServiceKind.Rest, opened.Kind);
         Assert.True(run.MenuOpen);
-        GameValue choice = GameValue.New("ServiceChoice", opened.Kind);
+        GameValue choice = GameValue.New("ServiceChoice", opened.Kind, opened.Price);
         run.Queue((Intent)choice.Call("Confirm")!);
         run.Queue(Intent.OfPlayer(IntentIds.CloseMenu));
         run.Advance(OneTick);
@@ -554,6 +557,7 @@ public sealed class GameRunTests
         Assert.False(run.MenuOpen);
         Assert.Empty(run.TakeSaves());
         Assert.Empty(run.TakeOpenedServices());
+        Assert.Equal(15, run.State.Characters.Gold);
     }
 
     /// <summary>Starts the run of the group of four: three in the party and one in the reserve, on the first map (exit test 1 of PR-14, D-1144).</summary>
@@ -601,7 +605,7 @@ public sealed class GameRunTests
         Assert.Equal(ServiceKind.Save, opened.Kind);
         Assert.True(run.MenuOpen);
 
-        GameValue choice = GameValue.New("ServiceChoice", opened.Kind);
+        GameValue choice = GameValue.New("ServiceChoice", opened.Kind, opened.Price);
         run.Queue((Intent)choice.Call("Confirm")!);
         run.Queue(Intent.OfPlayer(IntentIds.CloseMenu));
         run.Advance(OneTick);

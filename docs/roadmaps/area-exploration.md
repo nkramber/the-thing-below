@@ -162,7 +162,7 @@ Built by PR-8, PR-9, and PR-60. Phase file: `phase-2-first-playable.md`.
 
 Built by PR-16. Phase file: `phase-2-first-playable.md`.
 
-- PR-16 builds the treasure, the locked doors, the keys, and the save points (D-41, D-529).
+- PR-16 builds the treasure, the locked doors, the keys, and the save points (D-41, D-529). It also adds the gold of a chest (D-1161).
 - A save point saves the party. The party and the lessons swap anywhere outside a fight (D-36, D-1050, D-1134).
 - A save point restores MP once for the place, until a story event reopens it, and it restores no health (D-389, D-555).
 - The exit to the region map and a rest at a hub restore the party. So a run never traps itself (D-555).
@@ -220,10 +220,12 @@ Built by PR-14. Phase file: `phase-2-first-playable.md`.
 Built by PR-65. Phase file: `phase-2-first-playable.md`.
 
 - PR-65 builds the shop and the gold economy, after the items of PR-13 (D-530).
-- Gold comes from enemies and from treasure, and it buys gear, items, and rest (D-60).
+- Gold comes from enemies and from treasure, and it buys gear, items, lessons, and rest (D-60). Each enemy rolls its gold at a win (D-1157), and PR-16 adds the gold of a chest (D-1161).
 - A shop sells lessons too, and the people of the story teach or give others (D-365).
 - The shops of the mining town close to the party at the breakout, and the refuge opens only during the flight (D-319, D-331, D-365).
-- OQ-121 holds the prices, the buy-back, and the stock of a shop.
+- Each entry of a stock holds its price and a count or `unlimited`, and a lesson entry holds no count (D-1149, D-1152, D-1153).
+- A shop pays the value of a thing at the rate of its shop type, and a rate of 0 refuses the category (D-1150, D-1151, D-1155). The party sells spare gear and used-up items alone (D-1154).
+- Each rest service names its price (D-1156).
 - The balance pass of PR-30 tunes the numbers of the economy (D-60, G-14).
 
 > *In plain English:* every fight pays a little, and the gold buys gear, supplies, and a bed. Some shops close for good when the story turns.
@@ -252,10 +254,10 @@ Built by PR-35. Phase file: `phase-2-first-playable.md`.
 | PR-104 | A tile trigger plays before a step into an enemy on the same tick, a step into the enemy whose mark runs takes the side of the beat, and a resume refuses a mark or an encounter of a dead enemy | D-1103, D-1104 |
 | PR-105 | A save of another build matches each enemy by its id, moves a lead off the edited map to the spawn point, and finds a moved story step by its id. A wipe reloads a save of its own run alone, and a test reads the drawing of each patrol | D-1111, D-1112, D-1114, D-1118 |
 | PR-106 | The map draws the start of the tick while a menu, a fight, or a story scene holds the world, so a lead in the middle of a step holds still | D-1126 |
-| PR-16 | The treasure, the doors, the keys, and the save points | D-41, D-529 |
+| PR-16 | The treasure, the gold of a chest, the doors, the keys, and the save points | D-41, D-529, D-1161 |
 | PR-64 | The traps, the hazards, and the statuses that last on the map | D-390 to D-393, D-529 |
 | PR-14 | The hub map, the NPCs and their movement, the rest, the save, and the party swap | D-59, D-112, D-530, D-1131 to D-1140 |
-| PR-65 | The shop and the gold economy | D-60, D-530 |
+| PR-65 | The shop and the gold economy | D-60, D-530, D-1149 to D-1161 |
 | PR-35 | The region map, its nodes, and its routes | D-113 |
 | PR-21 | The switches, the blocks, the light and dark, and the secrets | D-41 |
 | PR-17 | The village, the land near it, the mining town, and the hanging cells | D-313, D-362, D-369 |
@@ -333,7 +335,7 @@ The register is `docs/questions.md` (D-19). These questions block exploration PR
 - OQ-115: how a large enemy holds its tiles and sorts on screen. Blocks PR-8.
 - OQ-119: what a trap does, and what a Theft drill does to it. Blocks PR-64.
 - OQ-120: the hazards of region one. Blocks PR-64.
-- OQ-121: the prices, the buy-back, and the stock of a shop. Blocks PR-65.
+- OQ-121: the prices, the buy-back, and the stock of a shop. Resolved by D-1149 to D-1155.
 - OQ-122: the format of the region map, and the cost of a route. Blocks PR-35.
 - OQ-123: how the player finds a secret. Blocks PR-21.
 - OQ-217: how far the party sees in the dark. Blocks PR-91.

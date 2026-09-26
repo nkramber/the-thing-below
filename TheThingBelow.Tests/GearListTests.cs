@@ -27,7 +27,7 @@ public sealed class GearListTests
         Assert.Equal(Affinity.Resist, ring.Elements.Of(Element.Fire));
         Assert.Equal(Affinity.Weak, ring.Elements.Of(Element.Ice));
         GearRecord coat = gear.Piece(ContentId.Parse("gear.fixture_coat", "test", "gear"));
-        Assert.Equal((0, 3, -2, 1), (coat.Attack, coat.Defense, coat.Speed, coat.Limit));
+        Assert.Equal((0, 3, -2, 1, 60), (coat.Attack, coat.Defense, coat.Speed, coat.Limit, coat.Value));
     }
 
     [Theory]
@@ -37,6 +37,8 @@ public sealed class GearListTests
     [InlineData("\"speed\": -99", "\"speed\": -100", "speed", "outside -99 to 99")]
     [InlineData("\"slot\": \"weapon\"", "\"slot\": \"feet\"", "slot", "not one of weapon, off_hand, head, body, accessory")]
     [InlineData("\"attack\": 5, ", "", "attack", "absent")]
+    [InlineData("\"value\": 20, ", "", "value", "absent")]
+    [InlineData("\"value\": 20, ", "\"value\": 0, ", "value", "outside 1 to")]
     [InlineData("\"fire\": \"normal\", ", "", "fire", "absent")]
     [InlineData("\"defense\": 3, ", "\"defense\": 3, \"health\": 5, ", "health", "unknown field")]
     [InlineData("\"id\": \"gear.test_shield\"", "\"id\": \"gear.test_blade\"", "gear.test_blade", "two times")]

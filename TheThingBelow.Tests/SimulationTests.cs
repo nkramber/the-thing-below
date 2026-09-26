@@ -293,6 +293,7 @@ public sealed class SimulationTests
         hasher.AddBoolean(false);
         run.State.NoticeLog.Hash(hasher);
         run.State.Story.Hash(hasher);
+        run.State.Shops.Hash(hasher);
         foreach (StreamPosition position in snapshot.Streams)
         {
             hasher.AddInt32((int)position.Stream);

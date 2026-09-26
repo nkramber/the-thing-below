@@ -200,5 +200,5 @@ public sealed class StoryContentTests
 
     private static GameMap ServiceMap(string flag) => HubMaps.Of(
         npcs: HubMaps.Keeper,
-        services: $$"""{ "id": "service.hub_rest", "kind": "rest", "npc": "npc.hub_keeper", "condition": { "flag": "{{flag}}" } }""");
+        services: $$"""{ "id": "service.hub_rest", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "flag": "{{flag}}" } }""");
 }

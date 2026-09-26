@@ -353,7 +353,7 @@ public sealed class SaveFixtureTests
         Combatant fighter = BattleRuns.BattleOf(run).Party[0];
         Assert.Equal(TestBattles.MarrekAt(2).Health, fighter.FullHealth);
         Assert.Equal(TestBattles.MarrekAt(2).Attack, fighter.Attack);
-        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Notices = [], Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) })), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsThisFormat(save.Snapshot with { Notices = [], Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) })), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -378,7 +378,7 @@ public sealed class SaveFixtureTests
 
         Assert.Equal([TestBattles.KeptNotice.Value], Values(run.State.NoticeLog.Entries));
         Assert.Equal(20, save.Header.SimulationVersion);
-        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) })), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsThisFormat(save.Snapshot with { Story = MigratedStory, Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) })), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -424,7 +424,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(ScenePhase.WaitIntent, story.Phase);
         Assert.True(story.Paused);
         Assert.Equal(2, run.State.Characters.Members.Count);
-        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle), Story = WithStepId(save.Snapshot.Story, "step.ambush") })), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsThisFormat(save.Snapshot with { Characters = MigratedParty(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle), Story = WithStepId(save.Snapshot.Story, "step.ambush") })), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -455,7 +455,7 @@ public sealed class SaveFixtureTests
             ["lesson.fixture_purge", "lesson.fixture_rot", "lesson.fixture_quicken", "lesson.fixture_bolt", "lesson.fixture_cinder"],
             Values(run.State.Characters.LessonPack));
         Assert.DoesNotContain("swap_place", RunSnapshotText.Write(run.Snapshot()), StringComparison.Ordinal);
-        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Characters = WithGear(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) })), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsThisFormat(save.Snapshot with { Characters = WithGear(save.Snapshot.Characters), Battle = WithSteals(save.Snapshot.Battle) })), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -487,7 +487,7 @@ public sealed class SaveFixtureTests
         // value from the curve of the tests (D-1052, G-5).
         Assert.Equal((TestBattles.MarrekAt(1).Magic, TestBattles.MarrekAt(1).Resistance), (fighter.Magic, fighter.Resistance));
         Assert.Equal(Affinity.Resist, fighter.Elements.Of(Element.Fire));
-        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) })), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsThisFormat(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) })), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -500,11 +500,11 @@ public sealed class SaveFixtureTests
         Simulation run = ResumeInBattle(save);
 
         Assert.Equal(24, save.Header.SimulationVersion);
-        Assert.DoesNotContain("swap_place", RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) })), StringComparison.Ordinal);
+        Assert.DoesNotContain("swap_place", RunSnapshotText.Write(AsThisFormat(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) })), StringComparison.Ordinal);
         Combatant fighter = BattleRuns.BattleOf(run).Party[0];
         StatRow curve = TestBattles.MarrekAt(1);
         Assert.Equal((curve.Attack + 5, curve.Magic, curve.Defense, curve.Resistance), (fighter.Attack, fighter.Magic, fighter.Defense, fighter.Resistance));
-        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) })), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsThisFormat(save.Snapshot with { Characters = WithTorch(save.Snapshot.Characters) })), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -517,7 +517,7 @@ public sealed class SaveFixtureTests
 
         Assert.Equal(25, save.Header.SimulationVersion);
         Assert.Equal(true, run.Snapshot().Characters?.TorchHeld);
-        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot)), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsThisFormat(save.Snapshot)), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -532,7 +532,7 @@ public sealed class SaveFixtureTests
         Assert.Equal(29, save.Header.SimulationVersion);
         Assert.Equal("step.pause", save.Snapshot.Story?.Scene?.StepId?.Value);
         Assert.Equal((5, ScenePhase.Ticks, 3, true), (story.Step, story.Phase, story.TicksLeft, story.Paused));
-        Assert.Equal(RunSnapshotText.Write(AsFormatFifteen(save.Snapshot)), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsThisFormat(save.Snapshot)), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -550,7 +550,7 @@ public sealed class SaveFixtureTests
         Assert.Equal((new TilePoint(3, 5), 20, 1, false), (npcs[1].At, npcs[1].WaitTicks, npcs[1].Target, npcs[1].Forward));
         Assert.Equal((new TilePoint(6, 5), StepDirection.South, 21), (npcs[2].At, npcs[2].Stepping, npcs[2].StepTicks));
         Assert.Equal((new TilePoint(7, 5), 11), (npcs[3].At, npcs[3].WaitTicks));
-        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+        Assert.Equal(RunSnapshotText.Write(AsThisFormat(save.Snapshot)), RunSnapshotText.Write(run.Snapshot()));
     }
 
     [Fact]
@@ -564,6 +564,33 @@ public sealed class SaveFixtureTests
         Assert.Equal(["character.marrek", "character.test_second", "character.test_third"], MemberIds(run.State.Characters.Members));
         PartyMember waiting = Assert.Single(run.State.Characters.Reserve);
         Assert.Equal((TestParty.Fourth.Value, 45, 1, 6), (waiting.Record.Id.Value, waiting.Health, waiting.Level, waiting.Mp));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatSixteenHoldsTheStockThatRemainsAndTheGold()
+    {
+        // PR-65 wrote format 16 from Marrek with 1000 gold at the store of the tests: he bought one
+        // of the 2 salts and two of the 3 blades, and closed the menu (D-1152).
+        SaveDocument save = ReadFormat(16);
+        Simulation run = Simulation.Resume(save.Header.Seed, save.Snapshot, HubMaps.Store, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);
+
+        Core.Shops.ShopRecord store = run.State.BattleContent.Shops.Shop(ContentId.Parse("shop.test_store", "test", "shop"));
+        Assert.Equal(32, save.Header.SimulationVersion);
+        Assert.Equal(1000 - 30 - 160, run.State.Characters.Gold);
+        Assert.Equal(1, run.State.Shops.LeftOf(store, store.Stock[1]));
+        Assert.Equal(1, run.State.Shops.LeftOf(store, store.Stock[3]));
+        Assert.Equal(RunSnapshotText.Write(save.Snapshot), RunSnapshotText.Write(run.Snapshot()));
+    }
+
+    [Fact]
+    public void TheStoredSaveOfFormatFifteenStartsEachStockFull()
+    {
+        // D-1152: format 15 predates the stock, so the read gives no stock and the resume gives each
+        // counted entry the count of its shop file.
+        SaveDocument save = ReadFormat(15);
+
+        Assert.Null(save.Snapshot.Stock);
+        Assert.Empty(ResumeYard(save).State.Shops.Values());
     }
 
     [Fact]
@@ -760,13 +787,15 @@ public sealed class SaveFixtureTests
         party is null ? null : party with { TorchHeld = party.TorchHeld ?? false };
 
     /// <summary>
-    /// Gives a snapshot of format 14 or older as the migration of format 15 gives it: the NPCs of
-    /// its map, which places none, so the list is empty (D-1137), and an empty reserve (D-1136).
+    /// Gives a snapshot of an older format as the migration of this format gives it: the NPCs of
+    /// its map, which places none, so the list is empty (D-1137), an empty reserve (D-1136), and
+    /// each stock at the count of its shop file, so no stock value (D-1152).
     /// </summary>
-    private static RunSnapshot AsFormatFifteen(RunSnapshot snapshot)
+    private static RunSnapshot AsThisFormat(RunSnapshot snapshot)
     {
         RunSnapshot withNpcs = snapshot.Map is null ? snapshot : snapshot with { Map = snapshot.Map with { Npcs = snapshot.Map.Npcs ?? [] } };
-        return withNpcs.Characters is null ? withNpcs : withNpcs with { Characters = withNpcs.Characters with { Reserve = withNpcs.Characters.Reserve ?? [] } };
+        RunSnapshot withStock = withNpcs with { Stock = withNpcs.Stock ?? [] };
+        return withStock.Characters is null ? withStock : withStock with { Characters = withStock.Characters with { Reserve = withStock.Characters.Reserve ?? [] } };
     }
 
     /// <summary>Gives the story values that a resume of a snapshot before format 14 writes: the step id of the index (D-1112).</summary>

@@ -228,7 +228,7 @@ public partial class Boot : Node
             MenuHost host = this.menus ?? throw new InvalidOperationException(
                 $"The service '{service.Id.Value}' opened at tick {open.Tick}, and the session built no menu host (T-2).");
             this.held.Clear();
-            host.OpenService(service.Kind);
+            host.OpenService(service);
         }
     }
 
@@ -2172,6 +2172,25 @@ public partial class Boot : Node
         new() { Axis = axis, Device = device, AxisValue = value };
 
     /// <summary>
+    /// Gives a service of one kind for the smoke menus: a free rest, a save, or the first shop of
+    /// the shop file. No map holds it, because the lead faces no host on the dungeon (D-1131).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The shop file holds no shop (T-2).</exception>
+    private static MapService SmokeService(ServiceKind kind, ContentSet loaded)
+    {
+        ContentId? shop = null;
+        if (kind == ServiceKind.Shop)
+        {
+            IReadOnlyList<Core.Shops.ShopRecord> shops = loaded.Battle.Shops.Shops;
+            shop = shops.Count > 0 ? shops[0].Id : throw new InvalidOperationException("The shop file holds no shop, and the smoke menus open the first one (D-1149, T-2).");
+        }
+
+        ContentId npc = ContentId.Parse("npc.smoke_host", "TheThingBelow.Game/scripts/Boot.cs", nameof(SmokeService));
+        ContentId id = ContentId.Parse($"service.smoke_{ServiceKinds.NameOf(kind)}", "TheThingBelow.Game/scripts/Boot.cs", nameof(SmokeService));
+        return new MapService(id, kind, npc, null, Core.Story.Condition.Always(), kind == ServiceKind.Rest ? 0 : null, shop);
+    }
+
+    /// <summary>
     /// Opens each window of the menu stack with the `ui_*` actions, as a player does, the dungeon
     /// map screen, and the window of each hub service, and shows one notice in the notice box (D-211,
     /// D-221, D-986, D-1131). Each window reads its strings, so a string id that the table lacks
@@ -2217,14 +2236,19 @@ public partial class Boot : Node
         this.WriteLog(session.Advance(1.0 / FixedStepLoop.TicksPerSecond));
 
         // The window of each service opens under the menu that the rules opened, and leave closes it
-        // with no service, because the lead faces no host on the dungeon (D-1131, D-1141).
+        // with no service, because the lead faces no host on the dungeon (D-1131, D-1141). The shop
+        // opens its sale list, which reads the pack, and two cancels close it (D-1149, D-1158).
         foreach (ServiceKind kind in ServiceKinds.All)
         {
             session.Queue(Intent.OfPlayer(IntentIds.OpenMenu));
             this.WriteLog(session.Advance(1.0 / FixedStepLoop.TicksPerSecond));
-            host.OpenService(kind);
-            host.Read(new InputEventAction { Action = "ui_down", Pressed = true });
-            host.Read(new InputEventAction { Action = "ui_accept", Pressed = true });
+            host.OpenService(SmokeService(kind, loaded));
+            string[] servicePresses = kind == ServiceKind.Shop ? ["ui_down", "ui_accept", "ui_cancel", "ui_cancel"] : ["ui_down", "ui_accept"];
+            foreach (string servicePress in servicePresses)
+            {
+                host.Read(new InputEventAction { Action = servicePress, Pressed = true });
+            }
+
             opened += 1;
             this.WriteLog(session.Advance(1.0 / FixedStepLoop.TicksPerSecond));
         }

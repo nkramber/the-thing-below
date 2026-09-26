@@ -73,6 +73,7 @@ public static class BattleTimes
             BattleEventKind.Revive => pace.LineTicks,
             BattleEventKind.StealItem => pace.LineTicks,
             BattleEventKind.StealGear => pace.LineTicks,
+            BattleEventKind.WinGold => pace.LineTicks,
             BattleEventKind.StealGold => pace.LineTicks,
             BattleEventKind.StealFailed => pace.LineTicks,
             BattleEventKind.StealEmpty => pace.LineTicks,

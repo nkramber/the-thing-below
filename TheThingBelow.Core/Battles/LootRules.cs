@@ -196,10 +196,16 @@ public static class LootRules
     }
 
     /// <summary>
-    /// Rolls the drops of a win (D-1042). For each fallen enemy in slot order, the battle stream
-    /// rolls each entry of the drop list of its profile one time. A drop over the stack limit
-    /// leaves the game, and a line names it.
+    /// Rolls the drops and the gold of a win (D-1042, D-1157). For each fallen enemy in slot order,
+    /// the battle stream rolls each entry of the drop list of its profile one time, and then one
+    /// gold amount from the range of the enemy record. A drop over the stack limit leaves the game,
+    /// and a line names it. The gold of each enemy adds up, and one line names the sum.
     /// </summary>
+    /// <remarks>
+    /// A range with a low equal to the high still draws, so each fallen enemy takes one gold draw
+    /// and the order of the stream never depends on the content (T-7). A sum of 0 adds no gold and
+    /// shows no line.
+    /// </remarks>
     /// <param name="state">The run.</param>
     /// <param name="battle">The fight, which the party won.</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
@@ -207,6 +213,7 @@ public static class LootRules
     {
         BattleContent content = state.BattleContent;
         RandomStream stream = state.Stream(StreamId.Battle);
+        int gold = 0;
         foreach (Combatant enemy in battle.Enemies)
         {
             if (enemy.Place != CombatantPlace.Down)
@@ -225,6 +232,15 @@ public static class LootRules
                 BattleEventKind kind = state.Characters.Pick(entry.Item, 1, content) > 0 ? BattleEventKind.DropLost : BattleEventKind.Drop;
                 state.AddEvent(new BattleEvent(kind, enemy.Target, null, 0, null, Affinity.Normal, entry.Item));
             }
+
+            EnemyRecord record = content.Enemy(enemy.Id);
+            gold = checked(gold + stream.NextInt(record.GoldLow, record.GoldHigh, context));
+        }
+
+        if (gold > 0)
+        {
+            state.Characters.AddGold(gold, context);
+            state.AddEvent(new BattleEvent(BattleEventKind.WinGold, new BattleTarget(BattleSide.Party, 0), null, gold));
         }
     }
 }

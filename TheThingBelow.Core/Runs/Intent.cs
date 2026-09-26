@@ -101,6 +101,20 @@ public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target
         return new Intent(action, true, Map: map);
     }
 
+    /// <summary>Makes an intent of the debug console that holds an amount, such as the gold command (D-1162).</summary>
+    /// <param name="action">The id of the command, which a host handler reads (D-260).</param>
+    /// <param name="amount">The amount, from 0.</param>
+    /// <returns>The intent, with the debug mark. The option field carries the amount.</returns>
+    /// <exception cref="ArgumentNullException">The action is null (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The amount is below 0 (T-2).</exception>
+    public static Intent OfDebugAmount(ContentId action, int amount)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+        ArgumentOutOfRangeException.ThrowIfNegative(amount);
+
+        return new Intent(action, true, Option: amount);
+    }
+
     /// <summary>Makes the pick intent of a choose step that the player made (D-1007).</summary>
     /// <param name="option">The index of the option, from zero.</param>
     /// <returns>The intent, with no debug mark.</returns>
@@ -164,6 +178,29 @@ public sealed record Intent(ContentId Action, bool IsDebug, BattleTarget? Target
     /// <returns>The intent, with no debug mark. The actor field carries the party slot, and the option field carries the reserve index.</returns>
     public static Intent OfPartySwap(int slot, int reserve) =>
         new(IntentIds.PartySwap, false, null, null, reserve, null, slot);
+
+    /// <summary>Makes the intent of a buy at the open shop: a count of one item, piece, or lesson (D-1149, D-1158).</summary>
+    /// <param name="thing">The id of the item, the piece, or the lesson of the entry.</param>
+    /// <param name="count">The count, from 1.</param>
+    /// <returns>The intent, with no debug mark. The lesson field carries a lesson, the item field carries an item or a piece, and the option field carries the count.</returns>
+    /// <exception cref="ArgumentNullException">The thing is null (T-2).</exception>
+    public static Intent OfShopBuy(ContentId thing, int count)
+    {
+        ArgumentNullException.ThrowIfNull(thing);
+        bool lesson = string.CompareOrdinal(thing.Kind, LessonList.Kind) == 0;
+        return new Intent(IntentIds.ShopBuy, false, null, lesson ? null : thing, count, lesson ? thing : null);
+    }
+
+    /// <summary>Makes the intent of a sale at the open shop: a count of one item or piece of the pack (D-1150, D-1158).</summary>
+    /// <param name="thing">The id of the item or the piece.</param>
+    /// <param name="count">The count, from 1.</param>
+    /// <returns>The intent, with no debug mark. The item field carries the thing, and the option field carries the count.</returns>
+    /// <exception cref="ArgumentNullException">The thing is null (T-2).</exception>
+    public static Intent OfShopSell(ContentId thing, int count)
+    {
+        ArgumentNullException.ThrowIfNull(thing);
+        return new Intent(IntentIds.ShopSell, false, null, thing, count);
+    }
 
     /// <summary>Gives the intent as one line for an error message and a log line (T-2).</summary>
     /// <returns>The action, the actor, the lesson, the item, the target, the option, the map, and the debug mark, each when the intent carries it.</returns>

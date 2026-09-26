@@ -62,4 +62,8 @@ public static class DebugCommandIds
     /// <summary>The console put the party on the spawn point of one map, which the intent names (D-1133).</summary>
     public static readonly ContentId GoToMap =
         ContentId.Parse("debug.go_to_map", Source, nameof(GoToMap));
+
+    /// <summary>The console set the gold of the party to the amount that the intent holds (D-1162).</summary>
+    public static readonly ContentId SetGold =
+        ContentId.Parse("debug.set_gold", Source, nameof(SetGold));
 }

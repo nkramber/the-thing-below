@@ -1,0 +1,24 @@
+{
+ "comment": "The shop types and the shops (D-1149 to D-1155). A type holds a sale rate in basis points for each gear slot and each kind of used-up item, and a rate of 0 buys nothing of that kind (D-1151). A shop names its type and its stock. Each entry of a stock names one item, piece, or lesson, its price, and a count or `unlimited`. A lesson takes no count, and the shop hides it while the party owns it (D-1152, D-1153, D-1024). The fixture trader of the fixture hub lists the bolt, which the start pack holds, so the list hides it. PR-17 writes the shops of the first playable, and PR-30 tunes each number.",
+ "types": [
+  {
+   "id": "shop_type.fixture_trader",
+   "rates": { "weapon": 5000, "off_hand": 5000, "head": 5000, "body": 5000, "accessory": 2500, "heal": 5000, "restore": 5000, "cure": 5000, "revive": 5000 }
+  }
+ ],
+ "shops": [
+  {
+   "id": "shop.fixture_hub_trader",
+   "type": "shop_type.fixture_trader",
+   "stock": [
+    { "item": "item.fixture_draught", "price": 25, "count": "unlimited" },
+    { "item": "item.fixture_tonic", "price": 40, "count": "unlimited" },
+    { "item": "item.fixture_salts", "price": 30, "count": 5 },
+    { "item": "item.fixture_root", "price": 150, "count": 2 },
+    { "gear": "gear.fixture_hood", "price": 60, "count": 1 },
+    { "gear": "gear.fixture_charm", "price": 180, "count": 1 },
+    { "lesson": "lesson.fixture_bolt", "price": 200 }
+   ]
+  }
+ ]
+}

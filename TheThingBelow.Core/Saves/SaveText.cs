@@ -173,7 +173,8 @@ public static class SaveText
             12 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatTwelve(ref reader, seed)),
             13 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatThirteen(ref reader, seed)),
             14 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatFourteen(ref reader, seed)),
-            15 => ReadLine(line, file, RunSnapshotText.Read),
+            15 => ReadLine(line, file, (ref ContentReader reader) => RunSnapshotText.ReadFormatFifteen(ref reader, seed)),
+            16 => ReadLine(line, file, RunSnapshotText.Read),
 
             // `CheckFormat` passed, so this build named the version and wrote no reader for
             // it. The message thus names a fault of the build and never a fault of the file (T-2).

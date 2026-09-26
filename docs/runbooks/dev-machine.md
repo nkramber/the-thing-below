@@ -56,7 +56,9 @@ The region map lands in PR-35. Until then, the console moves the party to a hub 
 1. Open the console, and type `goto map.fixture_hub`. The party stands on the spawn point of the hub, and the autosave writes (D-224, D-1132).
 2. Face an NPC or the waystone, and press confirm. The window of its service opens (D-1131).
 3. Pick Rest to restore the party, or Save to write the slot save (D-1132).
-4. Type `goto map.fixture_dungeon` to return to the dungeon. The dungeon forgets its walked tiles and its dead enemies until PR-35.
+4. Type `gold 250` to give the party gold. The keeper asks a price for a rest (D-1156, D-1162).
+5. Face the trader in the north-east of the yard, and press confirm. The shop window opens (D-1149).
+6. Type `goto map.fixture_dungeon` to return to the dungeon. The dungeon forgets its walked tiles and its dead enemies until PR-35.
 
 ## The Steam Deck
 

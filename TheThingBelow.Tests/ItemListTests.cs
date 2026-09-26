@@ -19,13 +19,14 @@ public sealed class ItemListTests
 
         // `ContentId` compares by reference, so each test compares the values (F-39).
         HealItem draught = Assert.IsType<HealItem>(items.Item(Id("item.fixture_draught")));
-        Assert.Equal((5, 100, 30), (draught.Limit, draught.Delay, draught.Amount));
+        Assert.Equal((5, 100, 12, 30), (draught.Limit, draught.Delay, draught.Value, draught.Amount));
         RestoreItem tonic = Assert.IsType<RestoreItem>(items.Item(Id("item.fixture_tonic")));
-        Assert.Equal((5, 100, 10), (tonic.Limit, tonic.Delay, tonic.Amount));
+        Assert.Equal((5, 100, 20, 10), (tonic.Limit, tonic.Delay, tonic.Value, tonic.Amount));
         CureItem salts = Assert.IsType<CureItem>(items.Item(Id("item.fixture_salts")));
         Assert.Equal([StatusKind.Poison, StatusKind.Blind, StatusKind.Silence], salts.Statuses);
+        Assert.Equal(15, salts.Value);
         ReviveItem root = Assert.IsType<ReviveItem>(items.Item(Id("item.fixture_root")));
-        Assert.Equal((3, 120, 25), (root.Limit, root.Delay, root.Amount));
+        Assert.Equal((3, 120, 60, 25), (root.Limit, root.Delay, root.Value, root.Amount));
     }
 
     [Fact]
@@ -40,14 +41,17 @@ public sealed class ItemListTests
     }
 
     [Theory]
-    [InlineData("\"limit\": 5, \"delay\": 100, \"amount\": 30", "\"limit\": 2, \"delay\": 100, \"amount\": 30", "limit", "outside 3 to 10")]
-    [InlineData("\"limit\": 5, \"delay\": 100, \"amount\": 30", "\"limit\": 11, \"delay\": 100, \"amount\": 30", "limit", "outside 3 to 10")]
+    [InlineData("\"limit\": 5, \"delay\": 100, \"value\": 12, \"amount\": 30", "\"limit\": 2, \"delay\": 100, \"value\": 12, \"amount\": 30", "limit", "outside 3 to 10")]
+    [InlineData("\"limit\": 5, \"delay\": 100, \"value\": 12, \"amount\": 30", "\"limit\": 11, \"delay\": 100, \"value\": 12, \"amount\": 30", "limit", "outside 3 to 10")]
     [InlineData("\"kind\": \"key\", \"limit\": 1", "\"kind\": \"key\", \"limit\": 2", "limit", "has the limit 1")]
     [InlineData("\"kind\": \"key\", \"limit\": 1", "\"kind\": \"key\", \"limit\": 1, \"delay\": 100", "delay", "takes no field")]
     [InlineData("\"amount\": 30 }", "\"amount\": 30, \"statuses\": [\"poison\"] }", "statuses", "takes no field")]
     [InlineData("\"statuses\": [\"poison\", \"silence\"]", "\"statuses\": [\"poison\", \"silence\"], \"amount\": 5", "amount", "takes no field")]
     [InlineData("\"kind\": \"revive\"", "\"kind\": \"raise\"", "kind", "not one of key, heal, restore, cure, revive")]
-    [InlineData("\"delay\": 100, \"amount\": 30", "\"amount\": 30", "delay", "absent")]
+    [InlineData("\"delay\": 100, \"value\": 12, \"amount\": 30", "\"value\": 12, \"amount\": 30", "delay", "absent")]
+    [InlineData("\"delay\": 100, \"value\": 12, \"amount\": 30", "\"delay\": 100, \"amount\": 30", "value", "absent")]
+    [InlineData("\"value\": 12, \"amount\": 30", "\"value\": 0, \"amount\": 30", "value", "outside 1 to")]
+    [InlineData("\"kind\": \"key\", \"limit\": 1", "\"kind\": \"key\", \"limit\": 1, \"value\": 5", "value", "takes no field")]
     [InlineData("\"amount\": 30 }", "\"amount\": 0 }", "amount", "outside 1 to")]
     [InlineData("\"id\": \"item.test_tonic\"", "\"id\": \"item.fixture_draught\"", "item.fixture_draught", "two times")]
     [InlineData("\"id\": \"item.test_tonic\"", "\"id\": \"gear.test_tonic\"", "id", "item")]

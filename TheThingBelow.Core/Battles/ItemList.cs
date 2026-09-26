@@ -17,35 +17,40 @@ public sealed record KeyItem(ContentId Id) : ItemRecord(Id, 1);
 /// <param name="Id">The id, of the kind `item`.</param>
 /// <param name="Limit">The most copies that the party owns, from 3 to 10 (D-1038).</param>
 /// <param name="Delay">The delay of a use in a fight, in ticks at speed 100 (D-757).</param>
-public abstract record UsedUpItem(ContentId Id, int Limit, int Delay) : ItemRecord(Id, Limit);
+/// <param name="Value">The value that a shop reads for a sale, from 1 (D-1150).</param>
+public abstract record UsedUpItem(ContentId Id, int Limit, int Delay, int Value) : ItemRecord(Id, Limit);
 
 /// <summary>An item that restores health to one ally who stands (D-1046).</summary>
 /// <param name="Id">The id, of the kind `item`.</param>
 /// <param name="Limit">The most copies that the party owns (D-1038).</param>
 /// <param name="Delay">The delay of a use in a fight (D-757).</param>
+/// <param name="Value">The value that a shop reads for a sale (D-1150).</param>
 /// <param name="Amount">The health that a use outside a fight restores. The item rate cuts it in a fight (D-382).</param>
-public sealed record HealItem(ContentId Id, int Limit, int Delay, int Amount) : UsedUpItem(Id, Limit, Delay);
+public sealed record HealItem(ContentId Id, int Limit, int Delay, int Value, int Amount) : UsedUpItem(Id, Limit, Delay, Value);
 
 /// <summary>An item that restores MP to one ally who stands (D-1046).</summary>
 /// <param name="Id">The id, of the kind `item`.</param>
 /// <param name="Limit">The most copies that the party owns (D-1038).</param>
 /// <param name="Delay">The delay of a use in a fight (D-757).</param>
+/// <param name="Value">The value that a shop reads for a sale (D-1150).</param>
 /// <param name="Amount">The MP that a use outside a fight restores. The item rate cuts it in a fight (D-382).</param>
-public sealed record RestoreItem(ContentId Id, int Limit, int Delay, int Amount) : UsedUpItem(Id, Limit, Delay);
+public sealed record RestoreItem(ContentId Id, int Limit, int Delay, int Value, int Amount) : UsedUpItem(Id, Limit, Delay, Value);
 
 /// <summary>An item that ends set statuses on one ally who stands. The item rate never changes it (D-1046).</summary>
 /// <param name="Id">The id, of the kind `item`.</param>
 /// <param name="Limit">The most copies that the party owns (D-1038).</param>
 /// <param name="Delay">The delay of a use in a fight (D-757).</param>
+/// <param name="Value">The value that a shop reads for a sale (D-1150).</param>
 /// <param name="Statuses">The statuses that a use ends, in the order of D-75, with no repeat.</param>
-public sealed record CureItem(ContentId Id, int Limit, int Delay, IReadOnlyList<StatusKind> Statuses) : UsedUpItem(Id, Limit, Delay);
+public sealed record CureItem(ContentId Id, int Limit, int Delay, int Value, IReadOnlyList<StatusKind> Statuses) : UsedUpItem(Id, Limit, Delay, Value);
 
 /// <summary>An item that stands one fallen ally up with a set health (D-36, D-1046).</summary>
 /// <param name="Id">The id, of the kind `item`.</param>
 /// <param name="Limit">The most copies that the party owns (D-1038).</param>
 /// <param name="Delay">The delay of a use in a fight (D-757).</param>
+/// <param name="Value">The value that a shop reads for a sale (D-1150).</param>
 /// <param name="Amount">The health of the ally after a use outside a fight. The item rate cuts it in a fight (D-382).</param>
-public sealed record ReviveItem(ContentId Id, int Limit, int Delay, int Amount) : UsedUpItem(Id, Limit, Delay);
+public sealed record ReviveItem(ContentId Id, int Limit, int Delay, int Value, int Amount) : UsedUpItem(Id, Limit, Delay, Value);
 
 /// <summary>
 /// The item file: the id, the stack limit, and the effect of each item (D-1038, D-1046). The
@@ -200,6 +205,7 @@ public sealed class ItemList
         string? kind = null;
         int? limit = null;
         int? delay = null;
+        int? value = null;
         int? amount = null;
         List<StatusKind>? statuses = null;
 
@@ -219,6 +225,9 @@ public sealed class ItemList
                     break;
                 case "delay":
                     delay = BattleFixture.ReadStat(ref reader, 1);
+                    break;
+                case "value":
+                    value = BattleFixture.ReadStat(ref reader, 1);
                     break;
                 case "amount":
                     amount = BattleFixture.ReadStat(ref reader, 1);
@@ -242,6 +251,7 @@ public sealed class ItemList
             }
 
             RefusePresent(ref reader, depth, delay is not null, "delay", readId, KeyName);
+            RefusePresent(ref reader, depth, value is not null, "value", readId, KeyName);
             RefusePresent(ref reader, depth, amount is not null, "amount", readId, KeyName);
             RefusePresent(ref reader, depth, statuses is not null, "statuses", readId, KeyName);
             return new KeyItem(readId);
@@ -253,26 +263,27 @@ public sealed class ItemList
         }
 
         int readDelay = reader.RequireInt(delay, depth, "delay");
+        int readValue = reader.RequireInt(value, depth, "value");
         if (string.CompareOrdinal(readKind, CureName) == 0)
         {
             RefusePresent(ref reader, depth, amount is not null, "amount", readId, CureName);
-            return new CureItem(readId, readLimit, readDelay, reader.Require(statuses, depth, "statuses"));
+            return new CureItem(readId, readLimit, readDelay, readValue, reader.Require(statuses, depth, "statuses"));
         }
 
         RefusePresent(ref reader, depth, statuses is not null, "statuses", readId, readKind);
         if (string.CompareOrdinal(readKind, HealName) == 0)
         {
-            return new HealItem(readId, readLimit, readDelay, reader.RequireInt(amount, depth, "amount"));
+            return new HealItem(readId, readLimit, readDelay, readValue, reader.RequireInt(amount, depth, "amount"));
         }
 
         if (string.CompareOrdinal(readKind, RestoreName) == 0)
         {
-            return new RestoreItem(readId, readLimit, readDelay, reader.RequireInt(amount, depth, "amount"));
+            return new RestoreItem(readId, readLimit, readDelay, readValue, reader.RequireInt(amount, depth, "amount"));
         }
 
         if (string.CompareOrdinal(readKind, ReviveName) == 0)
         {
-            return new ReviveItem(readId, readLimit, readDelay, reader.RequireInt(amount, depth, "amount"));
+            return new ReviveItem(readId, readLimit, readDelay, readValue, reader.RequireInt(amount, depth, "amount"));
         }
 
         throw reader.RefuseField(depth, "kind", $"the kind '{readKind}' of '{readId.Value}' is not one of {KeyName}, {HealName}, {RestoreName}, {CureName}, {ReviveName} (D-1038, D-1046)");

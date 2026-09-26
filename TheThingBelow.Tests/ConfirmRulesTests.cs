@@ -30,7 +30,7 @@ public sealed class ConfirmRulesTests
     private const string Porter = """{ "id": "npc.hub_porter", "facing": "east", "step_ticks": 32, "move": "route", "tiles": [{ "x": 1, "y": 2, "wait_ticks": 0 }, { "x": 3, "y": 2, "wait_ticks": 0 }] }""";
 
     /// <summary>The rest of the porter, which no flag gates.</summary>
-    private const string RestOnPorter = """{ "id": "service.hub_porter_rest", "kind": "rest", "npc": "npc.hub_porter", "condition": { "always": true } }""";
+    private const string RestOnPorter = """{ "id": "service.hub_porter_rest", "kind": "rest", "price": 0, "npc": "npc.hub_porter", "condition": { "always": true } }""";
 
     private static readonly Intent Confirm = Intent.OfPlayer(IntentIds.Confirm);
 
@@ -315,7 +315,7 @@ public sealed class ConfirmRulesTests
     private static GameMap ClosingRest() =>
         HubMaps.Of(
             npcs: HubMaps.Keeper,
-            services: $$"""{ "id": "service.hub_rest", "kind": "rest", "npc": "npc.hub_keeper", "condition": { "not": { "flag": "{{ClosingFlag.Value}}" } } }""");
+            services: $$"""{ "id": "service.hub_rest", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "not": { "flag": "{{ClosingFlag.Value}}" } } }""");
 
     private static Simulation Start(GameMap map) =>
         Simulation.Start(Seed, map, TestBattles.Content, TestBattles.Notices, TestBattles.Story, DebugIntentHandlers.None);

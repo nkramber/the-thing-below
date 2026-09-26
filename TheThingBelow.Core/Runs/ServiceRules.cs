@@ -63,15 +63,17 @@ public static class ServiceRules
         return null;
     }
 
-    /// <summary>Rests the party and the reserve at the open rest service (D-390, D-1135).</summary>
+    /// <summary>Rests the party and the reserve at the open rest service, for its price (D-390, D-1135, D-1156).</summary>
     /// <param name="state">The run.</param>
     /// <param name="context">The seed, the tick, and the intent, for an error (T-2).</param>
     /// <param name="log">The log entries of this tick (D-179).</param>
     /// <exception cref="ArgumentNullException">An argument is null (T-2).</exception>
-    /// <exception cref="SimulationException">No rest service is open (D-1141, T-2).</exception>
+    /// <exception cref="SimulationException">No rest service is open, or the party holds less gold than the price (D-1141, D-1156, T-2).</exception>
     /// <remarks>
     /// Each character of the party and of the reserve gets full health and full MP, a downed
     /// character stands again, and poison, blind, and silence end (D-42, D-390, D-970).
+    /// The rest window shows the price and refuses a rest that the gold cannot pay, so a rest past
+    /// the gold points at a fault in the window (D-1156, T-2).
     /// </remarks>
     public static void Rest(RunState state, RunContext context, List<LogEntry> log)
     {
@@ -80,6 +82,18 @@ public static class ServiceRules
         ArgumentNullException.ThrowIfNull(log);
 
         MapService service = RequireOpen(state, ServiceKind.Rest, context);
+        int price = service.Price
+            ?? throw new SimulationException($"the rest '{service.Id.Value}' holds no price, and the reader refuses such a rest (D-1156, T-2)", context);
+        if (price > state.Characters.Gold)
+        {
+            throw new SimulationException($"a rest at '{service.Id.Value}' for {price} gold, and the party holds {state.Characters.Gold} (D-1156)", context);
+        }
+
+        if (price > 0)
+        {
+            state.Characters.SpendGold(price, context);
+        }
+
         state.Characters.RestAtHub();
         log.Add(Entry(state, "the party rested at a hub", service));
         NoticeRules.Post(state, RestedNotice, context, log);
@@ -130,7 +144,7 @@ public static class ServiceRules
     /// Gives the open service of one kind: the menu is open, no battle holds the run, and the lead
     /// faces the host of a service of that kind whose condition holds (D-1131, D-1141).
     /// </summary>
-    private static MapService RequireOpen(RunState state, ServiceKind kind, RunContext context)
+    internal static MapService RequireOpen(RunState state, ServiceKind kind, RunContext context)
     {
         string name = ServiceKinds.NameOf(kind);
         if (!state.MenuOpen || state.Battle is not null)

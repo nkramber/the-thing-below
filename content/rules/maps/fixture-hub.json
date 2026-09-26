@@ -1,5 +1,5 @@
 {
- "comment": "The fixture hub of PR-14 (D-112, D-1131, D-1137). The inn lies to the west and the yard to the east, with one doorway between them. The keeper stands at the end of the bar and holds the rest service (D-740). The waystone of the yard is a solid service point, and it holds the save service (D-1142). The barmaid walks from the bar to the tables and waits at each end (D-1138). The dog wanders the two rectangles of the yard, and the child chases the dog inside the same rectangles. The map holds no story trigger, because Game sends no end of a step before PR-36. The debug command `goto map.fixture_hub` puts the party here (D-1133). PR-17 writes the hubs of the first playable.",
+ "comment": "The fixture hub of PR-14 (D-112, D-1131, D-1137). The inn lies to the west and the yard to the east, with one doorway between them. The keeper stands at the end of the bar and holds the rest service, at a price of 10 gold (D-740, D-1156). The waystone of the yard is a solid service point, and it holds the save service (D-1142). The trader stands in the north-east of the yard, clear of the path to the waystone and of the rectangles of the dog, and holds the shop service (D-1149). The barmaid walks from the bar to the tables and waits at each end (D-1138). The dog wanders the two rectangles of the yard, and the child chases the dog inside the same rectangles. The map holds no story trigger, because Game sends no end of a step before PR-36. The debug command `goto map.fixture_hub` puts the party here (D-1133). PR-17 writes the hubs of the first playable.",
  "id": "map.fixture_hub",
  "region": "region.fixture",
  "label": "label.fixture_hub",
@@ -70,11 +70,19 @@
    ],
    "pace_ticks": 32,
    "target": "npc.fixture_hub_dog"
+  },
+  {
+   "id": "npc.fixture_hub_trader",
+   "facing": "south",
+   "step_ticks": 32,
+   "move": "route",
+   "tiles": [{ "x": 17, "y": 2, "wait_ticks": 0 }]
   }
  ],
  "services": [
-  { "id": "service.fixture_hub_rest", "kind": "rest", "npc": "npc.fixture_hub_keeper", "condition": { "always": true } },
-  { "id": "service.fixture_hub_save", "kind": "save", "thing": "service_point.fixture_hub_waystone", "condition": { "always": true } }
+  { "id": "service.fixture_hub_rest", "kind": "rest", "npc": "npc.fixture_hub_keeper", "condition": { "always": true }, "price": 10 },
+  { "id": "service.fixture_hub_save", "kind": "save", "thing": "service_point.fixture_hub_waystone", "condition": { "always": true } },
+  { "id": "service.fixture_hub_shop", "kind": "shop", "npc": "npc.fixture_hub_trader", "condition": { "always": true }, "shop": "shop.fixture_hub_trader" }
  ],
  "triggers": []
 }

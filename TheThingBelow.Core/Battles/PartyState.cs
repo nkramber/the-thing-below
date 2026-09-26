@@ -649,6 +649,23 @@ public sealed class PartyState
         this.Gold += gold;
     }
 
+    /// <summary>Takes gold from the party, for a buy or a rest (D-60, D-1149, D-1156).</summary>
+    /// <param name="gold">The gold, above zero.</param>
+    /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>
+    /// <exception cref="SimulationException">The gold is below 1, or the party holds less (T-2).</exception>
+    /// <remarks>The shop and the rest check the gold first, so a spend past the gold points at a fault in a rule (T-2).</remarks>
+    public void SpendGold(int gold, RunContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (gold < 1 || gold > this.Gold)
+        {
+            throw new SimulationException($"a spend of {gold} gold from {this.Gold}, which is below 1 or more than the party holds (T-2)", context);
+        }
+
+        this.Gold -= gold;
+    }
+
     /// <summary>Holds the torch out or puts it away (D-1064). `TorchRules` checks the walk and the pack first.</summary>
     /// <param name="held">True to hold the torch out, and false to put it away.</param>
     /// <param name="context">The seed, the tick, and the ids, for an error (T-2).</param>

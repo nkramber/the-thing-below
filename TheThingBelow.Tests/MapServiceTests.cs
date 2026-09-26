@@ -47,7 +47,7 @@ public sealed class MapServiceTests
         // D-543: a story flag can close a service.
         GameMap map = HubMaps.Of(
             npcs: HubMaps.Keeper,
-            services: """{ "id": "service.hub_rest", "kind": "rest", "npc": "npc.hub_keeper", "condition": { "not": { "flag": "flag.test_met" } } }""");
+            services: """{ "id": "service.hub_rest", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "not": { "flag": "flag.test_met" } } }""");
 
         MapService rest = Assert.Single(map.Services);
         Assert.Equal(ConditionKind.Not, rest.Condition.Kind);
@@ -59,26 +59,31 @@ public sealed class MapServiceTests
         // Exit test 7 of PR-14: the kind names no service of this build.
         ContentException error = Assert.Throws<ContentException>(() => HubMaps.Of(
             npcs: HubMaps.Keeper,
-            services: """{ "id": "service.hub_shop", "kind": "shop", "npc": "npc.hub_keeper", "condition": { "always": true } }"""));
+            services: """{ "id": "service.hub_smith", "kind": "smith", "npc": "npc.hub_keeper", "condition": { "always": true } }"""));
 
         Assert.Contains("hub-test.json", error.Message, StringComparison.Ordinal);
-        Assert.Contains("service.hub_shop", error.Message, StringComparison.Ordinal);
-        Assert.Contains("the kind 'shop', and a service takes one of rest, save", error.Message, StringComparison.Ordinal);
+        Assert.Contains("service.hub_smith", error.Message, StringComparison.Ordinal);
+        Assert.Contains("the kind 'smith', and a service takes one of rest, save, shop", error.Message, StringComparison.Ordinal);
     }
 
     [Theory]
-    [InlineData("""{ "id": "service.a", "kind": "rest", "condition": { "always": true } }""", "holds no field 'npc' and no field 'thing'")]
-    [InlineData("""{ "id": "service.a", "kind": "rest", "npc": "npc.hub_keeper", "thing": "service_point.hub_bed", "condition": { "always": true } }""", "holds the fields 'npc' and 'thing'")]
-    [InlineData("""{ "id": "service.a", "kind": "rest", "npc": "npc.hub_keeper" }""", "condition)")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "condition": { "always": true } }""", "holds no field 'npc' and no field 'thing'")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "thing": "service_point.hub_bed", "condition": { "always": true } }""", "holds the fields 'npc' and 'thing'")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "npc": "npc.hub_keeper" }""", "condition)")]
     [InlineData("""{ "id": "service.a", "npc": "npc.hub_keeper", "condition": { "always": true } }""", "kind)")]
-    [InlineData("""{ "kind": "rest", "npc": "npc.hub_keeper", "condition": { "always": true } }""", "id)")]
-    [InlineData("""{ "id": "service.a", "kind": "rest", "npc": "npc.hub_keeper", "price": 5, "condition": { "always": true } }""", "an unknown field")]
-    [InlineData("""{ "id": "npc.a", "kind": "rest", "npc": "npc.hub_keeper", "condition": { "always": true } }""", "entries of the kind 'service'")]
-    [InlineData("""{ "id": "service.a", "kind": "rest", "npc": "npc.hub_cook", "condition": { "always": true } }""", "sits on the NPC 'npc.hub_cook', and this map places no such NPC")]
-    [InlineData("""{ "id": "service.a", "kind": "rest", "thing": "service_point.hub_well", "condition": { "always": true } }""", "sits on the thing 'service_point.hub_well', and this map holds no such thing")]
-    [InlineData("""{ "id": "service.a", "kind": "rest", "thing": "marker.hub_corner", "condition": { "always": true } }""", "which is a marker, and a thing that holds a service is a service point")]
-    [InlineData("""{ "id": "service.a", "kind": "rest", "npc": "npc.hub_keeper", "condition": { "always": true } }, { "id": "service.b", "kind": "save", "npc": "npc.hub_keeper", "condition": { "always": true } }""", "the services 'service.a' and 'service.b' sit on 'npc.hub_keeper', and one host holds one service")]
-    [InlineData("""{ "id": "service.a", "kind": "rest", "npc": "npc.hub_keeper", "condition": { "always": true } }, { "id": "service.a", "kind": "save", "thing": "service_point.hub_bed", "condition": { "always": true } }""", "two services of this map take the id 'service.a'")]
+    [InlineData("""{ "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "always": true } }""", "id)")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "cost": 5, "condition": { "always": true } }""", "an unknown field")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "npc": "npc.hub_keeper", "condition": { "always": true } }""", "the field is absent, and the rest 'service.a' needs it")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "price": -1, "npc": "npc.hub_keeper", "condition": { "always": true } }""", "takes the price -1, and a price is 0 or more")]
+    [InlineData("""{ "id": "service.a", "kind": "save", "price": 5, "npc": "npc.hub_keeper", "condition": { "always": true } }""", "the save 'service.a' takes no field 'price', which a rest alone reads")]
+    [InlineData("""{ "id": "service.a", "kind": "shop", "npc": "npc.hub_keeper", "condition": { "always": true } }""", "the field is absent, and the shop 'service.a' needs it")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "shop": "shop.test_store", "npc": "npc.hub_keeper", "condition": { "always": true } }""", "the rest 'service.a' takes no field 'shop', which a shop alone reads")]
+    [InlineData("""{ "id": "npc.a", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "always": true } }""", "entries of the kind 'service'")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "npc": "npc.hub_cook", "condition": { "always": true } }""", "sits on the NPC 'npc.hub_cook', and this map places no such NPC")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "thing": "service_point.hub_well", "condition": { "always": true } }""", "sits on the thing 'service_point.hub_well', and this map holds no such thing")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "thing": "marker.hub_corner", "condition": { "always": true } }""", "which is a marker, and a thing that holds a service is a service point")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "always": true } }, { "id": "service.b", "kind": "save", "npc": "npc.hub_keeper", "condition": { "always": true } }""", "the services 'service.a' and 'service.b' sit on 'npc.hub_keeper', and one host holds one service")]
+    [InlineData("""{ "id": "service.a", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "always": true } }, { "id": "service.a", "kind": "save", "thing": "service_point.hub_bed", "condition": { "always": true } }""", "two services of this map take the id 'service.a'")]
     public void AMalformedServiceFailsWithTheFileAndTheReason(string services, string reason)
     {
         // The bed of the map holds the save, so each case adds it beside the services of the case.

@@ -23,13 +23,19 @@ public static class HubMaps
     public const string Keeper = """{ "id": "npc.hub_keeper", "facing": "north", "step_ticks": 32, "move": "route", "tiles": [{ "x": 2, "y": 6, "wait_ticks": 0 }] }""";
 
     /// <summary>The rest of the keeper, which no flag gates.</summary>
-    public const string RestOnKeeper = """{ "id": "service.hub_rest", "kind": "rest", "npc": "npc.hub_keeper", "condition": { "always": true } }""";
+    public const string RestOnKeeper = """{ "id": "service.hub_rest", "kind": "rest", "price": 0, "npc": "npc.hub_keeper", "condition": { "always": true } }""";
 
     /// <summary>The save of the bed, which no flag gates.</summary>
     public const string SaveOnBed = """{ "id": "service.hub_save", "kind": "save", "thing": "service_point.hub_bed", "condition": { "always": true } }""";
 
     /// <summary>A hub with the keeper and the bed, and a service on each.</summary>
     public static GameMap Inn => Of(npcs: Keeper, services: $"{RestOnKeeper}, {SaveOnBed}", things: Bed);
+
+    /// <summary>The store of the tests on the keeper, which no flag gates (D-1149).</summary>
+    public const string ShopOnKeeper = """{ "id": "service.hub_shop", "kind": "shop", "shop": "shop.test_store", "npc": "npc.hub_keeper", "condition": { "always": true } }""";
+
+    /// <summary>A hub with the keeper, who holds the store of <see cref="TestBattles.ShopsFile"/>.</summary>
+    public static GameMap Store => Of(npcs: Keeper, services: ShopOnKeeper);
 
     /// <summary>
     /// A hub with one NPC of each move: the keeper who stands, the barmaid who walks a route with

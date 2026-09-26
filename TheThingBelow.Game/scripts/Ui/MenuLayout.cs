@@ -64,6 +64,29 @@ public static class MenuLayout
     public static FrameBox ServiceBox(int body) =>
         new(UiMetrics.EdgePixels, UiMetrics.EdgePixels, ServiceWidth, (Pad * 2) + (LineOf(body) * (ServiceChoice.Options.Count + 1)));
 
+    /// <summary>Gives the place of the shop menu, where the main list stands: one line for each choice (D-1164).</summary>
+    /// <param name="body">The body size, in frame pixels.</param>
+    /// <returns>The box at the top left of the frame.</returns>
+    public static FrameBox ShopMenuBox(int body) =>
+        new(UiMetrics.EdgePixels, UiMetrics.EdgePixels, MainListWidth, (Pad * 2) + (LineOf(body) * ShopCursor.Modes.Count));
+
+    /// <summary>Gives the place of the stats panel of the shop at the bottom left: one line for each stat that gear changes (D-1165).</summary>
+    /// <param name="body">The body size, in frame pixels.</param>
+    /// <param name="lines">The count of lines of the panel.</param>
+    /// <returns>The box at the bottom left of the frame, as wide as the main list.</returns>
+    public static FrameBox StatsBox(int body, int lines)
+    {
+        int height = (Pad * 2) + (LineOf(body) * lines);
+        return new(UiMetrics.EdgePixels, ScreenFit.FrameHeight - UiMetrics.EdgePixels - height, MainListWidth, height);
+    }
+
+    /// <summary>Gives the place of the gold panel, one line under a window of the left column (D-1160).</summary>
+    /// <param name="above">The window above the panel: the main list, the shop menu, or the rest window.</param>
+    /// <param name="body">The body size, in frame pixels.</param>
+    /// <returns>The box under the window, as wide as the main list.</returns>
+    public static FrameBox GoldBox(FrameBox above, int body) =>
+        new(above.X, above.Y + above.Height + WindowGap, MainListWidth, (Pad * 2) + LineOf(body));
+
     /// <summary>Gives the count of characters that one line of the window of a hub service holds at a body size.</summary>
     /// <param name="body">The body size, in frame pixels.</param>
     /// <returns>The count of whole characters.</returns>

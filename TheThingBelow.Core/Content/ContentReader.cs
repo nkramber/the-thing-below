@@ -201,6 +201,45 @@ public ref struct ContentReader
         return value;
     }
 
+    /// <summary>Reads a field that holds a 32-bit whole number or one fixed word, such as a stock count or `unlimited` (D-1152).</summary>
+    /// <param name="word">The one word that the field can hold in place of a number.</param>
+    /// <param name="value">The number, or 0 when the field holds the word.</param>
+    /// <returns>True when the field holds the word, and false when it holds a number.</returns>
+    /// <exception cref="ContentException">
+    /// The value is other text, is not a whole number, or does not fit in an `int`.
+    /// </exception>
+    public bool ReadIntOrWord(string word, out int value)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(word);
+
+        this.MoveNext();
+        if (this.reader.TokenType == JsonTokenType.String)
+        {
+            string text = this.ReadTokenText("text");
+            if (!string.Equals(text, word, StringComparison.Ordinal))
+            {
+                throw ContentException.ForField(
+                    this.file,
+                    this.CurrentField(),
+                    $"the text '{text}' is not a whole number and is not '{word}'");
+            }
+
+            value = 0;
+            return true;
+        }
+
+        this.CheckWholeNumberToken();
+        if (!this.reader.TryGetInt32(out value))
+        {
+            throw ContentException.ForField(
+                this.file,
+                this.CurrentField(),
+                $"the number '{this.NumberAsText()}' does not fit in a 32-bit whole number");
+        }
+
+        return false;
+    }
+
     /// <summary>Reads a 64-bit whole number, such as the tick of a run record (D-652).</summary>
     /// <returns>The value of the field.</returns>
     /// <exception cref="ContentException">
@@ -484,6 +523,12 @@ public ref struct ContentReader
     private void ReadWholeNumberToken()
     {
         this.MoveNext();
+        this.CheckWholeNumberToken();
+    }
+
+    /// <summary>Fails when the current token is not a number that holds every digit of a whole number (G-2, D-169).</summary>
+    private readonly void CheckWholeNumberToken()
+    {
         if (this.reader.TokenType != JsonTokenType.Number)
         {
             throw this.WrongType("a whole number");

@@ -30,12 +30,17 @@ internal static partial class SnapshotLines
     /// <returns>The line in the shape of save format 12.</returns>
     public static string AsFormatTwelve(string line) => PartyTorch().Replace(AsFormatFourteen(line), string.Empty);
 
-    /// <summary>Drops the NPCs of the map, the NPC stream, and the empty reserve, which save format 15 added (D-1136, D-1137).</summary>
-    /// <param name="line">A snapshot line of this build, whose reserve is empty. No older format holds a reserve.</param>
+    /// <summary>Drops the empty stock, which save format 16 added (D-1152).</summary>
+    /// <param name="line">A snapshot line of this build, whose stock is empty. No older format holds a stock.</param>
+    /// <returns>The line in the shape of save format 15.</returns>
+    public static string AsFormatFifteen(string line) => EmptyStock().Replace(line, string.Empty);
+
+    /// <summary>Drops the empty stock of save format 16, and the NPCs of the map, the NPC stream, and the empty reserve, which save format 15 added (D-1136, D-1137).</summary>
+    /// <param name="line">A snapshot line of this build, whose reserve and stock are empty. No older format holds either.</param>
     /// <returns>The line in the shape of save format 14.</returns>
     public static string AsFormatFourteen(string line)
     {
-        string noReserve = EmptyReserve().Replace(line, string.Empty);
+        string noReserve = EmptyReserve().Replace(AsFormatFifteen(line), string.Empty);
         return NpcStream().Replace(MapNpcs().Replace(noReserve, string.Empty), string.Empty);
     }
 
@@ -60,6 +65,9 @@ internal static partial class SnapshotLines
 
     [GeneratedRegex(""","reserve":\[\]""")]
     private static partial Regex EmptyReserve();
+
+    [GeneratedRegex(""","stock":\[\]""")]
+    private static partial Regex EmptyStock();
 
     [GeneratedRegex(""",\{"stream":6,"state":"0x[0-9a-f]+","increment":"0x[0-9a-f]+"\}""")]
     private static partial Regex NpcStream();

@@ -132,4 +132,18 @@ public static class IntentIds
     /// while the menu is open (D-1131, D-1132).
     /// </summary>
     public static readonly ContentId HubSave = ContentId.Parse("intent.hub_save", Source, nameof(HubSave));
+
+    /// <summary>
+    /// The shop window bought a count of one entry, at the shop service that the lead faces while
+    /// the menu is open. The item field or the lesson field names the thing, and the option field
+    /// holds the count (D-1149, D-1158).
+    /// </summary>
+    public static readonly ContentId ShopBuy = ContentId.Parse("intent.shop_buy", Source, nameof(ShopBuy));
+
+    /// <summary>
+    /// The shop window sold a count of one item or piece of the pack, at the shop service that the
+    /// lead faces while the menu is open. The item field names the thing, and the option field
+    /// holds the count (D-1150, D-1158).
+    /// </summary>
+    public static readonly ContentId ShopSell = ContentId.Parse("intent.shop_sell", Source, nameof(ShopSell));
 }

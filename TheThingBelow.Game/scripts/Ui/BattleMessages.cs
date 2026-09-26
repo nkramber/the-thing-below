@@ -72,8 +72,8 @@ public static class BattleMessages
             BattleEventKind.Turn => null,
 
             // A win shows no line of its own. The last line of the fight stands, and the text of
-            // the summary rises above each head. The drops follow as lines, and PR-65 adds its
-            // loot the same way (D-835, D-975, D-1042).
+            // the summary rises above each head. The drops and the gold follow as lines (D-835, D-975,
+            // D-1042, D-1157).
             BattleEventKind.Won => null,
             BattleEventKind.Experience => null,
             BattleEventKind.LevelUp => null,
@@ -112,6 +112,7 @@ public static class BattleMessages
             BattleEventKind.StealFull => Line("battle.steal_full", Item(played, strings)),
             BattleEventKind.Drop => Line("battle.drop", Actor(played, view, strings), Item(played, strings)),
             BattleEventKind.DropLost => Line("battle.drop_lost", Item(played, strings)),
+            BattleEventKind.WinGold => Line("battle.win_gold", Amount(played)),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(played), played.Kind, $"The battle event '{played.Kind}' has no message line (G-20, T-2)."),
         };
