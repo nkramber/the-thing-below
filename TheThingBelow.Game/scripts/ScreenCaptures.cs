@@ -302,6 +302,40 @@ public static class ScreenCaptures
     /// </remarks>
     public static IReadOnlyList<string> WalkSteps { get; } = [InputActions.StepNorth, InputActions.StepSouth];
 
+    /// <summary>
+    /// The steps from the spawn point of the fixture hub at (4, 6) to <see cref="KeeperStand"/>,
+    /// which faces the keeper at (6, 3) behind the bar (D-1131). The rest frame walks them.
+    /// </summary>
+    /// <remarks>The path stays west of column 7, where the barmaid walks her route (D-1138).</remarks>
+    public static IReadOnlyList<string> KeeperRoute { get; } =
+    [
+        InputActions.StepNorth, InputActions.StepEast, InputActions.StepEast, InputActions.StepNorth,
+    ];
+
+    /// <summary>The tile of the lead at the end of <see cref="KeeperRoute"/>, facing north to the keeper.</summary>
+    public static TilePoint KeeperStand { get; } = new(6, 4);
+
+    /// <summary>
+    /// The steps from the spawn point of the fixture hub at (4, 6) to <see cref="WaystoneStand"/>,
+    /// which faces the waystone at (14, 2) from the west (D-1142). The save frame walks them.
+    /// </summary>
+    /// <remarks>
+    /// The lead crosses column 7 on its fourth step, while the barmaid still waits 90 ticks at
+    /// the bar at (7, 2). It goes north on column 10 and east on row 2, outside both rectangles of
+    /// the dog and the child, so no NPC stands in the way (D-1138).
+    /// </remarks>
+    public static IReadOnlyList<string> WaystoneRoute { get; } =
+    [
+        InputActions.StepNorth,
+        InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+        InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+        InputActions.StepNorth, InputActions.StepNorth, InputActions.StepNorth,
+        InputActions.StepEast, InputActions.StepEast, InputActions.StepEast,
+    ];
+
+    /// <summary>The tile of the lead at the end of <see cref="WaystoneRoute"/>, facing east to the waystone.</summary>
+    public static TilePoint WaystoneStand { get; } = new(13, 2);
+
     /// <summary>The steps from the spawn point to the pit room, in the order that the session walks them (D-852).</summary>
     /// <remarks>The party goes east to the corridor of column 6, then south through both doorways into the room below.</remarks>
     public static IReadOnlyList<string> PitRoute { get; } =

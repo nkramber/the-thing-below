@@ -493,6 +493,39 @@ public sealed class GameRunTests
         Assert.Equal(slot.Snapshot.Tick, run.Record().Snapshot.Tick);
     }
 
+    [Theory]
+    [InlineData("KeeperRoute", "KeeperStand", StepDirection.North, ServiceKind.Rest, 69)]
+    [InlineData("WaystoneRoute", "WaystoneStand", StepDirection.East, ServiceKind.Save, 222)]
+    public void EachRouteOfTheServiceCapturesReachesItsHostAndTheConfirmOpensTheService(string route, string stand, StepDirection facing, ServiceKind kind, long arrival)
+    {
+        // The rest and save captures walk these steps after `goto`, one step intent at a time, and
+        // no NPC stands in the way at those ticks (D-1131, D-1138, D-1139). The fixed tick count of the
+        // arrival keeps each frame the same on each run (D-172, T-7).
+        Type captures = GameAssemblyFile.Type("TheThingBelow.Game.ScreenCaptures");
+        var steps = (IReadOnlyList<string>)captures.GetProperty(route)!.GetValue(null)!;
+        var end = (TilePoint)captures.GetProperty(stand)!.GetValue(null)!;
+        Run run = Run.Start(DebugAssemblyFile.Handlers());
+        GoToHub(run);
+
+        foreach (string action in steps)
+        {
+            TilePoint from = run.State.Party.LeadAt;
+            run.Queue(run.IntentOf(action));
+            for (int tick = 0; tick < 17 && (tick == 0 || run.State.Party.Stepping is not null); tick += 1)
+            {
+                run.Advance(OneTick);
+            }
+
+            Assert.NotEqual(from, run.State.Party.LeadAt);
+        }
+
+        Assert.Equal((end, facing), (run.State.Party.LeadAt, run.State.Party.Facing));
+        Assert.Equal(arrival, run.Tick);
+        run.Queue(run.IntentOf("confirm"));
+        run.Advance(OneTick);
+        Assert.Equal(kind, Assert.Single(run.TakeOpenedServices()).Kind);
+    }
+
     [Fact]
     public void AConfirmOnTheKeeperOpensTheRestServiceAndTheRestClosesTheMenu()
     {

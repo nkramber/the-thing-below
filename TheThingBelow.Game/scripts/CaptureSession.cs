@@ -397,6 +397,71 @@ public sealed partial class CaptureSession : Node
     }
 
     /// <summary>
+    /// Puts the party on the fixture hub, walks the lead to the host of one service with the step
+    /// intents of a player, and confirms the host (D-1131, D-1133). The lead stands and faces the
+    /// host, so the rules open the service on the tick of the confirm.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">An NPC stopped a step, so the lead stands elsewhere, or a tick wrote an error (T-2).</exception>
+    private void ConfirmHost(GameRun run, ServiceKind kind)
+    {
+        GoToHub(run);
+        bool rest = kind == ServiceKind.Rest;
+        foreach (string action in rest ? ScreenCaptures.KeeperRoute : ScreenCaptures.WaystoneRoute)
+        {
+            this.StepOnce(run, action);
+        }
+
+        // A step into an NPC turns the lead with no step (D-1139), so the route checks where it ended.
+        TilePoint stand = rest ? ScreenCaptures.KeeperStand : ScreenCaptures.WaystoneStand;
+        StepDirection facing = rest ? StepDirection.North : StepDirection.East;
+        if (run.Party.LeadAt != stand || run.Party.Facing != facing)
+        {
+            throw new InvalidOperationException(
+                $"The route to the {ServiceKinds.NameOf(kind)} service ended at {run.Party.LeadAt} facing {run.Party.Facing} at tick {run.Tick}, and the host needs {stand} facing {facing} (D-1131, T-2).");
+        }
+
+        run.Queue(run.IntentOf(InputActions.Confirm));
+        this.RunTicks(run, 1);
+    }
+
+    /// <summary>
+    /// Opens the window of the one service that the confirm opened, through the menu host, as the
+    /// play session does after a tick (D-1131, D-1132).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The confirm opened no service, or more than one (T-2).</exception>
+    private static void OpenService(FrameRoot built, UiBase @base, GameRun run, ContentSet content)
+    {
+        IReadOnlyList<MapService> opened = run.TakeOpenedServices();
+        if (opened.Count != 1)
+        {
+            throw new InvalidOperationException(
+                $"The confirm at tick {run.Tick} opened {opened.Count} services, and the capture of a service window needs one (D-1131, T-2).");
+        }
+
+        var host = new MenuHost(
+            built,
+            @base,
+            run,
+            content,
+            () => FixtureSettings,
+            _ => throw new InvalidOperationException("The capture of a service window closed a settings screen, and it opens none (T-2)."),
+            RefuseErrors);
+        host.OpenService(opened[0].Kind);
+    }
+
+    /// <summary>Fails on an error line of the menu host, and drops its other lines, because the capture session writes no log file (T-2).</summary>
+    private static void RefuseErrors(IReadOnlyList<LogEntry> entries)
+    {
+        foreach (LogEntry entry in entries)
+        {
+            if (entry.Level == LogLevel.Error)
+            {
+                throw new InvalidOperationException($"The menu host of a capture wrote an error at tick {entry.Tick}: {entry.Message} (T-2).");
+            }
+        }
+    }
+
+    /// <summary>
     /// Holds the torch out through the torch action, as the player does, so a lit fixture shows
     /// the carried light and the torch in the hand (D-1064, D-1071). The run takes one tick.
     /// </summary>
@@ -647,11 +712,12 @@ public sealed partial class CaptureSession : Node
             }
         }
 
-        // The window of a hub service stands over the fixture hub, where the services live (D-1131).
+        // The window of a hub service opens by the path of a play session: the lead walks to the host,
+        // faces it, and confirms, and the rules open the service (D-1131, D-1132).
         bool service = string.CompareOrdinal(frame, ScreenCaptures.MenuRestFrame) == 0 || string.CompareOrdinal(frame, ScreenCaptures.MenuSaveFrame) == 0;
         if (service)
         {
-            GoToHub(open);
+            this.ConfirmHost(open, string.CompareOrdinal(frame, ScreenCaptures.MenuRestFrame) == 0 ? ServiceKind.Rest : ServiceKind.Save);
         }
 
         // The map stays visible beside the main list, so each particle takes the tick of the run and
@@ -667,8 +733,7 @@ public sealed partial class CaptureSession : Node
 
         if (service)
         {
-            ServiceKind kind = string.CompareOrdinal(frame, ScreenCaptures.MenuRestFrame) == 0 ? ServiceKind.Rest : ServiceKind.Save;
-            _ = new ServiceView(built, @base, new ServiceChoice(kind));
+            OpenService(built, @base, open, this.content);
             return;
         }
 
