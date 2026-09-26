@@ -1,0 +1,10 @@
+{
+ "comment": "The fixture story scene of PR-36 with a set fight. The party steps on the straw in the south-east corner of the yard, a line with no speaker starts the fight, and after the win the lead speaks and the flag closes the trigger (D-998, D-999). PR-17 writes the story scenes of the first playable.",
+ "id": "scene.fixture_hub_rats",
+ "steps": [
+  { "id": "step.straw_moves", "kind": "say", "speaker": "none", "line": "line.fixture_hub_rats_straw" },
+  { "id": "step.rats_fight", "kind": "start_battle", "group": "group.fixture_pair" },
+  { "id": "step.lead_looks", "kind": "say", "speaker": "lead", "line": "line.fixture_hub_rats_after" },
+  { "id": "step.rats_done", "kind": "set_flag", "flag": "flag.fixture_hub_rats" }
+ ]
+}

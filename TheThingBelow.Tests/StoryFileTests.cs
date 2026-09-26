@@ -24,12 +24,13 @@ public sealed class StoryFileTests
     }
 
     [Fact]
-    public void TheCheckoutFlagFileHoldsTheFlagOfTheSideAptitudeAlone()
+    public void TheCheckoutFlagFileHoldsTheFixtureFlagsAlone()
     {
-        // PR-12 adds the fixture flag of the side aptitude of Marrek (D-538, D-556).
+        // PR-12 adds the fixture flag of the side aptitude of Marrek (D-538, D-556), and PR-36 the
+        // three flags of the fixture story scenes of the hub.
         FlagList flags = FlagList.Read(System.IO.File.ReadAllBytes(RepositoryRoot.PathTo("content/rules/flags.json")), FlagList.Path);
 
-        Assert.Equal(["flag.fixture_marrek_side"], Values(flags.Ids()));
+        Assert.Equal(["flag.fixture_marrek_side", "flag.fixture_hub_yes", "flag.fixture_hub_no", "flag.fixture_hub_rats"], Values(flags.Ids()));
     }
 
     [Theory]

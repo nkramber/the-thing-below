@@ -48,9 +48,25 @@ public static class MapCamera
         ArgumentOutOfRangeException.ThrowIfLessThan(viewWidth, 1);
         ArgumentOutOfRangeException.ThrowIfLessThan(viewHeight, 1);
 
-        return new CameraPlace(
-            AxisOf(party.Map.Width * TilePixels, viewWidth, LeadX(party, tickPart)),
-            AxisOf(party.Map.Height * TilePixels, viewHeight, LeadY(party, tickPart)));
+        return OfPixels(party.Map, viewWidth, viewHeight, LeadX(party, tickPart), LeadY(party, tickPart));
+    }
+
+    /// <summary>Gives the place of the view that follows one pixel of the map, such as the lead of a story scene or a marker (D-717, D-1013).</summary>
+    /// <param name="map">The map.</param>
+    /// <param name="viewWidth">The width of the world viewport, in art pixels (D-634).</param>
+    /// <param name="viewHeight">The height of the world viewport, in art pixels.</param>
+    /// <param name="x">The pixel of the west edge of the tile that the view follows.</param>
+    /// <param name="y">The pixel of the north edge of that tile.</param>
+    /// <returns>The top-left corner of the view, with the clamp and the centering of D-717.</returns>
+    /// <exception cref="ArgumentNullException">The map is null (T-2).</exception>
+    /// <exception cref="ArgumentOutOfRangeException">A side of the view is below one (T-2).</exception>
+    public static CameraPlace OfPixels(GameMap map, int viewWidth, int viewHeight, int x, int y)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentOutOfRangeException.ThrowIfLessThan(viewWidth, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(viewHeight, 1);
+
+        return new CameraPlace(AxisOf(map.Width * TilePixels, viewWidth, x), AxisOf(map.Height * TilePixels, viewHeight, y));
     }
 
     /// <summary>
@@ -210,14 +226,20 @@ public static class MapCamera
         return (tile * TilePixels) + (step * slide);
     }
 
-    private static int AcrossOf(StepDirection? stepping) => stepping switch
+    /// <summary>Gives the step on the west to east axis of a direction: -1, 0, or 1.</summary>
+    /// <param name="stepping">The direction, or no value for no step.</param>
+    /// <returns>1 for east, -1 for west, and 0 for any other value.</returns>
+    public static int AcrossOf(StepDirection? stepping) => stepping switch
     {
         StepDirection.East => 1,
         StepDirection.West => -1,
         _ => 0,
     };
 
-    private static int DownOf(StepDirection? stepping) => stepping switch
+    /// <summary>Gives the step on the north to south axis of a direction: -1, 0, or 1.</summary>
+    /// <param name="stepping">The direction, or no value for no step.</param>
+    /// <returns>1 for south, -1 for north, and 0 for any other value.</returns>
+    public static int DownOf(StepDirection? stepping) => stepping switch
     {
         StepDirection.South => 1,
         StepDirection.North => -1,

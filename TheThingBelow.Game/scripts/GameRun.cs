@@ -9,6 +9,7 @@ using TheThingBelow.Core.Maps;
 using TheThingBelow.Core.Notices;
 using TheThingBelow.Core.Runs;
 using TheThingBelow.Core.Saves;
+using TheThingBelow.Core.Story;
 using TheThingBelow.Game.Ui;
 using TheThingBelow.Storage;
 
@@ -654,7 +655,9 @@ public sealed class GameRun
     }
 
     /// <summary>Tells whether the queue of this frame holds an intent of one action.</summary>
-    private bool Queued(ContentId action)
+    /// <param name="action">The id of the action, such as `intent.story_step_end`.</param>
+    /// <returns>True when an intent of that action waits for the next tick.</returns>
+    public bool Queued(ContentId action)
     {
         foreach (Intent waiting in this.queued)
         {
@@ -720,10 +723,23 @@ public sealed class GameRun
         long tick = this.simulation.Tick;
         Battle battle = state.Battle ?? throw new InvalidOperationException(
             $"A start event came at tick {tick}, and the run holds no fight (D-532, T-2).");
-        MapEncounter encounter = state.Party.Patrols.Encounter ?? throw new InvalidOperationException(
-            $"The fight of the group '{battle.Group.Id.Value}' started at tick {tick}, and the map holds no encounter (D-531, T-2).");
-
-        EncounterKind kind = EncounterKinds.Of(battle.Group.Boss, encounter.Behind, SizeOf(state.Party.Patrols, encounter, tick));
+        EncounterKind kind;
+        if (state.Party.Patrols.Encounter is MapEncounter encounter)
+        {
+            kind = EncounterKinds.Of(battle.Group.Boss, encounter.Behind, SizeOf(state.Party.Patrols, encounter, tick));
+        }
+        else if (state.Story.Phase == ScenePhase.Battle)
+        {
+            // A start battle step starts a fight with no encounter of the map (D-998). No side
+            // reaches the other first, and the size is the largest body of the group, as the
+            // size of a patrol is (D-788, D-937).
+            kind = EncounterKinds.Of(battle.Group.Boss, EncounterSide.None, LargestOf(state.BattleContent, battle.Group));
+        }
+        else
+        {
+            throw new InvalidOperationException(
+                $"The fight of the group '{battle.Group.Id.Value}' started at tick {tick}, and the map holds no encounter and no story scene waits for it (D-531, D-998, T-2).");
+        }
         Transition picked = this.transitions.Pick(kind, state.Party.Map.Id, state.Seed, tick, this.lastCommon);
         if (kind == EncounterKind.Common)
         {
@@ -749,6 +765,22 @@ public sealed class GameRun
 
         throw new InvalidOperationException(
             $"The encounter at tick {tick} names the patrol '{encounter.Enemy.Value}', and the map holds no such patrol (D-752, T-2).");
+    }
+
+    /// <summary>Gives the largest body among the enemy records of a group: common, elite, then boss (D-236, D-788).</summary>
+    private static EnemySize LargestOf(BattleContent content, GroupRecord group)
+    {
+        EnemySize largest = EnemySize.Common;
+        foreach (GroupEntry entry in group.Entries)
+        {
+            EnemySize size = content.Enemy(entry.Enemy).Size;
+            if (size > largest)
+            {
+                largest = size;
+            }
+        }
+
+        return largest;
     }
 
     /// <summary>Gives the log entry of a phase of the hand-off (D-179).</summary>

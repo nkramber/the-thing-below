@@ -1,5 +1,5 @@
 {
- "comment": "The English string table (D-167, G-7). Every string the player reads lives here, and no C# file holds one. The first entries are the labels of the fixture rules of PR-5 (D-649). The crash entries carry the message of a crash and the address of D-473. The address is a placeholder in the reserved .invalid domain until the owner names the studio (D-712, OQ-57). The map label is the name of the first dungeon, which PR-7 ships (D-528). The battle entries are the lines, the commands, and the names of the battle screen of PR-10 (D-213, D-827). A name entry is `name.` and the name part of a content id. The settings entries are the labels and the values of the settings screen of PR-63 (D-226, D-872). The menu entries are the labels of the main list, its windows, and the dungeon map screen of PR-62 (D-211, D-991). A notice entry holds the line of the notice of the same id (D-989).",
+ "comment": "The English string table (D-167, G-7). Every string the player reads lives here, and no C# file holds one. The first entries are the labels of the fixture rules of PR-5 (D-649). The crash entries carry the message of a crash and the address of D-473. The address is a placeholder in the reserved .invalid domain until the owner names the studio (D-712, OQ-57). The map label is the name of the first dungeon, which PR-7 ships (D-528). The battle entries are the lines, the commands, and the names of the battle screen of PR-10 (D-213, D-827). A line entry holds a line of a story scene: a line that a speaker says, or an option of a choice (D-997, D-1007). A name entry is `name.` and the name part of a content id, and the name plate of the dialogue box reads it too (PR-36). The settings entries are the labels and the values of the settings screen of PR-63 (D-226, D-872). The menu entries are the labels of the main list, its windows, and the dungeon map screen of PR-62 (D-211, D-991). A notice entry holds the line of the notice of the same id (D-989).",
  "strings": [
   {
    "id": "aptitude.blade",
@@ -438,6 +438,38 @@
    "text": "Closes the wounds of one ally."
   },
   {
+   "id": "line.fixture_hub_answer_no",
+   "text": "Go yourself."
+  },
+  {
+   "id": "line.fixture_hub_answer_yes",
+   "text": "I will go."
+  },
+  {
+   "id": "line.fixture_hub_barmaid_door",
+   "text": "Shut the door behind you. The cold gets in, and worse."
+  },
+  {
+   "id": "line.fixture_hub_barmaid_end",
+   "text": "Every week, another brother."
+  },
+  {
+   "id": "line.fixture_hub_rats_after",
+   "text": "Rats. Fat ones. Fed on something."
+  },
+  {
+   "id": "line.fixture_hub_rats_straw",
+   "text": "The straw heaves. Something under it has teeth."
+  },
+  {
+   "id": "line.fixture_hub_stranger_ask",
+   "text": "Go down again. Bring him back, or bring back what is left."
+  },
+  {
+   "id": "line.fixture_hub_stranger_brother",
+   "text": "You came up out of the pit. My brother went down it a week ago."
+  },
+  {
    "id": "menu.aptitude_hidden",
    "text": "—"
   },
@@ -816,6 +848,14 @@
   {
    "id": "name.fixture_hood",
    "text": "Hood"
+  },
+  {
+   "id": "name.fixture_hub_barmaid",
+   "text": "Barmaid"
+  },
+  {
+   "id": "name.fixture_hub_stranger",
+   "text": "Stranger"
   },
   {
    "id": "name.fixture_pick",
