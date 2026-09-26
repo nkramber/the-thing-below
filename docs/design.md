@@ -762,7 +762,7 @@ Section 7 gives the same order inside each phase, with a link to each phase file
 19. PR-12, PR-13, PR-99, PR-91, PR-100, PR-101, PR-102, PR-103, PR-104, PR-105, PR-106, PR-14, PR-65.
 20. PR-36.
 21. PR-15, PR-49. One night runs, then the `night-gate` job joins the PR gate.
-22. Owner: require the bot and `night-gate` checks on `main` after their first runs.
+22. PR-15 adds the `bots` check to the protection of `main` (D-1186). Owner: require the `night-gate` check after its first run.
 23. PR-16, PR-64, PR-35.
 24. PR-51, PR-52, PR-53.
 25. PR-17.

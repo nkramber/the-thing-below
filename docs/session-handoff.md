@@ -1,3 +1,36 @@
+## Session 343: 2026-09-26, Claude Code
+
+Author: Claude Code
+Session: author PR-15, round 4, the hand-over. Repository: the-thing-below. Branch: `feat/pr-15-bots`. PR: #87. Role: author. Base: `f383aa9`.
+
+### What this session did, and why
+
+- The repeat review gave `Ready for owner merge` for `f812808`, with P2-1 fixed. Every check of the review commit `5543ce6` passed, `review-gate` included, and Gitar passed. The Gitar pass of this PR held three CI-analysis claims about `review-gate`, one on each code head, and none had merit: the faults were RG 3, then RG 4 and RG 5, which the review records answer.
+- The owner confirmed the merge after the summary in four sections (D-942).
+- The owner chose to add `bots` to the required checks of `main` in this PR (D-1186). The session changed `docs/runbooks/branch-protection.json` and the live setting together, and the compare of the runbook shows that they match.
+- The owner chose that the next PR that changes Game commits `TheThingBelow.Game/scripts/Ui/DialogueChange.cs.uid` (D-1187). The file is in `/tmp/pr15-aside/` now.
+
+### The state of the build
+
+- The remote head before this commit is `5543ce6`, the review record of `f812808`. This commit changes documents alone, so the approval stays (D-943).
+
+### What is in flight
+
+- The Gitar pass of this commit (D-944), then the gated auto-merge (D-930).
+
+### Traps and gotchas
+
+- Godot writes `DialogueChange.cs.uid` again each time it opens the project, such as in the smoke session of `make verify`. Move it out of the tree before `make codex-review` until a Game PR commits it (D-1187).
+- The `bots` check now gates each PR, and a docs-only PR passes it through its gate job (D-858).
+
+### The questions that block progress
+
+None.
+
+### The next concrete action
+
+After the merge, write the transitional prompt of PR #87 alone.
+
 ## Session 342: 2026-09-26, Codex
 
 Author: Codex
@@ -297,35 +330,3 @@ None. OQ-250, the pause of the fight of a story scene, blocks no PR yet.
 ### The next concrete action
 
 When CI is green except `review-gate` and Gitar completes, run `make codex-review PR=86` in the background.
-
-## Session 333: 2026-09-26, Codex
-
-Author: Codex
-Session: reviewer PR #85 (PR-65). Repository: the-thing-below. Branch: `review/pr-85`, pushed to `feat/pr-65-shop`. Role: reviewer. Base: `8e81487`.
-
-### What this session did, and why
-
-- The review found no defect in the shop, gold, save, replay, or screen changes. The record gives `Ready for owner merge` for effective head `4edc5e5` (T-4, D-17).
-- The latest Gitar CI analysis named ten missing shop baselines. The head contains all ten, and the current screen-test passes. The record answers this claim and the earlier RG 3 claim (D-964).
-- The review inspected all 130 changed paths and the CI screen artifact. No visual fault appeared (D-784).
-
-### The state of the build
-
-- `make verify` passes with 3,905 tests. CI run `36266126601` passes all build, test, format, replay, screen, smoke, and STE checks at effective head `4edc5e5d3ee4f1fbe93bed28fb19e0b5ae98d42a`. The metadata commit is the remote head after push.
-
-### What is in flight
-
-- The PR waits for the owner merge (D-930).
-
-### Traps and gotchas
-
-- `review-gate` failed RG 3 before this record existed. Check the fresh result after the metadata push.
-- Gitar's missing-baseline claim was true before the latest head. The ten CI baselines and the screen-test now pass.
-
-### The questions that block progress
-
-None. OQ-121 is resolved by D-1149 to D-1155.
-
-### The next concrete action
-
-The owner reads the review record and confirms the merge.
